@@ -1207,7 +1207,7 @@ lộ trình bằng khoá `nguon_hang` (`<tệp>:<mã>` hoặc `<tệp>@<ngày m�
 phần thi công (dãy, ưu tiên). Vắng khoá → `/dieu-phoi:mo-dot` dừng và nói đúng việc
 khai, không dựng đợt tay.
 
-**Bốn lệnh:**
+**Năm lệnh:**
 
 | Lệnh | Làm gì | Ai gõ |
 |---|---|---|
@@ -1215,8 +1215,9 @@ khai, không dựng đợt tay.
 | `/dieu-phoi:xem` | Pha, khoá đang giữ, hàng chờ lượt, chờ người, tiến độ từng dãy kèm nhóm kế hoạch. Chỉ đọc; cùng hàm mô hình với **bảng đợt** `bang.html` | bất kỳ phiên nào |
 | `/dieu-phoi:dong-dot` | Trình **thẻ đóng đợt** (hàng phát sinh, lớp phủ ưu tiên), khi người duyệt thì hoàn tất merge dở, dừng bộ phát lịch, dọn | người, ở phiên giám sát |
 | `/dieu-phoi:tiep-tuc` | Nối lại đợt sau khi app khởi động lại, hết ngữ cảnh, Monitor hết hạn hay đổi tài khoản: nhận vai giám sát, chạy lại bộ phát lịch nếu chết, giăng lại Monitor và lịch 30′, chỉ mở chip cho dãy không còn **nhịp sống**. Dạng `--nhe` cho mỗi lần thức | người, ở bất kỳ phiên nào trong kho |
+| `/dieu-phoi:ban-giao [lý do]` | Bàn giao trước khi đổi tài khoản: ngừng cấp lượt mới, nhắc thợ commit WIP và báo xong, máy dựng hồ sơ bàn giao từ git rồi báo một câu để tài khoản kia gõ `/dieu-phoi:tiep-tuc`. Bộ phát lịch cũng tự vào bàn giao khi mức dùng chạm ngưỡng của đợt | người, hoặc giám sát khi nhận sự kiện chạm hạn mức |
 
-Cả bốn lệnh **không** khoá model-invocation (khác bảy thao tác cổng người), nhưng
+Cả năm lệnh **không** khoá model-invocation (khác bảy thao tác cổng người), nhưng
 `mo-dot` và `dong-dot` mang khối «chữ quyết của người»: chữ duyệt thẻ, chữ `build`,
 quyền tự merge chỉ nhận từ người gõ — máy chép nguyên văn vào hồ sơ, không tự
 sinh, không điền sẵn vào dòng mời.
@@ -1242,6 +1243,16 @@ chưa có nhịp sống) — phiên chỉ làm đúng hành động ấy. Lịch
 kho khi giám sát không còn nhịp sống. Thợ và giám sát ghi vào thư mục đợt bằng lệnh con của CLI (`xin`, `nha`,
 `yeu-cau`, `tra-loi`, `nhat-ky`) — không dùng công cụ ghi tệp, vì thư mục đợt nằm ngoài worktree của phiên.
 Kho khai thêm phép kiểm môi trường riêng (`.env`, Docker…) bằng khoá `kiem_moi_truong` của cấu hình đợt.
+
+**Đổi tài khoản giữa đợt: `/dieu-phoi:ban-giao` rồi `/dieu-phoi:tiep-tuc`.** Mức dùng hạn mức đọc từ mod của
+gói (mỗi khi một cửa sổ nhích một điểm), từ `get_usage` mỗi lần giám sát thức và mỗi lần lịch 30′ chạy, vào
+`han-muc.json` của đợt. Khoá `han_muc` của cấu hình đợt khai bốn ngưỡng (khuôn đề xuất `80 · 90 · 20 · 45`;
+chủ kho duyệt khẩu vị ở thẻ khởi tạo): chạm ngưỡng báo trước → một dòng báo; chạm ngưỡng bàn giao mà cửa sổ sắp
+đặt lại → máy tự chờ, không đổi tài khoản; còn xa → đợt tự vào **bàn giao tài khoản**. Thợ nhận lời nhắc ngay
+trong phiên, commit WIP và báo xong; máy dựng `ban-giao.json` từ git; chủ kho đăng nhập tài khoản kia, mở một
+phiên trong kho và gõ `/dieu-phoi:tiep-tuc` — lệnh đọc mức dùng của tài khoản mới, đóng bàn giao vào lịch sử và
+đưa đợt về đúng pha trước đó. Thợ chết vì hạn mức giữa chừng thì hook `StopFailure` commit WIP thay (trừ khi
+đang chấm) và đưa đợt vào bàn giao.
 
 ## 7. Tra cứu enforcement — hook và CI chặn gì
 
@@ -1415,7 +1426,7 @@ Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là k
 
 | Khoá | Giá trị | Làm gì | Gợi ý cho crm |
 |---|---|---|---|
-| `repin_retry` | `0` · `1` | Lệnh (suite hay eval máy) lệch kỳ vọng thì chạy lại ĐÚNG lệnh đó một lần, một mình, sau khi khối suite song song xong; lần hai đạt → dòng pin mang `chap_chon` gọi tên ca (rút từ nhật ký: bun, vitest/jest, playwright, node:test). Không chạy lại eval trong `model_evals`, lệnh lần đầu dài hơn 30 phút, hay khi trần còn lại ít hơn thời lượng lần đầu. | `1` |
+| `repin_retry` | `0` · `1` | Lệnh (suite hay eval máy) lệch kỳ vọng thì chạy lại ĐÚNG lệnh đó một lần, một mình, sau khi khối suite song song xong; lần hai đạt → dòng pin mang `chap_chon` gọi tên ca (rút từ nhật ký: bun, vitest/jest, playwright, node:test — kể cả khi dòng mang tiền tố một cụm của bộ chạy monorepo như turbo `<gói>:<tác vụ>: `). Không chạy lại eval trong `model_evals`, lệnh lần đầu dài hơn 30 phút, hay khi trần còn lại ít hơn thời lượng lần đầu. | `1` |
 | `model_evals` | danh sách `<slug>/<Eid>` | Eval gọi model thật: không bao giờ chạy lại (chạy lại là chọn lượt rút tốt hơn), đếm ở tổng kết «eval model thật: gọi n». Ở lượt chấm S4 (từ hồ sơ `lenh-dai-chay-rieng`): chạy RIÊNG — tuần tự, sau mọi lệnh máy khác (eval song song và chuỗi suite), để tiến trình chung nó dựng không chồng suite. Eval model chạy quá ~9 phút thì khai thêm `long_running: <phút>` trên chính eval (eval-executors.md). | crm liệt kê (`tro-ly-doc-kho/E15`, …) |
 | `repin_budget_min` | số phút > 0 | Trần mỗi lượt (cờ `--tran-phut` thắng khoá). Chạm trần → dừng lệnh bằng cách thu cả cây tiến trình rồi SIGTERM → SIGKILL sau 10 s, **thoát 4**, không ghi pin, `repin-do` `ly_do: "vuot-tran"` + `chua_chay`. Đặt DƯỚI trần của công cụ chạy làn — ngắt cứng (SIGKILL) thì không gì kịp ghi dấu. | `80` (công cụ ngắt ở 90) |
 | `repin_cost_cmd` | lệnh in một số tăng theo chi tiêu | Làn chạy nó trước lệnh đầu và lúc tổng kết; «chi phí đo» = chênh — gồm mọi phiên chạy cùng lúc. Lỗi → «chi phí đo: lỗi (…)», kết cục làn không đổi. | lệnh in tổng đã dùng của AI Gateway — kiểm khi bật |

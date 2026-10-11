@@ -1,0 +1,40 @@
+
+   • Packages in scope: @kho/goi
+   • Running test in 1 packages
+   • Remote caching disabled
+
+@kho/goi:test: cache bypass, force executing 80eea8a0e2a46099
+@kho/goi:test: $ bun test
+@kho/goi:test: bun test v1.3.12 (700fc117)
+@kho/goi:test: 
+@kho/goi:test: ca.test.ts:
+@kho/goi:test: 1 | import { describe, expect, test } from "bun:test";
+@kho/goi:test: 2 | describe("app-rieng", () => {
+@kho/goi:test: 3 |   test("chay canh apps/agent", () => { expect(503).toBe(404); });
+@kho/goi:test:                                                        ^
+@kho/goi:test: error: expect(received).toBe(expected)
+@kho/goi:test: 
+@kho/goi:test: Expected: 404
+@kho/goi:test: Received: 503
+@kho/goi:test: 
+@kho/goi:test:       at <anonymous> (<kho-tam>/packages/goi/ca.test.ts:3:52)
+@kho/goi:test: (fail) app-rieng > chay canh apps/agent [2.16ms]
+@kho/goi:test: (pass) app-rieng > van xanh [0.03ms]
+@kho/goi:test: (pass) app-rieng > doc: (fail) dong le
+@kho/goi:test: 
+@kho/goi:test:  2 pass
+@kho/goi:test:  1 fail
+@kho/goi:test:  3 expect() calls
+@kho/goi:test: Ran 3 tests across 1 file. [152.00ms]
+@kho/goi:test: error: script "test" exited with code 1
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    360ms 
+Failed:    @kho/goi#test
+
+
+• turbo 2.10.8
+ WARNING  No locally installed `turbo` found in your repository. Using globally installed version (2.10.8). Using a specified version in your repository will result in more predictable behavior.
+@kho/goi#test:  ERROR  command (<kho-tam>/packages/goi) <bun> run test exited (1)
+ ERROR  run failed: command  exited (1)

@@ -1,0 +1,85 @@
+# Eval cho hồ sơ ten-ca-qua-tien-to-turbo.
+#
+# Ca vĩnh viễn (test hồi quy của kho) ở MỘT tệp, tên ca = tên AC:
+#   tests/scripts/ten-ca-qua-tien-to.test.mjs — GG_CASES chọn ca (gọi tên mà không chạy → đỏ)
+# Suite `scripts` tự nhặt tệp qua glob. Bản ghi turbo + bun là đầu ra THẬT đã commit, sinh qua chính
+# chayLenh của làn (tests/scripts/fixtures/ten-ca-turbo/, NGUON.md ghi lệnh, đối chiếu lệnh suite crm,
+# phép thay đường dẫn); không ca nào gõ tay dòng có tiền tố — tiền tố rút bằng mã từ dòng ca đỏ.
+# Đường dẫn suy từ vị trí tệp ca. Mỗi ca chạy CÙNG một hàm kiểm ba lần: vật tại chỗ (xanh), bản sao
+# nguyên vẹn của TRỌN thư mục feature-loop/scripts dựng cùng thủ tục (xanh — đối chứng rằng bản sao
+# chạy được), bản sao bị phá (đỏ, thông điệp ghim). Bản phá phải KHÁC bản gốc trước khi tin màu đỏ.
+schema_version: 1
+feature_slug: ten-ca-qua-tien-to-turbo
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tctt_ac1
+    expected: >-
+      rutTenCa trên trọn bản ghi turbo-bun.log trả ĐÚNG mảng một phần tử
+      ["app-rieng > chay canh apps/agent"] (so bằng nhau, không so có-mặt). Đối chứng rút bằng mã
+      từ chính tệp: đúng một dòng có "(fail)" đứng ngay sau một cụm tiền tố, có dòng ca xanh, và
+      đúng một dòng bẫy (ca xanh có tên chứa «: (fail) ») — phòng tệp rỗng hay hỏng cho xanh oan.
+      Bản sao nguyên vẹn cho cùng kết quả. Chiều đỏ trên CÙNG bản ghi: bản sao với TIEN_TO_BO_CHAY
+      tắt (khác bản gốc, ghim) đỏ với thông điệp "tên ca qua tiền tố turbo rỗng".
+    paths:
+      - "feature-loop/scripts/lib/chay-lai.mjs"
+      - "tests/scripts/ten-ca-qua-tien-to.test.mjs"
+      - "tests/scripts/fixtures/ten-ca-turbo/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tctt_ac2
+    expected: >-
+      Ma trận viết trước 5 khuôn × 2 dạng = 10 ô, số ô đã kiểm phải bằng 10 (đếm, ghim "số ô
+      lệch"). Tiền tố rút bằng mã từ dòng ca đỏ của bản ghi (mọi thứ đứng trước "(fail)"), phải có
+      hình một cụm kết bằng dấu hai chấm và khoảng trắng. Mỗi ô trả đúng mảng một tên viết trước;
+      dạng có tiền tố bằng dạng trần. Bản sao nguyên vẹn cho cùng kết quả. Chiều đỏ: bản sao với
+      TIEN_TO_BO_CHAY tắt — năm ô trần VẪN đúng (mutant hẹp, không phá hành vi cũ) còn năm ô có
+      tiền tố đều ra câu dự phòng, ghim "ô có tiền tố rơi về câu dự phòng: 5/5".
+    paths:
+      - "feature-loop/scripts/lib/chay-lai.mjs"
+      - "tests/scripts/ten-ca-qua-tien-to.test.mjs"
+      - "tests/scripts/fixtures/ten-ca-turbo/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tctt_ac3
+    expected: >-
+      Bản ghi bỏ đúng dòng ca đỏ (lọc bằng mã) cho ["không rút được tên ca"]; đối chứng dương trên
+      cùng tập: thêm lại dòng đó thì ra đúng tên ca — phép lọc không rỗng nghĩa. Tập còn lại phải
+      chứa ≥1 dòng mỗi loại (ca xanh, dòng bẫy, tổng kết " fail", "error:", "ERROR"), đếm bằng mã.
+      Bản sao nguyên vẹn cho cùng kết quả. Chiều nhạy của chiều im — hai bản phá, mỗi bản khác bản
+      gốc: bóc tham tới dấu «: » cuối dòng, và khuôn bun nhận cả "(pass)"; cả hai đỏ với thông điệp
+      "dòng không phải ca đỏ thành tên ca". Vế hai: chạy tests/scripts/repin-lane-chay-lai.test.mjs
+      với GG_CASES=AC1-rut-ten-ca, mã thoát 0 và đầu ra có dòng "PASS: [AC1-rut-ten-ca]".
+    paths:
+      - "feature-loop/scripts/lib/chay-lai.mjs"
+      - "tests/scripts/ten-ca-qua-tien-to.test.mjs"
+      - "tests/scripts/repin-lane-chay-lai.test.mjs"
+      - "tests/scripts/fixtures/ten-ca-turbo/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tctt_ac4
+    expected: >-
+      Kho fixture code-sinh (mkKho của gia-lan-fixture.mjs), repin_retry 1, suite lần đầu in trọn
+      bản ghi rồi thoát 1, lần hai thoát 0. Chính repin-lane.mjs --write: làn xanh, suite chạy
+      đúng 2 lần, nhật ký lần đỏ mà dòng pin trỏ tới có chứa "(fail)" (câu dự phòng không được đến
+      từ nhật ký rỗng), chap_chon[0].ca bằng ["app-rieng > chay canh apps/agent"]. Bản sao nguyên
+      vẹn TRỌN thư mục feature-loop/scripts (chép cả thư mục, không danh sách tệp) chạy trên kho
+      mới cho cùng kết quả. Chiều đỏ: bản sao đó với lib/chay-lai.mjs đã tắt TIEN_TO_BO_CHAY (khác
+      bản gốc, ghim) đỏ với thông điệp "dòng pin không gọi được tên ca".
+    paths:
+      - "feature-loop/scripts/**"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "tests/scripts/ten-ca-qua-tien-to.test.mjs"
+      - "tests/scripts/fixtures/ten-ca-turbo/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
