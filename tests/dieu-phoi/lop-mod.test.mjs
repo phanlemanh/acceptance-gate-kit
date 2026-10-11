@@ -538,3 +538,48 @@ test('DP6-06-do bo-can-phan', async () => {
   assert.ok(loi.includes('bộ lọc Monitor không khớp: mo-dot.md'), loi.join(' | '));
   assert.ok(loi.includes('bộ lọc Monitor không khớp: tiep-tuc.md'), loi.join(' | '));
 });
+
+// ---------- DP6-07: không vỡ hàng trước, lõi không đổi, kho không đợt im (AC-7, E7) ----------
+const mergeBase = () => {
+  for (const nhanh of ['origin/main', 'main']) {
+    try {
+      return execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    } catch {}
+  }
+  assert.fail('không tìm được merge-base');
+};
+const TEN_CA = /\btest\(\s*['"`](DP[1-9]-[^'"`]+)['"`]/g;
+function tenCaKhai(doc) {
+  const ra = new Set();
+  for (const tep of doc.danhSach()) for (const m of doc.noiDung(tep).matchAll(TEN_CA)) ra.add(m[1]);
+  return ra;
+}
+
+test('DP6-07 ten-ca-cu', () => {
+  const mb = mergeBase();
+  const ds = (ref) => execFileSync('git', ['ls-tree', '-r', '--name-only', ref, 'tests/dieu-phoi'], { cwd: KIT, env: ENV, encoding: 'utf8' }).split('\n').filter((p) => p.endsWith('.test.mjs'));
+  const cu = tenCaKhai({ danhSach: () => ds(mb), noiDung: (p) => execFileSync('git', ['show', `${mb}:${p}`], { cwd: KIT, env: ENV, encoding: 'utf8', maxBuffer: 1 << 26 }) });
+  const moi = tenCaKhai({ danhSach: () => ds('HEAD').concat(['tests/dieu-phoi/lop-mod.test.mjs']), noiDung: (p) => fs.readFileSync(path.join(KIT, p), 'utf8') });
+  console.log(`  tên ca DP ở merge-base: ${cu.size} · ở cây hiện tại: ${moi.size}`);
+  assert.ok(cu.size > 0, 'rút 0 tên ca ở merge-base — phép rút hỏng');
+  assert.deepEqual([...cu].filter((t) => !moi.has(t)), []);
+});
+
+test('DP6-07 loi-nguyen', () => {
+  const r = spawnSync('git', ['diff', '--quiet', mergeBase(), '--', 'tests/dieu-phoi/loi/', 'tests/dieu-phoi/dong-goi.test.mjs'], { cwd: KIT, env: ENV });
+  assert.equal(r.status, 0, 'tests/dieu-phoi/loi/ và dong-goi.test.mjs phải không đổi so với merge-base');
+});
+
+test('DP6-07 khong-dot', () => {
+  const kho = tam('dp6-trong-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const truoc = bamCay(kho);
+  const chan = chayHookChanS4(LENH_S4, { cwd: kho });
+  const r = spawnSync('sh', ['-c', lenhHook(GOI, 'Notification')], { cwd: kho, env: ENV, input: JSON.stringify({ cwd: kho, hook_event_name: 'Notification', notification_type: 'permission_prompt', message: 'x' }), encoding: 'utf8' });
+  assert.deepEqual([chan.ma, chan.err, r.status, r.stderr], [0, '', 0, '']);
+  assert.equal(bamCay(kho), truoc, 'kho không đợt: hook không tạo gì');
+  const { dot, w1, w2 } = khoLienKet();
+  giuKhoa(dot, 'P2', w2);
+  assert.equal(chayHookChanS4(LENH_S4, { cwd: w1 }).ma, 2, 'đối chứng: kho có đợt và khoá của dãy khác thì chặn');
+});
