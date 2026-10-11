@@ -46,13 +46,17 @@ bản ghi tác tử con), **367 lời gọi Bash duy nhất** (theo `tool_use_id
     ăn một giá trị ở từ kế; bộ phân loại coi `UV_PYTHON` là tên lệnh.
   - Cùng lớp, suy từ mã (không có trong bản ghi): `nice -n 10 node …`, `time -p node …` — `nice`, `time` có trong
     bảng vỏ bọc nhưng cờ của chúng thì không.
-- **Chặn nhầm — lời gọi không chạy script mà bị coi là S4 (5 lời gọi, 3 hình):**
-  - Thân heredoc đọc như lệnh (2): `cat > tests/scripts/repin-lane.test.mjs <<'EOF' …` và một khối
-    `python3 … <<'PY' …` — dòng trong thân nhắc `node …/repin-lane.mjs` nên bị coi là lần chạy.
-  - `node --check feature-loop/scripts/repin-lane.mjs` (1) — kiểm cú pháp, không chạy script.
+- **Chặn nhầm — lời gọi không chạy script nào mà bị coi là S4 (6 lời gọi, 3 hình):**
+  - Thân heredoc đọc như lệnh (3): `cat > tests/scripts/repin-lane.test.mjs <<'EOF' …`, một khối
+    `python3 - … <<'PY' …`, và một khối `python3 - <<'EOF' …` kèm `node --check …/repin-lane.mjs` — dòng trong
+    thân nhắc `node …/repin-lane.mjs` nên bị coi là lần chạy.
+  - `node --check feature-loop/scripts/repin-lane.mjs` đứng riêng (1) — kiểm cú pháp, không chạy script.
   - `node …/s4-args.mjs --help` (2, crm 09/09 và 13/09).
-- Định danh (tệp bản ghi, `tool_use_id`) của tám lời gọi trên đã rút được; ca kiểm ở S3 rút lại đúng chúng từ bản
-  ghi bằng một script trong `tests/dieu-phoi/`, không gõ tay (§4 C1).
+- Mô phỏng ba luật mới của §4 C1 trên mọi lời gọi dương: đúng sáu lời gọi trên (cộng một lệnh `--help` của chính
+  phiên đo hôm nay) đổi sang null; KHÔNG lời gọi nào có lần chạy thật đổi sang null. Ba lời gọi khác có
+  `node --check …` mà vẫn dương là đúng — cùng lệnh ấy còn chạy thật `repin-lane.mjs … --write`.
+- Định danh (tệp bản ghi, `tool_use_id`) của chín lời gọi trên (3 bỏ lọt, 6 chặn nhầm) đã rút được; ca kiểm ở S3
+  rút lại đúng chúng từ bản ghi bằng một script trong `tests/dieu-phoi/`, không gõ tay (§4 C1).
 
 Kết luận: bộ phân loại theo cấu trúc (DP1 AC-10) đúng hướng nhưng vừa mở (vỏ bọc mang cờ) vừa đóng (thân heredoc,
 cờ chỉ đọc). Sửa ở MỘT hàm; hook chặn S4 dùng hàm đó nên tự hưởng.
@@ -122,7 +126,8 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   … --`, `node --test` không phải S4.
 - **Ca kiểm.** Ma trận viết TRƯỚC (số assert = số ô): 41 dạng × 3 script, hai chuỗi vỏ bọc lồng
   (`nohup nice -n 5 timeout 900 node …`, `env -u X caffeinate -i node …`), ma trận heredoc (có nháy, không nháy có
-  `$(node …repin-lane.mjs)`, `<<-`, thiếu dòng đóng), và tám lời gọi thật ở §2.1. Tám lời gọi thật vào tệp ca
+  `$(node …repin-lane.mjs)`, `<<-`, thiếu dòng đóng), ô «kiểm cú pháp rồi chạy thật» (`node --check <script> &&
+  node <script> --write` — vẫn dương), và chín lời gọi thật ở §2.1. Chín lời gọi thật vào tệp ca
   `tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl`, do script `tests/dieu-phoi/rut-lenh-that.mjs` rút từ bản
   ghi theo (tệp, `tool_use_id`) và ẩn danh đường người dùng; mỗi dòng mang định danh nguồn và nhãn kỳ vọng. Ca
   kiểm nguồn chạy lại script rút trên bản ghi của máy và so bằng nhau với tệp ca; máy không có bản ghi (CI) thì
@@ -162,7 +167,7 @@ ký tự đặc biệt), và, khi cwd không thuộc dãy nào, nói rằng ch�
 
 ## 6. Giới hạn đã khai
 
-- Ca kiểm nguồn của tám lời gọi thật chỉ chạy được trên máy có bản ghi hội thoại; CI in «bỏ qua». Ngưỡng: không
+- Ca kiểm nguồn của chín lời gọi thật chỉ chạy được trên máy có bản ghi hội thoại; CI in «bỏ qua». Ngưỡng: không
   — các ca phân loại vẫn chạy trên tệp ca ở mọi nơi.
 - Hộp quyền của tác tử Workflow có tới hook chờ người không — chưa đo (hạt giống). Ngưỡng mở lại: đợt thử crm có
   ≥ 1 lần một lượt S4 đứng vì hộp quyền mà không có tệp chờ người.

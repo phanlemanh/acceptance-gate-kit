@@ -2,14 +2,14 @@
   "feature_plain": "Phiên thợ không còn bị chặn oan khi chỉ đọc hay ghi tệp, không còn lọt khoá S4 khi lệnh được bọc; một thợ đứng chờ người là giám sát thức dậy ngay thay vì để nằm hàng giờ. Phần hiện trạng thái đợt trong app tách sang việc sau.",
   "will_do": [
     {"id": "AC-1", "p": "Sẽ nhận ra mọi lần chạy S4 hay đường nền kể cả khi lệnh được bọc bằng timeout, env, nice, time, nohup, command, exec hay caffeinate kèm cờ — đo trên 128 ca viết sẵn, gồm ba lệnh thật từng lọt."},
-    {"id": "AC-3", "p": "Sẽ giữ tám lệnh thật đo được hôm 11/10 làm ca kiểm, rút thẳng từ nhật ký hội thoại bằng script (không gõ tay, đã ẩn danh), và chứng rằng bản cũ sai đúng tám ca đó."},
+    {"id": "AC-3", "p": "Sẽ giữ chín lệnh thật đo được hôm 11/10 làm ca kiểm, rút thẳng từ nhật ký hội thoại bằng script (không gõ tay, đã ẩn danh), và chứng rằng bản cũ sai đúng chín ca đó."},
     {"id": "AC-4", "p": "Sẽ cho thợ bị chặn thấy đúng một lệnh xin lượt chạy được ngay, thay cho lời dặn tự viết tay một tệp."},
     {"id": "AC-5", "p": "Sẽ luôn ghi nhận hộp xin quyền đang chờ người ở phiên thợ, kể cả khi thợ đó đang chờ khoá hay chờ trả lời."},
     {"id": "AC-6", "p": "Sẽ làm giám sát thức dậy ngay khi một thợ đứng chờ người — thử thật từ hộp xin quyền tới đúng bộ lọc giám sát đang nghe, cả trên đợt nâng từ bản cũ."},
     {"id": "AC-7", "p": "Sẽ giữ nguyên mọi ca kiểm của các hàng trước và giữ im lặng ở kho không có đợt."}
   ],
   "wont_do": [
-    {"id": "AC-2", "p": "Sẽ KHÔNG chặn lệnh chỉ đọc (kiểm cú pháp, --help) hay lệnh ghi tệp mà thân văn bản nhắc tên script — đo trên 33 ca, gồm năm lệnh thật từng bị chặn oan; vẫn chặn khi thân văn bản thật sự chạy script."},
+    {"id": "AC-2", "p": "Sẽ KHÔNG chặn lệnh chỉ đọc (kiểm cú pháp, --help) hay lệnh ghi tệp mà thân văn bản nhắc tên script — đo trên 37 ca, gồm sáu lệnh thật từng bị chặn oan; vẫn chặn khi thân văn bản thật sự chạy script."},
     {"id": "AC-8", "p": "Sẽ KHÔNG để tài liệu hứa quá: README ghi hook làm gì và giới hạn nào còn mở, thiết kế chung sửa cho khớp, việc tách ra có hạt giống trỏ về hồ sơ này."},
     {"id": "OOS-1", "p": "Không làm phần hiện trạng thái đợt trong app (dải trên ô nhập, khung chi tiết, lệnh xem không qua model) và lần đo sống — đã chuyển sang hạt giống, chờ khung mod của DP4."},
     {"id": "OOS-2", "p": "Không làm mod đọc mức dùng, khung mod, răng «không bao giờ cho phép» — việc của DP4."},

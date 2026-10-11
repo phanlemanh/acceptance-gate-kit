@@ -33,13 +33,14 @@ evals:
     paths: [dieu-phoi/scripts/phan-loai-s4.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, feature-loop/scripts/repin-lane.mjs, feature-loop/scripts/s4-args.mjs, feature-loop/scripts/duong-nen.mjs, tests/dieu-phoi/lop-mod.test.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl]
     expected: >
       exit 0; "ok" cho "DP6-02 chi-doc-heredoc": ma trận viết sẵn = (node --check, node -c, --help) × 3 script +
-      5 hình heredoc × 3 script + 5 lời gọi thật chặn nhầm (đọc từ tệp ca, lọc nhãn null) + 4 lời gọi âm đã có =
-      33 ô; số assert in ra = 33; ô «thân không nháy chứa $(node <script> --root .)» trả đúng tài nguyên của
-      script, mọi ô khác trả null. "ok" cho "DP6-02 hook-im": hook thật trên đợt có khoá s4 của P2, cwd worktree P1
+      5 hình heredoc × 3 script + 6 lời gọi thật chặn nhầm (đọc từ tệp ca, lọc nhãn null) + 4 lời gọi âm đã có +
+      «node --check <script> && node <script> --write» × 3 script = 37 ô; số assert in ra = 37; ô «thân không nháy
+      chứa $(node <script> --root .)» và ô «kiểm cú pháp rồi chạy thật» trả đúng tài nguyên của script, mọi ô khác
+      trả null. "ok" cho "DP6-02 hook-im": hook thật trên đợt có khoá s4 của P2, cwd worktree P1
       → thoát 0, stderr rỗng cho mọi ô null; đối chứng cùng đợt: `node <script>` trần → thoát 2. "ok" cho "DP6-02
       tien-de-help": mỗi script thật trong ba (đường suy từ vị trí test) chạy với `--root <kho thử> --help` → thoát
       khác 0, stderr chứa "cờ không nhận diện được", băm cây kho thử trước == sau. Ba đột biến, mỗi cái trên bản sao
-      sau khi bản lành xanh, tập ô đỏ so BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 33): "ok" cho
+      sau khi bản lành xanh, tập ô đỏ so BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho
       "DP6-02-do bo-check" (ô --check/-c của node); "ok" cho "DP6-02-do bo-heredoc" (ô heredoc kỳ vọng null + lời
       gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -49,14 +50,14 @@ evals:
     cmd: config:executors.test.dieu_phoi_dp6
     paths: [tests/dieu-phoi/rut-lenh-that.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl, dieu-phoi/scripts/phan-loai-s4.mjs, tests/dieu-phoi/lop-mod.test.mjs]
     expected: >
-      exit 0; "ok" cho "DP6-03 tep-ca": tệp ca có đúng 8 dòng; mỗi dòng có khoá tep, tool_use_id, nhan, lenh; tập
-      tool_use_id có 8 phần tử khác nhau; số dòng nhan khác null == 3 và nhan null == 5; không dòng nào chứa tên
+      exit 0; "ok" cho "DP6-03 tep-ca": tệp ca có đúng 9 dòng; mỗi dòng có khoá tep, tool_use_id, nhan, lenh; tập
+      tool_use_id có 9 phần tử khác nhau; số dòng nhan khác null == 3 và nhan null == 6; không dòng nào chứa tên
       người dùng của máy chạy ca (os.userInfo().username) hay chuỗi "/private/tmp/claude-". "ok" cho "DP6-03
       nguon": máy có thư mục bản ghi → chạy rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm)
       và BẰNG tệp ca đã commit; không có thư mục bản ghi → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại" và
       ca vẫn "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": phanLoaiLenh của merge-base (git archive trọn
-      dieu-phoi/ vào thư mục tạm) cho kết quả KHÁC nhãn ở cả 8 dòng (đếm == 8), bản sau thay đổi cho BẰNG nhãn ở cả
-      8 dòng (đếm == 8).
+      dieu-phoi/ vào thư mục tạm) cho kết quả KHÁC nhãn ở cả 9 dòng (đếm == 9), bản sau thay đổi cho BẰNG nhãn ở cả
+      9 dòng (đếm == 9).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -96,9 +97,10 @@ evals:
       mo-dot.md và tiep-tuc.md (regex trên dòng `tail … | grep --line-buffered '…'`, số bộ lọc rút được == 2,
       rỗng → đỏ) chạy bằng `grep` thật trên dòng đó → khớp cả hai. viecCho trên cùng thư mục đợt → đúng 1 mục
       loai "cho-nguoi" id "P1". "ok" cho "DP6-06 nang-cap": đợt dựng bằng `mo` và chạy một nhịp bằng bản
-      merge-base (git archive trọn dieu-phoi/ vào thư mục tạm), có sẵn cho-nguoi/P2.json; một nhịp bản mới →
-      thoát 0, nhip_cuoi lớn hơn trước, 0 dòng cho-nguoi; rồi ghi cho-nguoi/P3.json bằng hook thật + một nhịp →
-      đúng 1 dòng cho-nguoi mang can_phan, phien "P3" (đối chứng dương trên cùng đợt). "ok" cho "DP6-06-do
+      merge-base (git archive trọn dieu-phoi/ vào thư mục tạm), cho-nguoi/P2.json do hook của merge-base ghi và nhịp
+      merge-base đã báo (n0 dòng cho-nguoi); một nhịp bản mới → thoát 0, nhip_cuoi lớn hơn trước, số dòng cho-nguoi
+      vẫn n0; rồi xoá tệp, hook thật bản mới ghi lại + một nhịp → n0 + 1 dòng, dòng mới mang can_phan, phien "P2"
+      (đối chứng dương trên cùng đợt). "ok" cho "DP6-06-do
       bo-can-phan": bản sao phat-lich.mjs bỏ can_phan khỏi sự kiện (kiểm bước tiêm áp) → hàm kiểm nêu "bộ lọc
       Monitor không khớp" kèm tên tệp lệnh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -110,8 +112,11 @@ evals:
     expected: >
       exit 0; dòng gộp TAP có "# fail 0"; "ok" cho "DP6-07 ten-ca-cu": tập tên ca DP1-…, DP2-…, DP3-…, DP4-…, DP7-…
       có trên merge-base (rút bằng `git show <merge-base>:<tệp>` cho mọi tệp test dưới tests/dieu-phoi/, in số) ⊆
-      tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff --quiet <merge-base> --
-      tests/dieu-phoi/loi/` thoát 0; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
+      tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff <merge-base> --
+      tests/dieu-phoi/loi/` chỉ chạm tệp loi/hook-chan-s4.test.mjs, và tập dòng bị xoá BẰNG tập dòng của tệp ấy ở
+      merge-base chứa "Ghi đơn xin/" (rút bằng code từ git show merge-base, số in ra, kiểm > 0), số dòng thêm bằng
+      số dòng xoá, mỗi dòng thêm ghim một trong hai câu mới của lời chặn (" xin s4" hoặc "chỉ phiên thợ của một
+      dãy"); "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
       người thật với đầu vào S4 / permission_prompt → thoát 0, stderr rỗng, băm cây trước == sau (đối chứng: kho có
       đợt và khoá của dãy khác → hook chặn S4 thoát 2).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
