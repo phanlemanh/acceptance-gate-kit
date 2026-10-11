@@ -1,12 +1,18 @@
-# Review findings: trang-ho-so-mot-viec (round 2)
+# Review Findings: trang-ho-so-mot-viec (round 3)
 
 ## Trong hợp đồng
 
-Không có finding nào trong hợp đồng ở lượt này.
+Không có.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
+
+- **Hình dạng 5 — tuyên quét «mọi khoá bản 1» nhưng danh sách cấp viết tay bỏ sót cấp goc và lo_trinh**
+  Người dùng thấy gì: Khi trang lộ trình thiếu một số trường, phần đọc dữ liệu hiện đã trả đúng kết quả như trước ở các nhóm được kiểm. Hai nhóm là nguồn gốc của việc và tên tệp lộ trình chưa được kiểm, nên nếu sau này có ai sửa nhầm hai nhóm đó thì bài kiểm vẫn không báo. Người dùng hôm nay chưa gặp sai lệch nào, nên có thể ghi là hạn chế đã biết và đi tiếp.
+  file: `tests/scripts/lo-trinh.test.mjs`
+  severity: low
+  Đề xuất: known-limits
 
 - **Redrawing the sample pages puts two signed records into this PR's diff, so their evidence goes stale and the pre-merge gate blocks the merge (r1)**
   Người dùng thấy gì: Hai hồ sơ đã ký trước đó bị kéo vào lần gộp này và bị đánh dấu là chứng cứ đã cũ, nên cổng kiểm trước khi gộp đang chặn. Người quyết cần chọn: ghim lại hai hồ sơ ngay trong lần này, hoặc để đến đợt phát hành sau và chấp nhận chặn tạm.
@@ -14,13 +20,13 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: high
   Đề xuất: known-limits
 
-- **Missing fields in the roadmap data reader now come back as null instead of an empty value of the right type, because some cell names match existing field names (r1)**
+- **Missing fields in the roadmap data reader now come back as null instead of an empty value of the right type, because some cell names match existing field names (r1 · tệp đã đổi)**
   Người dùng thấy gì: Khi dữ liệu lộ trình thiếu vài trường như số đã giao hay mã việc, kho đọc dữ liệu sẽ nhận về giá trị rỗng không có kiểu thay vì số 0 hoặc chuỗi rỗng. Kho nào cộng số hoặc xử lý chữ từ các trường đó có thể bị lỗi.
   file: `scripts/lo-trinh.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **A summary block missing its moi_nguoi or chu_kho part reads as an empty string, not an object of nulls (r1)**
+- **A summary block missing its moi_nguoi or chu_kho part reads as an empty string, not an object of nulls (r1 · tệp đã đổi)**
   Người dùng thấy gì: Nếu dải tóm tắt của một việc thiếu hẳn phần cho người mới hoặc phần cho chủ kho, người đọc dữ liệu nhận về một chuỗi chữ thay vì bảng ô trống. Trang do kit vẽ ra luôn đủ hai phần nên chỉ gặp khi dữ liệu bị cắt tay.
   file: `scripts/lo-trinh.mjs`
   severity: medium
