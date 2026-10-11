@@ -644,6 +644,9 @@ executors:
     egm_ac9: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9
     egm_ac10: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10
     egm_ac12: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12
+    egm_ac13: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 13
+    egm_ac14: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 14
+    egm_ac15: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 15
     # Hồ sơ eval-thay-boi-co-chung (06/10): mỗi khoá chạy MỘT nhóm ca của tệp ca vĩnh viễn
     # tests/scripts/eval-thay-boi.test.mjs (suite `scripts` cũng tự chạy nó qua glob). ETB_CASES
     # khớp 0 ca thì tệp thoát khác 0 (bài học P86).
