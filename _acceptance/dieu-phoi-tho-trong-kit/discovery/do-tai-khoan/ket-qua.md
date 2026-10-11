@@ -21,9 +21,16 @@ trong `còn` · `mất` · `khác` · `chưa-đo`.
 ## Câu 4 — không thuộc lần đổi
 
 Phiên đang rảnh nhận tin liên phiên thì có bắt đầu lượt mới không? Hồ sơ DP3 khai đây là giới hạn (ngưỡng: đợt
-thử crm ~26/10). Quan sát 11/10 02:19Z trên M5, cùng tài khoản: phiên «Thợ DP4» gửi tin tới phiên «Điều phối
-M5 đóng gói» lúc phiên đó đang rảnh (`isRunning: false`), công cụ trả «Message delivered … its turn has started
-on it (delivery: delivered)». Một quan sát, chưa phải phép đo lặp.
+thử crm ~26/10). Quan sát 11/10 trên M5, app desktop, CÙNG tài khoản, công cụ `send_message` của app (Điều phối M5
+gom, thợ DP4 thêm một lần):
+
+| Trạng thái phiên nhận | Kết quả công cụ | Phiên nhận làm gì | Lần quan sát |
+|---|---|---|---|
+| rảnh | «delivered; its turn has started on it» | bắt đầu lượt mới, trả lời tin | 4: «Đồng bộ OneHub từ GitHub» (hai tin), «Điều tra hạ tầng S4» (một tin), «Điều phối M5 đóng gói» (tin của thợ DP4, 02:19Z) |
+| đang giữa lượt | «queued … runs it when that clears» | xử lý sau khi lượt đang chạy kết thúc, không chen giữa lượt | 2: phiên DP3, phiên DP7 |
+
+Kết luận đo được: phiên rảnh → bắt đầu lượt ngay; phiên bận → xếp hàng tới hết lượt. Chưa đo: phiên rảnh dưới tài
+khoản KHÁC (tin liên phiên chỉ trong cùng tài khoản — spec workflow §10), và phiên của app vừa khởi động lại.
 
 ## Số nền trước khi đổi (đọc 11/10 ~02:23Z qua `get_usage`)
 
