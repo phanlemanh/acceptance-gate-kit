@@ -3,10 +3,10 @@ schema_version: 1
 slug: xuat-du-lieu-lo-trinh
 feature: Trang lộ trình mang sẵn một khối dữ liệu máy đọc vẽ cùng lượt — bản chiếu ngoài kho hiện đúng trạng thái từng hàng chỉ bằng cách đọc khối, không tự tính trạng thái
 owner: phanlemanh@gmail.com
-stage: scheduled
-verdict:
-decided_by:
-decided_at:
+stage: held
+verdict: release
+decided_by: Manh Phan
+decided_at: 2026-10-11T01:03:24Z   # chủ kho gõ «release» một chạm trong phiên X1, máy ghi hộ
 ---
 
 ## Ngưỡng đã khai tại Cổng Đáng (CHÉP NGUYÊN VĂN — cấm sửa sau khi thấy số)
@@ -38,7 +38,7 @@ không có vế nào cần mắt người. Câu ràng buộc dành cho người 
 
 | Người | Điểm/nhận xét kín | Sẽ gửi cho khách nào, khi nào |
 |---|---|---|
-| Phan Le Manh | không chấm tay — mọi vế ngưỡng kiểm được bằng máy (nếp owner đặt 03/10) | *(người ký điền)* |
+| Phan Le Manh | không chấm tay — mọi vế ngưỡng kiểm được bằng máy (nếp owner đặt 03/10) | không trả lời riêng — chủ kho gõ một chữ «release»; sự kiện: X1 đã ở crm từ 10/10 qua 2.26.0 |
 
 ### Kiểm bằng máy (mọi vế đều có căn cứ trong hồ sơ)
 
@@ -80,6 +80,8 @@ từ khám phá», «Hồ sơ hỏng» hoặc «Không suy được», nhãn tab
 
 ## Thảo luận sau khi đã chấm
 
+Không có thảo luận — chủ kho đọc gói một phút và quyết bằng một chữ.
+
 ## Số đo thật đặt cạnh ngưỡng
 
 | Thước | Ngưỡng đã khai | Số đo được (đọc sớm 11/10) | SỐNG/CHẾT |
@@ -96,7 +98,7 @@ từ khám phá», «Hồ sơ hỏng» hoặc «Không suy được», nhãn tab
 > xuất. **Giết ở đây là THÀNH CÔNG của quy trình** — câu trả lời mua bằng giá một vòng dựng, không
 > phải thất bại của người làm.
 
-- **verdict = …** *(người ký điền)*
+- **verdict = release** (Manh Phan, 11/10: «release» — một chạm, trên gói đọc sớm).
 - Khuyến nghị của máy: **release**. Căn cứ: hai vế SỐNG đều đạt trên crm thật; ba điều kiện CHẾT đều
   không chạm. Lần đọc chính thức 30/10 chỉ cần chạy lại `uat/chay.sh` một lần, và chỉ trình lại người
   ký nếu đổi màu.
