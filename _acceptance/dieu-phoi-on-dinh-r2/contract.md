@@ -5,7 +5,7 @@ slug: dieu-phoi-on-dinh-r2
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: approved
+status: implemented
 design_doc: _acceptance/dieu-phoi-on-dinh-r2/design.md
 approved_by:
 approved_at:
