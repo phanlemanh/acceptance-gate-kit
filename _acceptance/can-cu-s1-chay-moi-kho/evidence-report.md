@@ -97,7 +97,7 @@ human_signoff:
   baseline: n-a
   verifier: tests/scripts/can-cu-s1.ca.mjs
   verified_at: 2026-10-12T10:45:39Z
-  screenshot: evidence/E9-1-rong.png   # khung đầu; khung hai evidence/E9-2-hep.png
+  screenshot: evidence/E9-1-rong.png
   observed: |
     Khổ 1280×800 (E9-1-rong.png): thẻ Cổng 1 «Kho thử h»; Hỏi-1 và Hỏi-2 đọc theo thứ tự quyết gì · vì sao · sai thì tốn · (khó-đảo) · máy khuyên · lối khác; khối «Máy đã quyết ở bước thiết kế» có 5 dòng m1–m5, quyết gì/vì sao/sai thì tốn đứng trước căn cứ hoặc lối khác chết vì, m3 và m4 mở bằng «KHÔNG làm:», m5 thay mục giá bằng «⚠ chưa khai giá nếu sai»; nhãn khó-đảo xuất hiện đúng một lần, ở Hỏi-2.
     Khổ 390×844 (E9-2-hep.png, toàn trang 390×2382): cùng nội dung xếp một cột, chữ xuống dòng gọn, không cắt hay tràn ngang, nút «Sửa lại» và «Duyệt, cho code» vẫn thấy; scrollWidth = 390 (innerWidth = 390) nên 390 <= 390 đạt. Thẻ dựng từ thư mục tạm (card.html 7614 byte), phục vụ qua http.server cổng 8791 rồi tắt.
