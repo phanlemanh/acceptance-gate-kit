@@ -315,15 +315,25 @@ function cheDoMay(a, sha, mf, out) {
     out(`${TIEN_TO} TỔNG KẾT: ĐỎ — máy không có bản cài nào của ${mf.cho}`);
     return 1;
   }
-  const cay = {};
+  // Gom theo thư mục cài: nhiều bản ghi (mỗi cây phụ một bản ghi) dùng chung một bộ đệm — băm một lần,
+  // in một dòng kèm số bản ghi; dòng ĐỎ kể nơi cần cài lại.
+  const cay = {}, nhom = new Map(), lechSo = new Map();
   let dat = 0, do_ = 0, khacSo = 0;
   for (const b of banGhi) {
     const ten = String(b.id).split('@')[0];
-    const nhan = `${b.id} ${b.scope || '-'} ${b.projectPath || '-'} ${b.version}`;
     const g = mf.goi.find(x => x.ten === ten);
-    if (!g) { out(`${TIEN_TO} VÀNG may: ${nhan}: gói không có trong chợ tại ${a.ref}`); khacSo++; continue; }
-    if (b.version !== g.so) { out(`${TIEN_TO} VÀNG may: ${nhan}: khác số ${b.version} (ref ${g.so}) — chưa nâng`); khacSo++; continue; }
-    if (!b.installPath || !fs.existsSync(b.installPath)) { out(`${TIEN_TO} ĐỎ may: ${nhan}: bản cài không có trên đĩa (${b.installPath})`); do_++; continue; }
+    if (!g || b.version !== g.so) {
+      const k = `${b.id}|${b.version}`;
+      lechSo.set(k, { id: b.id, so: b.version, ref: g ? g.so : null, n: (lechSo.get(k)?.n || 0) + 1 });
+      khacSo++; continue;
+    }
+    const k = b.installPath || '(trống)';
+    if (!nhom.has(k)) nhom.set(k, { b, ten, g, noi: [] });
+    nhom.get(k).noi.push(`${b.scope || '-'} ${b.projectPath || '-'}`);
+  }
+  for (const [ip, { b, ten, g, noi }] of nhom) {
+    const nhan = `${b.id} ${b.version} (${ip}) · ${noi.length} bản ghi`;
+    if (!b.installPath || !fs.existsSync(b.installPath)) { out(`${TIEN_TO} ĐỎ may: ${nhan}: bản cài không có trên đĩa — ${moTa(noi, 3)}`); do_ += noi.length; continue; }
     cay[ten] ||= cayCuaRef(a.root, sha, g.nguon);
     const s = soBanCai(b.installPath, cay[ten]);
     const thieuDir = thuMucCapMotThieu(b.installPath, cay[ten]).map(d => `${ten}/${d}`);
@@ -333,8 +343,11 @@ function cheDoMay(a, sha, mf, out) {
       const ve = [];
       if (thieuDir.length) ve.push(`THIẾU thư mục gói: ${thieuDir.join(', ')}`);
       if (sai.length) ve.push(`khác tag: ${sai.length} tệp (${moTa(sai, 3)})`);
-      out(`${TIEN_TO} ĐỎ may: ${nhan}: ${ve.join(' · ')}${thua}`); do_++;
-    } else { out(`${TIEN_TO} ĐẠT may: ${nhan}: khớp ${a.ref}${thua}`); dat++; }
+      out(`${TIEN_TO} ĐỎ may: ${nhan}: ${ve.join(' · ')}${thua} — cài lại ở: ${moTa(noi, 5)}`); do_ += noi.length;
+    } else { out(`${TIEN_TO} ĐẠT may: ${nhan}: khớp ${a.ref}${thua}`); dat += noi.length; }
+  }
+  for (const v of lechSo.values()) {
+    out(`${TIEN_TO} VÀNG may: ${v.id} khác số ${v.so}${v.ref ? ` (ref ${v.ref})` : ' (gói không có trong chợ tại ref)'} · ${v.n} bản ghi — chưa nâng`);
   }
   const duoi = khacSo ? ` · ${khacSo} bản ghi khác số (VÀNG)` : '';
   out(do_
@@ -346,6 +359,7 @@ function cheDoMay(a, sha, mf, out) {
 export async function chay(argv, { out = (s) => process.stdout.write(s + '\n') } = {}) {
   try {
     const a = docArgs(argv);
+    claude(['--version'], process.env); // dò lệnh trước mọi việc khác — thiếu thì nói đúng nguyên nhân
     const sha = giaiRef(a.root, a.ref);
     const mf = docManifest(a.root, sha);
     return a.may ? cheDoMay(a, sha, mf, out) : cheDoGiaLap(a, sha, mf, out);
