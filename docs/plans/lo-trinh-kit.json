@@ -57,15 +57,15 @@
       ]
     },
     {
-      "ten": "crm: mọi phòng ban dùng thật hằng ngày (hạn cứng) — kit KHÔNG đổi engine dưới chân crm trước mốc này",
+      "ten": "crm: công bố OKR quý 4 (chủ kho 13/10 đổi tên — người dùng đã dùng thử từ trước, bỏ ràng buộc «không đổi engine trước mốc này»)",
       "ngay": "2026-10-14",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
     },
     {
-      "ten": "crm cài THẲNG kit 2.28.0 — Mac Studio cài, khai production.nhanh: onehub, chép docDuLieu từ tag; sau đó gộp LT1b (#371) rồi LT2 (#374)",
-      "ngay": "2026-10-15",
+      "ten": "crm nhận kit 2.28.0 HÔM NAY (chủ kho duyệt tăng tốc 13/10, Mac Studio giữ): lộ trình nhận → PR nhận kit theo CHANGELOG → #373 chuyển gói dieu-phoi; sau #373 MacBook Pro gộp LT1b (#371) rồi LT2 (#374)",
+      "ngay": "2026-10-13",
       "loai": "ngoai",
       "ai": "crm",
       "hang": [
@@ -73,8 +73,8 @@
       ]
     },
     {
-      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản 2.28.0 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
-      "ngay": "2026-10-26",
+      "ten": "crm: mở đợt r2 từ gói dieu-phoi bản 2.28.0 (đợt thử thứ nhất của gói — Mac Studio giữ)",
+      "ngay": "2026-10-14",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
@@ -87,16 +87,24 @@
       "hang": []
     },
     {
-      "ten": "Mốc kế sau 2.28 (số đặt lúc cắt) — trạng thái đợt trong app (DP6b), cỡ vòng ở bước thiết kế (S3c), bất biến sản phẩm (BB1), câu trạng thái tín hiệu tiếng sản phẩm (TH-cau), kiểm bản cài sau phát hành (KC1)",
+      "ten": "Phát hành 2.29.0 — mốc kế (MacBook Pro): bất biến sản phẩm (BB1), câu trạng thái tín hiệu tiếng sản phẩm (TH-cau), kiểm bản cài sau phát hành (KC1 — vòng meta duy nhất giữa 2.28 và 2.29, chạy kiểm CHÍNH bản 2.29 trước khi phát); cắt khi ba hàng có trong main",
+      "ngay": "2026-10-16",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "BB1",
+        "TH-cau",
+        "KC1"
+      ]
+    },
+    {
+      "ten": "Mốc kit của M5 (số đặt lúc cắt): trạng thái đợt trong app (DP6b), cỡ vòng ở bước thiết kế (S3c) — M5 giữ, kéo sớm được nếu xong trước; vào 2.29 nếu có trong main lúc cắt 2.29",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "DP6b",
-        "S3c",
-        "BB1",
-        "TH-cau",
-        "KC1"
+        "S3c"
       ]
     },
     {
