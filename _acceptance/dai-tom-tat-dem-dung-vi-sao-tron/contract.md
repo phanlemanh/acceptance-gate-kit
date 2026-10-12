@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ho-so-tom-tat.cjs + scripts/evidence-page.js + references lo-trinh-du-lieu.md + test — không chạm lib/**, hooks/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-dai-tom-tat-dem-dung-vi-sao-tron-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -84,3 +84,16 @@ SỐNG = bốn số đều 0. Giới hạn của đường đo, khai thẳng: m�
 - Giá đã biết của luật «khối nhiều danh sách → chưa đọc được»: crm `bo-dung-khong-ket` (8) và radar `doc-mang-v0`
   (32) hôm nay đếm đúng nhờ may, sau vòng nói «chưa đọc được» (`do-truoc.md`).
 - S4 chạy trên nhánh chồng với gốc so = đỉnh nhánh `vong/dai-tom-tat-doc-dung` (phiên điều phối 12/10, cắt mốc sớm); #325 mang cả #324, gộp một lần.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-12:
+  - Ngoài-1: Nếu sau này trang hồ sơ đầy đủ lỡ in thừa phần đầu «Vì sao: Gốc: …» trước lý do thật, bộ kiểm tự động hiện tại vẫn báo xanh; hôm nay trang vẫn hiện đủ lý do.
+  - Ngoài-2: Bộ kiểm chưa thử với ô cơ hội do chính lệnh mở ô sinh ra; nếu câu giao tự sinh lọt vào ô «Vì sao», người đọc dải thấy câu giao thay cho lý do thật mà bộ kiểm vẫn xanh.
+  - Ngoài-3: Phép thử «làm hỏng rồi xem báo đỏ» cho lỗi đếm đôi giới hạn có thể báo xanh dù lỗi tiêm vào không phải lỗi đếm đôi — sản phẩm vẫn đếm đúng, bằng chứng chiều đỏ yếu hơn vẻ ngoài.
+  - Ngoài-4: Lệnh đọc ngưỡng nghiệm thu trên crm chỉ kiểm câu cuối của lý do làm, chưa kiểm mục cuối của danh sách đi kèm.
+  - Ngoài-7: Khi mục giới hạn của hồ sơ chỉ là một bảng, ô báo «1 giới hạn đã biết» và trang in cả bảng thành một dòng dính thay vì nói «chưa đọc được»; chưa hồ sơ thật nào dính.
+  - Ngoài-8: Nếu bộ đọc ném lỗi trên vài hồ sơ, phép đo trên sáu kho lặng lẽ bỏ qua chúng và vẫn báo xanh; hôm nay không hồ sơ thật nào gây lỗi.
+  - Ngoài-9: Hai phép thử chiều đỏ (đếm đôi giới hạn, nguồn hỏng là báo cáo) ghim một chữ mà câu báo lỗi luôn tự in ra, nên có thể báo «bắt được» cho bất kỳ lỗi nào.
+  - Ngoài-10: Phép đo sáu kho tự khai «19 hồ sơ đã kiểm mục cuối» trong khi chỉ 18 được so — một hồ sơ crm bộ tách không tách được vẫn được tính.
+  - Ngoài-11: Phép thử khối «ghim lại» lấy mẫu từ tài liệu hướng dẫn chứ không từ chính công cụ sinh ra khối đó; công cụ đổi tiêu đề mà tài liệu giữ nguyên thì phép thử vẫn xanh.
+  - Trong-1: Câu tài liệu về dạng «Vì sao: Gốc: … — lý do» chưa khớp mã ở ca hiếm phần con trỏ có dấu gạch dài không cách — ô giữ cả dòng thay vì chỉ lấy lý do; hôm nay 0 hồ sơ thật dính (lỗi trong hợp đồng mức thấp của lượt chấm 3, không chặn PASS, chủ kho nhận qua chữ «ký»).
+- Ngoài-5 (Cổng Bằng chứng 2026-10-12): chấp nhận, không sửa — hai phép thử chiều đỏ của bộ đo sáu kho không đòi bản lành xanh trước; kết quả tổng vẫn đỏ khi có lỗi thật.
+- Mở hợp đồng mới (Cổng Bằng chứng 2026-10-12) — Ngoài-6 ghi thành hạt giống `docs/plans/2026-10-12-hat-giong-dau-doan-gioi-han-khong-hai-cham.md` (không tạo ô).
