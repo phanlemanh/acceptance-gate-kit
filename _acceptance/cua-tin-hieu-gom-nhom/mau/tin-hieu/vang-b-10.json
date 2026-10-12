@@ -1,0 +1,10 @@
+{
+  "phien": "vang-b",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Sửa được hoàn toàn ở tầng test: khối tasks giữ thống kê đứng yên bằng cách tắt autovacuum riêng cho bảng trong lúc khối chạy; ma() của bộ gieo agent-okr sinh chuỗi không có chữ số.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:09:00.000Z"
+}

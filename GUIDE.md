@@ -678,6 +678,31 @@ nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và ph�
 tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
 dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](docs/reference/lai-thu-nguoi-la.md).
 
+## Cửa tín hiệu và gom nhóm (hồ sơ cua-tin-hieu-gom-nhom · hàng L3)
+
+Mọi người gửi tín hiệu vào MỘT cửa của kho; phiên gom thành nhóm bằng tiếng sản phẩm; cắt lượt biến
+nhóm thành hàng; người gửi thấy tín hiệu của mình đi tới đâu. Kho bật bằng một khối trong
+`_acceptance/config.yaml` — không khai thì không gì đổi:
+
+```yaml
+tin_hieu:
+  nguon: [<thư mục tín hiệu>, …]   # mỗi tín hiệu một tệp <id>.json
+  gom: <thư mục bản gom>           # các tệp *.md trong git
+```
+
+- **Khuôn tín hiệu = khuôn yêu cầu của gói Điều phối** (một hộp thư): `{phien, loai, hang, noi_dung, luc}`,
+  kiểm bằng chính `kiemYeuCau` của gói đó. Khuôn, loại được gom và khuôn bản gom:
+  `skills/acceptance/references/tin-hieu-template.md`. Tín hiệu người KHÔNG đi vào thư mục yêu cầu của
+  đợt — nó nằm ở nguồn kho khai.
+- **Gom:** skill `gom-tin-hieu` — chính sách trục ở khối `GOM-TRUC` (`ket-qua`), chủ kho chốt một lần ở
+  Cổng Đáng. Bản gom cũng là bản phạm vi: chuyển thẳng cho skill `cat-luot`.
+- **Răng phủ:** `node scripts/tin-hieu.mjs --root . --rang` — mỗi tín hiệu gửi không sau mốc `den` ở đúng
+  một chỗ; «đã phủ» chỉ trỏ hồ sơ đã giao; bản gom phải có trong git.
+- **Đường đi:** `--duong [--id <id>]`; kho khai cả lộ trình thì khối dữ liệu của `LO-TRINH.html` mang khoá
+  tuỳ chọn `tin_hieu` (tài liệu: `skills/acceptance/references/lo-trinh-du-lieu.md`, khối
+  `LO-TRINH-DU-LIEU-TUY-CHON`).
+- **CI chép tay:** bảy tệp của cửa trong danh sách chép (§5.3) chỉ cần khi kho khai `tin_hieu`.
+
 ## Cho một hồ sơ nghỉ (2.17 · hồ sơ ho-so-nghi)
 
 Một hồ sơ đã ký đôi khi hứa một điều không còn kiểm lại được: kho nguồn của một
@@ -724,6 +749,45 @@ nghỉ>"`. Hồ sơ quay về đúng luật cũ, và phải ghim lại như thư
 **Giới hạn đã khai:** dòng nghỉ nằm cùng tầng tin cậy với chữ ký duyệt — kit tin
 sổ quyết định do người viết. Một lệnh có khoá chống máy tự gọi là việc của vòng
 sau; lưới hiện tại là sổ để lại vết và cửa veto.
+
+## Máy tự định tuyến mục ngoài hợp đồng (hồ sơ ngoai-n-tu-dinh-tuyen)
+
+Làn V (máy thông, không mời ký Cổng Bằng chứng) chỉ chạy khi mọi mục Ngoài-n trong
+`review-findings.md` đã có dòng sổ `gate2`. Ở đợt crm `sau-14-10` nó bắn 0/71 hồ sơ vì
+mục nào cũng chờ người — trong khi người định tuyến trùng đề xuất của máy 94,9 %. Kho
+bật một khoá thì máy tự ghi dòng sổ cho những mục mà CHÍNH nó đề xuất.
+
+<!-- <<<NGOAI-N-TU-DINH-TUYEN -->
+- **Bật:** `feature_loop.ngoai_n_tu_dinh_tuyen: true` trong `_acceptance/config.yaml`.
+  Giá trị `true | false`, **mặc định tắt** (khoá vắng = như trước: không ghi byte nào);
+  giá trị khác làm lệnh thoát 2 gọi tên khoá.
+- **Máy ghi gì:** ở hồ sơ T2 · `status: verified` · PASS · 0 UNCERTAIN · không bypass ·
+  phân loại phạm vi chạy trọn, mỗi mục đề xuất `known-limits` hoặc `wont-fix` chưa có
+  dòng `gate2` nhận một dòng sổ mang khoá `may: dinh-tuyen-ngoai-n` (KHÔNG có
+  `decided_by`), kèm `tieu_de` của mục và lệnh đảo ở khoá `dao`. Mục `known-limits` thêm
+  một gạch vào `## Notes` của hợp đồng. Mục `new-contract`, hồ sơ T3, hồ sơ có UNCERTAIN
+  vẫn của người. Báo cáo bằng chứng KHÔNG bị chạm (mục Known limits của nó giữ rỗng).
+- **Ai gọi:** feature-loop, khối `DINH-TUYEN-MAY` của SKILL — trước `khong-can-nguoi.mjs
+  --write`. Gọi tay: `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --check|--write
+  --root . --slug <slug>`.
+- **Thẻ:** mục máy định tuyến là dòng báo «Máy đã định tuyến … — đảo: …», không vào
+  «VIỆC CỦA ANH»; dòng sổ của nó hiện ở khối «Quyết định CHƯA duyệt» với chữ «máy định
+  tuyến».
+- **Đảo:** dán lệnh ở khoá `dao` —
+  `/acceptance-gate:signoff <slug> Ngoài-<n>: mở hợp đồng mới; Ký` —
+  sửa chữ sau `Ngoài-<n>:` nếu muốn lối khác. Lệnh ghi một dòng sổ người
+  MỚI (không sửa dòng máy); thẻ lấy dòng mới nhất nên người thắng. Đảo đi qua chữ ký: chưa
+  có lệnh đảo-mà-không-ký — mở khi ≥1 lần owner cần đảo một mục mà không muốn ký hồ sơ.
+- **Giới hạn đã khai:** một lượt chấm mới đổi thứ tự mục làm dòng máy cũ trỏ nhầm mục.
+  Bên ghi (thoát 2) và thẻ (cờ «dòng máy trỏ mục đã đổi») bắt bằng so `tieu_de`; lưới
+  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). So tiêu đề gỡ nhãn lượt «(rN…)»
+  trước, nên mục mang sang lượt sau không bị coi là mục đã đổi. Ngưỡng mở vòng sửa lưới:
+  ≥1 hồ sơ có dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm trên cả kho bằng
+  `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --soat-lech --root .` (in số hồ sơ, thoát
+  2 khi có; không đọc khoá kho, không xét trạng thái hồ sơ, không ghi gì).
+- **Bản cài chưa có bên ghi** (kho chưa nâng kit): bộ giải gói thoát 1, vòng lặp báo một dòng,
+  coi như khoá tắt và đi tiếp — không dừng chờ người.
+<!-- NGOAI-N-TU-DINH-TUYEN>>> -->
 
 ## 5. Cài đặt
 
@@ -904,7 +968,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 18 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 25 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -932,6 +996,13 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
+- `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
+- `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
@@ -969,6 +1040,55 @@ Răng T1-escape đòi thay đổi phải kèm `_acceptance/<slug>/` — tiền �
 commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là
 job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
 [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
+
+#### Bỏ job nặng cho PR không chạm vật (tuỳ chọn — `--hang-pr`)
+
+Kho trả tiền phút Actions (kho riêng tư) có thể cho job test sản phẩm bỏ qua PR chỉ đổi tệp T1 hay hồ sơ
+`_acceptance/`. Cổng có sẵn một chế độ in hạng PR — dùng CHÍNH bộ khớp và CHÍNH `risk_tiers.t1_skip_globs` /
+`t3_paths` của kho: không danh sách thứ hai, không chép hàm nào. Kho không truyền cờ thì cổng không đổi gì.
+
+```yaml
+hang-pr:
+  runs-on: ubuntu-latest
+  outputs:
+    cham_vat: ${{ steps.hang.outputs.cham_vat }}
+  steps:
+    - uses: actions/checkout@v4
+      with: { fetch-depth: 0 }                 # cần merge-base để tính diff của PR
+    # lấy kit ở sha ghim như bước 2 phía trên; kho đang chép kit thì gọi bản chép scripts/pre-merge-check.sh
+    - id: hang
+      run: bash "$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh" . ${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"} --hang-pr
+test:
+  needs: hang-pr
+  if: ${{ !cancelled() && needs.hang-pr.outputs.cham_vat != 'false' }}
+  # … các bước test của kho
+```
+
+Đầu ra — ba dòng `khoá=giá-trị` ra stdout, nối vào `$GITHUB_OUTPUT` khi có, một dòng vào `$GITHUB_STEP_SUMMARY`:
+
+| Khoá | Giá trị |
+|---|---|
+| `hang` | `T1` (mọi tệp khớp `t1_skip_globs`) · `ho-so` (chỉ `_acceptance/`, có thể kèm tệp T1) · `T2` · `T3` · `khong-ro` |
+| `cham_vat` | `false` chỉ khi `hang` là `T1` hoặc `ho-so`; mọi ca khác `true` |
+| `ly_do` | `phan-loai` · `khong-co-pham-vi-diff` · `diff-rong` · `doi-danh-sach-hang` · `cau-hinh-loi` · `khong-phan-loai-duoc` |
+
+Ba điều đừng rút gọn:
+
+1. `!cancelled() &&` là bắt buộc. Biểu thức `if:` không gọi hàm trạng thái nào thì GitHub ngầm ghép `success()`:
+   job `hang-pr` đỏ (lấy kit hỏng, runner lỗi) làm job `test` bị BỎ QUA — và job bị bỏ qua báo «Success» kể cả khi
+   là check bắt buộc, nên PR chạm vật gộp được mà không test. So `!= 'false'` chứ không `== 'true'`, để đầu ra vắng
+   vẫn chạy test. Bốn hàng: `hang-pr` xanh + `false` → bỏ · xanh + `true` → chạy · xanh + đầu ra vắng → chạy ·
+   `hang-pr` đỏ → chạy.
+2. Lọc bằng `if:` ở cấp job, đừng bằng `paths-ignore` ở cấp workflow: workflow bị lọc không chạy thì check bắt buộc
+   của nó treo «Expected — Waiting for status» và PR không gộp được.
+3. Job nào đọc hồ sơ thì đừng gắn vào bit: bit chỉ nói «chạm vật», không nói «chạm thước của hồ sơ». Ví dụ crm:
+   `oxlint` ở job `check` quét cả `_acceptance/**/rang/*.mjs` — giữ `check` chạy, chỉ gắn `test`.
+
+Nghi ngờ thì chạy đủ: chế độ chỉ nói `cham_vat=false` khi chứng minh được. Không `--base` (sự kiện `push`), ref
+không giải được, lịch sử rời, diff rỗng, cấu hình hỏng, hay PR tự sửa `t1_skip_globs`/`t3_paths` → `cham_vat=true`;
+các ca do lỗi thêm một dòng `::warning` lên PR. Chế độ luôn thoát 0 khi đã in kết quả — chỉ lỗi cú pháp tham số
+thoát 2 — vì bước phân loại đỏ là test bị bỏ. Giới hạn đã biết: `git diff` bọc tên tệp có dấu, nên cổng (và chế độ)
+coi tệp ấy ngoài T1 — chạy đủ (hạt giống `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`).
 
 ### Sổ luật-đã-chạy (acceptance-gate 1.22.0+)
 

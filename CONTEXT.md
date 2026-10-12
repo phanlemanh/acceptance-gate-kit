@@ -163,6 +163,29 @@ Mục cấp tệp `chan_troi` của lộ trình: mã chưa cắt được thành
 (`mo_lai_khi`). Không phải hàng, không có trạng thái, không phải ô.
 _Avoid_: «sau này» không lý do; bỏ lặng mã không cắt được; nhầm với `da_bac` (đã bác là quyết không làm).
 
+**Tín hiệu**:
+Một điều một người gặp và gửi vào cửa của kho — người không dùng git qua nút gửi của sản phẩm, hay phiên
+thợ phát sinh việc giữa lúc làm. Một tệp `<id>.json` đúng khuôn yêu cầu của gói Điều phối
+`{phien, loai, hang, noi_dung, luc}`, loại `tin-hieu` · `viec-phu` · `hang-moi` (khuôn
+`skills/acceptance/references/tin-hieu-template.md`). Loại khác của kênh yêu cầu là yêu cầu vận hành,
+không phải tín hiệu. Hồ sơ `cua-tin-hieu-gom-nhom`.
+_Avoid_: feedback, ticket (trong chữ máy viết); bỏ lặng tệp sai khuôn; đưa tín hiệu người vào thư
+mục yêu cầu của một đợt.
+
+**Cửa tín hiệu**:
+Ổ cắm `tin_hieu` trong `_acceptance/config.yaml` — `nguon` (thư mục tín hiệu, một hoặc danh sách) và `gom`
+(thư mục bản gom). Kit không giữ kho tín hiệu: kho khai nơi đặt, kit chỉ đọc, kiểm, vẽ. Kho không khai
+thì không lệnh nào của cửa chạy và mọi trang giữ nguyên từng byte.
+_Avoid_: hộp thư thứ hai (khuôn tín hiệu là khuôn yêu cầu của gói Điều phối); để kit lưu tín hiệu.
+
+**Bản gom**:
+Tệp markdown trong git, trong thư mục `tin_hieu.gom`, đặt MỖI tín hiệu vào đúng một chỗ: một nhóm (một
+điều một vai muốn làm được — trục `ket-qua`, chính sách ở khối `GOM-TRUC` của skill `gom-tin-hieu`), lẻ
+kèm lý do, hoặc đã phủ bởi một hồ sơ đã giao. Nó cũng là **bản phạm vi** của đợt — mỗi nhóm là một mã mà
+cắt lượt cắt thành hàng. Răng phủ: `scripts/tin-hieu.mjs --rang`.
+_Avoid_: bảng phân loại chép tay; nhóm theo màn hay theo tệp mã khi chính sách là kết quả; «đã phủ» trỏ
+việc chưa giao.
+
 **Verdict**:
 Kết luận CẤP REPORT: `PASS` / `REJECT` / `BLOCKED` (± `PENDING-JUDGMENT`).
 Eval riêng lẻ KHÔNG có verdict — nó có `expected`/actual; đừng dùng từ này cho

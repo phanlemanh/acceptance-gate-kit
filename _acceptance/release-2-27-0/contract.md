@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6) cùng các hàng đã gộp sớm (G2, G3, X2, S3, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng
+feature: Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng
 slug: release-2-27-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + mô tả marketplace + dòng khớp-phiên-bản của GUIDE + CHANGELOG + README gói dieu-phoi + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
@@ -26,16 +26,17 @@ cả nhóm DP là `crm/_acceptance/dieu-phoi-hai-tang`.
 không chứa gói. Bộ đệm gói khoá theo SỐ phiên bản, nên kho cài gói từ `main` báo «already at latest» với mọi bản
 cùng số — đợt thử không thể nhận bản sửa nào của gói tới khi có số mới.
 
-**Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ (mười sáu):
+**Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ (mười chín):
 
 - Gói `dieu-phoi`: `dieu-phoi-dong-goi-loi` (DP1, #295) · `dieu-phoi-mo-dot-mot-lenh` (DP2, #298) ·
   `dieu-phoi-tiep-tuc-mot-lenh` (DP3, #303) · `dieu-phoi-doi-tai-khoan` (DP4, #312) · `dieu-phoi-lop-mod` (lõi DP6,
   #315) · `dieu-phoi-feature-loop-trong-dot` (DP7, #306) · `dieu-phoi-sua-truoc-dot-thu` (#317).
+- Bớt gọi người và phút CI: `ngoai-n-tu-dinh-tuyen` (A3, #322) · `ci-cua-kho-bo-job-nang` (C1, T3, #323).
 - Bộ đọc khoan dung: `evals-sat-le-doc-du` (R1, T3, #299) · `glob-thoat-ngoac` (T3, #292).
 - Làn ghim lại: `eval-goi-model-that-khong-chay` (G3, #316) · `ten-ca-qua-tien-to-turbo` (G2, #313) ·
   `xa-stdout-truoc-khi-thoat` (#311) · `baseline-tran-bo-qua-don` (#280).
 - Lộ trình và hồ sơ: `trang-ho-so-mot-viec` (X2, #307) · `vong-la-mot-ket-qua` (S3, #304) ·
-  `lo-trinh-chi-viec-phat-trien` (S3b, #321).
+  `lo-trinh-chi-viec-phat-trien` (S3b, #321) · `cua-tin-hieu-gom-nhom` (L3, #319).
 
 Vòng **máy thông** trong cửa sổ, kể riêng vì `rel-cua-so.sh` chỉ rút hồ sơ `signed-off`:
 `tac-tu-cham-chi-cham-khong` (A1, #294, `machine-cleared`, cửa veto mở).
@@ -82,6 +83,6 @@ mười bảy hồ sơ · `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths` (vật T3 của cửa sổ — `lib/evidence-core.cjs` của `evals-sat-le-doc-du` và `glob-thoat-ngoac` — đã qua vòng T3 của chính nó, #299 và #292).
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm và OneFlow nhận ở hai đợt thử 26–27/10; vòng meta của cửa sổ: 0.
-- Lộ trình: A3 (Ngoài-n tự định tuyến) và C1 (lệnh CI bỏ job nặng) chưa có trên `main` lúc mở hồ sơ. Vòng nào gộp trước lượt chấm thì hồ sơ gộp main và kể thêm ở Context, AC-4 và CHANGELOG; không thì sang mốc sau.
+- Lộ trình: A3, C1 và L3 chưa có trên `main` lúc mở hồ sơ; Điều phối M5 giữ mốc chờ cả ba (12/10) để crm nhận một lần và chiến dịch ghim lại chạy một lần. Ba vòng gộp main (#319, #322, #323 — main `f59d9547`), hồ sơ gộp main một lần trước lượt chấm 1 và kể thêm ở Context, AC-4, CHANGELOG.
 - Giới hạn đã khai của gói `dieu-phoi`, đo lại 12/10 trên bộ phân loại của cây này: `--help` trong chú thích `#`, here-string `<<<`, `env -S'…'` dính cờ, `bash -o pipefail -c` → lệnh S4 lọt (`null`); heredoc kèm chuyển hướng → bị chặn (`s4`) — dạng này đã đóng khi DP6 thu luật «thân là dữ liệu» (sổ `dieu-phoi-lop-mod` d-20261011T061923Z-20), README không khai nó là đang lọt.
-- Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 200ce7bb x` thoát 1 gọi tên mười sáu hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
+- Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 200ce7bb x` thoát 1 gọi tên mọi hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).

@@ -1,0 +1,39 @@
+{
+  "feature_plain": "CI của một kho bỏ được job test nặng cho PR chỉ đổi tài liệu hay hồ sơ nghiệm thu, bằng một cờ của chính cổng kit — không còn phải chép hàm nội bộ của kit.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ in đúng hạng của PR (T1 · chỉ hồ sơ · T2 · T3) và dấu «có chạm mã sản phẩm không» trên 12 kiểu PR viết trước, kể cả các kiểu khớp đường dẫn khó."},
+    {"id": "AC-2", "p": "Sẽ phân hạng bằng đúng bộ khớp của cổng — phá bộ khớp của cổng thì kết quả của cờ đổi theo cùng lúc."},
+    {"id": "AC-3", "p": "Sẽ cho chạy đủ test khi PR tự sửa danh sách tệp được miễn — PR không tự nới luật để bỏ test được."},
+    {"id": "AC-4", "p": "Sẽ cho chạy đủ test mà không làm đỏ CI khi không chứng minh được phạm vi (sự kiện push, nhánh gốc sai, lịch sử rời, kho chưa dùng kit), kèm cảnh báo khi đó là lỗi."},
+    {"id": "AC-5", "p": "Sẽ cho chạy đủ test kèm cảnh báo khi tệp cấu hình nghiệm thu hỏng hoặc vắng."},
+    {"id": "AC-6", "p": "Sẽ ghi kết quả thành đầu ra GitHub và một dòng tóm tắt trên trang lượt chạy, không để chữ thừa nào của cổng lọt ra."},
+    {"id": "AC-7", "p": "Sẽ luôn kết thúc thành công khi đã ra phán quyết; chỉ gõ sai tham số mới đỏ ngay."},
+    {"id": "AC-8", "p": "Sẽ không đổi một byte đầu ra của cổng ở kho không dùng cờ — kiểm trên kho mẫu, trên chính kho kit và trên lịch sử commit của vòng."},
+    {"id": "AC-9", "p": "Sẽ giữ nguyên hai hàm khớp mà crm đang rút bằng sed, để crm không mất khoản tiết kiệm trước khi kịp chuyển."},
+    {"id": "AC-10", "p": "Sẽ có hướng dẫn nối dây cho kho với điều kiện đúng, để PR không bao giờ gộp được mà bỏ test khi bước phân loại hỏng."},
+    {"id": "AC-11", "p": "Sẽ giữ bốn bộ test của kit xanh."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Sẽ KHÔNG thêm danh sách tệp thứ hai hay cấu hình mới — dùng đúng danh sách kho đã khai."},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG coi thay đổi CI hay manifest là được miễn (án đã có giữ nguyên)."},
+    {"id": "OOS-3", "p": "Sẽ KHÔNG sửa CI của crm hay kho nào — crm tự chuyển trong vòng của mình sau phát hành."},
+    {"id": "OOS-4", "p": "Sẽ KHÔNG thêm dấu PR nháp — crm đã tự lo."},
+    {"id": "OOS-5", "p": "Sẽ KHÔNG đổi tên hay sửa hai hàm khớp và hàm đọc danh sách mà crm và hai vòng khác đang dựa."},
+    {"id": "OOS-6", "p": "Sẽ KHÔNG sửa chuyện kit đang có ba cách hiểu đường dẫn khác nhau — đã ghi sổ, báo Điều phối."},
+    {"id": "OOS-7", "p": "Sẽ KHÔNG tách CI của kit thành nhiều job song song."}
+  ],
+  "scope_plain": "Vòng này chỉ thêm một cờ tuỳ chọn cho cổng; mọi thứ dưới đây cố ý để ngoài.",
+  "coverage_plain": [
+    {"i": 6, "p": "Mọi kiểu PR theo tệp nó chạm (chỉ tài liệu, chỉ hồ sơ, có mã, mã trọng yếu, tệp CI, diff rỗng) — đủ khi khớp ba lớp cổng đang phân và 335 PR crm đã đo (AC-1, AC-2, AC-4)."},
+    {"i": 7, "p": "Mọi trạng thái của danh sách miễn và tệp cấu hình (không đổi, bị sửa trong PR, chưa có, hỏng) — đủ khi khớp các lối đọc cấu hình của cổng (AC-3, AC-5)."},
+    {"i": 8, "p": "Mọi môi trường chạy (PR thường, push không nhánh gốc, nhánh gốc sai, lịch sử rời, kho chưa dùng kit) — đủ khi khớp các lối dừng của cổng (AC-4, AC-7)."},
+    {"i": 9, "p": "Mọi người đọc kết quả (dòng lệnh, đầu ra GitHub, trang tóm tắt, cảnh báo, cổng không cờ, crm đang rút hàm, hướng dẫn) — đối chiếu với action lọc đường dẫn phổ biến và crm #369 (AC-6, AC-8, AC-9, AC-10)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Đoạn nối dây mẫu thiếu vế «trừ khi bị huỷ»: bước phân loại hỏng thì job test bị bỏ qua mà GitHub vẫn báo đạt. Đã sửa — mẫu đòi cả hai vế trên một dòng, có ca phá thử."},
+    {"i": 1, "p": "Ca phá thử của tiêu chí «PR tự nới danh sách» khai sai kết quả mong đợi. Đã sửa đúng kết quả (chỉ hồ sơ, không chạm mã)."},
+    {"i": 2, "p": "Phép so «không đổi byte» chỉ so hai bản sau khi sửa nên không bắt được dòng bị sửa ngoài vùng đánh dấu. Đã thêm phép so trên lịch sử commit của vòng."},
+    {"i": 3, "p": "Lời hứa «mọi lối dừng sớm đều cho chạy đủ» chỉ kiểm hai mẫu. Đã thêm hai ca phá thử chèn lối dừng bất kỳ."},
+    {"i": 4, "p": "Quan hệ giữa hạng T3 và lời báo của cổng chưa định nghĩa chặt. Đã đổi sang so tập lời báo cho từng hàng."}
+  ]
+}

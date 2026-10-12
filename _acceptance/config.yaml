@@ -52,6 +52,9 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Cửa tín hiệu (hồ sơ cua-tin-hieu-gom-nhom, hàng L3) — ca TH-1…TH-10.
+    tin_hieu: "node tests/scripts/tin-hieu.test.mjs"
+    tin_hieu_vang: "TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs"
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
     # Hồ sơ xa-stdout-truoc-khi-thoat: ca đo XD-1..XD-7 (stdout qua pipe không bị cắt ở 64 KB). Khoá riêng,
@@ -75,6 +78,11 @@ executors:
     dieu_phoi_lb: "bash -c 'LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs'"
     # Hồ sơ dieu-phoi-feature-loop-trong-dot: như `dieu_phoi_dp2` nhưng ghim cả «ok … DP7-».
     dieu_phoi_dp7: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[127]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ ngoai-n-tu-dinh-tuyen: ca NT1–NT10, gộp mọi dòng «PASS: NT…»/«FAIL: …» và tổng kết thành MỘT dòng
+    # (lượt chấm chỉ giữ vài dòng cuối của lệnh xanh); pipefail giữ mã thoát của test.
+    ngoai_n_tu_dinh_tuyen: "bash -c 'set -o pipefail; node tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs 2>&1 | grep -E \"^(PASS|FAIL): NT|^NT Results|^  · \" | paste -sd\"|\" -'"
+    # Ca LM20 có sẵn (bản ghi mốc định tuyến khớp mọi hồ sơ đã ký) — AC-8 đọc-cũ.
+    ngoai_n_lm20: "bash -c 'LMCMS_ONLY=LM20 node tests/scripts/gate-card-lmcms.test.mjs'"
     # Hồ sơ dieu-phoi-tiep-tuc-mot-lenh: như khoá `dieu_phoi_dp2` nhưng ghim cả «ok … DP3-».
     dieu_phoi_dp3: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[123]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-lop-mod: như `dieu_phoi_dp3` nhưng ghim mọi «ok … DP<số>-» (DP1–DP7 cùng DP6).
@@ -601,7 +609,7 @@ executors:
     rel2260_cua_so: bash scripts/rel-cua-so.sh c01e5bf2 doc-ghi-troi-mang-sang-run-id lo-trinh-cat-luot xuat-du-lieu-lo-trinh
     rel2260_dd_giu: "bash -c 'c=$(git show c01e5bf2:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c01e5bf2 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.27.0 — cửa sổ v2.26.0 (200ce7bb) → HEAD.
-    rel2270_cua_so: bash scripts/rel-cua-so.sh 200ce7bb baseline-tran-bo-qua-don dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
+    rel2270_cua_so: bash scripts/rel-cua-so.sh 200ce7bb baseline-tran-bo-qua-don ci-cua-kho-bo-job-nang cua-tin-hieu-gom-nhom dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ngoai-n-tu-dinh-tuyen ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
     rel2270_dd_giu: "bash -c 'c=$(git show 200ce7bb:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 200ce7bb HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
@@ -696,6 +704,21 @@ executors:
     dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs
     # Chiều im của dieu-phoi-feature-loop-trong-dot (AC-9): so với merge-base HEAD origin/main.
     dieu_phoi_dp7_im: node tests/dieu-phoi/dp7-chieu-im.mjs
+    # Hồ sơ ci-cua-kho-bo-job-nang — chế độ --hang-pr của pre-merge-check.sh (tên ca = tên AC).
+    hp_ac1: HP_CASES=AC-1 node tests/scripts/hang-pr.test.mjs
+    hp_ac2: HP_CASES=AC-2,AC-2-do node tests/scripts/hang-pr.test.mjs
+    hp_ac3: HP_CASES=AC-3,AC-3-im,AC-3-do node tests/scripts/hang-pr.test.mjs
+    hp_ac4: HP_CASES=AC-4,AC-4-do node tests/scripts/hang-pr.test.mjs
+    hp_ac5: HP_CASES=AC-5 node tests/scripts/hang-pr.test.mjs
+    hp_ac6: HP_CASES=AC-6,AC-6-do node tests/scripts/hang-pr.test.mjs
+    hp_ac7: HP_CASES=AC-7 node tests/scripts/hang-pr.test.mjs
+    hp_ac8: HP_CASES=AC-8,AC-8-do,AC-8-lich-su,AC-8-lich-su-do node tests/scripts/hang-pr.test.mjs
+    # Chạy cổng hai lần trên chính cây kit (có và không --base) — chậm, không vào suite (ca chỉ chạy khi gọi tên).
+    hp_ac8_kho_that: HP_CASES=AC-8-kho-that node tests/scripts/hang-pr.test.mjs
+    hp_ac9: HP_CASES=AC-9,AC-9-do node tests/scripts/hang-pr.test.mjs
+    hp_ac10: HP_CASES=AC-10,AC-10-do node tests/scripts/hang-pr.test.mjs
+    # Hồ sơ ngoai-n-tu-dinh-tuyen (AC-9 E9c): khối + bảng cổng của SKILL so sha gốc CỐ ĐỊNH d9d1f3a6. Không vào suite.
+    ngoai_n_khoi_khac: node tests/scripts/ngoai-n-khoi-khac.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

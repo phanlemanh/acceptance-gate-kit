@@ -91,7 +91,7 @@ evals:
     expected: >
       Exit 0 và dòng «XANH: hai tập bằng nhau» — tập hồ sơ ĐƯỢC KÝ trong cửa sổ, suy từ kho bằng QUAN HỆ (hồ
       sơ có contract.md đổi trong `200ce7bb..HEAD`, nay `status: signed-off`, mà ở mốc trước CHƯA ký; bỏ hồ sơ
-      mốc `release-*`), BẰNG tập mười sáu slug kể trong Context. Chiều đỏ trong chính lệnh: slug thừa và slug
+      mốc `release-*`), BẰNG tập mười chín slug kể trong Context. Chiều đỏ trong chính lệnh: slug thừa và slug
       thiếu đều in tên — đo khi mở hồ sơ: chạy với tập «x» thì «ĐỎ: … mốc KHÔNG kể: …», thoát 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
