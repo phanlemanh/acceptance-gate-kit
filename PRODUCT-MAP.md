@@ -10,8 +10,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>115 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>23 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
@@ -41,14 +41,11 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 
-## Chờ duyệt phạm vi
-
-- Phát hành kit 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi — đóng số cho cửa sổ 2.27.0 → 2.28.0 (bước thiết kế không dừng hỏi thừa và công cụ phân loại chạy ở mọi kho · dải tóm tắt hồ sơ đọc đúng · gói dieu-phoi ổn định trước đợt r2 · CI kit cài zsh có trần), để crm cài thẳng 2.28 theo đúng thẻ từ 15/10; làn V, không dựng răng (`release-2-28-0`)
-
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Phát hành kit 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi — đóng số cho cửa sổ 2.27.0 → 2.28.0 (bước thiết kế không dừng hỏi thừa và công cụ phân loại chạy ở mọi kho · dải tóm tắt hồ sơ đọc đúng · gói dieu-phoi ổn định trước đợt r2 · CI kit cài zsh có trần), để crm cài thẳng 2.28 theo đúng thẻ từ 15/10; làn V, không dựng răng (`release-2-28-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
