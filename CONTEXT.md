@@ -379,6 +379,14 @@ rủi ro tại Gate 1; W5 nhắc khi thiếu.
 Xuất hiện trong output pre-merge dưới dạng `theo ledger <id>` và trong
 `gate-card.js` dưới khoá `ledger.broken`.
 
+**Nguồn căn cứ**:
+Chỗ một lựa chọn ở bước thiết kế dựa vào: mục tiêu + quy tắc đã khai (trỏ được tệp +
+câu trích có từ trước vòng) · chỉ một lối ra sống (các lối khác chết vì ràng buộc nêu
+được) · chỉ người có (gu, nghĩa sản phẩm, đánh đổi giá trị, khẩu vị rủi ro). Hai nguồn
+đầu máy quyết và ghi sổ; nguồn thứ ba và mọi lựa chọn khó-đảo là câu hỏi trên thẻ Cổng
+Phạm vi. Ghi bằng khoá `can_cu` của dòng sổ S1 (ADR 0022).
+_Avoid_: lý do (quá rộng — mọi dòng sổ có `why`), căn cứ pháp lý
+
 **Sổ luật-đã-chạy (rules ledger)**:
 Kế toán trong `pre-merge-check.sh`: mỗi khối luật ghi `ran <tên>` hoặc
 `declared-off <tên>` qua `ledger_mark`, so với EXPECTED ở điểm nghẽn trước khi

@@ -1,0 +1,1 @@
+E9: no browser network (file://, headless chrome screenshot)

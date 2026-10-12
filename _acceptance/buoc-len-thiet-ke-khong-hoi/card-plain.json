@@ -1,0 +1,128 @@
+{
+  "feature_plain": "Ở bước lên thiết kế, máy thôi dừng hỏi anh những câu nó đã có căn cứ để tự quyết; câu chỉ anh trả lời được thì gom lên thẻ Cổng Phạm vi, và máy lỡ tự quyết một câu như vậy thì đỏ.",
+  "will_do": [
+    {
+      "id": "AC-2",
+      "p": "Sẽ giữ nguyên từng chữ các khuôn máy đọc sẵn có của vòng (cả khối «trong đợt» của máy M5) và không chạm vùng cấm; chỉ thêm hai khuôn mới."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ cho dòng sổ ghi bằng đúng khuôn mới (dưới hai loại vỏ lệnh) được bộ đọc hiểu lại đúng từng trường."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ xếp mỗi lựa chọn ở bước thiết kế vào đúng một lớp — máy đã quyết, câu hỏi cho anh, đỏ có tên lý do, hay đời trước — trên một bảng ca viết sẵn, mỗi luật đỏ có ca phá thử riêng."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ hiện trên thẻ Cổng Phạm vi khối «Câu chỉ anh trả lời được» (khuyến nghị + lối khác) tách khỏi khối «Máy đã quyết» (kèm căn cứ); có dòng đỏ thì dòng lệnh duyệt để trống."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ không đổi màu hồ sơ nào đang có, không đổi kết quả của các bộ đọc khác; hồ sơ nháp có dòng đời trước chỉ thấy một cờ vàng."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ đếm được số lần anh lật một lựa chọn máy đã tự quyết ở Cổng Phạm vi — con số của ngưỡng nghiệm thu."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ cho anh đọc thẻ trong một màn: máy đã quyết gì, còn hỏi gì — kể cả trên điện thoại."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ để chính vòng này đi đúng luật nó dựng: sổ của nó không có dòng đỏ, có đúng ba câu hỏi cho anh."
+    }
+  ],
+  "scope_plain": "Ngoài vòng này — mỗi mục có lý do trong sổ:",
+  "wont_do": [
+    {
+      "id": "OOS-1",
+      "p": "Câu gộp «duyệt; Hỏi-n = lối» để chọn lối khác mà không phải ký lại — khuyến nghị làm ở hàng riêng ngay sau; anh quyết ở Hỏi-2."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Phát lại 51 lựa chọn thật của crm qua bộ xếp lớp — bộ xếp lớp không đọc nghĩa câu; đo bằng model là hàng G3."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Chặn ở lúc gộp — dòng đỏ có hiệu lực ở thẻ và ở việc Cổng Phạm vi không tự đi tiếp."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Khối «trong đợt» của máy M5 — không sửa."
+    },
+    {
+      "id": "OOS-5",
+      "p": "Lệnh đếm lượt hỏi trong transcript thành lệnh của kit — dùng công cụ đo đã có trong hồ sơ."
+    },
+    {
+      "id": "OOS-6",
+      "p": "Đo việc máy dán nhãn bằng gọi model thật (hàng G3); luật cỡ vòng ở bước thiết kế (hàng S3c)."
+    }
+  ],
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Nguồn căn cứ — mục tiêu + quy tắc · một lối · chỉ anh biết · đời trước · lạ: mỗi giá trị có ca riêng (AC-1, AC-3, AC-4); thước «đủ» là luật lời mời 01/09 + 51 lựa chọn thật của crm."
+    },
+    {
+      "i": 1,
+      "p": "Khó-đảo có/không: khó-đảo luôn thành câu hỏi, dù máy ghi nguồn gì (AC-1, AC-4, AC-5)."
+    },
+    {
+      "i": 2,
+      "p": "Con trỏ căn cứ — hợp lệ, thiếu, tệp vắng, câu trích ngắn/không có, tự trỏ vào vật của chính vòng, ô chưa ký, căn cứ sinh trong vòng, gốc không đọc được: mỗi ca một dòng của bảng (AC-4, AC-10)."
+    },
+    {
+      "i": 3,
+      "p": "Chỗ đọc — thẻ, việc Cổng Phạm vi đi tiếp hay dừng, bộ kiểm, phản biện, con số nghiệm thu: mỗi chỗ một tiêu chí (AC-1, AC-5, AC-7, AC-9)."
+    },
+    {
+      "i": 4,
+      "p": "Không làm hỏng gì đang có — hồ sơ cũ không đổi màu, bộ đọc khác không đổi, khuôn sẵn có giữ từng chữ (AC-2, AC-6)."
+    },
+    {
+      "i": 5,
+      "p": "Để sau: câu gộp chọn lối khác · chặn ở lúc gộp · lệnh đếm của kit · khối trong đợt · đo bằng model."
+    },
+    {
+      "i": 6,
+      "p": "Không bao giờ: bỏ hỏi toàn bộ · sửa skill bên thứ ba · một danh sách chủ đề «luôn hỏi» làm bộ xếp lớp duy nhất."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Nhãn «khó-đảo» và «lối khác đã chết» cũng do máy tự ghi, chưa ai soi — đã sửa: phản biện nay soi mọi lựa chọn máy đã quyết, giới hạn được khai kèm ngưỡng đếm."
+    },
+    {
+      "i": 1,
+      "p": "Chính sổ vòng này có hai lựa chọn máy tự quyết bằng câu trích không quyết được (chỗ đặt bộ xếp lớp, bỏ bản mẫu nhìn) — đã sửa: một dòng đổi sang «chỉ một lối» có lý do thật, một dòng thành câu hỏi Hỏi-3 cho anh."
+    },
+    {
+      "i": 2,
+      "p": "Chưa có ai ghi lại lúc anh lật một lựa chọn, và phép kiểm «căn cứ có từ trước vòng» có thể không chạy — đã sửa: khuôn dòng lật + lời dặn ghi nó, ca đếm rút từ khuôn thật; thẻ thiếu gốc thì cờ vàng."
+    },
+    {
+      "i": 3,
+      "p": "Ba ứng viên của ô bị bỏ mà anh không được hỏi — đã sửa: câu gộp chọn lối khác thành Hỏi-2; hai ứng viên kia có dòng bỏ kèm căn cứ."
+    },
+    {
+      "i": 4,
+      "p": "Mục tệp dự kiến của bản thiết kế còn khuôn cũ (sửa tệp cấu hình chung) — đã sửa cho khớp hợp đồng."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "E1",
+      "q": "Lời dặn bước thiết kế mới đúng ý anh: không dừng hỏi, câu chỉ anh biết lên Cổng Phạm vi?",
+      "why": "Ba giám khảo đọc lời dặn đều đề xuất ĐẠT; đây là chữ lời dặn, máy không tự chấm được nghĩa."
+    },
+    {
+      "id": "E8",
+      "q": "Tài liệu đủ để kho khác tự ghi và đọc căn cứ mà không phải hỏi?",
+      "why": "Ba giám khảo đọc GUIDE, từ điển và quyết định kiến trúc 0022 đều đề xuất ĐẠT."
+    }
+  ]
+}

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bf399159b43d88456bb64a098a6bf921286fe106
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -226,3 +226,7 @@ sha: 209cb839c667b96b1fc622db58fb8ee6bdb42070 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-11, do DP7-10 + DP2-15 neo lịch sử thay merge-base sống (lệnh Điều phối, CI #307)
 run_id: repin-20261011T073635Z-91493
 sha: bf399159b43d88456bb64a098a6bf921286fe106 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E12 · AC không có chốt máy: AC-12
+
+### Re-pin lần 3 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E12 · AC không có chốt máy: AC-12

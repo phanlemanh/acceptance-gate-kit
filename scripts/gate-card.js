@@ -519,6 +519,8 @@ const decBaVe = e => {
   return esc(plDec(e)) || decLine(e);
 };
 // DEC-BA-VE>>>
+// Hai vế của dòng sổ cho bản rút (khoá can_cu): chuỗi thì giữ nguyên văn, vắng thì null.
+const baVeRut = e => ({ why: typeof e.why === 'string' ? e.why : null, cost_if_wrong: typeof e.cost_if_wrong === 'string' ? e.cost_if_wrong : null });
 for (const x of decPlainList) {
   const n = x ? decKeys.total.get(x.id) : 0;
   if (n > 1) process.stderr.write(`gate-card: decisions_plain id "${x.id}" trùng ${n} dòng trong sổ — bỏ qua; dịch từng dòng bằng khoá ${x.id}#1…#${n} lấy từ --extract\n`);
@@ -555,6 +557,18 @@ if (gate === '1') {
   const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_RE.test(thenOf(x.gwt)));
   const wontDo = acs.filter(x => !x.judgment && HEAD_NEG_RE.test(thenOf(x.gwt)));
   const judgmentACs = acs.filter(x => x.judgment);
+  // ── Căn cứ bước thiết kế: câu chỉ-người-biết tách khỏi lựa chọn máy đã quyết; dòng đỏ chặn điền sẵn.
+  // Mỗi dòng của hai khối in ba vế bằng decBaVe (ADR 0021) rồi mới tới căn cứ / khuyến nghị (hồ sơ can-cu-s1-chay-moi-kho).
+  // Nạp trong nhánh Cổng 1 (chỉ cổng này dùng). Vắng tệp (bản sao thẻ đứng một mình, cài thiếu) → thẻ vẫn dựng,
+  // mọi dòng sổ về khối chung, và MỘT cờ vàng nêu tên tệp — lộ ra, không im (ADR 0022).
+  let canCu = null; try { canCu = require('./can-cu-s1.cjs'); } catch (_) { canCu = null; }
+  const ccDraft = /^draft$/i.test(status);
+  const cc = canCu ? canCu.phanLoaiSo(ledger.entries, { root, slug, base: glossaryBase || null }) : { cau_hoi: [], da_quyet: [], do: [], doi_truoc: 0, bi_thay: 0, goc: 'chua-kiem', dong: [] };
+  const ccCauHoi = cc.cau_hoi;
+  const ccMayQuyet = cc.da_quyet;
+  const ccRieng = new Set([...ccCauHoi, ...ccMayQuyet].map(d => d.e).concat(cc.dong.filter(d => d.lop === 'bi-thay').map(d => d.e)));
+  const decsChung = decsAll.filter(e => !ccRieng.has(e));
+  const cat200 = x => { const t = String(x || '').replace(/\s+/g, ' ').trim(); return t.length > 200 ? t.slice(0, 199) + '…' : t; };
   const covGaps = acs.filter(x => !x.judgment && THRESHOLD_RE.test(x.gwt) && !evalsFor(x.id).some(e => NEG_RE.test(e.expected))).map(x => x.id);
   // CT-S coverage section — presentation only: render what the contract claims, flag absence/unverified
   const covPresent = /^#{2,6}\s+Coverage\b/im.test(contract);
@@ -807,7 +821,7 @@ if (gate === '1') {
   // Ô duy nhất của cổng này là CHỮ QUYẾT: thẻ sạch → điền sẵn «duyệt»; có cờ
   // đỏ hoặc rơi bậc → để trống, vì mời ký trên thẻ đang đỏ đúng là thứ audit
   // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
-  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || coHD.chan;
+  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || cc.do.length > 0 || coHD.chan;
   // Hồ sơ đã khép (bộ quét: chấm bởi thực tế / nghỉ) không còn câu hỏi nào cho người — không ô hỏi,
   // không dòng lệnh duyệt, không dòng goal (ha-tang-khong-dot-luot AC-7; cùng chữ AC-6 của 2.18.1).
   // Chỉ HỎI bộ quét khi trạng thái nằm NGOÀI mọi danh sách mà bộ tự nhận cổng ở trên biết — đúng ca
@@ -819,7 +833,7 @@ if (gate === '1') {
   const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
   const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, co_hop_dong: coHD, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2), 0); }
+  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, co_hop_dong: coHD, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa', ...(ccDraft ? ccCauHoi.map(d => d.nhan) : [])], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, can_cu: { cau_hoi: ccCauHoi.map(d => ({ nhan: d.nhan, id: d.id, decision: d.e.decision, ...baVeRut(d.e), khuyen: d.e.can_cu.khuyen, loi_khac: d.e.can_cu.loi_khac, kho_dao: d.e.can_cu.kho_dao === true })), da_quyet: ccMayQuyet.map(d => ({ id: d.id, decision: d.e.decision, ...baVeRut(d.e), nguon: d.e.can_cu.nguon, tep: d.e.can_cu.tep || null, trich: d.e.can_cu.trich || null, loi_chet: d.e.can_cu.loi_chet || null, ghi_chu: d.ghi_chu || null })), do: cc.do.map(d => ({ id: d.id, ma: d.ma, thong_diep: d.thong_diep })), doi_truoc: cc.doi_truoc, bi_thay: cc.bi_thay, goc: cc.goc }, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2), 0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -843,9 +857,11 @@ if (gate === '1') {
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
   const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? [SCOPE_TOM + esc(pl.scope_plain)] : []).concat(oosItems.map(x => SCOPE_MUC + esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
+  if (ccCauHoi.length) P.push(`<div class="lab">${ccDraft ? 'Câu chỉ anh trả lời được' : 'Câu đã hỏi ở Cổng Phạm vi (trả lời khi duyệt)'}</div><div class="grp gdo">${ccCauHoi.map(d => `<p class="li" data-cau-hoi="${esc(d.nhan)}"><b>${esc(d.nhan)}</b> · ${decBaVe(d.e)}${d.e.can_cu.kho_dao === true ? ' · <b>khó-đảo</b>' : ''} — máy khuyên: ${esc(stripMd(d.e.can_cu.khuyen))} · lối khác: ${esc(stripMd(d.e.can_cu.loi_khac))}</p>`).join('')}</div>`);
+  if (ccMayQuyet.length) P.push(`<div class="lab">Máy đã quyết ở bước thiết kế — anh lật được</div><div class="grp gnot">${ccMayQuyet.map(d => { const c = d.e.can_cu; const cu = c.nguon === 'muc-tieu' ? `căn cứ: «${esc(cat200(c.trich))}» (${esc(c.tep)})` : `lối khác chết vì: ${esc(stripMd(c.loi_chet))}`; return `<p class="li" data-may-quyet="${esc(d.id)}">${d.e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(d.e)} — ${cu}</p>`; }).join('')}</div>`);
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
-  if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
-  else P.push(`<div class="grp gnot">${decSort(decsAll).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(e)}</p>`).join('')}</div>`);
+  if (!decsChung.length) P.push(`<div class="flag finfo">${ccCauHoi.length || ccMayQuyet.length ? 'Sổ quyết định: mọi dòng đã ở hai khối trên' : 'Sổ quyết định: (chưa ghi quyết định nào)'}</div>`);
+  else P.push(`<div class="grp gnot">${decSort(decsChung).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map((t, i) => `<p class="li">${esc(pIdx(pl.coverage_plain, i) || stripMd(t))}</p>`).join('')}</div>`);
   if (nen.present) P.push(`<div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div><div class="grp gnot"><p class="li">Nền: <b>${esc(nen.nen || '?')}</b> · công cụ ${esc(nen.cong_cu || '?')} · bộ kiểm ${esc(nen.suite || '?')} · lưới như CI ${esc(nen.luoi || '?')} · bộ máy ${esc(nen.engine || '?')}</p>${nen.do.map(l => `<p class="li">${esc(l)}</p>`).join('')}</div>`);
@@ -917,6 +933,11 @@ if (gate === '1') {
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
   if (tier === 'T3') flags.push(['finfo', 'Đụng phần nhạy cảm → tier T3, duyệt kỹ phần "sẽ KHÔNG làm".']);
+  if (!canCu) flags.push(['fwarn', 'Không nạp được bộ đọc căn cứ bước thiết kế (scripts/can-cu-s1.cjs) — thẻ in mọi dòng sổ ở khối chung, chưa kiểm căn cứ.']);
+  for (const d of cc.do) flags.push(['fred', esc(canCu.CO.dong(d.id, d.thong_diep))]);
+  if (cc.goc === 'loi') flags.push(['fwarn', esc(canCu.CO.gocLoi(glossaryBase))]);
+  else if (ccDraft && !glossaryBase && ccMayQuyet.some(d => d.e.can_cu.nguon === 'muc-tieu')) flags.push(['fwarn', esc(canCu.CO.chuaKiemGoc)]);
+  if (ccDraft && cc.doi_truoc) flags.push(['fwarn', esc(canCu.CO.doiTruoc(cc.doi_truoc))]);
   if (coVang) flags.push(['fwarn co-hd', esc(coVang)]);
   if (flags.length) P.push(`<div class="lab">Cần chú ý trước khi duyệt</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
   // ---- 👉 VIỆC CỦA ANH trên THẺ (danh sách máy-đếm — chip ② kit 2.1): mỗi
@@ -925,7 +946,7 @@ if (gate === '1') {
   // mời cổng KHÔNG dùng nó (hồ sơ cat-khoi-viec-cua-anh-tren-tin, 16/08 —
   // điều khoản GATE-INVITE-CLAUSE trong human-facing-language.md).
   if (DA_KHEP_G1) P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Hồ sơ đã khép (${DA_KHEP_G1_VI}) — không còn câu hỏi nào cho người.</b> Mở lại hồ sơ là một quyết định riêng.</p></div>`);
-  else P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div><div class="mach">Dòng lệnh ${(roiBac || g1Blocked) ? 'CHƯA điền sẵn được — thẻ đang có cờ đỏ, đọc cờ trước' : 'đã điền sẵn khuyến nghị'}: <b>${esc(oneShotG1)}</b></div><div class="mach goal">Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn máy chạy tới cổng kế: <b>${esc(goalLine(slug))}</b></div>`);
+  else P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p>${ccDraft ? ccCauHoi.map(d => `<p class="li"><b>${esc(d.nhan)}</b> — ${esc(stripMd(d.e.decision || ''))}: máy khuyên ${esc(stripMd(d.e.can_cu.khuyen))}; «duyệt» là nhận khuyến nghị, chọn lối khác thì trả lời «sửa: ${esc(d.nhan)} = &lt;lối&gt;».</p>`).join('') : ''}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div><div class="mach">Dòng lệnh ${(roiBac || g1Blocked) ? 'CHƯA điền sẵn được — thẻ đang có cờ đỏ, đọc cờ trước' : 'đã điền sẵn khuyến nghị'}: <b>${esc(oneShotG1)}</b></div><div class="mach goal">Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn máy chạy tới cổng kế: <b>${esc(goalLine(slug))}</b></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
   return ghiRoiThoat(P.join('\n'), 0);

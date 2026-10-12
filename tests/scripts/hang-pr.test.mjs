@@ -495,8 +495,16 @@ function doan(text, tieuDe) {
   for (let i = a + 1; i < dong.length; i += 1) if (/^#{2,3} /.test(dong[i])) { b = i; break; }
   return dong.slice(a, b).join('\n');
 }
-// CHANGELOG: «## Chưa phát hành» chứa nhiều `###` — đọc tới `## ` kế, không dừng ở `###`.
-const doanChangelog = (t) => { const a = t.indexOf('## Chưa phát hành'); if (a < 0) return ''; const b = t.indexOf('\n## ', a + 3); return t.slice(a, b < 0 ? undefined : b); };
+// CHANGELOG: phần MỚI HƠN mốc gốc — từ đầu tệp tới mục `## <số ở MOC_GOC>` — gồm «Chưa phát hành» lẫn mục của
+// mốc mang vòng này. Ghim riêng «## Chưa phát hành» là thước nổ ở lần cắt số kế tiếp (release-2-27-0 S4-r1; cùng
+// lớp AC-10 của luot-sua-giu-du ở 2.25). MOC_GOC là commit CỐ ĐỊNH của nhánh chính lúc vòng rẽ, không merge-base sống.
+const MOC_GOC = 'd5931848';
+const SO_MOC_GOC = () => JSON.parse(git(KIT, 'show', `${MOC_GOC}:.claude-plugin/plugin.json`)).version;
+const doanChangelog = (t) => {
+  const so = SO_MOC_GOC();
+  const i = t.search(new RegExp(`\\n## \\[?${so.replace(/\./g, '\\.')}\\b`));
+  return i < 0 ? null : t.slice(0, i);
+};
 function kiemTaiLieu(guide, changelog, gate) {
   const loi = [];
   // Đo trong ĐÚNG tiểu mục của chế độ, nằm trong §5.3 — vài chuỗi (fetch-depth: 0, «đọc hồ sơ») đã có ở chỗ khác
@@ -520,7 +528,8 @@ function kiemTaiLieu(guide, changelog, gate) {
   const dau = gate.slice(0, gate.indexOf('\nset -u'));
   if (!dau.includes('--hang-pr')) loi.push('đầu tệp cổng (Usage) không nêu --hang-pr');
   const cl = doanChangelog(changelog);
-  if (!(cl.includes('--hang-pr') && cl.includes('không truyền cờ'))) loi.push('CHANGELOG «Chưa phát hành» thiếu mục --hang-pr / «không truyền cờ»');
+  if (cl === null) loi.push(`CHANGELOG không có mục của mốc gốc ${SO_MOC_GOC()}`);
+  else if (!(cl.includes('--hang-pr') && cl.includes('không truyền cờ'))) loi.push('CHANGELOG phần mới hơn mốc gốc thiếu mục --hang-pr / «không truyền cờ»');
   return loi;
 }
 const docTaiLieu = () => ({
@@ -544,7 +553,14 @@ ca('AC-10-do', () => {
   if (!l1.some((x) => x.startsWith('khoá GUIDE không có trong HANG-PR-KHOA'))) throw new Error(`đổi cham_vat→cham_ma mà không bắt: ${l1.join(' · ')}`);
   const l2 = kiemTaiLieu(guide.split('!cancelled() && ').join(''), cl, gate);
   if (!l2.some((x) => x.startsWith('hang-pr hỏng thì test bị bỏ'))) throw new Error(`gỡ !cancelled() mà không bắt: ${l2.join(' · ')}`);
-  return 'GUIDE đổi khoá → «khoá GUIDE không có trong HANG-PR-KHOA»; gỡ !cancelled() → «hang-pr hỏng thì test bị bỏ»; tài liệu thật sạch';
+  // Vế CHANGELOG — hai bản tiêm trên chữ thật, mỗi bản phải KHÁC bản gốc rồi mới tin đỏ.
+  const so = SO_MOC_GOC();
+  const matCo = cl.split('--hang-pr').join('--hang-x');
+  const matMuc = cl.replace(new RegExp(`\\n## \\[?${so.replace(/\./g, '\\.')}\\b`), '\n## mục-đã-đổi-tên');
+  if (matCo === cl || matMuc === cl) throw new Error('đối chứng dương hỏng: chuỗi tiêm không đổi được CHANGELOG');
+  if (!kiemTaiLieu(guide, matCo, gate).includes('CHANGELOG phần mới hơn mốc gốc thiếu mục --hang-pr / «không truyền cờ»')) throw new Error('CHANGELOG mất --hang-pr mà không bắt');
+  if (!kiemTaiLieu(guide, matMuc, gate).includes(`CHANGELOG không có mục của mốc gốc ${so}`)) throw new Error('CHANGELOG mất mục mốc gốc mà không bắt');
+  return `GUIDE đổi khoá → «khoá GUIDE không có trong HANG-PR-KHOA»; gỡ !cancelled() → «hang-pr hỏng thì test bị bỏ»; CHANGELOG mất cờ / mất mục ${so} → đỏ đúng câu; tài liệu thật sạch`;
 });
 
 // ── Chạy ────────────────────────────────────────────────────────────────────

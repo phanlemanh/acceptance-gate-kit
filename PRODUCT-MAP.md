@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>112 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>20 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>114 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>22 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -49,6 +49,8 @@ flowchart TD
 
 ## Đã giao — chờ phiên nghiệm thu
 
+- Bước lên thiết kế không dừng hỏi người — lựa chọn có căn cứ máy tự quyết và ghi sổ kèm căn cứ, câu chỉ người biết hoặc khó-đảo lên thẻ Cổng Phạm vi thành câu hỏi, và máy tự quyết một câu chỉ-người-biết thì đỏ (`buoc-len-thiet-ke-khong-hoi`)
+- Bộ xếp căn cứ của bước thiết kế chạy được ở mọi kho tiêu thụ, lỗi không chạy được không bị đọc thành sổ đỏ, và thẻ Cổng Phạm vi in đủ quyết gì — vì sao — sai thì tốn gì cho mọi lựa chọn bước thiết kế (`can-cu-s1-chay-moi-kho`)
 - Lượt chấm không tự đốt lượt — mã thoát máy đọc từ dấu, lượt chặn vì hạ tầng mang nhãn hạ tầng và thử lại cùng round, verified_commit từ máy; thẻ Cổng Phạm vi hiện đủ «sẽ không làm» và mọi bảng phản biện; bảng chi phí S4 tách theo khối; ảnh ui-check neo trong hồ sơ (`cham-khong-tu-dot-luot`)
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)
@@ -88,6 +90,7 @@ flowchart TD
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
 - Hàng DP6, phần lõi Node — S4 bị chặn đúng lệnh, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát thức ngay, không phải dò nhật ký (phần mod chỉ vẽ tách sang hạt giống) (`dieu-phoi-lop-mod`)
 - Mở và đóng một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:mo-dot`, `/dieu-phoi:dong-dot`, `/dieu-phoi:xem`) — vòng đời đợt, đổi kế hoạch trong đợt, nguồn hàng từ lộ trình, khoá S4 cấp máy, start biết đợt, lệnh đếm đợt (`dieu-phoi-mo-dot-mot-lenh`)
+- Ổn định gói dieu-phoi trước đợt chạy r2 của crm (DP8) — `xem --kiem-chuyen` tách dòng phải sửa khỏi dòng lịch sử và bắt import tương đối vào lõi cũ; phiên thợ tự ghi danh worktree của mình vào dãy; việc nền ngoài dãy giữ nhịp khoá thì bộ phát lịch thôi báo nhầm «khoa-khong-nhip» (`dieu-phoi-on-dinh-r2`)
 - Sửa năm lỗi của gói dieu-phoi chặn đợt thử crm/OneFlow — chẩn đoán không mời mở chip lần hai (D4), lời ghi danh không trỏ hàng đã gộp hay dãy nghỉ (D1), bộ phát lịch chỉ giao hàng đã quyết build (B1), lịch 30′ của mo-dot đọc hạn mức (E2), thẻ thôi hỏi khẩu vị hạn mức (E1) (`dieu-phoi-sua-truoc-dot-thu`)
 - Nối lại một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:tiep-tuc`) — nhịp sống của phiên, kế hoạch từng dãy (chip chỉ cho dãy không còn phiên sống), nhận vai giám sát, đánh thức giám sát, lệnh con ghi qua CLI, kiểm môi trường do kho khai (`dieu-phoi-tiep-tuc-mot-lenh`)
 - Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
@@ -159,6 +162,7 @@ flowchart TD
 - Phát hành kit 2.24.0 — đóng số cho cửa sổ 2.23.0 → 2.24.0 (hai vòng đã ký «loc-paths-dong-mac-dinh» và «eval-thay-boi-co-chung»: bộ lọc paths đóng mặc định, eval thay bởi hồ sơ đã ký), để crm cài vào; làn V, không dựng răng (`release-2-24-0`)
 - Phát hành kit 2.25.0 — đóng số cho cửa sổ 2.24.0 → 2.25.0 (hai vòng đã ký «luot-sua-giu-du-dem-dung» và «lenh-dai-chay-rieng»: lượt sửa giữ đủ mục ngoài hợp đồng, lệnh dài và eval nặng chạy riêng ở lượt chấm), để crm cài trước đợt sau-14-10; làn V, không dựng răng (`release-2-25-0`)
 - Phát hành kit 2.26.0 — đóng số cho cửa sổ 2.25.0 → 2.26.0 (ba vòng đã ký «xuat-du-lieu-lo-trinh», «lo-trinh-cat-luot», «doc-ghi-troi-mang-sang-run-id»: trang lộ trình mang khối dữ liệu máy đọc, skill cắt lượt, thẻ Cổng 2 không giấu mục mang sang và run_id rỗng không lọt), để crm nhận thẳng 2.26 một lần trước đợt sau-14-10 và hàng LT1 dùng được khối dữ liệu; làn V, không dựng răng (`release-2-26-0`) — đã giao — máy thông, cửa veto còn mở
+- Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng (`release-2-27-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
