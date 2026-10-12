@@ -36,10 +36,10 @@ Gốc: acceptance-gate-kit/_acceptance/release-2-27-0 — `run-log.jsonl` dòng 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: ở mốc kế (2.29.0) và các mốc sau, có lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» nào tới kho thật không?
-- Kết quả nào là SỐNG: mốc 2.29.0 cắt với lệnh kiểm bản cài XANH trên tag; mọi lỗi lớp ấy (nếu có) đỏ ở kho giả lập TRƯỚC khi phát; máy nhận đầu tiên (crm) chạy kiểm-máy sau khi cài → mọi bản ghi khớp tag.
-- Kết quả nào là CHẾT: một kho thật cài 2.29.0 mà thiếu thư mục gói hoặc lệch tag trong khi lệnh kiểm xanh; hoặc lệnh kiểm không chạy được ở lúc cắt số.
-- Timebox: 2026-10-16 (mốc Phát hành 2.29.0); đọc lại ở lần crm nhận 2.29.0.
+- Câu hỏi phép đo trả lời: [đề xuất] ở mốc kế (2.29.0) và các mốc sau, có lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» nào tới kho thật không?
+- Kết quả nào là SỐNG: [đề xuất] mốc 2.29.0 cắt với lệnh kiểm bản cài XANH trên tag; mọi lỗi lớp ấy (nếu có) đỏ ở kho giả lập TRƯỚC khi phát; máy nhận đầu tiên (crm) chạy kiểm-máy sau khi cài → mọi bản ghi khớp tag.
+- Kết quả nào là CHẾT: [đề xuất] một kho thật cài 2.29.0 mà thiếu thư mục gói hoặc lệch tag trong khi lệnh kiểm xanh; hoặc lệnh kiểm không chạy được ở lúc cắt số.
+- Timebox: [đề xuất] 2026-10-16 (mốc Phát hành 2.29.0); đọc lại ở lần crm nhận 2.29.0.
 
 ## Kết quả prototype
 
