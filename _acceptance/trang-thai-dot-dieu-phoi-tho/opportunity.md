@@ -3,10 +3,10 @@ schema_version: 1
 slug: trang-thai-dot-dieu-phoi-tho
 feature: «Trạng thái đợt Điều phối – Thợ hiện ngay trong app, không phải mở trang hay dò nhật ký»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-10-12T08:19:46Z   # chủ kho gõ «làm · ngưỡng như ô · mod chỉ vẽ» trong phiên thợ DP6b, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -100,10 +100,12 @@ trên desktop do reality đọc, theo chính sách ở trên.
 
 ## Cổng 0
 
-- **decision = …** Máy khuyến nghị **build**. Đây là hàng T2 có neo ngoài, khung đã sẵn, và chỉ bật ở kho tự cài
-  `dieu-phoi`.
+- **decision = build** Chủ kho quyết ngày 12/10 trong phiên thợ DP6b, đúng khuyến nghị của máy. Hàng T2 có neo
+  ngoài. Khung mod đã sẵn trên `main`, và mod chỉ chạy ở kho tự cài `dieu-phoi`.
 - **disposition = …** Không áp dụng (không dựng prototype).
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** «ngưỡng như ô». Đó là các dòng SỐNG, CHẾT, iterate và timebox ở mục Ngưỡng,
+  kèm chính sách «mod chỉ vẽ»: nghi ngờ thì không vẽ, mod không bao giờ cho phép một lời gọi công cụ, và việc chưa
+  nhìn thấy dải trên desktop là một nhãn trên thẻ, không phải việc.
 
 ## Thước đo thành công → ứng viên criterion
 
