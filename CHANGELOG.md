@@ -12,6 +12,19 @@
 
 ## Chưa phát hành
 
+### Bỏ job nặng cho PR không chạm vật — `pre-merge-check.sh --hang-pr` (hồ sơ `ci-cua-kho-bo-job-nang`, hàng C1, T3)
+
+Gốc: crm `giam-phut-acceptance` — 09/10 GitHub dừng mọi job vì vượt mức chi; 30 % phút Actions của crm là test sản
+phẩm trên PR không đổi mã (17 % PR chỉ T1, 12,5 % PR chỉ hồ sơ).
+
+- Cờ mới `--hang-pr` của cổng: in `hang` · `cham_vat` · `ly_do` ra stdout và `$GITHUB_OUTPUT`, một dòng
+  `$GITHUB_STEP_SUMMARY`, thoát 0. Dùng chính bộ khớp và chính `t1_skip_globs`/`t3_paths` của kho; nghi ngờ thì
+  `cham_vat=true`. GUIDE §5.3 có đoạn workflow mẫu (điều kiện `!cancelled() && … != 'false'`).
+- Ai bị ảnh hưởng: kho không truyền cờ — cổng không đổi (từng byte; mọi dòng mới nằm trong vùng marker `HANG-PR`,
+  `glob_variants`/`match_globs` giữ nguyên tên và thân).
+- Nhận mốc ở crm: thay khối `sed` của `.github/scripts/phan-loai.mjs` bằng `--hang-pr`; giữ job `check` (oxlint quét
+  `_acceptance/**/rang/`), chỉ gắn job `test` vào bit.
+
 ### Lộ trình chỉ chứa việc phát triển — việc vận hành thành mốc ngoài, dữ liệu giả có nhãn (hồ sơ `lo-trinh-chi-viec-phat-trien`, hàng S3b, T2)
 
 Gốc: crm `khung-okr-truoc-r1` — lộ trình OKR 11/16 mốc là việc vận hành của người; lộ trình Kho tài liệu
