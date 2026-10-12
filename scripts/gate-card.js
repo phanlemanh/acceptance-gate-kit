@@ -538,12 +538,16 @@ if (gate === '1') {
   // Cỡ hợp đồng (hồ sơ vong-mo-thang-bang-feature-loop): khoảng đọc từ khối CAT-LUOT-CO qua MỘT bộ đọc dùng
   // chung với đồng hồ cỡ (scripts/co-hop-dong.cjs); chỉ hợp đồng draft bị chặn hay cờ — hợp đồng đã qua Cổng
   // Phạm vi đi đường đọc-cũ. Khối hỏng / không đọc được tiêu chí → cờ vàng, KHÔNG chặn (fail-visible).
-  const CHD = require('./co-hop-dong.cjs');
-  const coHD = (() => { const r = CHD.coHopDong({ contract, decisions: read(path.join(dir, 'decisions.jsonl')), status }); delete r.draft; return r; })();
+  // Nạp KHOAN DUNG: thẻ chạy được ở nơi chỉ có lib/ cạnh nó (bản cô lập của P161) — thiếu bộ đọc cỡ thì
+  // cờ vàng nói ra, không sập thẻ, không chặn.
+  let CHD = null, chdLoi = null;
+  try { CHD = require('./co-hop-dong.cjs'); } catch (e) { chdLoi = String(e && e.message || e).split('\n')[0]; }
+  const coHD = CHD ? (() => { const r = CHD.coHopDong({ contract, decisions: read(path.join(dir, 'decisions.jsonl')), status }); delete r.draft; return r; })()
+    : { n: null, nhom: null, khoang: null, giu: null, chan: false, vang: String(status || '').toLowerCase() === 'draft', loi: `không nạp được bộ đọc cỡ scripts/co-hop-dong.cjs: ${chdLoi}` };
   const coKhoang = k => `khối CAT-LUOT-CO: mục tiêu ${k.muc_tieu[0]}–${k.muc_tieu[1]} · cho phép tới ${k.cho_phep_den} · từ ${k.tach_tu} phải tách`;
   const coDo = coHD.chan ? `CHƯA vào được Cổng Phạm vi: hợp đồng có ${coHD.n} tiêu chí — từ ${coHD.khoang.tach_tu} phải tách (${coKhoang(coHD.khoang)}). Hai lối ra: tách thành nhiều vòng, mỗi vòng một kết quả; hoặc ghi vào decisions.jsonl một dòng có decision mở đầu «${CHD.GIU_CO_MO_DAU}<lý do>» nói vì sao kết quả không tách được mà giữ nghĩa.` : null;
   const coVang = !coHD.vang ? null
-    : coHD.loi ? `Chưa kiểm cỡ hợp đồng — ${/khối CAT-LUOT-CO|SKILL cắt lượt/.test(coHD.loi) ? 'không đọc được khoảng cỡ' : 'không đọc được tiêu chí'}: ${coHD.loi}.`
+    : coHD.loi ? `Chưa kiểm cỡ hợp đồng — ${!CHD ? 'không nạp được bộ đọc cỡ' : /khối CAT-LUOT-CO|SKILL cắt lượt/.test(coHD.loi) ? 'không đọc được khoảng cỡ' : 'không đọc được tiêu chí'}: ${coHD.loi}.`
     : coHD.giu ? `Hợp đồng có ${coHD.n} tiêu chí — giữ theo dòng sổ ${coHD.giu.id || '(không mã)'}: «${coHD.giu.ly_do}» (${coKhoang(coHD.khoang)}).`
     : `Hợp đồng có ${coHD.n} tiêu chí — trên mục tiêu ${coHD.khoang.muc_tieu[0]}–${coHD.khoang.muc_tieu[1]} (cho phép tới ${coHD.khoang.cho_phep_den}, khối CAT-LUOT-CO): chỉ giữ khi kết quả không tách được mà giữ nghĩa — ghi vì sao bằng dòng «${CHD.GIU_CO_MO_DAU}<lý do>».`;
   const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);

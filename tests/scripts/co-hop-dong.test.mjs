@@ -149,7 +149,12 @@ await ca('AC-1-hong', async () => {
   const co = coCo(t.html);
   if (!(co.length === 1 && co[0].lop === 'fwarn' && /không đọc được khoảng cỡ/i.test(co[0].van))) loi.push(`cờ: ${JSON.stringify(co)}`);
   if (!t.co || t.co.chan !== false || !/thiếu khối CAT-LUOT-CO/.test(String(t.co.loi))) loi.push(`extract: ${JSON.stringify(t.co)}`);
-  return { loi, mo: 'khối vắng: thẻ thoát 0, cờ vàng «không đọc được khoảng cỡ», loi nêu thông điệp bộ đọc, chan false' };
+  // Vế bộ đọc vắng: bản sao gỡ chính mô-đun — thẻ vẫn dựng, cờ vàng nói ra, không chặn.
+  const goi2 = banSao(); fs.rmSync(path.join(goi2, 'scripts', 'co-hop-dong.cjs'));
+  const t2 = theDu(goi2, kho11('draft')); const co2 = coCo(t2.html);
+  if (t2.ma !== 0) loi.push(`thẻ thoát ${t2.ma} khi thiếu co-hop-dong.cjs: ${t2.err.slice(0, 200)}`);
+  if (!(co2.length === 1 && co2[0].lop === 'fwarn' && /không nạp được bộ đọc cỡ/.test(co2[0].van)) || !t2.co || t2.co.chan !== false) loi.push(`thiếu mô-đun: cờ ${JSON.stringify(co2)} extract ${JSON.stringify(t2.co)}`);
+  return { loi, mo: 'khối vắng: thẻ thoát 0, cờ vàng «không đọc được khoảng cỡ», loi nêu thông điệp bộ đọc, chan false; thiếu mô-đun: thẻ thoát 0, cờ vàng «không nạp được bộ đọc cỡ»' };
 });
 
 // ── AC-2: ma trận cỡ × dòng giữ ───────────────────────────────────────────────────────────────────────
