@@ -21,6 +21,29 @@
       "hang": []
     },
     {
+      "ten": "Phát hành 2.27.0 — đóng gói xong Điều phối – Thợ (DP1–DP4, lõi DP6, DP7), tác tử chấm không cầm bút (A1), bộ đọc khoan dung (R1), máy tự định tuyến Ngoài-n (A3), cùng các hàng gộp sớm L3, G3, X2, S3, S3b, C1; gộp hai mốc dự kiến 18/10 và 25/10; đã phát hành 12/10",
+      "ngay": "2026-10-12",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "DP1",
+        "DP2",
+        "DP3",
+        "DP4",
+        "DP6",
+        "DP7",
+        "A1",
+        "R1",
+        "A3",
+        "L3",
+        "G3",
+        "X2",
+        "S3",
+        "S3b",
+        "C1"
+      ]
+    },
+    {
       "ten": "crm: mọi phòng ban dùng thật hằng ngày (hạn cứng) — kit KHÔNG đổi engine dưới chân crm trước mốc này",
       "ngay": "2026-10-14",
       "loai": "ngoai",
@@ -37,60 +60,30 @@
       ]
     },
     {
-      "ten": "Mốc kế (số đặt lúc cắt) — gói dieu-phoi (DP1), tác tử chấm không sửa mã, bộ đọc khoan dung (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
-      "ngay": "2026-10-18",
-      "loai": "phat-hanh",
-      "ai": "Owner",
-      "hang": [
-        "DP1",
-        "A1",
-        "R1"
-      ]
-    },
-    {
-      "ten": "Mốc sau nữa (số đặt lúc cắt) — ĐÓNG GÓI XONG: mở đợt, tiếp tục, đổi tài khoản bằng một lệnh (DP2–DP4), feature-loop trong đợt (DP7) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
-      "ngay": "2026-10-25",
-      "loai": "phat-hanh",
-      "ai": "Owner",
-      "hang": [
-        "DP2",
-        "DP3",
-        "DP4",
-        "DP7",
-        "DP6",
-        "A3"
-      ]
-    },
-    {
-      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản mốc 25/10 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
+      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản 2.27.0 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
       "ngay": "2026-10-26",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
     },
     {
-      "ten": "OneFlow: đợt thử thứ hai trên gói bản mốc 25/10 — đo «chạy được mà không sửa lõi»",
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.27.0 — đo «chạy được mà không sửa lõi»",
       "ngay": "2026-10-27",
       "loai": "ngoai",
       "ai": "OneFlow",
       "hang": []
     },
     {
-      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), trang hồ sơ một việc (X2), một vòng một kết quả cỡ 8–12 tiêu chí (S3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — trạng thái đợt trong app (DP6b), bớt câu hỏi ở bước thiết kế (A2, A2s), bất biến sản phẩm (BB1), S3c; không cắt số trước hai đợt thử 26–27/10",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "DP6b",
-        "L3",
-        "G3",
+        "S3c",
         "A2",
         "A2s",
-        "X2",
-        "S3",
-        "S3b",
-        "BB1",
-        "C1"
+        "BB1"
       ]
     },
     {
