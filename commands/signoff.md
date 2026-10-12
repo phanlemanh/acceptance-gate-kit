@@ -105,7 +105,15 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
-— đúng như đường hỏi-từng-bước vẫn làm.
+— đúng như đường hỏi-từng-bước vẫn làm. Hình dạng gạch đó theo đúng khối dưới
+(một gạch mở đầu, mỗi giới hạn một gạch con; dải tóm tắt hồ sơ đếm từng gạch
+con thành «N giới hạn đã biết» — ca DT-8 rút chính khối này):
+<!-- <<<KNOWN-LIMITS-NOTE -->
+```
+- Known limits — chọn ở Cổng Bằng chứng <YYYY-MM-DD>:
+  - <Ngoài-n>: <giới hạn, một câu tiếng sản phẩm>
+```
+<!-- KNOWN-LIMITS-NOTE>>> -->
 Với `--repo <path>`: render thẻ bằng `--root <path>`, mọi sửa file dưới
 `<path>/_acceptance/…`, commit chữ ký và pre-merge re-check chạy bằng
 `git -C <path>` / trên gốc `<path>`. Mọi đoạn lệnh in ở các bước dưới viết

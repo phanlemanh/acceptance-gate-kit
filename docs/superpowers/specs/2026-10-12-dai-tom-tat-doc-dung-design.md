@@ -37,29 +37,48 @@ không có lỗi ở đây (crm ghi giới hạn đúng chỗ kit dặn) → s�
 
 ## Cách làm
 
-### 1. `production` — đổi lời, KHÔNG thêm khoá kho
+### 1. `production` — tách «đã triển khai» khỏi «đã thấy chạy», bật theo lựa chọn
 
-Vắng dòng `thuc-te`: ô ghi **«chưa ai xác nhận đã thấy chạy ở production — máy không tự biết»**. Câu nói
-đúng điều kit biết (không biết), không đọc được thành «chưa lên». Có dòng `thuc-te`: giữ nguyên câu cũ.
-Kho muốn ô trả lời «đã lên» thì đi đường đã thiết kế: người ghi quan sát (`/acceptance-gate:observed`,
-ADR 0020) — một lần cho mỗi việc đã lên.
+Ràng buộc của phiên điều phối 12/10 (thay phương án «chỉ đổi lời» của bản S1 đầu): hai câu khác nghĩa,
+hai người gỡ khác nhau.
 
-Phương án bỏ: khoá config «nhánh chính = production» để ô tự suy «đã gộp nhánh chính». Bỏ vì (a) đó là
-CỘNG (khoá mới ở mọi kho) — cần owner phê đích danh; (b) mô-đun dải là hàm thuần với cây tệp, không
-git — suy «đã gộp» cần git hoặc tin rằng mọi trang được vẽ trên nhánh chính (sai: mỗi vòng vẽ lại trang
-trên nhánh của nó); (c) khối ĐỊNH VỊ đặt «sha đang chạy trên prod» là thứ VẬT phát ra, không phải một
-lời khai cấu hình. Đi hạt giống, neo LT1b.
+- **Đã thấy chạy** = reality (ADR 0020): chỉ dòng sổ `thuc-te` người ghi bằng `/acceptance-gate:observed`.
+  Có dòng đó → câu cũ «đã chạy ở production — bản dựng …», ở mọi kho, như trước.
+- **Đã triển khai** = máy suy từ git, CHỈ khi kho khai nhánh production trong `_acceptance/config.yaml`:
+
+  ```yaml
+  production:
+    nhanh: onehub   # nhánh mà gộp vào là lên production
+  ```
+
+  Mã đã chấm (`verified_commit`) là tổ tiên của `origin/<nhánh>` (vắng thì `<nhánh>`) → «đã triển khai —
+  gộp vào <nhánh> <ngày>; chưa ai ghi đã thấy chạy ở production», ngày = commit cũ nhất trên đường
+  first-parent của nhánh chứa mã (commit gộp, hoặc chính mã nếu commit thẳng). Không phải tổ tiên → «chưa
+  gộp vào <nhánh> (nhánh production kho khai)». Không đọc được (không kho git, không thấy nhánh, mã vắng
+  trong kho — vd gộp squash) → «chưa đọc được triển khai ở đây — <lý do>»; không đoán.
+- Kho KHÔNG khai → ô giữ nguyên câu cũ «chưa ghi quan sát production» (luật 26/09: bật theo lựa chọn trước
+  đổi mặc định; hồ sơ đã ký `trang-ho-so-mot-viec` AC-5 không bị chạm).
+
+Đây là **CỘNG** (một khoá cấu hình mới, mô-đun dải thôi là hàm thuần khi khoá có mặt) — owner phê đích
+danh ở Cổng Phạm vi. Phép đo trên bản sao crm (clone `--shared`, `onehub` ghim vào 27d47de04): khai nhánh →
+81/81 «đã triển khai», LT1 «gộp vào onehub 2026-10-10»; không khai → 81/81 câu cũ.
 
 ### 2. `chua_lam` — hai nguồn giới hạn, đổi tên vế đầu
 
 - Vế đầu đổi «N mục ngoài hợp đồng» → **«N mục để ngoài phạm vi»** (`## Out of scope`). «Ngoài hợp đồng»
   là nhãn trạng thái đã có nghĩa (finding ngoài phạm vi đã duyệt — CONTEXT.md).
-- Vế sau đọc HAI nguồn: `## Known limits` của báo cáo (như cũ) và gạch giới hạn trong `## Notes` của
+- Vế sau đọc HAI nguồn: `## Known limits` của báo cáo (như cũ) và khối giới hạn trong `## Notes` của
   hợp đồng. Một gạch giới hạn = gạch cấp ngoài cùng của `## Notes` mở đầu (sau `**` tuỳ chọn, không
   phân hoa thường) bằng `Known limit`/`Known limits`/`known-limit`/`known-limits`/`Giới hạn đã biết`
   (đúng các dạng gặp trên sáu kho). Gạch có gạch con → mỗi gạch con cấp kế là một giới hạn (dạng crm
   LT1: «Known limits — anh chọn ở Cổng Bằng chứng…:» + 13 gạch con); không gạch con → chính nó là một.
-  Gạch con — hoặc gạch trơn — chỉ mang «none»/«không có» không đếm.
+  Gạch con — hoặc gạch trơn — chỉ mang «none»/«không có» không đếm. Thêm dạng ĐẦU ĐOẠN (đo lại sau cờ
+  vàng: 94 hồ sơ crm viết «Known limits — chấp nhận tại Cổng Bằng chứng …» thành một dòng văn, `###` hay
+  `**…**`, rồi các gạch cấp ngoài cùng theo sau) và chữ «Hạn chế đã biết».
+- Không in 0 khi không đọc được (ràng buộc điều phối): `## Notes` còn dòng nhắc giới hạn đã biết mà bộ đọc
+  không nhận → «giới hạn đã biết: chưa đọc được — Notes nhắc giới hạn sai khuôn» (0 mục đọc được) hoặc
+  thêm «(Notes còn chỗ nhắc giới hạn sai khuôn)» sau số. Đo trên sáu kho sau bộ đọc mở rộng: crm 0 ô
+  «chưa đọc được» / 228 hợp đồng, kit 2/139, oneflow 1, media-library 3, artifact-platform 1.
 - Hai nguồn cùng có: lấy **nguồn nhiều mục hơn** (hoà → hợp đồng), không cộng. 28 hồ sơ trên sáu kho có
   cả hai, và ở các ca soi tay hai nơi chép cùng giới hạn (vd crm `ke-hoach-la-mot-ban-ghi` 9 · 9) — cộng
   là đếm đôi. Kit không so được hai câu có phải một giới hạn → khai giới hạn.
@@ -70,9 +89,11 @@ lời khai cấu hình. Đi hạt giống, neo LT1b.
 
 ### 3. `vi_sao` — không cụt, có trần
 
-- Đoạn được chọn kết bằng «:» (xét SAU khi bỏ dấu nhấn — dữ liệu thật có `…cùng lúc**:` và `…:**`) và ngay sau là một danh sách gạch/số → ô = câu dẫn +
+- Đoạn được chọn (ô cơ hội, hoặc đoạn đầu `## Context` của hợp đồng khi ô cơ hội vắng) kết bằng «:» (xét
+  SAU khi bỏ dấu nhấn — dữ liệu thật có `…cùng lúc**:` và `…:**`) và ngay sau là một danh sách gạch/số hoặc một bảng → ô = câu dẫn +
   các mục nối bằng « · », mỗi mục rút gọn: mục mở bằng một cụm in đậm thì lấy cụm đó, không thì lấy câu
-  đầu của mục.
+  đầu của mục; hàng bảng lấy ô đầu, bỏ hàng tiêu đề. Câu dẫn theo sau là khối mã hay đoạn in đậm vẫn cụt
+  (6 hồ sơ trên sáu kho, 0 hàng lộ trình crm) — khai giới hạn.
 - Trần **400 ký tự**: quá thì giữ trọn các đơn vị (câu, hoặc mục của danh sách) còn vừa và kết bằng «…»;
   câu đầu đã quá trần thì cắt ở khoảng trắng gần nhất trước trần + «…». Ô dưới trần giữ nguyên từng ký tự.
 - Trang hồ sơ dùng CÙNG giá trị (một bộ đọc). Đoạn đầy đủ vẫn ở `opportunity.md`.
@@ -83,8 +104,8 @@ lời khai cấu hình. Đi hạt giống, neo LT1b.
 ## Không làm
 
 Đổi tiêu đề mục «Giới hạn và ngoài hợp đồng» của trang hồ sơ (hồ sơ đã ký `trang-ho-so-mot-viec` AC-2 hứa
-nguyên văn; mục ấy liệt kê nguyên văn từng dòng nên không gây hiểu nhầm như con số trên dải) · khoá «nhánh
-chính = production» · tự suy production từ git · sửa gì trong kho crm · đổi khuôn khối dữ liệu (khoá,
+nguyên văn; mục ấy liệt kê nguyên văn từng dòng nên không gây hiểu nhầm như con số trên dải) · suy «đã
+thấy chạy» thay người · đọc triển khai qua gộp squash · sửa gì trong kho crm · đổi khuôn khối dữ liệu (khoá,
 kiểu, phiên bản giữ nguyên — chỉ đổi chữ của ba giá trị).
 
 ## Đặc tả UX
