@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5fa96cd9b0047242eb5bd0dfc3378692c0121cbd
+verified_commit: 7b1dfda873ba47104901107c8c1033e1d4f8f4c4
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -205,3 +205,7 @@ sha: 1e91a2a897ecd2188de221cc591678b1cdedc74e · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-12, do gộp origin/main 057000da (DP8 #332)
 run_id: repin-20261012T165313Z-48447
 sha: 5fa96cd9b0047242eb5bd0dfc3378692c0121cbd · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths), E9 · AC không có chốt máy: AC-3, AC-9
+
+### Re-pin lần 3 — 2026-10-12, do chiến dịch ghim lại mốc v2.28.0
+run_id: repin-20261012T195836Z-51456
+sha: 7b1dfda873ba47104901107c8c1033e1d4f8f4c4 · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths), E9 · AC không có chốt máy: AC-3, AC-9

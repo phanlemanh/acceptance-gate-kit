@@ -2484,7 +2484,8 @@ const BANG_150 = (sha, tt) => ({
   da_giao: ['Việc X có trang hồ sơ', 'contract.md'], vi_sao: [LY_DO_150, 'opportunity.md'], trang_thai: [tt, 'contract.md'],
   ngay: ['2026-10-08', 'contract.md'], production: [`đã chạy ở production — bản dựng ${sha.slice(0, 7)}, quan sát 2026-10-08, M`, 'decisions.jsonl'],
   do_gi: ['có nhanh hơn không — hạn 2026-11-01', 'opportunity.md'], ket_qua: ['release (2026-10-09) · 2/3 thước SỐNG', 'uat-session.md'],
-  chua_lam: ['2 mục ngoài hợp đồng · 1 giới hạn đã biết', 'contract.md'], ai_quyet: ['Cổng Đáng: M · Cổng Phạm vi: M · Cổng Bằng chứng: M', 'contract.md'],
+  // Vế đầu đổi ở hồ sơ dai-tom-tat-doc-dung AC-5 («ngoài hợp đồng» là nhãn finding Cổng Bằng chứng).
+  chua_lam: ['2 mục để ngoài phạm vi · 1 giới hạn đã biết', 'contract.md'], ai_quyet: ['Cổng Đáng: M · Cổng Phạm vi: M · Cổng Bằng chứng: M', 'contract.md'],
 });
 const CK_150 = sha => ({ tieu_chi: 3, phep_do: 3, luot_cham: 2, token: 33500, quyet_dinh_may: 3, quyet_dinh_nguoi: 3, ma: sha });
 const O_150 = ['da_giao', 'vi_sao', 'trang_thai', 'ngay', 'production', 'do_gi', 'ket_qua', 'chua_lam', 'ai_quyet'];
@@ -2524,7 +2525,7 @@ if (want('LT-162 vi-sao-that')) {
     else ok('LT-162 vi-sao-that', `ô cơ hội thật của hồ sơ này: vi_sao = «${v.slice(0, 50)}…»`);
   } catch (e) { bad('LT-162 vi-sao-that', loi(e)); }
 }
-if (want('LT-162-do')) await chayDo('LT-162-do', lt162, [['scripts/ho-so-tom-tat.cjs', 'if (mo) return mo[1].trim();', 'if (mo) continue;']], 'ô vi_sao', 'bản sao bỏ qua đoạn «Vì sao: Gốc: … — lý do»');
+if (want('LT-162-do')) await chayDo('LT-162-do', lt162, [['scripts/ho-so-tom-tat.cjs', "if (mo) return catTran(tachCau(tron(mo[1].trim())), ' ');", 'if (mo) continue;']], 'ô vi_sao', 'bản sao bỏ qua đoạn «Vì sao: Gốc: … — lý do»');
 
 // ── LT-151: mục gập hứa · thiết kế · giới hạn ───────────────────────────
 async function lt151(kit, acThem = false) {
