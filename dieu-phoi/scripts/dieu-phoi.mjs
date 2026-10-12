@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { execFileSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, TEN_LIEN_KET } from './dot.mjs';
 import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
-import { choNghi, dayLen, ghiNhatKy, themHang } from './hang.mjs';
+import { choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, themHang } from './hang.mjs';
 import { theDong, theKhoiTao } from './the.mjs';
 import { nhaMay } from './may.mjs';
 import { demDot } from './dem.mjs';
@@ -20,6 +20,9 @@ import { danhThuc } from './danh-thuc.mjs';
 import { ghiLanDoc } from './han-muc.mjs';
 import { banGiaoXong, batDauBanGiao } from './ban-giao.mjs';
 import { ngucanhTho } from './tho.mjs';
+import { DUONG_BAN_CU, kiemChuyen, LOP_LICH_SU, phanLopChuyen } from './kiem-chuyen.mjs';
+
+export { kiemChuyen, phanLopChuyen };
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const lienKet = (goc) => path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
@@ -50,6 +53,7 @@ export function moDotKq(cwd, ten, { goi = null, phien = null } = {}) {
     ghiJsonNguyenTu(path.join(thuMuc, 'hang-viec.json'), { ...tuGoi.hangViec, dot: ten });
     fs.writeFileSync(path.join(thuMuc, 'LUAT.md'), ghepLuat(fs.readFileSync(path.join(DAY, 'mau', 'LUAT.md'), 'utf8'), tuGoi.luatRieng));
     ghiVai(thuMuc, { phien, worktree: cwd, day: tuGoi.hangViec.day });
+    ghiDauChoGhiDanh(thuMuc, tuGoi.hangViec);
     khoiTaoPha(thuMuc, { pha: 'nhap', nguonGoi: dirGoi });
   } else {
     for (const f of ['LUAT.md', 'hang-viec.json', 'dieu-phoi.config.json']) {
@@ -140,7 +144,6 @@ export function dongDot(cwd) {
 // Bản lõi chép tay trong kho (đường dưới) còn gắn hook qua settings của kho trong lúc chuyển sang gói:
 // hai bản cùng đọc một thư mục đợt nên ra cùng quyết định, nhưng mỗi lời gọi công cụ chạy hook hai
 // lần. `xem` nói ra điều đó để phiên giám sát biết còn việc gỡ.
-const DUONG_BAN_CU = 'scripts/dieu-phoi/';
 
 export function canhBaoHaiBan(gocKho) {
   const rel = path.join('.claude', 'settings.json');
@@ -169,60 +172,17 @@ function xem(cwd) {
   return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
-// Danh mục chuyển: mọi chỗ trong kho còn trỏ bản lõi chép tay (`scripts/dieu-phoi/`) — tệp git theo
-// dõi (settings, package.json, eval của hồ sơ…), settings cục bộ, hook git, LaunchAgent của người
-// dùng nhắc tới kho này, và các tệp chữ ở gốc thư mục đợt đang chạy (LUAT.md). Bỏ qua chính thư mục
-// bản cũ. Trả `<tệp>:<dòng>`; không cần đợt.
-export function kiemChuyen(cwd) {
-  const goc = gocKhoChinh(cwd);
-  const ra = [];
-  const quet = (abs, nhan) => {
-    let t;
-    try {
-      t = fs.readFileSync(abs, 'utf8');
-    } catch {
-      return;
-    }
-    if (t.includes('\0')) return;
-    t.split('\n').forEach((d, i) => {
-      if (d.includes(DUONG_BAN_CU)) ra.push(`${nhan}:${i + 1}`);
-    });
-  };
-  const git = (...a) => execFileSync('git', a, { cwd: goc, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-  const theoDoi = new Set(git('ls-files', '-z').split('\0').filter(Boolean));
-  for (const f of ['.claude/settings.json', '.claude/settings.local.json']) theoDoi.add(f);
-  for (const f of [...theoDoi].sort()) if (!f.startsWith(DUONG_BAN_CU)) quet(path.join(goc, f), f);
-  // Hook git: cả `.git/hooks` của kho lẫn `core.hooksPath` đang có hiệu lực (có máy đặt nó toàn hệ
-  // thống, khi đó `--git-path hooks` không còn trỏ `.git/hooks`).
-  const chung = path.resolve(goc, git('rev-parse', '--git-common-dir').trim());
-  const dsHooks = [[path.join(chung, 'hooks'), '.git/hooks']];
-  const hieuLuc = path.resolve(goc, git('rev-parse', '--git-path', 'hooks').trim());
-  if (hieuLuc !== dsHooks[0][0]) dsHooks.push([hieuLuc, hieuLuc.startsWith(`${goc}${path.sep}`) ? path.relative(goc, hieuLuc) : hieuLuc]);
-  for (const [d, nhan] of dsHooks) {
-    if (!fs.existsSync(d)) continue;
-    for (const f of fs.readdirSync(d).sort()) if (!f.endsWith('.sample') && fs.statSync(path.join(d, f)).isFile()) quet(path.join(d, f), `${nhan}/${f}`);
+// Đầu ra `xem --kiem-chuyen` (design doc, chỗ chọn 1d): dòng phải sửa giữ khuôn 2.27; không còn dòng phải sửa thì
+// `sach`; có lịch sử thì ĐÚNG MỘT dòng tổng (lớp theo thứ tự bảng, lớp 0 dòng không in); `--chi-tiet` in thêm
+// từng dòng lịch sử. Kho không có lịch sử thì đầu ra y như 2.27.
+export function veKiemChuyen({ phai_sua: phaiSua, lich_su: lichSu }, { chiTiet = false } = {}) {
+  const dong = phaiSua.length ? phaiSua.map((d) => `kiem-chuyen: ${d}`) : ['kiem-chuyen: sach'];
+  if (lichSu.length) {
+    const dem = LOP_LICH_SU.map((l) => [l, lichSu.filter((x) => x.lop === l).length]).filter(([, k]) => k > 0);
+    dong.push(`kiem-chuyen: lich-su ${lichSu.length} dòng — ${dem.map(([l, k]) => `${l} ${k}`).join(' · ')} — để nguyên${chiTiet ? '' : '; xem từng dòng bằng --chi-tiet'}`);
+    if (chiTiet) for (const x of lichSu) dong.push(`kiem-chuyen lich-su: ${x.dong} · ${x.lop}`);
   }
-  const la = path.join(process.env.HOME ?? '', 'Library', 'LaunchAgents');
-  if (fs.existsSync(la)) {
-    for (const f of fs.readdirSync(la).filter((x) => x.endsWith('.plist')).sort()) {
-      const p = path.join(la, f);
-      let t = '';
-      try {
-        t = fs.readFileSync(p, 'utf8');
-      } catch {
-        continue;
-      }
-      if (t.includes(goc)) quet(p, `~/Library/LaunchAgents/${f}`);
-    }
-  }
-  const dot = path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
-  if (fs.existsSync(dot)) {
-    for (const f of fs.readdirSync(dot).sort()) {
-      const p = path.join(dot, f);
-      if (fs.statSync(p).isFile() && /\.(md|json|txt)$/.test(f)) quet(p, `<thư mục đợt>/${f}`);
-    }
-  }
-  return ra;
+  return `${dong.join('\n')}\n`;
 }
 
 // Tách đối số: vị trí và cờ `--ten giá-trị` (cờ không giá trị → true).
@@ -246,9 +206,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
   const cwd = process.cwd();
   if (lenh === 'xem' && co['kiem-chuyen']) {
     try {
-      const ds = kiemChuyen(cwd);
-      process.stdout.write(ds.length ? `${ds.map((d) => `kiem-chuyen: ${d}`).join('\n')}\n` : 'kiem-chuyen: sach\n');
-      process.exit(ds.length ? 1 : 0);
+      const kq = phanLopChuyen(cwd);
+      process.stdout.write(veKiemChuyen(kq, { chiTiet: co['chi-tiet'] === true }));
+      process.exit(kq.phai_sua.length ? 1 : 0);
     } catch (e) {
       process.stderr.write(`dieu-phoi: ${e.message}\n`);
       process.exit(2);
@@ -301,6 +261,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         return JSON.stringify(ham(cwd), null, co.json ? 0 : 2);
       },
       dem: () => JSON.stringify(demDot(thuMucHienTai(cwd)), null, co.json ? 0 : 2),
+      // Phiên thợ mở từ chip tự ghi danh worktree của nó vào dãy (DP8) — chạy từ worktree của chip, trước S1.
+      'ghi-danh': () => {
+        const kq = ghiDanhWorktree(cwd, doiSo);
+        return kq.doi ? `ghi-danh: ${kq.day} → ${kq.worktree}${kq.nhac ? `\n${kq.nhac}` : ''}` : `ghi-danh: ${kq.day} đã ghi danh ${kq.worktree}`;
+      },
       // Chỉ đọc; kho không đợt → JSON `khong-dot`, thoát 0 (không qua thuMucHienTai).
       tho: () => JSON.stringify(ngucanhTho(cwd, { slug: typeof co.slug === 'string' ? co.slug : null })),
       chay: () => chayPhatLich(cwd),
@@ -352,7 +317,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc '<json>'|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

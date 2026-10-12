@@ -335,7 +335,19 @@ function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day) {
 // Khoá cấp quá 10′ mà worktree giữ khoá không có nhịp sống nào kể từ lúc cấp (spec workflow §5.1): lệnh
 // nền chờ khoá của thợ đã chết theo app. Một sự kiện mỗi lần cấp; đợt chưa có thư mục `song/` (hook bản
 // cũ) thì im. Nhịp nối theo worktree, không theo phiên giữ (design DP3 §3 chỗ chọn 1 — giới hạn đã khai).
-function baoKhoaKhongNhip(thuMuc, cu, nowMs) {
+// DP8 (#301 điểm 8, design chỗ chọn 3): khoá do phiên NGOÀI dãy giữ (việc nền như kiểm chéo đêm của kho, không qua
+// hook PostToolUse nên không bao giờ có nhịp phiên) còn sống khi nhịp KHOÁ (`khoa/<tn>/nhip`, do `chamNhip` hay lệnh
+// bọc `giu-nhip.mjs` ghi) có từ lúc cấp; thôi chạm nhịp thì hạn thuê thu hồi như mọi khoá. Khoá của dãy giữ luật cũ.
+const viecNenGiuNhip = (thuMuc, tn, chu, hangViec) => {
+  if ((hangViec?.day ?? []).some((d) => d.id === chu.phien)) return false;
+  try {
+    return fs.statSync(path.join(thuMuc, 'khoa', tn, 'nhip')).mtimeMs >= Date.parse(chu.cap_luc);
+  } catch {
+    return false;
+  }
+};
+
+function baoKhoaKhongNhip(thuMuc, cu, nowMs, hangViec = null) {
   const daBao = new Set(cu.khoa_khong_nhip_da_bao ?? []);
   const conGiu = [];
   if (!coThuMucSong(thuMuc)) return conGiu;
@@ -350,6 +362,7 @@ function baoKhoaKhongNhip(thuMuc, cu, nowMs) {
     if (nowMs - Date.parse(chu.cap_luc) < NGUONG_SONG_MS) continue;
     const nhip = nhipMoiNhatCua(thuMuc, chu.worktree);
     if (nhip && Date.parse(nhip.luc) >= Date.parse(chu.cap_luc)) continue;
+    if (viecNenGiuNhip(thuMuc, tn, chu, hangViec)) continue;
     ghiSuKien(thuMuc, { loai: 'khoa-khong-nhip', tai_nguyen: tn, phien: chu.phien, ly_do: `khoá cấp lúc ${chu.cap_luc}, không có nhịp sống của ${chu.worktree} từ đó`, can_phan: true });
     conGiu.push(khoa);
   }
@@ -419,7 +432,7 @@ export async function motNhip(thuMuc, io) {
   });
 
   const dem = suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day);
-  const khoaKhongNhip = baoKhoaKhongNhip(thuMuc, cu, nowMs);
+  const khoaKhongNhip = baoKhoaKhongNhip(thuMuc, cu, nowMs, hangViec);
   const tt = {
     dot: hangViec.dot,
     pha,

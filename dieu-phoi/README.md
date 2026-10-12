@@ -89,6 +89,11 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 
 ## Chặn S4 và việc chờ người
 
+- **Việc nền ngoài dãy giữ khoá** — ví dụ kiểm chéo đêm của kho xin khoá `s4` với phiên riêng (không phải mã một
+  dãy), không qua hook `PostToolUse` nên không bao giờ có nhịp phiên: giữ nhịp KHOÁ bằng `chamNhip` của
+  `hook-nhip.mjs` (gọi đều tay trong lúc giữ) hoặc chạy qua `giu-nhip.mjs`. Bộ phát lịch coi khoá có nhịp khoá từ
+  lúc cấp là còn sống và không báo `khoa-khong-nhip`; thôi chạm nhịp thì hạn thuê thu hồi khoá như mọi khoá. Khoá
+  của dãy vẫn đòi nhịp phiên của worktree dãy.
 - **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
   `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
   `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị
@@ -148,6 +153,8 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
 
 ## Phiên thợ trong đợt
 
+**Ghi danh worktree.** Chip của app luôn dựng worktree MỚI tên ngẫu nhiên, nên gói đợt không biết trước worktree của dãy — gói khai chỗ giữ (ví dụ `/CHUA-CO-WORKTREE/P1`). Việc đầu tiên của phiên mở từ chip, trước S1, chạy từ worktree của chip: `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>` (lời ghi danh của chip mang sẵn dòng lệnh này). Lệnh ghi gốc worktree của phiên vào `day[<dãy>].worktree` của `hang-viec.json`, thêm một dòng Nhật ký và một sự kiện `ghi-danh`; chạy lại thì không làm gì. Lệnh từ chối và không ghi byte nào khi: dãy không có trong đợt · worktree này đã là của dãy khác · cwd là gốc kho chính · không có đợt · dãy còn phiên ở worktree cũ (hành động `khong`, `nhan-giang-lai` hay `cho-nguoi` — đọc cùng hàm với `tiep-tuc`, nên dãy nào được mời chip thì phiên chip ghi danh được). Worktree cũ đã chết thì bị đè: đơn còn chờ của dãy theo sang worktree mới, giữ giờ xin; nhánh cũ còn checkout ở worktree cũ, lệnh in cách gỡ. Lúc mở đợt từ gói, dãy có worktree chưa tồn tại nhận dấu `cho-ghi-danh/<dãy>.json`: `chan-doan` và `tiep-tuc` xếp dãy ấy như dãy không phiên sống (thường `mo-chip`), không `worktree-mat`; đợt mở bằng bản gói cũ không có dấu thì giữ hành vi cũ. Mọi bên viết `hang-viec.json` (ghi danh, `hang day-len|them|nghi`) giữ khoá `hang-viec.khoa` nên tám chip bấm cùng lúc không mất bản ghi.
+
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
 feature-loop (chỉ đọc). Kho không có đợt → lệnh không in gì và vòng chạy y như cũ. Có đợt → nó gọi lệnh
 `tho --json` của bản lõi trong thư mục đợt và nhận một JSON: dãy của phiên (theo worktree trong
@@ -177,7 +184,22 @@ sách chờ người của bảng đợt và được lệnh đếm tính một 
 Kho từng chép lõi vào cây của mình và gắn hook trong `.claude/settings.json` thì trong lúc chuyển hai
 bản cùng đọc một thư mục đợt và ra cùng quyết định. `xem` in một dòng cảnh báo khi settings của kho còn
 hook gọi bản cũ. `xem --kiem-chuyen` liệt kê mọi chỗ trong kho còn trỏ bản cũ (settings, hook git,
-`package.json`, eval của hồ sơ, `LUAT.md` của đợt) — sạch thì in `kiem-chuyen: sach`.
+`package.json`, eval của hồ sơ, `LUAT.md` của đợt, và import hay require TƯƠNG ĐỐI trong tệp mã mà đường giải
+rơi vào thư mục bản cũ — `../dieu-phoi/dot.mjs` từ một thư mục cạnh nó dưới `scripts/`) và tách hai nhóm:
+
+- **phải sửa** — in từng dòng `kiem-chuyen: <tệp>:<dòng>`; hết dòng phải sửa thì in `kiem-chuyen: sach`. Mã thoát
+  0 khi không còn dòng phải sửa, 1 khi còn, 2 khi lỗi.
+- **lịch sử** — để nguyên (sửa vật đã ký làm hồ sơ hoá cũ); in ĐÚNG MỘT dòng tổng `kiem-chuyen: lich-su <n> dòng
+  — <lớp> <k> · …`, thêm `--chi-tiet` để in từng dòng `kiem-chuyen lich-su: <tệp>:<dòng> · <lớp>`. Bảy lớp, neo vào
+  khuôn kit: `khai-boi-kho` (kho tự khai, dưới) · `ho-so` (mọi tệp dưới `_acceptance/<slug>/` trừ `evals.yaml`) ·
+  `eval-chet` (dòng trong khối eval `status: not-run`) · `eval-ngoai-lan-may` (khối `judgment`/`ui-check` của hồ sơ
+  đã thông — làn ghim lại không chạy chúng) · `executor-chet` (khoá `executors.<nhóm>.<khoá>` mà không eval sống
+  nào gọi và `feature_loop.suite_keys` không nêu) · `tai-lieu` (`docs/**`) · `lo-trinh` (`LO-TRINH.html`).
+
+Kho tự khai lịch sử riêng bằng khoá tuỳ chọn `dieu_phoi.lich_su` trong `_acceptance/config.yaml` — danh sách,
+mỗi mục là glob đường tệp, hoặc `<đường evals.yaml>#<id>` cho MỘT khối eval sống được miễn (ví dụ eval lấy đường
+bản cũ làm tệp mẫu). Vắng khoá thì không khai gì. Hàm `kiemChuyen` (xuất từ `dieu-phoi.mjs`) vẫn trả MỌI dòng như
+2.27; `phanLopChuyen` trả hai nhóm.
 
 Thứ tự chuyển, chạy ở quãng lặng (không lượt S4 nào đang chạy):
 
@@ -186,12 +208,12 @@ Thứ tự chuyển, chạy ở quãng lặng (không lượt S4 nào đang ch�
    `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại.
 2. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, rồi gỡ mọi dòng nó in thuộc nhóm **đang chạy**: khối hook
    trong `.claude/settings*.json` gọi bản cũ, hook git, `package.json`, eval của hồ sơ đang mở, `LUAT.md` của đợt
-   đang chạy; sau đó gỡ chính thư mục lõi chép tay của kho (lệnh bỏ qua thư mục bản cũ nên không liệt kê nó). Lệnh
-   quét MỌI tệp git theo dõi, nên dòng trong **bản ghi lịch sử** — `run-log.jsonl`, báo cáo bằng chứng, hồ sơ đã ký,
-   `docs/` — vẫn còn và phải để nguyên: sửa chúng làm hồ sơ đã ký hoá cũ. Kho có lịch sử thì `kiem-chuyen: sach`
-   không bao giờ in; điểm dừng là hết dòng thuộc nhóm đang chạy (đo trên một kho thật 12/10: 670 dòng, 7 dòng thuộc
-   nhóm đang chạy — settings 4, hook git 2, `package.json` 1 — còn lại là lịch sử). Gỡ và cài nằm trong CÙNG một
-   commit để không có khoảng hai bản hook cùng chạy.
+   đang chạy, import tương đối; eval sống của hồ sơ đã ký thì khai «thay bởi» (`status: not-run` +
+   `superseded_by`) chứ không sửa thân; sau đó gỡ chính thư mục lõi chép tay của kho (lệnh bỏ qua thư mục bản cũ
+   nên không liệt kê nó). Điểm dừng là `kiem-chuyen: sach` (đo trên một kho tiêu thụ thật 12/10: trước khi gỡ 680 dòng, 125 phải
+   sửa — gồm 4 dòng import tương đối của một thư mục cạnh lõi cũ và 100 dòng eval sống của 5 hồ sơ đã ký; sau khi gỡ
+   690 dòng, 5 phải sửa — eval của chính hồ sơ chuyển và một eval lấy đường cũ làm tệp mẫu, cả năm kho tự khai ở
+   `dieu_phoi.lich_su`). Gỡ và cài nằm trong CÙNG một commit để không có khoảng hai bản hook cùng chạy.
 3. Kiểm không bắn đôi: khối hook bản cũ mở đầu bằng `[ -f "$CLAUDE_PROJECT_DIR/<thư mục bản cũ>/hook-….mjs" ] ||
    exit 0`, nên nó im hẳn khi thư mục bản cũ đã gỡ. «Không bắn đôi» = `kiem-chuyen` không còn dòng nào ở
    `.claude/settings*.json` + thư mục bản cũ không còn + `xem` không in dòng cảnh báo hook bản cũ. Trong khoảng đã cài gói mà chưa gỡ, mỗi `Notification` chạy hai bản
