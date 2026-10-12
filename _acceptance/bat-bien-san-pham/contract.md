@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # theo hàng BB1; đường tệp: scripts/luat-san-pham.cjs (mới) + scripts/can-cu-s1.cjs (A2) + scripts/gate-card.js + scripts/khong-can-nguoi.mjs + SKILL feature-loop (S1, S4 «Mọi verdict», mục sổ) + commands/signoff.md + khuôn trong skills/acceptance/references/ + test + tài liệu — không chạm lib/**, hooks/**, cổng chặn gộp
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-bat-bien-san-pham-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-11T13:38:58Z
 ---
@@ -89,3 +89,17 @@ phiên bản luật), `[NGÀNH: ArchUnit]` (luật thành phép kiểm, vi phạ
   bộ tìm lỗi thấy luật chỉ khi kho trỏ tệp trong `CLAUDE.md` · tách commit máy/người bằng dòng đồng tác
   giả · chân crm của AC-2 chạy tay một lần.
 - Commit gốc của vòng: `72eb55f3287477778e222ff47b08499d2aaa7969` (origin/main = tag v2.28.0, 13/10 — đã có A2 #320 + A2s #331; trước đó `08d041a6`, lúc vào S3 là đỉnh nhánh A2 `e8ef5e20`) — ca LS-02 đọc sha từ dòng này.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 2, ký 13/10 — Manh Phan):** Ngoài-1: E11 chưa khai
+  `commands/acceptance-card.md` và bộ sinh thẻ trong `paths`, nên một lượt sửa sau có thể giữ PASS cũ của phép
+  kiểm tràn ngang mà không chạy lại · Ngoài-3: các bản chép tay khung thẻ ở ca đo của hồ sơ khác vẫn thiếu dòng
+  viewport (chỉ ảnh minh hoạ lệch) · Ngoài-5: ô «SP-n» trên dòng «Trả lời mẫu» điền sẵn «sửa vật» (đúng AC-8,
+  trái nếp câu mẫu là khuôn có chỗ trống) · Ngoài-6: thẻ nuốt im lỗi nạp mô-đun luật — hỏng thì trông như kho
+  không khai luật, ở Cổng Bằng chứng có thể mở làn đi tiếp · Ngoài-7: khối ngữ pháp câu gộp chưa nêu hai nhãn
+  «SP-<số>», «Tệp luật» (danh sách nhãn ô và lệnh signoff đã có) · Ngoài-9: dòng thêm mở đầu `++ ` bị đọc thành
+  đầu tệp, phần còn lại của tệp không được soi · Ngoài-10: thẻ Cổng Phạm vi đọc dòng nạp cũ nhất, cờ «luật đã đổi»
+  không tự tắt sau khi nạp lại · Ngoài-12: LS-10 đo nhãn ô, không đo câu luật nằm trong khối việc của người ·
+  Ngoài-13: LS-05-do xanh cả khi mô-đun nạp hỏng rơi về nhánh dự phòng · Ngoài-14: ca không bật Hỏi-3 xanh cả khi
+  câu hỏi biến mất. Chấp nhận, không sửa: Ngoài-2 (LS-10 đọc khung thẻ bằng regex trên văn, hỏng thì báo to) ·
+  Ngoài-11 (tệp đo múi giờ crm dừng giữa chừng khi không khớp) · Ngoài-15 (kịch bản gate2-luat và LS-11 dùng dữ
+  liệu viết tay). Ngoài-4 + Ngoài-8 (bộ soi đọc sai tên tệp có dấu/dấu cách) — mở hợp đồng mới: ghi hạt giống
+  `docs/plans/2026-10-13-hat-giong-bo-soi-luat-ten-tep-co-dau.md`, không tạo ô.

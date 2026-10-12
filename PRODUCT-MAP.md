@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>116 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>23 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>24 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -43,12 +43,12 @@ flowchart TD
 
 ## Đang làm
 
-- Mỗi kho khai các luật sản phẩm của mình trong một tệp; luật được nạp lúc viết đặc tả, và vòng nào phạm luật thì thẻ cổng nêu tên luật đó (`bat-bien-san-pham`)
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
+- Mỗi kho khai các luật sản phẩm của mình trong một tệp; luật được nạp lúc viết đặc tả, và vòng nào phạm luật thì thẻ cổng nêu tên luật đó (`bat-bien-san-pham`)
 - Bước lên thiết kế không dừng hỏi người — lựa chọn có căn cứ máy tự quyết và ghi sổ kèm căn cứ, câu chỉ người biết hoặc khó-đảo lên thẻ Cổng Phạm vi thành câu hỏi, và máy tự quyết một câu chỉ-người-biết thì đỏ (`buoc-len-thiet-ke-khong-hoi`)
 - Bộ xếp căn cứ của bước thiết kế chạy được ở mọi kho tiêu thụ, lỗi không chạy được không bị đọc thành sổ đỏ, và thẻ Cổng Phạm vi in đủ quyết gì — vì sao — sai thì tốn gì cho mọi lựa chọn bước thiết kế (`can-cu-s1-chay-moi-kho`)
 - Lượt chấm không tự đốt lượt — mã thoát máy đọc từ dấu, lượt chặn vì hạ tầng mang nhãn hạ tầng và thử lại cùng round, verified_commit từ máy; thẻ Cổng Phạm vi hiện đủ «sẽ không làm» và mọi bảng phản biện; bảng chi phí S4 tách theo khối; ảnh ui-check neo trong hồ sơ (`cham-khong-tu-dot-luot`)
