@@ -5,7 +5,7 @@ slug: release-2-27-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + mô tả marketplace + dòng khớp-phiên-bản của GUIDE + CHANGELOG + README gói dieu-phoi + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -97,3 +97,25 @@ mười bảy hồ sơ · `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md
   `luot-dung` trong run-log). Hai mục còn lại (E1/E6 không chứng số đã tăng; E4 so danh sách chép trong config) ghi
   Known limits ở chữ ký.
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 200ce7bb x` thoát 1 gọi tên mọi hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
+- Hạn chế đã biết, chủ kho chọn ở Cổng Bằng chứng (sổ quyết định, các dòng «Ngoài-<số>: ghi Known limits», 12/10;
+  mỗi mục một hàng `docs/research/known-limits-ledger.tsv`):
+  - Ngoài-1: Hướng dẫn chuyển bảo kho gỡ bản cũ nhưng giữ nguyên các hồ sơ đã ký, trong khi có hồ sơ đã ký vẫn chạy
+    kiểm bằng chính bản cũ ấy. Làm đúng hướng dẫn thì đợt ghim lại kế tiếp ở kho có thể đỏ ở những hồ sơ đó, và
+    hướng dẫn không chỉ lối «cho hồ sơ nghỉ» đã có sẵn.
+  - Ngoài-2: Hướng dẫn chuyển chỉ kiểm cây làm việc gốc. Những cây làm việc phụ của thợ chưa gộp bước chuyển vẫn chạy
+    cùng lúc cả bản cũ lẫn bản mới của các móc tự động, nên một lần chờ người có thể bị đếm hai lần mà mọi phép kiểm
+    vẫn báo sạch.
+  - Ngoài-3: Một lần sửa phép kiểm của lệnh gom PR chưa được thử theo chiều hỏng: nếu ai đó nới phạm vi đọc nhật ký
+    thay đổi thì phép kiểm vẫn báo xanh. Lời hứa «chỉ tính phần mới hơn mốc gốc» vì vậy chưa có máy bảo đảm.
+  - Ngoài-4: Hướng dẫn chuyển sang gói mới không nhắc tới lịch chạy nền của máy. Kho nào còn lịch gọi bản cũ có thể
+    tưởng đã chuyển xong trong khi bản cũ vẫn chạy ngầm; ở crm đo hôm 12/10 chưa gặp trường hợp này.
+  - Ngoài-5: Thẻ người ký nói máy tự định tuyến các mục ngoài hợp đồng như thể bật sẵn, nhưng thực tế chỉ chạy khi kho
+    tự bật. Người ký có thể hiểu nhầm năng lực mặc định của bản phát hành này.
+  - Ngoài-6: Câu trên thẻ về tác tử chấm chỉ được đối chiếu với lời mô tả trong tài liệu, chưa đối với cấu hình thật
+    của tác tử. Nếu thẻ và tài liệu cùng sai thì phép kiểm vẫn cho qua.
+  - Ngoài-11: Báo cáo bằng chứng ghi đạt cho số mới 2.27.0 trong khi phép đo chỉ chứng minh ba gói cùng một số, không
+    chứng minh số đã tăng so với mốc trước. Nếu quên nâng số, báo cáo vẫn xanh và chỉ người đọc diff mới thấy.
+  - Ngoài-12: Phép đo danh sách hồ sơ trong cửa sổ phát hành so với một bản chép tay chứ không so trực tiếp với danh
+    sách kể trong hợp đồng. Hôm nay hai bên khớp nhau, nhưng sau này sửa một bên mà quên bên kia thì phép đo vẫn xanh.
+- Ngoài-7…10 (bốn mục mang sang từ lượt chấm 1, đã thành AC-8, E8 PASS): chủ kho chọn «chấp nhận, không sửa» — không
+  gạch Known limits; bốn hàng sổ giới hạn ở trạng thái `chet`.
