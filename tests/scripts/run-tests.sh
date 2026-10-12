@@ -4486,5 +4486,11 @@ if [ -n "$SELF_CTRL" ]; then echo "  PASS: SELF02 (doi chung duong: phep quet ba
 else echo "  FAIL: SELF02 (phep quet KHONG bat duoc file co loi ro rang -> SELF01 vo nghia)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 rm -f "$SELF_MUT"
 
+# ── buoc-len-thiet-ke-khong-hoi (A2): bộ xếp lớp căn cứ bước thiết kế — CC-02..CC-10 ──
+# Tệp ca không mang đuôi .test.mjs để không trôi giữa các mảnh mjs; chạy ở phần bash (tất định).
+echo "=== can-cu-s1.ca.mjs ==="
+node "$HERE/can-cu-s1.ca.mjs"; _cc_rc=$?
+check "can-cu-s1.ca.mjs (CC-02..CC-10)" 0 "$_cc_rc"
+
 # <<<KET-SUITE
 ket_suite
