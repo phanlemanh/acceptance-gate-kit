@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + scripts/cat-luot.mjs + mô-đun mới scripts/co-hop-dong.cjs + commands/approve.md + ba SKILL/khuôn + GUIDE + test — không chạm lib/**, hooks/**, lưới trước-merge.
 surfaces: [cli, docs]
 design_doc: docs/superpowers/specs/2026-10-12-vong-mo-thang-bang-feature-loop-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
