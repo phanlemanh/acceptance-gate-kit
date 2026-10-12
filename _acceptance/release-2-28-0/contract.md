@@ -5,7 +5,7 @@ slug: release-2-28-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + bước cài zsh của CI kit (T1) + workspace hồ sơ + bản đồ + 3 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -84,3 +84,5 @@ mục Notes và Known limits của năm hồ sơ · crm#375 (hoà giải ba máy
   mười một tệp thừa, và với một tệp không đổi (`lib/evidence-core.cjs`) kể thêm thì «mốc kể tệp KHÔNG đổi», thoát 1.
 - CI main đỏ ở lần gộp A2s (`08d041a6`) chỉ vì ca trang lộ trình không mở được Chrome trên runner — xanh lại ở
   `057000da`; chập chờn của runner, không phải vật của cửa sổ.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-1: Ghi chú nhận mốc nói kho tiêu thụ chỉ cần chép lại một tệp, nhưng phép kiểm lời ấy so với danh sách gõ tay lúc soạn hồ sơ chứ không đọc lại ghi chú — sửa ghi chú mà quên sửa danh sách thì phép kiểm vẫn báo đạt.
