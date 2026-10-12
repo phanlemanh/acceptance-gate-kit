@@ -12,6 +12,29 @@
 
 ## Chưa phát hành
 
+### Lộ trình chỉ chứa việc phát triển — việc vận hành thành mốc ngoài, dữ liệu giả có nhãn (hồ sơ `lo-trinh-chi-viec-phat-trien`, hàng S3b, T2)
+
+Gốc: crm `khung-okr-truoc-r1` — lộ trình OKR 11/16 mốc là việc vận hành của người; lộ trình Kho tài liệu
+có hàng phát triển đứng chờ hàng vận hành `ct`.
+
+- Skill cắt lượt có bước 2b (khối `CAT-LUOT-VAN-HANH`): xếp từng mã thành phát triển · vận hành một lần ·
+  vận hành lặp lại trước sáu luật. Việc vận hành thành **mốc ngoài** (`moc` có `loai: "ngoai"`, `ai`, `dot`,
+  `phu`) — chỗ thứ ba của bảng phủ (`<mã> → mốc ngoài <nhãn>`). Luật 2 nói rõ: «dữ liệu thật của hàng
+  trước» là kết quả vòng trước đã giao; `dung_tren` chỉ trỏ hàng.
+- Răng `cat-luot.mjs` thêm bốn cờ: `cho-van-hanh` (hàng đứng trên một mốc ngoài) · `du-lieu-sai-gia-tri`
+  · `thieu-hang-sinh-gia` (hàng `du_lieu: "gia"` không đứng trực tiếp trên hàng `du_lieu: "sinh-gia"`) —
+  đỏ trong đợt, gom vàng ngoài đợt; `van-hanh-lap-chua-tu-phuc-vu` (mốc ngoài `lap: true` chưa có
+  `tu_phuc_vu`) — vàng. Mốc của đợt mang mã mà không phải mốc ngoài, hay thiếu `ai`, là lỗi.
+- Hai mục treo của S3: SKILL phân hai loại dòng `cảnh báo:` (khối `CAT-LUOT-CANH-BAO` — của đợt thì xử
+  lý hoặc ghi lý do; ngoài đợt thì chép vào PR) và nói khoảng cỡ là chính sách của kit theo bản phát
+  hành (kho tiêu thụ không sửa khối, dán số đo của đồng hồ cỡ vào PR và báo chủ kit).
+- Khuôn lộ trình và khuôn bản phạm vi có mẫu mốc ngoài lặp lại, hàng sinh dữ liệu giả, hàng dùng nó.
+
+**Ai bị ảnh hưởng:** kho có lộ trình (crm). Lộ trình cũ đọc như cũ — đo trên kit + ba bản chụp crm/oneflow:
+cùng mã thoát, 0 dòng mới. Trang lộ trình và khối dữ liệu không đổi.
+**Khi update:** lượt cắt kế của crm (OKR, Kho tài liệu) đặt việc vận hành vào mốc ngoài; hàng cần dữ liệu
+thật thì có hàng sinh dữ liệu giả đứng trước. Đó cũng là lần đọc ngưỡng của vòng (Cổng Giá trị).
+
 ### Làn ghim lại dùng lại eval model thật khi đầu vào không đổi (hồ sơ `eval-goi-model-that-khong-chay`, hàng G3, T2)
 
 Gốc: crm `eval-model-that-dung-luc` — «bộ nhớ đệm theo băm cho mọi eval model thật (bộ kit)»; đo 11/10:

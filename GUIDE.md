@@ -678,6 +678,31 @@ nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và ph�
 tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
 dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](docs/reference/lai-thu-nguoi-la.md).
 
+## Cửa tín hiệu và gom nhóm (hồ sơ cua-tin-hieu-gom-nhom · hàng L3)
+
+Mọi người gửi tín hiệu vào MỘT cửa của kho; phiên gom thành nhóm bằng tiếng sản phẩm; cắt lượt biến
+nhóm thành hàng; người gửi thấy tín hiệu của mình đi tới đâu. Kho bật bằng một khối trong
+`_acceptance/config.yaml` — không khai thì không gì đổi:
+
+```yaml
+tin_hieu:
+  nguon: [<thư mục tín hiệu>, …]   # mỗi tín hiệu một tệp <id>.json
+  gom: <thư mục bản gom>           # các tệp *.md trong git
+```
+
+- **Khuôn tín hiệu = khuôn yêu cầu của gói Điều phối** (một hộp thư): `{phien, loai, hang, noi_dung, luc}`,
+  kiểm bằng chính `kiemYeuCau` của gói đó. Khuôn, loại được gom và khuôn bản gom:
+  `skills/acceptance/references/tin-hieu-template.md`. Tín hiệu người KHÔNG đi vào thư mục yêu cầu của
+  đợt — nó nằm ở nguồn kho khai.
+- **Gom:** skill `gom-tin-hieu` — chính sách trục ở khối `GOM-TRUC` (`ket-qua`), chủ kho chốt một lần ở
+  Cổng Đáng. Bản gom cũng là bản phạm vi: chuyển thẳng cho skill `cat-luot`.
+- **Răng phủ:** `node scripts/tin-hieu.mjs --root . --rang` — mỗi tín hiệu gửi không sau mốc `den` ở đúng
+  một chỗ; «đã phủ» chỉ trỏ hồ sơ đã giao; bản gom phải có trong git.
+- **Đường đi:** `--duong [--id <id>]`; kho khai cả lộ trình thì khối dữ liệu của `LO-TRINH.html` mang khoá
+  tuỳ chọn `tin_hieu` (tài liệu: `skills/acceptance/references/lo-trinh-du-lieu.md`, khối
+  `LO-TRINH-DU-LIEU-TUY-CHON`).
+- **CI chép tay:** bảy tệp của cửa trong danh sách chép (§5.3) chỉ cần khi kho khai `tin_hieu`.
+
 ## Cho một hồ sơ nghỉ (2.17 · hồ sơ ho-so-nghi)
 
 Một hồ sơ đã ký đôi khi hứa một điều không còn kiểm lại được: kho nguồn của một
@@ -904,7 +929,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 18 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 25 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -932,6 +957,13 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
+- `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
+- `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;

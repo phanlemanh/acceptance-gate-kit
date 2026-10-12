@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Mỗi lượt ghim lại chạy lại mọi eval của hồ sơ, kể cả eval gọi model thật qua AI Gateway, dù prompt, model và dữ liệu mẫu không đổi.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:10:00.000Z"
+}

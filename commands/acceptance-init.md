@@ -178,6 +178,13 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/scripts/lo-trinh-khoa.cjs` → `scripts/` (the ONE reader of the roadmap socket key `lo_trinh.tep` that product-map.mjs `require`s on every run; missing → `MODULE_NOT_FOUND` on the map step even in a repo that never declares the socket)
    - `${CLAUDE_PLUGIN_ROOT}/scripts/lo-trinh.mjs` → `scripts/` (roadmap page reader/renderer product-map.mjs imports ONLY when the repo declares `lo_trinh.tep`; a repo that declares it without this file gets the map step failing loud, never a silently missing `LO-TRINH.html`)
    - `${CLAUDE_PLUGIN_ROOT}/scripts/ho-so-tom-tat.cjs` → `scripts/` (the ONE record reader lo-trinh.mjs `require`s for the data block's per-row summary and for stripping one «» pair off a row title; missing → the map step fails loud with `MODULE_NOT_FOUND` in a repo that declares `lo_trinh.tep`)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/tin-hieu-khoa.cjs` → `scripts/` (signal-door socket reader `tin_hieu.nguon`/`tin_hieu.gom`; product-map.mjs loads it LENIENTLY — a repo that never declares `tin_hieu` runs fine without it, a repo that declares it without this file gets the map step failing loud)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/tin-hieu.mjs` → `scripts/` (signal reader + coverage teeth + signal path; product-map.mjs imports it ONLY when the repo declares `tin_hieu` — needed only then)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/cat-luot.mjs` → `scripts/` (scope-document reader `docPhamVi` that tin-hieu.mjs imports — needed only when the repo declares `tin_hieu`)
+   - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/hinh-dang.mjs` → `dieu-phoi/scripts/` (the ONE request-shape check `kiemYeuCau` a signal must pass — one mailbox with the orchestration package; needed only when the repo declares `tin_hieu`)
+   - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/cau-hinh.mjs` → `dieu-phoi/scripts/` (constants hinh-dang.mjs imports — only with `tin_hieu`)
+   - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/dot.mjs` → `dieu-phoi/scripts/` (reader hinh-dang.mjs imports — only with `tin_hieu`)
+   - `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/tin-hieu-template.md` → `skills/acceptance/references/` (the ONE list of signal kinds tin-hieu.mjs reads at run time — only with `tin_hieu`)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.
