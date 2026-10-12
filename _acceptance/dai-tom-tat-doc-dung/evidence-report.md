@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ffe218dd9ad0f2b62dd89eca9eef599688717401
+verified_commit: db961181a426bb14a2e53bc6e1f84b8186d5dcd7
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -204,3 +204,7 @@ none — mọi eval chạy một lượt, đồng nhất, không eval nào có p
 
 Round 1: E1–E9 và E11 xanh; E10 còn chờ người ở Cổng Bằng chứng; ba lệnh suite hồi quy chạy đỏ không gắn eval (`vung:1`, `vung:3` và kiểm `product-map --check`). Trả về triển khai.
 Round 2: E1–E8 và E11 chạy lại xanh, E9 mang từ round 1 (delta không chạm paths của eval), cả mười một lệnh suite hồi quy xanh, hội đồng E10 đề xuất PASS. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-12, do gộp main sau A2s #331 vào #325 mang #324
+run_id: repin-20261012T175443Z-82456
+sha: db961181a426bb14a2e53bc6e1f84b8186d5dcd7 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng · ngoài làn máy: E10 · diff chạm vật đo ngoài làn máy: E10 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-10

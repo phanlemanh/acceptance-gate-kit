@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
+verified_commit: db961181a426bb14a2e53bc6e1f84b8186d5dcd7
 human_signoff: Manh Phan 2026-10-04 — ký lượt chấm 3; mục trong hợp đồng AC-5 (ngày mốc thiếu số 0) và Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-6 ghi Known limits; Ngoài-5 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -315,3 +315,7 @@ sha: bd8163dcf46f04dff8d5f1ab21a4f1a5a1556767 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 12 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
 run_id: repin-20261012T065455Z-55784
 sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 · diff chạm vật đo ngoài làn máy: E11 — chưa chứng lại, đi vòng S4 delta
+
+### Re-pin lần 13 — 2026-10-12, do gộp main sau A2s #331 vào #325 mang #324
+run_id: repin-20261012T175443Z-82456
+sha: db961181a426bb14a2e53bc6e1f84b8186d5dcd7 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 · diff chạm vật đo ngoài làn máy: E11 — chưa chứng lại, đi vòng S4 delta

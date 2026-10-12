@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e7bce1009855bdfd15286c117bc3e7ef14e57e6a
+verified_commit: db961181a426bb14a2e53bc6e1f84b8186d5dcd7
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -218,3 +218,7 @@ none — every multi-run eval is uniform
 Round 1: E10 (judgment, AC-10) bị hội đồng judge 3/3 đề xuất FAIL — mô tả ô chua_lam và vi_sao trong lo-trinh-du-lieu.md lệch mã ở khối mở bằng đầu đoạn văn và ở dạng «Vì sao: …»; thêm 2 finding trong hợp đồng (AC-10, AC-5) ghi ở review-findings.md. Mười eval máy (E1–E9, E11) và mười lệnh suite xanh. Returned to implementation.
 Round 2: bảy eval máy chạy lại (E1–E5, E8, E11) xanh, E6, E7, E9 mang từ round 1; hội đồng E10 đề xuất PASS (2 phiếu PASS, 1 phiếu bất đồng ở operational-feasibility chỉ ra câu mới ở dòng 87 lo-trinh-du-lieu.md rộng hơn mã); review thêm 2 finding trong hợp đồng (AC-10) cùng chỉ vào câu đó; lệnh suite vung:3 không xanh (ca P179, không gắn eval) nên verdict là REJECT. Returned to implementation.
 Round 3: mười eval máy (E1–E9, E11) mang từ round 1 và round 2 vì delta không chạm paths của chúng; mười lệnh suite chạy lại đều xanh, kể cả vung:3 (ca P179 xanh sau khi sổ known-limits được bổ sung); hội đồng E10 đề xuất PASS 3/3 phiếu, không còn phiếu bất đồng; review thêm 1 finding trong hợp đồng mức thấp (AC-10, dòng 87 lo-trinh-du-lieu.md, ca biên dấu gạch dài không khoảng cách trong phần «…» của «Vì sao: Gốc: … — lý do»), ghi ở review-findings.md. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-12, do gộp main sau A2s #331 vào #325 mang #324
+run_id: repin-20261012T175443Z-82456
+sha: db961181a426bb14a2e53bc6e1f84b8186d5dcd7 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
