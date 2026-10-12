@@ -5,10 +5,10 @@ slug: trang-thai-dot-dieu-phoi-tho
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, ui]
-status: draft
+status: approved
 design_doc: docs/superpowers/specs/2026-10-12-trang-thai-dot-dieu-phoi-tho-design.md
-approved_by:
-approved_at:
+approved_by: manh
+approved_at: 2026-10-12
 ---
 
 # Acceptance Contract: trang-thai-dot-dieu-phoi-tho
