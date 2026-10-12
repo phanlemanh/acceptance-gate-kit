@@ -1,0 +1,144 @@
+schema_version: 1
+feature_slug: kiem-ban-cai-sau-phat-hanh
+# Ca đo sống ở tests/scripts/kiem-ban-cai.ca.mjs (ca KB-<n> = AC-n), chạy bằng khoá riêng
+# executors.test.kiem_ban_cai — cũng là khoá được thêm vào feature_loop.suite_keys (AC-9), nên mọi eval máy
+# của hồ sơ này chung MỘT lệnh (chạy một lần mỗi lượt). Đuôi .ca.mjs: không lọt vào mảnh *.test.mjs của CI
+# (runner không có CLI claude). Mọi nguồn cài bị tiêm dựng từ `git archive HEAD` TRONG lượt; đường dẫn suy từ
+# vị trí tệp ca; mỗi ca đỏ chạy SAU khi KB-2 (bản lành) xanh trong cùng lượt và ghim thông điệp. Ca in đúng
+# một dòng «PASS: KB-…» hoặc «FAIL: KB-… — <vì sao>» cho mỗi ca, và thoát ≠ 0 khi có ca FAIL. Mỗi eval ghim
+# dòng PASS của chính nó — lệnh xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-1" — ca chụp cấu hình Claude thật (gốc = CLAUDE_CONFIG_DIR của môi trường
+      chạy ca, mặc định ~/.claude): sha256 của plugins/installed_plugins.json và plugins/known_marketplaces.json
+      (hai tệp PHẢI tồn tại và khác rỗng — vắng thì FAIL «không có gì để so») + danh sách đường · cỡ · mtime dưới
+      plugins/cache/ và plugins/marketplaces/. Chụp TRƯỚC lượt `--ref HEAD` và lượt `--may --ref HEAD`, chụp lại
+      SAU: bằng nhau. Độ nhạy của hàm chụp (cùng ca, trước khi tin chiều bằng): chạy hàm trên một bản sao tạm của
+      một tệp, chạm một byte → ảnh chụp khác; không khác thì FAIL «hàm chụp mù». Thư mục tạm lệnh in ở dòng đầu
+      («cấu hình cách ly <dir>», «kho giả lập <dir>») không còn trên đĩa sau khi lệnh thoát; với `--giu` thì CÒN
+      (phép kiểm-dọn nhìn thấy thư mục), rồi ca tự xoá.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs, .claude-plugin/marketplace.json]
+    expected: >
+      exit 0; stdout có "PASS: KB-2" — `--ref HEAD` nguồn nguyên vẹn: thoát 0; tám dòng bắt đầu
+      `[kiem-ban-cai] ĐẠT ` theo đúng thứ tự so-phien-ban, khop-tag, thu-muc-goi, tac-tu-cham, hook-goi,
+      the-cong, luoi-truoc-gop, dieu-phoi (ca so mảng tên mục rút từ đầu ra với mảng viết sẵn); dòng
+      so-phien-ban nêu đúng tập tên gói đọc từ `.claude-plugin/marketplace.json` (ca đọc tệp, không gõ tay), mỗi
+      tên kèm số đọc từ plugin.json của nó; dòng cuối bắt đầu `[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs, feature-loop/agents/**, feature-loop/workflows/acceptance-verify.js]
+    expected: >
+      exit 0; stdout có "PASS: KB-3 thieu-agents", "PASS: KB-3 sai-ten", "PASS: KB-3 cam-but". (thieu-agents)
+      nguồn cài = bản sao HEAD bỏ feature-loop/agents/: thoát 1; dòng `[kiem-ban-cai] ĐỎ thu-muc-goi:` chứa
+      «THIẾU thư mục gói: feature-loop/agents»; dòng `[kiem-ban-cai] ĐỎ tac-tu-cham:` chứa «tác tử chấm vắng
+      trong bản cài: feature-loop:cham-lenh»; dòng cuối bắt đầu `[kiem-ban-cai] TỔNG KẾT: ĐỎ` và chứa cả
+      `thu-muc-goi` lẫn `tac-tu-cham`. (sai-ten) agents/cham-lenh.md mang `name: sai-ten` → thoát 1, `ĐỎ
+      tac-tu-cham:` chứa «cham-lenh.md» và «name không khớp». (cam-but) agents/cham-doc.md có `tools:` thêm
+      `Edit` → thoát 1, `ĐỎ tac-tu-cham:` chứa «cham-doc.md» và «tác tử chấm cầm bút: Edit». Ba ca chỉ chạy sau
+      khi KB-2 PASS; KB-2 không PASS thì in FAIL «không có đối chứng dương».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-4" — nguồn cài = bản sao HEAD thêm một dòng chú thích vào
+      scripts/gate-card.js: thoát 1; dòng `[kiem-ban-cai] ĐỎ khop-tag:` chứa «bản cài khác tag» và
+      «acceptance-gate:scripts/gate-card.js»; dòng `[kiem-ban-cai] ĐẠT thu-muc-goi` có mặt — mục thu-muc-goi
+      KHÔNG đỏ khi chỉ lệch nội dung (không lẫn lớp). Và "PASS: KB-4 thua" — bản sao HEAD THÊM một tệp ngoài cây
+      (không sửa tệp nào): thoát 0, có dòng `[kiem-ban-cai] VÀNG khop-tag:` chứa «thừa», không dòng ĐỎ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs, scripts/gate-card.js, scripts/pre-merge-check.sh, dieu-phoi/scripts/dieu-phoi.mjs, hooks/hooks.json, dieu-phoi/hooks/hooks.json]
+    expected: >
+      exit 0; stdout có "PASS: KB-5 the-cong", "PASS: KB-5 luoi-cam", "PASS: KB-5 luoi-chan-tat",
+      "PASS: KB-5 dieu-phoi", "PASS: KB-5 hook-goi". Năm lượt, mỗi lượt phá ĐÚNG một mắt trong nguồn cài
+      (gate-card.js thoát 1 ở dòng đầu · pre-merge-check.sh thoát 0 ở dòng đầu · pre-merge-check.sh thoát 1 ở
+      dòng đầu · dieu-phoi.mjs thoát 1 ở dòng đầu · hooks/hooks.json thêm lệnh trỏ
+      ${CLAUDE_PLUGIN_ROOT}/hooks/khong-co.js): mỗi lượt thoát 1, có dòng `[kiem-ban-cai] ĐỎ <mục bị phá>:`
+      (luoi-cam chứa «lưới không chặn hồ sơ phạm luật»; luoi-chan-tat chứa «kho lành bị chặn»; hook-goi chứa
+      «hooks/khong-co.js»), và các mục the-cong / luoi-truoc-gop / dieu-phoi không bị phá in `ĐẠT`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-6 <tag>" với <tag> = `git describe --tags --abbrev=0 --match 'v*'` của
+      HEAD (hôm nay v2.28.0) — `--ref <tag>` thoát 0 và dòng cuối là
+      `[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — <tag> (<sha8 của tag>) cài đúng tag`, sha8 do ca tự giải bằng git.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-7 m5", "PASS: KB-7 cai-lai", "PASS: KB-7 khac-so", "PASS: KB-7 checkout-that".
+      Cấu hình Claude giả (CLAUDE_CONFIG_DIR tạm của ca): feature-loop cài từ nguồn lệch một tệp, rồi
+      `marketplace update` + `plugin update` sang nguồn đúng HEAD → `--may --ref HEAD` thoát 1 với dòng
+      `[kiem-ban-cai] ĐỎ may:` chứa «feature-loop@acceptance-gate-kit» và «khác tag» (m5). Ca ghim tiền đề: nội
+      dung bộ đệm sau update VẪN là nội dung lệch — CLI đã tự làm mới thì in FAIL «tiền đề M5 không còn — CLI
+      đổi hành vi» thay vì xanh giả. Gỡ + cài lại → cùng lệnh thoát 0, dòng `ĐẠT may:` chứa «khớp» (cai-lai).
+      Một bản ghi số khác (plugin.json nguồn sửa số) → dòng `[kiem-ban-cai] VÀNG may:` chứa «khác số», mã thoát
+      giữ nguyên như khi không có bản ghi ấy (khac-so). (checkout-that) nguồn chợ = `git worktree add --detach`
+      của HEAD có thêm một tệp chưa theo dõi và một tệp khớp .gitignore → `--may --ref HEAD` thoát 0, dòng `ĐẠT
+      may:` chứa «khớp» và «thừa»; cùng worktree sửa một tệp đang theo dõi rồi gỡ + cài lại → thoát 1, `ĐỎ may:`
+      chứa «khác tag».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-8 thieu-claude" và "PASS: KB-8 ref-khong-co". (a) PATH = một thư mục tạm chỉ
+      chứa liên kết tới `node` và `git` (đường lấy bằng `command -v`); ca khẳng định `claude` KHÔNG tìm thấy dưới
+      PATH ấy trước khi chạy — tìm thấy thì FAIL «tiền đề thiếu-claude không dựng được»; rồi lệnh thoát 2, dòng
+      cuối chứa «TỔNG KẾT: KHÔNG CHẠY ĐƯỢC» và «không tìm thấy lệnh claude». (b) `--ref khong-co-ref-nay`: thoát
+      2, chứa «ref không có». Cả hai: không dòng nào bắt đầu `[kiem-ban-cai] ĐẠT` hay chứa `TỔNG KẾT: ĐẠT`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [_acceptance/config.yaml, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-9" — ca đọc _acceptance/config.yaml (suy từ vị trí tệp ca) bằng bộ đọc config
+      của kit (resolveConfigKey + resolveConfigList của lib/evidence-core.cjs — bộ đọc s4-args dùng): executors.test.kiem_ban_cai ==
+      "node tests/scripts/kiem-ban-cai.ca.mjs" và feature_loop.suite_keys chứa "executors.test.kiem_ban_cai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: judgment
+    inputs:
+      - CHANGELOG.md
+      - GUIDE.md
+      - docs/superpowers/specs/2026-10-13-kiem-ban-cai-sau-phat-hanh-design.md
+    question: >
+      Đọc mục chưa phát hành đầu CHANGELOG.md và đoạn GUIDE.md nói về kiểm bản cài (tìm «kiem-ban-cai»), đối
+      chiếu design doc §2–§4. (1) Có nói người cắt mốc chạy `node scripts/kiem-ban-cai.mjs --ref v<số>` SAU khi
+      cắt tag, và máy nhận chạy `--may --ref v<số>` SAU khi cài, thay khối lệnh `node -e` một dòng ở bước 3 mục
+      A1 của 2.27? (2) Có dặn đọc dòng `TỔNG KẾT` (ĐẠT / ĐỎ / KHÔNG CHẠY ĐƯỢC) chứ không đọc mã thoát một mình,
+      và dòng `ĐỎ may:` thì gỡ + cài lại theo bốn bước? (3) Có khai đủ ba giới hạn của design §4 (tác tử chấm đo
+      tĩnh · CI không chạy · sau-tag chỉ có lưới trễ) kèm ngưỡng? Trả PASS khi cả ba có; FAIL nêu vế thiếu.
+    expected: "PASS — ba vế đúng; FAIL nêu vế thiếu"
+    evidence_required: [run_id, verifier, verified_at, panel_votes]
