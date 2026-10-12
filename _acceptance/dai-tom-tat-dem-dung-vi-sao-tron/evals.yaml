@@ -69,11 +69,13 @@ evals:
       sẵn «2 mục để ngoài phạm vi · giới hạn đã biết: chưa đọc được — khối giới hạn ở <hợp đồng | báo cáo>
       không theo khuôn»; hai nguồn cùng không đọc được → «… ở hợp đồng và báo cáo …»; hợp đồng không đọc được
       + báo cáo 3 gạch → «… ở hợp đồng …» VÀ báo cáo không đọc được + hợp đồng 3 gạch → «… ở báo cáo …», cả hai
-      vế giới hạn không có chữ số; trang: 0 dòng data-loai="gioi-han" và có đúng câu ấy. Và "PASS: DD-5-do" — bản sao cộng mục của khối hai danh sách: CHÍNH hàm đo trả lỗi nêu
+      vế giới hạn không có chữ số; trang VÀ khối của CẢ tám ca (ma trận toàn phần): 0 dòng data-loai="gioi-han"
+      và có đúng câu ấy. Và "PASS: DD-5-do" — bản sao cộng mục của khối hai danh sách: CHÍNH hàm đo trả lỗi nêu
       «hai danh sách»; "PASS: DD-5-do-nguon" — bản sao in số nguồn đọc được: CHÍNH hàm đo trả lỗi nêu «chữ
       số»; "PASS: DD-5-do-bao-cao" — bản sao chỉ xét nguồn hợp đồng: CHÍNH hàm đo trả lỗi nêu «báo cáo»;
-      "PASS: DD-5-do-trang" — bản sao evidence-page vẫn liệt danh sách khi không đọc được: CHÍNH hàm đo
-      trả lỗi nêu «trang».
+      "PASS: DD-5-do-trang" — bản sao vẫn đưa danh sách giới hạn lên trang khi không đọc được: CHÍNH hàm đo
+      trả lỗi nêu «trang vẫn liệt»; "PASS: DD-5-do-trang-nguon" — bản sao chỉ ẩn danh sách khi BÁO CÁO hỏng:
+      CHÍNH hàm đo trả lỗi nêu «trang vẫn liệt».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6

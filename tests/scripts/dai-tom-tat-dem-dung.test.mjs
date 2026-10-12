@@ -233,8 +233,9 @@ async function dd5(kit) {
     if (v !== mong) sai.push(`ca «${ten}»: chua_lam «${v}», cần «${mong}»`);
     if (/\d/.test(veGH(v))) sai.push(`ca «${ten}»: vế giới hạn còn chữ số «${veGH(v)}»`);
   }
-  for (const i of [1, 7]) {
-    const [ten, o, nguon] = CA_5[i]; const r = khoThu(o); const h = trang(kit, r);
+  // Ma trận toàn phần: MỌI hình dạng không đọc được qua trang VÀ khối (lượt chấm 1, t8 — trước chỉ hai ca).
+  for (const [ten, o, nguon] of CA_5) {
+    const r = khoThu(o); const h = trang(kit, r);
     const mong = `2 mục để ngoài phạm vi · ${CHUA_DOC(nguon)}`;
     for (const [noi, v] of [['trang', daiCua(h).chua_lam], ['khối', khoi(kit, r).chua_lam]]) if (v !== mong) sai.push(`ca «${ten}» (${noi}): chua_lam «${v}»`);
     if (gioiHanTrang(h).length) sai.push(`ca «${ten}»: trang vẫn liệt ${gioiHanTrang(h).length} dòng giới hạn`);
@@ -303,11 +304,12 @@ if (want('DD-3-do-long')) await chayDo('DD-3-do-long', dd3, [[HS_FILE, 'if (mm &
 if (want('DD-4')) await chayCa('DD-4', dd4, `ma trận ${CHU_RONG.length * DANG_4.length} ca chữ rỗng → 0; «không có kênh báo…» → 1`);
 if (want('DD-4-do')) await chayDo('DD-4-do', dd4, [[HS_FILE, 'if (seq[0].p && laRong(seq[0].p.chu))', 'if (false)']], 'tiêu đề rồi đoạn', 'bản sao bỏ lọc rỗng ở thân khối');
 if (want('DD-4-do-long')) await chayDo('DD-4-do-long', dd4, [[HS_FILE, 'const RONG_GIOI_HAN = /^[*_\\s]*(?:none|không có|không)\\.?[*_\\s]*$/i;', 'const RONG_GIOI_HAN = /^[*_\\s]*(?:none|không có|không)/i;']], 'kênh báo', 'bản sao lọc mọi câu mở bằng «không có»');
-if (want('DD-5')) await chayCa('DD-5', dd5, `${CA_5.length} khối không đọc được → «chưa đọc được — khối giới hạn ở <nguồn> …», không chữ số, cả hai chiều gương; trang 0 dòng giới hạn + đúng câu ấy`);
+if (want('DD-5')) await chayCa('DD-5', dd5, `${CA_5.length} khối không đọc được → «chưa đọc được — khối giới hạn ở <nguồn> …», không chữ số, cả hai chiều gương; trang và khối của cả ${CA_5.length} ca: 0 dòng giới hạn + đúng câu ấy`);
 if (want('DD-5-do')) await chayDo('DD-5-do', dd5, [[HS_FILE, 'if (ds.length === 1 && (coRanh || seq.length <= 2))', 'if (ds.length >= 1 && (coRanh || seq.length <= 2)) return ds.flatMap(x => x.l.muc); if (false)']], 'hai danh sách', 'bản sao cộng mục của khối hai danh sách');
 if (want('DD-5-do-nguon')) await chayDo('DD-5-do-nguon', dd5, [[HS_FILE, 'if (moi.chua_lam != null && hong.length)', 'if (moi.chua_lam != null && hong.length && !known.length)']], 'chữ số', 'bản sao in số của nguồn đọc được');
 if (want('DD-5-do-bao-cao')) await chayDo('DD-5-do-bao-cao', dd5, [[HS_FILE, "const hong = [ghHD.khongDoc && 'hợp đồng', ghBC.khongDoc && 'báo cáo'].filter(Boolean);", "const hong = [ghHD.khongDoc && 'hợp đồng'].filter(Boolean);"]], 'báo cáo', 'bản sao chỉ xét nguồn hợp đồng');
 if (want('DD-5-do-trang')) await chayDo('DD-5-do-trang', dd5, [[HS_FILE, 'known: hong.length ? [] : known,', 'known,']], 'trang vẫn liệt', 'bản sao vẫn đưa danh sách giới hạn lên trang khi không đọc được');
+if (want('DD-5-do-trang-nguon')) await chayDo('DD-5-do-trang-nguon', dd5, [[HS_FILE, 'known: hong.length ? [] : known,', 'known: ghBC.khongDoc ? [] : known,']], 'trang vẫn liệt', 'bản sao chỉ ẩn danh sách khi BÁO CÁO hỏng');
 if (want('DD-6')) await chayCa('DD-6', () => dd6(), 'tests/scripts/dai-tom-tat.test.mjs giống từng byte bản đã ký ở bd8163dc');
 if (want('DD-6-do')) {
   try {
