@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 80b4c10b8f9b836fb4415cc61844e3bb143fa1ef
+verified_commit: ddfba90a912c2a4f48738e5cb3c60c20079376f4
 human_signoff: manh 2026-10-12
 ---
 
@@ -312,3 +312,7 @@ none — every multi-run eval is uniform
 
 Round 1: tất cả eval máy xanh (E1–E8a, E8b, E9a, E9c, E10), panel E9b đề xuất PASS; không có eval nào đỏ. Findings ngoài hợp đồng ghi ở review-findings.md để người quyết ở Gate 2.
 Round 2: phạm vi nâng AC-11…AC-14 (E11, E12, E13a/E13b, E14) cộng sửa E9c (so đúng các dòng bảng trạng thái, thêm chiều đỏ ô bảng); tất cả eval máy và mọi lệnh suite xanh trên cây 80b4c10b, panel E9b và E13b đề xuất PASS; không có eval nào đỏ. Findings ngoài hợp đồng của round này ghi ở review-findings.md để người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-10-12, do gộp main 7f65e5a0 (#319 #314) trước khi gộp PR #322
+run_id: repin-20261012T005458Z-67460
+sha: ddfba90a912c2a4f48738e5cb3c60c20079376f4 · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E9b (E9b không khai paths), E13b (E13b không khai paths)
