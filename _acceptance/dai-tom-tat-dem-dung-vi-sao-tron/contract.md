@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ho-so-tom-tat.cjs + scripts/evidence-page.js + references lo-trinh-du-lieu.md + test — không chạm lib/**, hooks/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-dai-tom-tat-dem-dung-vi-sao-tron-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo

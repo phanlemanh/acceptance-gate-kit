@@ -2,39 +2,31 @@
 
 ## Trong hợp đồng
 
-- **New «Vì sao:» rule in the reference doc is broader than the code: a paragraph that contains «Gốc:» but has no « — <lý do>» keeps its prefix and is expanded into a list**
+- **Doc rule (1) for «Vì sao: Gốc: … — <lý do>» still disagrees with the code when the «…» part contains an em dash with no spaces around it**
   file: skills/acceptance/references/lo-trinh-du-lieu.md:87
   severity: low
   AC: AC-10
   source: conventions
-  detail: The sentence added this round says that any paragraph opening with «Vì sao:» keeps only the text after the prefix, on both the strip and the evidence page, and is never expanded into a list or joined with an attached list. It names «Vì sao: Gốc: <con trỏ> — <lý do>» as one included case. The code in scripts/ho-so-tom-tat.cjs (viSaoTu, lines 158-162) strips the prefix in only two cases: (1) the paragraph matches /^Vì sao:\s*Gốc:\s*\S+…\s+—\s+(.+)$/; (2) the paragraph opens with «Vì sao:» and contains no «Gốc:» anywhere. Every other «Vì sao:» paragraph falls through to viSaoCua / viSaoDuCua(k,i,null), which keep the prefix and do expand a câu dẫn into a list. Measured by calling viSaoTu directly: (a) «Vì sao: Gốc: crm/_acceptance/a» returns «Vì sao: Gốc: crm/_acceptance/a» for both the strip and the page (prefix kept); (b) «Vì sao: xem Gốc: crm/_acceptance/a, ba chỗ hở:» followed by «- một.» and «- hai.» returns «Vì sao: xem Gốc: …, ba chỗ hở: một · hai», with page muc [«một.», «hai.»]. The doc says this case must not be expanded. This shape can occur because lo-trinh.mjs --mo-o (line 791) writes «Vì sao: ${hang.vi_sao}» verbatim. hang.vi_sao is free text (doc line 82), and the kit's own anchor rule (^Gốc:\s*\S+/_acceptance/...) does not require « — lý do». No real case was found in the local kit or crm opportunity.md files (0 «Gốc:» without a dash), so the impact today is theoretical. The risk is to this round: E10 is a judgment eval that asks «Có câu nào mâu thuẫn mã không?» of exactly this doc and this code, and this sentence is new. A judge who finds the mismatch can fail E10 again. Fix either way: narrow the doc sentence to the two shapes the code handles, or make the code strip «Vì sao:» for every paragraph that opens with it.
-  căn cứ phạm vi: AC-10 đòi mô tả ô vi_sao trong tài liệu khối dữ liệu «không câu nào mâu thuẫn mã»; câu mới nói mọi đoạn mở bằng «Vì sao:» đều bỏ tiền tố và không mở thành danh sách, trong khi mã chỉ làm vậy ở hai dạng.
-
-- **The new «Vì sao:» rule in the doc contradicts the code when a «Vì sao: Gốc: …» paragraph has no « — »; the kit's own roadmap has a row like this**
-  file: skills/acceptance/references/lo-trinh-du-lieu.md:87
-  severity: medium
-  AC: AC-10
-  source: bugs
-  detail: The sentence added this round says: «Đoạn mở bằng «Vì sao:» (kể cả «Vì sao: Gốc: <con trỏ> — <lý do>» của --mo-o) chỉ lấy phần chữ sau tiền tố — không mở câu dẫn thành danh sách, không kèm gạch dính liền — ở cả ô này lẫn trang hồ sơ». The code only does this in two cases (scripts/ho-so-tom-tat.cjs, viSaoTu, lines 158-161): (1) the paragraph matches `^Vì sao:\s*Gốc:\s*\S+(?:\s+[^—]*?)?\s+—\s+(.+)$`, which needs an em dash « — »; (2) the paragraph starts with «Vì sao:» and contains no «Gốc:» at all. Any other paragraph that starts with «Vì sao:» and contains «Gốc:» goes to viSaoCua / viSaoDuCua(k,i,null). There it keeps the whole paragraph, prefix included, expands a lead sentence «…:» into a list (dải) and carries glued bullets (trang). That is the exact opposite of the new sentence. Reproduced on this tree: viSaoTu of an opportunity with «Vì sao: Gốc: crm/_acceptance/a (ba ca đã gặp):\n- Ca một.\n- Ca hai.» gives dải «Vì sao: Gốc: crm/_acceptance/a (ba ca đã gặp): Ca một · Ca hai» and trang {doan:'Vì sao: Gốc: …:', muc:['Ca một.','Ca hai.']}. The shape exists in real data. Row S3 (vong-la-mot-ket-qua) of the kit's own docs/plans/lo-trinh-kit.json has vi_sao «Gốc: media-library/_acceptance/ban-dieu-khien-curator (13 hồ sơ …). Số đo …», which has only en dashes and no « — ». lo-trinh.mjs --mo-o (line 791) writes it as «Vì sao: ${vi_sao}», and running viSaoTu on that row prints dải «Vì sao: Gốc: media-library/_acceptance/ban-dieu-khien-curator (13 hồ sơ …» with the prefix and pointer in the cell. A consuming repo that relies on the doc would expect only the reason text. This is the doc-vs-code contradiction that AC-10/E10 asks about, re-introduced by the round-1 fix. Fix either side: narrow the doc to the two forms the code handles (an em-dash «Gốc: … — …», or «Vì sao:» with no «Gốc:»), or make the code strip «Vì sao:» for every paragraph that starts with it.
-  căn cứ phạm vi: Cùng câu tài liệu ở dòng 87 với mục trên: mô tả hành vi ô vi_sao rộng hơn mã, nên mâu thuẫn mã mà AC-10 cấm, và dạng gây mâu thuẫn có thật ở một hàng lộ trình của chính kit.
+  detail: The round-2 fix narrowed the moi_nguoi.vi_sao sentence to "the two forms the code handles". Form (1) now says: «Vì sao: Gốc: <con trỏ> … — <lý do>» (with « — » spaced on both sides) takes the text after the first « — ». The code (scripts/ho-so-tom-tat.cjs, viSaoTu, line 158) matches `/^Vì sao:\s*Gốc:\s*\S+(?:\s+[^—]*?)?\s+—\s+(.+)$/`. The `[^—]*?` part rejects ANY em dash between the pointer and the separator, spaced or not. So when the free text «…» contains a range such as «AC-3—AC-5» or «(2026—10)», the regex fails. The paragraph also contains «Gốc:», so form (2) does not apply either, and the paragraph falls through to viSaoCua / viSaoDuCua(k,i,null). That path keeps the whole paragraph, prefix and pointer included. Reproduced on HEAD by calling viSaoTu directly. Input «Vì sao: Gốc: crm/_acceptance/x mục AC-3—AC-5 — lý do thật.» returns the full line for both the strip and the page ({doan:'Vì sao: Gốc: … — lý do thật.', muc:[]}). The doc predicts «lý do thật.». A related gap: «Vì sao: <chữ> Gốc: … — …», where «Gốc:» is not right after the prefix, has both «Gốc:» and « — ». None of the three doc clauses covers it: form (1) needs «Gốc:» first, form (2) needs no «Gốc:», and the đoạn-thường clause names only the case with no « — ». The code treats it as a đoạn thường. Real-data impact today is zero: all 24 vi_sao rows of docs/plans/lo-trinh-kit.json that contain «Gốc:» behave as the doc says (23 stripped; S3, with no em dash, keeps the prefix). The finding is reported because this sentence was rewritten this round specifically to make E10 / AC-10 («không câu nào mâu thuẫn mã») pass, and a judge can still produce a counter-example. Cheapest fix on the doc side: state that the «…» between the pointer and the separator must not contain an em dash. Alternatively, say that every other «Vì sao: … Gốc: …» paragraph is a đoạn thường, not only the ones without « — ».
+  căn cứ phạm vi: AC-10 đòi mô tả ô vi_sao trong tài liệu khối dữ liệu «không câu nào mâu thuẫn mã»; finding chỉ ra một câu của đúng tài liệu đó (dạng 1 của «Vì sao: Gốc: …») mà mã xử lý khác ở đầu vào có dấu gạch dài không khoảng cách, và các vòng trước đã chấm AC-10 trên chính lớp lệch này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Hình dạng 3 (assert «chuỗi có mặt» trong khi lời hứa là quan hệ): DD-8 ca (g) không phân biệt được trang cắt tiền tố «Vì sao: Gốc: … —» với trang in nguyên dòng**
+- **Hình dạng 3 (assert «chuỗi có mặt» trong khi lời hứa là quan hệ): DD-8 ca (g) không phân biệt được trang cắt tiền tố «Vì sao: Gốc: … —» với trang in nguyên dòng (r2)**
   Người dùng thấy gì: Nếu sau này trang hồ sơ đầy đủ lỡ in thừa phần đầu «Vì sao: Gốc: …» trước lý do thật, bộ kiểm tự động hiện tại vẫn báo xanh nên lỗi này sẽ không tự bị bắt. Hôm nay trang vẫn hiện đủ lý do; chỉ là không có gì giữ cho nó gọn như tài liệu mô tả.
   file: `tests/scripts/dai-tom-tat-dem-dung.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc, không round-trip writer→reader): mọi ca DD-8 ghi đè mục «Vấn đề &amp; ai gặp» mà --mo-o sinh, ca (g) chép tay dạng «Vì sao: Gốc: … — …»**
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc, không round-trip writer→reader): mọi ca DD-8 ghi đè mục «Vấn đề & ai gặp» mà --mo-o sinh, ca (g) chép tay dạng «Vì sao: Gốc: … — …» (r2)**
   Người dùng thấy gì: Bộ kiểm chưa thử với ô cơ hội do chính lệnh mở ô sinh ra. Nếu dòng câu giao tự sinh lọt vào ô «Vì sao», người đọc dải sẽ thấy câu giao thay cho lý do thật mà bộ kiểm vẫn xanh.
   file: `tests/scripts/dai-tom-tat-dem-dung.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **DD-2-do ghim «8» tự thoả: chính câu báo lỗi đã chứa sẵn số 8 nên ca không chứng được bản tiêm đếm đôi (r1 · tệp đã đổi)**
+- **DD-2-do ghim «8» tự thoả: chính câu báo lỗi đã chứa sẵn số 8 nên ca không chứng được bản tiêm đếm đôi (r1)**
   Người dùng thấy gì: Phép thử «cố tình làm hỏng rồi xem bộ kiểm có báo đỏ» cho lỗi đếm đôi giới hạn có thể vẫn báo xanh dù lỗi bị tiêm vào không phải lỗi đếm đôi. Sản phẩm vẫn đếm đúng; chỉ là bằng chứng «bộ kiểm biết bắt đúng lỗi này» yếu hơn vẻ ngoài.
   file: `tests/scripts/dai-tom-tat-dem-dung.test.mjs`
   severity: medium
@@ -70,7 +62,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 (không ghim đúng thông điệp): chiều đỏ DD-2-do và DD-5-do-bao-cao ghim một chữ có sẵn trong khuôn thông điệp của chính ca (r1 · tệp đã đổi)**
+- **Hình dạng 4 (không ghim đúng thông điệp): chiều đỏ DD-2-do và DD-5-do-bao-cao ghim một chữ có sẵn trong khuôn thông điệp của chính ca (r1)**
   Người dùng thấy gì: Hai phép thử «cố tình làm hỏng rồi xem báo đỏ» (đếm đôi giới hạn, và nguồn hỏng là báo cáo) ghim vào một chữ mà câu báo lỗi luôn tự in ra, nên chúng có thể báo «bắt được» cho bất kỳ lỗi nào. Sản phẩm không sai; chỉ là bằng chứng chiều đỏ lỏng hơn vẻ ngoài.
   file: `tests/scripts/dai-tom-tat-dem-dung.test.mjs`
   severity: medium
@@ -82,7 +74,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture không round-trip từ writer thật): khối ghim lại của ca DD-3 (f) rút từ khuôn tài liệu SKILL, không từ repin-lane.mjs (r1 · tệp đã đổi)**
+- **Hình dạng 2 (fixture không round-trip từ writer thật): khối ghim lại của ca DD-3 (f) rút từ khuôn tài liệu SKILL, không từ repin-lane.mjs (r1)**
   Người dùng thấy gì: Phép thử khối «ghim lại» lấy mẫu từ tài liệu hướng dẫn chứ không từ chính công cụ sinh ra khối đó. Nếu công cụ đổi chữ tiêu đề mà tài liệu giữ nguyên, phép thử vẫn xanh còn báo cáo thật có thể bị đếm lẫn khối ghim lại vào số giới hạn.
   file: `tests/scripts/dai-tom-tat-dem-dung.test.mjs`
   severity: low
