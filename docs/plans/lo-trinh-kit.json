@@ -44,6 +44,19 @@
       ]
     },
     {
+      "ten": "Phát hành 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi (chủ kho 12/10: ưu tiên tầng kit): bước thiết kế không dừng vì đường dẫn ở kho khách (A2 + A2s, gộp liền nhau), dải tóm tắt đọc đúng dữ liệu thật (X2s + X2s2), CI kit có zsh; DP8 nếu vào main trước 10:00 13/10, không thì bản vá 2.28.1 trước 15/10",
+      "ngay": "2026-10-13",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "A2",
+        "A2s",
+        "X2s",
+        "X2s2",
+        "DP8"
+      ]
+    },
+    {
       "ten": "crm: mọi phòng ban dùng thật hằng ngày (hạn cứng) — kit KHÔNG đổi engine dưới chân crm trước mốc này",
       "ngay": "2026-10-14",
       "loai": "ngoai",
@@ -51,7 +64,7 @@
       "hang": []
     },
     {
-      "ten": "crm cài kit (≥ 2.25.0 — nhận thẳng 2.26.0) — crm ghi «gộp và cài trước khi mở đợt sau-14-10»",
+      "ten": "crm cài THẲNG kit 2.28 (hoặc 2.28.1 nếu có) — Mac Studio cài, khai production.nhanh: onehub, chép docDuLieu từ tag; sau đó gộp LT1b (#371) rồi LT2 (#374)",
       "ngay": "2026-10-15",
       "loai": "ngoai",
       "ai": "crm",
@@ -60,30 +73,30 @@
       ]
     },
     {
-      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản 2.27.0 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
+      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản 2.28 (hoặc 2.28.1) (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
       "ngay": "2026-10-26",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
     },
     {
-      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.27.0 — đo «chạy được mà không sửa lõi»",
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.28 (hoặc 2.28.1) — đo «chạy được mà không sửa lõi»",
       "ngay": "2026-10-27",
       "loai": "ngoai",
       "ai": "OneFlow",
       "hang": []
     },
     {
-      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — trạng thái đợt trong app (DP6b), bớt câu hỏi ở bước thiết kế (A2, A2s), bất biến sản phẩm (BB1), S3c; không cắt số trước hai đợt thử 26–27/10",
+      "ten": "Mốc kế sau 2.28 (số đặt lúc cắt) — trạng thái đợt trong app (DP6b), cỡ vòng ở bước thiết kế (S3c), bất biến sản phẩm (BB1), câu trạng thái tín hiệu tiếng sản phẩm (TH-cau), kiểm bản cài sau phát hành (KC1)",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "DP6b",
         "S3c",
-        "A2",
-        "A2s",
-        "BB1"
+        "BB1",
+        "TH-cau",
+        "KC1"
       ]
     },
     {
@@ -246,6 +259,34 @@
       "ghi_chu": "CỘNG — chủ kho đồng ý 10/10; vẫn qua Cổng Đáng khi mở. Bản chiếu crm là hàng LT1b của crm."
     },
     {
+      "ma": "X2s",
+      "nhom": "cua-xem",
+      "hang": "T2",
+      "slug": "dai-tom-tat-doc-dung",
+      "dung_tren": [
+        "X2"
+      ],
+      "vai": "nen",
+      "cau_giao": "Dải tóm tắt một phút đọc đúng dữ liệu thật: ô «đã lên production» suy từ nhánh production kho khai, ô «còn thiếu gì» không in số khi không đọc được, ô «vì sao» không cắt cụt",
+      "vi_sao": "Gốc: crm/_acceptance/trang-lo-trinh-trong-crm — đo 12/10 trên bản sao crm 27d47de04: ô production trống 81/81 (LT1 đã lên 10/10), LT1 «0 giới hạn» trong khi hợp đồng khai 13, 11/81 ô «vì sao» cụt; lỗi có ở mọi kho, không riêng crm. Chủ kho duyệt CỘNG khoá tuỳ chọn production.nhanh 12/10.",
+      "bat_khi": "Kho khai production.nhanh: 100 % việc đã gộp vào nhánh đó hiện «đã triển khai» kèm ngày; 0 ô «còn thiếu gì» in số khi bộ đọc không đọc được",
+      "ghi_chu": "Đã ký 12/10, PR #324 — vào main CÙNG LÚC với X2s2 qua #325. Mốc 2.28."
+    },
+    {
+      "ma": "X2s2",
+      "nhom": "cua-xem",
+      "hang": "T2",
+      "slug": "dai-tom-tat-dem-dung-vi-sao-tron",
+      "dung_tren": [
+        "X2s"
+      ],
+      "vai": "nen",
+      "cau_giao": "Ô «còn thiếu gì» đếm đúng mọi khuôn khối giới hạn, và trang hồ sơ đầy đủ hiện trọn «vì sao làm»",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/dai-tom-tat-doc-dung — Ngoài-8, Ngoài-9 ký «mở hợp đồng mới» 12/10. Đo sáu kho: 86/661 hồ sơ in sai số giới hạn (kit 33, crm 21, radar 18, oneflow 10, media 4); 301 hồ sơ có «vì sao» > 400 ký tự bị cắt trên trang đầy đủ nếu X2s đi một mình.",
+      "bat_khi": "Trên sáu kho: 0 hồ sơ in sai số giới hạn (sai thì «chưa đọc được»); 0 trang hồ sơ đầy đủ bị cắt «vì sao»",
+      "ghi_chu": "PR #325 mang luôn X2s (#324) — gộp một lần. Mốc 2.28."
+    },
+    {
       "ma": "S3",
       "nhom": "lo-trinh",
       "hang": "T3",
@@ -295,6 +336,20 @@
       "vi_sao": "Gốc: crm/_acceptance/kiem-cheo-sau-gop — mục «Hạng mục cùng lớp» gom tay bốn hồ sơ F9–F12, và phần thuộc kit chỉ được nối với hai hạt giống kit (gia-lan-ghim-lai-vong-b, suite-chap-chon-ho-so-khac-khoa-the) khi máy đọc chéo hai kho ngày 08/10. Cùng ngày kiểm kê 94 hạt giống thấy ≥3 hạt giống «mở» thật ra đã được việc đã giao phủ. Owner nêu nhu cầu 08/10: phân loại và gom nhóm là việc khó nhất với người dùng kit. Bước này đứng TRƯỚC cắt lượt: tín hiệu → nhóm → bản phạm vi → hàng. Owner chốt 08/10: người không dùng git được GỬI TÍN HIỆU; kit đặt khuôn tín hiệu + ổ cắm đọc nguồn tín hiệu kho khai (như lo_trinh.tep), KHÔNG giữ kho tín hiệu; trạng thái trả về người gửi qua chuỗi tín hiệu → nhóm → hàng → hồ sơ.",
       "bat_khi": "Ở lượt gom kế của crm, người sửa dưới 1/5 số nhóm máy đề xuất, 0 tín hiệu lọt, và mọi trùng lặp đã biết trong bộ vàng được gộp đúng",
       "ghi_chu": "CỘNG — cần owner phê ở Cổng Đáng. Dùng lại răng phủ và khuôn của L2; người chọn TRỤC gom một lần (chính sách), máy áp."
+    },
+    {
+      "ma": "TH-cau",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "cau-tin-hieu-nguoi-gui",
+      "dung_tren": [
+        "L3"
+      ],
+      "vai": "Người gửi tín hiệu",
+      "cau_giao": "Người gửi tín hiệu đọc trạng thái tín hiệu của mình bằng một câu tiếng sản phẩm — không mã việc, không tên hồ sơ, không chữ nội bộ",
+      "vi_sao": "Gốc: crm/_acceptance/gui-tin-hieu-trong-crm — E14 (ba giám khảo cùng chỉ ra), Known limit ở Cổng Bằng chứng LT2 12/10; đo: 5/7 câu kit sinh cho người gửi lọt mã việc / tên hồ sơ / chữ nội bộ.",
+      "bat_khi": "Ở lượt gom crm đầu tiên sau khi giao: 0 câu trạng thái cho người gửi chứa mã việc, slug hay từ trong danh sách cấm",
+      "ghi_chu": "Dời sau 2.28 (chủ kho 12/10: 2.28 chỉ gồm sửa lỗi). Thêm trường câu cho người, giữ câu cũ (đường đọc-cũ + cờ vàng); crm sửa một chỗ đọc ở LT2."
     },
     {
       "ma": "A2",
@@ -427,12 +482,37 @@
       "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — đợt sau-14-10: thợ hỏi chủ kho bằng chữ mà bảng chờ người không thấy (luật 52, P2 đứng ~2 giờ, P3 ~1,5 giờ). Soát tổng thể 10/10 (workflow §16 T7)."
     },
     {
+      "ma": "DP8",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP7"
+      ],
+      "vai": "nen",
+      "cau_giao": "Đợt Điều phối – Thợ ở kho tiêu thụ không bị chặn vì danh mục chuyển gói lẫn lịch sử, thợ không tự ghi danh worktree, hay việc nền giữ khoá S4 bị báo nhầm",
+      "vi_sao": "Gốc: crm/_acceptance/chuyen-goi-dieu-phoi — lượt chấm 1 ngày 12/10 (ba lỗi chặn đợt r2: S2, S3, S4 của Mac Studio) + kit #301 điểm 1, 2, 6, 8.",
+      "bat_khi": "Đợt r2 của crm chạy không cần hai luật tạm trong LUAT-rieng.md (đơn P<n>-0 và bỏ qua cảnh báo khoa-khong-nhip)",
+      "ghi_chu": "Máy M5 giữ. Chỉ chạm dieu-phoi/. Mốc 2.28 nếu vào main trước 10:00 13/10; không kịp → bản vá 2.28.1 trước 15/10."
+    },
+    {
       "ma": "S1",
       "nhom": "cho-xet-lai",
       "hang": "T2",
       "slug": "lop-vendored-tu-xung",
       "cau_giao": "«Kho biết mình đang chạy đúng bản kit đã khai, kiểm bằng một lệnh trong CI»",
-      "ghi_chu": "Ký build 19/09, chưa mở vòng sau ba tuần. Neo là hồ sơ của chính kit (thuoc-co-cua) — đề xuất xét lại khi ký lộ trình này. Cùng lớp có neo bốn kho: hạt giống 2026-09-23-lop-chep-tu-xoa-2-18-3 (oneflow #127, artifact-platform #391, media-library #66, crm #70)."
+      "ghi_chu": "Ký build 19/09, chưa mở vòng sau ba tuần. Neo là hồ sơ của chính kit (thuoc-co-cua) — đề xuất xét lại khi ký lộ trình này. Cùng lớp có neo bốn kho: hạt giống 2026-09-23-lop-chep-tu-xoa-2-18-3 (oneflow #127, artifact-platform #391, media-library #66, crm #70). Có neo ngoài 11/10 (Mac Studio, M5 xác nhận 12/10): bản cài kit lấy mã main thay vì tag — xem KC1 (kiểm bản cài sau phát hành)."
+    },
+    {
+      "ma": "KC1",
+      "nhom": "phat-hanh",
+      "hang": "T2",
+      "slug": "kiem-ban-cai-sau-phat-hanh",
+      "dung_tren": [],
+      "vai": "nen",
+      "cau_giao": "Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng trước khi phát tới kho thật",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/release-2-27-0 — phát hiện khi cắt 2.27: A1 chưa chạy sống lần nào vì bản cài thiếu agents/ (38 lượt / 17 hồ sơ ghi tác tử vắng); M5 xác nhận 12/10 bản «2.27.0» cài được là mã main 294b29d, không phải tag a1e2e0b9.",
+      "bat_khi": "Mốc kế: 0 lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» tới kho thật; mọi lỗi như vậy đỏ ở kho giả lập trước khi phát",
+      "ghi_chu": "Vòng meta DUY NHẤT giữa 2.28 và mốc kế — chủ kho gọi tên 12/10 (luật chiều rộng (b)). Mở sau 2.28; máy giữ chốt ở hoà giải ba máy (crm issue #375). Liên quan S1."
     },
     {
       "ma": "S2",
@@ -515,6 +595,42 @@
       "cau_giao": "CI của kit chạy các bộ test song song (bộ scripts 12,5′ và plugins 6′ đang nối tiếp)",
       "ly_do": "Kit công khai nên không tốn tiền; chờ CI mỗi lần đẩy ở kit trung vị 14,6′. Chỉ có lợi cho phiên sửa kit — meta, không neo ngoài. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §1.1, §6.",
       "mo_lai_khi": "Owner gọi tên, hoặc chờ CI kit thành khối lớn trong thời gian phiên của một vòng sản phẩm"
+    },
+    {
+      "ma": "H12",
+      "cau_giao": "Ký Cổng Bằng chứng theo lô",
+      "ly_do": "kit #301 điểm 2 (Mac Studio): ~160 chữ ký cổng trong 4 ngày đợt crm sau-14-10. Đúng chỗ đau ngày 12/10 (bảy thẻ trong một buổi).",
+      "mo_lai_khi": "Sau KC1; owner gọi tên"
+    },
+    {
+      "ma": "H13",
+      "cau_giao": "PR để nháp tới lúc trình Cổng Bằng chứng",
+      "ly_do": "kit #301 điểm 5: phút Actions ≈ 45′ mỗi lần đẩy, 20 % PR chỉ chạm T1.",
+      "mo_lai_khi": "Owner gọi tên"
+    },
+    {
+      "ma": "H14",
+      "cau_giao": "Hàng gộp chung nhiều máy do máy giữ (thay bình luận KHOÁ/NHẢ tay)",
+      "ly_do": "kit #301 điểm 6 + vận hành 11–12/10: khoá kit #308 giữ tay, nhiều lần dời giờ nhả; mỗi lần gộp mã bắt PR khác ghim lại ~1 giờ.",
+      "mo_lai_khi": "≥1 lần hai máy gộp đè nhau hoặc khoá quá hạn +2 giờ thêm một lần"
+    },
+    {
+      "ma": "H15",
+      "cau_giao": "Chữ «chờ …» viết tay trong hàng lộ trình được máy đọc và đưa về đúng chỗ (dung_tren · mốc ngoài · ngưỡng Cổng Giá trị)",
+      "ly_do": "Đo 12/10: 17 hàng chưa xong của ba lộ trình crm mang «chờ» viết tay mà luật S3b không thấy (chỉ đọc dung_tren); LT1b/LT2 do chủ kho bắt bằng mắt.",
+      "mo_lai_khi": "Sau khi crm rà 17 hàng theo S3b mà vẫn có hàng mới viết «chờ» tay"
+    },
+    {
+      "ma": "H16",
+      "cau_giao": "Câu ký cổng chọn được lối khác ngay trong lượt ký («duyệt; Hỏi-n = lối»)",
+      "ly_do": "A2 Hỏi-2, chủ kho chọn «hàng riêng sau» ở Cổng Phạm vi 11/10 (_acceptance/buoc-len-thiet-ke-khong-hoi d-20261011T093912Z-13); chạm lệnh cổng người (ADR 0002).",
+      "mo_lai_khi": "Sau 2.28; owner gọi tên"
+    },
+    {
+      "ma": "H17",
+      "cau_giao": "Tầng chủ kho của dải tóm tắt hiện danh sách tiêu chí kèm kết cục và danh sách câu giới hạn",
+      "ly_do": "LT1b đề nghị 12/10; vòng dai-tom-tat-doc-dung để ngoài (đổi khuôn khối) — hạt giống docs/plans/2026-10-12-hat-giong-dai-tom-tat-sau-x2s.md.",
+      "mo_lai_khi": "Sau 2.28 và LT1b lên crm"
     }
   ],
   "da_bac": [
