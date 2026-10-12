@@ -1,0 +1,5 @@
+{
+  "feature_plain": "Gói điều phối thôi chặn đợt chạy r2 của crm: lệnh kiểm chuyển gói tách chỗ phải sửa khỏi lịch sử và bắt cả import tương đối vào lõi cũ, phiên thợ mở từ chip tự ghi danh worktree của mình vào dãy, và việc nền ngoài dãy giữ nhịp khoá thì không còn bị báo nhầm «khoá không nhịp».",
+  "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này; mục nào cần thì thành việc riêng.",
+  "analyst_plain": "Lệnh gom chung chạy bộ ca của gói cũng xanh trên bản trước vòng, vì mã thoát của nó không phụ thuộc ca của vòng này có mặt hay không. Bằng chứng phân biệt nằm ở các dòng «ok … DP8-…» mà người chấm đọc, ở các ca đỏ chạy bản sao bị tiêm lỗi, và ở phép đo trên kho crm thật — không nằm ở mã thoát của lệnh gom."
+}

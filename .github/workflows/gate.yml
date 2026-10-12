@@ -21,6 +21,15 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
+      # zsh: lời dặn bước thiết kế ghi sổ bằng khối lệnh DEC-ID-RECIPE dưới vỏ zsh của máy chủ kho,
+      # nên ca CC-03 (tests/scripts/can-cu-s1.ca.mjs) chạy khối ấy dưới cả bash lẫn zsh và CỐ Ý đỏ khi
+      # máy thiếu zsh thay vì tự bỏ qua — đo lệnh shell trên đúng vỏ (hồ sơ buoc-len-thiet-ke-khong-hoi).
+      # Trần 5 phút + không hỏi: 12/10 một lượt của #332 treo ~1 g 47′ ở bước này vì job không có trần.
+      - name: cài zsh (CC-03 chạy khối lệnh sổ dưới zsh)
+        timeout-minutes: 5
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: sudo apt-get update -q && sudo apt-get install -y -q zsh
       - name: scripts suite
         run: bash tests/scripts/run-tests.sh
       - name: hooks suite
