@@ -131,11 +131,11 @@ evals:
   - id: E10
     criterion: AC-10
     executor: judgment
-    inputs: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs]
-    paths: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs]
+    inputs: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs, lib/md-section.cjs]
+    paths: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs, lib/md-section.cjs]
     question: >
       Đọc mô tả các ô moi_nguoi.production, moi_nguoi.chua_lam, moi_nguoi.vi_sao trong
-      lo-trinh-du-lieu.md và so với mã của tomTatHoSo trong ho-so-tom-tat.cjs. Mô tả có nói đúng (1) các câu
+      lo-trinh-du-lieu.md và so với mã của tomTatHoSo trong ho-so-tom-tat.cjs (hàm section/contentLines nó gọi ở lib/md-section.cjs). Mô tả có nói đúng (1) các câu
       ô production khi chưa có dòng quan sát — kho không khai nhánh, kho khai `production: nhanh:` (đã triển
       khai / chưa gộp / chưa đọc được) — và rằng «đã thấy chạy» chỉ từ dòng người ghi, (2) hai nguồn giới
       hạn (Known limits của báo cáo, khối giới hạn trong Notes của hợp đồng) và luật lấy nguồn nhiều mục
