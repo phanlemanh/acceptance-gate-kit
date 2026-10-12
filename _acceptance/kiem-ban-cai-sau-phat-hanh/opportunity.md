@@ -3,13 +3,13 @@ schema_version: 1
 slug: kiem-ban-cai-sau-phat-hanh
 feature: Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng trước khi phát tới kho thật
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-12T23:29:16Z   # chủ kho gõ «Làm» trong phiên 13/10 sau khi xem thẻ Cổng Phạm vi, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
-  disposition:     # keep | archive
+  disposition: archive
 lo_trinh_ma: KC1
 lo_trinh_tep: docs/plans/lo-trinh-kit.json
 ---
@@ -36,10 +36,13 @@ Gốc: acceptance-gate-kit/_acceptance/release-2-27-0 — `run-log.jsonl` dòng 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] ở mốc kế (2.29.0) và các mốc sau, có lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» nào tới kho thật không?
-- Kết quả nào là SỐNG: [đề xuất] mốc 2.29.0 cắt với lệnh kiểm bản cài XANH trên tag; mọi lỗi lớp ấy (nếu có) đỏ ở kho giả lập TRƯỚC khi phát; máy nhận đầu tiên (crm) chạy kiểm-máy sau khi cài → mọi bản ghi khớp tag.
-- Kết quả nào là CHẾT: [đề xuất] một kho thật cài 2.29.0 mà thiếu thư mục gói hoặc lệch tag trong khi lệnh kiểm xanh; hoặc lệnh kiểm không chạy được ở lúc cắt số.
-- Timebox: [đề xuất] 2026-10-16 (mốc Phát hành 2.29.0); đọc lại ở lần crm nhận 2.29.0.
+Máy suy từ `bat_khi` của hàng KC1 (`docs/plans/lo-trinh-kit.json`); chủ kho ký «làm» 13/10, cửa veto mở.
+
+
+- Câu hỏi phép đo trả lời: ở mốc kế (2.29.0) và các mốc sau, có lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» nào tới kho thật không?
+- Kết quả nào là SỐNG: mốc 2.29.0 cắt với lệnh kiểm bản cài XANH trên tag; mọi lỗi lớp ấy (nếu có) đỏ ở kho giả lập TRƯỚC khi phát; máy nhận đầu tiên (crm) chạy kiểm-máy sau khi cài → mọi bản ghi khớp tag.
+- Kết quả nào là CHẾT: một kho thật cài 2.29.0 mà thiếu thư mục gói hoặc lệch tag trong khi lệnh kiểm xanh; hoặc lệnh kiểm không chạy được ở lúc cắt số.
+- Timebox: 2026-10-16 (mốc Phát hành 2.29.0); đọc lại ở lần crm nhận 2.29.0.
 
 ## Kết quả prototype
 
@@ -48,6 +51,11 @@ Không dựng prototype — hai phép thử máy ở trên thay chỗ (đường
 ## Nguồn ngoài & phạm vi kế thừa
 
 Không vật liệu ngoài kho. Đường cài dựa vào CLI `claude plugin` (marketplace add · install · list --json) — hành vi bộ đệm đo ở trên trên bản 2.1.281.
+
+## Cổng 0
+
+- **decision = build** Căn cứ: chủ kho gõ «Làm» trong phiên 13/10; vòng meta duy nhất đã gọi tên 12/10, đường găng của 2.29.0.
+- **disposition = archive** Căn cứ: không có prototype.
 
 ## Thước đo thành công → ứng viên criterion
 
