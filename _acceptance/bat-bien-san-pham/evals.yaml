@@ -184,6 +184,21 @@ evals:
       deepEqual bảng năm hàng × sáu cột viết sẵn; dạng chữ có đúng năm hàng; không `--tu` có sáu hàng. Và
       "PASS: LS-11-do" — bản sao đếm cả dòng bị thay → CHÍNH hàm so trả hồ sơ + cột «phạm ở thiết kế» lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    layer: backend-effect
+    paths: [scripts/luat-san-pham.cjs, scripts/khong-can-nguoi.mjs, scripts/gate-card.js, scripts/dinh-tuyen-may.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-12 pham-luat-dinh-tuyen-het", "PASS: LS-12 doi-chung-lan-v" và "PASS: LS-12-do" —
+      hồ sơ verified xanh-sạch, kho bật feature_loop.ngoai_n_tu_dinh_tuyen, hai mục ngoài hợp đồng do CHÍNH
+      scripts/dinh-tuyen-may.cjs --write định tuyến (đúng 2 dòng gate2 mang dấu máy, nếu không ca FAIL nêu số dòng);
+      (phạm luật) diff thêm dấu hiệu SP-1 → thẻ: hai Ngoài-n ở routing.bao, routing.hoi có SP-1, one_shot không có
+      «đi tiếp hay kéo lại»; khong-can-nguoi thoát 2 nêu «luật sản phẩm»; (đối chứng dương) cùng hình dạng không dấu
+      hiệu → khong-can-nguoi thoát 0 và one_shot có «đi tiếp hay kéo lại»; (đỏ) bản sao khong-can-nguoi gỡ đúng dòng
+      kiểm luật → vị từ cho đi (thoát 0) trên hồ sơ phạm luật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-10
     executor: ui-check

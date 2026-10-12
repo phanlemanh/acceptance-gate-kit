@@ -551,5 +551,46 @@ if (want('LS-09')) {
   });
 }
 
+// ── LS-12: phạm luật + MỌI Ngoài-n đã được MÁY định tuyến (A3, ngoai-n-tu-dinh-tuyen) → vẫn DỪNG hỏi người ──
+// Rủi ro tin cậy cao nhất giữa hai máy: làn V của A3 mở khi mọi mục ngoài hợp đồng có dòng sổ gate2; luật sản
+// phẩm phải chặn độc lập với đường đó. Dòng máy do CHÍNH bộ ghi của A3 sinh (dinh-tuyen-may.cjs --write).
+const DTM = path.join(ROOT, 'scripts', 'dinh-tuyen-may.cjs');
+function mkVongDinhTuyen(phamLuat) {
+  const v = mkVong(r => {
+    ghiTep(r, 'apps/app/lib/a.ts', phamLuat ? 'export const tz = "Asia/Ho_Chi_Minh";\n' : 'export const tz = cauHinh.muiGio;\n');
+    commit(r, 'vat');
+  }, { findings: [oocMuc('Hàm ngày lặp', 'Một hàm định dạng ngày viết lại.'), oocMuc('Tên biến', 'Tên biến khó đọc.')] });
+  ghiTep(v.r, '_acceptance/config.yaml', readFileSync(path.join(v.r, '_acceptance/config.yaml'), 'utf8') + 'feature_loop:\n  ngoai_n_tu_dinh_tuyen: true\n');
+  const p = spawnSync(process.execPath, [DTM, '--write', '--root', v.r, '--slug', 'h'], { encoding: 'utf8' });
+  if (p.status !== 0) die(`bộ ghi định tuyến của A3 thoát ${p.status}: ${p.stderr || p.stdout}`);
+  const so = readFileSync(path.join(v.r, '_acceptance/h/decisions.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
+  const may = so.filter(e => e.stage === 'gate2' && e.may);
+  if (may.length !== 2) die(`bộ ghi A3 phải định tuyến đủ 2 mục, ghi ${may.length} — kho thử không đúng hình dạng làn V của A3: ${p.stdout}`);
+  return v;
+}
+if (want('LS-12')) {
+  const vPham = mkVongDinhTuyen(true), vSach = mkVongDinhTuyen(false);
+  check('LS-12 pham-luat-dinh-tuyen-het', () => {
+    const r = rut(vPham);
+    if (!r.routing.bao.includes('Ngoài-1') || !r.routing.bao.includes('Ngoài-2')) die('kho thử: hai mục Ngoài-n phải là dòng báo (máy đã định tuyến) — routing.bao=' + JSON.stringify(r.routing.bao));
+    if (r.one_shot.includes(LAN_V)) die('phạm luật mà vẫn đi làn V: ' + r.one_shot);
+    if (!r.routing.hoi.includes('SP-1')) die('routing.hoi thiếu SP-1: ' + JSON.stringify(r.routing.hoi));
+    const k = kcn(vPham); eq(k.status, 2, 'khong-can-nguoi thoát'); if (!(k.stderr + k.stdout).includes('luật sản phẩm')) die('khong-can-nguoi không nêu luật sản phẩm: ' + k.stderr);
+  });
+  check('LS-12 doi-chung-lan-v', () => {
+    const k = kcn(vSach); eq(k.status, 0, 'không phạm luật: khong-can-nguoi phải cho đi (' + k.stderr.trim() + ')');
+    const r = rut(vSach); if (!r.one_shot.includes(LAN_V)) die('không phạm luật mà làn V không đi: ' + r.one_shot);
+  });
+  check('LS-12-do', () => {
+    const nha = tam('lsp-kcn-'); for (const t of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, t), path.join(nha, t), { recursive: true });
+    const f = path.join(nha, 'scripts', 'khong-can-nguoi.mjs'); const t = readFileSync(f, 'utf8');
+    const cu = '  if (ctx.luat && luatSP && luatSP.chanLuat(ctx.luat)) return null;\n'; if (t.split(cu).length !== 2) die('mũi tiêm vị từ không áp');
+    writeFileSync(f, t.replace(cu, ''));
+    const k = spawnSync(process.execPath, [f, '--check', '--root', vPham.r, '--slug', 'h'], { encoding: 'utf8' });
+    if (k.status === 2 && (k.stderr + k.stdout).includes('luật sản phẩm')) die('gỡ phép kiểm luật mà vị từ vẫn chặn vì luật — ca không đo đúng chỗ');
+    if (k.status !== 0) die('gỡ phép kiểm luật: vị từ phải cho đi (lọt) để chứng ca có răng, thoát ' + k.status + ': ' + k.stderr.trim());
+  });
+}
+
 console.log(`luat-san-pham.ca: ${passed} đạt, ${failed} trượt`);
 process.exit(failed ? 1 : 0);
