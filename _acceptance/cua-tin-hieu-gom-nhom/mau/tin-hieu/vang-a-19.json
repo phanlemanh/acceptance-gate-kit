@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "E11 của tra-loi-tin-nhac (AC-9, script rang/ho-so-cham.mjs) dò mọi hồ sơ đã ký có paths chạm diff của nhánh, chạy lại toàn bộ eval máy của chúng (khoảng 30 hồ sơ, ~378 eval) cộng bốn suite, rồi chạy…",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:18:00.000Z"
+}

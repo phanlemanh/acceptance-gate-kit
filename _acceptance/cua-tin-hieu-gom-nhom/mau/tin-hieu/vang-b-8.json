@@ -1,0 +1,10 @@
+{
+  "phien": "vang-b",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Bắt hồi quy chéo sau khi gộp (rồi dò ngược commit gây lỗi) đủ an toàn cho kho này, vì production tự triển khai khi gộp nhưng một hồi quy giữa hai hồ sơ đã ký hiếm và sửa được bằng PR kế.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:07:00.000Z"
+}

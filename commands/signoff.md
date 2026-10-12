@@ -102,6 +102,13 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   Lối đi-tiếp (`đi tiếp`, ô điền sẵn `đi tiếp hay kéo lại: đi tiếp`, chữ cũ
   `để yên`) → không ghi gì, in «cửa veto vẫn mở». Danh tính suy theo cùng bậc
   thang ở trên.
+- Câu gộp có `Ký` hoặc có `Ngoài-<số>:` trên hồ sơ máy-đi-trước KHÔNG đọc theo
+  khối làn V: đó là người bước vào cổng — đi đường ký thường (bước 3–7). Đây cũng
+  là lối ĐẢO một mục máy đã tự định tuyến (dòng sổ mang khoá `may:
+  dinh-tuyen-ngoai-n`, lệnh in ở khoá `dao` của dòng ấy): trên hồ sơ
+  `machine-cleared` lẫn hồ sơ máy-đi-trước, «Ngoài-<số>: <lựa chọn>; Ký» ghi một
+  dòng sổ người MỚI cho mục đó, không sửa và không xoá dòng máy — sổ append-only,
+  thẻ lấy dòng mới nhất nên người thắng.
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
