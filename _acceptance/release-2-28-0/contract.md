@@ -5,7 +5,7 @@ slug: release-2-28-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + bước cài zsh của CI kit (T1) + workspace hồ sơ + bản đồ + 3 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
