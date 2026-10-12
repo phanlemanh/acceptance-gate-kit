@@ -78,6 +78,17 @@ Steps:
    Already `approved` or later → show `status`, `approved_by`, `approved_at`
    and stop: re-approval only happens when the user explicitly reopens the
    contract, and the hook re-validates that path.
+   **Contract size** — read `co_hop_dong` from `node "$AG/scripts/gate-card.js" --root . --slug <slug> --gate 1 --extract`
+   (`AG` as in the `MAP-STAGE` block below; one reader shared with the size meter, range from khối `CAT-LUOT-CO`):
+<!-- <<<CO-HOP-DONG-CHAN -->
+   `khi: co_hop_dong.chan = true → ghi_duyet: khong · loi_ra: tach, giu`
+
+   The key is true (a `draft` contract with 13+ criteria and no keep line in the ledger) → STOP here,
+   write no gate field, and say the two ways out in plain words: split into several loops, one result
+   each (resume the loop so the machine splits it), or answer `sửa: giữ cỡ — <lý do>` — step 4 then
+   records it as one `approach` ledger line whose `decision` is the human's sentence after `sửa: `,
+   re-renders the card and asks again.
+<!-- CO-HOP-DONG-CHAN>>> -->
 2. **Present.** Render the decision card — `/acceptance-gate:acceptance-card <slug>` — unless
    it was just rendered this session. Attach the deep-review package: the full
    `contract.md` verbatim + the AC → eval → executor mapping table. Run the
@@ -93,6 +104,9 @@ Steps:
    later in one sentence if it is wrong.
 4. **Edits requested** → apply them to `contract.md`/`evals.yaml` (pre-approval
    artifacts are agent-editable), re-render the card, ask again. Still Gate 1.
+   An edit that starts `giữ cỡ` is a keep line, not a contract edit: append it to
+   `decisions.jsonl` with the `DEC-ID-RECIPE` block of the feature-loop SKILL (`type`
+   `approach`, `stage` `gate1`, `decision` = the human's words verbatim).
 5. **On an explicit YES only:**
    - `approved_by` and the date: apply the identity rules declared ONCE at
      the top of this file (ĐỌC / CHỌN / CẠN + the identity echo)
