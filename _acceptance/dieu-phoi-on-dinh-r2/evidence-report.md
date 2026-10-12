@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7a514372d844dc15ba2bfac2d7c635ad4f00357e
+verified_commit: 535862d81e3f24e0b60f657eedca8c5190125545
 human_signoff: manh 2026-10-12
 ---
 
@@ -249,3 +249,7 @@ none — mọi eval chạy một lượt (deterministic), không eval nào ngẫ
 
 Round 1: E1 đến E13 đều đạt, verdict PASS; trả lại ở Cổng Bằng chứng theo khuyến nghị (bộ đọc khai/evals.yaml, phép đo theo lớp, thêm AC-12 và E14). Returned to implementation.
 Round 2: E1 đến E14 đều đạt (E14 mới, phủ AC-12), không eval nào hỏng; verdict PASS.
+
+### Re-pin lần 1 — 2026-10-12, do hoá cũ do gộp main 407c249a (A2 #320) vào nhánh PR #332
+run_id: repin-20261012T135326Z-32890
+sha: 535862d81e3f24e0b60f657eedca8c5190125545 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
