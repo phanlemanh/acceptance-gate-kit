@@ -338,11 +338,17 @@ hỏi. Dòng không có khoá là dòng đời trước — đọc như cũ; th�
 một cờ vàng. Thẻ Cổng Phạm vi hiện ba khối: «Câu chỉ anh trả lời được» (anh trả lời
 «duyệt» = nhận khuyến nghị, hoặc «sửa: Hỏi-n = lối»), «Máy đã quyết ở bước thiết kế —
 anh lật được» (kèm câu trích + tệp, hoặc lối khác chết vì sao), rồi «Quyết định &
-trade-off» cho phần còn lại. Dòng căn cứ hỏng (trích không có, tự trỏ vào vật của vòng,
+trade-off» cho phần còn lại. Mỗi dòng của hai khối căn cứ in đủ ba vế như mọi dòng sổ
+(ADR 0021): quyết gì — vì sao — sai thì tốn gì, rồi mới tới căn cứ hoặc khuyến nghị; dòng
+thiếu giá mang nhãn «⚠ chưa khai giá nếu sai» ngay dòng đó. Dòng căn cứ hỏng (trích không có, tự trỏ vào vật của vòng,
 câu trích sinh trong nhánh, khó-đảo bị máy quyết, nguồn lạ…) → cờ đỏ có tên và dòng lệnh
 duyệt không điền sẵn. Anh lật một lựa chọn ở Cổng Phạm vi → máy ghi một dòng `gate1`
-theo khuôn `DEC-LAT-GATE1`. Kiểm tay: `node scripts/can-cu-s1.cjs --root . --slug <s>
-[--base <ref>]`; đường đo cả kho: `node scripts/can-cu-s1.cjs --root . --dem`.
+theo khuôn `DEC-LAT-GATE1`. Kiểm tay: `node <gốc gói acceptance-gate>/scripts/can-cu-s1.cjs
+--root . --slug <s> [--base <ref>]`; đường đo cả kho: `… --root . --dem` (kho kit dùng
+`scripts/` của cây). Phiên chạy vòng gọi bộ xếp qua bộ giải gói, đúng lệnh trong SKILL
+feature-loop, và đọc **dòng tổng kết** (`<slug> · câu hỏi N · … · đỏ K · …`), không đọc mã
+thoát: lệnh không in dòng tổng kết là bộ xếp không chạy được (thiếu gói, gói cũ) — dừng có
+tên, không phải sổ đỏ.
 
 **Làn design — một công tắc** — CT1 (chạm UI): static checks (token/contrast/tap,
 thiếu capture là BLOCKED) + screenshot như thường. Không có field tier nào —

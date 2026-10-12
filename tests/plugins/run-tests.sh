@@ -7250,7 +7250,10 @@ with tempfile.TemporaryDirectory() as d:
     print("     E11 banh coc: %d assert cu, %d da go va DEU duoc khai" % (len(old_asserts), len(missing)))
 
 # ══ E10: dem cho goi ham lot TU MA NGUON == con so khai o truc C ══
-calls = len(re.findall(r"stripMd\(", CARD.read_text(encoding="utf-8")))
+# Đường đi qua hàm lột = lời gọi stripMd( HOẶC decBaVe( (hàm ba vế, khối DEC-BA-VE, tự lột cả ba vế) — hồ sơ
+# can-cu-s1-chay-moi-kho 12/10: hai khối căn cứ chuyển sang decBaVe nên đếm chuỗi stripMd( tụt mà văn thô không lọt.
+LOT_RE = r"(?:stripMd|decBaVe)\("
+calls = len(re.findall(LOT_RE, CARD.read_text(encoding="utf-8")))
 mc = re.search(r"CE:\s*\*\*(\d+)\*\*\s*chỗ gọi hàm lột", contract)
 assert mc, "truc C khong khai so cho goi ham lot"
 # QUAN HE, khong phai HANG DEM (ho so ra-co-ten 24/08 — con tro «thay the»).
@@ -7270,7 +7273,7 @@ try:
                            capture_output=True, text=True, check=True).stdout.strip()
     _src = subprocess.run(["git", "-C", str(root), "show", f"{_base}:scripts/gate-card.js"],
                           capture_output=True, text=True, check=True).stdout
-    _base_calls = len(re.findall(r"stripMd\(", _src))
+    _base_calls = len(re.findall(LOT_RE, _src))
 except Exception as e:
     print("     P161-E10: khong doc duoc moc nen (%s) — chi ap quan he (1)" % type(e).__name__)
 assert calls >= int(mc.group(1)), "so cho goi TUT duoi moc hop dong: ma nguon %d < truc C khai %s — mot loi goi ham lot bi go, van tho co the ro ra the" % (calls, mc.group(1))
