@@ -678,13 +678,13 @@ function tamVongKK() {
   if (dong) { const m = dong.split('\t')[0]; return { goc: git(ROOT, 'merge-base', `${m}^1`, `${m}^2`), dinh: git(ROOT, 'rev-parse', `${m}^2`), nguon: 'lich-su' }; }
   const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
   if (!chinh) throw new Error('không tìm được nhánh chính (origin/main | main) để tính gốc vòng');
-  // Chưa gộp: gốc = điểm rẽ của vòng (cha commit mở ô) hoặc merge-base với nhánh chính — lấy cái MỚI hơn. Nhánh vòng
-  // xếp chồng trên một nhánh chưa gộp (A2, 12/10) thì merge-base cũ hơn điểm rẽ và kéo vật của nhánh dưới vào phép so.
-  const mb = git(ROOT, 'merge-base', 'HEAD', chinh);
+  // Chưa gộp: gốc = phía upstream (cha thứ hai) của lần gộp upstream GẦN NHẤT trên chuỗi commit chính của nhánh kể từ
+  // điểm rẽ (cha commit mở ô); chưa gộp lần nào thì là điểm rẽ. merge-base với nhánh chính sai khi nhánh xếp chồng trên
+  // một nhánh chưa gộp (A2, 12/10): nó kéo vật của nhánh dưới vào phép so. Không tìm được commit mở ô → merge-base.
   const mo = git(ROOT, 'log', '--diff-filter=A', '--format=%H', '--', '_acceptance/can-cu-s1-chay-moi-kho/opportunity.md').split('\n').filter(Boolean).pop();
-  const re2 = mo ? git(ROOT, 'rev-parse', `${mo}^`) : null;
-  const moiHon = re2 && spawnSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', mb, re2]).status === 0;
-  return { goc: moiHon ? re2 : mb, dinh: null, nguon: moiHon ? 'diem-re' : 'nhanh' };
+  if (!mo) return { goc: git(ROOT, 'merge-base', 'HEAD', chinh), dinh: null, nguon: 'nhanh' };
+  const gopGan = git(ROOT, 'rev-list', '--first-parent', '--merges', '-n', '1', `${mo}..HEAD`);
+  return gopGan ? { goc: git(ROOT, 'rev-parse', `${gopGan}^2`), dinh: null, nguon: 'gop-gan' } : { goc: git(ROOT, 'rev-parse', `${mo}^`), dinh: null, nguon: 'diem-re' };
 }
 const THU_MUC_THE = ['scripts', 'lib', 'skills'];
 const banLuu = sha => { const d = mkdtempSync(path.join(tmpdir(), 'kk-luu-')); execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', '_', ROOT, sha, d]); return d; };
