@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ce561dc9c42a6a9d2c8e5364a18372b1ec115106
+verified_commit: 1e91a2a897ecd2188de221cc591678b1cdedc74e
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -197,3 +197,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1–E10 đều đạt, verdict PASS; E3 do judge đề xuất PASS, human_override để trống cho người ở Cổng 2.
 Round 2: sau bản sửa S4-r1 (KK-6 so-that đếm thẳng từ sổ, không qua bộ xếp), E1, E2, E4, E5, E6, E7, E8, E10 chạy lại và đạt; E9 carry-forward từ round 1 (delta không chạm paths của eval); E3 chấm lại, ba lens PASS; verdict PASS.
+
+### Re-pin lần 1 — 2026-10-12, do sau chữ ký: KK-8 xác nhận tuần tự, P161 đếm decBaVe, sổ known-limits (CI #331)
+run_id: repin-20261012T151021Z-85556
+sha: 1e91a2a897ecd2188de221cc591678b1cdedc74e · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths), E9 · AC không có chốt máy: AC-3, AC-9
