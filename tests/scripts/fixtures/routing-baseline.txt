@@ -166,3 +166,4 @@ ci-cua-kho-bo-job-nang	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6
 cua-tin-hieu-gom-nhom	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|ký hay trả	bao=cắt/hoãn|Treo
 ngoai-n-tu-dinh-tuyen	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 release-2-27-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
+dieu-phoi-on-dinh-r2	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|Ngoài-17|Ngoài-18|ký hay trả	bao=cắt/hoãn|Treo

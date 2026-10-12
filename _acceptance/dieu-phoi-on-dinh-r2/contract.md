@@ -5,7 +5,7 @@ slug: dieu-phoi-on-dinh-r2
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/dieu-phoi-on-dinh-r2/design.md
 approved_by:
 approved_at:
@@ -88,3 +88,17 @@ từng lỗ nằm ở ma trận trong AC:
 - Hai CỘNG của vòng (lệnh `ghi-danh`, khoá `dieu_phoi.lich_su`) nằm trong lời giao của Điều phối M5 theo lệnh chủ
   kho 12/10; trace: lệnh `ghi-danh` → nguyên tố 3 (người khỏi điền worktree tay cho từng dãy — lượt gọi người);
   khoá khai lịch sử → nguyên tố 2.
+- **Known limits (Cổng Bằng chứng lượt 2, chủ kho ký 12/10 — sổ `gate2`):** bộ đọc YAML theo dòng của `kiem-chuyen`
+  còn lọt eval viết flow mapping và danh sách thụt ngang khoá cha — báo «sạch» giả; dừng vá theo luật dừng-vá, hướng
+  đổi khuôn ở hạt giống (Ngoài-1; Ngoài-7 cùng gốc) · nhánh khai dạng một dòng của phép đo crm thật không phân biệt
+  được bộ đọc cũ — chiều đỏ của dạng ấy chỉ có ở DP8-12 trên kho thử (Ngoài-2; Ngoài-4, Ngoài-6 trùng) · chú thích
+  ở `hang.mjs` nói «hạt giống» trước khi hạt giống có — nay đã có ở chữ ký này (Ngoài-3) · ma trận bất biến DP8-06
+  không có hàng `nhan-giang-lai` (Ngoài-14) · DP8-07 in `nhan-giang-lai` là «không với tới» dù với tới được
+  (Ngoài-15) · dòng tổng của `xem --kiem-chuyen` chỉ được kiểm n, tổng k và thứ tự lớp (Ngoài-16) · bộ tự kiểm
+  «số khối == số lời gọi `test(`» của DP8-11 bỏ sót `tests/dieu-phoi/loi/` (phát hiện TRONG hợp đồng AC-11, lượt
+  chấm 2, mức thấp; chạy tay trên `loi/` lệch 0). Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng lượt 2, ký 12/10):** Ngoài-5 (`--chi-tiet` cụt 64 KB qua pipe), Ngoài-10,
+  Ngoài-13 (khoá chưa che `pha`, `nhat-ky`) — ghi hạt giống
+  `docs/plans/2026-10-12-hat-giong-dieu-phoi-sau-on-dinh-r2.md`, không tạo ô.
+- **Chấp nhận, không sửa (Cổng Bằng chứng lượt 2, ký 12/10):** Ngoài-8, 9, 11, 12, 17, 18 — mục lượt 1 mang sang,
+  đã sửa ở lượt 2 (AC-12, AC-6, AC-8 kèm ca), không ghi gạch giới hạn.
