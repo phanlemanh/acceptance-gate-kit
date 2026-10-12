@@ -701,6 +701,9 @@ executors:
     tctt_ac4: GG_CASES=AC-4 node tests/scripts/ten-ca-qua-tien-to.test.mjs
     dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
     dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
+    # Hồ sơ dieu-phoi-on-dinh-r2 (AC-4, E4): đo kiem-chuyen trên kho crm thật của máy owner ($HOME/dev/crm-onehub, hai
+    # sha ghim) — CI không có kho ấy, khoá này không vào suite_keys (tiền lệ esl_vi_phan_bay_kho).
+    dieu_phoi_dp8_crm: node tests/dieu-phoi/dp8-crm-that.mjs
     # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
     # Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm, như dieu_phoi_validate.
     dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs

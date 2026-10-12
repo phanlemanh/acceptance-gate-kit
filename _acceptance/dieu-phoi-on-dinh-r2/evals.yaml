@@ -76,7 +76,9 @@ evals:
       (bằng nhau); phai_sua đúng là các dòng _acceptance/chuyen-goi-dieu-phoi/evals.yaml cộng các dòng khối E7
       của _acceptance/sua-paths-e5-soan-okr/evals.yaml; thêm dieu_phoi.lich_su (hai mục) vào config.yaml của bản
       sao → CLI `xem --kiem-chuyen` in "kiem-chuyen: sach" và thoát 0. In tổng dòng, số phải sửa, đếm theo lớp
-      của hai cây. Kho hay sha vắng → exit 2 "không đọc được ở đây: <kho|sha>".
+      của hai cây. Chiều đỏ cùng cây b9a3b160: bản sao gói bỏ quét import tương đối (kiểm bước tiêm áp) → dòng
+      "chiều đỏ …" chứa "merge-base: phần chênh rỗng — import tương đối không được bắt". Dòng cuối
+      "dp8-crm-that: xanh". Kho hay sha vắng → exit 2 "không đọc được ở đây: <kho|sha>".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -103,7 +105,7 @@ evals:
       hang-viec.json bằng trước, số dòng su-kien.jsonl bằng trước; số assert == 4. "ok" cho "DP8-06 bat-bien":
       ma trận viết sẵn 8 trạng thái của P1 có worktree cũ (nhịp 3′ · 9′ · 11′ · 25′ · giữ s4 trong hạn, phiên
       chết · còn xin/P1-s4.json, phiên chết · cho-nguoi/P1.json · worktree cũ đã xoá); mỗi hàng: hành động của P1
-      từ `tiep-tuc --nhe --json` rồi `ghi-danh P1` từ W mới; assert (hành động ∈ {khong, nhan-giang-lai,
+      từ `chan-doan --json --chi-tiet` (chỉ đọc, cùng keHoachDay với tiep-tuc) rồi `ghi-danh P1` từ W mới; assert (hành động ∈ {khong, nhan-giang-lai,
       cho-nguoi}) ⇔ (thoát 1), số assert == 8 (in hành động + mã từng hàng); hàng nhận: day[P1].worktree == W,
       sự kiện có thay == worktree cũ, stdout nhắc nhánh cũ khi worktree cũ còn; hàng còn đơn: đơn có worktree == W
       và luc bằng trước. "ok" cho "DP8-06-do luon-nhan": bản sao ghi-danh thôi đọc hành động của dãy (kiểm bước
