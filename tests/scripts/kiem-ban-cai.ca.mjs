@@ -367,7 +367,9 @@ function chayTron() {
       if (!dcOk) fail('KB-9 do', 'không có đối chứng dương (KB-9 doi-chung không PASS)');
       else {
         const dd = caMoc(banSaoKit('main', d => { doiSo(d); fs.rmSync(path.join(d, 'feature-loop', 'agents'), { recursive: true }); }));
-        kiem('KB-9 do', [[dd.ma === 1, `mong thoát 1 (thoát ${dd.ma})`], [dd.out.includes('THIẾU thư mục gói: feature-loop/agents') && dd.out.includes('TỔNG KẾT: ĐỎ'), `đầu ra «${dd.dong.slice(-2).join(' | ')}»`]]);
+        // Cây cắt mốc ĐÃ mất agents/ thì bản cài khớp cây ấy — mục thu-muc-goi đúng là ĐẠT; lớp lỗi A1 bị mục
+        // tac-tu-cham bắt (workflow đã cài vẫn gọi tên tác tử mà bản cài không có định nghĩa).
+        kiem('KB-9 do', [[dd.ma === 1, `mong thoát 1 (thoát ${dd.ma})`], [dd.out.includes('tác tử chấm vắng trong bản cài:') && dd.out.includes('feature-loop:cham-lenh') && dd.out.includes('TỔNG KẾT: ĐỎ'), `đầu ra «${dd.dong.slice(-2).join(' | ')}»`]]);
       }
       const kd = banSaoKit('trunk', d => fs.appendFileSync(path.join(d, 'README.md'), '\nx\n'));
       const n = nhanDienLuotMoc(kd);

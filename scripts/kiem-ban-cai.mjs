@@ -7,8 +7,8 @@
 // Chế độ kho giả lập (`--ref`): cài ĐÚNG cây của ref (git archive) vào một cấu hình Claude CÁCH LY
 // (CLAUDE_CONFIG_DIR tạm — không chạm ~/.claude thật), dựng một kho giả lập sạch bằng code, rồi kiểm
 // tám mục theo thứ tự cố định (MUC). `--nguon-cai` thay nguồn cài (ca đo tiêm lỗi; hay chứng một bản
-// checkout bất kỳ so với ref). Chế độ máy thật (`--may`): CHỈ ĐỌC `claude plugin list --json` của
-// cấu hình đang dùng và so từng bản ghi của chợ kit với cây của ref.
+// checkout bất kỳ so với ref). Chế độ máy thật (`--may`): CHỈ ĐỌC sổ cài `plugins/installed_plugins.json`
+// của cấu hình đang dùng (không chạy CLI) và so từng bản ghi của chợ kit với cây của ref.
 //
 // Gốc: A1 chưa chạy sống ở 2.27 vì bản cài thiếu agents/; bản «2.27.0» ở M5 là main, không phải tag.
 // Đo 13/10: chợ kit kiểu THƯ MỤC chép bản checkout lúc cài, và bộ đệm khoá theo số — `update` báo
@@ -105,7 +105,7 @@ export function kiemTacTu(flPath, tenGoi = 'feature-loop') {
   let src;
   try { src = fs.readFileSync(wf, 'utf8'); } catch { return { loi: [`không đọc được workflows/acceptance-verify.js của bản cài ${tenGoi}`], ten: [] }; }
   const re = new RegExp(`['"]${tenGoi}:([\\w-]+)['"]`, 'g');
-  const ten = [...new Set([...src.matchAll(re)].map(m => m[1]))].sort();
+  const ten = [...new Set([...src.matchAll(re)].map(m => m[1]))]; // thứ tự workflow gọi tên
   const loi = [], vang = [];
   for (const t of ten) {
     let md;
@@ -306,10 +306,20 @@ function cheDoGiaLap(a, sha, mf, out) {
   }
 }
 
+// Sổ cài của cấu hình đang dùng, đọc THẲNG tệp — không chạy CLI: `claude plugin list` làm mới các tệp đánh dấu
+// `.in_use` trong bộ đệm thật (đo 13/10), mà chế độ này hứa chỉ đọc. Định dạng lạ → không chạy được, không đoán.
+function docSoCai(cfg) {
+  const f = path.join(cfg, 'plugins', 'installed_plugins.json');
+  let j;
+  try { j = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { throw new KhongChay(`không đọc được sổ cài ${f}: ${e.message}`); }
+  if (!j || typeof j.plugins !== 'object' || Array.isArray(j.plugins)) throw new KhongChay(`sổ cài ${f} có định dạng lạ (thiếu khối plugins) — CLI đổi định dạng?`);
+  return Object.entries(j.plugins).flatMap(([id, ds]) => (Array.isArray(ds) ? ds : []).map(b => ({ id, ...b })));
+}
+
 function cheDoMay(a, sha, mf, out) {
-  const env = process.env;
-  out(`${TIEN_TO} máy: cấu hình ${env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude')} · ref ${a.ref} = ${sha.slice(0, 8)} · chợ ${mf.cho}`);
-  const banGhi = danhSachCai(env).filter(p => String(p.id).endsWith(`@${mf.cho}`));
+  const cfg = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+  out(`${TIEN_TO} máy: cấu hình ${cfg} · ref ${a.ref} = ${sha.slice(0, 8)} · chợ ${mf.cho}`);
+  const banGhi = docSoCai(cfg).filter(p => String(p.id).endsWith(`@${mf.cho}`));
   if (!banGhi.length) {
     out(`${TIEN_TO} ĐỎ may: không có bản ghi nào của ${mf.cho}`);
     out(`${TIEN_TO} TỔNG KẾT: ĐỎ — máy không có bản cài nào của ${mf.cho}`);
@@ -359,7 +369,7 @@ function cheDoMay(a, sha, mf, out) {
 export async function chay(argv, { out = (s) => process.stdout.write(s + '\n') } = {}) {
   try {
     const a = docArgs(argv);
-    claude(['--version'], process.env); // dò lệnh trước mọi việc khác — thiếu thì nói đúng nguyên nhân
+    if (!a.may) claude(['--version'], process.env); // dò lệnh trước mọi việc khác — thiếu thì nói đúng nguyên nhân
     const sha = giaiRef(a.root, a.ref);
     const mf = docManifest(a.root, sha);
     return a.may ? cheDoMay(a, sha, mf, out) : cheDoGiaLap(a, sha, mf, out);

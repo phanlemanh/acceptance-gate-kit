@@ -131,8 +131,9 @@ evals:
       f; ca chạy CHÍNH tệp ca của bản sao (`node <bản sao>/tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc`,
       cwd = bản sao). (im) f chỉ sửa README.md → đúng một dòng bắt đầu «BỎ QUA: KB — không phải lượt cắt mốc»,
       thoát 0, không có dòng chứa «cấu hình cách ly». (doi-chung) f chỉ đổi số trong .claude-plugin/plugin.json →
-      thoát 0, có «TỔNG KẾT: ĐẠT 8/8». (do) f đổi số VÀ xoá feature-loop/agents/ → thoát 1, có «THIẾU thư mục gói:
-      feature-loop/agents» và «TỔNG KẾT: ĐỎ». Chiều đỏ chỉ tính khi đối chứng dương xanh trong cùng lượt.
+      thoát 0, có «TỔNG KẾT: ĐẠT 8/8». (do) f đổi số VÀ xoá feature-loop/agents/ → thoát 1, có «tác tử chấm vắng
+      trong bản cài:» kèm «feature-loop:cham-lenh» và «TỔNG KẾT: ĐỎ» (cây mốc đã mất thư mục thì thu-muc-goi so
+      với chính cây ấy nên ĐẠT — mục tac-tu-cham bắt lớp A1). Chiều đỏ chỉ tính khi đối chứng dương xanh trong cùng lượt.
       (khong-do) bản sao không có nhánh main → hàm nhận diện (export của tệp ca) trả «chay-tron».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10

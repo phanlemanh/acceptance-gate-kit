@@ -51,7 +51,9 @@ Một lệnh `scripts/kiem-ban-cai.mjs` (gói gốc, tự host) với hai chế 
 
 ### 2.2 Máy thật (`--may --ref <tag>`)
 
-Đọc `claude plugin list --json` của cấu hình ĐANG DÙNG (chỉ đọc). Với mỗi bản ghi của chợ kit:
+Đọc THẲNG sổ cài `plugins/installed_plugins.json` của cấu hình ĐANG DÙNG — không chạy CLI: đo 13/10, `claude plugin
+list` làm mới các tệp đánh dấu `.in_use` trong bộ đệm thật, trái lời hứa chỉ đọc. Sổ có định dạng lạ → thoát 2.
+Bản ghi gom theo thư mục cài (nhiều cây phụ dùng chung một bộ đệm): một dòng mỗi thư mục, kèm số bản ghi; Với mỗi bản ghi của chợ kit:
 
 - số = số tại tag → so nội dung như `khop-tag` + `thu-muc-goi` (tệp thừa từ bản checkout — `.claude/`, `node_modules/` — đo 13/10 có thật trong bộ đệm máy này — chỉ đếm, không đỏ): `ĐẠT may: <id> <scope> <dự án|-> <số> khớp <ref>`
   hoặc `ĐỎ may: … khác tag: N tệp (…)` / `THIẾU thư mục gói …`;
