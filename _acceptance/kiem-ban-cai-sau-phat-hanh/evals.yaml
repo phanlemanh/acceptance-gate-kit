@@ -122,9 +122,15 @@ evals:
     cmd: config:executors.test.kiem_ban_cai
     paths: [_acceptance/config.yaml, tests/scripts/kiem-ban-cai.ca.mjs]
     expected: >
-      exit 0; stdout có "PASS: KB-9" — ca đọc _acceptance/config.yaml (suy từ vị trí tệp ca) bằng bộ đọc config
-      của kit (resolveConfigKey + resolveConfigList của lib/evidence-core.cjs — bộ đọc s4-args dùng): executors.test.kiem_ban_cai ==
-      "node tests/scripts/kiem-ban-cai.ca.mjs" và feature_loop.suite_keys chứa "executors.test.kiem_ban_cai".
+      exit 0; stdout có "PASS: KB-9 config", "PASS: KB-9 bang", "PASS: KB-9 khac", "PASS: KB-9 khong-do".
+      (config) ca đọc _acceptance/config.yaml (suy từ vị trí tệp ca) bằng resolveConfigKey + resolveConfigList
+      của lib/evidence-core.cjs (bộ đọc s4-args dùng): executors.test.kiem_ban_cai == "node
+      tests/scripts/kiem-ban-cai.ca.mjs", executors.test.kiem_ban_cai_moc == "node tests/scripts/kiem-ban-cai.ca.mjs
+      --chi-luot-moc", suite_keys chứa executors.test.kiem_ban_cai_moc và KHÔNG chứa executors.test.kiem_ban_cai.
+      Ba kho thử do code sinh (git init -b main, commit gốc có .claude-plugin/plugin.json số 9.0.0, nhánh f):
+      (bang) f giữ 9.0.0 → hàm nhận diện trả «bo-qua», và chạy CHÍNH tệp ca `--chi-luot-moc` với cwd/gốc là kho
+      thử in đúng một dòng bắt đầu «BỎ QUA: KB — không phải lượt cắt mốc», thoát 0, không có dòng «PASS: KB-2»;
+      (khac) f đổi số 9.1.0 → hàm trả «chay-tron»; (khong-do) kho không có nhánh main → hàm trả «chay-tron».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-9
@@ -137,8 +143,10 @@ evals:
       Đọc mục chưa phát hành đầu CHANGELOG.md và đoạn GUIDE.md nói về kiểm bản cài (tìm «kiem-ban-cai»), đối
       chiếu design doc §2–§4. (1) Có nói người cắt mốc chạy `node scripts/kiem-ban-cai.mjs --ref v<số>` SAU khi
       cắt tag, và máy nhận chạy `--may --ref v<số>` SAU khi cài, thay khối lệnh `node -e` một dòng ở bước 3 mục
-      A1 của 2.27? (2) Có dặn đọc dòng `TỔNG KẾT` (ĐẠT / ĐỎ / KHÔNG CHẠY ĐƯỢC) chứ không đọc mã thoát một mình,
-      và dòng `ĐỎ may:` thì gỡ + cài lại theo bốn bước? (3) Có khai đủ ba giới hạn của design §4 (tác tử chấm đo
-      tĩnh · CI không chạy · sau-tag chỉ có lưới trễ) kèm ngưỡng? Trả PASS khi cả ba có; FAIL nêu vế thiếu.
+      A1 của 2.27, và nói kiểm tự chạy trọn ở lượt chấm hồ sơ cắt mốc (đổi số) còn vòng thường chỉ in dòng BỎ
+      QUA? (2) Có dặn đọc dòng `TỔNG KẾT` (ĐẠT / ĐỎ / KHÔNG CHẠY ĐƯỢC) chứ không đọc mã thoát một mình,
+      và dòng `ĐỎ may:` thì gỡ + cài lại theo bốn bước? (3) Có khai các giới hạn của design §4 (tác tử chấm đo
+      tĩnh · CI không chạy · sau-tag là lời dặn · nhận diện lượt mốc theo số gói gốc) kèm ngưỡng? Trả PASS khi cả
+      ba vế có; FAIL nêu vế thiếu.
     expected: "PASS — ba vế đúng; FAIL nêu vế thiếu"
     evidence_required: [run_id, verifier, verified_at, panel_votes]

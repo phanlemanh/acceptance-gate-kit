@@ -29,10 +29,10 @@ vào mọi lượt chấm của kit. Ô: `_acceptance/kiem-ban-cai-sau-phat-hanh
 - AC-3: Given nguồn cài là bản sao HEAD bỏ thư mục `feature-loop/agents/`, When chạy `--ref HEAD --nguon-cai <bản sao>`, Then thoát 1; dòng `ĐỎ thu-muc-goi` chứa «THIẾU thư mục gói: feature-loop/agents»; dòng `ĐỎ tac-tu-cham` chứa «tác tử chấm vắng trong bản cài: feature-loop:cham-lenh»; dòng TỔNG KẾT bắt đầu «ĐỎ» và kể tên hai mục ấy; và hai bản sao khác — `agents/cham-lenh.md` mang `name: sai-ten` · `agents/cham-doc.md` mang `tools:` có `Edit` — mỗi bản cho `ĐỎ tac-tu-cham` nêu đúng tệp ấy và nguyên nhân («name không khớp» · «tác tử chấm cầm bút: Edit»); đối chứng dương AC-2 xanh trong cùng lượt chạy ca.
 - AC-4: Given nguồn cài là bản sao HEAD mà một tệp (`scripts/gate-card.js`) có thêm một dòng chú thích, When chạy `--ref HEAD --nguon-cai <bản sao>`, Then thoát 1; dòng `ĐỎ khop-tag` chứa «bản cài khác tag» và tên `acceptance-gate:scripts/gate-card.js`; dòng `thu-muc-goi` vẫn `ĐẠT` (hai lớp lỗi không lẫn nhau); tệp có trong bản cài mà KHÔNG có trong cây của ref (thừa) không làm đỏ — chúng hiện thành dòng `VÀNG khop-tag` nêu số tệp/thư mục thừa.
 - AC-5: Given năm bản sao HEAD, mỗi bản phá đúng một mắt của vòng chạm — `scripts/gate-card.js` thoát 1 ngay dòng đầu · `scripts/pre-merge-check.sh` thoát 0 ngay dòng đầu (lưới câm) · `scripts/pre-merge-check.sh` thoát 1 ngay dòng đầu (lưới chặn tất) · `dieu-phoi/scripts/dieu-phoi.mjs` thoát 1 ngay dòng đầu · `hooks/hooks.json` thêm một lệnh trỏ `${CLAUDE_PLUGIN_ROOT}/hooks/khong-co.js`, When chạy kiểm với từng bản làm nguồn cài, Then mỗi lượt thoát 1 và dòng ĐỎ đúng mục của mắt bị phá (`the-cong` · `luoi-truoc-gop` với «lưới không chặn hồ sơ phạm luật» · `luoi-truoc-gop` với «kho lành bị chặn» · `dieu-phoi` · `hook-goi` nêu `hooks/khong-co.js`), các mục chạm khác `ĐẠT`.
-- AC-6: Given tag phát hành mới nhất mà HEAD chứa (`git describe --tags --abbrev=0 --match 'v*'` — hôm nay `v2.28.0` = 72eb55f3), When chạy `node scripts/kiem-ban-cai.mjs --ref <tag ấy>`, Then thoát 0 và dòng cuối `[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — <tag> (<sha8>) cài đúng tag` — nên sau mỗi lần cắt số, lượt chấm kế tiếp của bất kỳ hồ sơ nào tự kiểm lại đúng tag vừa cắt.
+- AC-6: Given tag phát hành mới nhất mà HEAD chứa (`git describe --tags --abbrev=0 --match 'v*'` — hôm nay `v2.28.0` = 72eb55f3), When chạy `node scripts/kiem-ban-cai.mjs --ref <tag ấy>`, Then thoát 0 và dòng cuối `[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — <tag> (<sha8>) cài đúng tag`.
 - AC-7: Given một cấu hình Claude giả (`CLAUDE_CONFIG_DIR` tạm) mà `feature-loop` được cài từ nguồn lệch một tệp rồi «cập nhật» theo đường cũ (`marketplace update` + `plugin update`) sang nguồn đúng của HEAD, When chạy `--may --ref HEAD` với cấu hình ấy, Then thoát 1 và có dòng `ĐỎ may:` cho `feature-loop@acceptance-gate-kit` chứa «khác tag» (ca M5 tái hiện); sau khi gỡ rồi cài lại, cùng lệnh thoát 0 với dòng `ĐẠT may:` «khớp»; một bản ghi mang số khác số của ref in dòng `VÀNG may:` «khác số» mà không đổi mã thoát; và bản cài lấy từ một bản checkout thật của HEAD (`git worktree`) có thêm một tệp chưa theo dõi và một tệp bị bỏ qua → `ĐẠT may:` «khớp» kèm số tệp thừa, còn cùng bản checkout sửa một tệp đang theo dõi → `ĐỎ may:` «khác tag».
 - AC-8: Given (a) `PATH` là một thư mục tạm chỉ chứa liên kết tới `node` và `git` (ca khẳng định `claude` vắng dưới PATH ấy trước khi chạy), (b) ref không tồn tại, When chạy `--ref …`, Then thoát 2; dòng TỔNG KẾT chứa «KHÔNG CHẠY ĐƯỢC» kèm nguyên nhân (a) «không tìm thấy lệnh claude» (b) «ref không có»; không dòng nào bắt đầu `ĐẠT` hay `TỔNG KẾT: ĐẠT`.
-- AC-9: Given `_acceptance/config.yaml` của kit, When đọc bằng bộ đọc config của kit, Then `executors.test.kiem_ban_cai` = `node tests/scripts/kiem-ban-cai.ca.mjs` và `feature_loop.suite_keys` chứa `executors.test.kiem_ban_cai`; và (judgment) CHANGELOG mục chưa phát hành + GUIDE nói người cắt mốc chạy `--ref v<số>` sau khi cắt tag, máy nhận chạy `--may --ref v<số>` sau khi cài (thay khối lệnh `node -e` của bước 3 mục A1), đọc dòng TỔNG KẾT chứ không đọc mã thoát một mình, và khai ba giới hạn của design §4.
+- AC-9: Given `_acceptance/config.yaml` của kit, When đọc bằng bộ đọc config của kit, Then `executors.test.kiem_ban_cai` = `node tests/scripts/kiem-ban-cai.ca.mjs`, `executors.test.kiem_ban_cai_moc` = `node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc`, và `feature_loop.suite_keys` chứa `executors.test.kiem_ban_cai_moc` mà KHÔNG chứa `executors.test.kiem_ban_cai`; và trên hai kho thử do code sinh có nhánh `main` — (a) số trong `.claude-plugin/plugin.json` ở HEAD bằng số ở gốc vòng → hàm nhận diện lượt mốc trả «bỏ qua» và tệp ca với `--chi-luot-moc` in đúng một dòng `BỎ QUA: KB — không phải lượt cắt mốc`, thoát 0, không cài gì; (b) số khác → trả «chạy trọn»; (c) không dò được gốc vòng → trả «chạy trọn»; và (judgment) CHANGELOG mục chưa phát hành + GUIDE nói người cắt mốc chạy `--ref v<số>` sau khi cắt tag, máy nhận chạy `--may --ref v<số>` sau khi cài (thay khối lệnh `node -e` của bước 3 mục A1), đọc dòng TỔNG KẾT chứ không đọc mã thoát một mình, và khai các giới hạn của design §4.
 
 ## Coverage
 
@@ -43,12 +43,13 @@ ghi tay, mỗi giá trị có ca:
 - Trục B — mắt chạm: tác tử chấm (vắng · sai tên · cầm bút) · thẻ cổng · lưới trước-gộp (câm · chặn tất) · gói dieu-phoi · hook của gói → AC-2, AC-3, AC-5
 - Trục C — chế độ: kho giả lập · máy thật (khớp · khác tag · khác số · checkout thật có tệp ngoài git) → AC-2, AC-7
 - Trục D — không chạy được: thiếu CLI · ref không có → AC-8
-- Cross-cutting: không chạm máy thật → AC-1 · răng phát hành (suite_keys + lời dặn sau-tag) → AC-9
+- Cross-cutting: không chạm máy thật → AC-1 · răng phát hành chỉ ở lượt cắt mốc (khoá suite có cổng số phiên bản: bằng · khác · không dò được) + lời dặn sau-tag → AC-9
 
 ## Đường đo
 
 - Mốc 2.29.0 cắt với kiểm bản cài XANH trên tag · số từ: dòng TỔNG KẾT của `kiem-ban-cai.mjs --ref v2.29.0`, dán
-  vào hồ sơ `release-2-29-0`; và khoá `kiem_ban_cai` xanh trong lượt chấm mốc · AC-2, AC-6, AC-9.
+  vào hồ sơ `release-2-29-0`; và khoá `kiem_ban_cai_moc` chạy TRỌN (không phải dòng BỎ QUA) và xanh trong lượt
+  chấm mốc · AC-2, AC-6, AC-9.
 - 0 lỗi «khác tag»/«thiếu thư mục gói» tới kho thật · số từ: dòng `ĐỎ may:` của `--may --ref v2.29.0` chạy ở
   máy nhận đầu tiên (crm, Mac Studio) sau khi cài — đếm 0 là SỐNG · AC-7.
 - Tác tử chấm sống ở bản cài · số từ: `grep -c '"kind":"loai-tac-tu-vang"' _acceptance/<slug>/run-log.jsonl`
@@ -65,11 +66,15 @@ ghi tay, mỗi giá trị có ca:
 
 ## Notes
 
-- Ca đo: `tests/scripts/kiem-ban-cai.ca.mjs` (ca `KB-<n>` = AC-n), khoá riêng `executors.test.kiem_ban_cai`;
+- Ca đo: `tests/scripts/kiem-ban-cai.ca.mjs` (ca `KB-<n>` = AC-n), khoá `executors.test.kiem_ban_cai` (luôn chạy trọn —
+  eval của hồ sơ này) và `executors.test.kiem_ban_cai_moc` (cổng số phiên bản — vào suite_keys);
   đuôi `.ca.mjs` để không lọt vào các mảnh `*.test.mjs` của CI. Mọi nguồn cài bị tiêm dựng từ `git archive HEAD`
   trong lượt; đường dẫn suy từ vị trí tệp ca; mỗi ca đỏ chạy SAU khi KB-2 (bản lành) xanh trong cùng lượt và
   ghim thông điệp.
 - Cỡ vòng: 9 tiêu chí — trong khung 8–12.
+- Bảng dự báo năm dòng (design §3): làm-xong→quyết-được = · lượt gọi người = · vòng bị hạ tầng đốt lượt chấm ↓ ·
+  token máy = · phút máy/lượt chấm: vòng thường = (+<1 s), lượt cắt mốc ↑ ~1–2′. Điều kiện tin cậy: đường verdict
+  không đổi thành phần.
 - Giới hạn đã khai (gap-probe P1 thứ hai, hoãn): hồ sơ của kho giả lập do `kiem-ban-cai.mjs` của HEAD viết theo khuôn
   `schema_version: 1` tối thiểu, không do bên-viết của bản cài sinh — kho khách khởi tạo hồ sơ bằng phiên Claude điền
   khuôn chữ, không có bộ sinh máy để gọi. Khuôn giữ tối thiểu để bản cài của tag cũ vẫn đọc được; HEAD đổi khuôn mà

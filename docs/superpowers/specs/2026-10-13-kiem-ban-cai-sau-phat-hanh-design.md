@@ -61,18 +61,31 @@ Một lệnh `scripts/kiem-ban-cai.mjs` (gói gốc, tự host) với hai chế 
 Đây là lệnh thay khối `node -e` một dòng ở bước 3 của mục A1 trong CHANGELOG 2.27, và bắt được đúng ca M5
 (cùng số, nội dung main ≠ tag) mà khối cũ không bắt (khối cũ chỉ hỏi có `agents/` không).
 
-## 3. Răng phát hành
+## 3. Răng phát hành — chỉ ở lượt cắt mốc, vòng thường giá ≈ 0
 
-- Khoá executor `kiem_ban_cai: "node tests/scripts/kiem-ban-cai.ca.mjs"` VÀO `feature_loop.suite_keys` →
-  mọi lượt chấm S4 của kit (gồm lượt chấm hồ sơ cắt mốc) và làn ghim lại chạy bộ ca, mà ca KB-1 chạy kiểm
-  trên HEAD. Bản cài của HEAD hỏng → suite đỏ → lượt chấm mốc đỏ → không cắt số. Đây là vật máy giữ, không
-  phải lời dặn.
-- Sau khi cắt tag (tag = commit gộp của PR mốc): `node scripts/kiem-ban-cai.mjs --ref v<số>` — bước của
-  người cắt mốc, ghi trong CHANGELOG/GUIDE. Cây của commit gộp = cây đỉnh PR mốc khi nhánh chính không
-  chạy trước, nên lượt chấm đã chứng nó; bước sau-tag là chứng lại trên đúng tên tag. Bước này CÓ lưới máy
-  trễ: ca KB-6 kiểm tag phát hành MỚI NHẤT mà HEAD chứa (`git describe --tags --abbrev=0 --match 'v*'`), nên
-  lượt chấm kế tiếp của bất kỳ hồ sơ nào sau khi cắt số tự kiểm lại đúng tag vừa cắt.
+Điều phối 13/10: chạy trọn bộ ca ở MỌI lượt chấm là CỘNG ~1–2′ máy vào mọi vòng kit, trong khi ý định là kiểm
+SAU PHÁT HÀNH. Nghiệm giữ răng máy mà không trả giá đó:
+
+- Hai khoá executor cho CÙNG tệp ca:
+  - `kiem_ban_cai: "node tests/scripts/kiem-ban-cai.ca.mjs"` — luôn chạy trọn; eval của chính hồ sơ này dùng nó.
+  - `kiem_ban_cai_moc: "node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc"` — VÀO `feature_loop.suite_keys`.
+- `--chi-luot-moc`: tệp ca so số trong `.claude-plugin/plugin.json` ở HEAD với số ở gốc vòng
+  (`git merge-base HEAD <nhánh chính>`; nhánh chính dò như `s4-args`). Bằng nhau → in đúng một dòng
+  `BỎ QUA: KB — không phải lượt cắt mốc (số <x> = gốc vòng)` rồi thoát 0, không cài gì (dưới một giây). Khác
+  nhau → chạy trọn bộ ca. Không dò được gốc vòng hay đọc được số → chạy trọn (đóng khi nghi ngờ, không mở).
+- Hồ sơ cắt mốc là hồ sơ DUY NHẤT đổi số → lượt chấm mốc tự chạy trọn kiểm trên HEAD (= cây sẽ gắn tag), không ai
+  phải nhớ thêm eval vào hồ sơ mốc. Bản cài của HEAD hỏng → suite đỏ → lượt chấm mốc đỏ → không cắt số. Làn ghim
+  lại của chiến dịch phát hành cũng chạy suite_keys nên cũng chạy trọn.
+- Ca KB-6 (tag phát hành mới nhất mà HEAD chứa) chạy trong bộ trọn — tức ở lượt mốc N+1 nó kiểm lại tag N.
+- Sau khi cắt tag (tag = commit gộp của PR mốc): `node scripts/kiem-ban-cai.mjs --ref v<số>` — bước của người cắt
+  mốc, ghi trong CHANGELOG/GUIDE. Cây của commit gộp = cây đỉnh PR mốc khi nhánh chính không chạy trước, nên
+  lượt chấm mốc đã chứng nó; bước sau-tag là chứng lại trên đúng tên tag.
 - Máy nhận: sau khi cài → `--may --ref v<số>`; dòng ĐỎ = chưa xong, gỡ + cài lại theo bốn bước.
+
+**Bảng dự báo năm dòng (luật chiều rộng (c)):** thời gian làm-xong→quyết-được `=` · lượt gọi người/vòng `=` ·
+vòng bị hạ tầng kit đốt lượt chấm `↓` (bản cài thiếu thư mục không còn đốt lượt chấm ở kho nhận) · token
+máy/vòng `=` (bộ ca không gọi model) · phút máy/lượt chấm: vòng thường `=` (+<1 s cho dòng bỏ qua), lượt cắt
+mốc `↑` ~1–2′. Điều kiện tin cậy: đường verdict không đổi thành phần (chỉ thêm một khoá suite).
 
 ## 4. Giới hạn đã khai
 
@@ -84,9 +97,10 @@ Một lệnh `scripts/kiem-ban-cai.mjs` (gói gốc, tự host) với hai chế 
   không đọc được thì KB-6 ĐỎ, không im. Ngưỡng mở ô: ≥1 lần KB-6 đỏ vì khuôn hồ sơ giả lập, không vì bản cài.
 - **CI GitHub không chạy** (runner không có CLI `claude`); tệp ca mang đuôi `.ca.mjs` nên không lọt vào các
   mảnh `*.test.mjs`. Răng sống ở lượt chấm trên máy dev.
-- **Sau-tag chỉ có lưới TRỄ** (KB-6 ở lượt chấm kế tiếp), không chặn ngay lúc cắt: kho nhận cài trong khoảng
-  giữa cắt số và lượt chấm kế thì lưới chưa kịp chạy. Ngưỡng: một mốc mà kiểm trên tag đỏ trong khi lượt chấm
-  mốc xanh.
+- **Sau-tag là lời dặn cho người cắt mốc**; lưới máy cho tag N chỉ tới ở lượt mốc N+1 (KB-6), quá trễ cho kho đã
+  cài N. Ngưỡng: một mốc mà kiểm trên tag đỏ trong khi lượt chấm mốc xanh.
+- **Nhận diện lượt mốc dựa vào số trong `plugin.json` gốc**: một vòng đổi engine mà không đổi số thì không chạy
+  kiểm — đúng chủ đích (bản cài chỉ đổi khi có số mới). Ngưỡng: một mốc đổi số ở gói con mà quên gói gốc.
 - **Hành vi bộ đệm của CLI** đo trên Claude Code 2.1.281; đổi bản CLI có thể đổi ca M5 tái hiện (KB-7 tự đỏ
   nếu hành vi đổi — ca ghim nó).
 
