@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f503479af4ef0768ae2a529105920d31ea350b66
-human_signoff:
+human_signoff: manh 2026-10-13
 ---
 
 # Evidence Report: trang-thai-dot-dieu-phoi-tho

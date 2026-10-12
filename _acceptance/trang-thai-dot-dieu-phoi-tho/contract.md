@@ -5,7 +5,7 @@ slug: trang-thai-dot-dieu-phoi-tho
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, ui]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-12-trang-thai-dot-dieu-phoi-tho-design.md
 approved_by: manh
 approved_at: 2026-10-12
@@ -233,6 +233,15 @@ thì mở chi tiết.
     thật chỉ đo ở chế độ không giao diện. Reality đọc nhãn này ở đợt crm đầu tiên.
   - **`$.process.run` trên desktop chưa đo** (giả định 2 của ô). Nếu nó không chạy, dải ghi «khung: không đọc được đợt»
     và lệnh rơi về đường markdown qua model. Ngưỡng mở nhánh `$.fs`: đợt crm đầu tiên thấy dải báo lỗi đọc trên desktop.
+- Known limits ghi ở Cổng Bằng chứng lượt 2 (manh, 13/10):
+  - **Ngoài-1 — ba ca đỏ KH-04-do mới ghim nhãn hàng, chưa ghim thông điệp** (`tests/dieu-phoi/khung.test.mjs`). Nếu
+    bản tiêm làm bộ vẽ dải ném lỗi, mọi hàng đều đỏ nên ca đỏ vẫn xanh. Ca đó không phân biệt «bắt đúng lỗi» với
+    «bộ vẽ hỏng». Cùng lớp với nhát sửa sau lượt 1; dừng vá theo điều khoản dừng-vá.
+  - **Ngoài-2 — `mo-hinh.mjs` không có răng «không import».** Mod import `chuXem` từ tệp lõi dùng chung này, nhưng
+    ca `KH-04 khung-khong-import` chỉ canh `khung.mjs`. Ai thêm `import` vào `mo-hinh.mjs` thì module mod không nạp,
+    kéo theo phần đọc mức dùng của DP4, và chỉ lượt chấm có Claude Code mới thấy.
+  - **Ngoài-5 — vòng nhịp có thể tắt im, dải giữ dữ liệu cũ** (lỗi ngoài khối try trong `nhip`/`docDot`). Đã mở
+    thành hạt giống `docs/plans/2026-10-13-hat-giong-khung-nhip-tat-im.md`.
 - Hai thước mod và engine (AC-5 tới AC-9) cần Claude Code trên máy. CI của kit không có, nên chúng chạy ở lượt chấm,
   như `dieu_phoi_mod` và `dieu_phoi_validate` của DP4.
 - Repo chưa khai `feature_loop.ui_standards_skill`, nên artifact UI không có đối trọng chuẩn nội. Bảng phần tử của
