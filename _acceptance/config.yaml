@@ -95,6 +95,9 @@ executors:
     dieu_phoi_sdt: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
+    # Câu cho người gửi trên dữ liệu thật (hồ sơ cau-tin-hieu-nguoi-gui, E9): bản sao crm ở sha đã ghim + kit 2.27.
+    # crm vắng → thoát 2 nêu đường (mù, không xanh giả); đặt CRM_ROOT khi kho crm ở chỗ khác.
+    cau_crm: node _acceptance/cau-tin-hieu-nguoi-gui/rang/do-crm.mjs --crm "${CRM_ROOT:-$HOME/dev/crm}" --sha 06e34d26c38426e2e23cbf1a51bc612cccb405c9
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
