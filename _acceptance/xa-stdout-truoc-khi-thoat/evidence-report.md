@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 85593b69b7ab26ce1f14b6ba62b6120961abc939
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: manh 2026-10-11
 ---
 
@@ -181,3 +181,7 @@ none — mọi eval chạy một lần và là deterministic (runs: 1), không e
 ## Iterations
 
 Round 1: bảy eval máy và mười lệnh suite đều xanh trên cây 85593b69; không eval nào trượt.
+
+### Re-pin lần 1 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng

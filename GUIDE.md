@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.26.0 · feature-loop 2.26.0 · diagram-design 2.7.1 · dieu-phoi 2.26.0.
+> Khớp phiên bản: acceptance-gate 2.27.0 · feature-loop 2.27.0 · diagram-design 2.7.1 · dieu-phoi 2.27.0.
 
 ## Mục lục
 
@@ -322,6 +322,28 @@ descope một AC vẫn phải sửa contract + re-approve. Card 2 gate tự rend
 "Quyết định & trade-off" (descope lên đầu); chưa ghi gì → in "(chưa ghi quyết định
 nào)" để bạn đòi khi cần.
 
+**Căn cứ của lựa chọn ở bước thiết kế (khoá `can_cu`, ADR 0022):** bước thiết kế không
+dừng hỏi người. Mỗi lựa chọn brainstorm lẽ ra hỏi thành một dòng `stage:"S1"` mang thêm
+khoá máy đọc `can_cu` — chép đúng một dòng của khuôn `DEC-CAN-CU-SLOT` (SKILL
+feature-loop, mục «Sổ quyết định»; không viết khuôn thứ hai ở đây):
+- **mục tiêu + quy tắc đã khai** (`"nguon":"muc-tieu"`, `tep` + `trich`): câu trích
+  nguyên văn ở một tệp có từ trước vòng, không phải vật của chính vòng (ô cơ hội đã ký
+  thì được) → máy quyết;
+- **chỉ một lối ra sống** (`"nguon":"mot-loi"`, `loi_chet`) → máy quyết;
+- **chỉ người có** (`"nguon":"chi-nguoi"`, `khuyen` + `loi_khac`) → câu hỏi «Hỏi-n» trên
+  thẻ Cổng Phạm vi, máy soạn nháp theo khuyến nghị.
+
+`kho_dao: true` (ship ra người dùng thật · xoá dữ liệu · cam kết ra ngoài kho) luôn là câu
+hỏi. Dòng không có khoá là dòng đời trước — đọc như cũ; thẻ của hợp đồng nháp có thêm
+một cờ vàng. Thẻ Cổng Phạm vi hiện ba khối: «Câu chỉ anh trả lời được» (anh trả lời
+«duyệt» = nhận khuyến nghị, hoặc «sửa: Hỏi-n = lối»), «Máy đã quyết ở bước thiết kế —
+anh lật được» (kèm câu trích + tệp, hoặc lối khác chết vì sao), rồi «Quyết định &
+trade-off» cho phần còn lại. Dòng căn cứ hỏng (trích không có, tự trỏ vào vật của vòng,
+câu trích sinh trong nhánh, khó-đảo bị máy quyết, nguồn lạ…) → cờ đỏ có tên và dòng lệnh
+duyệt không điền sẵn. Anh lật một lựa chọn ở Cổng Phạm vi → máy ghi một dòng `gate1`
+theo khuôn `DEC-LAT-GATE1`. Kiểm tay: `node scripts/can-cu-s1.cjs --root . --slug <s>
+[--base <ref>]`; đường đo cả kho: `node scripts/can-cu-s1.cjs --root . --dem`.
+
 **Làn design — một công tắc** — CT1 (chạm UI): static checks (token/contrast/tap,
 thiếu capture là BLOCKED) + screenshot như thường. Không có field tier nào —
 trạng thái nhận từ artifact; D0/D1 chỉ là cách gọi. Điều kiện bật là khoá
@@ -342,7 +364,7 @@ bằng eval `ui-check`/`design-gate`. Lý do + đường lấy lại:
 harness: sau mỗi turn một checker nhỏ đọc transcript, điều kiện chưa thỏa thì tự nổ
 turn mới. Dùng đúng cách với feature-loop:
 
-**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) mỗi câu **xin duyệt thiết kế** của brainstorm — dán cùng câu trả lời; (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal coi «dừng ở một cổng có tên» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở brainstorm là lần duy nhất. **Brainstorm không hỏi gì** (đề bài đã đủ, máy đi thẳng tới artifact) → không có lượt để vũ trang trước Cổng 1 — ca chưa phủ, đo ở ba dòng số mốc kế.
+**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) lời mời **Cổng Đáng** của ô — dán cùng câu trả lời (bước thiết kế không còn câu xin duyệt); (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal coi «dừng ở một cổng có tên» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở Cổng Đáng là lần duy nhất. **Vòng mở từ một câu mô tả** (không qua Cổng Đáng) → S0 chạy tới Cổng Phạm vi trong cùng lượt, không cần vũ trang.
 
 **Combo rời-máy trọn bộ (phiên đang chạy model đắt cho phần thiết kế):** duyệt Gate 1 →
 `/model opus` + `/effort high` (alias `opus` tự trỏ bản opus mới nhất — KHÔNG ghim model ID
@@ -750,6 +772,45 @@ nghỉ>"`. Hồ sơ quay về đúng luật cũ, và phải ghim lại như thư
 sổ quyết định do người viết. Một lệnh có khoá chống máy tự gọi là việc của vòng
 sau; lưới hiện tại là sổ để lại vết và cửa veto.
 
+## Máy tự định tuyến mục ngoài hợp đồng (hồ sơ ngoai-n-tu-dinh-tuyen)
+
+Làn V (máy thông, không mời ký Cổng Bằng chứng) chỉ chạy khi mọi mục Ngoài-n trong
+`review-findings.md` đã có dòng sổ `gate2`. Ở đợt crm `sau-14-10` nó bắn 0/71 hồ sơ vì
+mục nào cũng chờ người — trong khi người định tuyến trùng đề xuất của máy 94,9 %. Kho
+bật một khoá thì máy tự ghi dòng sổ cho những mục mà CHÍNH nó đề xuất.
+
+<!-- <<<NGOAI-N-TU-DINH-TUYEN -->
+- **Bật:** `feature_loop.ngoai_n_tu_dinh_tuyen: true` trong `_acceptance/config.yaml`.
+  Giá trị `true | false`, **mặc định tắt** (khoá vắng = như trước: không ghi byte nào);
+  giá trị khác làm lệnh thoát 2 gọi tên khoá.
+- **Máy ghi gì:** ở hồ sơ T2 · `status: verified` · PASS · 0 UNCERTAIN · không bypass ·
+  phân loại phạm vi chạy trọn, mỗi mục đề xuất `known-limits` hoặc `wont-fix` chưa có
+  dòng `gate2` nhận một dòng sổ mang khoá `may: dinh-tuyen-ngoai-n` (KHÔNG có
+  `decided_by`), kèm `tieu_de` của mục và lệnh đảo ở khoá `dao`. Mục `known-limits` thêm
+  một gạch vào `## Notes` của hợp đồng. Mục `new-contract`, hồ sơ T3, hồ sơ có UNCERTAIN
+  vẫn của người. Báo cáo bằng chứng KHÔNG bị chạm (mục Known limits của nó giữ rỗng).
+- **Ai gọi:** feature-loop, khối `DINH-TUYEN-MAY` của SKILL — trước `khong-can-nguoi.mjs
+  --write`. Gọi tay: `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --check|--write
+  --root . --slug <slug>`.
+- **Thẻ:** mục máy định tuyến là dòng báo «Máy đã định tuyến … — đảo: …», không vào
+  «VIỆC CỦA ANH»; dòng sổ của nó hiện ở khối «Quyết định CHƯA duyệt» với chữ «máy định
+  tuyến».
+- **Đảo:** dán lệnh ở khoá `dao` —
+  `/acceptance-gate:signoff <slug> Ngoài-<n>: mở hợp đồng mới; Ký` —
+  sửa chữ sau `Ngoài-<n>:` nếu muốn lối khác. Lệnh ghi một dòng sổ người
+  MỚI (không sửa dòng máy); thẻ lấy dòng mới nhất nên người thắng. Đảo đi qua chữ ký: chưa
+  có lệnh đảo-mà-không-ký — mở khi ≥1 lần owner cần đảo một mục mà không muốn ký hồ sơ.
+- **Giới hạn đã khai:** một lượt chấm mới đổi thứ tự mục làm dòng máy cũ trỏ nhầm mục.
+  Bên ghi (thoát 2) và thẻ (cờ «dòng máy trỏ mục đã đổi») bắt bằng so `tieu_de`; lưới
+  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). So tiêu đề gỡ nhãn lượt «(rN…)»
+  trước, nên mục mang sang lượt sau không bị coi là mục đã đổi. Ngưỡng mở vòng sửa lưới:
+  ≥1 hồ sơ có dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm trên cả kho bằng
+  `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --soat-lech --root .` (in số hồ sơ, thoát
+  2 khi có; không đọc khoá kho, không xét trạng thái hồ sơ, không ghi gì).
+- **Bản cài chưa có bên ghi** (kho chưa nâng kit): bộ giải gói thoát 1, vòng lặp báo một dòng,
+  coi như khoá tắt và đi tiếp — không dừng chờ người.
+<!-- NGOAI-N-TU-DINH-TUYEN>>> -->
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)
@@ -1001,6 +1062,55 @@ Răng T1-escape đòi thay đổi phải kèm `_acceptance/<slug>/` — tiền �
 commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là
 job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
 [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
+
+#### Bỏ job nặng cho PR không chạm vật (tuỳ chọn — `--hang-pr`)
+
+Kho trả tiền phút Actions (kho riêng tư) có thể cho job test sản phẩm bỏ qua PR chỉ đổi tệp T1 hay hồ sơ
+`_acceptance/`. Cổng có sẵn một chế độ in hạng PR — dùng CHÍNH bộ khớp và CHÍNH `risk_tiers.t1_skip_globs` /
+`t3_paths` của kho: không danh sách thứ hai, không chép hàm nào. Kho không truyền cờ thì cổng không đổi gì.
+
+```yaml
+hang-pr:
+  runs-on: ubuntu-latest
+  outputs:
+    cham_vat: ${{ steps.hang.outputs.cham_vat }}
+  steps:
+    - uses: actions/checkout@v4
+      with: { fetch-depth: 0 }                 # cần merge-base để tính diff của PR
+    # lấy kit ở sha ghim như bước 2 phía trên; kho đang chép kit thì gọi bản chép scripts/pre-merge-check.sh
+    - id: hang
+      run: bash "$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh" . ${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"} --hang-pr
+test:
+  needs: hang-pr
+  if: ${{ !cancelled() && needs.hang-pr.outputs.cham_vat != 'false' }}
+  # … các bước test của kho
+```
+
+Đầu ra — ba dòng `khoá=giá-trị` ra stdout, nối vào `$GITHUB_OUTPUT` khi có, một dòng vào `$GITHUB_STEP_SUMMARY`:
+
+| Khoá | Giá trị |
+|---|---|
+| `hang` | `T1` (mọi tệp khớp `t1_skip_globs`) · `ho-so` (chỉ `_acceptance/`, có thể kèm tệp T1) · `T2` · `T3` · `khong-ro` |
+| `cham_vat` | `false` chỉ khi `hang` là `T1` hoặc `ho-so`; mọi ca khác `true` |
+| `ly_do` | `phan-loai` · `khong-co-pham-vi-diff` · `diff-rong` · `doi-danh-sach-hang` · `cau-hinh-loi` · `khong-phan-loai-duoc` |
+
+Ba điều đừng rút gọn:
+
+1. `!cancelled() &&` là bắt buộc. Biểu thức `if:` không gọi hàm trạng thái nào thì GitHub ngầm ghép `success()`:
+   job `hang-pr` đỏ (lấy kit hỏng, runner lỗi) làm job `test` bị BỎ QUA — và job bị bỏ qua báo «Success» kể cả khi
+   là check bắt buộc, nên PR chạm vật gộp được mà không test. So `!= 'false'` chứ không `== 'true'`, để đầu ra vắng
+   vẫn chạy test. Bốn hàng: `hang-pr` xanh + `false` → bỏ · xanh + `true` → chạy · xanh + đầu ra vắng → chạy ·
+   `hang-pr` đỏ → chạy.
+2. Lọc bằng `if:` ở cấp job, đừng bằng `paths-ignore` ở cấp workflow: workflow bị lọc không chạy thì check bắt buộc
+   của nó treo «Expected — Waiting for status» và PR không gộp được.
+3. Job nào đọc hồ sơ thì đừng gắn vào bit: bit chỉ nói «chạm vật», không nói «chạm thước của hồ sơ». Ví dụ crm:
+   `oxlint` ở job `check` quét cả `_acceptance/**/rang/*.mjs` — giữ `check` chạy, chỉ gắn `test`.
+
+Nghi ngờ thì chạy đủ: chế độ chỉ nói `cham_vat=false` khi chứng minh được. Không `--base` (sự kiện `push`), ref
+không giải được, lịch sử rời, diff rỗng, cấu hình hỏng, hay PR tự sửa `t1_skip_globs`/`t3_paths` → `cham_vat=true`;
+các ca do lỗi thêm một dòng `::warning` lên PR. Chế độ luôn thoát 0 khi đã in kết quả — chỉ lỗi cú pháp tham số
+thoát 2 — vì bước phân loại đỏ là test bị bỏ. Giới hạn đã biết: `git diff` bọc tên tệp có dấu, nên cổng (và chế độ)
+coi tệp ấy ngoài T1 — chạy đủ (hạt giống `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`).
 
 ### Sổ luật-đã-chạy (acceptance-gate 1.22.0+)
 

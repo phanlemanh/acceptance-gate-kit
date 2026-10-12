@@ -3705,13 +3705,18 @@ hasout RL15d3m "is not a plain slug name" "$RL15D3"
 nothas RL15d4 "pre-merge-check: clean" "$RL15D1$RL15D2$RL15D3"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
-RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"
+# Dem tren BAN CAT vung marker HANG-PR: che do --hang-pr (ho so ci-cua-kho-bo-job-nang)
+# song trong cac vung `# >>> HANG-PR` … `# <<< HANG-PR`, chi chay khi co co, va luon
+# thoat 0 sau khi in ket qua. Ban cat marker la DUNG cong khong co (ca AC-8 cua
+# tests/scripts/hang-pr.test.mjs chung tung byte), nen luat «hai loi exit 0» ap tren no.
+rl6_cat() { sed '/^[[:space:]]*# >>> HANG-PR[[:space:]]*$/,/^[[:space:]]*# <<< HANG-PR[[:space:]]*$/d' "$1"; }
+RL6N="$(rl6_cat "$CHECK" | grep -vE '^[[:space:]]*#' | grep -c 'exit 0')"
 same RL6a 2 "$RL6N"
 # DOI CHUNG DOT BIEN: phep dem phai THAY duoc mot loi thoat tiem them, neu
 # khong RL6a chi chung minh "con so hom nay bang 2" chu khong phai "phep dem
 # song". Bat bien #4.
 RL6CP="$RLCP/scripts/rl6-check.sh"; { cat "$CHECK"; printf '\nexit 0\n'; } > "$RL6CP"
-RL6M="$(grep -vE '^[[:space:]]*#' "$RL6CP" | grep -c 'exit 0')"
+RL6M="$(rl6_cat "$RL6CP" | grep -vE '^[[:space:]]*#' | grep -c 'exit 0')"
 same RL6b 3 "$RL6M"
 
 echo "RL7a ten duy nhat o call-site ledger_mark == EXPECTED, hai chieu (AC-7c)"
@@ -4480,6 +4485,12 @@ SELF_CTRL="$(node -e '
 if [ -n "$SELF_CTRL" ]; then echo "  PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)"; PASS_COUNT=$((PASS_COUNT+1));
 else echo "  FAIL: SELF02 (phep quet KHONG bat duoc file co loi ro rang -> SELF01 vo nghia)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 rm -f "$SELF_MUT"
+
+# ── buoc-len-thiet-ke-khong-hoi (A2): bộ xếp lớp căn cứ bước thiết kế — CC-02..CC-10 ──
+# Tệp ca không mang đuôi .test.mjs để không trôi giữa các mảnh mjs; chạy ở phần bash (tất định).
+echo "=== can-cu-s1.ca.mjs ==="
+node "$HERE/can-cu-s1.ca.mjs"; _cc_rc=$?
+check "can-cu-s1.ca.mjs (CC-02..CC-10)" 0 "$_cc_rc"
 
 # <<<KET-SUITE
 ket_suite

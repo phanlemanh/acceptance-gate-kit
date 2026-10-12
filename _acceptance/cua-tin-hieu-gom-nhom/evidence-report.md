@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9fbc148c46fbc5a7a873c5e8fe9c7acc8c1a0775
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -216,3 +216,7 @@ Round 3: thu phạm vi theo owner «1» (commit 8ae5480a) — AC-10 thu hẹp th
 ### Re-pin lần 1 — 2026-10-11, do gộp origin/main sau S3b (d5931848)
 run_id: repin-20261011T211702Z-35113
 sha: 9fbc148c46fbc5a7a873c5e8fe9c7acc8c1a0775 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
