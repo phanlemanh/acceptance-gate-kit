@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ho-so-tom-tat.cjs + commands/signoff.md (khối marker) + references lo-trinh-du-lieu.md + test + khoá config tuỳ chọn `production.nhanh` (CỘNG) — không chạm lib/**, hooks/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-dai-tom-tat-doc-dung-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-12T02:18:36Z
 ---
@@ -66,3 +66,14 @@ Trục (khảo sát sáu kho ở design doc làm thước CE — số hồ sơ t
 - CỘNG cần owner phê đích danh ở Cổng Phạm vi: khoá tuỳ chọn `production.nhanh` trong `_acceptance/config.yaml` (kho không khai giữ nguyên hành vi). Kèm nó, mô-đun dải đọc git khi khoá có mặt — trước đây là hàm thuần.
 - Hồ sơ đã ký `trang-ho-so-mot-viec` AC-1 ghim «giá trị viết sẵn» của chín ô; ô `chua_lam` viết sẵn «2 mục ngoài hợp đồng · 1 giới hạn đã biết» (`BANG_150`, ca `LT-162`) đổi thành «2 mục để ngoài phạm vi · 1 giới hạn đã biết» kèm chú thích trỏ về đây (AC-5). Quét 12/10 (`grep -rln "mục ngoài hợp đồng" _acceptance/*/contract.md _acceptance/*/evals.yaml tests/`): mọi chỗ khác dùng cụm này theo nghĩa finding Cổng Bằng chứng, không ghim chữ của ô `chua_lam` — 1 lời hứa đã ký bị chạm. Ô production của kho không khai giữ nguyên câu cũ nên AC-5 của hồ sơ ấy không bị chạm. Hai trang mẫu của hồ sơ đã ký `viec-ke-theo-plan` và `trang-lo-trinh-doc-mot-phut` (khối mang dải) vẽ lại cùng lượt — hai hồ sơ ấy ghim lại bằng làn trước khi gộp, như tiền lệ X2.
 - Vế 400 ký tự là con số của phép đo LT1b (khớp trung vị crm 364) — sai thì đổi một hằng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-12:
+  - Ngoài-1: Nếu phần để ngoài phạm vi của một hồ sơ được viết thành bảng, thẻ tóm tắt có thể đếm dư một mục (tính cả hàng tiêu đề). Chưa hồ sơ thật nào viết kiểu này nên hiện chưa ai bị sai số.
+  - Ngoài-2: Nếu phần để ngoài phạm vi viết bằng dấu sao hoặc đánh số thay vì dấu gạch, thẻ tóm tắt sẽ chỉ báo 1 mục dù có nhiều mục. Hiện chưa hồ sơ thật nào viết kiểu này nên chưa ai bị ảnh hưởng.
+  - Ngoài-3: Một số hồ sơ không có giới hạn nào vẫn bị gắn cảnh báo vàng «Notes nhắc giới hạn sai khuôn» chỉ vì phần ghi chú có câu nhắc tới chữ giới hạn đã biết. Người đọc dải tóm tắt có thể tưởng hồ sơ viết sai chỗ trong khi không có gì sai.
+  - Ngoài-4: Nếu kho khai nhánh production bằng cách viết hơi khác thường, ví dụ có dòng chú thích xen giữa hoặc để giá trị rỗng, ô production có thể lặng lẽ quay về cách hiển thị cũ hoặc báo không thấy một nhánh tên lạ. Kho khai theo mẫu chuẩn thì không bị ảnh hưởng.
+  - Ngoài-5: Khi việc đã được gộp theo kiểu squash mà nhánh cũ vẫn còn, ô production có thể ghi «chưa gộp» trong khi thực tế đã gộp. Câu này lệch với lời thẻ duyệt đã hứa là ô sẽ nói rõ «không đọc được».
+  - Ngoài-6: Một lối hướng dẫn khác vẫn dặn ghi giới hạn mà không nêu khuôn chuẩn. Nếu máy làm theo lối đó và viết lệch khuôn, giới hạn sẽ không được đếm trên dải tóm tắt và cũng không có cảnh báo.
+  - Ngoài-7: Kho nào muốn bật tính năng đọc trạng thái triển khai production phải tìm trong tài liệu tham chiếu chuyên sâu, vì hướng dẫn cấu hình chung chưa nhắc tới. Có thể có kho không biết tính năng này tồn tại.
+  - Ngoài-10: Với việc đã gộp kiểu squash mà nhánh cũ còn đó, ô production có thể ghi «chưa gộp» dù việc đã vào nhánh chính. Thẻ duyệt đã nói ô sẽ báo «không đọc được», nên người ký có thể hiểu khác với thực tế.
+  - Ngoài-11: Một số bài kiểm tra máy có thể vẫn xanh dù lỗi báo ra không đúng lý do mà bài kiểm tra định bắt. Người dùng sản phẩm không thấy gì, nhưng độ tin cậy của lưới kiểm giảm nhẹ ở vài ca.
+- Mở hợp đồng mới (Cổng Bằng chứng 2026-10-12) — Ngoài-8 và Ngoài-9 ghi thành hạt giống `docs/plans/2026-10-12-hat-giong-dai-tom-tat-sau-x2s.md` (mục 1, 2), cùng đề nghị trường mới cho khối dữ liệu của vòng LT1b crm (mục 3).
