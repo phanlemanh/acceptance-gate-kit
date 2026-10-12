@@ -5,6 +5,8 @@
 // dai-tom-tat-crm.mjs, ngoài suite.
 //
 // DT-11 (kho khai nhánh production) đọc git của kho thử: commit có ngày ghim qua GIT_*_DATE.
+// Hồ sơ thử mang `status: implemented`: tệp ca không phải bộ đọc trạng thái ký, chuỗi trạng thái ký
+// trong tệp chỉ làm lưới RT13 kêu (cùng lối repin-lane-noi-ra.test.mjs).
 // Kho thử do mã sinh trong lượt (git init thư mục tạm, đường dẫn suy từ vị trí tệp này); ô cơ hội do CHÍNH
 // `lo-trinh.mjs --mo-o` ghi; gạch giới hạn của DT-8 rút từ khối KNOWN-LIMITS-NOTE của commands/signoff.md.
 // Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra. Chiều đỏ: bản lành xanh trước, rồi CHÍNH hàm đo
@@ -61,7 +63,7 @@ function khoThu({ notes = '', oos = ['Không làm a.', 'Không làm b.'], known 
     if (!/## Vấn đề & ai gặp\n/.test(t)) throw new Error('ô cơ hội của --mo-o không có mục «Vấn đề & ai gặp»');
     writeFileSync(p, t.replace(/(## Vấn đề & ai gặp\n)[\s\S]*?(?=\n## )/, `$1\n${vanDe}\n`));
   }
-  writeFileSync(path.join(d, 'contract.md'), `---\nschema_version: 1\nfeature: Việc X có dải tóm tắt\nslug: ${SL}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: signed-off\napproved_by: M\napproved_at: 2026-10-02T00:00:00Z\n---\n\n## Context\n\nBối cảnh.\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n${oos.map(x => `- ${x}`).join('\n')}\n\n## Notes\n\n${notes}\n`);
+  writeFileSync(path.join(d, 'contract.md'), `---\nschema_version: 1\nfeature: Việc X có dải tóm tắt\nslug: ${SL}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\napproved_by: M\napproved_at: 2026-10-02T00:00:00Z\n---\n\n## Context\n\nBối cảnh.\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n${oos.map(x => `- ${x}`).join('\n')}\n\n## Notes\n\n${notes}\n`);
   writeFileSync(path.join(d, 'evidence-report.md'), `---\nschema_version: 2\nfeature_slug: ${SL}\nverdict: PASS\nverified_commit: ${ma}\nhuman_signoff: M 2026-10-06\n---\n\n# Evidence Report: ${SL}\n\n## Known limits\n\n${known.map(x => `- ${x}`).join('\n')}\n\n## Ngoài hợp đồng\n`);
   const dong = [{ id: 'd-1', type: 'approach', stage: 'S1', at: '2026-10-01T00:00:00Z', decision: 'Chọn.', why: 'Vì.', cost_if_wrong: 'Ít.' }];
   if (so === 'thuc-te') dong.push({ id: 'd-2', type: 'thuc-te', stage: 'thuc-te', at: '2026-10-08T00:00:00Z', by: 'M', build_sha: 'b'.repeat(40), decision: 'Đang chạy.' });
