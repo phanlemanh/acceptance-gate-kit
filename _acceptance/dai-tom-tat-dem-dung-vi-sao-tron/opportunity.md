@@ -3,10 +3,10 @@ schema_version: 1
 slug: dai-tom-tat-dem-dung-vi-sao-tron
 feature: Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:                   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:                 # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-12T03:56:23Z   # owner gõ «Làm» một chạm trong phiên 12/10, máy ghi hộ
 prototype:
   base_commit:
   disposition: archive
@@ -49,10 +49,10 @@ người đã chấp nhận, và vào mục «Vì sao làm» để đọc lại 
 
 Việc nền của bộ công cụ, đo bằng máy trên dữ liệu thật của kho tiêu thụ — không vế nào cần người xác nhận.
 
-- Câu hỏi phép đo trả lời: [đề xuất] sau khi crm nhận mốc mang vòng này, ô «chưa làm gì» của mọi hồ sơ crm có in số khớp danh sách giới hạn của khối — hoặc nói «chưa đọc được» — và trang hồ sơ đầy đủ có hiện trọn «Vì sao làm» không?
-- Kết quả nào là SỐNG: [đề xuất] chạy lại đúng phép đo của `do-truoc.md` trên crm đã nhận mốc: 0 hồ sơ cơ chế 1–3 còn số sai, mọi hồ sơ cơ chế 4 nói «chưa đọc được», hồ sơ không dính cơ chế nào giữ nguyên chữ ô; mọi trang hồ sơ đầy đủ có «Vì sao» quá 400 ký tự chứa trọn câu cuối của đoạn
-- Kết quả nào là CHẾT: [đề xuất] một hồ sơ crm in số giới hạn khác số mục của khối mà không nói «chưa đọc được», hoặc một trang hồ sơ đầy đủ cắt «Vì sao làm»
-- Timebox: [đề xuất] lần vẽ lại đầu tiên của crm sau khi nhận mốc chứa vòng này (crm nhận mốc từ 15/10); trễ nhất 2026-11-01
+- Câu hỏi phép đo trả lời: sau khi crm nhận mốc mang vòng này, ô «chưa làm gì» của mọi hồ sơ crm có in số khớp danh sách giới hạn của khối — hoặc nói «chưa đọc được» — và trang hồ sơ đầy đủ có hiện trọn «Vì sao làm» không?
+- Kết quả nào là SỐNG: chạy lại đúng phép đo của `do-truoc.md` trên crm đã nhận mốc: 0 hồ sơ cơ chế 1–3 còn số sai, mọi hồ sơ cơ chế 4 nói «chưa đọc được», hồ sơ không dính cơ chế nào giữ nguyên chữ ô; mọi trang hồ sơ đầy đủ có «Vì sao» quá 400 ký tự chứa trọn câu cuối của đoạn
+- Kết quả nào là CHẾT: một hồ sơ crm in số giới hạn khác số mục của khối mà không nói «chưa đọc được», hoặc một trang hồ sơ đầy đủ cắt «Vì sao làm»
+- Timebox: lần vẽ lại đầu tiên của crm sau khi nhận mốc chứa vòng này (crm nhận mốc từ 15/10); trễ nhất 2026-11-01
 
 ## Kết quả prototype
 
@@ -75,9 +75,9 @@ Không có vật liệu ngoài kho — căn cứ là hồ sơ `dai-tom-tat-doc-d
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** Căn cứ: chủ kho gõ «Làm» trong phiên 12/10 sau thẻ Cổng Đáng (86/661 hồ sơ in sai số giới hạn; 301 trang đầy đủ sẽ mất chữ «Vì sao»).
 - **disposition = archive** Căn cứ: bản thử chỉ là căn cứ đo, không giữ.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ở mục Ngưỡng, như máy đề xuất — chữ «Làm» chốt chúng (thẻ đã nói vậy).
 
 ## Thước đo thành công → ứng viên criterion
 
