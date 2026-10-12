@@ -750,6 +750,45 @@ nghỉ>"`. Hồ sơ quay về đúng luật cũ, và phải ghim lại như thư
 sổ quyết định do người viết. Một lệnh có khoá chống máy tự gọi là việc của vòng
 sau; lưới hiện tại là sổ để lại vết và cửa veto.
 
+## Máy tự định tuyến mục ngoài hợp đồng (hồ sơ ngoai-n-tu-dinh-tuyen)
+
+Làn V (máy thông, không mời ký Cổng Bằng chứng) chỉ chạy khi mọi mục Ngoài-n trong
+`review-findings.md` đã có dòng sổ `gate2`. Ở đợt crm `sau-14-10` nó bắn 0/71 hồ sơ vì
+mục nào cũng chờ người — trong khi người định tuyến trùng đề xuất của máy 94,9 %. Kho
+bật một khoá thì máy tự ghi dòng sổ cho những mục mà CHÍNH nó đề xuất.
+
+<!-- <<<NGOAI-N-TU-DINH-TUYEN -->
+- **Bật:** `feature_loop.ngoai_n_tu_dinh_tuyen: true` trong `_acceptance/config.yaml`.
+  Giá trị `true | false`, **mặc định tắt** (khoá vắng = như trước: không ghi byte nào);
+  giá trị khác làm lệnh thoát 2 gọi tên khoá.
+- **Máy ghi gì:** ở hồ sơ T2 · `status: verified` · PASS · 0 UNCERTAIN · không bypass ·
+  phân loại phạm vi chạy trọn, mỗi mục đề xuất `known-limits` hoặc `wont-fix` chưa có
+  dòng `gate2` nhận một dòng sổ mang khoá `may: dinh-tuyen-ngoai-n` (KHÔNG có
+  `decided_by`), kèm `tieu_de` của mục và lệnh đảo ở khoá `dao`. Mục `known-limits` thêm
+  một gạch vào `## Notes` của hợp đồng. Mục `new-contract`, hồ sơ T3, hồ sơ có UNCERTAIN
+  vẫn của người. Báo cáo bằng chứng KHÔNG bị chạm (mục Known limits của nó giữ rỗng).
+- **Ai gọi:** feature-loop, khối `DINH-TUYEN-MAY` của SKILL — trước `khong-can-nguoi.mjs
+  --write`. Gọi tay: `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --check|--write
+  --root . --slug <slug>`.
+- **Thẻ:** mục máy định tuyến là dòng báo «Máy đã định tuyến … — đảo: …», không vào
+  «VIỆC CỦA ANH»; dòng sổ của nó hiện ở khối «Quyết định CHƯA duyệt» với chữ «máy định
+  tuyến».
+- **Đảo:** dán lệnh ở khoá `dao` —
+  `/acceptance-gate:signoff <slug> Ngoài-<n>: mở hợp đồng mới; Ký` —
+  sửa chữ sau `Ngoài-<n>:` nếu muốn lối khác. Lệnh ghi một dòng sổ người
+  MỚI (không sửa dòng máy); thẻ lấy dòng mới nhất nên người thắng. Đảo đi qua chữ ký: chưa
+  có lệnh đảo-mà-không-ký — mở khi ≥1 lần owner cần đảo một mục mà không muốn ký hồ sơ.
+- **Giới hạn đã khai:** một lượt chấm mới đổi thứ tự mục làm dòng máy cũ trỏ nhầm mục.
+  Bên ghi (thoát 2) và thẻ (cờ «dòng máy trỏ mục đã đổi») bắt bằng so `tieu_de`; lưới
+  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). So tiêu đề gỡ nhãn lượt «(rN…)»
+  trước, nên mục mang sang lượt sau không bị coi là mục đã đổi. Ngưỡng mở vòng sửa lưới:
+  ≥1 hồ sơ có dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm trên cả kho bằng
+  `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --soat-lech --root .` (in số hồ sơ, thoát
+  2 khi có; không đọc khoá kho, không xét trạng thái hồ sơ, không ghi gì).
+- **Bản cài chưa có bên ghi** (kho chưa nâng kit): bộ giải gói thoát 1, vòng lặp báo một dòng,
+  coi như khoá tắt và đi tiếp — không dừng chờ người.
+<!-- NGOAI-N-TU-DINH-TUYEN>>> -->
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)
