@@ -41,3 +41,41 @@ wall: 2594s
 - **claude-opus-5-5**: 3 agent · 32 calls · out 5,206 · in 64 · cache_read 1,917,650 · cache_create 280,227
 - **claude-haiku-5-5**: 13 agent · 31 calls · out 9,968 · in 62 · cache_read 531,459 · cache_create 531,156
 
+### S4 round 2 — wf_5cad31e2-1d1 (18 agent, 23,511 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 3 | 7,082 | 6 | 104,208 | 41 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 4 | 3,323 | 8 | 75,832 | 631 |
+| review:measurement | claude-opus-5-5 | 8 | 2,216 | 16 | 446,346 | 93 |
+| machine:bash -c 'set -o pipefail; node --test -- | claude-haiku-5-5 | 2 | 1,853 | 4 | 34,383 | 80 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,485 | 4 | 34,262 | 84 |
+| machine:node tests/dieu-phoi/kiem-khung.mjs | claude-haiku-5-5 | 2 | 1,468 | 4 | 34,274 | 30 |
+| triage | claude-sonnet-5-5 | 2 | 1,218 | 4 | 32,850 | 17 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 4 | 1,179 | 8 | 74,530 | 805 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 518 | 4 | 34,318 | 72 |
+| review:bugs | claude-opus-5-5 | 10 | 511 | 20 | 433,291 | 75 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 484 | 4 | 34,263 | 4 |
+| review:conventions | claude-opus-5-5 | 15 | 472 | 30 | 720,670 | 130 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 416 | 4 | 34,271 | 213 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 358 | 4 | 34,276 | 172 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 336 | 4 | 2,869 | 322 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 258 | 4 | 34,318 | 119 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 188 | 4 | 34,262 | 6 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 146 | 4 | 30,179 | 5 |
+
+
+wall: 2522s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 12 | 11,866 | 461,858 | 2453 | 20:49:16 | 21:30:09 |
+| review | 3 | 3,199 | 1,600,307 | 130 | 20:49:16 | 20:51:26 |
+| triage | 1 | 1,218 | 32,850 | 17 | 21:30:11 | 21:30:28 |
+| capture | 1 | 146 | 30,179 | 5 | 21:30:30 | 21:30:35 |
+| synthesize | 1 | 7,082 | 104,208 | 41 | 21:30:37 | 21:31:18 |
+
+- **claude-sonnet-5-5**: 3 agent · 7 calls · out 8,446 · in 14 · cache_read 167,237 · cache_create 149,924
+- **claude-haiku-5-5**: 12 agent · 28 calls · out 11,866 · in 56 · cache_read 461,858 · cache_create 496,532
+- **claude-opus-5-5**: 3 agent · 33 calls · out 3,199 · in 66 · cache_read 1,600,307 · cache_create 193,465
+

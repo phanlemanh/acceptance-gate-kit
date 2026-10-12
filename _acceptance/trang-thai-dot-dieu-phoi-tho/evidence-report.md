@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6a6cabb816a33c71d0852d72ac22bd00492de8f3
+verified_commit: f503479af4ef0768ae2a529105920d31ea350b66
 human_signoff:
 ---
 
@@ -29,11 +29,11 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E1-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_khung
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node --test tests/dieu-phoi, chung các eval E1–E4)
     #   nhap>nhap · cheo · cheo
@@ -44,11 +44,11 @@ human_signoff:
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
 
 - eval: E2
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E2-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_khung
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node --test tests/dieu-phoi, chung các eval E1–E4)
     #   nhap>dang-chay · hop-le · hop-le
@@ -56,11 +56,11 @@ human_signoff:
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
 
 - eval: E3
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E3-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_khung
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node --test tests/dieu-phoi, chung các eval E1–E4)
     #   nhap>dang-dong · tu-choi · tu-choi
@@ -68,11 +68,11 @@ human_signoff:
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
 
 - eval: E4
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E4-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_khung
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node --test tests/dieu-phoi, chung các eval E1–E4)
     #   nhap>nhap · cheo · cheo
@@ -80,51 +80,51 @@ human_signoff:
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
 
 - eval: E5
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E5-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.dieu_phoi_khung_mod
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-khung.mjs, chung các eval E5–E9)
     PASS: KH-09-do argv · khung.ts: argv process.run không kết thúc 'xem','--json': ['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'pha', 'dang-chay']
 
 - eval: E6
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E6-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.dieu_phoi_khung_mod
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-khung.mjs, chung các eval E5–E9)
     PASS: KH-09-do argv · khung.ts: argv process.run không kết thúc 'xem','--json': ['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'pha', 'dang-chay']
 
 - eval: E7
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E7-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.dieu_phoi_khung_mod
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-khung.mjs, chung các eval E5–E9)
     PASS: KH-09-do argv · khung.ts: argv process.run không kết thúc 'xem','--json': ['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'pha', 'dang-chay']
 
 - eval: E8
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E8-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.dieu_phoi_khung_mod
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-khung.mjs, chung các eval E5–E9)
     PASS: KH-09-do argv · khung.ts: argv process.run không kết thúc 'xem','--json': ['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'pha', 'dang-chay']
 
 - eval: E9
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-E9-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-E9-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.dieu_phoi_khung_mod
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
   output: |
     (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-khung.mjs, chung các eval E5–E9)
     PASS: KH-09-do argv · khung.ts: argv process.run không kết thúc 'xem','--json': ['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'pha', 'dang-chay']
@@ -132,64 +132,64 @@ human_signoff:
 - eval: E9b
   run_id: minted-trang-thai-dot-dieu-phoi-tho-E9b-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.dieu_phoi_mod
   verified_at: 2026-10-12T19:24:33Z
+  carried_from_round: 1
   output: |
-    (đuôi đầu ra của lệnh node tests/dieu-phoi/kiem-mod.mjs)
-    PASS: DP4-13-do phan-la · tệp phần ngoài bảng MOD-SU-KIEN: hooks/mod/la.ts
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-trang-thai-dot-dieu-phoi-tho-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-12T19:24:33Z
+  verified_at: 2026-10-12T20:49:03Z
 
 ## Known limits
 
@@ -197,12 +197,14 @@ human_signoff:
 
 ## Analyst
 
+carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi).
+
 Eval không-phân-biệt (xanh trên CẢ cây đang kiểm lẫn baseline diffBase; chứng minh harness chứ chưa chứng minh feature — viết lại để assert hành vi mới, hoặc xác nhận là regression-guard có chủ ý):
-- E1, E2, E3, E4 (lệnh node --test tests/dieu-phoi/**/*.test.mjs): green trên baseline.
-- E9b (lệnh node tests/dieu-phoi/kiem-mod.mjs): green trên baseline; là răng của hồ sơ đã ký dieu-phoi-doi-tai-khoan, giữ nguyên làm regression-guard.
+- E1, E2, E3, E4 (lệnh node --test tests/dieu-phoi/**/*.test.mjs): green trên baseline ở round 1.
+- E9b (lệnh node tests/dieu-phoi/kiem-mod.mjs): green trên baseline ở round 1; là răng của hồ sơ đã ký dieu-phoi-doi-tai-khoan, giữ nguyên làm regression-guard.
 
 Baseline khong do
-- node tests/dieu-phoi/kiem-khung.mjs: bo qua baseline: tep tests/dieu-phoi/kiem-khung.mjs co o cay dang kiem nhung chua co o merge-base 08d041a6c25e71d6c7e9c34cc840b3c62943ec2c — eval moi, chay tren code cu khong phan biet gi
+- node tests/dieu-phoi/kiem-khung.mjs: carried tu round 1 — tep chua co o merge-base nen eval moi, chay tren code cu khong phan biet gi.
 
 Judge panels: không có eval judgment trong vòng này; không có mục nào chờ người.
 
@@ -213,3 +215,4 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1–E9b đều xanh, không eval nào thất bại. Review-findings: 1 finding trong hợp đồng (AC-6) và 5 finding ngoài hợp đồng, xem review-findings.md.
+Round 2: sau nhát sửa lớp assertion âm-tính (AC-6 argv bằng gốc gói, đối chứng dương và thông điệp ghim cho ca đỏ), E1–E9 chạy lại và đều xanh, E9b carry-forward từ round 1 vì delta không chạm paths của nó; 10 lệnh suite xanh. Review-findings round 2: 0 finding trong hợp đồng, 1 finding ngoài hợp đồng mới, 5 mục ngoài hợp đồng carry từ round 1.
