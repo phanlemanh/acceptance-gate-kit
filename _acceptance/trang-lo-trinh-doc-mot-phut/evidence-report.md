@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bf399159b43d88456bb64a098a6bf921286fe106
+verified_commit: bd8163dcf46f04dff8d5f1ab21a4f1a5a1556767
 human_signoff: Manh Phan 2026-10-04 — ký lượt chấm 3; mục trong hợp đồng AC-5 (ngày mốc thiếu số 0) và Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-6 ghi Known limits; Ngoài-5 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -307,3 +307,7 @@ sha: 209cb839c667b96b1fc622db58fb8ee6bdb42070 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 10 — 2026-10-11, do DP7-10 + DP2-15 neo lịch sử thay merge-base sống (lệnh Điều phối, CI #307)
 run_id: repin-20261011T073635Z-91493
 sha: bf399159b43d88456bb64a098a6bf921286fe106 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11
+
+### Re-pin lần 11 — 2026-10-12, do trang mẫu vẽ lại do dải tóm tắt đổi (hồ sơ dai-tom-tat-doc-dung)
+run_id: repin-20261012T034007Z-77878
+sha: bd8163dcf46f04dff8d5f1ab21a4f1a5a1556767 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 · diff chạm vật đo ngoài làn máy: E11 — chưa chứng lại, đi vòng S4 delta
