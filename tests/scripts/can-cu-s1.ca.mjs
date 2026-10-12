@@ -718,34 +718,44 @@ const chayThe = (goc, slug, them) => new Promise(res => {
   const p = spawn('node', [path.join(goc, 'scripts', 'gate-card.js'), '--root', ROOT, '--slug', slug, '--gate', '1', ...them]);
   let o = ''; p.stdout.on('data', c => { o += c; }); p.on('close', code => res(`${code}\n${o}`));
 });
+// Lệch thì giữ vài dòng khác nhau đầu tiên để lượt chạy (cả CI) tự nói nguyên nhân (CI #331, 12/10).
+const dongKhac = (a, b) => {
+  const x = a.split('\n'), y = b.split('\n'); const i = x.findIndex((l, k) => l !== y[k]); if (i < 0) return '';
+  const p = x[i] || '', q = y[i] || ''; let c = 0; while (c < p.length && p[c] === q[c]) c++;
+  const khuc = t => t.slice(Math.max(0, c - 40), c + 80).replace(/\s+/g, ' ');
+  return `dòng ${i + 1}, ký tự ${c + 1}: «…${khuc(p)}…» ≠ «…${khuc(q)}…»`;
+};
 async function soThe(gocA, gocB, slugs, { dungKhiLech = false } = {}) {
-  const lech = []; let i = 0;
+  const lech = []; const chiTiet = []; let i = 0;
   const tho = async () => {
     while (i < slugs.length && !(dungKhiLech && lech.length)) {
       const x = slugs[i++];
       for (const them of [[], ['--extract']]) {
         const [a, b] = await Promise.all([chayThe(gocA, x, them), chayThe(gocB, x, them)]);
-        if (a !== b) { lech.push(x + (them.length ? ' (bản rút)' : '')); break; }
+        if (a !== b) { const ten = x + (them.length ? ' (bản rút)' : ''); lech.push(ten); chiTiet.push(`${ten} — ${dongKhac(a, b)}`); break; }
       }
     }
   };
-  await Promise.all(Array.from({ length: 4 }, tho)); return lech.sort();
+  await Promise.all(Array.from({ length: 4 }, tho)); lech.chiTiet = chiTiet.sort(); return lech.sort();
 }
 let KK8;
 try {
   const t0 = Date.now(); const tv = tamVongKK(); const ds = hoSoCu();
-  const gocA = banLuu(tv.goc); const gocB = tv.dinh ? banLuu(tv.dinh) : ROOT;
-  const doiChung = await soThe(banLuu('HEAD'), ROOT, ds.slice(0, 5));
+  // Đỉnh: cây làm việc sạch ở ba thư mục thẻ nạp → dùng lưu trữ git của HEAD (hai bên cùng đi qua git archive,
+  // không ăn tệp ca khác để lại trong cây); cây bẩn (đang sửa) → cây làm việc.
+  const cayBan = spawnSync('git', ['-C', ROOT, 'status', '--porcelain', '--', ...THU_MUC_THE], { encoding: 'utf8' }).stdout.trim() !== '';
+  const gocA = banLuu(tv.goc); const gocB = tv.dinh ? banLuu(tv.dinh) : (cayBan ? ROOT : banLuu('HEAD'));
+  const troi = cayBan ? [] : await soThe(banLuu('HEAD'), ROOT, ds);   // đối chứng: lưu trữ HEAD == cây làm việc trên TOÀN tập
   const lech = await soThe(gocA, gocB, ds);
   const lechTiem = await soThe(gocA, banSaoTu(gocB, 'sai thì tốn: ', 'sai thi ton: '), ds, { dungKhiLech: true });
-  KK8 = { tv, n: ds.length, doiChung, lech, lechTiem, giay: ((Date.now() - t0) / 1000).toFixed(1) };
+  KK8 = { tv, n: ds.length, cayBan, troi, lech, lechTiem, giay: ((Date.now() - t0) / 1000).toFixed(1) };
 } catch (e) { KK8 = { loi: e.message }; }
 check('KK-8 ho-so-cu', () => {
   if (KK8.loi) die(KK8.loi);
-  eq(KK8.doiChung, [], 'đối chứng dương: bản lưu trữ HEAD (scripts lib skills) == cây làm việc');
+  if (KK8.troi.length) console.log('    KK-8 CẢNH BÁO cây làm việc trôi khỏi lưu trữ HEAD (không phải vật của vòng): ' + KK8.troi.chiTiet.join(' | '));
   if (KK8.n < 20) die(`chỉ ${KK8.n} hồ sơ cũ để so — cần ≥ 20`);
-  eq(KK8.lech, [], 'thẻ hồ sơ cũ ở gốc vòng == ở đỉnh vòng');
-  console.log(`    KK-8: ${KK8.n} hồ sơ · gốc ${KK8.tv.goc.slice(0, 8)} → đỉnh ${KK8.tv.dinh ? KK8.tv.dinh.slice(0, 8) : 'cây làm việc'} (${KK8.tv.nguon}) · ${KK8.giay} s`);
+  if (KK8.lech.length) die('thẻ hồ sơ cũ ở gốc vòng ≠ ở đỉnh vòng: ' + KK8.lech.chiTiet.join(' | '));
+  console.log(`    KK-8: ${KK8.n} hồ sơ · gốc ${KK8.tv.goc.slice(0, 8)} → đỉnh ${KK8.tv.dinh ? KK8.tv.dinh.slice(0, 8) : (KK8.cayBan ? 'cây làm việc' : 'lưu trữ HEAD')} (${KK8.tv.nguon}) · ${KK8.giay} s`);
 });
 check('KK-8-do', () => {
   if (KK8.loi) die(KK8.loi);
