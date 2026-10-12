@@ -41,3 +41,9 @@ Sáng 23/09 owner xếp hạt giống này là vòng meta đầu; cùng ngày, s
 `2026-09-23-hat-giong-tac-tu-tong-hop-ghi-truong-cua-nguoi.md` (chữ ký máy lọt lưới — nguyên tố 2),
 owner **đổi**: chốt máy chữ ký đi trước (2.18.2), **hạt giống này lùi về mốc kế (2.19)**. Ngưỡng vẫn đã đủ;
 không gộp vào vòng 2.18.2 (khác lớp).
+
+## Thành ô 11/10
+
+Mở từ hàng A2 của lộ trình kit: `_acceptance/buoc-len-thiet-ke-khong-hoi/` (owner ký Cổng Đáng `build`
+11/10). Số đo lại trên sổ S1 crm 22/09–11/10: 28/51 lựa chọn có căn cứ máy đã có, 23/51 chỉ người có —
+nghiệm chia theo nguồn căn cứ thay vì «bỏ hỏi». Tệp làm chứng: `_acceptance/buoc-len-thiet-ke-khong-hoi/do-11-10/`.
