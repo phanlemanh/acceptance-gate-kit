@@ -92,9 +92,10 @@ evals:
       (mục-tiêu/approach · một-lối/approach · mục-tiêu/descope · một-lối/descope): `<p>` của mỗi dòng chứa
       `why` và «sai thì tốn: <cost_if_wrong>» của CHÍNH nó, chữ giá đứng TRƯỚC «căn cứ: «» hoặc «lối khác
       chết vì:»; hai dòng descope bắt đầu «KHÔNG làm:»; "PASS: KK-6 so-that" — thẻ ép `--gate 1` trên hồ sơ
-      can-cu-s1-chay-moi-kho ở cây thật: số `<p>` của hai khối căn cứ == số dòng S1 mang can_cu chưa bị thay
-      và không đỏ (đếm từ decisions.jsonl lúc chạy bằng bộ xếp, KHÔNG từ thẻ), và `<p>` của mỗi mã dòng chứa
-      why + giá của chính dòng ấy; "PASS: KK-6-do" — bản sao thẻ trả dòng máy-đã-quyết về cách in của A2 →
+      can-cu-s1-chay-moi-kho ở cây thật: số `<p>` của hai khối căn cứ == số dòng S1 mang can_cu không bị
+      dòng sau supersedes (đếm THẲNG từ decisions.jsonl lúc chạy, KHÔNG qua bộ xếp, KHÔNG từ thẻ), `<p>` của
+      mỗi dòng chứa why + giá khác rỗng của chính nó; "PASS: KK-6-do so-that" — bản sao thẻ bỏ dòng máy-đã-quyết
+      đầu tiên → hàm kiểm nêu «số dòng hai khối» và «thiếu dòng trên thẻ»; "PASS: KK-6-do" — bản sao thẻ trả dòng máy-đã-quyết về cách in của A2 →
       CHÍNH hàm kiểm nêu mã dòng thiếu vế.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7

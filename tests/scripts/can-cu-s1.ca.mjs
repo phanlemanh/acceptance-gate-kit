@@ -642,18 +642,36 @@ check('KK-6-do', () => {
 // Vòng tròn: sổ THẬT của hồ sơ này (ghi bằng khối lệnh DEC-ID-RECIPE của SKILL) — đếm bằng bộ xếp, không từ thẻ.
 const chuanChu = x => String(x || '').replace(/[`*]/g, '').replace(/\s+/g, ' ').trim();
 const chuP = p => chuanChu(p.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
-check('KK-6 so-that', () => {
-  const SLUG = 'can-cu-s1-chay-moi-kho'; const mod = require(MOD);
-  const kq = mod.phanLoaiSo(mod.docSo(readFileSync(path.join(ROOT, '_acceptance', SLUG, 'decisions.jsonl'), 'utf8')).entries, { root: ROOT, slug: SLUG });
-  const n = kq.cau_hoi.length + kq.da_quyet.length; if (!n) die('sổ thật không có dòng S1 mang căn cứ');
-  const h = spawnSync('node', [GC, '--root', ROOT, '--slug', SLUG, '--gate', '1'], { encoding: 'utf8' }); if (h.status !== 0) die('thẻ thoát ' + h.status);
-  eq(cac(h.stdout, /data-cau-hoi="([^"]+)"/g).length + cac(h.stdout, /data-may-quyet="([^"]+)"/g).length, n, 'số dòng hai khối = số dòng S1 mang căn cứ chưa bị thay, không đỏ');
-  for (const [d, attr, khoa] of [...kq.cau_hoi.map(d => [d, 'data-cau-hoi', d.nhan]), ...kq.da_quyet.map(d => [d, 'data-may-quyet', d.id])]) {
-    const p = dongP(h.stdout, attr, khoa); if (!p) die(khoa + ': thiếu dòng');
-    const t = chuP(p);
-    if (!t.includes(chuanChu(d.e.why)) || !t.includes('sai thì tốn: ' + chuanChu(d.e.cost_if_wrong))) die(khoa + ': dòng thiếu vì sao hoặc giá của chính nó');
+// Vế mong đợi đếm THẲNG từ sổ, không qua bộ xếp mà thẻ gọi (lượt chấm 1, phát hiện trong hợp đồng AC-6): dòng S1 mang
+// can_cu mà không dòng SAU nào supersedes nó. Câu chỉ-người-biết mang nhãn Hỏi-<k> theo thứ tự trong sổ.
+const SLUG_SO_THAT = 'can-cu-s1-chay-moi-kho';
+function kiemSoThat(gc = GC) {
+  const en = readFileSync(path.join(ROOT, '_acceptance', SLUG_SO_THAT, 'decisions.jsonl'), 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
+  const biThay = new Set(en.map((e, j) => [e.supersedes, j]).filter(([x, j]) => typeof x === 'string' && en.findIndex(e2 => e2.id === x) < j).map(([x]) => x));
+  const mong = en.filter(e => e.stage === 'S1' && e.can_cu !== undefined && !biThay.has(e.id));
+  if (!mong.length) return ['sổ thật không có dòng S1 mang căn cứ chưa bị thay'];
+  const h = spawnSync('node', [gc, '--root', ROOT, '--slug', SLUG_SO_THAT, '--gate', '1'], { encoding: 'utf8' });
+  if (h.status !== 0) return ['thẻ thoát ' + h.status];
+  const loi = []; let k = 0;
+  const soP = cac(h.stdout, /data-cau-hoi="([^"]+)"/g).length + cac(h.stdout, /data-may-quyet="([^"]+)"/g).length;
+  if (soP !== mong.length) loi.push(`số dòng hai khối ${soP} ≠ ${mong.length} dòng S1 mang căn cứ chưa bị thay`);
+  for (const e of mong) {
+    const [attr, khoa] = e.can_cu.nguon === 'chi-nguoi' ? ['data-cau-hoi', `Hỏi-${++k}`] : ['data-may-quyet', e.id];
+    const p = dongP(h.stdout, attr, khoa); if (!p) { loi.push(`${e.id}: thiếu dòng trên thẻ`); continue; }
+    const why = chuanChu(e.why), gia = chuanChu(e.cost_if_wrong);
+    if (!why || !gia) { loi.push(`${e.id}: dòng sổ thiếu vì sao hoặc giá`); continue; }
+    const t = chuP(p); if (!t.includes(why) || !t.includes('sai thì tốn: ' + gia)) loi.push(`${e.id}: dòng thẻ thiếu vì sao hoặc giá của chính nó`);
   }
-  console.log(`    KK-6 so-that: ${n} dòng (${kq.cau_hoi.length} câu hỏi · ${kq.da_quyet.length} máy đã quyết · ${kq.bi_thay} bị thay)`);
+  return loi;
+}
+check('KK-6 so-that', () => {
+  eq(kiemSoThat(), [], 'thẻ ép --gate 1 trên sổ thật: một dòng ba vế cho mỗi dòng S1 mang căn cứ chưa bị thay');
+  console.log('    KK-6 so-that: sổ thật ' + SLUG_SO_THAT);
+});
+check('KK-6-do so-that', () => {
+  const f = banSaoThe('const ccMayQuyet = cc.da_quyet;', 'const ccMayQuyet = cc.da_quyet.slice(1);');
+  const loi = kiemSoThat(f);
+  if (!loi.some(x => x.startsWith('số dòng hai khối')) || !loi.some(x => x.endsWith('thiếu dòng trên thẻ'))) die('thẻ bỏ sót một dòng máy đã quyết mà ca không nêu: ' + JSON.stringify(loi));
 });
 check('KK-7 thieu-gia', () => {
   const h = theBaVe(); if (h.status !== 0) die('thẻ thoát ' + h.status);
