@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + scripts/cat-luot.mjs + mô-đun mới scripts/co-hop-dong.cjs + commands/approve.md + ba SKILL/khuôn + GUIDE + test — không chạm lib/**, hooks/**, lưới trước-merge.
 surfaces: [cli, docs]
 design_doc: docs/superpowers/specs/2026-10-12-vong-mo-thang-bang-feature-loop-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -78,6 +78,10 @@ mới từ 13 tiêu chí qua Cổng Phạm vi mà không có dòng sổ giữ c�
   `why`/`cost_if_wrong`/`decided_by` (đường thường là máy ghi dòng giữ ở S1#5) · `evals.yaml` từng tả bản
   sao chiều đỏ là «git archive HEAD» trên «kho git thật», tệp ca thật chép từ cây làm việc vào thư mục tạm
   không git; thư mục `mkWs` ở `os.tmpdir()` không được dọn.
+- **Known limits (Cổng Bằng chứng lượt 2, 13/10 — manh ký):** `paths` của các eval không khai
+  `skills/acceptance/references/evidence-report-template.md` mà ca đo nạp, nên đổi khuôn báo cáo không làm hồ
+  sơ hoá cũ · hàng «chỗ trống» và «bị rút» của AC-3 chép tay chuỗi khuôn thay vì rút từ khối bên ghi — hạt
+  giống `docs/plans/2026-10-13-hat-giong-cho-trong-rut-tu-ben-ghi.md` (lớp thước gắn vào vật).
 - Ca đo: `tests/scripts/co-hop-dong.test.mjs` — tên ca = mã AC, biến `CHD_CASES` chọn ca; khoá executor
   `executors.script.chd_ac1…chd_ac8`.
 - Vòng không cắt số, không gắn thẻ phát hành (kit đóng băng engine cho crm tới sau đợt thử 26–27/10); mốc
