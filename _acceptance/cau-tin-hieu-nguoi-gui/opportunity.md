@@ -3,10 +3,10 @@ schema_version: 1
 slug: cau-tin-hieu-nguoi-gui
 feature: Người gửi tín hiệu ở phòng ban đọc được tín hiệu của mình đang ở đâu bằng một câu tiếng sản phẩm — tên nhóm, việc đã thành, đã giao ngày nào; không mã việc, không tên hồ sơ, không từ nội bộ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-12T09:37:38Z   # owner gõ «Làm» một chạm trong phiên 12/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -76,9 +76,10 @@ Không dựng prototype — vật là một trường dữ liệu và một phé
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** (hạng T2, một vòng, mốc 2.28) — owner gõ «Làm» 12/10 trên khuyến nghị bên dưới. CỘNG: chữ «Làm» là chữ ký đích danh của luật CỘNG (thêm trường câu cho người gửi + phép kiểm câu).
 - **disposition = …** Căn cứ: — (không prototype)
 - **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT».
+- **Hình dạng chốt cùng lúc ký:** thêm trường câu cho người gửi, câu cũ giữ nguyên từng byte (đường đọc-cũ + cờ vàng) — máy áp, không hỏi lại.
 
 **Máy khuyến nghị lúc mời ký:** `build`, hạng **T2**, **một vòng**, mục tiêu mốc **2.28** (crm định nhận
 từ 15/10). Hạng: vật ở `scripts/tin-hieu.mjs`, khuôn tín hiệu, tài liệu khối dữ liệu, test — không chạm
