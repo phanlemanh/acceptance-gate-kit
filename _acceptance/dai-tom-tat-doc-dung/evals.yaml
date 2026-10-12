@@ -1,0 +1,136 @@
+schema_version: 1
+feature_slug: dai-tom-tat-doc-dung
+# Ca đo sống ở tests/scripts/dai-tom-tat.test.mjs (DT-1..DT-8) — executor `executors.test.dai_tom_tat`
+# thêm ở S3 — và tests/scripts/dai-tom-tat-crm.mjs (DT-9, cần kho crm trên máy nên KHÔNG mang đuôi
+# .test.mjs, không vào suite) — executor `executors.test.dai_tom_tat_crm`. Kho thử do mã sinh trong lượt
+# (thư mục tạm, đường dẫn suy từ vị trí tệp test); ô cơ hội do CHÍNH `lo-trinh.mjs --mo-o` ghi; gạch giới
+# hạn mẫu của DT-8 rút từ khối KNOWN-LIMITS-NOTE của commands/signoff.md. Mỗi ca đỏ chạy CHÍNH hàm đo trên
+# bản sao cây có ho-so-tom-tat.cjs bị tiêm, SAU khi bản lành xanh trên cùng kho thử, và ghim thông điệp rút
+# từ đầu ra của hàm đo. Mỗi eval ghim đúng dòng "PASS: DT-…".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, scripts/lo-trinh.mjs, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-1" — kho thử không dòng thuc-te: ô production của trang hồ sơ (bộ đọc
+      HTML độc lập trong ca) VÀ của khối lo-trinh-du-lieu (docDuLieu) == «chưa ai xác nhận đã thấy chạy ở
+      production — máy không tự biết», không chứa «chưa ghi quan sát»; thêm dòng thuc-te → cả hai ==
+      «đã chạy ở production — bản dựng <sha7>, quan sát <ngày>, <người>» viết sẵn; bỏ decisions.jsonl → ô
+      null và «decisions.jsonl» trong thieu. Và "PASS: DT-1-do" — bản sao mô-đun trả lại câu cũ: CHÍNH hàm
+      đo trả lỗi nêu «production».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-2" — hợp đồng thử có một gạch «Known limits — anh chọn ở Cổng Bằng chứng
+      …:» với 13 gạch con (câu sinh trong ca), báo cáo `## Known limits` rỗng: chua_lam kết «13 giới hạn đã
+      biết»; mục gioi-han của trang hồ sơ có đúng 13 dòng data-loai="gioi-han" == 13 câu theo thứ tự. Và
+      "PASS: DT-2-do" — bản sao chỉ đọc Known limits của báo cáo: CHÍNH hàm đo trả lỗi nêu «13».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-3" — ma trận viết sẵn ≥ 11 ca (bảy dạng mở đầu giới hạn gặp thật, mỗi
+      dạng ở cả hoa và thường nơi có nghĩa · gạch nhắc «known limits» giữa câu · gạch «Phụ thuộc:» · gạch
+      con của gạch thường · gạch con «none» dưới gạch giới hạn), mỗi ca số giới hạn == số viết sẵn, số ca
+      in ra == độ dài ma trận. Và "PASS: DT-3-do" — bản sao bỏ dạng `known-limit` số ít: CHÍNH hàm đo trả
+      lỗi nêu tên ca của dạng đó; "PASS: DT-3-do-giua-cau" — bản sao khớp chữ ở bất kỳ đâu trong gạch:
+      CHÍNH hàm đo trả lỗi nêu ca «giữa câu»; "PASS: DT-3-do-tron-none" — bản sao bỏ lọc none ở gạch trơn: CHÍNH hàm đo trả lỗi nêu ca «trơn none».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-4" — bốn ca {báo cáo 3 · hợp đồng 2} → 3 và danh sách trang == ba câu báo
+      cáo; {báo cáo 1 · hợp đồng 4} → 4 và danh sách == bốn câu hợp đồng; {2 · 2} → 2, danh sách == hợp
+      đồng; {báo cáo 2 · hợp đồng 0} → 2, danh sách == báo cáo (như trước vòng). Và "PASS: DT-4-do" — bản sao
+      cộng hai nguồn: CHÍNH hàm đo trả lỗi nêu «5».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-5" — hợp đồng thử 4 gạch Out of scope, 1 giới hạn: chua_lam == «4 mục cố ý
+      không làm · 1 giới hạn đã biết» trên trang và trong khối; không chứa «ngoài hợp đồng». Và "PASS:
+      DT-5-do" — bản sao trả lại «mục ngoài hợp đồng»: CHÍNH hàm đo trả lỗi nêu «để ngoài phạm vi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-6" — ô cơ hội do `lo-trinh.mjs --mo-o` ghi, mục «Vấn đề & ai gặp» thay
+      bằng (a) câu dẫn «… ba chỗ hở:» + ba gạch mở bằng cụm in đậm → vi_sao == câu dẫn + « » + ba cụm nối
+      « · » viết sẵn; (b) câu dẫn + hai gạch thường nhiều câu → câu dẫn + câu đầu mỗi gạch viết sẵn; (c) đoạn
+      kết «:» rồi một đoạn văn (không danh sách) → vi_sao == đoạn đó nguyên văn; (d) câu dẫn kết `…chỗ hở:**`
+      («:» trong dấu nhấn) + danh sách → câu dẫn (đã bỏ dấu nhấn) + các mục nối « · » viết sẵn; ca (a)(b)(d)
+      không kết «:». Và "PASS: DT-6-do" — bản sao trả lại đoạn đầu trơn: CHÍNH hàm đo trả lỗi nêu ca (a);
+      "PASS: DT-6-do-nhan" — bản sao dò «:» trước khi bỏ dấu nhấn: CHÍNH hàm đo trả lỗi nêu ca (d).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-7" — ba ca sinh trong ca: (a) đoạn 5 câu ~700 ký tự → vi_sao ≤ 400, kết
+      «…», == ghép trọn các câu đầu viết sẵn + «…»; (b) một câu ~600 ký tự không dấu chấm → ≤ 400, kết «…»,
+      ký tự trước «…» không cắt giữa từ (phần trước «…» là tiền tố của câu gốc kết ở ranh giới khoảng
+      trắng); (c) đoạn 399 ký tự → nguyên văn từng ký tự; (d) câu dẫn + 6 mục in đậm
+      tổng ~600 ký tự → == câu dẫn + k mục đầu viết sẵn + «…», không kết « · …», không mục cụt. Và "PASS:
+      DT-7-do" — bản sao bỏ trần: CHÍNH hàm đo trả lỗi nêu «400»; "PASS: DT-7-do-muc" — bản sao cắt danh
+      sách theo ký tự thay vì theo mục: CHÍNH hàm đo trả lỗi nêu ca (d).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dai_tom_tat
+    paths: [scripts/ho-so-tom-tat.cjs, commands/signoff.md, tests/scripts/dai-tom-tat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-8" — ca rút khối KNOWN-LIMITS-NOTE từ commands/signoff.md của cây đang
+      kiểm (đường suy từ vị trí tệp test), điền hai giới hạn vào ô chỗ giữ của khối, nối vào `## Notes` của
+      hợp đồng thử: chua_lam kết «2 giới hạn đã biết»; khối vắng → ca ĐỎ nêu «KNOWN-LIMITS-NOTE» (không xanh
+      lặng). Và "PASS: DT-8-do" — bản sao signoff.md đổi đầu khối sang «Hạn chế:»: CHÍNH hàm đo trả lỗi nêu
+      «2 giới hạn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dai_tom_tat_crm
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/dai-tom-tat-crm.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT-9" — `git -C <kho crm> archive 27d47de04` vào thư mục tạm (kho crm: biến
+      CRM_ROOT, mặc định ~/dev/crm; không có kho hay commit → ĐỎ nêu «crm», không bỏ qua); vẽ bằng cây đang
+      kiểm: số hàng có tom_tat in ra (== 81), production chứa «chưa ghi quan sát» == 0, vi_sao kết «:» (sau khi bỏ `*`/`_` cuối) == 0,
+      vi_sao > 400 == 0, chua_lam chứa «ngoài hợp đồng» == 0, hàng LT1 chua_lam == «9 mục để ngoài phạm vi ·
+      13 giới hạn đã biết»; và "PASS: DT-9-base" — cùng bản sao vẽ bằng bản base `git archive 7f65e5a0
+      scripts lib skills` (trọn thư mục) cho đúng 81 · 11 · 31 · LT1 «9 mục ngoài hợp đồng · 0 giới hạn đã
+      biết» — phép đo phân biệt được hai bản; tập khoá + kiểu từng khoá của mọi tom_tat và phien_ban của
+      khối vẽ bằng hai bản == nhau (in hai tập; khác → ĐỎ nêu «khuôn khối»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    inputs: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs]
+    paths: [skills/acceptance/references/lo-trinh-du-lieu.md, scripts/ho-so-tom-tat.cjs]
+    question: >
+      Đọc mô tả các ô moi_nguoi.production, moi_nguoi.chua_lam, moi_nguoi.vi_sao trong
+      lo-trinh-du-lieu.md và so với mã của tomTatHoSo trong ho-so-tom-tat.cjs. Mô tả có nói đúng (1) câu
+      ô production khi chưa có dòng quan sát, (2) hai nguồn giới hạn (Known limits của báo cáo, gạch giới
+      hạn trong Notes của hợp đồng) và luật lấy nguồn nhiều mục hơn, (3) vế «để ngoài phạm vi», (4) câu dẫn +
+      danh sách và trần 400 ký tự của ô vì sao — không câu nào trong tài liệu mâu thuẫn với mã?
+    expected: PASS khi cả bốn vế đúng; nêu câu cụ thể nếu sai.
+    evidence_required: [judged_by, verdict, rationale]
