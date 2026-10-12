@@ -158,6 +158,9 @@ export const MA_TRAN_LOP = [
 ];
 const cu = (ma) => `scripts/dieu-phoi/${ma}.mjs`;
 const hopDong = (st) => `---\nslug: x\nstatus: ${st}\n---\n`;
+// Trạng thái «đã thông» lấy từ hằng của gói (một nguồn với bộ phân lớp), không viết cứng chữ trạng thái.
+const { DA_THONG } = await nap(GOI, 'phat-lich.mjs');
+const [DA_KY, MAY_THONG] = DA_THONG;
 const khoiEvalYaml = (k) => `  - id: ${k.id}\n    criterion: AC-1\n    executor: ${k.executor}\n${k.cmd ? `    cmd: ${k.cmd}\n` : ''}${k.status ? `    status: ${k.status}\n` : ''}    expected: "exit 0; ${k.dong}"\n`;
 const CAU_HINH_KHAI = `dieu_phoi:\n  lich_su:\n    - "ke-hoach/cu/**"\n    - _acceptance/mien-a/evals.yaml#E7\n`;
 function cauHinh({ khai = true } = {}) {
@@ -178,11 +181,11 @@ function khoPhanLop() {
   // (06) khối đặt `criterion` trước `id` (Review Focus 2).
   g('_acceptance/mo-a/contract.md', hopDong('implemented'));
   g('_acceptance/mo-a/evals.yaml', `schema_version: 1\nevals:\n  - criterion: AC-1\n    id: E1\n    executor: script\n    cmd: config:executors.test.e_song\n    expected: "exit 0; ${cu('r06')}"\n`);
-  hoSo('ky-a', 'signed-off', [{ id: 'E1', executor: 'script', dong: cu('r07') }]);
+  hoSo('ky-a', DA_KY, [{ id: 'E1', executor: 'script', dong: cu('r07') }]);
   hoSo('mo-b', 'approved', [{ id: 'E1', executor: 'judgment', dong: cu('r08') }]);
-  hoSo('ky-b', 'signed-off', [{ id: 'E1', executor: 'judgment', dong: cu('r09') }]);
-  hoSo('mc-a', 'machine-cleared', [{ id: 'E1', executor: 'ui-check', dong: cu('r10') }]);
-  hoSo('ky-c', 'signed-off', [{ id: 'E1', executor: 'script', cmd: 'config:executors.test.e_chet', status: 'not-run', dong: cu('r11') }]);
+  hoSo('ky-b', DA_KY, [{ id: 'E1', executor: 'judgment', dong: cu('r09') }]);
+  hoSo('mc-a', MAY_THONG, [{ id: 'E1', executor: 'ui-check', dong: cu('r10') }]);
+  hoSo('ky-c', DA_KY, [{ id: 'E1', executor: 'script', cmd: 'config:executors.test.e_chet', status: 'not-run', dong: cu('r11') }]);
   hoSo('mien-a', 'implemented', [{ id: 'E6', executor: 'script', dong: 'khong nhac ban cu' }, { id: 'E7', executor: 'script', dong: cu('r23') }]);
   g('_acceptance/ky-a/run-log.jsonl', `{"kind":"x","cmd":"node ${cu('r15')}"}\n`);
   g('_acceptance/ky-a/evidence-report.md', `# Báo cáo\n\n${cu('r16')}\n`);
