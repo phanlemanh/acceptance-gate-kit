@@ -116,8 +116,8 @@ evals:
     paths: [scripts/gate-card.js, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
     expected: >
       exit 0; stdout có "PASS: KK-8 ho-so-cu" — gốc vòng lấy từ lịch sử (commit gộp nhánh
-      vong/can-cu-s1-chay-moi-kho: gốc = merge-base hai cha, đỉnh = cha thứ hai) hoặc, khi chưa gộp,
-      merge-base với nhánh chính (gốc) và cây làm việc (đỉnh); bản thẻ gốc dựng bằng `git archive <gốc>
+      vong/can-cu-s1-chay-moi-kho: gốc = merge-base hai cha, đỉnh = cha thứ hai) hoặc, khi chưa gộp, gốc =
+      điểm rẽ của vòng (cha commit mở ô) hay merge-base với nhánh chính — cái MỚI hơn — và đỉnh = cây làm việc; bản thẻ gốc dựng bằng `git archive <gốc>
       scripts lib skills` vào thư mục tạm; với mọi hồ sơ trong _acceptance/ có contract.md và decisions.jsonl
       mà sổ không chứa `"can_cu"`, thẻ Cổng Phạm vi ép bằng `--gate 1` — stdout HTML và stdout `--extract`
       của bản gốc == của bản đỉnh (số hồ sơ so in ra; < 20 là FAIL). Đối chứng dương cho bộ thư mục lưu trữ:

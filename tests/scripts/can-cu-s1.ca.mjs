@@ -678,7 +678,13 @@ function tamVongKK() {
   if (dong) { const m = dong.split('\t')[0]; return { goc: git(ROOT, 'merge-base', `${m}^1`, `${m}^2`), dinh: git(ROOT, 'rev-parse', `${m}^2`), nguon: 'lich-su' }; }
   const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
   if (!chinh) throw new Error('không tìm được nhánh chính (origin/main | main) để tính gốc vòng');
-  return { goc: git(ROOT, 'merge-base', 'HEAD', chinh), dinh: null, nguon: 'nhanh' };
+  // Chưa gộp: gốc = điểm rẽ của vòng (cha commit mở ô) hoặc merge-base với nhánh chính — lấy cái MỚI hơn. Nhánh vòng
+  // xếp chồng trên một nhánh chưa gộp (A2, 12/10) thì merge-base cũ hơn điểm rẽ và kéo vật của nhánh dưới vào phép so.
+  const mb = git(ROOT, 'merge-base', 'HEAD', chinh);
+  const mo = git(ROOT, 'log', '--diff-filter=A', '--format=%H', '--', '_acceptance/can-cu-s1-chay-moi-kho/opportunity.md').split('\n').filter(Boolean).pop();
+  const re2 = mo ? git(ROOT, 'rev-parse', `${mo}^`) : null;
+  const moiHon = re2 && spawnSync('git', ['-C', ROOT, 'merge-base', '--is-ancestor', mb, re2]).status === 0;
+  return { goc: moiHon ? re2 : mb, dinh: null, nguon: moiHon ? 'diem-re' : 'nhanh' };
 }
 const THU_MUC_THE = ['scripts', 'lib', 'skills'];
 const banLuu = sha => { const d = mkdtempSync(path.join(tmpdir(), 'kk-luu-')); execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', '_', ROOT, sha, d]); return d; };
