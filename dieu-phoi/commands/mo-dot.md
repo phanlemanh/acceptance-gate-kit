@@ -17,7 +17,8 @@ Các bước, đúng thứ tự:
 
 1. **Chẩn đoán.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --mo $ARGUMENTS`
    (`--mo <tên>` cho chẩn đoán biết đợt sắp mở; `--goi` trong đối số đi kèm nguyên). Có đợt khác đang
-   chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`. Chưa có đợt
+   chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`; không còn mục nào
+   `thieu` mà phiên này chưa làm bước 6 → làm từ bước 6. Chưa có đợt
    và mục `goi-dot` là `thieu` → DỪNG NGAY, TRƯỚC khi gọi `mo`, và nói đúng việc khai trong `viec`: thêm
    khoá `dieu_phoi.goi_dot` vào `_acceptance/config.yaml` của kho (hoặc gọi lại với `--goi`); không mở
    đợt dựng tay thay.
@@ -26,7 +27,9 @@ Các bước, đúng thứ tự:
    (không cần `--mo` nữa).
 3. **Thẻ khởi tạo.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" the khoi-tao --json`. Trình
    bằng tiếng sản phẩm: bảng dãy và hàng; mục máy đi tiếp có cửa phản đối (ưu tiên khi tranh chấp, làn V);
-   mục cảnh báo (hàng có ô đã quyết khác `build` — không vào đợt). Câu hỏi cho người CHỈ gồm `hoi`:
+   mục cảnh báo (hàng có ô đã quyết khác `build` — không vào đợt). Thẻ có `han_muc` → in một dòng thông tin
+   «ngưỡng hạn mức: báo trước <bao_truoc_pct>% · bàn giao <ban_giao_pct>%», kèm chỗ sửa (`dieu-phoi.config.json`
+   của gói đợt), không thành câu hỏi. Câu hỏi cho người CHỈ gồm `hoi`:
    quyền tự merge, và mỗi hàng `build:<slug>` chờ Cổng Đáng. Với mỗi hàng chờ, mở ô `stage: discovery`
    trước bằng bộ ghi lộ trình của acceptance-gate: giải đường gói bằng `resolve-plugin.mjs` của feature-loop
    (`--plugin acceptance-gate --require scripts/lo-trinh.mjs`, như bước 1 của
@@ -39,9 +42,22 @@ Các bước, đúng thứ tự:
    rồi `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chay`. Người không nói gì về quyền tự merge thì
    bỏ cờ `--tu-merge`: phiên thợ đọc là không tự merge (bấm merge là của người).
 6. **Việc của app.** Giăng Monitor (timeout 30′):
-   `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Tạo lịch 30′ đọc
-   `trang-thai.json` của đợt và in một dòng. Dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên này. Mở chip
-   cho từng dãy kèm lời ghi danh: thư mục đợt, mã dãy, ranh giới, «đọc LUAT.md trước S1», và lệnh
-   `/feature-loop:feature-loop <slug hàng kế của dãy>`.
-7. **Chẩn đoán lại.** Không còn mục `thieu` → báo người đúng một dòng: «đợt <tên> chạy · k dãy cần bấm
-   chip». Còn mục thiếu → làm tiếp mục đó, không báo xong.
+   `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Tạo lịch 30′ theo
+   khuôn dưới — cùng khuôn với `/dieu-phoi:tiep-tuc`, nên đợt mở bằng lệnh này cũng bàn giao chủ động khi gần
+   hết hạn mức.
+<!-- <<<LICH-30 -->
+   Mỗi lần lịch 30′ chạy: gọi `get_usage` rồi
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" han-muc --nguon get-usage --phien <mã phiên ngắn> --doc '<kết quả>'`,
+   rồi `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" danh-thuc --json`
+   rồi làm đúng `hanh_dong` — `nhan-giam-sat`: gửi tin liên phiên tới phiên `phien` với nguyên văn `cau` ·
+   `bao-chu-kho`: đẩy thông báo cho chủ kho với nguyên văn `cau` · `khong`: không làm gì.
+<!-- LICH-30>>> -->
+   Dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên này. Chạy
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet` rồi mở chip cho đúng các
+   dãy có mục `day:<id>` mang `chi_tiet.hanh_dong` là `mo-chip`, kèm nguyên văn `chi_tiet.ghi_danh` (thư mục
+   đợt, mã dãy, «đọc LUAT.md trước S1», lệnh `/feature-loop:feature-loop <slug hàng kế của dãy>`). Dãy
+   `khong-hang` (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng) không mở chip.
+7. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet`. Dãy
+   mang hành động `mo-chip` là chờ người bấm chip vừa mở ở bước 6 — mục ấy `du`, không mở lại. Không còn mục
+   `thieu` → báo người đúng một dòng: «đợt <tên> chạy · k dãy cần bấm chip», k = số mục `day:*` mang
+   `mo-chip`. Còn mục thiếu → làm tiếp mục đó, không báo xong.

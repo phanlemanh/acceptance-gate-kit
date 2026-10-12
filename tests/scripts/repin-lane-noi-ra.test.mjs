@@ -429,7 +429,9 @@ CASES.push({
     // Hai khoá của hồ sơ gia-lan-ghim-lai (2.23) chỉ hiện khi kho BẬT khoá của làn (chap_chon ←
     // repin_retry, suites_env ← repin_ci_blank_env); fixture ca này không bật khoá nào nên bỏ chúng
     // khỏi phép so bằng hệt — ca khuôn của chính chúng là AC6-khuon-writer.
-    const tKeys = Object.keys(JSON.parse(filled)).filter(k => !['chap_chon', 'suites_env'].includes(k));
+    // Ba khoá của hồ sơ eval-goi-model-that-khong-chay chỉ hiện khi kho BẬT feature_loop.model_carry_cmd —
+    // fixture ca này không bật; ca khuôn của chính chúng là AC9-khuon-dung-lai.
+    const tKeys = Object.keys(JSON.parse(filled)).filter(k => !['chap_chon', 'suites_env', 'evals_hash', 'evals_carry', 'carry_lech'].includes(k));
     for (const k of ['evals_not_machine', 'evals_not_machine_touched']) {
       if (!tKeys.includes(k)) errs.push(`khuon SKILL thieu khoa ${k}`);
     }

@@ -16,7 +16,8 @@
 > - `nguon` — bản phạm vi đến từ đâu: đội sản phẩm, một khảo sát, Core của quét hình thái.
 >
 > Mẫu dưới đây chạy được: bộ đọc của `scripts/cat-luot.mjs` rút khối này trong ca đo và phải đọc ra
-> đúng ba khoá và năm mã.
+> đúng ba khoá và tám mã. Bản phạm vi chép nguyên lời đội sản phẩm — cả việc vận hành của người (`C1`):
+> phân loại là việc của phiên cắt (skill `cat-luot` bước 2b), không gắn nhãn ở đây.
 
 <!-- <<<PHAM-VI-MA -->
 ```
@@ -29,5 +30,8 @@ nguon: đội sản phẩm gửi qua cửa tín hiệu ngày 01/11
 - `A3` — nhắc buổi sáng dẫn thẳng vào màn cập nhật
 - `B1` — xuất báo cáo quý ra bảng tính
 - `B2` — đổi giao diện màn báo cáo cho điện thoại
+- `C1` — nhân sự gửi danh sách người và phòng ban mỗi khi có tổ chức mới
+- `C2` — một tổ chức mẫu có dữ liệu đủ một kỳ để dựng và đo
+- `C3` — trưởng nhóm thấy KR nào của nhóm đang trễ
 ```
 <!-- PHAM-VI-MA>>> -->

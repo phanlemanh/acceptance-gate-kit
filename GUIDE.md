@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.26.0 · feature-loop 2.26.0 · diagram-design 2.7.1 · dieu-phoi 2.26.0.
+> Khớp phiên bản: acceptance-gate 2.27.0 · feature-loop 2.27.0 · diagram-design 2.7.1 · dieu-phoi 2.27.0.
 
 ## Mục lục
 
@@ -700,6 +700,31 @@ nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và ph�
 tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
 dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](docs/reference/lai-thu-nguoi-la.md).
 
+## Cửa tín hiệu và gom nhóm (hồ sơ cua-tin-hieu-gom-nhom · hàng L3)
+
+Mọi người gửi tín hiệu vào MỘT cửa của kho; phiên gom thành nhóm bằng tiếng sản phẩm; cắt lượt biến
+nhóm thành hàng; người gửi thấy tín hiệu của mình đi tới đâu. Kho bật bằng một khối trong
+`_acceptance/config.yaml` — không khai thì không gì đổi:
+
+```yaml
+tin_hieu:
+  nguon: [<thư mục tín hiệu>, …]   # mỗi tín hiệu một tệp <id>.json
+  gom: <thư mục bản gom>           # các tệp *.md trong git
+```
+
+- **Khuôn tín hiệu = khuôn yêu cầu của gói Điều phối** (một hộp thư): `{phien, loai, hang, noi_dung, luc}`,
+  kiểm bằng chính `kiemYeuCau` của gói đó. Khuôn, loại được gom và khuôn bản gom:
+  `skills/acceptance/references/tin-hieu-template.md`. Tín hiệu người KHÔNG đi vào thư mục yêu cầu của
+  đợt — nó nằm ở nguồn kho khai.
+- **Gom:** skill `gom-tin-hieu` — chính sách trục ở khối `GOM-TRUC` (`ket-qua`), chủ kho chốt một lần ở
+  Cổng Đáng. Bản gom cũng là bản phạm vi: chuyển thẳng cho skill `cat-luot`.
+- **Răng phủ:** `node scripts/tin-hieu.mjs --root . --rang` — mỗi tín hiệu gửi không sau mốc `den` ở đúng
+  một chỗ; «đã phủ» chỉ trỏ hồ sơ đã giao; bản gom phải có trong git.
+- **Đường đi:** `--duong [--id <id>]`; kho khai cả lộ trình thì khối dữ liệu của `LO-TRINH.html` mang khoá
+  tuỳ chọn `tin_hieu` (tài liệu: `skills/acceptance/references/lo-trinh-du-lieu.md`, khối
+  `LO-TRINH-DU-LIEU-TUY-CHON`).
+- **CI chép tay:** bảy tệp của cửa trong danh sách chép (§5.3) chỉ cần khi kho khai `tin_hieu`.
+
 ## Cho một hồ sơ nghỉ (2.17 · hồ sơ ho-so-nghi)
 
 Một hồ sơ đã ký đôi khi hứa một điều không còn kiểm lại được: kho nguồn của một
@@ -746,6 +771,45 @@ nghỉ>"`. Hồ sơ quay về đúng luật cũ, và phải ghim lại như thư
 **Giới hạn đã khai:** dòng nghỉ nằm cùng tầng tin cậy với chữ ký duyệt — kit tin
 sổ quyết định do người viết. Một lệnh có khoá chống máy tự gọi là việc của vòng
 sau; lưới hiện tại là sổ để lại vết và cửa veto.
+
+## Máy tự định tuyến mục ngoài hợp đồng (hồ sơ ngoai-n-tu-dinh-tuyen)
+
+Làn V (máy thông, không mời ký Cổng Bằng chứng) chỉ chạy khi mọi mục Ngoài-n trong
+`review-findings.md` đã có dòng sổ `gate2`. Ở đợt crm `sau-14-10` nó bắn 0/71 hồ sơ vì
+mục nào cũng chờ người — trong khi người định tuyến trùng đề xuất của máy 94,9 %. Kho
+bật một khoá thì máy tự ghi dòng sổ cho những mục mà CHÍNH nó đề xuất.
+
+<!-- <<<NGOAI-N-TU-DINH-TUYEN -->
+- **Bật:** `feature_loop.ngoai_n_tu_dinh_tuyen: true` trong `_acceptance/config.yaml`.
+  Giá trị `true | false`, **mặc định tắt** (khoá vắng = như trước: không ghi byte nào);
+  giá trị khác làm lệnh thoát 2 gọi tên khoá.
+- **Máy ghi gì:** ở hồ sơ T2 · `status: verified` · PASS · 0 UNCERTAIN · không bypass ·
+  phân loại phạm vi chạy trọn, mỗi mục đề xuất `known-limits` hoặc `wont-fix` chưa có
+  dòng `gate2` nhận một dòng sổ mang khoá `may: dinh-tuyen-ngoai-n` (KHÔNG có
+  `decided_by`), kèm `tieu_de` của mục và lệnh đảo ở khoá `dao`. Mục `known-limits` thêm
+  một gạch vào `## Notes` của hợp đồng. Mục `new-contract`, hồ sơ T3, hồ sơ có UNCERTAIN
+  vẫn của người. Báo cáo bằng chứng KHÔNG bị chạm (mục Known limits của nó giữ rỗng).
+- **Ai gọi:** feature-loop, khối `DINH-TUYEN-MAY` của SKILL — trước `khong-can-nguoi.mjs
+  --write`. Gọi tay: `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --check|--write
+  --root . --slug <slug>`.
+- **Thẻ:** mục máy định tuyến là dòng báo «Máy đã định tuyến … — đảo: …», không vào
+  «VIỆC CỦA ANH»; dòng sổ của nó hiện ở khối «Quyết định CHƯA duyệt» với chữ «máy định
+  tuyến».
+- **Đảo:** dán lệnh ở khoá `dao` —
+  `/acceptance-gate:signoff <slug> Ngoài-<n>: mở hợp đồng mới; Ký` —
+  sửa chữ sau `Ngoài-<n>:` nếu muốn lối khác. Lệnh ghi một dòng sổ người
+  MỚI (không sửa dòng máy); thẻ lấy dòng mới nhất nên người thắng. Đảo đi qua chữ ký: chưa
+  có lệnh đảo-mà-không-ký — mở khi ≥1 lần owner cần đảo một mục mà không muốn ký hồ sơ.
+- **Giới hạn đã khai:** một lượt chấm mới đổi thứ tự mục làm dòng máy cũ trỏ nhầm mục.
+  Bên ghi (thoát 2) và thẻ (cờ «dòng máy trỏ mục đã đổi») bắt bằng so `tieu_de`; lưới
+  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). So tiêu đề gỡ nhãn lượt «(rN…)»
+  trước, nên mục mang sang lượt sau không bị coi là mục đã đổi. Ngưỡng mở vòng sửa lưới:
+  ≥1 hồ sơ có dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm trên cả kho bằng
+  `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --soat-lech --root .` (in số hồ sơ, thoát
+  2 khi có; không đọc khoá kho, không xét trạng thái hồ sơ, không ghi gì).
+- **Bản cài chưa có bên ghi** (kho chưa nâng kit): bộ giải gói thoát 1, vòng lặp báo một dòng,
+  coi như khoá tắt và đi tiếp — không dừng chờ người.
+<!-- NGOAI-N-TU-DINH-TUYEN>>> -->
 
 ## 5. Cài đặt
 
@@ -926,7 +990,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 18 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 25 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -954,6 +1018,13 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
+- `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
+- `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
@@ -991,6 +1062,55 @@ Răng T1-escape đòi thay đổi phải kèm `_acceptance/<slug>/` — tiền �
 commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chính, để nguyên là
 job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
 [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
+
+#### Bỏ job nặng cho PR không chạm vật (tuỳ chọn — `--hang-pr`)
+
+Kho trả tiền phút Actions (kho riêng tư) có thể cho job test sản phẩm bỏ qua PR chỉ đổi tệp T1 hay hồ sơ
+`_acceptance/`. Cổng có sẵn một chế độ in hạng PR — dùng CHÍNH bộ khớp và CHÍNH `risk_tiers.t1_skip_globs` /
+`t3_paths` của kho: không danh sách thứ hai, không chép hàm nào. Kho không truyền cờ thì cổng không đổi gì.
+
+```yaml
+hang-pr:
+  runs-on: ubuntu-latest
+  outputs:
+    cham_vat: ${{ steps.hang.outputs.cham_vat }}
+  steps:
+    - uses: actions/checkout@v4
+      with: { fetch-depth: 0 }                 # cần merge-base để tính diff của PR
+    # lấy kit ở sha ghim như bước 2 phía trên; kho đang chép kit thì gọi bản chép scripts/pre-merge-check.sh
+    - id: hang
+      run: bash "$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh" . ${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"} --hang-pr
+test:
+  needs: hang-pr
+  if: ${{ !cancelled() && needs.hang-pr.outputs.cham_vat != 'false' }}
+  # … các bước test của kho
+```
+
+Đầu ra — ba dòng `khoá=giá-trị` ra stdout, nối vào `$GITHUB_OUTPUT` khi có, một dòng vào `$GITHUB_STEP_SUMMARY`:
+
+| Khoá | Giá trị |
+|---|---|
+| `hang` | `T1` (mọi tệp khớp `t1_skip_globs`) · `ho-so` (chỉ `_acceptance/`, có thể kèm tệp T1) · `T2` · `T3` · `khong-ro` |
+| `cham_vat` | `false` chỉ khi `hang` là `T1` hoặc `ho-so`; mọi ca khác `true` |
+| `ly_do` | `phan-loai` · `khong-co-pham-vi-diff` · `diff-rong` · `doi-danh-sach-hang` · `cau-hinh-loi` · `khong-phan-loai-duoc` |
+
+Ba điều đừng rút gọn:
+
+1. `!cancelled() &&` là bắt buộc. Biểu thức `if:` không gọi hàm trạng thái nào thì GitHub ngầm ghép `success()`:
+   job `hang-pr` đỏ (lấy kit hỏng, runner lỗi) làm job `test` bị BỎ QUA — và job bị bỏ qua báo «Success» kể cả khi
+   là check bắt buộc, nên PR chạm vật gộp được mà không test. So `!= 'false'` chứ không `== 'true'`, để đầu ra vắng
+   vẫn chạy test. Bốn hàng: `hang-pr` xanh + `false` → bỏ · xanh + `true` → chạy · xanh + đầu ra vắng → chạy ·
+   `hang-pr` đỏ → chạy.
+2. Lọc bằng `if:` ở cấp job, đừng bằng `paths-ignore` ở cấp workflow: workflow bị lọc không chạy thì check bắt buộc
+   của nó treo «Expected — Waiting for status» và PR không gộp được.
+3. Job nào đọc hồ sơ thì đừng gắn vào bit: bit chỉ nói «chạm vật», không nói «chạm thước của hồ sơ». Ví dụ crm:
+   `oxlint` ở job `check` quét cả `_acceptance/**/rang/*.mjs` — giữ `check` chạy, chỉ gắn `test`.
+
+Nghi ngờ thì chạy đủ: chế độ chỉ nói `cham_vat=false` khi chứng minh được. Không `--base` (sự kiện `push`), ref
+không giải được, lịch sử rời, diff rỗng, cấu hình hỏng, hay PR tự sửa `t1_skip_globs`/`t3_paths` → `cham_vat=true`;
+các ca do lỗi thêm một dòng `::warning` lên PR. Chế độ luôn thoát 0 khi đã in kết quả — chỉ lỗi cú pháp tham số
+thoát 2 — vì bước phân loại đỏ là test bị bỏ. Giới hạn đã biết: `git diff` bọc tên tệp có dấu, nên cổng (và chế độ)
+coi tệp ấy ngoài T1 — chạy đủ (hạt giống `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`).
 
 ### Sổ luật-đã-chạy (acceptance-gate 1.22.0+)
 
@@ -1410,8 +1530,9 @@ mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào 
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
 ```
 
-**Năm khoá của làn — chạy lại, trần, môi trường giống CI, tổng kết (2.23, hồ sơ gia-lan-ghim-lai).**
-Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là khối `LAN-KHOA` trong
+**Năm khoá của làn — chạy lại, trần, môi trường giống CI, tổng kết (2.23, hồ sơ gia-lan-ghim-lai) — và
+khoá thứ sáu `model_carry_cmd` (hồ sơ eval-goi-model-that-khong-chay, mục ngay dưới bảng).**
+Mọi khoá dưới `feature_loop`, VẮNG = như 2.22 (khoá thứ sáu vắng = như 2.26). Danh sách nguồn là khối `LAN-KHOA` trong
 `feature-loop/scripts/lib/lan-khoa.mjs`; giá trị sai → làn thoát 2 gọi tên khoá.
 
 | Khoá | Giá trị | Làm gì | Gợi ý cho crm |
@@ -1421,15 +1542,69 @@ Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là k
 | `repin_budget_min` | số phút > 0 | Trần mỗi lượt (cờ `--tran-phut` thắng khoá). Chạm trần → dừng lệnh bằng cách thu cả cây tiến trình rồi SIGTERM → SIGKILL sau 10 s, **thoát 4**, không ghi pin, `repin-do` `ly_do: "vuot-tran"` + `chua_chay`. Đặt DƯỚI trần của công cụ chạy làn — ngắt cứng (SIGKILL) thì không gì kịp ghi dấu. | `80` (công cụ ngắt ở 90) |
 | `repin_cost_cmd` | lệnh in một số tăng theo chi tiêu | Làn chạy nó trước lệnh đầu và lúc tổng kết; «chi phí đo» = chênh — gồm mọi phiên chạy cùng lúc. Lỗi → «chi phí đo: lỗi (…)», kết cục làn không đổi. | lệnh in tổng đã dùng của AI Gateway — kiểm khi bật |
 | `repin_ci_blank_env` | danh sách tên biến | Suite chạy với các biến này đặt RỖNG tường minh (giống CI không có khoá; xoá biến thì bộ nạp `.env` điền lại — đo 06/10); eval giữ env đầy đủ; dòng pin mang `suites_env: "ci"`. **Giới hạn:** test tự bỏ qua khi thiếu khoá mất phủ ở làn — lưới là eval chạy có khoá; mã đọc khoá bằng `??` coi rỗng là «có khoá». | `[ZALO_BOT_TOKEN, …]` — crm liệt kê |
+| `model_carry_cmd` | lệnh in dấu vân tay môi trường model | Bật DÙNG LẠI kết quả eval trong `model_evals` khi băm năm lớp đầu vào không đổi (hạn 7 ngày). Lệnh chạy một lần mỗi lượt, trần 60 s; đầu ra chỉ vào băm, không bao giờ ghi ra. Lỗi, hết giờ hay in rỗng → lượt đó không dùng lại. Chi tiết ngay dưới bảng. | lệnh in id model Gateway trả (lời dò như E15 AC-11) + băm `bun.lock` |
 
 Bật mặc định, không khoá (chỉ thêm, không đổi kết cục làn nào): dòng stderr cuối `[lane] TỔNG KẾT`
-và khoá `tong_ket` (kết cục · phút · số lệnh · eval model thật đã gọi · `model_carry` = 0 giữ chỗ cho
-Vòng B · số chập chờn · chi phí đo) ở JSON stdout, dòng `repin` và `repin-do`; bắt SIGTERM/SIGINT/SIGHUP
+và khoá `tong_ket` (kết cục · phút · số lệnh · eval model thật đã gọi · `model_carry` = số eval model
+dùng lại ở lượt, 0 khi `model_carry_cmd` vắng · số chập chờn · chi phí đo) ở JSON stdout, dòng `repin` và `repin-do`; bắt SIGTERM/SIGINT/SIGHUP
 → dừng cả cây, `repin-do` `ly_do: "bi-ngat"`, thoát 128 + số hiệu. Đếm lượt dừng sớm giữa hai mốc:
 
 ```bash
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -cE '"ly_do":"(vuot-tran|bi-ngat)"'
 ```
+
+**Dùng lại eval model thật theo băm đầu vào — `model_carry_cmd` (hồ sơ eval-goi-model-that-khong-chay).**
+Đo 11/10 ở crm: 14/44 lần chạy lại eval model trong làn ghim lại có đầu vào không đổi; 15 làn gọi model
+trong 4 ngày tốn 15,67 USD. Khoá bật thì với mỗi eval trong `model_evals`, làn băm NĂM LỚP đầu vào (khối
+`CARRY-INPUT-LAYERS` của `feature-loop/scripts/lib/dung-lai-model.mjs`):
+
+1. lệnh đã giải (đổi một khoá khác của `config.yaml` không đổi băm);
+2. tệp git-theo-dõi tại HEAD khớp `paths` của eval (cùng bộ đọc/phân loại `paths` với lưới hoá cũ);
+3. cây hồ sơ `_acceptance/<slug>/` trừ `run-log.jsonl` và `evidence-report.md` — gồm `evals.yaml`, nên
+   khối eval và mã thoát mong đợi đi qua lớp này;
+4. tệp lệnh gọi tên — từ của lệnh trỏ ĐÚNG một tệp, giải theo gốc kho và theo mỗi `cd <thư mục>` trong
+   lệnh; đối số `cd` và tên thư mục không kéo cả thư mục (lệnh chạy cả thư mục test thì tệp phải nằm
+   trong `paths`);
+5. dấu vân tay môi trường — đầu ra của `model_carry_cmd`. **Lệnh này phải in mọi thứ làm kết quả model
+   đổi mà không nằm trong tệp:** id model nhà cung cấp trả (lời dò nhỏ, như crm E15 AC-11), băm khoá gói
+   (`bun.lock`, `package-lock.json`), phiên bản runtime khi đáng kể. Đầu ra chỉ vào băm, KHÔNG bao giờ
+   ghi ra sổ hay nhật ký. Khai `echo co-dinh` là tự bỏ lớp này — làn không cảnh báo được.
+
+Nguồn = dòng `repin` mới nhất của CHÍNH hồ sơ nơi eval thật sự chạy (chuỗi dàn phẳng), cùng băm, mã đạt
+kỳ vọng, không quá **7 ngày** trước lượt này. Có nguồn → eval KHÔNG chạy: `evals_exit` mang mã của
+nguồn, `evals_carry: {E: run_id}`, section thêm ` · dùng lại theo băm đầu vào (không gọi model):
+E←<run_id>`, stderr `<slug> <E>: dùng lại theo băm …`, tổng kết `carry 1`. Lượt ghim lại đầu tiên sau
+khi bật chạy trọn (dòng đời trước không có `evals_hash`).
+
+Eval vẫn chạy thật — stderr `<slug> <E>: không dùng lại — <lý do>` (khối `CARRY-LY-DO-CHAY` và
+`CARRY-LY-DO-NGUON`): lệnh dấu vân tay thoát khác 0 · hết giờ · in rỗng · ép bằng `--chay-lai-model`
+(lượt ép vẫn ghi băm, thành nguồn mới) · làn chạy `--allow-dirty` · eval không khai `paths` · `paths` có
+mục không chứng được · lệnh có biến hoặc thay thế lệnh của shell (`$`, backtick) · cây hồ sơ hoặc tệp
+đầu vào chưa commit · lệnh đã chạy ở lượt này (trùng một suite) · băm đổi · chưa có nguồn cùng băm ·
+nguồn quá 7 ngày · cùng băm từng cho kết quả khác.
+
+**Tự kiểm `carry_lech`.** Eval chạy thật với băm từng có ở một lượt chạy thật mà mã KHÁC → dòng (`repin`
+hay `repin-do`) mang `carry_lech: [E]`, tổng kết in `carry_lech: E (slug)`, và eval đó thôi dùng lại
+tới khi băm đổi. Bên đọc pin KHÔNG đổi (`evals_exit` vẫn đủ; khoá mới bị bộ đọc cũ bỏ qua) — kho tiêu
+thụ không phải chép lại lớp CI.
+
+**Đếm — đường đo và bốn giới hạn khai, mỗi cái một ngưỡng:**
+
+```bash
+node <feature-loop>/scripts/dem-dung-lai-model.mjs --root . --tu 2026-11-01
+```
+
+In `model_goi`, `model_carry`, số lượt `carry_lech` (mỗi lượt gắn nhãn «lệch không tất định» khi không
+tệp git nào đổi giữa sha nguồn và sha lượt lệch, hoặc «nghi thiếu đầu vào: <tệp>») và mỗi dòng «nguồn
+không có» (`evals_carry` trỏ run_id không có trong run-log của hồ sơ).
+
+- `paths` thiếu đầu vào → dùng lại kết quả mà đầu vào thật đã đổi. Ngưỡng mở vòng siết: ≥ 1 lượt
+  «nghi thiếu đầu vào» ở bất kỳ kho nào.
+- Tệp chưa theo dõi ngoài cây hồ sơ và ngoài `paths` vô hình với băm (như `--skip-unchanged`, ADR 0019).
+  Cùng ngưỡng.
+- Model trôi mà giữ nguyên id không bắt được trong 7 ngày — hạn là trần tuổi (owner chấp nhận ở crm
+  E15, 10/10).
+- Bên đọc không chứng lại chuỗi dùng lại. Ngưỡng mở vòng răng bên đọc (T3): ≥ 1 dòng «nguồn không có».
 
 **Hoá cũ theo `paths` và suite song song — kho tự bật (2.21).** Hai khoá, mặc định TẮT:
 `risk_tiers.stale_scope: paths` — lưới trước-merge chỉ gọi hồ sơ là cũ khi diff chạm `paths` của eval

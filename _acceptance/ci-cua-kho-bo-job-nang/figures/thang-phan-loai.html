@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thang phân loại</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-rule:   rgba(45,49,66,0.12);
+      --font-sans:    'Geist', system-ui, sans-serif;
+      --font-serif:   'Instrument Serif', 'Lora', serif;
+      --font-mono:    'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .colophon {
+      margin-top: 1.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Lưu đồ · d-2 · AC-3, AC-4, AC-5</p>
+    <h1>Sáu bậc phân loại — nghi ngờ thì chạy đủ</h1>
+
+    <svg viewBox="0 0 1000 792" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- đầu thang -->
+      <text x="152" y="36" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.04em">--hang-pr · dừng ở điều kiện đầu tiên đúng</text>
+
+      <!-- ============ Mũi tên (vẽ trước nút) ============ -->
+      <!-- xuống: không -->
+      <line x1="280" y1="120" x2="280" y2="152" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="280" y1="216" x2="280" y2="248" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="280" y1="312" x2="280" y2="344" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="280" y1="408" x2="280" y2="440" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="280" y1="504" x2="280" y2="536" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="280" y1="600" x2="280" y2="640" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- phải: chạy đủ -->
+      <line x1="408" y1="88"  x2="680" y2="88"  stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="408" y1="184" x2="680" y2="184" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="408" y1="280" x2="680" y2="280" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="408" y1="376" x2="680" y2="376" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="408" y1="472" x2="680" y2="472" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <line x1="408" y1="568" x2="680" y2="568" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- ============ Nhãn mũi tên ============ -->
+      <rect x="228" y="128" width="44" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="140" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">KHÔNG</text>
+      <rect x="228" y="224" width="44" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="236" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">KHÔNG</text>
+      <rect x="228" y="320" width="44" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="332" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">KHÔNG</text>
+      <rect x="228" y="416" width="44" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">KHÔNG</text>
+      <rect x="228" y="512" width="44" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="524" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">KHÔNG</text>
+      <rect x="168" y="612" width="104" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="268" y="624" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.04em">hang=ho-so / T1</text>
+
+      <rect x="460" y="64" width="168" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="76" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">ly_do=khong-phan-loai-duoc</text>
+      <rect x="484" y="160" width="120" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="172" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">ly_do=cau-hinh-loi</text>
+      <rect x="456" y="256" width="176" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="268" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">ly_do=khong-co-pham-vi-diff</text>
+      <rect x="492" y="352" width="104" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="364" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">ly_do=diff-rong</text>
+      <rect x="464" y="448" width="160" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="460" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">ly_do=doi-danh-sach-hang</text>
+      <rect x="500" y="544" width="88" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="544" y="556" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.04em">hang=T3 / T2</text>
+
+      <!-- ============ Nút ============ -->
+      <!-- bậc 1 -->
+      <polygon points="280,56 408,88 280,120 152,88" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="92" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">1 · cổng dừng sớm?</text>
+      <!-- bậc 2 -->
+      <polygon points="280,152 408,184 280,216 152,184" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="188" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">2 · cấu hình hỏng?</text>
+      <!-- bậc 3 -->
+      <polygon points="280,248 408,280 280,312 152,280" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="284" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">3 · không có phạm vi diff?</text>
+      <!-- bậc 4 -->
+      <polygon points="280,344 408,376 280,408 152,376" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="380" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">4 · diff rỗng?</text>
+      <!-- bậc 5 (focal, d-2) -->
+      <polygon points="280,440 408,472 280,504 152,472" fill="#f5f5f5"/>
+      <polygon points="280,440 408,472 280,504 152,472" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="280" y="476" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">5 · danh sách hạng đổi?</text>
+      <!-- bậc 6 -->
+      <polygon points="280,536 408,568 280,600 152,568" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="572" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">6 · phân loại</text>
+
+      <!-- kết quả: chạy đủ -->
+      <rect x="680" y="56" width="240" height="544" rx="24" fill="#f5f5f5"/>
+      <rect x="680" y="56" width="240" height="544" rx="24" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="800" y="300" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chạy đủ</text>
+      <text x="800" y="324" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">cham_vat=true</text>
+      <text x="800" y="356" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif" text-anchor="middle">nghi ngờ thì chạy đủ</text>
+
+      <!-- kết quả: bỏ job nặng -->
+      <rect x="160" y="640" width="240" height="56" rx="28" fill="#f5f5f5"/>
+      <rect x="160" y="640" width="240" height="56" rx="28" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="280" y="664" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bỏ job nặng</text>
+      <text x="280" y="682" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cham_vat=false · ly_do=phan-loai</text>
+
+      <!-- ============ Legend ============ -->
+      <line x1="40" y1="728" x2="960" y2="728" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="744" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+      <polygon points="40,764 54,756 68,764 54,772" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="76" y="768" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bậc kiểm, theo thứ tự</text>
+
+      <rect x="208" y="756" width="28" height="16" rx="8" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="244" y="768" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Kết quả</text>
+
+      <line x1="320" y1="764" x2="348" y2="764" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="356" y="768" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Rẽ phải: điều kiện đúng</text>
+
+      <polygon points="500,764 514,756 528,764 514,772" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="536" y="768" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bậc 5 — quyết định d-2</text>
+    </svg>
+
+    <p class="colophon">Nguồn chữ: figures/index.md (thang-phan-loai) · design 2026-10-11-ci-cua-kho-bo-job-nang §2.2, §2.3 · contract AC-3, AC-4, AC-5 · cây làm việc trên f0159b53</p>
+  </div>
+</body>
+</html>

@@ -49,7 +49,7 @@ Nguồn sự thật duy nhất: frontmatter `status` trong `_acceptance/<slug>/c
 | `draft` | Gate 1 (trình lại gói duyệt; CT-S: THIẾU `gap-probe.md` ∧ ledger không có entry `descope` decision bắt đầu `"bỏ gap-probe"` → cờ vàng trên thẻ + hỏi user 1 câu có chạy bổ sung S1#7 không — KHÔNG tự chạy, KHÔNG chặn; workspace cũ trước 1.14.0 đi đường này) |
 | `approved` | S2 PLAN; plan của slug đã tồn tại → S3 tiếp tục task chưa xong (T3: plan chưa duyệt → Gate 1.5 trước) |
 | `implemented` | S4 VERIFY |
-| `verified` | Xanh-sạch đủ SÁU điều kiện ∧ không chạm KHÓ-ĐẢO → chạy `node <acceptance-gate>/scripts/khong-can-nguoi.mjs --write --root . --slug <slug>` (exit 2 = còn cần người → Gate 2), vẽ lại bản đồ, commit phần máy viết (contract nay `machine-cleared`), báo một dòng, đi tiếp S5 (KHÔNG mời ký). Thiếu một điều kiện, hoặc chạm khó-đảo → Gate 2 (trình gói evidence) |
+| `verified` | (trước đó: khối DINH-TUYEN-MAY) Xanh-sạch đủ SÁU điều kiện ∧ không chạm KHÓ-ĐẢO → chạy `node <acceptance-gate>/scripts/khong-can-nguoi.mjs --write --root . --slug <slug>` (exit 2 = còn cần người → Gate 2), vẽ lại bản đồ, commit phần máy viết (contract nay `machine-cleared`), báo một dòng, đi tiếp S5 (KHÔNG mời ký). Thiếu một điều kiện, hoặc chạm khó-đảo → Gate 2 (trình gói evidence) |
 | `machine-cleared` | S5 SHIP — máy đã thông, không có chữ ký người; cửa veto theo `veto_state`. Người ký sau vẫn được: `/acceptance-gate:signoff` đổi sang `signed-off` cùng lượt ghi chữ ký. Đường ghi: bước ở hàng `verified` (duong-lui-phai-song) |
 | `signed-off` | S5 SHIP |
 
@@ -61,8 +61,8 @@ Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng
 
 <!-- <<<REPIN-TEMPLATE -->
 ```
-{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"],"chap_chon":[{"lenh":"<cmd>","nhan":"suite 1/4","lan_dau":1,"log":"<đường>","ca":["<tên ca>"]}],"suites_env":"ci","tong_ket":{"ket_cuc":"xanh","phut":13.5,"so_lenh":5,"model_goi":0,"model_carry":0,"chap_chon":1,"chi_phi":0.42}}
-{"ts":"<ISO>","kind":"repin-do","lan_id":"<id>","sha":"<40-hex>","ly_do":"vuot-tran","tran_phut":80,"da_chay_phut":80.1,"tin_hieu":"SIGTERM","chua_chay":["<nhãn>"],"suites_exit":[1],"evals_exit":{"<E>":0},"lenh_do":[{"cmd":"<cmd>","exit":1,"log":"<đường>","lan_thu_lai":1,"log_lan_dau":"<đường>","moi_truong":"ci"}],"cham":[],"wall_s":812.4,"so_lenh":5,"chap_chon":[],"tong_ket":{},"tai":{}}
+{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"],"chap_chon":[{"lenh":"<cmd>","nhan":"suite 1/4","lan_dau":1,"log":"<đường>","ca":["<tên ca>"]}],"suites_env":"ci","evals_hash":{"<E>":"<64-hex>"},"evals_carry":{"<E>":"<run_id>"},"carry_lech":["<E>"],"tong_ket":{"ket_cuc":"xanh","phut":13.5,"so_lenh":5,"model_goi":0,"model_carry":0,"chap_chon":1,"chi_phi":0.42}}
+{"ts":"<ISO>","kind":"repin-do","lan_id":"<id>","sha":"<40-hex>","ly_do":"vuot-tran","tran_phut":80,"da_chay_phut":80.1,"tin_hieu":"SIGTERM","chua_chay":["<nhãn>"],"suites_exit":[1],"evals_exit":{"<E>":0},"lenh_do":[{"cmd":"<cmd>","exit":1,"log":"<đường>","lan_thu_lai":1,"log_lan_dau":"<đường>","moi_truong":"ci"}],"cham":[],"wall_s":812.4,"so_lenh":5,"chap_chon":[],"evals_hash":{"<E>":"<64-hex>"},"carry_lech":["<E>"],"tong_ket":{},"tai":{}}
 ### Re-pin lần <N> — <ngày>, do <lý do 1 dòng>
 run_id: <id>
 sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng
@@ -71,13 +71,24 @@ sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt k�
 Ba khoá của hồ sơ gia-lan-ghim-lai (2.23). `chap_chon` (khoá `feature_loop.repin_retry: 1`) và
 `suites_env: "ci"` (khoá `feature_loop.repin_ci_blank_env`) theo CÙNG luật hiện diện — kho không bật
 khoá thì vắng hẳn. `tong_ket` LUÔN có mặt (bật mặc định, chỉ thêm): kết cục, phút, số lệnh, eval
-model thật đã gọi (khoá `feature_loop.model_evals`), `model_carry` cố định 0 (ô giữ chỗ cho Vòng B),
+model thật đã gọi (khoá `feature_loop.model_evals`), `model_carry` = số eval model dùng lại theo băm đầu vào (0 khi `feature_loop.model_carry_cmd` vắng),
 số lệnh chập chờn, và chi phí đo khi kho khai `feature_loop.repin_cost_cmd`. Làn còn hai kết cục dừng
 sớm, không ghi pin, mỗi slug một dòng `repin-do` khi `--write`: **mã thoát 4** = vượt trần
 (`--tran-phut` / `feature_loop.repin_budget_min`, `ly_do: "vuot-tran"` + `tran_phut`, `da_chay_phut`,
 `chua_chay`) và **128 + số hiệu tín hiệu** = bị ngắt mềm (`ly_do: "bi-ngat"` + `tin_hieu`, `chua_chay`);
 cả hai dừng lệnh bằng cách thu cả cây tiến trình theo `ppid` rồi SIGTERM → SIGKILL sau 10 giây. Dòng
 stderr cuối của mọi kết cục bắt đầu `[lane] TỔNG KẾT`.
+
+Ba khoá của hồ sơ eval-goi-model-that-khong-chay theo CÙNG luật hiện diện, bật bằng khoá
+`feature_loop.model_carry_cmd` (lệnh in dấu vân tay môi trường model — vắng thì ba khoá vắng hẳn và làn y
+như 2.26): `evals_hash` — băm năm lớp đầu vào của mỗi eval trong `model_evals` đã băm được; `evals_carry` —
+eval nào DÙNG LẠI kết quả của lượt nào (`run_id` nơi nó thật sự chạy, chuỗi dàn phẳng; mã trong
+`evals_exit` chép từ lượt đó; không cộng `model_goi`, cộng `tong_ket.model_carry`); `carry_lech` — eval chạy
+thật với băm từng có mà mã khác (cũng ghi ở `repin-do`; eval đó thôi dùng lại tới khi băm đổi). Section
+thêm hậu tố ` · dùng lại theo băm đầu vào (không gọi model): <E>←<run_id>` và ` · cùng băm mà kết quả khác
+(carry_lech): <E>`; stderr mỗi eval model một dòng `dùng lại theo băm …` hoặc `không dùng lại — <lý do>`.
+Cờ `--chay-lai-model` ép mọi eval model chạy thật ở lượt đó (vẫn ghi băm). Năm lớp, hạn 7 ngày, lý do
+luôn chạy, bốn giới hạn và lệnh đếm `dem-dung-lai-model.mjs`: GUIDE §7.1.
 
 Khoá `evals_not_run` chỉ CÓ MẶT khi hồ sơ có eval `test`/`script` tự khai
 `status: not-run` (2.12.0) — hồ sơ không khai ô nào thì khoá VẮNG HẲN khỏi dòng,
@@ -368,7 +379,7 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
      chặn; chip B đi tuần tự từ đầu, 0 vòng chặn. Sổ cái đầy đủ:
      `docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md`.
      <!-- CLASSIFIER-FALLBACK>>> -->
-   - `PASS` / `PENDING-JUDGMENT` → kiểm tra `result.report` có nội dung (synthesize agent có thể chết); rỗng → chạy lại S4 cùng round. Có → làm ĐÚNG THỨ TỰ: (1) append `result.runLog` vào run-log.jsonl, (2) Write `_acceptance/<slug>/evidence-report.md` = `result.report` rồi `review-findings.md` = `result.findings` — log phải nằm trên đĩa TRƯỚC report vì hook L2 đối chiếu run_id trong report với log, ghi ngược thứ tự là hook chặn oan; (3) set contract `status: verified` — rồi **COMMIT NGAY gói evidence máy-viết** (evidence-report.md + run-log.jsonl + contract + evidence/ + usage-report.md nếu có) TRƯỚC khi vào Gate 2 — commit sớm để tránh dính stale-guard (không còn bắt tách khỏi chữ ký: ADR 0012). → Gate 2. `reviewIncomplete` không rỗng → ghi cảnh báo vào gói Gate 2.
+   - `PASS` / `PENDING-JUDGMENT` → kiểm tra `result.report` có nội dung (synthesize agent có thể chết); rỗng → chạy lại S4 cùng round. Có → làm ĐÚNG THỨ TỰ: (1) append `result.runLog` vào run-log.jsonl, (2) Write `_acceptance/<slug>/evidence-report.md` = `result.report` rồi `review-findings.md` = `result.findings` — log phải nằm trên đĩa TRƯỚC report vì hook L2 đối chiếu run_id trong report với log, ghi ngược thứ tự là hook chặn oan; (3) set contract `status: verified`, chạy khối DINH-TUYEN-MAY — rồi **COMMIT NGAY gói evidence máy-viết** (evidence-report.md + run-log.jsonl + contract + evidence/ + usage-report.md nếu có, + decisions.jsonl khi khối vừa ghi) TRƯỚC khi vào Gate 2 — commit sớm để tránh dính stale-guard (không còn bắt tách khỏi chữ ký: ADR 0012). → Gate 2. `reviewIncomplete` không rỗng → ghi cảnh báo vào gói Gate 2.
    - **Mọi verdict:** main loop LUÔN là người ghi (không còn agent scribe/ghi-file): append từng dòng `result.runLog` (nguyên văn, mỗi phần tử 1 dòng) vào `_acceptance/<slug>/run-log.jsonl` TRƯỚC, rồi Write evidence-report.md = `result.report` và review-findings.md = `result.findings` — hook + CI đối chiếu run_id trong report với log này; ghi report trước log là PASS bị chặn oan ở recheck strict. Kết quả có `carried` không rỗng (Đợt 5) → khi báo user VÀ trong gói Gate 2 ghi RÕ round này carry gì: evals (P1), panels (P3), baseline (P2), findings ngoài hợp đồng (T5 — mục mang nhãn «(r<N>)» trong review-findings.md, round này KHÔNG chấm lại; lượt sửa chạm tệp của mục thì nhãn là «(r<N> · tệp đã đổi)» — mục KHÔNG bị bỏ, người gạch nếu nó đã hết; máy chèn các mục này, không phải tác tử tổng hợp), eval ui-check carry (khối giữ `screenshot`/`observed` của lượt gốc khi cùng run_id và ảnh còn trên đĩa — thiếu thì `s4-args` in một dòng vì sao). Kết quả có `boNgoaiVat` không rỗng → báo user ĐÚNG MỘT DÒNG «bỏ N finding ngoài vật: <tệp>» — đó KHÔNG phải lỗi, đó là bộ lọc vùng vật (T2) làm đúng việc; im lặng ở đây thì một bộ lọc hỏng trông y hệt một lượt sạch — carry-forward phải minh bạch, không được ẩn vào "máy đã lo". Riêng round fix có carry → danh sách eval carried (P1) phải nằm RÕ trong báo cáo user và gói Cổng 2, kèm lý do từng eval được carry (paths không chạm diff-fix). Kết quả có `triageFailed: true` → verdict của round LUÔN là `PENDING-JUDGMENT` (máy không biết round này sạch thì không được ký một PASS sạch bong), evidence-report.md mang `triage_failed: true` trong frontmatter + một dòng ⚠ dưới tiêu đề; báo user RÕ "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, toàn bộ findings chờ người xem ở Gate 2", và đưa cảnh báo đó vào gói Gate 2 (KHÔNG nén vào phần "máy đã lo"). Nâng lên PASS ở Gate 2 nghĩa là người ký ĐÃ tự đọc hết danh sách trong review-findings.md, không phải máy đã kiểm. Kết quả có `coverageCluster` khác null → nêu ngay: "N/M lỗi rơi ngoài vùng phủ của bộ đo (`<file>`…) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi". Và NGAY khi Workflow trả về (mọi verdict, kể cả BLOCKED): chạy usage report (xem "Đo model/token per run"), rồi `node "$WORKFLOWS_DIR/../scripts/thuoc-vat.mjs" --root . --slug <slug> --write --transcript "<transcriptDir>"` (`transcriptDir` của kết quả Workflow — cùng giá trị đưa cho `wf-usage`; vắng thì máy tự tìm) — nối một dòng đếm vật · thước · nhát vào run-log để thẻ Cổng Bằng chứng in thành một dòng; script lỗi → WARN một dòng, không chặn vòng. Kho có `PRODUCT-INVARIANTS.md` → chạy tiếp `AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/luat-san-pham.cjs) && node "$AG/scripts/luat-san-pham.cjs" --root . --slug <slug> --quet --base <diffBase> --den <sha lượt chấm> --write` (kit tự host: `AG=.`) — ghi `luat-cham.json` cho thẻ Cổng Bằng chứng gọi tên luật bị chạm; lỗi → WARN một dòng, không chặn vòng. **Mã 5 của lệnh này = *thước lệch*** (nhan-trang-thai-va-reality AC-3): thước của hồ sơ (`evals.yaml` · `rang/` · `config.yaml` · test kho) đổi NỘI DUNG giữa lúc sinh args và lúc lượt xong — lượt ấy chấm bằng thước khác, không dùng được; thẻ khoá với nhãn đó, máy chấm lại lượt MỚI. Không sửa thước giữa S4. **Mã 6 = *cây đổi trong lượt chấm*** (luot-cham-ghi-vao-cay): giữa lúc sinh args và lúc lượt xong có commit mới hoặc tệp đang theo dõi bị sửa ở phần vật/thước của kho (trừ `.acceptance-runs/`, `evidence/` của hồ sơ, `.claude/`) — ai làm máy không biết; lượt ấy KHÔNG dùng được bất kể verdict: không ghi PASS, không đặt `verified`, không chạy `khong-can-nguoi`. Đọc danh sách tệp + commit lệnh in (dòng `cay-doi` trong run-log), HOÀN LẠI rồi sinh args lại — `s4-args` tự ra CÙNG round (không đếm trần), một lần; lần hai vẫn đổi → trình thẻ. Hoàn lại tách hai ca: commit CHƯA đẩy mà phiên này không tạo và không phối hợp (tác tử chấm tự sửa) → `git reset --keep <sha đã chấm>` (giữ sổ phiên chính chưa commit), tệp sửa không commit → `git checkout -- <tệp>`; thay đổi CÓ CHỦ ĐÍCH của phiên khác (gộp nhánh) → không hoàn lại, sinh args với `--nhan-cay-moi` để chấm trên HEAD mới, kèm một dòng sổ `fix` nói vì sao. Việc khó-đảo — commit đã đẩy lên remote, hay không rõ là việc của ai — thì HỎI NGƯỜI, không tự reset. Chưa hoàn lại mà sinh args lại thì `s4-args` thoát 2 «cay doi chua hoan lai» gọi tên commit/tệp còn đó. Sau dòng `cay-doi` luôn có ĐÚNG MỘT dòng `ghi-boi-tac-tu-cham` (tac-tu-cham-chi-cham-khong) nói tác tử chấm nào đã ghi tệp nào. Máy KHÔNG tự hoàn lại (bước sau-lượt không đổi cây): dòng ấy cho phiên biết thay đổi nào của tác tử chấm (`tac_tu`) và thay đổi nào không rõ chủ (`tep_khong_ro`, có thể là việc của phiên — đừng hoàn lại mù) — rồi phiên hoàn lại theo đúng hai ca ở trên. Kết quả Workflow có `loaiTacTuVang` → lượt ấy chạy KHÔNG có loại tác tử hẹp (phiên mở trước khi cài bản gói mang ba loại tác tử chấm) — báo user đúng một dòng, không chặn; mở phiên mới thì lượt kế có loại.
 4. Workflow đứt giữa chừng (crash/cancel) → resume `resumeFromRunId` CÙNG round. Đã fix code → LUÔN run mới, không cache.
 5. 🎨 **(CT1)** eval fidelity ADVISORY: surface có reference cũ (repo/`provenance.design_repo` trỏ được) → chạy so-drift, kết quả vào gói Gate 2; không có reference → skip-note thường. **(CT2)** fidelity trả "skipped" → in WARN RÕ vào gói Gate 2: "fidelity pixel-diff KHÔNG chạy — thị-giác CHƯA được so", KHÔNG lẫn vào PASS xanh.
@@ -382,6 +393,29 @@ Sau MỖI Workflow run trong vòng lặp (S1 fan-out/gap-probe, S3 execute-paral
 3. In cho user 1 dòng tóm tắt từ output (per model: số agent · out-token) — đây là chỗ kiểm chứng `feature_loop.models` có hiệu lực THẬT (label nào chạy model nào, từ transcript, không phải config hứa).
 
 Đây là telemetry vận hành, KHÔNG phải evidence: script lỗi / không tìm thấy transcript → WARN 1 dòng rồi đi tiếp, TUYỆT ĐỐI không chặn vòng lặp và không retry; KHÔNG tham chiếu usage-report.md trong evidence-report.md (hook không biết nó). File commit cùng gói evidence cuối S4 để theo dõi chi phí per-feature.
+
+## Máy tự định tuyến mục Ngoài-n (khối DINH-TUYEN-MAY)
+
+<!-- <<<DINH-TUYEN-MAY -->
+**Máy tự định tuyến mục ngoài hợp đồng (hồ sơ ngoai-n-tu-dinh-tuyen).** Ngay khi hợp đồng sang `verified` — ở bước
+PASS của S4 và khi resume vào hàng `verified` — chạy đúng dòng dưới, TRƯỚC bước máy thông (kho kit tự host: `AG=.`):
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/dinh-tuyen-may.cjs) && node "$AG/scripts/dinh-tuyen-may.cjs" --write --root . --slug <slug>
+```
+Xong mới tới `khong-can-nguoi.mjs --write` (hàng `verified` của bảng trạng thái).
+- Thoát 0 → nói lại ĐÚNG dòng lệnh in, một dòng; hồ sơ đi tiếp làn V thì gộp nó vào dòng báo một dòng của làn V.
+  Commit `decisions.jsonl` + `contract.md` CÙNG gói evidence máy-viết. Dòng «tắt», «không định tuyến: …», «0 mục» là
+  bình thường: kho chưa bật `feature_loop.ngoai_n_tu_dinh_tuyen`, hoặc hồ sơ không đủ điều kiện — vòng đi như cũ.
+- Thoát 2 VÀ dòng lỗi bắt đầu `dinh-tuyen-may:` → vào Gate 2, KHÔNG chạy `khong-can-nguoi.mjs --write`; dòng lý do
+  (khoá sai giá trị · dòng máy trỏ mục đã đổi) đi vào gói Cổng 2.
+- Mã thoát khác 0 và 2 — bộ giải gói thoát 1 khi bản acceptance-gate đang cài chưa có `scripts/dinh-tuyen-may.cjs`,
+  bên ghi thoát 3 khi gọi sai hay không đọc được hợp đồng — hoặc thoát 2 mà dòng lỗi không bắt đầu `dinh-tuyen-may:`
+  (bộ giải gọi sai cú pháp): báo ĐÚNG MỘT dòng nêu mã và nguyên văn dòng lỗi, coi như khoá tắt (không mục nào được
+  định tuyến), rồi đi tiếp `khong-can-nguoi.mjs --write` như trước vòng. KHÔNG dừng chờ người — đây không phải cổng.
+- Khối KHÔNG đổi bảng cổng: máy chỉ ghi định tuyến cho mục mà CHÍNH nó đề xuất `known-limits`/`wont-fix`, ở hồ sơ T2 ·
+  PASS · 0 UNCERTAIN; `new-contract`, T3, UNCERTAIN vẫn là của người; khó-đảo vẫn là câu hỏi cho người; chữ quyết vẫn
+  của người — người đảo một mục bằng lệnh ở khoá `dao` của dòng sổ máy (lệnh ký cổng người).
+<!-- DINH-TUYEN-MAY>>> -->
 
 ## GATE 2 (human — điểm dừng 2)
 

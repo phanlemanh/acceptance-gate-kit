@@ -24,7 +24,7 @@
     {
       "name": "dieu-phoi",
       "source": "./dieu-phoi",
-      "description": "Orchestrator–workers for parallel feature-loop sessions: a scheduler that holds the S4 / baseline / merge locks, a batch CLI and four hooks (block S4 without a lock, heartbeat, waiting-for-human). Opt-in per repo (--scope project); hooks stay silent when the repo has no running batch.",
+      "description": "Orchestrator–workers for parallel feature-loop sessions: a scheduler that holds the S4 / baseline / merge locks, a batch CLI with five /dieu-phoi commands, five hook entries (block S4 without a lock, heartbeat, waiting-for-human ×2, out-of-quota safety net) and a usage-reading mod. Opt-in per repo (--scope project); hooks stay silent when the repo has no running batch.",
       "tags": ["bat-theo-lua-chon"]
     }
   ]
