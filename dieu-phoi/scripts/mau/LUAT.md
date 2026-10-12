@@ -6,6 +6,9 @@ Phiên giám sát là phiên duy nhất được sửa tệp này. Các phiên t
 Mọi lần ghi vào thư mục đợt đi qua lệnh con của lõi đợt, chạy bằng Bash từ worktree của dãy — không dùng
 công cụ ghi tệp (thư mục đợt nằm ngoài worktree). Lệnh con kiểm khuôn trước khi ghi; sai thì thoát 1 và
 nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip.
+- Ghi danh (việc đầu tiên của phiên mở từ chip, trước S1): `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>`
+  từ worktree của chip — ghi worktree của phiên vào dãy; chưa ghi danh thì mọi lệnh dưới đây báo «không thuộc
+  dãy nào».
 - Xin lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs xin <loại> [--uoc-phut <n>] [--mo-merge]`;
   `loại` ∈ `s4`, `ghim-lai`, `duong-nen`, `merge`. Rồi chờ bằng lệnh nền
   `until jq -e '.phien=="<dãy>"' <thư mục đợt>/khoa/<tài nguyên>/chu.json >/dev/null 2>&1; do sleep 15; done`.
