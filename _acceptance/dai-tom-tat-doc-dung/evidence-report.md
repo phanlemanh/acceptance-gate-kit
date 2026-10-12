@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: db961181a426bb14a2e53bc6e1f84b8186d5dcd7
+verified_commit: 7b1dfda873ba47104901107c8c1033e1d4f8f4c4
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -208,3 +208,7 @@ Round 2: E1–E8 và E11 chạy lại xanh, E9 mang từ round 1 (delta không c
 ### Re-pin lần 1 — 2026-10-12, do gộp main sau A2s #331 vào #325 mang #324
 run_id: repin-20261012T175443Z-82456
 sha: db961181a426bb14a2e53bc6e1f84b8186d5dcd7 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng · ngoài làn máy: E10 · diff chạm vật đo ngoài làn máy: E10 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-10
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại mốc v2.28.0
+run_id: repin-20261012T195836Z-51456
+sha: 7b1dfda873ba47104901107c8c1033e1d4f8f4c4 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
