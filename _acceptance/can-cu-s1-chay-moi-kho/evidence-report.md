@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1e91a2a897ecd2188de221cc591678b1cdedc74e
+verified_commit: 5fa96cd9b0047242eb5bd0dfc3378692c0121cbd
 human_signoff: Manh Phan 2026-10-12
 ---
 
@@ -201,3 +201,7 @@ Round 2: sau bản sửa S4-r1 (KK-6 so-that đếm thẳng từ sổ, không qu
 ### Re-pin lần 1 — 2026-10-12, do sau chữ ký: KK-8 xác nhận tuần tự, P161 đếm decBaVe, sổ known-limits (CI #331)
 run_id: repin-20261012T151021Z-85556
 sha: 1e91a2a897ecd2188de221cc591678b1cdedc74e · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths), E9 · AC không có chốt máy: AC-3, AC-9
+
+### Re-pin lần 2 — 2026-10-12, do gộp origin/main 057000da (DP8 #332)
+run_id: repin-20261012T165313Z-48447
+sha: 5fa96cd9b0047242eb5bd0dfc3378692c0121cbd · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths), E9 · AC không có chốt máy: AC-3, AC-9
