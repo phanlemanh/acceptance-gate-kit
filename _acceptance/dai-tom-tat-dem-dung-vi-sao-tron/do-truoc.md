@@ -13,13 +13,23 @@ bằng bản thử bộ đọc (`do-truoc-ban-thu.diff` — một bộ đọc kh
 
 | Kho | Hồ sơ | Đổi | Số sai → số đúng | Sai → «chưa đọc được» | Chỉ bỏ cờ vàng thừa |
 |---|---|---|---|---|---|
-| kit | 140 | 35 | 27 | 6 | 2 |
+| kit | 140 | 35 | 28 | 5 | 2 |
 | crm | 229 | 21 | 18 | 3 | 0 |
 | radar | 36 | 21 | 15 | 3 | 3 |
-| oneflow | 41 | 10 | 5 | 5 | 0 |
+| oneflow | 41 | 10 | 7 | 3 | 0 |
 | artifact-platform | 192 | 0 | 0 | 0 | 0 |
 | media-library | 23 | 4 | 3 | 1 | 0 |
-| **Cộng** | **661** | **91** | **68** | **18** | **5** |
+| **Cộng** | **661** | **91** | **71** | **15** | **5** |
+
+Sửa bản thử sau lần đo đầu (đã ghi số ở ô cơ hội: 68 · 18): mục Known limits của báo cáo dừng ở tiêu đề
+`### Re-pin` — khuôn `REPIN-TEMPLATE` mà làn ghim lại của kit nối vào CUỐI báo cáo; ở báo cáo đời cũ (oneflow)
+mục cuối là Known limits nên các khối ghim lại bị đọc thành giới hạn. Ba hồ sơ từ «chưa đọc được» thành đúng số.
+Khối có tiêu đề mà thân trống đếm 0 — không hồ sơ thật nào đổi vì luật này.
+
+**Giá của luật «khối hai danh sách → chưa đọc được»:** hai hồ sơ hôm nay đếm ĐÚNG nhờ may chuyển sang «chưa đọc
+được» — `crm/bo-dung-khong-ket` (8 giới hạn, rồi nhóm «Tách thành việc riêng» KHÔNG phải giới hạn) và
+`radar/doc-mang-v0` (13 + 19 mục, đếm phẳng ra 32 đúng). Không luật máy nào phân biệt hai kiểu nhóm đó mà không
+hiểu câu; luật chủ kho: không đọc được thì không in số.
 
 **Bốn cơ chế đếm sai hôm nay** (kèm một ca soi tay mỗi cơ chế):
 
@@ -33,6 +43,7 @@ bằng bản thử bộ đọc (`do-truoc-ban-thu.diff` — một bộ đọc kh
 4. **Khối có tiêu đề con, nhiều nhóm, hoặc nhiều danh sách** → số hôm nay là ngẫu nhiên của cách nối dòng.
    `crm/auto-pr-thoi-do-o-ban-re` hiện 63, đoạn dẫn nói «Mười một giới hạn»; `crm/tong-quan-va-khung-noi-tieng-viet`
    hiện 26, đoạn dẫn nói «Ba giới hạn». Bản thử nói «chưa đọc được» — luật chủ kho đặt: không đọc được thì không in số.
+   Biến thể: báo cáo đời cũ có khối `### Re-pin` (kit tự nối) nằm trong mục Known limits — bộ đọc phải dừng ở đó.
 
 **«None.» / «Không có»:** 0 hồ sơ thật trên sáu kho ghi khối giới hạn chỉ bằng chữ ấy (305 báo cáo để TRỐNG mục
 Known limits — đã đếm 0 đúng). Ca này là bảo hiểm. Một giới hạn THẬT mở bằng «không có» có tồn tại
@@ -58,7 +69,7 @@ vòng `dai-tom-tat-doc-dung` tới kho: kit 101 · crm 99 · radar 8 · oneflow 
 | `kit/ho-so-nghi` | 2 | chưa đọc được |
 | `kit/khoi-tim-loi-tra-phi-theo-vat` | 14 + cờ vàng | 12 + cờ vàng |
 | `kit/lan-may-song-qua-bo-phan-loai` | 1 | 8 |
-| `kit/loi-moi-cong-may-sinh` | 10 + cờ vàng | chưa đọc được |
+| `kit/loi-moi-cong-may-sinh` | 10 + cờ vàng | 9 + cờ vàng |
 | `kit/measure-teeth-cleanup` | 1 | chưa đọc được |
 | `kit/nen-cong-cu-gan-bang-lenh-con` | 4 + cờ vàng | 4 |
 | `kit/nen-cong-cu-lenh-shell` | 6 + cờ vàng | 6 |
@@ -126,9 +137,9 @@ vòng `dai-tom-tat-doc-dung` tới kho: kit 101 · crm 99 · radar 8 · oneflow 
 | `oneflow/cong-tu-canh-minh` | 1 | 6 |
 | `oneflow/director-wire-shape` | 9 + cờ vàng | chưa đọc được |
 | `oneflow/hai-duong-chay-mot-venv` | 1 + cờ vàng | 10 |
-| `oneflow/kho-khoa-toan-ven` | 11 | chưa đọc được |
+| `oneflow/kho-khoa-toan-ven` | 11 | 7 |
 | `oneflow/mo-hoa-b01` | 22 | chưa đọc được |
-| `oneflow/o-do-chay-0-ca-van-xanh` | 12 | chưa đọc được |
+| `oneflow/o-do-chay-0-ca-van-xanh` | 12 | 7 |
 | `oneflow/roadmap-drift-guard` | 4 | chưa đọc được |
 | `oneflow/scan-scope-diagnostics` | 1 | 5 |
 | `oneflow/scan-with-block-imports` | 1 | 3 |

@@ -1,5 +1,5 @@
---- a/scripts/ho-so-tom-tat.cjs	2026-10-12 10:40:08
-+++ b/scripts/ho-so-tom-tat.cjs	2026-10-12 10:49:04
+--- a/scripts/ho-so-tom-tat.cjs	2026-10-12 10:58:58
++++ b/scripts/ho-so-tom-tat.cjs	2026-10-12 11:02:18
 @@ -158,23 +158,81 @@
  // `lech` = số dòng của `## Notes` NHẮC tới giới hạn đã biết mà không nằm trong gạch nào bộ đọc nhận — bên
  // vẽ không được in «0 giới hạn» khi có chỗ nhắc mà đọc không ra (ràng buộc điều phối 12/10: cờ vàng).
@@ -51,7 +51,7 @@
 +  }
 +  if (coRanh) for (let j = i; j < ket; j++) da.add(j);
 +  const ds = seq.filter(x => x.l);
-+  if (!seq.length) return null;
++  if (!seq.length) return [];
 +  if (seq[0].p && laRong(seq[0].p.chu)) return seq.length === 1 || !coRanh ? [] : null;
 +  if (ds.length === 1 && (coRanh || seq.length <= 2)) return ds[0].l.muc.filter(c => !laRong(c));
 +  if (!ds.length && seq.length === 1) return [seq[0].p.chu];
@@ -111,7 +111,7 @@
 +function docGioiHanBaoCao(report) {
 +  const raw = section(report, 'Known limits'); const da = new Set();
 +  if (!raw.some(l => l.trim())) return { ds: [], khongDoc: 0 };
-+  const ds = thanKhoi(raw, 0, da, () => false, true);
++  const ds = thanKhoi(raw, 0, da, l => /^#{2,6}\s+Re-pin\b/.test(l), true);
 +  return ds == null ? { ds: [], khongDoc: 1 } : { ds, khongDoc: 0 };
 +}
  const gioiHanTuNotes = contract => docGioiHanNotes(contract).ds;
