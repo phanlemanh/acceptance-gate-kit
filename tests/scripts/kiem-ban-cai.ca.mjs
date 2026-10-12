@@ -72,7 +72,9 @@ const chenDau = (tep, dong) => {
 };
 
 // Ảnh chụp cấu hình Claude: băm hai tệp JSON (phải có, khác rỗng) + tên · cỡ · mtime dưới cache/ và
-// marketplaces/ tới độ sâu 4 — đủ thấy một bản cài mới hay một tệp đầu thư mục bản cài bị ghi đè.
+// marketplaces/ tới độ sâu 4 — đủ thấy một bản cài mới hay một tệp đầu thư mục bản cài bị ghi đè. Bỏ riêng
+// `.in_use`: tệp đánh dấu phiên mà MỌI phiên Claude đang chạy trên máy làm mới (đo 13/10) — sổ sách phiên,
+// không phải nội dung bản cài; giữ nó thì ca chập chờn mỗi khi một phiên khác khởi động giữa lượt chấm.
 export function chupCauHinh(cfg) {
   const json = {};
   for (const f of ['installed_plugins.json', 'known_marketplaces.json']) {
@@ -86,6 +88,7 @@ export function chupCauHinh(cfg) {
   const di = (dir, rel, sau) => {
     let es; try { es = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
     for (const e of es.sort((x, y) => x.name.localeCompare(y.name))) {
+      if (e.name === '.in_use') continue;
       const p = path.join(dir, e.name), r = `${rel}/${e.name}`;
       let st; try { st = fs.lstatSync(p); } catch { continue; }
       ds.push(`${r}|${st.size}|${st.mtimeMs}`);
