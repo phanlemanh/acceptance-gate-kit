@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0ff867c2ae52f4a495fd25e012b297c7fcb73279
+verified_commit: d942de54b3ad1a2cfa6c03ab6600d41107a4a9f9
 human_signoff: manh 2026-10-12
 ---
 
@@ -231,3 +231,7 @@ none — mọi eval nhiều lượt đều đồng nhất (mọi eval chạy m�
 ## Iterations
 
 Round 1: mười hai eval máy và chín lệnh suite đều xanh; không eval nào đỏ. Chuyển sang Cổng 2.
+
+### Re-pin lần 1 — 2026-10-12, do ghim lại sau gộp main 7b925967 (#322)
+run_id: repin-20261012T020817Z-65142
+sha: d942de54b3ad1a2cfa6c03ab6600d41107a4a9f9 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
