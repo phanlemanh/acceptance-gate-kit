@@ -52,6 +52,9 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Cửa tín hiệu (hồ sơ cua-tin-hieu-gom-nhom, hàng L3) — ca TH-1…TH-10.
+    tin_hieu: "node tests/scripts/tin-hieu.test.mjs"
+    tin_hieu_vang: "TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs"
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
     # Hồ sơ xa-stdout-truoc-khi-thoat: ca đo XD-1..XD-7 (stdout qua pipe không bị cắt ở 64 KB). Khoá riêng,

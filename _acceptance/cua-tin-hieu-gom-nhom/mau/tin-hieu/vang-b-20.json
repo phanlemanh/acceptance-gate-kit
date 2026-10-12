@@ -1,0 +1,10 @@
+{
+  "phien": "vang-b",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Mỗi ca sửa được thành kín ở tầng test (cổng tự do, dọn tiến trình và .eve trong beforeAll/afterAll, chờ sẵn sàng bằng vòng thử có trần thay vì một lần gọi), không đổi mã sản phẩm.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:19:00.000Z"
+}
