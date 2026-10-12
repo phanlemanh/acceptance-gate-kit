@@ -1,0 +1,10 @@
+{
+  "phien": "vang-b",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Job CI check-types, lint, test chạy mọi bước tuần tự trên một máy 2 nhân: đêm 07–08/10, 52 job xanh có trung vị 26,9′, p90 29,2′, 2 lượt bị huỷ ở trần 30′ (docs/plan/ci-tach-job.md, nhánh…",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:01:00.000Z"
+}

@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Một thước viết đúng cho vòng của chính nó, nhưng đo theo «nhánh đang xét» (git diff origin/onehub, merge-base, git log …",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:06:00.000Z"
+}

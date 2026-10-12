@@ -108,6 +108,33 @@ da_bac.ly_do — lý do bác
 ```
 <!-- LO-TRINH-DU-LIEU-KHOA>>> -->
 
+### Khoá tuỳ chọn `tin_hieu` (cửa tín hiệu)
+
+Kho khai cửa tín hiệu (`tin_hieu.nguon` + `tin_hieu.gom` trong `_acceptance/config.yaml`, skill
+`gom-tin-hieu`) thì khối mang thêm khoá gốc `tin_hieu`: mảng, mỗi phần tử là đường đi của MỘT tín hiệu —
+để bản chiếu hiện cho người gửi tín hiệu của họ tới đâu. Kho không khai thì khối KHÔNG có khoá này (không
+phải mảng rỗng) và giống từng byte bản trước; khoá không nằm trong bảng khoá chuẩn ở trên, `phien_ban`
+không đổi, và bộ đọc mẫu `docDuLieu` giữ nó nguyên vẹn như mọi khoá lạ. Bản chiếu coi «không có khoá» là
+«kho chưa mở cửa tín hiệu». Trường của một phần tử:
+
+<!-- <<<LO-TRINH-DU-LIEU-TUY-CHON -->
+```
+tin_hieu.id — tên tệp tín hiệu bỏ đuôi (khuôn <phiên>-<số>)
+tin_hieu.loai — tin-hieu (người gửi) · viec-phu · hang-moi
+tin_hieu.tieu_de — tiêu đề tín hiệu
+tin_hieu.luc — lúc gửi (ISO)
+tin_hieu.cho — chua-gom · le · da-phu · nhom-chua-cat · chan-troi · hang-chua-ho-so · hang-co-ho-so
+tin_hieu.nhom — mã nhóm trong bản gom (null khi không ở nhóm)
+tin_hieu.ten_nhom — tên nhóm bằng tiếng sản phẩm
+tin_hieu.ly_do — lý do lẻ, hoặc lý do để sau của chân trời
+tin_hieu.ho_so_phu — hồ sơ đã giao phủ tín hiệu (ngăn đã phủ)
+tin_hieu.hang — mã việc trong lộ trình mà nhóm đã thành
+tin_hieu.ho_so — hồ sơ của việc đó
+tin_hieu.trang_thai — chữ trạng thái, đúng chữ trang lộ trình in cho việc / hồ sơ
+tin_hieu.cau — một câu cho người gửi, dựng từ khuôn câu cố định
+```
+<!-- LO-TRINH-DU-LIEU-TUY-CHON>>> -->
+
 Những gì bản chiếu thường cần:
 
 - **Mỗi việc đang ở đâu:** `hang.trang_thai` (chữ hiện cho người) và `hang.nhom_trang_thai` (để tô màu,
