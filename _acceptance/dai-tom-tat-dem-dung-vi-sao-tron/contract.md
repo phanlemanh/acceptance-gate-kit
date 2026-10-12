@@ -83,4 +83,4 @@ SỐNG = bốn số đều 0. Giới hạn của đường đo, khai thẳng: m�
   trang mẫu của hồ sơ đã ký nào mang dải của hồ sơ kit đổi ô thì ghim lại bằng làn trước khi gộp (tiền lệ X2).
 - Giá đã biết của luật «khối nhiều danh sách → chưa đọc được»: crm `bo-dung-khong-ket` (8) và radar `doc-mang-v0`
   (32) hôm nay đếm đúng nhờ may, sau vòng nói «chưa đọc được» (`do-truoc.md`).
-- S4 chỉ chạy sau khi `dai-tom-tat-doc-dung` vào `main` (so với `main` đã có nó).
+- S4 chạy trên nhánh chồng với gốc so = đỉnh nhánh `vong/dai-tom-tat-doc-dung` (phiên điều phối 12/10, cắt mốc sớm); #325 mang cả #324, gộp một lần.
