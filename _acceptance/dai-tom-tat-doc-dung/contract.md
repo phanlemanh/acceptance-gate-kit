@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ho-so-tom-tat.cjs + commands/signoff.md (khối marker) + references lo-trinh-du-lieu.md + test + khoá config tuỳ chọn `production.nhanh` (CỘNG) — không chạm lib/**, hooks/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-dai-tom-tat-doc-dung-design.md
-status: draft
-approved_by:
-approved_at:
+status: implemented
+approved_by: Manh Phan
+approved_at: 2026-10-12T02:18:36Z
 ---
 
 # Acceptance Contract: dai-tom-tat-doc-dung
