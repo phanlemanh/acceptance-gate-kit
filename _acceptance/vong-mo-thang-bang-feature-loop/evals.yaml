@@ -1,0 +1,122 @@
+# Eval cho hồ sơ vong-mo-thang-bang-feature-loop.
+#
+# Một tệp ca: tests/scripts/co-hop-dong.test.mjs — dựng kho thử git THẬT trong lần chạy (hợp đồng, sổ,
+# gap-probe, đường nền đủ để thẻ không có cờ đỏ nào khác) và gọi CHÍNH scripts/gate-card.js và
+# scripts/cat-luot.mjs như tiến trình con. Ma trận + kỳ vọng VIẾT TRƯỚC trong tệp ca (hằng), không tính từ
+# mã sản phẩm; số khẳng định = số hàng (in ra). Chiều đỏ trên bản sao TRỌN `scripts/ lib/ skills/
+# feature-loop/ commands/` (git archive HEAD), kim khớp đúng một lần (không thì ca đỏ vì hạ tầng ca),
+# thông điệp ghim; bản nguyên vẹn cùng kho là đối chứng dương. Đường dẫn suy từ vị trí tệp ca.
+# Tên ca = mã AC; biến CHD_CASES chọn ca (mã lạ → thoát 2, không ca nào chạy → đỏ).
+schema_version: 1
+feature_slug: vong-mo-thang-bang-feature-loop
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.chd_ac1
+    expected: >-
+      PASS: AC-1 — `cat-luot.mjs` xuất `docKhoang`/`napKhoang` là chính hàm của `scripts/co-hop-dong.cjs`
+      (so tham chiếu); trên bản gói nguyên vẹn hợp đồng draft 11 tiêu chí ra cờ vàng trên thẻ, nhóm `cho-phep`
+      trên đồng hồ (đối chứng dương). PASS: AC-1-do — bản sao sửa khối (`tach_tu` 13 → 11, `cho_phep_den`
+      12 → 10, mỗi kim một lần): cùng hợp đồng ra cờ đỏ + `chan: true` trên thẻ và nhóm `phai-tach` trên
+      đồng hồ, ghim «khoảng đọc từ khối». PASS: AC-1-hong — bản sao gỡ khối: thẻ thoát 0, cờ vàng «không đọc
+      được khoảng cỡ», `co_hop_dong.loi` chứa «thiếu khối CAT-LUOT-CO», `chan: false`.
+    paths: ["scripts/co-hop-dong.cjs", "scripts/cat-luot.mjs", "scripts/gate-card.js", "skills/cat-luot/SKILL.md", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.chd_ac2
+    expected: >-
+      PASS: AC-2 — 34 ca ma trận viết trước (cỡ 1…16 × không/có dòng giữ; cỡ lẻ gạch đầu dòng, cỡ chẵn tiêu
+      đề `### AC-n`; cộng «không đọc được tiêu chí» và «13 dòng 12 mã»), mỗi ca một khẳng định gộp năm vế:
+      cờ cỡ (không · vàng · đỏ), vị trí cờ đỏ trước khối «Hệ thống SẼ làm», chữ quyết của câu gộp (`duyệt` ·
+      `___`), `co_hop_dong` của `--extract` (`n`, `nhom`, `giu`, `chan`, `loi`), văn cờ chứa số tiêu chí của
+      ca + ngưỡng từ `docKhoang` + mã và lý do dòng giữ khi có. PASS: AC-2-vong — chuỗi giữ rút từ HTML thẻ đỏ
+      ghép lý do, ghi sổ, dựng lại: `chan: false`. Chiều đỏ: PASS: AC-2-do — bản sao nới ngưỡng tách trong
+      `nhomCo` (`n <= k.cho_phep_den` → `n <= k.tach_tu`, kim một lần): ca 13 tiêu chí không dòng giữ ra
+      `chan: false`, ghim «ngưỡng tách lệch khối».
+    paths: ["scripts/co-hop-dong.cjs", "scripts/gate-card.js", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.chd_ac3
+    expected: >-
+      PASS: AC-3 — 15 ca sổ viết trước, mỗi ca hai khẳng định (thẻ: `giu`/`chan`; đồng hồ: `n_giu` nhóm
+      `phai-tach`) cùng kết luận đúng bảng nhận · nhận · nhận · nhận (gạch ngắn) · nhận (gạch thường) ·
+      nhận · không · không · không · nhận (mã dòng đầu) · không · không · không (bị rút bằng supersedes) ·
+      nhận (mã dòng giữ mới sau khi rút) · không (lý do còn là chỗ trống của khuôn). PASS: AC-3-do-rut — bản
+      sao bỏ bước xét supersedes: ca «bị rút» ra «nhận» ở CẢ thẻ lẫn đồng hồ, ghim «dòng giữ đã rút vẫn mở cổng». PASS: AC-3-do — bản sao bỏ bước chuẩn NFC trong `dongGiu`: ca NFD ra «không» ở
+      CẢ thẻ lẫn đồng hồ, ghim «hai bên đọc cùng một hàm».
+    paths: ["scripts/co-hop-dong.cjs", "scripts/gate-card.js", "scripts/cat-luot.mjs", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.chd_ac4
+    expected: >-
+      PASS: AC-4 — 6 trạng thái đã qua Cổng Phạm vi, hợp đồng 14 tiêu chí không dòng giữ, thẻ ép `--gate 1`:
+      không cờ cỡ, `chan: false` (6 khẳng định). PASS: AC-4-kho-that — mọi hồ sơ thật của cây kit có ≥ 11
+      tiêu chí và không ở draft (in số, > 0): thẻ ép không cờ cỡ; bản chép từng hồ sơ sang kho thử với
+      `status: draft` mang đúng cờ theo cỡ (đối chứng dương ngay trên cùng hồ sơ). PASS: AC-4-do — bản sao gỡ
+      điều kiện `status: draft` của răng: ca đã ký ra `co_hop_dong.chan === true` VÀ cờ lớp `fred co-hd` trên
+      HTML (thẻ chạy, không sập), ghim «đường đọc-cũ gãy»; bản sao thẻ sập (kim ném lỗi) KHÔNG được tính là bắt.
+    paths: ["scripts/co-hop-dong.cjs", "scripts/gate-card.js", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.chd_ac5
+    expected: >-
+      PASS: AC-5 — `--extract` trên hợp đồng draft 14 tiêu chí có `co_hop_dong.chan === true`; dòng điều kiện
+      `khi: <đường khoá> = true → …` rút từ khối `CO-HOP-DONG-CHAN` của `commands/approve.md` và của SKILL
+      Feature Loop: đường khoá bằng khoá thẻ phát ra; cặp khoá–giá trị so bằng nhau (Feature Loop:
+      lan_v=khong, moi_nguoi=khong, loi_ra=tach,giu; lệnh duyệt: ghi_duyet=khong, loi_ra=tach,giu); khối
+      lệnh duyệt chứa lối `sửa:` kèm chuỗi bằng `GIU_CO_MO_DAU`. PASS: AC-5-do-khoa — bản sao đổi tên khoá ở
+      thẻ (kim một lần): `--extract` của bản sao có mặt, mang `co_hop_dong_x` và KHÔNG mang `co_hop_dong`, và ca
+      liệt đúng hai tệp `commands/approve.md` và `feature-loop/skills/feature-loop/SKILL.md`; bản sao thẻ sập
+      KHÔNG được tính là bắt. PASS: AC-5-do-nghia — bản sao đổi `lan_v: khong` thành
+      `lan_v: co`: ca đỏ ghim «khối cho làn V khi khoá đúng».
+    paths: ["scripts/gate-card.js", "scripts/co-hop-dong.cjs", "commands/approve.md", "feature-loop/skills/feature-loop/SKILL.md", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.chd_ac6
+    expected: >-
+      PASS: AC-6 — câu kỳ vọng dựng từ `docKhoang` của khối sống; bốn tệp chứa câu và tên khối (SKILL Feature
+      Loop: có trong CẢ đoạn S1#3 lẫn đoạn S1#4, rút theo đầu bước); quét lớp ngưỡng cũ trên cây dạy
+      (skills/ feature-loop/ commands/ dieu-phoi/ GUIDE.md README.md QUICKSTART.md, in số tệp): 0 dòng — không tệp dạy
+      nào còn ngưỡng cũ.
+      PASS: AC-6-do-khoi — bản sao sửa `muc_tieu: 8-10` → `6-9`: ca liệt đúng bốn tệp. PASS: AC-6-do-lop —
+      bản sao chèn «Core >15 → hợp nhất» vào skills/morphological-scan/SKILL.md (ngoài bốn tệp): ca nêu đúng
+      tệp ấy.
+    paths: ["feature-loop/**", "skills/**", "commands/**", "dieu-phoi/**", "GUIDE.md", "README.md", "QUICKSTART.md", "scripts/co-hop-dong.cjs", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.chd_ac7
+    expected: >-
+      PASS: AC-7 — kho thử bốn nhóm × có/không dòng giữ × chốt/draft × hai phía mốc, cộng hồ sơ ≥ 13 không
+      dòng giữ chốt trước mốc mà ký sau mốc (evidence-report.md dựng từ khuôn evidence-report-template.md của bên
+      ghi, `human_signoff` mang ngày sau mốc; không vào nhóm của `--tu`): `n_giu` mỗi nhóm bằng
+      giá trị tính tay (không mốc và `--tu <mốc>`, 8 khẳng định), `n_chot − n_giu` nhóm `phai-tach` bằng số
+      tay; năm trường cũ mỗi nhóm bằng đầu ra trên bản kho thử đã gỡ mọi dòng giữ. PASS: AC-7-do — bản sao
+      đếm `n_giu` bằng mọi hồ sơ của nhóm (`g.filter(x => x.giu).length` → `g.length`, kim một lần): lệch số
+      tay, ghim «n_giu phải đếm dòng giữ». PASS: AC-7-do-ngay-ky — bản sao cho `--tu` lọc theo ngày ký
+      (`human_signoff`) trước ngày chốt: hồ sơ ký sau mốc lọt vào nhóm, lệch số tay, ghim «--tu lọc theo ngày ký».
+    paths: ["scripts/cat-luot.mjs", "scripts/co-hop-dong.cjs", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.chd_ac8
+    expected: >-
+      PASS: AC-8 — rút khối `DEC-GIU-CO` và `DEC-ID-RECIPE` từ SKILL Feature Loop, chạy nguyên văn bằng bash
+      trong kho thử: dòng mới parse JSON, `type`/`stage` đúng khối, thẻ thật trả `chan: false` và
+      `co_hop_dong.giu.id` = mã dòng mới. PASS: AC-8-do — bản sao khối đổi «cỡ» thành «co»: thẻ KHÔNG
+      nhận dòng ấy (`chan: true`), ghim «bên ghi lệch bên đọc».
+    paths: ["feature-loop/skills/feature-loop/SKILL.md", "scripts/co-hop-dong.cjs", "scripts/gate-card.js", "tests/scripts/co-hop-dong.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -91,7 +91,11 @@ Steps:
    ĐỌC SAI (lint W6 bắt ở Gate 1). Danh từ mờ/quá tải ("account" = Customer hay
    User?) → HỎI người. Term chốt được → ghi ngay vào `CONTEXT.md`: `**Term**:`
    + định nghĩa 1-2 câu + `_Avoid_:` (tạo file lười; là glossary, không phải spec).
-3. Write 5-15 criteria, each Given/When/Then, each independently checkable.
+3. Write criteria within the kit's size range — khối `CAT-LUOT-CO` of the `cat-luot` skill:
+   mục tiêu 8–10 · cho phép tới 12 · từ 13 — each Given/When/Then, each independently checkable.
+   11–12 only when the result cannot be split and keep its meaning; from 13, split into several
+   loops (one result each) or record why it stays whole as one `decisions.jsonl` line whose
+   `decision` starts `giữ cỡ — <lý do>` — the Gate 1 card refuses a 13+ draft without one.
    Tag business-judgment criteria with `(judgment)`. Tag criteria whose
    When/Then crosses the backend (a UI flow triggering an API call / data
    mutation) with `(cross-layer)` — pairing rule (c), lint W4 and the

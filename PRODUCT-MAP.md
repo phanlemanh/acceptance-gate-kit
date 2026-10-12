@@ -13,7 +13,7 @@ flowchart TD
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>116 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>24 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>25 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -71,6 +71,7 @@ flowchart TD
 - tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
 - Mỗi việc đã giao có một trang hồ sơ đọc trong một phút — vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không — vẽ từ vật của hồ sơ, và bản chiếu lộ trình nhận cùng dải tóm tắt qua khối dữ liệu bản 2 (`trang-ho-so-mot-viec`)
 - Vòng là một kết quả — răng cắt lượt nói ra hàng nào phải tách, gộp được, hay lệch dáng câu giao (cờ có tên, khoảng cỡ một nguồn trong SKILL), và đồng hồ chỉ đọc in lại bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao để mỗi mốc đọc lại khoảng trên số thật (`vong-la-mot-ket-qua`)
+- Vòng mở thẳng bằng Feature Loop cũng bị đo cỡ — hợp đồng từ 13 tiêu chí không vào được Cổng Phạm vi khi chưa tách hoặc chưa có dòng sổ giữ có tên, 11–12 tiêu chí lên thẻ thành cờ vàng; khoảng đọc từ chính khối CAT-LUOT-CO của lượt cắt, năm chỗ dạy «5–15» nói cùng chính sách (`vong-mo-thang-bang-feature-loop`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
 
 ## Đã giao

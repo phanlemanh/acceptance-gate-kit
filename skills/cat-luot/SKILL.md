@@ -55,7 +55,8 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 
 Bốn nhóm theo khối khoảng cỡ ở bước 3 (dưới mục tiêu · mục tiêu · cho phép · phải tách): `n_chot` là số
 vòng đã chốt phạm vi, `n` · `luot_tb` · `cham_tran_pt` đo trên vòng đã giao có lượt chấm, `it_du_lieu:
-true` khi `n` quá nhỏ để tin. Đặt số đo cạnh khối khoảng: số của kho nói khác chính sách (nhóm «cho
+true` khi `n` quá nhỏ để tin; `n_giu` là số vòng đã chốt mang dòng sổ «giữ cỡ — <lý do>» (vòng giữ
+nguyên cỡ có tên ở Cổng Phạm vi — thẻ Cổng 1 đọc dòng ấy bằng cùng bộ đọc `scripts/co-hop-dong.cjs`). Đặt số đo cạnh khối khoảng: số của kho nói khác chính sách (nhóm «cho
 phép» chạm trần nhiều hơn nhóm «phải tách», hay nhóm mục tiêu không rẻ hơn) thì dán số đo của đồng hồ
 cỡ vào mô tả PR cắt lượt và báo chủ kit — KHÔNG sửa khối. Khoảng là chính sách của KIT, đi theo bản
 phát hành: ở kho tiêu thụ, SKILL này nằm trong bộ đệm plugin — sửa ở đó là mất ở lần cài sau và không
