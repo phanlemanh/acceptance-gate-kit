@@ -86,7 +86,8 @@ của nguồn kia chỉ là cận dưới, in ra là đoán.
 `tomTatHoSo` chọn khối lý do MỘT lần (cùng luật chọn của vòng trước) rồi trả HAI bản: `moi_nguoi.vi_sao` có trần
 400 (dải, khối dữ liệu lộ trình — không đổi một ký tự) và `chiTiet.viSao` đầy đủ `{ doan, muc }`: đoạn nguyên văn
 (bỏ dấu nhấn như dải) và — khi đoạn là câu dẫn «…:» theo sau là danh sách hay bảng — mọi mục NGUYÊN VĂN (bảng:
-các ô của hàng nối « · »). Trang hồ sơ in đoạn + danh sách ở mục gập. `chiTiet` không vào khối dữ liệu lộ trình,
+các ô của hàng nối « · »); đoạn KHÔNG phải câu dẫn mà có gạch DÍNH LIỀN ngay dưới (không dòng trắng xen) thì kèm
+các gạch ấy — trang trước vòng `dai-tom-tat-doc-dung` in chúng như một phần đoạn (phép đo DD-9 tìm ra ở crm, 12/10). Trang hồ sơ in đoạn + danh sách ở mục gập. `chiTiet` không vào khối dữ liệu lộ trình,
 nên khuôn khối không đổi.
 
 Câu dẫn ở trang đầy đủ được kèm danh sách — trước vòng `dai-tom-tat-doc-dung` trang in câu dẫn cụt «…:»; in lại
@@ -123,6 +124,9 @@ Câu dẫn ở trang đầy đủ được kèm danh sách — trước vòng `d
   — cần sáu kho trên máy nên không mang đuôi `.test.mjs`, không vào suite (tiền lệ `dai-tom-tat-crm.mjs`); kho vắng
   → ĐỎ nêu tên kho. Bộ đọc base = cây `bd8163dc` (đỉnh vòng trước, tổ tiên của nhánh này) qua `git archive` trọn
   thư mục `scripts lib`.
-- Trang đầy đủ: bộ đọc HTML độc lập của ca (không gọi mô-đun).
+- Trang đầy đủ: bộ đọc HTML độc lập của ca (không gọi mô-đun); trên dữ liệu thật so CHỨA trên chuỗi chỉ gồm chữ cái
+  với câu cuối của đoạn mà bộ vẽ tiền-trần `7f65e5a0` in.
+- Đường đo của ngưỡng nghiệm thu: `node tests/scripts/dai-tom-tat-sau-kho.mjs --hien-tai crm=<gốc kho>` — bốn số
+  (i)–(iv) của mục «Đường đo» trong hợp đồng; đo thử 12/10 trên crm `onehub` với cây vòng này: 0 · 0 · 0 · 0.
 
 Cỡ vòng: 10 tiêu chí — trong khoảng mục tiêu 8–10 của chính sách cỡ vòng.
