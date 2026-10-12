@@ -122,15 +122,18 @@ evals:
     cmd: config:executors.test.kiem_ban_cai
     paths: [_acceptance/config.yaml, tests/scripts/kiem-ban-cai.ca.mjs]
     expected: >
-      exit 0; stdout có "PASS: KB-9 config", "PASS: KB-9 bang", "PASS: KB-9 khac", "PASS: KB-9 khong-do".
+      exit 0; stdout có "PASS: KB-9 config", "PASS: KB-9 im", "PASS: KB-9 doi-chung", "PASS: KB-9 do", "PASS: KB-9 khong-do".
       (config) ca đọc _acceptance/config.yaml (suy từ vị trí tệp ca) bằng resolveConfigKey + resolveConfigList
       của lib/evidence-core.cjs (bộ đọc s4-args dùng): executors.test.kiem_ban_cai == "node
       tests/scripts/kiem-ban-cai.ca.mjs", executors.test.kiem_ban_cai_moc == "node tests/scripts/kiem-ban-cai.ca.mjs
       --chi-luot-moc", suite_keys chứa executors.test.kiem_ban_cai_moc và KHÔNG chứa executors.test.kiem_ban_cai.
-      Ba kho thử do code sinh (git init -b main, commit gốc có .claude-plugin/plugin.json số 9.0.0, nhánh f):
-      (bang) f giữ 9.0.0 → hàm nhận diện trả «bo-qua», và chạy CHÍNH tệp ca `--chi-luot-moc` với cwd/gốc là kho
-      thử in đúng một dòng bắt đầu «BỎ QUA: KB — không phải lượt cắt mốc», thoát 0, không có dòng «PASS: KB-2»;
-      (khac) f đổi số 9.1.0 → hàm trả «chay-tron»; (khong-do) kho không có nhánh main → hàm trả «chay-tron».
+      Bản sao kit do code sinh trong lượt: `git archive HEAD` → thư mục tạm, `git init -b main`, commit gốc, nhánh
+      f; ca chạy CHÍNH tệp ca của bản sao (`node <bản sao>/tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc`,
+      cwd = bản sao). (im) f chỉ sửa README.md → đúng một dòng bắt đầu «BỎ QUA: KB — không phải lượt cắt mốc»,
+      thoát 0, không có dòng chứa «cấu hình cách ly». (doi-chung) f chỉ đổi số trong .claude-plugin/plugin.json →
+      thoát 0, có «TỔNG KẾT: ĐẠT 8/8». (do) f đổi số VÀ xoá feature-loop/agents/ → thoát 1, có «THIẾU thư mục gói:
+      feature-loop/agents» và «TỔNG KẾT: ĐỎ». Chiều đỏ chỉ tính khi đối chứng dương xanh trong cùng lượt.
+      (khong-do) bản sao không có nhánh main → hàm nhận diện (export của tệp ca) trả «chay-tron».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-9

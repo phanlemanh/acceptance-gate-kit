@@ -72,7 +72,9 @@ SAU PHÁT HÀNH. Nghiệm giữ răng máy mà không trả giá đó:
 - `--chi-luot-moc`: tệp ca so số trong `.claude-plugin/plugin.json` ở HEAD với số ở gốc vòng
   (`git merge-base HEAD <nhánh chính>`; nhánh chính dò như `s4-args`). Bằng nhau → in đúng một dòng
   `BỎ QUA: KB — không phải lượt cắt mốc (số <x> = gốc vòng)` rồi thoát 0, không cài gì (dưới một giây). Khác
-  nhau → chạy trọn bộ ca. Không dò được gốc vòng hay đọc được số → chạy trọn (đóng khi nghi ngờ, không mở).
+  nhau → chạy `scripts/kiem-ban-cai.mjs --ref HEAD` rồi `--ref <tag mới nhất>` (KB-6) của CHÍNH cây đang chấm, in
+  nguyên đầu ra, thoát theo mã của chúng — không chạy các ca phá thử (chúng chứng lệnh kiểm, không chứng bản cài).
+  Không dò được gốc vòng hay đọc được số → chạy như lượt mốc (đóng khi nghi ngờ, không mở).
 - Hồ sơ cắt mốc là hồ sơ DUY NHẤT đổi số → lượt chấm mốc tự chạy trọn kiểm trên HEAD (= cây sẽ gắn tag), không ai
   phải nhớ thêm eval vào hồ sơ mốc. Bản cài của HEAD hỏng → suite đỏ → lượt chấm mốc đỏ → không cắt số. Làn ghim
   lại của chiến dịch phát hành cũng chạy suite_keys nên cũng chạy trọn.
