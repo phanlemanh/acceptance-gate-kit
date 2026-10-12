@@ -4490,7 +4490,7 @@ rm -f "$SELF_MUT"
 # Tệp ca không mang đuôi .test.mjs để không trôi giữa các mảnh mjs; chạy ở phần bash (tất định).
 echo "=== can-cu-s1.ca.mjs ==="
 node "$HERE/can-cu-s1.ca.mjs"; _cc_rc=$?
-check "can-cu-s1.ca.mjs (CC-02..CC-10)" 0 "$_cc_rc"
+check "can-cu-s1.ca.mjs (CC-02..CC-10, KK-1..KK-10)" 0 "$_cc_rc"
 
 echo "=== luat-san-pham.ca.mjs ==="
 node "$HERE/luat-san-pham.ca.mjs"; _ls_rc=$?

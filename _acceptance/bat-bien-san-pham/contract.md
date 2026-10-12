@@ -88,4 +88,4 @@ phiên bản luật), `[NGÀNH: ArchUnit]` (luật thành phép kiểm, vi phạ
 - Giới hạn đã khai (design doc §4, mỗi mục kèm ngưỡng): bộ soi diff khớp chữ theo dấu hiệu kho tự khai ·
   bộ tìm lỗi thấy luật chỉ khi kho trỏ tệp trong `CLAUDE.md` · tách commit máy/người bằng dòng đồng tác
   giả · chân crm của AC-2 chạy tay một lần.
-- Commit gốc của vòng: `e8ef5e20ef534287c5eb30466a0289c96bbed041` (đỉnh nhánh A2 lúc vào S3 12/10 — A2 bị giữ khỏi main tới sau mốc 2.27.0; đổi thành `origin/main` có A2 trước S4) — ca LS-02 đọc sha từ dòng này.
+- Commit gốc của vòng: `08d041a6c25e71d6c7e9c34cc840b3c62943ec2c` (origin/main 13/10 đã có A2 #320 + A2s #331, trước BB1; đổi từ đỉnh nhánh A2 `e8ef5e20` lúc vào S3) — ca LS-02 đọc sha từ dòng này.

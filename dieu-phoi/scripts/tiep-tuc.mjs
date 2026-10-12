@@ -48,6 +48,9 @@ export const TRANG_THAI_HANH_DONG = {
   'chua-biet': 'thieu',
 };
 
+// Dấu «dãy chưa ghi danh» (DP8): bên viết là `ghiDauChoGhiDanh`/`ghiDanhWorktree` của hang.mjs.
+export const THU_MUC_CHO_GHI_DANH = 'cho-ghi-danh';
+
 const coTep = (thuMuc, ten, tienTo) => {
   const d = path.join(thuMuc, ten);
   return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.startsWith(tienTo) && f.endsWith('.json')) : [];
@@ -77,7 +80,10 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
   const giuKhoa = khoaGiu.has(d.id);
   const conCho = coTep(thuMuc, 'xin', `${d.id}-`).length > 0
     || coTep(thuMuc, 'yeu-cau', `${d.id}-`).some((f) => !fs.existsSync(path.join(thuMuc, 'tra-loi', f)));
-  if (!laThuMuc(d.worktree)) return { ...nen, hanh_dong: HANH_DONG.worktreeMat };
+  // DP8 (design chỗ chọn 2c): worktree không phải thư mục mà dãy mang dấu chưa ghi danh (chỗ giữ của gói) → đi tiếp như
+  // dãy không phiên sống; không dấu (đã ghi danh rồi mất, hay đợt mở bằng bản gói cũ) → worktree-mat như cũ.
+  const chuaGhiDanh = !laThuMuc(d.worktree) && fs.existsSync(path.join(thuMuc, THU_MUC_CHO_GHI_DANH, `${d.id}.json`));
+  if (!laThuMuc(d.worktree) && !chuaGhiDanh) return { ...nen, hanh_dong: HANH_DONG.worktreeMat };
   if (giuKhoa) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };
   if (fs.existsSync(path.join(thuMuc, 'cho-nguoi', `${d.id}.json`))) return { ...nen, hanh_dong: HANH_DONG.choNguoi };
   if (nen.song) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };
@@ -93,7 +99,8 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
     hanh_dong: HANH_DONG.moChip,
     da_ban_giao: phienCu.size > 0,
     muc: m,
-    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · worktree ${d.worktree} · nhánh ${m.nhanh ?? '?'} @ ${(m.dinh ?? '').slice(0, 7)}${slug ? ` · hồ sơ ${slug} (${m.trang_thai_ho_so ?? 'chưa có'})` : ''}${phu} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}`,
+    // DP8 (chỗ chọn 2d): chip luôn dựng worktree MỚI, nên mọi lời ghi danh mang lệnh `ghi-danh` của lõi đợt.
+    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · việc đầu tiên, từ worktree của chip: node ${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')} ghi-danh ${d.id} · ${chuaGhiDanh ? 'worktree chưa ghi danh' : `worktree ${d.worktree} · nhánh ${m.nhanh ?? '?'} @ ${(m.dinh ?? '').slice(0, 7)}`}${slug ? ` · hồ sơ ${slug} (${m.trang_thai_ho_so ?? 'chưa có'})` : ''}${phu} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}`,
   };
 }
 
