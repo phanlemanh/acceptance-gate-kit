@@ -133,11 +133,20 @@ const caTep = fs.readFileSync(CA_TEP, 'utf8')
   .replace('__XEM_CHU__', JSON.stringify(STDOUT.chu));
 function chayPluginTest(sua = null) {
   const sao = banSao(sua);
-  fs.writeFileSync(path.join(sao, 'hooks', 'mod', 'khung.test.ts'), caTep);
+  // Gốc gói của CHÍNH bản sao: AC-6 hứa argv[1] BẰNG <gốc gói>/scripts/dieu-phoi.mjs, không chỉ khớp đuôi.
+  fs.writeFileSync(path.join(sao, 'hooks', 'mod', 'khung.test.ts'), caTep.replace('__GOC_GOI__', JSON.stringify(sao)));
   const r = spawnSync(BAN, ['plugin', 'test', sao], { cwd: path.dirname(sao), encoding: 'utf8', env: ENV, timeout: 180_000 });
   const tho = `${r.stdout ?? ''}${r.stderr ?? ''}`;
   const ca = new Map([...tho.matchAll(/^\((pass|fail)\) (.+?) \[/gm)].map((m) => [m[2], m[1]]));
   return { ca, tho };
+}
+// Khối lỗi của MỘT ca trong đầu ra plugin test: từ dòng «(fail) <ca> [» tới dòng «(pass)/(fail)» kế tiếp.
+function khoiLoi(tho, ca) {
+  const i = tho.indexOf(`(fail) ${ca} [`);
+  if (i < 0) return '';
+  const sau = tho.slice(i + 1);
+  const j = sau.search(/^\((pass|fail)\) /m);
+  return j < 0 ? sau : sau.slice(0, j);
 }
 const NHOM = {
   'KH-05 dai': ['dai co dot', 'dai khong dot', 'dai loi doc', 'dai stdout hong', 'dai survey', 'bam xem mo pane'],
@@ -149,15 +158,21 @@ for (const [ten, ds] of Object.entries(NHOM)) {
   const truot = ds.filter((c) => lanh.ca.get(c) !== 'pass');
   ket(truot.length === 0, ten, truot.length ? `trượt: ${truot.map((c) => `${c}=${lanh.ca.get(c) ?? 'vắng'}`).join(', ')}` : `${ds.length}/${ds.length} pass · terminal+desktop`);
 }
-// Chiều đỏ: mỗi bản tiêm phải làm ĐÚNG ca nhắm tới thành (fail).
+// Chiều đỏ: mỗi bản tiêm phải làm ĐÚNG ca nhắm tới thành (fail), SAU khi bản lành xanh đúng ca đó (đối chứng
+// dương trên chính dòng), và khối lỗi THẬT của ca trong đầu ra plugin test phải mang thông điệp ghim — không in
+// chữ tự nối (finding t2/t3/t5 của lượt chấm 1).
 const DO = [
-  ['KH-05-do bo-next-khong-dot', 'dai khong dot', (s) => tiem(tepKhung(s), '    if (dai === null) return next(e)\n', '')],
-  ['KH-06-do chu-ky', 'nhip khong dot', (s) => tiem(path.join(s, 'scripts', 'khung.mjs'), 'khong_dot: 120000', 'khong_dot: 20000')],
-  ['KH-07-do mo-khong-hoi', 'khong mo pane khi khong hoi', (s) => tiem(tepKhung(s), "  on('session.start', async ($, e, next) => {\n", "  on('session.start', async ($, e, next) => {\n    void $.ui.open({ id: PANE, title: 'Đợt' })\n")],
+  ['KH-05-do bo-next-khong-dot', 'dai khong dot', /toBeUndefined/, (s) => tiem(tepKhung(s), '    if (dai === null) return next(e)\n', '')],
+  ['KH-06-do chu-ky', 'nhip khong dot', /Expected: 1\s+Received: 2/, (s) => tiem(path.join(s, 'scripts', 'khung.mjs'), 'khong_dot: 120000', 'khong_dot: 20000')],
+  ['KH-06-do argv-goc', 'nhip co dot', /scripts\/dieu-phoi\.mjs/, (s) => tiem(tepKhung(s), "['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'xem', '--json']", "['node', './scripts/dieu-phoi.mjs', 'xem', '--json']")],
+  ['KH-07-do mo-khong-hoi', 'khong mo pane khi khong hoi', /Expected: 0\s+Received: 1/, (s) => tiem(tepKhung(s), "  on('session.start', async ($, e, next) => {\n", "  on('session.start', async ($, e, next) => {\n    void $.ui.open({ id: PANE, title: 'Đợt' })\n")],
 ];
-for (const [ten, caNham, sua] of DO) {
+for (const [ten, caNham, ghim, sua] of DO) {
   const r = chayPluginTest(sua);
-  ket(r.ca.get(caNham) === 'fail', ten, `(${r.ca.get(caNham) ?? 'vắng'}) ${caNham}${ten.includes('chu-ky') ? ' — chu kỳ không đợt 120000' : ''}`);
+  const khoi = khoiLoi(r.tho, caNham);
+  const dong = khoi.split('\n').map((x) => x.trim()).filter((x) => ghim.test(x) || /^(Expected|Received)/.test(x)).slice(0, 2).join(' · ');
+  const ok = lanh.ca.get(caNham) === 'pass' && r.ca.get(caNham) === 'fail' && ghim.test(khoi);
+  ket(ok, ten, `lành ${lanh.ca.get(caNham) ?? 'vắng'} · tiêm ${r.ca.get(caNham) ?? 'vắng'} ${caNham} · ${dong || 'không thấy thông điệp ghim'}`);
 }
 
 // ================= KH-08 — lệnh qua engine thật, môi trường cô lập =================

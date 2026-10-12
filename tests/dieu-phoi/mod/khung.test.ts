@@ -1,7 +1,7 @@
 // Ca của phần mod khung trạng thái đợt (hồ sơ trang-thai-dot-dieu-phoi-tho AC-5, AC-6, AC-7). kiem-khung.mjs chép
 // tệp này cạnh phần mod trong một BẢN SAO gói và thay ba chỗ giữ bằng stdout THẬT mà CLI in trong cùng lượt trên
 // kho thử dựng từ fixture dot-crm-0910 (round-trip CLI → mod): `xem --json` ở worktree P3, `xem --json` ở kho không
-// đợt, và `xem` không cờ ở worktree P3. Mỗi ca lặp qua hai bề mặt terminal và desktop.
+// đợt, và `xem` không cờ ở worktree P3; chỗ giữ thứ tư là gốc của chính bản sao gói (argv của nhịp phải BẰNG nó). Mỗi ca lặp qua hai bề mặt terminal và desktop.
 import { test, expect, mock } from 'claude-code/testing'
 import { veDai } from '../../scripts/khung.mjs'
 import { chuXem } from '../../scripts/mo-hinh.mjs'
@@ -9,6 +9,7 @@ import { chuXem } from '../../scripts/mo-hinh.mjs'
 const JSON_P3: string = __XEM_JSON_P3__
 const JSON_KHONG: string = __XEM_JSON_KHONG__
 const CHU_XEM: string = __XEM_CHU__
+const GOC_GOI: string = __GOC_GOI__
 const SURFACES = ['terminal', 'desktop'] as const
 const COT = 160
 const BAND = (surface: any) => ({
@@ -177,7 +178,7 @@ test('nhip co dot', async ($, on) => {
   console.log('ARGV ' + JSON.stringify(goi[0]))
   expect(goi[0].argv.slice(2)).toEqual(['xem', '--json'])
   expect(goi[0].argv[0]).toBe('node')
-  expect(String(goi[0].argv[1]).endsWith('/scripts/dieu-phoi.mjs')).toBe(true)
+  expect(goi[0].argv[1]).toBe(`${GOC_GOI}/scripts/dieu-phoi.mjs`)
   expect(goi[0].init.cwd).toBe('/tmp/kho-thu/.claude/worktrees/wt-3')
   expect(goi[0].init.timeoutMs).toBe(10000)
   await clock.advance(20000)

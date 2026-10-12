@@ -130,6 +130,8 @@ test('KH-01 xem-json', async () => {
 });
 
 test('KH-01-do bo-day-cua-cwd', async () => {
+  const lanh = await kiemXemJson(GOI);
+  assert.ok(!lanh.some((l) => l.startsWith('(b)')), `đối chứng dương: gói lành đỏ ở (b): ${lanh.join(' | ')}`);
   const sao = banSao('dieu-phoi.mjs', 'day_cua_cwd: phienCuaCwd(hangViec, cwd), ', '');
   const loi = await kiemXemJson(sao);
   assert.ok(loi.some((l) => l.startsWith('(b)') && l.includes('day_cua_cwd')), loi.join(' | '));
@@ -169,6 +171,8 @@ test('KH-02 xem-json-bien', () => {
 });
 
 test('KH-02-do khong-dot-rong', () => {
+  const lanh = kiemXemJsonBien(GOI);
+  assert.ok(!lanh.some((l) => l.startsWith('(a)')), `đối chứng dương: gói lành đỏ ở (a): ${lanh.join(' | ')}`);
   const sao = banSao('dieu-phoi.mjs', 'if (!thuMuc) return { dot: null };', 'if (!thuMuc) return {};');
   const loi = kiemXemJsonBien(sao);
   assert.ok(loi.some((l) => l.startsWith('(a)') && l.includes('{}')), loi.join(' | '));
@@ -214,6 +218,8 @@ test('KH-03 xem-khong-doi', () => {
 });
 
 test('KH-03-do doi-chu', () => {
+  const lanh = kiemXemKhongDoi(GOI);
+  assert.ok(!lanh.some((l) => l.startsWith('(a)')), `đối chứng dương: gói lành đỏ ở (a): ${lanh.join(' | ')}`);
   const sao = banSao('mo-hinh.mjs', '· chờ lượt ${m.hang_cho.length}', '· cho luot ${m.hang_cho.length}');
   const loi = kiemXemKhongDoi(sao);
   assert.ok(loi.some((l) => l.startsWith('(a)') && l.includes('cho luot')), loi.join(' | '));
@@ -335,20 +341,27 @@ test('KH-04 khung-khong-import', () => {
   assert.ok(!/^\s*import\b/m.test(nguon), 'khung.mjs có dòng import');
 });
 
-// Ca đỏ: bản sao khung.mjs bị tiêm, chạy lại CHÍNH phép đo.
+// Ca đỏ: bản sao khung.mjs bị tiêm, chạy lại CHÍNH phép đo — sau đối chứng dương: gói lành sạch ở đúng các hàng nhắm.
+async function lanhSach(hang) {
+  const l = [...(await kiemVeDai(GOI)), ...(await kiemRoundTripDai(GOI))];
+  assert.ok(!l.some((x) => hang.some((h) => x.startsWith(h))), `đối chứng dương: gói lành đỏ ở ${hang.join(', ')}: ${l.join(' | ')}`);
+}
 test('KH-04-do bo-giam-tai', async () => {
+  await lanhSach(['(g)', '(R4)']);
   const sao = banSao('khung.mjs', 'if (kq.giam_tai) s = `GIẢM TẢI · ${s}`;', '');
   const loi = [...(await kiemVeDai(sao)), ...(await kiemRoundTripDai(sao))];
   assert.ok(loi.some((l) => l.startsWith('(g)')) && loi.some((l) => l.startsWith('(R4)')), loi.join(' | '));
 });
 
 test('KH-04-do sai-khoa-cho', async () => {
+  await lanhSach(['(R1)']);
   const sao = banSao('khung.mjs', 'chờ lượt ${(kq.hang_cho ?? []).length}', 'chờ lượt ${(kq.cho_nguoi ?? []).length}');
   const loi = await kiemRoundTripDai(sao);
   assert.ok(loi.some((l) => l.startsWith('(R1)')), loi.join(' | '));
 });
 
 test('KH-04-do gio-may', async () => {
+  await lanhSach(['(k)', '(l)']);
   const sao = banSao('khung.mjs', 'const d = new Date(ms + (Number(lechPhut) || 0) * 60000);', 'const d = new Date(ms); d.getUTCHours = d.getHours; d.getUTCMinutes = d.getMinutes;');
   const loi = await kiemVeDai(sao);
   assert.ok(loi.some((l) => l.startsWith('(k)') || l.startsWith('(l)')), loi.join(' | '));
