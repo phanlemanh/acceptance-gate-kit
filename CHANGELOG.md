@@ -47,8 +47,8 @@ Diff engine của cửa sổ còn ở: `dieu-phoi/` (mới), `feature-loop/agent
 Gốc: crm `_acceptance/dieu-phoi-hai-tang` — lõi đợt (bộ phát lịch, CLI, bốn hook; 14 tệp mã, 84 ca) sống trong crm,
 mở đợt là sáu bước tay, OneFlow muốn dùng phải chép mã. Ô dù `dieu-phoi-tho-trong-kit` (Cổng Đáng build 09/10).
 
-- **Gói thứ tư của marketplace** (`dieu-phoi-dong-goi-loi`, #295): `claude plugin install dieu-phoi@acceptance-gate-kit
-  --scope project`. Năm khối hook gắn qua `hooks/hooks.json` của gói — kho không sửa `.claude/settings.json`. Kho
+- **Gói thứ tư của marketplace** (`dieu-phoi-dong-goi-loi`, #295): cài theo kho (`--scope project`) bằng lệnh ở mục
+  «Cài cho một kho» của `dieu-phoi/README.md`. Năm khối hook gắn qua `hooks/hooks.json` của gói — kho không sửa `.claude/settings.json`. Kho
   không có đợt: mọi hook thoát 0, không in, không tạo tệp. `acceptance-init` KHÔNG tự bật gói (thẻ
   `bat-theo-lua-chon`). Đợt do bản crm mở chạy tiếp được bằng gói.
 - **Mở · xem · đóng đợt một lệnh** (`dieu-phoi-mo-dot-mot-lenh`, #298): `/dieu-phoi:mo-dot`, `/dieu-phoi:xem`,
@@ -300,12 +300,12 @@ lượt 1: tác tử chấm sửa mã, commit ba lần, lượt vô hiệu, ~4,6
 - **Chưa chạy sống lần nào trước mốc này:** 32 lượt chấm của 14 hồ sơ trong cửa sổ ghi `loai-tac-tu-vang` — bản
   cài `feature-loop` 2.26.0 không có `agents/`, nên mọi lượt đi đường rơi. 2.27.0 là số đầu tiên mang ba loại tác tử.
 - **Ai bị ảnh hưởng:** mọi kho chạy S4. Bản cài cũ vẫn chấm được (đường rơi ở trên), chỉ là vai chấm còn cầm bút.
-- **Khi update — đường đã dẫm, không chỉ «cài lại»:** `claude plugin update` hay báo «already at latest» mà bộ đệm
-  vẫn giữ bản cũ (bộ đệm khoá theo số, và `update` mặc định chỉ chạm phạm vi `user`). Làm đủ bốn bước:
+- **Khi update — đường đã dẫm, không chỉ «cài lại»:** lệnh cập nhật plugin hay báo «already at latest» mà bộ đệm
+  vẫn giữ bản cũ (bộ đệm khoá theo số, và lệnh cập nhật mặc định chỉ chạm phạm vi `user`). Làm đủ bốn bước:
   1. `claude plugin marketplace update acceptance-gate-kit`.
   2. Ở MỖI bản ghi — phạm vi `user`, và với `project` thì `cd` vào gốc kho rồi từng cây phụ có phiên:
-     `claude plugin uninstall feature-loop@acceptance-gate-kit --scope <phạm vi>` rồi
-     `claude plugin install feature-loop@acceptance-gate-kit --scope <phạm vi>`.
+     `claude plugin uninstall feature-loop@acceptance-gate-kit --scope <phạm vi>` rồi cài lại `feature-loop` cùng phạm
+     vi — lệnh cài là lệnh của khối khai plugin ở GUIDE §5.1, thêm `--scope <phạm vi>`.
   3. Kiểm bộ đệm bằng một lệnh đọc được — mỗi dòng in ra phải là `… 2.27.0 cham-doc.md,cham-lenh.md,cham-ui.md`;
      dòng nào còn `THIẾU agents/` là bản ghi đó chưa xong:
 
@@ -369,7 +369,7 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
    C1 (giữ job `check`, `if:` có `!cancelled() &&`, giữ lượt test đủ trên `push`). Bật khoá A3 hay chưa là quyết của
    crm: dự báo trên 71 hồ sơ đợt `sau-14-10` là làn V 0 → 37 — bật thì đọc ba giới hạn ở mục A3 trước.
 3. **Chuyển sang gói `dieu-phoi`:**
-   1. `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` ở cây gốc và từng cây phụ có phiên. Báo
+   1. Cài `dieu-phoi` theo `dieu-phoi/README.md` (mục «Cài cho một kho») ở cây gốc và từng cây phụ có phiên. Báo
       «already at latest» mà `claude plugin list --json` vẫn ghi `2.26.0` (bản cài từ `main` giữa hai mốc) thì
       `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại; kiểm từng bản ghi.
    2. Đợt đang mở bằng bản crm: dừng bộ phát lịch bản cũ trước (`node scripts/dieu-phoi/dieu-phoi.mjs dung`), chuyển
