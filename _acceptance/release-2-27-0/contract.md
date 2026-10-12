@@ -5,7 +5,7 @@ slug: release-2-27-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + mô tả marketplace + dòng khớp-phiên-bản của GUIDE + CHANGELOG + README gói dieu-phoi + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: draft
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo

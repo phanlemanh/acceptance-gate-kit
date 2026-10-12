@@ -10,8 +10,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>112 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>20 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
@@ -41,14 +41,11 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 
-## Chờ duyệt phạm vi
-
-- Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng (`release-2-27-0`)
-
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng (`release-2-27-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
