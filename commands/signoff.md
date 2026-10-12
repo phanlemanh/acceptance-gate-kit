@@ -41,7 +41,7 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
 - «Treo: phê hết» hoặc «Treo: không phê Treo-<số>» → các quyết định ghi sau
   Gate 1.
 - «SP-<số>: sửa vật» hoặc «SP-<số>: chấp nhận có tên» → một luật sản phẩm của kho bị
-  chạm trên diff (khối «Luật sản phẩm bị chạm» của thẻ; hồ sơ bat-bien-san-pham, ADR 0023).
+  chạm trên diff (khối «Luật sản phẩm bị chạm» của thẻ; hồ sơ bat-bien-san-pham, ADR 0024).
   `sửa vật` (máy điền sẵn khuyến nghị) = trả hồ sơ về S3 sửa vật — lượt này KHÔNG ký, dù
   câu gộp có `Ký`; `chấp nhận có tên` = ngoại lệ có chủ ý: một dòng sổ `gate2` nêu mã luật +
   một gạch known-limits vào `## Notes` của hợp đồng.

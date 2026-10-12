@@ -1,6 +1,6 @@
 # Luật sản phẩm của kho — khuôn `PRODUCT-INVARIANTS.md`
 
-> Hồ sơ `bat-bien-san-pham`, ADR 0023. Tệp đặt ở **gốc kho tiêu thụ**, tên cố định
+> Hồ sơ `bat-bien-san-pham`, ADR 0024. Tệp đặt ở **gốc kho tiêu thụ**, tên cố định
 > `PRODUCT-INVARIANTS.md`. Tệp là **của kho**: chủ kho viết và sửa bằng commit riêng; máy
 > **không bao giờ** sửa nó — máy chỉ đề nghị trong hồ sơ vòng. Kho không có tệp thì kit không
 > đổi gì: không dòng nạp, không cờ, thẻ y nguyên.

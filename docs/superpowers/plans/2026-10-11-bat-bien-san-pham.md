@@ -51,7 +51,7 @@
 | `scripts/start-scan.mjs` (sửa) | truyền `ctx.luat` cùng cách CLI |
 | `feature-loop/skills/feature-loop/SKILL.md` (sửa) | S1 bước nạp + khuôn `DEC-LUAT-NAP` + câu soi ở S1#7 + dòng lệnh S4 «Mọi verdict» |
 | `commands/signoff.md`, `skills/acceptance/references/human-facing-language.md` (sửa) | nhãn ô `SP-<số>`, `Tệp luật` |
-| `GUIDE.md`, `CONTEXT.md`, `docs/adr/0023-luat-san-pham-cua-kho.md` (mới) | tài liệu cho kho tiêu thụ |
+| `GUIDE.md`, `CONTEXT.md`, `docs/adr/0024-luat-san-pham-cua-kho.md` (mới) | tài liệu cho kho tiêu thụ |
 | `tests/scripts/luat-san-pham.ca.mjs` (mới) + `tests/scripts/run-tests.sh` (sửa) | ca LS-01 … LS-11 |
 
 ---
@@ -126,7 +126,7 @@ Chạy `node tests/scripts/luat-san-pham.ca.mjs` → FAIL (mô-đun chưa có).
 
 ```js
 'use strict';
-// luat-san-pham.cjs — luật sản phẩm của kho (hồ sơ bat-bien-san-pham, ADR 0023).
+// luat-san-pham.cjs — luật sản phẩm của kho (hồ sơ bat-bien-san-pham, ADR 0024).
 // Khuôn tệp: khối PRODUCT-INVARIANTS-TEMPLATE trong skills/acceptance/references/product-invariants-template.md.
 const fs = require('fs'); const path = require('path'); const crypto = require('crypto');
 const { spawnSync } = require('child_process');
@@ -366,12 +366,12 @@ CLI: dựng `ctx.luat = { co_tep: docTepLuat(root).co_tep, cham: <đọc luat-ch
 
 ### Task 9: Tài liệu cho kho tiêu thụ (AC-9 judgment)
 
-**Files:** Modify `GUIDE.md` (mục mới «Luật sản phẩm của kho»), `CONTEXT.md` (term «Luật sản phẩm»: định nghĩa · `_Avoid_: bất biến (trong chữ người), invariant, spec, PRD`), `skills/acceptance/references/product-invariants-template.md` (văn quanh khối) · Create `docs/adr/0023-luat-san-pham-cua-kho.md`
+**Files:** Modify `GUIDE.md` (mục mới «Luật sản phẩm của kho»), `CONTEXT.md` (term «Luật sản phẩm»: định nghĩa · `_Avoid_: bất biến (trong chữ người), invariant, spec, PRD`), `skills/acceptance/references/product-invariants-template.md` (văn quanh khối) · Create `docs/adr/0024-luat-san-pham-cua-kho.md`
 **independent:** true (chỉ tài liệu) — nhưng đặt sau task 8 để trích đúng chữ SKILL.
 
 - [ ] GUIDE: viết tệp · tệp là của kho · vắng thì không gì đổi · dòng nạp · theo luật / phạm luật · thẻ hai cổng · ô `SP-<số>` hai lối + khuyến nghị «sửa vật» · ô `Tệp luật` · dòng trỏ trong `CLAUDE.md` (vì bộ tìm lỗi chỉ đọc `CLAUDE.md`) · lệnh `--dem`.
-- [ ] ADR 0023 một đoạn: quyết · vì sao đường cố định không khoá config · ai phê CỘNG (Cổng Đáng 11/10, owner gõ «Làm») · đường đảo (xoá tệp luật ở kho = về hành vi cũ; gỡ mô-đun = thẻ không nạp được, cờ vàng) · giới hạn (lưới trước-gộp không biết luật sản phẩm — `pre-merge-check.sh` là `t3_paths`, ngoài vòng T2; ngưỡng: ≥ 1 hồ sơ gộp có `luat-cham.json` có chạm mà không có dòng sổ `gate2` cho mã đó).
-- [ ] `node scripts/eval-coverage-lint.js .` không thêm cảnh báo mới cho hồ sơ; commit `docs: luật sản phẩm của kho — GUIDE, CONTEXT, ADR 0023 (AC-9)`.
+- [ ] ADR 0024 một đoạn: quyết · vì sao đường cố định không khoá config · ai phê CỘNG (Cổng Đáng 11/10, owner gõ «Làm») · đường đảo (xoá tệp luật ở kho = về hành vi cũ; gỡ mô-đun = thẻ không nạp được, cờ vàng) · giới hạn (lưới trước-gộp không biết luật sản phẩm — `pre-merge-check.sh` là `t3_paths`, ngoài vòng T2; ngưỡng: ≥ 1 hồ sơ gộp có `luat-cham.json` có chạm mà không có dòng sổ `gate2` cho mã đó).
+- [ ] `node scripts/eval-coverage-lint.js .` không thêm cảnh báo mới cho hồ sơ; commit `docs: luật sản phẩm của kho — GUIDE, CONTEXT, ADR 0024 (AC-9)`.
 
 ### Task 10: Ảnh cho E11 + cả bộ kiểm (AC-10 nhìn)
 

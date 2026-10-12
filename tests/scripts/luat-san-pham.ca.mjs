@@ -404,8 +404,11 @@ if (want('LS-10')) {
   });
   if (process.env.LS_GHI_ANH === '1') {
     const out = path.join(ROOT, '_acceptance', 'bat-bien-san-pham', 'evidence'); mkdirSync(out, { recursive: true });
-    writeFileSync(path.join(out, 'card-g1-luat.html'), '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">' + the(ho[0][1], ['--glossary-base', ho[0][1].base]));
-    writeFileSync(path.join(out, 'card-g2-luat.html'), '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">' + the(ho[1][1]));
+    // Chuỗi bọc rút từ CHÍNH lệnh dựng thẻ (commands/acceptance-card.md bước 5) — thẻ chụp là thẻ người nhận.
+    const BOC = (readFileSync(path.join(ROOT, 'commands', 'acceptance-card.md'), 'utf8').match(/Prepend `(<!doctype html>[^`]*)`/) || [])[1];
+    if (!BOC) die('không rút được chuỗi bọc thẻ từ commands/acceptance-card.md');
+    writeFileSync(path.join(out, 'card-g1-luat.html'), BOC + the(ho[0][1], ['--glossary-base', ho[0][1].base]));
+    writeFileSync(path.join(out, 'card-g2-luat.html'), BOC + the(ho[1][1]));
     console.log('  (đã ghi hai thẻ cho E11 vào ' + out + ')');
   }
 }

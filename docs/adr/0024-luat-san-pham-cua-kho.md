@@ -1,4 +1,4 @@
-# ADR 0023 — Luật sản phẩm của kho: một tệp ở gốc, nạp lúc thiết kế, gọi tên trên thẻ
+# ADR 0024 — Luật sản phẩm của kho: một tệp ở gốc, nạp lúc thiết kế, gọi tên trên thẻ
 
 2026-10-12 · CỘNG, chủ kho (Manh Phan) phê đích danh ở Cổng Đáng của vòng `bat-bien-san-pham`
 (gõ «Làm» 11/10 — ADR 0018). **Số đo:** crm `27d47de04`: múi giờ Việt Nam ghi cứng ở 12 tệp mã sản

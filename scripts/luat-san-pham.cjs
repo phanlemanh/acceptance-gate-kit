@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// luat-san-pham.cjs — luật sản phẩm của kho tiêu thụ (hồ sơ bat-bien-san-pham, ADR 0023).
+// luat-san-pham.cjs — luật sản phẩm của kho tiêu thụ (hồ sơ bat-bien-san-pham, ADR 0024).
 // Tệp luật ở gốc kho, tên cố định PRODUCT-INVARIANTS.md; tệp là CỦA KHO — mô-đun này chỉ ĐỌC.
 // Khuôn tệp: khối marker PRODUCT-INVARIANTS-TEMPLATE trong skills/acceptance/references/product-invariants-template.md
 // (bộ kiểm rút đúng khối đó để dựng tệp thử — đổi nhãn một phía là ca LS-01 đỏ).

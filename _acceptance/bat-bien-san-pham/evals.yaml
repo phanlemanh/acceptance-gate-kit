@@ -133,7 +133,7 @@ evals:
       - skills/acceptance/references/product-invariants-template.md
       - GUIDE.md
       - CONTEXT.md
-      - docs/adr/0023-luat-san-pham-cua-kho.md
+      - docs/adr/0024-luat-san-pham-cua-kho.md
     question: >
       Đọc như người của một kho tiêu thụ chưa từng thấy vòng này. Từ các tệp trên, có trả lời được không:
       (1) viết tệp PRODUCT-INVARIANTS.md thế nào, tệp ở đâu, và tệp là của kho — máy không sửa; (2) kho
@@ -143,7 +143,7 @@ evals:
       «Tệp luật» ra sao, với đúng hai lối «chấp nhận có tên» · «sửa vật» và khuyến nghị điền sẵn «sửa vật» —
       và hai nhãn ấy có trong danh sách GATE-ONESHOT-SLOTS; (6) kho được dặn thêm một dòng trỏ tệp luật vào
       CLAUDE.md để bộ tìm lỗi ở lượt chấm thấy luật, và vì sao (bộ tìm lỗi chỉ đọc CLAUDE.md); (7)
-      thuật ngữ «Luật sản phẩm» trong CONTEXT.md có định nghĩa và từ tránh; (8) ADR 0023 nói ai phê phần
+      thuật ngữ «Luật sản phẩm» trong CONTEXT.md có định nghĩa và từ tránh; (8) ADR 0024 nói ai phê phần
       CỘNG (Cổng Đáng 11/10), vì sao đường cố định không khoá config, và đường đảo; (9) ý (4) của phản biện
       context sạch (S1 mục 7 của SKILL) có câu soi «lựa chọn trái một luật đã nạp mà sổ không ghi
       pham_luat». PASS khi cả chín đúng; nêu câu sai nếu có.

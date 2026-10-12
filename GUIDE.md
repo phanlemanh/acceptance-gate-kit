@@ -1780,7 +1780,7 @@ trong tệp mang nhãn «luật SP-n · <mức>» trên thẻ.
 mỗi hồ sơ một hàng: dòng nạp · phạm ở thiết kế · chạm trên diff · nhãn ngoài hợp đồng · máy sửa tệp
 luật · chủ kho sửa tệp luật. Ngày khai (commit đầu thêm tệp luật) lệnh in ra.
 
-**Giới hạn đã khai** (ADR 0023): bộ soi khớp chữ theo dấu hiệu kho tự khai; lưới trước-gộp (CI) không
+**Giới hạn đã khai** (ADR 0024): bộ soi khớp chữ theo dấu hiệu kho tự khai; lưới trước-gộp (CI) không
 biết luật sản phẩm — chặn nằm ở thẻ và làn V.
 
 ## 9. Xử lý sự cố
