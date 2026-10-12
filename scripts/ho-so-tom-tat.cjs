@@ -119,19 +119,32 @@ function catTran(donVi, noi) {
   return ra.replace(/[\s.,;:·]+$/, '') + '…';
 }
 const boNhanCuoi = s => String(tron(s)).replace(/[*_\s]+$/, '');
+// Các khối mục theo sau câu dẫn ở khối i: các gạch liền sau, hoặc các hàng của bảng liền sau (bỏ hàng tiêu đề
+// — hàng đầu — và hàng phân cách). MỘT bộ chọn cho ô có trần (dải, khối) và bản đầy đủ (trang hồ sơ).
+function mucSau(k, i) {
+  const ra = [];
+  if (k[i + 1] && k[i + 1].bang) { for (let j = i + 2; j < k.length && k[j].bang; j++) if (!/^[\s|:-]*$/.test(k[j].chu)) ra.push(k[j]); }
+  else for (let j = i + 1; j < k.length && k[j].gach; j++) ra.push(k[j]);
+  return ra;
+}
 function viSaoCua(k, i) {
   const d = boNhanCuoi(k[i].chu);
   if (/:$/.test(d)) {
-    const muc = [];
-    if (k[i + 1] && k[i + 1].bang) {
-      // Bảng: bỏ hàng tiêu đề (hàng đầu) và hàng phân cách.
-      for (let j = i + 2; j < k.length && k[j].bang; j++) if (!/^[\s|:-]*$/.test(k[j].chu)) muc.push(rutMuc(k[j].noi));
-    } else for (let j = i + 1; j < k.length && k[j].gach; j++) muc.push(rutMuc(k[j].noi));
+    const muc = mucSau(k, i).map(x => rutMuc(x.noi));
     if (muc.length) return catTran([`${d} ${muc[0]}`, ...muc.slice(1)], ' · ');
   }
   return catTran(tachCau(tron(k[i].chu)), ' ');
 }
-function viSaoTu(opp, cauGiao) {
+// Bản ĐẦY ĐỦ của cùng khối lý do — mục gập «Vì sao làm» của trang hồ sơ (hồ sơ dai-tom-tat-dem-dung-vi-sao-tron):
+// đoạn nguyên văn và, khi đoạn là câu dẫn, mọi mục nguyên văn (hàng bảng: các ô nối « · »). Không trần.
+function viSaoDuCua(k, i, ly) {
+  if (ly != null) return { doan: tron(ly), muc: [] };
+  const muc = /:$/.test(boNhanCuoi(k[i].chu)) ? mucSau(k, i).map(x => (x.bang
+    ? tron(x.chu.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim()).filter(Boolean).join(' · ')) : tron(x.noi))) : [];
+  return { doan: tron(k[i].chu), muc };
+}
+// du = true → bản đầy đủ `{ doan, muc }` của CÙNG khối mà ô có trần chọn (một vòng chọn cho hai bản).
+function viSaoTu(opp, cauGiao, du) {
   const cg = boNgoacNgoai(chu(cauGiao));
   const k = khoiCua(section(opp, 'Vấn đề & ai gặp'));
   for (let i = 0; i < k.length; i++) {
@@ -139,6 +152,7 @@ function viSaoTu(opp, cauGiao) {
     if (d.startsWith('>') || /^Mở từ hàng\b/.test(d) || d.startsWith('Gốc:')) continue;
     if (boNgoacNgoai(d) === cg) continue;
     const mo = d.match(/^Vì sao:\s*Gốc:\s*\S+(?:\s+[^—]*?)?\s+—\s+(.+)$/);
+    if (du) return viSaoDuCua(k, i, mo ? mo[1].trim() : /^Vì sao:\s*/.test(d) && !/Gốc:/.test(d) ? d.replace(/^Vì sao:\s*/, '') : null);
     if (mo) return catTran(tachCau(tron(mo[1].trim())), ' ');
     if (/^Vì sao:\s*/.test(d) && !/Gốc:/.test(d)) return catTran(tachCau(tron(d.replace(/^Vì sao:\s*/, ''))), ' ');
     return viSaoCua(k, i);
@@ -153,28 +167,94 @@ function viSaoTu(opp, cauGiao) {
 // (hay gạch con) chỉ mang «none»/«không có» không đếm.
 const DAU_GIOI_HAN = /^(?:\*\*)?\s*(?:known[ -]limits?|giới hạn đã biết|hạn chế đã biết)(?![\w-])/i;
 // Không dùng `\b`: ranh giới từ của JS chỉ hiểu chữ ASCII, nên «không có» (kết bằng «ó») không bao giờ khớp.
-const RONG_GIOI_HAN = /^(?:none|không có|không)\.?$/i;
+// Chữ rỗng có thể bọc dấu nhấn (`*None.*`, `**none**`) — hồ sơ dai-tom-tat-dem-dung-vi-sao-tron.
+const RONG_GIOI_HAN = /^[*_\s]*(?:none|không có|không)\.?[*_\s]*$/i;
 const sauDau = s => String(s).replace(/\*\*/g, '').replace(/^\s*(?:known[ -]limits?|giới hạn đã biết|hạn chế đã biết)[^:]*:\s*/i, '').trim();
 // `lech` = số dòng của `## Notes` NHẮC tới giới hạn đã biết mà không nằm trong gạch nào bộ đọc nhận — bên
 // vẽ không được in «0 giới hạn» khi có chỗ nhắc mà đọc không ra (ràng buộc điều phối 12/10: cờ vàng).
 const NHAC_GIOI_HAN = /known[ -]limits?|giới hạn đã biết|hạn chế đã biết/i;
+// ── Bộ đọc THÂN khối giới hạn (hồ sơ dai-tom-tat-dem-dung-vi-sao-tron) ──────────────────────────────────────
+// Một hàm cho đầu khối ở `## Notes` (tiêu đề `#…` hay ĐẦU một đoạn văn mở bằng chữ giới hạn) và cho mục
+// `## Known limits` của báo cáo. Mục danh sách: `-`, `*`, `1.`, `1)`. Danh sách = các mục CÙNG loại (gạch / số),
+// CÙNG lề; dòng trắng giữa hai mục được phép; dòng thụt sâu hơn lề (kể cả gạch con lồng) và dòng không thụt
+// ngay sau mục (bọc lười) thuộc mục đang mở. Không đọc được → null, bên gọi nói «chưa đọc được», không in số.
+const LA_MUC = /^(\s*)([-*]|\d+[.)])\s+(.*)$/;
+const loaiMuc = k => (/\d/.test(k) ? 'so' : 'gach');
+const thut = l => String(l).match(/^(\s*)/)[1].length;
+const trang = l => !String(l).trim();
+const tieuDe = l => /^\s*#{1,6}\s/.test(l);
+const boQua = (raw, i) => { while (i < raw.length && trang(raw[i])) i++; return i; };
+// Khối ghim lại mà làn ghim lại của kit NỐI VÀO CUỐI báo cáo (khuôn REPIN-TEMPLATE của SKILL feature-loop): ở
+// báo cáo đời cũ Known limits là mục cuối, nên khối ấy rơi vào mục — bộ đọc dừng ở đây.
+const LA_GHIM_LAI = /^#{2,6}\s+Re-pin\b/;
+function docDanhSach(raw, i, da) {
+  const m0 = raw[i].match(LA_MUC); const le = m0[1].length; const loai = loaiMuc(m0[2]); const muc = []; let j = i;
+  while (j < raw.length) {
+    const l = raw[j];
+    if (trang(l)) {
+      const k = boQua(raw, j); if (k >= raw.length) break;
+      const mk = raw[k].match(LA_MUC);
+      if (mk && mk[1].length === le && loaiMuc(mk[2]) === loai) { j = k; continue; }
+      if (!tieuDe(raw[k]) && thut(raw[k]) > le) { j = k; continue; }
+      break;
+    }
+    if (tieuDe(l)) break;
+    const mm = l.match(LA_MUC);
+    if (mm && mm[1].length === le) { if (loaiMuc(mm[2]) !== loai) break; muc.push(mm[3].trim()); da.add(j); j++; continue; }
+    if (mm && mm[1].length < le) break;
+    muc[muc.length - 1] += ' ' + l.trim(); da.add(j); j++;
+  }
+  return { muc, ket: j };
+}
+function docDoan(raw, i, da) {
+  const d = []; let j = i;
+  while (j < raw.length && !trang(raw[j]) && !LA_MUC.test(raw[j]) && !tieuDe(raw[j])) { d.push(raw[j].trim()); da.add(j); j++; }
+  return { chu: d.join(' '), ket: j };
+}
+const laRong = s => RONG_GIOI_HAN.test(String(s).replace(/\*\*/g, '').trim());
+// Thân khối từ dòng i. coRanh: khối có biên rõ (tiêu đề — tới tiêu đề cùng hoặc cao cấp hơn; mục báo cáo — tới hết
+// mục hay khối ghim lại): đúng MỘT danh sách → các mục (đoạn trước/sau tuỳ ý); tiêu đề con, ≥2 danh sách, ≥2 đoạn
+// không danh sách → null. Không biên (đầu đoạn văn): tối đa MỘT đoạn dẫn rồi danh sách đầu. Đoạn «None.» → 0;
+// một đoạn duy nhất → 1; trống → 0.
+function thanKhoi(raw, i, da, ranh, coRanh) {
+  let ket = raw.length; for (let j = i; j < raw.length; j++) if (coRanh ? ranh(raw[j]) : tieuDe(raw[j])) { ket = j; break; }
+  const seq = []; let k = boQua(raw, i);
+  while (k < ket) {
+    if (tieuDe(raw[k])) { for (let j = i; j < ket; j++) da.add(j); return null; }
+    const x = LA_MUC.test(raw[k]) ? { l: docDanhSach(raw, k, da) } : { p: docDoan(raw, k, da) };
+    seq.push(x); k = boQua(raw, (x.l || x.p).ket);
+    if (!coRanh && (x.l || seq.length >= 2 || laRong(x.p.chu))) break;
+  }
+  if (coRanh) for (let j = i; j < ket; j++) da.add(j);
+  const ds = seq.filter(x => x.l);
+  if (!seq.length) return [];
+  if (seq[0].p && laRong(seq[0].p.chu)) return seq.length === 1 || !coRanh ? [] : null;
+  if (ds.length === 1 && (coRanh || seq.length <= 2)) return ds[0].l.muc.filter(c => !laRong(c));
+  if (!ds.length && seq.length === 1) return [seq[0].p.chu];
+  return null;
+}
 function docGioiHanNotes(contract) {
-  const raw = section(contract, 'Notes'); const ra = []; const da = new Set();
+  const raw = section(contract, 'Notes'); const ra = []; const da = new Set(); let khongDoc = 0;
   for (let i = 0; i < raw.length; i++) {
-    // Dạng ĐẦU ĐOẠN (crm 94 hồ sơ, radar, oneflow): dòng không gạch — văn, `### …` hay `**…**` — mở đầu
-    // bằng chữ giới hạn; các gạch cấp ngoài cùng ngay sau (cho phép dòng trắng chen) là các giới hạn.
-    const p = /^\S/.test(raw[i]) && !/^[-*]\s|^\d+[.)]\s/.test(raw[i]) ? raw[i].replace(/^#{1,6}\s+/, '').trim() : null;
-    if (p != null && DAU_GIOI_HAN.test(p)) {
-      da.add(i); const con = [];
-      for (let j = i + 1; j < raw.length; j++) {
-        const l = raw[j]; if (!l.trim()) continue;
-        const g = l.match(/^(?:[-*]|\d+[.)])\s+(.*)$/);
-        if (g) { con.push(g[1].trim()); da.add(j); continue; }
-        if (/^\s/.test(l) && con.length) { con[con.length - 1] += ' ' + l.trim(); da.add(j); continue; }
-        break;
+    if (da.has(i)) continue;
+    // Đầu khối: tiêu đề mở bằng chữ giới hạn, hoặc dòng mở ĐẦU một đoạn văn (đầu mục Notes, sau dòng trắng hay
+    // tiêu đề) — dòng BỌC giữa đoạn tình cờ mở bằng chữ ấy không phải đầu khối.
+    const dauDoan = i === 0 || trang(raw[i - 1]) || tieuDe(raw[i - 1]);
+    const td = raw[i].match(/^(#{1,6})\s+(.*)$/);
+    if ((td && DAU_GIOI_HAN.test(td[2].trim())) || (!td && dauDoan && /^\S/.test(raw[i]) && !LA_MUC.test(raw[i]) && DAU_GIOI_HAN.test(raw[i].trim()))) {
+      let p, sau;
+      if (td) { da.add(i); p = td[2].trim(); sau = i + 1; }
+      else { const d = docDoan(raw, i, da); p = d.chu; sau = d.ket; }
+      // Đầu đoạn MANG CÂU (còn chữ sau dấu «:» đầu tiên): danh sách ngay sau → các mục, không → chính nó là 1.
+      if (!td && /:/.test(p) && sauDau(p) !== '') {
+        const k = boQua(raw, sau);
+        if (k < raw.length && LA_MUC.test(raw[k])) ra.push(...docDanhSach(raw, k, da).muc.filter(c => !laRong(c)));
+        else if (!laRong(sauDau(p))) ra.push(p);
+        continue;
       }
-      if (con.length) ra.push(...con.filter(c => !RONG_GIOI_HAN.test(c.replace(/\*\*/g, '').trim())));
-      else if (!RONG_GIOI_HAN.test(sauDau(p))) ra.push(p);
+      const cap = td ? td[1].length : 0;
+      const ds = thanKhoi(raw, sau, da, l => { const m = String(l).match(/^(#{1,6})\s/); return !!m && m[1].length <= cap; }, !!td);
+      if (ds == null) khongDoc += 1; else ra.push(...ds);
       continue;
     }
     const m = raw[i].match(/^[-*]\s+(.*)$/);
@@ -193,7 +273,13 @@ function docGioiHanNotes(contract) {
     if (con.length) ra.push(...con.filter(c => !RONG_GIOI_HAN.test(c.replace(/\*\*/g, '').trim())));
     else if (!RONG_GIOI_HAN.test(sauDau(dau))) ra.push(dau);
   }
-  return { ds: ra, lech: raw.filter((l, i) => !da.has(i) && NHAC_GIOI_HAN.test(l)).length };
+  return { ds: ra, lech: raw.filter((l, i) => !da.has(i) && NHAC_GIOI_HAN.test(l)).length, khongDoc };
+}
+// Mục `## Known limits` của báo cáo: khối có biên, kết ở hết mục hay ở khối ghim lại.
+function docGioiHanBaoCao(report) {
+  const raw = section(report, 'Known limits');
+  const ds = thanKhoi(raw, 0, new Set(), l => LA_GHIM_LAI.test(l), true);
+  return ds == null ? { ds: [], khongDoc: 1 } : { ds, khongDoc: 0 };
 }
 const gioiHanTuNotes = contract => docGioiHanNotes(contract).ds;
 
@@ -250,11 +336,11 @@ function tomTatHoSo(dir, opts = {}) {
   const usage = T.usage != null ? docUsage(T.usage) : null;
   const acs = tieuChiCua(T.contract);
   const oos = T.contract != null ? contentLines(section(T.contract, 'Out of scope')) : [];
-  const knownRaw = T.report != null ? contentLines(section(T.report, 'Known limits')) : [];
-  const knownBaoCao = knownRaw.filter(l => !RONG_GIOI_HAN.test(l.replace(/\*\*/g, '').trim()));
+  const ghBC = T.report != null ? docGioiHanBaoCao(T.report) : { ds: [], khongDoc: 0 };
+  const knownBaoCao = ghBC.ds;
   // Hai nguồn cùng có → nguồn NHIỀU mục hơn (hoà → hợp đồng), không cộng: hồ sơ thật chép cùng giới hạn ở
   // hai nơi, cộng là đếm đôi; kit không so được hai câu có phải một giới hạn.
-  const ghHD = T.contract != null ? docGioiHanNotes(T.contract) : { ds: [], lech: 0 };
+  const ghHD = T.contract != null ? docGioiHanNotes(T.contract) : { ds: [], lech: 0, khongDoc: 0 };
   const knownHopDong = ghHD.ds;
   const known = knownBaoCao.length > knownHopDong.length ? knownBaoCao : knownHopDong;
   const thucTe = so ? so.dong.filter(d => d.type === 'thuc-te') : [];
@@ -265,10 +351,12 @@ function tomTatHoSo(dir, opts = {}) {
   const cauGiao = chu(cfm.feature) || chu(ofm.feature);
   moi.da_giao = can('da_giao', T.contract != null ? 'contract.md' : 'opportunity.md', cauGiao) ? boNgoacNgoai(cauGiao) : null;
   let vs = T.opp != null ? viSaoTu(T.opp, cauGiao) : null;
+  let viSaoDu = vs ? viSaoTu(T.opp, cauGiao, true) : null;
   if (vs) nguon.vi_sao = 'opportunity.md';
   else {
     const kc = T.contract != null ? khoiCua(section(T.contract, 'Context')) : [];
     const ctx = kc.length ? viSaoCua(kc, 0) : null;
+    viSaoDu = ctx ? viSaoDuCua(kc, 0, null) : null;
     vs = ctx || null; can('vi_sao', ctx ? 'contract.md' : 'opportunity.md', vs);
   }
   moi.vi_sao = vs;
@@ -307,6 +395,11 @@ function tomTatHoSo(dir, opts = {}) {
   can('chua_lam', 'contract.md', T.contract != null);
   moi.chua_lam = T.contract == null ? null : `${oos.length} mục để ngoài phạm vi · ${!ghHD.lech ? `${known.length} giới hạn đã biết`
     : known.length ? `${known.length} giới hạn đã biết (Notes còn chỗ nhắc giới hạn sai khuôn)` : 'giới hạn đã biết: chưa đọc được — Notes nhắc giới hạn sai khuôn'}`;
+  // Một nguồn không đọc được → vế giới hạn nói «chưa đọc được», KHÔNG in số (số của nguồn kia chỉ là cận dưới —
+  // lời giao 12/10, hồ sơ dai-tom-tat-dem-dung-vi-sao-tron).
+  const hong = [ghHD.khongDoc && 'hợp đồng', ghBC.khongDoc && 'báo cáo'].filter(Boolean);
+  const gioiHanChuaDoc = hong.length ? `giới hạn đã biết: chưa đọc được — khối giới hạn ở ${hong.join(' và ')} không theo khuôn` : null;
+  if (moi.chua_lam != null && hong.length) moi.chua_lam = moi.chua_lam.replace(/ · [\s\S]*$/, ` · ${gioiHanChuaDoc}`);
   const ai = [];
   if (chu(ofm.decided_by)) ai.push(`Cổng Đáng: ${chu(ofm.decided_by)}`);
   if (T.contract != null) ai.push(`Cổng Phạm vi: ${chu(cfm.approved_by) || (chu(cfm.veto_state) === 'mo' ? 'máy đi tiếp, cửa veto mở' : 'chưa duyệt')}`);
@@ -330,7 +423,9 @@ function tomTatHoSo(dir, opts = {}) {
   const chiTiet = {
     slug, cauGiao: moi.da_giao,
     acs,
-    oos, known, designDoc: designDoc || null,
+    oos, known: hong.length ? [] : known,
+    gioiHanChuaDoc, viSao: viSaoDu ? { doan: viSaoDu.doan, muc: viSaoDu.muc } : null,
+    designDoc: designDoc || null,
     quyetDinh: so ? so.dong.slice().sort((a, b) => (chu(a.at) < chu(b.at) ? -1 : chu(a.at) > chu(b.at) ? 1 : a._dong - b._dong))
       .map(d => ({ id: chu(d.id), at: chu(d.at), loai: chu(d.type), giai_doan: chu(d.stage || (d.gate ? `gate${d.gate}` : '')), nguoi: laNguoi(d), ai: chu(d.decided_by || d.by), cau: chu(d.decision), vi_sao: chu(d.why || d.impact), gia: chu(d.cost_if_wrong) })) : [],
     soHong: so ? so.hong : 0,
@@ -343,4 +438,4 @@ function tomTatHoSo(dir, opts = {}) {
   return { dai: { moi_nguoi: moi, chu_kho: ck }, nguon, thieu, chiTiet };
 }
 
-module.exports = { O_MOI_NGUOI, O_CHU_KHO, TRAN_VI_SAO, nhanhProduction, trienKhai, boNgoacNgoai, laNguoi, docSo, docUsage, viSaoTu, gioiHanTuNotes, docGioiHanNotes, tieuChiCua, tomTatHoSo };
+module.exports = { docGioiHanBaoCao, O_MOI_NGUOI, O_CHU_KHO, TRAN_VI_SAO, nhanhProduction, trienKhai, boNgoacNgoai, laNguoi, docSo, docUsage, viSaoTu, gioiHanTuNotes, docGioiHanNotes, tieuChiCua, tomTatHoSo };
