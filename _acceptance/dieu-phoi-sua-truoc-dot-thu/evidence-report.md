@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 113a4a9ae70804a9a60e2c085234f537b0fd39bc
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: manh 2026-10-11
 ---
 
@@ -198,3 +198,7 @@ Round 1: mọi eval (E1–E8, E7b, E7c) và mọi lệnh suite xanh; verdict PAS
 ### Re-pin lần 1 — 2026-10-11, do sau vòng dieu-phoi-sua-truoc-dot-thu (D4·D1·B1·E2·E1) + gộp DP6, DP7-06 neo lịch sử
 run_id: repin-20261011T152051Z-95655
 sha: 113a4a9ae70804a9a60e2c085234f537b0fd39bc · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

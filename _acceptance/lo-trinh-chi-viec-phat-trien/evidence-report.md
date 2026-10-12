@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 42fc34edf2cc80d7afc54cdeed5620f654a13ad0
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -197,3 +197,7 @@ Round 2: SKILL cắt lượt được làm rõ bốn chỗ nước đôi, bốn 
 ### Re-pin lần 1 — 2026-10-11, do gộp origin/main 63bb25f5 sau chữ ký
 run_id: repin-20261011T180143Z-90373
 sha: 42fc34edf2cc80d7afc54cdeed5620f654a13ad0 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths) · AC không có chốt máy: AC-9
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths) · AC không có chốt máy: AC-9
