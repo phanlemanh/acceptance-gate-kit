@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 0ff867c2ae52f4a495fd25e012b297c7fcb73279
-human_signoff:
+human_signoff: manh 2026-10-12
 ---
 
 # Evidence Report: ci-cua-kho-bo-job-nang

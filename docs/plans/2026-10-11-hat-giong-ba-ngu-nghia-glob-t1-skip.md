@@ -39,6 +39,23 @@ sau verify». Hướng: cổng đọc diff bằng `git -c core.quotePath=false d
 cổng ở mọi kho, nên cân ở Cổng Đáng. Ngưỡng mở ô: ≥1 PR thật ở một kho tiêu thụ bị chặn hoặc làm hoá cũ hồ sơ
 chỉ vì tên tệp có dấu.
 
+## Cùng vùng: hai lỗ bỏ test của `--hang-pr` thừa hưởng từ cổng (Cổng Bằng chứng 12/10)
+
+Chủ kho chọn «mở hợp đồng mới» cho Ngoài-1/2/3 của hồ sơ `ci-cua-kho-bo-job-nang` (lượt chấm 1, sổ
+`d-20261012T000430Z-13..15`); theo luật «ô chỉ mở khi có neo ngoài», lối ấy ghi vào đây, không tạo ô.
+
+- **Đổi tên vào vùng T1.** `git diff --name-only base...HEAD` của cổng dò đổi tên, chỉ in đường ĐÍCH: PR chỉ có
+  `git mv src/app.js docs/app.js` ra `hang=T1 · cham_vat=false` (tái hiện trong lượt chấm). Cổng không cờ có cùng
+  lỗ ở T1-escape. Hướng: tính danh sách bằng `--no-renames` (đổi mặc định cổng — cân ở Cổng Đáng), hoặc riêng trong
+  vùng `HANG-PR` một bậc nghi ngờ «có đổi tên → chạy đủ» (không đổi cổng).
+- **`_acceptance/` lồng ở mọi độ sâu.** Nhánh `_acceptance/*|*/_acceptance/*` của khối phân loại xếp fixture test
+  (`tests/hooks/fixtures/repo/_acceptance/…` trong chính kit) vào «hồ sơ» → `cham_vat=false`. Hướng: chế độ chỉ
+  coi là hồ sơ tệp dưới đúng `$ROOT/_acceptance/`.
+
+Chốt chặn hôm nay: GUIDE §5.3 giữ test chạy đủ trên `push` (không `--base`), nên một lần bỏ nhầm ở PR lộ ở lượt CI
+trên nhánh chính ngay sau khi gộp. Ngưỡng mở ô: ≥1 PR thật ở một kho đã bật `--hang-pr` bị bỏ test vì một trong
+hai lỗ này (đọc ở Cổng Giá trị của hồ sơ, đối chiếu job `test` `skipped` với tệp của PR).
+
 ## Hướng
 
 Một trong hai, cân ở Cổng Đáng khi mở ô: (a) lớp `ngoai` của `phan-loai.mjs` hỏi bộ khớp của cổng thay vì

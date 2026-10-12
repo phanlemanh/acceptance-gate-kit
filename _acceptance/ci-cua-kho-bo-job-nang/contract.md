@@ -5,7 +5,7 @@ slug: ci-cua-kho-bo-job-nang
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths (hàng lộ trình C1 ghi T2)
 surfaces: [ci, cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-ci-cua-kho-bo-job-nang-design.md
 approved_by: manh
 approved_at: 2026-10-11
@@ -136,3 +136,12 @@ Later: dùng ở OneFlow (bật theo lựa chọn, sau đợt thử) · bit riê
 - CỘNG (ADR 0018): một cờ mới của cổng dùng chung — chủ kho phê đích danh ở Cổng Phạm vi.
 - Hạng T3 vì `scripts/pre-merge-check.sh` ∈ `risk_tiers.t3_paths`; hàng lộ trình C1 ghi T2, máy không sửa tệp ý định.
 - Sự kiện `push` không có base → luôn chạy đủ (chính sách «nghi ngờ thì chạy đủ», chủ kho chốt ở Cổng Đáng).
+- Hạn chế đã biết, chủ kho chọn ở Cổng Bằng chứng 12/10 (sổ quyết định, dòng «Ngoài-<số>: ghi Known limits»):
+  - Ngoài-4: ca AC-2 so tập dòng `VIOLATION [PR]` của cổng không cờ với hạng VIẾT TRƯỚC, không chạy lại chế độ trên
+    từng hàng; quan hệ chế độ↔cổng chỉ đúng khi ghép với AC-1 (cùng tệp ca, chạy mặc định chung). Chạy riêng
+    `HP_CASES=AC-2` thì chế độ in sai một hàng vẫn xanh.
+  - Ngoài-5: bảng bốn hàng (trạng thái job × đầu ra → chạy/bỏ) ở GUIDE §5.3 không có khẳng định nào; AC-10 chỉ
+    canh dòng `if:` có `!cancelled() &&` và `cham_vat != 'false'`.
+- Mở hợp đồng mới (Ngoài-1/2/3, ghi hạt giống `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`): PR
+  chỉ đổi tên mã vào vùng T1, hay chỉ sửa tệp dưới một `_acceptance/` lồng (fixture test), được `--hang-pr` cho
+  `cham_vat=false` — hai lỗ thừa hưởng từ cổng; chốt chặn là lượt test đủ trên push.
