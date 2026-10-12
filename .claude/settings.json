@@ -24,7 +24,8 @@
       "Bash(bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40')",
       "Bash(bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40')",
       "Bash(bash tests/workflows/run-tests.sh)",
-      "Bash(node scripts/product-map.mjs --root . --check)"
+      "Bash(node scripts/product-map.mjs --root . --check)",
+      "Bash(node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc)"
     ]
   }
 }

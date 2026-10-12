@@ -200,6 +200,7 @@ function docArgs(argv) {
 }
 
 function giaiRef(root, ref) {
+  if (git(root, ['rev-parse', '--git-dir']).status !== 0) throw new KhongChay(`${root} không phải kho git của kit — truyền --root <bản checkout kit có tag>`);
   const r = git(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
   if (r.status !== 0) throw new KhongChay(`ref không có: ${ref}`);
   return r.stdout.trim();
