@@ -518,7 +518,9 @@ Chống bỏ-qua-thầm-lặng bằng đảo mặc định + 3 lớp:
 Máy chỉ enforce **có mặt + truy vết được**; "đủ thật hay chưa" là việc human soi ở Gate 1 —
 cùng phân công máy/người như judgment eval. Workspace cũ (contract trước 1.13) → cờ vàng
 trên card, không chặn resume, không bắt migrate. Output scan map thẳng vào artifact:
-Core → AC (Core >15 thì hợp nhất ô, giữ cap 5-15) · Later/Never → Out of scope + entry
+Core → AC (cỡ theo khối `CAT-LUOT-CO` của skill cắt lượt: mục tiêu 8–10 · cho phép tới 12 · từ 13 —
+từ 13 tách thành nhiều vòng hoặc ghi dòng sổ `giữ cỡ — <lý do>`; thẻ Cổng 1 chặn hợp đồng `draft` từ 13
+tiêu chí không dòng ấy) · Later/Never → Out of scope + entry
 `descope` · trục + thước CE → `## Coverage`. Preset sẵn trong skill: entity-feature,
 test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục đứng
 hai chân: chân sản phẩm từ Product Context per-repo (CLAUDE.md `## Product Context` → đào
@@ -996,7 +998,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 25 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 26 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1027,6 +1029,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `scripts/co-hop-dong.cjs` — bộ đọc cỡ hợp đồng MỘT nguồn mà `cat-luot.mjs` `require` lúc nạp (khoảng cỡ, số tiêu chí, dòng giữ) — chỉ cần khi kho khai `tin_hieu`; thiếu → `MODULE_NOT_FOUND` khi `tin-hieu.mjs` import `cat-luot.mjs`
 - `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`

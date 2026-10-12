@@ -2908,7 +2908,7 @@ async function lt142(kit) {
   return sai;
 }
 if (want('LT-142') && await chayCa('LT-142', lt142)) ok('LT-142', 'khoảng đọc từ khối SKILL: gói lành hàng 11 → tren-muc-tieu; khối sửa → can-tach; 13 khối hỏng → thoát 2 nêu khoá');
-if (want('LT-142-do-nhanh')) await chayDo('LT-142-do-nhanh', lt142, [['scripts/cat-luot.mjs', 'if (c < cuoi) loi.push(`khoá cho_phep_den ${c} nhỏ hơn cuối muc_tieu ${cuoi}`);\n    else if', 'if']], 'cho-phep-nho', 'bản sao gỡ nhánh cho_phep_den nhỏ hơn mục tiêu');
+if (want('LT-142-do-nhanh')) await chayDo('LT-142-do-nhanh', lt142, [['scripts/co-hop-dong.cjs', 'if (c < cuoi) loi.push(`khoá cho_phep_den ${c} nhỏ hơn cuối muc_tieu ${cuoi}`);\n    else if', 'if']], 'cho-phep-nho', 'bản sao gỡ nhánh cho_phep_den nhỏ hơn mục tiêu');
 if (want('LT-142-do')) await chayDo('LT-142-do', lt142, [['scripts/cat-luot.mjs', 'let khoang; try { khoang = napKhoang(); } catch (e) { thoat(2, e.message); }', 'const khoang = { muc_tieu: [8, 10], cho_phep_den: 12, tach_tu: 13, tran_luot_cham: 3, it_du_lieu_duoi: 10 };']], 'khối sửa không đổi cờ', 'bản sao nướng khoảng thành hằng');
 
 // ── LT-143: ma trận cỡ dự kiến ───────────────────────────────────────────────

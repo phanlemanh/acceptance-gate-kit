@@ -181,6 +181,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/scripts/tin-hieu-khoa.cjs` → `scripts/` (signal-door socket reader `tin_hieu.nguon`/`tin_hieu.gom`; product-map.mjs loads it LENIENTLY — a repo that never declares `tin_hieu` runs fine without it, a repo that declares it without this file gets the map step failing loud)
    - `${CLAUDE_PLUGIN_ROOT}/scripts/tin-hieu.mjs` → `scripts/` (signal reader + coverage teeth + signal path; product-map.mjs imports it ONLY when the repo declares `tin_hieu` — needed only then)
    - `${CLAUDE_PLUGIN_ROOT}/scripts/cat-luot.mjs` → `scripts/` (scope-document reader `docPhamVi` that tin-hieu.mjs imports — needed only when the repo declares `tin_hieu`)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/co-hop-dong.cjs` → `scripts/` (the ONE contract-size reader cat-luot.mjs `require`s at load — size range, criteria count, keep line; needed only when the repo declares `tin_hieu`, missing → `MODULE_NOT_FOUND` when tin-hieu.mjs imports cat-luot.mjs)
    - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/hinh-dang.mjs` → `dieu-phoi/scripts/` (the ONE request-shape check `kiemYeuCau` a signal must pass — one mailbox with the orchestration package; needed only when the repo declares `tin_hieu`)
    - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/cau-hinh.mjs` → `dieu-phoi/scripts/` (constants hinh-dang.mjs imports — only with `tin_hieu`)
    - `${CLAUDE_PLUGIN_ROOT}/dieu-phoi/scripts/dot.mjs` → `dieu-phoi/scripts/` (reader hinh-dang.mjs imports — only with `tin_hieu`)
