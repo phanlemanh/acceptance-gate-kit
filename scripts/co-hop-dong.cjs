@@ -61,13 +61,22 @@ function nhomCo(n, k) {
 // có gạch dài. Phải còn ≥ 1 chữ lý do sau dấu gạch — «giữ có tên» nghĩa là có lý do.
 const GIU_CO_MO_DAU = 'giữ cỡ — ';
 const GIU_CO_RE = /^\s*giữ cỡ\s*[—–-]\s*(\S.*)$/u;
+// Dòng bị một dòng sau rút bằng `supersedes` (luật sổ append-only của kit, cùng nếp lib/workspace-record.cjs)
+// thì thôi được tính — bỏ qua nó là fail-OPEN: lý do đã rút vẫn mở cổng. Lý do còn là chỗ trống của khuôn
+// (`<lý do>`, `<vì sao …>`) không phải lý do có tên.
+const CHO_TRONG_RE = /^<[^<>]*>\.?$/u;
 function dongGiu(decisionsText) {
+  const ds = [];
   for (const dong of String(decisionsText ?? '').split(/\r?\n/)) {
     if (!dong.trim()) continue;
     let e; try { e = JSON.parse(dong); } catch { continue; }
-    if (!e || typeof e !== 'object' || typeof e.decision !== 'string') continue;
+    if (e && typeof e === 'object') ds.push(e);
+  }
+  const biRut = new Set(ds.filter(e => e.supersedes != null).flatMap(e => [].concat(e.supersedes)).map(String));
+  for (const e of ds) {
+    if (typeof e.decision !== 'string' || (e.id != null && biRut.has(String(e.id)))) continue;
     const m = e.decision.normalize('NFC').match(GIU_CO_RE);
-    if (m) return { id: typeof e.id === 'string' ? e.id : null, ly_do: m[1].trim() };
+    if (m && !CHO_TRONG_RE.test(m[1].trim())) return { id: typeof e.id === 'string' ? e.id : null, ly_do: m[1].trim() };
   }
   return null;
 }
