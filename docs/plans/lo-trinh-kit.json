@@ -87,24 +87,16 @@
       "hang": []
     },
     {
-      "ten": "Phát hành 2.29.0 — mốc kế (MacBook Pro): bất biến sản phẩm (BB1), câu trạng thái tín hiệu tiếng sản phẩm (TH-cau), kiểm bản cài sau phát hành (KC1 — vòng meta duy nhất giữa 2.28 và 2.29, chạy kiểm CHÍNH bản 2.29 trước khi phát); cắt khi ba hàng có trong main",
+      "ten": "Phát hành 2.29.0 — mốc kế, MỘT lịch ba máy (M5 xác nhận 13/10): cỡ vòng ở bước thiết kế (S3c) + trạng thái đợt trong app (DP6b) của M5 — cả hai PASS lượt 2, chờ chữ ký; bất biến sản phẩm (BB1) + câu trạng thái tín hiệu tiếng sản phẩm (TH-cau) + kiểm bản cài sau phát hành (KC1 — vòng meta duy nhất, kiểm CHÍNH bản 2.29 trước khi phát) của MacBook Pro. Gộp theo lô: lô M5 (S3c → DP6b) rồi lô MacBook Pro, mỗi PR chỉ ghim lại một lần; hàng chưa vào main lúc cắt thì đi mốc sau",
       "ngay": "2026-10-16",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "S3c",
+        "DP6b",
         "BB1",
         "TH-cau",
         "KC1"
-      ]
-    },
-    {
-      "ten": "Mốc kit của M5 (số đặt lúc cắt): trạng thái đợt trong app (DP6b), cỡ vòng ở bước thiết kế (S3c) — M5 giữ, kéo sớm được nếu xong trước; vào 2.29 nếu có trong main lúc cắt 2.29",
-      "ngay": "2026-11-01",
-      "loai": "phat-hanh",
-      "ai": "Owner",
-      "hang": [
-        "DP6b",
-        "S3c"
       ]
     },
     {
