@@ -85,4 +85,9 @@ mười bảy hồ sơ · `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm và OneFlow nhận ở hai đợt thử 26–27/10; vòng meta của cửa sổ: 0.
 - Lộ trình: A3, C1 và L3 chưa có trên `main` lúc mở hồ sơ; Điều phối M5 giữ mốc chờ cả ba (12/10) để crm nhận một lần và chiến dịch ghim lại chạy một lần. Ba vòng gộp main (#319, #322, #323 — main `f59d9547`), hồ sơ gộp main một lần trước lượt chấm 1 và kể thêm ở Context, AC-4, CHANGELOG.
 - Giới hạn đã khai của gói `dieu-phoi`, đo lại 12/10 trên bộ phân loại của cây này: `--help` trong chú thích `#`, here-string `<<<`, `env -S'…'` dính cờ, `bash -o pipefail -c` → lệnh S4 lọt (`null`); heredoc kèm chuyển hướng → bị chặn (`s4`) — dạng này đã đóng khi DP6 thu luật «thân là dữ liệu» (sổ `dieu-phoi-lop-mod` d-20261011T061923Z-20), README không khai nó là đang lọt.
+- `rel-cua-so.sh` đếm thừa sau khi L3 gộp: pathspec `_acceptance/*/contract.md` để `*` của git vượt `/`, nên bốn hồ
+  sơ MẪU lồng ở `_acceptance/cua-tin-hieu-gom-nhom/mau/ho-so/` (bộ vàng của L3, frontmatter `status: signed-off`) bị
+  rút thành «được ký». Khoá `rel2270_cua_so` chạy script với `GIT_GLOB_PATHSPECS=1` (`*` dừng ở một tầng) — không
+  sửa `scripts/` trong PR mốc. Đo 12/10: không biến → ĐỎ nêu đúng bốn tên mẫu; có biến → XANH, chiều đỏ với tập «x»
+  vẫn gọi tên. Chỗ cắt cho cửa sổ kế (không mở ô): script tự dùng `:(glob)` thì mọi mốc sau khỏi nhớ biến này.
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 200ce7bb x` thoát 1 gọi tên mọi hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
