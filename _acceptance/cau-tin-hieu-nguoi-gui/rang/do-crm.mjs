@@ -9,9 +9,12 @@
 // việc đầu tiên của mỗi nhóm theo thứ tự tệp lộ trình) · nhóm chưa thành việc · để sau · lẻ · đã phủ một hồ
 // sơ đã ký thật · chưa xếp. Rồi chạy `--duong` + `--cau` của kit ĐANG KIỂM (gốc kit suy từ vị trí tệp này).
 //   1. crm @ --sha — kho tiêu thụ thật (câu giao thật, mã chỉ chữ số / một chữ cái thật, tên hồ sơ thật).
-//   2. kit @ BASE_KIT (2.27, mốc cố định để tệp mẫu không trôi theo từng commit của kit).
-// In «PASS: CRM-xanh» · «PASS: KIT-xanh» · «PASS: CRM-mau» · «PASS: CRM-do». `--ghi` ghi mau/cau-mau.json
-// (đầu vào của giám khảo E10); không `--ghi` → so tệp đã commit với bản sinh lại. Chỉ đọc kho crm; mọi bản
+//   2. kit @ BASE_KIT (2.27) — chỉ để kiểm máy «0 câu lọt» trên ~150 hồ sơ thật; lộ trình kit là của người
+//      phát triển, không phải của người gửi ở phòng ban, nên câu của nó KHÔNG vào tệp mẫu cho giám khảo.
+//   3. kho thử bảy chỗ do máy dựng (câu giao tiếng sản phẩm, hồ sơ đã ký mang bản chép báo cáo thật).
+// In «PASS: CRM-xanh» · «PASS: KIT-xanh» · «PASS: KHO-THU-xanh» · «PASS: CRM-mau» · «PASS: CRM-do». `--ghi`
+// ghi mau/cau-mau.json = câu của kho thử + bản sao crm (đầu vào của giám khảo E10, đúng AC-9/AC-10); không
+// `--ghi` → so tệp đã commit với bản sinh lại. Chỉ đọc kho crm; mọi bản
 // sao ở thư mục tạm. Mã thoát: 0 đạt · 1 có ca sai · 2 không chạy được (kho crm vắng, sha không có).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } from 'node:fs';
@@ -38,7 +41,11 @@ const TMP = mkdtempSync(path.join(tmpdir(), 'do-crm-'));
 const sai = []; const ok = (id, m) => console.log(`  PASS: ${id} — ${m}`); const bad = (id, m) => { sai.push(id); console.log(`  FAIL: ${id} — ${m}`); };
 const nap = rel => import(pathToFileURL(path.join(KIT, rel)).href);
 const T = await nap('scripts/tin-hieu.mjs'); const LT = await nap('scripts/lo-trinh.mjs'); const PMM = await nap('scripts/product-map.mjs');
-const { boNgoacNgoai } = createRequire(import.meta.url)(path.join(KIT, 'scripts', 'ho-so-tom-tat.cjs'));
+const req = createRequire(import.meta.url);
+const { boNgoacNgoai } = req(path.join(KIT, 'scripts', 'ho-so-tom-tat.cjs'));
+// Trạng thái hồ sơ rút từ lib (không viết cứng chữ trạng thái — luật RT13 của kho).
+const { DA_THONG_CONG_2 } = req(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const DA_KY = DA_THONG_CONG_2[0];
 const khoi = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`[a-z]*\\n([\\s\\S]*?)\`\`\`\\n<!-- ${ten}>>> -->`)); if (!m) throw new Error(`khuôn thiếu khối ${ten}`); return m[1]; };
 const KHUON = readFileSync(path.join(KIT, 'skills', 'acceptance', 'references', 'tin-hieu-template.md'), 'utf8');
 const ngayDocLap = txt => { const m = String(txt).match(/^human_signoff:[^\n]*?(\d{4})-(\d{2})-(\d{2})/m); return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : null; };
@@ -124,19 +131,51 @@ function kiem(id, r, pre) {
   return k;
 }
 
+// Kho thử bảy chỗ: câu giao tiếng sản phẩm; hồ sơ đã ký mang bản chép NGUYÊN VĂN báo cáo đã ký thật của hồ
+// sơ L3 trong kit (đúng tên thư mục để bộ phân ô đọc được), hồ sơ đang làm ở trạng thái duyệt phạm vi.
+function khoThu() {
+  const r = path.join(TMP, 'kho-thu'); const L3 = 'cua-tin-hieu-gom-nhom';
+  const viet = (f, t) => { mkdirSync(path.dirname(path.join(r, f)), { recursive: true }); writeFileSync(path.join(r, f), t); };
+  const hd = (slug, st, feature) => `---\nschema_version: 1\nfeature: ${feature}\nslug: ${slug}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${st}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n`;
+  viet('_acceptance/config.yaml', 'schema_version: 1\nlo_trinh:\n  tep: docs/lo-trinh.json\ntin_hieu:\n  nguon: tin-hieu\n  gom: docs/gom\n');
+  viet(`_acceptance/${L3}/contract.md`, hd(L3, DA_KY, '«Nhân viên gửi góp ý ngay trong CRM»'));
+  viet(`_acceptance/${L3}/evidence-report.md`, readFileSync(path.join(KIT, '_acceptance', L3, 'evidence-report.md'), 'utf8'));
+  viet('_acceptance/viec-hai/contract.md', hd('viec-hai', 'approved', '«Trưởng phòng xem số tuần trước khi cập nhật KR»'));
+  viet('docs/lo-trinh.json', JSON.stringify({ schema: 1, ten: 'Lộ trình thử', hang: [
+    { ma: 'H1', cau_giao: '«Nhân viên tìm được quy trình trong một phút»', dot: 'gom-1', phu: ['G1'] },
+    { ma: 'H2', cau_giao: '«Trưởng phòng xem số tuần trước khi cập nhật KR»', dot: 'gom-1', phu: ['G2'], slug: 'viec-hai' },
+    { ma: 'H3', cau_giao: '«Nhân viên gửi góp ý ngay trong CRM»', dot: 'gom-1', phu: ['G3'], slug: L3 }],
+    chan_troi: [{ ma: 'CT1', dot: 'gom-1', phu: ['G5'], ly_do: 'chờ đợt góp ý sau 14/10' }] }, null, 2));
+  const LUC = '2026-10-20T00:00:00Z'; const t = i => tin('kho-thu', i, LUC); const s = [1, 2, 3, 4, 5, 6, 7, 8].map(t);
+  for (const x of s) viet(`tin-hieu/${x.id}.json`, JSON.stringify(x.o));
+  viet('docs/gom/gom-1.md', vietGom({ dot: 'gom-1', den: '2026-12-31T00:00:00Z', nhom: [
+    ['G1', 'Nhân viên tìm quy trình nhanh hơn', [s[0].id]], ['G2', 'Trưởng phòng thấy số của phòng mình', [s[1].id]],
+    ['G3', 'Nhân viên góp ý không phải nhắn riêng', [s[2].id]], ['G4', 'Người dùng xem lại tín hiệu đã gửi', [s[3].id]],
+    ['G5', 'Nhân viên căn chỉnh OKR với phòng khác', [s[4].id]]],
+    le: [[s[5].id, 'lời cảm ơn, không đòi thay đổi gì']], phu: [[s[6].id, L3]] }));
+  return r;
+}
+
 try {
+  const rThu = khoThu();
+  const kThu = cam(rThu, '--duong'); const yThu = cam(rThu, '--cau');
+  const dsThu = kThu.status === 0 ? JSON.parse(kThu.stdout) : [];
+  const choThu = new Set(dsThu.map(b => b.cho));
+  console.log(`    KHO-THU-xanh: ${dsThu.length} tín hiệu, ${choThu.size} chỗ ${JSON.stringify([...choThu].sort())}`);
+  if (kThu.status === 0 && yThu.status === 0 && choThu.size === 7) ok('KHO-THU-xanh', `kho thử bảy chỗ: --cau thoát 0 — ${yThu.stdout.trim().split('\n').pop()}`);
+  else bad('KHO-THU-xanh', `--duong ${kThu.status} --cau ${yThu.status}, ${choThu.size} chỗ: ${(yThu.stdout + kThu.stderr).slice(0, 300)}`);
   const rCrm = banSao(crm, sha, 'crm');
   const kCrm = kiem('CRM-xanh', rCrm, 'crm-mau');
   const rKit = banSao(KIT, BASE_KIT, 'kit', '\ntin_hieu:\n  nguon: tin-hieu/mau\n  gom: tin-hieu/gom\n');
   const kKit = kiem('KIT-xanh', rKit, 'kit-mau');
   // Tệp mẫu câu — đầu vào của giám khảo E10. Không mang sha kit đang chạy (để không trôi theo commit).
   const mot = ds => ds.map(b => ({ cho: b.cho, cau_nguoi_gui: b.cau_nguoi_gui, cau: b.cau }));
-  const mau = { giai_thich: 'Câu kit viết cho người gửi tín hiệu (cau_nguoi_gui) ở mọi chỗ một tín hiệu có thể đứng, trên bản sao dữ liệu thật của CRM và của chính bộ kit; trường cau là câu cũ cho chủ kho — để đối chiếu, KHÔNG chấm. Trường cho là nhãn máy của chỗ.', nguon: { crm: sha, kit: BASE_KIT }, crm: mot(kCrm.ds), kit: mot(kKit.ds) };
+  const mau = { giai_thich: 'Câu kit viết cho người gửi tín hiệu (cau_nguoi_gui) ở mọi chỗ một tín hiệu có thể đứng: trên bản sao dữ liệu thật của CRM (câu giao do chủ kho CRM viết, hiện nguyên văn) và trên kho thử do máy dựng. Trường cau là câu cũ cho chủ kho — để đối chiếu, KHÔNG chấm. Trường cho là nhãn máy của chỗ.', nguon: { crm: sha }, crm: mot(kCrm.ds), kho_thu: mot(dsThu) };
   const moi = JSON.stringify(mau, null, 2) + '\n';
   if (ghi) { mkdirSync(path.dirname(TEP_MAU), { recursive: true }); writeFileSync(TEP_MAU, moi); console.log(`    đã ghi ${path.relative(KIT, TEP_MAU)}`); }
   const cu = existsSync(TEP_MAU) ? readFileSync(TEP_MAU, 'utf8') : null;
   const lech = moi.replace('đã vào nhóm', 'đã vào nhóm X'); if (lech === moi || lech === cu) bad('CRM-mau', 'đối chứng: bản lệch một chữ vẫn bằng tệp — phép so không thấy khác biệt');
-  else if (cu === moi) ok('CRM-mau', `mau/cau-mau.json đã commit == bản sinh lại (${kCrm.ds.length} câu crm + ${kKit.ds.length} câu kit)`);
+  else if (cu === moi) ok('CRM-mau', `mau/cau-mau.json đã commit == bản sinh lại (${kCrm.ds.length} câu crm + ${dsThu.length} câu kho thử)`);
   else bad('CRM-mau', cu == null ? 'chưa có mau/cau-mau.json — chạy --ghi' : 'mau/cau-mau.json lệch bản sinh lại — chạy --ghi rồi commit');
   // Chiều đỏ trên CÙNG bản sao crm: một tên nhóm mang tên một thư mục hồ sơ crm thật.
   const ten = readdirSync(path.join(rCrm, '_acceptance'), { withFileTypes: true }).filter(e => e.isDirectory() && e.name.includes('-')).map(e => e.name).sort()[0];

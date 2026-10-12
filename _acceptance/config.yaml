@@ -64,7 +64,7 @@ executors:
     tin_hieu: "node tests/scripts/tin-hieu.test.mjs"
     tin_hieu_vang: "TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs"
     # Câu cho người gửi (hồ sơ cau-tin-hieu-nguoi-gui) — ca CN-1…CN-8 cùng tệp ca.
-    tin_hieu_cau: "TH_CASES=CN-1,CN-1-do,CN-1-do2,CN-2,CN-2-do,CN-3,CN-3-do,CN-4,CN-4-do,CN-5,CN-5-do,CN-5-do2,CN-6,CN-6-do,CN-6-do-tt,CN-6-do2,CN-6-do3,CN-6-do4,CN-7,CN-7-do,CN-8,CN-8-do node tests/scripts/tin-hieu.test.mjs"
+    tin_hieu_cau: "TH_CASES=CN-1,CN-1-do,CN-1-do2,CN-2,CN-2-do,CN-3,CN-3-do,CN-4,CN-4-do,CN-5,CN-5-do,CN-5-do2,CN-5-do3,CN-6,CN-6-do,CN-6-do-tt,CN-6-do-khung,CN-6-do2,CN-6-do3,CN-6-do4,CN-7,CN-7-do,CN-8,CN-8-do node tests/scripts/tin-hieu.test.mjs"
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
     # Hồ sơ xa-stdout-truoc-khi-thoat: ca đo XD-1..XD-7 (stdout qua pipe không bị cắt ở 64 KB). Khoá riêng,

@@ -283,7 +283,12 @@ export function duongDi(opts) {
   const ds = dungDuong(opts);
   return ds == null ? null : ds.map(d => d.x);
 }
-// Mỗi phần tử { x: bản ghi, c: ngữ cảnh câu, k: ngữ cảnh khung, hoSoKy } — `--cau` đọc cả ba.
+// Phần KIT viết của mỗi câu cho người gửi (chữ lấy từ dữ liệu đã gỡ) — `--cau` kiểm từ (khung) trên nó.
+export function khungCacCau(opts) {
+  const ds = dungDuong(opts);
+  return ds == null ? null : ds.map(d => ({ id: d.x.id, cho: d.x.cho, cau_nguoi_gui: d.x.cau_nguoi_gui, khung: d.khung }));
+}
+// Mỗi phần tử { x: bản ghi, khung: phần kit viết, hoSoKy } — `--cau` đọc cả ba.
 function dungDuong({ root, classify, sections }) {
   const khai = docKhai(root);
   if (khai == null) return null;

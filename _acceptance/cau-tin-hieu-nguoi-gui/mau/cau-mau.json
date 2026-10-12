@@ -1,8 +1,7 @@
 {
-  "giai_thich": "Câu kit viết cho người gửi tín hiệu (cau_nguoi_gui) ở mọi chỗ một tín hiệu có thể đứng, trên bản sao dữ liệu thật của CRM và của chính bộ kit; trường cau là câu cũ cho chủ kho — để đối chiếu, KHÔNG chấm. Trường cho là nhãn máy của chỗ.",
+  "giai_thich": "Câu kit viết cho người gửi tín hiệu (cau_nguoi_gui) ở mọi chỗ một tín hiệu có thể đứng: trên bản sao dữ liệu thật của CRM (câu giao do chủ kho CRM viết, hiện nguyên văn) và trên kho thử do máy dựng. Trường cau là câu cũ cho chủ kho — để đối chiếu, KHÔNG chấm. Trường cho là nhãn máy của chỗ.",
   "nguon": {
-    "crm": "06e34d26c38426e2e23cbf1a51bc612cccb405c9",
-    "kit": "294b29db846a75f875f7c7637ce5a9080cda50aa"
+    "crm": "06e34d26c38426e2e23cbf1a51bc612cccb405c9"
   },
   "crm": [
     {
@@ -46,31 +45,31 @@
       "cau": "chưa gom — tín hiệu tới sau lượt gom gần nhất"
     }
   ],
-  "kit": [
-    {
-      "cho": "hang-co-ho-so",
-      "cau_nguoi_gui": "đã vào nhóm \"Nhân viên gửi góp ý ngay trong CRM\" và thành việc \"Kho khai một tệp kế hoạch, thẻ mở phiên chỉ ra việc kế và việc trễ\" — đã giao ngày 3/10/2026",
-      "cau": "vào nhóm Nhân viên gửi góp ý ngay trong CRM → việc N1 → hồ sơ viec-ke-theo-plan: Đã nghiệm thu giá trị"
-    },
-    {
-      "cho": "hang-co-ho-so",
-      "cau_nguoi_gui": "đã vào nhóm \"Trưởng phòng thấy việc của phòng mình\" và thành việc \"Mỗi kho khai các luật sản phẩm của mình trong một tệp; luật được nạp lúc viết đặc tả, và vòng nào phạm luật thì thẻ cổng nêu tên luật đó\" — tạm hoãn",
-      "cau": "vào nhóm Trưởng phòng thấy việc của phòng mình → việc BB1 → hồ sơ bat-bien-san-pham: Xếp lại sau"
-    },
+  "kho_thu": [
     {
       "cho": "hang-chua-ho-so",
-      "cau_nguoi_gui": "đã vào nhóm \"Người dùng tìm được hướng dẫn\" và thành việc \"Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị\" — chưa bắt đầu",
-      "cau": "vào nhóm Người dùng tìm được hướng dẫn → việc A2: Chưa mở"
+      "cau_nguoi_gui": "đã vào nhóm \"Nhân viên tìm quy trình nhanh hơn\" và thành việc \"Nhân viên tìm được quy trình trong một phút\" — chưa bắt đầu",
+      "cau": "vào nhóm Nhân viên tìm quy trình nhanh hơn → việc H1: Chưa mở"
+    },
+    {
+      "cho": "hang-co-ho-so",
+      "cau_nguoi_gui": "đã vào nhóm \"Trưởng phòng thấy số của phòng mình\" và thành việc \"Trưởng phòng xem số tuần trước khi cập nhật KR\" — đang làm",
+      "cau": "vào nhóm Trưởng phòng thấy số của phòng mình → việc H2 → hồ sơ viec-hai: Đang làm"
+    },
+    {
+      "cho": "hang-co-ho-so",
+      "cau_nguoi_gui": "đã vào nhóm \"Nhân viên góp ý không phải nhắn riêng\" và thành việc \"Nhân viên gửi góp ý ngay trong CRM\" — đã giao ngày 11/10/2026",
+      "cau": "vào nhóm Nhân viên góp ý không phải nhắn riêng → việc H3 → hồ sơ cua-tin-hieu-gom-nhom: Đã giao"
     },
     {
       "cho": "nhom-chua-cat",
-      "cau_nguoi_gui": "đã vào nhóm \"Nhân viên xem lại tín hiệu đã gửi\" — nhóm chưa thành việc",
-      "cau": "vào nhóm Nhân viên xem lại tín hiệu đã gửi — nhóm chưa thành việc"
+      "cau_nguoi_gui": "đã vào nhóm \"Người dùng xem lại tín hiệu đã gửi\" — nhóm chưa thành việc",
+      "cau": "vào nhóm Người dùng xem lại tín hiệu đã gửi — nhóm chưa thành việc"
     },
     {
       "cho": "chan-troi",
-      "cau_nguoi_gui": "đã vào nhóm \"Trưởng phòng đặt lịch họp nhanh\" — để sau: chờ đợt góp ý sau 14/10",
-      "cau": "vào nhóm Trưởng phòng đặt lịch họp nhanh — để sau: chờ đợt góp ý sau 14/10"
+      "cau_nguoi_gui": "đã vào nhóm \"Nhân viên căn chỉnh OKR với phòng khác\" — để sau: chờ đợt góp ý sau 14/10",
+      "cau": "vào nhóm Nhân viên căn chỉnh OKR với phòng khác — để sau: chờ đợt góp ý sau 14/10"
     },
     {
       "cho": "le",
@@ -79,8 +78,8 @@
     },
     {
       "cho": "da-phu",
-      "cau_nguoi_gui": "đã có trong việc \"Đưa bài học đo lường của tuần 08–14/08 vào engine — bốn lớp lỗi mới có ca đại diện, nguyên tắc lật-allow-list, và một bánh cóc hai chiều buộc bảng lớp lỗi trace về sổ nguồn\" — đã giao ngày 14/8/2026",
-      "cau": "đã có việc đã giao: bai-hoc-do-luong-vao-engine (Đã giao)"
+      "cau_nguoi_gui": "đã có trong việc \"Nhân viên gửi góp ý ngay trong CRM\" — đã giao ngày 11/10/2026",
+      "cau": "đã có việc đã giao: cua-tin-hieu-gom-nhom (Đã giao)"
     },
     {
       "cho": "chua-gom",
