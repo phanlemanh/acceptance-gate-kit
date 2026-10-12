@@ -3,10 +3,10 @@ schema_version: 1
 slug: vong-mo-thang-bang-feature-loop
 feature: "Vòng mở thẳng bằng Feature Loop, không qua lượt cắt, cũng bị đo cỡ: hợp đồng từ 13 tiêu chí không vào được Cổng Phạm vi khi chưa tách hoặc chưa ghi lý do giữ có tên, hợp đồng 11–12 tiêu chí lên thẻ thành cờ vàng — khoảng đọc từ cùng khối với lượt cắt"
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-10-12T08:22:55Z   # chủ kho gõ «làm · ngưỡng như ô · timebox 30 ngày từ ngày crm cài mốc» trong phiên thợ S3c, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -75,6 +75,6 @@ tiêu chí chung), không vào từ vựng một kho.
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: ba mươi ngày sau khi giao, hồ sơ mới từ 13 tiêu chí có còn qua Cổng Phạm vi mà không có dòng sổ tách hoặc giữ có tên không?
-- Kết quả nào là SỐNG: [đề xuất] 0 hợp đồng mới từ 13 tiêu chí qua Cổng Phạm vi mà không có dòng sổ tách hoặc giữ có tên, ở kit và crm — đọc bằng `cat-luot.mjs --co --tu <ngày giao>`, nhóm `phai-tach`, kèm N (N = số hồ sơ chốt từ ngày giao; N = 0 thì chưa đo được, không đọc thành sống)
-- Kết quả nào là CHẾT: [đề xuất] ≥ 1 hợp đồng từ 13 tiêu chí qua Cổng Phạm vi không dòng sổ nào khi hết timebox
-- Timebox: [đề xuất] 30 ngày từ ngày crm cài mốc chứa vòng (mốc nhắm 01/11)
+- Kết quả nào là SỐNG: 0 hợp đồng mới từ 13 tiêu chí qua Cổng Phạm vi mà không có dòng sổ tách hoặc giữ có tên, ở kit và crm — đọc bằng `cat-luot.mjs --co --tu <ngày giao>`, nhóm `phai-tach`, kèm N (N = số hồ sơ chốt từ ngày giao; N = 0 thì chưa đo được, không đọc thành sống)
+- Kết quả nào là CHẾT: ≥ 1 hợp đồng từ 13 tiêu chí qua Cổng Phạm vi không dòng sổ nào khi hết timebox
+- Timebox: 30 ngày từ ngày crm cài mốc chứa vòng (mốc nhắm 01/11)
