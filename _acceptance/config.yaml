@@ -610,6 +610,11 @@ executors:
     rel2250_dd_giu: "bash -c 'c=$(git show 9d1ae527:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 9d1ae527 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2260_cua_so: bash scripts/rel-cua-so.sh c01e5bf2 doc-ghi-troi-mang-sang-run-id lo-trinh-cat-luot xuat-du-lieu-lo-trinh
     rel2260_dd_giu: "bash -c 'c=$(git show c01e5bf2:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c01e5bf2 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    # Mốc 2.27.0 — cửa sổ v2.26.0 (200ce7bb) → HEAD. GIT_GLOB_PATHSPECS=1: pathspec `_acceptance/*/contract.md` của
+    # rel-cua-so.sh để `*` vượt `/`, nên đếm cả hồ sơ MẪU lồng của L3 (cua-tin-hieu-gom-nhom/mau/ho-so/*) thành «được
+    # ký»; biến này của git cho `*` dừng ở một tầng thư mục mà không sửa script (sổ release-2-27-0).
+    rel2270_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 200ce7bb baseline-tran-bo-qua-don ci-cua-kho-bo-job-nang cua-tin-hieu-gom-nhom dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ngoai-n-tu-dinh-tuyen ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
+    rel2270_dd_giu: "bash -c 'c=$(git show 200ce7bb:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 200ce7bb HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
@@ -698,6 +703,9 @@ executors:
     tctt_ac4: GG_CASES=AC-4 node tests/scripts/ten-ca-qua-tien-to.test.mjs
     dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
     dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
+    # Hồ sơ dieu-phoi-on-dinh-r2 (AC-4, E4): đo kiem-chuyen trên kho crm thật của máy owner ($HOME/dev/crm-onehub, hai
+    # sha ghim) — CI không có kho ấy, khoá này không vào suite_keys (tiền lệ esl_vi_phan_bay_kho).
+    dieu_phoi_dp8_crm: node tests/dieu-phoi/dp8-crm-that.mjs
     # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
     # Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm, như dieu_phoi_validate.
     dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs

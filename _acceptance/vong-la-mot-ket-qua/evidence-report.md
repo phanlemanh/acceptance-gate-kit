@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 50585b1eafdece7e41cd933b3c702cd676dfe5ea
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -199,3 +199,7 @@ Round 2: E1–E10 đạt trên cây d1b64c23; không eval nào hỏng, không c�
 ### Re-pin lần 1 — 2026-10-11, do gộp main sau DP7 (#306) và X1 (#302)
 run_id: repin-20261011T051753Z-17450
 sha: 50585b1eafdece7e41cd933b3c702cd676dfe5ea · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths) · AC không có chốt máy: AC-10
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths) · AC không có chốt máy: AC-10

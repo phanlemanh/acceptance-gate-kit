@@ -106,10 +106,13 @@ Steps:
    Thuật lại cho người: in `one_shot` NGUYÊN VĂN để họ dán lại và sửa ô nào họ
    nghĩ khác — đừng diễn đạt lại thành câu khác, người sẽ gõ tay và mất một lượt.
 
-   Gate 1 + repo có `CONTEXT.md` → thêm `--glossary-base <merge-base với nhánh
+   Gate 1 + (repo có `CONTEXT.md` HOẶC sổ quyết định có dòng mang khoá `can_cu`)
+   → thêm `--glossary-base <merge-base với nhánh
    chính>` (vd `$(git merge-base HEAD origin/main)`) để thẻ trình khối "Từ vựng
    chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
-   đụng git; thiếu cờ thì thẻ chỉ ghi chú info, không im lặng bỏ qua.
+   đụng git; thiếu cờ thì thẻ chỉ ghi chú info, không im lặng bỏ qua. Cùng cờ đó
+   là gốc để thẻ kiểm câu trích của lựa chọn máy đã quyết ở bước thiết kế có từ
+   trước vòng (`scripts/can-cu-s1.cjs`); thiếu nó, thẻ nháp có cờ vàng.
 
 4. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
    (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào

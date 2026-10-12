@@ -10,7 +10,107 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
-## Chưa phát hành
+## 2.27.0 — 12/10/2026
+
+Cửa sổ 2.26.0 → 2.27.0 nằm trong **bốn ngày** (09–12/10), có **mười chín vòng được ký** và **một vòng máy thông**
+(`tac-tu-cham-chi-cham-khong`, làn V, cửa veto mở) — tập suy từ kho bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ
+mốc). Mốc này **«đóng gói xong» Điều phối – Thợ**: gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2,
+DP3, DP4, DP7, lõi DP6, A3), cộng các hàng đã gộp sớm của mốc 01/11 (G2, G3, X2, S3, L3), C1 và S3b. Kho chờ nhận: `crm` (đợt thử
+thứ nhất ~26/10 — chuyển sang gói `dieu-phoi`) và `OneFlow` (đợt thử thứ hai ~27/10 — đo «chạy được mà không sửa
+lõi»). Mốc đi **làn V**, không dựng răng mới. Ba gói `acceptance-gate`, `feature-loop`, `dieu-phoi` cùng lên
+`2.27.0`; `diagram-design` giữ `2.7.1`. Tag `v2.27.0` gắn sau khi PR mốc gộp.
+
+**Vì sao 2.27.0, không 2.26.1:** một gói mới có số riêng (`dieu-phoi`), ba loại tác tử chấm mới của `feature-loop`,
+một skill mới (`gom-tin-hieu`), hai khoá cấu hình mới (`feature_loop.model_carry_cmd`,
+`feature_loop.ngoai_n_tu_dinh_tuyen`), một cờ mới của cổng (`--hang-pr`) và khối dữ liệu lộ trình bản 2 — năng lực
+mới cho kho tiêu thụ.
+
+**`dieu-phoi` lần đầu có số đúng.** Gói vào `main` ở #295 (10/10) với `plugin.json` ghi `2.26.0`, mà thẻ `v2.26.0`
+(`200ce7bb`) không chứa thư mục gói. Bộ đệm gói khoá theo SỐ phiên bản, nên kho đã cài `dieu-phoi` từ `main` giữa
+hai mốc thấy «already at latest» với mọi bản cùng số. `2.27.0` là số đầu tiên mà thẻ chứa gói. P200 đòi `dieu-phoi`
+cùng số với `acceptance-gate` (từ #295).
+
+**Lớp chép CI 17 → 25 tệp:** ĐỔI `scripts/pre-merge-check.sh` (#323), `lib/evidence-core.cjs` (#292, #299),
+`scripts/product-map.mjs` (#307, #319), `scripts/lo-trinh.mjs` (#298, #307, #319); MỚI `scripts/ho-so-tom-tat.cjs` (#307,
+cần khi kho khai `lo_trinh.tep`) và bảy tệp chỉ cần khi kho khai `tin_hieu` (#319): `scripts/tin-hieu-khoa.cjs`,
+`scripts/tin-hieu.mjs`, `scripts/cat-luot.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`, `dieu-phoi/scripts/cau-hinh.mjs`,
+`dieu-phoi/scripts/dot.mjs`, `skills/acceptance/references/tin-hieu-template.md`. Mười ba tệp còn lại không đổi byte.
+Diff engine của cửa sổ còn ở: `dieu-phoi/` (mới), `feature-loop/agents/` (mới), `feature-loop/workflows/acceptance-verify.js`,
+`feature-loop/scripts/` (làn ghim lại, `trong-dot.mjs`, `dem-dung-lai-model.mjs`, `carry-plan.mjs`, `s4-args.mjs`,
+`thuoc-vat.mjs`, `duong-nen.mjs`), `feature-loop/skills/feature-loop/SKILL.md`, `scripts/dinh-tuyen-may.cjs` (mới),
+`scripts/gate-card.js`, `scripts/evidence-page.js`, `scripts/start-scan.mjs`, `scripts/plugin-declare.mjs`,
+`skills/cat-luot/`, `skills/gom-tin-hieu/` (mới), bảy tài liệu tham chiếu của `skills/acceptance/`, bốn lệnh
+`acceptance-card`, `acceptance-init`, `signoff`, `start`.
+
+### Gói `dieu-phoi`: Điều phối – Thợ cài theo kho; mở, tiếp tục, đổi tài khoản bằng một lệnh (bảy hồ sơ, hàng DP1–DP4, lõi DP6, DP7; T2)
+
+Gốc: crm `_acceptance/dieu-phoi-hai-tang` — lõi đợt (bộ phát lịch, CLI, bốn hook; 14 tệp mã, 84 ca) sống trong crm,
+mở đợt là sáu bước tay, OneFlow muốn dùng phải chép mã. Ô dù `dieu-phoi-tho-trong-kit` (Cổng Đáng build 09/10).
+
+- **Gói thứ tư của marketplace** (`dieu-phoi-dong-goi-loi`, #295): cài theo kho (`--scope project`) bằng lệnh ở mục
+  «Cài cho một kho» của `dieu-phoi/README.md`. Năm khối hook gắn qua `hooks/hooks.json` của gói — kho không sửa `.claude/settings.json`. Kho
+  không có đợt: mọi hook thoát 0, không in, không tạo tệp. `acceptance-init` KHÔNG tự bật gói (thẻ
+  `bat-theo-lua-chon`). Đợt do bản crm mở chạy tiếp được bằng gói.
+- **Mở · xem · đóng đợt một lệnh** (`dieu-phoi-mo-dot-mot-lenh`, #298): `/dieu-phoi:mo-dot`, `/dieu-phoi:xem`,
+  `/dieu-phoi:dong-dot` thay sáu bước tay. Đợt có vòng đời (nháp · đang chạy · tạm dừng · đang đóng), đổi được kế
+  hoạch giữa chừng, lấy hàng từ lộ trình hay bản phạm vi; khoá S4 cấp máy (hai kho trên một máy không chấm chồng);
+  `/acceptance-gate:start` biết đợt; lệnh đếm đợt.
+- **Tiếp tục một lệnh** (`dieu-phoi-tiep-tuc-mot-lenh`, #303): `/dieu-phoi:tiep-tuc` sau khi app khởi động lại, hết
+  ngữ cảnh hay Monitor hết hạn — nhịp sống của phiên, kế hoạch từng dãy (chip chỉ cho dãy không còn phiên sống),
+  nhận vai giám sát, chạy lại bộ phát lịch nếu chết. Chạy lại nhiều lần không sinh bộ phát lịch thứ hai.
+- **Đổi tài khoản không mất việc** (`dieu-phoi-doi-tai-khoan`, #312): ngưỡng ở khoá `han_muc` của
+  `dieu-phoi.config.json` (không khai → không xét hạn mức); mức dùng vào `han-muc.json` từ mod của gói, `get_usage`
+  và dòng trạng thái. Chạm ngưỡng bàn giao: ngừng cấp lượt, thợ commit WIP, `ban-giao.json` dựng từ git. Lệnh thứ
+  năm `/dieu-phoi:ban-giao`; tài khoản kia tiếp tục bằng `/dieu-phoi:tiep-tuc`. Lưới cuối: hook `StopFailure` commit
+  WIP khi thợ chết vì hạn mức. Răng lớp mod: mod chỉ nghe sự kiện đã khai, không mod nào trả «cho phép» thay người.
+- **Chặn S4 đúng lệnh; giám sát thức khi thợ chờ người** (`dieu-phoi-lop-mod`, phần lõi của DP6, #315): hook chặn S4
+  đọc cấu trúc lời gọi — nhận lệnh bọc mang cờ (`timeout`, `env -u/-C/-P/-S`, `nice -n`, `time -p`, `nohup`,
+  `command`, `exec -a`, `caffeinate`), bỏ qua `node --check`/`-c` và `--help`. Lời chặn nêu sẵn lệnh xin lượt. Hộp
+  xin quyền ở phiên thợ luôn thành việc chờ người; sự kiện `cho-nguoi` mang `can_phan`, nên giám sát thức trong
+  một nhịp. Phần mod chỉ vẽ (trạng thái đợt trong app) tách sang DP6b, mốc 01/11.
+- **Phiên thợ biết mình trong đợt** (`dieu-phoi-feature-loop-trong-dot`, #306): S0 của `/feature-loop` chạy
+  `feature-loop/scripts/trong-dot.mjs` (chỉ đọc). Chờ lượt S4 không thành câu hỏi hay vòng thử lại; xong hàng thì tự
+  mở hàng kế đã quyết build; quyền tự merge theo thẻ khởi tạo. Kho không có đợt: lệnh không in gì, vòng y như cũ.
+- **Năm lỗi chặn đợt thử** (`dieu-phoi-sua-truoc-dot-thu`, #317): chẩn đoán không mời mở chip lần hai cho cùng dãy
+  (D4); lời ghi danh không trỏ hàng đã gộp hay dãy nghỉ (D1); đợt mở từ gói chỉ giao hàng đã quyết build (B1); lịch
+  30′ của `mo-dot` đọc hạn mức (E2); thẻ khởi tạo thôi hỏi khẩu vị hạn mức (E1). Cùng PR sửa ca DP7-06 neo
+  merge-base sống — ca làm `main` đỏ sau #315.
+- **Ai bị ảnh hưởng:** chỉ kho CÀI gói. Kho không cài: không đổi gì — S0 của `feature-loop` gọi `trong-dot.mjs` và
+  lệnh thoát im khi không có đợt. **Giới hạn đã khai của gói ở `dieu-phoi/README.md` — đọc trước khi chuyển:**
+  hộp xin quyền của tác tử Workflow chưa đo là có tới hook chờ người (coi là mù, giữ luật «thợ chờ người thì ghi
+  `can-nguoi`» của đợt); `--help` trong chú thích `#`, here-string `<<<`, `env -S'…'` dính cờ, `bash -o pipefail -c`
+  làm lệnh S4 thật lọt khoá — giá là hai S4 chạy chồng, không sai kết quả; heredoc nhắc tên script bị chặn kể cả
+  khi thân chỉ là dữ liệu (2 trên 46.801 lời gọi). Nghiệm đúng tầng cho lớp «lệnh S4 lọt bộ đọc cú pháp» là hạt
+  giống «S4 tự xưng» (script S4 tự lấy khoá lúc khởi, hook thành lưới phụ), mở khi ≥ 1 lượt S4 thật lọt khoá
+  trong đợt thử.
+
+### Máy tự định tuyến mục Ngoài-n mà chính nó đề xuất ghi giới hạn hay không sửa (hồ sơ `ngoai-n-tu-dinh-tuyen`, hàng A3, T2)
+
+Gốc: crm `_acceptance/okr-mau-xoa-cau-hinh` — T2, PASS, 0 UNCERTAIN, năm mục Ngoài-n đều đề xuất `known-limits`
+mà vẫn phải ký Cổng Bằng chứng. Đợt crm `sau-14-10`: làn V bắn 0/71 hồ sơ, 59 chỉ vì Ngoài-n chưa định tuyến;
+người định tuyến trùng đề xuất máy 357/376 (94,9 %). Dự báo trên 71 hồ sơ ấy: làn V 0 → 37, mời ký 71 → 34.
+
+- **Khoá kho `feature_loop.ngoai_n_tu_dinh_tuyen`** — vắng thì như 2.26, không đổi byte nào.
+- **Khoá bật:** bên ghi mới `scripts/dinh-tuyen-may.cjs` ghi dòng sổ `gate2` của máy (khoá `may: "dinh-tuyen-ngoai-n"`,
+  KHÔNG có `decided_by`) cho mỗi mục Ngoài-n mà máy đề xuất `known-limits` hoặc `wont-fix`, trên hồ sơ đủ điều kiện
+  (T2 · verified · PASS · 0 UNCERTAIN · không bypass · triage không hỏng). Mục `new-contract` vẫn hỏi người; dòng người
+  luôn thắng dòng máy. Feature Loop gọi bên ghi ở bước PASS của S4, trước vị từ làn V.
+- **Thẻ Cổng Bằng chứng** in mục máy đã định tuyến là dòng báo kèm lệnh đảo một dòng
+  (`/acceptance-gate:signoff <slug> Ngoài-<n>: mở hợp đồng mới; Ký`); khối «Quyết định CHƯA duyệt» liệt kê chúng.
+- **Đếm ngưỡng:** `dinh-tuyen-may.cjs --soat-lech --root <gốc kho>` đếm hồ sơ có dòng máy lệch mục hiện tại. Ngưỡng
+  xem lại thiết kế: người đảo > 10 % mục máy định tuyến trong một đợt (đo 11/10: 11/237 ≈ 4,6 %).
+- **Giới hạn đã khai, mỗi cái kèm cách né** (hạt giống `docs/plans/2026-10-12-hat-giong-dinh-tuyen-may-sau-luot-2.md`;
+  mở ô khi kho đầu tiên bật khoá vấp một trong ba):
+  - *Ngoài-1 — dòng thẻ làn V:* trên hồ sơ làn V, dán NGUYÊN dòng câu gộp của thẻ thì thành ký thường (chữ ký người),
+    không phải «đi tiếp»; sửa ô cuối thành `kéo lại: <lý do>` rồi dán cả dòng thì nút dừng làn V KHÔNG chạy. Cách né:
+    muốn kéo lại thì gõ riêng dòng ngắn `kéo lại: <lý do>`, đừng dán cả dòng thẻ.
+  - *Ngoài-4 — dòng máy cũ:* lượt chấm sau đổi đề xuất của cùng mục sang mở-hợp-đồng-mới thì dòng máy «ghi Known
+    limits» cũ vẫn đứng, mục đi qua không hỏi người. Cách né: sau mỗi lượt chấm lại, đọc khối «CHƯA duyệt» của thẻ;
+    mục nào đề xuất nay là mở hợp đồng mới thì gõ lệnh đảo một dòng của mục đó.
+  - *Ngoài-5 — `--soat-lech` với `--root` sai:* báo «0 hồ sơ có dòng máy lệch mục» y như kho sạch. Cách né: luôn chạy
+    từ gốc kho với `--root .`.
+- **Ai bị ảnh hưởng:** chỉ kho bật khoá. **Khi update:** không gì; bật khoá là lựa chọn của kho — đọc ba giới hạn trên
+  trước khi bật.
 
 ### Trạng thái đợt hiện ngay trong app — dải trên ô nhập, pane, `/dieu-phoi:xem` không qua model (hồ sơ `trang-thai-dot-dieu-phoi-tho`, hàng DP6b, T2)
 
@@ -42,8 +142,34 @@ phẩm trên PR không đổi mã (17 % PR chỉ T1, 12,5 % PR chỉ hồ sơ).
   `cham_vat=true`. GUIDE §5.3 có đoạn workflow mẫu (điều kiện `!cancelled() && … != 'false'`).
 - Ai bị ảnh hưởng: kho không truyền cờ — cổng không đổi (từng byte; mọi dòng mới nằm trong vùng marker `HANG-PR`,
   `glob_variants`/`match_globs` giữ nguyên tên và thân).
-- Nhận mốc ở crm: thay khối `sed` của `.github/scripts/phan-loai.mjs` bằng `--hang-pr`; giữ job `check` (oxlint quét
-  `_acceptance/**/rang/`), chỉ gắn job `test` vào bit.
+- **Hai lỗ thừa hưởng từ bộ khớp của cổng** (cờ mới không sinh ra chúng): PR chỉ đổi tên mã vào vùng T1, hay chỉ sửa
+  tệp dưới một `_acceptance/` lồng (fixture test), được `--hang-pr` cho `cham_vat=false`. Chốt chặn: lượt test đủ
+  trên `push` vào nhánh chính.
+- **Nhận mốc ở crm:** thay khối `sed` của `.github/scripts/phan-loai.mjs` (rút `glob_variants`/`match_globs` khỏi
+  `pre-merge-check.sh`) bằng bước `bash scripts/pre-merge-check.sh . ${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}
+  --hang-pr` (bản chép của lớp CI). Giữ job `check` chạy (oxlint quét `_acceptance/**/rang/*.mjs`), chỉ gắn job
+  `test` vào bit. Điều kiện `if:` của job `test` PHẢI là `!cancelled() && needs.hang-pr.outputs.cham_vat != 'false'`:
+  thiếu `!cancelled()` thì job `hang-pr` đỏ làm `test` bị bỏ qua mà vẫn báo «Success». Giữ lượt test đủ trên `push`.
+
+### Cửa tín hiệu của kho, gom nhóm theo kết quả (hồ sơ `cua-tin-hieu-gom-nhom`, hàng L3, T2)
+
+Gốc: crm — chủ kho gom tay mục «Hạng mục cùng lớp» (10/238 hồ sơ, không phân hoạch: F11 ở hai cụm); người không dùng
+git không có cửa gửi; không gì nói một ý đã được việc đã giao phủ.
+
+- **Một khuôn tín hiệu** chung với kênh yêu cầu của gói Điều phối (tín hiệu người gửi và phát sinh của thợ qua cùng
+  phép kiểm hình dạng `kiemYeuCau`); ổ cắm `tin_hieu.nguon` + `tin_hieu.gom` trong `_acceptance/config.yaml`.
+- **Skill mới `gom-tin-hieu`:** phiên gom tín hiệu theo trục kết quả thành bản gom — cũng là bản phạm vi của cắt lượt.
+- **Răng phủ chỉ đọc** `scripts/tin-hieu.mjs`: mỗi tín hiệu ở đúng một chỗ — một nhóm, lẻ kèm lý do, hoặc đã phủ bởi
+  việc đã giao.
+- **Đường đi về người gửi:** tín hiệu → nhóm → hàng → hồ sơ; khối `lo-trinh-du-lieu` mang thêm khoá tuỳ chọn
+  `tin_hieu` khi kho khai cửa (kho không khai: khối giống từng byte, `phien_ban` không đổi).
+- **Giới hạn đã khai:** chất lượng gom của skill KHÔNG có bằng chứng máy — trên bộ vàng 20 tín hiệu giả từ 10 hồ sơ
+  crm, tác tử tươi chỉ cầm SKILL khớp đáp án 15/20 (hai lượt liền lệch đúng bảy chỗ như nhau). Đo thật ở Cổng Giá trị:
+  lượt gom đầu tiên trên tín hiệu thật của crm, ngưỡng chủ kho sửa dưới 1/5 số nhóm.
+- **Ai bị ảnh hưởng:** kho khai `tin_hieu`. Kho không khai: không đổi gì — bản đồ nạp ổ cắm khoan dung.
+- **Khi update:** kho khai `tin_hieu` chép thêm bảy tệp lớp CI (INIT-CI-COPY-LIST): `scripts/tin-hieu-khoa.cjs`,
+  `scripts/tin-hieu.mjs`, `scripts/cat-luot.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`, `dieu-phoi/scripts/cau-hinh.mjs`,
+  `dieu-phoi/scripts/dot.mjs`, `skills/acceptance/references/tin-hieu-template.md` — khai mà thiếu thì bước bản đồ đỏ to.
 
 ### Lộ trình chỉ chứa việc phát triển — việc vận hành thành mốc ngoài, dữ liệu giả có nhãn (hồ sơ `lo-trinh-chi-viec-phat-trien`, hàng S3b, T2)
 
@@ -177,6 +303,207 @@ suốt đêm. Lệnh không treo. Tám lệnh đầu còn đo tệp kiểm chưa
   giết cứng — trừ lượt còn sống (pid trong lý do khoá `git worktree lock`).
 - Ai bị ảnh hưởng: mọi kho chạy S4. Không cần làm gì khi cập nhật; tác tử/harness đời cũ không trả
   `dauRa` thì đọc như 2.24.0, có cờ vàng.
+
+### Tác tử chấm không cầm bút (hồ sơ `tac-tu-cham-chi-cham-khong`, hàng A1, T2, làn V)
+
+Gốc: crm `_acceptance/loi-vao-dieu-phoi-30-ngay` (ba lượt trong một ngày) và chính kit 07/10 — `luot-sua-giu-du-dem-dung`
+lượt 1: tác tử chấm sửa mã, commit ba lần, lượt vô hiệu, ~4,6M token. Harness Workflow chép câu người gần nhất vào
+đề bài mọi tác tử chấm; kit không tắt được cơ chế ấy.
+
+- Ba loại tác tử của gói `feature-loop`: `cham-doc` (Read, Grep, Glob) cho judge · triage · synthesize;
+  `cham-lenh` (Bash, Read, Grep, Glob) cho machine · baseline · finder · refute · provenance; `cham-ui` (cấm Edit,
+  Write, NotebookEdit) cho ui. Đề bài gửi tác tử không đổi một byte — chỉ thêm `opts.agentType`.
+- Bản cài thiếu loại tác tử (harness báo «not found»): lời gọi đó chạy lại một lần không `agentType`, mọi lời gọi
+  sau của lượt đi thẳng — lượt chấm vẫn chạy như 2.26.
+- Tác tử vẫn ghi được vào cây qua shell (`sed -i`): bước sau-lượt quy cây đổi cho tác tử đã ghi và ghi dòng đếm.
+  Máy không tự đổi cây — hoàn lại là việc của phiên.
+- **Chưa chạy sống lần nào trước mốc này:** 32 lượt chấm của 14 hồ sơ trong cửa sổ ghi `loai-tac-tu-vang` — bản
+  cài `feature-loop` 2.26.0 không có `agents/`, nên mọi lượt đi đường rơi. 2.27.0 là số đầu tiên mang ba loại tác tử.
+- **Ai bị ảnh hưởng:** mọi kho chạy S4. Bản cài cũ vẫn chấm được (đường rơi ở trên), chỉ là vai chấm còn cầm bút.
+- **Khi update — đường đã dẫm, không chỉ «cài lại»:** lệnh cập nhật plugin hay báo «already at latest» mà bộ đệm
+  vẫn giữ bản cũ (bộ đệm khoá theo số, và lệnh cập nhật mặc định chỉ chạm phạm vi `user`). Làm đủ bốn bước:
+  1. `claude plugin marketplace update acceptance-gate-kit`.
+  2. Ở MỖI bản ghi — phạm vi `user`, và với `project` thì `cd` vào gốc kho rồi từng cây phụ có phiên:
+     `claude plugin uninstall feature-loop@acceptance-gate-kit --scope <phạm vi>` rồi cài lại `feature-loop` cùng phạm
+     vi — lệnh cài là lệnh của khối khai plugin ở GUIDE §5.1, thêm `--scope <phạm vi>`.
+  3. Kiểm bộ đệm bằng một lệnh đọc được — mỗi dòng in ra phải là `… 2.27.0 cham-doc.md,cham-lenh.md,cham-ui.md`;
+     dòng nào còn `THIẾU agents/` là bản ghi đó chưa xong:
+
+     ```bash
+     claude plugin list --json | node -e 'const fs=require("fs");const d=JSON.parse(fs.readFileSync(0,"utf8"));for(const p of (Array.isArray(d)?d:d.plugins)){if(p.id!=="feature-loop@acceptance-gate-kit")continue;const a=p.installPath+"/agents";console.log(p.scope,p.projectPath||"-",p.version,fs.existsSync(a)?fs.readdirSync(a).join(","):"THIẾU agents/")}'
+     ```
+
+  4. **Dấu hiệu A1 sống:** mở phiên MỚI (phiên đang chạy giữ bản đã nạp lúc khởi động); lượt chấm đầu tiên sau đó
+     không ghi thêm dòng `"kind":"loai-tac-tu-vang"` vào `run-log.jsonl` của hồ sơ — đếm bằng
+     `grep -c '"kind":"loai-tac-tu-vang"' _acceptance/<slug>/run-log.jsonl` trước và sau lượt. Số còn tăng sau khi
+     bước 3 đã sạch là *sai hợp đồng* của A1 — báo chủ kit.
+
+### Tên ca chập chờn đọc được qua tiền tố turbo (hồ sơ `ten-ca-qua-tien-to-turbo`, hàng G2, T2)
+
+Gốc: crm `_acceptance/tro-ly-okr-bo-final-output` — dòng `repin` 07/10 mang `chap_chon` với `"ca": ["không rút được
+tên ca"]`. Chạy qua turbo không TTY, mọi dòng con mang tiền tố `<gói>:<tác vụ>: `, nên năm khuôn neo đầu dòng không
+khớp và lời hứa «gọi tên ca chập chờn» rỗng ở mọi kho dùng turbo.
+
+- Làn ghim lại bỏ tiền tố của bộ chạy monorepo trước khi rút tên ca; dòng pin `chap_chon` gọi đúng tên ca. Dạng
+  đầu ra chưa thấy ở kho thật nào vẫn để ngoài, mỗi dạng có ngưỡng mở lại.
+- Ai bị ảnh hưởng: kho bật `feature_loop.repin_retry` và chạy suite qua turbo (crm). Không cần làm gì.
+
+### Thẻ cổng và JSON làn đỏ không còn bị cắt ở 64 KB (hồ sơ `xa-stdout-truoc-khi-thoat`, T2)
+
+Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 65 534) — thẻ Cổng 1 dài 65 932 byte,
+`gate-card.js` ghi trọn thẻ rồi `process.exit(0)` ngay, stdout qua ống dẫn chỉ giao 65 536 byte.
+
+- `gate-card.js` (thẻ và JSON trích) và `repin-lane.mjs` (JSON làn đỏ) thoát trong callback của lần ghi; vòng quét
+  cả lớp «ghi lớn rồi thoát ngay» trong bốn thư mục mã.
+- Ai bị ảnh hưởng: mọi kho có thẻ hay JSON làn đỏ dài hơn 64 KB đọc qua ống dẫn. Không cần làm gì.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: chép lại bốn tệp và THÊM một** — `scripts/pre-merge-check.sh`, `lib/evidence-core.cjs`,
+  `scripts/product-map.mjs`, `scripts/lo-trinh.mjs`, cộng `scripts/ho-so-tom-tat.cjs` mới (theo INIT-CI-COPY-LIST của
+  `acceptance-init`, nay 25 tệp). Kho khai `lo_trinh.tep` mà thiếu tệp mới thì bước bản đồ đỏ to `MODULE_NOT_FOUND`,
+  không im lặng. Kho khai `tin_hieu` chép thêm bảy tệp của mục L3.
+- **Máy dev:** cài lại `acceptance-gate` và `feature-loop` ở MỌI phạm vi trên mỗi máy có phiên của kho theo bốn bước
+  ở mục «Tác tử chấm không cầm bút» (cập nhật marketplace → gỡ → cài → kiểm `agents/`) — `update` một mình hay
+  để bộ đệm cũ. `feature-loop` 2.27.0 là bản đầu tiên mang `agents/`.
+- **Kho khai `lo_trinh.tep`:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs
+  --root .`) — khối dữ liệu lên bản 2, câu giao in ra bỏ một cặp «» bao trọn câu.
+- **Kho có bản chiếu đọc khối lộ trình:** chép lại `docDuLieu` từ `scripts/lo-trinh.mjs` khi cần `tom_tat`; bản
+  chép cũ vẫn đọc bản 2 «phần biết» kèm một cảnh báo.
+- **Kho muốn dùng lại eval model thật:** khai `feature_loop.model_carry_cmd`; không khai thì như 2.26.
+- **Kho muốn máy tự định tuyến Ngoài-n:** bật `feature_loop.ngoai_n_tu_dinh_tuyen` sau khi đọc ba giới hạn ở mục A3;
+  không bật thì không đổi byte nào.
+- **Kho trả tiền phút Actions:** gắn job test nặng vào bit `cham_vat` của `pre-merge-check.sh --hang-pr` theo mẫu
+  GUIDE §5.3 (mục C1); không gọi cờ thì cổng không đổi.
+- **Kho chạy đợt Điều phối – Thợ:** cài `dieu-phoi` theo `dieu-phoi/README.md` mục «Chuyển từ bản lõi chép tay».
+  Kho chưa chạy đợt: không cài gói này.
+
+**crm, theo thứ tự** (nếu crm chưa nhận 2.26.0 thì mọi ghi chú nhận của 2.26.0 và 2.25.0 vẫn áp):
+
+1. **Khi nào cài:** ở quãng lặng trước đợt thử thứ nhất (~26/10) — không lượt S4 nào đang chạy. Không đổi engine
+   dưới chân một vòng đang chạy.
+2. Chép năm tệp lớp CI ở trên; cài lại plugin gốc và mọi cây phụ theo bốn bước của A1 (gỡ rồi cài, kiểm
+   `agents/`); vẽ lại `LO-TRINH.html`; chép lại `docDuLieu`
+   (LT1 giữ bản chép bản 1); khai `model_carry_cmd` (lệnh dò id model Gateway + băm `bun.lock`) — lượt ghim lại đầu
+   tiên sau khi bật chạy trọn. Thay khối `sed` của `.github/scripts/phan-loai.mjs` bằng bước `--hang-pr` theo đúng mục
+   C1 (giữ job `check`, `if:` có `!cancelled() &&`, giữ lượt test đủ trên `push`). Bật khoá A3 hay chưa là quyết của
+   crm: dự báo trên 71 hồ sơ đợt `sau-14-10` là làn V 0 → 37 — bật thì đọc ba giới hạn ở mục A3 trước.
+3. **Chuyển sang gói `dieu-phoi`:**
+   1. Cài `dieu-phoi` theo `dieu-phoi/README.md` (mục «Cài cho một kho») ở cây gốc và từng cây phụ có phiên. Báo
+      «already at latest» mà `claude plugin list --json` vẫn ghi `2.26.0` (bản cài từ `main` giữa hai mốc) thì
+      `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại; kiểm từng bản ghi.
+   2. Đợt đang mở bằng bản crm: dừng bộ phát lịch bản cũ trước (`node scripts/dieu-phoi/dieu-phoi.mjs dung`), chuyển
+      xong thì `node "$GOI/scripts/dieu-phoi.mjs" chay` để chép lõi của gói vào `<thư mục đợt>/loi/`.
+   3. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, gỡ các dòng nó in thuộc nhóm **đang chạy** — bốn khối
+      hook tự chép trong `.claude/settings.json` (PreToolUse chặn S4, PostToolUse nhịp, Notification và
+      UserPromptSubmit chờ người), `.githooks/gate-shape.json`, `package.json`, eval của hồ sơ đang mở, `LUAT.md` của
+      đợt đang chạy — rồi gỡ thư mục `scripts/dieu-phoi/` (lệnh không liệt kê chính thư mục bản cũ). Đo trên crm
+      12/10: 670 dòng, chỉ 7 dòng thuộc nhóm đang chạy (settings 4, hook git 2, `package.json` 1); 663 dòng còn lại nằm
+      trong `_acceptance/` (533) và `docs/` (130) — bản ghi lịch sử, để nguyên (sửa là làm hồ sơ đã ký hoá cũ). Vì
+      thế `kiem-chuyen: sach` sẽ KHÔNG in ở crm; điểm dừng là hết dòng thuộc nhóm đang chạy. Gỡ và cài nằm trong
+      CÙNG một PR.
+   4. **Kiểm hook `cho-nguoi` của gói không bắn đôi với bản crm tự chép:** khối hook cũ mở đầu bằng `[ -f
+      "$CLAUDE_PROJECT_DIR/scripts/dieu-phoi/…" ] || exit 0` nên im hẳn khi thư mục bản cũ đã gỡ. Không bắn
+      đôi = `kiem-chuyen` không còn dòng nào ở `.claude/settings*.json` + `scripts/dieu-phoi/` không còn + `xem` không in
+      dòng cảnh báo hook bản cũ. Trong khoảng
+      đã cài mà chưa gỡ, mỗi `Notification` chạy hai bản `hook-cho-nguoi` ghi đè cùng tệp chờ người.
+   5. **Giữ luật 52** của crm (thợ chờ người — kể cả chờ hộp quyền trong lượt chấm — tự ghi `can-nguoi`) trong phần
+      riêng của đợt (`LUAT-rieng.md` khi mở bằng `/dieu-phoi:mo-dot`) — khuôn `LUAT.md` của gói chưa mang luật này,
+      và hộp quyền của tác tử Workflow chưa đo là có tới hook chờ người.
+4. **Đo trước → sau trên crm** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây,
+   chạy lưới trước-merge và thẻ của các hồ sơ đang mở dưới bản đang cài rồi 2.27.0 — phán quyết từng hồ sơ phải bằng
+   nhau, TRỪ chỗ mốc hứa đổi: cờ vàng cho trường danh sách viết kiểu kit không đọc (R1), `paths` thoát ngoặc lọc
+   đúng hơn, khối lộ trình bản 2, và — chỉ khi bật khoá A3 — hồ sơ T2 xanh-sạch có Ngoài-n máy đề xuất ghi giới hạn đi
+   làn V. Khác ở chỗ nào khác là tín hiệu cần đọc.
+5. **Trong đợt thử, đếm ở sổ chạy:** lượt S4 thật lọt khoá (ngưỡng «S4 tự xưng» ≥ 1) và lượt S4 đứng vì hộp quyền
+   mà không có tệp chờ người (ngưỡng «mù» ≥ 1) — hai số này quyết hai việc kế của gói.
+
+**OneFlow** (đợt thử thứ hai ~27/10): cài `dieu-phoi` lần đầu — không có bản chép tay nên chỉ bước 3.1, và THÊM vào
+`LUAT-rieng.md` của đợt luật «thợ chờ người thì ghi `can-nguoi`» (OneFlow chưa có luật này; xem bước 3.5); đo
+«chạy được mà không sửa lõi».
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng của từng vòng — đủ ở hai mươi hợp đồng và
+`docs/research/known-limits-ledger.tsv`, 158 hàng của cửa sổ): `dieu-phoi-lop-mod` 34 · `eval-goi-model-that-khong-chay`
+24 · `dieu-phoi-mo-dot-mot-lenh` 18 · `dieu-phoi-doi-tai-khoan` 18 · `ngoai-n-tu-dinh-tuyen` 10 ·
+`tac-tu-cham-chi-cham-khong` 7 · `vong-la-mot-ket-qua` 7 · `dieu-phoi-dong-goi-loi` 6 · `dieu-phoi-tiep-tuc-mot-lenh` 6 ·
+`dieu-phoi-feature-loop-trong-dot` 6 · `evals-sat-le-doc-du` 6 · `baseline-tran-bo-qua-don` 5 ·
+`dieu-phoi-sua-truoc-dot-thu` 4 · `ten-ca-qua-tien-to-turbo` 3 · `glob-thoat-ngoac` 2 · `ci-cua-kho-bo-job-nang` 2 ·
+bốn hồ sơ còn lại 0 (`cua-tin-hieu-gom-nhom` ghi giới hạn ở Notes của hợp đồng, sổ chưa có hàng).
+
+**Năm dòng số của luật (c)** — hai mươi vòng (giờ VN; nguồn: giờ commit `contract.md`, `usage-report.md`,
+`decisions.jsonl`, `run-log.jsonl` của hồ sơ; ba khối token theo khuôn 2.25: chứng-minh-vật = machine+ui+judge+baseline
+· tìm-lỗi = review+refute · tổng hợp = triage+capture+synthesize; Cổng Đáng không tính, theo khuôn 2.26):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `dieu-phoi-dong-goi-loi` (DP1) | 1 g 33 · 1 | 1 / 0 (3) | 0 | 34 731 · 41,0 / 19,8 / 39,2 | 36 |
+| `dieu-phoi-mo-dot-mot-lenh` (DP2) | 4 g 53 · 4 (lượt 4 vượt trần) | 1 / 1 (3) | **1** — lượt 3 REJECT chỉ vì node segfault (mã 139) ở suite workflows | không ghi trong hồ sơ (không có `usage-report.md`) | không ghi |
+| `dieu-phoi-tiep-tuc-mot-lenh` (DP3) | 1 g 41 · 1 | 1 / 0 (3) | 0 | không ghi trong hồ sơ (không có `usage-report.md`) | không ghi |
+| `dieu-phoi-doi-tai-khoan` (DP4) | 1 g 04 · 1 | 1 / 3 (3) — **VƯỢT trần** | 0 lượt chấm; hạ tầng đốt 2 lượt gọi người (dòng ký 812 ký tự bị app gói, lệnh không chạy) | 151 852 · 46,5 / 14,7 / 38,7 | 43 |
+| `dieu-phoi-lop-mod` (lõi DP6) | 8 g 16 · 7 (lượt 4–7 vượt trần) | 1 / 3 (3) — **VƯỢT trần**; số chạm không ghi | 0 (+1 ca biên: lượt 6 đỏ chỉ vì P179 — sổ giới hạn của chính hồ sơ thiếu dòng) | 460 264 · 47,6 / 15,2 / 37,2 | 42 · 40 · 42 · 42 · 44 · 39 · 39 = 287 |
+| `dieu-phoi-feature-loop-trong-dot` (DP7) | 1 g 36 · 1 | 1 / 0 (3) | 0 | 46 430 · 53,5 / 15,0 / 31,5 | 34 |
+| `dieu-phoi-sua-truoc-dot-thu` | 48 phút · 1 | 1 / 0 (3) | 0 | 33 597 · 38,8 / 25,8 / 35,4 | 40 |
+| `tac-tu-cham-chi-cham-khong` (A1, máy thông) | 7 g 11 · 3 | 1 / 2 (3) | 0 | 114 302 · 44,3 / 23,2 / 32,6 | 28 · 27 · 25 = 80 |
+| `ngoai-n-tu-dinh-tuyen` (A3) | 6 g 29 · 2 (trả lại sau lượt 1 chờ qua đêm 4 g 23) | 2 / 2 (3) — **VƯỢT trần**; số chạm không ghi trong hồ sơ | 0 | 92 253 · 38,3 / 22,6 / 39,1 | 40 · 43 = 83 |
+| `ci-cua-kho-bo-job-nang` (C1, T3) | 2 g 48 · 1 | 3 / 0 (4) | 0 | 32 283 · 42,5 / 18,3 / 39,2 | 41 |
+| `cua-tin-hieu-gom-nhom` (L3) | 4 g 14 · 3 | 1 / 1 (3) | 0 | 137 264 · 59,7 / 14,4 / 25,9 | 29 · 29 · 29 = 86 |
+| `evals-sat-le-doc-du` (R1, T3) | 8 g 50 · 2 (chờ ký 7 g 53 qua đêm) | 2 / 0 (4); Gate 1.5 không ghi trong hồ sơ | 0 | 203 018 · 45,9 / 36,8 / 17,3 | 28 · 25 = 54 |
+| `glob-thoat-ngoac` (T3) | 1 g 38 · 2 | 3 / 0 (4) | 0 (+1 ca biên: lượt 1 đỏ chỉ vì RT13 bắt chuỗi trạng thái đã ký trong tệp ca của chính hồ sơ) | 58 310 · 59,9 / 18,1 / 22,0 | 32 · 31 = 63 |
+| `eval-goi-model-that-khong-chay` (G3) | 3 g 09 · 3 | 1 / 2 (3) | 0 | 211 991 · 50,7 / 13,5 / 35,8 | 44 · 42 · 41 = 127 |
+| `ten-ca-qua-tien-to-turbo` (G2) | 1 g 35 · 1 | 1 / 0 (3) | 0 | 33 000 · 50,0 / 10,8 / 39,2 | 40 |
+| `xa-stdout-truoc-khi-thoat` | 1 g 29 · 1 | 1 / 0 (3) | 0 | 34 104 · 44,6 / 23,4 / 32,0 | 43 |
+| `baseline-tran-bo-qua-don` | 3 g 04 · 1 | 2 / 0 (3) | 0 | 38 858 · 45,8 / 23,1 / 31,1 | 30 |
+| `trang-ho-so-mot-viec` (X2) | 3 g 09 · 3 | 1 / 1 (3) | 0 | 78 083 · 52,6 / 15,1 / 32,4 | 27 · 25 · 27 = 79 |
+| `vong-la-mot-ket-qua` (S3) | 2 g 22 · 2 | 2 / 0 (3) | 0 | 133 602 · 74,6 / 8,7 / 16,7 | 27 · 25 = 52 |
+| `lo-trinh-chi-viec-phat-trien` (S3b) | 2 g 28 · 2 | 1 / 0 (3) | 0 | 218 795 · 78,3 / 7,0 / 14,7 | 31 · 28 = 59 |
+
+Cộng hai mươi vòng: **42 lượt chấm** (9 vòng một lượt; trung vị làm-xong→quyết-được 2 g 38) · **2 112 737 out-token**
+trên 37/42 lượt có `usage-report.md` (chứng-minh-vật 53,0 % · tìm-lỗi 17,1 % · tổng hợp 29,9 %) · **≈ 1 278 phút máy**
+(76 664 s) trên cùng 37 lượt · **43 lượt gọi người** (28 trong thiết kế, 15 ngoài), **3 vòng vượt trần** · hạ tầng
+đốt **1 lượt chấm** (+2 ca biên) và **2 lượt gọi người**. Phiên chính không đo token. Số chạm: lời ký là một câu gộp
+ở mọi vòng có ghi; Cổng Phạm vi ký thật và các lần gọi ngoài thiết kế của DP2, DP4, DP6, G3, A3 không ghi số chạm.
+
+**Đọc số:**
+
+- **Một vòng ăn hơn một phần năm cửa sổ.** `dieu-phoi-lop-mod` dùng 21,8 % out-token và 22,5 % phút máy của cả hai mươi
+  vòng qua bảy lượt chấm: lớp «lệnh S4 lọt bộ đọc cú pháp» đổi da ba lần trong vòng (vỏ bọc mang cờ → thân heredoc cho
+  trình thông dịch → heredoc kèm chuyển hướng), dừng-vá thu phạm vi. Nghiệm đúng tầng đã ghi hạt giống («S4 tự xưng»),
+  không vá thêm bộ phân loại.
+- **Ba vòng vượt trần, ba gốc khác nhau:** DP6 do lớp trên; DP4 do hạ tầng — dòng ký dán dài hơn ~800 ký tự bị app
+  gói thành khối, lệnh không chạy, hai lượt gọi người cho một chữ «ký» (hạt giống `docs/plans/2026-10-11-hat-giong-dong-ky-vuot-nguong-dan.md`);
+  A3 do chọn sửa ngay sáu mục ngoài hợp đồng thay vì tách việc — trả lại sau lượt 1 rồi duyệt lại Cổng Phạm vi
+  bằng một lệnh riêng (hồ sơ tự ghi là lượt gọi thứ tư, ngoài thiết kế).
+- **A1 chưa chạy sống lần nào:** 38 lượt chấm của 17 hồ sơ có dòng `loai-tac-tu-vang` («agent type
+  'feature-loop:cham-lenh' not found») — bản cài `feature-loop` 2.26.0 trong bộ đệm gói không có `agents/`, nên mọi
+  lượt đi đường rơi về tác tử mặc định. Không lượt nào bị đốt vì thế. 2.27.0 là số đầu tiên mang `agents/`. **Chỗ cắt
+  cho cửa sổ kế** (không mở ô): lượt chấm đầu tiên ở một kho đã cài 2.27.0 mà vẫn có dòng `loai-tac-tu-vang` là
+  *sai hợp đồng* của A1 (máy sửa vật), không còn là giới hạn.
+- **Dòng 4–5 hở ở hai vòng gói:** DP2 và DP3 không có `usage-report.md` (kể cả trong lịch sử git); `wall_s` trong
+  run-log của hai hồ sơ là của làn ghim lại, không phải lượt chấm. Số của hai vòng ấy không đọc được — không ước.
+
+**Điều kiện tin cậy:** (i) đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần. A1 đổi
+LOẠI tác tử của chín vai — bộ công cụ, không đổi đề bài một byte — kèm răng hai chiều trong harness (AT1/AT2 đỏ khi
+bảng vai sai; AT3: lượt sạch so với bản gỡ bảng vai cho đề bài, phán quyết, run-log bằng nhau); trong thực tế 38
+lượt của cửa sổ chạy đường rơi và 4 lượt chạy bản lượt chấm chưa có A1, nên thành phần thật của cả 42 lượt không đổi.
+A3 thêm một bên ghi SAU phán quyết PASS (dòng sổ của máy cho Ngoài-n) — không chạm finder, refute hay REJECT. Đầu vào lượt chấm đổi ở ba chỗ có hồ sơ
+riêng: một bộ đọc danh sách `evals.yaml` (R1, T3 — 621 hồ sơ ở bảy kho, 0 lệch với kiểu thụt 4), kế hoạch mang sang
+thôi mang eval có tệp vừa đổi (`glob-thoat-ngoac`, T3), làn đối chứng chạy một lệnh kit sinh có trần
+(`baseline-tran-bo-qua-don`). (ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** — lượt oan duy nhất là hạ tầng
+(segfault, dòng 3); hai ca biên là lưới corpus đỏ đúng trên tệp hay sổ của chính hồ sơ, không phải phán quyết sai.
+Ngưỡng (a) đếm **0/2**. Dòng 4–5 cắt được, với 2/20 vòng không có số.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở crm | tiếp tục một lệnh và đổi tài khoản không mất việc bỏ những giờ đứng khi phiên đứt (09/10: 37 việc nền dừng; 08/10: hai việc lỡ 5 giờ) |
+| 2 | ↓ ở crm | thợ chờ lượt S4 không thành câu hỏi, tự mở hàng kế (DP7); mở và tiếp tục đợt một lệnh thay sáu bước tay (DP2, DP3); khi bật khoá A3, hồ sơ T2 xanh-sạch thôi mời ký (dự báo mời ký 71 → 34 trên đợt `sau-14-10`). Rủi ro ngược: hộp quyền của tác tử Workflow chưa đo — luật 52 giữ |
+| 3 | ↓ | tác tử chấm không ghi cây (A1, hiệu lực từ bản cài 2.27.0); làn đối chứng có trần, không giữ khoá s4 nhiều giờ; thẻ > 64 KB không bị cắt; `evals.yaml` sát lề đọc đủ |
+| 4 | = / lượt | thành phần lượt không đổi. Làn ghim lại không gọi lại eval model khi đầu vào không đổi (G3) — đó là chi phí model của kho, không phải token S4. Phút Actions của kho ↓ khi gắn `--hang-pr` (C1) — không phải phút máy S4 |
+| 5 | = / lượt | trần 480 s của làn đối chứng chỉ rút đường găng khi làn ấy treo |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.26.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.26.0 — 09/10/2026
 
