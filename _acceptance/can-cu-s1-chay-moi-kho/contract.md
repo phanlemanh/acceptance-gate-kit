@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # máy suy: SKILL feature-loop + scripts/gate-card.js + ca đo + GUIDE — không chạm lib/**, hooks/**, cổng chặn gộp
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-can-cu-s1-chay-moi-kho-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
