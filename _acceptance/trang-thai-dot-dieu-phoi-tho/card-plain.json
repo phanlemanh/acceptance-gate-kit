@@ -1,0 +1,43 @@
+{
+  "feature_plain": "Trong một đợt Điều phối – Thợ, mọi phiên trong app hiện sẵn một dải một dòng nói đợt đang ở đâu; bấm vào thì mở pane chi tiết; gõ /dieu-phoi:xem thì có câu trả lời ngay mà không tốn lượt model.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ có lệnh xem dạng máy đọc (xem --json): in đúng trạng thái đợt mà lệnh xem đang dùng, kèm dãy của phiên đang gõ — đo ở bốn chỗ đứng khác nhau."},
+    {"id": "AC-2", "p": "Sẽ trả lời gọn khi không có đợt («dot: null»), khi đợt chưa có nhịp đầu, và báo lỗi rõ khi tệp đợt hỏng."},
+    {"id": "AC-3", "p": "Sẽ giữ nguyên từng chữ của lệnh xem quen thuộc — so với bản 12/10 trên bốn trạng thái đợt."},
+    {"id": "AC-4", "p": "Sẽ vẽ dải một dòng đúng khuôn đã chốt (đợt · pha · ai giữ lượt chấm tới mấy giờ · bao nhiêu phiên chờ · bao nhiêu việc cần anh), kiểm trên trạng thái THẬT của một đợt crm, và đúng giờ ở mọi múi giờ."},
+    {"id": "AC-5", "p": "Sẽ hiện dải trên ô nhập ở cả terminal lẫn desktop; không có đợt thì dải im; đọc lỗi thì dải nói «không đọc được đợt» thay vì đoán."},
+    {"id": "AC-6", "p": "Sẽ tự làm mới 20 giây một lần khi có đợt, 2 phút một lần khi không có, và không làm chậm lúc mở phiên."},
+    {"id": "AC-7", "p": "Sẽ mở pane «Đợt» chỉ khi anh bấm «xem», với đúng nội dung lệnh xem in ra."},
+    {"id": "AC-8", "p": "Sẽ trả lời /dieu-phoi:xem trong app mà không tốn token model — đo trên chính Claude Code thật, cách ly khỏi tài khoản của anh; khi mod hỏng thì lệnh cũ (qua model) vẫn chạy."},
+    {"id": "AC-9", "p": "Sẽ chặn mọi cách mod tự cho phép một lời gọi công cụ, ghi tệp đợt hay gọi lệnh làm đổi đợt — có năm ca phá thử canh."}
+  ],
+  "scope_plain": "Những thứ vòng này cố ý không làm:",
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG đo xem hộp xin quyền của tác tử Workflow có báo về phiên không — việc của phần giám sát, còn ở sổ hạt giống."},
+    {"id": "OOS-2", "p": "KHÔNG đo tin liên phiên giữa lượt hay mod tự đánh thức phiên — cũng của phần giám sát."},
+    {"id": "OOS-3", "p": "KHÔNG cho mod ghi tệp đợt, chặn lượt chấm, hay nghe lời gọi công cụ và lời nhắn của anh."},
+    {"id": "OOS-4", "p": "KHÔNG làm đường dự phòng khi desktop không cho mod chạy lệnh — chờ đợt crm cho thấy có cần không."},
+    {"id": "OOS-5", "p": "KHÔNG sửa trang bảng đợt, bộ phát lịch, hay các việc đang có ngưỡng riêng ở sổ hạt giống."},
+    {"id": "OOS-6", "p": "KHÔNG đổi chữ của lệnh xem hay của lệnh /dieu-phoi:xem bản cũ."},
+    {"id": "OOS-7", "p": "KHÔNG cắt số phiên bản, không gắn tag — phát hành gom về mốc 01/11 (crm đang đóng băng tới sau đợt thử)."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Đủ năm chỗ người thấy trạng thái: lệnh xem dạng máy, lệnh xem dạng chữ, dải, pane, câu trả lời /dieu-phoi:xem (AC-1 tới AC-8)."},
+    {"i": 1, "p": "Đủ năm tình trạng đợt lúc đọc: không có đợt, chưa có nhịp, đang chạy, đang giảm tải, đọc lỗi."},
+    {"i": 2, "p": "Đủ ba chỗ phiên đứng: phiên giám sát ở gốc kho, phiên thợ trong dãy của mình, phiên ở worktree ngoài dãy."},
+    {"i": 3, "p": "Đủ bốn môi trường: có mod trên terminal, có mod trên desktop, không có mod, và desktop không cho mod chạy lệnh (cái cuối là giới hạn đã khai)."},
+    {"i": 4, "p": "Áp cho mọi ô: mod chỉ đọc và vẽ, không làm chậm lúc mở phiên, dải luôn một dòng."},
+    {"i": 5, "p": "Mỗi ô cốt lõi có tiêu chí canh (AC-1 tới AC-9)."},
+    {"i": 6, "p": "Để sau: đường dự phòng khi desktop không cho mod chạy lệnh — ngưỡng mở ghi ở Notes."},
+    {"i": 7, "p": "Để sau: dải ở VS Code và điện thoại — app không có chỗ đặt dải ở đó, chỉ có lệnh và pane."},
+    {"i": 8, "p": "Không bao giờ: mod ghi tệp đợt hay chặn lượt chấm."},
+    {"i": 9, "p": "Không bao giờ: pane tự bật lên khi không ai hỏi."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Dải chưa được kiểm trên trạng thái đợt THẬT — chỉ trên đầu vào dựng tay, nên có thể đọc sai số phiên chờ mà vẫn xanh. Đã sửa: thêm năm ca dải đọc đúng dữ liệu lệnh xem in ra, so với dòng viết tay đếm từ đợt crm thật."},
+    {"i": 1, "p": "Chưa đo «mod hỏng thì lệnh cũ vẫn chạy» trên Claude Code thật. Đã sửa: thêm ca đường lùi (tệp đợt hỏng → lệnh cũ trả lời qua model) và ghim rằng hook cố ý không tự bắt lỗi."},
+    {"i": 2, "p": "Giờ trên dải có thể lệch 7 tiếng nếu mod chạy theo giờ quốc tế — phép đo cũ trùng múi giờ máy nên không thấy. Đã sửa: thêm hai ca múi giờ khác."},
+    {"i": 3, "p": "Chính sách «mod chỉ vẽ» mới chặn nửa «không cho phép», chưa chặn mod ghi tệp hay gọi lệnh đổi đợt. Đã sửa: thêm răng và hai ca phá thử."},
+    {"i": 4, "p": "Dòng đường đo chép sai ngưỡng (≥ 5 lần/ngày là làm thêm vòng, không phải gỡ). Đã sửa: chép nguyên ngưỡng đã ký."}
+  ]
+}
