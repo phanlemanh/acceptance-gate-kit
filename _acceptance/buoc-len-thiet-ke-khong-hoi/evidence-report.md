@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a3390dd8308eea8b524cd4c6f14a7d67bace1502
+verified_commit: f1f447611162cdf1c1cca7c0b0753a9f9b6ca47a
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -212,3 +212,7 @@ Round 2: mọi eval máy và suite hồi quy xanh sau khi sửa CC-06 bo-doc; E9
 ### Re-pin lần 1 — 2026-10-11, do ghim lại sau gộp main d9d1f3a6 (#312, #313)
 run_id: repin-20261011T143542Z-57573
 sha: a3390dd8308eea8b524cd4c6f14a7d67bace1502 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E1 (E1 không khai paths), E8 (E8 không khai paths), E9 · diff chạm vật đo ngoài làn máy: E9 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-1, AC-8, AC-9
+
+### Re-pin lần 2 — 2026-10-12, do ghim lại sau gộp main a1e2e0b9 (mốc v2.27.0)
+run_id: repin-20261012T084114Z-12006
+sha: f1f447611162cdf1c1cca7c0b0753a9f9b6ca47a · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E1 (E1 không khai paths), E8 (E8 không khai paths), E9 · diff chạm vật đo ngoài làn máy: E9 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-1, AC-8, AC-9

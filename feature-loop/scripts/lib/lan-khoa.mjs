@@ -11,6 +11,7 @@ export const LAN_KHOA = [
   { khoa: 'feature_loop.repin_budget_min', kieu: 'số phút > 0', mo_ta: 'trần mỗi lượt; cờ --tran-phut thắng khoá; vượt trần thoát 4' },
   { khoa: 'feature_loop.repin_cost_cmd', kieu: 'lệnh in một số tăng theo chi tiêu', mo_ta: 'chạy trước lệnh đầu và sau lệnh cuối, tổng kết ghi chênh' },
   { khoa: 'feature_loop.repin_ci_blank_env', kieu: 'danh sách tên biến', mo_ta: 'suite chạy với các biến này đặt rỗng (giống CI); eval giữ env đầy đủ' },
+  { khoa: 'feature_loop.model_carry_cmd', kieu: 'lệnh in dấu vân tay môi trường model', mo_ta: 'bật dùng lại kết quả eval model khi băm đầu vào không đổi (hạn 7 ngày); đầu ra chỉ vào băm' },
 ];
 // LAN-KHOA>>>
 
@@ -43,7 +44,9 @@ export function docKhoa(configText, core) {
   const cost = k('feature_loop.repin_cost_cmd');
   const blank = ds('feature_loop.repin_ci_blank_env');
   for (const x of blank) if (!BIEN_RE.test(x)) throw loi('feature_loop.repin_ci_blank_env', 'tên biến môi trường (chữ, số, gạch dưới; không bắt đầu bằng số)', x);
-  return { repin_retry: retry, model_evals: new Set(model), repin_budget_min: budget, repin_cost_cmd: rong(cost) ? null : String(cost), repin_ci_blank_env: blank };
+  // Hồ sơ eval-goi-model-that-khong-chay: rỗng = vắng (hành vi trước vòng); giá trị giữ nguyên văn.
+  const carry = k('feature_loop.model_carry_cmd');
+  return { repin_retry: retry, model_evals: new Set(model), repin_budget_min: budget, repin_cost_cmd: rong(cost) ? null : String(cost), repin_ci_blank_env: blank, model_carry_cmd: rong(carry) ? null : String(carry) };
 }
 
 // Chạy lệnh đo chi phí — không bao giờ ném: lỗi trả { loi } để tổng kết in «lỗi (…)».
@@ -58,13 +61,15 @@ export function doChiPhi(cmd, cwd, env) {
 }
 
 // → { obj (khoá tong_ket), dong (dòng stderr cuối, bắt đầu «[lane] TỔNG KẾT») }
-// model_carry cố định 0 ở Vòng A — ô giữ chỗ cho carry của Vòng B (hạt giống).
-export function dungTongKet({ ketCuc, ms, soLenh, modelGoi, chapChon, chiPhi }) {
+// model_carry = số eval model dùng lại theo băm đầu vào ở lượt này (hồ sơ eval-goi-model-that-khong-chay);
+// khoá model_carry_cmd vắng thì luôn 0 như Vòng A. carryLech chỉ đổi dòng in, không thêm khoá vào obj.
+export function dungTongKet({ ketCuc, ms, soLenh, modelGoi, chapChon, chiPhi, modelCarry = 0, carryLech = [] }) {
   const phut = Math.round(ms / 6000) / 10;
-  const obj = Object.assign({ ket_cuc: ketCuc, phut, so_lenh: soLenh, model_goi: modelGoi, model_carry: 0, chap_chon: chapChon },
+  const obj = Object.assign({ ket_cuc: ketCuc, phut, so_lenh: soLenh, model_goi: modelGoi, model_carry: modelCarry, chap_chon: chapChon },
     chiPhi === undefined ? {} : (typeof chiPhi === 'number' ? { chi_phi: Math.round(chiPhi * 10000) / 10000 } : { chi_phi_loi: chiPhi.loi }));
   const veChiPhi = chiPhi === undefined ? ''
     : (typeof chiPhi === 'number' ? ` · chi phí đo: ${obj.chi_phi} (chênh trong khoảng làn chạy, gồm mọi phiên chạy cùng lúc)` : ` · chi phí đo: lỗi (${chiPhi.loi})`);
-  const dong = `[lane] TỔNG KẾT — ${ketCuc} · ${phut} phút · ${soLenh} lệnh · eval model thật: gọi ${modelGoi}, carry 0 · chập chờn: ${chapChon}${veChiPhi}`;
+  const veLech = carryLech.length ? ` · carry_lech: ${carryLech.join(', ')} (cùng băm mà kết quả khác)` : '';
+  const dong = `[lane] TỔNG KẾT — ${ketCuc} · ${phut} phút · ${soLenh} lệnh · eval model thật: gọi ${modelGoi}, carry ${modelCarry} · chập chờn: ${chapChon}${veChiPhi}${veLech}`;
   return { obj, dong };
 }

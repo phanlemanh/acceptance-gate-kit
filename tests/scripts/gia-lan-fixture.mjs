@@ -13,7 +13,7 @@ export const ROOT = path.join(HERE, '..', '..');
 export const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 
 // opts: { config: dòng YAML thêm dưới feature_loop (thụt 2), suite: thân suite.sh, suiteCmd: lệnh
-//         suite thay `sh suite.sh`, extraSuites: [{key, cmd}], evals: [{id, cmd, body?, sh?}],
+//         suite thay `sh suite.sh`, extraSuites: [{key, cmd}], evals: [{id, cmd, body?, sh?, paths?}],
 //         files: {tên: nội dung}, lane: đường làn khác (bản sao), agRoot: bộ máy khác }
 export function mkKho(opts = {}) {
   const root = mkdtempSync(path.join(tmpdir(), 'gg-kho-'));
@@ -37,7 +37,9 @@ export function mkKho(opts = {}) {
   // `status: implemented`, không phải trạng thái đã ký: làn không đọc trạng thái hợp đồng để quyết gì, còn
   // chuỗi trạng thái ký trong tệp ca làm lưới RT13 kêu (tiền lệ repin-lane-noi-ra, d-20260911T162950Z-14).
   writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: feat\nslug: feat\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n');
-  writeFileSync(path.join(ws, 'evals.yaml'), `schema_version: 1\nfeature_slug: feat\nevals:\n${evals.map(e => `  - id: ${e.id}\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.${e.cmd}\n    expected: exit 0\n    evidence_required: [run_id, exit_code, verifier, verified_at, output]\n`).join('')}`);
+  // e.paths (hồ sơ eval-goi-model-that-khong-chay): danh sách glob dưới eval; vắng thì đầu ra y như trước.
+  const khaiPaths = (e) => (Array.isArray(e.paths) ? `    paths:\n${e.paths.map(x => `      - "${x}"\n`).join('')}` : '');
+  writeFileSync(path.join(ws, 'evals.yaml'), `schema_version: 1\nfeature_slug: feat\nevals:\n${evals.map(e => `  - id: ${e.id}\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.${e.cmd}\n    expected: exit 0\n${khaiPaths(e)}    evidence_required: [run_id, exit_code, verifier, verified_at, output]\n`).join('')}`);
   git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'impl');
   const H1 = git('rev-parse', 'HEAD');
   writeFileSync(path.join(ws, 'run-log.jsonl'), JSON.stringify({ ts: '2026-10-01T00:00:00Z', kind: 'eval', run_id: 'r1-E1', sha: H1, eval: 'E1', exit_code: 0 }) + '\n');

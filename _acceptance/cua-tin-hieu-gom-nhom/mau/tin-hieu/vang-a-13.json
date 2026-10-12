@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Sửa được hoàn toàn ở tầng test (khoi-dong.ts), không đổi mã sản phẩm: ghi tệp tạm cùng thư mục rồi renameSync, và giành khoá cũ bằng một thao tác nguyên tử (đổi tên thư mục khoá cũ) trước khi dừng mồ…",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:12:00.000Z"
+}

@@ -115,7 +115,8 @@ let initText;
 try { initText = fs.readFileSync(path.join(agRoot, INIT_REL), 'utf8'); } catch { die(`thiếu ${INIT_REL} ở ${agRoot}`); }
 const khoiCopy = khoiMarker(initText, 'INIT-CI-COPY-LIST');
 if (!khoiCopy) die(`${INIT_REL} thiếu marker INIT-CI-COPY-LIST`);
-const TEP_ENGINE = [...new Set(khoiCopy.flatMap(l => [...l.matchAll(/\/((?:scripts|lib)\/[\w./-]+\.\w+)`/g)].map(m => m[1])))];
+// Neo vào gốc gói: mục nằm dưới thư mục khác (dieu-phoi/scripts/…) không được cắt đuôi thành scripts/… giả.
+const TEP_ENGINE = [...new Set(khoiCopy.flatMap(l => [...l.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/((?:scripts|lib)\/[\w./-]+\.\w+)`/g)].map(m => m[1])))];
 
 // ── chân cong-cu ──────────────────────────────────────────────────────────────
 // Mọi khoá executors.<loại>.<tên>: duyệt thụt lề để LIỆT KÊ tên khoá, đọc GIÁ TRỊ bằng

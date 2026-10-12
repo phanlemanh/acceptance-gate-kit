@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Mọi thước «vòng này» viết được bằng mốc cố định ghi trong hồ sơ (sha commit gộp của lượt, commit đầu của hồ sơ), không cần ref nhánh — cũng chạy được trên CI nông.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:16:00.000Z"
+}

@@ -541,7 +541,10 @@ const nhomVe = sections => { const TEN = Object.fromEntries(sections || []); con
 const tienDoRong = () => ({ tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 });
 // Mỗi chữ trong khối là ĐÚNG chữ trang in (cờ đã dịch, câu gom từ trạng thái lạ, lệnh mở) — bản chiếu
 // không phải dịch lại gì. Không ngày chạy: `--check` vẫn so byte.
-export function duLieuTrang(cacTep, sections = null) {
+// `tinHieu` (hồ sơ cua-tin-hieu-gom-nhom, hàng L3): mảng đường đi tín hiệu khi kho khai cửa tín hiệu —
+// khoá gốc TUỲ CHỌN `tin_hieu`, chỉ có mặt khi khai (kho không khai giữ nguyên từng byte; bảng khoá chuẩn
+// KHUON_DU_LIEU không đổi; trường bản ghi ở TRUONG_DUONG của scripts/tin-hieu.mjs).
+export function duLieuTrang(cacTep, sections = null, tinHieu = null) {
   const nhom = nhomVe(sections); const nhieu = cacTep.length > 1;
   const ngoai = (cacTep.find(t => t.kq) || {}).kq?.ngoaiLoTrinh || [];
   const lo = cacTep.map(t => {
@@ -564,7 +567,7 @@ export function duLieuTrang(cacTep, sections = null) {
       da_bac: kq.daBac.map(b => ({ ma: chuoi(b.ma), ly_do: chuoi(b.ly_do) })),
     };
   });
-  return { khuon: ID_DU_LIEU, phien_ban: PHIEN_BAN_DU_LIEU, nguon: cacTep.map(t => t.tep), lo_trinh: lo, ngoai_lo_trinh: [...ngoai] };
+  return { khuon: ID_DU_LIEU, phien_ban: PHIEN_BAN_DU_LIEU, nguon: cacTep.map(t => t.tep), lo_trinh: lo, ngoai_lo_trinh: [...ngoai], ...(tinHieu != null ? { tin_hieu: tinHieu } : {}) };
 }
 // JSON trong thẻ script: mọi `<` thoát thành \u003c (không chuỗi nào trong khối đóng được thẻ, bất
 // kể hoa thường), U+2028/2029 thoát để khối vẫn là JS hợp lệ với bộ đọc cũ.
@@ -643,7 +646,7 @@ export function docDuLieu(html) {
 
 // Một trang cho mọi lộ trình của kho (`cacTep` = [{tep, loi, kq}] theo thứ tự khai). `sections` của
 // bản đồ cho tên các ô đang làm / chưa làm (số tiến độ); vắng thì chỉ «Chưa mở» tính là chưa bắt đầu.
-export function veHtml(cacTep, sections = null) {
+export function veHtml(cacTep, sections = null, tinHieu = null) {
   const TEN = Object.fromEntries(sections || []); const ten = ds => new Set(ds.map(k => TEN[k]).filter(Boolean));
   const nhom = { dangLam: ten(DANG_LAM_O), chuaLam: ten(CHUA_LAM_O) };
   const khoaO = new Map((sections || []).map(([k, t]) => [t, k]));
@@ -656,7 +659,7 @@ export function veHtml(cacTep, sections = null) {
     ...cacTep.map((t, i) => mucLoTrinh(i + 1, t)),
     `<p class="mu nho">Vẽ từ ${cacTep.map(t => `<code>${esc(t.tep)}</code>`).join(', ')} và hồ sơ nghiệm thu; máy vẽ lại mỗi lần một cổng nghiệm thu đóng, trạng thái từng hàng lấy từ hồ sơ, không gõ tay. Đổi kế hoạch bằng PR vào tệp kế hoạch.</p>`,
     khoiNgoai(ngoai)].filter(Boolean);
-  return `<!doctype html>\n<html lang="vi">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${tieuDe}</title>\n<style>\n${CSS}\n</style>\n</head>\n<body>\n<main>\n${than.join('\n')}\n</main>\n${khoiDuLieu(duLieuTrang(cacTep, sections))}\n<script>${SCRIPT}</script>\n</body>\n</html>\n`;
+  return `<!doctype html>\n<html lang="vi">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${tieuDe}</title>\n<style>\n${CSS}\n</style>\n</head>\n<body>\n<main>\n${than.join('\n')}\n</main>\n${khoiDuLieu(duLieuTrang(cacTep, sections, tinHieu))}\n<script>${SCRIPT}</script>\n</body>\n</html>\n`;
 }
 // Ba lối cũ giữ tên (test và bộ đọc đời trước gọi chúng), cùng một bộ vẽ.
 export const renderTrang = (kq, tep, sections = null) => veHtml([{ tep, loi: null, kq }], sections);
@@ -699,7 +702,7 @@ export function phanTich(opts) {
 export function veTrang(opts) {
   const k = phanTichKho(opts);
   if (k == null) return null;
-  return veHtml(k.cacTep, opts.sections);
+  return veHtml(k.cacTep, opts.sections, opts.tinHieu ?? null);
 }
 // Thẻ start: dữ liệu từng lộ trình (`ds`) và CÁC DÒNG THẺ dựng sẵn (`dong`) — thân /start in nguyên,
 // không tự soạn (kit render, không soạn; phép đo đo đầu ra thay vì đo chữ chỉ dẫn).

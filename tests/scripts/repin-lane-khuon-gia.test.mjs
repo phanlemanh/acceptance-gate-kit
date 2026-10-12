@@ -70,9 +70,9 @@ await ca('AC6-guide-du-khoa', 'mỗi khoá của khối LAN-KHOA có một dòng
     ok(new RegExp(`^\\| \`${ngan}\` \\|`, 'm').test(doan), `ghim: khoá chưa khai ở GUIDE — ${ngan}`);
   }
 });
-await ca('AC6-lan-khoa-rut', 'khối LAN-KHOA rút đúng 5 khoá; giá trị sai ném lỗi gọi tên khoá', async () => {
+await ca('AC6-lan-khoa-rut', 'khối LAN-KHOA rút đúng 6 khoá; giá trị sai ném lỗi gọi tên khoá; model_carry_cmd rỗng = vắng', async () => {
   const khoa = rutLanKhoa();
-  ok(khoa.length === 5, `số ô lệch: ${khoa.length} khoá, hứa 5`);
+  ok(khoa.length === 6, `số ô lệch: ${khoa.length} khoá, hứa 6`);
   const { docKhoa } = await import(LAN_KHOA);
   const { createRequire } = await import('node:module');
   const core = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'evidence-core.cjs'));
@@ -82,6 +82,9 @@ await ca('AC6-lan-khoa-rut', 'khối LAN-KHOA rút đúng 5 khoá; giá trị sa
   nem('  repin_budget_min: abc\n', /repin_budget_min/);
   nem('  model_evals: [khong-co-gach]\n', /model_evals/);
   const v = docKhoa('feature_loop:\n  suite_keys: [a]\n', core);
-  ok(v.repin_retry === 0 && v.model_evals.size === 0 && v.repin_budget_min === null && v.repin_cost_cmd === null && v.repin_ci_blank_env.length === 0, `khoá vắng phải là mặc định tắt: ${JSON.stringify(v)}`);
+  ok(v.repin_retry === 0 && v.model_evals.size === 0 && v.repin_budget_min === null && v.repin_cost_cmd === null && v.repin_ci_blank_env.length === 0 && v.model_carry_cmd === null, `khoá vắng phải là mặc định tắt: ${JSON.stringify(v)}`);
+  // Hồ sơ eval-goi-model-that-khong-chay (AC-9): khoá rỗng đọc như vắng; có giá trị thì giữ nguyên văn.
+  ok(docKhoa('feature_loop:\n  model_carry_cmd: ""\n', core).model_carry_cmd === null, 'model_carry_cmd rỗng không đọc như vắng');
+  ok(docKhoa('feature_loop:\n  model_carry_cmd: sh van-tay.sh\n', core).model_carry_cmd === 'sh van-tay.sh', 'model_carry_cmd không giữ nguyên văn');
 });
 ket();

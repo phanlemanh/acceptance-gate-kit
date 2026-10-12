@@ -13,6 +13,22 @@
       "hang": [
         "2"
       ]
+    },
+    {
+      "ma": "V1",
+      "ten": "Nhân sự gửi danh sách người và phòng ban của tổ chức mới",
+      "ngay": "2026-11-03",
+      "loai": "ngoai",
+      "ai": "Nhân sự",
+      "dot": "mau-1",
+      "phu": [
+        "C1"
+      ],
+      "lap": true,
+      "tu_phuc_vu": "H2",
+      "hang": [
+        "1"
+      ]
     }
   ],
   "hang": [
@@ -57,6 +73,41 @@
       "dung_tren": [
         "2"
       ]
+    },
+    {
+      "ma": "4",
+      "cau_giao": "Người dùng thử mở bản xem trước và thấy một tổ chức mẫu chạy đủ một kỳ, sinh từ khuôn dữ liệu thật và mang nhãn mẫu",
+      "vai": "Người dùng thử",
+      "tieu_chi": 8,
+      "vi_sao": "Hàng 5 cần dữ liệu của một kỳ trước khi tổ chức thật có dữ liệu",
+      "hang": "T2",
+      "du_lieu": "sinh-gia",
+      "slug": "to-chuc-mau-mot-ky",
+      "bat_khi": "Dựng lại hai lần ra cùng dữ liệu; mọi bản ghi mang nhãn mẫu",
+      "nhom": "trang-x",
+      "dot": "mau-1",
+      "phu": [
+        "C2"
+      ]
+    },
+    {
+      "ma": "5",
+      "cau_giao": "Trưởng nhóm thấy KR nào của nhóm đang trễ, tính trên các cập nhật tuần",
+      "vai": "Trưởng nhóm",
+      "tieu_chi": 9,
+      "vi_sao": "Đo trên tổ chức mẫu của hàng 4; tiêu chí cần dữ liệu thật thành ô bỏ qua có tên",
+      "hang": "T2",
+      "du_lieu": "gia",
+      "dung_tren": [
+        "4"
+      ],
+      "slug": "kr-tre-cua-nhom",
+      "bat_khi": "Hai tuần sau khi bật trên dữ liệu thật, trưởng nhóm thôi hỏi tay KR nào trễ",
+      "nhom": "trang-x",
+      "dot": "mau-1",
+      "phu": [
+        "C3"
+      ]
     }
   ],
   "chan_troi": [
@@ -70,6 +121,14 @@
         "B2"
       ],
       "mo_lai_khi": "Kế toán xin lần thứ hai"
+    },
+    {
+      "ma": "H2",
+      "dot": "mau-1",
+      "cau_giao": "Quản trị tự nhập danh sách người và phòng ban từ tệp",
+      "ly_do": "Mới một tổ chức dùng — giữ ranh giới cấu hình và mã, làm phần phổ quát khi có tổ chức thứ hai",
+      "phu": [],
+      "mo_lai_khi": "Có tổ chức thứ hai thật"
     }
   ],
   "da_bac": [

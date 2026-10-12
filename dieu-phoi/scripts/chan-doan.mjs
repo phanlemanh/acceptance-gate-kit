@@ -11,7 +11,7 @@ import { docPha } from './pha.mjs';
 import { TEP_SONG_DIR } from './song.mjs';
 import { docVai } from './vai.mjs';
 import { kiemMoiTruong } from './moi-truong.mjs';
-import { keHoachDay } from './tiep-tuc.mjs';
+import { keHoachDay, TRANG_THAI_HANH_DONG } from './tiep-tuc.mjs';
 import { viecCho } from './viec-cho.mjs';
 
 export const MUC = ['co-dot', 'pha', 'phat-lich', 'goi-dot', 'hang-viec', 'vai'];
@@ -90,7 +90,8 @@ export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = f
   }
   for (const k of keHoach) {
     const { day, viec, ...chi } = k;
-    them(`day:${day}`, k.hanh_dong === 'khong' ? 'du' : 'thieu', k.ghi_danh ? `${viec} — ${k.ghi_danh}` : viec, chi);
+    const chu = k.ghi_danh ? `${viec} — ${k.ghi_danh}` : k.ly_do ? `${viec}: ${k.ly_do}` : viec;
+    them(`day:${day}`, TRANG_THAI_HANH_DONG[k.hanh_dong] ?? 'thieu', chu, chi);
   }
   for (const m of kiemMoiTruong(thuMuc, { gocKho: gocKhoChinh(cwd), tranMs })) ra.push(m);
   const ds = viecCho(thuMuc, { thucLuc: vai?.giam_sat?.thuc_luc ?? null });

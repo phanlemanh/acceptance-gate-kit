@@ -1,0 +1,10 @@
+{
+  "phien": "vang-b",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "Đầu vào của một eval model thật liệt kê được (tệp prompt, id model, bộ câu mẫu, mã gọi), nên băm được; băm không đổi thì dùng lại kết quả đã ký.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:15:00.000Z"
+}

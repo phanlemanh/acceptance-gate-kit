@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 130ad999da00278412c336ceddbdd30793af6c1e
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: Manh 2026-08-25
 ---
 
@@ -394,3 +394,7 @@ sha: 3da5f36baa5872e9fdd971401477e55659ae4cde · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 35 — 2026-10-10, do các nhát sửa S4 của DP2 dieu-phoi-mo-dot-mot-lenh đổi mã sau lần ghim trước
 run_id: repin-20261010T131425Z-81600
 sha: 130ad999da00278412c336ceddbdd30793af6c1e · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 36 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

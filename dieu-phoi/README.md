@@ -10,8 +10,8 @@ Mã này **không** chứa gì riêng của kho. Mọi giá trị riêng nằm t
 claude plugin install dieu-phoi@acceptance-gate-kit --scope project
 ```
 
-Gói gắn bốn hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2); kho
-không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
+Gói gắn năm khối hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2, lưới hết hạn
+mức `StopFailure`) và một mod đọc mức dùng (`hooks/mod/`); kho không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
 in gì, không tạo tệp. `acceptance-init` KHÔNG tự bật gói này — kho chọn cài.
 
 Đường gói (dùng cho mọi lệnh dưới đây):
@@ -34,14 +34,17 @@ GOI=$(node <gói feature-loop>/scripts/resolve-plugin.mjs --plugin dieu-phoi)
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`
 5. Tạo task lịch 30′ với `notifyOnCompletion`. Prompt: «đọc trang-thai.json của đợt <tên>, in một
    dòng». Task này là lưới an toàn khi app khởi động lại.
-6. Tạo nhóm «Đợt <tên>» ở thanh bên, ghim phiên giám sát, mở chip cho từng phiên thợ. Lời dặn của
-   chip gồm thư mục đợt, mã phiên, ranh giới, và câu «đọc LUAT.md trước S1».
+6. Tạo nhóm «Đợt <tên>» ở thanh bên, ghim phiên giám sát, mở chip cho đúng các dãy mà
+   `chan-doan --json --chi-tiet` trả hành động `mo-chip`, với nguyên văn `ghi_danh` (thư mục đợt, mã phiên,
+   câu «đọc LUAT.md trước S1», lệnh `/feature-loop:feature-loop <slug>`). Dãy `khong-hang` (nghỉ, hết hàng,
+   chờ phụ thuộc hay Cổng Đáng) không có chip; dãy `mo-chip` đã mở chip là chờ người bấm, không mở lại.
 
 ## Tiếp tục đợt (sau khi app khởi động lại, hết ngữ cảnh, Monitor hết hạn)
 
 Gõ `/dieu-phoi:tiep-tuc` ở bất kỳ phiên nào trong kho. CLI `tiep-tuc --phien <mã>` nhận vai giám sát, chạy
 lại bộ phát lịch nếu chết, và trả kế hoạch cho từng dãy; lệnh người chỉ làm đúng kế hoạch đó (Monitor, lịch
-30′, nhóm thanh bên, chip cho dãy không còn nhịp sống). Mỗi lần thức, phiên giám sát chạy dạng `--nhe`.
+30′, nhóm thanh bên, chip cho dãy không còn nhịp sống mà còn hàng để giao). Mỗi lần thức, phiên giám sát chạy
+dạng `--nhe`.
 Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) — xem mục «Cách xin tài nguyên» của
 `LUAT.md` trong thư mục đợt.
 
@@ -84,6 +87,65 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
+## Chặn S4 và việc chờ người
+
+- **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
+  `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
+  `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị
+  chặn: `node --check`/`node -c` (kiểm cú pháp) và lời gọi có `--help` (cả ba script dừng ở cờ lạ trước khi
+  làm việc). Thân heredoc được quét như mọi dòng lệnh, nên heredoc nhắc tên một trong ba script vẫn bị chặn —
+  xem giới hạn dưới.
+- **Lời chặn nêu sẵn lệnh xin lượt** khi cwd thuộc một dãy: sau câu cũ và câu «chờ lượt» (DP7), thêm
+  «Lệnh xin lượt (chạy nguyên văn từ worktree của dãy): node <thư mục đợt>/loi/dieu-phoi.mjs xin s4» (đợt chưa
+  `chay` thì lõi của gói). Ngoài mọi dãy, hoặc đợt có `hang-viec.json` không đọc được (khi ấy `xin` cũng không
+  chạy), lời chặn y như cũ.
+- **Hộp xin quyền ở phiên thợ luôn thành việc chờ người** (`cho-nguoi/<dãy>.json`), kể cả khi dãy đang chờ
+  lượt hay chờ trả lời. Thông báo «đang rảnh» thì vẫn im khi dãy đang chờ.
+- **Giám sát thức ngay khi thợ chờ người**: sự kiện `cho-nguoi` mang `can_phan`, `loai_cho` và `tin` (≤ 200 ký
+  tự), nên Monitor của giám sát (lọc `"can_phan":true`) thức trong một nhịp của bộ phát lịch.
+
+Giới hạn đã khai, kèm ngưỡng mở lại:
+
+- **Heredoc nhắc tên script S4 bị chặn kể cả khi thân chỉ là dữ liệu** (`cat > tep <<'EOF'` có nhắc
+  `repin-lane.mjs`, `python3 - <<'PY'` ghi sổ có tên script). Đo 11/10: 2 trên 46.801 lời gọi Bash. Viết tệp bằng
+  công cụ Write thay `cat <<EOF`. Luật «thân là dữ liệu» đã dựng rồi thu lại ở hồ sơ `dieu-phoi-lop-mod`: hai lượt
+  chấm liền tìm ra lệnh S4 lọt qua bộ đọc đối số của trình thông dịch (cờ `-o pipefail`, chuyển hướng `2>&1` trên
+  dòng mở). Ngưỡng mở lại (khuôn danh sách đóng bên tiêu thụ, ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`): một lần đo lại bản ghi thấy > 10 lời gọi heredoc chặn
+  nhầm.
+- **Mù — chưa đo: hộp quyền của tác tử Workflow có tới giám sát không.** Hook chờ người nghe sự kiện `Notification`
+  (`permission_prompt`) của phiên; hộp quyền bật ra bên trong một tác tử của Workflow (lượt chấm S4 chạy như thế)
+  có thể không bắn sự kiện đó ở phiên cha. Chưa đo thì coi là KHÔNG tới: S4 đứng vì hộp quyền có thể không
+  có tệp chờ người, giám sát không thức, bảng không hiện. Mọi kho chạy đợt bằng gói **khai trong phần riêng của
+  đợt** (`LUAT-rieng.md` khi mở bằng `/dieu-phoi:mo-dot`) một luật: thợ đứng chờ người — kể cả chờ hộp quyền trong
+  lượt chấm — thì tự ghi yêu cầu `can-nguoi`, không chỉ hỏi bằng chữ trong hội thoại. Khuôn `LUAT.md` của gói
+  chưa mang luật này; kho đã có nó trong luật đợt của mình thì giữ nguyên khi chuyển. Giữ cho tới khi phép đo trả
+  «tới». Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng vì
+  hộp quyền mà không có tệp chờ người. Phép đo đã soạn ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md` (câu 1 §12.3).
+- **Một số dạng cú pháp shell làm lệnh S4 thật lọt khoá** (đo lại trên bộ phân loại của bản này, 12/10):
+  `--help` nằm trong chú thích `#` (miễn trừ `--help` đọc mọi từ sau tên script), here-string `<<<`,
+  `env -S'<lệnh>'` dính liền cờ, `bash -o pipefail -c '…'` (có từ trước DP6). Giá khi lọt: hai S4 chạy chồng
+  trên một máy — chậm hơn và dễ chạm trần thời gian, **không sai kết quả** (mỗi lượt chấm vẫn chấm đúng cây của
+  nó). Ngược lại `command -v <đường>/repin-lane.mjs` bị chặn nhầm. Heredoc kèm chuyển hướng (`bash <<'EOF' 2>&1 |
+  tail`) từng lọt dưới luật «thân là dữ liệu»; luật ấy đã thu lại nên dạng này nay bị chặn. Mỗi mục một dòng ở
+  `docs/research/known-limits-ledger.tsv` (hồ sơ `dieu-phoi-lop-mod`, Ngoài-1/2/3/18/27/29).
+- Bộ phân loại là bộ đọc cú pháp shell rút gọn: biến mở rộng thành tên script, `eval`, alias, lệnh bọc viết đủ
+  đường (`/usr/bin/env -u X …`), cờ gộp (`env -iu X`) và `gtimeout` không được hiểu. Ngưỡng: ≥ 1 lời gọi S4
+  thật lọt qua hook trong đợt thử.
+- **Nghiệm đúng tầng cho hai mục trên — hạt giống «S4 tự xưng»:** chính `repin-lane.mjs`, `s4-args.mjs` và
+  `duong-nen.mjs` tự lấy và kiểm khoá tài nguyên lúc khởi, hook chặn chỉ còn là lưới phụ. Lớp «lệnh S4 lọt qua bộ
+  đọc cú pháp» đã đổi da ba lần trong một vòng (vỏ bọc mang cờ → thân heredoc cho trình thông dịch kèm cờ mang giá
+  trị → heredoc kèm chuyển hướng), nên vá thêm bộ phân loại là đuổi theo tháp. Ngưỡng mở thành việc: ≥ 1 lượt S4
+  thật lọt khoá sau khi DP6 gộp, đếm ở sổ chạy của đợt thử. Hạt giống: mục «S4 tự xưng» của
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`.
+- Tệp chờ người do hộp xin quyền ghi chỉ gỡ khi người gửi một lời nhắc ở phiên thợ (`UserPromptSubmit`); duyệt
+  hộp mà không gõ gì thì tệp ở lại tới lời nhắc kế, nên «việc chờ» có thể còn một mục đã xong. Gỡ theo lời gọi
+  công cụ kế tiếp cần biết hộp thuộc tác tử nào — chưa đo (hạt giống, câu 1 §12.3). Ngưỡng: đợt thử có ≥ 1 lần
+  giám sát báo chủ kho một việc chờ đã xong.
+- Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
+  hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
+
 ## Phiên thợ trong đợt
 
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
@@ -96,8 +158,14 @@ xong một hàng:
   thợ tự mở nó trong cùng phiên.
 - `cho-nhip` — bộ phát lịch chưa thấy hàng vừa xong; thợ chờ một nhịp rồi đọc lại.
 - `bao-giam-sat` — hàng kế chưa có quyết build (hoặc đã quyết park, kill, iterate): thợ không mở, báo giám sát.
-- `cho` — dãy nghỉ, chờ phụ thuộc, hoặc đợt không ở pha đang chạy.
+  Ở đợt mở từ gói bộ phát lịch đã không giao những hàng ấy, nên đây là lưới cho ca quyết đổi sau nhịp.
+- `cho` — dãy nghỉ, chờ phụ thuộc, chờ Cổng Đáng (`cong-dang`), hoặc đợt không ở pha đang chạy.
 - `xong` — dãy hết hàng.
+
+Ở đợt mở từ gói, bộ phát lịch chỉ giao hàng đã quyết build — quyết đọc bằng cùng hàm với thẻ khởi tạo và
+thợ (`quyetCua` của `the.mjs`): hàng chưa có chữ build bị bỏ qua (dãy hết hàng giao được thì `cho: cong-dang`),
+ô đã quyết park, kill, iterate không vào đợt. Đợt dựng tay (không gói) giữ lối cũ: Cổng Đáng của hàng nằm ở S0
+của thợ.
 
 Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
 thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
@@ -110,6 +178,26 @@ Kho từng chép lõi vào cây của mình và gắn hook trong `.claude/settin
 bản cùng đọc một thư mục đợt và ra cùng quyết định. `xem` in một dòng cảnh báo khi settings của kho còn
 hook gọi bản cũ. `xem --kiem-chuyen` liệt kê mọi chỗ trong kho còn trỏ bản cũ (settings, hook git,
 `package.json`, eval của hồ sơ, `LUAT.md` của đợt) — sạch thì in `kiem-chuyen: sach`.
+
+Thứ tự chuyển, chạy ở quãng lặng (không lượt S4 nào đang chạy):
+
+1. `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` ở cây gốc VÀ mỗi cây phụ có phiên.
+   Bộ đệm gói khoá theo số phiên bản: báo «already at latest» mà `claude plugin list --json` vẫn ghi số cũ thì
+   `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại.
+2. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, rồi gỡ mọi dòng nó in thuộc nhóm **đang chạy**: khối hook
+   trong `.claude/settings*.json` gọi bản cũ, hook git, `package.json`, eval của hồ sơ đang mở, `LUAT.md` của đợt
+   đang chạy; sau đó gỡ chính thư mục lõi chép tay của kho (lệnh bỏ qua thư mục bản cũ nên không liệt kê nó). Lệnh
+   quét MỌI tệp git theo dõi, nên dòng trong **bản ghi lịch sử** — `run-log.jsonl`, báo cáo bằng chứng, hồ sơ đã ký,
+   `docs/` — vẫn còn và phải để nguyên: sửa chúng làm hồ sơ đã ký hoá cũ. Kho có lịch sử thì `kiem-chuyen: sach`
+   không bao giờ in; điểm dừng là hết dòng thuộc nhóm đang chạy (đo trên một kho thật 12/10: 670 dòng, 7 dòng thuộc
+   nhóm đang chạy — settings 4, hook git 2, `package.json` 1 — còn lại là lịch sử). Gỡ và cài nằm trong CÙNG một
+   commit để không có khoảng hai bản hook cùng chạy.
+3. Kiểm không bắn đôi: khối hook bản cũ mở đầu bằng `[ -f "$CLAUDE_PROJECT_DIR/<thư mục bản cũ>/hook-….mjs" ] ||
+   exit 0`, nên nó im hẳn khi thư mục bản cũ đã gỡ. «Không bắn đôi» = `kiem-chuyen` không còn dòng nào ở
+   `.claude/settings*.json` + thư mục bản cũ không còn + `xem` không in dòng cảnh báo hook bản cũ. Trong khoảng đã cài gói mà chưa gỡ, mỗi `Notification` chạy hai bản
+   `hook-cho-nguoi` ghi đè cùng tệp `cho-nguoi/<dãy>.json` (bộ phát lịch có thể đếm hai lần chờ người) — vì vậy
+   gỡ và cài cùng một commit.
+4. Khai luật «thợ chờ người thì ghi `can-nguoi`» trong phần riêng của đợt — xem giới hạn «Mù» ở trên.
 
 ## Đóng đợt
 
