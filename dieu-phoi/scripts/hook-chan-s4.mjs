@@ -7,7 +7,8 @@ import { docJson, phienCuaCwd, timThuMucDot, trongWorktree } from './dot.mjs';
 import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 import { BANG_BASH, phanLoaiLenh } from './phan-loai-s4.mjs';
 
-export const TEP_GIU_NHIP = path.join(path.dirname(fileURLToPath(import.meta.url)), 'giu-nhip.mjs');
+const DAY_GOI = path.dirname(fileURLToPath(import.meta.url));
+export const TEP_GIU_NHIP = path.join(DAY_GOI, 'giu-nhip.mjs');
 
 export const LENH_MAC_DINH = {
   workflow: { meta: 'acceptance-verify', tep: /^acceptance-verify(?:-[^/]*)?\.js$/ },
@@ -18,6 +19,8 @@ const MAU_LENH_BOC = /^\s*\S*node\s+\S*giu-nhip\.mjs\s+--\s/;
 const KY_TU_AN_TOAN = /^[\w./:@%+,-]+(?: [\w./:@%+,-]+)*$/;
 
 const nhayDon = (s) => (KY_TU_AN_TOAN.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
+// Một ĐỐI SỐ (không phải cả lệnh): dấu cách cũng phải bọc.
+const nhayDoiSo = (s) => (/^[\w./:@%+,-]+$/.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
 
 export function lenhBoc(lenhGoc) {
   const lenh = lenhGoc.trim();
@@ -71,6 +74,13 @@ function xetLenhNen(dauVao, taiNguyen) {
   return { ma: 2, loi: `chan-s4: lệnh nền giữ khoá ${taiNguyen} phải chạy qua giu-nhip: ${lenhBoc(lenh)}` };
 }
 
+// Lõi để chạy lệnh `xin` (lệnh con của DP3 — một bên viết của `xin/`): lõi đã chép vào đợt (`chay`) nếu có,
+// không thì lõi của gói đang chạy hook (design DP6 §4 C1).
+function cliXin(thuMuc) {
+  const loiDot = path.join(thuMuc, 'loi', 'dieu-phoi.mjs');
+  return fs.existsSync(loiDot) ? loiDot : path.join(DAY_GOI, 'dieu-phoi.mjs');
+}
+
 export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const thuMuc = timDot(dauVao.cwd);
   if (!thuMuc) return { ma: 0 };
@@ -92,9 +102,12 @@ export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const choLuot = day
     ? ` Trong đợt đây là chờ lượt của dãy ${day}, không phải lỗi: không hỏi người, không chấm lại — xin lượt theo mục «Cách xin tài nguyên» của ${path.join(thuMuc, 'LUAT.md')}.`
     : '';
+  // DP6 AC-4: trong dãy, nêu thêm đúng lệnh CLI xin lượt, chạy được nguyên văn từ worktree của dãy (đường đối số
+  // bọc nháy cả khi chỉ có dấu cách). Câu cũ và câu «chờ lượt» của DP7 giữ nguyên làm tiền tố; ngoài dãy y như cũ.
+  const lenhXin = day ? ` Lệnh xin lượt (chạy nguyên văn từ worktree của dãy): node ${nhayDoiSo(cliXin(thuMuc))} xin ${taiNguyen}` : '';
   return {
     ma: 2,
-    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.${choLuot}`,
+    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.${choLuot}${lenhXin}`,
   };
 }
 
@@ -106,8 +119,17 @@ export function chayHook(raw, tuyChon = {}) {
     return MAU_THO.test(raw) ? { ma: 2, loi: 'chan-s4: lỗi nội bộ: đầu vào không đọc được — chặn để an toàn; báo phiên giám sát' } : { ma: 0 };
   }
   // JSON đọc được thì chỉ bộ phân loại cấu trúc quyết: không phải lệnh giữ tài nguyên → im. Mẫu thô
-  // chỉ còn dùng cho đầu vào không đọc được (chặn để an toàn ở trên).
-  if (phanLoai(dauVao) === null) return { ma: 0 };
+  // chỉ còn dùng cho đầu vào không đọc được (chặn để an toàn ở trên). Bộ phân loại ném (lỗi chưa biết): ngoài
+  // đợt thì im — kho không đợt không bao giờ thấy hook; trong đợt thì chặn để an toàn.
+  let taiNguyen;
+  try {
+    taiNguyen = phanLoai(dauVao);
+  } catch (e) {
+    return (tuyChon.timDot ?? timThuMucDot)(dauVao.cwd)
+      ? { ma: 2, loi: `chan-s4: lỗi nội bộ: ${e.message} — chặn để an toàn; báo phiên giám sát` }
+      : { ma: 0 };
+  }
+  if (taiNguyen === null) return { ma: 0 };
   try {
     return quyet(dauVao, tuyChon);
   } catch (e) {

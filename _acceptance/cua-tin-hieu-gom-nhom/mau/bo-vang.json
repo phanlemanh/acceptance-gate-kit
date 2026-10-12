@@ -1,0 +1,270 @@
+{
+  "nhan": "ĐÁP ÁN của bộ vàng — dữ liệu giả máy sinh; KHÔNG đưa tệp này cho phiên gom",
+  "nguon": {
+    "kho": "crm",
+    "sha": "27d47de04725bc04d8d6deff870ac16751f3bf69",
+    "trang_thai_sha": "be1324ba1248855cc031fefa2b770aa36231aa2c",
+    "cach": "mỗi hồ sơ có «Hạng mục cùng lớp»: câu đầu «Vấn đề & ai gặp» + ý đầu «Giả định chốt sinh tử», gỡ tên hồ sơ"
+  },
+  "muc": [
+    {
+      "id": "vang-a-1",
+      "tieu_de": "apps/agent-okr/test/support/khoi-dong.ts giữ một khoá thư mục cho mỗi gốc eve (node_modules/.cache/crm-eve-khoa/<băm>/chu.json) để hai bài thử không dựng hai máy chủ eve dev trên cùng một gốc.",
+      "ho_so": "khoa-eve-khong-tranh",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-2",
+      "tieu_de": "Job CI check-types, lint, test chạy mọi bước tuần tự trên một máy 2 nhân: đêm 07–08/10, 52 job xanh có trung vị 26,9′, p90 29,2′, 2 lượt bị huỷ ở trần 30′ (docs/plan/ci-tach-job.md, nhánh…",
+      "ho_so": "ci-ma-tran-ba-o",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-a-3",
+      "tieu_de": "Một ca chập chờn trong suite làm đỏ cả lượt, và lượt đó phải chạy lại từ đầu.",
+      "ho_so": "ca-chap-chon-cach-ly",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-4",
+      "tieu_de": "Ba ô (api · app + @crm/ui · phần còn lại bằng bộ lọc loại trừ) phủ đủ mọi gói có test, kể cả gói thêm sau này.",
+      "ho_so": "ci-ma-tran-ba-o",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-5",
+      "tieu_de": "mọi lượt bun run test — pre-push, CI, làn ghim lại, S4.",
+      "ho_so": "ca-chap-chon-con-lai",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-6",
+      "tieu_de": "GitHub giữ đủ dữ liệu job (giờ bắt đầu, giờ xong, kết luận) của mọi lượt ci.yml trong 7 ngày để đọc lại.",
+      "ho_so": "thuoc-7-ngay-loc-pr",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-7",
+      "tieu_de": "Một thước viết đúng cho vòng của chính nó, nhưng đo theo «nhánh đang xét» (git diff origin/onehub, merge-base, git log …",
+      "ho_so": "thuoc-khong-tu-het-han",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-8",
+      "tieu_de": "Bắt hồi quy chéo sau khi gộp (rồi dò ngược commit gây lỗi) đủ an toàn cho kho này, vì production tự triển khai khi gộp nhưng một hồi quy giữa hai hồ sơ đã ký hiếm và sửa được bằng PR kế.",
+      "ho_so": "kiem-cheo-sau-gop",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-9",
+      "tieu_de": "Ngày 09/10 lúc khoảng 14:49Z, GitHub dừng mọi job vì vượt mức chi («recent account payments have failed or your spending limit needs to be increased»), chặn mọi lượt gộp tới khi anh nạp tiền (Nhật ký…",
+      "ho_so": "giam-phut-acceptance",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-10",
+      "tieu_de": "Sửa được hoàn toàn ở tầng test: khối tasks giữ thống kê đứng yên bằng cách tắt autovacuum riêng cho bảng trong lúc khối chạy; ma() của bộ gieo agent-okr sinh chuỗi không có chữ số.",
+      "ho_so": "ca-chap-chon-con-lai",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-11",
+      "tieu_de": "Mỗi lượt ghim lại chạy lại mọi eval của hồ sơ, kể cả eval gọi model thật qua AI Gateway, dù prompt, model và dữ liệu mẫu không đổi.",
+      "ho_so": "eval-model-that-dung-luc",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-12",
+      "tieu_de": "Cây của onehub sau khi gộp giống cây đầu PR đã kiểm, vì giám sát chỉ gộp PR đã gộp onehub mới nhất",
+      "ho_so": "giam-phut-acceptance",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-13",
+      "tieu_de": "Sửa được hoàn toàn ở tầng test (khoi-dong.ts), không đổi mã sản phẩm: ghi tệp tạm cùng thư mục rồi renameSync, và giành khoá cũ bằng một thao tác nguyên tử (đổi tên thư mục khoá cũ) trước khi dừng mồ…",
+      "ho_so": "khoa-eve-khong-tranh",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-b-14",
+      "tieu_de": "Một luật tĩnh trên mã nguồn (cùng khuôn sáu luật hiện có: đọc cây, có nền theo tệp cho vi phạm cũ, tự gài ca phá thử) bắt được đủ phần của chuẩn mà máy đo được, mà không báo động giả đến mức người ta…",
+      "ho_so": "luat-kho-vong-doi",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-15",
+      "tieu_de": "Ngưỡng SỐNG/CHẾT của F21 (trung vị job dài nhất ≤ 15′ trên ≥ 10 lượt xanh, 0 lượt huỷ vì trần, trong 7 ngày sau gộp) được đo bằng _acceptance/một việc khác/rang/do-7-ngay.mjs.",
+      "ho_so": "thuoc-7-ngay-loc-pr",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-16",
+      "tieu_de": "Đầu vào của một eval model thật liệt kê được (tệp prompt, id model, bộ câu mẫu, mã gọi), nên băm được; băm không đổi thì dùng lại kết quả đã ký.",
+      "ho_so": "eval-model-that-dung-luc",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-a-17",
+      "tieu_de": "Mọi thước «vòng này» viết được bằng mốc cố định ghi trong hồ sơ (sha commit gộp của lượt, commit đầu của hồ sơ), không cần ref nhánh — cũng chạy được trên CI nông.",
+      "ho_so": "thuoc-khong-tu-het-han",
+      "kieu": "gia-dinh"
+    },
+    {
+      "id": "vang-b-18",
+      "tieu_de": "Đợt rà 07/10 thấy 15 loại bản ghi dọn dữ liệu theo nhiều kiểu riêng.",
+      "ho_so": "luat-kho-vong-doi",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-a-19",
+      "tieu_de": "E11 của tra-loi-tin-nhac (AC-9, script rang/ho-so-cham.mjs) dò mọi hồ sơ đã ký có paths chạm diff của nhánh, chạy lại toàn bộ eval máy của chúng (khoảng 30 hồ sơ, ~378 eval) cộng bốn suite, rồi chạy…",
+      "ho_so": "kiem-cheo-sau-gop",
+      "kieu": "van-de"
+    },
+    {
+      "id": "vang-b-20",
+      "tieu_de": "Mỗi ca sửa được thành kín ở tầng test (cổng tự do, dọn tiến trình và .eve trong beforeAll/afterAll, chờ sẵn sàng bằng vòng thử có trần thay vì một lần gọi), không đổi mã sản phẩm.",
+      "ho_so": "ca-chap-chon-cach-ly",
+      "kieu": "gia-dinh"
+    }
+  ],
+  "cap_trung": [
+    [
+      "vang-a-3",
+      "vang-b-20"
+    ],
+    [
+      "vang-a-5",
+      "vang-b-10"
+    ],
+    [
+      "vang-b-2",
+      "vang-b-4"
+    ],
+    [
+      "vang-a-11",
+      "vang-b-16"
+    ],
+    [
+      "vang-a-9",
+      "vang-b-12"
+    ],
+    [
+      "vang-a-1",
+      "vang-a-13"
+    ],
+    [
+      "vang-b-8",
+      "vang-a-19"
+    ],
+    [
+      "vang-b-14",
+      "vang-b-18"
+    ],
+    [
+      "vang-b-6",
+      "vang-a-15"
+    ],
+    [
+      "vang-a-7",
+      "vang-a-17"
+    ]
+  ],
+  "da_giao": [
+    "ca-chap-chon-cach-ly",
+    "ci-ma-tran-ba-o",
+    "kiem-cheo-sau-gop",
+    "luat-kho-vong-doi"
+  ],
+  "ho_so": {
+    "ca-chap-chon-cach-ly": {
+      "trang_thai": "signed-off",
+      "da_giao": true,
+      "feature": "Ca kiểm chập chờn theo máy thôi làm đỏ lượt dài — dọn eve mồ côi của lượt bị ngắt, chờ route thật có trần, trần hook dựng Nest có tên, công tắc bỏ ca tới được test"
+    },
+    "ca-chap-chon-con-lai": {
+      "trang_thai": "chua-co",
+      "da_giao": false,
+      "feature": null
+    },
+    "ci-ma-tran-ba-o": {
+      "trang_thai": "signed-off",
+      "da_giao": true,
+      "feature": "CI của kho chạy test thành ma trận ba ô song song trên ba máy, và ci.yml do OneHub tự giữ thay vì là tệp cấm sửa của hãng"
+    },
+    "eval-model-that-dung-luc": {
+      "trang_thai": "o-co-hoi:decided",
+      "da_giao": false,
+      "feature": "Eval gọi model thật chỉ chạy khi đầu vào của nó đổi (prompt, model, dữ liệu mẫu), và chấm theo biên thống kê thay vì một ngưỡng cứng sát điểm đo"
+    },
+    "giam-phut-acceptance": {
+      "trang_thai": "chua-co",
+      "da_giao": false,
+      "feature": null
+    },
+    "khoa-eve-khong-tranh": {
+      "trang_thai": "chua-co",
+      "da_giao": false,
+      "feature": null
+    },
+    "kiem-cheo-sau-gop": {
+      "trang_thai": "signed-off",
+      "da_giao": true,
+      "feature": "Kiểm «có làm hỏng hồ sơ đã ký khác không» chạy một lần mỗi đêm cho mọi lần gộp vào onehub từ mốc trước, ngoài mọi lượt ghim lại; đỏ thì gọi tên lần gộp gây đỏ"
+    },
+    "luat-kho-vong-doi": {
+      "trang_thai": "signed-off",
+      "da_giao": true,
+      "feature": "Luật thứ bảy «vong-doi» của scripts/luat-kho — máy bắt mô hình có hai cột cất, thủ tục list lẫn bản đã cất, và xoá vĩnh viễn không kiểm bản đã lưu trữ — và cả bộ luật kho chạy ở CI Acceptance"
+    },
+    "thuoc-7-ngay-loc-pr": {
+      "trang_thai": "chua-co",
+      "da_giao": false,
+      "feature": null
+    },
+    "thuoc-khong-tu-het-han": {
+      "trang_thai": "o-co-hoi:decided",
+      "da_giao": false,
+      "feature": "Thước đo của hồ sơ đã ký neo vào mốc cố định của chính lượt đó, không so với origin/onehub hay merge-base, nên không tự đỏ khi các lượt sau gộp vào"
+    }
+  },
+  "lien_ket_cung_lop": {
+    "ca-chap-chon-cach-ly": [
+      "kiem-cheo-sau-gop",
+      "eval-model-that-dung-luc",
+      "thuoc-khong-tu-het-han"
+    ],
+    "ca-chap-chon-con-lai": [
+      "ca-chap-chon-cach-ly",
+      "khoa-eve-khong-tranh"
+    ],
+    "ci-ma-tran-ba-o": [],
+    "eval-model-that-dung-luc": [
+      "kiem-cheo-sau-gop",
+      "ca-chap-chon-cach-ly",
+      "thuoc-khong-tu-het-han"
+    ],
+    "giam-phut-acceptance": [
+      "ci-ma-tran-ba-o"
+    ],
+    "khoa-eve-khong-tranh": [
+      "ca-chap-chon-cach-ly",
+      "ca-chap-chon-con-lai"
+    ],
+    "kiem-cheo-sau-gop": [
+      "ca-chap-chon-cach-ly",
+      "eval-model-that-dung-luc",
+      "thuoc-khong-tu-het-han"
+    ],
+    "luat-kho-vong-doi": [],
+    "thuoc-7-ngay-loc-pr": [
+      "ci-ma-tran-ba-o",
+      "kiem-cheo-sau-gop"
+    ],
+    "thuoc-khong-tu-het-han": [
+      "kiem-cheo-sau-gop",
+      "ca-chap-chon-cach-ly",
+      "eval-model-that-dung-luc"
+    ]
+  }
+}

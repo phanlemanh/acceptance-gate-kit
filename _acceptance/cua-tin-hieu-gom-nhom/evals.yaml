@@ -1,0 +1,151 @@
+schema_version: 1
+feature_slug: cua-tin-hieu-gom-nhom
+# Ca đo sống ở tests/scripts/tin-hieu.test.mjs (TH-1..TH-10), executor `executors.test.tin_hieu` thêm ở S3.
+# Kho thử do mã sinh trong lượt (git init thư mục tạm, đường dẫn suy từ vị trí tệp test). Tín hiệu thử
+# sinh bằng HÀM ghi dựng trên khối mẫu TIN-HIEU-MAU rút từ khuôn; bản gom thử sinh từ khối GOM-MAU rút từ
+# khuôn — không viết tay đúng khuôn bên đọc. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị tiêm (hoặc kho
+# thử bị tiêm), SAU khi bản lành xanh trên cùng kho, và ghim thông điệp rút từ đầu ra của hàm đo. Mỗi eval
+# ghim đúng dòng "PASS: TH-…".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, skills/acceptance/references/tin-hieu-template.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-1" — khối TIN-HIEU-MAU rút từ khuôn ghi thành tệp `<id>.json` trong kho
+      thử: kiemYeuCau (import từ dieu-phoi/scripts/hinh-dang.mjs trong CA, không chép) không ném, bộ đọc ra
+      đúng 1 tín hiệu, id == tên tệp, tieu_de == tiêu đề của khối; trên 374 tệp fixture thật: bảng đếm theo
+      loai ngoài khuôn của bộ đọc == bảng đếm độc lập trong ca (JSON.parse từng tệp), số tín hiệu + số lỗi
+      sai khuôn == số tệp có loai thuộc khối TIN-HIEU-LOAI (rút từ khuôn trong ca; 2 tệp thật thiếu luc), đúng MỘT dòng chứa «ngoài khuôn tín hiệu» và mỗi
+      loại còn lại xuất hiện kèm đúng số của nó; bốn tệp hỏng sinh trong ca {json-hong · thieu-phien ·
+      luc-sai · tieu-de-rong} → mỗi tệp đúng một lỗi nêu tên tệp, số ca hỏng đo == 4 (in ra). Và
+      "PASS: TH-1-do" — bản sao bộ đọc bỏ lặng tệp sai khuôn: CHÍNH hàm đo trả lỗi nêu «json-hong».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-2" — ma trận khoá viết sẵn {chuoi · dong-mang · danh-sach · nguon-thut-o-khoi-khac
+      · vang-khoi · vang-nguon · vang-gom} × kỳ vọng (danh sách nguồn + gom, hoặc null), số ca == 7 (in ra);
+      kho thử KHÔNG khai: ba lệnh --rang/--chua-gom/--duong mỗi lệnh thoát 2 và stderr chứa «kho chưa khai
+      cửa tín hiệu»; khối lo-trinh-du-lieu THÔ (JSON.parse, không qua docDuLieu) của trang kho không khai có
+      tập khoá gốc == KHUON_DU_LIEU.goc trừ «tin_hieu»; PRODUCT-MAP.md + LO-TRINH.html vẽ bằng cây đang kiểm == từng byte bản vẽ bằng bản sao
+      chép cây đang kiểm (scripts lib skills dieu-phoi) có scripts/tin-hieu.mjs thay bằng tệp `throw new
+      Error('nap-cua')` VÀ không có scripts/tin-hieu-khoa.cjs (đối chứng: bản thay còn bộ đọc khoá trên kho
+      CÓ khai → thoát khác 0, stderr chứa «nap-cua»; bản không bộ đọc khoá trên kho CÓ khai → thoát khác
+      0, stderr gọi tên «tin-hieu-khoa.cjs»). Và "PASS: TH-2-do" — tiêm ĐỐI XỨNG: bản sao
+      lo-trinh.mjs mặc định tin_hieu: [] dùng cho CẢ HAI phía phép so: CHÍNH hàm đo (vế khối thô) trả lỗi
+      nêu «tin_hieu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, scripts/cat-luot.mjs, skills/acceptance/references/tin-hieu-template.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-3" — khối GOM-MAU rút từ khuôn: bộ đọc bản gom ra dot/dang/nguon/truc/den,
+      danh sách nhóm (mã, tên, tín hiệu), lẻ (tín hiệu, lý do), đã phủ (tín hiệu, hồ sơ) == đếm độc lập
+      bằng regex trong ca trên chính khối (đẳng thức thứ tự); docPhamVi import từ scripts/cat-luot.mjs đọc
+      CÙNG văn bản: loi == [], danh sách mã == danh sách mã nhóm (đẳng thức), không mã nào là tín hiệu của
+      ngăn lẻ/đã phủ. Và "PASS: TH-3-do" — bản sao khuôn có dòng lẻ mở bằng «- `»: CHÍNH hàm round-trip
+      trả lỗi nêu «lẻ thành mã».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-4" — đối chứng dương: kho thử 6 tín hiệu, bản gom đặt mỗi tín hiệu đúng
+      một chỗ → --rang thoát 0, bảng phủ đủ 6 dòng đúng tín hiệu → chỗ. Ma trận viết sẵn 8 ca đỏ {khong-cho
+      · hai-nhom · nhom-va-le · hai-tep · lap-trong-nhom · tin-hieu-la · le-thieu-ly-do · nhom-rong} × kỳ vọng
+      (thoát 1, đúng MỘT dòng lỗi, cụm ghim nêu tín hiệu và — ca trùng — cả hai chỗ), số ca đo == 8 (in ra); ca im
+      {sau-den}: tín hiệu luc > den lớn nhất → thoát 0; băm mọi tệp của cây + `git status --porcelain`
+      trước == sau trên các lượt xanh, đỏ, --chua-gom, --duong. Và "PASS: TH-4-do" — bản sao răng chỉ xét
+      tệp bản gom đầu tiên: CHÍNH hàm đo trả lỗi nêu ca «hai-tep».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-5" — kho thử có hồ sơ ở MỖI trạng thái của tập «đã giao» (rút từ
+      DA_THONG_CONG_2 ∪ DA_DONG_THUC_TE của lib/workspace-record.cjs trong ca) → «đã phủ» trỏ từng hồ sơ
+      không lỗi; ma trận chưa giao {khong-co · o-co-hoi · draft · approved · implemented} → mỗi ca thoát 1,
+      lỗi nêu tín hiệu, hồ sơ và trạng thái, số ca == 5 (in ra). Và "PASS: TH-5-do" — bản sao coi mọi hồ
+      sơ có thư mục là đã giao: CHÍNH hàm đo trả lỗi nêu «implemented».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, skills/gom-tin-hieu/SKILL.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-6" — bản gom vắng truc → thoát 1 nêu «truc»; truc khác → thoát 1, lỗi
+      chứa cả giá trị của bản gom và giá trị rút từ khối GOM-TRUC của SKILL trong ca; bản sao SKILL đổi giá
+      trị khối → bản gom đang xanh (cùng kho) thành thoát 1; bản gom chưa add vào git → thoát 2, stderr
+      chứa «bản gom phải là tệp có trong git», cùng tệp sau commit → thoát 0 (đối chứng). Và
+      "PASS: TH-6-do" — bản sao răng ghi cứng chính sách: CHÍNH hàm đo (đổi SKILL) trả lỗi nêu «GOM-TRUC».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, scripts/lo-trinh.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-7" — kho thử có lộ trình (dot trùng bản gom, hàng phu mã nhóm, chân trời,
+      hàng nối hồ sơ) và một tín hiệu ở MỖI chỗ của bảng {chua-gom · le · da-phu · nhom-chua-cat ·
+      chan-troi · hang-chua-ho-so · hang-co-ho-so}, số chỗ đo == 7 (in ra): --duong ra mỗi bản ghi `cho`
+      và `cau` == bảng câu VIẾT SẴN trong ca; trạng thái hàng trong câu == trang_thai của hàng đó trong
+      khối lo-trinh-du-lieu vẽ từ cùng kho (đọc bằng docDuLieu); --id ra đúng 1 bản ghi; id lạ thoát 1 nêu
+      id; ca KHÔNG nối {hang-khac-dot}: hàng phủ cùng mã nhóm nhưng khác dot → bản ghi vẫn «nhom-chua-cat»,
+      không nhắc mã hàng đó. Và "PASS: TH-7-do" — bản sao đổi câu của chỗ chan-troi: CHÍNH hàm đo trả lỗi nêu «chan-troi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/lo-trinh.mjs, scripts/tin-hieu.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-8" — kho thử khai cửa: khối lo-trinh-du-lieu có tin_hieu deepEqual mảng
+      --duong của cùng kho; vẽ hai lần → LO-TRINH.html giống byte; KHUON_DU_LIEU không có «tin_hieu» ở
+      cấp nào (khoá tuỳ chọn); bản chép rời docDuLieu (rút nguyên văn hàm từ scripts/lo-trinh.mjs trong ca,
+      chạy tách mô-đun) đọc trang có khoá → tin_hieu deepEqual mảng của khối, và danh sách cảnh báo == của
+      cùng trang với khoá tin_hieu bị mã gỡ khỏi khối (cây đang kiểm — không so với bản cũ nào); khối
+      LO-TRINH-DU-LIEU-TUY-CHON của lo-trinh-du-lieu.md == TRUONG_DUONG xuất từ scripts/tin-hieu.mjs. Và
+      "PASS: TH-8-do" — bản sao bộ vẽ bỏ khoá tin_hieu: CHÍNH hàm đo trả lỗi nêu «tin_hieu»; và
+      "PASS: TH-8-do2" — bản sao tài liệu thiếu một trường: CHÍNH hàm so trả lỗi nêu trường đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [skills/gom-tin-hieu/SKILL.md, scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-9" — ba khối lệnh GOM-CHUA-GOM, GOM-RANG, GOM-DUONG rút NGUYÊN VĂN từ
+      SKILL trong ca, chạy bằng bash trên kho thử (AG = gốc cây đang kiểm): ca xanh thoát 0, ca đỏ (một tín
+      hiệu không chỗ) --rang thoát 1; khối GOM-TRUC có dòng `truc: ket-qua`; SKILL chứa ba ngăn và thứ tự
+      «gom → commit → răng xanh → chuyển cắt lượt» theo bảng cụm viết sẵn; 0 câu khớp mẫu cấm viết sẵn
+      {kit giữ/lưu tín hiệu · ghi trạng thái vào tệp ý định/lộ trình}. Và "PASS: TH-9-do" — bản sao SKILL
+      gõ sai tên lệnh trong GOM-RANG: CHÍNH hàm đo trả lỗi nêu «GOM-RANG».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, _acceptance/cua-tin-hieu-gom-nhom/mau/bo-vang.json, _acceptance/cua-tin-hieu-gom-nhom/mau/tin-hieu/**, _acceptance/cua-tin-hieu-gom-nhom/mau/ho-so/**, _acceptance/cua-tin-hieu-gom-nhom/rang/**, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: TH-10-ong" — kho đưa phiên gom dựng bằng rang/dung-kho-tac-tu.mjs từ
+      mau/bo-vang.json: KÍN ĐÁP ÁN — quetKin trên mọi byte mọi tệp tín hiệu → 0 tên hồ sơ của đáp án, 0 tiêu
+      đề trùng nguyên văn một câu giao trong kho, kho không có bo-vang.json (đối chứng dương: CÙNG hàm quét
+      thấy tên trong bo-vang.json); mọi tệp mang nhãn «giả»; 20 mục đáp án == 20 tệp (id + tieu_de đọc bằng
+      bộ đọc thật); bộ vàng thứ hai do mã sinh (3 cặp, 1 hồ sơ đã giao) qua lệnh rang/cham-bo-vang.mjs →
+      thoát 0, đảo thứ tự commit → thoát 1 nêu «khai trước». Và "PASS: TH-10-do" — bản gom tách một cặp trùng
+      trên bộ vàng thứ hai (đang xanh): CHÍNH lệnh chấm nêu cặp đó; và "PASS: TH-10-do2" — tệp tín hiệu giữ
+      tên hồ sơ trong nhãn: CHÍNH phép quét kín nêu tên tệp. Dòng «BỎ QUA: TH-10» là đúng (vế khớp đáp án đã
+      thu ra Known limits).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

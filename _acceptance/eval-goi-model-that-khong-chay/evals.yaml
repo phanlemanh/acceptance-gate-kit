@@ -1,0 +1,305 @@
+schema_version: 1
+feature_slug: eval-goi-model-that-khong-chay
+# Eval cho hồ sơ eval-goi-model-that-khong-chay (hàng G3).
+#
+# Mỗi eval máy gọi `rang/chan.mjs --ac <n>`, làm HAI việc trên CÙNG kho thử code-sinh
+# (tests/scripts/gia-lan-fixture.mjs — pin do CHÍNH repin-lane.mjs --write ghi; bộ đếm số lần chạy
+# mỗi lệnh ghi ra thư mục NGOÀI kho):
+#   (1) chiều xanh — chạy ĐÚNG danh sách ca bền của AC viết trước trong rang/ma-tran.mjs (ca sống
+#       vĩnh viễn ở tests/scripts/repin-lane-dung-lai-model.test.mjs, chọn bằng biến GG_CASES) trên
+#       CÂY ĐANG KIỂM; mọi ca phải in «PASS: [id]»; ca thiếu, thừa, hoặc rút rỗng là ĐỎ «số ô lệch»;
+#   (2) chiều đỏ — dựng bản sao `git archive SAU-G3` (commit mới nhất mang dấu
+#       «(eval-goi-model-that-khong-chay)», cố định sau khi gộp), áp MỘT phép phá (mỗi chuỗi tìm phải
+#       khớp ĐÚNG một lần, lệch là ĐỎ «phép phá không áp được»), chạy đúng ca ấy trong bản sao; chỉ tính
+#       «đã bắt» khi bản sao CHẠY TỚI ca (dòng «… [id]» — dấu dương) VÀ ca FAIL với thông điệp ghim.
+# Đường dẫn suy từ vị trí chan.mjs, không hardcode ROOT.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.egm_ac1
+    expected: >-
+      Chiều im: model_carry_cmd khai, lượt 1 chạy E1 (model, paths src/a.txt) và E2 (thường) rồi
+      commit; lượt 2 trên cây không đổi → bộ đếm E1 = 1, E2 = 2; dòng repin lượt 2: evals_exit.E1 = mã
+      lượt 1, evals_carry = {E1: run_id lượt 1}, evals_hash.E1 bằng lượt 1, tong_ket.model_goi 0,
+      model_carry 1; section có «dùng lại theo băm đầu vào (không gọi model): E1←<run_id lượt 1>»; stderr
+      có «feat E1: dùng lại theo băm»; dòng TỔNG KẾT có «gọi 0, carry 1»; làn thoát 0 (tự kiểm recheck
+      xanh). Chiều đỏ: bản sao luôn chạy lại eval model (bỏ nhánh dùng lại) → ghim «gọi model khi đầu vào
+      không đổi»; bản sao bỏ evals_carry khỏi dòng → ghim «dùng lại im».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.egm_ac2
+    expected: >-
+      Bảng lớp RÚT từ khối CARRY-INPUT-LAYERS của feature-loop/scripts/lib/dung-lai-model.mjs (rút rỗng
+      là ĐỎ); ma trận viết trước trong rang/ma-tran.mjs có đúng một ca mỗi lớp — số ca khác số lớp là ĐỎ
+      «số ô lệch». Mỗi ca đổi ĐÚNG một byte ở ĐÚNG một lớp (lệnh đã giải trong config.yaml · src/a.txt ·
+      một tệp trong cây hồ sơ · tools/e1.sh với lệnh `cd tools && sh e1.sh` · tệp ngoài kho lệnh dấu vân
+      tay đọc) rồi commit → lượt 2 chạy E1 (bộ đếm 2), evals_hash.E1 khác lượt 1, không evals_carry, stderr
+      «feat E1: không dùng lại — băm đổi»; 5/5. Độ đặc hiệu — VẪN dùng lại khi: đổi khoá khác của
+      config.yaml · đổi tools/khac.txt (lệnh không nêu) · đổi một tệp dưới thư mục đối số của cd mà lệnh
+      không nêu. Chiều đỏ: năm bản sao, mỗi bản bỏ ĐÚNG một lớp khỏi hàm băm → ca của lớp ấy ghim «lớp
+      <tên> không vào băm»; bản sao bỏ giải theo cd → ghim «lớp tệp lệnh gọi tên không vào băm»; bản sao
+      kéo trọn thư mục khi gặp tên thư mục → ghim «băm kéo cả thư mục».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.egm_ac3
+    expected: >-
+      ts của dòng nguồn (do làn ghi) sửa thành: 7 ngày trừ 1 phút trước → lượt 2 dùng lại; 7 ngày cộng
+      1 phút trước → lượt 2 chạy E1, stderr «không dùng lại — nguồn quá 7 ngày»; muộn hơn lúc lượt 2 bắt
+      đầu → chạy, stderr «không dùng lại — chưa có nguồn cùng băm». Chiều đỏ: bản sao bỏ phép so tuổi →
+      ca cộng 1 phút ghim «dùng lại nguồn quá hạn».
+      Lượt 3: đơn vị ngày của ca từ hiệu hai mốc Date.parse; NGAY_MS của thư viện phải bằng nó; bản sao
+      đổi NGAY_MS sai đơn vị → ghim «đơn vị ngày sai».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.egm_ac4
+    expected: >-
+      Bảng lý do RÚT từ khối CARRY-LY-DO-CHAY (rút rỗng là ĐỎ); ma trận viết trước có ≥ 1 ca mỗi lý do,
+      lý do không ca nào phủ là ĐỎ «số ô lệch». Mười lý do: lệnh dấu vân tay thoát khác 0 · hết giờ · in
+      rỗng · cờ --chay-lai-model · eval không khai paths · paths có mục không chứng được · cây hồ sơ có tệp
+      chưa commit (hai ca: tệp theo dõi sửa dở, tệp chưa theo dõi) · làn chạy --allow-dirty · lệnh có biến
+      hoặc thay thế lệnh của shell ($, backtick) · lệnh đã chạy ở lượt này (lệnh E1 trùng nguyên văn lệnh
+      suite). Mỗi ca làn: lượt 2 không có evals_carry, stderr «feat E1: không dùng lại — <chữ lý do của
+      khối>», lệnh E1 chạy (ca trùng suite: chạy đúng một lần trong lượt, qua suite). Ca hết giờ đo ở hàm
+      chạy lệnh dấu vân tay: trần 0,5 s, lệnh `sleep 5` → trả trong ≤ 3 s với đúng chữ lý do. Hai eval
+      model trong một hồ sơ → lệnh dấu vân tay chạy đúng 1 lần mỗi lượt. E2 chạy ở mọi lượt, không bao giờ
+      có trong evals_hash. Chiều đỏ: bản sao bỏ kiểm cây hồ sơ bẩn → ghim «dùng lại trên cây bẩn»; bản sao
+      bỏ kiểm mã thoát lệnh dấu vân tay → ghim «dùng lại khi không biết model»; bản sao bỏ trần giờ → ghim
+      «lệnh dấu vân tay không có trần».
+      Lượt 3: ca E2 đo trên lượt thoát 0 có dòng «feat E1:» (đối chứng dương).
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.egm_ac5
+    expected: >-
+      (a) lượt 1 chạy, lượt 2 và 3 dùng lại → evals_carry.E1 lượt 3 = run_id lượt 1, KHÁC run_id lượt
+      2. (b) lượt 2 chạy bằng --chay-lai-model (cùng băm) → lượt 3 dùng lại từ run_id lượt 2. (c) pin
+      ghi khi khoá còn vắng (dòng không evals_hash) rồi bật khoá → lượt kế chạy E1, stderr «không dùng lại
+      — chưa có nguồn cùng băm». Chiều đỏ: bản sao lấy run_id dòng nguồn kể cả khi dòng ấy chỉ dùng lại →
+      ca (a) ghim «chuỗi dùng lại không dàn phẳng».
+      Lượt 3: dòng kind: finding cùng băm, mã 0, ts mới hơn không thành nguồn; bản sao bỏ lọc kind → ghim
+      «dòng kind: finding thành nguồn».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.egm_ac6
+    expected: >-
+      Lượt 1 xanh; ts nguồn lùi quá 7 ngày; lượt 2 lệnh E1 trả 1 (mã điều khiển bằng tệp ngoài kho) →
+      làn thoát 1, dòng repin-do có carry_lech ["E1"] và evals_hash.E1, TỔNG KẾT có «carry_lech: E1»;
+      lệnh trả lại 0 → lượt 3 chạy xanh; lượt 4 cùng băm CHẠY, stderr «không dùng lại — cùng băm từng cho
+      kết quả khác»; đổi một byte src/a.txt → lượt 5 chạy, lượt 6 dùng lại. Chiều đỏ: bản sao bỏ luật
+      chặn sau carry_lech → lượt 4 dùng lại, ghim «dùng lại sau carry_lech».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.egm_ac7
+    expected: >-
+      Vế sống (làn cây đang kiểm), kho thử có E1 trong model_evals khai paths, KHÔNG khai model_carry_cmd,
+      ba lượt: không dòng nào có evals_hash/evals_carry/carry_lech; E1 chạy 3 lần; lệnh dấu vân tay chạy 0
+      lần; tong_ket.model_carry 0; tập khoá dòng repin = tập khoá cùng kho thử khi khoá khai trừ đúng ba
+      khoá ấy. Vế đông cứng: làn mốc 08ba287d và làn SAU-G3 (hai bản git archive) trên cùng kho thử khoá
+      vắng → bộ đếm mỗi lệnh, tập khoá mọi dòng repin, tập khoá JSON stdout bằng nhau; hai nguồn trùng →
+      ĐỎ «base trùng cây»; mốc không giải được → ĐỎ gọi tên hạ tầng. Chiều đỏ: bản sao ghi evals_hash khi
+      khoá vắng → ghim «khoá vắng mà dòng đổi».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.egm_ac8
+    expected: >-
+      Vế sống: làn cây đang kiểm ghi pin có E1 dùng lại, recheck-evidence.cjs cây đang kiểm đọc → 0. Vế
+      đông cứng: làn SAU-G3 ghi pin có E1 dùng lại, recheck-evidence.cjs của mốc 08ba287d đọc (hai bản git
+      archive) → 0. Đối chứng đỏ: sửa evals_exit.E1 của dòng repin cuối thành 1 → cả hai thoát khác 0, đầu
+      ra nêu E1.
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.egm_ac9
+    expected: >-
+      Ca bền AC6-khuon-writer, AC6-guide-du-khoa, AC6-lan-khoa-rut của tests/scripts/repin-lane-khuon-gia.test.mjs
+      (nay bật cả model_carry_cmd và có một lượt dùng lại) cùng ca AC9 của tệp ca vòng này: khoá dòng repin
+      và repin-do writer thật ghi ⊆ khuôn REPIN-TEMPLATE, đúng thứ tự, gồm evals_hash, evals_carry,
+      carry_lech; khối LAN-KHOA rút đúng 6 khoá, mỗi khoá một dòng ở GUIDE §7.1; model_carry_cmd rỗng đọc
+      như vắng. Chiều đỏ: bản sao khuôn SKILL thiếu evals_carry → ghim «khoá ngoài khuôn».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "feature-loop/skills/feature-loop/SKILL.md"
+      - "GUIDE.md"
+      - "tests/scripts/repin-lane-khuon-gia.test.mjs"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.egm_ac10
+    expected: >-
+      Run-log do làn thật ghi: lượt chạy, lượt dùng lại, hai lượt carry_lech — (a) không tệp git nào đổi
+      giữa sha nguồn và sha lượt lệch, (b) lệch sau khi đổi lib/x.txt (ngoài mọi lớp) — và một dòng repin
+      có evals_carry trỏ run_id không có → dem-dung-lai-model.mjs --root <kho> in dòng tổng đúng model_goi,
+      model_carry, carry_lech = 2 viết trước trong ca; một dòng cho E1; lượt (a) nhãn «lệch không tất
+      định», lượt (b) nhãn «nghi thiếu đầu vào: lib/x.txt»; một dòng «nguồn không có» nêu run_id ấy. Chiều
+      đỏ: bản sao chỉ đếm dòng repin → ghim «carry_lech đếm thiếu»; bản sao in «lệch không tất định» cho
+      mọi lượt → ghim «không tách nguyên nhân lệch».
+      Lượt 3: --root không tồn tại → thoát 2, thông điệp «--root không tồn tại».
+    paths:
+      - "feature-loop/scripts/dem-dung-lai-model.mjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: judgment
+    question: >-
+      Một người viết eval ở một kho tiêu thụ chỉ đọc ba tệp đính kèm. Từ chúng, họ có biết: (a) bật
+      dùng lại kết quả eval model thật bằng khoá nào, và khoá vắng thì làn như trước; (b) lệnh dấu vân
+      tay phải in gì (id model nhà cung cấp trả, băm khoá gói, phiên bản runtime khi đáng kể) và đầu ra
+      của nó không bao giờ bị ghi ra sổ; (c) năm lớp đầu vào của băm; (d) hạn dùng lại 7 ngày; (e) các
+      lý do eval vẫn chạy và cách ép chạy lại; (f) bốn giới hạn — paths thiếu đầu vào, tệp chưa theo
+      dõi ngoài cây hồ sơ, model trôi mà giữ id, bên đọc không chứng chuỗi dùng lại — mỗi cái kèm ngưỡng;
+      (g) lệnh đếm của đường đo; (h) CHANGELOG có mục chưa phát hành nói khoá vắng thì như 2.26? Có câu
+      nào trong ba tệp mâu thuẫn nhau về cơ chế này không?
+    inputs: [GUIDE.md, feature-loop/skills/feature-loop/SKILL.md, CHANGELOG.md]
+    expected: >-
+      PASS khi (a)–(h) đủ và không mâu thuẫn; FAIL nêu tệp và ý thiếu.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.egm_ac12
+    expected: >-
+      Tập tệp của vòng = tệp mà các commit không-gộp trong 08ba287d..HEAD mang dấu
+      «(eval-goi-model-that-khong-chay)» đã chạm, trừ hồ sơ của chính vòng (rút rỗng là ĐỎ): không tệp nào
+      khớp risk_tiers.t3_paths đọc lúc chạy từ _acceptance/config.yaml (rút rỗng là ĐỎ), không tệp nào dưới
+      _acceptance/<hồ sơ khác>/ có status signed-off hoặc machine-cleared. Kho thử code-sinh: commit KHÔNG
+      mang dấu chạm hồ sơ đã ký → xanh (chiều im); commit mang dấu chạm lib/evidence-core.cjs → ĐỎ ghim
+      «chạm vùng T3»; commit mang dấu chạm _acceptance/<hồ sơ đã ký>/contract.md → ĐỎ ghim «chạm hồ sơ đã
+      ký». Không khai paths: kết quả phụ thuộc lịch sử commit của vòng, nên luôn chạy lại.
+      Lượt 3: t3_paths đọc ở mốc 08ba287d; chiều im thứ hai — commit không mang dấu thêm src/** vào t3_paths
+      sau khi vòng chạm src/x.txt → vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.egm_ac13
+    expected: >-
+      Kho thử > 4 500 tệp đường dài (ls-tree > 1 MiB), khoá khai: hai lượt thoát 0, lượt 1 ghi evals_hash.E1,
+      lượt 2 dùng lại E1. Chiều đỏ: bản sao bỏ trần bộ đệm của lời gọi git → làn thoát 2, ghim «làn chết ở kho lớn».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E14
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.egm_ac14
+    expected: >-
+      Lượt --chay-lai-model chạy E1 cùng băm, lệnh trả 1, eval sau quá trần → thoát 4; repin-do dừng sớm có
+      carry_lech ["E1"] + evals_hash.E1; lượt kế không dùng lại E1 («cùng băm từng cho kết quả khác»). SIGTERM lúc
+      lệnh dấu vân tay chạy → cháu (pid ghi ngoài kho) đã chết, làn thoát 143. Chiều đỏ: bản sao bỏ ba khoá khỏi
+      dòng dừng sớm → ghim «lượt dừng sớm mất dấu lệch»; bản sao không dọn lệnh vân tay → ghim «lệnh dấu vân tay
+      sống mồ côi».
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.script.egm_ac15
+    expected: >-
+      Lệch khi chỉ run-log/evidence-report của HỒ SƠ KHÁC đổi → «lệch không tất định»; dòng lệch sha
+      «--output=<tệp>» → «không so được (sha lạ)», không tệp nào bị tạo; script nhập vị từ chạy-thật từ thư viện.
+      Chiều đỏ: chỉ trừ tệp làn ghi của chính hồ sơ → ghim «nhãn lệch tính tệp làn ghi»; bỏ kiểm dạng sha → ghim
+      «sha lạ tới git».
+    paths:
+      - "feature-loop/scripts/dem-dung-lai-model.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-dung-lai-model.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/eval-goi-model-that-khong-chay/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

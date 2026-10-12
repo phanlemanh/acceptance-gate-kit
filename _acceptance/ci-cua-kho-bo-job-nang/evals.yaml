@@ -1,0 +1,142 @@
+# Eval cho hồ sơ ci-cua-kho-bo-job-nang.
+#
+# Một tệp ca: tests/scripts/hang-pr.test.mjs — dựng kho mẫu git THẬT trong lần chạy và gọi CHÍNH
+# scripts/pre-merge-check.sh (cờ --hang-pr và không cờ). Ma trận + kỳ vọng VIẾT TRƯỚC trong tệp ca (hằng),
+# không tính từ mã sản phẩm; số khẳng định = số hàng. Mỗi AC có đối chứng dương và chiều đỏ trên bản sao trọn
+# `scripts/` + `lib/` (git archive), kim khớp đúng một lần, thông điệp ghim. Đường dẫn suy từ vị trí tệp ca.
+# Tên ca = mã AC; biến HP_CASES chọn ca (mã lạ → thoát 2, không ca nào chạy → đỏ).
+schema_version: 1
+feature_slug: ci-cua-kho-bo-job-nang
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.hp_ac1
+    expected: >-
+      PASS: AC-1 — 12 hàng ma trận viết trước (chỉ T1 · `*` vượt `/` · `**/` ở gốc · chỉ hồ sơ · hồ sơ + T1 ·
+      thước hồ sơ · vật · vật + hồ sơ · T3 · T3 + vật + T1 · CI khai · CI không khai), mỗi hàng một khẳng định:
+      stdout đúng ba dòng hang/cham_vat/ly_do=phan-loai khớp bảng. Chiều đỏ của ma trận nằm ở AC-2 (đột biến bộ
+      khớp lật hàng `README.txt`) và AC-3 (đột biến bỏ bước so danh sách).
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.hp_ac2
+    expected: >-
+      PASS: AC-2 — trên 8 hàng không chạm _acceptance/, TẬP loại dòng `VIOLATION [PR]` cổng không cờ in ra bằng tập
+      viết trước theo hạng chế độ in (T1 ↔ rỗng, T2 ↔ {non-T1}, T3 ↔ {T3 paths}), so tập, 8 khẳng định. PASS: AC-2-do — bản sao gỡ dòng
+      GLOB-DOUBLESTAR-ZERO-DIRS (kim một lần): hàng README.txt ra hang=T2 VÀ cổng không cờ in non-T1, ghim
+      «README.txt lật cùng cổng»; bản nguyên vẹn cùng hàng là T1 (đối chứng dương).
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.hp_ac3
+    expected: >-
+      PASS: AC-3 — ba ca đổi danh sách (thêm src/** vào t1 cùng sửa src/a.ts · bỏ core/** khỏi t3 cùng sửa
+      core/x.ts · merge-base chưa có config.yaml) đều ra hang=khong-ro, cham_vat=true, ly_do=doi-danh-sach-hang.
+      PASS: AC-3-im — PR chỉ đổi feature_loop.suite_keys + docs/a.md → hang=ho-so, cham_vat=false. PASS: AC-3-do —
+      bản sao bỏ bước so danh sách (kim một lần) → ca thứ nhất và thứ ba ra hang=ho-so, cham_vat=false (bản nguyên vẹn
+      khong-ro/true), ghim «PR tự nới danh sách»; ca thứ hai không đổi bit nên không vào chiều đỏ.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.hp_ac4
+    expected: >-
+      PASS: AC-4 — năm ca, mỗi ca cham_vat=true, mã 0: không --base → khong-co-pham-vi-diff và 0 dòng ::warning ·
+      ref không có → hang=khong-ro, khong-phan-loai-duoc, đúng 1 dòng ::warning chứa «không resolve được» · lịch sử
+      rời → khong-co-pham-vi-diff + 1 cảnh báo · base = HEAD → diff-rong + 1 cảnh báo · kho không _acceptance/ →
+      khong-phan-loai-duoc + 1 cảnh báo. Đối chứng dương: cùng kho có base lành → ly_do=phan-loai. PASS: AC-4-do —
+      hai bản sao chèn ngay trước khối «Phân loại diff-chịu-cổng» (kim một lần) `exit 1` · đọc biến chưa khai → mỗi
+      bản ra khong-ro/true/khong-phan-loai-duoc, mã 0, đúng 1 dòng ::warning; ghim «lối dừng thoát khác 0».
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.hp_ac5
+    expected: >-
+      PASS: AC-5 — config có TAB → cham_vat=true, ly_do=cau-hinh-loi, 1 dòng ::warning, mã 0; _acceptance/ có mà
+      config.yaml vắng → cau-hinh-loi. Đối chứng dương trên cùng PR (chỉ docs/a.md) với config lành → hang=T1,
+      cham_vat=false.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.hp_ac6
+    expected: >-
+      PASS: AC-6 — config recheck: warn; GITHUB_OUTPUT có sẵn «co_san=1» → sau lần chạy = co_san=1 + đúng ba dòng
+      như stdout; GITHUB_STEP_SUMMARY đúng một dòng nêu hạng; stdout đúng ba dòng, không dòng WARNING/NOTE nào của
+      cổng. Hai biến vắng → không tệp nào được ghi ngoài thư mục tạm. Mọi khoá và giá trị in ra thuộc khối marker
+      HANG-PR-KHOA rút từ chính tệp cổng. Chiều đỏ: bản sao bỏ dòng nuốt stdout của chế độ (kim một lần) → ca đỏ,
+      ghim «dòng của cổng lọt ra».
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.hp_ac7
+    expected: >-
+      PASS: AC-7 — mỗi giá trị của ly_do trong HANG-PR-KHOA một lần chạy có cờ, cả sáu trả mã 0 (mọi lần chạy có cờ
+      ở AC-1…AC-6 cũng tự đòi mã 0 trong ca của nó); `--hang-pr --base ""` → mã 2
+      kèm «--base requires a value»; `--hang-prr` → mã 2 kèm «unknown option». Chiều đỏ là chính hai ca mã 2: thông
+      điệp ghim nguyên văn, không chỉ mã.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.hp_ac8
+    expected: >-
+      PASS: AC-8 — bản đầy đủ và bản cắt vùng marker HANG-PR cho stdout + mã thoát giống từng byte khi không cờ, trên
+      12 kho mẫu của AC-1 (có --base) và một kho không --base; số marker mở = số đóng ≥ 1. PASS: AC-8-do — bản sao
+      chèn một echo vào vùng marker ngoài nhánh cờ → ca đỏ, ghim «vùng HANG-PR chạy khi không có cờ». PASS:
+      AC-8-lich-su — mọi commit không-gộp của vòng (git log --no-merges --grep=ci-cua-kho-bo-job-nang, ≥ 1) có bản cắt
+      marker bằng bản cắt marker của commit cha. PASS: AC-8-lich-su-do — kho mẫu hai commit (cha = tệp cổng ở
+      d9d1f3a6, con = tệp hiện tại) xanh; con sửa một chữ ngoài marker → đỏ, ghim «dòng ngoài HANG-PR đổi».
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.hp_ac8_kho_that
+    expected: >-
+      PASS: AC-8-kho-that — trên chính cây kit, bản đầy đủ và bản cắt vùng marker cho stdout + mã thoát giống từng
+      byte khi không cờ, với --base d9d1f3a6 (commit cố định) và không --base. Đối chứng dương nằm ở AC-8-do (cùng
+      hàm so sánh đỏ khi bản cắt khác bản đầy đủ).
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.hp_ac9
+    expected: >-
+      PASS: AC-9 — công thức sed của crm PR #369 (chép nguyên văn vào tệp ca) rút được match_globs từ tệp cổng và bảng
+      glob × tệp viết trước khớp đúng mọi ô. PASS: AC-9-do — bản sao đổi tên match_globs (kim một lần) → công thức
+      thoát 3, ghim «crm mất bộ khớp».
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.hp_ac10
+    expected: >-
+      PASS: AC-10 — GUIDE §5.3 có mục bỏ job nặng với đoạn workflow gọi --hang-pr, fetch-depth: 0, một dòng if: cấp job
+      chứa cả !cancelled() lẫn cham_vat != 'false', bảng bốn hàng, câu về paths-ignore làm check bắt buộc treo, câu «job đọc hồ sơ đừng gắn vào bit»; mọi
+      outputs.<khoá> trong đoạn thuộc HANG-PR-KHOA; dòng Usage của cổng nêu --hang-pr; CHANGELOG «Chưa phát hành»
+      nêu --hang-pr và «không truyền cờ». PASS: AC-10-do — bản sao GUIDE đổi cham_vat thành cham_ma → ca đỏ, ghim
+      «khoá GUIDE không có trong HANG-PR-KHOA»; bản sao gỡ
+      «!cancelled() &&» → ca đỏ, ghim «hang-pr hỏng thì test bị bỏ».
+    paths: ["GUIDE.md", "CHANGELOG.md", "scripts/pre-merge-check.sh", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: '"Results: all workflow tests passed" — ba bộ còn lại (scripts, hooks, plugins) chạy là suite của lượt chấm.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

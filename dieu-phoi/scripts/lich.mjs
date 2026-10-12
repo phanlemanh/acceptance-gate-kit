@@ -46,21 +46,37 @@ export function hanGiaHan({ hanCu, nowMs, phut }) {
   return new Date(Math.max(Date.parse(hanCu), nowMs) + phut * PHUT_MS).toISOString();
 }
 
-export function chonHangKe(hangViec, phien, tienDo) {
+// `quyet` (hồ sơ dieu-phoi-sua-truoc-dot-thu, B1): bảng slug → 'da-quyet' | 'cho' | 'khong-build' do bộ phát
+// lịch dựng mỗi nhịp bằng `bangQuyet` (the.mjs — một nguồn với thẻ khởi tạo và thợ). Hàng chưa bắt đầu chỉ được
+// giao khi đã quyết; vắng bảng (ca đơn vị cũ) thì mọi hàng coi là đã quyết.
+export function chonHangKe(hangViec, phien, tienDo, quyet = null) {
   // Dãy được cho nghỉ (§4.6 «Cho P4 nghỉ») không nhận hàng kế nào.
   if (hangViec.day?.find((d) => d.id === phien)?.nghi === true) return { hang: null, cho: 'nghi' };
   const cua = hangViec.hang.filter((h) => h.day === phien);
   const dangLam = cua.find((h) => tienDo.get(h.slug) === 'dang');
   if (dangLam) return { hang: dangLam.slug, moi: false };
+  const quyetCua = (h) => quyet?.get(h.slug) ?? 'da-quyet';
+  const chua = (h) => (tienDo.get(h.slug) ?? 'chua') === 'chua';
   const duPhuThuoc = (h) =>
     (h.sau ?? []).every((ma) => {
       const truoc = hangViec.hang.find((x) => x.ma === ma);
       return truoc !== undefined && tienDo.get(truoc.slug) === 'gop';
     });
-  const sanSang = cua
-    .filter((h) => (tienDo.get(h.slug) ?? 'chua') === 'chua' && duPhuThuoc(h))
-    .sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
+  const coThe = cua.filter((h) => chua(h) && duPhuThuoc(h));
+  const sanSang = coThe.filter((h) => quyetCua(h) === 'da-quyet').sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
   if (sanSang.length > 0) return { hang: sanSang[0].slug, moi: true };
-  const conViec = cua.some((h) => !['ky', 'gop'].includes(tienDo.get(h.slug) ?? 'chua'));
-  return conViec ? { hang: null, cho: 'phu-thuoc' } : { hang: null, xong: true };
+  // Hàng chưa bắt đầu mà ô đã quyết khác build không vào đợt — không tính là việc còn lại của dãy.
+  const conViec = cua.some((h) => !(chua(h) && quyetCua(h) === 'khong-build') && !['ky', 'gop'].includes(tienDo.get(h.slug) ?? 'chua'));
+  if (!conViec) return { hang: null, xong: true };
+  return { hang: null, cho: coThe.some((h) => quyetCua(h) === 'cho') ? 'cong-dang' : 'phu-thuoc' };
+}
+
+// Bên đọc của `tiep/<dãy>.json` (bên viết: `capNhatHangKe` của bộ phát lịch ghi `ke` do `chonHangKe` trả) — MỘT
+// chỗ cho lời ghi danh của `tiep-tuc`/`chan-doan` (hồ sơ dieu-phoi-sua-truoc-dot-thu, D1). Trả `{hang}` hoặc
+// `{hang: null, ly_do}`. Tệp vắng (bộ phát lịch chưa chạy nhịp nào) → hàng ưu tiên đầu của dãy, như trước.
+export function hangKeTuTiep(tiep, hangViec, id) {
+  if (hangViec.day?.find((d) => d.id === id)?.nghi === true) return { hang: null, ly_do: 'nghi' };
+  if (tiep) return tiep.hang ? { hang: tiep.hang } : { hang: null, ly_do: tiep.xong ? 'xong' : tiep.cho ?? 'cho' };
+  const dau = (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0];
+  return dau ? { hang: dau.slug } : { hang: null, ly_do: 'khong-co-hang' };
 }

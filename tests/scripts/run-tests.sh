@@ -3705,13 +3705,18 @@ hasout RL15d3m "is not a plain slug name" "$RL15D3"
 nothas RL15d4 "pre-merge-check: clean" "$RL15D1$RL15D2$RL15D3"
 
 echo "RL6 dem loi thoat exit 0 bang may — DUNG HAI loi (AC-6)"
-RL6N="$(grep -vE '^[[:space:]]*#' "$CHECK" | grep -c 'exit 0')"
+# Dem tren BAN CAT vung marker HANG-PR: che do --hang-pr (ho so ci-cua-kho-bo-job-nang)
+# song trong cac vung `# >>> HANG-PR` … `# <<< HANG-PR`, chi chay khi co co, va luon
+# thoat 0 sau khi in ket qua. Ban cat marker la DUNG cong khong co (ca AC-8 cua
+# tests/scripts/hang-pr.test.mjs chung tung byte), nen luat «hai loi exit 0» ap tren no.
+rl6_cat() { sed '/^[[:space:]]*# >>> HANG-PR[[:space:]]*$/,/^[[:space:]]*# <<< HANG-PR[[:space:]]*$/d' "$1"; }
+RL6N="$(rl6_cat "$CHECK" | grep -vE '^[[:space:]]*#' | grep -c 'exit 0')"
 same RL6a 2 "$RL6N"
 # DOI CHUNG DOT BIEN: phep dem phai THAY duoc mot loi thoat tiem them, neu
 # khong RL6a chi chung minh "con so hom nay bang 2" chu khong phai "phep dem
 # song". Bat bien #4.
 RL6CP="$RLCP/scripts/rl6-check.sh"; { cat "$CHECK"; printf '\nexit 0\n'; } > "$RL6CP"
-RL6M="$(grep -vE '^[[:space:]]*#' "$RL6CP" | grep -c 'exit 0')"
+RL6M="$(rl6_cat "$RL6CP" | grep -vE '^[[:space:]]*#' | grep -c 'exit 0')"
 same RL6b 3 "$RL6M"
 
 echo "RL7a ten duy nhat o call-site ledger_mark == EXPECTED, hai chieu (AC-7c)"

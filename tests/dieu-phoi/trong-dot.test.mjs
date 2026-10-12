@@ -205,18 +205,22 @@ test('DP7-02-do ghi', async () => {
 });
 
 // ---------- DP7-03: việc kế của thợ — ma trận đầu vào (AC-3, E3) ----------
-// Mỗi hàng: tên · hàng của đợt · dựng trước nhịp · --slug · viec_ke mong · mẩu ly_do mong (null = không xét).
+// Mỗi hàng: tên · hàng của đợt · dựng trước nhịp · dựng sau nhịp · --slug · viec_ke mong · mẩu ly_do mong (null =
+// không xét). Năm hàng gác quyết (vang · discovery · park · kill · iterate) dựng ô build TRƯỚC nhịp rồi đổi ô SAU
+// nhịp: từ hồ sơ dieu-phoi-sua-truoc-dot-thu (B1) bộ phát lịch của đợt mở từ gói không giao hàng chưa quyết build,
+// nên gác `bao-giam-sat` của thợ là lưới cho ca quyết đổi sau khi nhịp đã ghi tiep/ — ca đo đúng ca ấy.
 const A = { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 };
+const oBuild = ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' });
 const MA_TRAN_KE = [
   { ten: 'chi-hop-dong', dung: ({ kho }) => hopDong(kho, 'hang-a', 'draft'), mong: 'mo-hang' },
   { ten: 'o-build', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' }), mong: 'mo-hang' },
   { ten: 'o-build-chi-o-worktree', dung: ({ w }) => oCoHoi(w.P1, 'hang-a', { decision: 'build' }), mong: 'mo-hang' },
   { ten: 'khong-ma', hang: [{ slug: 'viec-x', day: 'P1' }], dung: () => {}, mong: 'mo-hang' },
-  { ten: 'vang', dung: () => {}, mong: 'bao-giam-sat', lyDo: 'hang-a' },
-  { ten: 'discovery', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { stage: 'discovery' }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
-  { ten: 'park', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'park' }), mong: 'bao-giam-sat', lyDo: 'park' },
-  { ten: 'kill', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'kill' }), mong: 'bao-giam-sat', lyDo: 'kill' },
-  { ten: 'iterate', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'iterate' }), mong: 'bao-giam-sat', lyDo: 'iterate' },
+  { ten: 'vang', dung: oBuild, sauNhip: ({ kho }) => fs.rmSync(path.join(kho, '_acceptance', 'hang-a'), { recursive: true }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
+  { ten: 'discovery', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { stage: 'discovery' }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
+  { ten: 'park', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'park' }), mong: 'bao-giam-sat', lyDo: 'park' },
+  { ten: 'kill', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'kill' }), mong: 'bao-giam-sat', lyDo: 'kill' },
+  { ten: 'iterate', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'iterate' }), mong: 'bao-giam-sat', lyDo: 'iterate' },
   { ten: 'slug-trung-tiep', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' }), slug: 'hang-a', mong: 'cho-nhip', lyDo: 'hang-a' },
   { ten: 'nghi', dung: ({ kho }) => assert.equal(chayCli(kho, ['hang', 'nghi', 'P1']).ma, 0), mong: 'cho', lyDo: 'nghi' },
   {
@@ -238,6 +242,7 @@ async function kiemMaTranKe(gocGoi) {
     const ctx = dungDot({ hang: h.hang ?? [A], gocGoi });
     h.dung(ctx);
     await nhip(ctx.dot, { gocGoi });
+    if (h.sauNhip) h.sauNhip(ctx);
     const kq = tho(ctx.w.P1, { gocGoi, slug: h.slug ?? null });
     chay++;
     thay.add(kq.viec_ke);
@@ -498,15 +503,26 @@ test('DP7-07-do chi-tep', async () => {
 });
 
 // ---------- DP7-06: lời chặn S4 trong dãy là «chờ lượt» (AC-6, E6) ----------
-// Bản base = merge-base của HEAD với origin/main (vắng → main) của CÂY ĐANG KIỂM, lấy TRỌN thư mục scripts
-// bằng git archive (không chép danh sách tệp tay).
-function goiBase() {
-  let base;
+// Bản base = hook TRƯỚC vòng DP7, neo LỊCH SỬ: cha-1 của commit gộp PR #306 (vong/dieu-phoi-feature-loop-trong-dot)
+// tìm lúc chạy, lấy TRỌN thư mục scripts bằng git archive (không chép danh sách tệp tay). Sửa ở hồ sơ
+// dieu-phoi-sua-truoc-dot-thu theo lệnh Điều phối M5 (main đỏ từ 2a5916d9): cách cũ lấy merge-base SỐNG của HEAD với
+// origin/main — trên main mốc ấy = HEAD, nên «cũ» chính là mã mới chạy từ thư mục archive tạm và lời chặn khác ở
+// đường dẫn lệnh xin lượt; cùng lớp «neo merge-base sống» DP7-10/DP2-15 đã sửa.
+const baseTruocDp7 = () => {
+  const m = git(KIT, 'log', '--merges', '--grep=^Merge pull request #306 ', '-1', '--format=%H', 'HEAD').trim();
+  assert.ok(m, 'không tìm được commit gộp PR #306 (vòng DP7) trong lịch sử của HEAD');
+  return git(KIT, 'rev-parse', `${m}^1`).trim();
+};
+// Cách lấy merge-base SỐNG (khuôn cũ của ca này) — chỉ dùng cho ca đỏ đối chứng dưới.
+const baseMergeBaseSong = () => {
   try {
-    base = git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
+    return git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
   } catch {
-    base = git(KIT, 'merge-base', 'HEAD', 'main').trim();
+    return git(KIT, 'merge-base', 'HEAD', 'main').trim();
   }
+};
+function goiBase(layBase = baseTruocDp7) {
+  const base = layBase();
   const dich = tam('dp7-base-');
   const tar = execFileSync('git', ['archive', base, 'dieu-phoi/scripts'], { cwd: KIT, env: ENV });
   execFileSync('tar', ['-x', '-C', dich], { input: tar });
@@ -514,8 +530,8 @@ function goiBase() {
 }
 const s4Workflow = (cwd) => JSON.stringify({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: '/x/acceptance-verify.js' } });
 
-async function haiLoiChan() {
-  const { goi, base } = goiBase();
+async function haiLoiChan(layBase) {
+  const { goi, base } = goiBase(layBase);
   const { dot, w, kho } = dungDot({ khuon: goi });
   ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
   const moi = await nap(GOI, 'hook-chan-s4.mjs');
@@ -523,12 +539,28 @@ async function haiLoiChan() {
   return { dot, base, trong: [moi.chayHook(s4Workflow(w.P2)), cu.chayHook(s4Workflow(w.P2))], ngoai: [moi.chayHook(s4Workflow(kho)), cu.chayHook(s4Workflow(kho))] };
 }
 
+const TIEN_TO_MSG = 'lời chặn mới không giữ tiền tố của hook trước DP7';
+const kiemTienTo = (moi, cu) => (moi.loi.startsWith(cu.loi) ? [] : [`${TIEN_TO_MSG}: «${cu.loi}»`]);
+
 test('DP7-06 trong-day', async () => {
   const { dot, base, trong: [moi, cu] } = await haiLoiChan();
   console.log(`  base ${base.slice(0, 12)} · lời chặn: ${moi.loi}`);
   assert.equal(moi.ma, 2);
-  assert.ok(moi.loi.startsWith(cu.loi), `phải giữ nguyên tiền tố cũ «${cu.loi}»`);
+  assert.deepEqual(kiemTienTo(moi, cu), []);
   for (const chu of ['P2', 'chờ lượt', 'không hỏi người', 'không chấm lại', path.join(dot, 'LUAT.md')]) assert.ok(moi.loi.includes(chu), `lời chặn thiếu «${chu}»`);
+});
+
+// Chiều đỏ của chính phép đo: cách lấy merge-base SỐNG phải ĐỎ đúng thông điệp khi mốc ấy mang hook mới (trên main
+// mốc = HEAD; trên nhánh sau khi gộp main, mốc = origin/main đã có hook DP6). Đối chứng dương: neo lịch sử xanh trên
+// cùng cây.
+test('DP7-06-do merge-base-song', async () => {
+  const lanh = await haiLoiChan();
+  assert.deepEqual(kiemTienTo(...lanh.trong), [], 'đối chứng dương: neo lịch sử phải xanh trên cùng cây');
+  const song = await haiLoiChan(baseMergeBaseSong);
+  const moc = baseMergeBaseSong();
+  assert.ok(git(KIT, 'diff', '--quiet', moc, 'HEAD', '--', 'dieu-phoi/scripts/hook-chan-s4.mjs') === '' , 'mốc sống phải mang đúng hook của HEAD');
+  const loi = kiemTienTo(...song.trong);
+  assert.ok(loi.some((l) => l.startsWith(TIEN_TO_MSG)), `merge-base sống phải đỏ: ${loi.join(' | ')}`);
 });
 
 test('DP7-06 ngoai-day', async () => {

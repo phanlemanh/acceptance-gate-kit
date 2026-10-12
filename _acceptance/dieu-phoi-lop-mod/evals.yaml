@@ -1,0 +1,156 @@
+schema_version: 1
+feature_slug: dieu-phoi-lop-mod
+# Ca đo của hàng sống ở tests/dieu-phoi/lop-mod.test.mjs (tên ca bắt đầu «DP6-»). Khoá executor thêm ở S3:
+#   executors.test.dieu_phoi_dp6 = node --test trên tests/dieu-phoi/**, gộp dòng «ok … DP1-|DP2-|DP3-|DP4-|DP6-|DP7-»,
+#     «not ok», dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (cùng khuôn dieu_phoi_dp3)
+# Kho thử và đợt do code sinh trong lượt (git init + `mo` thật trong thư mục tạm). Đường dẫn suy từ vị trí tệp
+# test. Mỗi ca đỏ chạy CHÍNH hàm/lệnh đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm
+# riêng bước tiêm đã áp, và ghim dấu hiệu của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số ô, in ra;
+# tập ô mà một đột biến phải làm đỏ RÚT bằng code từ ma trận, không gõ số. Lời hứa là đẳng thức thì so bằng nhau,
+# không so bao hàm. Suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/scripts/phan-loai-s4.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lop-mod.test.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl]
+    expected: >
+      exit 0; "ok" cho "DP6-01 vo-boc": ma trận viết sẵn = bảng 41 dạng của design §4 C1 (8 vỏ bọc) × 3 script
+      + 2 chuỗi vỏ bọc lồng × 3 script + 3 lời gọi thật bỏ lọt (đọc từ tệp ca lenh-that-2026-10-11.jsonl, lọc
+      nhãn khác null) = 132 ô; số assert in ra = 132; mỗi ô phanLoaiLenh trả đúng tài nguyên (repin-lane, s4-args → "s4";
+      duong-nen → "duong-nen"), kể cả `env -S '<lệnh>'` và `--split-string='<lệnh>'`. "ok" cho "DP6-01
+      hook-chan": hook thật (lệnh rút từ hooks.json) trên đợt dựng bằng `mo`, cwd worktree P1: khoá s4 của P2 →
+      thoát 2 cho mọi ô s4; khoá s4 của P1 → thoát 0 cho cùng ô (đối chứng). "ok" cho "DP6-01-do bo-timeout":
+      bản sao phan-loai-s4.mjs gỡ `timeout` khỏi bảng vỏ bọc (kiểm bước tiêm áp) → tập ô đỏ BẰNG tập ô chứa token
+      `timeout` rút bằng code từ chính ma trận (số in ra, kiểm 0 < số < 132 trước khi so). "ok" cho "DP6-01-do
+      caffeinate-t-tran": bản sao khai `caffeinate -t` là cờ trần → tập ô đỏ BẰNG tập ô chứa `caffeinate -t`
+      rút bằng code.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/scripts/phan-loai-s4.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, feature-loop/scripts/repin-lane.mjs, feature-loop/scripts/s4-args.mjs, feature-loop/scripts/duong-nen.mjs, tests/dieu-phoi/lop-mod.test.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl]
+    expected: >
+      exit 0; "ok" cho "DP6-02 chi-doc-heredoc": ma trận viết sẵn = (node --check, node -c, --help) × 3 script +
+      5 hình heredoc × 3 script + 6 lời gọi thật chặn nhầm (đọc từ tệp ca, lọc nhãn null) + 4 lời gọi âm đã có +
+      «node --check <script> && node <script> --write» × 3 script = 37 ô; số assert in ra = 37; ô chỉ đọc, bốn lời
+      gọi thật --check/--help và bốn lời gọi âm trả null; mọi ô heredoc, hai lời gọi thật heredoc (giới hạn đã khai:
+      vẫn bị chặn) và ô «kiểm cú pháp rồi chạy thật» trả tài nguyên. "ok" cho "DP6-02 hook-im": hook thật trên đợt
+      có khoá s4 của P2, cwd worktree P1 → thoát 0, stderr rỗng cho mọi ô null; thoát 2 cho mọi ô heredoc mang s4;
+      đối chứng cùng đợt: `node <script>` trần → thoát 2. "ok" cho "DP6-02 tien-de-help": mỗi script thật trong ba
+      (đường suy từ vị trí test) chạy với `--root <kho thử> --help` → thoát khác 0, stderr chứa "cờ không nhận diện
+      được", băm cây kho thử trước == sau. Hai đột biến, mỗi cái trên bản sao sau khi bản lành xanh, tập ô đỏ so
+      BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho "DP6-02-do bo-check" (ô --check/-c
+      của node); "ok" cho "DP6-02-do than-la-du-lieu" (giả lập lại luật «thân heredoc là dữ liệu» — ngừng đọc từ
+      dấu << đầu tiên: đỏ đúng các ô kỳ vọng bị chặn mà có <<). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 15 ô
+      (here-string, heredoc cho trình thông dịch kể cả bash kèm cờ mang giá trị, số học, chú thích, dấu đóng có
+      gạch, bash <tệp> <<…), số in ra = 15, mỗi ô trả đúng tài nguyên và bộ phân loại ở mốc bản cũ cho cùng kết quả;
+      "ok" cho "DP6-02-do khong-lot-than-la-du-lieu" (cùng đột biến, đỏ đúng các ô có << của ma trận này).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [tests/dieu-phoi/rut-lenh-that.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl, dieu-phoi/scripts/phan-loai-s4.mjs, tests/dieu-phoi/lop-mod.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP6-03 tep-ca": tệp ca có đúng 9 dòng; mỗi dòng có khoá tep, tool_use_id, nhan, lenh; tập
+      tool_use_id có 9 phần tử khác nhau; số dòng nhan khác null == 3 và nhan null == 6; không dòng nào chứa tên
+      người dùng của máy chạy ca (os.userInfo().username) hay chuỗi "/private/tmp/claude-". "ok" cho "DP6-03
+      nguon-thieu-tep": thư mục bản ghi giả chỉ có một tệp nguồn → hàm đếm tệp vắng trả đúng số lời gọi vắng (rút
+      bằng code từ danh sách), thư mục vắng → cả chín. "ok" cho "DP6-03 nguon": máy có đủ tệp nguồn → chạy
+      rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm) và BẰNG tệp ca đã commit; thiếu thư mục
+      hoặc thiếu một tệp nguồn → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại (<n>/9 tệp nguồn vắng)" và ca vẫn
+      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 moc-co-dinh": mốc bản cũ (commit cố định 08ba287d của nhánh chính) là tổ
+      tiên của HEAD (git merge-base --is-ancestor thoát 0); phanLoaiLenh ở mốc lệch nhãn 7/9, còn phanLoaiLenh lấy theo
+      merge-base sống trong tình huống sau khi gộp (merge-base HEAD HEAD) lệch 0/9 (đối chứng: cách ấy đỏ trên nhánh
+      chính). "ok" cho "DP6-03 lech-o-goc": nhãn so là nhãn tệp ca, trừ hai lời gọi heredoc chặn nhầm mang nhãn «bị
+      chặn» (giới hạn đã khai); phanLoaiLenh ở mốc bản cũ (git archive trọn dieu-phoi/ vào thư mục tạm) cho kết quả
+      KHÁC nhãn ở 7 dòng (đếm == 7), bản sau thay đổi cho BẰNG nhãn ở cả 9 dòng (đếm == 9).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/scripts/hook-chan-s4.mjs, dieu-phoi/scripts/ghi.mjs, tests/dieu-phoi/lop-mod.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP6-04 loi-chan": kho thử dựng dưới một thư mục tên có dấu cách và `$` (vd «kho $x»),
+      đợt dựng bằng `mo` rồi `chay`/`dung`, khoá s4 do P2 giữ; hook thật từ worktree P1 → stderr bắt đầu bằng câu
+      cũ «… Ghi đơn xin/<phiên>-s4.json …» rồi câu «Trong đợt đây là chờ lượt của dãy P1» (DP7 AC-6), và có
+      «Lệnh xin lượt (…): node <realpath thư mục đợt>/loi/dieu-phoi.mjs xin s4»; từ gốc kho → bắt đầu bằng câu cũ
+      và không chứa «Lệnh xin lượt». "ok" cho "DP6-04 round-trip": lệnh RÚT từ stderr của ca P1 (không chép tay),
+      chạy bằng `bash -c` từ worktree P1 → thoát 0, tập tệp trong xin/ == {P1-s4.json}; `kiemDon` của
+      hinh-dang.mjs nhận tệp đó. "ok" cho "DP6-04 khong-loi" (đợt chưa chay → lệnh trỏ lõi gói, chạy được), "DP6-04
+      hang-viec-hong" (hang-viec.json vắng → lời cũ, không «Lệnh xin lượt», và `xin` thật sự từ chối), "DP6-04
+      duong-dau-cach" (đường chỉ có dấu cách → lệnh in ra vẫn chạy được). "ok" cho "DP7-06 trong-day" và "DP7-06
+      ngoai-day" (hai ca của DP7 trên cùng lời chặn).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/scripts/hook-cho-nguoi.mjs, tests/dieu-phoi/lop-mod.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP6-05 ma-tran": ma trận viết sẵn 6 hàng (permission_prompt, idle_prompt) × (không chờ ·
+      còn đơn xin/P1-s4.json · còn yêu cầu yeu-cau/P1-1.json chưa trả lời); hook thật (lệnh Notification rút từ
+      hooks.json) từ worktree P1; mỗi hàng dựng đợt mới; số assert = 6 (in ra); có tệp cho-nguoi/P1.json đúng ở 4
+      hàng: permission ×3 và (idle, không chờ). "ok" cho "DP6-05-do tra-som": bản sao khôi phục lệnh trả sớm cho
+      mọi loại (kiểm bước tiêm áp) → hàm kiểm nêu đúng hai hàng (permission_prompt, còn đơn) và (permission_prompt,
+      còn yêu cầu), không hàng nào khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/hook-cho-nguoi.mjs, dieu-phoi/scripts/viec-cho.mjs, dieu-phoi/commands/mo-dot.md, dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/lop-mod.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP6-06 round-trip": hook thật ghi cho-nguoi/P1.json (permission_prompt, tin 300 ký tự) →
+      một nhịp bộ phát lịch thật → một nhịp nữa → su-kien.jsonl có đúng 1 dòng loai "cho-nguoi" (đếm == 1), dòng
+      đó có can_phan === true, phien "P1", loai_cho "permission_prompt", tin dài ≤ 200; bộ lọc Monitor rút từ
+      mo-dot.md và tiep-tuc.md (regex trên dòng `tail … | grep --line-buffered '…'`, số bộ lọc rút được == 2,
+      rỗng → đỏ) chạy bằng `grep` thật trên dòng đó → khớp cả hai. viecCho trên cùng thư mục đợt → đúng 1 mục
+      loai "cho-nguoi" id "P1". "ok" cho "DP6-06 nang-cap": đợt dựng bằng `mo` và chạy một nhịp bằng bản ở
+      mốc bản cũ (git archive trọn dieu-phoi/ vào thư mục tạm), cho-nguoi/P2.json do hook bản cũ ghi và nhịp bản cũ
+      đã báo (n0 dòng cho-nguoi); một nhịp bản mới → thoát 0, nhip_cuoi lớn hơn trước, số dòng cho-nguoi
+      vẫn n0; rồi xoá tệp, hook thật bản mới ghi lại + một nhịp → n0 + 1 dòng, dòng mới mang can_phan, phien "P2"
+      (đối chứng dương trên cùng đợt). "ok" cho "DP6-06-do
+      bo-can-phan": bản sao phat-lich.mjs bỏ can_phan khỏi sự kiện (kiểm bước tiêm áp) → hàm kiểm nêu "bộ lọc
+      Monitor không khớp" kèm tên tệp lệnh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp6
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng gộp TAP có "# fail 0"; "ok" cho "DP6-07 ten-ca-cu": tập tên ca DP1-…, DP2-…, DP3-…, DP4-…, DP7-…
+      có ở điểm rẽ của nhánh DP6 (rút bằng `git show <điểm rẽ>:<tệp>` cho mọi tệp test dưới tests/dieu-phoi/, in số)
+      ⊆ tập tên ở cây hiện tại (trước khi gộp) hay đầu nhánh DP6 (sau khi gộp); "ok" cho "DP6-07 loi-nguyen": `git
+      diff --quiet <điểm rẽ> [<đầu nhánh>] -- tests/dieu-phoi/loi/ tests/dieu-phoi/dong-goi.test.mjs` thoát 0; điểm rẽ
+      neo lịch sử — có commit gộp nhánh claude/wizardly-gates-c0ac67 trong lịch sử của HEAD thì [merge-base m^1 m^2,
+      m^2], chưa có thì [merge-base HEAD origin/main, HEAD]; "ok" cho "DP6-07-do merge-base-song": kho git dựng bằng
+      code (nhánh DP6 gộp vào main bằng commit «Merge pull request #1 from …», rồi vòng sau sửa tests/dieu-phoi/loi/) →
+      neo lịch sử cho git diff loi/ thoát 0, merge-base sống thoát 1; đứng trên nhánh DP6 trước khi gộp → đầu khoảng
+      là HEAD; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
+      người thật với đầu vào S4 / permission_prompt → thoát 0, stderr rỗng, băm cây trước == sau (đối chứng: kho có
+      đợt và khoá của dãy khác → hook chặn S4 thoát 2). "ok" cho "DP6-07 khoa-prototype": sáu từ trùng khoá
+      Object.prototype × bốn hình (đứng đầu, sau vỏ bọc kèm cờ, làm tên script, sau timeout) → null, heredoc ghi class
+      JS rồi chạy repin-lane → s4, không ô nào ném (số ô in ra = 25); hook thật ở kho không đợt với lệnh class → thoát
+      0, stderr rỗng; ở đợt có khoá của P2 → thoát 2. "ok" cho "DP6-07 phan-loai-nem": bản sao tiêm phanLoaiLenh ném →
+      hook ở kho không đợt thoát 0, stderr rỗng; ở đợt thoát 2, stderr khớp "chan-s4: lỗi nội bộ: tiem-nem — chặn để an
+      toàn".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [dieu-phoi/README.md, docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md, docs/superpowers/specs/2026-10-11-dieu-phoi-lop-mod-design.md, docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md, _acceptance/dieu-phoi-lop-mod/contract.md]
+    question: >
+      Đọc mục về chặn S4 và chờ người trong README gói, §12 của spec workflow, §3 và §6 của design doc, hạt giống,
+      và AC-8 của contract. (1) README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua --check/-c, --help,
+      còn heredoc nhắc tên script vẫn bị chặn kể cả khi thân chỉ là dữ liệu (giới hạn đã khai kèm ngưỡng); lời chặn nêu lệnh xin lượt; hộp xin quyền luôn thành việc chờ người và đánh thức giám sát; giới hạn
+      đã khai kèm ngưỡng, gồm «chưa đo: hộp quyền của tác tử Workflow»? (2) §12.2 của spec workflow có còn câu nào
+      nói mod chặn S4 hay mod ghi cho-nguoi/ bằng session.send mà không trỏ tới design DP6 hoặc hạt giống không?
+      (3) Có chỗ nào README hứa điều design §6 khai là giới hạn không? (4) Hạt giống có dòng «Gốc:» trỏ
+      _acceptance/dieu-phoi-lop-mod/ không? Trả PASS khi (1) đủ, (2) không còn câu cũ không trỏ, (3) không có,
+      (4) có.
+    evidence_required: [run_id, verdict, rationale]

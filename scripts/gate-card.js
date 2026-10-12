@@ -1050,6 +1050,18 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 // KHÔNG qua key overlay, cùng luật với gap-probe: cái gì phải hiện trên thẻ thì
 // script render, để không thể quên hay điền sai.
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
+// Mục máy tự định tuyến (hồ sơ ngoai-n-tu-dinh-tuyen): dòng gate2 MỚI NHẤT gọi tên Ngoài-n mang dấu
+// máy VÀ tiêu đề khớp mục hiện tại → mục là dòng BÁO (routing.bao), in kèm lệnh đảo. Dấu máy mà tiêu
+// đề lệch → cờ, mục về người. Sổ không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
+// Bộ đọc dùng CHUNG với bên ghi (scripts/dinh-tuyen-may.cjs) — nạp hỏng thì coi như không dòng máy.
+const DTM_DAU = 'dinh-tuyen-ngoai-n';
+let dtmLib = null; try { dtmLib = require('./dinh-tuyen-may.cjs'); } catch (_) {}
+const dtmMap = dtmLib ? dtmLib.docDinhTuyen(read(path.join(dir, 'decisions.jsonl'))) : new Map();
+const dtmCua = fi => { const d = dtmMap.get(fi + 1); return d && d.may ? d : null; };
+// So «cùng mục» bằng CHÍNH hàm của bên ghi (gỡ nhãn lượt «(rN…)» trước khi so).
+const dtmMay = fi => { const d = dtmCua(fi); return d && dtmLib.cungMuc(d.tieu_de, ooc.findings[fi].title) ? d : null; };
+const dtmLech = ooc.findings.map((f, fi) => (dtmCua(fi) && !dtmMay(fi) ? 'Ngoài-' + (fi + 1) : null)).filter(Boolean);
+const dinhTuyenMay = ooc.findings.map((f, fi) => { const d = dtmMay(fi); return d ? { nhan: 'Ngoài-' + (fi + 1), id: d.id, de_xuat: d.de_xuat, dao: d.dao } : null; }).filter(Boolean);
 
 // DỜI LÊN TRƯỚC --extract (hồ sơ loi-moi-cong-may-sinh, Task 6): câu gộp của
 // Cổng 2 cần biết hồ sơ có đi làn V không (ô cuối là dòng báo «đi tiếp hay kéo lại» hay
@@ -1114,7 +1126,9 @@ ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);
   const g = f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '';
   oneParts.push(`${lbl}: ${g || '___'}`);
-  routingHoi.push(lbl);   // mục ngoài hợp đồng LUÔN là của người: ba lối ra đều sống
+  // Mục ngoài hợp đồng là của người — trừ mục máy đã định tuyến theo đề xuất của chính nó khi kho
+  // bật khoá (dòng sổ mang dấu máy, tiêu đề khớp): đó là dòng BÁO, người đảo bằng lệnh in kèm.
+  if (dtmMay(fi)) routingBao.push(lbl); else routingHoi.push(lbl);
 });
 for (const d of decisions) { oneParts.push(`${d.id}: ___`); routingHoi.push(d.id); }   // câu hỏi cần mắt người
 // Chỗ mù (AC-5, AC-7): máy khuyên «ghi hạn chế» — điền sẵn; người sửa ô ấy nếu nghĩ khác.
@@ -1176,7 +1190,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1272,6 +1286,9 @@ if (ooc.unclassified) {
     + `</div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
+// Dòng máy cũ trỏ một mục đã đổi sau lượt chấm mới (tiêu đề lệch) — mục ấy về người; lưới trước-merge
+// không bắt ca này (giới hạn khai ở hồ sơ ngoai-n-tu-dinh-tuyen), nên thẻ phải nói to.
+if (dtmLech.length) P.push(`<div class="flag fwarn">⚠ dòng máy trỏ mục đã đổi: ${esc(dtmLech.join(', '))} — dòng sổ máy định tuyến một mục khác mục đang ở vị trí ấy; người quyết lại mục này.</div>`);
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   // T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng KHÔNG còn đi qua
@@ -1296,7 +1313,9 @@ if (ooc.findings.length) {
     // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
     // Nhãn Ngoài-<n> là mã tra cứu (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó.
     const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
+    const dm = dtmMay(fi);
+    const ai = dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(rec);
+    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}</p><p class="ai">${ai}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
   });
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
@@ -1316,7 +1335,7 @@ if (decsProvisional.length) {
   P.push(`<div class="lab">Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)</div>`);
   // Nhãn Treo-<n> là mã tra cứu ngắn (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó khi
   // bảo "không phê: nêu mã". Id đầy đủ của sổ quyết định quá dài cho mặt người.
-  decSort(decsProvisional).forEach((e, ti) => P.push(`<div class="item"><p class="q">Treo-${ti + 1} · ${decBaVe(e)}</p><p class="ai">${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`));
+  decSort(decsProvisional).forEach((e, ti) => P.push(`<div class="item"><p class="q">Treo-${ti + 1} · ${decBaVe(e)}</p><p class="ai">${e.may === DTM_DAU ? 'máy định tuyến · ' : ''}${esc(e.stage || '')} · ${e.type === 'descope' ? 'đề nghị KHÔNG làm' : esc(e.type)}${e.revisit ? ' · xem lại khi: ' + esc(e.revisit) : ''}${e.may === DTM_DAU && e.dao ? ` · đảo: <code>${esc(e.dao)}</code>` : ''}</p><div class="btns"><button class="b bn">Phê</button><button class="b no">Không phê</button></div></div>`));
 }
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decBaVe(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
@@ -1375,9 +1394,11 @@ if (DA_KHEP) {
   const ymItems = []; const ymSlots = [];
   ooc.findings.forEach((f, fi) => {
     const lbl = 'Ngoài-' + (fi + 1);
+    if (dtmMay(fi)) return;   // máy đã định tuyến — dòng BÁO, gom một dòng bên dưới
     ymItems.push(`<b>Chọn hướng cho ${lbl}</b> — làm gì: đọc mục ${lbl} ở khối "Ngoài hợp đồng"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${lbl}: ghi Known limits» hoặc «${lbl}: mở hợp đồng mới» hoặc «${lbl}: nâng phạm vi sửa ngay».`);
     ymSlots.push(lbl + ': ___');
   });
+  if (dinhTuyenMay.length) ymItems.push(`<b>${dinhTuyenMay.length} mục ngoài hợp đồng máy đã định tuyến (${esc(dinhTuyenMay.map(x => x.nhan).join(', '))}) — không cần trả lời</b> — máy làm theo chính đề xuất của nó vì kho bật khoá; muốn đổi một mục: dán lệnh đảo in ở mục đó.`);
   for (const d of decisions) {
     ymItems.push(`<b>Chấm ${esc(d.id)} (câu hỏi cần mắt người)</b> — làm gì: đọc câu hỏi mở đầu bằng "${esc(d.id)}" ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
     ymSlots.push(d.id + ': ___');
