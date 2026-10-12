@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>114 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>22 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>115 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>23 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -54,6 +54,7 @@ flowchart TD
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
+- Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - Eval gọi model thật không chạy lại khi đầu vào không đổi — làn ghim lại dùng lại kết quả của lần eval model thật sự chạy gần nhất khi băm năm lớp đầu vào không đổi (hạn 7 ngày, khoá bật theo lựa chọn), nói ra mọi lần dùng lại, và chạy lại khi một byte đầu vào đổi (`eval-goi-model-that-khong-chay`)
 - Eval máy đã ký nghỉ hưu vì một hồ sơ đã ký khác thay nó — con trỏ `superseded_by` cạnh lời khai không-chạy; luật hai vế nhận khi máy chứng được con trỏ ở cây đang kiểm; pin nói ra ô nào thay bởi đâu (`eval-thay-boi-co-chung`)
@@ -84,6 +85,7 @@ flowchart TD
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
 - Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới trước-merge và máy quét /start thôi nói «owner chưa veto» về hồ sơ người đã ký (`cua-veto-sau-chu-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Dải tóm tắt hồ sơ nói đúng trên dữ liệu thật — ô production tách «đã triển khai» (máy suy, khi kho khai nhánh production) khỏi «đã thấy chạy» (người ghi), ô chưa làm đếm đủ giới hạn người đã chọn và gọi đúng tên phần để ngoài phạm vi, ô vì sao không cụt ở câu dẫn và không quá 400 ký tự (`dai-tom-tat-doc-dung`)
 - Đổi tài khoản giữa đợt Điều phối – Thợ không mất việc — đọc mức dùng (CLI han-muc, mod đọc mức dùng), báo trước và tự bàn giao theo ngưỡng, hai pha ★, lệnh /dieu-phoi:ban-giao, ban-giao.json dựng từ git, tiếp tục dưới tài khoản kia bằng một lệnh, lưới cuối StopFailure, răng an toàn của lớp mod (`dieu-phoi-doi-tai-khoan`)
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)

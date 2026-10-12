@@ -52,6 +52,14 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Hồ sơ dai-tom-tat-doc-dung: ca DT-1..DT-8 (dải tóm tắt hồ sơ). DT-9 cần kho crm trên máy (CRM_ROOT,
+    # mặc định ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys.
+    dai_tom_tat: "node tests/scripts/dai-tom-tat.test.mjs"
+    dai_tom_tat_crm: "node tests/scripts/dai-tom-tat-crm.mjs"
+    # Hồ sơ dai-tom-tat-dem-dung-vi-sao-tron: ca DD-1..DD-6, DD-8 (bộ đọc khối giới hạn, «Vì sao làm» trọn). DD-7/DD-9 cần sáu
+    # kho tiêu thụ trên máy (KHO_<TÊN> hoặc ~/dev/<tên>) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys.
+    dai_tom_tat_dem_dung: "node tests/scripts/dai-tom-tat-dem-dung.test.mjs"
+    dai_tom_tat_sau_kho: "node tests/scripts/dai-tom-tat-sau-kho.mjs"
     # Cửa tín hiệu (hồ sơ cua-tin-hieu-gom-nhom, hàng L3) — ca TH-1…TH-10.
     tin_hieu: "node tests/scripts/tin-hieu.test.mjs"
     tin_hieu_vang: "TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs"
