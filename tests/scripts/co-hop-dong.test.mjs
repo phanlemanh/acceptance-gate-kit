@@ -21,6 +21,9 @@ import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
 const require = createRequire(import.meta.url);
+// Hai trạng thái «đã qua Cổng Bằng chứng» rút từ lib (MỘT nguồn — nếp hskt/htkd): tệp ca không mang chuỗi trạng
+// thái của riêng nó, nên không phải khai gạch ở RT13 của hồ sơ ra-co-ten-lam-va-trao.
+const [DA_KY, MAY_THONG] = require(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2;
 
 const CA = ['AC-1', 'AC-1-do', 'AC-1-hong', 'AC-2', 'AC-2-vong', 'AC-2-do', 'AC-3', 'AC-3-do', 'AC-4', 'AC-4-kho-that', 'AC-4-do',
   'AC-5', 'AC-5-do-khoa', 'AC-5-do-nghia', 'AC-6', 'AC-6-do-khoi', 'AC-6-do-lop', 'AC-7', 'AC-7-do', 'AC-8', 'AC-8-do'];
@@ -272,7 +275,7 @@ await ca('AC-3-do', async () => {
 const DA_QUA = [
   { st: 'approved' },
   { st: 'approved', fm: 'veto_state: mo\nveto_opened_at: 2026-10-05T00:00:00Z\n', lanV: true },
-  { st: 'implemented' }, { st: 'verified' }, { st: 'signed-off' }, { st: 'machine-cleared' },
+  { st: 'implemented' }, { st: 'verified' }, { st: DA_KY }, { st: MAY_THONG },
 ];
 function chayAC4(goi) {
   const loi = [];
@@ -291,7 +294,7 @@ await ca('AC-4-do', async () => {
   const goi = banSao();
   tiem(goi, 'scripts/co-hop-dong.cjs', "const chan = draft && nhom === 'phai-tach' && !giu;", "const chan = nhom === 'phai-tach' && !giu;");
   const loi = chayAC4(goi);
-  if (loi.some(l => l.startsWith('[signed-off]'))) return { mo: 'bản sao gỡ điều kiện draft: hồ sơ signed-off ra chặn — «đường đọc-cũ gãy» bắt được' };
+  if (loi.some(l => l.startsWith(`[${DA_KY}]`))) return { mo: `bản sao gỡ điều kiện draft: hồ sơ ${DA_KY} ra chặn — «đường đọc-cũ gãy» bắt được` };
   return { loi: ['gỡ điều kiện draft mà hồ sơ đã qua cổng vẫn không bị chặn — phép đo đường đọc-cũ không sống'] };
 });
 await ca('AC-4-kho-that', async () => {
@@ -415,9 +418,9 @@ await ca('AC-6-do-lop', async () => {
 // Kho viết trước: [slug, cỡ, trạng thái, ngày chốt, có dòng giữ]. Mốc 2026-10-01.
 const MOC = '2026-10-01';
 const HS7 = [
-  ['a', 3, 'approved', '2026-10-05', true], ['b', 9, 'signed-off', '2026-10-05', true], ['c', 9, 'approved', '2026-10-05', false],
-  ['d', 12, 'machine-cleared', '2026-10-05', true], ['e', 11, 'approved', '2026-09-20', false],
-  ['f', 14, 'approved', '2026-10-05', false], ['g', 15, 'signed-off', '2026-10-05', true], ['h', 16, 'signed-off', '2026-09-01', false],
+  ['a', 3, 'approved', '2026-10-05', true], ['b', 9, DA_KY, '2026-10-05', true], ['c', 9, 'approved', '2026-10-05', false],
+  ['d', 12, MAY_THONG, '2026-10-05', true], ['e', 11, 'approved', '2026-09-20', false],
+  ['f', 14, 'approved', '2026-10-05', false], ['g', 15, DA_KY, '2026-10-05', true], ['h', 16, DA_KY, '2026-09-01', false],
   ['i', 14, 'draft', null, true], ['j', 13, 'approved', '2026-09-25', true],
 ];
 // Số TAY (viết trước): n_giu theo nhóm [duoi, muc-tieu, cho-phep, phai-tach]; khong-dong = phai-tach không dòng giữ.
