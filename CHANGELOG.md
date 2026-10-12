@@ -10,6 +10,316 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.28.0 — 13/10/2026
+
+Cửa sổ 2.27.0 → 2.28.0 nằm trong **ba ngày** (11–13/10; A2 ký 11/10 trước giờ gắn thẻ `v2.27.0` nhưng gộp sau), có
+**năm vòng được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc). Đây là **mốc ỔN ĐỊNH, chỉ
+sửa lỗi** (chủ kho 12/10: ưu tiên tầng kit): sửa ba chỗ mà 2.27 hứa một điều còn vật làm khác ở kho tiêu thụ —
+bước thiết kế của Feature Loop (A2 + A2s, gộp liền nhau), dải tóm tắt hồ sơ (X2s + X2s2, gộp một lần qua #325), và gói
+`dieu-phoi` trước đợt `r2` của crm (DP8, của máy M5).
+Kho chờ nhận: `crm` — máy Mac Studio cài thẳng từ 15/10. Mốc đi **làn V**, không dựng răng mới. Ba gói
+`acceptance-gate`, `feature-loop`, `dieu-phoi` cùng lên `2.28.0`; `diagram-design` giữ `2.7.1`. Tag `v2.28.0` gắn sau khi PR mốc gộp.
+
+**Vì sao 2.28.0, không 2.27.1:** dù chỉ sửa lỗi, mốc thêm bề mặt mới cho kho tiêu thụ — khoá máy đọc `can_cu` trên
+dòng sổ bước thiết kế cùng bộ xếp `scripts/can-cu-s1.cjs` và lệnh đếm `--dem` (A2, ADR 0022), và ổ cắm tuỳ chọn
+`production.nhanh` — vắng thì như 2.27 (X2s, CỘNG chủ kho phê ở Cổng Phạm vi 12/10), khoá tuỳ chọn
+`dieu_phoi.lich_su` và lệnh `ghi-danh` của gói `dieu-phoi` (DP8).
+
+**Lớp chép CI giữ 25 tệp, không thêm:** ĐỔI đúng một tệp — `scripts/ho-so-tom-tat.cjs` (X2s, X2s2). Hai mươi bốn tệp
+còn lại của INIT-CI-COPY-LIST giống từng byte `v2.27.0` (đo `git diff v2.27.0` trên cây mốc — kể cả ba tệp
+`dieu-phoi/scripts/` của danh sách, DP8 không chạm). Tệp đổi gọi
+`git` khi kho khai `production.nhanh`; không cần mô-đun mới. Diff engine của cửa sổ còn ở: `scripts/can-cu-s1.cjs`
+(mới), `scripts/gate-card.js`, `feature-loop/skills/feature-loop/SKILL.md`, `scripts/evidence-page.js`, hai lệnh
+`acceptance-card`, `signoff` (khối `KNOWN-LIMITS-NOTE`), `skills/acceptance/references/lo-trinh-du-lieu.md`,
+`GUIDE.md`, `CONTEXT.md`, ADR 0022, và `dieu-phoi/` (README, `dieu-phoi.mjs`, `hang.mjs`, `kiem-chuyen.mjs` mới,
+`phat-lich.mjs`, `tiep-tuc.mjs`, khuôn `mau/LUAT.md`).
+
+**Kit tự host:** CI của kit cài zsh cho job tests (`66f3501f`) — ca CC-03 chạy khối lệnh sổ dưới zsh, nay đỏ khi vắng
+zsh thay vì bỏ qua (CI của #320 từng đỏ đúng một ca vì runner Ubuntu không có zsh). **CI kit: bước cài zsh có trần 5
+phút** (`timeout-minutes: 5`, cài không hỏi) — 12/10 một lượt CI của #332 treo ~1 g 47′ ở bước này vì job không có trần.
+Kho tiêu thụ không đổi gì.
+
+### Bước thiết kế không dừng hỏi; câu chỉ người biết dồn về thẻ Cổng Phạm vi (hồ sơ `buoc-len-thiet-ke-khong-hoi`, hàng A2, T3)
+
+Gốc: crm `_acceptance/ke-hoach-la-mot-ban-ghi` (22/09: bảy câu máy hỏi trong tám phút ở bước lên thiết kế) và
+`_acceptance/sua-luu-tru-dieu-phoi`. Sổ bước thiết kế crm 22/09–11/10: 28/51 lựa chọn chủ kho trả lời giữa chừng có
+căn cứ máy đã có, 23/51 chỉ người có; chính lời dặn bước thiết kế của kit dạy máy dừng hỏi.
+
+- **Lời dặn bước thiết kế (ngoài đợt) không còn câu xin duyệt hay «làm ngay chứ?».** Mỗi lựa chọn xếp theo nguồn căn
+  cứ: *mục tiêu + quy tắc đã khai* (trỏ một tệp có từ trước vòng, câu trích nguyên văn quyết được lựa chọn) → máy
+  quyết; *chỉ một lối ra sống* → máy quyết, ghi lối khác chết vì sao; *chỉ người có* → soạn nháp theo khuyến nghị và
+  đưa lên thẻ, không hỏi giữa chừng. Không trỏ được căn cứ thì là «chỉ người có»; khó-đảo luôn là câu hỏi.
+- **Khoá máy đọc `can_cu`** trên dòng sổ bước thiết kế (khuôn `DEC-CAN-CU-SLOT` trong skill vòng). Bộ xếp
+  `scripts/can-cu-s1.cjs` xếp từng dòng thành máy-đã-quyết · câu-hỏi · đỏ (máy tự quyết một câu chỉ-người-biết,
+  con trỏ thiếu hay hỏng, câu trích không có hay sinh trong chính vòng, khó-đảo bị ghi là máy quyết). Cổng Phạm vi
+  không đi tiếp tự động khi sổ còn câu hỏi hoặc dòng đỏ.
+- **Thẻ Cổng Phạm vi:** khối «Câu chỉ anh trả lời được» (Hỏi-1, Hỏi-2… mỗi câu có khuyến nghị, lối khác, nhãn
+  khó-đảo) đứng trước khối «Máy đã quyết ở bước thiết kế» (câu trích + tệp, hoặc lối chết). Câu trả lời mẫu vẫn
+  «duyệt hay sửa». Người lật một lựa chọn ở Cổng Phạm vi → máy ghi dòng theo khuôn `DEC-LAT-GATE1` trước khi soạn lại.
+- **Lệnh đếm** `node scripts/can-cu-s1.cjs --root <kho> --dem` (chữ hoặc `--json`): số máy-quyết bị lật và số câu
+  hỏi chọn lối khác — đường đo của vòng. Điểm vũ trang `/goal` đầu tiên dời về lời mời Cổng Đáng.
+- **Giới hạn đã khai:** máy dán nhãn «mục tiêu» bằng một câu trích có thật mà không quyết được lựa chọn — bộ kiểm tất
+  định không bắt; lưới là phản biện context sạch soi mọi dòng máy đã quyết, cộng thẻ in câu trích. Ngưỡng mở ô: ≥ 1
+  lần chủ kho lật một dòng máy đã quyết ở Cổng Phạm vi (đếm bằng `--dem`). Bốn ca kiểm yếu và một lỗi công cụ đo
+  trong hồ sơ ở Notes hợp đồng (Ngoài-4..8).
+- **Ai bị ảnh hưởng:** mọi kho chạy Feature Loop. Sổ cũ đọc như cũ: dòng bước thiết kế không có `can_cu` là «đời
+  trước»; hồ sơ đã qua Cổng Phạm vi không mang cờ nào của vòng này (đo trên mọi hồ sơ của kit: 0 dòng đỏ); chỉ hồ sơ
+  nháp có dòng đời trước mang một cờ vàng. Tóm tắt hồ sơ, quét bài học, sức khoẻ vòng ra cùng kết quả.
+- **Khi update:** không gì — nhưng A2 chỉ dùng được ở kho khách khi đi cùng A2s (mục dưới), nên hai mục vào cùng mốc.
+
+### Lệnh kiểm sổ bước thiết kế chạy được ở mọi kho; thẻ giữ đủ ba vế (hồ sơ `can-cu-s1-chay-moi-kho`, hàng A2s, T2, làn V)
+
+Gốc: kit `_acceptance/buoc-len-thiet-ke-khong-hoi` — Ngoài-1/2/3 lượt chấm 1, chủ kho chọn «mở hợp đồng mới» (sổ
+`d-20261011T143315Z-22`). Ở crm, lời dặn gọi bộ xếp bằng đường chỉ đúng trong kho kit: lệnh thoát 1 «Cannot find
+module» — trùng mã với «sổ còn dòng đỏ»; thẻ in dòng mang `can_cu` mà bỏ «vì sao» và «sai thì tốn gì».
+
+- **Hai lời gọi bộ xếp** (kiểm sổ một hồ sơ · đếm `--dem`) đi qua bộ giải gói như mọi lệnh khác của lời dặn; kho tự
+  host kit thêm `--root .`. Đo bằng kho thử không có `scripts/` của kit, chạy nguyên văn dưới bash và zsh.
+- **«Sổ còn câu hỏi hay dòng đỏ» đọc trên DÒNG TỔNG KẾT của bộ xếp** («câu hỏi N», «đỏ K»), không trên mã thoát.
+  Lệnh không in dòng tổng kết = bộ xếp không chạy được — dừng có tên, thông điệp nêu gói `acceptance-gate` và lệnh
+  cài; không bao giờ gọi là sổ đỏ.
+- **Quét lớp trọn lời dặn Feature Loop:** không còn lời gọi `node`/`bash`/`sh` nào tới công cụ của kit bằng đường chỉ
+  đúng ở kho kit (ma trận bốn hình dạng tiêm vào bản sao, 4/4 bị nêu đúng dòng).
+- **Hai khối căn cứ trên thẻ in đủ ba vế** — quyết gì · vì sao · sai thì tốn gì — trước câu trích hay khuyến nghị;
+  dòng thiếu giá mang «⚠ chưa khai giá nếu sai» ngay trong dòng; bản rút `--extract` mang `why` và `cost_if_wrong`.
+  Hồ sơ không có dòng `can_cu`: thẻ giống từng byte trước vòng.
+- **Giới hạn đã khai:** cách phiên ĐỌC dòng tổng kết là văn — máy chứng hai hình dạng đầu ra phân biệt được, không
+  cưỡng chế phiên đọc đúng. Ngưỡng mở ô: ≥ 1 vòng ở kho khách dừng Cổng Phạm vi vì đọc lỗi bộ xếp thành sổ đỏ. Tám
+  chỗ yếu của chính các phép kiểm ở Notes hợp đồng (Ngoài-1..8).
+- **Ai bị ảnh hưởng:** mọi kho chạy Feature Loop — mục này làm A2 chạy được ngoài kho kit. **Khi update:** không gì;
+  đọc được ngay ở vòng crm đầu tiên sau khi nhận mốc (lệnh kiểm sổ in dòng tổng kết).
+
+### Dải tóm tắt hồ sơ nói đúng trên dữ liệu thật; ô production đọc nhánh kho khai (hồ sơ `dai-tom-tat-doc-dung`, hàng X2s, T2)
+
+Gốc: crm `_acceptance/trang-lo-trinh-trong-crm` — LT1 lên production 10/10 mà dải ghi «0 giới hạn» trong khi hợp đồng
+có 13. Đo 12/10 trên bản sao crm: 81/81 ô production «chưa ghi quan sát production» kể cả LT1; 11/81 ô vì sao cụt ở
+«:»; 31/81 dài hơn 400 ký tự. Khảo sát sáu kho: cả ba lỗi có ở mọi kho.
+
+- **Khoá tuỳ chọn mới `production.nhanh`** trong `_acceptance/config.yaml`:
+
+  ```yaml
+  production:
+    nhanh: onehub
+  ```
+
+  Khai thì ô production đọc git: mã đã chấm của hồ sơ có nằm trên `origin/<nhánh>` (vắng thì nhánh cục bộ cùng tên)
+  không → «đã triển khai — gộp vào <nhánh> <ngày>; chưa ai ghi đã thấy chạy ở production» (ngày của commit đưa mã
+  tới nhánh, không phải ngày của mã) · «chưa gộp vào <nhánh> (nhánh production kho khai)» · «chưa đọc được triển khai
+  ở đây — <lý do>» (không thấy nhánh · mã đã chấm không có trong kho · gốc không phải kho git). Dòng quan sát người
+  ghi (`/acceptance-gate:observed`) luôn thắng — «đã thấy chạy» vẫn chỉ người ghi (ADR 0020). **Vắng khoá: ô giữ đúng
+  câu cũ «chưa ghi quan sát production»**, máy không suy «đã triển khai».
+- **Ô «chưa làm gì»** đúng dạng «N mục để ngoài phạm vi · M giới hạn đã biết»: đọc giới hạn ở cả mục Known limits
+  của báo cáo lẫn khối giới hạn trong Notes của hợp đồng; hai nơi cùng có thì lấy nơi nhiều mục hơn, không cộng.
+  Notes nhắc giới hạn ở chỗ không đọc được thì không in «0» mà nói «chưa đọc được — Notes nhắc giới hạn sai khuôn».
+- **Ô «vì sao»** không còn cụt ở câu dẫn «…:» (kéo theo các mục danh sách hay hàng bảng, nối « · ») và tối đa 400
+  ký tự, cắt ở ranh câu kèm «…».
+- **Bên viết và bên đọc rút từ một khối:** lối «ghi Known limits» của lệnh ký thêm gạch theo khuôn `KNOWN-LIMITS-NOTE`.
+- Khuôn khối dữ liệu lộ trình (khoá, kiểu, `phien_ban` 2) và bộ đọc `docDuLieu` không đổi.
+- **Giới hạn đã khai** (chọn ở Cổng Bằng chứng): gộp kiểu squash mà nhánh cũ còn → ô có thể ghi «chưa gộp» dù việc
+  đã vào nhánh (Ngoài-5, Ngoài-10); khai nhánh viết khác thường (chú thích xen giữa, giá trị rỗng) → ô có thể lặng lẽ
+  về câu cũ hoặc báo không thấy nhánh (Ngoài-4); hướng dẫn cấu hình chung chưa nhắc khoá — chỉ tài liệu khối dữ liệu
+  có (Ngoài-7); mục Out of scope viết bằng bảng hay dấu sao bị đếm lệch (Ngoài-1, 2; chưa hồ sơ thật nào).
+- **Ai bị ảnh hưởng:** kho có lộ trình hay trang hồ sơ. Ô vì sao và chưa làm đổi chữ ở mọi kho; ô production chỉ đổi
+  ở kho khai khoá. Hồ sơ đã ký `trang-ho-so-mot-viec` có một giá trị viết sẵn đổi chữ («mục ngoài hợp đồng» → «mục để
+  ngoài phạm vi»).
+- **Khi update:** kho muốn ô production khai khoá, rồi vẽ lại `LO-TRINH.html` ở cây có đủ lịch sử và đã `git fetch`
+  nhánh khai — vẽ ở bản sao nông thì ô nói «chưa đọc được triển khai ở đây — mã đã chấm không có trong kho». Phép so
+  `--check` của trang lộ trình bỏ qua dải tóm tắt (từ 2.27), nên chữ dải khác giữa máy và CI không làm bước bản đồ đỏ.
+
+### Ô «chưa làm gì» đếm đúng mọi hình dạng khối giới hạn; trang hồ sơ hiện trọn «Vì sao làm» (hồ sơ `dai-tom-tat-dem-dung-vi-sao-tron`, hàng X2s2, T2, làn V)
+
+Gốc: kit `_acceptance/dai-tom-tat-doc-dung` — Ngoài-8 và Ngoài-9, chủ kho chọn «mở hợp đồng mới» (sổ
+`d-20261012T033640Z-15`). Đo 12/10 trên sáu kho: ô in sai số giới hạn ở 86/661 hồ sơ theo bốn cơ chế; 301 hồ sơ có
+«Vì sao» dài hơn 400 ký tự mà trang đầy đủ cũng cắt.
+
+- **Một bộ đọc khối giới hạn** cho Notes và báo cáo: đầu đoạn bọc nhiều dòng đọc trọn, đoạn dẫn không tính là một mục,
+  danh sách đánh số, gạch con thuộc mục cha, gạch tự mở «known-limits» đếm một lần, dừng ở khối ghim lại, «None.» /
+  «Không có» ra 0.
+- **Khối không đọc được thì không in số** (tiêu đề con, hai danh sách, hai đoạn không danh sách): «giới hạn đã biết:
+  chưa đọc được — khối giới hạn ở <hợp đồng | báo cáo | hợp đồng và báo cáo> không theo khuôn» — kể cả khi nguồn kia
+  đọc được.
+- **Trang hồ sơ đầy đủ in trọn mục «Vì sao làm»** (câu dẫn kèm mọi mục, hàng bảng); trần 400 chỉ áp cho dải và khối.
+- **Đo trên sáu kho:** 91 hồ sơ đổi ô — đúng danh sách viết sẵn, mọi hồ sơ khác giống từng ký tự; 15/15 hồ sơ khối
+  nhiều nhóm nói «chưa đọc được». Giá đã biết: crm `bo-dung-khong-ket` và radar `doc-mang-v0` hôm nay đếm đúng nhờ may,
+  sau vòng nói «chưa đọc được».
+- Không CỘNG: không khoá mới, khuôn khối không đổi.
+- **Giới hạn đã khai:** mục giới hạn chỉ là một bảng → «1 giới hạn đã biết» (Ngoài-7); một câu tài liệu về dạng
+  «Vì sao: Gốc: …» chưa khớp mã ở ca hiếm (Trong-1) — cả hai 0 hồ sơ thật; tám chỗ yếu của phép đo ở Notes hợp đồng.
+- **Ai bị ảnh hưởng:** kho có lộ trình hay trang hồ sơ — hồ sơ có khối giới hạn sai khuôn đổi từ một con số (có thể
+  sai) sang «chưa đọc được». **Khi update:** sửa khối giới hạn của hồ sơ cho đọc được là việc của kho. Ngưỡng nghiệm
+  thu đọc bằng một lệnh, chạy từ bản kit ở thẻ `v2.28.0`: `node tests/scripts/dai-tom-tat-sau-kho.mjs --hien-tai
+  crm=<gốc kho crm>` — bốn số đều 0 là sống.
+
+### Đợt Điều phối – Thợ ở kho tiêu thụ không bị chặn vì danh mục chuyển gói, ghi danh worktree hay việc nền giữ khoá (hồ sơ `dieu-phoi-on-dinh-r2`, hàng DP8, T2, làn V)
+
+Gốc: crm `_acceptance/chuyen-goi-dieu-phoi/` (lượt chấm 1, 12/10, nhánh `chore/chuyen-goi-dieu-phoi` @ `48703713`) và
+issue kit #301, phụ lục 12/10 điểm 1, 2, 6, 8 — ba lỗ chặn đợt `r2` của crm (mở ~16/10), cả ba là chỗ gói 2.27.0 hứa
+một điều mà vật làm khác trên kho tiêu thụ thật.
+
+- **`xem --kiem-chuyen` tách dòng PHẢI SỬA khỏi dòng LỊCH SỬ** (bảy lớp: khai bởi kho · hồ sơ · eval chết · eval ngoài
+  làn máy · executor chết · tài liệu · lộ trình). Dòng phải sửa in như cũ; thêm một dòng tổng «lich-su <n> dòng —
+  <lớp> <k> · …»; `--chi-tiet` in từng dòng lịch sử; thoát 1 chỉ khi còn dòng phải sửa. Bắt thêm import tương đối vào
+  lõi cũ (`../dieu-phoi/…`): ở crm trước khi gỡ có bốn dòng như thế mà 2.27.0 bỏ sót.
+- **Khoá tuỳ chọn `dieu_phoi.lich_su`** trong `_acceptance/config.yaml` — danh sách glob, hoặc `<evals.yaml>#<id>` miễn
+  đúng một khối eval (dạng khối hay một dòng). Đo trên crm thật ở đỉnh nhánh chuyển: khai hai mục thì
+  `kiem-chuyen: sach`, thoát 0. Kho không khai: hành vi như trước.
+- **Lệnh mới `ghi-danh <dãy>`:** phiên thợ chạy từ worktree của chip trước S1 tự ghi worktree vào dãy (gói đợt crm `r2`
+  có chỗ giữ `/CHUA-CO-WORKTREE/P<n>`). Bốn hàng từ chối có lời riêng (dãy không có · worktree đã thuộc dãy khác · gốc
+  kho chính · không có đợt); nhận đè worktree chết theo đúng chẩn đoán của `tiep-tuc`; ghi đồng thời an toàn nhờ khoá
+  `hang-viec.json`. Chẩn đoán và `tiep-tuc` mời mở chip kèm lệnh `ghi-danh` cho dãy chưa ghi danh, thay vì báo
+  «worktree mất».
+- **Việc nền ngoài dãy** (vd. kiểm chéo) giữ nhịp khoá bằng `chamNhip` hay `giu-nhip.mjs` thì bộ phát lịch thôi báo
+  nhầm `khoa-khong-nhip`; luật của dãy không đổi.
+- **Giới hạn đã khai:** bộ đọc YAML theo dòng của `kiem-chuyen` còn lọt eval viết flow mapping và danh sách thụt ngang
+  khoá cha — báo «sạch» giả (Ngoài-1, 7; hướng đổi khuôn ở hạt giống); chiều đỏ của dạng khai một dòng chỉ có trên kho
+  thử (Ngoài-2, 4, 6); ma trận bất biến của `ghi-danh` thiếu hàng `nhan-giang-lai` (Ngoài-14, 15); dòng tổng chỉ được
+  kiểm n, tổng k và thứ tự lớp (Ngoài-16); bộ tự kiểm số khối ca bỏ sót `tests/dieu-phoi/loi/` (trong hợp đồng, mức
+  thấp). Ba mục ghi hạt giống `docs/plans/2026-10-12-hat-giong-dieu-phoi-sau-on-dinh-r2.md`: `--chi-tiet` cụt 64 KB
+  qua ống dẫn, Ngoài-10, khoá chưa che `pha`/`nhat-ky`.
+- **Ai bị ảnh hưởng:** chỉ kho cài `dieu-phoi`; kho không có đợt không đổi. **Khi update:** crm khai
+  `dieu_phoi.lich_su` khi nâng gói; thợ của đợt `r2` chạy `ghi-danh P<n>` trước S1 (lời mời chip mang sẵn lệnh).
+- Phép đo AC-4 đọc `$HOME/dev/crm-onehub` ở hai sha ghim — máy không có bản sao ấy thì hồ sơ này cũng cũ hoá vì môi
+  trường («không đọc được ở đây»), như hai hồ sơ ở trên.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: chép lại MỘT tệp** — `scripts/ho-so-tom-tat.cjs`, từ thẻ `v2.28.0`. Không tệp mới; 24 tệp còn lại
+  không đổi byte so với `v2.27.0`.
+- **Máy dev: cài `acceptance-gate` và `feature-loop` theo ĐÚNG THẺ ở MỌI phạm vi**, rồi kiểm bộ đệm bằng khối dưới.
+- **Kho có lộ trình:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs --root .`) —
+  ô vì sao và chưa làm đổi chữ.
+- **Kho muốn ô production nói «đã triển khai»:** khai `production.nhanh` (mục X2s); không khai thì như 2.27.
+- **Kho chạy đợt Điều phối – Thợ:** nâng gói `dieu-phoi` lên 2.28.0 cùng hai gói kia; khai `dieu_phoi.lich_su`
+  cho phần lịch sử của kho (mục DP8) thì `xem --kiem-chuyen` in được `kiem-chuyen: sach`.
+- **Kho có bản chép `docDuLieu`:** hàm không đổi byte từ 2.27.0 — chép lại chỉ khi bản chép cũ hơn 2.27.0, và chép
+  từ thẻ.
+
+**Cài theo đúng thẻ, không theo `main` — đo 12/10:** trên máy M5, bản cài báo «2.27.0» thật ra là mã `main` `294b29d`
+(gộp sau thẻ), không phải thẻ `v2.27.0`. Bộ đệm gói khoá theo SỐ, nên mã `main` cùng số với thẻ làm lệnh cập nhật báo
+«already at latest» mà không thay gì. Đường cài là bốn bước của mục A1 trong 2.27.0 (cập nhật marketplace → gỡ → cài
+lại ở từng bản ghi → kiểm), với bước kiểm nâng từ «có `agents/`» lên «trọn thư mục cài giống thẻ». Chạy từ một bản
+clone kit đã `git fetch --tags`; mỗi dòng in ra phải là `… 2.28.0 khớp v2.28.0`, dòng `LỆCH` là bản ghi chưa xong
+(tệp chỉ có ở bộ đệm — rác `.DS_Store`, tệp chưa theo dõi lúc đóng gói — không tính):
+
+```bash
+TAG=v2.28.0; T=$(mktemp -d); git archive $TAG | tar -x -C "$T"
+claude plugin list --json | node -e '
+const fs=require("fs"),cp=require("child_process"),[T,TAG]=process.argv.slice(1);
+const d=JSON.parse(fs.readFileSync(0,"utf8"));
+const goc={"acceptance-gate@acceptance-gate-kit":"","feature-loop@acceptance-gate-kit":"/feature-loop"};
+for(const p of (Array.isArray(d)?d:d.plugins)){if(!(p.id in goc))continue;
+ const r=cp.spawnSync("diff",["-rq",T+goc[p.id],p.installPath],{encoding:"utf8"});
+ const lech=r.stdout.split("\n").filter(l=>l&&!l.startsWith("Only in "+p.installPath));
+ console.log(p.id.split("@")[0],p.scope,p.projectPath||"-",p.version,lech.length?"LỆCH "+TAG+": "+lech.length+" tệp":"khớp "+TAG);}' "$T" "$TAG"
+```
+
+(Khối đã thử 12/10 dưới zsh với `TAG=v2.26.0` trên máy cài 2.26.0: sáu bản ghi «khớp»; cùng máy với `TAG=v2.25.0`:
+«LỆCH … 39 tệp» và «… 2 tệp» — phân biệt được thẻ đúng với thẻ sai.) Sau đó mở phiên MỚI; dấu hiệu A1 sống của
+2.27.0 vẫn áp (lượt chấm đầu không thêm dòng `"kind":"loai-tac-tu-vang"`).
+
+**Ba hồ sơ có thể đỏ khi ghim lại vì MÔI TRƯỜNG, không vì vật của mốc** — ai chạy chiến dịch ghim lại đừng đọc thành lỗi
+của 2.28:
+
+- `evals-sat-le-doc-du` (R1): E4 là phép vi phân bảy kho, đọc bản sao các kho tiêu thụ ở `$HOME/dev/<kho>` (crm,
+  oneflow, artifact-platform, radar, media-library, map). Máy không có `~/dev/crm` (hay một kho nào trong số đó) thì
+  E4 thoát 2 «không đọc được ở đây: <kho>» — nhãn *không đọc được ở đây*, không phải sai hợp đồng.
+- `tac-tu-cham-chi-cham-khong` (A1): `rang.sh` đỏ trên node 24.21 ở bước kiểm cú pháp mutant bằng `node --check` —
+  của bộ đo trên phiên bản node đó, không phải của tác tử chấm (máy MacBook Pro chạy node 24.15 thì xanh).
+- `dieu-phoi-on-dinh-r2` (DP8): AC-4 đọc bản sao crm ở `$HOME/dev/crm-onehub` tại hai sha ghim — máy không có bản sao
+  ấy (hay có ở đường khác) thì «không đọc được ở đây».
+
+**crm, theo thứ tự** (crm đang ở 2.26.0 và nhận thẳng 2.28 — mọi ghi chú nhận của 2.27.0 vẫn áp, trừ chỗ dưới đây thay):
+
+1. **Khi nào, ở đâu:** máy Mac Studio — máy duy nhất cài kit vào crm — cài thẳng 2.28.0 từ 15/10 (DP8 đã vào 2.28.0, nên
+   không có bản vá 2.28.1 chờ), ở quãng lặng: không lượt S4 nào
+   đang chạy. Không đổi engine dưới chân một vòng đang chạy.
+2. **Cài theo thẻ:** gỡ rồi cài lại `acceptance-gate` và `feature-loop` ở mọi bản ghi (phạm vi `user`, gốc crm, từng
+   cây phụ có phiên); kiểm bằng khối trên — mọi dòng «khớp v2.28.0», `feature-loop` có `agents/`. Không cài từ `main`
+   giữa hai thẻ.
+3. **Lớp chép CI từ thẻ** (`git archive v2.28.0`): năm tệp của 2.27.0 (`scripts/pre-merge-check.sh`,
+   `lib/evidence-core.cjs`, `scripts/product-map.mjs`, `scripts/lo-trinh.mjs`, `scripts/ho-so-tom-tat.cjs`) — tệp
+   cuối lấy bản 2.28.0; cộng bảy tệp `tin_hieu` nếu crm khai cửa tín hiệu. Đổi `.github/scripts/phan-loai.mjs` sang
+   `--hang-pr` theo mục C1 của 2.27.0.
+4. **Khai `production:` + `nhanh: onehub`** trong `_acceptance/config.yaml`, `git fetch origin onehub`, rồi vẽ lại
+   `LO-TRINH.html` ở cây có đủ lịch sử. Kiểm: hàng LT1 có ô production «đã triển khai — gộp vào onehub <ngày>;
+   chưa ai ghi đã thấy chạy ở production» (đo AC-9 của X2s trên bản sao crm `27d47de04`: ngày 2026-10-10); ô nói
+   «chưa đọc được triển khai ở đây — …» là cây thiếu lịch sử hay chưa `git fetch` nhánh.
+5. **Bản chép `docDuLieu` lấy từ ĐÚNG thẻ** — `git show v2.28.0:scripts/lo-trinh.mjs` — không từ `main` giữa hai thẻ;
+   ghi thẻ nguồn vào chú thích đầu bản chép. Sau đó gộp LT1b (#371) rồi LT2 (#374) theo lộ trình.
+6. **Đo trước → sau** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây, chạy lưới
+   trước-merge và thẻ của các hồ sơ đang mở dưới bản đang cài rồi 2.28.0 — phán quyết từng hồ sơ phải bằng nhau, TRỪ
+   chỗ mốc hứa đổi: chữ ô vì sao và chưa làm của dải, ô production (chỉ sau khi khai khoá), hai khối căn cứ trên thẻ
+   Cổng Phạm vi của hồ sơ nháp có dòng sổ mang `can_cu`, và mọi thứ 2.27.0 đã hứa đổi. Khác ở chỗ nào khác là tín hiệu.
+7. **Đọc ngưỡng ở vòng crm đầu tiên sau khi nhận:** lệnh kiểm sổ bước thiết kế in dòng tổng kết (A2s); Cổng Phạm vi chỉ
+   dừng khi «câu hỏi N > 0» hoặc «đỏ K > 0»; `can-cu-s1.cjs --root . --dem` đếm máy-quyết bị lật (A2); bốn số của
+   `dai-tom-tat-sau-kho.mjs --hien-tai crm=.` đều 0 (X2s2).
+8. **Chuyển sang gói `dieu-phoi`** (đợt thử thứ nhất) theo bước 3 của mục crm trong 2.27.0, trên gói 2.28.0. Gói 2.28.0
+   có DP8: khai `dieu_phoi.lich_su` cho phần lịch sử của crm thì `kiem-chuyen: sach` in được ở crm — thay câu «sẽ KHÔNG
+   in ở crm» của bước 3.3 trong 2.27.0. Thợ của đợt `r2` chạy `ghi-danh P<n>` trước S1 (lời mời chip mang sẵn lệnh).
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng của từng vòng — đủ ở năm hợp đồng):
+`dieu-phoi-on-dinh-r2` 19 · `dai-tom-tat-dem-dung-vi-sao-tron` 10 · `dai-tom-tat-doc-dung` 9 · `can-cu-s1-chay-moi-kho` 8 ·
+`buoc-len-thiet-ke-khong-hoi` 5. `docs/research/known-limits-ledger.tsv` có hàng cho DP8 và hai vòng dải tóm tắt (19 · 10 · 9);
+A2 và A2s ghi giới hạn ở Notes của hợp đồng, sổ chưa có hàng. Hạt giống mới: `2026-10-11-hat-giong-can-cu-s1-o-kho-khach`
+(đã thành A2s) · `2026-10-12-hat-giong-dai-tom-tat-sau-x2s` (mục 1–2 thành X2s2; mục 3 — trường mới cho khối dữ liệu
+— để LT1b) · `2026-10-12-hat-giong-dau-doan-gioi-han-khong-hai-cham`.
+
+**Năm dòng số của luật (c)** — năm vòng (giờ VN; nguồn: giờ commit `contract.md`, `usage-report.md`,
+`decisions.jsonl`, `run-log.jsonl` của hồ sơ; dòng 1 tính từ commit đặt `implemented` tới commit chữ ký Cổng Bằng
+chứng; ba khối token theo khuôn 2.25: chứng-minh-vật = machine+ui+judge+baseline · tìm-lỗi = review+refute · tổng
+hợp = triage+capture+synthesize; Cổng Đáng không tính, theo khuôn 2.26):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `buoc-len-thiet-ke-khong-hoi` (A2, T3) | 1 g 39 · 2 | 2 / 0 (4); Gate 1.5 không ghi trong hồ sơ | 0 | 84 993 · 58,3 / 12,6 / 29,1 | 29 · 28 = 57 |
+| `can-cu-s1-chay-moi-kho` (A2s) | 18 g 46 · 2 (lượt 1 chạy 15 g 52 sau `implemented` — chờ nhánh A2 qua đêm) | 1 / 0 (3) | 0 | 74 481 · 47,6 / 18,0 / 34,4 | 32 · 32 = 64 |
+| `dai-tom-tat-doc-dung` (X2s) | 1 g 19 · 2 | 2 / 0 (3) — Cổng Phạm vi ký lại vì CỘNG sau làn V | 0 (+1 ca biên: lượt 1 đỏ ở ba lệnh suite — bản đồ chưa vẽ lại và RT13 bắt chuỗi trạng thái đã ký trong tệp ca của chính vòng; mọi eval máy xanh) | 107 300 · 69,0 / 10,1 / 20,9 | 34 · 32 = 66 |
+| `dai-tom-tat-dem-dung-vi-sao-tron` (X2s2) | 8 g 03 · 3 (lượt 1 chạy 3 g 58 sau `implemented`; hồ sơ không ghi vì sao chờ) | 1 / 1 (3); số chạm không ghi | 0 | 239 371 · 59,7 / 13,1 / 27,1 | 38 · 38 · 37 = 112 |
+| `dieu-phoi-on-dinh-r2` (DP8, máy M5) | 2 g 42 · 2 (trả lại ở Cổng Bằng chứng sau lượt 1) | 1 / 1 (3) — lượt ký thứ hai ngoài thiết kế | 0 | 170 917 · 25,7 / 21,5 / 52,8 | 49 · 47 = 96 |
+
+Cộng năm vòng: **11 lượt chấm** (0 vòng một lượt; trung vị làm-xong→quyết-được 2 g 42) · **677 062 out-token** trên
+11/11 lượt có `usage-report.md` (chứng-minh-vật 51,1 % · tìm-lỗi 15,2 % · tổng hợp 33,7 %) · **≈ 396 phút máy**
+(23 748 s) · **9 lượt gọi người** (7 trong thiết kế, 2 ngoài), **0 vòng vượt trần** · hạ tầng đốt **0 lượt chấm**
+(+1 ca biên). Phiên chính không đo token. Số chạm: lời ký là một câu gộp ở mọi vòng có ghi; hai lượt gọi ngoài thiết
+kế (X2s2, DP8) không ghi số chạm.
+
+**Đọc số:**
+
+- **Hai vòng dài vì chờ nhánh trên, không vì chấm.** A2s chờ 15 g 52 (qua đêm, tới khi ngọn A2 gộp vào nhánh chồng —
+  ca KK-8 đỏ tới khi có A2); X2s2 chờ 3 g 58 trước lượt 1 và chấm trên nhánh chồng theo quyết «cắt mốc sớm». Phút
+  máy của hai vòng ấy (64, 112) theo số lượt, không theo giờ chờ. Hai trong năm vòng xếp chồng trên vòng chưa gộp.
+- **Một lớp lỗi đốt các lượt REJECT của hai vòng dải tóm tắt:** cả ba lượt REJECT (X2s lượt 1, X2s2 lượt 1–2) đều chạm
+  tài liệu khối dữ liệu lệch mã — E10 UNCERTAIN hay FAIL, hoặc lỗi trong hợp đồng cùng lớp. Lượt gọi ngoài thiết kế
+  duy nhất của cửa sổ là X2s2: dừng-vá sau hai lượt sửa cùng lớp ấy, chủ kho chọn «chấm thêm một lượt».
+- **Tìm-lỗi 15,2 % token** (2.27: 17,1 %), chứng-minh-vật 51,1 % (2.27: 53,0 %). DP8 dồn 52,8 % token vào khối tổng
+  hợp (bốn vòng kia 27,2 %).
+- **A1 vẫn chưa đọc được ở máy MacBook Pro:** 9/9 lượt của bốn vòng chạy ở đó có dòng `loai-tac-tu-vang`; hai lượt DP8
+  (máy M5) không có dòng nào. Đọc `claude plugin list` 12/10 trên máy MacBook Pro:
+  `feature-loop` ở phạm vi `user`, kho kit và crm đều còn 2.26.0 (không có `agents/`) — nên dòng ấy chưa phải *sai
+  hợp đồng* của A1; chỗ cắt mà 2.27.0 đặt ra vẫn chưa có lượt nào để đọc.
+
+**Điều kiện tin cậy:** (i) đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần —
+`git diff v2.27.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/` rỗng. Không vòng nào đổi đầu vào lượt
+chấm: A2/A2s đổi bước thiết kế và thẻ Cổng Phạm vi, X2s/X2s2 đổi dải tóm tắt, DP8 đổi gói `dieu-phoi`.
+(ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** phán quyết tới người ký sai. Một ca biên phải đọc: A2s lượt
+1 ra PASS trong khi bộ tìm lỗi nêu một phát hiện TRONG hợp đồng đúng lớp phép-đo-tự-dối (ca KK-6 lấy số mong đợi từ
+chính bộ xếp mà thẻ gọi — hai vế cùng giảm thì ca vẫn xanh); vòng tự sửa và chấm lại trước khi mời ký. Ngưỡng (a) đếm
+**0/2**. Dòng 4–5 cắt được, 5/5 vòng có số.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | = | không mục nào chạm đoạn từ `implemented` tới chữ ký; dải tóm tắt là mặt đọc tiến độ, không phải mặt ký |
+| 2 | ↓ ở crm | lựa chọn có căn cứ thôi thành câu hỏi giữa bước thiết kế (đo crm 28/51) — câu chỉ-người-biết dồn về thẻ Cổng Phạm vi đã có; A2s giữ cho Cổng Phạm vi ở crm khỏi dừng oan vì «Cannot find module» đọc thành sổ đỏ. Rủi ro ngược: máy tự quyết sai rồi bị lật ở Cổng Phạm vi — đếm bằng `--dem` |
+| 3 | = | không mục nào chạm lượt chấm; CI kit có zsh (trần 5 phút) là việc của kit tự host. Ở crm, đợt `r2` không đứng vì danh mục chuyển gói hay worktree chưa ghi danh (DP8) — đó là giờ đợt, không phải lượt chấm |
+| 4 | = / lượt | thành phần lượt không đổi |
+| 5 | = / lượt | như trên |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (13/10,
+đọc trên cây mốc). **N không tăng so với mốc 2.27.0 (vẫn 1) — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
 ## 2.27.0 — 12/10/2026
 
 Cửa sổ 2.26.0 → 2.27.0 nằm trong **bốn ngày** (09–12/10), có **mười chín vòng được ký** và **một vòng máy thông**

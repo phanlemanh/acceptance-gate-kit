@@ -52,6 +52,14 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Hồ sơ dai-tom-tat-doc-dung: ca DT-1..DT-8 (dải tóm tắt hồ sơ). DT-9 cần kho crm trên máy (CRM_ROOT,
+    # mặc định ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys.
+    dai_tom_tat: "node tests/scripts/dai-tom-tat.test.mjs"
+    dai_tom_tat_crm: "node tests/scripts/dai-tom-tat-crm.mjs"
+    # Hồ sơ dai-tom-tat-dem-dung-vi-sao-tron: ca DD-1..DD-6, DD-8 (bộ đọc khối giới hạn, «Vì sao làm» trọn). DD-7/DD-9 cần sáu
+    # kho tiêu thụ trên máy (KHO_<TÊN> hoặc ~/dev/<tên>) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys.
+    dai_tom_tat_dem_dung: "node tests/scripts/dai-tom-tat-dem-dung.test.mjs"
+    dai_tom_tat_sau_kho: "node tests/scripts/dai-tom-tat-sau-kho.mjs"
     # Cửa tín hiệu (hồ sơ cua-tin-hieu-gom-nhom, hàng L3) — ca TH-1…TH-10.
     tin_hieu: "node tests/scripts/tin-hieu.test.mjs"
     tin_hieu_vang: "TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs"
@@ -615,6 +623,10 @@ executors:
     # ký»; biến này của git cho `*` dừng ở một tầng thư mục mà không sửa script (sổ release-2-27-0).
     rel2270_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 200ce7bb baseline-tran-bo-qua-don ci-cua-kho-bo-job-nang cua-tin-hieu-gom-nhom dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ngoai-n-tu-dinh-tuyen ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
     rel2270_dd_giu: "bash -c 'c=$(git show 200ce7bb:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 200ce7bb HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    # Mốc 2.28.0 — cửa sổ v2.27.0 (a1e2e0b9) → HEAD. GIT_GLOB_PATHSPECS=1 như 2.27 (hồ sơ mẫu lồng của L3).
+    rel2280_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh a1e2e0b9 buoc-len-thiet-ke-khong-hoi can-cu-s1-chay-moi-kho dai-tom-tat-doc-dung dai-tom-tat-dem-dung-vi-sao-tron dieu-phoi-on-dinh-r2
+    rel2280_dd_giu: "bash -c 'c=$(git show a1e2e0b9:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet a1e2e0b9 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2280_lop_chep: bash _acceptance/release-2-28-0/lop-chep-doi.sh a1e2e0b9 scripts/ho-so-tom-tat.cjs
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu

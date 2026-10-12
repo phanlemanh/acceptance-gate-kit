@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>114 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>23 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>116 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>24 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -54,6 +54,7 @@ flowchart TD
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
+- Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - Eval gọi model thật không chạy lại khi đầu vào không đổi — làn ghim lại dùng lại kết quả của lần eval model thật sự chạy gần nhất khi băm năm lớp đầu vào không đổi (hạn 7 ngày, khoá bật theo lựa chọn), nói ra mọi lần dùng lại, và chạy lại khi một byte đầu vào đổi (`eval-goi-model-that-khong-chay`)
 - Eval máy đã ký nghỉ hưu vì một hồ sơ đã ký khác thay nó — con trỏ `superseded_by` cạnh lời khai không-chạy; luật hai vế nhận khi máy chứng được con trỏ ở cây đang kiểm; pin nói ra ô nào thay bởi đâu (`eval-thay-boi-co-chung`)
@@ -85,6 +86,7 @@ flowchart TD
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
 - Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới trước-merge và máy quét /start thôi nói «owner chưa veto» về hồ sơ người đã ký (`cua-veto-sau-chu-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Dải tóm tắt hồ sơ nói đúng trên dữ liệu thật — ô production tách «đã triển khai» (máy suy, khi kho khai nhánh production) khỏi «đã thấy chạy» (người ghi), ô chưa làm đếm đủ giới hạn người đã chọn và gọi đúng tên phần để ngoài phạm vi, ô vì sao không cụt ở câu dẫn và không quá 400 ký tự (`dai-tom-tat-doc-dung`)
 - Đổi tài khoản giữa đợt Điều phối – Thợ không mất việc — đọc mức dùng (CLI han-muc, mod đọc mức dùng), báo trước và tự bàn giao theo ngưỡng, hai pha ★, lệnh /dieu-phoi:ban-giao, ban-giao.json dựng từ git, tiếp tục dưới tài khoản kia bằng một lệnh, lưới cuối StopFailure, răng an toàn của lớp mod (`dieu-phoi-doi-tai-khoan`)
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
@@ -163,6 +165,7 @@ flowchart TD
 - Phát hành kit 2.25.0 — đóng số cho cửa sổ 2.24.0 → 2.25.0 (hai vòng đã ký «luot-sua-giu-du-dem-dung» và «lenh-dai-chay-rieng»: lượt sửa giữ đủ mục ngoài hợp đồng, lệnh dài và eval nặng chạy riêng ở lượt chấm), để crm cài trước đợt sau-14-10; làn V, không dựng răng (`release-2-25-0`)
 - Phát hành kit 2.26.0 — đóng số cho cửa sổ 2.25.0 → 2.26.0 (ba vòng đã ký «xuat-du-lieu-lo-trinh», «lo-trinh-cat-luot», «doc-ghi-troi-mang-sang-run-id»: trang lộ trình mang khối dữ liệu máy đọc, skill cắt lượt, thẻ Cổng 2 không giấu mục mang sang và run_id rỗng không lọt), để crm nhận thẳng 2.26 một lần trước đợt sau-14-10 và hàng LT1 dùng được khối dữ liệu; làn V, không dựng răng (`release-2-26-0`) — đã giao — máy thông, cửa veto còn mở
 - Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng (`release-2-27-0`)
+- Phát hành kit 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi — đóng số cho cửa sổ 2.27.0 → 2.28.0 (bước thiết kế không dừng hỏi thừa và công cụ phân loại chạy ở mọi kho · dải tóm tắt hồ sơ đọc đúng · gói dieu-phoi ổn định trước đợt r2 · CI kit cài zsh có trần), để crm cài thẳng 2.28 theo đúng thẻ từ 15/10; làn V, không dựng răng (`release-2-28-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
