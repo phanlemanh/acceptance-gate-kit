@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # máy suy: SKILL feature-loop + scripts/gate-card.js + ca đo + GUIDE — không chạm lib/**, hooks/**, cổng chặn gộp
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-can-cu-s1-chay-moi-kho-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -75,3 +75,18 @@ Trục ghi tay, mỗi giá trị có ca:
   phân biệt được (AC-2), không cưỡng chế phiên đọc đúng. Ngưỡng mở ô: ≥ 1 vòng ở kho khách dừng Cổng Phạm vi
   vì đọc lỗi bộ xếp thành sổ đỏ.
 - Cỡ vòng: 10 tiêu chí — trong khung 8–12 (AC-10 nâng phạm vi trong S3, sổ `d-…-11`).
+- Known limits (Cổng Bằng chứng 12/10, Ngoài-1): một dòng chú thích trên ca so-that còn nói ca đếm qua bộ
+  xếp, ngược với mã; người sửa bộ kiểm sau này có thể đọc nhầm.
+- Known limits (Ngoài-2): ca so-that đọc sổ thật của hồ sơ này — ai sửa chữ một tài liệu mà dòng sổ đã trích
+  thì dòng ấy thành đỏ, ca báo «thiếu dòng trên thẻ» dù thẻ in đúng.
+- Known limits (Ngoài-3): chiều đỏ của ca so-that không có đối chứng dương trên bản sao thẻ và không ghim dòng
+  nào bị thiếu.
+- Known limits (Ngoài-4): sau khi gộp, ca KK-8 lấy gốc vòng bằng merge-base hai cha — gộp vòng này trước A2
+  thì ca đỏ mãi trên nhánh chính. Thứ tự gộp đã chốt: A2 (#320) trước, vòng này liền sau.
+- Known limits (Ngoài-5): eval nhìn E9 chỉ khai thẻ trong `paths`; lượt chấm sau chỉ đổi dữ liệu mẫu của thẻ
+  thì ảnh cũ được mang sang thay vì chụp lại.
+- Known limits (Ngoài-6): ca KK-8 coi lần gộp gần nhất trên chuỗi commit chính là gộp từ nhánh trên — kéo
+  chính nhánh vòng từ máy khác về bằng một lần gộp thì gốc vòng gần bằng đỉnh và ca xanh mà không đo.
+- Known limits (Ngoài-7): chiều đỏ của KK-1 chỉ tiêm lệnh thứ nhất trong hai lệnh; lệnh thứ hai vẫn được ca
+  dương KK-1 chạy thật và ca quét lớp KK-4 canh.
+- Known limits (Ngoài-8): ma trận chiều đỏ của ca quét lớp KK-4 chưa có hình `sh` và hình đường dẫn trong dấu nháy.
