@@ -701,6 +701,9 @@ executors:
     # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
     # Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm, như dieu_phoi_validate.
     dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs
+    # Hồ sơ trang-thai-dot-dieu-phoi-tho (AC-5..AC-9): plugin test phần mod khung + engine thật cô lập (`claude -p`)
+    # + răng «mod chỉ vẽ» từ validate. Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm.
+    dieu_phoi_khung_mod: node tests/dieu-phoi/kiem-khung.mjs
     # Chiều im của dieu-phoi-feature-loop-trong-dot (AC-9): so với merge-base HEAD origin/main.
     dieu_phoi_dp7_im: node tests/dieu-phoi/dp7-chieu-im.mjs
     # Hồ sơ ci-cua-kho-bo-job-nang — chế độ --hang-pr của pre-merge-check.sh (tên ca = tên AC).
