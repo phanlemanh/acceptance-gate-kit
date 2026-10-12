@@ -10,7 +10,7 @@
 //    gốc) bị tiêm đúng một kim (kim khớp đúng một lần, không thì ca đỏ vì hạ tầng ca), thông điệp ghim; bản
 //    nguyên vẹn là đối chứng dương.
 //  - Đường dẫn suy từ vị trí tệp này. Tên ca = mã AC; CHD_CASES chọn ca; mã lạ → thoát 2.
-//  - Mặc định (không CHD_CASES) chạy mọi ca TRỪ AC-4-kho-that (dựng thẻ cho mọi hồ sơ thật của cây — chậm).
+//  - Mặc định (không CHD_CASES) chạy mọi ca, kể cả AC-4-kho-that (thẻ cho mọi hồ sơ thật ≥ 11 tiêu chí — đo 4 s).
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -24,7 +24,7 @@ const require = createRequire(import.meta.url);
 
 const CA = ['AC-1', 'AC-1-do', 'AC-1-hong', 'AC-2', 'AC-2-vong', 'AC-2-do', 'AC-3', 'AC-3-do', 'AC-4', 'AC-4-kho-that', 'AC-4-do',
   'AC-5', 'AC-5-do-khoa', 'AC-5-do-nghia', 'AC-6', 'AC-6-do-khoi', 'AC-6-do-lop', 'AC-7', 'AC-7-do', 'AC-8', 'AC-8-do'];
-const CHI_KHI_GOI = new Set(['AC-4-kho-that']);
+const CHI_KHI_GOI = new Set();
 const chon = (process.env.CHD_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`co-hop-dong.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }

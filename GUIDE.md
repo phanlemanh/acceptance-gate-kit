@@ -490,7 +490,9 @@ Chống bỏ-qua-thầm-lặng bằng đảo mặc định + 3 lớp:
 Máy chỉ enforce **có mặt + truy vết được**; "đủ thật hay chưa" là việc human soi ở Gate 1 —
 cùng phân công máy/người như judgment eval. Workspace cũ (contract trước 1.13) → cờ vàng
 trên card, không chặn resume, không bắt migrate. Output scan map thẳng vào artifact:
-Core → AC (Core >15 thì hợp nhất ô, giữ cap 5-15) · Later/Never → Out of scope + entry
+Core → AC (cỡ theo khối `CAT-LUOT-CO` của skill cắt lượt: mục tiêu 8–10 · cho phép tới 12 · từ 13 —
+từ 13 tách thành nhiều vòng hoặc ghi dòng sổ `giữ cỡ — <lý do>`; thẻ Cổng 1 chặn hợp đồng `draft` từ 13
+tiêu chí không dòng ấy) · Later/Never → Out of scope + entry
 `descope` · trục + thước CE → `## Coverage`. Preset sẵn trong skill: entity-feature,
 test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục đứng
 hai chân: chân sản phẩm từ Product Context per-repo (CLAUDE.md `## Product Context` → đào
