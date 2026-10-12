@@ -43,9 +43,11 @@ evals:
     executor: script
     cmd: config:executors.script.chd_ac3
     expected: >-
-      PASS: AC-3 — 12 ca sổ viết trước, mỗi ca hai khẳng định (thẻ: `giu`/`chan`; đồng hồ: `n_giu` nhóm
+      PASS: AC-3 — 15 ca sổ viết trước, mỗi ca hai khẳng định (thẻ: `giu`/`chan`; đồng hồ: `n_giu` nhóm
       `phai-tach`) cùng kết luận đúng bảng nhận · nhận · nhận · nhận (gạch ngắn) · nhận (gạch thường) ·
-      nhận · không · không · không · nhận (mã dòng đầu) · không · không. PASS: AC-3-do — bản sao bỏ bước chuẩn NFC trong `dongGiu`: ca NFD ra «không» ở
+      nhận · không · không · không · nhận (mã dòng đầu) · không · không · không (bị rút bằng supersedes) ·
+      nhận (mã dòng giữ mới sau khi rút) · không (lý do còn là chỗ trống của khuôn). PASS: AC-3-do-rut — bản
+      sao bỏ bước xét supersedes: ca «bị rút» ra «nhận» ở CẢ thẻ lẫn đồng hồ, ghim «dòng giữ đã rút vẫn mở cổng». PASS: AC-3-do — bản sao bỏ bước chuẩn NFC trong `dongGiu`: ca NFD ra «không» ở
       CẢ thẻ lẫn đồng hồ, ghim «hai bên đọc cùng một hàm».
     paths: ["scripts/co-hop-dong.cjs", "scripts/gate-card.js", "scripts/cat-luot.mjs", "tests/scripts/co-hop-dong.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -58,7 +60,8 @@ evals:
       không cờ cỡ, `chan: false` (6 khẳng định). PASS: AC-4-kho-that — mọi hồ sơ thật của cây kit có ≥ 11
       tiêu chí và không ở draft (in số, > 0): thẻ ép không cờ cỡ; bản chép từng hồ sơ sang kho thử với
       `status: draft` mang đúng cờ theo cỡ (đối chứng dương ngay trên cùng hồ sơ). PASS: AC-4-do — bản sao gỡ
-      điều kiện `status: draft` của răng: ca `signed-off` ra cờ đỏ, ghim «đường đọc-cũ gãy».
+      điều kiện `status: draft` của răng: ca đã ký ra `co_hop_dong.chan === true` VÀ cờ lớp `fred co-hd` trên
+      HTML (thẻ chạy, không sập), ghim «đường đọc-cũ gãy»; bản sao thẻ sập (kim ném lỗi) KHÔNG được tính là bắt.
     paths: ["scripts/co-hop-dong.cjs", "scripts/gate-card.js", "tests/scripts/co-hop-dong.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -71,8 +74,9 @@ evals:
       Feature Loop: đường khoá bằng khoá thẻ phát ra; cặp khoá–giá trị so bằng nhau (Feature Loop:
       lan_v=khong, moi_nguoi=khong, loi_ra=tach,giu; lệnh duyệt: ghi_duyet=khong, loi_ra=tach,giu); khối
       lệnh duyệt chứa lối `sửa:` kèm chuỗi bằng `GIU_CO_MO_DAU`. PASS: AC-5-do-khoa — bản sao đổi tên khoá ở
-      thẻ (kim một lần): ca đỏ liệt đúng hai tệp `commands/approve.md` và
-      `feature-loop/skills/feature-loop/SKILL.md`. PASS: AC-5-do-nghia — bản sao đổi `lan_v: khong` thành
+      thẻ (kim một lần): `--extract` của bản sao có mặt, mang `co_hop_dong_x` và KHÔNG mang `co_hop_dong`, và ca
+      liệt đúng hai tệp `commands/approve.md` và `feature-loop/skills/feature-loop/SKILL.md`; bản sao thẻ sập
+      KHÔNG được tính là bắt. PASS: AC-5-do-nghia — bản sao đổi `lan_v: khong` thành
       `lan_v: co`: ca đỏ ghim «khối cho làn V khi khoá đúng».
     paths: ["scripts/gate-card.js", "scripts/co-hop-dong.cjs", "commands/approve.md", "feature-loop/skills/feature-loop/SKILL.md", "tests/scripts/co-hop-dong.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -96,11 +100,13 @@ evals:
     cmd: config:executors.script.chd_ac7
     expected: >-
       PASS: AC-7 — kho thử bốn nhóm × có/không dòng giữ × chốt/draft × hai phía mốc, cộng hồ sơ ≥ 13 không
-      dòng giữ chốt trước mốc mà ký sau mốc (không vào nhóm của `--tu`): `n_giu` mỗi nhóm bằng
+      dòng giữ chốt trước mốc mà ký sau mốc (evidence-report.md dựng từ khuôn evidence-report-template.md của bên
+      ghi, `human_signoff` mang ngày sau mốc; không vào nhóm của `--tu`): `n_giu` mỗi nhóm bằng
       giá trị tính tay (không mốc và `--tu <mốc>`, 8 khẳng định), `n_chot − n_giu` nhóm `phai-tach` bằng số
       tay; năm trường cũ mỗi nhóm bằng đầu ra trên bản kho thử đã gỡ mọi dòng giữ. PASS: AC-7-do — bản sao
       đếm `n_giu` bằng mọi hồ sơ của nhóm (`g.filter(x => x.giu).length` → `g.length`, kim một lần): lệch số
-      tay, ghim «n_giu phải đếm dòng giữ».
+      tay, ghim «n_giu phải đếm dòng giữ». PASS: AC-7-do-ngay-ky — bản sao cho `--tu` lọc theo ngày ký
+      (`human_signoff`) trước ngày chốt: hồ sơ ký sau mốc lọt vào nhóm, lệch số tay, ghim «--tu lọc theo ngày ký».
     paths: ["scripts/cat-luot.mjs", "scripts/co-hop-dong.cjs", "tests/scripts/co-hop-dong.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8

@@ -727,11 +727,11 @@ executors:
     # Hồ sơ vong-mo-thang-bang-feature-loop — cỡ hợp đồng ở lối vào Cổng Phạm vi (tên ca = tên AC).
     chd_ac1: CHD_CASES=AC-1,AC-1-do,AC-1-hong node tests/scripts/co-hop-dong.test.mjs
     chd_ac2: CHD_CASES=AC-2,AC-2-vong,AC-2-do node tests/scripts/co-hop-dong.test.mjs
-    chd_ac3: CHD_CASES=AC-3,AC-3-do node tests/scripts/co-hop-dong.test.mjs
+    chd_ac3: CHD_CASES=AC-3,AC-3-do,AC-3-do-rut node tests/scripts/co-hop-dong.test.mjs
     chd_ac4: CHD_CASES=AC-4,AC-4-kho-that,AC-4-do node tests/scripts/co-hop-dong.test.mjs
     chd_ac5: CHD_CASES=AC-5,AC-5-do-khoa,AC-5-do-nghia node tests/scripts/co-hop-dong.test.mjs
     chd_ac6: CHD_CASES=AC-6,AC-6-do-khoi,AC-6-do-lop node tests/scripts/co-hop-dong.test.mjs
-    chd_ac7: CHD_CASES=AC-7,AC-7-do node tests/scripts/co-hop-dong.test.mjs
+    chd_ac7: CHD_CASES=AC-7,AC-7-do,AC-7-do-ngay-ky node tests/scripts/co-hop-dong.test.mjs
     chd_ac8: CHD_CASES=AC-8,AC-8-do node tests/scripts/co-hop-dong.test.mjs
 risk_tiers:
   t1_skip_globs:
