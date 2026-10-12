@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5372d88e34d326bb9d7c083b14518c40ec3ea066
+verified_commit: 8d1ec05f110b45d568c0bca67c80368acc9956c1
 human_signoff: manh 2026-10-13
 ---
 
@@ -184,3 +184,7 @@ none — every multi-run eval is uniform (cả 8 eval deterministic, runs 1).
 
 Round 1: 8/8 eval và các suite xanh, 7 finding ngoài hợp đồng chờ Cổng 2; owner trả lại, nâng phạm vi 5 lỗ, ghi 2 Known limits ở Cổng Phạm vi (làn V lần hai). Returned to implementation.
 Round 2: E1–E8 và 11 lệnh suite xanh trên 5372d88e; 2 finding ngoài hợp đồng mới (xem review-findings.md), 7 mục mang từ round trước, chờ Cổng 2.
+
+### Re-pin lần 1 — 2026-10-12, do ghim lại sau gộp main 72eb55f3 (v2.28.0)
+run_id: repin-20261012T220429Z-12993
+sha: 8d1ec05f110b45d568c0bca67c80368acc9956c1 · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
