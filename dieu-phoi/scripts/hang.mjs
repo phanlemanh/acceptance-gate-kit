@@ -38,7 +38,8 @@ const luu = (thuMuc, hv, cau, suKien) => {
 };
 
 // Khoá ghi của `hang-viec.json` (DP8, design chỗ chọn 2e): tám chip bấm gần nhau thì tám `ghi-danh` cùng đọc-sửa-ghi.
-// Mọi bên viết của tệp này bọc đọc-sửa-ghi (kể cả dòng Nhật ký) trong khoá thư mục `hang-viec.khoa`: mkdir nguyên tử,
+// Mọi bên viết của tệp này bọc đọc-sửa-ghi (kể cả dòng Nhật ký CHÍNH chúng ghi; `pha` và `nhat-ky` ghi Nhật ký
+// ngoài khoá — giới hạn đã khai, hạt giống) trong khoá thư mục `hang-viec.khoa`: mkdir nguyên tử,
 // chờ tối đa 10″, khoá cũ hơn 30″ là của tiến trình đã chết. `DIEU_PHOI_TRE_GHI_MS` chỉ ca đo đặt: trễ giữa đọc và
 // ghi để ép tranh chấp.
 export const TEP_KHOA_HANG_VIEC = 'hang-viec.khoa';

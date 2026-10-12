@@ -126,6 +126,8 @@ function dotChoGhiDanh({ soDay = 2, r2 = false, gocGoi = GOI, chayPha = true, so
   return { kho: fs.realpathSync(kho), dot, chip, ids };
 }
 const worktreeCua = (dot, id) => docJ(path.join(dot, 'hang-viec.json')).day.find((d) => d.id === id).worktree;
+// Tên khoá ghi rút từ gói (Ngoài-11 lượt 1: viết tay thì gói đổi tên mà ca vẫn xanh rỗng).
+const { TEP_KHOA_HANG_VIEC: TEP_KHOA } = await nap(GOI, 'hang.mjs');
 
 // ---------- DP8-01: phân lớp dòng chuyển (AC-1, E1) ----------
 // Mỗi hàng: [tên, tệp (nhãn như kiemChuyen in), mã duy nhất trên dòng, nhóm cần]. Dòng của hàng = dòng chứa
@@ -155,6 +157,9 @@ export const MA_TRAN_LOP = [
   ['(22) glob khai', 'ke-hoach/cu/z.md', 'r22', 'khai-boi-kho'],
   ['(23) khối khai #id', '_acceptance/mien-a/evals.yaml', 'r23', 'khai-boi-kho'],
   ['(24) chú thích trong executors', '_acceptance/config.yaml', 'r24', 'phai-sua'],
+  ['(25) eval sống cùng tệp với khối khai #id', '_acceptance/mien-a/evals.yaml', 'r25', 'phai-sua'],
+  ['(26) executor gọi từ eval viết ở cột 0', '_acceptance/config.yaml', 'r26', 'phai-sua'],
+  ['(27) khối not-run viết ở cột 0', '_acceptance/cot-0/evals.yaml', 'r27', 'eval-chet'],
 ];
 const cu = (ma) => `scripts/dieu-phoi/${ma}.mjs`;
 const hopDong = (st) => `---\nslug: x\nstatus: ${st}\n---\n`;
@@ -162,9 +167,15 @@ const hopDong = (st) => `---\nslug: x\nstatus: ${st}\n---\n`;
 const { DA_THONG } = await nap(GOI, 'phat-lich.mjs');
 const [DA_KY, MAY_THONG] = DA_THONG;
 const khoiEvalYaml = (k) => `  - id: ${k.id}\n    criterion: AC-1\n    executor: ${k.executor}\n${k.cmd ? `    cmd: ${k.cmd}\n` : ''}${k.status ? `    status: ${k.status}\n` : ''}    expected: "exit 0; ${k.dong}"\n`;
-const CAU_HINH_KHAI = `dieu_phoi:\n  lich_su:\n    - "ke-hoach/cu/**"\n    - _acceptance/mien-a/evals.yaml#E7\n`;
-function cauHinh({ khai = true } = {}) {
-  return `schema_version: 1\n${khai ? CAU_HINH_KHAI : ''}feature_loop:\n  suite_keys:\n    - executors.test.e_suite\nexecutors:\n  test:\n    # ghi chú ${cu('r24')}\n    e_song: "node ${cu('r12')}"\n    e_chet: "node ${cu('r13')}"\n    e_suite: "node ${cu('r14')}"\n`;
+// Bốn dạng viết cùng một khai báo (DP8-12): khối · một dòng · một dòng kèm chú thích · khối kèm chú thích sau mục.
+export const DANG_KHAI = {
+  khoi: `dieu_phoi:\n  lich_su:\n    - "ke-hoach/cu/**"\n    - _acceptance/mien-a/evals.yaml#E7\n`,
+  'mot-dong': `dieu_phoi:\n  lich_su: ["ke-hoach/cu/**", _acceptance/mien-a/evals.yaml#E7]\n`,
+  'mot-dong-chu-thich': `dieu_phoi:\n  lich_su: [ "ke-hoach/cu/**" , _acceptance/mien-a/evals.yaml#E7 ]  # khai 12/10\n`,
+  'khoi-chu-thich': `dieu_phoi:\n  lich_su:\n    - "ke-hoach/cu/**"   # đợt cũ\n    - _acceptance/mien-a/evals.yaml#E7  # tệp mẫu\n`,
+};
+function cauHinh({ khai = true, dang = 'khoi' } = {}) {
+  return `schema_version: 1\n${khai ? DANG_KHAI[dang] : ''}feature_loop:\n  suite_keys:\n    - executors.test.e_suite\nexecutors:\n  test:\n    # ghi chú ${cu('r24')}\n    e_song: "node ${cu('r12')}"\n    e_chet: "node ${cu('r13')}"\n    e_suite: "node ${cu('r14')}"\n    e_cot0: "node ${cu('r26')}"\n`;
 }
 function khoPhanLop() {
   const kho = tam('dp8-lop-');
@@ -186,7 +197,10 @@ function khoPhanLop() {
   hoSo('ky-b', DA_KY, [{ id: 'E1', executor: 'judgment', dong: cu('r09') }]);
   hoSo('mc-a', MAY_THONG, [{ id: 'E1', executor: 'ui-check', dong: cu('r10') }]);
   hoSo('ky-c', DA_KY, [{ id: 'E1', executor: 'script', cmd: 'config:executors.test.e_chet', status: 'not-run', dong: cu('r11') }]);
-  hoSo('mien-a', 'implemented', [{ id: 'E6', executor: 'script', dong: 'khong nhac ban cu' }, { id: 'E7', executor: 'script', dong: cu('r23') }]);
+  hoSo('mien-a', 'implemented', [{ id: 'E6', executor: 'script', dong: cu('r25') }, { id: 'E7', executor: 'script', dong: cu('r23') }]);
+  // (26), (27): evals.yaml viết mục danh sách ở cột 0 (YAML hợp lệ, có ở kho tiêu thụ thật).
+  g('_acceptance/cot-0/contract.md', hopDong('implemented'));
+  g('_acceptance/cot-0/evals.yaml', `schema_version: 1\nevals:\n- id: E1\n  executor: script\n  cmd: config:executors.test.e_cot0\n  expected: "exit 0"\n- id: E2\n  executor: script\n  status: not-run\n  expected: "exit 0; ${cu('r27')}"\n`);
   g('_acceptance/ky-a/run-log.jsonl', `{"kind":"x","cmd":"node ${cu('r15')}"}\n`);
   g('_acceptance/ky-a/evidence-report.md', `# Báo cáo\n\n${cu('r16')}\n`);
   g('_acceptance/ky-a/decisions.jsonl', `{"id":"d-1","decision":"${cu('r17')}"}\n`);
@@ -256,6 +270,57 @@ test('DP8-01-do ho-so-nuot-eval', async () => {
   const sao = banSao([['scripts/kiem-chuyen.mjs', "if (hs && hs[2] !== 'evals.yaml') return 'ho-so';", "if (hs) return 'ho-so';"]]);
   const { loi } = await kiemPhanLop(sao, kho);
   assert.ok(loi.some((l) => l.startsWith('(06) eval script sống, hồ sơ đang mở: ho-so')), `phải nêu hàng eval sống của hồ sơ đang mở: ${loi.join(' | ')}`);
+});
+
+// ---------- DP8-12: bộ đọc khai và evals.yaml đọc đúng mọi dạng viết hợp lệ (AC-12, E14) ----------
+test('DP8-12 dang-khai', async () => {
+  const ra = [];
+  for (const dang of Object.keys(DANG_KHAI)) {
+    const kho = khoPhanLop();
+    ghiT(path.join(kho, '_acceptance', 'config.yaml'), cauHinh({ dang }));
+    const { loi } = await kiemPhanLop(GOI, kho);
+    ra.push(`${dang}=${loi.length}`);
+    assert.deepEqual(loi, [], `dạng ${dang}`);
+  }
+  console.log(`  số dạng khai: ${ra.length} · lỗi theo dạng: ${ra.join(' · ')}`);
+  assert.equal(ra.length, 4);
+});
+
+export const MA_TRAN_DANH_SACH = [
+  ['một dòng có #id', 'lich_su: [_acceptance/a/evals.yaml#E7, docs/old/**]', ['_acceptance/a/evals.yaml#E7', 'docs/old/**']],
+  ['một dòng kèm chú thích', 'lich_su: [ "x/**" , y/evals.yaml#E1 ]  # ghi chú', ['x/**', 'y/evals.yaml#E1']],
+  ['glob có ngoặc nhọn', 'lich_su: ["k/{cu,cu2}/**", z#E2]', ['k/{cu,cu2}/**', 'z#E2']],
+  ['khối kèm chú thích', 'lich_su:\n    - "a/**"   # cũ\n    - b/evals.yaml#E7', ['a/**', 'b/evals.yaml#E7']],
+  ['nháy giữ #', 'lich_su: ["c #d", e]', ['c #d', 'e']],
+];
+export async function kiemDanhSach(gocGoi = GOI) {
+  const { docDanhSachKhoa } = await nap(gocGoi, 'kiem-chuyen.mjs');
+  return MA_TRAN_DANH_SACH.flatMap(([ten, dong, can]) => {
+    const co = docDanhSachKhoa(`dieu_phoi:\n  ${dong}\n`, 'dieu_phoi', 'lich_su');
+    return JSON.stringify(co) === JSON.stringify(can) ? [] : [`${ten}: ${JSON.stringify(co)}, cần ${JSON.stringify(can)}`];
+  });
+}
+
+test('DP8-12 doc-danh-sach', async () => {
+  console.log(`  số hàng: ${MA_TRAN_DANH_SACH.length}`);
+  assert.deepEqual(await kiemDanhSach(), []);
+});
+
+test('DP8-12-do chu-thich-cat-id', async () => {
+  const kho = khoPhanLop();
+  ghiT(path.join(kho, '_acceptance', 'config.yaml'), cauHinh({ dang: 'mot-dong' }));
+  assert.deepEqual((await kiemPhanLop(GOI, kho)).loi, [], 'đối chứng dương: bản lành, dạng một dòng');
+  const sao = banSao([['scripts/kiem-chuyen.mjs', "if (giaTriDong.startsWith('[')) return tachDanhSachDong(giaTriDong).filter(Boolean);", "if (giaTriDong.startsWith('[')) return giaTriDong.replace(/#.*$/, '').replace(/^\\[|\\]$/g, '').split(',').map(giaTri).filter(Boolean);"]]);
+  const { loi } = await kiemPhanLop(sao, kho);
+  assert.ok(loi.includes('(25) eval sống cùng tệp với khối khai #id: khai-boi-kho, cần phai-sua'), `phải nêu hàng (25) bị miễn cả tệp: ${loi.join(' | ')}`);
+});
+
+test('DP8-12-do cot-0', async () => {
+  const kho = khoPhanLop();
+  assert.deepEqual((await kiemPhanLop(GOI, kho)).loi, [], 'đối chứng dương: bản lành');
+  const sao = banSao([['scripts/kiem-chuyen.mjs', 'if (thut(d) === 0 && !m) break;', 'if (thut(d) === 0) break;']]);
+  const { loi } = await kiemPhanLop(sao, kho);
+  assert.ok(loi.includes('(26) executor gọi từ eval viết ở cột 0: executor-chet, cần phai-sua'), `phải nêu hàng (26): ${loi.join(' | ')}`);
 });
 
 // ---------- DP8-02: import tương đối (AC-2, E2) ----------
@@ -507,9 +572,10 @@ test('DP8-06 bat-bien', () => {
 });
 
 test('DP8-06-do luon-nhan', () => {
+  assert.deepEqual(kiemBatBien().loi, [], 'đối chứng dương: bản lành trên cùng ma trận');
   const sao = banSao([['scripts/hang.mjs', 'if (kh && HANH_DONG_CON_PHIEN.includes(kh.hanh_dong)) throw', 'if (false) throw']]);
   const { loi } = kiemBatBien(sao);
-  assert.ok(loi.some((l) => l.startsWith('nhịp 3′: lệch bất biến')), `phải nêu hàng nhịp 3′: ${loi.join(' | ')}`);
+  assert.ok(loi.includes('nhịp 3′: lệch bất biến (khong, thoát 0)'), `phải nêu hàng nhịp 3′ bị đè: ${loi.join(' | ')}`);
 });
 
 // ---------- DP8-07: dãy chưa ghi danh được mời chip (AC-7, E7) ----------
@@ -615,7 +681,7 @@ export async function kiemTranhChap(gocGoi = GOI) {
   const sk = suKien(dot).filter((e) => e.kieu === 'ghi-danh').length;
   if (sk !== 8) loi.push(`${sk} sự kiện ghi-danh`);
   if (nhatKy(dot).length !== nk + 8) loi.push(`Nhật ký thêm ${nhatKy(dot).length - nk} dòng`);
-  if (fs.existsSync(path.join(dot, 'hang-viec.khoa'))) loi.push('còn hang-viec.khoa');
+  if (fs.existsSync(path.join(dot, TEP_KHOA))) loi.push(`còn ${TEP_KHOA}`);
   return loi;
 }
 export async function kiemTron(gocGoi = GOI) {
@@ -644,15 +710,27 @@ test('DP8-08 tron', async () => {
 
 test('DP8-08 khoa-bo-roi', () => {
   const { dot, chip } = dotChoGhiDanh({ soChip: 1 });
-  const k = path.join(dot, 'hang-viec.khoa');
+  const k = path.join(dot, TEP_KHOA);
+  const pHv = path.join(dot, 'hang-viec.json');
+  // Đối chứng: khoá TƯƠI cùng tên, cùng fixture → lệnh chờ hết hạn rồi từ chối, không ghi gì (bộ lõi thật sự đọc khoá này).
   fs.mkdirSync(k);
+  const truoc = bam(pHv);
+  let t0 = Date.now();
+  const tuoi = chayCli(chip[0], ['ghi-danh', 'P1']);
+  console.log(`  khoá tươi: thoát ${tuoi.ma} sau ${Date.now() - t0} ms · ${tuoi.err.trim()}`);
+  assert.equal(tuoi.ma, 1);
+  assert.match(tuoi.err, /hang-viec\.json đang bị khoá quá 10″/);
+  assert.equal(bam(pHv), truoc, 'khoá tươi: không ghi byte nào');
+  assert.ok(fs.existsSync(k), 'khoá tươi không bị dọn');
+  // Khoá bỏ rơi (31″): lệnh dọn, ghi danh, và trả khoá.
   const cu31 = new Date(Date.now() - 31_000);
   fs.utimesSync(k, cu31, cu31);
-  const t0 = Date.now();
+  t0 = Date.now();
   const r = chayCli(chip[0], ['ghi-danh', 'P1']);
   console.log(`  khoá bỏ rơi 31″: thoát ${r.ma} sau ${Date.now() - t0} ms`);
   assert.equal(r.ma, 0, r.err);
   assert.equal(worktreeCua(dot, 'P1'), chip[0]);
+  assert.ok(!fs.existsSync(k), 'khoá bỏ rơi đã được dọn và không để lại khoá mới');
 });
 
 test('DP8-08-do bo-khoa', async () => {
@@ -797,7 +875,57 @@ const tepTai = (goc, sha, p) => {
   const r = spawnSync('git', ['ls-tree', '-r', '--name-only', sha, '--', p], { cwd: goc, env: ENV, encoding: 'utf8' });
   return r.status === 0 ? r.stdout.split('\n').filter((f) => f.endsWith('.mjs')) : [];
 };
+// Khối của một ca = từ dòng sau khi ca trước khép tới dòng khép ca này (phần dựng nằm ngay trên ca thuộc về ca ấy).
+// Lượt 1 (finding trong hợp đồng AC-11): bộ tách cũ chỉ nhận `test(` ở cột 0 khép bằng `});` cột 0, nên ca một
+// dòng nuốt ca kế và ca sinh trong vòng lặp (thụt lề) không thành khoá. Nay: `test(` ở mọi mức thụt, khép theo
+// `dongKhep`.
+// Dòng khép lời gọi `test(` mở ở dòng i: ngoặc cân bằng ngay trên dòng ấy → i; dòng mở kết bằng `{` (thân khối) →
+// dòng đầu tiên sau đó bắt đầu bằng `}` CÙNG mức thụt; còn lại (thân biểu thức xuống dòng) → đếm ngoặc qua các dòng
+// (bỏ qua chuỗi; biểu thức chính quy có ngoặc lẻ không được hiểu — ca như thế hiếm, tự kiểm số khối bắt được).
+function dongKhep(dong, i, thutMo) {
+  let sau = 0;
+  let nhay = null;
+  const quet = (d, tu) => {
+    for (let k = tu; k < d.length; k++) {
+      const c = d[k];
+      if (nhay) {
+        if (c === '\\') k++;
+        else if (c === nhay) nhay = null;
+      } else if (c === "'" || c === '"' || c === '`') nhay = c;
+      else if (c === '(') sau++;
+      else if (c === ')' && --sau === 0) return true;
+    }
+    if (nhay !== '`') nhay = null;
+    return false;
+  };
+  if (quet(dong[i], dong[i].indexOf('test('))) return i;
+  if (/\{\s*$/.test(dong[i])) {
+    const khep = new RegExp(`^${thutMo}\\}`);
+    let j = i + 1;
+    while (j < dong.length && !khep.test(dong[j])) j++;
+    return j;
+  }
+  for (let j = i + 1; j < dong.length; j++) if (quet(dong[j], 0)) return j;
+  return dong.length - 1;
+}
 export function khoiCa(text, tep) {
+  const ra = new Map();
+  if (text == null) return ra;
+  const dong = text.split('\n');
+  let dau = 0;
+  for (let i = 0; i < dong.length; i++) {
+    const m = /^(\s*)test\((['"`])(.+?)\2/.exec(dong[i]);
+    if (!m) continue;
+    if (!ra.size && dau === 0 && i > 0) ra.set(`(đầu ${tep})`, dong.slice(0, i).join('\n'));
+    const j = dongKhep(dong, i, m[1]);
+    ra.set(m[3], dong.slice(dau, j + 1).join('\n'));
+    dau = j + 1;
+    i = j;
+  }
+  return ra;
+}
+// Bộ tách cũ của SDT-07 — chỉ để chạy chiều đỏ của DP8-11 (ca DP8-11-do tach-khoi-cu).
+export function khoiCaCu(text, tep) {
   const ra = new Map();
   if (text == null) return ra;
   const dong = text.split('\n');
@@ -814,12 +942,12 @@ export function khoiCa(text, tep) {
   }
   return ra;
 }
-export function caDoiThan(goc, { tu, toi }, ds = ['tests/dieu-phoi']) {
+export function caDoiThan(goc, { tu, toi }, ds = ['tests/dieu-phoi'], tach = khoiCa) {
   const ra = [];
   for (const p of ds) {
     for (const f of tepTai(goc, tu, p).sort()) {
-      const cuK = khoiCa(noiDungTai(goc, tu, f), path.basename(f));
-      const moiK = khoiCa(noiDungTai(goc, toi, f), path.basename(f));
+      const cuK = tach(noiDungTai(goc, tu, f), path.basename(f));
+      const moiK = tach(noiDungTai(goc, toi, f), path.basename(f));
       for (const [ten, than] of cuK) if (moiK.get(ten) !== than) ra.push(ten);
     }
   }
@@ -843,6 +971,47 @@ test('DP8-11 ca-da-ky', () => {
   const ds = caDoiThan(KIT, moc);
   console.log(`  mốc (${moc.cach}): ${moc.tu.slice(0, 12)}..${moc.toi.slice(0, 12)} · ca đã ký đổi thân: ${ds.length ? ds.join(' · ') : '0 ca đã ký đổi thân'}`);
   assert.deepEqual(thieuSo(ds, fs.readFileSync(SO, 'utf8')), []);
+});
+
+// Bộ tách khối trên tệp mẫu do code sinh: ca nhiều dòng · ca một dòng · ca sinh trong vòng lặp · ca nhiều dòng.
+const TEP_MAU = (y, b) => `test('X', () => {\n  a();\n});\n\ntest('Y', () => ${y});\n\nfor (const t of ['p', 'q']) {\n  test(\`L \${t}\`, () => {\n    ${b}();\n  });\n}\n\ntest('Z', () => {\n  c();\n});\n`;
+export function kiemTachKhoi(tach) {
+  const loi = [];
+  const ten = (text) => [...tach(text, 'mau.test.mjs').keys()].filter((k) => !k.startsWith('(đầu'));
+  const can = ['X', 'Y', 'L ${t}', 'Z'];
+  if (JSON.stringify(ten(TEP_MAU('a1()', 'b'))) !== JSON.stringify(can)) loi.push(`khoá ${JSON.stringify(ten(TEP_MAU('a1()', 'b')))}, cần ${JSON.stringify(can)}`);
+  const doi = (truoc, sau) => {
+    const a = tach(truoc, 'mau.test.mjs');
+    const b = tach(sau, 'mau.test.mjs');
+    return [...a.keys()].filter((k) => a.get(k) !== b.get(k));
+  };
+  const y = doi(TEP_MAU('a1()', 'b'), TEP_MAU('a2()', 'b'));
+  if (JSON.stringify(y) !== '["Y"]') loi.push(`đổi thân ca một dòng Y bị báo là ${JSON.stringify(y)}`);
+  const l = doi(TEP_MAU('a1()', 'b'), TEP_MAU('a1()', 'b2'));
+  if (JSON.stringify(l) !== '["L ${t}"]') loi.push(`đổi thân ca trong vòng lặp bị báo là ${JSON.stringify(l)}`);
+  return loi;
+}
+
+test('DP8-11 tach-khoi', () => {
+  assert.deepEqual(kiemTachKhoi(khoiCa), []);
+  // Tự kiểm trên tệp ca thật: số khối có tên == số lời gọi `test(` của từng tệp.
+  const lech = [];
+  let tong = 0;
+  for (const f of fs.readdirSync(DAY).filter((x) => x.endsWith('.test.mjs')).sort()) {
+    const text = fs.readFileSync(path.join(DAY, f), 'utf8');
+    const goi = text.split('\n').filter((d) => /^\s*test\((['"`])/.test(d)).length;
+    const khoi = [...khoiCa(text, f).keys()].filter((k) => !k.startsWith('(đầu')).length;
+    tong += goi;
+    if (goi !== khoi) lech.push(`${f}: ${khoi} khối ≠ ${goi} lời gọi test(`);
+  }
+  console.log(`  tệp ca thật: ${tong} lời gọi test( · lệch ${lech.length}`);
+  assert.deepEqual(lech, []);
+});
+
+test('DP8-11-do tach-khoi-cu', () => {
+  assert.deepEqual(kiemTachKhoi(khoiCa), [], 'đối chứng dương: bộ tách lành');
+  const loi = kiemTachKhoi(khoiCaCu);
+  assert.ok(loi.includes('đổi thân ca trong vòng lặp bị báo là ["Y"]'), `bộ tách cũ phải gán nhầm ca trong vòng lặp: ${loi.join(' | ')}`);
 });
 
 function khoHaiChieu() {

@@ -83,7 +83,46 @@ export const kiemChuyen = (cwd) => quetChuyen(cwd).ra;
 
 const thut = (d) => /^\s*/.exec(d)[0].length;
 const laBoQua = (d) => d.trim() === '' || /^\s*#/.test(d);
-const giaTri = (v) => (v ?? '').replace(/\s+#.*$/, '').trim().replace(/^["']|["']$/g, '');
+// Chú thích YAML: `#` ở đầu hoặc đứng sau khoảng trắng, ngoài nháy — `evals.yaml#E7` không phải chú thích.
+export function boChuThich(s) {
+  let nhay = null;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (nhay) {
+      if (c === nhay) nhay = null;
+    } else if (c === '"' || c === "'") nhay = c;
+    else if (c === '#' && (i === 0 || /\s/.test(s[i - 1]))) return s.slice(0, i);
+  }
+  return s;
+}
+const boNhay = (v) => v.trim().replace(/^(["'])(.*)\1$/, '$2');
+const giaTri = (v) => boNhay(boChuThich(v ?? ''));
+// Danh sách một dòng `[a, "b#c", {x,y}]`: tách ở dấu phẩy ngoài nháy và ngoài ngoặc lồng.
+function tachDanhSachDong(s) {
+  const ra = [];
+  let sau = 0;
+  let nhay = null;
+  let cur = '';
+  for (let i = 1; i < s.length; i++) {
+    const c = s[i];
+    if (nhay) {
+      if (c === nhay) nhay = null;
+      cur += c;
+    } else if (c === '"' || c === "'") {
+      nhay = c;
+      cur += c;
+    } else if ((c === ',' || c === ']') && sau === 0) {
+      if (cur.trim()) ra.push(boNhay(cur));
+      cur = '';
+      if (c === ']') break;
+    } else {
+      if (c === '{' || c === '[') sau++;
+      if (c === '}' || c === ']') sau--;
+      cur += c;
+    }
+  }
+  return ra;
+}
 
 // Khối eval của một evals.yaml (đọc theo dòng, không bộ đọc YAML): [{ tu, den, id, status, executor, cmd }], dòng
 // 0-based gồm cả hai đầu. Một khối = một mục danh sách dưới `evals:`, khoá nào đứng đầu cũng được.
@@ -97,8 +136,9 @@ export function khoiEval(text) {
   for (let i = i0 + 1; i < dong.length; i++) {
     const d = dong[i];
     if (laBoQua(d)) continue;
-    if (thut(d) === 0) break;
+    // Mục danh sách được phép ở cột 0 (`evals:\n- id: E1`, YAML hợp lệ): xét mục TRƯỚC khi coi cột 0 là hết khối.
     const m = /^(\s*)-\s+(.*)$/.exec(d);
+    if (thut(d) === 0 && !m) break;
     if (m && (mucThut === null || m[1].length === mucThut)) {
       mucThut = m[1].length;
       if (cur) ds.push(cur);
@@ -144,9 +184,10 @@ export function docDanhSachKhoa(text, cha, con) {
   for (let j = i + 1; j < dong.length; j++) {
     const d = dong[j];
     if (/^\S/.test(d)) break;
-    const m = new RegExp(`^(\\s+)${con}:\\s*(.*?)\\s*(#.*)?$`).exec(d);
+    const m = new RegExp(`^(\\s+)${con}:(?:\\s+(.*))?$`).exec(d);
     if (!m) continue;
-    if (m[2].startsWith('[')) return m[2].replace(/^\[|\]$/g, '').split(',').map(giaTri).filter(Boolean);
+    const giaTriDong = boChuThich(m[2] ?? '').trim();
+    if (giaTriDong.startsWith('[')) return tachDanhSachDong(giaTriDong).filter(Boolean);
     const ra = [];
     for (let k = j + 1; k < dong.length; k++) {
       const e = dong[k];

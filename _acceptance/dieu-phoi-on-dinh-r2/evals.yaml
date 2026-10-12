@@ -25,7 +25,8 @@ evals:
       sống hồ sơ đang mở · eval script sống hồ sơ đã ký · eval judgment sống hồ sơ đang mở · eval judgment sống
       hồ sơ đã ký · eval ui-check sống hồ sơ machine-cleared · eval not-run · executor eval sống gọi · executor
       chỉ eval not-run gọi · executor trong suite_keys · run-log.jsonl · evidence-report.md · decisions.jsonl ·
-      rang/x.mjs · docs/superpowers/specs/x.md · docs/plan/y.md · LO-TRINH.html · glob khai · khối khai #id);
+      rang/x.mjs · docs/superpowers/specs/x.md · docs/plan/y.md · LO-TRINH.html · glob khai · khối khai #id · eval sống
+      khác cùng tệp với khối khai · executor gọi từ eval viết ở cột 0 · khối not-run viết ở cột 0 — 27 hàng);
       `phanLopChuyen` xếp mỗi hàng đúng nhóm viết sẵn (phải sửa hay lớp lịch sử nêu tên), số assert == độ dài ma
       trận (in ra); đa tập (phai_sua ∪ lich_su[].dong) BẰNG đa tập `kiemChuyen` trên cùng kho. "ok" cho "DP8-01
       khong-khai": cùng kho bỏ khoá dieu_phoi.lich_su → hai hàng khai rơi về phải sửa. "ok" cho "DP8-01-do
@@ -71,14 +72,16 @@ evals:
       (cây đang kiểm) và gói v2.27.0 (tag ghim a1e2e0b9, git archive). Bản sao chia đối tượng (git clone --shared)
       dựng trong thư mục tạm, HOME tạm. Ở b9a3b160: phai_sua chứa .claude/settings.json (4 dòng hook),
       package.json (dòng script), scripts/kiem-cheo/dem.mjs, scripts/kiem-cheo/khoa.mjs,
-      scripts/kiem-cheo/test/khoa.test.mjs; kiemChuyen mới == kiemChuyen v2.27.0 + đúng các dòng import tương đối
-      ấy (so đa tập, in phần chênh, phần chênh khác rỗng). Ở 48703713: kiemChuyen mới == kiemChuyen v2.27.0
-      (bằng nhau); phai_sua đúng là các dòng _acceptance/chuyen-goi-dieu-phoi/evals.yaml cộng các dòng khối E7
-      của _acceptance/sua-paths-e5-soan-okr/evals.yaml; thêm dieu_phoi.lich_su (hai mục) vào config.yaml của bản
-      sao → CLI `xem --kiem-chuyen` in "kiem-chuyen: sach" và thoát 0. In tổng dòng, số phải sửa, đếm theo lớp
-      của hai cây. Chiều đỏ cùng cây b9a3b160: bản sao gói bỏ quét import tương đối (kiểm bước tiêm áp) → dòng
-      "chiều đỏ …" chứa "merge-base: phần chênh rỗng — import tương đối không được bắt". Dòng cuối
-      "dp8-crm-that: xanh". Kho hay sha vắng → exit 2 "không đọc được ở đây: <kho|sha>".
+      scripts/kiem-cheo/test/khoa.test.mjs; kiemChuyen mới == kiemChuyen v2.27.0 + phần chênh, và phần chênh (sắp
+      xếp) BẰNG tập viết sẵn [dem.mjs:10, dem.mjs:11, khoa.mjs:4, test/khoa.test.mjs:14]. Ở 48703713: kiemChuyen
+      mới == kiemChuyen v2.27.0; phai_sua đúng là các dòng _acceptance/chuyen-goi-dieu-phoi/evals.yaml cộng các
+      dòng khối E7 của _acceptance/sua-paths-e5-soan-okr/evals.yaml; thêm dieu_phoi.lich_su (hai mục) vào
+      config.yaml của bản sao ở dạng khối VÀ ở dạng một dòng → mỗi dạng CLI `xem --kiem-chuyen` in "kiem-chuyen:
+      sach", thoát 0. Chiều đỏ cùng cây b9a3b160 (kiểm bước tiêm áp): bản sao bỏ quét import tương đối → dòng
+      "chiều đỏ …" chứa "merge-base: phần chênh rỗng — import tương đối không được bắt"; bản sao chỉ bắt import
+      tương đối đầu tiên mỗi tệp → lỗi DUY NHẤT là "merge-base: phần chênh [dem.mjs:10, khoa.mjs:4,
+      test/khoa.test.mjs:14] ≠ tập viết sẵn […]". Dòng cuối "dp8-crm-that: xanh". Kho hay sha vắng → exit 2
+      "không đọc được ở đây: <kho|sha>".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -109,7 +112,8 @@ evals:
       cho-nguoi}) ⇔ (thoát 1), số assert == 8 (in hành động + mã từng hàng); hàng nhận: day[P1].worktree == W,
       sự kiện có thay == worktree cũ, stdout nhắc nhánh cũ khi worktree cũ còn; hàng còn đơn: đơn có worktree == W
       và luc bằng trước. "ok" cho "DP8-06-do luon-nhan": bản sao ghi-danh thôi đọc hành động của dãy (kiểm bước
-      tiêm áp) → hàm kiểm nêu hàng "nhịp 3′" lệch bất biến.
+      tiêm áp), SAU khi kiemBatBien bản lành trả [] trên cùng ma trận → hàm kiểm nêu đúng "nhịp 3′: lệch bất biến
+      (khong, thoát 0)".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
@@ -139,9 +143,11 @@ evals:
       exit 0; "ok" cho "DP8-08 tranh-chap": đợt mở từ gói 8 dãy chỗ giữ, 8 worktree kiểu chip,
       DIEU_PHOI_TRE_GHI_MS=300, 8 tiến trình `ghi-danh P<k>` khởi cùng lúc (spawn); mọi tiến trình thoát 0;
       hang-viec.json: mỗi dãy mang đúng worktree của mình (so 8 cặp); 8 sự kiện kieu ghi-danh; Nhật ký LUAT.md
-      thêm đúng 8 dòng; không còn hang-viec.khoa. "ok" cho "DP8-08 tron": 4 ghi-danh + 4 `hang them viec-<k>
-      --day P<k>` đồng thời dưới cùng trễ → 4 worktree và 4 hàng mới có mặt. "ok" cho "DP8-08 khoa-bo-roi": thư
-      mục hang-viec.khoa có mtime 31″ trước → ghi-danh thoát 0. "ok" cho "DP8-08-do bo-khoa": bản sao bỏ khoá
+      thêm đúng 8 dòng; không còn thư mục khoá (tên rút từ TEP_KHOA_HANG_VIEC của gói). "ok" cho "DP8-08 tron": 4 ghi-danh + 4 `hang them viec-<k>
+      --day P<k>` đồng thời dưới cùng trễ → 4 worktree và 4 hàng mới có mặt. "ok" cho "DP8-08 khoa-bo-roi": đối chứng khoá
+      TƯƠI cùng tên (rút từ gói) → ghi-danh thoát 1 sau ~10″, stderr khớp "hang-viec.json đang bị khoá quá 10″",
+      băm hang-viec.json bằng trước, khoá còn; đổi mtime khoá thành 31″ trước → ghi-danh thoát 0, worktree P1 ghi
+      đúng, khoá không còn. "ok" cho "DP8-08-do bo-khoa": bản sao bỏ khoá
       (kiểm bước tiêm áp), cùng 8 tiến trình → hàm kiểm nêu ít nhất một dãy "mất bản ghi" kèm tên. "ok" cho
       "DP8-08-do bo-khoa-hang-them": bản sao bỏ khoá chỉ ở `hang them` → hàng trộn nêu tên dãy hoặc hàng mất bản
       ghi.
@@ -184,12 +190,15 @@ evals:
     expected: >
       exit 0; tổng kết TAP "# fail 0" (không dòng "not ok"); "ok" cho "DP8-11 ca-da-ky": mốc so theo bộ chọn
       (commit gộp PR "…/vong/dieu-phoi-on-dinh-r2" trong lịch sử HEAD → điểm rẽ hai cha..cha-2; không có →
-      merge-base HEAD origin/main..HEAD), in mốc và cách chọn; mỗi ca đổi thân trong tests/dieu-phoi/** (khối ca
-      tách theo test(…) như SDT-07) có dòng sổ fix của hồ sơ này nêu đúng tên (in danh sách, rỗng in "0 ca đã
-      ký đổi thân"). "ok" cho "DP8-11-do so-thieu-ten": kho git tạm do code sinh, nhánh vong/dieu-phoi-on-dinh-r2
-      đổi thân ca X không kèm sổ → hàm kiểm nêu "X chưa có dòng sổ"; thêm dòng fix nêu X → im (đối chứng). "ok"
-      cho "DP8-11 chon-moc": cùng kho, main đổi ca Y, gộp main vào nhánh rồi gộp PR --no-ff → danh sách đúng [X]
-      ở cả hai trạng thái.
+      merge-base HEAD origin/main..HEAD), in mốc và cách chọn; mỗi ca đổi thân trong tests/dieu-phoi/** có dòng sổ
+      fix của hồ sơ này nêu đúng tên (in danh sách, rỗng in "0 ca đã ký đổi thân"). "ok" cho "DP8-11 tach-khoi":
+      tệp mẫu do code sinh (ca nhiều dòng · ca một dòng · ca sinh trong vòng lặp · ca nhiều dòng) → khoá đúng [X, Y,
+      L ${t}, Z]; đổi thân Y chỉ báo ["Y"]; đổi thân ca trong vòng lặp chỉ báo ["L ${t}"]; trên mọi tệp
+      tests/dieu-phoi/*.test.mjs số khối có tên == số dòng `test(` (in tổng, lệch 0). "ok" cho "DP8-11-do
+      tach-khoi-cu": bản lành [] rồi bộ tách cũ (cột 0, khép `});`) → nêu "đổi thân ca trong vòng lặp bị báo là
+      ["Y"]". "ok" cho "DP8-11-do so-thieu-ten": kho git tạm, nhánh vong/dieu-phoi-on-dinh-r2 đổi thân ca X → hàm
+      kiểm nêu "X chưa có dòng sổ"; thêm dòng fix nêu X → im (đối chứng). "ok" cho "DP8-11 chon-moc": main đổi ca
+      Y, gộp main vào nhánh rồi gộp PR --no-ff → danh sách đúng [X] ở cả hai trạng thái.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-11
@@ -204,4 +213,19 @@ evals:
     cmd: config:executors.test.dieu_phoi_lb
     paths: [dieu-phoi/**]
     expected: "exit 0; ca LB1, LB2 xanh: tài liệu nhắc /dieu-phoi:… đều nằm trong bảng tên lệnh."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/kiem-chuyen.mjs, tests/dieu-phoi/on-dinh-r2.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP8-12 dang-khai": cùng kho của DP8-01, khoá dieu_phoi.lich_su viết ở 4 dạng (khoi ·
+      mot-dong · mot-dong-chu-thich · khoi-chu-thich) → kiemPhanLop trả [] ở mỗi dạng với trọn ma trận 27 hàng (in
+      «lỗi theo dạng» = 0 cả bốn). "ok" cho "DP8-12 doc-danh-sach": ma trận 5 hàng viết sẵn → docDanhSachKhoa trả
+      đúng mảng từng hàng (một dòng có #id · một dòng kèm chú thích · glob {a,b} · khối kèm chú thích · nháy chứa
+      " #"). "ok" cho "DP8-12-do chu-thich-cat-id": bản lành [] ở dạng một dòng, rồi bản sao coi # là chú thích →
+      lỗi chứa đúng "(25) eval sống cùng tệp với khối khai #id: khai-boi-kho, cần phai-sua". "ok" cho "DP8-12-do
+      cot-0": bản lành [], rồi bản sao coi dòng cột 0 là hết khối → lỗi chứa đúng "(26) executor gọi từ eval viết ở
+      cột 0: executor-chet, cần phai-sua".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

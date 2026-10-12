@@ -16,6 +16,9 @@ const KHO = path.join(os.homedir(), 'dev', 'crm-onehub');
 const SHA = { 'merge-base': 'b9a3b1609b47f175d44b9a9236b26b7cabec84af', 'đỉnh nhánh chuyển': '48703713311ab96ba33e13da20cb73fdef62a2a1' };
 const MOC_CU = 'a1e2e0b9c42bfd1c0914b17816cd61bf9e08beb7';
 const IMPORT_KIEM_CHEO = ['scripts/kiem-cheo/dem.mjs', 'scripts/kiem-cheo/khoa.mjs', 'scripts/kiem-cheo/test/khoa.test.mjs'];
+// Đọc tay một lần trên sha ghim b9a3b160 (sha không đổi nên tập không đổi): MỌI dòng import/require tương đối giải
+// vào scripts/dieu-phoi/ của ba tệp kiểm chéo. Phần chênh phải BẰNG đúng tập này (finding lượt 1, trong hợp đồng AC-4).
+const CHENH_CAN = ['scripts/kiem-cheo/dem.mjs:10', 'scripts/kiem-cheo/dem.mjs:11', 'scripts/kiem-cheo/khoa.mjs:4', 'scripts/kiem-cheo/test/khoa.test.mjs:14'];
 const KHAI = ['"_acceptance/chuyen-goi-dieu-phoi/**"', '_acceptance/sua-paths-e5-soan-okr/evals.yaml#E7'];
 
 const coSha = (sha) => spawnSync('git', ['cat-file', '-e', `${sha}^{commit}`], { cwd: KHO }).status === 0;
@@ -83,6 +86,8 @@ function kiemMergeBase(mod, d, nhan) {
   if (nhan) console.log(`merge-base: kiemChuyen mới ${dsMoi.length} · v2.27.0 ${dsCu.length} · chênh thêm: ${them.join(', ') || '(rỗng)'}`);
   if (thieu.length) ra.push(`merge-base: mới thiếu dòng v2.27.0 có: ${thieu.join(', ')}`);
   if (!them.length) ra.push('merge-base: phần chênh rỗng — import tương đối không được bắt');
+  const chenhSap = [...them].sort();
+  if (them.length && JSON.stringify(chenhSap) !== JSON.stringify(CHENH_CAN)) ra.push(`merge-base: phần chênh ${JSON.stringify(chenhSap)} ≠ tập viết sẵn ${JSON.stringify(CHENH_CAN)}`);
   for (const x of them) {
     const [f, so] = [x.slice(0, x.lastIndexOf(':')), Number(x.slice(x.lastIndexOf(':') + 1))];
     const dong = fs.readFileSync(path.join(d, f), 'utf8').split('\n')[so - 1] ?? '';
@@ -104,6 +109,18 @@ function kiemMergeBase(mod, d, nhan) {
   const loiDo = kiemMergeBase(await import(`${pathToFileURL(pKc).href}?do`), d, false);
   console.log(`chiều đỏ (bản sao bỏ quét import tương đối): ${loiDo.join(' | ') || '(im)'}`);
   if (!loiDo.includes('merge-base: phần chênh rỗng — import tương đối không được bắt')) loi.push('chiều đỏ: bản sao bị tiêm không đỏ đúng lỗi');
+  // Chiều đỏ thứ hai (đẳng thức tập — finding lượt 1): bản sao chỉ bắt import tương đối ĐẦU TIÊN của mỗi tệp → hụt
+  // dem.mjs:11 mà vẫn qua bốn điều kiện cũ (mỗi tệp ≥ 1 dòng, chênh khác rỗng, từng phần tử đúng dạng).
+  const sao2 = path.join(tam, 'goi-sao-2');
+  fs.cpSync(GOI, sao2, { recursive: true });
+  const pKc2 = path.join(sao2, 'scripts', 'kiem-chuyen.mjs');
+  const goc2 = fs.readFileSync(pKc2, 'utf8');
+  const tiem2 = goc2.replace('if (!trung && ma) {', 'if (!trung && ma && !ra.some((x) => x.startsWith(`${nhan}:`))) {');
+  if (tiem2 === goc2) loi.push('chiều đỏ 2: bước tiêm không áp được');
+  fs.writeFileSync(pKc2, tiem2);
+  const loiDo2 = kiemMergeBase(await import(`${pathToFileURL(pKc2).href}?do2`), d, false);
+  console.log(`chiều đỏ 2 (bản sao chỉ bắt import đầu tiên mỗi tệp): ${loiDo2.join(' | ') || '(im)'}`);
+  if (JSON.stringify(loiDo2) !== JSON.stringify([`merge-base: phần chênh ${JSON.stringify(CHENH_CAN.filter((x) => x !== 'scripts/kiem-cheo/dem.mjs:11'))} ≠ tập viết sẵn ${JSON.stringify(CHENH_CAN)}`])) loi.push('chiều đỏ 2: bản sao chỉ bắt import đầu tiên mỗi tệp không đỏ đúng (và chỉ) ở đẳng thức tập');
 }
 
 // Đỉnh nhánh chuyển: sau khi gỡ.
@@ -127,17 +144,21 @@ function kiemMergeBase(mod, d, nhan) {
   if (la.length) loi.push(`đỉnh: phải sửa ngoài hai nhóm đã biết: ${la.join(', ')}`);
   if (!kq.phai_sua.some(laChuyen)) loi.push('đỉnh: không có dòng nào của evals.yaml hồ sơ chuyển');
   if (!kq.phai_sua.some(trongE7)) loi.push('đỉnh: không có dòng nào của khối E7');
+  // Khai ở CẢ HAI dạng viết (khối và một dòng — finding lượt 1: dạng một dòng có `#<id>` từng bị đọc thành miễn cả tệp).
   const pCfg = path.join(d, '_acceptance', 'config.yaml');
-  const cfg = fs.readFileSync(pCfg, 'utf8').split('\n');
-  const i = cfg.findIndex((x) => /^dieu_phoi:\s*(#.*)?$/.test(x));
-  const khoi = ['  lich_su:', ...KHAI.map((m) => `    - ${m}`)];
-  if (i >= 0) cfg.splice(i + 1, 0, ...khoi);
-  else cfg.push('dieu_phoi:', ...khoi);
-  fs.writeFileSync(pCfg, cfg.join('\n'));
-  const r = spawnSync(process.execPath, [path.join(GOI, 'scripts', 'dieu-phoi.mjs'), 'xem', '--kiem-chuyen'], { cwd: d, env: process.env, encoding: 'utf8' });
-  const dau = r.stdout.split('\n');
-  console.log(`đỉnh nhánh chuyển, khai dieu_phoi.lich_su: ${dau.slice(0, 2).join(' / ')} · thoát ${r.status}`);
-  if (dau[0] !== 'kiem-chuyen: sach' || r.status !== 0) loi.push(`đỉnh + khai: CLI in «${dau[0]}», thoát ${r.status}${r.stderr ? ` · ${r.stderr.trim()}` : ''}`);
+  const cfgGoc = fs.readFileSync(pCfg, 'utf8').split('\n');
+  const dangKhai = { khoi: ['  lich_su:', ...KHAI.map((m) => `    - ${m}`)], 'mot-dong': [`  lich_su: [${KHAI.join(', ')}]`] };
+  for (const [dang, khoi] of Object.entries(dangKhai)) {
+    const cfg = [...cfgGoc];
+    const i = cfg.findIndex((x) => /^dieu_phoi:\s*(#.*)?$/.test(x));
+    if (i >= 0) cfg.splice(i + 1, 0, ...khoi);
+    else cfg.push('dieu_phoi:', ...khoi);
+    fs.writeFileSync(pCfg, cfg.join('\n'));
+    const r = spawnSync(process.execPath, [path.join(GOI, 'scripts', 'dieu-phoi.mjs'), 'xem', '--kiem-chuyen'], { cwd: d, env: process.env, encoding: 'utf8' });
+    const dau = r.stdout.split('\n');
+    console.log(`đỉnh nhánh chuyển, khai dieu_phoi.lich_su dạng ${dang}: ${dau.slice(0, 2).join(' / ')} · thoát ${r.status}`);
+    if (dau[0] !== 'kiem-chuyen: sach' || r.status !== 0) loi.push(`đỉnh + khai dạng ${dang}: CLI in «${dau[0]}», thoát ${r.status}${r.stderr ? ` · ${r.stderr.trim()}` : ''}`);
+  }
 }
 
 for (const l of loi) console.log(`LỖI ${l}`);
