@@ -23,3 +23,4 @@
 {"ts":"2026-10-12T03:24:59Z","sha":"0caf90a494496864a4a78ca1bd1d727c7e16ad40","round":1,"kind":"round-tally","verdict":"REJECT","expected":13,"returned":13,"blocked":0}
 {"ts":"2026-10-12T03:24:59Z","sha":"0caf90a494496864a4a78ca1bd1d727c7e16ad40","round":1,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":0,"bypass_ack":0,"verified_at":16}
 {"kind":"loai-tac-tu-vang","ts":"2026-10-12T03:24:59Z","round":1,"vai":["baseline","machine","finder","triage","provenance","synthesize"],"ly_do":"agent({agentType}): agent type 'feature-loop:cham-lenh' not found. Available agents: claude, claude-code-guide, Explore, general-purpose, Plan, statusline-setup"}
+{"ts":"2026-10-12T04:31:13Z","sha":"df109f4e4c80224a2ae467dcc5dd8de2d905d408","round":2,"kind":"luot-dung","wf":"wf_09ea2716-cb6","ly_do":"dừng giữa chừng — không phán quyết (Điều phối M5 nâng phạm vi, lượt kế chấm lại trọn)","dung_luc":"2026-10-12T04:35:29Z"}

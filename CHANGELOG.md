@@ -374,16 +374,22 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
       `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại; kiểm từng bản ghi.
    2. Đợt đang mở bằng bản crm: dừng bộ phát lịch bản cũ trước (`node scripts/dieu-phoi/dieu-phoi.mjs dung`), chuyển
       xong thì `node "$GOI/scripts/dieu-phoi.mjs" chay` để chép lõi của gói vào `<thư mục đợt>/loi/`.
-   3. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, gỡ mọi chỗ nó in — bốn khối hook tự chép trong
-      `.claude/settings.json` (PreToolUse chặn S4, PostToolUse nhịp, Notification và UserPromptSubmit chờ người),
-      `package.json`, eval của hồ sơ, `LUAT.md` của đợt — rồi gỡ thư mục `scripts/dieu-phoi/` (lệnh không liệt kê
-      chính thư mục bản cũ). Lặp tới `kiem-chuyen: sach`. Gỡ và cài nằm trong CÙNG một PR.
+   3. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, gỡ các dòng nó in thuộc nhóm **đang chạy** — bốn khối
+      hook tự chép trong `.claude/settings.json` (PreToolUse chặn S4, PostToolUse nhịp, Notification và
+      UserPromptSubmit chờ người), `.githooks/gate-shape.json`, `package.json`, eval của hồ sơ đang mở, `LUAT.md` của
+      đợt đang chạy — rồi gỡ thư mục `scripts/dieu-phoi/` (lệnh không liệt kê chính thư mục bản cũ). Đo trên crm
+      12/10: 670 dòng, chỉ 7 dòng thuộc nhóm đang chạy (settings 4, hook git 2, `package.json` 1); 663 dòng còn lại nằm
+      trong `_acceptance/` (533) và `docs/` (130) — bản ghi lịch sử, để nguyên (sửa là làm hồ sơ đã ký hoá cũ). Vì
+      thế `kiem-chuyen: sach` sẽ KHÔNG in ở crm; điểm dừng là hết dòng thuộc nhóm đang chạy. Gỡ và cài nằm trong
+      CÙNG một PR.
    4. **Kiểm hook `cho-nguoi` của gói không bắn đôi với bản crm tự chép:** khối hook cũ mở đầu bằng `[ -f
-      "$CLAUDE_PROJECT_DIR/scripts/dieu-phoi/…" ] || exit 0` nên im hẳn khi thư mục bản cũ đã gỡ. Sạch =
-      `kiem-chuyen: sach` + `scripts/dieu-phoi/` không còn + `xem` không in dòng cảnh báo hook bản cũ. Trong khoảng
+      "$CLAUDE_PROJECT_DIR/scripts/dieu-phoi/…" ] || exit 0` nên im hẳn khi thư mục bản cũ đã gỡ. Không bắn
+      đôi = `kiem-chuyen` không còn dòng nào ở `.claude/settings*.json` + `scripts/dieu-phoi/` không còn + `xem` không in
+      dòng cảnh báo hook bản cũ. Trong khoảng
       đã cài mà chưa gỡ, mỗi `Notification` chạy hai bản `hook-cho-nguoi` ghi đè cùng tệp chờ người.
-   5. **Giữ luật 52** trong `LUAT.md` của đợt (thợ chờ người — kể cả chờ hộp quyền trong lượt chấm — tự ghi
-      `can-nguoi`): hộp quyền của tác tử Workflow chưa đo là có tới hook chờ người.
+   5. **Giữ luật 52** của crm (thợ chờ người — kể cả chờ hộp quyền trong lượt chấm — tự ghi `can-nguoi`) trong phần
+      riêng của đợt (`LUAT-rieng.md` khi mở bằng `/dieu-phoi:mo-dot`) — khuôn `LUAT.md` của gói chưa mang luật này,
+      và hộp quyền của tác tử Workflow chưa đo là có tới hook chờ người.
 4. **Đo trước → sau trên crm** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây,
    chạy lưới trước-merge và thẻ của các hồ sơ đang mở dưới bản đang cài rồi 2.27.0 — phán quyết từng hồ sơ phải bằng
    nhau, TRỪ chỗ mốc hứa đổi: cờ vàng cho trường danh sách viết kiểu kit không đọc (R1), `paths` thoát ngoặc lọc
@@ -392,7 +398,8 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
 5. **Trong đợt thử, đếm ở sổ chạy:** lượt S4 thật lọt khoá (ngưỡng «S4 tự xưng» ≥ 1) và lượt S4 đứng vì hộp quyền
    mà không có tệp chờ người (ngưỡng «mù» ≥ 1) — hai số này quyết hai việc kế của gói.
 
-**OneFlow** (đợt thử thứ hai ~27/10): cài `dieu-phoi` lần đầu — không có bản chép tay nên chỉ bước 3.1 và 3.5; đo
+**OneFlow** (đợt thử thứ hai ~27/10): cài `dieu-phoi` lần đầu — không có bản chép tay nên chỉ bước 3.1, và THÊM vào
+`LUAT-rieng.md` của đợt luật «thợ chờ người thì ghi `can-nguoi`» (OneFlow chưa có luật này; xem bước 3.5); đo
 «chạy được mà không sửa lõi».
 
 **Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng của từng vòng — đủ ở hai mươi hợp đồng và

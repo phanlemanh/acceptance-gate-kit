@@ -9,7 +9,7 @@ status: implemented
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-10-11T21:30:47Z
+veto_opened_at: 2026-10-12T04:35:29Z
 ---
 
 # Acceptance Contract: release-2-27-0
@@ -60,10 +60,11 @@ mười bảy hồ sơ · `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md
 - AC-5: Given mốc `200ce7bb` (tag `v2.26.0`), When so thư mục `diagram-design/` và số của nó với HEAD bằng git, Then thư mục KHÔNG có dòng đổi VÀ số bằng số ở mốc — `diagram-design` giữ `2.7.1` là đúng.
 - AC-6: Given mô tả hai plugin, When chạy vùng 3 của suite plugins, Then lệnh thoát 0 — P200 đòi mô tả `acceptance-gate` CÓ mục của đúng số đang phát hành và mục đó của `feature-loop` TỰ khai cặp `acceptance-gate >= <số>`. *Nội dung* các vế người-dùng-nhận-gì đọc trực tiếp trong diff.
 - AC-7: Given cây đã sửa, When chạy suite của gói `dieu-phoi` (`tests/dieu-phoi/**/*.test.mjs`, cùng lệnh job CI của kit), Then lệnh thoát 0 — gồm ca DP1-06 (README và `LUAT.md` mẫu của gói không trỏ bản lõi chép tay) và ca tài liệu SDT-08 trên README đã sửa.
+- AC-8: Given README gói `dieu-phoi`, mục `2.27.0` của `CHANGELOG.md`, `dieu-phoi/hooks/hooks.json`, `kiemChuyen` trong `dieu-phoi/scripts/dieu-phoi.mjs`, khuôn `dieu-phoi/scripts/mau/LUAT.md` và `card-plain.json` của hồ sơ này, When đọc, Then (i) số khối hook README nêu bằng số khối trong `hooks.json` (năm, kèm một mod); (ii) README nêu luật «thợ chờ người thì ghi `can-nguoi`» theo NỘI DUNG và nơi khai (phần riêng của đợt), không bằng số luật của một kho — khuôn `LUAT.md` của gói không mang luật ấy; (iii) điểm dừng của bước chuyển ở README và ở ghi chú crm đạt được trên kho có lịch sử: không đòi `kiem-chuyen: sach`, tách dòng thuộc nhóm đang chạy (settings, hook git, `package.json`, eval hồ sơ đang mở, `LUAT.md` của đợt) khỏi bản ghi lịch sử phải để nguyên — khớp việc `kiemChuyen` quét mọi tệp git theo dõi; (iv) `card-plain.json` không hứa tác tử chấm không thể ghi vào cây — nói đúng: không cầm công cụ sửa tệp, ghi qua shell được máy ghi tên sau lượt. Bốn vế là Ngoài-1…4 của lượt chấm 1, nâng vào phạm vi theo quyết Điều phối M5 (làn V, cửa kéo lại mở).
 
 ## Coverage
 
-- Quét theo hai trục của nếp release-2-1-0→2-26-0, không quét lại: Trục A · vật của một lần cắt số (manifest | dòng khớp-phiên-bản | mô tả người-dùng-nhận-gì | phạm vi diff | gói đổi/không đổi) `[thước CE: hai mươi mốt mốc trước đã dùng thật]` · Trục B · hành trình hồ sơ (bằng chứng | biên merge) `[thước CE: xanh_sach_check + ADR 0012]`. Ô Core → AC-1 · AC-2 · AC-3 · AC-4 · AC-5 · AC-6; gói thứ tư mới có số riêng → AC-7 (suite của gói, lệnh đã có ở CI); không răng mới.
+- Quét theo hai trục của nếp release-2-1-0→2-26-0, không quét lại: Trục A · vật của một lần cắt số (manifest | dòng khớp-phiên-bản | mô tả người-dùng-nhận-gì | phạm vi diff | gói đổi/không đổi) `[thước CE: hai mươi mốt mốc trước đã dùng thật]` · Trục B · hành trình hồ sơ (bằng chứng | biên merge) `[thước CE: xanh_sach_check + ADR 0012]`. Ô Core → AC-1 · AC-2 · AC-3 · AC-4 · AC-5 · AC-6; gói thứ tư mới có số riêng → AC-7 (suite của gói, lệnh đã có ở CI); lời của mốc khớp vật (bốn mục lượt 1 tìm ra) → AC-8 (judgment, đọc vật và chữ cạnh nhau); không răng mới.
 
 ## Đường đo
 
@@ -90,4 +91,9 @@ mười bảy hồ sơ · `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md
   rút thành «được ký». Khoá `rel2270_cua_so` chạy script với `GIT_GLOB_PATHSPECS=1` (`*` dừng ở một tầng) — không
   sửa `scripts/` trong PR mốc. Đo 12/10: không biến → ĐỎ nêu đúng bốn tên mẫu; có biến → XANH, chiều đỏ với tập «x»
   vẫn gọi tên. Chỗ cắt cho cửa sổ kế (không mở ô): script tự dùng `:(glob)` thì mọi mốc sau khỏi nhớ biến này.
+- Phạm vi nâng sau lượt chấm 1 (12/10): bốn mục ngoài hợp đồng là chữ sai trong chính diff mốc → AC-8. Điều phối M5
+  quyết theo làn V (câu chỉ một lối ra sống: ship hướng dẫn đã biết làm crm kẹt ở đợt thử là trái mục tiêu mốc), cửa
+  kéo lại mở; không thêm lượt gọi chủ kho. Lượt chấm 2 bị dừng giữa chừng để sửa — không phán quyết (dòng
+  `luot-dung` trong run-log). Hai mục còn lại (E1/E6 không chứng số đã tăng; E4 so danh sách chép trong config) ghi
+  Known limits ở chữ ký.
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 200ce7bb x` thoát 1 gọi tên mọi hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).

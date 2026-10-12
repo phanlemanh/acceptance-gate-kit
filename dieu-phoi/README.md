@@ -10,8 +10,8 @@ Mã này **không** chứa gì riêng của kho. Mọi giá trị riêng nằm t
 claude plugin install dieu-phoi@acceptance-gate-kit --scope project
 ```
 
-Gói gắn bốn hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2); kho
-không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
+Gói gắn năm khối hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2, lưới hết hạn
+mức `StopFailure`) và một mod đọc mức dùng (`hooks/mod/`); kho không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
 in gì, không tạo tệp. `acceptance-init` KHÔNG tự bật gói này — kho chọn cài.
 
 Đường gói (dùng cho mọi lệnh dưới đây):
@@ -116,9 +116,11 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
 - **Mù — chưa đo: hộp quyền của tác tử Workflow có tới giám sát không.** Hook chờ người nghe sự kiện `Notification`
   (`permission_prompt`) của phiên; hộp quyền bật ra bên trong một tác tử của Workflow (lượt chấm S4 chạy như thế)
   có thể không bắn sự kiện đó ở phiên cha. Chưa đo thì coi là KHÔNG tới: S4 đứng vì hộp quyền có thể không
-  có tệp chờ người, giám sát không thức, bảng không hiện. Kho chuyển sang gói **giữ luật 52 của mình** trong
-  `LUAT.md` của đợt (thợ đứng chờ người — kể cả chờ hộp quyền trong lượt chấm — thì tự ghi yêu cầu `can-nguoi`,
-  không chỉ hỏi bằng chữ trong hội thoại) cho tới khi phép đo trả «tới». Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng vì
+  có tệp chờ người, giám sát không thức, bảng không hiện. Mọi kho chạy đợt bằng gói **khai trong phần riêng của
+  đợt** (`LUAT-rieng.md` khi mở bằng `/dieu-phoi:mo-dot`) một luật: thợ đứng chờ người — kể cả chờ hộp quyền trong
+  lượt chấm — thì tự ghi yêu cầu `can-nguoi`, không chỉ hỏi bằng chữ trong hội thoại. Khuôn `LUAT.md` của gói
+  chưa mang luật này; kho đã có nó trong luật đợt của mình thì giữ nguyên khi chuyển. Giữ cho tới khi phép đo trả
+  «tới». Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng vì
   hộp quyền mà không có tệp chờ người. Phép đo đã soạn ở hạt giống
   `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md` (câu 1 §12.3).
 - **Một số dạng cú pháp shell làm lệnh S4 thật lọt khoá** (đo lại trên bộ phân loại của bản này, 12/10):
@@ -182,16 +184,20 @@ Thứ tự chuyển, chạy ở quãng lặng (không lượt S4 nào đang ch�
 1. `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` ở cây gốc VÀ mỗi cây phụ có phiên.
    Bộ đệm gói khoá theo số phiên bản: báo «already at latest» mà `claude plugin list --json` vẫn ghi số cũ thì
    `claude plugin uninstall dieu-phoi@acceptance-gate-kit --scope project` rồi cài lại.
-2. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, gỡ từng chỗ nó in (khối hook trong `.claude/settings.json`
-   gọi bản cũ, hook git, `package.json`, eval của hồ sơ), rồi gỡ chính thư mục lõi chép tay của kho (lệnh bỏ qua
-   thư mục bản cũ nên không liệt kê nó). Chạy lại tới khi in `kiem-chuyen: sach`; gỡ và cài nằm
-   trong CÙNG một commit để không có khoảng hai bản hook cùng chạy.
+2. `node "$GOI/scripts/dieu-phoi.mjs" xem --kiem-chuyen`, rồi gỡ mọi dòng nó in thuộc nhóm **đang chạy**: khối hook
+   trong `.claude/settings*.json` gọi bản cũ, hook git, `package.json`, eval của hồ sơ đang mở, `LUAT.md` của đợt
+   đang chạy; sau đó gỡ chính thư mục lõi chép tay của kho (lệnh bỏ qua thư mục bản cũ nên không liệt kê nó). Lệnh
+   quét MỌI tệp git theo dõi, nên dòng trong **bản ghi lịch sử** — `run-log.jsonl`, báo cáo bằng chứng, hồ sơ đã ký,
+   `docs/` — vẫn còn và phải để nguyên: sửa chúng làm hồ sơ đã ký hoá cũ. Kho có lịch sử thì `kiem-chuyen: sach`
+   không bao giờ in; điểm dừng là hết dòng thuộc nhóm đang chạy (đo trên một kho thật 12/10: 670 dòng, 7 dòng thuộc
+   nhóm đang chạy — settings 4, hook git 2, `package.json` 1 — còn lại là lịch sử). Gỡ và cài nằm trong CÙNG một
+   commit để không có khoảng hai bản hook cùng chạy.
 3. Kiểm không bắn đôi: khối hook bản cũ mở đầu bằng `[ -f "$CLAUDE_PROJECT_DIR/<thư mục bản cũ>/hook-….mjs" ] ||
-   exit 0`, nên nó im hẳn khi thư mục bản cũ đã gỡ. «Không bắn đôi» = `kiem-chuyen: sach` + thư mục bản cũ không
-   còn + `xem` không in dòng cảnh báo hook bản cũ. Trong khoảng đã cài gói mà chưa gỡ, mỗi `Notification` chạy hai bản
+   exit 0`, nên nó im hẳn khi thư mục bản cũ đã gỡ. «Không bắn đôi» = `kiem-chuyen` không còn dòng nào ở
+   `.claude/settings*.json` + thư mục bản cũ không còn + `xem` không in dòng cảnh báo hook bản cũ. Trong khoảng đã cài gói mà chưa gỡ, mỗi `Notification` chạy hai bản
    `hook-cho-nguoi` ghi đè cùng tệp `cho-nguoi/<dãy>.json` (bộ phát lịch có thể đếm hai lần chờ người) — vì vậy
    gỡ và cài cùng một commit.
-4. Giữ luật «thợ chờ người thì ghi `can-nguoi`» trong `LUAT.md` của đợt — xem giới hạn «Mù» ở trên.
+4. Khai luật «thợ chờ người thì ghi `can-nguoi`» trong phần riêng của đợt — xem giới hạn «Mù» ở trên.
 
 ## Đóng đợt
 

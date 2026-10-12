@@ -121,3 +121,20 @@ evals:
       khuôn), không dòng «not ok» nào, và tổng kết TAP «# fail 0». Lệnh có pipefail: suite đỏ hay sập trước
       dòng tổng kết thì thoát khác 0.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [dieu-phoi/README.md, CHANGELOG.md, dieu-phoi/hooks/hooks.json, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mau/LUAT.md, _acceptance/release-2-27-0/card-plain.json, _acceptance/release-2-27-0/contract.md]
+    question: >
+      Đọc AC-8 của contract, README gói dieu-phoi (mục «Cài cho một kho», giới hạn «Mù», mục «Chuyển từ bản lõi chép
+      tay»), mục 2.27.0 của CHANGELOG (mục gói dieu-phoi, bước 3 của «crm, theo thứ tự», dòng OneFlow), hooks.json,
+      hàm kiemChuyen trong dieu-phoi.mjs, khuôn scripts/mau/LUAT.md và card-plain.json. (1) Số khối hook README nêu có
+      bằng số khối trong hooks.json không (kể cả StopFailure), và có nhắc mod không? (2) README có gọi luật «thợ chờ
+      người thì ghi can-nguoi» bằng số luật của một kho cụ thể không, hay nêu nội dung luật và nơi khai (phần riêng của
+      đợt)? Khuôn LUAT.md của gói có mang luật ấy không — README có nói đúng điều đó không? (3) Điểm dừng của bước chuyển
+      (README bước 2–3, CHANGELOG bước 3.3–3.4) có đạt được ở một kho có hồ sơ đã ký và nhật ký nhắc đường bản cũ không —
+      tức là có còn đòi «kiem-chuyen: sach» làm điều kiện dừng, hay tách nhóm đang chạy khỏi bản ghi lịch sử, khớp việc
+      kiemChuyen quét mọi tệp git theo dõi? (4) card-plain.json có hứa tác tử chấm không thể ghi vào cây không, hay nói
+      đúng: không cầm công cụ sửa tệp, ghi qua shell được ghi tên sau lượt? Trả PASS khi (1) bằng nhau và có mod,
+      (2) nêu theo nội dung + nơi khai và nói đúng về khuôn, (3) không đòi «sach» và có tách nhóm, (4) nói đúng.
+    evidence_required: [run_id, verdict, rationale]
