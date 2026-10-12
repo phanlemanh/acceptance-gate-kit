@@ -218,3 +218,138 @@ test('KH-03-do doi-chu', () => {
   const loi = kiemXemKhongDoi(sao);
   assert.ok(loi.some((l) => l.startsWith('(a)') && l.includes('cho luot')), loi.join(' | '));
 });
+
+// ---------- KH-04 · AC-4 ----------
+// Chuỗi mong đợi chép từ thiết kế §2.2 và hợp đồng AC-4 — viết tay, không rút từ mã.
+const HAN = '2026-10-10T00:47:30.085Z';
+const goc = (them = {}) => ({
+  dot: 'sau-14-10', pha: 'dang-chay', giam_tai: false, can_nguoi: null,
+  khoa: [{ tai_nguyen: 's4', phien: 'P5', han: HAN }], hang_cho: [{}, {}], cho_nguoi: [],
+  day: [{ id: 'P3', hang: 't173', tien_do: 'dang' }], cho_may: null, day_cua_cwd: null, mui_gio_phut: 420, ...them,
+});
+const MA_TRAN_DAI = [
+  ['(a)', { dot: null }, {}, (s) => s === null, 'null'],
+  ['(b)', { loi: 'thoát 1' }, {}, (s) => s === 'khung: không đọc được đợt', 'khung: không đọc được đợt'],
+  ['(c)', { dot: 'sau-14-10', pha: 'dang-chay', chua_co_nhip: true }, {}, (s) => s === 'Đợt sau-14-10 · dang-chay · chưa có nhịp', 'Đợt sau-14-10 · dang-chay · chưa có nhịp'],
+  ['(d)', goc(), {}, (s) => s.includes('S4: P5 → 07:47'), 'chứa S4: P5 → 07:47'],
+  ['(e)', goc({ khoa: [] }), {}, (s) => s.includes('S4: trống'), 'chứa S4: trống'],
+  ['(f)', goc({ khoa: [], cho_may: 'kho-khac' }), {}, (s) => s.includes('S4: chờ khoá máy'), 'chứa S4: chờ khoá máy'],
+  ['(g)', goc({ giam_tai: true }), {}, (s) => s.startsWith('GIẢM TẢI · '), 'mở đầu GIẢM TẢI · '],
+  ['(h)', goc({ day_cua_cwd: 'P3' }), {}, (s) => s.endsWith(' · Dãy P3: t173 · dang'), 'kết thúc · Dãy P3: t173 · dang'],
+  ['(i)', goc(), { cot: 40 }, (s) => s.length === 40 && s.endsWith('…'), 'dài 40, cuối …'],
+  ['(j)', goc({ cho_nguoi: [{}, {}], can_nguoi: 'RSS 9 GB' }), {}, (s) => s.includes('cần anh 3'), 'chứa cần anh 3'],
+  ['(k)', goc({ mui_gio_phut: 0 }), {}, (s) => s.includes('S4: P5 → 00:47'), 'chứa S4: P5 → 00:47'],
+  ['(l)', goc({ mui_gio_phut: -300 }), {}, (s) => s.includes('S4: P5 → 19:47'), 'chứa S4: P5 → 19:47'],
+];
+
+async function kiemVeDai(gocGoi) {
+  const loi = [];
+  const { veDai } = await nap(gocGoi, 'khung.mjs');
+  const { chuXem, veXem } = await nap(gocGoi, 'mo-hinh.mjs');
+  let n = 0;
+  for (const [ten, kq, tuy, dat, mo] of MA_TRAN_DAI) {
+    n += 1;
+    let s;
+    try {
+      s = veDai(kq, tuy);
+    } catch (e) {
+      s = `ném: ${e.message}`;
+    }
+    if (!(s !== undefined && (s === null ? dat(null) : typeof s === 'string' && dat(s)))) loi.push(`${ten}: «${s}» — mong ${mo}`);
+  }
+  const coNhip = goc();
+  const MA_TRAN_XEM = [
+    ['(m)', { dot: null }, 'không có đợt nào đang chạy'],
+    ['(n)', { dot: 'sau-14-10', pha: 'dang-chay', chua_co_nhip: true, canh_bao: null }, 'chưa có nhịp nào · pha dang-chay'],
+    ['(o)', { ...coNhip, trang_thai: 'dang-chay', nhip_cuoi: 'x', canh_bao: null }, null],
+    ['(p)', { ...coNhip, trang_thai: 'dang-chay', nhip_cuoi: 'x', canh_bao: 'cảnh báo: hai bản' }, null],
+  ];
+  for (const [ten, kq, mong] of MA_TRAN_XEM) {
+    n += 1;
+    const s = chuXem(kq);
+    const m = ten === '(o)' ? veXem(kq) : ten === '(p)' ? `${veXem(kq)}\ncảnh báo: hai bản` : mong;
+    if (s !== m) loi.push(`${ten}: «${s}» ≠ «${m}»`);
+  }
+  console.log(`  KH-04 số assert ma trận: ${n}`);
+  // Review Focus 2 và 5: cột quá hẹp, hạn khoá không phải ngày.
+  const hep = veDai(goc(), { cot: 3 });
+  if (!(typeof hep === 'string' && hep.length <= 3)) loi.push(`(phụ) cột 3: «${hep}»`);
+  const khongHan = veDai(goc({ khoa: [{ tai_nguyen: 's4', phien: 'P5', han: null }] }));
+  if (!(khongHan.includes('S4: P5') && !khongHan.includes('NaN'))) loi.push(`(phụ) hạn vắng: «${khongHan}»`);
+  return loi;
+}
+
+// Round-trip dải: đầu vào là stdout THẬT của `xem --json` trên kho thử; dòng mong đợi viết TRỌN tay (8 đơn chờ,
+// 0 việc chờ người đếm tay từ trang-thai.json của fixture).
+const R1 = 'Đợt sau-14-10 · dang-chay · S4: P5 → 07:47 · chờ lượt 8 · cần anh 0';
+async function kiemRoundTripDai(gocGoi) {
+  const loi = [];
+  const { veDai } = await nap(gocGoi, 'khung.mjs');
+  const wt3 = (kho) => path.join(kho, '.claude', 'worktrees', 'wt-3');
+  const hang = [
+    ['(R1)', () => khoDot().kho, R1],
+    ['(R2)', () => wt3(khoDot().kho), `${R1} · Dãy P3: t173 · dang`],
+    ['(R3)', () => khoDot({ nhip: false }).kho, 'Đợt sau-14-10 · dang-chay · chưa có nhịp'],
+    ['(R4)', () => khoDot({ sua: (tt) => ({ ...tt, trang_thai: 'giam-tai' }) }).kho, `GIẢM TẢI · ${R1}`],
+    ['(R5)', () => khoDot({ sua: (tt) => ({ ...tt, khoa: [], cho_may: 'kho-khac' }) }).kho, 'Đợt sau-14-10 · dang-chay · S4: chờ khoá máy · chờ lượt 8 · cần anh 0'],
+  ];
+  for (const [ten, cwd, mong] of hang) {
+    const r = chayCli(GOI, cwd(), ['xem', '--json']);
+    const s = r.ma === 0 ? veDai(JSON.parse(r.out)) : `CLI mã ${r.ma}`;
+    if (s !== mong) loi.push(`${ten}: «${s}» ≠ «${mong}»`);
+  }
+  console.log(`  KH-04 số assert round-trip dải: ${hang.length}`);
+  return loi;
+}
+
+test('KH-04 ve-dai', async () => {
+  assert.deepEqual(await kiemVeDai(GOI), []);
+});
+
+test('KH-04 round-trip-dai', async () => {
+  assert.deepEqual(await kiemRoundTripDai(GOI), []);
+});
+
+test('KH-04 round-trip-xem', async () => {
+  const { chuXem } = await nap(GOI, 'mo-hinh.mjs');
+  const loi = [];
+  const hang = [
+    ['(R6) có nhịp', khoDot().kho],
+    ['(R7) chưa có nhịp', khoDot({ nhip: false }).kho],
+    ['(R8) có cảnh báo', khoDot({ canhBao: true }).kho],
+  ];
+  for (const [ten, kho] of hang) {
+    const j = chayCli(GOI, kho, ['xem', '--json']);
+    const x = chayCli(GOI, kho, ['xem']);
+    if (chuXem(JSON.parse(j.out)) !== x.out.replace(/\n$/, '')) loi.push(`${ten}: chuXem ≠ stdout của xem`);
+  }
+  const khong = khoGit();
+  const x = chayCli(GOI, khong, ['xem']);
+  if (`dieu-phoi: ${chuXem({ dot: null })}` !== x.err.replace(/\n$/, '')) loi.push(`(R9) không đợt: «${x.err.trim()}»`);
+  console.log('  KH-04 số assert round-trip xem: 4');
+  assert.deepEqual(loi, []);
+});
+
+test('KH-04 khung-khong-import', () => {
+  const nguon = fs.readFileSync(path.join(GOI, 'scripts', 'khung.mjs'), 'utf8');
+  assert.ok(!/^\s*import\b/m.test(nguon), 'khung.mjs có dòng import');
+});
+
+// Ca đỏ: bản sao khung.mjs bị tiêm, chạy lại CHÍNH phép đo.
+test('KH-04-do bo-giam-tai', async () => {
+  const sao = banSao('khung.mjs', 'if (kq.giam_tai) s = `GIẢM TẢI · ${s}`;', '');
+  const loi = [...(await kiemVeDai(sao)), ...(await kiemRoundTripDai(sao))];
+  assert.ok(loi.some((l) => l.startsWith('(g)')) && loi.some((l) => l.startsWith('(R4)')), loi.join(' | '));
+});
+
+test('KH-04-do sai-khoa-cho', async () => {
+  const sao = banSao('khung.mjs', 'chờ lượt ${(kq.hang_cho ?? []).length}', 'chờ lượt ${(kq.cho_nguoi ?? []).length}');
+  const loi = await kiemRoundTripDai(sao);
+  assert.ok(loi.some((l) => l.startsWith('(R1)')), loi.join(' | '));
+});
+
+test('KH-04-do gio-may', async () => {
+  const sao = banSao('khung.mjs', 'const d = new Date(ms + (Number(lechPhut) || 0) * 60000);', 'const d = new Date(ms); d.getUTCHours = d.getHours; d.getUTCMinutes = d.getMinutes;');
+  const loi = await kiemVeDai(sao);
+  assert.ok(loi.some((l) => l.startsWith('(k)') || l.startsWith('(l)')), loi.join(' | '));
+});
