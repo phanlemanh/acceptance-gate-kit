@@ -1,0 +1,5 @@
+E11 network/console dump (playwright, local static server 127.0.0.1:48211 serving evidence dir; config.yaml has no dev_server => unscoped)
+GET /card-g1-luat.html 200 (x2: 1280, 390)
+GET /card-g2-luat.html 200 (x2: 1280, 390)
+console error: Failed to load resource: 404 http://127.0.0.1:48211/favicon.ico  (static asset, note-only, not FAIL-eligible)
+no fetch/XHR traffic; no third-party requests.
