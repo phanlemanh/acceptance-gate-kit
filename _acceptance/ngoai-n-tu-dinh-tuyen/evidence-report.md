@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ddfba90a912c2a4f48738e5cb3c60c20079376f4
+verified_commit: 5e043c06f3347db65f3c982a357b054c1991ac1f
 human_signoff: manh 2026-10-12
 ---
 
@@ -316,3 +316,7 @@ Round 2: phạm vi nâng AC-11…AC-14 (E11, E12, E13a/E13b, E14) cộng sửa E
 ### Re-pin lần 1 — 2026-10-12, do gộp main 7f65e5a0 (#319 #314) trước khi gộp PR #322
 run_id: repin-20261012T005458Z-67460
 sha: ddfba90a912c2a4f48738e5cb3c60c20079376f4 · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E9b (E9b không khai paths), E13b (E13b không khai paths)
+
+### Re-pin lần 2 — 2026-10-12, do chiến dịch ghim lại 2.27.0 — 22 hồ sơ hoá cũ theo paths so v2.26.0, sau chữ ký mốc (lượt làn thứ hai)
+run_id: repin-20261012T065455Z-55784
+sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E9b (E9b không khai paths), E13b (E13b không khai paths)
