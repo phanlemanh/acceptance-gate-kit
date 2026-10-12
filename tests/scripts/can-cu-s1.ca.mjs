@@ -725,18 +725,26 @@ const dongKhac = (a, b) => {
   const khuc = t => t.slice(Math.max(0, c - 40), c + 80).replace(/\s+/g, ' ');
   return `dòng ${i + 1}, ký tự ${c + 1}: «…${khuc(p)}…» ≠ «…${khuc(q)}…»`;
 };
+// Lệch ở lượt song song phải LẶP LẠI khi chạy tuần tự (A rồi B, hai lần) mới tính: CI #331 chạy lại hai lần ra hai tập lệch
+// khác nhau trên cùng một cây — nghi lệnh git của bộ quét trả rỗng khi nhiều thẻ dựng cùng lúc. Không lặp lại → «chập chờn».
+const chayTheTuanTu = (goc, slug, them) => { const r = spawnSync('node', [path.join(goc, 'scripts', 'gate-card.js'), '--root', ROOT, '--slug', slug, '--gate', '1', ...them], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return `${r.status}\n${r.stdout}`; };
 async function soThe(gocA, gocB, slugs, { dungKhiLech = false } = {}) {
-  const lech = []; const chiTiet = []; let i = 0;
+  const lech = []; const chiTiet = []; const chapChon = []; let i = 0;
   const tho = async () => {
     while (i < slugs.length && !(dungKhiLech && lech.length)) {
       const x = slugs[i++];
       for (const them of [[], ['--extract']]) {
         const [a, b] = await Promise.all([chayThe(gocA, x, them), chayThe(gocB, x, them)]);
-        if (a !== b) { const ten = x + (them.length ? ' (bản rút)' : ''); lech.push(ten); chiTiet.push(`${ten} — ${dongKhac(a, b)}`); break; }
+        if (a === b) continue;
+        const ten = x + (them.length ? ' (bản rút)' : '');
+        let lap = 0, khuc = dongKhac(a, b);
+        for (let k = 0; k < 2; k++) { const a2 = chayTheTuanTu(gocA, x, them), b2 = chayTheTuanTu(gocB, x, them); if (a2 !== b2) { lap++; khuc = dongKhac(a2, b2); } }
+        if (lap === 2) { lech.push(ten); chiTiet.push(`${ten} — ${khuc}`); } else chapChon.push(`${ten} (lặp ${lap}/2) — ${dongKhac(a, b)}`);
+        break;
       }
     }
   };
-  await Promise.all(Array.from({ length: 4 }, tho)); lech.chiTiet = chiTiet.sort(); return lech.sort();
+  await Promise.all(Array.from({ length: 4 }, tho)); lech.chiTiet = chiTiet.sort(); lech.chapChon = chapChon.sort(); return lech.sort();
 }
 let KK8;
 try {
@@ -753,6 +761,7 @@ try {
 check('KK-8 ho-so-cu', () => {
   if (KK8.loi) die(KK8.loi);
   if (KK8.troi.length) console.log('    KK-8 CẢNH BÁO cây làm việc trôi khỏi lưu trữ HEAD (không phải vật của vòng): ' + KK8.troi.chiTiet.join(' | '));
+  for (const [ten, l] of [['đối chứng', KK8.troi], ['gốc↔đỉnh', KK8.lech]]) if (l.chapChon.length) console.log(`    KK-8 CẢNH BÁO chập chờn (${ten}, lệch song song không lặp lại khi chạy tuần tự): ` + l.chapChon.join(' | '));
   if (KK8.n < 20) die(`chỉ ${KK8.n} hồ sơ cũ để so — cần ≥ 20`);
   if (KK8.lech.length) die('thẻ hồ sơ cũ ở gốc vòng ≠ ở đỉnh vòng: ' + KK8.lech.chiTiet.join(' | '));
   console.log(`    KK-8: ${KK8.n} hồ sơ · gốc ${KK8.tv.goc.slice(0, 8)} → đỉnh ${KK8.tv.dinh ? KK8.tv.dinh.slice(0, 8) : (KK8.cayBan ? 'cây làm việc' : 'lưu trữ HEAD')} (${KK8.tv.nguon}) · ${KK8.giay} s`);
