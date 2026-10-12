@@ -119,9 +119,10 @@ evals:
       exit 0; stdout có "PASS: DD-8" — sáu ô cơ hội / hợp đồng thử (a)…(f) của AC-8 (câu sinh trong ca, độ dài
       kiểm trước): mục vi-sao của trang hồ sơ (bộ đọc HTML độc lập) chứa nguyên văn câu thứ năm (a), trọn câu
       (b), câu dẫn + đủ sáu mục kể cả câu chi tiết (c), ô của cả ba hàng (d), đúng đoạn (e), trọn đoạn Context
-      (f); ô vi_sao của dải và khối ≤ 400 ký tự ở mọi ca và ca (a) == hai câu đầu + «…». Và "PASS: DD-8-do" —
+      (f), dạng «Vì sao: Gốc: … — lý do» (g), đoạn + danh sách dính liền (h); ô vi_sao của dải và khối ≤ 400 ký tự ở mọi ca và ca (a) == hai câu đầu + «…». Và "PASS: DD-8-do" —
       bản sao evidence-page in ô có trần ở mục gập: CHÍNH hàm đo trả lỗi nêu ca «(a)»; "PASS: DD-8-do-dai" —
-      bản sao bỏ trần ở dải: CHÍNH hàm đo trả lỗi nêu «400».
+      bản sao bỏ trần ở dải: CHÍNH hàm đo trả lỗi nêu «400»; "PASS: DD-8-do-dinh" — bản sao bỏ
+      danh sách dính liền đoạn: CHÍNH hàm đo trả lỗi nêu ca «(h)».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -130,7 +131,7 @@ evals:
     paths: [scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, scripts/lo-trinh.mjs, tests/scripts/dai-tom-tat-sau-kho.mjs]
     expected: >
       exit 0; stdout có "PASS: DD-9" — sáu kho ở mã ghim: ô vi_sao của dải giống từng ký tự base ở mọi hồ sơ
-      (in số hồ sơ so); in số hồ sơ có ô vi_sao kết «…» (≥ 301) và với từng hồ sơ ấy mục vi-sao của trang hồ sơ
+      (in số hồ sơ so); in số hồ sơ có ô vi_sao kết «…» (≥ 301) và với từng hồ sơ ấy có báo cáo (số in ra) mục vi-sao của trang hồ sơ
       do evidence-page.js của cây đang kiểm vẽ chứa CÂU CUỐI của đoạn lý do mà trang của bộ vẽ 7f65e5a0 (trước
       khi có trần; git archive trọn scripts lib skills) in, và — khi đoạn là câu dẫn — MỤC CUỐI của danh sách
       theo sau (bộ tách độc lập của ca); khuôn khối (phien_ban, nhóm, tập khoá:kiểu của mọi tom_tat) của bản

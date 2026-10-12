@@ -268,6 +268,10 @@ const CA_8 = [
   ['(e)', { vanDe: `${MO}\n\n${DOAN_399}` }, [DOAN_399], v => v === DOAN_399],
   ['(f)', { khongOpp: true, context: CTX }, [CTX], v => v.endsWith('…')],
   ['(g)', { vanDe: `${MO}\n\nVì sao: Gốc: crm/_acceptance/a — ${CAU_A.join(' ')}` }, [CAU_A[4]], v => v === `${CAU_A[0]} ${CAU_A[1].slice(0, -1)}…`],
+  // Đoạn KHÔNG phải câu dẫn mà danh sách dính liền ngay dưới (không dòng trắng) — dạng thật ở crm
+  // (chat-an-toan-truoc-r1, giai-doan-mac-dinh): trang trước vòng dai-tom-tat-doc-dung in cả danh sách.
+  ['(h)', { vanDe: `${MO}\n\n${CAU_A.slice(0, 3).join(' ')}\n- Người gặp: quản trị viên đã lưu trữ giai đoạn mặc định.\n- Kiểm kèm (chỉ đọc): việc trợ lý trên bản dựng thật.` },
+    [CAU_A[2], 'Người gặp: quản trị viên đã lưu trữ giai đoạn mặc định.', 'Kiểm kèm (chỉ đọc): việc trợ lý trên bản dựng thật.'], v => v.endsWith('…')],
 ];
 async function dd8(kit) {
   if (DOAN_399.length !== 399 || CAU_A.some(c => c.length !== 150) || TU.length < 500 || CTX.length <= 400) return [`ca dựng sai độ dài (${DOAN_399.length}, ${TU.length}, ${CTX.length})`];
@@ -311,8 +315,9 @@ if (want('DD-6-do')) {
     else { const p = path.join(TMP, 'dai-tom-tat.test.mjs'); writeFileSync(p, Buffer.concat([readFileSync(path.join(HERE, 'dai-tom-tat.test.mjs')), Buffer.from('\n')])); const s = dd6(p); const g = s.find(m => m.includes('dai-tom-tat.test.mjs')); if (g) ok('DD-6-do', `bản sao thêm một byte: hàm đo trả «${g}»`); else bad('DD-6-do', `không bắt: ${JSON.stringify(s)}`); }
   } catch (e) { bad('DD-6-do', loi(e)); }
 }
-if (want('DD-8')) await chayCa('DD-8', dd8, 'trang in trọn «Vì sao làm» (năm câu · câu dài · câu dẫn + sáu mục · câu dẫn + bảng · 399 ký tự · Context · «Vì sao: Gốc: …»); dải và khối ≤ 400');
+if (want('DD-8')) await chayCa('DD-8', dd8, 'trang in trọn «Vì sao làm» (năm câu · câu dài · câu dẫn + sáu mục · câu dẫn + bảng · 399 ký tự · Context · «Vì sao: Gốc: …» · danh sách dính liền đoạn); dải và khối ≤ 400');
 if (want('DD-8-do')) await chayDo('DD-8-do', dd8, [[EP_FILE, '<p>${esc(CT.viSao.doan)}</p>${CT.viSao.muc.length ?', '<p>${esc(M.vi_sao)}</p>${false ?']], 'ca (a)', 'bản sao evidence-page in ô có trần ở mục gập');
+if (want('DD-8-do-dinh')) await chayDo('DD-8-do-dinh', dd8, [[HS_FILE, 'if (!dan) for (let j = i + 1; j < k.length && k[j].gach && k[j].sat; j++) sau.push(k[j]);', '']], 'ca (h)', 'bản sao bỏ danh sách dính liền đoạn');
 if (want('DD-8-do-dai')) await chayDo('DD-8-do-dai', dd8, [[HS_FILE, 'if (du.length <= TRAN_VI_SAO) return du;', 'return du;']], '400', 'bản sao bỏ trần ở dải');
 
 rmSync(TMP, { recursive: true, force: true });

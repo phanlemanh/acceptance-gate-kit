@@ -95,7 +95,8 @@ function khoiCua(lines) {
   for (const l of lines) {
     if (!l.trim() || /^\s*#{1,6}\s/.test(l)) { mo = false; continue; }
     const g = l.match(/^\s*(?:[-*]|\d+[.)])\s+(.*)$/);
-    if (g) { k.push({ chu: l.trim(), gach: true, noi: g[1].trim() }); mo = true; continue; }
+    // sat: gạch DÍNH LIỀN dòng trước (không dòng trắng xen) — trước vòng dai-tom-tat-doc-dung nó thuộc cùng đoạn.
+    if (g) { k.push({ chu: l.trim(), gach: true, noi: g[1].trim(), sat: mo }); mo = true; continue; }
     // Hàng bảng: mỗi hàng một khối, «mục» là ô đầu (dữ liệu thật: câu dẫn «Các ca đã gặp:» + bảng).
     if (/^\s*\|/.test(l)) { k.push({ chu: l.trim(), bang: true, noi: l.trim().replace(/^\|/, '').split('|')[0].trim() }); mo = false; continue; }
     if (mo) { const t = k[k.length - 1]; t.chu += ' ' + l.trim(); if (t.gach) t.noi += ' ' + l.trim(); }
@@ -139,8 +140,11 @@ function viSaoCua(k, i) {
 // đoạn nguyên văn và, khi đoạn là câu dẫn, mọi mục nguyên văn (hàng bảng: các ô nối « · »). Không trần.
 function viSaoDuCua(k, i, ly) {
   if (ly != null) return { doan: tron(ly), muc: [] };
-  const muc = /:$/.test(boNhanCuoi(k[i].chu)) ? mucSau(k, i).map(x => (x.bang
-    ? tron(x.chu.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim()).filter(Boolean).join(' · ')) : tron(x.noi))) : [];
+  const dan = /:$/.test(boNhanCuoi(k[i].chu)); const sau = dan ? mucSau(k, i) : [];
+  // Không phải câu dẫn mà gạch DÍNH LIỀN đoạn: trang trước vòng dai-tom-tat-doc-dung in chúng như một phần đoạn — giữ.
+  if (!dan) for (let j = i + 1; j < k.length && k[j].gach && k[j].sat; j++) sau.push(k[j]);
+  const muc = sau.map(x => (x.bang
+    ? tron(x.chu.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim()).filter(Boolean).join(' · ')) : tron(x.noi)));
   return { doan: tron(k[i].chu), muc };
 }
 // du = true → bản đầy đủ `{ doan, muc }` của CÙNG khối mà ô có trần chọn (một vòng chọn cho hai bản).
