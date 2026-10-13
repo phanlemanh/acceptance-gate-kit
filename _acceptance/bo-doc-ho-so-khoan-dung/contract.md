@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/yaml-chuan.cjs (mới) + gate-card.js + ho-so-tom-tat.cjs + tin-hieu.mjs + cat-luot.mjs + start-scan.mjs + test + tài liệu + lộ trình — không chạm lib/**, hooks/**, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, dieu-phoi/**
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-13-bo-doc-ho-so-khoan-dung-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -69,3 +69,11 @@ chuẩn dùng làm thước]` · `[NGÀNH: ISO 8601 năm-tháng-ngày; quy ướ
   `*.test.mjs` của suite; răng dữ liệu thật `_acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs` (cần sáu kho +
   PyYAML, ngoài `feature_loop.suite_keys`). Khoá executor thêm ở S3.
 - Gộp: chờ M5 cắt 2.29.1 (kit #308), gộp theo khoá #308; điều phối gộp, vòng không tự gộp.
+- **Known limits — chủ kho ký Cổng Bằng chứng 13/10 sau lượt chấm 1** (số Ngoài-<n> theo thẻ lượt 1):
+  - Ngoài-1: lệnh kiểm YAML chuẩn gọi với `--base` mà mốc so sánh để trống thì lặng lẽ kiểm cả hồ sơ cũ — một bước CI viết `--base $BASE_REF` với biến rỗng sẽ đỏ vì hồ sơ đã ký.
+  - Ngoài-2: ca «bản cũ của thẻ không cắm cờ» (YC-3-do) và ca bỏ lớp YC-1-do kết luận từ chiều âm mà không đối chứng dương trong chính ca.
+  - Ngoài-3: bộ đọc ngày chung cũng đọc ngày ngày/tháng/năm ở các trường ngày khác của dải tóm tắt (ngày chốt phạm vi, ngày quyết, ngày quan sát) trong khi nhịp cắt lượt vẫn đọc ngày chốt phạm vi chỉ dạng năm-tháng-ngày; răng bảy kho không đo phần rộng này (0 hồ sơ thật gặp hôm nay).
+  - Ngoài-4: lệnh kiểm `--base` báo sạch sai khi thư mục hồ sơ nằm trong thư mục con của kho git (monorepo) — bảy kho hôm nay đều đặt hồ sơ ở gốc.
+  - Ngoài-5: lệnh kiểm gặp lỗi đọc tệp hay lỗi git thoát mã 1 («có chỗ không chuẩn») thay vì 2 («không kiểm được»).
+  - Ngoài-6: giá trị trong nháy rồi thêm `: x` (một dạng lỗi hiếm) bộ dò không cắm cờ — cùng giới hạn đã khai «lớp ngoài sáu lớp lọt im».
+  - Ngoài-7: dòng «doc-theo-dong: 0 lech» của răng bảy kho so hai bản thư viện giống hệt nên không đỏ được; lời hứa «không đổi cách kit đọc» được giữ bằng việc vòng không chạm `lib/`, không bằng phép so ấy.
