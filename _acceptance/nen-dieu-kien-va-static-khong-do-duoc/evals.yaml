@@ -1,0 +1,124 @@
+schema_version: 1
+feature_slug: nen-dieu-kien-va-static-khong-do-duoc
+# Ca đo sống ở hai tệp: tests/scripts/duong-nen.test.mjs (NEN-DK1…NEN-DK5, cùng fixture lành của NEN0 —
+# kho thử do code sinh trong lượt, mỗi ca đổi MỘT biến) và tests/scripts/design-gate-khong-do-duoc.test.mjs
+# (DG-KDD1…3, ma trận mười ô so với bản gốc `git archive 0c1fd9ff scripts lib vendor`, trọn thư mục). Mỗi
+# eval ghim đúng dòng "PASS: …" — suite xanh mà thiếu dòng ghim là ĐỎ. Tập tệp mang thẻ RÚT từ khối
+# INIT-CI-COPY-LIST của cây đang kiểm, không gõ tay. Chiều đỏ đã phá thử khi dựng (13/10): bản gốc
+# duong-nen.mjs đỏ NEN-DK1/DK2/DK4/DK5; bản gốc design-gate.mjs đỏ DG-KDD2/KDD3. NEN-DK3, NEN-DK6 và
+# DG-KDD1 là BẤT BIẾN GIỮ (xanh ở cả hai bản) — chiều đỏ của chúng là đột biến trong chính ca.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN0 " (đối chứng dương: kho lành mã 0, không dòng «engine: bo-qua») và
+      "PASS: NEN-DK1 " — kho thử gỡ khỏi bản vendored MỌI tệp scripts/·lib/ mang thẻ `[only-if-declared: …]`
+      (rút từ khối; đối chứng: ≥3 tệp tin_hieu, ≥2 tệp lo_trinh), config không khai ổ cắm: mã 0, engine
+      xanh, tập dòng stderr «engine: bo-qua <tệp> — tệp có điều kiện, kho không khai <khoá>» BẰNG tập tệp
+      mang thẻ (đẳng thức tập).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có ĐÚNG HAI dòng "PASS: NEN-DK2 " — một cho `tin_hieu`, một cho `lo_trinh`: (ô dương,
+      chạy trước) config khai khối ổ cắm, mọi tệp có mặt và khớp → mã 0, engine xanh, 0 dòng LECH, 0 dòng
+      bo-qua; (chiều đỏ) cùng config, mọi tệp mang thẻ đã gỡ → mã 1, tập tệp trong dòng
+      «nen engine: LECH <tệp> (vendored ≠ dang-chay)» BẰNG tập tệp mang thẻ của ổ đó, tập dòng bo-qua
+      BẰNG tập tệp của ổ kia.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-DK3 " — không khai ổ cắm: (a) tệp mang thẻ có mặt mà thêm một dòng →
+      mã 1, đúng một dòng «nen engine: LECH <tệp đó> (vendored ≠ dang-chay)»; (b) gỡ
+      scripts/trang-thai-ho-so.cjs (đối chứng: tệp này KHÔNG mang thẻ) → mã 1, đúng một dòng LECH gọi nó.
+      Và "PASS: NEN6 " (sửa một byte tệp engine vẫn đỏ như trước vòng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, tests/scripts/duong-nen.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-DK4 " — bản sao ag-root gỡ thẻ khỏi ĐÚNG MỘT dòng
+      `scripts/tin-hieu-khoa.cjs` của khối (chỗ tiêm khớp 1 lần), kho thử của E1 → mã 1, tập dòng LECH
+      == {«nen engine: LECH scripts/tin-hieu-khoa.cjs (vendored ≠ dang-chay)»}; đối chứng dương: NEN-DK1
+      (khối nguyên vẹn) đã xanh trên cùng kho thử.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, scripts/product-map.mjs, tests/scripts/duong-nen.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-DK5 " — bảng bốn biến thể «<tên>: engine <màu> · product-map <mã>»:
+      khong-khai / chu-thich / thut-trong-khoi-khac engine xanh và product-map 0; khai-du engine do; không
+      biến thể nào «đường nền xanh mà product-map vendored chết»; đột biến bản sao duong-nen.mjs
+      (`khoKhai` luôn false, chỗ tiêm khớp 1 lần) → CHÍNH phép đo nêu «khai-du: đường nền xanh mà
+      product-map vendored chết»; đối chứng đỏ: gỡ thêm scripts/trang-thai-ho-so.cjs → product-map chết, stderr
+      nêu «trang-thai-ho-so.cjs».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ndk_static_khong_do
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-KDD1 " — bảng mười ô (html-sach · html-p1 với --fail-on P0,P1 · html-hoa
+      `.HTML` · tsx-sach · tsx-anh-rong · jsx-sach · vue-sach · khong-duoi · tsx-vang · tsx-dom), mỗi ô
+      «goc <mã>/<verdict> · sau <mã>/<verdict>», mã thoát sau == gốc ở cả mười; đối chứng: bản gốc trải đủ
+      các nhánh (tsx-sach PASS, tsx-anh-rong REJECT, html-sach PASS, html-p1 REJECT, tsx-dom BLOCKED, tsx-vang
+      chết không JSON) — thiếu thì DG-KDD0 FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ndk_static_khong_do
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-KDD2 " — bốn ô HTML/dom: JSON không khoá do_duoc, stderr không dòng
+      «không đo được», verdict bằng gốc; năm ô static không phải HTML (tsx-sach, tsx-anh-rong, jsx-sach,
+      vue-sach, khong-duoi): do_duoc: false, đúng một dòng stderr bắt đầu «design-gate: static không đo
+      được tệp này (<đuôi>)» (không đuôi → «(không đuôi)»), verdict KHONG-DO-DUOC khi gốc PASS, REJECT khi gốc
+      REJECT; ô tsx-vang: bản vòng không trả JSON.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ndk_static_khong_do
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-KDD3 " — đối chứng dương (bản lành, cùng ma trận) xanh trước; đột biến
+      «danh sách đuôi HTML rỗng» → phép đo nêu «html-sach: đích HTML mà JSON mang do_duoc»; đột biến
+      «KHONG-DO-DUOC thoát 3» → «tsx-sach: mã thoát lệch gốc (gốc 0, sau 3)»; đột biến «phân loại trước khi
+      đọc tệp» → «tsx-vang: tệp vắng mà bản vòng trả JSON»; mỗi chỗ tiêm khớp đúng một lần.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [commands/acceptance-init.md, scripts/product-map.mjs, tests/scripts/duong-nen.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-DK6 " — ≥10 mục scripts/·lib/ không thẻ, 0 dòng nạp tĩnh tệp mang thẻ;
+      đột biến bản sao product-map tiêm `import { docPhamVi } from './cat-luot.mjs';` → phép quét nêu
+      «scripts/product-map.mjs:<dòng> nạp tĩnh cat-luot.mjs»; và "PASS: NEN7 " (bộ đọc khối của đường nền
+      vẫn đếm đủ mục khi dòng mang thẻ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ndk_doc_khoi_chep
+    paths: [commands/acceptance-init.md, GUIDE.md, tests/scripts/consumer-esm.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CE1 " (mọi src rút từ khối đã gắn thẻ tồn tại ở kho — thẻ không lọt vào
+      đường dẫn) và "PASS: CE2g " (tập file GUIDE §5.3 BẰNG tập rút từ khối).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

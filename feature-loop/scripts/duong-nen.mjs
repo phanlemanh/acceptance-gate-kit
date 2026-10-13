@@ -117,6 +117,16 @@ const khoiCopy = khoiMarker(initText, 'INIT-CI-COPY-LIST');
 if (!khoiCopy) die(`${INIT_REL} thiếu marker INIT-CI-COPY-LIST`);
 // Neo vào gốc gói: mục nằm dưới thư mục khác (dieu-phoi/scripts/…) không được cắt đuôi thành scripts/… giả.
 const TEP_ENGINE = [...new Set(khoiCopy.flatMap(l => [...l.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/((?:scripts|lib)\/[\w./-]+\.\w+)`/g)].map(m => m[1])))];
+// Điều kiện của từng mục đọc từ CHÍNH khối (thẻ `[only-if-declared: <khoá>]` cuối dòng), không từ
+// danh sách trong mã: tệp chỉ cần khi kho khai một ổ cắm (tin_hieu, lo_trinh) mà kho không khai thì
+// vắng ở bản vendored là kho LÀNH (hồ sơ nen-dieu-kien-va-static-khong-do-duoc; crm-onehub#375).
+const DIEU_KIEN = new Map();
+for (const l of khoiCopy) {
+  const m = l.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/((?:scripts|lib)\/[\w./-]+\.\w+)`.*\[only-if-declared: ([a-z_][a-z0-9_]*)\]\s*$/);
+  if (m) DIEU_KIEN.set(m[1], m[2]);
+}
+// «Kho khai <khoá>» = config có dòng cột 0 `<khoá>:` — đúng phép thử product-map.mjs dùng cho tin_hieu.
+const khoKhai = khoa => new RegExp(`^${khoa}:`, 'm').test(configText);
 
 // ── chân cong-cu ──────────────────────────────────────────────────────────────
 // Mọi khoá executors.<loại>.<tên>: duyệt thụt lề để LIỆT KÊ tên khoá, đọc GIÁ TRỊ bằng
@@ -353,7 +363,13 @@ async function chaySuite(root, lenh) {
     // Thứ tự gọi tên: so với bản đang chạy trước, rồi vendored với cache.
     cap.sort((x, y) => (y[1].ten === 'dang-chay') - (x[1].ten === 'dang-chay'));
     for (const tep of TEP_ENGINE) {
-      const lech = cap.find(([a, b]) => bam(a.goc, tep) !== bam(b.goc, tep));
+      const khoa = DIEU_KIEN.get(tep);
+      // Tệp có điều kiện, kho không khai, bản vendored VẮNG → bỏ bản vendored khỏi các cặp của RIÊNG tệp
+      // này. Tệp CÓ mặt mà lệch vẫn đỏ: ổ cắm chưa khai không biện minh cho một bản chép cũ nằm trong cây.
+      const boVendored = khoa && !khoKhai(khoa) && !fs.existsSync(path.join(root, tep));
+      if (boVendored && ban.some(b => b.ten === 'vendored')) log(`engine: bo-qua ${tep} — tệp có điều kiện, kho không khai ${khoa}`);
+      const lech = cap.filter(([a, b]) => !(boVendored && (a.ten === 'vendored' || b.ten === 'vendored')))
+        .find(([a, b]) => bam(a.goc, tep) !== bam(b.goc, tep));
       if (lech) { chan.engine = 'do'; DO.push(dongDo('engine-lech', { tep, a: lech[0].ten, b: lech[1].ten })); }
     }
     if (ban.length < 2) chan.engine = 'bo-qua';

@@ -20,7 +20,19 @@
 // silently falls back to the weaker static scan and passes an inaccessible UI.
 // Pass --mode static to accept the zero-dependency source scan knowingly.
 //
-// Exit codes: 0 PASS · 2 REJECT (blocking finding) · 3 BLOCKED · 4 bad usage.
+// Exit codes: 0 PASS or KHONG-DO-DUOC · 2 REJECT (blocking finding) · 3 BLOCKED · 4 bad usage.
+//
+// The static engine reads rendered HTML. A target that is not HTML (.tsx, .jsx,
+// .vue…, or no extension at all) is read as HTML text: style objects, classNames and computed props are
+// invisible, so «nothing blocking found» does not mean «clean». For such a
+// target the gate keeps the exit code it always had — consumers chain it with
+// `|| exit 1` and signed records re-pin on exit codes, so turning it red would
+// make every repo pay at once — and says so instead: verdict KHONG-DO-DUOC in
+// place of PASS (a blocking finding it CAN see stays REJECT), `do_duoc: false`
+// in the JSON, and one stderr line. HTML targets are untouched, and so is
+// --mode dom (no jsdom in the kit's shared suite to measure that path). (Record
+// nen-dieu-kien-va-static-khong-do-duoc; crm-onehub#375: 262/265 static runs on
+// .tsx were PASS.)
 
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -83,11 +95,23 @@ if (args.mode === 'static') {
   result = await detectDomWith(JSDOM, args.target, { failOn: args.failOn });
 }
 
+const HTML_DUOI = new Set(['.html', '.htm', '.xhtml']);
+const duoi = path.extname(args.target).toLowerCase();
+const khongDo = {};
+let verdict = result.verdict;
+if (args.mode === 'static' && !HTML_DUOI.has(duoi)) {
+  if (verdict === 'PASS') verdict = 'KHONG-DO-DUOC';
+  khongDo.do_duoc = false;
+  khongDo.ly_do_khong_do_duoc = `static không đo được tệp này (${duoi || 'không đuôi'}) — bộ dò chỉ đọc HTML đã dựng; xanh ở đây không phải đạt`;
+  process.stderr.write(`design-gate: ${khongDo.ly_do_khong_do_duoc}: ${args.target}\n`);
+}
+
 emit({
   ...base,
   mode: result.mode,
-  verdict: result.verdict,
+  verdict,
   exit_code: result.exitCode,
+  ...khongDo,
   p0_count: result.p0Count,
   blocking: result.blocking,
   hits: result.hits,

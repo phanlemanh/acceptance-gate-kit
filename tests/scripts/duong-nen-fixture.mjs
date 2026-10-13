@@ -53,6 +53,8 @@ const suite = (ten, giua, cuoi) =>
  *   cuoiB       dòng nối cuối suite-b (vd `exit 3`)
  *   noLuoi      nhánh `main` mang hồ sơ `status: verified` không có evidence-report.md
  *   khongGit    gỡ `.git` sau khi dựng (không còn là kho git)
+ *   bo          danh sách đường tương đối gốc kho gỡ khỏi bản vendored TRƯỚC commit gốc
+ *               (tệp có điều kiện của danh sách chép — hồ sơ nen-dieu-kien-va-static-khong-do-duoc)
  *   tuHost      chép thêm commands/acceptance-init.md + khuôn đường nền để kho
  *               đóng được vai `--ag-root` của chính nó
  * Trả { dir, dau } — `dau` là thư mục dấu của suite (ngoài cây).
@@ -82,6 +84,10 @@ export function dungKho(opts = {}) {
     cpSync(path.join(KIT, 'scripts', f), path.join(dir, 'scripts', f));
   }
   cpSync(path.join(KIT, 'lib'), path.join(dir, 'lib'), { recursive: true });
+  for (const f of opts.bo || []) {
+    if (!existsSync(path.join(dir, f))) throw new Error(`duong-nen-fixture: bo ${f} nhung tep khong co trong ban vendored`);
+    rmSync(path.join(dir, f));
+  }
   if (opts.tuHost) {
     mkdirSync(path.join(dir, 'commands'), { recursive: true });
     cpSync(path.join(KIT, 'commands', 'acceptance-init.md'), path.join(dir, 'commands', 'acceptance-init.md'));
