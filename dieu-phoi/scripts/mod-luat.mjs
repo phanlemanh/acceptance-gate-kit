@@ -11,6 +11,7 @@ export const MODULE_MOD = './mod/register.ts';
 // <<<MOD-SU-KIEN
 export const SU_KIEN_MOD = {
   './mod/doc-muc-dung.ts': ['session.measure'],
+  './mod/khung.ts': ['command.run', 'session.start', 'ui.render'],
 };
 // MOD-SU-KIEN>>>
 
@@ -31,6 +32,12 @@ export function quetChoPhep(tep, nguon) {
 // Sự kiện một tệp tự đăng ký: mọi `on('<sự kiện>'` (chuỗi tĩnh) sau khi bỏ chú thích.
 export function quetSuKien(nguon) {
   return [...new Set([...boChuThich(nguon).matchAll(/\bon\(\s*(['"`])([\w.]+)\1/g)].map((m) => m[2]))].sort();
+}
+
+// Tách dòng «<module> hooks: …» của `claude plugin validate` thành tập sự kiện: bỏ phần matcher `{…}`, và KHÔNG cắt ở
+// dấu phẩy nằm trong `{…}` — matcher nhiều khoá (`ui.render{component=Pane, requestId=…}`) có phẩy bên trong (DP6b).
+export function tachSuKienValidate(dong) {
+  return new Set(String(dong ?? '').replace(/\{[^}]*\}/g, '').split(',').map((x) => x.trim()).filter(Boolean));
 }
 
 // Răng khung mod. `suKienValidate` (Set, tuỳ chọn) = sự kiện `claude plugin validate` thấy module nghe: hợp các sự kiện
@@ -66,12 +73,43 @@ export function kiemKhungMod(gocGoi, { suKienValidate = null } = {}) {
     }
   }
   for (const rel of Object.keys(SU_KIEN_MOD)) if (!tep.includes(rel.slice('./mod/'.length))) loi.push(`bảng MOD-SU-KIEN khai ${rel} mà không có tệp`);
-  const cong = (SU_KIEN_MOD['./mod/doc-muc-dung.ts'] ?? []).filter((s) => SU_KIEN_CONG.includes(s));
-  if (cong.length) loi.push(`phần đọc mức dùng không được nghe sự kiện cổng: ${cong.join(', ')}`);
+  // Luật theo LỚP, không theo tên tệp (DP6b): không phần nào được nghe sự kiện cổng — bảng khai thì cũng đỏ.
+  for (const [rel, suKien] of Object.entries(SU_KIEN_MOD)) {
+    const cong = suKien.filter((s) => SU_KIEN_CONG.includes(s));
+    if (cong.length) loi.push(`${rel.slice('./mod/'.length)}: không được nghe sự kiện cổng: ${cong.join(', ')}`);
+  }
   if (suKienValidate) {
     const a = [...hop].sort().join(', ');
     const b = [...suKienValidate].sort().join(', ');
     if (a !== b) loi.push(`sự kiện validate thấy [${b}] khác quét chữ [${a}]`);
+  }
+  return loi;
+}
+
+// «Mod chỉ vẽ» (DP6b, hồ sơ trang-thai-dot-dieu-phoi-tho AC-9) — nửa CHỈ ĐỌC của chính sách, đọc từ báo cáo
+// `claude plugin validate --strict --json`: không lời gọi ghi/gửi nào trên `$` (dòng «calls:» của module), đúng một
+// hook cổng là lệnh xem của gói và hook đó KHÔNG có .catch (hook hỏng thì engine bỏ qua nó, lệnh markdown chạy như
+// cũ), và mọi argv viết thẳng của `$.process.run` trong phần khung kết thúc bằng `xem --json`.
+export const GOI_CAM = ['$.fs.write', '$.fs.remove', '$.store.set', '$.session.send', '$.session.append', '$.prompt.submit', '$.tool.', '$.command.run'];
+export const CONG_DUOC_PHEP = ['command.run{command=dieu-phoi:xem}'];
+export const TEP_KHUNG = 'khung.ts';
+export function kiemChiVe(gocGoi, { notes = [], gatingHooks = [] } = {}) {
+  const loi = [];
+  const dong = notes.find((n) => n.startsWith(`${MODULE_MOD} calls:`));
+  const goi = dong ? dong.slice(`${MODULE_MOD} calls:`.length).split(',').map((x) => x.trim().replace(/\s*\(via [^)]*\)$/, '')).filter(Boolean) : [];
+  for (const c of goi) if (GOI_CAM.some((cam) => c.startsWith(cam))) loi.push(`gọi ${c} — mod chỉ vẽ`);
+  const cong = gatingHooks.map((g) => g.hook).sort();
+  if (JSON.stringify(cong) !== JSON.stringify([...CONG_DUOC_PHEP].sort())) loi.push(`gatingHooks lệch: [${cong.join(', ')}] — chỉ được [${CONG_DUOC_PHEP.join(', ')}]`);
+  for (const g of gatingHooks) if (g.hasCatch) loi.push(`${g.hook} có .catch — hook hỏng phải để engine chạy lệnh markdown`);
+  let nguon = '';
+  try {
+    nguon = boChuThich(fs.readFileSync(path.join(gocGoi, 'hooks', 'mod', TEP_KHUNG), 'utf8'));
+  } catch {
+    loi.push(`không đọc được hooks/mod/${TEP_KHUNG}`);
+  }
+  for (const m of nguon.matchAll(/\$\.process\.run\(\s*\[([^\]]*)\]/g)) {
+    const argv = m[1].split(',').map((x) => x.trim()).filter(Boolean);
+    if (argv.slice(-2).join(',') !== "'xem','--json'") loi.push(`${TEP_KHUNG}: argv process.run không kết thúc 'xem','--json': [${argv.join(', ')}]`);
   }
   return loi;
 }

@@ -518,7 +518,9 @@ Chống bỏ-qua-thầm-lặng bằng đảo mặc định + 3 lớp:
 Máy chỉ enforce **có mặt + truy vết được**; "đủ thật hay chưa" là việc human soi ở Gate 1 —
 cùng phân công máy/người như judgment eval. Workspace cũ (contract trước 1.13) → cờ vàng
 trên card, không chặn resume, không bắt migrate. Output scan map thẳng vào artifact:
-Core → AC (Core >15 thì hợp nhất ô, giữ cap 5-15) · Later/Never → Out of scope + entry
+Core → AC (cỡ theo khối `CAT-LUOT-CO` của skill cắt lượt: mục tiêu 8–10 · cho phép tới 12 · từ 13 —
+từ 13 tách thành nhiều vòng hoặc ghi dòng sổ `giữ cỡ — <lý do>`; thẻ Cổng 1 chặn hợp đồng `draft` từ 13
+tiêu chí không dòng ấy) · Later/Never → Out of scope + entry
 `descope` · trục + thước CE → `## Coverage`. Preset sẵn trong skill: entity-feature,
 test-matrix, content-matrix, benchmark, risk-premortem, metrics-tree — giá trị trục đứng
 hai chân: chân sản phẩm từ Product Context per-repo (CLAUDE.md `## Product Context` → đào
@@ -996,7 +998,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 25 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 26 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1027,6 +1029,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `scripts/co-hop-dong.cjs` — bộ đọc cỡ hợp đồng MỘT nguồn mà `cat-luot.mjs` `require` lúc nạp (khoảng cỡ, số tiêu chí, dòng giữ) — chỉ cần khi kho khai `tin_hieu`; thiếu → `MODULE_NOT_FOUND` khi `tin-hieu.mjs` import `cat-luot.mjs`
 - `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
@@ -1763,6 +1766,48 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 - CHỈ câu hỏi đóng ("có thấy video player không?"); câu hỏi mở về thẩm mỹ
   thuộc judgment/design-pass — No blind VLM judge. Opt-in từng eval, EVAL-GEN
   không tự thêm.
+
+### 8.2 Luật sản phẩm của kho (`PRODUCT-INVARIANTS.md`)
+
+Kho nào có luật sản phẩm phải đúng xuyên mọi tính năng — ví dụ «khác nhau giữa các tổ chức là cấu
+hình, không ghi cứng» — thì viết chúng vào **một tệp ở gốc kho**, tên cố định `PRODUCT-INVARIANTS.md`,
+theo khuôn `skills/acceptance/references/product-invariants-template.md` (khối marker
+`PRODUCT-INVARIANTS-TEMPLATE`). Tệp là **của kho**: chủ kho viết và sửa bằng commit riêng; máy không
+bao giờ sửa nó. **Kho không có tệp thì không gì đổi** — không dòng nạp, không cờ, thẻ y nguyên.
+
+Mỗi luật: `## SP-<số> · <câu luật>` + các dòng `Mức` (`thường` / `khó đảo`) · `Chủ luật` · `Giữ bằng`
+· `Dấu hiệu` (tuỳ chọn, biểu thức chính quy cho dòng mã mới trái luật) · `Phạm vi` (tuỳ chọn, glob) ·
+`Vì sao`. Khối sai khuôn bị bỏ và thẻ gọi tên nó; luật còn lại vẫn đọc.
+
+**Bước thiết kế** (S1 bước 0b của feature-loop) đọc trọn tệp và ghi một dòng nạp theo khuôn
+`DEC-LUAT-NAP` — dòng mang `luat_nap: {ban, so}`, `ban` = `git hash-object PRODUCT-INVARIANTS.md`.
+Lựa chọn theo một luật ghi căn cứ nguồn mục-tiêu trỏ tệp luật + câu luật (thẻ in «theo luật SP-n»).
+Lựa chọn trái một luật là câu chỉ-người mang `"pham_luat":"SP-<số>"` trong `can_cu`, `kho_dao: true`
+khi luật khó đảo; thẻ Cổng Phạm vi hỏi «Phạm luật SP-n — <câu> (chủ luật: <tên>)». Ba dòng đỏ:
+phạm luật mà ghi máy đã quyết · mã luật không có trong tệp · luật khó đảo mà thiếu nhãn khó-đảo.
+Hồ sơ nháp ở kho có tệp mà thiếu dòng nạp, hoặc tệp đổi sau khi nạp → cờ vàng.
+
+**Lượt chấm** (S4 «Mọi verdict») chạy `scripts/luat-san-pham.cjs --quet --write`, ghi
+`_acceptance/<slug>/luat-cham.json`: chỗ dòng mã mới khớp dấu hiệu của một luật, và các commit sửa tệp
+luật — tách **máy** (có dòng `Co-Authored-By: Claude`) khỏi **chủ kho**. Thẻ Cổng Bằng chứng in khối
+«Luật sản phẩm bị chạm»; mỗi mã một ô trả lời:
+
+- `SP-<số>: sửa vật` (máy điền sẵn khuyến nghị) — trả hồ sơ về sửa; lượt này không ký.
+- `SP-<số>: chấp nhận có tên` — ngoại lệ có chủ ý: một dòng sổ `gate2` + một gạch known-limits.
+- `Tệp luật: <đã tách / lý do>` — chỉ khi máy sửa tệp luật trong vòng (cờ đỏ).
+
+Có chạm luật, máy sửa tệp luật, hoặc chưa soi luật trên bản đã chấm → vòng không đi làn V (cần người).
+
+**Để bộ tìm lỗi ở lượt chấm thấy luật**, thêm một dòng trỏ vào `CLAUDE.md` của kho: bộ tìm lỗi đọc
+`CLAUDE.md` / `CONTRIBUTING.md`, không đọc tệp luật hay hợp đồng. Mục ngoài hợp đồng nhắc một mã có
+trong tệp mang nhãn «luật SP-n · <mức>» trên thẻ.
+
+**Đường đo cho Cổng Giá trị:** `node scripts/luat-san-pham.cjs --root . --dem --tu <ngày khai>` —
+mỗi hồ sơ một hàng: dòng nạp · phạm ở thiết kế · chạm trên diff · nhãn ngoài hợp đồng · máy sửa tệp
+luật · chủ kho sửa tệp luật. Ngày khai (commit đầu thêm tệp luật) lệnh in ra.
+
+**Giới hạn đã khai** (ADR 0024): bộ soi khớp chữ theo dấu hiệu kho tự khai; lưới trước-gộp (CI) không
+biết luật sản phẩm — chặn nằm ở thẻ và làn V.
 
 ## 9. Xử lý sự cố
 

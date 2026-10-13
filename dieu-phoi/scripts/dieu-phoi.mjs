@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, TEN_LIEN_KET } from './dot.mjs';
+import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, phienCuaCwd, TEN_LIEN_KET, timThuMucDot } from './dot.mjs';
 import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
 import { choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, themHang } from './hang.mjs';
@@ -172,6 +172,20 @@ function xem(cwd) {
   return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
+// `xem --json` (DP6b, hồ sơ trang-thai-dot-dieu-phoi-tho): MỘT dòng JSON cho khung của lớp mod — cùng mô hình `xem`
+// vẽ, cộng dãy của cwd (cùng hàm hai hook dùng), dòng cảnh báo hai bản, và độ lệch múi giờ của máy (mod chạy trong
+// môi trường không Node nên không tự biết giờ địa phương). Không đợt → {"dot":null}. `xem` không cờ không đổi.
+export function xemJson(cwd) {
+  const thuMuc = timThuMucDot(cwd);
+  if (!thuMuc) return { dot: null };
+  const goc = gocKhoChinh(cwd);
+  const hangViec = docJson(path.join(thuMuc, 'hang-viec.json'), null);
+  const them = { day_cua_cwd: phienCuaCwd(hangViec, cwd), canh_bao: canhBaoHaiBan(goc), mui_gio_phut: -new Date().getTimezoneOffset() };
+  const tt = docJson(path.join(thuMuc, 'trang-thai.json'), null);
+  if (!tt) return { dot: hangViec?.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, ''), pha: docPha(thuMuc).pha, chua_co_nhip: true, ...them };
+  return { ...moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec }), ...them };
+}
+
 // Đầu ra `xem --kiem-chuyen` (design doc, chỗ chọn 1d): dòng phải sửa giữ khuôn 2.27; không còn dòng phải sửa thì
 // `sach`; có lịch sử thì ĐÚNG MỘT dòng tổng (lớp theo thứ tự bảng, lớp 0 dòng không in); `--chi-tiet` in thêm
 // từng dòng lịch sử. Kho không có lịch sử thì đầu ra y như 2.27.
@@ -204,6 +218,15 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
   const { vi, co } = tachDoiSo(process.argv.slice(2));
   const [lenh, doiSo] = vi;
   const cwd = process.cwd();
+  if (lenh === 'xem' && co.json) {
+    try {
+      process.stdout.write(`${JSON.stringify(xemJson(cwd))}\n`);
+    } catch (e) {
+      process.stderr.write(`dieu-phoi: ${e.message}\n`);
+      process.exit(1);
+    }
+    process.exit(0);
+  }
   if (lenh === 'xem' && co['kiem-chuyen']) {
     try {
       const kq = phanLopChuyen(cwd);
@@ -317,7 +340,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|xem --json|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

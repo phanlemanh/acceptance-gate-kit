@@ -537,6 +537,21 @@ if (gate === '1') {
   // giữ nguyên ý nghĩa.
   for (const ac of parseACBlock(contract)) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); }
   const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
+  // Cỡ hợp đồng (hồ sơ vong-mo-thang-bang-feature-loop): khoảng đọc từ khối CAT-LUOT-CO qua MỘT bộ đọc dùng
+  // chung với đồng hồ cỡ (scripts/co-hop-dong.cjs); chỉ hợp đồng draft bị chặn hay cờ — hợp đồng đã qua Cổng
+  // Phạm vi đi đường đọc-cũ. Khối hỏng / không đọc được tiêu chí → cờ vàng, KHÔNG chặn (fail-visible).
+  // Nạp KHOAN DUNG: thẻ chạy được ở nơi chỉ có lib/ cạnh nó (bản cô lập của P161) — thiếu bộ đọc cỡ thì
+  // cờ vàng nói ra, không sập thẻ, không chặn.
+  let CHD = null, chdLoi = null;
+  try { CHD = require('./co-hop-dong.cjs'); } catch (e) { chdLoi = String(e && e.message || e).split('\n')[0]; }
+  const coHD = CHD ? (() => { const r = CHD.coHopDong({ contract, decisions: read(path.join(dir, 'decisions.jsonl')), status }); delete r.draft; return r; })()
+    : { n: null, nhom: null, khoang: null, giu: null, chan: false, vang: String(status || '').toLowerCase() === 'draft', loi: `không nạp được bộ đọc cỡ scripts/co-hop-dong.cjs: ${chdLoi}` };
+  const coKhoang = k => `khối CAT-LUOT-CO: mục tiêu ${k.muc_tieu[0]}–${k.muc_tieu[1]} · cho phép tới ${k.cho_phep_den} · từ ${k.tach_tu} phải tách`;
+  const coDo = coHD.chan ? `CHƯA vào được Cổng Phạm vi: hợp đồng có ${coHD.n} tiêu chí — từ ${coHD.khoang.tach_tu} phải tách (${coKhoang(coHD.khoang)}). Hai lối ra: tách thành nhiều vòng, mỗi vòng một kết quả; hoặc ghi vào decisions.jsonl một dòng có decision mở đầu «${CHD.GIU_CO_MO_DAU}<lý do>» nói vì sao kết quả không tách được mà giữ nghĩa.` : null;
+  const coVang = !coHD.vang ? null
+    : coHD.loi ? `Chưa kiểm cỡ hợp đồng — ${!CHD ? 'không nạp được bộ đọc cỡ' : /khối CAT-LUOT-CO|SKILL cắt lượt/.test(coHD.loi) ? 'không đọc được khoảng cỡ' : 'không đọc được tiêu chí'}: ${coHD.loi}.`
+    : coHD.giu ? `Hợp đồng có ${coHD.n} tiêu chí — giữ theo dòng sổ ${coHD.giu.id || '(không mã)'}: «${coHD.giu.ly_do}» (${coKhoang(coHD.khoang)}).`
+    : `Hợp đồng có ${coHD.n} tiêu chí — trên mục tiêu ${coHD.khoang.muc_tieu[0]}–${coHD.khoang.muc_tieu[1]} (cho phép tới ${coHD.khoang.cho_phep_den}, khối CAT-LUOT-CO): chỉ giữ khi kết quả không tách được mà giữ nghĩa — ghi vì sao bằng dòng «${CHD.GIU_CO_MO_DAU}<lý do>».`;
   const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);
   const evalsFor = id => evalList.filter(e => e.criterion === id);
   const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_RE.test(thenOf(x.gwt)));
@@ -548,6 +563,8 @@ if (gate === '1') {
   // mọi dòng sổ về khối chung, và MỘT cờ vàng nêu tên tệp — lộ ra, không im (ADR 0022).
   let canCu = null; try { canCu = require('./can-cu-s1.cjs'); } catch (_) { canCu = null; }
   const ccDraft = /^draft$/i.test(status);
+  // Luật sản phẩm của kho (bat-bien-san-pham): chữ + cờ rút ở luat-san-pham.cjs; kho không có tệp → không đổi gì.
+  let luatG1 = null; try { luatG1 = require('./luat-san-pham.cjs').theCong1({ root, entries: ledger.entries, draft: ccDraft }); } catch (_) { luatG1 = null; }
   const cc = canCu ? canCu.phanLoaiSo(ledger.entries, { root, slug, base: glossaryBase || null }) : { cau_hoi: [], da_quyet: [], do: [], doi_truoc: 0, bi_thay: 0, goc: 'chua-kiem', dong: [] };
   const ccCauHoi = cc.cau_hoi;
   const ccMayQuyet = cc.da_quyet;
@@ -806,7 +823,7 @@ if (gate === '1') {
   // Ô duy nhất của cổng này là CHỮ QUYẾT: thẻ sạch → điền sẵn «duyệt»; có cờ
   // đỏ hoặc rơi bậc → để trống, vì mời ký trên thẻ đang đỏ đúng là thứ audit
   // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
-  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || cc.do.length > 0;
+  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || cc.do.length > 0 || coHD.chan;
   // Hồ sơ đã khép (bộ quét: chấm bởi thực tế / nghỉ) không còn câu hỏi nào cho người — không ô hỏi,
   // không dòng lệnh duyệt, không dòng goal (ha-tang-khong-dot-luot AC-7; cùng chữ AC-6 của 2.18.1).
   // Chỉ HỎI bộ quét khi trạng thái nằm NGOÀI mọi danh sách mà bộ tự nhận cổng ở trên biết — đúng ca
@@ -818,7 +835,7 @@ if (gate === '1') {
   const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
   const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa', ...(ccDraft ? ccCauHoi.map(d => d.nhan) : [])], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, can_cu: { cau_hoi: ccCauHoi.map(d => ({ nhan: d.nhan, id: d.id, decision: d.e.decision, ...baVeRut(d.e), khuyen: d.e.can_cu.khuyen, loi_khac: d.e.can_cu.loi_khac, kho_dao: d.e.can_cu.kho_dao === true })), da_quyet: ccMayQuyet.map(d => ({ id: d.id, decision: d.e.decision, ...baVeRut(d.e), nguon: d.e.can_cu.nguon, tep: d.e.can_cu.tep || null, trich: d.e.can_cu.trich || null, loi_chet: d.e.can_cu.loi_chet || null, ghi_chu: d.ghi_chu || null })), do: cc.do.map(d => ({ id: d.id, ma: d.ma, thong_diep: d.thong_diep })), doi_truoc: cc.doi_truoc, bi_thay: cc.bi_thay, goc: cc.goc }, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2), 0); }
+  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, co_hop_dong: coHD, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa', ...(ccDraft ? ccCauHoi.map(d => d.nhan) : [])], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, can_cu: { cau_hoi: ccCauHoi.map(d => ({ nhan: d.nhan, id: d.id, decision: d.e.decision, ...baVeRut(d.e), khuyen: d.e.can_cu.khuyen, loi_khac: d.e.can_cu.loi_khac, kho_dao: d.e.can_cu.kho_dao === true })), da_quyet: ccMayQuyet.map(d => ({ id: d.id, decision: d.e.decision, ...baVeRut(d.e), nguon: d.e.can_cu.nguon, tep: d.e.can_cu.tep || null, trich: d.e.can_cu.trich || null, loi_chet: d.e.can_cu.loi_chet || null, ghi_chu: d.ghi_chu || null })), do: cc.do.map(d => ({ id: d.id, ma: d.ma, thong_diep: d.thong_diep })), doi_truoc: cc.doi_truoc, bi_thay: cc.bi_thay, goc: cc.goc }, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen, luat: luatG1 ? luatG1.khoa : { co_tep: false } }, null, 2), 0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -838,11 +855,12 @@ if (gate === '1') {
   // First thing on the card, before any criterion list: if the card cannot be trusted,
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
+  if (coDo) P.push(`<div class="flag fred co-hd">⚠ ${esc(coDo)}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
   const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? [SCOPE_TOM + esc(pl.scope_plain)] : []).concat(oosItems.map(x => SCOPE_MUC + esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
-  if (ccCauHoi.length) P.push(`<div class="lab">${ccDraft ? 'Câu chỉ anh trả lời được' : 'Câu đã hỏi ở Cổng Phạm vi (trả lời khi duyệt)'}</div><div class="grp gdo">${ccCauHoi.map(d => `<p class="li" data-cau-hoi="${esc(d.nhan)}"><b>${esc(d.nhan)}</b> · ${decBaVe(d.e)}${d.e.can_cu.kho_dao === true ? ' · <b>khó-đảo</b>' : ''} — máy khuyên: ${esc(stripMd(d.e.can_cu.khuyen))} · lối khác: ${esc(stripMd(d.e.can_cu.loi_khac))}</p>`).join('')}</div>`);
-  if (ccMayQuyet.length) P.push(`<div class="lab">Máy đã quyết ở bước thiết kế — anh lật được</div><div class="grp gnot">${ccMayQuyet.map(d => { const c = d.e.can_cu; const cu = c.nguon === 'muc-tieu' ? `căn cứ: «${esc(cat200(c.trich))}» (${esc(c.tep)})` : `lối khác chết vì: ${esc(stripMd(c.loi_chet))}`; return `<p class="li" data-may-quyet="${esc(d.id)}">${d.e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(d.e)} — ${cu}</p>`; }).join('')}</div>`);
+  if (ccCauHoi.length) P.push(`<div class="lab">${ccDraft ? 'Câu chỉ anh trả lời được' : 'Câu đã hỏi ở Cổng Phạm vi (trả lời khi duyệt)'}</div><div class="grp gdo">${ccCauHoi.map(d => `<p class="li" data-cau-hoi="${esc(d.nhan)}"><b>${esc(d.nhan)}</b> · ${decBaVe(d.e)}${luatG1 && luatG1.tienTo(d.e.can_cu) ? ' · ' + esc(luatG1.tienTo(d.e.can_cu)) : ''}${d.e.can_cu.kho_dao === true ? ' · <b>khó-đảo</b>' : ''} — máy khuyên: ${esc(stripMd(d.e.can_cu.khuyen))} · lối khác: ${esc(stripMd(d.e.can_cu.loi_khac))}</p>`).join('')}</div>`);
+  if (ccMayQuyet.length) P.push(`<div class="lab">Máy đã quyết ở bước thiết kế — anh lật được</div><div class="grp gnot">${ccMayQuyet.map(d => { const c = d.e.can_cu; const cu = c.nguon === 'muc-tieu' ? `căn cứ: «${esc(cat200(c.trich))}» (${esc(c.tep)})` : `lối khác chết vì: ${esc(stripMd(c.loi_chet))}`; return `<p class="li" data-may-quyet="${esc(d.id)}">${d.e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(d.e)} — ${cu}${luatG1 && luatG1.hauTo(c) ? ' · ' + esc(luatG1.hauTo(c)) : ''}</p>`; }).join('')}</div>`);
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
   if (!decsChung.length) P.push(`<div class="flag finfo">${ccCauHoi.length || ccMayQuyet.length ? 'Sổ quyết định: mọi dòng đã ở hai khối trên' : 'Sổ quyết định: (chưa ghi quyết định nào)'}</div>`);
   else P.push(`<div class="grp gnot">${decSort(decsChung).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(e)}</p>`).join('')}</div>`);
@@ -922,6 +940,8 @@ if (gate === '1') {
   if (cc.goc === 'loi') flags.push(['fwarn', esc(canCu.CO.gocLoi(glossaryBase))]);
   else if (ccDraft && !glossaryBase && ccMayQuyet.some(d => d.e.can_cu.nguon === 'muc-tieu')) flags.push(['fwarn', esc(canCu.CO.chuaKiemGoc)]);
   if (ccDraft && cc.doi_truoc) flags.push(['fwarn', esc(canCu.CO.doiTruoc(cc.doi_truoc))]);
+  if (luatG1) for (const [c, t] of luatG1.co) flags.push([c, esc(t)]);
+  if (coVang) flags.push(['fwarn co-hd', esc(coVang)]);
   if (flags.length) P.push(`<div class="lab">Cần chú ý trước khi duyệt</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
   // ---- 👉 VIỆC CỦA ANH trên THẺ (danh sách máy-đếm — chip ② kit 2.1): mỗi
   // mục làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu gộp MỘT dòng (một <p> duy nhất,
@@ -1053,6 +1073,8 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 // KHÔNG qua key overlay, cùng luật với gap-probe: cái gì phải hiện trên thẻ thì
 // script render, để không thể quên hay điền sai.
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
+// Luật sản phẩm của kho (bat-bien-san-pham): khối, ô, cờ rút ở luat-san-pham.cjs; kho không khai luật → null, thẻ y nguyên.
+let luatG2 = null; try { luatG2 = require('./luat-san-pham.cjs').theCong2({ root, slug, contractTxt: read(path.join(dir, 'contract.md')), evidenceTxt: read(path.join(dir, 'evidence-report.md')), esc }); } catch (_) { luatG2 = null; }
 // Mục máy tự định tuyến (hồ sơ ngoai-n-tu-dinh-tuyen): dòng gate2 MỚI NHẤT gọi tên Ngoài-n mang dấu
 // máy VÀ tiêu đề khớp mục hiện tại → mục là dòng BÁO (routing.bao), in kèm lệnh đảo. Dấu máy mà tiêu
 // đề lệch → cờ, mục về người. Sổ không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
@@ -1108,7 +1130,7 @@ const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 // là đúng lớp lỗi hồ sơ này sinh ra để đóng. Nghỉ nghĩa là hồ sơ thôi chờ ai —
 // mời ký một hồ sơ đã cho nghỉ là mời người ký lại chính điều họ đã quyết dừng.
 const NGHI = (scanHit && scanHit.nghi) || null;
-const MAY_DI_TIEP = !scanBroken && scanState != null && (MAY_THONG || !!NGHI
+const MAY_DI_TIEP = !(luatG2 && luatG2.chan) && !scanBroken && scanState != null && (MAY_THONG || !!NGHI
   || ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
       'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState));
 // Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
@@ -1125,6 +1147,7 @@ const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanStat
 // signoff dạy đúng những chữ đó, nên dòng này dán lại là chạy được (rà soát
 // Gate 1.5 rủi ro #1: in token máy thì owner dán vào vẫn tốn thêm một lượt).
 const oneParts = [], routingHoi = [], routingBao = [];
+if (luatG2) for (const x of luatG2.slots) { oneParts.push(`${x.lbl}: ${x.val}`); routingHoi.push(x.lbl); }   // luật sản phẩm: câu của người
 ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);
   const g = f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '';
@@ -1193,7 +1216,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1289,6 +1312,7 @@ if (ooc.unclassified) {
     + `</div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
+if (luatG2) { for (const [c, t] of luatG2.co) P.push(`<div class="flag ${c}">${esc(t)}</div>`); if (luatG2.html) P.push(luatG2.html); }
 // Dòng máy cũ trỏ một mục đã đổi sau lượt chấm mới (tiêu đề lệch) — mục ấy về người; lưới trước-merge
 // không bắt ca này (giới hạn khai ở hồ sơ ngoai-n-tu-dinh-tuyen), nên thẻ phải nói to.
 if (dtmLech.length) P.push(`<div class="flag fwarn">⚠ dòng máy trỏ mục đã đổi: ${esc(dtmLech.join(', '))} — dòng sổ máy định tuyến một mục khác mục đang ở vị trí ấy; người quyết lại mục này.</div>`);
@@ -1318,7 +1342,8 @@ if (ooc.findings.length) {
     const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
     const dm = dtmMay(fi);
     const ai = dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(rec);
-    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}</p><p class="ai">${ai}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
+    const nhanL = luatG2 ? luatG2.nhanNgoai(f) : '';
+    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}${nhanL ? ' · ' + esc(nhanL) : ''}</p><p class="ai">${ai}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
   });
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
@@ -1395,6 +1420,7 @@ if (DA_KHEP) {
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Hồ sơ đã khép (${DA_KHEP_VI}) — không còn câu hỏi nào cho người.</b> Mục ngoài hợp đồng ở trên giữ làm sử liệu; mở lại hồ sơ là một quyết định riêng.</p></div>`);
 } else {
   const ymItems = []; const ymSlots = [];
+  if (luatG2) for (const [i, x] of luatG2.slots.entries()) { ymItems.push(luatG2.ymItems[i]); ymSlots.push(`${x.lbl}: ${x.val === '___' ? '___' : x.val}`); }
   ooc.findings.forEach((f, fi) => {
     const lbl = 'Ngoài-' + (fi + 1);
     if (dtmMay(fi)) return;   // máy đã định tuyến — dòng BÁO, gom một dòng bên dưới

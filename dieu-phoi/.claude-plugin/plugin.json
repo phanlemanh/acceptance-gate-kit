@@ -1,8 +1,9 @@
 {
   "name": "dieu-phoi",
   "version": "2.28.0",
-  "description": "Điều phối – Thợ: bộ phát lịch giữ khoá S4 / đường nền / merge, CLI đợt, năm lệnh /dieu-phoi:*, năm khối hook (chặn S4, nhịp, chờ người ×2, lưới hết hạn mức) và một mod đọc mức dùng. Cài theo kho (--scope project); hook im ở kho không có đợt. Không tự bật qua acceptance-init. Đi cùng feature-loop cùng số phiên bản. v2.28.0 — xem --kiem-chuyen tách dòng phải sửa khỏi bảy lớp lịch sử, bắt import tương đối vào lõi cũ, và kho khai phần lịch sử của mình ở khoá dieu_phoi.lich_su; lệnh mới ghi-danh <dãy> cho phiên thợ tự ghi worktree vào dãy; việc nền ngoài dãy giữ nhịp khoá thì không bị báo nhầm khoa-khong-nhip (hồ sơ dieu-phoi-on-dinh-r2).",
+  "description": "Điều phối – Thợ: bộ phát lịch giữ khoá S4 / đường nền / merge, CLI đợt, năm lệnh /dieu-phoi:*, năm khối hook (chặn S4, nhịp, chờ người ×2, lưới hết hạn mức) và lớp mod (đọc mức dùng · khung trạng thái đợt). Cài theo kho (--scope project); hook im ở kho không có đợt. Không tự bật qua acceptance-init. Đi cùng feature-loop cùng số phiên bản.",
   "author": {
     "name": "Manh Phan"
-  }
+  },
+  "types": "./types/index.d.ts"
 }

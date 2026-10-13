@@ -1,0 +1,213 @@
+schema_version: 1
+feature_slug: bat-bien-san-pham
+# Ca đo sống ở tests/scripts/luat-san-pham.ca.mjs (LS-01..LS-10), gọi từ phần bash của
+# tests/scripts/run-tests.sh — executor `executors.test.scripts_bash` sẵn có, cùng lệnh suite nên lệnh trùng
+# chỉ chạy một lần; không thêm khoá executor. Kho thử do code sinh trong lượt (thư mục tạm, git init, một
+# commit gốc làm «gốc nhánh»); tệp luật của kho thử dựng TỪ khối PRODUCT-INVARIANTS-TEMPLATE rút bằng marker;
+# giá trị mong đợi viết sẵn trong ca lúc dựng kho thử, KHÔNG rút từ đầu ra bộ đọc, bộ soi hay thẻ. Mô-đun,
+# thẻ và khong-can-nguoi gọi bằng require/spawnSync như người gọi thật; đường dẫn mọi script suy từ vị trí
+# tệp ca. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị tiêm SAU khi bản lành xanh trên cùng kho thử, và
+# ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: LS-…" — suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [skills/acceptance/references/product-invariants-template.md, scripts/luat-san-pham.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-01 doc-luat" — khối PRODUCT-INVARIANTS-TEMPLATE rút từ khuôn (marker vắng →
+      ca FAIL nêu tên khối), điền ba luật viết sẵn (một có câu chứa nháy, `$`, `|`) + bốn khối sai khuôn
+      (thiếu Chủ luật · mức lạ · dấu hiệu không biên dịch · mã trùng); docLuat ra mảng luật deepEqual bảng
+      viết sẵn (3 phần tử, mọi trường) và sai_khuon deepEqual bảng 4 lý do ghim; banLuat == stdout của
+      `git hash-object` trên cùng tệp. Và "PASS: LS-01-do" — bản sao khuôn đổi nhãn «Chủ luật» → CHÍNH
+      docLuat ra 0 luật, ca nêu «khuôn ra 0 luật».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, scripts/khong-can-nguoi.mjs, scripts/luat-san-pham.cjs, scripts/can-cu-s1.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-02 vi-phan kit=<n> crm=<m|vang>" với n == số thư mục hồ sơ của kit đếm
+      trong chính ca (không ghim số); crm theo biến LS_CRM_ROOT, vắng → "crm=vang" có tên. Gốc vòng đọc từ
+      dòng «Commit gốc của vòng» ở Notes của hợp đồng (vắng hoặc không resolve → ca FAIL nêu dòng đó); hồ sơ
+      của vòng đã ký → ca in "LS-02 da-ky" và không so. Bản gốc của gate-card.js, khong-can-nguoi.mjs và mô-đun
+      phụ thuộc rút TRỌN thư mục bằng `git archive <gốc vòng> scripts lib` vào thư mục tạm; với MỌI hồ sơ của
+      các kho đã so: HTML thẻ, bản rút (bỏ đúng khoá `luat`, khoá đó phải == {"co_tep":false}) và mã thoát + stdout
+      của khong-can-nguoi không ghi trên hồ sơ `verified` bằng nhau từng byte giữa hai bản. Và
+      "PASS: LS-02-do" — bản sao gate-card in khối luật vô điều kiện → CHÍNH hàm so trả hồ sơ lệch đầu tiên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/luat-san-pham.cjs, scripts/can-cu-s1.cjs, scripts/gate-card.js, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-03 bash" và "PASS: LS-03 zsh" — khuôn rút từ khối
+      DEC-LUAT-NAP của SKILL (đúng một dòng, có khoá `can_cu` và `luat_nap`), ghi bằng khối DEC-ID-RECIPE rút
+      từ SKILL dưới bash và zsh (zsh vắng → FAIL); bộ xếp lớp ra `da-quyet`, `luat_nap.ban` == banLuat của
+      tệp; ba thẻ: ca khớp không cờ luật nào, ca thiếu đúng một cờ vàng «Kho đã khai luật sản phẩm mà sổ bước
+      thiết kế chưa có dòng nạp», ca đổi đúng một cờ vàng «Luật sản phẩm đã đổi sau khi bước thiết kế nạp»
+      chứa bảy ký tự đầu của hai bản. Và "PASS: LS-03-do" — bản sao
+      khuôn đổi tên khoá `luat_nap` → ca khớp ra cờ thiếu, ca nêu «DEC-LUAT-NAP».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs, scripts/luat-san-pham.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-04 theo-luat" — thẻ dựng với --glossary-base <gốc kho thử>: dòng trích câu
+      SP-2 nằm trong khối «Máy đã quyết ở bước thiết kế» và chứa «theo luật SP-2»; dòng trích câu ngoài khối
+      luật không chứa «theo luật»; bản thứ hai của kho thử với câu SP-2 chỉ thêm trong nhánh → dòng đó đỏ
+      `sinh-trong-vong`. Và "PASS: LS-04-do" — bản sao thẻ gắn mã luật đầu tiên cho mọi câu trích → ca nêu
+      dòng ngoài khối mang «theo luật».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, scripts/gate-card.js, scripts/luat-san-pham.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-05 ma-tran 5/5" — năm ca viết sẵn, mỗi ca so bằng nhau lớp + mã đỏ + thông
+      điệp ghim với bảng; thẻ: Hỏi-1, Hỏi-2 mở đầu đúng chuỗi «Phạm luật SP-<n> — <câu> (chủ luật: <tên>)»,
+      nhãn khó-đảo chỉ ở Hỏi-2; ca có dòng đỏ → one_shot chứa «___» ở chữ duyệt. Ca không bật (đối chứng
+      ngưỡng): một dòng chỉ-người KHÔNG mang pham_luat cùng hồ sơ → câu hỏi của nó không chứa «Phạm luật» và
+      không mang mã SP nào. Và "PASS: LS-05-do
+      pham-luat-may-quyet" + "PASS: LS-05-do luat-kho-dao" — mỗi bản sao mô-đun gỡ đúng một luật → ca tương
+      ứng ra lớp khác `do`, ca nêu mã luật; bản lành chạy trước trên cùng ma trận xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, scripts/gate-card.js, scripts/luat-san-pham.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-06 luat-vang 2/2" — kho có tệp (SP-1, SP-2) và kho không tệp: dòng
+      `pham_luat: "SP-9"` ra lớp `do`, mã `luat-vang`, thông điệp == «mã luật không có trong tệp luật sản
+      phẩm»; thẻ có cờ đỏ «Sổ bước thiết kế — <mã dòng>: mã luật không có trong tệp luật sản phẩm». Đối chứng
+      dương: `pham_luat: "SP-2"` ở kho có tệp ra `cau-hoi`. Và "PASS: LS-06-do" — bản sao bỏ phép tra mã → ca
+      nêu SP-9 ra `cau-hoi`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/luat-san-pham.cjs, scripts/gate-card.js, scripts/khong-can-nguoi.mjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-07 may", "PASS: LS-07 nguoi", "PASS: LS-07 sach" — hồ sơ `verified` của kho
+      thử (báo cáo PASS xanh-sạch do code sinh theo khuôn evidence-report của kit), ba nhánh: (may) commit sửa
+      tệp luật có dòng `Co-Authored-By: Claude` → `sua_tep_luat.may` deepEqual [sha viết sẵn], thẻ có đúng cờ
+      đỏ ghim, one_shot chứa «Tệp luật: ___», không nhãn làn V, khong-can-nguoi thoát 2 và stdout
+      chứa «luật sản phẩm»; (nguoi) commit không dòng đó → `.nguoi` deepEqual [sha], không cờ đỏ, có dòng
+      «Chủ kho sửa tệp luật trong nhánh vòng (1 commit)»; (sach) cả hai mảng rỗng, không cờ, khong-can-nguoi
+      thoát 0. Và "PASS: LS-07-do" — bản sao bộ soi bỏ tách máy/người → ca nêu nhánh nguoi ra cờ đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    layer: backend-effect
+    paths: [scripts/luat-san-pham.cjs, scripts/gate-card.js, scripts/khong-can-nguoi.mjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-08 okr-soat" — luat-cham.json `cham` deepEqual
+      [{"ma":"SP-1","tep":"apps/app/lib/a.ts","dong":<dòng viết sẵn>, ...}] (đúng một phần tử; không có
+      tests/a.spec.ts, không có _acceptance/x/notes.md); `den` == verified_commit; thẻ có khối «Luật sản phẩm
+      bị chạm» chứa SP-1, câu luật, chủ luật, «khó-đảo», «apps/app/lib/a.ts:<dòng>»; one_shot chứa «SP-1: sửa
+      vật»; routing.hoi chứa "SP-1"; không nhãn làn V; khong-can-nguoi thoát 2 chứa «luật sản
+      phẩm». "PASS: LS-08 nhan-ngoai" — review-findings.md dựng bằng khuôn OOC-ITEM-TEMPLATE rút từ marker
+      (không viết tay) có hai mục: mục nhắc «SP-1» mang nhãn «luật SP-1 · khó đảo», mục nhắc «SP-9» không
+      mang nhãn nào (đối chứng).
+      "PASS: LS-08 cu" — xoá luat-cham.json, rồi ghi lại với `den` khác verified_commit: mỗi ca đúng một cờ
+      vàng «Chưa soi luật sản phẩm trên bản đã chấm» và không nhãn làn V. Và "PASS: LS-08-do pham-vi"
+      (bản sao bỏ lọc phạm vi → ca nêu tests/a.spec.ts) + "PASS: LS-08-do khong-luat" (bản sao tệp luật xoá
+      SP-1 → khối vắng, sau khi bản lành có khối).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - commands/signoff.md
+      - skills/acceptance/references/human-facing-language.md
+      - skills/acceptance/references/product-invariants-template.md
+      - GUIDE.md
+      - CONTEXT.md
+      - docs/adr/0024-luat-san-pham-cua-kho.md
+    question: >
+      Đọc như người của một kho tiêu thụ chưa từng thấy vòng này. Từ các tệp trên, có trả lời được không:
+      (1) viết tệp PRODUCT-INVARIANTS.md thế nào, tệp ở đâu, và tệp là của kho — máy không sửa; (2) kho
+      không có tệp thì không gì đổi; (3) bước thiết kế (S1 của SKILL) nạp tệp và ghi dòng nạp theo khuôn
+      DEC-LUAT-NAP ra sao; (4) lựa chọn theo luật và phạm luật ghi vào sổ thế nào (nguồn căn cứ, pham_luat,
+      kho_dao theo mức luật); (5) thẻ Cổng Phạm vi và Cổng Bằng chứng hiện gì, và trả lời ô «SP-<số>» và
+      «Tệp luật» ra sao, với đúng hai lối «chấp nhận có tên» · «sửa vật» và khuyến nghị điền sẵn «sửa vật» —
+      và hai nhãn ấy có trong danh sách GATE-ONESHOT-SLOTS; (6) kho được dặn thêm một dòng trỏ tệp luật vào
+      CLAUDE.md để bộ tìm lỗi ở lượt chấm thấy luật, và vì sao (bộ tìm lỗi chỉ đọc CLAUDE.md); (7)
+      thuật ngữ «Luật sản phẩm» trong CONTEXT.md có định nghĩa và từ tránh; (8) ADR 0024 nói ai phê phần
+      CỘNG (Cổng Đáng 11/10), vì sao đường cố định không khoá config, và đường đảo; (9) ý (4) của phản biện
+      context sạch (S1 mục 7 của SKILL) có câu soi «lựa chọn trái một luật đã nạp mà sổ không ghi
+      pham_luat». PASS khi cả chín đúng; nêu câu sai nếu có.
+    expected: "PASS — chín vế đúng; FAIL nêu vế thiếu"
+    evidence_required: [run_id, verifier, verified_at, panel_votes]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, skills/acceptance/references/human-facing-language.md, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-10 mot-dong" — trên ba hồ sơ (AC-5, AC-8 và nhánh may của AC-7) của AC-5 và AC-8: HTML thẻ có ĐÚNG một khối
+      «VIỆC CỦA ANH» và đúng một dòng lệnh (đếm chuỗi tên lệnh plugin == 1), mọi câu luật/ô SP nằm trong khối
+      đó; mọi nhãn ô rút từ dòng «Trả lời mẫu» của hai thẻ thật khớp một dòng của GATE-ONESHOT-SLOTS (mẫu
+      `<số>` khớp chữ số). Và "PASS: LS-10-do" — bản sao danh sách nhãn bỏ dòng `g2 SP-<số>` → ca nêu «SP-1»
+      không có trong danh sách.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-09 noi-day-s4" — khối bước «Mọi verdict» rút từ mục S4 của SKILL (đoạn bắt
+      đầu «**Mọi verdict:**», vắng → ca FAIL nêu đoạn); trong đó dòng lệnh chứa `luat-san-pham.cjs` và
+      `--quet` và `--write` đứng SAU lệnh `thuoc-vat.mjs` có `--write` và trước câu kế tiếp về mã thoát 5. Và
+      "PASS: LS-09-do" — bản sao SKILL xoá lệnh soi luật → CHÍNH hàm kiểm trả lỗi nêu «luat-san-pham»; bản
+      lành xanh trước trên cùng hàm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/luat-san-pham.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-11 dem" — kho thử sáu hồ sơ do code sinh (ngày commit tệp luật D đặt bằng
+      GIT_COMMITTER_DATE viết sẵn; `at` của dòng sổ viết sẵn); `--dem --tu D --json` in ngay_khai == D và
+      deepEqual bảng năm hàng × sáu cột viết sẵn; dạng chữ có đúng năm hàng; không `--tu` có sáu hàng. Và
+      "PASS: LS-11-do" — bản sao đếm cả dòng bị thay → CHÍNH hàm so trả hồ sơ + cột «phạm ở thiết kế» lệch.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    layer: backend-effect
+    paths: [scripts/luat-san-pham.cjs, scripts/khong-can-nguoi.mjs, scripts/gate-card.js, scripts/dinh-tuyen-may.cjs, tests/scripts/luat-san-pham.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: LS-12 pham-luat-dinh-tuyen-het", "PASS: LS-12 doi-chung-lan-v" và "PASS: LS-12-do" —
+      hồ sơ verified xanh-sạch, kho bật feature_loop.ngoai_n_tu_dinh_tuyen, hai mục ngoài hợp đồng do CHÍNH
+      scripts/dinh-tuyen-may.cjs --write định tuyến (đúng 2 dòng gate2 mang dấu máy, nếu không ca FAIL nêu số dòng);
+      (phạm luật) diff thêm dấu hiệu SP-1 → thẻ: hai Ngoài-n ở routing.bao, routing.hoi có SP-1, one_shot không có
+      «đi tiếp hay kéo lại»; khong-can-nguoi thoát 2 nêu «luật sản phẩm»; (đối chứng dương) cùng hình dạng không dấu
+      hiệu → khong-can-nguoi thoát 0 và one_shot có «đi tiếp hay kéo lại»; (đỏ) bản sao khong-can-nguoi gỡ đúng dòng
+      kiểm luật → vị từ cho đi (thoát 0) trên hồ sơ phạm luật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: ui-check
+    layer: ui-observed
+    paths: [scripts/gate-card.js, scripts/luat-san-pham.cjs]
+    steps:
+      - "Máy: `LS_GHI_ANH=1 LS_CASES=LS-10 node tests/scripts/luat-san-pham.ca.mjs` dựng hồ sơ thử của AC-5 (Cổng Phạm vi) và AC-8 (Cổng Bằng chứng) và ghi `_acceptance/bat-bien-san-pham/evidence/card-g1-luat.html`, `card-g2-luat.html`; ghi hai đường vào observed"
+      - "Mở file://…/card-g1-luat.html ở khổ 1280×800 → screenshot evidence/E11-g1-rong.png; mở card-g2-luat.html cùng khổ → screenshot evidence/E11-g2-rong.png"
+      - "Đọc trên ảnh: câu «Phạm luật SP-…» trong khối câu hỏi và nhãn khó-đảo đúng câu; khối «Luật sản phẩm bị chạm» với mã, câu luật, chủ luật, chỗ tệp:dòng; ô «SP-1: sửa vật» trong dòng lệnh → ghi vào observed"
+      - "Đổi khổ 390×844, tải lại từng thẻ → screenshot evidence/E11-g1-hep.png, evidence/E11-g2-hep.png; kiểm document.documentElement.scrollWidth <= 390 → ghi số vào observed"
+    expected: "Nhìn: thẻ Cổng Phạm vi có câu «Phạm luật SP-…» trong khối câu hỏi, nhãn khó-đảo đúng câu; thẻ Cổng Bằng chứng có khối «Luật sản phẩm bị chạm» nêu SP-1, câu luật, chủ luật và chỗ tệp:dòng, ô «SP-1: sửa vật» trong dòng lệnh; một màn đọc trả lời được luật nào bị chạm, ở đâu, phải trả lời gì; khổ 390 scrollWidth <= 390 ở cả hai thẻ"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]

@@ -178,6 +178,13 @@ mục yêu cầu của một đợt.
 thì không lệnh nào của cửa chạy và mọi trang giữ nguyên từng byte.
 _Avoid_: hộp thư thứ hai (khuôn tín hiệu là khuôn yêu cầu của gói Điều phối); để kit lưu tín hiệu.
 
+**Câu cho người gửi**:
+Trường `cau_nguoi_gui` của mỗi đường đi tín hiệu (khoá `tin_hieu` của khối dữ liệu lộ trình): một câu tiếng
+sản phẩm nói tín hiệu đang ở đâu — đã vào nhóm nào, thành việc gì, đã giao ngày nào — dựng từ tên nhóm, câu
+giao và ngày ký; không mã việc, không tên hồ sơ, không từ của khối `TIN-HIEU-CAU-CAM`. Kiểm bằng
+`scripts/tin-hieu.mjs --cau`. Khác `cau` (câu cho chủ kho, có mã để lần). Hồ sơ `cau-tin-hieu-nguoi-gui`.
+_Avoid_: hiện `cau` cho người không dùng git; chèn mã vào khuôn câu; danh sách từ cấm viết trong mã.
+
 **Bản gom**:
 Tệp markdown trong git, trong thư mục `tin_hieu.gom`, đặt MỖI tín hiệu vào đúng một chỗ: một nhóm (một
 điều một vai muốn làm được — trục `ket-qua`, chính sách ở khối `GOM-TRUC` của skill `gom-tin-hieu`), lẻ
@@ -386,6 +393,14 @@ câu trích có từ trước vòng) · chỉ một lối ra sống (các lối 
 đầu máy quyết và ghi sổ; nguồn thứ ba và mọi lựa chọn khó-đảo là câu hỏi trên thẻ Cổng
 Phạm vi. Ghi bằng khoá `can_cu` của dòng sổ S1 (ADR 0022).
 _Avoid_: lý do (quá rộng — mọi dòng sổ có `why`), căn cứ pháp lý
+
+**Luật sản phẩm**:
+Điều phải đúng xuyên mọi tính năng của MỘT kho tiêu thụ, do chủ kho khai trong
+`PRODUCT-INVARIANTS.md` ở gốc kho — mỗi luật một mã `SP-<số>`, một chủ luật, một mức (thường /
+khó đảo), tuỳ chọn một dấu hiệu soi trên diff. Bước thiết kế nạp nó; thẻ hai cổng gọi tên luật bị
+phạm. Nội dung là của kho, máy không sửa (ADR 0024).
+_Avoid_: bất biến (trong chữ cho người — tên hồ sơ `bat-bien-san-pham` giữ), invariant, spec, PRD,
+quy định đội (thứ đó sống ở team handbook)
 
 **Sổ luật-đã-chạy (rules ledger)**:
 Kế toán trong `pre-merge-check.sh`: mỗi khối luật ghi `ran <tên>` hoặc
