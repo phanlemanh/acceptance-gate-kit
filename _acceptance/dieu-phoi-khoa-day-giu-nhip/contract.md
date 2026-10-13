@@ -5,7 +5,7 @@ slug: dieu-phoi-khoa-day-giu-nhip
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/dieu-phoi-khoa-day-giu-nhip/design.md
 approved_by:
 approved_at:
@@ -63,3 +63,5 @@ nhịp phiên (AC-3) và hạn thuê (AC-4).
 - Vòng này THAY một hàng lời hứa của hồ sơ đã ký `dieu-phoi-on-dinh-r2` (AC-9: «dãy `P1` giữ s4 chỉ có nhịp khoá,
   không nhịp phiên → 1 (luật của dãy không đổi)») bằng 0 — căn cứ là lời dặn đã có của `scripts/mau/LUAT.md` và sự
   cố crm 13/10. Hồ sơ cũ không sửa (sổ chỉ thêm); ca của nó đổi thân có tên ở AC-6.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-3: ca tài liệu chỉ dò cụm chữ của câu cũ, nên README viết ngược hành vi bằng chữ khác vẫn qua — hành vi thật do ma trận khoá đo, không do ca tài liệu.
