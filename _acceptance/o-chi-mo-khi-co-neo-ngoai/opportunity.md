@@ -207,6 +207,9 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   bộ đọc «Ngoài hợp đồng» bỏ mục carry `(r1)`, trộn trường vào mục trước — thẻ đếm 3/4.
 - `docs/plans/2026-10-03-hat-giong-suite-chap-chon-ho-so-khac-khoa-the.md` — 03/10 crm `muc-tieu-va-kr` lượt 5–8:
   mọi eval đạt mà thẻ khoá vì suite toàn kho chập chờn ở hồ sơ khác và tác tử chết.
+- `docs/plans/2026-10-13-hat-giong-kenh-lien-may-dieu-phoi.md` — 13/10 kênh issue #308 (kit) và crm #375: không đánh
+  thức phiên, danh tính tự khai, khoá không chặn được hai máy, ≈ 20 nghìn token mỗi lần đọc trọn; thiết kế kho git làm hộp thư. Đánh giá
+  cuối 13/10: giữ SỔ, ngưỡng đổi sang đếm thiệt hại; bước nhỏ trước là bộ canh kênh có chiều đỏ.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

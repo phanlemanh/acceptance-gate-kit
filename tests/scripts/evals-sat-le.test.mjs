@@ -340,6 +340,8 @@ const BEN_DOC = {
   'scripts/recheck-evidence.cjs': 'truong-don',
   // Hàng X2 (hồ sơ trang-ho-so-mot-viec): mô-đun đọc hồ sơ chỉ đếm mã phép đo qua parseEvals của lib.
   'scripts/ho-so-tom-tat.cjs': 'truong-don',
+  // Hồ sơ bo-doc-ho-so-khoan-dung: bộ dò YAML chuẩn đọc từng dòng để NÓI RA chỗ không chuẩn — không lấy giá trị trường nào.
+  'scripts/yaml-chuan.cjs': 'truong-don',
   'feature-loop/scripts/chup-ho-so-da-thong.mjs': 'khong-doc',
   'feature-loop/scripts/lib/phan-loai.mjs': 'khong-doc',
   'feature-loop/workflows/acceptance-verify.js': 'khong-doc',

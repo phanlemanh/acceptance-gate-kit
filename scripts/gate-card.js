@@ -101,6 +101,18 @@ const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước 
 // Bên đọc là MỘT bộ đọc ở lib (danhSachKhongDoc): cờ hiện ở Cổng Phạm vi, TRƯỚC khi một lượt chấm bị đốt.
 const DANH_SACH_KHONG_DOC_FLAG = 'Tệp tiêu chí có danh sách máy không đọc được — lượt chấm sẽ thiếu đúng các trường này; viết lại thành danh sách rồi dựng thẻ lại:';
 const danhSachKhongDocCua = d => { try { return typeof evidenceCore.danhSachKhongDoc === 'function' ? evidenceCore.danhSachKhongDoc(read(path.join(d, 'evals.yaml'))) : []; } catch (_) { return []; } };
+// Cờ evals.yaml không phải YAML chuẩn (hồ sơ bo-doc-ho-so-khoan-dung AC-3): kit vẫn đọc theo dòng, cờ chỉ NÓI RA chỗ
+// công cụ khác của kho sẽ vấp. Bộ dò nạp mềm — vắng/lỗi thì thẻ vẫn dựng, mang cờ «không kiểm được».
+const YAML_KHONG_CHUAN_FLAG = 'evals.yaml không phải YAML chuẩn — công cụ khác của kho (Bun.YAML, PyYAML) sẽ không đọc được; kit vẫn đọc theo dòng, không chặn:';
+const YAML_KHONG_KIEM_FLAG = 'Không kiểm được YAML chuẩn của evals.yaml — bộ dò của kit không nạp được.';
+const YAML_CHUAN_DUONG = path.join(__dirname, 'yaml-chuan.cjs');
+const yamlChuanCo = d => {
+  const t = read(path.join(d, 'evals.yaml'));
+  if (t == null) return [];
+  let ds;
+  try { ds = require(YAML_CHUAN_DUONG).yamlKhongChuan(t); } catch (_) { return [['fwarn', esc(YAML_KHONG_KIEM_FLAG)]]; }
+  return Array.isArray(ds) && ds.length ? [['fwarn', esc(YAML_KHONG_CHUAN_FLAG + ' ' + ds.map(m => `dòng ${m.dong} (${m.mo_ta})`).join(', '))]] : [];
+};
 // Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
 // OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
 const DICH_LAC = 'dòng dịch không khớp mục nào: ';
@@ -931,6 +943,7 @@ if (gate === '1') {
   if (nen.present && nen.nen === 'do') flags.push(['fwarn', esc(NEN_DO_FLAG)]);
   else if (!nen.present) flags.push(['fwarn', esc(NEN_VANG_FLAG)]);
   { const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
+  flags.push(...yamlChuanCo(dir));
   if (roiBac) flags.push(['fred', esc(MSG_ROI_BAC)]);
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
@@ -1375,6 +1388,7 @@ if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng le
 const flags = [];
 if (thuocVat && thuocVat.hong) flags.push(['fwarn', esc(THUOC_VAT_HONG_FLAG)]);
 { const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
+flags.push(...yamlChuanCo(dir));
 if (uiObserved2.applicable) {
   if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
   else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);

@@ -1,0 +1,151 @@
+schema_version: 1
+feature_slug: bo-doc-ho-so-khoan-dung
+# Ca đo sống ở tests/scripts/yaml-chuan.test.mjs (mã YC-…) và tests/scripts/ngay-ky.test.mjs (mã NK-…);
+# răng dữ liệu thật ở _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs (cần sáu kho trên máy + PyYAML, ngoài
+# feature_loop.suite_keys). Khoá executor thêm ở S3. Mọi fixture do mã sinh trong lượt, đường dẫn suy từ vị trí
+# tệp ca; bản base = `git archive 3c88d138 scripts lib dieu-phoi` vào thư mục tạm (in sha). Mỗi ca đỏ chạy CHÍNH
+# hàm đo/lệnh trên bản base hoặc bản sao bị tiêm (nhát tiêm khớp đúng một lần, kiểm trước khi tin), SAU khi bản
+# lành xanh trên cùng fixture, và ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: <mã ca>".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.yaml_chuan
+    paths: [scripts/yaml-chuan.cjs, tests/scripts/yaml-chuan.test.mjs, tests/scripts/yaml-chuan-ma-tran.mjs]
+    expected: >
+      exit 0; stdout có "PASS: YC-1" — ma trận viết trước trong module sinh dùng chung
+      tests/scripts/yaml-chuan-ma-tran.mjs (răng E2 cho PyYAML đọc cùng 19 ô): sáu lớp (chu-sau-nhay-dong,
+      thoat-sai-nhay-kep, ngoac-trong-muc-tran, khoi-chu-thut-lui, hai-cham-trong-gia-tri-tran,
+      dong-goc-khong-phai-khoa) × {bản hỏng, bản lành} của cùng một evals.yaml do mã sinh, cộng bảy dạng hợp lệ
+      (nháy kép nhiều dòng, nháy đơn nhiều dòng, '' trong nháy đơn, \" trong nháy kép, khối chữ có chú thích,
+      danh sách luồng có mục nháy chứa [slug], neo &a); bản hỏng → đúng một mục, loai = mã lớp, dong = dòng biết
+      trước; bản lành và dạng hợp lệ → 0 mục; ca in "so o: 19" và số ô so == số phần tử ma trận (khác → FAIL
+      «ma trận hụt»). Và "PASS: YC-1-do" — bản sao bộ dò bỏ nhánh lớp thoat-sai-nhay-kep (nhát tiêm khớp đúng
+      một lần): CHÍNH ca ma trận trên bản sao FAIL nêu «thoat-sai-nhay-kep».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.bo_doc_bay_kho
+    paths: [scripts/yaml-chuan.cjs, lib/eval-yaml.cjs, lib/evidence-core.cjs, tests/scripts/yaml-chuan-ma-tran.mjs, _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs]
+    expected: >
+      exit 0; stdout có dòng "yaml <kho> sha=<40-hex> tep=<n> tu-choi=<k>" và một dòng "yaml-tu-choi
+      <kho>/<hồ sơ> dong=<d> lop=<mã>" cho mỗi tệp bị từ chối, cho đủ bảy kho (kit, crm, oneflow,
+      artifact-platform, radar, media-library, map), mọi kho đọc bằng git show ở sha ghim trong răng (không cây
+      làm việc), dòng "yaml vi-phan: 0 lech, tong tu-choi=<k> (k>=1)" (lệch = tệp mà «bộ dò có mục» khác «PyYAML từ
+      chối», HOẶC tệp bị từ chối mà bộ dò không có mục ở đúng dòng problem_mark của PyYAML), dòng
+      "ma-tran-pyyaml: 19/19 khop" (19 ô của ca YC-1 rút từ CHÍNH hàm sinh ma trận dùng chung với tệp ca,
+      PyYAML: bản hỏng từ chối, bản lành + dạng hợp lệ nhận; lệch → exit 1 ghim tên ô), dòng "doc-theo-dong: 0 lech tren <n> tep"
+      (parseEvals với trường id/criterion/executor/cmd/expected và evalListsOf cả bốn trường danh sách, base
+      3c88d138 so cây đang kiểm, so deep-equal). Chiều đỏ trong cùng lượt: sáu bản sao bộ dò, mỗi bản bỏ một
+      lớp → phép so ở mức (tệp, dòng lỗi đầu) in "do OK: bo <lop> → vi phan lech: <kho>/<ho so>"; bản nào
+      không đổi kết quả nào → exit 1 «đột biến tương đương: <lop>»; bản sao dời dong +3 → "do OK: vi phan
+      dong". Tổng từ chối bằng 0 → exit 1 «vi phân rỗng». Thiếu kho hoặc thiếu PyYAML →
+      exit 2 «không đọc được ở đây: <tên>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.yaml_chuan
+    paths: [scripts/gate-card.js, scripts/yaml-chuan.cjs, tests/scripts/yaml-chuan.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: YC-3" — kho thử do mã sinh, một hồ sơ draft và một hồ sơ verified, cả hai mang
+      evals.yaml có hai chỗ không chuẩn (dong-goc-khong-phai-khoa dòng 1, thoat-sai-nhay-kep dòng 10 — hai lớp
+      không chạm trường danh sách, để cờ «danh sách không đọc được» có sẵn không bật cùng): thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng (gate-card.js của cây đang kiểm) mỗi thẻ có đúng một cờ
+      bắt đầu «evals.yaml không phải YAML chuẩn», cờ chứa cả hai số dòng và hai chữ lớp tiếng sản phẩm và KHÔNG
+      chứa mã lớp; cùng hồ sơ với evals.yaml đã sửa → không có cờ đó và tập cờ còn lại bằng tập cờ của thẻ bản
+      hỏng trừ cờ đó. Và "PASS: YC-3-do" — gate-card.js của base 3c88d138 trên bản hỏng: không có cờ (ghim
+      «base không cờ»); "PASS: YC-3-vang" — bản sao gate-card.js trỏ bộ dò tới đường không có: thẻ vẫn dựng
+      (exit 0) và mang cờ «không kiểm được YAML chuẩn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.yaml_chuan
+    paths: [scripts/yaml-chuan.cjs, tests/scripts/yaml-chuan.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: YC-4" — kho git thử do mã sinh, commit gốc có hồ sơ A (evals.yaml một chỗ
+      chu-sau-nhay-dong ở dòng biết trước) và hồ sơ B lành: `node scripts/yaml-chuan.cjs --root <kho>` in đúng
+      dòng "A/evals.yaml:<dòng> — chữ đứng sau nháy đóng" và thoát 1; bản kho chỉ còn B → thoát 0, stdout không
+      có dòng chỗ nào; commit thứ hai chỉ sửa B, `--base <gốc>` → thoát 0; commit thứ ba chạm A, `--base <gốc>`
+      → thoát 1 với đúng dòng của A. Và "PASS: YC-4-re" — kho có nhánh rẽ: nhánh chính đi trước có commit chạm A,
+      nhánh chỉ chạm B, `--base <nhánh chính>` → thoát 0 (so từ merge-base); bản sao lệnh đổi sang so hai chấm
+      trên CÙNG kho → thoát 1, ca ghim «hồ sơ ngoài nhánh chặn: A». Và "PASS: YC-4-2" — `--root` là thư mục không phải kho git → thoát 2 nêu
+      «không phải kho git»; `--base` một ref không có → thoát 2 nêu tên ref.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.ngay_ky
+    paths: [scripts/ho-so-tom-tat.cjs, tests/scripts/ngay-ky.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NK-1" — bảng viết sẵn trong ca, mười dạng: "Tên 2026-09-10" → 2026-09-10;
+      "Tên 2026-09-10T08:00:00Z" → 2026-09-10; "Tên 10/08/2026 sửa 2026-09-10" → 2026-09-10; "Tên 1/9/2026" →
+      2026-09-01; "Tên 10/09/2026 — ghi chú" → 2026-09-10; "Tên 32/13/2026" → null; "Tên 31/02/2026" → null;
+      "Tên 13/10" → null; "Tên" → null; "" → null; ca in "so o: 10" == số dòng bảng. Và "PASS: NK-1-do" — bản
+      sao ngayChuKy đổi nhánh ngày/tháng/năm sang tháng-trước: CHÍNH ca bảng trên bản sao FAIL nêu dạng
+      "10/09/2026".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.ngay_ky
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/tin-hieu.mjs, scripts/start-scan.mjs, scripts/cat-luot.mjs, tests/scripts/ngay-ky.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NK-2" — kho thử do mã sinh (lộ trình + cửa tín hiệu khai, một tín hiệu đã phủ bởi
+      việc có hồ sơ signed-off với human_signoff "Tên 10/09/2026 — ghi chú", approved_at 2026-09-01): câu
+      cho người gửi chứa «ngày 10/9/2026», `--cau` thoát 0; ngày xong của start-scan == 2026-09-10; ngày ký của dải
+      tóm tắt == 2026-09-10; nhip() của cat-luot đếm hồ sơ (bo_qua == 0, T2 có một mẫu 9 ngày). Và "PASS: NK-2-do"
+      — bốn mặt của base 3c88d138 trên CÙNG kho: câu không có ngày, `--cau` đỏ, start-scan không ra ngày, dải
+      không ra ngày ký, nhip bỏ qua 1 — ca in "base mất ngày: <mặt>" cho đủ bốn mặt (thiếu một → FAIL). Và
+      "PASS: NK-2-giu" — chữ ký "Tên" (không ngày) → `--cau` thoát khác 0 nêu «chữ ký không đọc được ngày».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.bo_doc_bay_kho
+    paths: [scripts/ho-so-tom-tat.cjs, scripts/tin-hieu.mjs, scripts/start-scan.mjs, scripts/cat-luot.mjs, _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs]
+    expected: >
+      exit 0; bốn mặt chạy qua lối vào công khai — ngayKy(root, slug) của tin-hieu.mjs, tomTatHoSo của
+      ho-so-tom-tat.cjs (giao.ngayKy), JSON của start-scan.mjs (at từng hồ sơ), nhip(root) của cat-luot.mjs —
+      bản base 3c88d138 và cây đang kiểm, trên bản xuất `git archive <sha ghim> _acceptance` của từng kho.
+      stdout có dòng "ngay <kho> <mặt> so=<n>" cho đủ bảy kho × bốn mặt, mặt nào tổng n bằng 0 → exit 1
+      «vi phân rỗng: <mặt>»; dòng "ngay vi-phan: 0 lech ngoai doc-them"; danh sách đọc thêm chỉ gồm hồ sơ có
+      chữ ký mang ngày/tháng/năm mà không mang năm-tháng-ngày, in theo mặt: "ngay doc-them tin-hieu
+      crm/nen-chat-ai-elements=10/9/2026", "ngay doc-them dai crm/nen-chat-ai-elements=2026-09-10", "ngay
+      doc-them start crm/nen-chat-ai-elements=2026-09-10", "ngay doc-them nhip crm T2 mau +1 bo-qua -1". Chiều đỏ trong cùng lượt: bản sao bỏ nhánh
+      ngày/tháng/năm → "do OK: thiếu đọc thêm: crm/nen-chat-ai-elements"; bản sao tháng-trước → "do OK: đọc thêm
+      sai ngày: crm/nen-chat-ai-elements"; thiếu một trong hai → exit 1. Tổng hồ sơ so bằng 0 → exit 1 «vi phân
+      rỗng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [CHANGELOG.md, skills/acceptance/references/eval-executors.md]
+    question: >
+      Đọc mục «Chưa phát hành» của CHANGELOG.md và mục «evals.yaml shape» của eval-executors.md như một người
+      viết eval ở kho tiêu thụ. Họ có biết đủ bảy điều không: (1) thẻ hai cổng cắm cờ vàng khi evals.yaml không
+      phải YAML chuẩn, kit vẫn đọc theo dòng, không chặn và không đổi phán quyết; (2) sáu lớp và cách sửa từng
+      lớp; (3) lệnh nào đưa vào CI để chặn, và `--base` giữ hồ sơ cũ đã ký không chặn; (4) hồ sơ đã ký không phải
+      sửa; (5) chữ ký ghi ngày/tháng/năm nay được đọc ra ngày; (6) kho không có sự cố không phải làm gì; (7) muốn biết
+      hồ sơ nào của kho đang mang cờ thì chạy lệnh kiểm không kèm --base. Thiếu điều nào, nêu điều đó.
+    evidence_required: [verdict, rationale, verifier, verified_at]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lo_trinh_r2
+    paths: [docs/plans/lo-trinh-kit.json, scripts/lo-trinh.mjs, _acceptance/bo-doc-ho-so-khoan-dung/rang/hang-r2.mjs]
+    expected: >
+      exit 0; răng hang-r2.mjs đọc hàng bằng `scripts/lo-trinh.mjs --root . --hang R2` và in JSON có ma "R2", nhom "doc-khoan-dung", hang "T2", slug "bo-doc-ho-so-khoan-dung", dung_tren
+      chứa "R1", vi_sao bắt đầu "Gốc:" và chứa "crm-onehub#375" và "2026-10-13-hat-giong-ngay-ky"; và mốc có ten
+      bắt đầu "Tinh chỉnh sau hai đợt thử" có "R2" trong hang (răng đọc mốc từ tệp lộ trình, in "moc OK"). Chiều đỏ:
+      bản sao tệp lộ trình bỏ R2 khỏi hang của mốc → CHÍNH răng trên bản sao thoát 1 nêu «R2 không ở mốc»; răng in "do OK: R2 không ở mốc".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [docs/plans/lo-trinh-kit.json, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0 — bộ ca lo_trinh của kit xanh trên tệp lộ trình đã thêm R2 (khuôn hàng hợp lệ, không mã trùng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

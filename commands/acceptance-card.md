@@ -81,6 +81,10 @@ Steps:
    Từ hồ sơ evals-sat-le-doc-du thêm một cờ, cũng mã thoát 0, một lời thuật:
    - `Tệp tiêu chí có danh sách máy không đọc được — lượt chấm sẽ thiếu đúng các trường này; viết lại thành danh sách rồi dựng thẻ lại:` → cờ vàng trên thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng: tệp tiêu chí có trường danh sách viết kiểu máy không đọc được (bí danh YAML, khối chữ, ánh xạ, khoá trống không mục nào); cờ gọi tên từng tiêu chí và trường, lượt chấm sẽ thiếu đúng các trường ấy; việc kế là viết lại chúng thành danh sách rồi dựng thẻ lại.
 
+   Từ hồ sơ bo-doc-ho-so-khoan-dung thêm hai cờ, cũng mã thoát 0, mỗi cờ một lời thuật:
+   - `evals.yaml không phải YAML chuẩn — công cụ khác của kho (Bun.YAML, PyYAML) sẽ không đọc được; kit vẫn đọc theo dòng, không chặn:` → cờ vàng trên thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng: tệp tiêu chí có chỗ viết sai cú pháp YAML chuẩn; cờ nêu từng chỗ bằng số dòng và tên lớp (chữ đứng sau nháy đóng, thoát sai trong nháy kép, …); kit vẫn đọc theo dòng nên phán quyết không đổi — việc kế là sửa các dòng ấy để công cụ khác của kho đọc được.
+   - `Không kiểm được YAML chuẩn của evals.yaml — bộ dò của kit không nạp được.` → cờ vàng: bản kit đang chạy thiếu bộ dò, thẻ không biết tệp tiêu chí có chuẩn hay không.
+
 3. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
