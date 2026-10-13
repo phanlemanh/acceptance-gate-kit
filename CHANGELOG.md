@@ -180,7 +180,8 @@ Gốc: crm-onehub#375 (đợt r2, 13/10) + đường nền DA1 của crm.
 - **Máy dev: cài `acceptance-gate`, `feature-loop` (và `dieu-phoi` nếu kho dùng) theo ĐÚNG THẺ ở MỌI phạm vi**, rồi
   kiểm bằng lệnh của KC1 — thay khối `node -e` của mục 2.28.0:
   `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.29.0 --root <bản clone kit đã git fetch --tags>`.
-  Đọc dòng `[kiem-ban-cai] TỔNG KẾT`; còn dòng `ĐỎ may:` nào thì gỡ rồi cài lại ở đúng nơi dòng ấy kể.
+  Sống là dòng `[kiem-ban-cai] TỔNG KẾT: ĐẠT <n> bản ghi khớp v2.29.0`; còn dòng `ĐỎ may:` (bản ghi cùng số mà lệch thẻ)
+  hay `VÀNG may:` (bản ghi khác số — chưa nâng) thì gỡ rồi cài lại ở đúng nơi dòng ấy kể.
 - **Kho có lộ trình:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs --root .`).
 - **Kho muốn luật sản phẩm:** tự viết `PRODUCT-INVARIANTS.md` theo khuôn bằng commit riêng của chủ kho (mục BB1);
   không viết thì không đổi gì.
@@ -206,8 +207,8 @@ thay):
    nào đang chạy, không vòng nào giữa hai cổng. Không đổi engine dưới chân một vòng đang chạy (DP6b đổi được giữa đợt
    vì chỉ đọc, nhưng vẫn nhận cùng mốc ở quãng lặng).
 2. **Cài theo thẻ `v2.29.0`:** gỡ rồi cài lại `acceptance-gate`, `feature-loop`, `dieu-phoi` ở mọi bản ghi (phạm vi
-   `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.29.0` — 0 dòng `ĐỎ may:` là
-   sống. Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
+   `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.29.0` — sống là `TỔNG KẾT: ĐẠT … khớp
+   v2.29.0`, không còn dòng `ĐỎ may:` hay `VÀNG may:` nào (máy còn bản cũ chỉ in VÀNG mà TỔNG KẾT vẫn ĐỎ). Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
 3. **Lớp chép CI từ thẻ** (`git archive v2.29.0`): `scripts/khong-can-nguoi.mjs`; crm không khai `tin_hieu` (DP9 đo
    13/10) nên bốn tệp tín hiệu chưa cần — đường nền thôi báo lệch cho chúng (DP9).
 4. **LT2 crm đọc câu cho người gửi bằng `b.cau_nguoi_gui ?? b.cau`** — đúng luật đọc lùi của `cauChoNguoiGui`: trang
@@ -221,7 +222,7 @@ thay):
    chỗ mốc hứa đổi: cờ cỡ hợp đồng trên thẻ hồ sơ nháp (S3c), khối luật sản phẩm (chỉ sau khi có tệp luật), chân engine
    của đường nền thôi đỏ (DP9), và mọi thứ các mốc ở giữa đã hứa đổi. Khác ở chỗ nào khác là tín hiệu.
 8. **Đọc ngưỡng ở vòng crm đầu tiên sau khi nhận:** `tin-hieu.mjs --cau` sau lượt gom thật đầu tiên ra 0 câu lọt
-   (TH-cau); `luat-san-pham.cjs --root . --dem --tu <ngày khai>` — cột dòng nạp phủ mọi vòng mới (BB1);
+   (TH-cau — từ khi crm khai `tin_hieu`; chưa khai thì vế này chưa đọc được); `luat-san-pham.cjs --root . --dem --tu <ngày khai>` — cột dòng nạp phủ mọi vòng mới (BB1);
    `cat-luot.mjs --co --tu <ngày cài>`, nhóm `phai-tach`, `n_chot − n_giu` = 0 (S3c); số dòng
    `"kind":"loai-tac-tu-vang"` trong run-log không tăng sau lượt chấm đầu (KC1, dấu A1 sống).
 
