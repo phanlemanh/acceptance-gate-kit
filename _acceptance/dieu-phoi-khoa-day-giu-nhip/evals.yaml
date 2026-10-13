@@ -22,8 +22,8 @@ evals:
       cấp s4 cho P1 (đối chứng đầu vào: chu.json.phien == "P1"), không lời gọi hook nào từ worktree của P1, P1 chạy
       `giu-nhip.mjs -- node -e ''` từ worktree của nó sau lúc cấp (mã thoát 0), nhịp thật T+11′ và T+12′ → 0 sự
       kiện khoa-khong-nhip. "ok" cho "DP10-01-do tra-lai-loai-day": bản lành xanh trên cùng hàm kiemViecNen; bản sao
-      phat-lich.mjs dựng lại đúng hành vi DP8 — ba lần thay, mỗi lần kiểm áp: lời gọi baoKhoaKhongNhip mang lại
-      hangViec, chữ ký baoKhoaKhongNhip và lời gọi viecNenGiuNhip nhận lại hangViec, đầu viecNenGiuNhip chèn lại
+      phat-lich.mjs dựng lại đúng hành vi DP8 — bốn lần thay, mỗi lần kiểm áp: lời gọi và chữ ký baoKhoaKhongNhip mang
+      lại hangViec, lời gọi và chữ ký viecNenGiuNhip nhận lại hangViec, đầu viecNenGiuNhip chèn lại
       `if ((hangViec?.day ?? []).some((d) => d.id === chu.phien)) return false;` — chạy trọn ma trận → danh sách
       lỗi BẰNG (deepEqual) đúng ["dãy P1 chạm nhịp khoá (chamNhip): việc nền giữ nhịp khoá vẫn bị báo
       khoa-khong-nhip", "dãy P1 chạy qua giu-nhip.mjs: việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip"]; nửa
