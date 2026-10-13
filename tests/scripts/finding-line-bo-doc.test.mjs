@@ -204,7 +204,12 @@ function so(khong, co, ten, dauSong) {
   // (bộ chọn nguồn dùng lại — chỉ xét dòng `kind: repin`/`repin-do`) và feature-loop/scripts/dem-dung-lai-model.mjs
   // (script đếm đường đo — cùng hai kind). Dòng `kind: finding` không vào nhánh nào của chúng; chiều im đo ở
   // ca LIB-chon-nguon (một dòng finding cùng băm không đổi nguồn được chọn).
-  const BO_DOC_KHAI = 13;
+  // 17 từ 13/10 (hồ sơ dinh-tuyen-theo-ma-muc): thêm scripts/khong-can-nguoi.mjs, scripts/start-scan.mjs,
+  // scripts/product-map.mjs, scripts/dinh-tuyen-may.cjs — cả bốn chỉ đưa văn bản sổ cho bộ phân giải
+  // ganDinhTuyen của lib/out-of-contract.cjs, hàm luotCham chỉ lấy dòng `kind: round-tally`; dòng
+  // `kind: finding` (và mọi kind khác) không vào nhánh nào. Chiều im đo ở ca DM3 hàng 10 (sổ chỉ có dòng
+  // kind khác) và hàng 17 (dòng hỏng) của tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs.
+  const BO_DOC_KHAI = 17;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],
