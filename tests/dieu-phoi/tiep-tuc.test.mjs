@@ -745,7 +745,14 @@ test('DP3-10 khoa-khong-nhip', async () => {
 test('DP3-10-do bo-dieu-kien', async () => {
   const sao = path.join(tam(), 'dieu-phoi');
   chep(GOI, sao);
-  assert.equal((await kichBanKhoa('co-nhip', sao)).sau12, 0, 'đối chứng dương: bản sao lành');
+  // DP10: hook thật ghi cả nhịp khoá, và nhịp khoá nay cứu khoá của dãy — tắt chamNhip của hook trong bản sao để kịch bản
+  // co-nhip chỉ còn nhịp phiên, nhánh nhịp phiên giữ chiều đỏ riêng.
+  const ph = path.join(sao, 'scripts', 'hook-nhip.mjs');
+  const hook = fs.readFileSync(ph, 'utf8');
+  const tat = hook.replace('    chamNhip(dauVao);\n', '');
+  assert.notEqual(tat, hook, 'bước tắt chamNhip không áp được');
+  fs.writeFileSync(ph, tat);
+  assert.equal((await kichBanKhoa('co-nhip', sao)).sau12, 0, 'đối chứng dương: bản sao lành (chỉ nhịp phiên)');
   const p = path.join(sao, 'scripts', 'phat-lich.mjs');
   const goc = fs.readFileSync(p, 'utf8');
   const tiem = goc.replace('    if (nhip && Date.parse(nhip.luc) >= Date.parse(chu.cap_luc)) continue;\n', '');

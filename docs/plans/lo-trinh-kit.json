@@ -87,8 +87,8 @@
       "hang": []
     },
     {
-      "ten": "Phát hành 2.29.0 — kéo về 14/10 (chủ kho 13/10; trễ nhất 15/10 nếu KC1 chưa ký trưa 14/10 — KHÔNG cắt khi thiếu KC1), MỘT lịch ba máy: cỡ vòng ở bước thiết kế (S3c) + trạng thái đợt trong app (DP6b) của M5 — cả hai PASS lượt 2, chờ chữ ký; bất biến sản phẩm (BB1) + câu trạng thái tín hiệu tiếng sản phẩm (TH-cau) + kiểm bản cài sau phát hành (KC1 — vòng meta duy nhất, kiểm CHÍNH bản 2.29 trước khi phát) của MacBook Pro. Gộp theo lô: lô M5 (S3c → DP6b) rồi lô MacBook Pro, mỗi PR chỉ ghim lại một lần; hàng chưa vào main lúc cắt thì đi mốc sau",
-      "ngay": "2026-10-14",
+      "ten": "Phát hành 2.29.0 — ĐÃ PHÁT HÀNH 13/10 (sớm hơn mốc 14/10), tag v2.29.0 = 6a9c0f9a (PR #340): cỡ vòng ở bước thiết kế (S3c) + trạng thái đợt trong app (DP6b) của M5; bất biến sản phẩm (BB1) + câu trạng thái tín hiệu tiếng sản phẩm (TH-cau) + kiểm bản cài sau phát hành (KC1 — kiểm bản cài trên thẻ ĐẠT 8/8) của MacBook Pro; cộng DP9 (hai thước của gói dieu-phoi thôi nói sai ở kho tiêu thụ, M5 chen trước cắt) và hai sửa đi trong PR mốc",
+      "ngay": "2026-10-13",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [

@@ -112,7 +112,9 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   dãy), không qua hook `PostToolUse` nên không bao giờ có nhịp phiên: giữ nhịp KHOÁ bằng `chamNhip` của
   `hook-nhip.mjs` (gọi đều tay trong lúc giữ) hoặc chạy qua `giu-nhip.mjs`. Bộ phát lịch coi khoá có nhịp khoá từ
   lúc cấp là còn sống và không báo `khoa-khong-nhip`; thôi chạm nhịp thì hạn thuê thu hồi khoá như mọi khoá. Khoá
-  của dãy vẫn đòi nhịp phiên của worktree dãy.
+  của dãy cũng thế: dãy chờ một lượt dài (đường nền, S4, ghim lại) chạy qua `giu-nhip.mjs` như `LUAT.md` dặn thì
+  không bị báo dù phiên không gọi công cụ nào; khoá của dãy không có nhịp phiên lẫn nhịp khoá từ lúc cấp vẫn bị báo.
+  Chỉ worktree đang giữ khoá chạm được nhịp khoá của nó.
 - **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
   `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
   `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị

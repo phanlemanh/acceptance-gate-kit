@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>118 việc"]
+  GB --> DG["Đã giao<br/>119 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>28 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -95,6 +95,7 @@ flowchart TD
 - Đổi tài khoản giữa đợt Điều phối – Thợ không mất việc — đọc mức dùng (CLI han-muc, mod đọc mức dùng), báo trước và tự bàn giao theo ngưỡng, hai pha ★, lệnh /dieu-phoi:ban-giao, ban-giao.json dựng từ git, tiếp tục dưới tài khoản kia bằng một lệnh, lưới cuối StopFailure, răng an toàn của lớp mod (`dieu-phoi-doi-tai-khoan`)
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
+- Vá gói dieu-phoi (DP10) — khoá do một DÃY giữ cũng tính nhịp khoá (`khoa/<tn>/nhip`), nên dãy chạy lượt dài qua `giu-nhip.mjs` đúng như `LUAT.md` dặn thôi bị bộ phát lịch báo nhầm «khoa-khong-nhip» (`dieu-phoi-khoa-day-giu-nhip`)
 - Hàng DP6, phần lõi Node — S4 bị chặn đúng lệnh, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát thức ngay, không phải dò nhật ký (phần mod chỉ vẽ tách sang hạt giống) (`dieu-phoi-lop-mod`)
 - Mở và đóng một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:mo-dot`, `/dieu-phoi:dong-dot`, `/dieu-phoi:xem`) — vòng đời đợt, đổi kế hoạch trong đợt, nguồn hàng từ lộ trình, khoá S4 cấp máy, start biết đợt, lệnh đếm đợt (`dieu-phoi-mo-dot-mot-lenh`)
 - Ổn định gói dieu-phoi trước đợt chạy r2 của crm (DP8) — `xem --kiem-chuyen` tách dòng phải sửa khỏi dòng lịch sử và bắt import tương đối vào lõi cũ; phiên thợ tự ghi danh worktree của mình vào dãy; việc nền ngoài dãy giữ nhịp khoá thì bộ phát lịch thôi báo nhầm «khoa-khong-nhip» (`dieu-phoi-on-dinh-r2`)
