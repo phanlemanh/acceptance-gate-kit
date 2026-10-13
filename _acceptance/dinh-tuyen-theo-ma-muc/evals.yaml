@@ -1,0 +1,136 @@
+schema_version: 1
+feature_slug: dinh-tuyen-theo-ma-muc
+# Ca đo sống ở tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs (tên ca «DM<k> …»; chiều đỏ «DM<k>-do …»). Khoá
+# executor thêm ở S3:
+#   executors.test.dinh_tuyen_theo_ma = chạy tệp test, gộp mọi dòng «PASS: DM…» / «FAIL: …» và dòng tổng kết
+#     thành MỘT dòng; pipefail giữ mã thoát của test.
+# Kho thử do code sinh trong lượt: mục rút từ OOC-ITEM-TEMPLATE của feature-loop/workflows/acceptance-verify.js
+# (bên viết thật của review-findings), hợp đồng từ CONTRACT-FRONTMATTER-TEMPLATE, dòng round-tally đúng khuôn
+# ROUND-TALLY-SCHEMA của acceptance-verify.js, dòng sổ người từ khối NGOAI-N-GATE2-LINE của commands/signoff.md.
+# Bên đọc là chính lib/out-of-contract.cjs, khong-can-nguoi.mjs, pre-merge-check.sh, start-scan.mjs, gate-card.js,
+# dinh-tuyen-may.cjs của cây. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH lệnh đo trên bản sao bị
+# tiêm, SAU khi bản lành xanh trên cùng fixture, và ghim thông điệp. Mỗi eval ghim đúng các dòng «PASS: DM…» —
+# lệnh xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; dòng duy nhất chứa "PASS: DM1 doi-so" (kho thử 8 mục + 8 dòng có mã, rồi round-tally mới, mục thứ 9
+      chèn đầu và 8 mục cũ mang nhãn mang-sang "(r1)": CLI khong-can-nguoi --check thoát 2, stderr chứa "chưa người định tuyến: Ngoài-1" và KHÔNG chứa
+      "Ngoài-2"), "PASS: DM1 doi-chung" (cùng kho trước khi chèn: thoát 0, stdout chứa "sẽ machine-cleared"),
+      "PASS: DM1 nhan-luot" (tiêu đề mục mang "(r1)" và "(r1 · tệp đã đổi)" vẫn khớp dòng ghi lúc chưa có nhãn), "PASS: DM1 tuoi" (mục tươi không nhãn trùng tiêu đề + tệp với mục
+      đã quyết, sau lượt mới: --check nêu nhãn của mục tươi là chưa người định tuyến).
+      Chiều đỏ "PASS: DM1-do theo-so" (bản sao lib mà bộ phân giải bỏ qua tieu_de, khớp theo số: cùng fixture đã
+      chèn → thoát 0 hoặc lý do KHÔNG nêu Ngoài-1 — ca nêu "khớp theo số coi mục mới là đã quyết"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM2 ca-crm" (8 dòng chỉ số ghi sau round-tally r3, rồi round-tally r4 mới hơn các dòng và mục
+      chèn đầu: --check thoát 2, stderr chứa đủ "Ngoài-1" … "Ngoài-9" và cụm "ghi trước lượt chấm"),
+      "PASS: DM2 doc-cu" (cùng 8 dòng chỉ số, chưa có r4: thoát 0 — hành vi hôm nay). Chiều đỏ "PASS: DM2-do bo-thoi-diem"
+      (bản sao lib bỏ phép so ts > at: cùng fixture ca-crm → thoát 2 chỉ nêu Ngoài-9, ca nêu "dòng cũ vẫn được
+      tin"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [lib/out-of-contract.cjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM3 ma-tran — 14/14 hàng" — ma trận khai trước 14 hàng (đúng mười bốn hàng của AC-3, số hàng
+      chạy == 14, in ra), mỗi hàng so ĐẲNG THỨC tập mục chưa định tuyến với tập khai trước (không so chuỗi có mặt).
+      Chiều đỏ "PASS: DM3-do mo-coi" (bản sao lib coi dòng có mã mồ côi là định tuyến theo số: hàng «mục biến mất»
+      và «trùng mã» đỏ, ca in tên hai hàng); "PASS: DM3-do so-tieu-de" (bản sao lib bỏ đối chiếu số với tiêu đề:
+      hàng 5 đỏ); "PASS: DM3-do thoi-diem" (bản sao lib chỉ dùng `at`, bỏ giờ trong mã: hàng 13 đỏ). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [lib/out-of-contract.cjs, scripts/pre-merge-check.sh, scripts/start-scan.mjs, scripts/khong-can-nguoi.mjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM4 luoi" — với mỗi hàng ma trận AC-3 dựng thành kho làn V: lưới in "VIOLATION [<slug>]" đúng ở
+      hàng khai «còn mục chưa định tuyến» và "NOTE [<slug>]: làn V — máy đi trước" ở hàng sạch; bộ quét không xếp
+      «may-di-tiep» đúng ở các hàng lưới chặn (in số hàng mỗi phía). "PASS: DM4 machine-cleared" (hồ sơ
+      machine-cleared có dòng cũ → "VIOLATION [<slug>]: status machine-cleared" chứa "chưa người định tuyến").
+      Chiều đỏ "PASS: DM4-do luoi-khong-truyen-runlog" (bản sao pre-merge-check.sh không truyền run-log.jsonl:
+      hàng ca-crm thành NOTE làn V — ca nêu "lưới mù dòng cũ"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [scripts/khong-can-nguoi.mjs, scripts/start-scan.mjs, scripts/product-map.mjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM5 thieu-khoa" (xanhSach với ngữ cảnh không có khoá runLog ném Error mà message chứa "runLog");
+      "PASS: DM5 ben-goi — N bên gọi" (danh sách bên gọi rút bằng quét scripts/ theo regex của HK-AC8, N ≥ 3 in ra,
+      mỗi bên gọi có một ca trên fixture ca-crm ra «còn cần người»; bên gọi chưa có ca → FAIL);
+      chiều đỏ "PASS: DM5-do — N mutant" (mỗi bên gọi: bản sao truyền runLog null → ca của bên ấy đỏ, sau khi bản
+      lành xanh cùng fixture). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [scripts/dinh-tuyen-may.cjs, lib/out-of-contract.cjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM6 may-doi-so" (dòng máy có mã cho mục cũ, mục mới chèn đầu đề xuất known-limits:
+      dinh-tuyen-may.cjs --write thoát 0, stderr KHÔNG chứa "dòng máy trỏ mục đã đổi", sổ thêm đúng 1 dòng mang
+      decision "Ngoài-1: ghi Known limits" và tieu_de == tiêu đề mục mới); "PASS: DM6 nguoi-cu" (sổ có dòng người
+      chỉ số đã cũ: thoát 2, stderr bắt đầu "dinh-tuyen-may:" và chứa "ghi trước lượt chấm", băm decisions.jsonl và
+      contract.md trước == sau). Chiều đỏ "PASS: DM6-do bo-chan-cu" (bản sao bên ghi bỏ chặn dòng cũ: cùng fixture
+      nguoi-cu → thoát 0 và sổ thêm dòng — ca nêu "máy ghè lên quyết định theo số cũ"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [scripts/gate-card.js, lib/out-of-contract.cjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM7 co-vang" (thẻ HTML của kho thử ca-crm chứa cờ có cụm "ghi trước lượt chấm", đủ nhãn
+      Ngoài-2…Ngoài-9 của dòng cũ và giờ ts của round-tally mới; --extract routing.hoi chứa Ngoài-1…Ngoài-9);
+      "PASS: DM7 khong-co" (kho thử không có dòng cũ: thẻ không có cụm đó). Chiều đỏ "PASS: DM7-do" (bản sao
+      gate-card bỏ cờ: ca co-vang đỏ, nêu "thẻ im về dòng cũ"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.ngoai_n_lm20
+    paths: [scripts/gate-card.js, lib/out-of-contract.cjs, scripts/dinh-tuyen-may.cjs]
+    expected: >
+      exit 0; dòng "PASS: LM20" — --extract của mọi hồ sơ đã ký trong kho kit khớp bản ghi mốc định tuyến
+      tests/scripts/fixtures/routing-baseline.txt (định tuyến hỏi/báo của thẻ không đổi). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [commands/signoff.md, lib/out-of-contract.cjs, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM8 khu-hoi" (rút khối NGOAI-N-GATE2-LINE từ commands/signoff.md — rút hỏng thì FAIL có tên;
+      điền tieu_de/tep từ parse() của kho thử 8 mục, ghi 8 dòng, chèn mục mới đầu + round-tally mới, mục cũ mang nhãn "(r1)": mucChuaDinhTuyen
+      == ["Ngoài-1"]; tập khoá dòng điền ⊇ {id, type, stage, at, decision, tieu_de, tep}). Chiều đỏ
+      "PASS: DM8-do bo-tieu-de" (bản sao signoff.md gỡ tieu_de khỏi khuôn: cùng ca → mucChuaDinhTuyen chứa đủ
+      Ngoài-1…Ngoài-9 — ca nêu "khuôn không mang mã"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dinh_tuyen_theo_ma
+    paths: [lib/out-of-contract.cjs, scripts/pre-merge-check.sh, _acceptance/tac-tu-cham-chi-cham-khong/decisions.jsonl, tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs]
+    expected: >
+      exit 0; "PASS: DM9 chon-moc" (mốc = cha của commit đầu tiên `git log --reverse -S ganDinhTuyen -- lib/out-of-contract.cjs`,
+      in sha; mốc khác HEAD và không chứa chuỗi ganDinhTuyen trong lib của nó); "PASS: DM9 vi-phan — tập đổi == tập
+      khai" (cây _acceptance/ + lib/ của mốc rút bằng git archive; với mọi hồ sơ chưa chữ ký của cây mốc: so
+      mucChuaDinhTuyen của lib HEAD với lib mốc; tập hồ sơ có kết quả khác == {tac-tu-cham-chi-cham-khong} (đẳng thức
+      tập, in cả hai)); "PASS: DM9 luoi-cay" (pre-merge-check.sh trên cây HEAD không có dòng VIOLATION chứa
+      "chưa người định tuyến" cho hồ sơ trong tập khai). Chiều đỏ "PASS: DM9-do" (lib mốc tự so với chính nó → tập
+      đổi rỗng ≠ tập khai, ca nêu "phép vi phân không phân biệt"). Không có "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
