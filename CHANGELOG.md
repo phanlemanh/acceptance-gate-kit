@@ -10,6 +10,31 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Kiểm bản cài sau phát hành (hồ sơ `kiem-ban-cai-sau-phat-hanh`, hàng KC1, T2)
+
+Gốc: `_acceptance/release-2-27-0` — A1 chưa chạy sống ở bản cài vì bộ đệm thiếu `feature-loop/agents/`
+(`run-log.jsonl` ghi `loai-tac-tu-vang`), và bản «2.27.0» ở M5 là main 294b29d, không phải tag. Đo 13/10: chợ kit
+kiểu thư mục chép cây đang checkout lúc cài; bộ đệm khoá theo số, `update` báo «đã mới nhất» mà giữ nội dung cũ.
+
+- **Đổi gì:** lệnh mới `scripts/kiem-ban-cai.mjs`. `--ref <tag>` cài đúng cây của tag vào cấu hình Claude cách ly +
+  kho giả lập sạch, kiểm tám mục (số · khớp tag · thư mục gói · tác tử chấm · móc nối · thẻ cổng · lưới trước-gộp
+  hai chiều · gói `dieu-phoi`). `--may --ref <tag>` chỉ đọc sổ cài của máy, so mọi bản ghi cùng số với tag.
+  Đọc dòng `TỔNG KẾT` (`ĐẠT` · `ĐỎ` · `KHÔNG CHẠY ĐƯỢC`), không đọc mã thoát một mình. GUIDE §7.2.
+- **Răng phát hành:** khoá `kiem_ban_cai_moc` vào `feature_loop.suite_keys` của kit — chạy trọn CHỈ ở lượt chấm hồ
+  sơ cắt mốc (số trong `.claude-plugin/plugin.json` khác gốc vòng); vòng thường in một dòng `BỎ QUA`, < 1 s. Bản
+  cài của cây sẽ gắn tag hỏng → lượt chấm mốc đỏ → không cắt số.
+- **Ai bị ảnh hưởng:** người cắt mốc kit và mọi máy nhận. Kho tiêu thụ không đổi gì (lệnh sống trong gói gốc).
+- **Khi update:** người cắt mốc chạy `node scripts/kiem-ban-cai.mjs --ref v<số>` SAU khi gắn tag. Máy nhận, sau
+  bốn bước cài lại của mục A1 (2.27.0), chạy `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref
+  v<số> --root <bản checkout kit có tag>` — thay khối `node -e` ở bước 3 mục A1 (khối cũ chỉ hỏi có `agents/`
+  không, không bắt được bản cài cùng số mà khác tag). Dòng `ĐỎ may:` nào còn → gỡ rồi cài lại ở đúng nơi dòng ấy kể.
+- **Giới hạn đã khai** (design §4, mỗi cái một ngưỡng mở lại): tác tử chấm đo tĩnh — tệp có mặt mà Claude Code
+  không nạp được thì lọt (ngưỡng: ≥1 lượt chấm sau cài có `loai-tac-tu-vang` trong khi kiểm XANH); CI GitHub không
+  chạy; bước sau-tag là lời dặn (ngưỡng: một mốc kiểm trên tag đỏ mà lượt chấm mốc xanh); nhận diện lượt mốc theo
+  số của gói gốc (ngưỡng: một mốc đổi số gói con mà quên gói gốc).
+
 ## 2.28.0 — 13/10/2026
 
 Cửa sổ 2.27.0 → 2.28.0 nằm trong **ba ngày** (11–13/10; A2 ký 11/10 trước giờ gắn thẻ `v2.27.0` nhưng gộp sau), có

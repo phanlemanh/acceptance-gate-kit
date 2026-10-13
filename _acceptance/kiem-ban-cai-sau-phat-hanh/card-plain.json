@@ -1,0 +1,59 @@
+{
+ "feature_plain": "Trước khi một bản kit tới kho thật, máy tự cài đúng bản vừa cắt vào một kho thử sạch và chạy thử một vòng; bản cài thiếu thư mục (như ca tác tử chấm ở 2.27) hay khác bản đã cắt (như ca M5) thì báo đỏ và chặn cắt số.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ kiểm trong một cấu hình Claude riêng tạm thời — bản cài thật trên máy anh không bị đụng tới, có phép đo chứng điều đó."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ báo đủ 8 mục xanh khi bản cài nguyên vẹn: đúng số phiên bản, khớp từng tệp, đủ thư mục, đủ tác tử chấm, móc nối đủ tệp, thẻ cổng dựng được, lưới trước-gộp chặn đúng, gói điều phối chạy."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ báo đỏ khi bản cài thiếu thư mục tác tử chấm — đúng ca 2.27 — và cả khi tác tử sai tên hay được cầm bút sửa tệp."
+  },
+  {
+   "id": "AC-4",
+   "p": "Sẽ báo đỏ khi bản cài khác bản đã cắt dù chỉ một tệp, nêu tên tệp; tệp rác thêm vào (như thư mục máy cục bộ) chỉ báo vàng."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ báo đỏ đúng mắt bị hỏng khi thẻ cổng, lưới trước-gộp (câm hoặc chặn tất), gói điều phối hay móc nối của gói hỏng trong bản cài."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ kiểm chính bản vừa phát hành gần nhất — hôm nay là 2.28.0 — và báo xanh khi nó cài đúng."
+  },
+  {
+   "id": "AC-7",
+   "p": "Sẽ có lệnh kiểm bản cài trên máy thật sau khi cài: bắt được ca M5 (cập nhật báo «đã mới nhất» mà vẫn giữ bản cũ), và không báo đỏ oan vì tệp rác của bản checkout."
+  },
+  {
+   "id": "AC-8",
+   "p": "Sẽ nói rõ «không chạy được» kèm nguyên nhân khi máy thiếu Claude hay bản cần kiểm không có — không bao giờ báo xanh trong ca ấy."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ tự chạy kiểm này ở lượt chấm của hồ sơ cắt mốc (lượt đổi số phiên bản) — lượt chấm mốc đỏ thì không cắt số; vòng thường chỉ in một dòng «bỏ qua», không tốn thêm phút máy. Lời dặn sau cắt tag / sau khi cài vào nhật ký phát hành."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "OOS-1",
+   "p": "KHÔNG đổi cách mọi máy cài kit (chợ kiểu thư mục giữ nguyên) — chỉ đo và chặn."
+  },
+  {
+   "id": "OOS-2",
+   "p": "KHÔNG mở phiên Claude thật để thử tác tử chấm — kiểm tệp định nghĩa có mặt và đúng; lỗi nạp ở tầng Claude Code vẫn có thể lọt."
+  },
+  {
+   "id": "OOS-3",
+   "p": "KHÔNG chạy trên CI của GitHub (máy CI không có Claude) — kiểm chạy trọn ở lượt chấm hồ sơ cắt mốc trên máy dev; vòng thường chỉ in một dòng «bỏ qua»."
+  },
+  {
+   "id": "OOS-4",
+   "p": "KHÔNG ôm ba lỗi lặt vặt khác (bộ kiểm lỗi khi cây bẩn, ca trình duyệt chập chờn, thẻ đổi chữ khi dựng song song) — để hạt giống riêng."
+  }
+ ]
+}
