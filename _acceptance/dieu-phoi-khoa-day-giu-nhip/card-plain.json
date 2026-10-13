@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Dãy đang chờ một lượt chạy dài (đường nền, lượt chấm, ghim lại) bọc trong lệnh giữ nhịp như luật đợt dặn thì thôi bị báo «khoá không có nhịp sống», nên giám sát không còn nhả nhầm khoá đang chạy.",
+  "scope_plain": "Vòng chỉ sửa cách bộ phát lịch đọc nhịp của khoá; mọi thứ dưới đây cố ý để ngoài."
+}

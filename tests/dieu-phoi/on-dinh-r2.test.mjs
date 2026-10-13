@@ -749,20 +749,25 @@ test('DP8-08-do bo-khoa-hang-them', async () => {
 
 // ---------- DP8-09: việc nền ngoài dãy giữ nhịp khoá (AC-9, E9) ----------
 const ngu = (ms) => new Promise((x) => setTimeout(x, ms));
-export const MA_TRAN_VIEC_NEN = [
-  ['kiem-cheo chạm nhịp khoá (chamNhip)', 0, 'kiem-cheo', async ({ cay, gocGoi }) => (await nap(gocGoi, 'hook-nhip.mjs')).chamNhip({ cwd: cay })],
-  ['kiem-cheo không chạm nhịp', 1, 'kiem-cheo', async () => {}],
-  ['kiem-cheo chạy qua giu-nhip.mjs', 0, 'kiem-cheo', async ({ cay, gocGoi }) => {
-    const r = spawnSync(process.execPath, [path.join(gocGoi, 'scripts', 'giu-nhip.mjs'), '--', process.execPath, '-e', ''], { cwd: cay, env: ENV, encoding: 'utf8' });
+// DP10 (hồ sơ dieu-phoi-khoa-day-giu-nhip): ma trận toàn phần người giữ × nguồn nhịp — người giữ không đổi kết quả.
+// `cua` = worktree của người giữ, `khac` = worktree kia (chamNhip chỉ chạm khoá mà cwd nằm trong chu.worktree).
+const NGUON_NHIP = [
+  ['chạm nhịp khoá (chamNhip)', 0, async ({ cua, gocGoi }) => (await nap(gocGoi, 'hook-nhip.mjs')).chamNhip({ cwd: cua })],
+  ['chạy qua giu-nhip.mjs', 0, async ({ cua, gocGoi }) => {
+    const r = spawnSync(process.execPath, [path.join(gocGoi, 'scripts', 'giu-nhip.mjs'), '--', process.execPath, '-e', ''], { cwd: cua, env: ENV, encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
   }],
-  ['kiem-cheo nhịp khoá trước lúc cấp', 1, 'kiem-cheo', async ({ dot, T }) => {
+  ['nhịp khoá trước lúc cấp', 1, async ({ dot, T }) => {
     const p = path.join(dot, 'khoa', 's4', 'nhip');
     fs.writeFileSync(p, new Date(T - PHUT).toISOString());
     fs.utimesSync(p, new Date(T - PHUT), new Date(T - PHUT));
   }],
-  ['dãy P1 chỉ nhịp khoá', 1, 'P1', async ({ w1, gocGoi }) => (await nap(gocGoi, 'hook-nhip.mjs')).chamNhip({ cwd: w1 })],
+  ['worktree khác chạm nhịp khoá', 1, async ({ khac, gocGoi }) => (await nap(gocGoi, 'hook-nhip.mjs')).chamNhip({ cwd: khac })],
+  ['không chạm nhịp', 1, async () => {}],
 ];
+export const MA_TRAN_VIEC_NEN = [['kiem-cheo', 'kiem-cheo'], ['dãy P1', 'P1']].flatMap(([nhan, phien]) =>
+  NGUON_NHIP.map(([nguon, can, lam]) => [`${nhan} ${nguon}`, can, phien, lam]),
+);
 async function kichBanViecNen({ phien, lam, gocGoi = GOI, nhipSau = [11, 12] }) {
   const { kho, dot, chip } = dotChoGhiDanh({ soChip: 2, gocGoi });
   const [w1, cay] = chip;
@@ -782,10 +787,12 @@ async function kichBanViecNen({ phien, lam, gocGoi = GOI, nhipSau = [11, 12] }) 
     const pChu = path.join(dot, 'khoa', 's4', 'chu.json');
     assert.equal(fs.existsSync(pChu) ? docJ(pChu).phien : null, phien, 'đối chứng đầu vào: khoá cấp đúng phiên');
     await ngu(5);
-    await lam({ dot, cay, w1, T, gocGoi });
+    const [cua, khac] = phien === 'P1' ? [w1, cay] : [cay, w1];
+    await lam({ dot, cay, w1, cua, khac, T, gocGoi });
     for (const p of nhipSau) await nhip(T + p * PHUT);
     const ev = suKien(dot).filter((e) => e.loai === 'khoa-khong-nhip');
-    return { soBao: ev.length, canPhan: ev[0]?.can_phan, dot, sk: suKien(dot) };
+    const nhipPhien = (await nap(gocGoi, 'song.mjs')).nhipMoiNhatCua(dot, cua);
+    return { soBao: ev.length, canPhan: ev[0]?.can_phan, lyDo: ev[0]?.ly_do, nhipPhien, dot, sk: suKien(dot) };
   } finally {
     chayCli(kho, ['dong'], { gocGoi });
   }
@@ -793,13 +800,17 @@ async function kichBanViecNen({ phien, lam, gocGoi = GOI, nhipSau = [11, 12] }) 
 export async function kiemViecNen(gocGoi = GOI) {
   const loi = [];
   const ra = [];
+  const ket = [];
   for (const [ten, can, phien, lam] of MA_TRAN_VIEC_NEN) {
     const r = await kichBanViecNen({ phien, lam, gocGoi });
     ra.push(`${ten}=${r.soBao}`);
+    ket.push(r.soBao);
+    if (r.nhipPhien) loi.push(`${ten}: có nhịp phiên của người giữ`);
     if (r.soBao !== can) loi.push(can === 0 ? `${ten}: việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip` : `${ten}: ${r.soBao} sự kiện, cần ${can}`);
     if (can === 1 && r.canPhan !== true) loi.push(`${ten}: thiếu can_phan`);
+    if (can === 1 && r.soBao === 1 && !String(r.lyDo).includes('nhịp khoá')) loi.push(`${ten}: ly_do không nêu nhịp khoá`);
   }
-  return { loi, ra };
+  return { loi, ra, ket };
 }
 
 test('DP8-09 viec-nen', async () => {
@@ -819,7 +830,7 @@ test('DP8-09 thu-hoi', async () => {
 
 test('DP8-09-do bo-mien', async () => {
   assert.deepEqual((await kiemViecNen()).loi, [], 'đối chứng dương: bản lành');
-  const sao = banSao([['scripts/phat-lich.mjs', '    if (viecNenGiuNhip(thuMuc, tn, chu, hangViec)) continue;\n', '']]);
+  const sao = banSao([['scripts/phat-lich.mjs', '    if (viecNenGiuNhip(thuMuc, tn, chu)) continue;\n', '']]);
   const { loi } = await kiemViecNen(sao);
   assert.ok(loi.includes('kiem-cheo chạm nhịp khoá (chamNhip): việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip'), loi.join(' | '));
 });
@@ -1051,4 +1062,97 @@ test('DP8-11 chon-moc', () => {
   buoc.push(['main sau khi gộp PR', caDoiThan(kho, mocSo(kho))]);
   console.log(`  ${buoc.map(([t, d]) => `${t}: [${d}]`).join(' · ')}`);
   for (const [t, d] of buoc) assert.deepEqual(d, ['X'], t);
+});
+
+// ---------- DP10: khoá của DÃY cũng tính nhịp khoá (hồ sơ dieu-phoi-khoa-day-giu-nhip) ----------
+let ketLanh = null;
+const kiemLanh = () => (ketLanh ??= kiemViecNen());
+const hangMaTran = (ten) => MA_TRAN_VIEC_NEN.find((h) => h[0] === ten);
+
+test('DP10-01 day-giu-nhip', async () => {
+  const r = await kichBanViecNen({ phien: 'P1', lam: hangMaTran('dãy P1 chạy qua giu-nhip.mjs')[3] });
+  console.log(`  dãy P1 chạy qua giu-nhip.mjs, không nhịp phiên (${r.nhipPhien ? 'CÓ' : 'vắng'}) → ${r.soBao} sự kiện khoa-khong-nhip`);
+  assert.equal(r.nhipPhien, null, 'đối chứng đầu vào: không nhịp phiên của worktree P1');
+  assert.equal(r.soBao, 0);
+  // Đối chứng dương của phép kiểm «vắng nhịp phiên» (S4-r1, ngoài hợp đồng t2): hook thật ghi một nhịp phiên từ
+  // worktree người giữ → phép kiểm THẤY nó, nên giá trị null ở trên không phải do so đường dẫn lệch.
+  const co = await kichBanViecNen({ phien: 'P1', lam: async ({ cua, gocGoi }) => hookNhip({ session_id: 's-p1' }, { cwd: cua, gocGoi }) });
+  console.log(`  đối chứng dương: hook ghi nhịp phiên từ worktree P1 → phép kiểm ${co.nhipPhien ? 'thấy' : 'KHÔNG thấy'}`);
+  assert.ok(co.nhipPhien, 'phép kiểm vắng nhịp phiên không thấy nhịp phiên hook thật ghi');
+});
+
+// Bản tiêm dựng lại ĐÚNG hành vi DP8: luồn lại hangViec qua hai chữ ký và chèn lại dòng loại dãy (gap-probe P1 —
+// chỉ chèn dòng thì hangViec ngoài phạm vi, bộ phát lịch ném lỗi chứ không báo).
+const TIEM_LOAI_DAY = [
+  ['scripts/phat-lich.mjs', 'const viecNenGiuNhip = (thuMuc, tn, chu) => {\n', 'const viecNenGiuNhip = (thuMuc, tn, chu, hangViec) => {\n  if ((hangViec?.day ?? []).some((d) => d.id === chu.phien)) return false;\n'],
+  ['scripts/phat-lich.mjs', '    if (viecNenGiuNhip(thuMuc, tn, chu)) continue;\n', '    if (viecNenGiuNhip(thuMuc, tn, chu, hangViec)) continue;\n'],
+  ['scripts/phat-lich.mjs', 'function baoKhoaKhongNhip(thuMuc, cu, nowMs) {', 'function baoKhoaKhongNhip(thuMuc, cu, nowMs, hangViec = null) {'],
+  ['scripts/phat-lich.mjs', 'baoKhoaKhongNhip(thuMuc, cu, nowMs);', 'baoKhoaKhongNhip(thuMuc, cu, nowMs, hangViec);'],
+];
+test('DP10-01-do tra-lai-loai-day', async () => {
+  assert.deepEqual((await kiemLanh()).loi, [], 'đối chứng dương: bản lành');
+  const { loi, ra } = await kiemViecNen(banSao(TIEM_LOAI_DAY));
+  console.log(`  bản tiêm: ${ra.join(' · ')}`);
+  assert.deepEqual(loi, [
+    'dãy P1 chạm nhịp khoá (chamNhip): việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip',
+    'dãy P1 chạy qua giu-nhip.mjs: việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip',
+  ]);
+});
+
+test('DP10-02 hai-nua-bang-nhau', async () => {
+  const { ket } = await kiemLanh();
+  const n = NGUON_NHIP.length;
+  const [viecNen, day] = [ket.slice(0, n), ket.slice(n)];
+  console.log(`  ${ket.length} hàng · kiem-cheo [${viecNen}] · P1 [${day}]`);
+  // Số hàng ghim bằng hằng viết trước (S4-r1, finding trong hợp đồng AC-2): đếm theo chính ma trận là hằng đúng.
+  assert.equal(ket.length, 10);
+  assert.equal(n, 5);
+  assert.deepEqual(day, viecNen);
+  assert.ok(viecNen.includes(0) && viecNen.includes(1), 'nửa ma trận không được hằng');
+});
+
+test('DP10-04 day-thu-hoi', async () => {
+  const r = await kichBanViecNen({ phien: 'P1', lam: hangMaTran('dãy P1 chạy qua giu-nhip.mjs')[3], nhipSau: [11, 200] });
+  const th = r.sk.filter((e) => e.loai === 'thu-hoi' && e.phien === 'P1');
+  const conKhoa = fs.existsSync(path.join(r.dot, 'khoa', 's4', 'chu.json'));
+  console.log(`  dãy P1 thôi chạm nhịp, sau 200′: ${th.length} sự kiện thu-hoi · khoá s4 ${conKhoa ? 'còn' : 'vắng'}`);
+  assert.equal(th.length, 1);
+  assert.equal(conKhoa, false);
+  assert.equal(r.soBao, 0);
+});
+
+// README ở merge-base của vòng với main — sha GHIM (gap-probe P1: mốc suy từ trạng thái gộp trôi về HEAD sau khi gộp).
+const MOC_DP10 = 'e76684fd51ee1e737329ff7d56465d5fef0018a2';
+export function kiemTaiLieuDp10(readme, luat) {
+  const loi = [];
+  const d = doanCo(readme, 'ngoài dãy').filter((x) => x.includes('giu-nhip.mjs')).join('\n').replace(/\s+/g, ' ');
+  if (!d) return ['README thiếu đoạn việc nền giữ nhịp khoá'];
+  if (!d.includes('Khoá của dãy')) loi.push('README không nói luật nhịp của khoá dãy');
+  if (d.includes('vẫn đòi nhịp phiên')) loi.push('README còn nói khoá của dãy đòi nhịp phiên');
+  const muc = /## Cách xin tài nguyên\n([\s\S]*?)\n## /.exec(luat)?.[1] ?? '';
+  if (!muc.includes('giu-nhip.mjs')) loi.push('LUAT.md «Cách xin tài nguyên» thiếu giu-nhip.mjs');
+  return loi;
+}
+
+test('DP10-05 tai-lieu', () => {
+  const [readme, luat] = docTaiLieu(GOI);
+  assert.deepEqual(kiemTaiLieuDp10(readme, luat), []);
+});
+
+test('DP10-05-do readme-cu', () => {
+  const [readme, luat] = docTaiLieu(GOI);
+  assert.deepEqual(kiemTaiLieuDp10(readme, luat), [], 'đối chứng dương: bản lành');
+  const cu = noiDungTai(KIT, MOC_DP10, 'dieu-phoi/README.md');
+  assert.ok(cu && cu !== readme, 'đối chứng đầu vào: README ở mốc ghim phải rút được và khác bản hiện tại');
+  assert.deepEqual(kiemTaiLieuDp10(cu, luat), ['README còn nói khoá của dãy đòi nhịp phiên']);
+});
+
+const RE_DP10 = /\tMerge pull request #\d+ from \S+\/vong\/dieu-phoi-khoa-day-giu-nhip$/;
+const KHAI_DOI_THAN_DP10 = ['DP3-10-do bo-dieu-kien', 'DP8-09 viec-nen', 'DP8-09-do bo-mien'];
+test('DP10-06 ca-da-ky', () => {
+  const moc = mocSo(KIT, RE_DP10);
+  const ds = caDoiThan(KIT, moc).sort();
+  console.log(`  mốc (${moc.cach}): ${moc.tu.slice(0, 12)}..${moc.toi.slice(0, 12)} · ca đã ký đổi thân: ${ds.join(' · ') || '0'}`);
+  assert.deepEqual(ds, KHAI_DOI_THAN_DP10);
+  assert.deepEqual(thieuSo(ds, fs.readFileSync(path.join(KIT, '_acceptance', 'dieu-phoi-khoa-day-giu-nhip', 'decisions.jsonl'), 'utf8')), []);
 });
