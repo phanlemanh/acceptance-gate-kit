@@ -518,6 +518,336 @@ if (only.includes('TH-10')) {
   } catch (e) { bad('TH-10', loi(e)); }
 } else if (!only.length) console.log('  BỎ QUA: TH-10 — kết quả lượt gom của skill so bộ vàng chỉ chạy qua executors.test.tin_hieu_vang (chấm vật mô hình viết một lần, không làm đỏ bộ kiểm chung)');
 
+// ══ Hồ sơ cau-tin-hieu-nguoi-gui — câu cho người gửi (ca CN-1…CN-8) ════════════
+// Mỗi eval của _acceptance/cau-tin-hieu-nguoi-gui/evals.yaml ghim đúng dòng «PASS: CN-…». Dùng lại bộ dựng kho
+// thử ở trên; hợp đồng + báo cáo của hồ sơ thử viết qua `them` để câu giao không chứa tên hồ sơ. Báo cáo
+// đã ký THẬT của hồ sơ L3 được chép nguyên văn (đường suy từ vị trí tệp này); ngày mong đợi rút ĐỘC LẬP.
+const BAO_CAO_THAT = path.join(KIT, '_acceptance', 'cua-tin-hieu-gom-nhom', 'evidence-report.md');
+const HD_CAU = (slug, status, feature) => `---\nschema_version: 1\n${feature == null ? '' : `feature: ${feature}\n`}slug: ${slug}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n`;
+const EV_KY = (slug, ky) => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nhuman_signoff: ${ky}\n---\n\n## Evidence\n`;
+const OPP_PARK = slug => `---\nschema_version: 1\nslug: ${slug}\nfeature: «việc để sau»\nowner: x@y.z\nstage: decided\ndecision: park\ndecided_by: M\ndecided_at: 2026-09-01T00:00:00Z\n---\n\n## Vấn đề & ai gặp\n\nNgười dùng X.\n`;
+const ngayDocLap = txt => { const m = String(txt).match(/^human_signoff:[^\n]*?(\d{4})-(\d{2})-(\d{2})/m); return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : null; };
+const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Quét mã của ca (biểu thức riêng, không gọi mã vật): mã đứng như một từ riêng trong câu.
+const coMa = (cau, ma) => new RegExp(`(?<![\\p{L}\\p{N}_-])${escRe(ma)}(?![\\p{L}\\p{N}_-])`, 'u').test(String(cau).normalize('NFC'));
+const hoSoThu = (slug, status, feature, ky) => ({ [`_acceptance/${slug}/contract.md`]: HD_CAU(slug, status, feature), ...(ky == null ? {} : { [`_acceptance/${slug}/evidence-report.md`]: EV_KY(slug, ky) }) });
+const tieuDeO = async (kit, khoa) => Object.fromEntries((await nap(kit, 'scripts/product-map.mjs')).SECTIONS)[khoa];
+
+// Kho bảy chỗ + một «đã phủ» bởi việc chưa giao (AC-1, AC-2).
+function khoCau(kit) {
+  const t = (i, luc = LUC_TRUOC) => tin(kit, i, { luc }); const s = [null, t(1, LUC_SAU), t(2), t(3), t(4), t(5), t(6), t(7), t(8)];
+  const gom = vietGom(kit, { dot: 'gom-1', nhom: [['G1', 'Trưởng phòng ban thấy "số" tuần trước', [s[4].id]], ['G2', 'Nhân viên căn chỉnh OKR', [s[5].id]], ['G3', 'Nhân viên tìm quy trình', [s[6].id]], ['G6', 'Mọi người gửi góp ý', [s[7].id]]], le: [[s[2].id, 'lời cảm ơn, không đòi thay đổi']], phu: [[s[3].id, 'cua-tin-hieu-gom-nhom'], [s[8].id, 'viec-h4']] });
+  const lt = { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'H3', cau_giao: '«Nhân viên tìm được quy trình»', dot: 'gom-1', phu: ['G3'] }, { ma: 'H6', cau_giao: '«Gửi góp ý «một chạm» trong CRM»', dot: 'gom-1', phu: ['G6'], slug: 'cua-tin-hieu-gom-nhom' }], chan_troi: [{ ma: 'CT1', dot: 'gom-1', phu: ['G2'], ly_do: 'chờ chu kỳ quý I' }] };
+  const them = { ...hoSoThu('cua-tin-hieu-gom-nhom', GIAO, '«Gửi góp ý «một chạm» trong CRM»'), '_acceptance/cua-tin-hieu-gom-nhom/evidence-report.md': readFileSync(BAO_CAO_THAT, 'utf8'), ...hoSoThu('viec-h4', 'approved', '«Trưởng phòng xem số tuần trước»') };
+  return { s, r: kho({ tins: s.slice(1), gom: { 'gom-1.md': gom }, lt, them }) };
+}
+async function cn1(kit) {
+  const sai = [];
+  const NGAY = ngayDocLap(readFileSync(BAO_CAO_THAT, 'utf8')); if (!NGAY) return ['đối chứng: báo cáo thật không có ngày ký'];
+  console.log(`    CN-1: ngày rút độc lập từ báo cáo thật == ${NGAY}`);
+  const { s, r } = khoCau(kit);
+  const MONG = {
+    [s[1].id]: ['chua-gom', 'chưa xếp vào nhóm nào — đội sản phẩm sẽ xem ở lần xếp nhóm tới'],
+    [s[2].id]: ['le', 'không xếp vào nhóm nào: lời cảm ơn, không đòi thay đổi'],
+    [s[3].id]: ['da-phu', `đã có trong việc "Gửi góp ý «một chạm» trong CRM" — đã giao ngày ${NGAY}`],
+    [s[4].id]: ['nhom-chua-cat', 'đã vào nhóm "Trưởng phòng ban thấy "số" tuần trước" — nhóm chưa thành việc'],
+    [s[5].id]: ['chan-troi', 'đã vào nhóm "Nhân viên căn chỉnh OKR" — để sau: chờ chu kỳ quý I'],
+    [s[6].id]: ['hang-chua-ho-so', 'đã vào nhóm "Nhân viên tìm quy trình" và thành việc "Nhân viên tìm được quy trình" — chưa bắt đầu'],
+    [s[7].id]: ['hang-co-ho-so', `đã vào nhóm "Mọi người gửi góp ý" và thành việc "Gửi góp ý «một chạm» trong CRM" — đã giao ngày ${NGAY}`],
+    [s[8].id]: ['da-phu', 'đã có trong việc "Trưởng phòng xem số tuần trước" — đang làm'],
+  };
+  const x = th(kit, r, '--duong'); if (x.status !== 0) return [`--duong exit ${x.status} ${x.stderr.slice(0, 160)}`];
+  const ds = JSON.parse(x.stdout); const cho = new Set(); let soBan = 0;
+  for (const [id, [c, cau]] of Object.entries(MONG)) {
+    const b = ds.find(d => d.id === id); if (!b) { sai.push(`${c}: thiếu bản ghi ${id}`); continue; }
+    cho.add(c); soBan += 1;
+    if (b.cho !== c || b.cau_nguoi_gui !== cau) sai.push(`${c}: «${b.cho}» «${b.cau_nguoi_gui}» ≠ «${cau}»`);
+  }
+  console.log(`    CN-1: số chỗ đo == ${cho.size}, số bản ghi đo == ${soBan}`);
+  if (cho.size !== 7 || soBan !== 8) sai.push(`đo ${cho.size} chỗ, ${soBan} bản ghi`);
+  // Bộ mã của kho thử, rút từ chính kho (tệp tín hiệu, bản gom, lộ trình, thư mục hồ sơ).
+  const lt = JSON.parse(readFileSync(path.join(r, 'docs', 'lo-trinh.json'), 'utf8'));
+  const MA = [...readdirSync(path.join(r, 'tin-hieu')).map(f => f.replace(/\.json$/, '')), 'G1', 'G2', 'G3', 'G6', 'gom-1',
+    ...lt.hang.flatMap(h => [h.ma, h.slug].filter(Boolean)), ...lt.chan_troi.map(c => c.ma),
+    ...readdirSync(path.join(r, '_acceptance'), { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name)];
+  for (const b of ds) for (const m of MA) if (coMa(b.cau_nguoi_gui, m)) sai.push(`${b.cho}: câu cho người gửi lọt mã «${m}»: ${b.cau_nguoi_gui}`);
+  const cu = ds.find(d => d.id === s[7].id);
+  if (!cu || !coMa(cu.cau, 'H6') || !coMa(cu.cau, 'cua-tin-hieu-gom-nhom')) sai.push(`đối chứng: câu cũ của «thành việc có hồ sơ» không chứa mã — phép quét không chứng được: ${cu && cu.cau}`);
+  return sai;
+}
+if (want('CN-1') && await chayCa('CN-1', cn1)) ok('CN-1', 'tám bản ghi bảy chỗ == bảng viết sẵn (ngày rút độc lập từ báo cáo thật); không câu nào lọt mã của kho thử; đối chứng: câu cũ có mã');
+if (want('CN-1-do')) await chayDo('CN-1-do', cn1, [['scripts/tin-hieu.mjs', 'và thành ${c.cauGiao ? `việc ${q(c.cauGiao)}`', 'và thành ${c.cauGiao ? `việc ${x.hang}`']], 'hang-co-ho-so', 'bản sao khuôn câu «thành việc» chèn mã việc');
+if (want('CN-1-do2')) await chayDo('CN-1-do2', cn1, [['scripts/tin-hieu.mjs', 'return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : null;', 'return null;']], 'trong CRM" — đã giao» ≠', 'bản sao bộ đọc ngày ký trả null');
+
+// ── CN-2: trường cũ không đổi byte so với 2.27 (AC-2) ─────────────────────────
+const BASE_TH = '294b29db846a75f875f7c7637ce5a9080cda50aa';
+async function cn2(kit) {
+  const sai = [];
+  let goc; try { goc = execFileSync('git', ['-C', KIT, 'show', `${BASE_TH}:scripts/tin-hieu.mjs`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch { return [`kho kit không có ${BASE_TH} — fetch trước`]; }
+  const base = banSao([], kit); writeFileSync(path.join(base, 'scripts', 'tin-hieu.mjs'), goc);
+  console.log(`    CN-2: base = cây đang kiểm + scripts/tin-hieu.mjs @${BASE_TH.slice(0, 8)}`);
+  const { r } = khoCau(kit);
+  const xm = th(kit, r, '--duong'); const xb = th(base, r, '--duong');
+  if (xm.status !== 0 || xb.status !== 0) return [`--duong exit mới ${xm.status} base ${xb.status} ${xb.stderr.slice(0, 120)}`];
+  const moi = JSON.parse(xm.stdout); const cu = JSON.parse(xb.stdout);
+  if (moi.length !== cu.length) sai.push(`số bản ghi mới ${moi.length} ≠ base ${cu.length}`);
+  for (const b of moi) { const a = cu.find(z => z.id === b.id); const { cau_nguoi_gui, ...bo } = b; if (!a || JSON.stringify(bo) !== JSON.stringify(a)) sai.push(`${b.cho}: bản ghi bỏ cau_nguoi_gui ≠ base: ${JSON.stringify(bo).slice(0, 140)} ≠ ${JSON.stringify(a).slice(0, 140)}`); }
+  console.log(`    CN-2: số bản ghi so == ${moi.length}`);
+  if (moi.length && JSON.stringify(moi[0]) === JSON.stringify(cu.find(z => z.id === moi[0].id))) sai.push('đối chứng: bản ghi đủ trường trùng base — phép so không thấy khác biệt');
+  const TM = await nap(kit, 'scripts/tin-hieu.mjs'); const TB = await nap(base, 'scripts/tin-hieu.mjs');
+  if (!deq(TM.TRUONG_DUONG, [...TB.TRUONG_DUONG, 'cau_nguoi_gui'])) sai.push(`TRUONG_DUONG ${JSON.stringify(TM.TRUONG_DUONG)} ≠ base + cau_nguoi_gui`);
+  // Ca im: một PR khác đổi cách vẽ trang ở base → phép so bản ghi vẫn xanh (và trang thật sự khác).
+  const lo = path.join(base, 'scripts', 'lo-trinh.mjs'); const loTxt = readFileSync(lo, 'utf8'); const MOC = "const khoiDuLieu = o => `<script";
+  if (loTxt.split(MOC).length !== 2) return [...sai, 'ca im: không tìm thấy chỗ tiêm trong lo-trinh.mjs của base'];
+  writeFileSync(lo, loTxt.replace(MOC, "const khoiDuLieu = o => `<!-- pr-khac -->\\n<script"));
+  const pB = pm(base, r); const pageB = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8'); const pM = pm(kit, r); const pageM = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
+  if (pB.status !== 0 || pM.status !== 0 || pageB === pageM || !pageB.includes('pr-khac')) sai.push('ca im: nhát tiêm vào trang base không có hiệu lực');
+  const xb2 = th(base, r, '--duong'); const cu2 = JSON.parse(xb2.stdout || '[]');
+  for (const b of moi) { const { cau_nguoi_gui, ...bo } = b; const a = cu2.find(z => z.id === b.id); if (JSON.stringify(bo) !== JSON.stringify(a)) sai.push(`ca im: ${b.cho} đỏ sau khi base đổi cách vẽ trang`); }
+  return sai;
+}
+if (want('CN-2') && await chayCa('CN-2', cn2)) ok('CN-2', 'mọi bản ghi bỏ cau_nguoi_gui == base 2.27 (cùng thứ tự khoá); TRUONG_DUONG == base + cau_nguoi_gui; đối chứng khác biệt; ca im base đổi cách vẽ trang vẫn xanh');
+if (want('CN-2-do')) await chayDo('CN-2-do', cn2, [['scripts/tin-hieu.mjs', '— để sau: ${x.ly_do}', '— hoãn: ${x.ly_do}']], 'chan-troi', 'bản sao đổi câu cũ của chỗ để sau');
+
+// ── CN-3: cụm tình trạng theo nhóm tiến độ (AC-3) ─────────────────────────────
+const BANG_TT = {
+  'can-nhac': ['chua-bat-dau', 'chưa bắt đầu'], 'sap-mo': ['chua-bat-dau', 'chưa bắt đầu'],
+  'cho-duyet': ['dang-lam', 'đang làm'], 'dang-dung': ['dang-lam', 'đang làm'],
+  'cho-nghiem-thu': ['da-giao', 'đã giao'], 'da-ship': ['da-giao', 'đã giao'], 'da-nghiem-thu': ['da-giao', 'đã giao'],
+  'xep-lai': ['khac', 'tạm hoãn'], 'da-bac': ['khac', 'đội sản phẩm quyết định không làm'], 'ngoai-pham-vi': ['khac', 'đội sản phẩm quyết định không làm'],
+  hong: ['khac', 'chưa xem được tình trạng'],
+};
+const CUM_NHOM = { 'da-giao': 'đã giao', 'dang-lam': 'đang làm', 'chua-bat-dau': 'chưa bắt đầu' };
+async function cn3(kit) {
+  const sai = [];
+  const T = await nap(kit, 'scripts/tin-hieu.mjs'); const PMM = await nap(kit, 'scripts/product-map.mjs'); const LT = await nap(kit, 'scripts/lo-trinh.mjs');
+  const nhomDocLap = (khoa, chu) => (khoa && LT.DA_GIAO_O.includes(khoa) ? 'da-giao' : khoa && LT.DANG_LAM_O.includes(khoa) ? 'dang-lam' : (chu === LT.CHUA_MO || (khoa && LT.CHUA_LAM_O.includes(khoa))) ? 'chua-bat-dau' : 'khac');
+  let so = 0;
+  const xet = (khoa, chu, mong) => { so += 1; const r = T.tinhTrangCua(chu, null, PMM.SECTIONS); if (!mong) { sai.push(`ô ${khoa} chưa có cụm trong bảng`); return; } if (r.nhom !== mong[0] || r.cum !== mong[1]) sai.push(`${khoa}: «${r.nhom}» «${r.cum}» ≠ «${mong[0]}» «${mong[1]}»`); if (r.nhom !== nhomDocLap(khoa, chu)) sai.push(`${khoa}: nhóm ${r.nhom} ≠ nhóm tiến độ ${nhomDocLap(khoa, chu)}`); };
+  for (const [khoa, chu] of PMM.SECTIONS) xet(khoa, chu, BANG_TT[khoa]);
+  xet('chua-mo', LT.CHUA_MO, ['chua-bat-dau', 'chưa bắt đầu']); xet('khong-suy', LT.KHONG_SUY, ['khac', 'chưa xem được tình trạng']); xet('chu-la', 'chữ lạ thử', ['khac', 'chưa xem được tình trạng']);
+  console.log(`    CN-3: số chữ đo == ${so} (SECTIONS ${PMM.SECTIONS.length} + 3)`);
+  if (so !== PMM.SECTIONS.length + 3) sai.push(`đo ${so} chữ`);
+  const daShip = PMM.SECTIONS.find(([k]) => k === 'da-ship')[1];
+  if (T.tinhTrangCua(daShip, '5/10/2026', PMM.SECTIONS).cum !== 'đã giao ngày 5/10/2026') sai.push('ngày: đã giao không kèm ngày');
+  const dangLam = PMM.SECTIONS.find(([k]) => k === 'dang-dung')[1];
+  if (T.tinhTrangCua(dangLam, '5/10/2026', PMM.SECTIONS).cum !== 'đang làm') sai.push('ngày: đang làm mang ngày');
+  // Kho: ba việc ở ba nhóm, cụm trong câu == nhom_trang_thai của chính hàng trong khối vẽ cùng kho.
+  const t = i => tin(kit, i, { luc: LUC_TRUOC }); const a = t(1); const b = t(2); const c = t(3);
+  const lt = { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'HA', cau_giao: '«việc a»', dot: 'gom-1', phu: ['GA'], slug: 'cua-tin-hieu-gom-nhom' }, { ma: 'HB', cau_giao: '«việc b»', dot: 'gom-1', phu: ['GB'], slug: 'viec-hb' }, { ma: 'HC', cau_giao: '«việc c»', dot: 'gom-1', phu: ['GC'] }] };
+  const them = { ...hoSoThu('cua-tin-hieu-gom-nhom', GIAO, '«việc a»'), '_acceptance/cua-tin-hieu-gom-nhom/evidence-report.md': readFileSync(BAO_CAO_THAT, 'utf8'), ...hoSoThu('viec-hb', 'approved', '«việc b»') };
+  const r = kho({ tins: [a, b, c], gom: { 'gom-1.md': vietGom(kit, { nhom: [['GA', 'Nhóm a', [a.id]], ['GB', 'Nhóm b', [b.id]], ['GC', 'Nhóm c', [c.id]]] }) }, lt, them });
+  if (pm(kit, r).status !== 0) return [...sai, 'vẽ trang kho thử hỏng'];
+  const k = LT.docDuLieu(readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8')).duLieu;
+  const ds = k.tin_hieu || []; const nhomGap = new Set();
+  for (const x of ds) {
+    const h = k.lo_trinh[0].hang.find(z => z.ma === x.hang); if (!h) { sai.push(`kho: tín hiệu ${x.id} không nối hàng`); continue; }
+    nhomGap.add(h.nhom_trang_thai);
+    const cum = CUM_NHOM[h.nhom_trang_thai]; if (!cum || !x.cau_nguoi_gui.includes(` — ${cum}`)) sai.push(`kho: hàng ${h.ma} nhóm ${h.nhom_trang_thai} mà câu «${x.cau_nguoi_gui}»`);
+  }
+  if (nhomGap.size !== 3) sai.push(`kho: chỉ gặp ${nhomGap.size} nhóm tiến độ ${JSON.stringify([...nhomGap])}`);
+  return sai;
+}
+if (want('CN-3') && await chayCa('CN-3', cn3)) ok('CN-3', 'ma trận toàn phần chữ trạng thái == bảng, nhóm == nhóm tiến độ; ngày chỉ đi với đã giao; kho ba nhóm: cụm trong câu == nhom_trang_thai của khối');
+if (want('CN-3-do')) await chayDo('CN-3-do', cn3, [['scripts/product-map.mjs', "  ['hong', 'Hồ sơ hỏng'],", "  ['o-moi-thu', 'Ô mới thử'],\n  ['hong', 'Hồ sơ hỏng'],"]], 'o-moi-thu', 'bản sao bản đồ thêm một ô chưa có cụm');
+
+// ── CN-4: thiếu dữ liệu → câu nguyên văn của bảng, không ô trống lộ ra (AC-4) ──
+async function cn4(kit) {
+  const sai = []; const t1 = tin(kit, 1, { luc: LUC_TRUOC });
+  const viec = (hang, them = {}) => ({ lt: { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'H1', cau_giao: '«Việc một»', dot: 'gom-1', phu: ['G1'], ...hang }] }, gom: vietGom(kit, { nhom: [['G1', 'Nhóm một', [t1.id]]] }), them });
+  const phu = (slug, them) => ({ lt: null, gom: vietGom(kit, { phu: [[t1.id, slug]] }), them });
+  const CA = {
+    'viec-khong-cau-giao': [viec({ cau_giao: '' }), 'đã vào nhóm "Nhóm một" và thành một việc chưa có tên — chưa bắt đầu'],
+    'phu-khong-feature': [phu('giao-y', hoSoThu('giao-y', GIAO, null, 'manh 2026-10-05')), 'đã có trong một việc chưa có tên — đã giao ngày 5/10/2026'],
+    'giao-khong-chu-ky': [viec({ slug: 'giao-z' }, hoSoThu('giao-z', GIAO, '«Việc một»', '')), 'đã vào nhóm "Nhóm một" và thành việc "Việc một" — đã giao'],
+    'phu-giao-khong-chu-ky': [phu('giao-w', hoSoThu('giao-w', GIAO, '«Việc w»', '')), 'đã có trong việc "Việc w" — đã giao'],
+    'le-khong-ly-do': [{ lt: null, gom: vietGom(kit, { le: [[t1.id, '']] }) }, 'không xếp vào nhóm nào'],
+    'de-sau-khong-ly-do': [{ lt: { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'H9', cau_giao: '«khác»' }], chan_troi: [{ ma: 'CT1', dot: 'gom-1', phu: ['G1'] }] }, gom: vietGom(kit, { nhom: [['G1', 'Nhóm một', [t1.id]]] }) }, 'đã vào nhóm "Nhóm một" — để sau'],
+  };
+  let so = 0;
+  for (const [ten, [o, mong]] of Object.entries(CA)) {
+    so += 1;
+    const r = kho({ tins: [t1], gom: { 'gom-1.md': o.gom }, lt: o.lt, them: o.them || {} });
+    const x = th(kit, r, '--duong'); if (x.status !== 0) { sai.push(`${ten}: --duong exit ${x.status} ${x.stderr.slice(0, 100)}`); continue; }
+    const c = (JSON.parse(x.stdout)[0] || {}).cau_nguoi_gui;
+    if (c !== mong) sai.push(`${ten}: «${c}» ≠ «${mong}»`);
+    if (/undefined|null|""/.test(String(c)) || /[:—\s]$/.test(String(c))) sai.push(`${ten}: câu lộ ô trống «${c}»`);
+  }
+  console.log(`    CN-4: số ca đo == ${so}`);
+  if (so !== 6) sai.push(`đo ${so} ca`);
+  return sai;
+}
+if (want('CN-4') && await chayCa('CN-4', cn4)) ok('CN-4', 'sáu ca thiếu dữ liệu == câu nguyên văn của bảng; không undefined/null/"", không dấu treo cuối câu');
+if (want('CN-4-do')) await chayDo('CN-4-do', cn4, [['scripts/tin-hieu.mjs', 'và thành ${c.cauGiao ? `việc ${q(c.cauGiao)}` : VIEC_KHONG_TEN}', 'và thành việc ${q(c.cauGiao)}']], 'viec-khong-cau-giao', 'bản sao bỏ nhánh dự phòng của câu giao vắng');
+
+// ── CN-5: phép kiểm câu — lọt mã (AC-5) ───────────────────────────────────────
+const dongTH = s => String(s).split('\n').filter(l => l.startsWith('tín hiệu '));
+function khoCan(kit, { ten1 = 'Nhóm thử', le = 'cảm ơn', feature = '«Việc đã giao thử»', ky = 'manh 2026-10-05', h7 = '«Việc bảy»', lt = true, hang = null } = {}) {
+  const t = i => tin(kit, i, { luc: LUC_TRUOC }); const s = [null, t(1), t(2), t(3), t(4)];
+  const gom = vietGom(kit, { nhom: [['G1', ten1, [s[1].id]], ['G2', 'Nhóm hai', [s[2].id]]], le: [[s[3].id, le]], phu: [[s[4].id, 'giao-x']] });
+  const ltO = { schema: 1, ten: 'Lộ trình thử', hang: hang || [{ ma: 'K2', cau_giao: '«Đọc bảng K2b»', dot: 'gom-1', phu: ['G1'] }, { ma: 'H7', cau_giao: h7, dot: 'gom-1', phu: ['G2'] }, { ma: 'H8', cau_giao: '«Việc tám»' }] };
+  return { s, r: kho({ tins: s.slice(1), gom: { 'gom-1.md': gom }, lt: lt ? ltO : null, them: hoSoThu('giao-x', GIAO, feature, ky) }) };
+}
+// Bộ mã đếm ĐỘC LẬP từ tệp của kho thử (tệp tín hiệu · dòng nhóm/đợt của bản gom · lộ trình · thư mục hồ
+// sơ), chia theo luật design §5 viết lại trong ca — để so số «kiểm / bỏ qua» của dòng tóm tắt (quan hệ).
+function demMa(r) {
+  const tap = new Set(readdirSync(path.join(r, 'tin-hieu')).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)));
+  const gd = path.join(r, 'docs', 'gom');
+  for (const f of existsSync(gd) ? readdirSync(gd) : []) for (const l of readFileSync(path.join(gd, f), 'utf8').split('\n')) { const m = l.match(/^- `([^`]+)` — /) || l.match(/^dot:\s*(\S+)/); if (m) tap.add(m[1]); }
+  const lp = path.join(r, 'docs', 'lo-trinh.json');
+  if (existsSync(lp)) { const j = JSON.parse(readFileSync(lp, 'utf8')); for (const h of j.hang || []) { if (h.ma) tap.add(String(h.ma)); if (h.slug) tap.add(h.slug); } for (const c of j.chan_troi || []) if (c.ma) tap.add(String(c.ma)); }
+  for (const e of readdirSync(path.join(r, '_acceptance'), { withFileTypes: true })) if (e.isDirectory()) tap.add(e.name);
+  const kiem = [...tap].filter(m => /[-_]/.test(m) || (/\p{L}/u.test(m) && /\p{N}/u.test(m)) || /^\p{Lu}{2,}$/u.test(m));
+  return { kiem: kiem.length, boQua: tap.size - kiem.length };
+}
+async function cn5(kit) {
+  const sai = [];
+  const { s, r } = khoCan(kit);
+  const x = th(kit, r, '--cau'); const tom = x.stdout.split('\n').filter(l => l.startsWith('câu cho người gửi:'));
+  const d0 = demMa(r); console.log(`    CN-5: bộ mã đếm độc lập — kiểm ${d0.kiem}, bỏ qua ${d0.boQua}`);
+  if (x.status !== 0 || tom.length !== 1 || !tom[0].includes('4 câu') || dongTH(x.stdout).length) sai.push(`sạch: exit ${x.status} ${JSON.stringify(x.stdout.slice(0, 240))} ${x.stderr.slice(0, 120)}`);
+  else if (!tom[0].includes(`kiểm ${d0.kiem} mã của kho`) || !tom[0].includes(`bỏ qua ${d0.boQua} mã`)) sai.push(`sạch: tóm tắt «${tom[0]}» lệch bộ mã đếm độc lập (kiểm ${d0.kiem} mã, bỏ qua ${d0.boQua} mã)`);
+  const CA = {
+    'ten-nhom-id': [{ ten1: `Nhóm giống ${s[3].id}` }, s[1].id, s[3].id],
+    'ten-nhom-ho-so': [{ ten1: 'Nhóm giống giao-x' }, s[1].id, 'giao-x'],
+    'le-ma-nhom': [{ le: 'trùng nhóm G2' }, s[3].id, 'G2'],
+    'cau-giao-ma-viec': [{ h7: '«Làm tiếp H8»' }, s[2].id, 'H8'],
+    'feature-ho-so': [{ feature: '«Việc giao-x đã xong»' }, s[4].id, 'giao-x'],
+  };
+  let so = 0;
+  for (const [ten, [o, id, ma]] of Object.entries(CA)) {
+    so += 1;
+    const k2 = khoCan(kit, o).r; const y = th(kit, k2, '--cau'); const L = dongTH(y.stdout);
+    const duong = JSON.parse(th(kit, k2, '--duong').stdout || '[]'); const cau = (duong.find(d => d.id === id) || {}).cau_nguoi_gui;
+    if (y.status !== 1 || L.length !== 1 || !L[0].includes(id) || !L[0].includes(`«${ma}»`) || !cau || !L[0].includes(cau)) sai.push(`${ten}: exit ${y.status}, ${L.length} dòng ${JSON.stringify(L).slice(0, 220)}`);
+  }
+  console.log(`    CN-5: số ca đỏ đo == ${so}`);
+  if (so !== 5) sai.push(`đo ${so} ca`);
+  // Ca im: mã chỉ chữ số trùng chữ thường trong câu giao.
+  const q4 = khoCan(kit, { hang: [{ ma: '4', cau_giao: '«Đo trên khuôn quý 4»', dot: 'gom-1', phu: ['G2'] }, { ma: 'K2', cau_giao: '«Đọc bảng K2b»', dot: 'gom-1', phu: ['G1'] }] }).r;
+  const z = th(kit, q4, '--cau'); const d4 = demMa(q4);
+  if (z.status !== 0 || d4.boQua < 1 || !z.stdout.includes(`kiểm ${d4.kiem} mã của kho`) || !z.stdout.includes(`bỏ qua ${d4.boQua} mã`) || !z.stdout.includes('chỉ chữ số')) sai.push(`quy-4: exit ${z.status} ${JSON.stringify(z.stdout.slice(0, 200))} (đếm độc lập: kiểm ${d4.kiem}, bỏ qua ${d4.boQua})`);
+  // Chữ ký có mà không đọc được ngày → đỏ nêu hồ sơ và giá trị.
+  const kk = khoCan(kit, { ky: 'manh hôm qua' }).r; const w = th(kit, kk, '--cau'); const Lw = dongTH(w.stdout);
+  if (w.status !== 1 || Lw.length !== 1 || !Lw[0].includes('giao-x') || !Lw[0].includes('manh hôm qua')) sai.push(`chu-ky-khong-ngay: exit ${w.status} ${JSON.stringify(Lw)}`);
+  // Kho không có tệp lộ trình; kho không khai cửa.
+  const kl = khoCan(kit, { lt: false }).r; const v = th(kit, kl, '--cau'); if (v.status !== 0) sai.push(`khong-lo-trinh: exit ${v.status} ${v.stderr.slice(0, 120)}`);
+  const kv = kho({ cfg: '' }); const u = th(kit, kv, '--cau'); if (u.status !== 2 || !u.stderr.includes('kho chưa khai cửa tín hiệu')) sai.push(`khong-khai: exit ${u.status}`);
+  // Chỉ đọc.
+  const anh = d => { const h = createHash('sha256'); const di = p => { for (const e of readdirSync(p, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) { if (e.name === '.git') continue; const f = path.join(p, e.name); if (e.isDirectory()) di(f); else h.update(f).update(readFileSync(f)); } }; di(d); return `${h.digest('hex')}|${git(d, 'status', '--porcelain')}`; };
+  for (const d of [r, kk, q4, r]) { const t0 = anh(d); th(kit, d, '--cau'); if (anh(d) !== t0) sai.push('chỉ đọc: --cau đổi cây'); }
+  return sai;
+}
+if (want('CN-5') && await chayCa('CN-5', cn5)) ok('CN-5', 'kho sạch một dòng tóm tắt; năm ca lọt mã mỗi ca đúng một dòng nêu tín hiệu, mã, câu; quý 4 im và được đếm bỏ qua; chữ ký không ngày đỏ; không lộ trình chạy; không khai thoát 2; chỉ đọc');
+if (want('CN-5-do')) await chayDo('CN-5-do', cn5, [['scripts/tin-hieu.mjs', '  for (const s of thuMucHoSo(root)) them(s);\n', '']], 'ten-nhom-ho-so', 'bản sao bỏ tên thư mục hồ sơ khỏi bộ mã');
+if (want('CN-5-do2')) await chayDo('CN-5-do2', cn5, [['scripts/tin-hieu.mjs', 'const kiemDuoc = m => ', 'const kiemDuoc = m => true || ']], 'quy-4', 'bản sao bỏ bộ lọc mã giống chữ thường');
+if (want('CN-5-do3')) await chayDo('CN-5-do3', cn5, [['scripts/tin-hieu.mjs', '· kiểm ${kq.soKiem} mã của kho', '· kiểm 0 mã của kho']], 'lệch bộ mã đếm độc lập', 'bản sao dòng tóm tắt in sai số mã đã kiểm');
+
+// ── CN-6: từ cấm một nguồn có marker (AC-6) ───────────────────────────────────
+async function cn6(kit) {
+  const sai = [];
+  const T = await nap(kit, 'scripts/tin-hieu.mjs'); let cam;
+  try { cam = T.napCam(); } catch (e) { return [`napCam: ${e.message}`]; }
+  const thuong = cam.filter(c => !c.khung); const khung = cam.filter(c => c.khung);
+  if (!thuong.length || !khung.length) return [`khối cần ≥1 từ thường và ≥1 từ khung: ${JSON.stringify(cam)}`];
+  if (!khung.some(c => c.tu === 'hồ sơ')) sai.push('«hồ sơ» không mang nhãn khung trong khối');
+  const w0 = thuong[0].tu;
+  // Đối chứng: kho sạch có đủ chỗ chưa gom (khung không chỗ trống) và việc xếp lại → thoát 0.
+  const t = (i, luc = LUC_TRUOC) => tin(kit, i, { luc }); const a = t(1, LUC_SAU); const b = t(2); const c = t(3); const d = t(4);
+  const ltXL = { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'HX', cau_giao: '«việc để sau»', dot: 'gom-1', phu: ['GX'], slug: 'viec-xl' }, { ma: 'HH', cau_giao: '«Mở hồ sơ khách hàng nhanh»', dot: 'gom-1', phu: ['GH'] }] };
+  const dung = le => kho({ tins: [a, b, c, d], gom: { 'gom-1.md': vietGom(kit, { nhom: [['GX', 'Nhóm để sau', [b.id]], ['GH', 'Nhóm khách', [d.id]]], le: [[c.id, le]] }) }, lt: ltXL, them: { '_acceptance/viec-xl/opportunity.md': OPP_PARK('viec-xl') } });
+  const r0 = dung('cảm ơn'); const x0 = th(kit, r0, '--cau');
+  if (x0.status !== 0) sai.push(`sạch: exit ${x0.status} ${dongTH(x0.stdout).join(' | ').slice(0, 300)} ${x0.stderr.slice(0, 120)}`);
+  const ds0 = JSON.parse(th(kit, r0, '--duong').stdout || '[]');
+  if (!ds0.some(z => z.cau_nguoi_gui.endsWith('— tạm hoãn'))) sai.push(`đối chứng: không có câu nào của việc xếp lại kết bằng cụm tạm hoãn (${ds0.length} câu)`);
+  // Phần kit viết = khung câu + cụm tình trạng; chữ lấy từ dữ liệu (tên nhóm, lý do, câu giao) đã gỡ.
+  const PMM = await nap(kit, 'scripts/product-map.mjs');
+  const kh = T.khungCacCau({ root: r0, classify: PMM.classify, sections: PMM.SECTIONS }) || [];
+  const kXL = kh.find(z => z.id === b.id); const kHH = kh.find(z => z.id === d.id); const kLe = kh.find(z => z.id === c.id);
+  if (!kXL || kXL.khung !== 'đã vào nhóm "" và thành việc "" — tạm hoãn') sai.push(`khung xếp lại: «${kXL && kXL.khung}» ≠ khung + cụm tình trạng`);
+  if (!kHH || kHH.khung !== 'đã vào nhóm "" và thành việc "" — chưa bắt đầu') sai.push(`khung câu giao: «${kHH && kHH.khung}» còn chữ dữ liệu hoặc thiếu cụm`);
+  if (!kLe || kLe.khung !== 'không xếp vào nhóm nào: ') sai.push(`khung lẻ: «${kLe && kLe.khung}»`);
+  // Từ thường trong lý do → đỏ; dạng NFD vẫn đỏ.
+  const r1 = dung(`ghi chú ${w0} cũ`); const x1 = th(kit, r1, '--cau'); const L1 = dongTH(x1.stdout);
+  if (x1.status !== 1 || L1.length !== 1 || !L1[0].includes(`«${w0}»`) || !L1[0].includes(`ghi chú ${w0} cũ`)) sai.push(`tu-thuong: exit ${x1.status} ${JSON.stringify(L1)}`);
+  const nfd = w0.normalize('NFD'); if (nfd === w0.normalize('NFC')) sai.push(`nfd: từ «${w0}» không có dạng tổ hợp khác — chọn từ có dấu`);
+  const r2 = dung(`ghi chú ${nfd} cũ`); const x2 = th(kit, r2, '--cau');
+  if (x2.status !== 1 || dongTH(x2.stdout).length !== 1) sai.push(`nfd: exit ${x2.status} ${JSON.stringify(dongTH(x2.stdout))}`);
+  return sai;
+}
+if (want('CN-6') && await chayCa('CN-6', cn6)) ok('CN-6', 'khối đủ hai loại, «hồ sơ» mang nhãn khung; kho sạch (chưa gom, xếp lại, «hồ sơ khách hàng» trong câu giao) xanh; từ thường trong lý do đỏ, cả dạng NFD');
+if (want('CN-6-do')) await chayDo('CN-6-do', cn6, [['scripts/tin-hieu.mjs', "'chưa xếp vào nhóm nào — đội sản phẩm sẽ xem ở lần xếp nhóm tới'", "'chưa xếp vào nhóm nào — hồ sơ sẽ xem ở lần xếp nhóm tới'"]], 'có từ nội bộ «hồ sơ» — "chưa xếp vào nhóm nào — hồ sơ', 'bản sao khuôn câu «chưa gom» chèn «hồ sơ»');
+if (want('CN-6-do-tt')) await chayDo('CN-6-do-tt', cn6, [['scripts/tin-hieu.mjs', "'xep-lai': 'tạm hoãn'", "'xep-lai': 'tạm hoãn hồ sơ'"]], '— tạm hoãn hồ sơ"', 'bản sao cụm tình trạng «tạm hoãn» chèn «hồ sơ»');
+if (want('CN-6-do-khung')) await chayDo('CN-6-do-khung', cn6, [['scripts/tin-hieu.mjs', 'tinhTrang: tinhTrangCua(x.trang_thai, ngay ? SENT : null, sections).cum };', 'tinhTrang: SENT };']], 'khung xếp lại', 'bản sao coi cụm tình trạng là chữ dữ liệu (gỡ khỏi phần kit viết)');
+if (want('CN-6-do4')) await chayDo('CN-6-do4', cn6, [['scripts/tin-hieu.mjs', "const nfc = s => String(s ?? '').normalize('NFC');", "const nfc = s => String(s ?? '');"]], 'nfd', 'bản sao bỏ chuẩn hoá NFC');
+if (want('CN-6-do2')) {
+  try {
+    const lanh = await cn6(KIT); if (lanh.length) bad('CN-6-do2', `bản lành chưa xanh: ${lanh[0]}`); else {
+      const bs = banSao([['skills/acceptance/references/tin-hieu-template.md', '- slug\n', '- slug\n- đội sản phẩm (khung)\n']]);
+      const t = (i, luc = LUC_TRUOC) => tin(KIT, i, { luc }); const a = t(1, LUC_SAU); const b = t(2); const c = t(3);
+      const r = kho({ tins: [a, b, c], gom: { 'gom-1.md': vietGom(KIT, { nhom: [['G1', 'Nhóm một', [b.id]]], le: [[c.id, 'cảm ơn']] }) } });
+      const x = th(bs, r, '--cau'); const L = dongTH(x.stdout).filter(l => l.includes('«đội sản phẩm»'));
+      const ds = JSON.parse(th(bs, r, '--duong').stdout || '[]'); const coTu = ds.filter(z => z.cau_nguoi_gui.includes('đội sản phẩm')).length;
+      console.log(`    CN-6-do2: câu đỏ == ${L.length}, câu có «đội sản phẩm» == ${coTu}`);
+      if (x.status === 1 && coTu > 0 && L.length === coTu) ok('CN-6-do2', `bản sao khối cấm thêm «đội sản phẩm (khung)»: ${L.length} câu đang xanh thành đỏ, «${L[0].slice(0, 90)}»`); else bad('CN-6-do2', `exit ${x.status}, ${L.length} đỏ ≠ ${coTu}`);
+    }
+  } catch (e) { bad('CN-6-do2', loi(e)); }
+}
+if (want('CN-6-do3')) {
+  try {
+    const bs = banSao([['skills/acceptance/references/tin-hieu-template.md', '<!-- <<<TIN-HIEU-CAU-CAM -->', '<!-- da-xoa -->']]);
+    const r = kho({ tins: [tin(KIT, 1, { luc: LUC_TRUOC })], gom: { 'gom-1.md': vietGom(KIT, { le: [[tin(KIT, 1).id, 'cảm ơn']] }) } });
+    const x = th(bs, r, '--cau');
+    if (x.status === 2 && x.stderr.includes('TIN-HIEU-CAU-CAM')) ok('CN-6-do3', `bản sao khuôn mất khối: thoát 2, «${x.stderr.trim().slice(0, 90)}»`); else bad('CN-6-do3', `exit ${x.status} ${x.stderr.slice(0, 120)}`);
+  } catch (e) { bad('CN-6-do3', loi(e)); }
+}
+
+// ── CN-7: đường đọc-cũ + cờ vàng + tài liệu (AC-7) ────────────────────────────
+async function cn7(kit) {
+  const sai = [];
+  const T = await nap(kit, 'scripts/tin-hieu.mjs');
+  const { r } = khoCau(kit); if (pm(kit, r).status !== 0) return ['vẽ trang hỏng'];
+  const html = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
+  const doc = chepRoi(readFileSync(path.join(kit, 'scripts', 'lo-trinh.mjs'), 'utf8'));
+  const a = doc(html); const ds = (a.duLieu && a.duLieu.tin_hieu) || [];
+  if (!ds.length) return ['khối không có tin_hieu'];
+  for (const b of ds) { const v = T.cauChoNguoiGui(b); if (v.cau !== b.cau_nguoi_gui || v.co !== null) sai.push(`trang mới: ${b.id} ${JSON.stringify(v)}`); }
+  const cu = html.replace(/(<script type="application\/json" id="lo-trinh-du-lieu">)([\s\S]*?)(<\/script>)/, (m, p1, j, p3) => { const o = JSON.parse(j); for (const b of o.tin_hieu) delete b.cau_nguoi_gui; return p1 + JSON.stringify(o).replace(/</g, '\\u003c') + p3; });
+  const bb = doc(cu); const dsc = (bb.duLieu && bb.duLieu.tin_hieu) || [];
+  for (const b of dsc) { const v = T.cauChoNguoiGui(b); if (v.cau !== b.cau || !String(v.co).includes('bản vẽ cũ')) sai.push(`trang cũ: ${b.id} ${JSON.stringify(v)}`); }
+  if (!deq(a.duLieu.tin_hieu, khoiThô(html).tin_hieu) || !deq(dsc, khoiThô(cu).tin_hieu)) sai.push('docDuLieu chép rời không giữ nguyên mảng');
+  if (!deq(a.canhBao, bb.canhBao)) sai.push(`cảnh báo khác giữa trang mới và cũ: ${JSON.stringify(a.canhBao)} ≠ ${JSON.stringify(bb.canhBao)}`);
+  const tlTxt = readFileSync(path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md'), 'utf8');
+  const tl = khoiMd(tlTxt, 'LO-TRINH-DU-LIEU-TUY-CHON'); if (tl == null) return [...sai, 'tài liệu thiếu khối LO-TRINH-DU-LIEU-TUY-CHON'];
+  const truong = tl.split('\n').filter(Boolean).map(l => (l.match(/^tin_hieu\.([a-z_]+) — /) || [])[1]);
+  for (const f of T.TRUONG_DUONG) if (!truong.includes(f)) sai.push(`tài liệu thiếu trường ${f}`);
+  for (const f of truong) if (!T.TRUONG_DUONG.includes(f)) sai.push(`tài liệu có trường lạ ${f}`);
+  const doan = (tlTxt.split('### Khoá tuỳ chọn `tin_hieu`')[1] || '').split('\n### ')[0];
+  if (!doan.includes('cau_nguoi_gui') || !doan.includes('bản vẽ cũ')) sai.push('đoạn khoá tin_hieu chưa nêu luật đọc lùi cau_nguoi_gui + cờ «bản vẽ cũ»');
+  return sai;
+}
+if (want('CN-7') && await chayCa('CN-7', cn7)) ok('CN-7', 'trang mới: câu người gửi, không cờ; trang cũ: câu cũ + cờ «bản vẽ cũ»; docDuLieu chép rời giữ mảng, cảnh báo như nhau; tài liệu == TRUONG_DUONG và nêu luật đọc lùi');
+if (want('CN-7-do')) await chayDo('CN-7-do', cn7, [['skills/acceptance/references/lo-trinh-du-lieu.md', 'tin_hieu.cau_nguoi_gui — ', 'tin_hieu.cau_nguoi_guiX — ']], 'tài liệu thiếu trường cau_nguoi_gui', 'bản sao tài liệu thiếu dòng cau_nguoi_gui');
+
+// ── CN-8: skill gom chạy phép kiểm câu (AC-8) ─────────────────────────────────
+async function cn8(kit) {
+  const sai = []; const sk = SKILL(kit);
+  const b = khoiMd(sk, 'GOM-CAU'); if (b == null) return ['GOM-CAU: SKILL thiếu khối'];
+  const chay = r => spawnSync('bash', ['-c', b.trim()], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: kit } });
+  const t1 = tin(kit, 1, { luc: LUC_TRUOC }); const t2 = tin(kit, 2, { luc: LUC_TRUOC });
+  const rX = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', 'Kỹ sư ghim lại nhanh', [t1.id, t2.id]]] }) } });
+  const rD = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', `Kỹ sư ghim lại ${t2.id}`, [t1.id, t2.id]]] }) } });
+  const x = chay(rX); if (x.status !== 0) sai.push(`GOM-CAU: xanh thoát ${x.status} ${String(x.stderr || '').slice(0, 100)}`);
+  const d = chay(rD); if (d.status !== 1 || !d.stdout.includes('lọt mã')) sai.push(`GOM-CAU: đỏ thoát ${d.status} ${String(d.stdout).slice(0, 100)}`);
+  const iR = sk.indexOf('<!-- <<<GOM-RANG -->'); const iC = sk.indexOf('<!-- <<<GOM-CAU -->'); const i4 = sk.indexOf('## Bước 4 — chuyển cho cắt lượt');
+  if (!(iR >= 0 && iR < iC && iC < i4)) sai.push(`GOM-CAU: thứ tự GOM-RANG ${iR} < GOM-CAU ${iC} < Bước 4 ${i4} sai`);
+  const doan = sk.slice(sk.indexOf('<!-- GOM-RANG>>> -->'), i4); if (!/người gửi/.test(doan)) sai.push('GOM-CAU: đoạn quanh khối không nói tên nhóm / lý do hiện cho người gửi');
+  return sai;
+}
+if (want('CN-8') && await chayCa('CN-8', cn8)) ok('CN-8', 'GOM-CAU chạy nguyên văn: sạch 0, tên nhóm lọt mã 1 «lọt mã»; đứng sau GOM-RANG, trước Bước 4; nói câu hiện cho người gửi');
+if (want('CN-8-do')) await chayDo('CN-8-do', cn8, [['skills/gom-tin-hieu/SKILL.md', '--root . --cau', '--root . --cauu']], 'GOM-CAU: xanh thoát 2', 'bản sao SKILL gõ sai lệnh trong GOM-CAU');
+
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (tin-hieu)`);
 process.exit(fail ? 1 : 0);

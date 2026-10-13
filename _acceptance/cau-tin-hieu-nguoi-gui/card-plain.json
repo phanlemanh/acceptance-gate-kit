@@ -1,0 +1,7 @@
+{
+  "feature_plain": "Người gửi tín hiệu ở phòng ban đọc được tín hiệu của mình đang ở đâu bằng một câu tiếng sản phẩm, không mã việc, không tên hồ sơ.",
+  "decisions": [
+    { "id": "E10", "q": "Tên việc do chủ kho crm viết hiện nguyên văn trong câu — chấp nhận?", "why": "Phần chữ kit viết sạch ở 16/16 câu; ba giám khảo chỉ chia ngả ở ba tên việc crm («chip Kara», «kỳ đích đổi pha», «Lát dựng») — chữ đó là của chủ kho crm, kit không soạn lại." }
+  ],
+  "analyst_plain": "Không có ghi chú phân biệt nào cần người xem."
+}

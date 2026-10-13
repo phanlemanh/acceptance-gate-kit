@@ -178,6 +178,13 @@ mục yêu cầu của một đợt.
 thì không lệnh nào của cửa chạy và mọi trang giữ nguyên từng byte.
 _Avoid_: hộp thư thứ hai (khuôn tín hiệu là khuôn yêu cầu của gói Điều phối); để kit lưu tín hiệu.
 
+**Câu cho người gửi**:
+Trường `cau_nguoi_gui` của mỗi đường đi tín hiệu (khoá `tin_hieu` của khối dữ liệu lộ trình): một câu tiếng
+sản phẩm nói tín hiệu đang ở đâu — đã vào nhóm nào, thành việc gì, đã giao ngày nào — dựng từ tên nhóm, câu
+giao và ngày ký; không mã việc, không tên hồ sơ, không từ của khối `TIN-HIEU-CAU-CAM`. Kiểm bằng
+`scripts/tin-hieu.mjs --cau`. Khác `cau` (câu cho chủ kho, có mã để lần). Hồ sơ `cau-tin-hieu-nguoi-gui`.
+_Avoid_: hiện `cau` cho người không dùng git; chèn mã vào khuôn câu; danh sách từ cấm viết trong mã.
+
 **Bản gom**:
 Tệp markdown trong git, trong thư mục `tin_hieu.gom`, đặt MỖI tín hiệu vào đúng một chỗ: một nhóm (một
 điều một vai muốn làm được — trục `ket-qua`, chính sách ở khối `GOM-TRUC` của skill `gom-tin-hieu`), lẻ
