@@ -1074,6 +1074,11 @@ test('DP10-01 day-giu-nhip', async () => {
   console.log(`  dãy P1 chạy qua giu-nhip.mjs, không nhịp phiên (${r.nhipPhien ? 'CÓ' : 'vắng'}) → ${r.soBao} sự kiện khoa-khong-nhip`);
   assert.equal(r.nhipPhien, null, 'đối chứng đầu vào: không nhịp phiên của worktree P1');
   assert.equal(r.soBao, 0);
+  // Đối chứng dương của phép kiểm «vắng nhịp phiên» (S4-r1, ngoài hợp đồng t2): hook thật ghi một nhịp phiên từ
+  // worktree người giữ → phép kiểm THẤY nó, nên giá trị null ở trên không phải do so đường dẫn lệch.
+  const co = await kichBanViecNen({ phien: 'P1', lam: async ({ cua, gocGoi }) => hookNhip({ session_id: 's-p1' }, { cwd: cua, gocGoi }) });
+  console.log(`  đối chứng dương: hook ghi nhịp phiên từ worktree P1 → phép kiểm ${co.nhipPhien ? 'thấy' : 'KHÔNG thấy'}`);
+  assert.ok(co.nhipPhien, 'phép kiểm vắng nhịp phiên không thấy nhịp phiên hook thật ghi');
 });
 
 // Bản tiêm dựng lại ĐÚNG hành vi DP8: luồn lại hangViec qua hai chữ ký và chèn lại dòng loại dãy (gap-probe P1 —
@@ -1098,8 +1103,10 @@ test('DP10-02 hai-nua-bang-nhau', async () => {
   const { ket } = await kiemLanh();
   const n = NGUON_NHIP.length;
   const [viecNen, day] = [ket.slice(0, n), ket.slice(n)];
-  console.log(`  kiem-cheo [${viecNen}] · P1 [${day}]`);
-  assert.equal(ket.length, 2 * n);
+  console.log(`  ${ket.length} hàng · kiem-cheo [${viecNen}] · P1 [${day}]`);
+  // Số hàng ghim bằng hằng viết trước (S4-r1, finding trong hợp đồng AC-2): đếm theo chính ma trận là hằng đúng.
+  assert.equal(ket.length, 10);
+  assert.equal(n, 5);
   assert.deepEqual(day, viecNen);
   assert.ok(viecNen.includes(0) && viecNen.includes(1), 'nửa ma trận không được hằng');
 });
