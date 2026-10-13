@@ -1,0 +1,92 @@
+schema_version: 1
+feature_slug: dieu-phoi-khoa-day-giu-nhip
+# Ca đo của vòng: tên ca bắt đầu «DP10-», ở tests/dieu-phoi/on-dinh-r2.test.mjs (cạnh ma trận trục D của DP8 —
+# không import tệp .test.mjs từ tệp khác, khuôn DP8-11), cộng ca đã ký đổi thân có tên ở AC-6. Khoá executor:
+#   executors.test.dieu_phoi_sdt — có từ hồ sơ dieu-phoi-sua-truoc-dot-thu: node --test trên tests/dieu-phoi/**,
+#     gộp dòng «ok … DP<n>-|SDT-», «not ok», dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng; regex
+#     «DP[0-9]+» đã nhặt «DP10-».
+# Kho thử do code sinh trong lượt (git init + git worktree add thật trong thư mục tạm). Đợt dựng bằng `mo` thật
+# từ gói đợt khai qua cấu hình; nhịp bộ phát lịch là `taoVong` thật với đồng hồ giả; nhịp do `chamNhip`, hook thật
+# và `giu-nhip.mjs` thật ghi. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao gói bị
+# tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm từng lần thay đã áp, và ghim thông điệp của ĐÚNG lỗi được
+# tiêm. Ma trận viết sẵn: số assert = số hàng, in ra. Lời hứa là đẳng thức thì so bằng nhau. Mỗi eval ghim đúng
+# dòng TAP «ok … - <tên ca>»; suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/giu-nhip.mjs, dieu-phoi/scripts/hook-nhip.mjs, tests/dieu-phoi/on-dinh-r2.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP10-01 day-giu-nhip": đợt mở từ gói, P1 ghi danh và xin s4 bằng CLI thật, nhịp thật ở T
+      cấp s4 cho P1 (đối chứng đầu vào: chu.json.phien == "P1"), không lời gọi hook nào từ worktree của P1, P1 chạy
+      `giu-nhip.mjs -- node -e ''` từ worktree của nó sau lúc cấp (mã thoát 0), nhịp thật T+11′ và T+12′ → 0 sự
+      kiện khoa-khong-nhip. "ok" cho "DP10-01-do tra-lai-loai-day": bản lành xanh trên cùng hàm kiemViecNen; bản sao
+      phat-lich.mjs dựng lại đúng hành vi DP8 — bốn lần thay, mỗi lần kiểm áp: lời gọi và chữ ký baoKhoaKhongNhip mang
+      lại hangViec, lời gọi và chữ ký viecNenGiuNhip nhận lại hangViec, đầu viecNenGiuNhip chèn lại
+      `if ((hangViec?.day ?? []).some((d) => d.id === chu.phien)) return false;` — chạy trọn ma trận → danh sách
+      lỗi BẰNG (deepEqual) đúng ["dãy P1 chạm nhịp khoá (chamNhip): việc nền giữ nhịp khoá vẫn bị báo
+      khoa-khong-nhip", "dãy P1 chạy qua giu-nhip.mjs: việc nền giữ nhịp khoá vẫn bị báo khoa-khong-nhip"]; nửa
+      kiem-cheo không đổi. Thông điệp «vẫn bị báo» chỉ sinh khi có sự kiện thật, nên bản tiêm làm sập bộ phát lịch
+      (0 sự kiện) cho danh sách khác và ca đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/hook-nhip.mjs, dieu-phoi/scripts/giu-nhip.mjs, tests/dieu-phoi/on-dinh-r2.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP8-09 viec-nen": ma trận MA_TRAN_VIEC_NEN viết sẵn 10 hàng, in «số hàng: 10» và từng hàng
+      «<tên>=<số>»; mỗi hàng ra đúng kỳ vọng (chamNhip sau cấp 0 · giu-nhip.mjs sau cấp 0 · nhịp khoá trước cấp 1 ·
+      worktree khác chạm chamNhip sau cấp 1 · không chạm 1, cho kiem-cheo và cho P1); mỗi hàng đối chứng đầu vào:
+      thư mục song/ không có nhịp nào của worktree người giữ (lỗi «<tên>: có nhịp phiên của người giữ»); hàng ra 1 mang can_phan true và ly_do chứa "nhịp khoá". "ok" cho
+      "DP10-02 hai-nua-bang-nhau": kết quả năm hàng kiem-cheo so bằng (deepEqual) kết quả năm hàng P1 theo thứ tự
+      nguồn nhịp, và mỗi nửa có cả 0 lẫn 1 (không nửa nào hằng). "ok" cho "DP8-09-do bo-mien": bản sao bỏ lời gọi
+      viecNenGiuNhip (kiểm bước tiêm áp) → hàm kiểm nêu "kiem-cheo chạm nhịp khoá (chamNhip): việc nền giữ nhịp
+      khoá vẫn bị báo khoa-khong-nhip".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/hook-nhip.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-10 khoa-khong-nhip" (thân không đổi — AC-6 chứng). "ok" cho "DP3-10-do bo-dieu-kien":
+      bản sao gói với `chamNhip(dauVao);` của hook-nhip.mjs bị gỡ (kiểm bước tiêm áp) → kịch bản co-nhip ra 0 sự
+      kiện (đối chứng dương: nhịp phiên một mình giữ khoá); thêm bỏ dòng điều kiện nhịp phiên của phat-lich.mjs
+      (kiểm bước tiêm áp) → 1 sự kiện, thông điệp "có nhịp mà vẫn báo".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/giu-nhip.mjs, tests/dieu-phoi/on-dinh-r2.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP10-04 day-thu-hoi": fixture DP10-01, P1 chạy giu-nhip.mjs sau cấp rồi thôi, nhịp thật
+      T+11′ và T+200′ → đúng 1 sự kiện thu-hoi có phien "P1", khoa/s4/chu.json vắng, 0 sự kiện khoa-khong-nhip; in
+      một dòng nêu số sự kiện thu-hoi và trạng thái khoá. "ok" cho "DP8-09 thu-hoi" (việc nền, thân không đổi).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/README.md, dieu-phoi/scripts/mau/LUAT.md, tests/dieu-phoi/on-dinh-r2.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP10-05 tai-lieu": hàm kiem trên README + LUAT.md của gói trả [] — đoạn README có «ngoài
+      dãy» và giu-nhip.mjs chứa «Khoá của dãy», không chứa «vẫn đòi nhịp phiên»; mục «Cách xin tài nguyên» của
+      LUAT.md chứa giu-nhip.mjs. "ok" cho "DP10-05-do readme-cu": README rút bằng git show ở sha ghim
+      e76684fd51ee1e737329ff7d56465d5fef0018a2 (hằng trong tệp test, không suy từ trạng thái gộp; đối chứng đầu
+      vào: khác README hiện tại) → hàm kiem trả đúng ["README còn nói khoá của dãy đòi nhịp
+      phiên"]. "ok" cho "DP8-10 tai-lieu" (thân không đổi).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [tests/dieu-phoi/**, _acceptance/dieu-phoi-khoa-day-giu-nhip/decisions.jsonl]
+    expected: >
+      exit 0; tổng kết TAP «# fail 0»; "ok" cho "DP10-06 ca-da-ky": mốc so in ra (commit gộp PR của nhánh
+      vong/dieu-phoi-khoa-day-giu-nhip, hoặc merge-base origin/main trước khi gộp); danh sách ca đã ký đổi thân
+      (sắp xếp) BẰNG đúng ["DP3-10-do bo-dieu-kien", "DP8-09 viec-nen", "DP8-09-do bo-mien"]; thieuSo trên
+      decisions.jsonl của hồ sơ này trả []. Tập khai khác rỗng nên bộ so chưa chạy (trả []) là đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
