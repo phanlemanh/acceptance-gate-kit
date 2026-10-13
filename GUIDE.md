@@ -1701,6 +1701,29 @@ lại. Pin nói ra ô nào thay bởi đâu bằng hậu tố ` · thay bởi h�
 `lib/evidence-core.cjs` mới) thấy con trỏ thì vẫn chặn — hướng an toàn; luật cần thêm
 `lib/ac-line.cjs` và `lib/workspace-record.cjs`, cả hai đã có trong danh sách chép.
 
+### 7.2 Kiểm bản cài sau phát hành (`scripts/kiem-ban-cai.mjs`)
+
+Thứ kho tiêu thụ cài về không phải lúc nào cũng là thứ đã chấm: chợ plugin của kit là kiểu THƯ MỤC, nên bản
+cài chép cây đang checkout lúc cài; và bộ đệm khoá theo số — lệnh cập nhật plugin báo «đã mới nhất» mà giữ
+nội dung cũ (ca «2.27.0 = main» ở M5), còn bản cài thiếu `feature-loop/agents/` làm A1 chưa chạy sống lần nào.
+Lệnh kiểm bản cài có hai chế độ, mỗi dòng `[kiem-ban-cai] ĐẠT|ĐỎ|VÀNG <mục>: …`, dòng cuối `TỔNG KẾT:` —
+**đọc dòng TỔNG KẾT** (`ĐẠT` · `ĐỎ` · `KHÔNG CHẠY ĐƯỢC`), không đọc mã thoát một mình:
+
+- `node scripts/kiem-ban-cai.mjs --ref <tag|sha>` — cài đúng cây của ref vào một cấu hình Claude cách ly
+  (`CLAUDE_CONFIG_DIR` tạm, không chạm `~/.claude`) + một kho giả lập do code sinh, rồi kiểm tám mục: số phiên
+  bản · khớp tag (thiếu/lệch đỏ, tệp thừa chỉ vàng) · thư mục gói · tác tử chấm · móc nối · thẻ cổng · lưới
+  trước-gộp (hai chiều) · gói `dieu-phoi`.
+- `node scripts/kiem-ban-cai.mjs --may --ref <tag>` — CHỈ ĐỌC sổ cài `plugins/installed_plugins.json` của máy
+  và so mọi bản ghi của chợ kit cùng số với cây của tag. `ĐỎ may:` = bản cài lệch tag hoặc thiếu thư mục → gỡ
+  rồi cài lại theo bốn bước của mục A1 (CHANGELOG 2.27.0); `VÀNG may:` = bản ghi còn số cũ (cây phụ chưa nâng).
+
+**Lúc nào chạy:** lượt chấm của hồ sơ cắt mốc tự chạy (khoá `kiem_ban_cai_moc` trong `feature_loop.suite_keys`
+chỉ chạy trọn khi số trong `.claude-plugin/plugin.json` khác gốc vòng; vòng thường in một dòng `BỎ QUA`). Người
+cắt mốc chạy `--ref v<số>` SAU khi gắn tag; máy nhận chạy `--may --ref v<số>` SAU khi cài. Giới hạn (hồ sơ
+`kiem-ban-cai-sau-phat-hanh`, design §4): tác tử chấm đo tĩnh (tệp định nghĩa có mặt và đúng — lỗi nạp ở tầng
+Claude Code lọt); CI GitHub không chạy (không có CLI `claude`); bước sau-tag là lời dặn; nhận diện lượt mốc theo
+số của gói gốc.
+
 ## 8. Tinh chỉnh cho repo của đội
 
 **Model routing** (`feature_loop.models.<role>`) — chỉnh chi phí/chất lượng đội verify
@@ -1743,6 +1766,48 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
 - CHỈ câu hỏi đóng ("có thấy video player không?"); câu hỏi mở về thẩm mỹ
   thuộc judgment/design-pass — No blind VLM judge. Opt-in từng eval, EVAL-GEN
   không tự thêm.
+
+### 8.2 Luật sản phẩm của kho (`PRODUCT-INVARIANTS.md`)
+
+Kho nào có luật sản phẩm phải đúng xuyên mọi tính năng — ví dụ «khác nhau giữa các tổ chức là cấu
+hình, không ghi cứng» — thì viết chúng vào **một tệp ở gốc kho**, tên cố định `PRODUCT-INVARIANTS.md`,
+theo khuôn `skills/acceptance/references/product-invariants-template.md` (khối marker
+`PRODUCT-INVARIANTS-TEMPLATE`). Tệp là **của kho**: chủ kho viết và sửa bằng commit riêng; máy không
+bao giờ sửa nó. **Kho không có tệp thì không gì đổi** — không dòng nạp, không cờ, thẻ y nguyên.
+
+Mỗi luật: `## SP-<số> · <câu luật>` + các dòng `Mức` (`thường` / `khó đảo`) · `Chủ luật` · `Giữ bằng`
+· `Dấu hiệu` (tuỳ chọn, biểu thức chính quy cho dòng mã mới trái luật) · `Phạm vi` (tuỳ chọn, glob) ·
+`Vì sao`. Khối sai khuôn bị bỏ và thẻ gọi tên nó; luật còn lại vẫn đọc.
+
+**Bước thiết kế** (S1 bước 0b của feature-loop) đọc trọn tệp và ghi một dòng nạp theo khuôn
+`DEC-LUAT-NAP` — dòng mang `luat_nap: {ban, so}`, `ban` = `git hash-object PRODUCT-INVARIANTS.md`.
+Lựa chọn theo một luật ghi căn cứ nguồn mục-tiêu trỏ tệp luật + câu luật (thẻ in «theo luật SP-n»).
+Lựa chọn trái một luật là câu chỉ-người mang `"pham_luat":"SP-<số>"` trong `can_cu`, `kho_dao: true`
+khi luật khó đảo; thẻ Cổng Phạm vi hỏi «Phạm luật SP-n — <câu> (chủ luật: <tên>)». Ba dòng đỏ:
+phạm luật mà ghi máy đã quyết · mã luật không có trong tệp · luật khó đảo mà thiếu nhãn khó-đảo.
+Hồ sơ nháp ở kho có tệp mà thiếu dòng nạp, hoặc tệp đổi sau khi nạp → cờ vàng.
+
+**Lượt chấm** (S4 «Mọi verdict») chạy `scripts/luat-san-pham.cjs --quet --write`, ghi
+`_acceptance/<slug>/luat-cham.json`: chỗ dòng mã mới khớp dấu hiệu của một luật, và các commit sửa tệp
+luật — tách **máy** (có dòng `Co-Authored-By: Claude`) khỏi **chủ kho**. Thẻ Cổng Bằng chứng in khối
+«Luật sản phẩm bị chạm»; mỗi mã một ô trả lời:
+
+- `SP-<số>: sửa vật` (máy điền sẵn khuyến nghị) — trả hồ sơ về sửa; lượt này không ký.
+- `SP-<số>: chấp nhận có tên` — ngoại lệ có chủ ý: một dòng sổ `gate2` + một gạch known-limits.
+- `Tệp luật: <đã tách / lý do>` — chỉ khi máy sửa tệp luật trong vòng (cờ đỏ).
+
+Có chạm luật, máy sửa tệp luật, hoặc chưa soi luật trên bản đã chấm → vòng không đi làn V (cần người).
+
+**Để bộ tìm lỗi ở lượt chấm thấy luật**, thêm một dòng trỏ vào `CLAUDE.md` của kho: bộ tìm lỗi đọc
+`CLAUDE.md` / `CONTRIBUTING.md`, không đọc tệp luật hay hợp đồng. Mục ngoài hợp đồng nhắc một mã có
+trong tệp mang nhãn «luật SP-n · <mức>» trên thẻ.
+
+**Đường đo cho Cổng Giá trị:** `node scripts/luat-san-pham.cjs --root . --dem --tu <ngày khai>` —
+mỗi hồ sơ một hàng: dòng nạp · phạm ở thiết kế · chạm trên diff · nhãn ngoài hợp đồng · máy sửa tệp
+luật · chủ kho sửa tệp luật. Ngày khai (commit đầu thêm tệp luật) lệnh in ra.
+
+**Giới hạn đã khai** (ADR 0024): bộ soi khớp chữ theo dấu hiệu kho tự khai; lưới trước-gộp (CI) không
+biết luật sản phẩm — chặn nằm ở thẻ và làn V.
 
 ## 9. Xử lý sự cố
 

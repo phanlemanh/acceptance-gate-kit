@@ -84,6 +84,21 @@ bản gom, commit, chạy lại tới xanh. 2 → không chạy được (kho ch
 Commit ĐẦU TIÊN của bản gom mà răng xanh là MỐC so cho «chủ kho sửa bao nhiêu nhóm» — các lượt máy sửa
 cho răng xanh không tính là người sửa. Đừng gộp nhiều lần sửa cho răng vào một commit với sửa của người.
 
+Răng xanh rồi thì kiểm câu cho người gửi. Tên nhóm và lý do bạn viết hiện NGUYÊN VĂN cho người gửi tín
+hiệu (người phòng ban, không dùng git) — trong câu «đã vào nhóm "<tên nhóm>" …»:
+
+<!-- <<<GOM-CAU -->
+```bash
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/tin-hieu.mjs" --root . --cau
+```
+<!-- GOM-CAU>>> -->
+
+Mã thoát 0 → một dòng tóm tắt (số câu, số mã đã kiểm, số mã bỏ qua vì giống chữ thường). 1 → mỗi dòng
+một câu lọt mã (id tín hiệu, mã nhóm, mã việc, tên hồ sơ) hay từ nội bộ (khối `TIN-HIEU-CAU-CAM` của khuôn
+tín hiệu): viết lại tên nhóm hoặc lý do bằng tiếng sản phẩm, commit, chạy lại răng và lệnh này tới xanh.
+Câu lọt vì câu giao của một việc trong tệp lộ trình thì báo chủ kho sửa câu giao — đó là tệp ý định của
+người, bạn không sửa.
+
 ## Bước 4 — chuyển cho cắt lượt
 
 Bản gom xanh là bản phạm vi của đợt: gọi skill `cat-luot` với chính tệp này (`--pham-vi <tệp bản gom>`).
@@ -97,9 +112,10 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/tin-hieu.mjs" --root . --
 ```
 <!-- GOM-DUONG>>> -->
 
-Mỗi tín hiệu một bản ghi với câu `cau` dựng từ khuôn câu cố định: chưa gom · lẻ (lý do) · đã có việc đã
-giao · vào nhóm, chưa thành việc · vào nhóm, để sau · vào nhóm → việc → hồ sơ: trạng thái. Thêm
-`--id <id>` để in một tín hiệu. Khi kho khai cả lộ trình, trang lộ trình mang cùng mảng này trong khối
+Mỗi tín hiệu một bản ghi. Câu cho người gửi là `cau_nguoi_gui` — tiếng sản phẩm, không mã: chưa xếp
+nhóm · không xếp vào nhóm nào (lý do) · đã có trong việc đã giao · đã vào nhóm, nhóm chưa thành việc · đã
+vào nhóm, để sau · đã vào nhóm và thành việc "<câu giao>" — tình trạng (đã giao ngày …). Câu `cau` là bản
+cho chủ kho, có mã để lần — đừng chuyển nó cho người gửi. Thêm `--id <id>` để in một tín hiệu. Khi kho khai cả lộ trình, trang lộ trình mang cùng mảng này trong khối
 dữ liệu (khoá `tin_hieu`) để bản chiếu của kho hiện cho người gửi.
 
 ## Không làm

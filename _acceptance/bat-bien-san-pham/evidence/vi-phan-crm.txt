@@ -1,0 +1,8 @@
+# Vi phân AC-2 — chân crm (chạy tay một lần, 12/10)
+crm origin/onehub 27d47de04 · _acceptance rút bằng git archive (chỉ đọc) · gốc vòng e8ef5e20 · cây BB1 d51bda5b (mã chạy lúc khoá máy tới lượt)
+
+[khoá] BB1 vi phân crm giữ máy: env LS_CRM_ROOT=/var/folders/6x/1dlzszm51wzbt20dn5y1lgzh0000gn/T/tmp.q9Q8WSJL6d LS_CASES=LS-02 node tests/scripts/luat-san-pham.ca.mjs
+  PASS: LS-02 vi-phan kit=136 crm=228
+  PASS: LS-02 vi-phan
+  PASS: LS-02-do
+luat-san-pham.ca: 2 đạt, 0 trượt

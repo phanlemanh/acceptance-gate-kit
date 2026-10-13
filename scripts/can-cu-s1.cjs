@@ -27,6 +27,9 @@ const LY_DO = {
   'thieu-loi-chet': 'một lối ra nhưng không nói lối khác chết vì sao',
   'thieu-khuyen': 'câu chỉ-người-biết thiếu khuyến nghị hoặc lối khác',
 };
+// Luật sản phẩm của kho (bat-bien-san-pham): ba luật đỏ của pham_luat. Vắng mô-đun (bản sao đứng một mình) →
+// dòng mang pham_luat ĐỎ luat-vang (đóng an toàn), mọi dòng khác xếp như cũ.
+let luatSP = null; try { luatSP = require('./luat-san-pham.cjs'); Object.assign(LY_DO, luatSP.LY_DO_LUAT); } catch (_) { LY_DO['luat-vang'] = 'mã luật không có trong tệp luật sản phẩm'; }
 const GHI_CHU = { 'chua-kiem-goc': 'chưa kiểm câu trích có từ trước vòng' };
 // Chữ cờ trên thẻ Cổng Phạm vi — một nguồn cho thẻ và bộ kiểm.
 const CO = {
@@ -92,6 +95,8 @@ function phanLoaiDong(e, nc) {
   const c = e.can_cu;
   if (c === undefined) return ra('doi-truoc');
   if (!c || typeof c !== 'object' || Array.isArray(c) || !NGUON.includes(c.nguon)) return ra('do', 'nguon-la');
+  const pl = luatSP ? luatSP.xetPhamLuat(c, () => nc.luatSP || (nc.luatSP = luatSP.docTepLuat(nc.root))) : (typeof c.pham_luat === 'string' ? { lop: 'do', ma: 'luat-vang' } : null);
+  if (pl) return ra(pl.lop, pl.ma, pl.them);
   if (c.nguon === 'chi-nguoi') return chuoi(c.khuyen) && chuoi(c.loi_khac) ? ra('cau-hoi') : ra('do', 'thieu-khuyen');
   if (c.kho_dao === true) return ra('do', 'kho-dao');
   if (c.nguon === 'mot-loi') return chuoi(c.loi_chet) ? ra('da-quyet') : ra('do', 'thieu-loi-chet');

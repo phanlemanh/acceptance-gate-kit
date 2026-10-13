@@ -345,6 +345,8 @@ const BEN_DOC = {
   'feature-loop/workflows/acceptance-verify.js': 'khong-doc',
   'lib/workspace-record.cjs': 'khong-doc',
   'scripts/loi-ra-tran-luot.cjs': 'khong-doc',
+  // Hồ sơ kiem-ban-cai-sau-phat-hanh: lệnh kiểm bản cài VIẾT một evals.yaml tối thiểu cho kho giả lập, không đọc.
+  'scripts/kiem-ban-cai.mjs': 'khong-doc',
 };
 function benDocCua(root) {
   const out = [];

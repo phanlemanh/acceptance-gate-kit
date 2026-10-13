@@ -1,0 +1,159 @@
+schema_version: 1
+feature_slug: cau-tin-hieu-nguoi-gui
+# Ca đo sống ở tests/scripts/tin-hieu.test.mjs, mã ca CN-… (ca TH-… của hồ sơ L3 không đổi); executor
+# `executors.test.tin_hieu_cau` (TH_CASES liệt đúng các ca CN) và `executors.script.cau_crm` thêm ở S3.
+# Kho thử do mã sinh trong lượt (bộ dựng kho có sẵn của tệp ca, đường dẫn suy từ vị trí tệp); tín hiệu thử
+# từ khối TIN-HIEU-MAU, bản gom thử từ khối GOM-MAU — rút từ khuôn lúc chạy. Mỗi ca đỏ chạy CHÍNH hàm đo
+# trên bản sao vật bị tiêm (nhát tiêm khớp đúng một lần), SAU khi bản lành xanh trên cùng kho, và ghim thông
+# điệp rút từ đầu ra hàm đo. Mỗi eval ghim đúng dòng "PASS: CN-…".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, skills/acceptance/references/tin-hieu-template.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-1" — kho thử bảy chỗ + một «đã phủ» bởi việc approved (tín hiệu từ
+      TIN-HIEU-MAU, lộ trình thử có hàng câu giao bọc «», hồ sơ có `feature` bọc «»; hồ sơ đã ký mang bản chép
+      NGUYÊN VĂN `_acceptance/cua-tin-hieu-gom-nhom/evidence-report.md` của cây đang kiểm, đường suy từ vị trí
+      tệp ca): ngày mong đợi rút ĐỘC LẬP trong ca (biểu thức riêng trên dòng human_signoff của báo cáo thật,
+      in ra); `--duong` cho mỗi id một `cau_nguoi_gui` == bảng viết sẵn trong ca (tám dòng theo bảng nguyên
+      văn design §3), số chỗ đo == 7 và số bản ghi đo == 8 (in ra); với MỌI bản ghi, câu không chứa (ranh giới từ) id tín hiệu, mã nhóm, mã việc, slug
+      hàng, tên thư mục hồ sơ nào của kho thử — tập mã rút từ chính kho thử trong ca (đối chứng: câu `cau` cũ
+      của bản ghi «thành việc có hồ sơ» CÓ chứa mã việc và tên hồ sơ, tức phép quét bắt được). Và
+      "PASS: CN-1-do" — bản sao khuôn câu chỗ «thành việc» chèn mã việc thay câu giao: CHÍNH hàm đo trả lỗi
+      nêu «hang-co-ho-so»; "PASS: CN-1-do2" — bản sao bộ đọc ngày trả null: CHÍNH hàm đo trả lỗi nêu
+      «ngày».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-2" — bản base = cây đang kiểm chép trọn (scripts lib skills dieu-phoi) với
+      RIÊNG scripts/tin-hieu.mjs thay bằng `git show 294b29db:scripts/tin-hieu.mjs` (in sha); hai bản cùng chạy
+      `--duong` trên kho thử bảy chỗ: mỗi bản ghi mới bỏ `cau_nguoi_gui` deep-equal bản ghi base (cùng thứ tự
+      khoá), số bản ghi so == số tín hiệu (in ra); TRUONG_DUONG mới == TRUONG_DUONG base + ['cau_nguoi_gui'];
+      đối chứng dương: bản ghi mới KHÔNG bỏ trường thì khác base (phép so thấy khác biệt); ca im: bản base có
+      lo-trinh.mjs tiêm thêm một dòng chú thích vào trang vẽ → phép so bản ghi vẫn xanh. Và "PASS: CN-2-do"
+      — bản sao đổi câu `cau` của chỗ «để sau»: CHÍNH hàm đo trả lỗi nêu «chan-troi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-3" — ma trận toàn phần rút trong ca: mọi khoá của SECTIONS (import
+      product-map.mjs của cây đang kiểm) + CHUA_MO + KHONG_SUY + «chữ lạ thử» → hàm cụm tình trạng của mã trả
+      đúng cụm của bảng viết sẵn trong ca, và nhóm của cụm == nhóm tiến độ tính bằng DA_GIAO_O / DANG_LAM_O /
+      CHUA_LAM_O + CHUA_MO import từ lo-trinh.mjs; số chữ đo == số khoá SECTIONS + 3 (in ra); kho thử có ba
+      việc (đã ký · approved · chưa có hồ sơ): cụm trong `cau_nguoi_gui` của tín hiệu nối vào từng việc ứng
+      đúng `nhom_trang_thai` của hàng ấy trong khối lo-trinh-du-lieu của LO-TRINH.html vẽ cùng kho. Và
+      "PASS: CN-3-do" — bản sao product-map.mjs thêm ô `o-moi-thu` vào SECTIONS: CHÍNH hàm đo trả lỗi nêu
+      «o-moi-thu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-4" — ma trận sáu ca thiếu viết sẵn {viec-khong-cau-giao · phu-khong-feature
+      · giao-khong-chu-ky · phu-giao-khong-chu-ky · le-khong-ly-do · de-sau-khong-ly-do}, mỗi ca một kho thử:
+      `cau_nguoi_gui` == câu nguyên văn của bảng design §3 viết sẵn trong ca; với mọi câu: không chứa
+      «undefined», «null», chuỗi `""`, không kết bằng «:», «—» hay khoảng trắng; số ca đo == 6 (in ra). Và "PASS: CN-4-do" — bản sao khuôn câu bỏ nhánh dự
+      phòng của câu giao vắng: CHÍNH hàm đo trả lỗi nêu «viec-khong-cau-giao».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-5" — kho sạch: `--cau` thoát 0, stdout đúng một dòng bắt đầu «câu cho người
+      gửi:» chứa số câu == số tín hiệu, số mã kiểm và «bỏ qua»; ma trận đỏ viết sẵn {ten-nhom-id ·
+      ten-nhom-ho-so · le-ma-nhom · cau-giao-ma-viec · feature-ho-so} mỗi ca thoát 1, đúng một dòng lỗi
+      chứa id tín hiệu, mã lọt (viết sẵn trong ca) và nguyên `cau_nguoi_gui` của bản ghi ấy, số ca == 5 (in
+      ra); ca im: câu giao «đo trên khuôn quý 4» khi lộ trình có việc mã «4» → thoát 0 và số bỏ qua ≥ 1;
+      ca chữ ký không ngày: hồ sơ đã giao có `human_signoff: manh hôm qua` → thoát 1, dòng lỗi chứa tên hồ sơ
+      và «manh hôm qua»;
+      bốn lượt (sạch, một ca đỏ, ca im, `--cau` lặp) băm cây + `git status --porcelain` trước == sau. Và
+      "PASS: CN-5-do" — bản sao bỏ tên thư mục hồ sơ khỏi bộ mã: CHÍNH hàm đo trả lỗi nêu «ten-nhom-ho-so»;
+      "PASS: CN-5-do2" — bản sao bỏ bộ lọc mã giống chữ thường: CHÍNH hàm đo trả lỗi nêu «quy-4».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, skills/acceptance/references/tin-hieu-template.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-6" — từ thường ĐẦU TIÊN của khối TIN-HIEU-CAU-CAM (rút từ khuôn trong ca)
+      đặt vào lý do lẻ → `--cau` thoát 1, dòng lỗi chứa từ ấy và nguyên câu; cùng từ ở dạng NFD
+      (String.normalize('NFD') trong ca, ca kiểm chuỗi NFD khác chuỗi NFC) → vẫn thoát 1; từ `(khung)` «hồ sơ»
+      (rút từ khối, ca kiểm nó mang nhãn khung) trong câu giao «Mở hồ sơ khách hàng nhanh» → thoát 0; khối kê
+      ≥1 từ thường và ≥1 từ khung. Và "PASS: CN-6-do" — bản sao khuôn câu chỗ «chưa gom» chèn «hồ sơ»: CHÍNH
+      hàm đo trả lỗi nêu «hồ sơ»; "PASS: CN-6-do-tt" — bản sao cụm tình trạng «tạm hoãn» thành «tạm hoãn hồ
+      sơ» trên kho có việc xếp lại: hàm đo trả lỗi nêu «hồ sơ»; "PASS: CN-6-do2" — bản sao khuôn tín hiệu
+      thêm `- đội sản phẩm (khung)` vào khối: số câu đỏ == số câu mà phần kit viết chứa «đội sản phẩm» (đếm
+      độc lập trong ca, in ra, > 0); "PASS: CN-6-do3" — bản sao khuôn tín hiệu xoá khối: `--cau` thoát 2,
+      stderr nêu «TIN-HIEU-CAU-CAM»; "PASS: CN-6-do4" — bản sao bỏ bước chuẩn hoá NFC: hàm đo trả lỗi nêu
+      «nfd».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [scripts/tin-hieu.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-7" — LO-TRINH.html vẽ từ kho thử khai cửa; `cauChoNguoiGui` trên mọi bản
+      ghi của khối (rút bằng docDuLieu chép rời) trả {cau == cau_nguoi_gui, co: null}; bản sao trang gỡ
+      `cau_nguoi_gui` khỏi mọi bản ghi → mỗi bản ghi trả {cau == cau cũ, co chứa «bản vẽ cũ»}; docDuLieu chép
+      rời đọc hai trang: tin_hieu của mỗi trang deep-equal mảng trong chính trang ấy, canhBao hai trang
+      deep-equal; khối LO-TRINH-DU-LIEU-TUY-CHON == TRUONG_DUONG (hai chiều, gồm cau_nguoi_gui); đoạn khoá
+      tin_hieu của tài liệu chứa «cau_nguoi_gui» và «bản vẽ cũ». Và "PASS: CN-7-do" — bản sao tài liệu thiếu
+      dòng `tin_hieu.cau_nguoi_gui`: CHÍNH hàm đo trả lỗi nêu «cau_nguoi_gui».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.tin_hieu_cau
+    paths: [skills/gom-tin-hieu/SKILL.md, scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CN-8" — khối GOM-CAU của SKILL chạy nguyên văn (bash -c, env AG = gốc cây đang
+      kiểm): kho sạch thoát 0, kho có tên nhóm chứa id tín hiệu thoát 1 và stdout chứa «lọt mã»; vị trí trong
+      SKILL: GOM-RANG < GOM-CAU < «## Bước 4 — chuyển cho cắt lượt»; SKILL có câu nêu tên nhóm và lý do hiện
+      cho người gửi (chứa «người gửi»). Và "PASS: CN-8-do" — bản sao SKILL gõ sai lệnh trong GOM-CAU: CHÍNH
+      hàm đo trả lỗi nêu «GOM-CAU».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.cau_crm
+    paths: [scripts/tin-hieu.mjs, skills/acceptance/references/tin-hieu-template.md, _acceptance/cau-tin-hieu-nguoi-gui/rang/do-crm.mjs, _acceptance/cau-tin-hieu-nguoi-gui/mau/cau-mau.json]
+    expected: >
+      exit 0; stdout có "PASS: CRM-xanh" — bản sao crm (git archive 06e34d26c…, chỉ đọc kho crm) nối tín hiệu
+      mẫu vào việc đầu tiên của mỗi nhóm tiến độ crm đang có (in tên nhóm tiến độ và mã việc đã chọn) và vào
+      một hồ sơ đã giao thật: `--cau` thoát 0; câu của mỗi tín hiệu nối vào việc chứa đúng câu giao thật của
+      việc ấy (bỏ «» bằng boNgoacNgoai); câu của tín hiệu phủ hồ sơ đã giao thật chứa « ngày n/t/năm» == ngày
+      rút độc lập (biểu thức riêng của script) từ dòng human_signoff của báo cáo crm ở sha đã ghim; "PASS: CRM-mau" — mau/cau-mau.json đã commit deep-equal bản sinh lại
+      (kho thử bảy chỗ + bản sao crm); "PASS: CRM-do" — cùng bản sao, tên nhóm đổi thành chuỗi chứa tên một thư
+      mục hồ sơ crm thật: `--cau` thoát 1, dòng lỗi chứa tên ấy. crm vắng → thoát 2, stderr nêu đường đã thử.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    inputs: [_acceptance/cau-tin-hieu-nguoi-gui/mau/cau-mau.json]
+    question: >
+      cau-mau.json chứa câu kit viết cho người gửi tín hiệu (trường cau_nguoi_gui) ở bảy chỗ một tín hiệu có
+      thể đứng — trên kho thử và trên bản sao dữ liệu thật của CRM — cạnh câu cũ cho chủ kho (trường cau,
+      KHÔNG chấm). Đóng vai một nhân viên phòng ban dùng CRM, không dùng git, không biết mã việc hay hồ sơ là
+      gì, vừa mở trang «Tín hiệu đã gửi». Với từng câu cau_nguoi_gui: người ấy có hiểu tín hiệu của mình đang
+      ở đâu không — đã vào nhóm nào, đã thành việc gì, đã giao chưa và ngày nào nếu có, hay vì sao chưa? Câu
+      có chữ nào họ không hiểu — mã việc, tên thư mục, chữ của quy trình bên trong (gom, lẻ, hồ sơ, lượt, bản
+      phạm vi)? PASS khi mọi câu đọc được, kèm trích từng câu; FAIL nêu câu và chữ gây vấp; UNCERTAIN khi tệp
+      không đọc được.
+    paths: [scripts/tin-hieu.mjs, _acceptance/cau-tin-hieu-nguoi-gui/mau/cau-mau.json]
+    expected: PASS kèm trích từng câu; FAIL nêu câu và chữ gây vấp
+    evidence_required: [judged_by, verdict, rationale]

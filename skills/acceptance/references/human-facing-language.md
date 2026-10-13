@@ -275,6 +275,8 @@ g2 cắt/hoãn
 g2 Treo
 g2 ký hay trả
 g2 đi tiếp hay kéo lại
+g2 SP-<số>
+g2 Tệp luật
 extra tên
 extra phút
 <!-- GATE-ONESHOT-SLOTS>>> -->
