@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs + khuôn tín hiệu + tài liệu khối dữ liệu (đoạn tin_hieu) + skill gom + CONTEXT + test — không chạm lib/**, hooks/**, scripts/lo-trinh.mjs, dieu-phoi/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-cau-tin-hieu-nguoi-gui-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
