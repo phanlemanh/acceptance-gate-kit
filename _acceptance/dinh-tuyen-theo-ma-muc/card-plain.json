@@ -1,33 +1,3 @@
 {
-  "feature_plain": "Quyết định người ký cho một mục ngoài hợp đồng sẽ bám theo chính mục đó (tên + tệp), không bám theo số thứ tự — nên khi lượt chấm sau chèn mục mới lên đầu, mục mới không bị coi là «đã có người quyết».",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ khớp quyết định đã ký vào đúng mục dù mục lùi số; mục mới chèn đầu được báo là chưa ai quyết; mục mới trùng tên với mục cũ cũng không thừa hưởng quyết định cũ."},
-    {"id": "AC-2", "p": "Sẽ bắt đúng ca crm: 8 quyết định ký theo số, rồi một lượt chấm mới chèn mục — cả 9 mục được hỏi lại kèm lý do «ghi trước lượt chấm»; trước lượt chấm mới, hồ sơ vẫn đi như hôm nay."},
-    {"id": "AC-3", "p": "Sẽ cho đúng kết quả trên 14 tình huống viết sẵn: tên khớp/lệch số, mục biến mất, hai mục trùng tên, dòng cũ/mới, giờ ghi tay muộn hoặc mang múi giờ +07:00."},
-    {"id": "AC-4", "p": "Sẽ để lưới trước-gộp và máy quét hồ sơ cho cùng một câu trả lời trên 14 tình huống đó; hồ sơ máy-thông đang đứng trên quyết định cũ bị chặn có tên."},
-    {"id": "AC-5", "p": "Sẽ báo lỗi to tiếng khi một chỗ gọi luật «xanh-sạch» quên đưa nhật ký lượt chấm — không âm thầm bỏ qua phép so thời điểm."},
-    {"id": "AC-6", "p": "Sẽ để máy tự định tuyến khớp dòng của chính nó theo tên mục; gặp quyết định người ghi theo số đã cũ thì máy dừng, không ghi đè."},
-    {"id": "AC-7", "p": "Sẽ hiện cờ vàng trên thẻ Cổng Bằng chứng nêu các mục có quyết định cũ và giờ lượt chấm; thẻ của mọi hồ sơ đã ký trong kho kit giữ nguyên cách chia hỏi/báo."},
-    {"id": "AC-8", "p": "Sẽ để lệnh ký từ nay ghi tên + tệp của mục vào sổ; kiểm khứ hồi: dòng viết theo khuôn mới vẫn khớp đúng mục sau khi đánh số lại."},
-    {"id": "AC-9", "p": "Sẽ đo trên chính kho kit: đúng một hồ sơ chưa ký đổi kết quả (tac-tu-cham-chi-cham-khong), và hồ sơ đó được xử trong PR này nên lưới kit không đỏ."}
-  ],
-  "wont_do": [
-    {"id": "OOS-1", "p": "KHÔNG viết lại sổ cũ ở các kho — dòng cũ được đọc khoan dung, người quyết lại khi có lượt chấm sau."},
-    {"id": "OOS-2", "p": "KHÔNG đổi cách thẻ Cổng Bằng chứng chia mục hỏi/báo."},
-    {"id": "OOS-3", "p": "KHÔNG đổi khuôn dòng sổ của máy tự định tuyến (giữ như vòng A3)."},
-    {"id": "OOS-4", "p": "KHÔNG xử hồ sơ crm zalo-qua-webhook ở đây — việc đó vào danh sách kiểm khi crm nhận 2.29.1."}
-  ],
-  "coverage_plain": [
-    {"i": 0, "p": "Hình dạng dòng sổ: có tên mục, chỉ số, khoảng số, dòng máy — đủ vì đã đo 2 235 dòng thật ở 8 kho (AC-1, AC-3, AC-6)."},
-    {"i": 1, "p": "Thời điểm dòng so với lượt chấm: sau, trước, giờ hỏng, không có nhật ký lượt — đủ vì đo được 181 dòng cũ và 7 dòng giờ hỏng (AC-2, AC-3)."},
-    {"i": 2, "p": "Cách mục đổi giữa hai lượt: giữ, lùi số, biến mất, trùng tên, mang nhãn lượt — đủ vì phủ ba ca thật crm/kit (AC-1, AC-3)."},
-    {"i": 3, "p": "Mọi chỗ đọc luật: máy quét, lưới gộp, thẻ, máy tự định tuyến, bản đồ — đủ vì danh sách rút bằng quét mã, không gõ tay (AC-4, AC-5, AC-7)."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Giờ ghi tay có thể muộn hơn thật hoặc mang múi giờ khác — đã sửa: lấy giờ sớm nhất giữa giờ ghi tay và giờ máy in trong mã dòng, thêm hai tình huống đo."},
-    {"i": 1, "p": "Căn cứ chọn «tên + tệp» làm khoá chỉ liên quan chứ chưa quyết — đã sửa: ghi lại căn cứ là lối duy nhất còn sống trong một bản vá (mã do bên viết phát phải đổi khuôn ở mọi kho)."},
-    {"i": 2, "p": "Chép tên lệch một hàng hoặc mục mới trùng tên có thể nhận nhầm quyết định — đã sửa: số mâu thuẫn tên thì không khớp gì; dòng cũ chỉ khớp mục được mang sang có nhãn lượt."},
-    {"i": 3, "p": "Chưa chứng mọi lượt chấm đều ghi dấu giờ vào nhật ký — đã sửa: dẫn bài kiểm sẵn có (mọi kết cục lượt chấm đều ghi dấu), và khai rõ chỗ còn hở kèm ngưỡng."},
-    {"i": 4, "p": "Phép đo trên kho kit so với mốc trôi theo lúc gộp — đã sửa: ghim mốc cố định rút bằng lệnh, chỉ xét đúng hồ sơ đã khai."}
-  ]
+  "feature_plain": "Quyết định người ký cho một mục ngoài hợp đồng nay bám theo chính mục đó (tên + tệp), không theo số thứ tự — lượt chấm sau chèn mục mới lên đầu thì mục mới được hỏi lại, không bị coi là đã có người quyết; dòng sổ cũ chỉ ghi số mà ghi trước một lượt chấm thì được hỏi lại kèm cờ vàng."
 }
