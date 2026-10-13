@@ -14,10 +14,11 @@
 // Dòng máy KHÔNG mang `decided_by`: scripts/ho-so-tom-tat.cjs (`laNguoi`) coi decided_by khác rỗng
 // là người. Dấu máy là khoá `may`. Đọc-cũ: sổ không có dòng nào mang khoá đó → mọi bộ đọc như cũ.
 //
-// GIỚI HẠN ĐÃ KHAI (design §5): dòng máy cũ trỏ nhầm mục sau một lượt chấm mới — bên ghi này và
-// thẻ bắt (so `tieu_de`, sau khi gỡ nhãn lượt), lưới trước-merge (lib) KHÔNG bắt. Ngưỡng mở vòng sửa
-// lib: ≥1 hồ sơ có dòng máy lệch mục — đếm bằng `--soat-lech --root <repo>` (thoát 2 khi có), lệnh
-// KHÔNG đọc khoá kho và KHÔNG xét điều kiện hồ sơ, nên đếm được cả hồ sơ đã máy thông hay đã ký.
+// Dòng sổ → mục đi qua MỘT bộ phân giải (`ganDinhTuyen` của lib/out-of-contract.cjs, hồ sơ
+// dinh-tuyen-theo-ma-muc): dòng máy khớp theo mã mục (tiêu đề gỡ nhãn lượt), nên mục đổi số ở lượt chấm
+// sau vẫn khớp đúng; dòng máy không còn mục nào cùng mã là «lệch» (thoát 2). Dòng NGƯỜI chỉ số ghi
+// trước một lượt chấm → máy KHÔNG ghi gì (thoát 2): mục ấy người từng quyết theo số cũ.
+// `--soat-lech` vẫn đếm theo VỊ TRÍ (dòng máy ở số n mà mục ở n khác tiêu đề) — bộ đếm khai cũ, giữ nguyên.
 const fs = require('fs');
 const path = require('path');
 
@@ -101,27 +102,25 @@ function docDinhTuyen(ledgerText) {
   return map;
 }
 
-// Nhãn lượt mà bước mang-sang của S4 chèn vào tiêu đề mục («X (r1)», «X (r1 · tệp đã đổi)») — cùng
-// hình dạng nhóm nhãn của OOC_TITLE_RE trong lib/out-of-contract.cjs (bộ đọc chuẩn hoá hai cách viết
-// về «<tiêu đề> (rN…)»). Gỡ nhãn trước khi so: cùng mục ở lượt sau không phải mục đã đổi.
-const NHAN_LUOT_RE = /\s+\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)\s*$/;
-const tieuDeGoc = s => String(s == null ? '' : s).replace(NHAN_LUOT_RE, '').trim();
-// MỘT hàm so «cùng mục» — bên ghi, soát lệch và thẻ (scripts/gate-card.js) cùng gọi.
-const cungMuc = (a, b) => a != null && b != null && tieuDeGoc(a) === tieuDeGoc(b);
+// Hàm gỡ nhãn lượt và so «cùng mục» sống ở lib/out-of-contract.cjs (một nguồn với bộ phân giải và
+// lưới trước-merge — lib là lớp CI vendored, tự đủ); bên ghi, soát lệch và thẻ cùng gọi.
+const { tieuDeGoc, cungMuc } = ooc;
+// Đề xuất (token máy) của một dòng sổ, từ chữ người sau dấu hai chấm — thẻ dùng cho dòng máy.
+const deXuatCua = decision => GLOSS_TOKEN[String(decision || '').replace(/^[^:]*:\s*/, '').trim()] || '';
 
 // Kế hoạch thuần (không I/O) — bên CLI và test cùng gọi.
-function keHoach({ contract, evidence, findings, ledger, config }) {
+function keHoach({ contract, evidence, findings, ledger, config, runLog }) {
   if (!docKhoa(config).bat) return { tat: true };
   const tr = veTruot({ contract, evidence, findings });
   if (tr) return { truot: tr };
   const p = ooc.parse(findings == null ? '' : findings);
-  const dt = docDinhTuyen(ledger);
-  const lech = [], ghi = [];
-  p.findings.forEach((f, i) => {
-    const n = i + 1, d = dt.get(n);
-    if (d) { if (d.may && !cungMuc(d.tieu_de, f.title)) lech.push({ n, cu: d.tieu_de, moi: f.title }); return; }
-    if (TOKEN_MAY.includes(f.proposal)) ghi.push({ n, token: f.proposal, f });
-  });
+  const g = ooc.ganDinhTuyen(p, ledger, runLog);
+  const chuaCo = p.findings.some((_, i) => !g.gan[i]);
+  // Dòng người theo số ghi trước một lượt chấm: mục người từng quyết có thể đã đổi số — máy không ghi đè.
+  if (g.soCu.length && chuaCo) return { cu: { luot: g.luotCuoi, so: g.soCu } };
+  const lech = g.moCoi.filter(m => m.may === DAU_MAY).map(m => ({ n: m.n, cu: m.tieu_de, moi: m.n && p.findings[m.n - 1] ? p.findings[m.n - 1].title : '(không còn mục ở vị trí này)' }));
+  const ghi = [];
+  p.findings.forEach((f, i) => { if (!g.gan[i] && TOKEN_MAY.includes(f.proposal)) ghi.push({ n: i + 1, token: f.proposal, f }); });
   return { lech, ghi };
 }
 
@@ -198,10 +197,14 @@ function chay(argv) {
   const ledger = doc(ledgerPath) || '';
   let k;
   try {
-    k = keHoach({ contract, evidence: doc(path.join(dir, 'evidence-report.md')), findings: doc(path.join(dir, 'review-findings.md')), ledger, config: doc(path.join(root, '_acceptance', 'config.yaml')) });
+    k = keHoach({ contract, evidence: doc(path.join(dir, 'evidence-report.md')), findings: doc(path.join(dir, 'review-findings.md')), ledger, config: doc(path.join(root, '_acceptance', 'config.yaml')), runLog: doc(path.join(dir, 'run-log.jsonl')) });
   } catch (e) { console.error(`dinh-tuyen-may: ${e.message}`); return 2; }
   if (k.tat) { console.log(`dinh-tuyen-may: tắt (${KHOA} vắng hoặc false)`); return 0; }
   if (k.truot) { console.log(`không định tuyến: ${k.truot.ly_do}`); return 0; }
+  if (k.cu) {
+    console.error(`dinh-tuyen-may: dòng sổ người theo số ghi trước lượt chấm ${k.cu.luot} (${k.cu.so.map(n => 'Ngoài-' + n).join(', ')}) — mục có thể đã đổi số kể từ khi người quyết; người định tuyến lại ở Cổng 2`);
+    return 2;
+  }
   if (k.lech.length) {
     console.error('dinh-tuyen-may: dòng máy trỏ mục đã đổi — ' + k.lech.map(x => `Ngoài-${x.n}: dòng máy «${x.cu}» ≠ mục hiện tại «${x.moi}»`).join(' · '));
     return 2;
@@ -228,6 +231,6 @@ function chay(argv) {
   return 0;
 }
 
-module.exports = { KHOA, DAU_MAY, KHUON_DONG, VE, docKhoa, veTruot, soNhan, docDinhTuyen, keHoach, themNotes, lenhDao, tieuDeGoc, cungMuc, soatLech };
+module.exports = { KHOA, DAU_MAY, KHUON_DONG, VE, docKhoa, veTruot, soNhan, docDinhTuyen, keHoach, themNotes, lenhDao, tieuDeGoc, cungMuc, deXuatCua, soatLech };
 
 if (require.main === module) process.exit(chay(process.argv.slice(2)));

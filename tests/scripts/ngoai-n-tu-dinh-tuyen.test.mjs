@@ -10,7 +10,7 @@
 //
 // Chạy một phần: NT_CASES=NT1,NT4 node tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs
 // Bộ lọc có SÀN ĐẾM: tên không khớp ca nào → exit 1.
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, copyFileSync, existsSync, readdirSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, copyFileSync, existsSync, readdirSync, symlinkSync, cpSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -100,6 +100,18 @@ const goiTen = (h, n) => dongMay(h).filter(e => new RegExp(`^Ngoài-${n}:`).test
 
 // Bản sao bị tiêm: chép NGUYÊN thư mục scripts/ (require theo realpath — symlink tệp sẽ trỏ về bản
 // lành), symlink lib/ skills/ feature-loop/. Tiêm phải ĐỔI được nguồn, không thì ca nói rõ.
+// Bản sao tiêm vào LIB (hàm gỡ nhãn sống ở lib/out-of-contract.cjs từ hồ sơ dinh-tuyen-theo-ma-muc):
+// chép cả scripts/ lẫn lib/ — require theo realpath, symlink lib sẽ trỏ về bản lành.
+function banSaoLib(tep, tu, thanh) {
+  const T = mkdtempSync(path.join(tmpdir(), 'nt-mut-')); tmpRoots.push(T);
+  for (const d of ['scripts', 'lib']) cpSync(path.join(ROOT, d), path.join(T, d), { recursive: true });
+  for (const d of ['skills', 'feature-loop']) symlinkSync(path.join(ROOT, d), path.join(T, d));
+  const p = path.join(T, 'lib', tep), goc = readFileSync(p, 'utf8');
+  const moi = goc.split(tu).join(thanh);
+  if (moi === goc) throw new Error(`đột biến không áp được vào lib/${tep}: không thấy «${tu.slice(0, 60)}»`);
+  writeFileSync(p, moi);
+  return path.join(T, 'scripts');
+}
 function banSao(tep, tu, thanh) {
   const T = mkdtempSync(path.join(tmpdir(), 'nt-mut-')); tmpRoots.push(T);
   mkdirSync(path.join(T, 'scripts'));
@@ -277,7 +289,8 @@ if (want('NT3')) {
   });
   doCa('NT3-do', 'bo-hoi-so', {
     lanh: () => { const r = run(SCRIPT, hoSoNT3(MA_TRAN_NT3[3][1]).h); return { ok: r.status === 0 && r.out.startsWith('dinh-tuyen-may: 1 mục'), out: r.out }; },
-    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'const n = i + 1, d = dt.get(n);', 'const n = i + 1, d = null;'); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), hoSoNT3(MA_TRAN_NT3[3][1]).h)); },
+    // Bên ghi hỏi bộ phân giải của lib (hồ sơ dinh-tuyen-theo-ma-muc): bỏ câu hỏi «mục đã định tuyến chưa».
+    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'if (!g.gan[i] && TOKEN_MAY.includes(f.proposal))', 'if (TOKEN_MAY.includes(f.proposal))'); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), hoSoNT3(MA_TRAN_NT3[3][1]).h)); },
     ghim: ['dinh-tuyen-may: 2 mục'],
   });
   doCa('NT3-do', 'thoat-som', {
@@ -285,10 +298,13 @@ if (want('NT3')) {
     dot: () => { const m = banSao('dinh-tuyen-may.cjs', '  if (k.tat) {', '  process.exit(1); if (k.tat) {'); const c = chamNT3(path.join(m, 'dinh-tuyen-may.cjs')); return `số hàng đỏ ${c.loi.length}\n${c.log.join('\n')}`; },
     ghim: ['số hàng đỏ 6', 'thoát 1, dòng máy mới 0, đối chứng 0'],
   });
+  // Đọc số của dòng NGƯỜI chỉ số sống ở lib từ hồ sơ dinh-tuyen-theo-ma-muc (dòng máy khớp theo mã,
+  // không còn nhạy với lớp này): dòng «Ngoài-11» đọc kiểu chuỗi-con sẽ nuốt luôn Ngoài-1.
+  const MUOI_MOT_NGUOI = () => hoSo('nt3n', { findings: findingsText(Array.from({ length: 11 }, (_, i) => muc(i + 1, 'known-limits'))), ledger: LEDGER_SAN + gate2Nguoi('Ngoài-11: ghi Known limits') + '\n' });
   doCa('NT3-do', 'chuoi-con', {
-    lanh: () => { const r = run(SCRIPT, MUOI_MOT()); return { ok: r.status === 0 && r.out === 'dinh-tuyen-may: 0 mục', out: r.out }; },
-    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'for (const n of soNhan(e.decision)) {', "for (const n of Array.from({ length: 30 }, (_, i) => i + 1).filter(i => String(e.decision).includes('Ngoài-' + i))) {"); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), MUOI_MOT())); },
-    ghim: ['dòng máy trỏ mục đã đổi', 'Ngoài-1:', 'loi so 11'],
+    lanh: () => { const r = run(SCRIPT, MUOI_MOT_NGUOI()); return { ok: r.status === 0 && r.out.startsWith('dinh-tuyen-may: 10 mục'), out: r.out }; },
+    dot: () => { const m = banSaoLib('out-of-contract.cjs', 'const soCuaDong = d => {', "const soCuaDong = d => Array.from({ length: 30 }, (_, i) => i + 1).filter(i => String(d).includes('Ngoài-' + i)); const soCuaDongGoc = d => {"); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), MUOI_MOT_NGUOI())); },
+    ghim: ['dinh-tuyen-may: 9 mục'],
   });
 }
 
@@ -390,7 +406,9 @@ if (want('NT5')) {
   });
   doCa('NT5-do', 'thieu-nhan', {
     lanh: () => { const h = khoGit('nt5a', BIEN_A()); ghiVaCommit(SCRIPT, h); const k = kcn(h); return { ok: k.status === 0, out: `khong-can-nguoi thoát ${k.status}` }; },
-    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'decision: `Ngoài-${g.n}: ', 'decision: `'); const h = khoGit('nt5a', BIEN_A()); ghiVaCommit(path.join(m, 'dinh-tuyen-may.cjs'), h); return kcn(h).err; },
+    // Dòng máy được bộ đọc nhận qua HAI đường (số trong decision · mã tieu_de — hồ sơ dinh-tuyen-theo-ma-muc):
+    // đột biến gỡ cả hai thì làn V phải mù.
+    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'decision: `Ngoài-${g.n}: ', 'decision: `'); const p = path.join(m, 'dinh-tuyen-may.cjs'); const s = readFileSync(p, 'utf8'); if (!s.includes('may: DAU_MAY, tieu_de: g.f.title, dao:')) throw new Error('không thấy tieu_de trong dòng máy'); writeFileSync(p, s.replace('may: DAU_MAY, tieu_de: g.f.title, dao:', 'may: DAU_MAY, dao:')); const h = khoGit('nt5a', BIEN_A()); ghiVaCommit(p, h); return kcn(h).err; },
     ghim: ['chưa người định tuyến: Ngoài-1, Ngoài-2'],
   });
 }
@@ -420,8 +438,10 @@ if (want('NT6')) {
   });
   doCa('NT6-do', 'bo-so-tieu-de', {
     lanh: () => { const r = run(SCRIPT, h); return { ok: r.status === 2 && r.err.includes('dòng máy trỏ mục đã đổi'), out: r.err }; },
-    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'if (d.may && !cungMuc(d.tieu_de, f.title))', 'if (false)'); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), h)); },
-    ghim: ['dinh-tuyen-may: 0 mục'],
+    // Bộ phân giải dời về lib (hồ sơ dinh-tuyen-theo-ma-muc): bỏ phép so tiêu đề = bỏ danh sách lệch, mục
+    // mồ côi rơi về «chưa định tuyến» nên máy ghi đè đề xuất của chính nó lên hai mục đã đảo.
+    dot: () => { const m = banSao('dinh-tuyen-may.cjs', 'const lech = g.moCoi.filter(m => m.may === DAU_MAY)', 'const lech = [].filter(m => m)'); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), h)); },
+    ghim: ['dinh-tuyen-may: 2 mục'],
   });
 }
 if (want('NT7')) {
@@ -473,7 +493,8 @@ if (want('NT7')) {
     const nhanMay = card => JSON.stringify((the(h4, card).j.out_of_contract.dinh_tuyen_may || []).map(x => x.nhan));
     doCa('NT7-do', 'dong-dau', {
       lanh: () => { const o = nhanMay(CARD); return { ok: o === '["Ngoài-1","Ngoài-3"]', out: o }; },
-      dot: () => nhanMay(path.join(banSao('dinh-tuyen-may.cjs', '      map.set(n, {', '      if (!map.has(n)) map.set(n, {'), 'gate-card.js')),
+      // «Dòng sau thắng» sống ở bộ phân giải của lib từ hồ sơ dinh-tuyen-theo-ma-muc: đột biến cho dòng ĐẦU thắng.
+      dot: () => nhanMay(path.join(banSaoLib('out-of-contract.cjs', 'if (n >= 1 && n <= L.length) gan[n - 1] =', 'if (n >= 1 && n <= L.length && !gan[n - 1]) gan[n - 1] ='), 'gate-card.js')),
       ghim: ['"Ngoài-2"'],
     });
   }
@@ -610,12 +631,14 @@ if (want('NT12')) {
   });
   ca('NT12', 'mot-ham', () => {
     const src = readFileSync(CARD, 'utf8');
-    if (!/dtmLib\.cungMuc\(/.test(src)) return 'gate-card.js không gọi cungMuc của bên ghi';
-    if (/NHAN_LUOT_RE|tieuDeGoc\s*=/.test(src)) return 'gate-card.js tự định nghĩa hàm gỡ nhãn';
+    // Một nguồn từ hồ sơ dinh-tuyen-theo-ma-muc: bộ phân giải + hàm gỡ nhãn sống ở lib; thẻ và bên ghi gọi lại.
+    if (!/ganDinhTuyen\(/.test(src)) return 'gate-card.js không gọi bộ phân giải ganDinhTuyen của lib';
+    if (/NHAN_LUOT_RE\s*=|tieuDeGoc\s*=/.test(src)) return 'gate-card.js tự định nghĩa hàm gỡ nhãn';
+    if (/NHAN_LUOT_RE\s*=|tieuDeGoc\s*=/.test(readFileSync(SCRIPT, 'utf8'))) return 'dinh-tuyen-may.cjs tự định nghĩa hàm gỡ nhãn';
   });
   doCa('NT12-do', 'bo-go-nhan', {
     lanh: () => { const r = run(SCRIPT, hoSoNT12('- **loi so 1 (r1)**')); return { ok: r.status === 0 && r.out === 'dinh-tuyen-may: 0 mục', out: r.out }; },
-    dot: () => { const m = banSao('dinh-tuyen-may.cjs', "const tieuDeGoc = s => String(s == null ? '' : s).replace(NHAN_LUOT_RE, '').trim();", "const tieuDeGoc = s => String(s == null ? '' : s).trim();"); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), hoSoNT12('- **loi so 1 (r1)**'))); },
+    dot: () => { const m = banSaoLib('out-of-contract.cjs', "const tieuDeGoc = s => String(s == null ? '' : s).replace(NHAN_LUOT_RE, '').trim();", "const tieuDeGoc = s => String(s == null ? '' : s).trim();"); return raNoi(run(path.join(m, 'dinh-tuyen-may.cjs'), hoSoNT12('- **loi so 1 (r1)**'))); },
     ghim: ['dòng máy trỏ mục đã đổi', 'loi so 1 (r1)'],
   });
 }

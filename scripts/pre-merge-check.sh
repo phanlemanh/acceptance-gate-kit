@@ -477,6 +477,25 @@ xanh_sach_check() { # <report path>
       *)       clean_ok=0; clean_why="review-findings.md có ${_ooc%%|*} mục ngoài hợp đồng chưa người định tuyến: ${_ooc#*|}" ;;
     esac
   fi
+  # Vế ba (hồ sơ dinh-tuyen-theo-ma-muc AC-4): dòng sổ theo SỐ ghi TRƯỚC một lượt chấm có thể trỏ mục
+  # đã đổi số (crm-onehub#375) — đọc lại bằng run-log.jsonl cạnh hồ sơ, CÙNG ba đối số bản mjs
+  # (khong-can-nguoi.mjs) truyền. Khối CHỈ THÊM (DV5): khối trên giữ nguyên, khối này chỉ chặt hơn.
+  if [ "$clean_ok" -eq 1 ] && [ -f "$_cdir/review-findings.md" ] && [ -f "$_cdir/run-log.jsonl" ]; then
+    local _ooc3
+    _ooc3="$(node -e '
+      const {mucChuaDinhTuyen,cumCu}=require(process.argv[1]);
+      const fs=require("fs");
+      const rd=p=>{try{return fs.readFileSync(p,"utf8")}catch{return null}};
+      const a=[rd(process.argv[2]),rd(process.argv[3]),rd(process.argv[4])];
+      const m=mucChuaDinhTuyen(a[0],a[1],a[2]);
+      process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", ")+cumCu(a[0],a[1],a[2]):"OK:"+m.tong);
+    ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" "$_cdir/run-log.jsonl" 2>/dev/null || printf '__LOI__')"
+    case "$_ooc3" in
+      OK:*) : ;;
+      __LOI__) clean_ok=0; clean_why="không đọc được review-findings.md × sổ quyết định × run-log (fail-closed)" ;;
+      *)       clean_ok=0; clean_why="review-findings.md có ${_ooc3%%|*} mục ngoài hợp đồng chưa người định tuyến: ${_ooc3#*|}" ;;
+    esac
+  fi
   CLEAN_WHY="$clean_why"
   [ "$clean_ok" -eq 1 ]
 }
