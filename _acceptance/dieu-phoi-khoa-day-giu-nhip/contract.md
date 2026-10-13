@@ -5,7 +5,7 @@ slug: dieu-phoi-khoa-day-giu-nhip
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: approved
+status: implemented
 design_doc: _acceptance/dieu-phoi-khoa-day-giu-nhip/design.md
 approved_by:
 approved_at:
