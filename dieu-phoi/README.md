@@ -83,7 +83,26 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 - Mỗi sự kiện `can_phan`: đọc dòng sự kiện. Với yêu cầu, ghi `tra-loi/<id>.json` gồm
   `{ket_qua, boi:"giam-sat", ly_do, luc}` và một dòng Nhật ký. Với `dich:"owner"`: gom lại, push tối
   đa 1 lần mỗi 30′.
-- Mở lại bảng: `<thư mục đợt>/bang.html`. Xem nhanh: `node "$GOI/scripts/dieu-phoi.mjs" xem`.
+- Mở lại bảng: `<thư mục đợt>/bang.html`. Xem nhanh: `node "$GOI/scripts/dieu-phoi.mjs" xem`. Bản máy đọc là
+  `xem --json`: một dòng JSON, gồm cùng mô hình mà `xem` vẽ, cộng dãy của cwd, dòng cảnh báo hai bản và độ lệch
+  múi giờ. Kho không có đợt thì in `{"dot":null}`.
+- **Khung trạng thái đợt trong app** (phần mod `hooks/mod/khung.ts`, hồ sơ `trang-thai-dot-dieu-phoi-tho`). Ở mọi
+  phiên trong kho có đợt, trên ô nhập có một dải một dòng:
+  `Đợt <tên> · <pha> · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`.
+  - Ở phiên thợ, dải thêm dãy của phiên đó. Khi giảm tải, dải mở đầu `GIẢM TẢI`.
+  - Nút `xem` trên dải mở pane «Đợt» với đúng nội dung `xem` in ra.
+  - Dải làm mới mỗi 20″ khi có đợt và mỗi 120″ khi không; kho không có đợt thì không có dải.
+  - `/dieu-phoi:xem` trả lời ngay, không tốn lượt model. Khi mod không chạy hoặc CLI lỗi, lệnh markdown cũ trả lời
+    qua model như trước.
+  - Mod chỉ đọc qua CLI và vẽ: không ghi tệp đợt, không nghe sự kiện cổng nào, không trả lời «cho phép». Răng
+    nằm ở `tests/dieu-phoi/kiem-khung.mjs` KH-09.
+  - Giới hạn đã khai, là nhãn chứ không phải việc:
+    - (1) chưa ai nhìn thấy dải trên app desktop; `plugin test` dựng cây theo bảng phần tử desktop nhưng không chạy
+      phần hiển thị.
+    - (2) `$.process.run` của mod trên desktop chưa được đo. Nếu nó không chạy, dải ghi «khung: không đọc được đợt»
+      và lệnh rơi về đường markdown.
+
+    Đợt đầu tiên của kho tiêu thụ chạy bản này sẽ đọc hai nhãn đó.
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 

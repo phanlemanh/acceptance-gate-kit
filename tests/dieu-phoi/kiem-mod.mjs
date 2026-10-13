@@ -65,7 +65,7 @@ const banTest = cacBan().find((b) => coLenh(b, 'test')) ?? null;
 const banValidate = cacBan().find((b) => coLenh(b, 'validate')) ?? null;
 const tenBan = (b) => (b ? spawnSync(b, ['--version'], { encoding: 'utf8', env: ENV }).stdout.trim() : 'không có');
 
-const { kiemKhungMod, MODULE_MOD } = await import(pathToFileURL(path.join(GOI, 'scripts', 'mod-luat.mjs')).href);
+const { kiemKhungMod, MODULE_MOD, tachSuKienValidate } = await import(pathToFileURL(path.join(GOI, 'scripts', 'mod-luat.mjs')).href);
 const FX = JSON.parse(fs.readFileSync(FX_TEP, 'utf8'));
 
 // ---- DP4-12 modules ----
@@ -156,7 +156,7 @@ function suKienValidate(gocGoi) {
   const cacLoi = bao ? [...(bao.manifest?.errors ?? []), ...(bao.contents ?? []).flatMap((c) => c.errors ?? [])] : null;
   const notes = bao ? (bao.contents ?? []).flatMap((c) => c.notes ?? []) : [];
   const dong = notes.find((n) => n.startsWith(`${MODULE_MOD} hooks:`));
-  const su = new Set(dong ? dong.slice(`${MODULE_MOD} hooks:`.length).split(',').map((x) => x.trim().replace(/\{.*\}$/, '')).filter(Boolean) : []);
+  const su = dong ? tachSuKienValidate(dong.slice(`${MODULE_MOD} hooks:`.length)) : new Set();
   return { ma: r.status, ok: bao?.success === true && cacLoi?.length === 0, cacLoi, su };
 }
 if (!banValidate) ket(false, 'DP4-13 validate', 'không có Claude Code có lệnh validate');
