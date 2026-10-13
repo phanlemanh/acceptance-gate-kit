@@ -145,8 +145,9 @@ evals:
       exit 0; stdout có "PASS: KB-10 chua-co-ban-moi" và "PASS: KB-10 doi-chung". Cấu hình Claude giả của ca: chỉ
       feature-loop được cài, từ bản sao HEAD có feature-loop/.claude-plugin/plugin.json số 0.0.1 → `--may --ref
       HEAD` thoát 1, dòng cuối bắt đầu `[kiem-ban-cai] TỔNG KẾT: ĐỎ` và chứa «không bản ghi nào mang số của»
-      (chua-co-ban-moi). Cài thêm acceptance-gate từ cùng bản sao (số đúng của HEAD) → cùng lệnh thoát 0
-      (doi-chung) — luật chỉ đỏ khi KHÔNG bản ghi nào được so.
+      (chua-co-ban-moi). Cài thêm dieu-phoi từ cùng bản sao (số đúng của HEAD, nguồn riêng không chứa tệp đã sửa —
+      gói gốc chép cả cây nên sẽ khác tag thật) → cùng lệnh thoát 0 (doi-chung) — luật chỉ đỏ khi KHÔNG bản ghi nào
+      được so.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-11

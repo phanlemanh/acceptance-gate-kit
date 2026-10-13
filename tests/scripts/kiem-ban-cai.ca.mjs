@@ -347,7 +347,8 @@ async function chayTron() {
         [k.ma === 1, `mong thoát 1 (${tomTat(k)})`],
         [k.cuoi.startsWith('[kiem-ban-cai] TỔNG KẾT: ĐỎ') && k.cuoi.includes('không bản ghi nào mang số của'), `dòng cuối «${k.cuoi}»`],
       ]);
-      claude(['plugin', 'install', `acceptance-gate@${CHO}`, '--scope', 'user'], env);
+      // Đối chứng bằng dieu-phoi: nguồn riêng của nó không chứa tệp đã sửa (gói gốc chép cả cây nên sẽ khác tag thật).
+      claude(['plugin', 'install', `dieu-phoi@${CHO}`, '--scope', 'user'], env);
       const k2 = chayKiem(['--may', '--ref', 'HEAD'], { env });
       kiem('KB-10 doi-chung', [[k2.ma === 0, `có một bản ghi đúng số mà vẫn đỏ (${tomTat(k2)})`]]);
     }

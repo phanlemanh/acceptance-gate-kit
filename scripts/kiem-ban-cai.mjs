@@ -388,7 +388,7 @@ export async function chay(argv, { out = (s) => process.stdout.write(s + '\n') }
     return a.may ? cheDoMay(a, sha, mf, out) : cheDoGiaLap(a, sha, mf, out);
   } catch (e) {
     // Mọi lỗi — kể cả lỗi chưa gọi tên — đi đường «không chạy được»: thoát 1 là dành cho bản cài ĐỎ.
-    const lyDo = e instanceof KhongChay ? e.message : `lỗi bất ngờ: ${(e && e.message) || e}`;
+    const lyDo = (e instanceof KhongChay ? e.message : `lỗi bất ngờ: ${(e && e.message) || e}`).replace(/\s*\n\s*/g, ' '); // dòng TỔNG KẾT luôn là MỘT dòng
     out(`${TIEN_TO} TỔNG KẾT: KHÔNG CHẠY ĐƯỢC — ${lyDo}`);
     return 2;
   }
