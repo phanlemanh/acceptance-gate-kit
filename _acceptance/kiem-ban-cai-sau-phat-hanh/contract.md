@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # máy suy: scripts/kiem-ban-cai.mjs mới + ca đo + _acceptance/config.yaml + CHANGELOG/GUIDE — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli, docs]
 design_doc: docs/superpowers/specs/2026-10-13-kiem-ban-cai-sau-phat-hanh-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -86,11 +86,12 @@ ghi tay, mỗi giá trị có ca:
   `schema_version: 1` tối thiểu, không do bên-viết của bản cài sinh — kho khách khởi tạo hồ sơ bằng phiên Claude điền
   khuôn chữ, không có bộ sinh máy để gọi. Khuôn giữ tối thiểu để bản cài của tag cũ vẫn đọc được; HEAD đổi khuôn mà
   tag cũ không đọc được thì KB-6 ĐỎ (không im). Ngưỡng mở ô: ≥1 lần KB-6 đỏ vì khuôn hồ sơ giả lập, không vì bản cài.
-- Known limits (Cổng Bằng chứng lượt 1, Ngoài-2): chú thích đầu `evals.yaml` nói khoá `kiem_ban_cai` nằm trong suite_keys —
-  thật ra khoá `kiem_ban_cai_moc` mới nằm ở đó (cấu hình và ca KB-9 đúng).
-- Known limits (Ngoài-4): ảnh chụp KB-1 bỏ tệp đánh dấu `.in_use`, nên nếu chế độ máy thật quay lại gọi CLI (làm mới
-  `.in_use`) thì KB-1 vẫn xanh; ca cũng không kiểm kết quả của lượt `--may` trong KB-1. Nội dung bản cài thật không đổi.
-- Known limits (Ngoài-6): mục tác tử chấm ĐẠT khi workflow đã cài không gọi tên loại tác tử nào (đổi cách khai tên thì
-  mục không kiểm gì mà vẫn xanh).
-- Known limits (Ngoài-7): câu OOS-3 trên thẻ Cổng Phạm vi từng nói kiểm chạy ở mọi lượt chấm — đã sửa trong
-  `card-plain.json` trước khi trình Cổng Bằng chứng; thẻ Cổng Phạm vi đã trình 13/10 sáng mang câu cũ.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-1: ca KB-11 chỉ xác nhận lệnh dừng ở «không chạy được», chưa ghim đúng câu nguyên nhân — gỡ nhầm phần báo nguyên nhân cụ thể thì bộ ca vẫn xanh.
+  - Ngoài-2: các ca đỏ KB-10 và KB-11 chưa chờ một lần chạy đối chứng trên bản lành như các ca đỏ khác.
+  - Ngoài-3: sổ cài của Claude Code đổi dạng (không còn mảng) thì máy nhận bị báo đỏ «chưa cài» thay vì «không chạy được» — cài lại thừa, không bản sai nào lọt.
+  - Ngoài-4: cùng gốc Ngoài-1 (ba ca KB-11 không ghim nguyên nhân mà AC-11 hứa).
+  - Ngoài-6: chú thích đầu evals.yaml nói khoá kiem_ban_cai nằm trong suite_keys — thật ra là kiem_ban_cai_moc.
+  - Ngoài-8: ảnh chụp KB-1 bỏ tệp đánh dấu .in_use, nên chế độ máy thật quay lại gọi CLI thì KB-1 vẫn xanh; nội dung bản cài thật không đổi.
+  - Ngoài-10: mục tác tử chấm ĐẠT khi workflow đã cài không gọi tên loại tác tử nào.
+  - Ngoài-11: thẻ Cổng Phạm vi trình sáng 13/10 mang câu cũ «kiểm chạy ở mọi lượt chấm» — đã sửa trước Cổng Bằng chứng.
