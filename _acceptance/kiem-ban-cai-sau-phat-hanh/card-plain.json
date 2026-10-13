@@ -49,7 +49,7 @@
   },
   {
    "id": "OOS-3",
-   "p": "KHÔNG chạy trên CI của GitHub (máy CI không có Claude) — chạy ở mọi lượt chấm trên máy dev."
+   "p": "KHÔNG chạy trên CI của GitHub (máy CI không có Claude) — kiểm chạy trọn ở lượt chấm hồ sơ cắt mốc trên máy dev; vòng thường chỉ in một dòng «bỏ qua»."
   },
   {
    "id": "OOS-4",
