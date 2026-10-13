@@ -272,8 +272,8 @@ export function chuKyKhongNgay(root, slug) {
   const v = chuKy(root, slug);
   return v && !/\d{4}-\d{2}-\d{2}/.test(v) ? v : null;
 }
-// Đường đọc-cũ: bản ghi vẽ bằng kit < 2.28 không có `cau_nguoi_gui` → câu cũ kèm MỘT cờ vàng.
-export const CO_BAN_VE_CU = 'bản vẽ cũ — chưa có câu cho người gửi; đang hiện câu cho chủ kho, có thể mang mã — vẽ lại bằng kit ≥ 2.28';
+// Đường đọc-cũ: bản ghi vẽ bằng kit < 2.29 không có `cau_nguoi_gui` → câu cũ kèm MỘT cờ vàng.
+export const CO_BAN_VE_CU = 'bản vẽ cũ — chưa có câu cho người gửi; đang hiện câu cho chủ kho, có thể mang mã — vẽ lại bằng kit ≥ 2.29';
 export function cauChoNguoiGui(banGhi) {
   if (banGhi && typeof banGhi.cau_nguoi_gui === 'string') return { cau: banGhi.cau_nguoi_gui, co: null };
   return { cau: chuoi(banGhi && banGhi.cau), co: CO_BAN_VE_CU };

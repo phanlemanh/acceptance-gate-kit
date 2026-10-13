@@ -132,7 +132,7 @@ tin_hieu.hang — mã việc trong lộ trình mà nhóm đã thành
 tin_hieu.ho_so — hồ sơ của việc đó
 tin_hieu.trang_thai — chữ trạng thái, đúng chữ trang lộ trình in cho việc / hồ sơ
 tin_hieu.cau — câu cho chủ kho, có mã việc và tên hồ sơ để lần (giữ nguyên từ 2.27)
-tin_hieu.cau_nguoi_gui — câu cho người gửi: tiếng sản phẩm, không mã, không từ nội bộ (kit ≥ 2.28)
+tin_hieu.cau_nguoi_gui — câu cho người gửi: tiếng sản phẩm, không mã, không từ nội bộ (kit ≥ 2.29)
 ```
 <!-- LO-TRINH-DU-LIEU-TUY-CHON>>> -->
 
@@ -140,9 +140,9 @@ tin_hieu.cau_nguoi_gui — câu cho người gửi: tiếng sản phẩm, không
 trình" và thành việc "Tra quy trình trong một phút" — đã giao ngày 12/10/2026». Kit dựng nó từ tên nhóm,
 câu giao của việc và ngày ký; lệnh `scripts/tin-hieu.mjs --root . --cau` của kho kiểm không câu nào lọt mã
 hay từ nội bộ. Trường `cau` là câu cho chủ kho (có mã để lần) — đừng hiện nó cho người không dùng git.
-Trang vẽ bằng kit cũ (trước 2.28) không có `cau_nguoi_gui`: bản chiếu lùi về `cau` và hiện MỘT cờ vàng
+Trang vẽ bằng kit cũ (trước 2.29) không có `cau_nguoi_gui`: bản chiếu lùi về `cau` và hiện MỘT cờ vàng
 «bản vẽ cũ — chưa có câu cho người gửi», đúng như bộ đọc mẫu `cauChoNguoiGui` trong `scripts/tin-hieu.mjs`
-(trả `{ cau, co }`, `co` là cờ hoặc `null`). Vẽ lại trang bằng kit ≥ 2.28 thì cờ tự hết.
+(trả `{ cau, co }`, `co` là cờ hoặc `null`). Vẽ lại trang bằng kit ≥ 2.29 thì cờ tự hết.
 
 Những gì bản chiếu thường cần:
 
