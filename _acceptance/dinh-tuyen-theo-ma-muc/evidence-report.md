@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9a3c4028bbb24e3abf89de2098ef83f0a5f34d04
+verified_commit: 0ea126220ad045f92625db387deb70b1756e8a58
 human_signoff:
 ---
 
@@ -212,3 +212,7 @@ none — every multi-run eval is uniform
 
 Round 1: mọi eval máy xanh (E1–E10) và mọi lệnh suite xanh, nhưng verdict là REJECT vì review-findings.md có 3 finding TRONG hợp đồng: AC-4 (lưới pre-merge-check.sh vế hai gọi bộ phân giải không có run-log, khác bản mjs, mức high — hai finding t1 và t3 cùng gốc) và AC-3 (E3 ghim «14/14 hàng» trong khi test assert và in 18/18, mức medium). Trả về giai đoạn hiện thực để sửa.
 Round 2: đã sửa ba finding của round 1 (lưới đọc run-log ở chính khối cũ, DM3 in 14/14 hàng AC-3 cùng 4/4 hàng Review Focus); E1–E7, E9, E10 và mọi lệnh suite chạy lại, xanh. E8 mang sang từ round 1 (delta không chạm paths của eval). Không còn finding trong hợp đồng; các mục ngoài hợp đồng mang sang từ round trước do người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-13, do gộp origin/main 6ed3e410 (#343 #344) + chữ ký tac-tu/RT13
+run_id: repin-20261013T154121Z-31498
+sha: 0ea126220ad045f92625db387deb70b1756e8a58 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
