@@ -1,4 +1,4 @@
-// luat-san-pham.ca.mjs — ca đo hồ sơ bat-bien-san-pham (LS-01..LS-11). Gọi từ phần bash của
+// luat-san-pham.ca.mjs — ca đo hồ sơ bat-bien-san-pham (LS-01..LS-13). Gọi từ phần bash của
 // tests/scripts/run-tests.sh (khoá executor scripts_bash) — tệp KHÔNG mang đuôi .test.mjs để không trôi
 // giữa các mảnh mjs. Kho thử do code sinh trong lượt (thư mục tạm + git init); tệp luật của kho thử dựng
 // TỪ khối PRODUCT-INVARIANTS-TEMPLATE rút bằng marker; giá trị mong đợi viết sẵn trong ca, KHÔNG rút từ
@@ -592,6 +592,42 @@ if (want('LS-12')) {
     const k = spawnSync(process.execPath, [f, '--check', '--root', vPham.r, '--slug', 'h'], { encoding: 'utf8' });
     if (k.status === 2 && (k.stderr + k.stdout).includes('luật sản phẩm')) die('gỡ phép kiểm luật mà vị từ vẫn chặn vì luật — ca không đo đúng chỗ');
     if (k.status !== 0) die('gỡ phép kiểm luật: vị từ phải cho đi (lọt) để chứng ca có răng, thoát ' + k.status + ': ' + k.stderr.trim());
+  });
+}
+
+// LS-13 — kho khai luật mà bản cài thiếu luat-san-pham.cjs: vị từ còn-cần-người KHÔNG được lặng lẽ cho đi
+// (2.29.0, M5 rà BB1 13/10). Nhà thử chép scripts/lib/skills; bản «thiếu» xoá đúng một tệp mô-đun luật.
+// Lời mong đợi viết sẵn ở đây, không rút từ mô-đun.
+const KHONG_NAP = 'còn cần người: kho khai luật sản phẩm (PRODUCT-INVARIANTS.md) nhưng không nạp được scripts/luat-san-pham.cjs — cài lại gói acceptance-gate theo đúng thẻ';
+function nhaKcn(thieuLuat) {
+  const nha = tam('lsp-kcn13-'); for (const t of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, t), path.join(nha, t), { recursive: true });
+  if (thieuLuat) { rmSync(path.join(nha, 'scripts', 'luat-san-pham.cjs')); if (existsSync(path.join(nha, 'scripts', 'luat-san-pham.cjs'))) die('không xoá được mô-đun luật ở nhà thử'); }
+  return path.join(nha, 'scripts', 'khong-can-nguoi.mjs');
+}
+if (want('LS-13')) {
+  const vSach = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 2;\n'); commit(r, 'vat'); });
+  const vKhong = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 2;\n'); commit(r, 'vat'); }, { ghiCham: false });
+  rmSync(path.join(vKhong.r, 'PRODUCT-INVARIANTS.md'));   // kho KHÔNG khai luật (cây làm việc)
+  const chay = (f, v) => spawnSync(process.execPath, [f, '--check', '--root', v.r, '--slug', 'h'], { encoding: 'utf8' });
+  const du = nhaKcn(false), thieu = nhaKcn(true);
+  check('LS-13 doi-chung-du', () => { const k = chay(du, vSach); eq(k.status, 0, 'bản cài đủ, không phạm luật: phải cho đi (' + k.stderr.trim() + ')'); });
+  check('LS-13 thieu-mo-dun', () => {
+    const k = chay(thieu, vSach); eq(k.status, 2, 'thiếu mô-đun luật mà kho khai luật: khong-can-nguoi thoát');
+    if (!k.stderr.includes('chưa đủ: ' + KHONG_NAP)) die('lời không nêu đúng lý do: ' + k.stderr.trim());
+  });
+  check('LS-13 kho-khong-khai', () => {   // đặc hiệu: kho không khai luật thì thiếu mô-đun cũng không đổi gì
+    const a = chay(du, vKhong), b = chay(thieu, vKhong);
+    eq(a.status, 0, 'đủ mô-đun, kho không khai luật (' + a.stderr.trim() + ')'); eq(b.status, 0, 'thiếu mô-đun, kho không khai luật (' + b.stderr.trim() + ')');
+  });
+  const mKcn = await import(KCN);
+  check('LS-13 ten-tep-mot-nguon', () => {
+    const m = mKcn; eq(m.TEP_LUAT_SP, napMoi(LSP).TEP_LUAT, 'tên tệp luật chép tay ở khong-can-nguoi.mjs');
+    eq(m.LY_DO_LUAT_KHONG_NAP, KHONG_NAP, 'lời lý do');
+  });
+  check('LS-13-do', () => {   // gỡ nhánh khong_nap ở bản thiếu → lại lặng lẽ cho đi: ca có răng
+    const t = readFileSync(thieu, 'utf8'); const cu = '  if (ctx.luat && ctx.luat.khong_nap) return null;\n';
+    if (t.split(cu).length !== 2) die('mũi tiêm không áp'); writeFileSync(thieu, t.replace(cu, ''));
+    const k = chay(thieu, vSach); if (k.status !== 0) die('gỡ nhánh mà vị từ vẫn chặn — ca không đo đúng chỗ: thoát ' + k.status + ' ' + k.stderr.trim());
   });
 }
 

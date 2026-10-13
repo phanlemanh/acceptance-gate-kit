@@ -16,10 +16,9 @@ import { fileURLToPath } from 'node:url';
 // Vị từ «hồ sơ verified chưa ký này còn cần người không?» — MỘT bộ đọc mặt
 // người dùng nó (máy quét); bản đồ KHÔNG dùng (ô đổi ở chỗ người ký). «Một
 // nguồn» với lưới trước-merge giữ bằng phép đo đẳng thức LV5, không bằng import.
-import { khongCanNguoi } from './khong-can-nguoi.mjs';
+import { khongCanNguoi, ctxLuatHoSo } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
-let luatSP = null; try { luatSP = require('./luat-san-pham.cjs'); } catch (_) { luatSP = null; }   // bat-bien-san-pham
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // `chuKyThat` — MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Lưới
 // trước-merge gọi CÙNG hàm này qua CLI `node lib/evidence-core.cjs chu-ky-that`.
@@ -76,7 +75,8 @@ const kcn = (cTxt, eTxt, dir) => khongCanNguoi(cTxt, eTxt, {
   findings: read(path.join(dir, 'review-findings.md')).t ?? null,
   ledger: read(path.join(dir, 'decisions.jsonl')).t ?? null,
   // Luật sản phẩm của kho (bat-bien-san-pham): vắng tệp luật → null → đường cũ.
-  ...(luatSP ? { luat: luatSP.ctxLuat(root, path.basename(dir), cTxt, eTxt) } : {}),
+  // Vắng mô-đun luật mà kho khai luật → còn cần người, không im lặng (ctxLuatHoSo, 2.29.0).
+  luat: ctxLuatHoSo(root, path.basename(dir), cTxt, eTxt),
 });
 const git = (() => {
   const q = args => {

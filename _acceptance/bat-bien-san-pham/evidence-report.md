@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6158a5f4c3b0fd8e125cc383f2162c5f6eccd351
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -250,3 +250,7 @@ Round 2: sửa ở d2432619 — chuỗi bọc thẻ trong commands/acceptance-ca
 ### Re-pin lần 1 — 2026-10-13, do gộp origin/main 837f582d (S3c, DP6b, lộ trình 2.29) sau chữ ký Cổng 2
 run_id: repin-20261013T021543Z-67315
 sha: 6158a5f4c3b0fd8e125cc383f2162c5f6eccd351 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths), E11 · diff chạm vật đo ngoài làn máy: E11 — chưa chứng lại, đi vòng S4 delta
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths), E11

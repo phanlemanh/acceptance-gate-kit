@@ -642,6 +642,13 @@ executors:
     rel2280_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh a1e2e0b9 buoc-len-thiet-ke-khong-hoi can-cu-s1-chay-moi-kho dai-tom-tat-doc-dung dai-tom-tat-dem-dung-vi-sao-tron dieu-phoi-on-dinh-r2
     rel2280_dd_giu: "bash -c 'c=$(git show a1e2e0b9:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet a1e2e0b9 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2280_lop_chep: bash _acceptance/release-2-28-0/lop-chep-doi.sh a1e2e0b9 scripts/ho-so-tom-tat.cjs
+    # Mốc 2.29.0 — cửa sổ v2.28.0 (72eb55f3) → HEAD. Lớp chép đọc danh sách mong đợi TỪ gạch «Lớp chép CI» của mục
+    # 2.29.0 trong CHANGELOG (Ngoài-1 của release-2-28-0: bản 2.28 so với danh sách gõ tay).
+    rel2290_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 72eb55f3 bat-bien-san-pham cau-tin-hieu-nguoi-gui kiem-ban-cai-sau-phat-hanh nen-dieu-kien-va-static-khong-do-duoc trang-thai-dot-dieu-phoi-tho vong-mo-thang-bang-feature-loop
+    rel2290_dd_giu: "bash -c 'c=$(git show 72eb55f3:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 72eb55f3 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2290_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 72eb55f3 2.29.0
+    rel2290_luat_khong_nap: LS_CASES=LS-13 node tests/scripts/luat-san-pham.ca.mjs
+    rel2290_ban_ve_cu: bash _acceptance/release-2-29-0/so-ban-ve-cu.sh
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
