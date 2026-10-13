@@ -30,6 +30,15 @@ import { fileURLToPath } from 'node:url';
 
 const _reqL = createRequire(import.meta.url);
 let luatSP = null; try { luatSP = _reqL('./luat-san-pham.cjs'); } catch (_) { luatSP = null; }
+// Kho KHAI luật (tệp luật ở gốc) mà mô-đun luật không nạp được → KHÔNG đi đường cũ im lặng: còn cần
+// người, có tên (2.29.0; M5 rà BB1 13/10). Tên tệp chép tay vì không nạp được mô-đun giữ hằng TEP_LUAT —
+// ca LS-13 so hai bên. Kho không khai luật: như cũ.
+export const TEP_LUAT_SP = 'PRODUCT-INVARIANTS.md';
+export const LY_DO_LUAT_KHONG_NAP = 'còn cần người: kho khai luật sản phẩm (PRODUCT-INVARIANTS.md) nhưng không nạp được scripts/luat-san-pham.cjs — cài lại gói acceptance-gate theo đúng thẻ';
+export function ctxLuatHoSo(root, slug, contractTxt, evidenceTxt) {
+  if (luatSP) return luatSP.ctxLuat(root, slug, contractTxt, evidenceTxt);
+  return fs.existsSync(path.join(root, TEP_LUAT_SP)) ? { khong_nap: true } : null;
+}
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -105,6 +114,7 @@ export function khongCanNguoi(contractTxt, evidenceTxt, ctx) {
   if (!xanhSach(contractTxt, evidenceTxt, ctx).clean) return null;
   // Luật sản phẩm của kho (bat-bien-san-pham): ctx.luat TUỲ CHỌN — vắng (kho không khai luật, hoặc bên gọi
   // chưa truyền) thì đường cũ, nên đẳng thức LV5 với lưới trước-gộp giữ nguyên. Lưới trước-gộp KHÔNG biết luật.
+  if (ctx.luat && ctx.luat.khong_nap) return null;
   if (ctx.luat && luatSP && luatSP.chanLuat(ctx.luat)) return null;
   // Cổng 1 — người duyệt, hay máy đóng đúng vết.
   const approvedBy = (frontmatterField(contractTxt, 'approved_by') || '').trim();
@@ -138,12 +148,12 @@ if (_isMain) {
   const docCanh = f => { try { return fs.readFileSync(path.join(root, '_acceptance', slug, f), 'utf8'); } catch { return null; } };
   const ctx = { findings: docCanh('review-findings.md'), ledger: docCanh('decisions.jsonl') };
   ctx.runLog = docCanh('run-log.jsonl');
-  if (luatSP) ctx.luat = luatSP.ctxLuat(root, slug, contract, evidence);
+  ctx.luat = ctxLuatHoSo(root, slug, contract, evidence);
   const status = (frontmatterField(contract, 'status') || '').trim().toLowerCase();
   const tier = (frontmatterField(contract, 'risk_tier') || '').trim().toUpperCase();
   const why = status !== 'verified' ? `status ${status || '(rỗng)'} (chỉ verified)`
     : tier !== 'T2' ? `hạng ${tier || '(rỗng)'} (chỉ T2)`
-    : (khongCanNguoi(contract, evidence, ctx) == null ? (xanhSach(contract, evidence, ctx).why || (luatSP && luatSP.chanLuat(ctx.luat)) || 'còn cần người') : '');
+    : (khongCanNguoi(contract, evidence, ctx) == null ? ((ctx.luat && ctx.luat.khong_nap && LY_DO_LUAT_KHONG_NAP) || xanhSach(contract, evidence, ctx).why || (luatSP && luatSP.chanLuat(ctx.luat)) || 'còn cần người') : '');
   if (why) { console.error(`chưa đủ: ${why}`); process.exit(2); }
   // Dòng status của khuôn hợp đồng mang comment đuôi (`status: verified   # draft | approved | …`) —
   // giữ nguyên phần comment, chỉ thay giá trị (S4-r2 finding: regex đòi hết dòng làm cửa ghi

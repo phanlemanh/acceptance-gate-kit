@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dec146af99c8469990455fdb947e6bb52be10543
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: manh 2026-10-13
 ---
 
@@ -220,3 +220,7 @@ Round 2: sau nhát sửa lớp assertion âm-tính (AC-6 argv bằng gốc gói,
 ### Re-pin lần 1 — 2026-10-13, do gộp main 4c791556 (v2.28.0 + #334 + S3c #335) sau chữ ký Cổng 2 của trang-thai-dot-dieu-phoi-tho
 run_id: repin-20261012T232028Z-56508
 sha: dec146af99c8469990455fdb947e6bb52be10543 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

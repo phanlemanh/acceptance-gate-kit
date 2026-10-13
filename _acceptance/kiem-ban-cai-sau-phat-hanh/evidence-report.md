@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dbea1fb60494517183ab7a3fcb8894e2883b677a
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -233,3 +233,7 @@ Round 2: phạm vi nâng — thêm E11 (AC-10 máy nhận chưa có bản mới 
 ### Re-pin lần 1 — 2026-10-13, do hoá cũ do gộp origin/main (lô M5 + BB1 + câu tín hiệu) trước khi gộp #339
 run_id: repin-20261013T062821Z-25751
 sha: dbea1fb60494517183ab7a3fcb8894e2883b677a · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths)
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths)

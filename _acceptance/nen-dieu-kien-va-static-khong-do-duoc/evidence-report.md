@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5a843da1800b9cab8bd4052a1a851aef4a808f3c
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: manh 2026-10-13
 ---
 
@@ -208,3 +208,7 @@ Round 1: E1–E10 đều xanh, 11 lệnh suite xanh; baseline BLOCKED hạ tần
 ### Re-pin lần 1 — 2026-10-13, do gộp origin/main e76684fd (lô 2 MacBook Pro) trước khi gộp PR #338
 run_id: repin-20261013T075214Z-80361
 sha: 5a843da1800b9cab8bd4052a1a851aef4a808f3c · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

@@ -12,9 +12,10 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>117 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>28 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>118 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>27 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
+  HS["Hồ sơ hỏng<br/>1 việc"]
 ```
 
 > **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
@@ -71,7 +72,6 @@ flowchart TD
 - Bộ lọc hoá cũ theo paths đóng mặc định — chỉ bớt tệp khi MỌI mục paths thuộc dạng đã chứng trên cây git đang kiểm; thư mục trần có thật thành thư-mục/**; mục không trỏ tới tệp nào giữ luật cũ; làn ghim lại đọc paths bằng một nguồn (`loc-paths-dong-mac-dinh`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
-- tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
 - Mỗi việc đã giao có một trang hồ sơ đọc trong một phút — vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không — vẽ từ vật của hồ sơ, và bản chiếu lộ trình nhận cùng dải tóm tắt qua khối dữ liệu bản 2 (`trang-ho-so-mot-viec`)
 - «Trạng thái đợt Điều phối – Thợ hiện ngay trong app, không phải mở trang hay dò nhật ký» (`trang-thai-dot-dieu-phoi-tho`)
 - Vòng là một kết quả — răng cắt lượt nói ra hàng nào phải tách, gộp được, hay lệch dáng câu giao (cờ có tên, khoảng cỡ một nguồn trong SKILL), và đồng hồ chỉ đọc in lại bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao để mỗi mốc đọc lại khoảng trên số thật (`vong-la-mot-ket-qua`)
@@ -172,6 +172,7 @@ flowchart TD
 - Phát hành kit 2.26.0 — đóng số cho cửa sổ 2.25.0 → 2.26.0 (ba vòng đã ký «xuat-du-lieu-lo-trinh», «lo-trinh-cat-luot», «doc-ghi-troi-mang-sang-run-id»: trang lộ trình mang khối dữ liệu máy đọc, skill cắt lượt, thẻ Cổng 2 không giấu mục mang sang và run_id rỗng không lọt), để crm nhận thẳng 2.26 một lần trước đợt sau-14-10 và hàng LT1 dùng được khối dữ liệu; làn V, không dựng răng (`release-2-26-0`) — đã giao — máy thông, cửa veto còn mở
 - Phát hành kit 2.27.0 — «đóng gói xong» Điều phối – Thợ, gộp một lần hai mốc lộ trình 18/10 (DP1, A1, R1) và 25/10 (DP2, DP3, DP4, DP7, lõi DP6, A3) cùng các hàng đã gộp sớm (G2, G3, X2, S3, L3, C1, S3b), để crm chuyển sang gói dieu-phoi ở đợt thử ~26/10 và OneFlow cài gói ở đợt thử ~27/10; gói dieu-phoi lần đầu có số mà thẻ chứa gói; làn V, không dựng răng (`release-2-27-0`)
 - Phát hành kit 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi — đóng số cho cửa sổ 2.27.0 → 2.28.0 (bước thiết kế không dừng hỏi thừa và công cụ phân loại chạy ở mọi kho · dải tóm tắt hồ sơ đọc đúng · gói dieu-phoi ổn định trước đợt r2 · CI kit cài zsh có trần), để crm cài thẳng 2.28 theo đúng thẻ từ 15/10; làn V, không dựng răng (`release-2-28-0`)
+- Phát hành kit 2.29.0 — đóng số cho cửa sổ 2.28.0 → 2.29.0 (cỡ vòng ở bước thiết kế · trạng thái đợt trong app · luật sản phẩm của kho · câu trạng thái cho người gửi tín hiệu · kiểm bản cài sau phát hành · hai thước của gói dieu-phoi thôi nói sai ở kho tiêu thụ), để crm nhận ở quãng lặng của đợt r2; làn V, không dựng răng (`release-2-29-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
@@ -257,3 +258,7 @@ flowchart TD
 - Miễn trừ `.github/**` và `.claude-plugin/plugin.json` khỏi `t1_skip_globs` — ĐÃ TỪ CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`)
 - Đo-thước-của-thước sâu hơn MỘT tầng — PARK 30/08 («cắt đuôi, giữ lõi») (`.out-of-scope/thuoc-cua-thuoc-mot-tang.md`)
 - Thước sống theo đời model — BÁC 16/09/2026 (`.out-of-scope/thuoc-song-theo-doi-model.md`)
+
+## Hồ sơ hỏng
+
+- `tac-tu-cham-chi-cham-khong` — không đọc được hồ sơ (`evidence-report.md`): status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật
