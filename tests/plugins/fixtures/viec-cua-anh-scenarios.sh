@@ -9,7 +9,7 @@
 #
 # Dùng: source file này rồi gọi  vca_scenario <tên> <thư mục workspace>
 # Tên kịch bản: gate1-draft · gate1-approved · gate2-4loai · gate2-pass-thuan-may · gate2-may-di-tiep
-#               · gate2-reject · gate2-blocked · gate2-weird
+#               · gate2-reject · gate2-blocked · gate2-weird · gate2-luat
 # Mỗi lần gọi ghi đè trọn `<ws>/_acceptance/fx/` nên các kịch bản không rò sang nhau.
 
 vca_scenario() {
@@ -192,6 +192,14 @@ EOF
       [ "$name" = gate2-blocked ] && { v=BLOCKED; ev=PASS; }
       [ "$name" = gate2-weird ] && { v=WEIRD; ev=PASS; }
       printf -- '---\nverdict: %s\n---\n\n## Per-eval\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | %s |\n' "$v" "$ev" > "$d/evidence-report.md"
+      ;;
+    gate2-luat)
+      # Luật sản phẩm của kho (bat-bien-san-pham): gate2-4loai + tệp luật một luật ở gốc ws + luat-cham.json một
+      # chỗ chạm và một commit máy sửa tệp luật — thẻ render hai nhãn SP-<số> và Tệp luật (thẻ chỉ ĐỌC hai tệp).
+      vca_scenario gate2-4loai "$ws" || return $?
+      printf '## SP-1 · Luật mẫu của kho thử\n\n- Mức: thường\n- Chủ luật: Chủ A\n' > "$ws/PRODUCT-INVARIANTS.md"
+      local vc; vc="$(sed -n 's/^verified_commit:[[:space:]]*//p' "$d/evidence-report.md" 2>/dev/null | head -1)"
+      printf '{"ban":"x","base":"b","den":"%s","sua_tep_luat":{"may":["m"],"nguoi":[]},"cham":[{"ma":"SP-1","tep":"a.ts","dong":1,"chu":"x"}]}\n' "$vc" > "$d/luat-cham.json"
       ;;
     *)
       echo "vca_scenario: khong biet kich ban '$name'" >&2; return 2 ;;

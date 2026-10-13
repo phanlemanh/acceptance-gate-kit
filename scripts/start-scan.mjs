@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
+let luatSP = null; try { luatSP = require('./luat-san-pham.cjs'); } catch (_) { luatSP = null; }   // bat-bien-san-pham
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // `chuKyThat` — MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Lưới
 // trước-merge gọi CÙNG hàm này qua CLI `node lib/evidence-core.cjs chu-ky-that`.
@@ -74,6 +75,8 @@ const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
 const kcn = (cTxt, eTxt, dir) => khongCanNguoi(cTxt, eTxt, {
   findings: read(path.join(dir, 'review-findings.md')).t ?? null,
   ledger: read(path.join(dir, 'decisions.jsonl')).t ?? null,
+  // Luật sản phẩm của kho (bat-bien-san-pham): vắng tệp luật → null → đường cũ.
+  ...(luatSP ? { luat: luatSP.ctxLuat(root, path.basename(dir), cTxt, eTxt) } : {}),
 });
 const git = (() => {
   const q = args => {

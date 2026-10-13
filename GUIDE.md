@@ -1744,6 +1744,48 @@ MỘT câu hỏi đóng YES/NO — là assertion, không phải judge:
   thuộc judgment/design-pass — No blind VLM judge. Opt-in từng eval, EVAL-GEN
   không tự thêm.
 
+### 8.2 Luật sản phẩm của kho (`PRODUCT-INVARIANTS.md`)
+
+Kho nào có luật sản phẩm phải đúng xuyên mọi tính năng — ví dụ «khác nhau giữa các tổ chức là cấu
+hình, không ghi cứng» — thì viết chúng vào **một tệp ở gốc kho**, tên cố định `PRODUCT-INVARIANTS.md`,
+theo khuôn `skills/acceptance/references/product-invariants-template.md` (khối marker
+`PRODUCT-INVARIANTS-TEMPLATE`). Tệp là **của kho**: chủ kho viết và sửa bằng commit riêng; máy không
+bao giờ sửa nó. **Kho không có tệp thì không gì đổi** — không dòng nạp, không cờ, thẻ y nguyên.
+
+Mỗi luật: `## SP-<số> · <câu luật>` + các dòng `Mức` (`thường` / `khó đảo`) · `Chủ luật` · `Giữ bằng`
+· `Dấu hiệu` (tuỳ chọn, biểu thức chính quy cho dòng mã mới trái luật) · `Phạm vi` (tuỳ chọn, glob) ·
+`Vì sao`. Khối sai khuôn bị bỏ và thẻ gọi tên nó; luật còn lại vẫn đọc.
+
+**Bước thiết kế** (S1 bước 0b của feature-loop) đọc trọn tệp và ghi một dòng nạp theo khuôn
+`DEC-LUAT-NAP` — dòng mang `luat_nap: {ban, so}`, `ban` = `git hash-object PRODUCT-INVARIANTS.md`.
+Lựa chọn theo một luật ghi căn cứ nguồn mục-tiêu trỏ tệp luật + câu luật (thẻ in «theo luật SP-n»).
+Lựa chọn trái một luật là câu chỉ-người mang `"pham_luat":"SP-<số>"` trong `can_cu`, `kho_dao: true`
+khi luật khó đảo; thẻ Cổng Phạm vi hỏi «Phạm luật SP-n — <câu> (chủ luật: <tên>)». Ba dòng đỏ:
+phạm luật mà ghi máy đã quyết · mã luật không có trong tệp · luật khó đảo mà thiếu nhãn khó-đảo.
+Hồ sơ nháp ở kho có tệp mà thiếu dòng nạp, hoặc tệp đổi sau khi nạp → cờ vàng.
+
+**Lượt chấm** (S4 «Mọi verdict») chạy `scripts/luat-san-pham.cjs --quet --write`, ghi
+`_acceptance/<slug>/luat-cham.json`: chỗ dòng mã mới khớp dấu hiệu của một luật, và các commit sửa tệp
+luật — tách **máy** (có dòng `Co-Authored-By: Claude`) khỏi **chủ kho**. Thẻ Cổng Bằng chứng in khối
+«Luật sản phẩm bị chạm»; mỗi mã một ô trả lời:
+
+- `SP-<số>: sửa vật` (máy điền sẵn khuyến nghị) — trả hồ sơ về sửa; lượt này không ký.
+- `SP-<số>: chấp nhận có tên` — ngoại lệ có chủ ý: một dòng sổ `gate2` + một gạch known-limits.
+- `Tệp luật: <đã tách / lý do>` — chỉ khi máy sửa tệp luật trong vòng (cờ đỏ).
+
+Có chạm luật, máy sửa tệp luật, hoặc chưa soi luật trên bản đã chấm → vòng không đi làn V (cần người).
+
+**Để bộ tìm lỗi ở lượt chấm thấy luật**, thêm một dòng trỏ vào `CLAUDE.md` của kho: bộ tìm lỗi đọc
+`CLAUDE.md` / `CONTRIBUTING.md`, không đọc tệp luật hay hợp đồng. Mục ngoài hợp đồng nhắc một mã có
+trong tệp mang nhãn «luật SP-n · <mức>» trên thẻ.
+
+**Đường đo cho Cổng Giá trị:** `node scripts/luat-san-pham.cjs --root . --dem --tu <ngày khai>` —
+mỗi hồ sơ một hàng: dòng nạp · phạm ở thiết kế · chạm trên diff · nhãn ngoài hợp đồng · máy sửa tệp
+luật · chủ kho sửa tệp luật. Ngày khai (commit đầu thêm tệp luật) lệnh in ra.
+
+**Giới hạn đã khai** (ADR 0024): bộ soi khớp chữ theo dấu hiệu kho tự khai; lưới trước-gộp (CI) không
+biết luật sản phẩm — chặn nằm ở thẻ và làn V.
+
 ## 9. Xử lý sự cố
 
 | Triệu chứng | Nguyên nhân thường gặp | Xử lý |

@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Mỗi kho viết luật sản phẩm của mình vào một tệp. Máy đọc tệp đó trước khi thiết kế, và vòng nào phạm luật thì thẻ cổng gọi đúng tên luật để anh quyết.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ có khuôn tệp luật trong kit: mỗi luật một mã SP, một câu luật, mức (thường hay khó đảo), chủ luật và dấu hiệu tuỳ chọn. Khối viết sai khuôn được gọi tên, các luật còn lại vẫn đọc được."},
+    {"id": "AC-2", "p": "Sẽ không đổi gì với kho chưa khai luật: thẻ của mọi hồ sơ kit và crm giống từng byte trước và sau vòng."},
+    {"id": "AC-3", "p": "Sẽ ghi một dòng nạp kèm phiên bản tệp luật ở bước thiết kế. Thiếu dòng nạp, hoặc luật đổi sau khi nạp, thì thẻ Cổng Phạm vi có cờ vàng."},
+    {"id": "AC-4", "p": "Sẽ in mã luật cạnh lựa chọn máy đã quyết theo đúng câu của một luật («theo luật SP-2»)."},
+    {"id": "AC-5", "p": "Sẽ đưa lựa chọn phạm luật lên thẻ Cổng Phạm vi thành câu hỏi «Phạm luật SP-n», có câu luật và chủ luật; luật khó đảo mang nhãn khó-đảo. Máy tự quyết một lựa chọn phạm luật thì ra dòng đỏ."},
+    {"id": "AC-7", "p": "Sẽ phân biệt máy sửa tệp luật (cờ đỏ, chặn đi tiếp) với chủ kho sửa tệp luật (chỉ báo một dòng)."},
+    {"id": "AC-8", "p": "Sẽ soi diff của vòng theo dấu hiệu luật đã khai. Chỗ chạm hiện thành khối «Luật sản phẩm bị chạm», ô «SP-n» điền sẵn «sửa vật», và vòng không đi tiếp mà không có người. Mục ngoài hợp đồng nhắc mã luật cũng mang nhãn luật. Thử lại đúng ca múi giờ của crm."},
+    {"id": "AC-10", "p": "Sẽ giữ mọi câu luật trong khối việc-của-anh và trong dòng lệnh duy nhất của thẻ có sẵn: không thêm cổng, không thêm lượt."},
+    {"id": "AC-11", "p": "Sẽ có một lệnh đếm cho Cổng Giá trị: trên các vòng sau ngày kho khai luật, đếm dòng nạp, lần phạm luật, chỗ chạm, lần máy hay chủ kho sửa tệp luật."}
+  ],
+  "wont_do": [
+    {"id": "AC-6", "p": "Chặn mã luật không có trong tệp: một lựa chọn nêu luật không tồn tại thì ra dòng đỏ, kể cả ở kho chưa khai luật."},
+    {"id": "OOS-1", "p": "Sẽ KHÔNG sửa bộ chấm để nó đọc tệp luật. Kho muốn bộ chấm thấy luật thì thêm một dòng trỏ tệp vào CLAUDE.md của kho."},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG viết luật cho kho nào. crm tự viết bản đầu bằng commit riêng."},
+    {"id": "OOS-3", "p": "Sẽ KHÔNG sửa crm để múi giờ, đồng tiền, mã quốc gia thành cấu hình — đó là việc sản phẩm của crm."},
+    {"id": "OOS-4", "p": "Sẽ KHÔNG thêm khoá cấu hình cho đường tệp, nhiều tệp luật, hay ngoại lệ có hạn dùng."},
+    {"id": "OOS-5", "p": "Sẽ KHÔNG nhắc kho chưa khai luật bằng cờ trên thẻ."},
+    {"id": "OOS-6", "p": "Sẽ KHÔNG chạm vùng của các làn khác (điều phối, bộ chấm, cắt lượt, lõi cưỡng chế)."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Tệp luật của kho: vắng, hợp lệ, có khối sai khuôn, đổi sau khi nạp — đủ bốn tình trạng (AC-1 khuôn tệp, AC-2 kho vắng tệp, AC-3 dòng nạp)."},
+    {"i": 1, "p": "Quan hệ của vòng với một luật: không chạm, theo luật, phạm ở thiết kế, phạm trên diff, sửa tệp luật, nêu mã không có — mỗi quan hệ một tiêu chí (AC-4 đến AC-8)."},
+    {"i": 2, "p": "Mức luật thường và khó đảo đều có ca đo (AC-5 câu hỏi thiết kế, AC-8 chạm trên diff)."},
+    {"i": 3, "p": "Mọi chỗ đọc: thẻ hai cổng, lối đi tiếp không người, hồ sơ cũ, lệnh đếm cho Cổng Giá trị (AC-3, AC-7, AC-8, AC-10, AC-11)."},
+    {"i": 4, "p": "Áp mọi ca: kho không có tệp thì không đổi byte nào, và câu luật chỉ nằm trong dòng lệnh có sẵn (AC-2, AC-10)."},
+    {"i": 5, "p": "Để sau: bộ chấm đọc tệp luật, nhiều tệp hay đường khác, ngoại lệ có hạn dùng."},
+    {"i": 6, "p": "Không bao giờ: máy sửa tệp luật, kit chở luật mẫu của một tổ chức, cờ nhắc kho chưa khai luật, máy đoán nghĩa luật ở cổng."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Thiếu: chưa loại trừ lối «hợp đồng chở luật cho bộ chấm». Đã xử: soi mã bộ chấm thấy bộ tìm lỗi không đọc hợp đồng, nên lối đó chết. Thay bằng nhãn luật trên mục ngoài hợp đồng, cộng một dòng trỏ trong CLAUDE.md của kho."},
+    {"i": 1, "p": "Thiếu: «ô SP để trống, không khuyến nghị» là khẩu vị của anh mà máy tự quyết. Đã xử: tách ra thành câu hỏi Hỏi-2 cho anh, máy khuyên điền sẵn «sửa vật»."},
+    {"i": 2, "p": "Thiếu: phép chấm tài liệu đưa sẵn đáp án vào đầu vào, và chưa có ca máy kiểm bước soi luật được gọi ở lượt chấm. Đã xử: bỏ đáp án khỏi đầu vào, thêm ca máy có chiều đỏ."},
+    {"i": 3, "p": "Thiếu: đường đo cho Cổng Giá trị mới đo một phần, và đếm nhầm commit của chủ kho thành máy sửa luật. Đã xử: thêm AC-11 đếm đủ sáu cột, tách commit máy và chủ kho."},
+    {"i": 4, "p": "Thiếu: phép so trên crm dựa vào đường cố định nên đỏ oan ở máy không có crm và ở các vòng sau. Đã xử: đường crm lấy từ biến, vắng thì bỏ qua có tên, và ca chỉ chạy khi hồ sơ chưa ký."}
+  ]
+}

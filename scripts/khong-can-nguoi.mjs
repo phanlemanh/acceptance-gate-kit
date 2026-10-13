@@ -28,6 +28,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const _reqL = createRequire(import.meta.url);
+let luatSP = null; try { luatSP = _reqL('./luat-san-pham.cjs'); } catch (_) { luatSP = null; }
+
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { frontmatterField, vetoGateState } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
@@ -98,6 +101,9 @@ export function khongCanNguoi(contractTxt, evidenceTxt, ctx) {
   if (veto.present && veto.state === 'da-veto') return null;
   // KCN-SACH: Cổng 2 — sáu điều kiện.
   if (!xanhSach(contractTxt, evidenceTxt, ctx).clean) return null;
+  // Luật sản phẩm của kho (bat-bien-san-pham): ctx.luat TUỲ CHỌN — vắng (kho không khai luật, hoặc bên gọi
+  // chưa truyền) thì đường cũ, nên đẳng thức LV5 với lưới trước-gộp giữ nguyên. Lưới trước-gộp KHÔNG biết luật.
+  if (ctx.luat && luatSP && luatSP.chanLuat(ctx.luat)) return null;
   // Cổng 1 — người duyệt, hay máy đóng đúng vết.
   const approvedBy = (frontmatterField(contractTxt, 'approved_by') || '').trim();
   // KCN-SKIP: người chủ động miễn Cổng 1 — lưới chỉ NOTE, không chặn (cùng luật với
@@ -129,11 +135,12 @@ if (_isMain) {
   try { evidence = fs.readFileSync(ep, 'utf8'); } catch { evidence = null; }
   const docCanh = f => { try { return fs.readFileSync(path.join(root, '_acceptance', slug, f), 'utf8'); } catch { return null; } };
   const ctx = { findings: docCanh('review-findings.md'), ledger: docCanh('decisions.jsonl') };
+  if (luatSP) ctx.luat = luatSP.ctxLuat(root, slug, contract, evidence);
   const status = (frontmatterField(contract, 'status') || '').trim().toLowerCase();
   const tier = (frontmatterField(contract, 'risk_tier') || '').trim().toUpperCase();
   const why = status !== 'verified' ? `status ${status || '(rỗng)'} (chỉ verified)`
     : tier !== 'T2' ? `hạng ${tier || '(rỗng)'} (chỉ T2)`
-    : (khongCanNguoi(contract, evidence, ctx) == null ? (xanhSach(contract, evidence, ctx).why || 'còn cần người') : '');
+    : (khongCanNguoi(contract, evidence, ctx) == null ? (xanhSach(contract, evidence, ctx).why || (luatSP && luatSP.chanLuat(ctx.luat)) || 'còn cần người') : '');
   if (why) { console.error(`chưa đủ: ${why}`); process.exit(2); }
   // Dòng status của khuôn hợp đồng mang comment đuôi (`status: verified   # draft | approved | …`) —
   // giữ nguyên phần comment, chỉ thay giá trị (S4-r2 finding: regex đòi hết dòng làm cửa ghi
