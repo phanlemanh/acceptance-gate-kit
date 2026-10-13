@@ -5,7 +5,7 @@ slug: release-2-29-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + hai sửa nhỏ đi trong PR mốc (khong-can-nguoi.mjs + start-scan.mjs: luật sản phẩm thiếu mô-đun · tin-hieu.mjs + lo-trinh-du-lieu.md: số bản của cờ «bản vẽ cũ») + workspace hồ sơ + bản đồ + 5 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -79,3 +79,7 @@ sáu hồ sơ · crm#375 · kit #308.
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths` (`hooks/**`, `lib/**`, `pre-merge-check.sh`, `recheck-evidence.cjs`).
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm nhận ở quãng lặng của đợt r2; vòng meta của cửa sổ: một (KC1 `kiem-ban-cai-sau-phat-hanh`, chủ kho gọi tên 12/10).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-1: Khi kho có khai luật sản phẩm, bản cài thiếu mô-đun luật và hồ sơ còn lỗi thật, lời báo chỉ nói cài lại gói mà không nêu lỗi thật của hồ sơ — kết luận «còn cần người» vẫn đúng, nhưng cài lại xong người dùng bị chặn tiếp bởi lý do khác.
+  - Ngoài-2: Phép kiểm «mốc ký đúng những hồ sơ nào» so với danh sách gõ tay trong cấu hình, không so với danh sách ghi trong hợp đồng — sửa một bên mà quên bên kia thì vẫn báo xanh.
+  - Ngoài-3: Bộ quét đầu phiên đã được sửa để không lặng lẽ coi hồ sơ là không cần người khi thiếu mô-đun luật, nhưng chưa có phép thử nào giữ chỗ sửa ấy.
