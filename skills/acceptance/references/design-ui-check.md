@@ -20,7 +20,12 @@ Otherwise fall back to the `script` tier (`design-gate.mjs --mode static`, or
 `--mode dom` with jsdom) and **note the downgrade in the evidence report** — same
 rule as ui-check → judgment downgrade in `eval-executors.md`. The script tier
 blocks on reliable markup tells (side-tab, gradient-text, …) and treats jsdom
-contrast as advisory.
+contrast as advisory. The static engine reads rendered HTML only: point it at a
+component source (`.tsx`, `.jsx`, `.vue`, no extension…) and it keeps its exit
+code but answers `verdict: "KHONG-DO-DUOC"` with `do_duoc: false` and one stderr
+line instead of `PASS` — style objects, classNames and computed props are
+invisible there, so a green on such a target is not a pass. Capture the running
+page (`--html`) and gate that file instead.
 
 ## eval shape
 

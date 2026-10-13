@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8d1ec05f110b45d568c0bca67c80368acc9956c1
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: manh 2026-10-13
 ---
 
@@ -188,3 +188,7 @@ Round 2: E1–E8 và 11 lệnh suite xanh trên 5372d88e; 2 finding ngoài hợp
 ### Re-pin lần 1 — 2026-10-12, do ghim lại sau gộp main 72eb55f3 (v2.28.0)
 run_id: repin-20261012T220429Z-12993
 sha: 8d1ec05f110b45d568c0bca67c80368acc9956c1 · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

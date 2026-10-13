@@ -3,6 +3,9 @@
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
 // AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
 // hồ sơ nen-cong-cu-gan-bang-lenh-con AC-1…AC-5 (NEN-LC1…NEN-LC3 — lệnh chỉ-gán mang lệnh con).
+// NEN-DK1…NEN-DK6: tệp CÓ ĐIỀU KIỆN của danh sách chép (thẻ `[only-if-declared: <khoá>]`) — hồ sơ
+// nen-dieu-kien-va-static-khong-do-duoc AC-1…AC-5 (crm-onehub#375: crm không khai tin_hieu nên không
+// chép ba tệp tin_hieu, đường nền đỏ engine ở mọi dãy).
 // NEN-ENV1…NEN-ENV4: lệnh chạy bằng MÔI TRƯỜNG NGƯỜI GỌI, không bằng profile đăng nhập
 // (báo động giả đo ở crm@onehub 24/09, vòng mot-duong-ghi-phong-ban).
 //
@@ -717,6 +720,177 @@ function banDotBienDangNhap() {
       else ok(`NEN-ENV4 cong cu co o ca hai noi, profile tim ban moi truoc — ban that xanh, dot bien do dung «${DONG_ENV_MOI}»`);
     }
   } catch (e) { bad('NEN-ENV4 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── NEN-DK* — tệp CÓ ĐIỀU KIỆN của danh sách chép ─────────────────────────────────
+// Tập tệp mang thẻ RÚT từ khối INIT-CI-COPY-LIST của kho đang kiểm (bộ đọc độc lập với
+// duong-nen.mjs; NEN-DK5 chứng script đọc thẻ từ khối chứ không từ danh sách trong mã).
+const khoiInit = (txt) => (txt.split('<<<INIT-CI-COPY-LIST')[1] || '').split('INIT-CI-COPY-LIST>>>')[0];
+const theDieuKien = (txt) => {
+  const ra = new Map();
+  for (const l of khoiInit(txt).split('\n')) {
+    const m = l.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/((?:scripts|lib)\/[^`]+)`.*\[only-if-declared: ([a-z_]+)\]\s*$/);
+    if (m) ra.set(m[1], m[2]);
+  }
+  return ra;
+};
+const THE = theDieuKien(readFileSync(path.join(KIT, 'commands', 'acceptance-init.md'), 'utf8'));
+const TEP_THE = [...THE.keys()];
+const tepCua = khoa => TEP_THE.filter(t => THE.get(t) === khoa).sort();
+const dongDkBoQua = (stderr) => String(stderr || '').split('\n').filter(l => l.startsWith('engine: bo-qua '));
+const dongLech = (tep) => (bullets(tep) || []).filter(x => x.startsWith('nen engine: LECH '));
+const tepLech = (tep) => dongLech(tep).map(x => x.replace(/^nen engine: LECH (\S+) .*$/, '$1')).sort();
+const bangTap = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+const dongDkMong = t => `engine: bo-qua ${t} — tệp có điều kiện, kho không khai ${THE.get(t)}`;
+
+let rDK1 = null;
+// ── NEN-DK1 (chiều IM) — gỡ MỌI tệp mang thẻ, config không khai ổ cắm → engine xanh, một dòng bo-qua mỗi tệp ──
+{
+  if (tepCua('tin_hieu').length < 3 || tepCua('lo_trinh').length < 2) bad('NEN-DK1 doi chung: khoi INIT-CI-COPY-LIST rut duoc qua it tep mang the', JSON.stringify([...THE]));
+  else {
+    const k = dungKho({ bo: TEP_THE });
+    rDK1 = chayNen(k, { cache: CACHE });
+    const bq = dongDkBoQua(rDK1.stderr);
+    if (rDK1.code !== 0) bad('NEN-DK1 tep co dieu kien vang, kho khong khai — phai ma 0', tomTat(rDK1));
+    else if (fm(rDK1.tep, 'engine') !== 'xanh') bad('NEN-DK1 chan engine phai xanh', tomTat(rDK1));
+    else if (!bangTap(bq, TEP_THE.map(dongDkMong))) bad('NEN-DK1 tap dong bo-qua khac tap tep mang the', JSON.stringify({ bq, can: TEP_THE.map(dongDkMong) }));
+    else if (dongDkBoQua(r0.stderr).length) bad('NEN-DK1 doi chung: luot NEN0 (du tep) ma van in bo-qua', dongDkBoQua(r0.stderr).join(' | '));
+    else ok(`NEN-DK1 go ${TEP_THE.length} tep mang the, khong khai — engine xanh, ${bq.length} dong «engine: bo-qua …»`);
+  }
+}
+
+// ── NEN-DK2 (chiều ĐỎ) — cùng kho, khai MỘT ổ cắm → đúng các tệp của ổ đó đỏ, ổ kia vẫn bỏ qua ──
+for (const [khoa, them] of [['tin_hieu', 'tin_hieu:\n  nguon: [x]\n  gom: y\n'], ['lo_trinh', 'lo_trinh:\n  tep: x.json\n']]) {
+  // Ô dương TRƯỚC chiều đỏ: khai ổ cắm, mọi tệp có mặt và khớp → xanh, không LECH, không bo-qua.
+  const rDuong = chayNen(dungKho({ config: CONFIG_LANH + them }), { cache: CACHE });
+  const k = dungKho({ bo: TEP_THE, config: CONFIG_LANH + them });
+  const r = chayNen(k, { cache: CACHE });
+  const khac = TEP_THE.filter(t => THE.get(t) !== khoa);
+  if (rDuong.code !== 0 || fm(rDuong.tep, 'engine') !== 'xanh' || dongLech(rDuong.tep).length || dongDkBoQua(rDuong.stderr).length) bad(`NEN-DK2 ${khoa} o duong: khai + du tep phai ma 0, khong LECH, khong bo-qua`, tomTat(rDuong));
+  else if (r.code !== 1) bad(`NEN-DK2 ${khoa} khai ma tep vang — phai ma 1`, tomTat(r));
+  else if (fm(r.tep, 'engine') !== 'do') bad(`NEN-DK2 ${khoa} chan engine phai do`, tomTat(r));
+  else if (!bangTap(tepLech(r.tep), tepCua(khoa))) bad(`NEN-DK2 ${khoa} tap tep LECH khac tap tep the ${khoa}`, JSON.stringify({ lech: tepLech(r.tep), can: tepCua(khoa) }));
+  else if (dongLech(r.tep).some(x => !x.endsWith('(vendored ≠ dang-chay)'))) bad(`NEN-DK2 ${khoa} dong LECH khong ghim cap vendored ≠ dang-chay`, JSON.stringify(dongLech(r.tep)));
+  else if (!bangTap(dongDkBoQua(r.stderr), khac.map(dongDkMong))) bad(`NEN-DK2 ${khoa} o kia khong con bo-qua dung tap`, JSON.stringify(dongDkBoQua(r.stderr)));
+  else ok(`NEN-DK2 khai ${khoa}: du tep → xanh; tep vang — ma 1, LECH dung ${tepCua(khoa).length} tep ${khoa}, ${khac.length} tep o kia van bo-qua`);
+}
+
+// ── NEN-DK3 (chiều ĐỎ) — không khai: (a) tệp mang thẻ CÓ mặt mà lệch một byte · (b) gỡ tệp KHÔNG thẻ ──
+{
+  const tepA = tepCua('tin_hieu')[0];
+  const kA = dungKho();
+  const fA = path.join(kA.dir, tepA);
+  writeFileSync(fA, readFileSync(fA, 'utf8') + '\n// lech mot dong\n');
+  git(kA.dir, 'commit', '-qam', 'lech tep co dieu kien');
+  const rA = chayNen(kA, { cache: CACHE });
+  const tepB = 'scripts/trang-thai-ho-so.cjs';
+  const rB = THE.has(tepB) ? null : chayNen(dungKho({ bo: [tepB] }), { cache: CACHE });
+  const canA = [`nen engine: LECH ${tepA} (vendored ≠ dang-chay)`], canB = [`nen engine: LECH ${tepB} (vendored ≠ dang-chay)`];
+  if (rA.code !== 1 || !bangTap(dongLech(rA.tep), canA)) bad('NEN-DK3a tep mang the co mat ma lech — phai ma 1, dung mot dong LECH', JSON.stringify({ code: rA.code, b: dongLech(rA.tep) }));
+  else if (!rB) bad('NEN-DK3b doi chung: trang-thai-ho-so.cjs khong duoc mang the', '');
+  else if (rB.code !== 1 || !bangTap(dongLech(rB.tep), canB)) bad('NEN-DK3b go tep KHONG the — phai ma 1, dung mot dong LECH', JSON.stringify({ code: rB.code, b: dongLech(rB.tep) }));
+  else ok(`NEN-DK3 khong khai — tep the co mat ma lech: «${canA[0]}»; go tep khong the: «${canB[0]}»`);
+}
+
+// ── NEN-DK4 (round-trip) — bản sao ag-root gỡ thẻ khỏi dòng tin-hieu-khoa.cjs → DK1 đỏ đúng tệp đó ──
+{
+  try {
+    const ag = tamDir('duong-nen-ag-dk-');
+    for (const d of ['commands', 'lib', 'scripts']) cpSync(path.join(KIT, d), path.join(ag, d), { recursive: true });
+    mkdirSync(path.join(ag, 'skills', 'acceptance', 'references'), { recursive: true });
+    cpSync(path.join(KIT, 'skills', 'acceptance', 'references', 'duong-nen-template.md'),
+      path.join(ag, 'skills', 'acceptance', 'references', 'duong-nen-template.md'));
+    const f = path.join(ag, 'commands', 'acceptance-init.md');
+    const s0 = readFileSync(f, 'utf8');
+    const dong = khoiInit(s0).split('\n').filter(l => l.includes('scripts/tin-hieu-khoa.cjs`') && l.includes('[only-if-declared: tin_hieu]'));
+    if (dong.length !== 1) throw new Error(`dong tin-hieu-khoa.cjs mang the khop ${dong.length} lan (can 1)`);
+    writeFileSync(f, s0.replace(dong[0], dong[0].replace(/\s*\[only-if-declared: tin_hieu\]\s*$/, '')));
+    const r = chayNen(dungKho({ bo: TEP_THE }), { cache: CACHE, agRoot: ag });
+    const can = ['nen engine: LECH scripts/tin-hieu-khoa.cjs (vendored ≠ dang-chay)'];
+    if (!rDK1 || rDK1.code !== 0) bad('NEN-DK4 doi chung: DK1 (khoi nguyen ven) chua xanh', rDK1 ? tomTat(rDK1) : 'chua chay');
+    else if (r.code !== 1 || !bangTap(dongLech(r.tep), can)) bad('NEN-DK4 go the khoi khoi ma script van bo qua — dieu kien khong doc tu khoi', JSON.stringify({ code: r.code, b: dongLech(r.tep) }));
+    else ok(`NEN-DK4 go the khoi dong tin-hieu-khoa.cjs trong khoi — «${can[0]}»`);
+  } catch (e) { bad('NEN-DK4 khong dung duoc ban sao ag-root', String(e.message || e)); }
+}
+
+// ── NEN-DK5 — chẵn lẻ với BỘ NẠP THẬT: trên mọi biến thể config, khi các tệp mang thẻ vắng,
+// «đường nền xanh» ⇒ «product-map.mjs vendored chạy được». Phép thử `^khoá:` là xấp xỉ DƯỚI: đã bỏ
+// qua thì bộ nạp chắc chắn không cần (product-map chỉ đọc khối cột 0); thừa đỏ thì được, xanh giả thì
+// không. Đột biến trên bản sao: `khoKhai` luôn false → biến thể khai đủ: đường nền xanh mà product-map
+// chết → CHÍNH phép đo đỏ nêu biến thể. Đối chứng đỏ của bộ nạp: gỡ thêm trang-thai-ho-so.cjs.
+const pmChay = (dir) => spawnSync(process.execPath, [path.join(dir, 'scripts', 'product-map.mjs'), '--root', dir], { encoding: 'utf8' });
+const pmSong = r => r.status === 0 && !/MODULE_NOT_FOUND|Cannot find module|thiếu scripts\//.test(r.stderr);
+const BIEN_THE = [
+  ['khong-khai', CONFIG_LANH],
+  ['chu-thich', CONFIG_LANH + '# tin_hieu:\n# lo_trinh:\n#   tep: x.json\n'],
+  ['thut-trong-khoi-khac', CONFIG_LANH + '  tin_hieu: thut\n  lo_trinh: thut\n'],
+  ['khai-du', CONFIG_LANH + 'lo_trinh:\n  tep: x.json\ntin_hieu:\n  nguon: [x]\n  gom: y\n'],
+];
+function doChanLe(script) {
+  const loi = [], bang = [];
+  for (const [ten, cfg] of BIEN_THE) {
+    const k = dungKho({ bo: TEP_THE, config: cfg });
+    const r = chayNen(k, { cache: CACHE, ...(script ? { script } : {}) });
+    const xanh = fm(r.tep, 'engine') === 'xanh';
+    const pm = pmChay(k.dir);
+    bang.push(`${ten}: engine ${fm(r.tep, 'engine')} · product-map ${pm.status}`);
+    if (xanh && !pmSong(pm)) loi.push(`${ten}: đường nền xanh mà product-map vendored chết (mã ${pm.status})`);
+  }
+  return { loi, bang };
+}
+{
+  try {
+    const that = doChanLe(null);
+    const soXanh = that.bang.filter(b => b.includes('engine xanh')).length;
+    const kDo = dungKho({ bo: [...TEP_THE, 'scripts/trang-thai-ho-so.cjs'] });
+    const rDo = pmChay(kDo.dir);
+    const d = tamDir('duong-nen-mut-dk-');
+    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+    const f = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const src = readFileSync(f, 'utf8');
+    const muiTiem = "const khoKhai = khoa => new RegExp(`^${khoa}:`, 'm').test(configText);";
+    if (src.split(muiTiem).length !== 2) throw new Error('mui tiem khoKhai khop khac 1 lan');
+    writeFileSync(f, src.replace(muiTiem, 'const khoKhai = () => false;'));
+    const dot = doChanLe(f);
+    if (that.loi.length) bad('NEN-DK5 duong nen xanh ma bo nap that chet', that.loi.join(' | '));
+    else if (soXanh < 3 || !that.bang.some(b => b.startsWith('khai-du: engine do'))) bad('NEN-DK5 doi chung: ma tran khong trai du hai mau', that.bang.join(' ; '));
+    else if (pmSong(rDo) || !/trang-thai-ho-so\.cjs/.test(rDo.stderr)) bad('NEN-DK5 doi chung do cua bo nap: go tep khong the ma product-map khong chet neu ten', `ma ${rDo.status}`);
+    else if (!dot.loi.some(l => l.startsWith('khai-du: đường nền xanh mà product-map vendored chết'))) bad('NEN-DK5 dot bien khoKhai-luon-false ma phep do chan le khong do', dot.loi.join(' | ') || dot.bang.join(' ; '));
+    else ok(`NEN-DK5 chan le voi product-map — ${that.bang.join(' ; ')}; dot bien khoKhai luon false → «${dot.loi[0]}»`);
+  } catch (e) { bad('NEN-DK5 khong dung duoc ca chan le', String(e.message || e)); }
+}
+
+// ── NEN-DK6 — không mục KHÔNG thẻ nào của danh sách nạp TĨNH một tệp mang thẻ ──
+// Nạp được phép: `await import(` (nhánh có điều kiện) hoặc `require` bọc `try {` cùng dòng (nạp khoan
+// dung). Đối chứng đỏ: bản sao product-map tiêm một dòng import tĩnh → phép quét nêu đúng tệp và dòng.
+function quetNapTinh(goc, chiSo) {
+  const ten = TEP_THE.map(t => path.basename(t));
+  const khongThe = [...khoiInit(readFileSync(path.join(KIT, 'commands', 'acceptance-init.md'), 'utf8')).matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/((?:scripts|lib)\/[^`]+)`/g)]
+    .map(m => m[1]).filter(t => !THE.has(t));
+  const loi = [];
+  for (const t of khongThe) {
+    const dong = readFileSync(chiSo[t] || path.join(goc, t), 'utf8').split('\n');
+    dong.forEach((l, n) => {
+      const cham = ten.find(b => l.includes(`'./${b}'`) || l.includes(`"./${b}"`) || l.includes(`'${b}'`) || l.includes(`"${b}"`));
+      if (!cham || !/\bimport\b|\brequire\(/.test(l)) return;
+      if (l.includes('await import(') || (l.includes('require(') && l.includes('try {'))) return;
+      loi.push(`${t}:${n + 1} nạp tĩnh ${cham}`);
+    });
+  }
+  return { loi, soTep: khongThe.length };
+}
+{
+  try {
+    const that = quetNapTinh(KIT, {});
+    const d = tamDir('duong-nen-nap-');
+    const src = readFileSync(path.join(KIT, 'scripts', 'product-map.mjs'), 'utf8');
+    writeFileSync(path.join(d, 'pm.mjs'), src.replace("import { createRequire } from 'node:module';\n", "import { createRequire } from 'node:module';\nimport { docPhamVi } from './cat-luot.mjs';\n"));
+    const dot = quetNapTinh(KIT, { 'scripts/product-map.mjs': path.join(d, 'pm.mjs') });
+    if (that.loi.length) bad('NEN-DK6 muc khong the nap tinh tep mang the', that.loi.join(' | '));
+    else if (that.soTep < 10) bad('NEN-DK6 doi chung: rut duoc qua it muc khong the', String(that.soTep));
+    else if (!dot.loi.some(l => /^scripts\/product-map\.mjs:\d+ nạp tĩnh cat-luot\.mjs$/.test(l))) bad('NEN-DK6 dot bien import tinh ma phep quet khong neu', dot.loi.join(' | ') || 'im');
+    else ok(`NEN-DK6 ${that.soTep} muc khong the khong nap tinh tep mang the; dot bien → «${dot.loi.find(l => l.includes('cat-luot'))}»`);
+  } catch (e) { bad('NEN-DK6 khong dung duoc phep quet', String(e.message || e)); }
 }
 
 donDep();
