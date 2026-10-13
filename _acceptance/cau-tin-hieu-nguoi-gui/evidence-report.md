@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 478ad46b13595ae98f2f49ae7fbeda906635d651
+verified_commit: 20e15c8d0c9c6a7d4c01adf93ba9b7f7da0591ff
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -210,3 +210,7 @@ none — mọi eval chạy một lượt, đồng nhất, không eval nào có p
 Round 1: E1–E9 xanh (E1–E8 chung một lệnh, 22 ca); hội đồng E10 đề xuất FAIL ở cả ba lens vì tên việc chép nguyên văn còn chữ quy trình nội bộ; lệnh suite `vung:3` đỏ ca RT13 không gắn eval, mười lệnh suite còn lại xanh. Trả về triển khai.
 Round 2: E1–E9 xanh (E1–E8 chung một lệnh, 24 ca); hội đồng E10 đổi từ ba FAIL sang một FAIL, một PASS, một UNCERTAIN nên đề xuất UNCERTAIN; lệnh suite `vung:3` đỏ ca P179 (sổ known-limits) không gắn eval, mười lệnh suite còn lại xanh; không có phát hiện trong hợp đồng, một phát hiện mới ngoài hợp đồng. Trả về triển khai.
 Round 3: mười lệnh suite xanh trọn (P179 hết đỏ); E1–E9 carry-forward từ round 2 vì delta không chạm paths; hội đồng E10 giữ nguyên UNCERTAIN (đầu vào không đổi); không có phát hiện trong hợp đồng, năm phát hiện ngoài hợp đồng. Chuyển Cổng 2 với verdict PENDING-JUDGMENT.
+
+### Re-pin lần 1 — 2026-10-13, do hoá cũ do gộp origin/main sau chữ ký
+run_id: repin-20261013T035726Z-97861
+sha: 20e15c8d0c9c6a7d4c01adf93ba9b7f7da0591ff · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
