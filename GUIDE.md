@@ -1701,7 +1701,7 @@ lại. Pin nói ra ô nào thay bởi đâu bằng hậu tố ` · thay bởi h�
 ### 7.2 Kiểm bản cài sau phát hành (`scripts/kiem-ban-cai.mjs`)
 
 Thứ kho tiêu thụ cài về không phải lúc nào cũng là thứ đã chấm: chợ plugin của kit là kiểu THƯ MỤC, nên bản
-cài chép cây đang checkout lúc cài; và bộ đệm khoá theo số — `claude plugin update` báo «đã mới nhất» mà giữ
+cài chép cây đang checkout lúc cài; và bộ đệm khoá theo số — lệnh cập nhật plugin báo «đã mới nhất» mà giữ
 nội dung cũ (ca «2.27.0 = main» ở M5), còn bản cài thiếu `feature-loop/agents/` làm A1 chưa chạy sống lần nào.
 Lệnh kiểm bản cài có hai chế độ, mỗi dòng `[kiem-ban-cai] ĐẠT|ĐỎ|VÀNG <mục>: …`, dòng cuối `TỔNG KẾT:` —
 **đọc dòng TỔNG KẾT** (`ĐẠT` · `ĐỎ` · `KHÔNG CHẠY ĐƯỢC`), không đọc mã thoát một mình:

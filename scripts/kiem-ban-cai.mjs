@@ -134,7 +134,8 @@ export function kiemHook(installPath) {
 const ghiTep = (f, s) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, s); };
 
 // Kho giả lập do code sinh: main (config + tài liệu + hồ sơ nháp) · nhánh `lanh` (chỉ sửa tài liệu) ·
-// nhánh `pham` (thêm hồ sơ báo PASS mà một phép đo thoát 1 — lưới trước-gộp phải chặn).
+// nhánh `pham` (thêm hồ sơ báo PASS mà một phép đo thoát 1 — lưới trước-gộp phải chặn bằng phép kiểm lại
+// bằng chứng, cùng một vi phạm dù trạng thái là verified hay đã ký).
 export function dungKhoGiaLap(dir) {
   const kho = path.join(dir, 'kho');
   fs.mkdirSync(kho, { recursive: true });
@@ -158,7 +159,7 @@ export function dungKhoGiaLap(dir) {
   const verify = path.join(kho, 'verify.sh');
   ghiTep(verify, '#!/bin/sh\nexit 0\n');
   ghiTep(path.join(kho, '_acceptance', 'pham-luat', 'contract.md'),
-    '---\nschema_version: 1\nfeature: Hồ sơ phạm luật\nslug: pham-luat\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: kiem-ban-cai\napproved_at: 2026-06-10\n---\n');
+    '---\nschema_version: 1\nfeature: Hồ sơ phạm luật\nslug: pham-luat\nrisk_tier: T2\nsurfaces: [api]\nstatus: verified\napproved_by: kiem-ban-cai\napproved_at: 2026-06-10\n---\n');
   ghiTep(path.join(kho, '_acceptance', 'pham-luat', 'evidence-report.md'),
     `---\nschema_version: 1\nfeature_slug: pham-luat\nverdict: PASS\nhuman_signoff: kiem-ban-cai 2026-06-21\n---\n\n## Evidence\n- eval: E1\n  run_id: pham-luat-E1-001\n  exit_code: 1\n  verifier: ${verify}\n  verified_at: 2026-06-20\n`);
   g('add', '-A'); g('commit', '-qm', 'pham luat');
