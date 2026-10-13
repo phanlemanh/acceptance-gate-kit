@@ -74,6 +74,72 @@ if (want('YC-1-do')) {
   } catch (e) { bad('YC-1-do', loi(e)); }
 }
 
+// ── Lệnh kiểm kho (AC-4) ──────────────────────────────────────────────────────────────────────────────────────
+const O = ten => maTran().find(c => c.o === ten);
+const HONG = O('chu-sau-nhay-dong/hong'); const LANH = O('chu-sau-nhay-dong/lanh');
+const DONG_A = `A/evals.yaml:${HONG.mong.dong} — chữ đứng sau nháy đóng`;
+let khoN = 0;
+function khoThu(hoSo) { // hoSo: { slug: text }
+  const r = path.join(TMP, `kho-${++khoN}`); mkdirSync(r, { recursive: true });
+  execFileSync('git', ['init', '-q', '-b', 'main', r]); git(r, 'config', 'user.email', 'x@y.z'); git(r, 'config', 'user.name', 'x');
+  for (const [s, t] of Object.entries(hoSo)) { mkdirSync(path.join(r, '_acceptance', s), { recursive: true }); writeFileSync(path.join(r, '_acceptance', s, 'evals.yaml'), t); }
+  git(r, 'add', '-A'); git(r, 'commit', '-qm', 'goc');
+  return r;
+}
+const sua = (r, s, them, msg) => { writeFileSync(path.join(r, '_acceptance', s, 'evals.yaml'), readFileSync(path.join(r, '_acceptance', s, 'evals.yaml'), 'utf8') + them); git(r, 'commit', '-qam', msg); };
+const lenh = (r, extra = [], cli = path.join(KIT, 'scripts', 'yaml-chuan.cjs')) => node([cli, '--root', r, ...extra]);
+
+if (want('YC-4')) {
+  try {
+    const r = khoThu({ A: HONG.text, B: LANH.text });
+    const goc = git(r, 'rev-parse', 'HEAD');
+    const e = [];
+    const a1 = lenh(r);
+    if (a1.status !== 1 || a1.stdout !== DONG_A + '\n') e.push(`kho có A hỏng: thoát ${a1.status}, stdout ${JSON.stringify(a1.stdout)}`);
+    const r2 = khoThu({ B: LANH.text });
+    const a2 = lenh(r2);
+    if (a2.status !== 0 || a2.stdout !== '') e.push(`kho chỉ B lành: thoát ${a2.status}, stdout ${JSON.stringify(a2.stdout)}`);
+    sua(r, 'B', '# sửa B\n', 'sua B');
+    const a3 = lenh(r, ['--base', goc]);
+    if (a3.status !== 0 || a3.stdout !== '') e.push(`--base, diff chỉ chạm B: thoát ${a3.status}, stdout ${JSON.stringify(a3.stdout)}`);
+    sua(r, 'A', '# chạm A\n', 'cham A');
+    const a4 = lenh(r, ['--base', goc]);
+    if (a4.status !== 1 || a4.stdout !== DONG_A + '\n') e.push(`--base, diff chạm A: thoát ${a4.status}, stdout ${JSON.stringify(a4.stdout)}`);
+    if (e.length) bad('YC-4', e.join(' · ')); else ok('YC-4', 'A hỏng → 1 · chỉ B → 0 · --base chạm B → 0 · --base chạm A → 1');
+  } catch (e) { bad('YC-4', loi(e)); }
+}
+
+if (want('YC-4-re')) {
+  try {
+    const r = khoThu({ A: HONG.text, B: LANH.text });
+    git(r, 'branch', 'nhanh');
+    sua(r, 'A', '# main chạm A\n', 'main cham A');
+    git(r, 'checkout', '-q', 'nhanh');
+    sua(r, 'B', '# nhánh chạm B\n', 'nhanh cham B');
+    const lanh = lenh(r, ['--base', 'main']);
+    if (lanh.status !== 0 || lanh.stdout !== '') { bad('YC-4-re', `so từ điểm rẽ mà vẫn chặn: thoát ${lanh.status}, stdout ${JSON.stringify(lanh.stdout)}`); }
+    else {
+      const p = banSaoTiem('hai-cham', "git('merge-base', base, 'HEAD').trim()", 'base');
+      const d = lenh(r, ['--base', 'main'], p);
+      if (d.status === 1 && d.stdout.includes(DONG_A)) ok('YC-4-re', 'merge-base → 0; bản sao hai chấm → 1 — hồ sơ ngoài nhánh chặn: A');
+      else bad('YC-4-re', `bản sao so hai chấm không đỏ trên cùng kho: thoát ${d.status}, stdout ${JSON.stringify(d.stdout)}`);
+    }
+  } catch (e) { bad('YC-4-re', loi(e)); }
+}
+
+if (want('YC-4-2')) {
+  try {
+    const e = [];
+    const tron = path.join(TMP, 'khong-git'); mkdirSync(tron, { recursive: true });
+    const a = lenh(tron);
+    if (a.status !== 2 || !a.stderr.includes('không phải kho git')) e.push(`không phải kho git: thoát ${a.status}, stderr ${JSON.stringify(a.stderr)}`);
+    const r = khoThu({ B: LANH.text });
+    const b = lenh(r, ['--base', 'khong-co-ref-nay']);
+    if (b.status !== 2 || !b.stderr.includes('khong-co-ref-nay')) e.push(`ref vắng: thoát ${b.status}, stderr ${JSON.stringify(b.stderr)}`);
+    if (e.length) bad('YC-4-2', e.join(' · ')); else ok('YC-4-2', 'không phải kho git → 2 · ref vắng → 2 nêu tên ref');
+  } catch (e) { bad('YC-4-2', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`YC Results: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
