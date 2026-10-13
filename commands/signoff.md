@@ -119,7 +119,18 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
 «Ngoài-<số>», «cắt/hoãn», «Treo», «SP-<số>», «Tệp luật» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
-— đúng như đường hỏi-từng-bước vẫn làm. Hình dạng gạch đó theo đúng khối dưới
+— đúng như đường hỏi-từng-bước vẫn làm. Mỗi mục `Ngoài-<n>` ghi MỘT dòng sổ mang MÃ MỤC chép
+NGUYÊN VĂN từ `review-findings.md`: tiêu đề in đậm của mục (kể cả nhãn lượt nếu có) và dòng `file:` của
+nó. Bộ phân giải `ganDinhTuyen` của `lib/out-of-contract.cjs` khớp dòng vào mục theo mã, nên một lượt
+chấm sau chữ ký đổi số mục cũng không làm dòng trỏ nhầm (hồ sơ dinh-tuyen-theo-ma-muc); chép sai thì dòng
+mồ côi và mục được hỏi lại — chiều an toàn. Id theo khối `DEC-ID-RECIPE` của SKILL feature-loop, mỗi
+dòng một lần chạy, dòng giữa là:
+<!-- <<<NGOAI-N-GATE2-LINE -->
+```
+"type":"revisit","stage":"gate2","at":"<ISO>","decision":"Ngoài-<n>: <chữ người>","why":"<vì sao, 1 câu>","cost_if_wrong":"<giá, 1 câu>","tieu_de":"<tiêu đề mục>","tep":"<file của mục>"
+```
+<!-- NGOAI-N-GATE2-LINE>>> -->
+Hình dạng gạch Notes theo đúng khối dưới
 (một gạch mở đầu, mỗi giới hạn một gạch con; dải tóm tắt hồ sơ đếm từng gạch
 con thành «N giới hạn đã biết» — ca DT-8 rút chính khối này):
 <!-- <<<KNOWN-LIMITS-NOTE -->
