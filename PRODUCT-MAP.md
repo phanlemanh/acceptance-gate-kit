@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>120 việc"]
+  GB --> DG["Đã giao<br/>121 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>28 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -101,6 +101,7 @@ flowchart TD
 - Ổn định gói dieu-phoi trước đợt chạy r2 của crm (DP8) — `xem --kiem-chuyen` tách dòng phải sửa khỏi dòng lịch sử và bắt import tương đối vào lõi cũ; phiên thợ tự ghi danh worktree của mình vào dãy; việc nền ngoài dãy giữ nhịp khoá thì bộ phát lịch thôi báo nhầm «khoa-khong-nhip» (`dieu-phoi-on-dinh-r2`)
 - Sửa năm lỗi của gói dieu-phoi chặn đợt thử crm/OneFlow — chẩn đoán không mời mở chip lần hai (D4), lời ghi danh không trỏ hàng đã gộp hay dãy nghỉ (D1), bộ phát lịch chỉ giao hàng đã quyết build (B1), lịch 30′ của mo-dot đọc hạn mức (E2), thẻ thôi hỏi khẩu vị hạn mức (E1) (`dieu-phoi-sua-truoc-dot-thu`)
 - Nối lại một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:tiep-tuc`) — nhịp sống của phiên, kế hoạch từng dãy (chip chỉ cho dãy không còn phiên sống), nhận vai giám sát, đánh thức giám sát, lệnh con ghi qua CLI, kiểm môi trường do kho khai (`dieu-phoi-tiep-tuc-mot-lenh`)
+- Định tuyến mục Ngoài-n theo mã mục (tiêu đề gỡ nhãn lượt + tệp) thay vì theo số — dòng sổ người từ nay mang mã; dòng sổ cũ chỉ có số mà ghi trước một lượt chấm sau đó thì coi là chưa định tuyến kèm cờ vàng, không im lặng (`dinh-tuyen-theo-ma-muc`)
 - Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
 - Bên viết và bên đọc không trôi nhau ở hai chỗ crm đo đêm 07–08/10 — mục ngoài hợp đồng mang sang với nhãn (rN) ngoài dấu sao vẫn hiện trên thẻ Cổng 2 (và không bị in hai lần), run_id rỗng không còn được ghi và được gọi tên khi đọc lại (`doc-ghi-troi-mang-sang-run-id`)
 - Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`) — đã giao — đã nghỉ, giữ sử liệu

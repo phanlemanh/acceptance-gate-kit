@@ -74,6 +74,7 @@ const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
 const kcn = (cTxt, eTxt, dir) => khongCanNguoi(cTxt, eTxt, {
   findings: read(path.join(dir, 'review-findings.md')).t ?? null,
   ledger: read(path.join(dir, 'decisions.jsonl')).t ?? null,
+  runLog: read(path.join(dir, 'run-log.jsonl')).t ?? null,
   // Luật sản phẩm của kho (bat-bien-san-pham): vắng tệp luật → null → đường cũ.
   // Vắng mô-đun luật mà kho khai luật → còn cần người, không im lặng (ctxLuatHoSo, 2.29.0).
   luat: ctxLuatHoSo(root, path.basename(dir), cTxt, eTxt),

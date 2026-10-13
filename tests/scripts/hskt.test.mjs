@@ -229,7 +229,7 @@ async function kiemMjs(may = KIT) {
   const KCN = await import(pathToFileURL(path.join(may, 'scripts', 'khong-can-nguoi.mjs')).href + `?v=${Math.random()}`);
   const sai = []; let n = 0;
   for (const [ten, fd, so, sach, cum] of MA_TRAN_AC4) {
-    const r = KCN.xanhSach(hopDongV('x'), baoCaoV('x', '0'.repeat(40)), { findings: fd, ledger: so || null });
+    const r = KCN.xanhSach(hopDongV('x'), baoCaoV('x', '0'.repeat(40)), { findings: fd, ledger: so || null, runLog: null });
     n++;
     if (r.clean !== sach) sai.push(`${ten}: clean=${r.clean} (${r.why})`);
     else if (cum && !String(r.why).includes(cum)) sai.push(`${ten}: why «${r.why}» thieu «${cum}»`);
@@ -408,7 +408,7 @@ function giaiThich(slug) {
   const st = (/^status:[ \t]*(\S+)/m.exec(c) || [])[1] || '';
   if (WR.hoSoDaKhep({ status: st, ledgerText: rd('decisions.jsonl'), reportText: rd('evidence-report.md') })) return 'khep';
   const ky = /^human_signoff:[ \t]*\S/m.test(rd('evidence-report.md') || '');
-  if (!ky && rd('review-findings.md') != null && OOC.mucChuaDinhTuyen(rd('review-findings.md'), rd('decisions.jsonl')).chua.length) return 'chua-dinh-tuyen';
+  if (!ky && rd('review-findings.md') != null && OOC.mucChuaDinhTuyen(rd('review-findings.md'), rd('decisions.jsonl'), rd('run-log.jsonl')).chua.length) return 'chua-dinh-tuyen';
   return null;
 }
 function soSanhIm(may) {
@@ -480,7 +480,7 @@ const CA_BEN_GOI = {
     kiem: may => { const j = quet(khoLanV('bg-q', FINDINGS_2, ''), may); const d = (j.groups.done || []).find(x => x.slug === 'bg-q');
       return d && /^may-di-tiep/.test(d.stateKey) ? `bo quet xep bg-q vao ${d.stateKey}` : null; } },
   'product-map.mjs': {
-    neo: "{ findings: readRecord(path.join(dir, 'review-findings.md')).t ?? null, ledger: ledgerTxt ?? null }", thay: '{ findings: null, ledger: null }',
+    neo: "{ findings: readRecord(path.join(dir, 'review-findings.md')).t ?? null, ledger: ledgerTxt ?? null, runLog: readRecord(path.join(dir, 'run-log.jsonl')).t ?? null }", thay: '{ findings: null, ledger: null, runLog: null }',
     kiem: async may => { const R = khoMC('bg-m'); const { renderProductMap } = await import(pathToFileURL(path.join(may, 'scripts', 'product-map.mjs')).href + `?v=${Math.random()}`);
       return /`bg-m` — không đọc được hồ sơ/.test(renderProductMap(R)) ? null : 'ban do khong goi bg-m la ho so hong'; } },
   'khong-can-nguoi.mjs': {

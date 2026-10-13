@@ -97,6 +97,9 @@ executors:
     ngoai_n_tu_dinh_tuyen: "bash -c 'set -o pipefail; node tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs 2>&1 | grep -E \"^(PASS|FAIL): NT|^NT Results|^  · \" | paste -sd\"|\" -'"
     # Ca LM20 có sẵn (bản ghi mốc định tuyến khớp mọi hồ sơ đã ký) — AC-8 đọc-cũ.
     ngoai_n_lm20: "bash -c 'LMCMS_ONLY=LM20 node tests/scripts/gate-card-lmcms.test.mjs'"
+    # Hồ sơ dinh-tuyen-theo-ma-muc: ca DM1–DM9 (tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs), gộp mọi dòng
+    # «PASS: DM…»/«FAIL: …», dòng «  · » và tổng kết thành MỘT dòng; pipefail giữ mã thoát của test.
+    dinh_tuyen_theo_ma: "bash -c 'set -o pipefail; node tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs 2>&1 | grep -E \"^(PASS|FAIL): DM|^DM Results|^  · \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-tiep-tuc-mot-lenh: như khoá `dieu_phoi_dp2` nhưng ghim cả «ok … DP3-».
     dieu_phoi_dp3: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[123]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-lop-mod: như `dieu_phoi_dp3` nhưng ghim mọi «ok … DP<số>-» (DP1–DP7 cùng DP6).

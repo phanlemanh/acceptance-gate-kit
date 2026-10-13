@@ -42,7 +42,12 @@ PY
 )
   if [ "$COUNT" != "1" ]; then bad "đột biến $name: mẫu nguyên văn khớp $COUNT lần trong $rel (cần đúng 1) — mũi tiêm KHÔNG trúng"; return 1; fi
   if cmp -s "$KIT/$rel" "$f"; then bad "đột biến $name: bản sao BẰNG bản thật sau khi tiêm"; return 1; fi
-  case "$rel" in *.js|*.mjs) if ! node --check "$f" 2>/dev/null; then bad "đột biến $name: mutant lỗi cú pháp — không chạy được"; return 1; fi;; esac
+  # Tệp workflow (feature-loop/workflows/*.js) chạy trong thân hàm async của bộ chạy Workflow — `return` cấp
+  # đầu là hợp lệ ở đó mà `node --check` (Node 24.21) từ chối: kiểm cú pháp bằng đúng hình dạng bộ chạy bọc.
+  case "$rel" in
+    feature-loop/workflows/*.js) if ! node -e 'const fs=require("fs"),vm=require("vm");new vm.Script("(async()=>{\n"+fs.readFileSync(process.argv[1],"utf8").replace(/^export\s+/gm,"")+"\n})")' "$f" 2>/dev/null; then bad "đột biến $name: mutant lỗi cú pháp — không chạy được"; return 1; fi;;
+    *.js|*.mjs) if ! node --check "$f" 2>/dev/null; then bad "đột biến $name: mutant lỗi cú pháp — không chạy được"; return 1; fi;;
+  esac
   ok "đột biến $name: mũi tiêm trúng $rel"
 }
 # Đột biến — mỗi bộ _F (tệp) _B (trước) _A (sau).

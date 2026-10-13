@@ -7,8 +7,8 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9dc8652fe7a7bf5837e21f73b43364581cabb9d7
-human_signoff:
+verified_commit: 0ea126220ad045f92625db387deb70b1756e8a58
+human_signoff: manh 2026-10-13
 ---
 
 # Evidence Report: tac-tu-cham-chi-cham-khong
@@ -163,3 +163,7 @@ Round 3: mọi eval máy E1–E6 và lưới suite đều xanh, E7 do hội đ�
 ### Re-pin lần 1 — 2026-10-09, do gộp origin/main #280 trước khi gộp PR #294
 run_id: repin-20261009T232608Z-74891
 sha: 9dc8652fe7a7bf5837e21f73b43364581cabb9d7 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
+
+### Re-pin lần 2 — 2026-10-13, do gộp origin/main 6ed3e410 (#343 #344) + chữ ký tac-tu/RT13
+run_id: repin-20261013T154121Z-31498
+sha: 0ea126220ad045f92625db387deb70b1756e8a58 · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7

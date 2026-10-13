@@ -18,6 +18,15 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // Hồ sơ `dinh-tuyen-theo-ma-muc` (13/10/2026, S4-r1 t1/t3): vế «Ngoài hợp đồng» của xanh_sach_check phải đọc
+  // CÙNG ba tệp với bản mjs (khong-can-nguoi.mjs) — thêm run-log.jsonl để dòng sổ ghi trước một lượt chấm đọc
+  // như nhau. Bản «chỉ thêm» (một khối thứ hai sau khối cũ) làm khối cũ hai đối số chặn trước, nên hai bản dựng
+  // lệch đúng ở ca đổi số; không có đường «chỉ thêm» — tiền lệ eval-thay-boi-co-chung. Thông điệp và nhánh cũ
+  // giữ từng chữ; run-log vắng → bộ phân giải đọc như trước vòng (DM2 doc-cu, DM3 hàng 10).
+  '      const {mucChuaDinhTuyen}=require(process.argv[1]);',
+  '      const m=mucChuaDinhTuyen(rd(process.argv[2]),rd(process.argv[3]));',
+  '      process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", "):"OK:"+m.tong);',
+  `    ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" 2>/dev/null || printf '__LOI__')"`,
   // Hồ sơ `eval-thay-boi-co-chung` (06/10/2026): luật hai vế xét con trỏ thay thế ở CÂY ĐANG
   // KIỂM, nên hai bên đọc phải truyền thêm gốc cây vào checkRepinEvals — lời gọi cũ không có
   // chỗ cho tham số đó, không đường «chỉ thêm» (tiền lệ cong-chan-nham-cho). Thông điệp và

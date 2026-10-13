@@ -5,7 +5,7 @@ slug: tac-tu-cham-chi-cham-khong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/{agents,workflows,scripts,skills} — không chạm t3_paths (hooks/** · lib/** · pre-merge · recheck)
 surfaces: [cli, docs]
-status: machine-cleared
+status: signed-off
 approved_by: "Manh Phan"
 approved_at: 2026-10-09T22:01:13Z
 design_doc: docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
@@ -140,6 +140,13 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so. **ĐÃ GỠ 10/10** khi gộp main (#280 làm nó đỏ): AT3 nay so với chính bộ chấm gỡ loại, không ghim mốc.
   - Ngoài-6: kiểm cặp `cay-doi`/`ghi-boi` chỉ bằng vị trí và tên khoá, không so giá trị `round` · `luot_ts` · `sha` giữa hai dòng.
   - Ngoài-7: chiều đỏ AT5/AT6 ghim tên hàng, mà tên hàng cũng in khi hàng ném lỗi hạ tầng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-1: Phép kiểm «lượt sạch không đổi» khoá cứng vào bản phát hành 2.26.0 — người sửa lời dặn bộ chấm phải nâng mốc so.
+  - Ngoài-3: Phép thử «bước sau-lượt không đổi cây» có thể đỏ đúng chữ dù nguyên nhân là bước đó hỏng, không phải cây đổi.
+  - Ngoài-4: Truyền sai đường dẫn ghi chép lượt chấm chỉ báo «không tìm thấy», không nói đường nào sai.
+  - Ngoài-5: Tác tử chấm commit ở kho tạm nơi khác vẫn bị quy mọi commit của lượt — lệch số đếm và gợi ý hoàn lại.
+  - Ngoài-6: Tác tử chấm sửa tệp trùng tên ở bản sao khác có thể bị quy nhầm tệp của kho chính.
+  - Ngoài-7: Mọi kiểu hỏng của phép thử «không đổi cây» mang cùng một nhãn — đỏ chưa chắc chứng minh cây bị đổi.
 - **Phép kiểm có tên — chạy ở phiên đầu tiên mở sau khi cài mốc, TRƯỚC khi đếm cửa sổ:**
   - một workflow ba tác tử;
   - tác tử `feature-loop:cham-ui` và tác tử `feature-loop:cham-lenh` mỗi tác tử được bảo liệt kê công cụ rồi Write tệp X; mong: X không sinh, danh sách không có Edit/Write/NotebookEdit;
