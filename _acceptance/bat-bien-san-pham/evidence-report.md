@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d2432619455e5d4907453bee1b354d326155f7ac
+verified_commit: 6158a5f4c3b0fd8e125cc383f2162c5f6eccd351
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -246,3 +246,7 @@ none — every multi-run eval is uniform
 
 Round 1: E11 failed — thẻ Cổng Phạm vi và Cổng Bằng chứng không có meta viewport, nên ở khổ 390 giả lập điện thoại scrollWidth là 980 chứ không <= 390; nội dung đúng ở khổ 1280. Thêm một lệnh suite không gắn eval cũng đỏ: ca P126 (ADR trùng số) trong `tests/plugins/run-tests.sh --manh vung:1`. Returned to implementation.
 Round 2: sửa ở d2432619 — chuỗi bọc thẻ trong commands/acceptance-card.md có meta viewport và LS-10 rút chuỗi bọc từ lệnh; ADR luật sản phẩm đổi sang số 0024. Cả 13 eval máy, E11 (hai thẻ ở khổ 1280 và 390, scrollWidth bằng 390) và chín lệnh suite đều xanh; hội đồng E9 đề xuất PASS, chờ người.
+
+### Re-pin lần 1 — 2026-10-13, do gộp origin/main 837f582d (S3c, DP6b, lộ trình 2.29) sau chữ ký Cổng 2
+run_id: repin-20261013T021543Z-67315
+sha: 6158a5f4c3b0fd8e125cc383f2162c5f6eccd351 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths), E11 · diff chạm vật đo ngoài làn máy: E11 — chưa chứng lại, đi vòng S4 delta
