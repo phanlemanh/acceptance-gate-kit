@@ -26,9 +26,9 @@ Gốc: crm-onehub#375 (đợt r2, 13/10) + đường nền DA1 của crm.
 - **Ai bị ảnh hưởng:** không lượt ghim lại nào đổi màu — đo trên crm 13/10: 265/265 lượt gọi giữ mã thoát (51 eval
   `*_san_thiet_ke`); 262 lượt PASS đổi chữ thành `KHONG-DO-DUOC`. Bên đọc trường `verdict` duy nhất biết được (crm
   `tiep-thi-tuyen-doi-tac`) chấm dom trên `.html` — ngoài nhánh đổi.
-- **Làm gì khi update:** chép lại `commands/acceptance-init.md` không cần; kho vendored lớp CI chép lại
-  `scripts/design-gate.mjs` nếu có vendor nó. Muốn eval design thật sự đo: chụp trang đang chạy (`--html`) rồi chấm
-  tệp `.html`. Giới hạn: cờ vàng chưa có bên đọc máy — làn ghim lại chỉ đọc mã thoát.
+- **Làm gì khi update:** không chép lại tệp nào — đường nền và `design-gate.mjs` chạy từ gói đã cài. Muốn eval
+  design thật sự đo: chụp trang đang chạy (`--html`) rồi chấm tệp `.html`. Giới hạn: cờ vàng chưa có bên đọc máy —
+  làn ghim lại chỉ đọc mã thoát.
 
 ## 2.28.0 — 13/10/2026
 

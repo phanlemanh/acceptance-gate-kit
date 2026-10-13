@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/duong-nen.mjs + scripts/design-gate.mjs + commands/acceptance-init.md (thẻ điều kiện) + khuôn đường nền + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-13-nen-dieu-kien-va-static-khong-do-duoc-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
