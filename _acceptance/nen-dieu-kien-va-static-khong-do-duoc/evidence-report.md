@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dd9146b98981c6b9d9ee273656454f328ebb416a
+verified_commit: 5a843da1800b9cab8bd4052a1a851aef4a808f3c
 human_signoff: manh 2026-10-13
 ---
 
@@ -204,3 +204,7 @@ none — mọi eval chạy một lần, xác định (runs: 1), không có eval 
 ## Iterations
 
 Round 1: E1–E10 đều xanh, 11 lệnh suite xanh; baseline BLOCKED hạ tầng nên không đo được chiều đỏ trên bản cũ. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-13, do gộp origin/main e76684fd (lô 2 MacBook Pro) trước khi gộp PR #338
+run_id: repin-20261013T075214Z-80361
+sha: 5a843da1800b9cab8bd4052a1a851aef4a808f3c · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
