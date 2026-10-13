@@ -14,7 +14,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import crypto from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -99,7 +99,7 @@ export function chupCauHinh(cfg) {
   return JSON.stringify({ json, ds });
 }
 
-function chayTron() {
+async function chayTron() {
   const tam = fs.mkdtempSync(path.join(os.tmpdir(), 'kb-ca-'));
   const goc = path.join(tam, 'goc');
   fs.mkdirSync(goc);
@@ -332,6 +332,60 @@ function chayTron() {
       ]);
     }
 
+    // ---- KB-10: máy nhận chưa có bản mới — không bản ghi nào mang số của ref ----
+    {
+      const cfg = path.join(tam, 'cfg-chua-moi'); fs.mkdirSync(cfg);
+      const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+      const D = saoChep(d => {
+        const f = path.join(d, 'feature-loop', '.claude-plugin', 'plugin.json');
+        const j = JSON.parse(fs.readFileSync(f, 'utf8')); j.version = '0.0.1'; fs.writeFileSync(f, JSON.stringify(j, null, 2));
+      });
+      claude(['plugin', 'marketplace', 'add', D], env);
+      claude(['plugin', 'install', `feature-loop@${CHO}`, '--scope', 'user'], env);
+      const k = chayKiem(['--may', '--ref', 'HEAD'], { env });
+      kiem('KB-10 chua-co-ban-moi', [
+        [k.ma === 1, `mong thoát 1 (${tomTat(k)})`],
+        [k.cuoi.startsWith('[kiem-ban-cai] TỔNG KẾT: ĐỎ') && k.cuoi.includes('không bản ghi nào mang số của'), `dòng cuối «${k.cuoi}»`],
+      ]);
+      claude(['plugin', 'install', `acceptance-gate@${CHO}`, '--scope', 'user'], env);
+      const k2 = chayKiem(['--may', '--ref', 'HEAD'], { env });
+      kiem('KB-10 doi-chung', [[k2.ma === 0, `có một bản ghi đúng số mà vẫn đỏ (${tomTat(k2)})`]]);
+    }
+
+    // ---- KB-11: lỗi đầu vào và lỗi bất ngờ đi đường «không chạy được» ----
+    {
+      const khongVet = (k) => !/\n\s+at /.test(k.err);
+      const k1 = chayKiem(['--ref', 'HEAD', '--root']);
+      kiem('KB-11 thieu-gia-tri', [[k1.ma === 2 && k1.cuoi.includes('TỔNG KẾT: KHÔNG CHẠY ĐƯỢC') && khongVet(k1), tomTat(k1)]]);
+      const hong = path.join(tam, `kit-hong-${++dem}`);
+      fs.cpSync(goc, hong, { recursive: true });
+      fs.writeFileSync(path.join(hong, '.claude-plugin', 'marketplace.json'), 'không phải json\n');
+      gitOk(hong, ['init', '-q', '-b', 'main']); gitOk(hong, ['config', 'user.email', 'kb@local']); gitOk(hong, ['config', 'user.name', 'kb']);
+      gitOk(hong, ['add', '-A']); gitOk(hong, ['commit', '-qm', 'hong']);
+      const k2 = chayKiem(['--ref', 'HEAD', '--root', hong]);
+      kiem('KB-11 manifest-hong', [[k2.ma === 2 && k2.cuoi.includes('TỔNG KẾT: KHÔNG CHẠY ĐƯỢC') && khongVet(k2), tomTat(k2)]]);
+      const cfg = path.join(tam, 'cfg-so-hong'); fs.mkdirSync(path.join(cfg, 'plugins'), { recursive: true });
+      fs.writeFileSync(path.join(cfg, 'plugins', 'installed_plugins.json'), 'không phải json\n');
+      const k3 = chayKiem(['--may', '--ref', 'HEAD'], { env: { ...process.env, CLAUDE_CONFIG_DIR: cfg } });
+      kiem('KB-11 so-cai-hong', [[k3.ma === 2 && k3.cuoi.includes('TỔNG KẾT: KHÔNG CHẠY ĐƯỢC') && khongVet(k3), tomTat(k3)]]);
+      const { chay } = await import(pathToFileURL(SCRIPT).href);
+      const in4 = []; let daNem = false;
+      const ma4 = await chay(['--ref', 'HEAD'], { out: (s) => { if (!daNem) { daNem = true; throw new TypeError('lỗi tiêm'); } in4.push(s); } });
+      const cuoi4 = in4[in4.length - 1] || '';
+      kiem('KB-11 loi-bat-ngo', [[ma4 === 2 && cuoi4.includes('KHÔNG CHẠY ĐƯỢC') && cuoi4.includes('lỗi tiêm'), `chay trả ${ma4}, dòng cuối «${cuoi4}»`]]);
+    }
+
+    // ---- KB-12: mục số phiên bản đỏ khi bản cài mang số khác ref ----
+    if (canDoiChung('KB-12')) {
+      const soRef = JSON.parse(gitOk(ROOT, ['show', 'HEAD:feature-loop/.claude-plugin/plugin.json'])).version;
+      const k = chayKiem(['--ref', 'HEAD', '--nguon-cai', saoChep(d => {
+        const f = path.join(d, 'feature-loop', '.claude-plugin', 'plugin.json');
+        const j = JSON.parse(fs.readFileSync(f, 'utf8')); j.version = '0.0.0-lech'; fs.writeFileSync(f, JSON.stringify(j, null, 2));
+      })]);
+      const dS = k.dongMuc('ĐỎ', 'so-phien-ban') || '';
+      kiem('KB-12', [[k.ma === 1, `mong thoát 1 (${tomTat(k)})`], [dS.includes(`feature-loop: cài 0.0.0-lech, ref ${soRef}`), `dòng so-phien-ban «${dS}»`]]);
+    }
+
     // ---- KB-9: khoá suite + cổng lượt cắt mốc trên bản sao kit ----
     {
       const require_ = createRequire(import.meta.url);
@@ -385,5 +439,5 @@ function chayTron() {
 
 if (process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv.includes('--chi-luot-moc')) process.exitCode = cheDoLuotMoc();
-  else { chayTron(); console.log(soFail ? `KB: ${soFail} ca FAIL` : 'KB: mọi ca PASS'); process.exitCode = soFail ? 1 : 0; }
+  else chayTron().then(() => { console.log(soFail ? `KB: ${soFail} ca FAIL` : 'KB: mọi ca PASS'); process.exitCode = soFail ? 1 : 0; });
 }

@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # máy suy: scripts/kiem-ban-cai.mjs mới + ca đo + _acceptance/config.yaml + CHANGELOG/GUIDE — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli, docs]
 design_doc: docs/superpowers/specs/2026-10-13-kiem-ban-cai-sau-phat-hanh-design.md
-status: verified
+status: approved
 approved_by:
 approved_at:
 veto_state: mo
@@ -36,6 +36,10 @@ vào mọi lượt chấm của kit. Ô: `_acceptance/kiem-ban-cai-sau-phat-hanh
 - AC-8: Given (a) `PATH` là một thư mục tạm chỉ chứa liên kết tới `node` và `git` (ca khẳng định `claude` vắng dưới PATH ấy trước khi chạy), (b) ref không tồn tại, When chạy `--ref …`, Then thoát 2; dòng TỔNG KẾT chứa «KHÔNG CHẠY ĐƯỢC» kèm nguyên nhân (a) «không tìm thấy lệnh claude» (b) «ref không có»; không dòng nào bắt đầu `ĐẠT` hay `TỔNG KẾT: ĐẠT`.
 - AC-9: Given `_acceptance/config.yaml` của kit, When đọc bằng bộ đọc config của kit, Then `executors.test.kiem_ban_cai` = `node tests/scripts/kiem-ban-cai.ca.mjs`, `executors.test.kiem_ban_cai_moc` = `node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc`, và `feature_loop.suite_keys` chứa `executors.test.kiem_ban_cai_moc` mà KHÔNG chứa `executors.test.kiem_ban_cai`; và trên các bản sao kit do code sinh (`git archive HEAD` → kho git tạm, commit gốc trên `main`, nhánh `f`) chạy CHÍNH tệp ca của bản sao với `--chi-luot-moc`: (im) `f` chỉ sửa một tệp tài liệu, số giữ nguyên → đúng một dòng `BỎ QUA: KB — không phải lượt cắt mốc`, thoát 0, không có dòng «cấu hình cách ly» (không cài gì); (đỏ) `f` đổi số trong `.claude-plugin/plugin.json` và xoá `feature-loop/agents/` → thoát 1, có «tác tử chấm vắng trong bản cài» nêu `feature-loop:cham-lenh` và «TỔNG KẾT: ĐỎ» (cây cắt mốc đã mất thư mục thì bản cài khớp cây ấy — lớp lỗi A1 bị mục tác tử chấm bắt); (đối chứng dương) `f` chỉ đổi số → thoát 0, «TỔNG KẾT: ĐẠT 8/8»; (không dò) bản sao không có nhánh `main` → hàm nhận diện trả «chạy trọn»; và (judgment) CHANGELOG mục chưa phát hành + GUIDE nói người cắt mốc chạy `--ref v<số>` sau khi cắt tag, máy nhận chạy `--may --ref v<số>` sau khi cài (thay khối lệnh `node -e` của bước 3 mục A1), đọc dòng TỔNG KẾT chứ không đọc mã thoát một mình, và khai các giới hạn của design §4.
 
+- AC-10: Given cấu hình Claude giả mà MỌI bản ghi của chợ kit mang số khác số của ref (máy nhận chưa có bản mới — vd cài từ nguồn có `plugin.json` số 0.0.1), When chạy `--may --ref HEAD`, Then thoát 1 và dòng cuối bắt đầu `[kiem-ban-cai] TỔNG KẾT: ĐỎ` chứa «không bản ghi nào mang số của» ref; và trên cùng cấu hình, cài thêm một gói đúng số của ref → cùng lệnh thoát 0 (đối chứng dương: luật chỉ đỏ khi KHÔNG bản ghi nào được so).
+- AC-11: Given (a) `--root` không kèm giá trị, (b) một nguồn cài mà `.claude-plugin/marketplace.json` tại ref không phải JSON (bản sao kit có commit làm hỏng tệp ấy), (c) sổ cài `installed_plugins.json` của cấu hình giả không phải JSON, When chạy lệnh kiểm, Then mỗi ca thoát 2 và dòng cuối chứa «TỔNG KẾT: KHÔNG CHẠY ĐƯỢC» kèm nguyên nhân; không ca nào thoát 1 hay in vết ngăn xếp không có dòng TỔNG KẾT; và lỗi bất ngờ khác trong lệnh (không thuộc loại đã gọi tên) cũng đi đường thoát 2 với dòng TỔNG KẾT nêu thông điệp lỗi.
+- AC-12: Given nguồn cài là bản sao HEAD mà `feature-loop/.claude-plugin/plugin.json` mang số khác số tại ref, When chạy `--ref HEAD --nguon-cai <bản sao>`, Then thoát 1; dòng `ĐỎ so-phien-ban` chứa «feature-loop: cài <số bản sao>, ref <số tại ref>»; dòng ấy KHÔNG dựng từ cùng nguồn số với lệnh — ca so với số đọc từ `git show HEAD:feature-loop/.claude-plugin/plugin.json` và số viết sẵn của bản sao.
+
 ## Coverage
 
 Bỏ quét bằng `morphological-scan` — sổ `d-20261012T231539Z-1` (ý định chủ kho đã liệt kê đủ bốn mắt chạm và hai lớp đỏ). Trục
@@ -45,6 +49,7 @@ ghi tay, mỗi giá trị có ca:
 - Trục B — mắt chạm: tác tử chấm (vắng · sai tên · cầm bút) · thẻ cổng · lưới trước-gộp (câm · chặn tất) · gói dieu-phoi · hook của gói → AC-2, AC-3, AC-5
 - Trục C — chế độ: kho giả lập · máy thật (khớp · khác tag · khác số · checkout thật có tệp ngoài git) → AC-2, AC-7
 - Trục D — không chạy được: thiếu CLI · ref không có → AC-8
+- Nâng phạm vi ở Cổng Bằng chứng lượt 1 (sổ gate2): máy nhận chưa có bản mới → AC-10 · lỗi bất ngờ đi đường «không chạy được» → AC-11 · ca đỏ của mục số phiên bản → AC-12
 - Cross-cutting: không chạm máy thật → AC-1 · răng phát hành chỉ ở lượt cắt mốc (khoá suite có cổng số phiên bản: bằng · khác · không dò được) + lời dặn sau-tag → AC-9
 
 ## Đường đo
@@ -73,7 +78,7 @@ ghi tay, mỗi giá trị có ca:
   đuôi `.ca.mjs` để không lọt vào các mảnh `*.test.mjs` của CI. Mọi nguồn cài bị tiêm dựng từ `git archive HEAD`
   trong lượt; đường dẫn suy từ vị trí tệp ca; mỗi ca đỏ chạy SAU khi KB-2 (bản lành) xanh trong cùng lượt và
   ghim thông điệp.
-- Cỡ vòng: 9 tiêu chí — trong khung 8–12.
+- Cỡ vòng: 12 tiêu chí — trong khung 8–12 (AC-10…12 nâng phạm vi ở Cổng Bằng chứng lượt 1).
 - Bảng dự báo năm dòng (design §3): làm-xong→quyết-được = · lượt gọi người = · vòng bị hạ tầng đốt lượt chấm ↓ ·
   token máy = · phút máy/lượt chấm: vòng thường = (+<1 s), lượt cắt mốc ↑ ~1–2′. Điều kiện tin cậy: đường verdict
   không đổi thành phần.
@@ -81,3 +86,11 @@ ghi tay, mỗi giá trị có ca:
   `schema_version: 1` tối thiểu, không do bên-viết của bản cài sinh — kho khách khởi tạo hồ sơ bằng phiên Claude điền
   khuôn chữ, không có bộ sinh máy để gọi. Khuôn giữ tối thiểu để bản cài của tag cũ vẫn đọc được; HEAD đổi khuôn mà
   tag cũ không đọc được thì KB-6 ĐỎ (không im). Ngưỡng mở ô: ≥1 lần KB-6 đỏ vì khuôn hồ sơ giả lập, không vì bản cài.
+- Known limits (Cổng Bằng chứng lượt 1, Ngoài-2): chú thích đầu `evals.yaml` nói khoá `kiem_ban_cai` nằm trong suite_keys —
+  thật ra khoá `kiem_ban_cai_moc` mới nằm ở đó (cấu hình và ca KB-9 đúng).
+- Known limits (Ngoài-4): ảnh chụp KB-1 bỏ tệp đánh dấu `.in_use`, nên nếu chế độ máy thật quay lại gọi CLI (làm mới
+  `.in_use`) thì KB-1 vẫn xanh; ca cũng không kiểm kết quả của lượt `--may` trong KB-1. Nội dung bản cài thật không đổi.
+- Known limits (Ngoài-6): mục tác tử chấm ĐẠT khi workflow đã cài không gọi tên loại tác tử nào (đổi cách khai tên thì
+  mục không kiểm gì mà vẫn xanh).
+- Known limits (Ngoài-7): câu OOS-3 trên thẻ Cổng Phạm vi từng nói kiểm chạy ở mọi lượt chấm — đã sửa trong
+  `card-plain.json` trước khi trình Cổng Bằng chứng; thẻ Cổng Phạm vi đã trình 13/10 sáng mang câu cũ.

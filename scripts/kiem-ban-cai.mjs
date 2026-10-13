@@ -39,12 +39,16 @@ const git = (root, args, buffer = false) =>
 export function docManifest(root, ref) {
   const m = git(root, ['show', `${ref}:.claude-plugin/marketplace.json`]);
   if (m.status !== 0) throw new KhongChay(`không đọc được .claude-plugin/marketplace.json tại ${ref}`);
-  const mk = JSON.parse(m.stdout);
+  let mk;
+  try { mk = JSON.parse(m.stdout); } catch (e) { throw new KhongChay(`.claude-plugin/marketplace.json tại ${ref} không phải JSON: ${e.message}`); }
+  if (!mk || !Array.isArray(mk.plugins)) throw new KhongChay(`.claude-plugin/marketplace.json tại ${ref} thiếu mảng plugins`);
   const goi = mk.plugins.map(p => {
     const nguon = path.posix.normalize(String(p.source).replace(/^\.\//, '')) || '.';
     const pj = git(root, ['show', `${ref}:${nguon === '.' ? '' : nguon + '/'}.claude-plugin/plugin.json`]);
     if (pj.status !== 0) throw new KhongChay(`không đọc được plugin.json của gói ${p.name} tại ${ref}`);
-    return { ten: p.name, nguon, so: JSON.parse(pj.stdout).version };
+    let so;
+    try { so = JSON.parse(pj.stdout).version; } catch (e) { throw new KhongChay(`plugin.json của gói ${p.name} tại ${ref} không phải JSON: ${e.message}`); }
+    return { ten: p.name, nguon, so };
   });
   return { cho: mk.name, goi };
 }
@@ -177,7 +181,8 @@ function claude(args, env) {
 function danhSachCai(env) {
   const r = claude(['plugin', 'list', '--json'], env);
   if (r.status !== 0) throw new KhongChay(`claude plugin list --json thoát ${r.status}: ${(r.stderr || '').trim().split('\n').pop()}`);
-  const d = JSON.parse(r.stdout);
+  let d;
+  try { d = JSON.parse(r.stdout); } catch (e) { throw new KhongChay(`claude plugin list --json không in JSON: ${e.message}`); }
   return Array.isArray(d) ? d : (d.plugins || []);
 }
 
@@ -187,11 +192,12 @@ function moTa(ds, n = 5) { return ds.slice(0, n).join(', ') + (ds.length > n ? `
 
 function docArgs(argv) {
   const a = { ref: null, root: path.resolve(HERE, '..'), nguonCai: null, giu: false, may: false };
+  const giaTri = (i, k) => { const v = argv[i]; if (v === undefined || v.startsWith('--')) throw new KhongChay(`thiếu giá trị cho ${k}`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
-    if (k === '--ref') a.ref = argv[++i];
-    else if (k === '--root') a.root = path.resolve(argv[++i]);
-    else if (k === '--nguon-cai') a.nguonCai = path.resolve(argv[++i]);
+    if (k === '--ref') a.ref = giaTri(++i, k);
+    else if (k === '--root') a.root = path.resolve(giaTri(++i, k));
+    else if (k === '--nguon-cai') a.nguonCai = path.resolve(giaTri(++i, k));
     else if (k === '--giu') a.giu = true;
     else if (k === '--may') a.may = true;
     else throw new KhongChay(`đối số lạ: ${k}`);
@@ -362,6 +368,11 @@ function cheDoMay(a, sha, mf, out) {
     out(`${TIEN_TO} VÀNG may: ${v.id} khác số ${v.so}${v.ref ? ` (ref ${v.ref})` : ' (gói không có trong chợ tại ref)'} · ${v.n} bản ghi — chưa nâng`);
   }
   const duoi = khacSo ? ` · ${khacSo} bản ghi khác số (VÀNG)` : '';
+  // Không bản ghi nào mang số của ref = bản mới chưa tới máy này; «0 đỏ» ở đây là xanh rỗng, không phải khớp.
+  if (dat + do_ === 0) {
+    out(`${TIEN_TO} TỔNG KẾT: ĐỎ — không bản ghi nào mang số của ${a.ref} (${sha.slice(0, 8)}) — bản mới chưa tới máy này${duoi}`);
+    return 1;
+  }
   out(do_
     ? `${TIEN_TO} TỔNG KẾT: ĐỎ ${do_}/${dat + do_} bản ghi cùng số lệch ${a.ref} (${sha.slice(0, 8)}) — gỡ rồi cài lại${duoi}`
     : `${TIEN_TO} TỔNG KẾT: ĐẠT ${dat} bản ghi khớp ${a.ref} (${sha.slice(0, 8)})${duoi}`);
@@ -376,12 +387,16 @@ export async function chay(argv, { out = (s) => process.stdout.write(s + '\n') }
     const mf = docManifest(a.root, sha);
     return a.may ? cheDoMay(a, sha, mf, out) : cheDoGiaLap(a, sha, mf, out);
   } catch (e) {
-    if (!(e instanceof KhongChay)) throw e;
-    out(`${TIEN_TO} TỔNG KẾT: KHÔNG CHẠY ĐƯỢC — ${e.message}`);
+    // Mọi lỗi — kể cả lỗi chưa gọi tên — đi đường «không chạy được»: thoát 1 là dành cho bản cài ĐỎ.
+    const lyDo = e instanceof KhongChay ? e.message : `lỗi bất ngờ: ${(e && e.message) || e}`;
+    out(`${TIEN_TO} TỔNG KẾT: KHÔNG CHẠY ĐƯỢC — ${lyDo}`);
     return 2;
   }
 }
 
 if (process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  chay(process.argv.slice(2)).then(ma => { process.exitCode = ma; });
+  chay(process.argv.slice(2)).then(ma => { process.exitCode = ma; }, e => {
+    process.stdout.write(`${TIEN_TO} TỔNG KẾT: KHÔNG CHẠY ĐƯỢC — lỗi bất ngờ: ${(e && e.message) || e}\n`);
+    process.exitCode = 2;
+  });
 }

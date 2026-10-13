@@ -136,6 +136,43 @@ evals:
       với chính cây ấy nên ĐẠT — mục tac-tu-cham bắt lớp A1). Chiều đỏ chỉ tính khi đối chứng dương xanh trong cùng lượt.
       (khong-do) bản sao không có nhánh main → hàm nhận diện (export của tệp ca) trả «chay-tron».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-10 chua-co-ban-moi" và "PASS: KB-10 doi-chung". Cấu hình Claude giả của ca: chỉ
+      feature-loop được cài, từ bản sao HEAD có feature-loop/.claude-plugin/plugin.json số 0.0.1 → `--may --ref
+      HEAD` thoát 1, dòng cuối bắt đầu `[kiem-ban-cai] TỔNG KẾT: ĐỎ` và chứa «không bản ghi nào mang số của»
+      (chua-co-ban-moi). Cài thêm acceptance-gate từ cùng bản sao (số đúng của HEAD) → cùng lệnh thoát 0
+      (doi-chung) — luật chỉ đỏ khi KHÔNG bản ghi nào được so.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-11 thieu-gia-tri", "PASS: KB-11 manifest-hong", "PASS: KB-11 so-cai-hong",
+      "PASS: KB-11 loi-bat-ngo". (thieu-gia-tri) `--ref HEAD --root` (không giá trị) · (manifest-hong) `--root
+      <bản sao kit có commit ghi «không phải json» vào .claude-plugin/marketplace.json> --ref HEAD` · (so-cai-hong)
+      `--may --ref HEAD` với cấu hình giả có plugins/installed_plugins.json là «không phải json»: mỗi lượt thoát 2,
+      dòng cuối chứa «TỔNG KẾT: KHÔNG CHẠY ĐƯỢC», stderr không có «at » của vết ngăn xếp. (loi-bat-ngo) ca nạp
+      hàm `chay` của lệnh và truyền bộ in ném TypeError «lỗi tiêm» ở dòng đầu tiên → `chay` trả 2 và dòng cuối
+      được in chứa «KHÔNG CHẠY ĐƯỢC» và «lỗi tiêm».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KB-12" — nguồn cài = bản sao HEAD có feature-loop/.claude-plugin/plugin.json số
+      «0.0.0-lech»: thoát 1; dòng `[kiem-ban-cai] ĐỎ so-phien-ban:` chứa «feature-loop: cài 0.0.0-lech, ref <số>»
+      với <số> ca tự đọc bằng `git show HEAD:feature-loop/.claude-plugin/plugin.json` (không từ đầu ra lệnh).
+      Ca chỉ chạy sau khi KB-2 PASS.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-9
     executor: judgment
