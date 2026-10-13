@@ -577,7 +577,7 @@ async function cn1(kit) {
 }
 if (want('CN-1') && await chayCa('CN-1', cn1)) ok('CN-1', 'tám bản ghi bảy chỗ == bảng viết sẵn (ngày rút độc lập từ báo cáo thật); không câu nào lọt mã của kho thử; đối chứng: câu cũ có mã');
 if (want('CN-1-do')) await chayDo('CN-1-do', cn1, [['scripts/tin-hieu.mjs', 'và thành ${c.cauGiao ? `việc ${q(c.cauGiao)}`', 'và thành ${c.cauGiao ? `việc ${x.hang}`']], 'hang-co-ho-so', 'bản sao khuôn câu «thành việc» chèn mã việc');
-if (want('CN-1-do2')) await chayDo('CN-1-do2', cn1, [['scripts/tin-hieu.mjs', 'return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : null;', 'return null;']], 'trong CRM" — đã giao» ≠', 'bản sao bộ đọc ngày ký trả null');
+if (want('CN-1-do2')) await chayDo('CN-1-do2', cn1, [['scripts/tin-hieu.mjs', '  const n = ngayChuKy(chuKy(root, slug));', '  const n = null;']], 'trong CRM" — đã giao» ≠', 'bản sao bộ đọc ngày ký trả null');
 
 // ── CN-2: trường cũ không đổi byte so với 2.27 (AC-2) ─────────────────────────
 const BASE_TH = '294b29db846a75f875f7c7637ce5a9080cda50aa';

@@ -24,7 +24,7 @@ sau hai đợt thử», 05/11).
 | media-library | 18 | 1 | chữ sau nháy đóng |
 | oneflow · map | 41 · 8 | 0 | — |
 
-Tổng 9/662 tệp, **sáu lớp**, lớp nào cũng có ít nhất một ca thật. Bộ đọc theo dòng của kit đọc tiếp cả 9 tệp mà
+Tổng 9/662 tệp ở cây làm việc, **sáu lớp**, lớp nào cũng có ít nhất một ca thật. Bộ đọc theo dòng của kit đọc tiếp cả 9 tệp mà
 không nói gì; cái sai là **kit im**: công cụ khác của kho (Bun.YAML, PyYAML, bộ soạn) vấp mà không lưới nào của kit
 nói ra. Vòng này KHÔNG đổi cách kit đọc (răng §6 so bộ đọc cũ–mới trên bảy kho).
 
@@ -33,6 +33,10 @@ năm-tháng-ngày mà mang ngày: `crm/_acceptance/nen-chat-ai-elements` «Mạn
 kit, mỗi bộ tự viết một biểu thức chỉ nhận năm-tháng-ngày: câu cho người gửi + `--cau` (`scripts/tin-hieu.mjs`),
 bảng điều khiển mở phiên (`scripts/start-scan.mjs` `ngayXong`), dải tóm tắt hồ sơ (`scripts/ho-so-tom-tat.cjs`
 `ngayCua`), nhịp của bản cắt lượt (`scripts/cat-luot.mjs` `ngayDau`). Cả bốn bỏ ngày của hồ sơ ấy **im lặng**.
+
+Ở sha ghim của răng (origin sau `git fetch` 13/10): **10/678** — crm thêm `bo-ca-mau-quy-4` (đã sửa ở một nhánh, chưa gộp
+vào `onehub`), map có 15 tệp thay vì 8. Răng in danh sách theo sha nó đọc; con số nào trong tài liệu này cũng chỉ là
+ảnh chụp.
 
 ## 3. Thứ tự nghiệm (luật 26/09) và chỗ vòng này đứng
 

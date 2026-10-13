@@ -36,7 +36,7 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // «Đã giao» là đúng tập trạng thái mà cắt lượt và lưới trước-gộp dùng — không chép danh sách.
 const { DA_THONG_CONG_2, DA_DONG_THUC_TE } = require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 // Bỏ đúng một cặp «» bao trọn câu giao — cùng hàm trang hồ sơ và khối dữ liệu dùng (import, không chép).
-const { boNgoacNgoai } = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
+const { boNgoacNgoai, ngayChuKy } = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 
 export const TEP_KHUON = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'tin-hieu-template.md');
 export const TEP_SKILL = path.join(__dirname, '..', 'skills', 'gom-tin-hieu', 'SKILL.md');
@@ -257,20 +257,22 @@ export function tinhTrangCua(chu, ngay = null, sections = []) {
   const cum = nhom === 'khac' ? (CUM_KHAC[khoa] || CUM_NHOM.khac) : CUM_NHOM[nhom];
   return { nhom, khoa, cum: nhom === 'da-giao' && ngay ? `${cum} ngày ${ngay}` : cum };
 }
-// Ngày người ký Cổng Bằng chứng: chuỗi YYYY-MM-DD ĐẦU TIÊN của `human_signoff` (lệnh ký ghi «<tên> YYYY-MM-DD»,
-// không có giờ — lấy đúng như người ký ghi), in n/t/năm. Không dùng ngày của dải tóm tắt: đó là mốc gần nhất.
+// Ngày người ký Cổng Bằng chứng: bộ đọc chung `ngayChuKy` (ho-so-tom-tat.cjs) trên `human_signoff` — năm-tháng-ngày
+// đầu tiên, vắng thì ngày/tháng/năm (lệnh ký ghi «<tên> YYYY-MM-DD», người ký tay có khi ghi «10/09/2026»), in n/t/năm. Không dùng ngày của dải tóm tắt: đó là mốc gần nhất.
 function chuKy(root, slug) {
   const r = slug ? doc(path.join(root, '_acceptance', slug, 'evidence-report.md')) : null;
   return r == null ? '' : chuoi(frontmatterField(r, 'human_signoff')).replace(/^["']|["']$/g, '');
 }
 export function ngayKy(root, slug) {
-  const m = chuKy(root, slug).match(/(\d{4})-(\d{2})-(\d{2})/);
-  return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : null;
+  const n = ngayChuKy(chuKy(root, slug));
+  if (!n) return null;
+  const [y, mo, d] = n.split('-');
+  return `${Number(d)}/${Number(mo)}/${y}`;
 }
 // Có chữ ký người mà không rút được ngày → giá trị chữ ký (để `--cau` đỏ nêu nó); ngược lại null.
 export function chuKyKhongNgay(root, slug) {
   const v = chuKy(root, slug);
-  return v && !/\d{4}-\d{2}-\d{2}/.test(v) ? v : null;
+  return v && !ngayChuKy(v) ? v : null;
 }
 // Đường đọc-cũ: bản ghi vẽ bằng kit < 2.29 không có `cau_nguoi_gui` → câu cũ kèm MỘT cờ vàng.
 export const CO_BAN_VE_CU = 'bản vẽ cũ — chưa có câu cho người gửi; đang hiện câu cho chủ kho, có thể mang mã — vẽ lại bằng kit ≥ 2.29';
