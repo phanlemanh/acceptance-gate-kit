@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a4456a08086fec368f467f49bf4aed7f220c95a0
+verified_commit: dbea1fb60494517183ab7a3fcb8894e2883b677a
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -229,3 +229,7 @@ none — every multi-run eval is uniform
 
 Round 1: mọi eval máy (E1–E9) và mọi lệnh suite đều đạt, hội đồng E10 đồng thuận PASS. Verdict PASS. Người ở Cổng Bằng chứng nâng phạm vi thêm AC-10, AC-11, AC-12.
 Round 2: phạm vi nâng — thêm E11 (AC-10 máy nhận chưa có bản mới thì ĐỎ), E12 (AC-11 mọi lỗi đi đường «không chạy được»), E13 (AC-12 ca đỏ mục số phiên bản); E1–E9 chạy lại, mọi eval máy và mọi lệnh suite đều đạt, hội đồng E10 đồng thuận PASS. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-13, do hoá cũ do gộp origin/main (lô M5 + BB1 + câu tín hiệu) trước khi gộp #339
+run_id: repin-20261013T062821Z-25751
+sha: dbea1fb60494517183ab7a3fcb8894e2883b677a · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths)
