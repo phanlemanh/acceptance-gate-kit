@@ -145,6 +145,7 @@ export function kiemPhu(pv, data) {
 // Bộ đọc sống ở scripts/co-hop-dong.cjs (hồ sơ vong-mo-thang-bang-feature-loop): thẻ Cổng Phạm vi đọc
 // CHÍNH các hàm này — xuất lại để bên gọi cũ (ca LT-142…) không đổi. Mã không mang số nào của khoảng.
 const CHD = require(path.join(__dirname, 'co-hop-dong.cjs'));
+const { ngayChuKy } = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 export const { KHOA_CO, TEP_SKILL, docKhoang, napKhoang } = CHD;
 
 // ── Cờ cỡ và dáng câu giao (hai trường của LƯỢT CẮT: `vai`, `tieu_chi`) ─────────
@@ -278,7 +279,8 @@ export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
 
 // ── Nhịp ──────────────────────────────────────────────────────────────────────
 // Số ngày từ lúc chốt phạm vi (approved_at, làn V thì veto_opened_at) tới ngày ký Cổng Bằng chứng
-// (chuỗi YYYY-MM-DD đầu tiên trong human_signoff — khuôn bên ghi của lệnh ký «<tên> <ngày>»).
+// (bộ đọc chung `ngayChuKy` của ho-so-tom-tat.cjs trên human_signoff — năm-tháng-ngày đầu tiên, vắng thì
+// ngày/tháng/năm).
 const ngayDau = s => { const m = String(s ?? '').match(/\d{4}-\d{2}-\d{2}/); return m ? m[0] : null; };
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 // Ngày chốt phạm vi — MỘT bộ đọc cho nhịp và đồng hồ cỡ.
@@ -295,7 +297,7 @@ export function nhip(root) {
     tong += 1;
     const hang = chuoi(frontmatterField(c, 'risk_tier'));
     const dau = ngayChot(c);
-    const cuoi = ngayDau(ky);
+    const cuoi = ngayChuKy(ky);
     if (!dau || !cuoi || !(hang in ngay)) { boQua += 1; continue; }
     ngay[hang].push(Math.round((Date.parse(`${cuoi}T00:00:00Z`) - Date.parse(`${dau}T00:00:00Z`)) / 864e5));
   }

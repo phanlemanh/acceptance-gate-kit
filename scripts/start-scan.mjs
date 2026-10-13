@@ -233,11 +233,12 @@ const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'))
 // ngày ngay ở nấc một. Nấc nào cũng không ra → null, KHÔNG mượn mtime bịa mốc:
 // một con số sai chỗ này là thẻ nói dối về thứ tự việc vừa làm.
 const NGAY_RE = /(\d{4}-\d{2}-\d{2})/;
+const { ngayChuKy } = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 const ngayXong = (dir, anchorPath) => {
   const e = read(path.join(dir, 'evidence-report.md'));
   if (!e.err && e.t != null) {
-    const m = NGAY_RE.exec(frontmatterField(e.t, 'human_signoff') || '');
-    if (m) return m[1];
+    const n = ngayChuKy(frontmatterField(e.t, 'human_signoff') || ''); // bộ đọc chung (ho-so-tom-tat.cjs)
+    if (n) return n;
   }
   for (const f of ['uat-session.md', 'opportunity.md']) {
     const r = read(path.join(dir, f));
