@@ -58,7 +58,7 @@ tra khuôn theo mã; mã vắng → thoát mã 2.
 | `cong_cu` | từ đầu (bỏ các phép gán `TEN=gia-tri` đứng trước) của mọi lệnh `executors.<loại>.<tên>` — hỏi máy bằng `command -v` CHỈ KHI từ đầu là một tên chương trình; từ đầu mang thay thế của shell (`$` `` ` ``) hoặc mở nhóm (`(` `{`) thì không tra, không đỏ, và in một dòng lý do kèm khoá ra stderr | một từ đầu **là tên chương trình** mà không có trên máy — luật xét đúng từ đầu, nên `lenh-thieu \| head` vẫn đỏ |
 | `suite` | chụp `git status --porcelain`, chạy từng lệnh của `feature_loop.suite_keys` MỘT lần, TUẦN TỰ, mỗi lệnh một tiến trình con, chụp lại | suite thoát khác 0 · cây có dòng mới sau suite |
 | `luoi` | `pre-merge-check.sh <root> --base <merge-base nhánh gốc> --no-t1-escape` — không bao giờ thu phạm vi theo slug; ưu tiên bản vendored của repo | có dòng `VIOLATION` (in nguyên văn dưới nhãn «có sẵn») · lưới chạy lỗi |
-| `engine` | băm sha256 các tệp của khối `INIT-CI-COPY-LIST` (rút từ marker của `commands/acceptance-init.md`) ở bản vendored · bản plugin cache · bản đang chạy | hai bản bất kỳ lệch nhau |
+| `engine` | băm sha256 các tệp của khối `INIT-CI-COPY-LIST` (rút từ marker của `commands/acceptance-init.md`) ở bản vendored · bản plugin cache · bản đang chạy; tệp mang thẻ `[only-if-declared: <khoá>]` mà kho không khai khoá (không có dòng cột 0 `<khoá>:` trong config) và VẮNG ở bản vendored thì bỏ bản vendored khỏi các cặp của riêng tệp đó, in `engine: bo-qua <tệp> — tệp có điều kiện, kho không khai <khoá>` ra stderr | hai bản bất kỳ lệch nhau — kể cả tệp mang thẻ đang CÓ mặt mà lệch, và tệp mang thẻ vắng khi kho đã khai khoá |
 
 `bo-qua` không phải đỏ: lưới không tìm thấy hoặc không dò được nhánh gốc, repo
 không vendored tệp engine nào. Lý do bỏ qua in ra stderr của script. Máy không
