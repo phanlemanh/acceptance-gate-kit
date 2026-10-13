@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 0ea126220ad045f92625db387deb70b1756e8a58
-human_signoff:
+human_signoff: manh 2026-10-14
 ---
 
 # Evidence Report: dinh-tuyen-theo-ma-muc

@@ -5,7 +5,7 @@ slug: dinh-tuyen-theo-ma-muc
 owner: phanlemanh@gmail.com
 risk_tier: T3      # lib/out-of-contract.cjs thuộc t3_paths (lõi cưỡng chế dùng chung mọi kho)
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-13-dinh-tuyen-theo-ma-muc-design.md
 approved_by: manh
 approved_at: 2026-10-13T10:43:29Z
@@ -104,3 +104,12 @@ từ lịch sử git (lib thuần, không gọi git; bộ đọc chạy cả ở
 - Xử hồ sơ crm `zalo-qua-webhook` (việc của crm khi cài 2.29.1 — ghi vào danh sách kiểm nhận mốc).
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-14:
+  - Ngoài-3: Ca DM9 «lưới trên cây kit» xanh mà chưa chạm khối định tuyến — lưới dừng sớm ở hồ sơ đã ký, nên ca chưa chứng minh được điều nó tuyên.
+  - Ngoài-4: Chiều đỏ DM1 «khớp theo số» nhận mọi lỗi, không ghim đúng lý do đỏ.
+  - Ngoài-5: Ca DM1 «đổi số» tuyên mục mới là mục duy nhất chưa định tuyến nhưng chỉ loại trừ Ngoài-2.
+  - Ngoài-6: Ca DM7 «cờ vàng» đếm nhãn trên cả dòng cờ, không tách danh sách dòng cũ với danh sách hỏi lại.
+  - Ngoài-7: Ca DM4 «lưới» nhận mọi lý do chặn cho hàng còn mục chưa định tuyến.
+- Ngoài-2 (mở hợp đồng mới, 2026-10-14): dòng máy mồ côi thành «lệch» vĩnh viễn — ghi thành hạt giống `docs/plans/2026-10-14-hat-giong-dong-may-mo-coi-vinh-vien.md`.
+- Hệ quả lên kho (Hỏi-1 «chặt», Cổng Phạm vi 13/10): kit `tac-tu-cham-chi-cham-khong` đã được chủ kho ký trong PR này (426ff16f); crm `zalo-qua-webhook` vào danh sách kiểm khi crm nhận 2.29.1 — lưới crm sẽ chặn hồ sơ ấy tới khi người định tuyến 5 mục hiện tại.
