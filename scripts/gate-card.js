@@ -537,6 +537,21 @@ if (gate === '1') {
   // giữ nguyên ý nghĩa.
   for (const ac of parseACBlock(contract)) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); }
   const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
+  // Cỡ hợp đồng (hồ sơ vong-mo-thang-bang-feature-loop): khoảng đọc từ khối CAT-LUOT-CO qua MỘT bộ đọc dùng
+  // chung với đồng hồ cỡ (scripts/co-hop-dong.cjs); chỉ hợp đồng draft bị chặn hay cờ — hợp đồng đã qua Cổng
+  // Phạm vi đi đường đọc-cũ. Khối hỏng / không đọc được tiêu chí → cờ vàng, KHÔNG chặn (fail-visible).
+  // Nạp KHOAN DUNG: thẻ chạy được ở nơi chỉ có lib/ cạnh nó (bản cô lập của P161) — thiếu bộ đọc cỡ thì
+  // cờ vàng nói ra, không sập thẻ, không chặn.
+  let CHD = null, chdLoi = null;
+  try { CHD = require('./co-hop-dong.cjs'); } catch (e) { chdLoi = String(e && e.message || e).split('\n')[0]; }
+  const coHD = CHD ? (() => { const r = CHD.coHopDong({ contract, decisions: read(path.join(dir, 'decisions.jsonl')), status }); delete r.draft; return r; })()
+    : { n: null, nhom: null, khoang: null, giu: null, chan: false, vang: String(status || '').toLowerCase() === 'draft', loi: `không nạp được bộ đọc cỡ scripts/co-hop-dong.cjs: ${chdLoi}` };
+  const coKhoang = k => `khối CAT-LUOT-CO: mục tiêu ${k.muc_tieu[0]}–${k.muc_tieu[1]} · cho phép tới ${k.cho_phep_den} · từ ${k.tach_tu} phải tách`;
+  const coDo = coHD.chan ? `CHƯA vào được Cổng Phạm vi: hợp đồng có ${coHD.n} tiêu chí — từ ${coHD.khoang.tach_tu} phải tách (${coKhoang(coHD.khoang)}). Hai lối ra: tách thành nhiều vòng, mỗi vòng một kết quả; hoặc ghi vào decisions.jsonl một dòng có decision mở đầu «${CHD.GIU_CO_MO_DAU}<lý do>» nói vì sao kết quả không tách được mà giữ nghĩa.` : null;
+  const coVang = !coHD.vang ? null
+    : coHD.loi ? `Chưa kiểm cỡ hợp đồng — ${!CHD ? 'không nạp được bộ đọc cỡ' : /khối CAT-LUOT-CO|SKILL cắt lượt/.test(coHD.loi) ? 'không đọc được khoảng cỡ' : 'không đọc được tiêu chí'}: ${coHD.loi}.`
+    : coHD.giu ? `Hợp đồng có ${coHD.n} tiêu chí — giữ theo dòng sổ ${coHD.giu.id || '(không mã)'}: «${coHD.giu.ly_do}» (${coKhoang(coHD.khoang)}).`
+    : `Hợp đồng có ${coHD.n} tiêu chí — trên mục tiêu ${coHD.khoang.muc_tieu[0]}–${coHD.khoang.muc_tieu[1]} (cho phép tới ${coHD.khoang.cho_phep_den}, khối CAT-LUOT-CO): chỉ giữ khi kết quả không tách được mà giữ nghĩa — ghi vì sao bằng dòng «${CHD.GIU_CO_MO_DAU}<lý do>».`;
   const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);
   const evalsFor = id => evalList.filter(e => e.criterion === id);
   const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_RE.test(thenOf(x.gwt)));
@@ -806,7 +821,7 @@ if (gate === '1') {
   // Ô duy nhất của cổng này là CHỮ QUYẾT: thẻ sạch → điền sẵn «duyệt»; có cờ
   // đỏ hoặc rơi bậc → để trống, vì mời ký trên thẻ đang đỏ đúng là thứ audit
   // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
-  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || cc.do.length > 0;
+  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot || cc.do.length > 0 || coHD.chan;
   // Hồ sơ đã khép (bộ quét: chấm bởi thực tế / nghỉ) không còn câu hỏi nào cho người — không ô hỏi,
   // không dòng lệnh duyệt, không dòng goal (ha-tang-khong-dot-luot AC-7; cùng chữ AC-6 của 2.18.1).
   // Chỉ HỎI bộ quét khi trạng thái nằm NGOÀI mọi danh sách mà bộ tự nhận cổng ở trên biết — đúng ca
@@ -818,7 +833,7 @@ if (gate === '1') {
   const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
   const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa', ...(ccDraft ? ccCauHoi.map(d => d.nhan) : [])], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, can_cu: { cau_hoi: ccCauHoi.map(d => ({ nhan: d.nhan, id: d.id, decision: d.e.decision, ...baVeRut(d.e), khuyen: d.e.can_cu.khuyen, loi_khac: d.e.can_cu.loi_khac, kho_dao: d.e.can_cu.kho_dao === true })), da_quyet: ccMayQuyet.map(d => ({ id: d.id, decision: d.e.decision, ...baVeRut(d.e), nguon: d.e.can_cu.nguon, tep: d.e.can_cu.tep || null, trich: d.e.can_cu.trich || null, loi_chet: d.e.can_cu.loi_chet || null, ghi_chu: d.ghi_chu || null })), do: cc.do.map(d => ({ id: d.id, ma: d.ma, thong_diep: d.thong_diep })), doi_truoc: cc.doi_truoc, bi_thay: cc.bi_thay, goc: cc.goc }, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2), 0); }
+  if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, co_hop_dong: coHD, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa', ...(ccDraft ? ccCauHoi.map(d => d.nhan) : [])], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, can_cu: { cau_hoi: ccCauHoi.map(d => ({ nhan: d.nhan, id: d.id, decision: d.e.decision, ...baVeRut(d.e), khuyen: d.e.can_cu.khuyen, loi_khac: d.e.can_cu.loi_khac, kho_dao: d.e.can_cu.kho_dao === true })), da_quyet: ccMayQuyet.map(d => ({ id: d.id, decision: d.e.decision, ...baVeRut(d.e), nguon: d.e.can_cu.nguon, tep: d.e.can_cu.tep || null, trich: d.e.can_cu.trich || null, loi_chet: d.e.can_cu.loi_chet || null, ghi_chu: d.ghi_chu || null })), do: cc.do.map(d => ({ id: d.id, ma: d.ma, thong_diep: d.thong_diep })), doi_truoc: cc.doi_truoc, bi_thay: cc.bi_thay, goc: cc.goc }, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2), 0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -838,6 +853,7 @@ if (gate === '1') {
   // First thing on the card, before any criterion list: if the card cannot be trusted,
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
+  if (coDo) P.push(`<div class="flag fred co-hd">⚠ ${esc(coDo)}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
   const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? [SCOPE_TOM + esc(pl.scope_plain)] : []).concat(oosItems.map(x => SCOPE_MUC + esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
@@ -922,6 +938,7 @@ if (gate === '1') {
   if (cc.goc === 'loi') flags.push(['fwarn', esc(canCu.CO.gocLoi(glossaryBase))]);
   else if (ccDraft && !glossaryBase && ccMayQuyet.some(d => d.e.can_cu.nguon === 'muc-tieu')) flags.push(['fwarn', esc(canCu.CO.chuaKiemGoc)]);
   if (ccDraft && cc.doi_truoc) flags.push(['fwarn', esc(canCu.CO.doiTruoc(cc.doi_truoc))]);
+  if (coVang) flags.push(['fwarn co-hd', esc(coVang)]);
   if (flags.length) P.push(`<div class="lab">Cần chú ý trước khi duyệt</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
   // ---- 👉 VIỆC CỦA ANH trên THẺ (danh sách máy-đếm — chip ② kit 2.1): mỗi
   // mục làm-gì/ở-đâu/trả-lời-dạng-gì + câu mẫu gộp MỘT dòng (một <p> duy nhất,
