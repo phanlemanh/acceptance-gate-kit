@@ -10,6 +10,26 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Hai thước thôi nói sai trên kho tiêu thụ — tệp có điều kiện ở đường nền, «không đo được» ở design-gate (hồ sơ `nen-dieu-kien-va-static-khong-do-duoc`, hàng DP9, T2)
+
+Gốc: crm-onehub#375 (đợt r2, 13/10) + đường nền DA1 của crm.
+
+- **Đường nền, chân engine:** khối danh sách chép CI (`commands/acceptance-init.md`) gắn thẻ máy-đọc
+  `[only-if-declared: tin_hieu|lo_trinh]` cho 10 mục chỉ cần khi kho khai ổ cắm. Kho không khai ổ cắm mà không chép
+  tệp ấy → `engine: bo-qua <tệp> …` ra stderr thay vì `LECH`. Tệp có mặt mà lệch, hoặc kho đã khai mà tệp vắng,
+  vẫn đỏ. crm (không khai `tin_hieu`, thiếu bốn tệp) thôi đỏ engine ở mọi dãy.
+- **`design-gate --mode static` trên tệp không phải HTML** (`.tsx`, `.jsx`, `.vue`, không đuôi…): giữ NGUYÊN mã
+  thoát, nhưng `verdict: "KHONG-DO-DUOC"` thay `PASS`, thêm `do_duoc: false` và một dòng stderr. Lỗi chặn nó vẫn
+  thấy được (vd `<img src="" />` viết chữ) vẫn là `REJECT`. HTML và `--mode dom` không đổi một byte.
+- **Ai bị ảnh hưởng:** không lượt ghim lại nào đổi màu — đo trên crm 13/10: 265/265 lượt gọi giữ mã thoát (51 eval
+  `*_san_thiet_ke`); 262 lượt PASS đổi chữ thành `KHONG-DO-DUOC`. Bên đọc trường `verdict` duy nhất biết được (crm
+  `tiep-thi-tuyen-doi-tac`) chấm dom trên `.html` — ngoài nhánh đổi.
+- **Làm gì khi update:** chép lại `commands/acceptance-init.md` không cần; kho vendored lớp CI chép lại
+  `scripts/design-gate.mjs` nếu có vendor nó. Muốn eval design thật sự đo: chụp trang đang chạy (`--html`) rồi chấm
+  tệp `.html`. Giới hạn: cờ vàng chưa có bên đọc máy — làn ghim lại chỉ đọc mã thoát.
+
 ## 2.28.0 — 13/10/2026
 
 Cửa sổ 2.27.0 → 2.28.0 nằm trong **ba ngày** (11–13/10; A2 ký 11/10 trước giờ gắn thẻ `v2.27.0` nhưng gộp sau), có
