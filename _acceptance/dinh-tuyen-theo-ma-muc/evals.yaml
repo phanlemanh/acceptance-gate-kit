@@ -60,6 +60,10 @@ evals:
       hàng khai «còn mục chưa định tuyến» và "NOTE [<slug>]: làn V — máy đi trước" ở hàng sạch; bộ quét không xếp
       «may-di-tiep» đúng ở các hàng lưới chặn (in số hàng mỗi phía). "PASS: DM4 machine-cleared" (hồ sơ
       machine-cleared có dòng cũ → "VIOLATION [<slug>]: status machine-cleared" chứa "chưa người định tuyến").
+      "PASS: DM4 dinh-lai-theo-ma" (S4-r1 t1/t3: người định tuyến lại THEO MÃ sau khi mục đổi số — lưới in
+      "NOTE [<slug>]: làn V — máy đi trước", bộ quét xếp «may-di-tiep», khong-can-nguoi --check thoát 0);
+      chiều đỏ "PASS: DM4-do dinh-lai-hai-doi-so" (bản sao lưới gọi bộ phân giải hai đối số → VIOLATION chứa
+      "chưa người định tuyến: Ngoài-2").
       Chiều đỏ "PASS: DM4-do luoi-khong-truyen-runlog" (bản sao pre-merge-check.sh không truyền run-log.jsonl:
       hàng ca-crm thành NOTE làn V — ca nêu "lưới mù dòng cũ"). Không có "FAIL:".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

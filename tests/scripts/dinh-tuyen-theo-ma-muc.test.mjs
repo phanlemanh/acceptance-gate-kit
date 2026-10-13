@@ -128,12 +128,14 @@ function banSaoMay(tiem = []) {
   return cp;
 }
 
+// S4-r1 t7: E3 ghim «14/14 hàng» — số hàng AC-3 in RIÊNG, đếm riêng; bốn hàng Review Focus in sau.
 await ca('DM3 ma-tran', () => {
   const { sai, n } = chayMaTran(OOC);
+  const ac3 = MA_TRAN.slice(0, SO_HANG_AC3).filter(([ten]) => !sai.some(s => s.startsWith(`hàng ${ten}:`))).length;
   console.log(`  · số hàng chạy: ${n} (AC-3: ${SO_HANG_AC3} · Review Focus: ${n - SO_HANG_AC3})`);
-  if (n !== MA_TRAN.length || MA_TRAN.length !== 18) return { loi: `so hang ${n}, khai truoc 18` };
+  if (n !== MA_TRAN.length || MA_TRAN.length !== 18 || SO_HANG_AC3 !== 14) return { loi: `so hang ${n}, khai truoc 18 (AC-3 14)` };
   if (sai.length) return { loi: sai.join(' ; ') };
-  return { msg: `— ${n}/${n} hàng` };
+  return { msg: `— ${ac3}/${SO_HANG_AC3} hàng AC-3 · ${n - SO_HANG_AC3}/${n - SO_HANG_AC3} hàng Review Focus` };
 });
 const doMaTran = (name, tu, thanh, hang) => ca(name, () => {
   const lanh = chayMaTran(OOC);
@@ -261,6 +263,25 @@ await ca('DM4 da-ky', () => {
   const o = luoi(khoLanV('dm4ky', { findings: CRM_9, ledger: CRM_SO, rl: runLog(R3, R4), ky: 'manh 2026-10-13' }));
   const l = o.out.split('\n').filter(x => x.startsWith('VIOLATION [dm4ky]') && x.includes('chưa người định tuyến'));
   return l.length ? { loi: l.join(' | ') } : { msg: '— hồ sơ đã ký không đổi màu' };
+});
+// S4-r1 t1/t3: người định tuyến lại THEO MÃ sau khi mục đổi số — bản mjs (ba đối số) cho sạch; lưới phải cho
+// CÙNG câu trả lời (NOTE làn V) và bộ quét xếp máy-đi-tiếp. Lượt 1: khối lưới cũ gọi hai đối số → chặn oan.
+const DINH_LAI = { findings: FINDINGS([mucOoc(9), mucOoc(1, { nhan: '(r1)' })]), ledger: so(dongMa(1, 1, { id: 'd-20261013T100000Z-1', at: '2026-10-13T10:00:00Z' }), dongMa(1, 9, { id: 'd-20261013T120000Z-2', at: '2026-10-13T12:00:00Z' })), rl: runLog(T03, '2026-10-13T11:00:00Z') };
+await ca('DM4 dinh-lai-theo-ma', () => {
+  const R = khoLanV('dm4dl', DINH_LAI); const o = luoi(R);
+  const nv = /^NOTE \[dm4dl\]: làn V — máy đi trước/m.test(o.out), c = /^VIOLATION \[dm4dl\]/m.test(o.out);
+  const d = (quet(R).groups.done || []).find(x => x.slug === 'dm4dl');
+  const mjs = kcn(R, 'dm4dl');
+  if (c || !nv) return { loi: `luoi: ${o.out.split('\n').filter(x => x.includes('dm4dl')).slice(0, 2).join(' | ')}` };
+  if (!(d && /^may-di-tiep/.test(d.stateKey)) || mjs.status !== 0) return { loi: `bo quet ${d ? d.stateKey : '-'} · mjs thoat ${mjs.status}` };
+  return { msg: '— lưới NOTE làn V · bộ quét máy-đi-tiếp · khong-can-nguoi thoát 0: ba bên cùng một câu trả lời' };
+});
+await ca('DM4-do dinh-lai-hai-doi-so', () => {
+  const R = khoLanV('dm4dl2', DINH_LAI);
+  if (/^VIOLATION \[dm4dl2\]/m.test(luoi(R).out)) return { loi: 'ban lanh chan' };
+  const may = banSaoMay([['scripts/pre-merge-check.sh', '      const m=mucChuaDinhTuyen(a[0],a[1],a[2]);', '      const m=mucChuaDinhTuyen(a[0],a[1]);']]);
+  const l = luoi(R, may).out.split('\n').find(x => x.startsWith('VIOLATION [dm4dl2]')) || '';
+  return l.includes('chưa người định tuyến: Ngoài-2') ? { msg: `— lưới hai đối số chặn oan: «${l.slice(0, 120)}»` } : { loi: `mutant khong chan dung: ${l}` };
 });
 await ca('DM4-do luoi-khong-truyen-runlog', () => {
   const R = khoLanV('dm4do', { findings: DOI_8, ledger: CRM_SO, rl: runLog(R3, R4) });
