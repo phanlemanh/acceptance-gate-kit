@@ -5,7 +5,7 @@ slug: dinh-tuyen-theo-ma-muc
 owner: phanlemanh@gmail.com
 risk_tier: T3      # lib/out-of-contract.cjs thuộc t3_paths (lõi cưỡng chế dùng chung mọi kho)
 surfaces: [cli, docs]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-13-dinh-tuyen-theo-ma-muc-design.md
 approved_by: manh
 approved_at: 2026-10-13T10:43:29Z
