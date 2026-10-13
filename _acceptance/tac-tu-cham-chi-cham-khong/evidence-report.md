@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 9dc8652fe7a7bf5837e21f73b43364581cabb9d7
-human_signoff:
+human_signoff: manh 2026-10-13
 ---
 
 # Evidence Report: tac-tu-cham-chi-cham-khong
