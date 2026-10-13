@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: cau-tin-hieu-nguoi-gui
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 478ad46b13595ae98f2f49ae7fbeda906635d651
-human_signoff:
+human_signoff: Manh Phan 2026-10-13
 ---
 
 # Evidence Report: cau-tin-hieu-nguoi-gui
@@ -133,7 +133,7 @@ Round 3. Mười lệnh suite chạy xanh trọn, gồm cả `vung:3` (ca P179 c
     - (domain-correctness) Ảnh chụp màn hình hoặc tệp chuỗi chữ giao diện của CRM thật ở commit 06e34d26 cho thấy «Lát dựng», «kỳ đích», «pha», «Kara» là chữ đang hiện cho người dùng cuối trên trang Mục tiêu hoặc Tín hiệu đã gửi; nếu có, các chữ đó là từ vựng sản phẩm quen thuộc của nhân viên CRM và các câu tương ứng đổi sang PASS.
     - (spec-alignment) Ảnh chụp trang CRM thật (hoặc tệp chuỗi giao diện của kho CRM ở commit 06e34d26) cho thấy các chữ «chip Kara», «kỳ đích», «đổi pha», «đợt rà», «Lát dựng», «mã đọc đúng tiếng» là nhãn nhân viên đã thấy hằng ngày. Nếu đủ cả sáu thì verdict đổi thành PASS.
     - (spec-alignment) Biên bản một lần đọc thử của một nhân viên phòng ban không dùng git trên đúng 8 câu cau_nguoi_gui của khối crm (cau-mau.json), ghi rõ từng chữ họ vấp. Nếu họ vấp ở chữ nào thì verdict đổi thành FAIL và nêu đúng câu và chữ đó.
-  human_override:  # chi nguoi ghi
+  human_override: Manh Phan 2026-10-13 — Đạt
 
 ### Lệnh suite (hồi quy)
 

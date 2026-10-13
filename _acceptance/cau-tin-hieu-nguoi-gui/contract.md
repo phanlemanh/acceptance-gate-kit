@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs + khuôn tín hiệu + tài liệu khối dữ liệu (đoạn tin_hieu) + skill gom + CONTEXT + test — không chạm lib/**, hooks/**, scripts/lo-trinh.mjs, dieu-phoi/**, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-12-cau-tin-hieu-nguoi-gui-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -75,3 +75,17 @@ mã nội bộ]`.
   hàm, bảy nhánh) sang `cau_nguoi_gui` trong PR #374.
 - Tệp chung: `skills/acceptance/references/lo-trinh-du-lieu.md` và `_acceptance/config.yaml` cũng nằm trong
   PR #324/#325 — vòng này chỉ sửa đoạn khoá `tin_hieu` và thêm khoá executor cạnh `tin_hieu_vang`.
+- **Known limits — owner ký Cổng Bằng chứng 13/10 sau lượt chấm 3** (E10 Đạt; số Ngoài-<n> theo thẻ lượt 3):
+  - E10: tên việc trong câu cho người gửi là câu giao chủ kho viết, hiện nguyên văn — câu giao viết bằng chữ nội bộ của kho («chip Kara», «kỳ đích đổi pha», «Lát dựng…» ở crm) thì người gửi vẫn vấp; kit không soạn lại câu giao.
+  - Ngoài-1: cờ vàng «bản vẽ cũ» và tài liệu khối dữ liệu ghi «kit ≥ 2.28» trong khi 2.28.0 đã ra không có tính năng — sửa số lúc cắt mốc (hạt giống ở Ngoài-8).
+  - Ngoài-2, Ngoài-15: ma trận đỏ của lệnh kiểm câu chỉ phủ một phần bộ mã của kho (chưa có ca riêng cho slug việc, mã chân trời, mã đợt).
+  - Ngoài-3: khuôn tín hiệu và tài liệu khối dữ liệu chỉ lệnh kiểm câu bằng đường `scripts/tin-hieu.mjs` như thể kho tiêu thụ có tệp đó — phải chạy từ gói kit.
+  - Ngoài-4, Ngoài-5, Ngoài-11, Ngoài-17: ca CN-6-do3 (và CN-6-do2) kết luận đỏ trên một kho mà bản lành chưa chạy trên chính kho đó; thông điệp đã ghim.
+  - Ngoài-6: lớp «mã giống chữ thường» chỉ có ca cho «chỉ chữ số»; một chữ cái, chữ thường liền, chữ hoa ≥2 chưa có ca riêng.
+  - Ngoài-7: bước kiểm câu của skill gom đứng sau mốc đếm «chủ kho sửa bao nhiêu nhóm» — máy đổi tên nhóm có thể bị đếm là người sửa.
+  - Ngoài-9, Ngoài-14: skill gom chưa nêu lối «báo chủ kho» khi `--cau` đỏ vì chữ ký không đọc được ngày hoặc mã lọt qua câu giao của hồ sơ đã giao.
+  - Ngoài-10: cụm tình trạng chia nhóm tiến độ bằng hằng import thay vì gọi chung hàm của trang lộ trình.
+  - Ngoài-16: ca CN-8-do ghim tiền tố chung (lượt sửa 1 đã siết thành «GOM-CAU: xanh thoát 2»).
+  - Ngoài-18: ca CN-3 so nhóm tiến độ với bản chép công thức; nhóm «khác» chỉ thử trên bảng.
+  - Ngoài-19: ca CN-1 viết tay danh sách mã nhóm và mã đợt.
+- **Mở hợp đồng mới ở chữ ký → hạt giống (không mở ô):** Ngoài-8 → `docs/plans/2026-10-13-hat-giong-co-ban-ve-cu-ghi-dung-so-ban.md` · Ngoài-12 + Ngoài-13 → `docs/plans/2026-10-13-hat-giong-ngay-ky-dang-ngay-thang-nam.md`.

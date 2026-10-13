@@ -736,14 +736,19 @@ dieu-phoi-on-dinh-r2#ngoai-17	dieu-phoi-on-dinh-r2	low	doi-chung-tu-sinh	trung		
 dieu-phoi-on-dinh-r2#ngoai-18	dieu-phoi-on-dinh-r2	low	doi-chung-tu-sinh	chet	lượt 2 (DP8-08 khoá tươi đối chứng + tên khoá từ gói)		DP8-08 khoa-bo-roi kết luận từ mã thoát 0, tên khoá viết tay — mục lượt 1, đã sửa [lượt chấm 2; chủ kho quyết ở Cổng Bằng chứng 12/10]
 dieu-phoi-on-dinh-r2#ac-11-r2	dieu-phoi-on-dinh-r2	low	khac	song			Bộ tự kiểm «số khối == số lời gọi test(» của DP8-11 bỏ sót tests/dieu-phoi/loi/ (phát hiện TRONG hợp đồng AC-11; chạy tay trên loi/ lệch 0) [lượt chấm 2; chủ kho quyết ở Cổng Bằng chứng 12/10]
 release-2-28-0#ngoai-1	release-2-28-0	medium	do-thuoc	song			E8 hứa quan hệ «tệp lớp chép CI đổi = tệp CHANGELOG bảo chép lại» nhưng vế CHANGELOG là hằng gõ tay trong config, không rút từ CHANGELOG; canh ≥ 20 thay vì đúng 25 tệp [lượt chấm 1; owner ghi Known limits ở Cổng Bằng chứng 13/10]
-cau-tin-hieu-nguoi-gui#ngoai-1	cau-tin-hieu-nguoi-gui	medium	khac	song			Lớp «mã giống chữ thường» (một chữ cái · chữ thường liền · chữ hoa ≥2) chỉ có ca điểm cho «chỉ chữ số»; đếm độc lập của CN-5 chép công thức của vật
-cau-tin-hieu-nguoi-gui#ngoai-2	cau-tin-hieu-nguoi-gui	medium	khac	song			Bước kiểm câu GOM-CAU đứng sau mốc đếm «chủ kho sửa bao nhiêu nhóm» của skill gom — máy đổi tên nhóm có thể bị đếm thành người sửa (ngưỡng UAT của L3)
-cau-tin-hieu-nguoi-gui#ngoai-4	cau-tin-hieu-nguoi-gui	low	doc-drift	song			Skill gom không nêu lối «báo chủ kho» cho hai lớp đỏ phiên gom không tự sửa được: chữ ký không đọc được ngày, mã lọt qua câu giao của hồ sơ đã giao
-cau-tin-hieu-nguoi-gui#ngoai-5	cau-tin-hieu-nguoi-gui	low	khac	song			tinhTrangCua dựng lại phép chia nhóm tiến độ bằng hằng import thay vì gọi chung nhomTienDo (không export) của lo-trinh.mjs
-cau-tin-hieu-nguoi-gui#ngoai-6	cau-tin-hieu-nguoi-gui	low	khong-the-do	song			CN-6-do2 / CN-6-do3 kết luận đỏ trên một kho mà bản lành chưa chạy trên chính kho đó (thông điệp đã ghim)
-cau-tin-hieu-nguoi-gui#ngoai-9	cau-tin-hieu-nguoi-gui	low	doc-drift	trung		cau-tin-hieu-nguoi-gui#ngoai-4	Trùng mục 4: skill gom thiếu cách xử lý dòng đỏ chữ ký không ngày / mã qua câu giao hồ sơ phủ
-cau-tin-hieu-nguoi-gui#ngoai-10	cau-tin-hieu-nguoi-gui	medium	khac	song			Ma trận đỏ CN-5 phủ 4/7 loại mã của bộ mã kho (thiếu mã đợt, slug hàng, mã chân trời)
-cau-tin-hieu-nguoi-gui#ngoai-11	cau-tin-hieu-nguoi-gui	low	khong-the-do	song			CN-8-do ghim tiền tố chung «GOM-CAU» (lượt sửa 1 đã siết thành «GOM-CAU: xanh thoát 2» — chờ người gạch)
-cau-tin-hieu-nguoi-gui#ngoai-12	cau-tin-hieu-nguoi-gui	low	khong-the-do	trung		cau-tin-hieu-nguoi-gui#ngoai-6	Trùng mục 6: CN-6-do3 thiếu đối chứng dương trên cùng kho
-cau-tin-hieu-nguoi-gui#ngoai-13	cau-tin-hieu-nguoi-gui	low	doi-chung-tu-sinh	song			CN-3 so ma trận nhóm tiến độ với bản chép công thức của vật; nhóm «khác» chỉ thử trên bảng, không trên kho
-cau-tin-hieu-nguoi-gui#ngoai-14	cau-tin-hieu-nguoi-gui	low	doi-chung-tu-sinh	song			CN-1 viết tay danh sách mã nhóm và mã đợt thay vì rút từ kho thử
+cau-tin-hieu-nguoi-gui#ngoai-1	cau-tin-hieu-nguoi-gui	high	doc-drift	song			Cờ «bản vẽ cũ» + tài liệu khối dữ liệu ghi «kit ≥ 2.28» trong khi 2.28.0 đã ra không có tính năng (hạt giống ở Ngoài-8)
+cau-tin-hieu-nguoi-gui#ngoai-2	cau-tin-hieu-nguoi-gui	medium	khac	song			Ma trận đỏ của --cau chưa có ca cho slug việc và mã chân trời
+cau-tin-hieu-nguoi-gui#ngoai-3	cau-tin-hieu-nguoi-gui	low	doc-drift	song			Khuôn tín hiệu và tài liệu khối dữ liệu chỉ lệnh kiểm câu bằng scripts/tin-hieu.mjs như thể kho tiêu thụ có tệp đó
+cau-tin-hieu-nguoi-gui#ngoai-4	cau-tin-hieu-nguoi-gui	low	khong-the-do	song			CN-6-do3 kết luận từ thoát 2 không có đối chứng dương trên cùng kho (thông điệp đã ghim)
+cau-tin-hieu-nguoi-gui#ngoai-5	cau-tin-hieu-nguoi-gui	low	khong-the-do	trung		cau-tin-hieu-nguoi-gui#ngoai-4	Trùng Ngoài-4
+cau-tin-hieu-nguoi-gui#ngoai-6	cau-tin-hieu-nguoi-gui	medium	khac	song			Lớp «mã giống chữ thường» chỉ có ca cho «chỉ chữ số»; một chữ cái · chữ thường liền · chữ hoa ≥2 chưa có ca
+cau-tin-hieu-nguoi-gui#ngoai-7	cau-tin-hieu-nguoi-gui	medium	khac	song			GOM-CAU đứng sau mốc đếm «chủ kho sửa bao nhiêu nhóm» của skill gom — máy đổi tên nhóm có thể bị đếm là người sửa
+cau-tin-hieu-nguoi-gui#ngoai-9	cau-tin-hieu-nguoi-gui	low	doc-drift	song			Skill gom chưa nêu lối «báo chủ kho» khi --cau đỏ vì chữ ký không ngày hoặc mã qua câu giao của hồ sơ đã giao
+cau-tin-hieu-nguoi-gui#ngoai-10	cau-tin-hieu-nguoi-gui	low	khac	song			tinhTrangCua chia nhóm tiến độ bằng hằng import thay vì gọi chung nhomTienDo của lo-trinh.mjs
+cau-tin-hieu-nguoi-gui#ngoai-11	cau-tin-hieu-nguoi-gui	low	khong-the-do	trung		cau-tin-hieu-nguoi-gui#ngoai-4	Trùng Ngoài-4
+cau-tin-hieu-nguoi-gui#ngoai-14	cau-tin-hieu-nguoi-gui	low	doc-drift	trung		cau-tin-hieu-nguoi-gui#ngoai-9	Trùng Ngoài-9
+cau-tin-hieu-nguoi-gui#ngoai-15	cau-tin-hieu-nguoi-gui	medium	khac	trung		cau-tin-hieu-nguoi-gui#ngoai-2	Trùng Ngoài-2 (ma trận đỏ phủ 4/7 loại mã)
+cau-tin-hieu-nguoi-gui#ngoai-16	cau-tin-hieu-nguoi-gui	low	khong-the-do	song			CN-8-do ghim tiền tố chung (lượt sửa 1 đã siết thành «GOM-CAU: xanh thoát 2»)
+cau-tin-hieu-nguoi-gui#ngoai-17	cau-tin-hieu-nguoi-gui	low	khong-the-do	trung		cau-tin-hieu-nguoi-gui#ngoai-4	Trùng Ngoài-4
+cau-tin-hieu-nguoi-gui#ngoai-18	cau-tin-hieu-nguoi-gui	low	doi-chung-tu-sinh	song			CN-3 so nhóm tiến độ với bản chép công thức; nhóm «khác» chỉ thử trên bảng
+cau-tin-hieu-nguoi-gui#ngoai-19	cau-tin-hieu-nguoi-gui	low	doi-chung-tu-sinh	song			CN-1 viết tay danh sách mã nhóm và mã đợt thay vì rút từ kho thử
