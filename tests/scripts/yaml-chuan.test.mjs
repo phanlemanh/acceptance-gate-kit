@@ -51,6 +51,7 @@ function soMaTran(dò) {
 }
 
 const SO_O_MONG = 6 * 2 + 7;
+const O = ten => maTran().find(c => c.o === ten);
 
 if (want('YC-1')) {
   try {
@@ -74,8 +75,88 @@ if (want('YC-1-do')) {
   } catch (e) { bad('YC-1-do', loi(e)); }
 }
 
+// ── Cờ trên thẻ hai cổng (AC-3) ── hằng cờ rút từ nguồn gate-card.js ─────────────────────────────────────────
+const GC = path.join(KIT, 'scripts', 'gate-card.js');
+const GC_SRC = readFileSync(GC, 'utf8');
+const CO = (GC_SRC.match(/const YAML_KHONG_CHUAN_FLAG = '([^']+)';/) || [])[1];
+const CO_KK = (GC_SRC.match(/const YAML_KHONG_KIEM_FLAG = '([^']+)';/) || [])[1];
+const unesc = s => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const coCua = html => [...html.matchAll(/class="flag f\w+[^"]*">([\s\S]*?)<\/div>/g)].map(m => unesc(m[1]));
+const HD = status => `---\nschema_version: 1\nfeature: F\nslug: demo\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\n${status === 'draft' ? '' : 'approved_by: A\napproved_at: 2026-10-10\n'}---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- bỏ X.\n- bỏ Y.\n`;
+const BC = '---\nschema_version: 2\nfeature_slug: demo\nverdict: PASS\nfailed_evals: []\nverified_commit: 0000000\n---\n\n# E\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n\n- eval: E1\n  run_id: r1abc\n  exit_code: 0\n  verifier: config:executors.script.a\n  verified_at: 2026-10-10T00:00:00Z\n';
+// Hai chỗ không chuẩn: dòng 1 dòng gốc không phải khoá, dòng 10 thoát sai — dựng từ ô của ma trận dùng chung.
+// Không dùng lớp «ngoặc trong mục trần» ở đây: trên trường danh sách nó còn làm cờ «danh sách không đọc được» có
+// sẵn bật cùng (đúng việc của cờ ấy), nên phép so «các cờ khác không đổi» sẽ lẫn hai cờ.
+const HAI_LOI = '> Ghi chú đầu tệp viết như trích dẫn\n' + O('thoat-sai-nhay-kep/hong').text;
+const HAI_LOI_SUA = '# Ghi chú đầu tệp viết như trích dẫn\n' + O('thoat-sai-nhay-kep/lanh').text;
+let theN = 0;
+function hoSoThe(evalsText, cong) {
+  const d = path.join(TMP, `the-${++theN}`);
+  mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true });
+  writeFileSync(path.join(d, '_acceptance', 'config.yaml'), 'schema_version: 1\nexecutors:\n  script:\n    a: "echo x"\n');
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'contract.md'), HD(cong === 1 ? 'draft' : 'verified'));
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'), evalsText);
+  if (cong === 2) writeFileSync(path.join(d, '_acceptance', 'demo', 'evidence-report.md'), BC);
+  return d;
+}
+function the(d, gc = GC) {
+  const r = node([gc, '--root', d, '--slug', 'demo']);
+  if (r.status !== 0) throw new Error(`gate-card thoát ${r.status}: ${String(r.stderr).trim().split('\n').pop()}`);
+  return r.stdout;
+}
+function cayBan(ten, sha) { // bản cây scripts+lib+skills: sha → git archive; null → chép cây đang kiểm
+  const d = path.join(TMP, `cay-${ten}`); mkdirSync(d, { recursive: true });
+  if (sha) execFileSync('bash', ['-c', `git -C "${KIT}" archive ${sha} scripts lib skills | tar -x -C "${d}"`]);
+  else for (const x of ['scripts', 'lib', 'skills']) execFileSync('cp', ['-R', path.join(KIT, x), path.join(d, x)]);
+  return d;
+}
+
+if (want('YC-3')) {
+  try {
+    if (!CO || !CO_KK) throw new Error('gate-card.js không khai hằng YAML_KHONG_CHUAN_FLAG / YAML_KHONG_KIEM_FLAG');
+    const e = [];
+    for (const cong of [1, 2]) {
+      const c = coCua(the(hoSoThe(HAI_LOI, cong)));
+      const yc = c.filter(x => x.startsWith(CO));
+      if (yc.length !== 1) { e.push(`Cổng ${cong}: ${yc.length} cờ YAML (mong 1)`); continue; }
+      const t = yc[0];
+      for (const can of ['dòng 1 (dòng ở lề không phải khoá)', 'dòng 10 (thoát sai trong nháy kép)']) if (!t.includes(can)) e.push(`Cổng ${cong}: cờ thiếu «${can}»`);
+      for (const ma of ['dong-goc-khong-phai-khoa', 'thoat-sai-nhay-kep']) if (t.includes(ma)) e.push(`Cổng ${cong}: cờ lộ mã lớp ${ma}`);
+      const c2 = coCua(the(hoSoThe(HAI_LOI_SUA, cong)));
+      if (c2.some(x => x.startsWith(CO))) e.push(`Cổng ${cong}: bản đã sửa vẫn có cờ`);
+      const khac = c.filter(x => !x.startsWith(CO));
+      if (JSON.stringify(khac) !== JSON.stringify(c2)) e.push(`Cổng ${cong}: các cờ khác đổi — hỏng ${JSON.stringify(khac)} / sửa ${JSON.stringify(c2)}`);
+    }
+    if (e.length) bad('YC-3', e.join(' · ')); else ok('YC-3', 'hai cổng: một cờ nêu dòng 1 + dòng 10 bằng chữ lớp; bản sửa không cờ, cờ khác giữ');
+  } catch (e) { bad('YC-3', loi(e)); }
+}
+
+if (want('YC-3-do')) {
+  try {
+    const b = cayBan('base', BASE_SHA);
+    const co = [1, 2].filter(cong => coCua(the(hoSoThe(HAI_LOI, cong), path.join(b, 'scripts', 'gate-card.js'))).some(x => x.startsWith(CO)));
+    if (co.length) bad('YC-3-do', `base ${BASE_SHA} có cờ ở cổng ${co.join(',')} — phép đo không phân biệt được bản mới`);
+    else ok('YC-3-do', `base không cờ (${BASE_SHA}) trên CÙNG hồ sơ hỏng`);
+  } catch (e) { bad('YC-3-do', loi(e)); }
+}
+
+if (want('YC-3-vang')) {
+  try {
+    const b = cayBan('vang', null);
+    const KIM = "path.join(__dirname, 'yaml-chuan.cjs')";
+    const n = GC_SRC.split(KIM).length - 1;
+    if (n !== 1) throw new Error(`nhát tiêm khớp ${n} lần (phải 1)`);
+    writeFileSync(path.join(b, 'scripts', 'gate-card.js'), GC_SRC.replace(KIM, "path.join(__dirname, 'khong-co-bo-do.cjs')"));
+    const e = [];
+    for (const cong of [1, 2]) {
+      const c = coCua(the(hoSoThe(HAI_LOI, cong), path.join(b, 'scripts', 'gate-card.js')));
+      if (!c.some(x => x.startsWith(CO_KK))) e.push(`Cổng ${cong}: thẻ không mang cờ «không kiểm được»`);
+    }
+    if (e.length) bad('YC-3-vang', e.join(' · ')); else ok('YC-3-vang', 'bộ dò vắng → thẻ vẫn dựng, cờ «không kiểm được YAML chuẩn»');
+  } catch (e) { bad('YC-3-vang', loi(e)); }
+}
+
 // ── Lệnh kiểm kho (AC-4) ──────────────────────────────────────────────────────────────────────────────────────
-const O = ten => maTran().find(c => c.o === ten);
 const HONG = O('chu-sau-nhay-dong/hong'); const LANH = O('chu-sau-nhay-dong/lanh');
 const DONG_A = `A/evals.yaml:${HONG.mong.dong} — chữ đứng sau nháy đóng`;
 let khoN = 0;

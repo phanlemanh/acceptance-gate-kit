@@ -50,8 +50,8 @@ evals:
     paths: [scripts/gate-card.js, scripts/yaml-chuan.cjs, tests/scripts/yaml-chuan.test.mjs]
     expected: >
       exit 0; stdout có "PASS: YC-3" — kho thử do mã sinh, một hồ sơ draft và một hồ sơ verified, cả hai mang
-      evals.yaml có hai chỗ không chuẩn (thoat-sai-nhay-kep dòng biết trước, ngoac-trong-muc-tran dòng biết
-      trước): thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng (gate-card.js của cây đang kiểm) mỗi thẻ có đúng một cờ
+      evals.yaml có hai chỗ không chuẩn (dong-goc-khong-phai-khoa dòng 1, thoat-sai-nhay-kep dòng 10 — hai lớp
+      không chạm trường danh sách, để cờ «danh sách không đọc được» có sẵn không bật cùng): thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng (gate-card.js của cây đang kiểm) mỗi thẻ có đúng một cờ
       bắt đầu «evals.yaml không phải YAML chuẩn», cờ chứa cả hai số dòng và hai chữ lớp tiếng sản phẩm và KHÔNG
       chứa mã lớp; cùng hồ sơ với evals.yaml đã sửa → không có cờ đó và tập cờ còn lại bằng tập cờ của thẻ bản
       hỏng trừ cờ đó. Và "PASS: YC-3-do" — gate-card.js của base 3c88d138 trên bản hỏng: không có cờ (ghim
