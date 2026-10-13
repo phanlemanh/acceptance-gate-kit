@@ -468,6 +468,12 @@ executors:
     # Vật của hồ sơ nen-chay-bang-moi-truong-nguoi-goi — ghim ca NEN-ENV* của vòng cùng các ca
     # cũ của chân suite (NEN0 NEN2 NEN3 NEN4 NEN4b) và chân công cụ (NEN1 NEN-TD* NEN-LC*).
     nme_moi_truong: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-ENV1 NEN-ENV2 NEN-ENV3 NEN-ENV4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Vật của hồ sơ nen-dieu-kien-va-static-khong-do-duoc (crm-onehub#375) — ghim NEN0 + NEN6 (chân
+    # engine trước vòng) + NEN7 + NEN-DK1…DK6; DK2 phải có ĐÚNG HAI dòng (tin_hieu, lo_trinh). Ma trận
+    # design-gate so bản gốc (DG-KDD1…3). Bên đọc khối danh sách chép của consumer-esm (CE1, CE2g).
+    ndk_nen_dieu_kien: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN6 NEN7 NEN-DK1 NEN-DK3 NEN-DK4 NEN-DK5 NEN-DK6; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done && [ \"$(printf \"%s\\n\" \"$out\" | grep -cF \"PASS: NEN-DK2 \")\" -eq 2 ]'"
+    ndk_static_khong_do: "bash -c 'out=$(node tests/scripts/design-gate-khong-do-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DG-KDD1 DG-KDD2 DG-KDD3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndk_doc_khoi_chep: "bash -c 'out=$(node tests/scripts/consumer-esm.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CE1 CE2g; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GN1 GN2 GN3 GN4 GN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_suite_tuan_tu: "bash -c 'out=$(node tests/workflows/suite-tuan-tu.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in ST0 ST1 ST2 ST3 ST4 ST5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_phan_loai: "bash -c 'out=$(node tests/scripts/phan-loai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in PL1 PL2 PL3 PL4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
