@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # máy suy: scripts/kiem-ban-cai.mjs mới + ca đo + _acceptance/config.yaml + CHANGELOG/GUIDE — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli, docs]
 design_doc: docs/superpowers/specs/2026-10-13-kiem-ban-cai-sau-phat-hanh-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
