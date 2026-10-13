@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/duong-nen.mjs + scripts/design-gate.mjs + commands/acceptance-init.md (thẻ điều kiện) + khuôn đường nền + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-13-nen-dieu-kien-va-static-khong-do-duoc-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -91,3 +91,5 @@ chế độ dom} × {gốc PASS · gốc REJECT · gốc chết} → AC-6, AC-7;
 - Giới hạn khai: cờ vàng chưa có bên đọc máy — làn ghim lại và lưới trước-merge chỉ đọc mã thoát, nên
   một hồ sơ chỉ có design-gate static trên `.tsx` làm chốt máy của AC mặt người vẫn ghim xanh. Ngưỡng mở
   chế độ chặt: ≥1 kho xin, hoặc ≥1 hồ sơ ký trên chốt ấy mà prod đỏ đúng tiêu chí đó.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-13:
+  - Ngoài-1: Máy kiểm tự động (NEN-DK6) chỉ nhận ra lệnh nạp tệp viết trên một dòng; nếu sau này có tệp nạp tệp tuỳ chọn bằng import xuống dòng hoặc `export … from`, máy vẫn báo xanh và kho không khai ổ cắm sẽ lỗi khi chạy. Hiện chưa chỗ nào viết như vậy nên chưa ai bị ảnh hưởng.

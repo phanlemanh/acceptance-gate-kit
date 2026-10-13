@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: dd9146b98981c6b9d9ee273656454f328ebb416a
-human_signoff:
+human_signoff: manh 2026-10-13
 ---
 
 # Evidence Report: nen-dieu-kien-va-static-khong-do-duoc
