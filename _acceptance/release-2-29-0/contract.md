@@ -5,16 +5,42 @@ slug: release-2-29-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + hai sửa nhỏ đi trong PR mốc (khong-can-nguoi.mjs + start-scan.mjs: luật sản phẩm thiếu mô-đun · tin-hieu.mjs + lo-trinh-du-lieu.md: số bản của cờ «bản vẽ cũ») + workspace hồ sơ + bản đồ + 5 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: draft
+status: approved
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-13T09:11:47Z
 ---
 
 # Acceptance Contract: release-2-29-0
 
 ## Context
 
-<!-- CONTEXT -->
+**Kho chờ nhận — đo được trước khi cắt:** `crm`. Chủ kho chốt mốc «Phát hành 2.29.0» ngày 14/10 trên lộ trình kit
+(`docs/plans/lo-trinh-kit.json`), trễ nhất 15/10, KHÔNG cắt khi thiếu KC1. Neo ở kho tiêu thụ: crm issue
+`phanlemanh/crm-onehub#375` — máy Mac Studio nhận ở quãng lặng của đợt `r2`; hàng LT2 của crm đọc câu cho người gửi
+(gốc của TH-cau: crm `_acceptance/gui-tin-hieu-trong-crm`, E14); luật múi giờ của crm (gốc của BB1: crm
+`_acceptance/okr-soat-anh-luot-3`); đợt `r2` chạy trên gói `dieu-phoi` (gốc của DP9: crm#375 13/10).
+
+**Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ (sáu):
+
+- Bước thiết kế: `vong-mo-thang-bang-feature-loop` (S3c, T2, #335 — máy M5) · `bat-bien-san-pham` (BB1, T2, #329).
+- Cửa tín hiệu: `cau-tin-hieu-nguoi-gui` (TH-cau, T2, #330).
+- Gói `dieu-phoi`: `trang-thai-dot-dieu-phoi-tho` (DP6b, T2, #337 — máy M5) · `nen-dieu-kien-va-static-khong-do-duoc`
+  (DP9, T2, #338 — máy M5; phiên điều phối đưa vào mốc 13/10, gộp `cf691e71`).
+- Phát hành: `kiem-ban-cai-sau-phat-hanh` (KC1, T2, #339 — vòng meta duy nhất của cửa sổ).
+
+Ngoài hồ sơ, PR mốc mang hai sửa có tên (phiên điều phối giao 13/10): luật sản phẩm thiếu mô-đun (lỗ máy M5 nêu khi
+rà BB1 trên main — AC-11) và số bản của cờ «bản vẽ cũ» (hạt giống `co-ban-ve-cu-ghi-dung-so-ban` — AC-12).
+
+Số là **2.29.0, không 2.28.1**: mốc thêm bề mặt mới cho kho tiêu thụ — tệp luật `PRODUCT-INVARIANTS.md` (CỘNG, ADR
+0024), trường `cau_nguoi_gui` và lệnh `tin-hieu.mjs --cau` (CỘNG), mô-đun `scripts/co-hop-dong.cjs` vào lớp chép CI,
+lệnh `kiem-ban-cai.mjs`, lệnh `dieu-phoi.mjs xem --json`. Mốc đi **làn V**. Năm dòng số, bảng dự báo, điều kiện tin
+cậy, dòng hiệu chuẩn và ghi chú nhận mốc cho crm nằm ở mục `2.29.0` của `CHANGELOG.md` — một nguồn, hồ sơ không chép
+lại.
+
+Source input: `git log v2.28.0..HEAD` · nếp phát hành `_acceptance/release-2-28-0/` · mục Notes và Known limits của
+sáu hồ sơ · crm#375 · kit #308.
 
 ## Criteria
 
