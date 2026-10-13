@@ -189,7 +189,15 @@ Gốc: crm-onehub#375 (đợt r2, 13/10) + đường nền DA1 của crm.
 **Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.29.0` (KC1) — dòng TỔNG KẾT ghi
 vào hồ sơ `release-2-29-0`.
 
-<!-- MOI-TRUONG -->
+**Chiến dịch ghim lại — không hồ sơ nào để cũ hoá vì môi trường:** lưới trước-gộp `--stale-all` so mốc `72eb55f3`
+chọn bảy hồ sơ (sáu vòng của cửa sổ và `dieu-phoi-doi-tai-khoan`); làn `repin-20261013T091229Z-18995` xanh cho cả bảy
+trên máy MacBook Pro (36,8 phút, 31 lệnh, 0 chập chờn). `dieu-phoi-on-dinh-r2` (DP8) — hồ sơ 2.28.0 để cũ hoá có chủ
+đích vì AC-4 đọc bản sao crm ở `$HOME/dev/crm-onehub` (đường của máy M5) — không bị lưới coi là cũ ở mốc này, nên
+không cần ghim. Ai ghim lại ở máy khác thì đọc nhãn *không đọc được ở đây* (không phải sai hợp đồng, không phải lỗi
+của mốc) ở bốn hồ sơ cần môi trường riêng: `trang-thai-dot-dieu-phoi-tho` (DP6b — E5–E9b cần Claude Code có lệnh
+`plugin test`, ≥ 2.1.287; bộ đo tìm trên PATH rồi ở bản đi kèm app desktop), `dieu-phoi-on-dinh-r2` (bản sao crm ở
+`$HOME/dev/crm-onehub`), `evals-sat-le-doc-du` (bản sao bảy kho ở `$HOME/dev/<kho>`), `tac-tu-cham-chi-cham-khong`
+(`rang.sh` đỏ trên node 24.21 ở bước kiểm cú pháp mutant).
 
 **crm, theo thứ tự** (crm nhận thẳng từ bản đang cài — mọi ghi chú nhận của các mốc ở giữa vẫn áp, trừ chỗ dưới đây
 thay):

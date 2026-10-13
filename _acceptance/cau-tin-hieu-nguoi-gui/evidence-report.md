@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 20e15c8d0c9c6a7d4c01adf93ba9b7f7da0591ff
+verified_commit: 5cca81e3571a90e284f5b399cf635482c803d9d9
 human_signoff: Manh Phan 2026-10-13
 ---
 
@@ -214,3 +214,7 @@ Round 3: mười lệnh suite xanh trọn (P179 hết đỏ); E1–E9 carry-forw
 ### Re-pin lần 1 — 2026-10-13, do hoá cũ do gộp origin/main sau chữ ký
 run_id: repin-20261013T035726Z-97861
 sha: 20e15c8d0c9c6a7d4c01adf93ba9b7f7da0591ff · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
+
+### Re-pin lần 2 — 2026-10-13, do chiến dịch ghim lại mốc 2.29.0 — đổi số ba gói + gộp lô 2
+run_id: repin-20261013T091229Z-18995
+sha: 5cca81e3571a90e284f5b399cf635482c803d9d9 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · diff chạm vật đo ngoài làn máy: E10 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-10

@@ -5,7 +5,7 @@ slug: release-2-29-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + hai sửa nhỏ đi trong PR mốc (khong-can-nguoi.mjs + start-scan.mjs: luật sản phẩm thiếu mô-đun · tin-hieu.mjs + lo-trinh-du-lieu.md: số bản của cờ «bản vẽ cũ») + workspace hồ sơ + bản đồ + 5 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
