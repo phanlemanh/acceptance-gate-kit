@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8bb9c94e3f6b03b5b3749633f6bccf1ec4437089
+verified_commit: dec146af99c8469990455fdb947e6bb52be10543
 human_signoff: manh 2026-10-11
 ---
 
@@ -381,3 +381,7 @@ sha: 5e043c06f3347db65f3c982a357b054c1991ac1f · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 4 — 2026-10-12, do vòng trang-thai-dot-dieu-phoi-tho sửa kiem-mod.mjs, hooks/mod/register.ts, mod-luat.mjs (phần mod khung) + gộp main 08d041a6
 run_id: repin-20261012T184443Z-30763
 sha: 8bb9c94e3f6b03b5b3749633f6bccf1ec4437089 · suites: 10 lệnh exit 0 · evals: 18/18 eval máy đạt kỳ vọng · ngoài làn máy: E14d (E14d không khai paths)
+
+### Re-pin lần 5 — 2026-10-13, do gộp main 4c791556 (v2.28.0 + #334 + S3c #335) sau chữ ký Cổng 2 của trang-thai-dot-dieu-phoi-tho
+run_id: repin-20261012T232028Z-56508
+sha: dec146af99c8469990455fdb947e6bb52be10543 · suites: 10 lệnh exit 0 · evals: 18/18 eval máy đạt kỳ vọng · ngoài làn máy: E14d (E14d không khai paths)

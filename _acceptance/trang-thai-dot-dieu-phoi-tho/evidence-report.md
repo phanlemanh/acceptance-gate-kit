@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f503479af4ef0768ae2a529105920d31ea350b66
+verified_commit: dec146af99c8469990455fdb947e6bb52be10543
 human_signoff: manh 2026-10-13
 ---
 
@@ -216,3 +216,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1–E9b đều xanh, không eval nào thất bại. Review-findings: 1 finding trong hợp đồng (AC-6) và 5 finding ngoài hợp đồng, xem review-findings.md.
 Round 2: sau nhát sửa lớp assertion âm-tính (AC-6 argv bằng gốc gói, đối chứng dương và thông điệp ghim cho ca đỏ), E1–E9 chạy lại và đều xanh, E9b carry-forward từ round 1 vì delta không chạm paths của nó; 10 lệnh suite xanh. Review-findings round 2: 0 finding trong hợp đồng, 1 finding ngoài hợp đồng mới, 5 mục ngoài hợp đồng carry từ round 1.
+
+### Re-pin lần 1 — 2026-10-13, do gộp main 4c791556 (v2.28.0 + #334 + S3c #335) sau chữ ký Cổng 2 của trang-thai-dot-dieu-phoi-tho
+run_id: repin-20261012T232028Z-56508
+sha: dec146af99c8469990455fdb947e6bb52be10543 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
