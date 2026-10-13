@@ -422,6 +422,26 @@ người định tuyến trùng đề xuất máy 357/376 (94,9 %). Dự báo tr
 - **Ai bị ảnh hưởng:** chỉ kho bật khoá. **Khi update:** không gì; bật khoá là lựa chọn của kho — đọc ba giới hạn trên
   trước khi bật.
 
+### Trạng thái đợt hiện ngay trong app — dải trên ô nhập, pane, `/dieu-phoi:xem` không qua model (hồ sơ `trang-thai-dot-dieu-phoi-tho`, hàng DP6b, T2)
+
+Gốc: crm `dieu-phoi-hai-tang`. Đợt crm 04/10 có 20 trên 33 tin chủ kho gửi điều phối là hỏi trạng thái, vì không thấy
+đợt đang ở đâu.
+
+- Lệnh `dieu-phoi.mjs xem --json` (lệnh mới) in MỘT dòng JSON, gồm cùng mô hình mà `xem` vẽ, cộng dãy của cwd. Kho
+  không đợt in `{"dot":null}`. `xem` không cờ không đổi một byte.
+- Phần mod `hooks/mod/khung.ts`:
+  - Dải một dòng trên ô nhập (`Đợt … · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`), làm mới 20″ khi có đợt và
+    120″ khi không.
+  - Nút `xem` mở pane «Đợt».
+  - `/dieu-phoi:xem` trả lời không qua model; hook hỏng thì lệnh markdown cũ chạy như trước.
+  - Mod chỉ đọc qua CLI. Răng «mod chỉ vẽ» (`kiem-khung.mjs` KH-09) chặn lời gọi ghi/gửi, hook cổng ngoài lệnh xem,
+    và argv khác `xem --json`. Luật «không nghe sự kiện cổng» nay áp cho mọi phần mod.
+- Ai bị ảnh hưởng: chỉ kho cài gói `dieu-phoi` (crm). App hay CLI chưa hỗ trợ mod thì không đổi gì; hook thường vẫn
+  chạy.
+- Giới hạn đã khai, là nhãn chứ không phải việc: chưa ai nhìn thấy dải trên app desktop, và `$.process.run` trên
+  desktop chưa được đo. Đợt crm đầu tiên sẽ đọc hai nhãn này.
+- Nhận mốc: gói `dieu-phoi` có thêm `types/index.d.ts` (khế ước `$.state`). Không có bước tay nào.
+
 ### Bỏ job nặng cho PR không chạm vật — `pre-merge-check.sh --hang-pr` (hồ sơ `ci-cua-kho-bo-job-nang`, hàng C1, T3)
 
 Gốc: crm `giam-phut-acceptance` — 09/10 GitHub dừng mọi job vì vượt mức chi; 30 % phút Actions của crm là test sản

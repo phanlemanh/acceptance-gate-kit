@@ -394,6 +394,14 @@ câu trích có từ trước vòng) · chỉ một lối ra sống (các lối 
 Phạm vi. Ghi bằng khoá `can_cu` của dòng sổ S1 (ADR 0022).
 _Avoid_: lý do (quá rộng — mọi dòng sổ có `why`), căn cứ pháp lý
 
+**Luật sản phẩm**:
+Điều phải đúng xuyên mọi tính năng của MỘT kho tiêu thụ, do chủ kho khai trong
+`PRODUCT-INVARIANTS.md` ở gốc kho — mỗi luật một mã `SP-<số>`, một chủ luật, một mức (thường /
+khó đảo), tuỳ chọn một dấu hiệu soi trên diff. Bước thiết kế nạp nó; thẻ hai cổng gọi tên luật bị
+phạm. Nội dung là của kho, máy không sửa (ADR 0024).
+_Avoid_: bất biến (trong chữ cho người — tên hồ sơ `bat-bien-san-pham` giữ), invariant, spec, PRD,
+quy định đội (thứ đó sống ở team handbook)
+
 **Sổ luật-đã-chạy (rules ledger)**:
 Kế toán trong `pre-merge-check.sh`: mỗi khối luật ghi `ran <tên>` hoặc
 `declared-off <tên>` qua `ledger_mark`, so với EXPECTED ở điểm nghẽn trước khi

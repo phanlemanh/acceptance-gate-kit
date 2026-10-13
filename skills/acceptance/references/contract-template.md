@@ -58,7 +58,9 @@ Source input: {{ticket-url | prd-path | prompt}}
 
 ## Criteria
 
-{{5-15 criteria. Each MUST be Given/When/Then and independently checkable.
+{{Criteria within the kit size range — khối `CAT-LUOT-CO`: mục tiêu 8–10 · cho phép tới 12 · từ 13
+(from 13: split into several loops, or a `decisions.jsonl` line `giữ cỡ — <lý do>`).
+Each MUST be Given/When/Then and independently checkable.
 Tag criteria that require business judgment with (judgment).
 Tag criteria whose When/Then crosses the backend — a UI flow triggering an API
 call / data mutation — with (cross-layer): Phase 2 pairing rule (c), lint W4

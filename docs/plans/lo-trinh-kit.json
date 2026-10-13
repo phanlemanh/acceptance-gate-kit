@@ -44,7 +44,7 @@
       ]
     },
     {
-      "ten": "Phát hành 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi (chủ kho 12/10: ưu tiên tầng kit): bước thiết kế không dừng vì đường dẫn ở kho khách (A2 + A2s, gộp liền nhau), dải tóm tắt đọc đúng dữ liệu thật (X2s + X2s2), CI kit có zsh; DP8 nếu vào main trước 10:00 13/10, không thì bản vá 2.28.1 trước 15/10",
+      "ten": "Phát hành 2.28.0 — mốc ỔN ĐỊNH, chỉ sửa lỗi (chủ kho 12/10: ưu tiên tầng kit) — ĐÃ PHÁT HÀNH 13/10, tag v2.28.0 = 72eb55f3 (PR #333): bước thiết kế không dừng vì đường dẫn ở kho khách (A2 + A2s), dải tóm tắt đọc đúng dữ liệu thật (X2s + X2s2), gói dieu-phoi ổn định cho đợt r2 (DP8 vào kịp — không cần bản vá 2.28.1), CI kit có zsh kèm trần 5 phút",
       "ngay": "2026-10-13",
       "loai": "phat-hanh",
       "ai": "Owner",
@@ -57,15 +57,15 @@
       ]
     },
     {
-      "ten": "crm: mọi phòng ban dùng thật hằng ngày (hạn cứng) — kit KHÔNG đổi engine dưới chân crm trước mốc này",
+      "ten": "crm: công bố OKR quý 4 (chủ kho 13/10 đổi tên — người dùng đã dùng thử từ trước, bỏ ràng buộc «không đổi engine trước mốc này»)",
       "ngay": "2026-10-14",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
     },
     {
-      "ten": "crm cài THẲNG kit 2.28 (hoặc 2.28.1 nếu có) — Mac Studio cài, khai production.nhanh: onehub, chép docDuLieu từ tag; sau đó gộp LT1b (#371) rồi LT2 (#374)",
-      "ngay": "2026-10-15",
+      "ten": "crm nhận kit 2.28.0 HÔM NAY (chủ kho duyệt tăng tốc 13/10, Mac Studio giữ): lộ trình nhận → PR nhận kit theo CHANGELOG → #373 chuyển gói dieu-phoi; sau #373 MacBook Pro gộp LT1b (#371) rồi LT2 (#374)",
+      "ngay": "2026-10-13",
       "loai": "ngoai",
       "ai": "crm",
       "hang": [
@@ -73,27 +73,27 @@
       ]
     },
     {
-      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản 2.28 (hoặc 2.28.1) (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
-      "ngay": "2026-10-26",
+      "ten": "crm: mở đợt r2 từ gói dieu-phoi bản 2.28.0 (đợt thử thứ nhất của gói — Mac Studio giữ)",
+      "ngay": "2026-10-14",
       "loai": "ngoai",
       "ai": "crm",
       "hang": []
     },
     {
-      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.28 (hoặc 2.28.1) — đo «chạy được mà không sửa lõi»",
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.28.0 — đo «chạy được mà không sửa lõi»",
       "ngay": "2026-10-27",
       "loai": "ngoai",
       "ai": "OneFlow",
       "hang": []
     },
     {
-      "ten": "Mốc kế sau 2.28 (số đặt lúc cắt) — trạng thái đợt trong app (DP6b), cỡ vòng ở bước thiết kế (S3c), bất biến sản phẩm (BB1), câu trạng thái tín hiệu tiếng sản phẩm (TH-cau), kiểm bản cài sau phát hành (KC1)",
-      "ngay": "2026-11-01",
+      "ten": "Phát hành 2.29.0 — kéo về 14/10 (chủ kho 13/10; trễ nhất 15/10 nếu KC1 chưa ký trưa 14/10 — KHÔNG cắt khi thiếu KC1), MỘT lịch ba máy: cỡ vòng ở bước thiết kế (S3c) + trạng thái đợt trong app (DP6b) của M5 — cả hai PASS lượt 2, chờ chữ ký; bất biến sản phẩm (BB1) + câu trạng thái tín hiệu tiếng sản phẩm (TH-cau) + kiểm bản cài sau phát hành (KC1 — vòng meta duy nhất, kiểm CHÍNH bản 2.29 trước khi phát) của MacBook Pro. Gộp theo lô: lô M5 (S3c → DP6b) rồi lô MacBook Pro, mỗi PR chỉ ghim lại một lần; hàng chưa vào main lúc cắt thì đi mốc sau",
+      "ngay": "2026-10-14",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
-        "DP6b",
         "S3c",
+        "DP6b",
         "BB1",
         "TH-cau",
         "KC1"
@@ -492,7 +492,7 @@
       "cau_giao": "Đợt Điều phối – Thợ ở kho tiêu thụ không bị chặn vì danh mục chuyển gói lẫn lịch sử, thợ không tự ghi danh worktree, hay việc nền giữ khoá S4 bị báo nhầm",
       "vi_sao": "Gốc: crm/_acceptance/chuyen-goi-dieu-phoi — lượt chấm 1 ngày 12/10 (ba lỗi chặn đợt r2: S2, S3, S4 của Mac Studio) + kit #301 điểm 1, 2, 6, 8.",
       "bat_khi": "Đợt r2 của crm chạy không cần hai luật tạm trong LUAT-rieng.md (đơn P<n>-0 và bỏ qua cảnh báo khoa-khong-nhip)",
-      "ghi_chu": "Máy M5 giữ. Chỉ chạm dieu-phoi/. Mốc 2.28 nếu vào main trước 10:00 13/10; không kịp → bản vá 2.28.1 trước 15/10."
+      "ghi_chu": "Máy M5 giữ. Chỉ chạm dieu-phoi/. Gộp #332 (057000da) 12/10 — vào 2.28.0, bản vá 2.28.1 không cần. Hồ sơ cũ hoá có chủ đích sau mốc: ghim lại trên M5 (phép kiểm cần bản sao crm chỉ M5 có)."
     },
     {
       "ma": "S1",

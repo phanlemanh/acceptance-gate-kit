@@ -181,7 +181,7 @@ function kiemP192(gc, lawPath) {
   if (!m) return ['khong rut duoc checker P192 tu tests/plugins/run-tests.sh'];
   const d = mkdtempSync(path.join(TMP, 'p192-'));
   const chk = path.join(d, 'check-rt.js'); writeFileSync(chk, m[1]);
-  const the3 = [['gate1-draft', '1', 'card-g1.html'], ['gate2-4loai', '2', 'card-g2.html'], ['gate2-may-di-tiep', '2', 'card-g2v.html']].map(([sc, g, f]) => {
+  const the3 = [['gate1-draft', '1', 'card-g1.html'], ['gate2-4loai', '2', 'card-g2.html'], ['gate2-may-di-tiep', '2', 'card-g2v.html'], ['gate2-luat', '2', 'card-g2l.html']].map(([sc, g, f]) => {
     const h = spawnSync(process.execPath, [gc, '--root', canh(sc), '--slug', 'fx', '--gate', g], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     const p = path.join(d, f); writeFileSync(p, h.stdout || ''); return p;
   });

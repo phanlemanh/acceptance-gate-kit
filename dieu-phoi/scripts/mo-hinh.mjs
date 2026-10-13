@@ -32,3 +32,11 @@ export function veXem(m) {
   if (m.cho_may) dong.push(`  s4 chờ khoá máy — kho đang giữ: ${m.cho_may}`);
   return dong.join('\n');
 }
+
+// Chữ của `xem` cho một kết quả `xem --json` (DP6b): pane và câu trả lời /dieu-phoi:xem của lớp mod đều là chuỗi
+// này, nên không ai viết lại chữ của `xem` lần thứ hai. Không đợt: đúng phần sau tiền tố `dieu-phoi: ` mà `xem` in.
+export function chuXem(kq) {
+  if (!kq || kq.dot === null) return 'không có đợt nào đang chạy';
+  const dong = kq.chua_co_nhip ? `chưa có nhịp nào · pha ${kq.pha}` : veXem(kq);
+  return kq.canh_bao ? `${dong}\n${kq.canh_bao}` : dong;
+}

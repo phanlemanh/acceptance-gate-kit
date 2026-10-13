@@ -182,7 +182,8 @@ Steps:
 
 5. **Render** + present:
    `node <gate-card.js> --root . --slug <slug> --plain _acceptance/<slug>/card-plain.json`
-   Prepend `<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">`
+   Prepend `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;padding:24px">`
+   (dòng viewport để thẻ đọc được trên điện thoại — thiếu nó trình duyệt dàn trang ở 980 rồi thu nhỏ)
    and save to `_acceptance/<slug>/card.html`; tell the user to open it (or show the
    fragment inline if a visual tool is available). Thẻ đã liệt sẵn việc-của-người;
    TIN NHẮN trình thẻ theo điều khoản single-source (chép nguyên văn, một
