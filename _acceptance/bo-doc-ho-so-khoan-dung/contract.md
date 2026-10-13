@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/yaml-chuan.cjs (mới) + gate-card.js + ho-so-tom-tat.cjs + tin-hieu.mjs + cat-luot.mjs + start-scan.mjs + test + tài liệu + lộ trình — không chạm lib/**, hooks/**, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, dieu-phoi/**
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-13-bo-doc-ho-so-khoan-dung-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo

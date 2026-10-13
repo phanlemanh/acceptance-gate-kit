@@ -147,6 +147,39 @@ script flags threshold criteria whose evals never assert this (W1),
 out-of-scope items with zero negative evals (W3), and `(cross-layer)` criteria
 with no `layer: backend-effect` eval (W4); advisory, surfaced at Gate 1.
 
+### Standard YAML — the kit reads by line, other tools do not
+
+The kit reads `evals.yaml` line by line and is tolerant: a file that a standard
+YAML parser (Bun.YAML, PyYAML, an editor) rejects still reads. Since the round
+`bo-doc-ho-so-khoan-dung` the kit **says so** instead of staying silent — it does
+not block and it changes no verdict. Measured 13/10/2026: 10 of 678 `evals.yaml`
+across seven repos were not standard YAML, in six forms. The gate cards (scope
+gate and evidence gate) show one yellow flag naming each line and form:
+
+| Form on the card | What it looks like | Fix |
+|---|---|---|
+| chữ đứng sau nháy đóng | `expected: "gọi "okr" rồi" xong` | single-quote the value (`'gọi "okr" rồi xong'`) or escape inner `\"` |
+| thoát sai trong nháy kép | `expected: "khớp '^đợt \S+'"` | double the backslash (`\\S`) or use single quotes / a `>` block |
+| ngoặc trong mục không nháy của danh sách một dòng | `paths: [a.ts, apps/(app)/[slug]/b.tsx]` | quote the item: `"apps/(app)/[slug]/b.tsx"` |
+| dòng của khối chữ thụt lùi dưới dòng đầu | a `\|`/`>` block whose later line is indented less than its first line | indent every line of the block at least as deep as the first |
+| «: » trong giá trị không nháy | `expected: exit 0 — kiểm (mới): token` | quote the value |
+| dòng ở lề không phải khoá | a file that opens with `> note …` lines | make them comments (`# note …`) |
+
+To **block** in your own CI, add one step (copy `scripts/yaml-chuan.cjs` from the
+plugin next to your other vendored scripts):
+
+```
+node scripts/yaml-chuan.cjs --root . --base origin/<main-branch>
+```
+
+It prints `<slug>/evals.yaml:<line> — <form>` per spot and exits 0 clean · 1 a
+spot · 2 cannot run. `--base` checks only records with files changed since the
+**merge-base** with that ref, so old signed records never block a PR that does
+not touch them — signed records need no edit. Run it without `--base` to see
+every record of your repo that carries the flag today. Repos without the problem
+have nothing to do. Limit: the checker knows these six forms only; a seventh
+kind of YAML error passes silently.
+
 ## Where a run writes its artifacts
 
 A command that can run more than once — every `test`/`script` eval `cmd`, every

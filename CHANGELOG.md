@@ -10,6 +10,29 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Bộ đọc hồ sơ khoan dung (R2, hồ sơ `bo-doc-ho-so-khoan-dung`)
+
+Gốc: crm-onehub#375 (Mac Studio, 13/10) và hạt giống ngày ký của vòng câu tín hiệu. Kit đọc hồ sơ thật của kho tiêu
+thụ nay **không im lặng** ở hai chỗ:
+
+- **`evals.yaml` không phải YAML chuẩn → cờ vàng có tên.** Kit vẫn đọc theo dòng như trước — không chặn, không đổi
+  phán quyết nào. Thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng nêu từng dòng và dạng lỗi (sáu dạng, bảng cách sửa ở
+  `skills/acceptance/references/eval-executors.md` mục «Standard YAML»). Đo 13/10 ở sha ghim: 10/678 tệp của bảy kho —
+  crm 5, radar 2, kit 1 (`release-2-0-0`, đã ký, không sửa), artifact-platform 1, media-library 1; oneflow, map 0.
+  Muốn **chặn trong CI**: chép `scripts/yaml-chuan.cjs` và thêm bước `node scripts/yaml-chuan.cjs --root . --base
+  origin/<nhánh chính>` — `--base` chỉ xét hồ sơ có tệp đổi từ điểm rẽ, nên hồ sơ cũ đã ký không chặn ai và **không
+  phải sửa**. Muốn biết hồ sơ nào của kho đang mang cờ: chạy lệnh ấy không kèm `--base`.
+- **Chữ ký ghi ngày kiểu ngày/tháng/năm được đọc ra ngày.** Một bộ đọc chung cho bốn mặt — câu cho người gửi và
+  `tin-hieu.mjs --cau`, bảng điều khiển mở phiên, dải tóm tắt hồ sơ, nhịp của bản cắt lượt. Chữ ký có năm-tháng-ngày
+  đọc ra y hệt trước (654/655 chữ ký khác rỗng của bảy kho); chữ ký chỉ có ngày/tháng/năm (crm `nen-chat-ai-elements`
+  «10/09/2026») nay ra 10/9/2026 thay vì mất ngày và làm `--cau` đỏ. Đọc theo lối Việt, ngày trước tháng.
+
+**Ai bị ảnh hưởng:** kho không có hai sự cố trên — không phải làm gì, không tệp nào phải chép thêm. crm — thẻ của các
+hồ sơ đang mang cờ sẽ hiện cờ khi mở lại; sửa khi tiện, hoặc bật lệnh kiểm trong CI cho hồ sơ mới. Lưới trước-gộp
+(`pre-merge-check.sh`) và `lib/` không đổi.
+
 ## 2.29.0 — 13/10/2026
 
 Cửa sổ 2.28.0 → 2.29.0 nằm trong **một ngày** (13/10; ba vòng của máy M5 và ba vòng của máy MacBook Pro chờ thẻ
