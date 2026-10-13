@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: dieu-phoi-khoa-day-giu-nhip
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1be36d83c2645a8ea67b54b4130939f60e5a67f6
+verified_commit: 0988fcb255cfde961386540d02c72e10049bd0c0
 human_signoff:
 ---
 
 # Evidence Report: dieu-phoi-khoa-day-giu-nhip
 
-Round 1. Cả sáu eval của hợp đồng (E1–E6) đều chạy và ra mã thoát 0. Verdict là REJECT vì hai lệnh suite hồi quy không gắn eval nào trả mã thoát khác 0: `tests/plugins/run-tests.sh --manh vung:1` (hai ca P122, P126) và `node scripts/product-map.mjs --root . --check` (PRODUCT-MAP.md và LO-TRINH.html lệch). `failed_evals` để rỗng vì không eval nào của hợp đồng đỏ. Chi tiết ở mục «Lệnh suite (hồi quy)» và `## Iterations`.
+Round 2. Nội dung thay trọn báo cáo round 1; lịch sử round nằm ở mục Iterations.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -27,156 +27,141 @@ Round 1. Cả sáu eval của hợp đồng (E1–E6) đều chạy và ra mã t
 ## Evidence
 
 - eval: E1
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E1-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
   output: |
+    lệnh: node --test (TAP) trên tests/dieu-phoi/**/*.test.mjs, lọc các dòng DP*/SDT-*
     #   nhap>nhap · cheo · cheo
     #   nhap>dang-chay · hop-le · hop-le
     #   nhap>tam-dung · tu-choi · tu-choi
     #   nhap>dang-dong · tu-choi · tu-choi
     #   nhap>dang-ban-giao · tu-choi · tu-choi
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
 
 - eval: E2
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E2-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
   output: |
+    cùng lệnh node --test với E1 (một lần chạy phủ E1, E2, E4, E5, E6)
     #   nhap>nhap · cheo · cheo
     #   nhap>dang-chay · hop-le · hop-le
     #   nhap>tam-dung · tu-choi · tu-choi
-    #   nhap>dang-dong · tu-choi · tu-choi
-    #   nhap>dang-ban-giao · tu-choi · tu-choi
-    #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
 
 - eval: E3
   run_id: minted-dieu-phoi-khoa-day-giu-nhip-E3-r1
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
   verified_at: 2026-10-13T09:32:18Z
+  carried_from_round: 1
   output: |
-    #   nhap>nhap · cheo · cheo
-    #   nhap>dang-chay · hop-le · hop-le
-    #   nhap>tam-dung · tu-choi · tu-choi
-    #   nhap>dang-dong · tu-choi · tu-choi
-    #   nhap>dang-ban-giao · tu-choi · tu-choi
-    #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E4
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E4-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
   output: |
-    #   nhap>nhap · cheo · cheo
-    #   nhap>dang-chay · hop-le · hop-le
-    #   nhap>tam-dung · tu-choi · tu-choi
+    cùng lệnh node --test với E1 (một lần chạy phủ E1, E2, E4, E5, E6)
     #   nhap>dang-dong · tu-choi · tu-choi
     #   nhap>dang-ban-giao · tu-choi · tu-choi
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
 
 - eval: E5
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E5-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
   output: |
-    #   nhap>nhap · cheo · cheo
-    #   nhap>dang-chay · hop-le · hop-le
-    #   nhap>tam-dung · tu-choi · tu-choi
-    #   nhap>dang-dong · tu-choi · tu-choi
-    #   nhap>dang-ban-giao · tu-choi · tu-choi
+    cùng lệnh node --test với E1 (một lần chạy phủ E1, E2, E4, E5, E6)
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
 
 - eval: E6
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E6-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.dieu_phoi_sdt
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
   output: |
-    #   nhap>nhap · cheo · cheo
-    #   nhap>dang-chay · hop-le · hop-le
-    #   nhap>tam-dung · tu-choi · tu-choi
-    #   nhap>dang-dong · tu-choi · tu-choi
-    #   nhap>dang-ban-giao · tu-choi · tu-choi
+    cùng lệnh node --test với E1 (một lần chạy phủ E1, E2, E4, E5, E6)
     #   nhap>cho-tiep-tuc · tu-choi · tu-choi
-    (đuôi TAP dùng chung của một lệnh node --test cho E1–E6)
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: 839 passed, 0 failed
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: 30 passed, 0 failed
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: 30 passed, 0 failed
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: 30 passed, 0 failed
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: 71 passed, 0 failed
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
-  exit_code: 1
-  verified_at: 2026-10-13T09:32:18Z
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  exit_code: 0
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: all plugin tests passed
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: all plugin tests passed
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: all plugin tests passed
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
+  verified_at: 2026-10-13T11:20:02Z
+  output: Results: all workflow tests passed
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-node_scripts_product_map_mjs_root_check-r1
-  exit_code: 1
-  verified_at: 2026-10-13T09:32:18Z
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-node_scripts_product_map_mjs_root_check-r2
+  exit_code: 0
+  verified_at: 2026-10-13T11:20:02Z
+  output: LO-TRINH.html khớp tệp ý định và hồ sơ.
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-dieu-phoi-khoa-day-giu-nhip-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-13T09:32:18Z
-
-Hai lệnh suite không gắn eval trả mã thoát khác 0, và chúng là lý do của verdict REJECT:
-
-- `tests/plugins/run-tests.sh --manh vung:1` báo hai ca đỏ: «P122 buoc lam moi ban do nam SAU buoc ghi field cong, 2 harness + plugin-root (E6,E7)» và «P126 PRODUCT-MAP.md mien tru t1 + --check canh that + co trong CI + co ADR (E18)». Dòng tổng kết: «Results: 2 failed».
-- `node scripts/product-map.mjs --root . --check` báo «PRODUCT-MAP.md lệch với hồ sơ xưởng» và «LO-TRINH.html lệch với tệp ý định và hồ sơ»; sửa bằng `node scripts/product-map.mjs --root .`. Hai ca P122 và P126 cùng chạm bản đồ sản phẩm nên rất có thể cùng gốc với lệnh này; đây là nhận định từ tên ca, chưa được máy chứng minh.
+  verified_at: 2026-10-13T11:20:02Z
+  output: BỎ QUA: KB — không phải lượt cắt mốc (số 2.29.0 = gốc vòng)
 
 ## Known limits
 
@@ -184,16 +169,19 @@ Hai lệnh suite không gắn eval trả mã thoát khác 0, và chúng là lý 
 
 ## Analyst
 
-Eval không phân biệt (xanh cả trên bản HEAD lẫn baseline diffBase):
+carried tu round 1 — baseline khong do lai round nay. Baseline cua moi eval ghi n-a (round nay khong do).
 
-- Lệnh `node --test "tests/dieu-phoi/**/*.test.mjs"` (gộp E1–E6) ra baseline: green. Cả sáu eval của lệnh này không chứng minh được riêng từng cái là đỏ trên mã cũ ở mức baseline; chiều đỏ của từng AC phải dựa vào các ca «-do» nằm trong chính bộ test (DP10-01-do, DP8-09-do, DP3-10-do, DP10-05-do) chứ không dựa vào baseline. Cần người xác nhận đây là mức phân biệt chấp nhận được.
+Eval không-phân-biệt (xanh ở cả bản HEAD lẫn baseline ở round 1, nghĩa là chứng minh harness chứ chưa chứng minh feature; nên viết lại để assert hành vi mới, hoặc xác nhận là regression-guard có chủ ý):
 
-Baseline không đo: các lệnh suite hồi quy ra baseline n-a theo kết quả máy; không có lý do riêng nào được truyền kèm.
+- Lệnh `node --test` trên `tests/dieu-phoi/**/*.test.mjs` (lọc DP*/SDT-*), phủ E1, E2, E3, E4, E5, E6. Một lệnh chung cho cả sáu eval, xanh ở cả hai phía theo đo của round 1; các ca đối chứng "-do" trong cùng tệp là phần phân biệt (bản tiêm phải đỏ), còn việc lệnh xanh trên baseline cần người xác nhận là regression-guard có chủ ý.
+
+Lệnh suite xanh-cả-hai-phía là regression-guard bình thường, không liệt kê.
 
 ## Variance
 
-none — every multi-run eval is uniform (mọi eval chạy runs: 1, deterministic).
+none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: không eval hợp đồng nào đỏ (E1–E6 đều qua); REJECT vì hai lệnh suite hồi quy không gắn eval đỏ — plugins vung:1 (P122, P126) và product-map --check (PRODUCT-MAP.md, LO-TRINH.html lệch). Returned to implementation.
+Round 1: verdict REJECT. Finder trả 12/12; có một finding trong hợp đồng (AC-2: ma trận E2 tự đếm chính nó, «10 hàng» chưa được ghim). Returned to implementation (S4-r1: vẽ lại bản đồ lộ trình, ghim 10 hàng/5 nguồn nhịp bằng hằng viết trước, thêm đối chứng dương cho kiểm vắng nhịp phiên).
+Round 2: E1, E2, E4, E5, E6 và 11 lệnh suite chạy lại, tất cả PASS; E3 carry-forward từ round 1 (delta không chạm paths của eval). Verdict PASS.
