@@ -142,9 +142,9 @@ worktree/nhánh đọc từ git của `<path>`.
      Hàng kế mà một dãy của đợt đang giữ có `hangKe.thamSo` null, nên không thành lựa chọn mở.
    <!-- <<<START-LO-TRINH -->
    - **Lộ trình** (`loTrinh` — ổ cắm `lo_trinh.tep` trong `_acceptance/config.yaml`, một tệp hoặc
-     một danh sách; hồ sơ viec-ke-theo-plan và lo-trinh-tren-du-lieu-that): `loTrinhChuaKhai` khác
-     `null` (kho chưa khai lộ trình — nấc 1 ADR 0025, hồ sơ moc-la-chien-dich) → in nguyên văn đúng một
-     dòng đó, không thêm chữ; `loTrinh` là `null` → không in gì thêm. Còn lại in nguyên
+     một danh sách; hồ sơ viec-ke-theo-plan và lo-trinh-tren-du-lieu-that): `loTrinhChuaKhai` có mặt
+     (khoá chỉ có khi kho chưa khai lộ trình — nấc 1 ADR 0025, hồ sơ moc-la-chien-dich) → in nguyên văn đúng
+     một dòng đó, không thêm chữ; `loTrinh` là `null` → không in gì thêm. Còn lại in nguyên
      `loTrinh.dong`, mỗi phần tử một dòng, đúng thứ tự, không thêm bớt chữ nào — bộ quét đã dựng
      sẵn hàng kế, hàng trễ, tin theo lời, số cờ của từng lộ trình, dòng mở trang (liên kết bấm được
      tới `LO-TRINH.html`, hoặc lệnh vẽ khi trang chưa có) và cảnh báo khi bản đồ sản phẩm chưa bật.

@@ -1,5 +1,5 @@
 {
- "feature_plain": "Người nhìn trang lộ trình biết ngay việc nào đang chạy ngoài kế hoạch hay ngoài mốc, kho nào chưa có lộ trình; và lúc mở một việc, máy đưa sẵn tên phiên cùng tên nhóm trên thanh bên theo mốc của việc đó.",
+ "feature_plain": "Trang lộ trình cắm cờ vàng cho việc đang chạy ngoài mốc, hồ sơ đang mở ngoài kế hoạch và kho chưa có lộ trình; lúc mở một việc, máy in sẵn tên phiên và tên nhóm thanh bên theo mốc.",
  "will_do": [
   {
    "id": "AC-1",

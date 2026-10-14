@@ -60,7 +60,7 @@ evals:
     cmd: config:executors.test.moc_chien_dich
     paths: [scripts/start-scan.mjs, commands/start.md, tests/scripts/moc-chien-dich.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: MC-4", "PASS: MC-4-do". MC-4: kho thử có config mà không khai lo_trinh.tep — bộ quét
+      exit 0; stdout có "PASS: MC-4", "PASS: MC-4-do", "PASS: MC-4-do2" (do2: bản sao luôn in khoá kể cả rỗng → FAIL ghim «kho có khai lộ trình nhận cờ chưa khai: null»; kho có khoá: khoá vắng hẳn và JSON quét bằng bộ máy gốc). MC-4: kho thử có config mà không khai lo_trinh.tep — bộ quét
       start in JSON có `loTrinh: null` và khoá cờ «kho chưa khai lộ trình» mang đúng câu viết sẵn; thân lệnh start
       (khối START-LO-TRINH) gọi tên khoá đó và nói in nó nguyên văn; mọi khoá khác của JSON bằng bộ máy gốc trên cùng
       kho (so sâu, trừ đúng khoá mới). Kho thử có khai: khoá đó null. MC-4-do: bản sao bộ quét bỏ điều kiện «không
@@ -163,4 +163,13 @@ evals:
     paths: [LO-TRINH.html, PRODUCT-MAP.md, docs/plans/lo-trinh-kit.json, scripts/lo-trinh.mjs]
     expected: >
       exit 0 — bản đồ và trang lộ trình của cây khớp hồ sơ xưởng (`product-map.mjs --check`).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.moc_chien_dich_dp211
+    paths: [scripts/start-scan.mjs, tests/dieu-phoi/mo-dot.test.mjs]
+    expected: >
+      exit 0; stdout có "✔ DP2-11 khong-dot" và "ℹ fail 0" — ca của gói điều phối so JSON quét start của kho không chạy
+      đợt bằng bản ở gốc nhánh (deepEqual); trước vòng sửa nó đỏ vì khoá loTrinhChuaKhai: null (Cổng Bằng chứng lượt 2).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

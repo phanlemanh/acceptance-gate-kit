@@ -2759,8 +2759,18 @@ W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\ns
 W('.acceptance-runs/dot-p99/hang-viec.json', JSON.stringify({ dot: 'p99', day: [], hang: [] }));
 fs.symlinkSync(path.join(tmp, '.acceptance-runs', 'dot-p99'), path.join(tmp, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 const ENV99 = { ...process.env, ACCEPTANCE_TODAY: '2026-10-02' };
-const outJson = JSON.parse(execFileSync('node',
+const outKhai = JSON.parse(execFileSync('node',
   [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
+// Khoá `loTrinhChuaKhai` (hồ sơ moc-la-chien-dich) chỉ có mặt khi kho CHƯA khai lộ trình — ngược với fixture trên.
+// Cùng nếp `dotDangChay`: dựng đúng trạng thái làm khoá có giá trị thật — một bản sao fixture bỏ khối lo_trinh, quét,
+// rồi soi trên đầu ra GỘP (khoá của bản sao chỉ lấp chỗ fixture chính không có; không ghi đè khoá nào).
+const tmpK = fs.mkdtempSync(path.join(os.tmpdir(), 'p99k-'));
+fs.cpSync(path.join(tmp, '_acceptance'), path.join(tmpK, '_acceptance'), { recursive: true });
+fs.writeFileSync(path.join(tmpK, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+const outChuaKhai = JSON.parse(execFileSync('node',
+  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmpK], { encoding: 'utf8', env: ENV99 }));
+if (typeof outChuaKhai.loTrinhChuaKhai !== 'string' || 'loTrinhChuaKhai' in outKhai) die(`doi chung kho chua khai: ${JSON.stringify(outChuaKhai.loTrinhChuaKhai)} / ${'loTrinhChuaKhai' in outKhai}`);
+const outJson = { ...outChuaKhai, ...outKhai };
 
 const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
   if (acc === undefined || acc === null) return undefined;

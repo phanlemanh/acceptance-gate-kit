@@ -243,15 +243,18 @@ async function mc4(kit) {
   if (j.loTrinhChuaKhai !== CAU_C) sai.push(`kho thiếu khoá: loTrinhChuaKhai ${JSON.stringify(j.loTrinhChuaKhai)}`);
   const jj = { ...j }; delete jj.loTrinhChuaKhai;
   if (JSON.stringify(chuanKit(jj, kit)) !== JSON.stringify(chuanKit(g, banGoc()))) sai.push('kho thiếu khoá: JSON quét khác bộ máy gốc ngoài khoá mới');
+  // Kho có khoá: khoá VẮNG HẲN (không phải null) và cả JSON quét giống bộ máy gốc — bên đọc so deepEqual (DP2-11) không lệch.
   const r2 = kho({ tep: { 'docs/lo-trinh.json': { schema: 1, hang: [H('A')] } } }); const j2 = quet(kit, r2);
-  if (j2.loTrinhChuaKhai !== null) sai.push(`kho có khai lộ trình nhận cờ chưa khai: ${JSON.stringify(j2.loTrinhChuaKhai)}`);
+  if ('loTrinhChuaKhai' in j2) sai.push(`kho có khai lộ trình nhận cờ chưa khai: ${JSON.stringify(j2.loTrinhChuaKhai)}`);
+  if (JSON.stringify(chuanKit(j2, kit)) !== JSON.stringify(chuanKit(quet(banGoc(), r2), banGoc()))) sai.push('kho có khai: JSON quét khác bộ máy gốc');
   const md = readFileSync(path.join(KIT, 'commands', 'start.md'), 'utf8');
   const khoi = (md.match(/<!-- <<<START-LO-TRINH -->([\s\S]*?)<!-- START-LO-TRINH>>> -->/) || [])[1] || '';
   if (!/`loTrinhChuaKhai`[\s\S]{0,120}nguyên văn/.test(khoi)) sai.push('thân lệnh start (khối START-LO-TRINH) không gọi tên loTrinhChuaKhai kèm «nguyên văn»');
   return sai;
 }
-if (want('MC-4') && await chayCa('MC-4', mc4)) ok('MC-4', 'kho thiếu khoá: loTrinh null + đúng một câu cờ, mọi khoá khác bằng bộ máy gốc; kho có khoá: null; thân start gọi tên khoá');
+if (want('MC-4') && await chayCa('MC-4', mc4)) ok('MC-4', 'kho thiếu khoá: loTrinh null + đúng một câu cờ, mọi khoá khác bằng bộ máy gốc; kho có khoá: khoá vắng hẳn, JSON quét bằng bộ máy gốc; thân start gọi tên khoá');
 if (want('MC-4-do')) await chayDo('MC-4-do', mc4, [['scripts/start-scan.mjs', 'cfgRead.err || cfgRead.t == null || tepLoTrinh != null ? null', 'cfgRead.err || cfgRead.t == null ? null']], 'kho có khai lộ trình nhận cờ chưa khai', 'bản sao bộ quét bỏ điều kiện «thiếu khoá»');
+if (want('MC-4-do2')) await chayDo('MC-4-do2', mc4, [['scripts/start-scan.mjs', '  ...(loTrinhChuaKhai ? { loTrinhChuaKhai } : {}),', '  loTrinhChuaKhai,']], 'kho có khai lộ trình nhận cờ chưa khai: null', 'bản sao bộ quét luôn in khoá (kể cả null)');
 
 // ═══ MC-5 (AC-5): chỉ cảnh báo — --check xanh, thẻ start chỉ tăng số cờ ═════════════════════════
 async function mc5(kit) {
