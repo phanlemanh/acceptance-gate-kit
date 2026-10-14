@@ -138,9 +138,9 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.moc_chien_dich_crm
-    paths: [scripts/lo-trinh.mjs, tests/scripts/moc-chien-dich-crm.mjs]
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/moc-chien-dich-crm.mjs]
     expected: >
-      exit 0; stdout có "PASS: MC-10 dem", "PASS: MC-10 ten". Bản sao crm @1997da85 (git archive trong lượt, kho ở
+      exit 0; stdout có "PASS: MC-10 dem", "PASS: MC-10 dem-do", "PASS: MC-10 ten" (dem-do: bộ máy gốc ở cả hai bên → phép đếm đỏ, ghim «docs/plan/lo-trinh-okr.json: cờ 12 → 12 (cần 12 → 26)»). Bản sao crm @1997da85 (git archive trong lượt, kho ở
       CRM_ROOT hoặc ~/dev/crm; vắng → thoát 2 «crm vắng: <đường>»): số cờ bộ máy gốc → cây theo lộ trình OKR 12→26,
       Kho tài liệu 2→2, Việc và Dự án 4→5; tập cờ mới == {F8, F23, F24, F26} ∪ {DA0c} ∪ mười hồ sơ viết sẵn (agent-doi-truong-theo-quyen, bo-cao-noi-khi-hong-mot-phan, ma-tran-bam-khong-dong-hop, mo-o-dau, phan-tich-cau-hinh-bo-cao, the-gop-y-cot-cuon-rieng, the-gop-y-sua-nhanh, the-thong-tin-ca-nhan, thuoc-cua-lat-3a-co-rang, tim-trong-phan-khuc); mọi cờ cũ còn. Một hàng OKR
       thuộc mốc «R2 lên production»: `nhom` == «OKR · R2 lên production 31/10», `ten_phien` == «<mã> · <ten_ngan>

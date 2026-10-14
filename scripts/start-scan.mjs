@@ -648,6 +648,10 @@ const discovery = {
 // lộ trình nào chạy. «Hôm nay» chỉ vào hàng trễ; `ACCEPTANCE_TODAY` ghim đồng hồ cho phép đo.
 const tepLoTrinh = cfgRead.err || cfgRead.t == null ? null : khoaLoTrinh(cfgRead.t);
 let loTrinh = null;
+// Nấc 1 của ADR 0025 (hồ sơ moc-la-chien-dich, cờ C): kho đọc được config mà thiếu khoá lộ trình → MỘT câu cờ vàng,
+// thân /start in nguyên văn. Khoá riêng — `loTrinh` vẫn null, bộ đọc đời trước không đổi. Config không đọc được → null.
+const loTrinhChuaKhai = cfgRead.err || cfgRead.t == null || tepLoTrinh != null ? null
+  : 'Kho chưa khai lộ trình — việc mở ở đây không thuộc kế hoạch hay mốc nào; khai bằng khoá lo_trinh.tep trong _acceptance/config.yaml';
 const map = {
   present: existsSync(mapPath),
   fresh: null,
@@ -749,5 +753,5 @@ const metaOpen = (() => {
   return kq;
 })();
 // Khoá `dotDangChay` CHỈ có mặt khi có đợt: kho không chạy đợt nhận đầu ra byte-bằng bản trước.
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh,
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh, loTrinhChuaKhai,
   ...(dotDangChay ? { dotDangChay: { ten: dotDangChay.ten, pha: dotDangChay.pha } } : {}) });
