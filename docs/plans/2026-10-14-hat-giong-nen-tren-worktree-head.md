@@ -15,6 +15,10 @@ viết gì vào cây gốc trong lúc nền chạy, nền không thấy.
 
 - 3 dòng `DO SAN` ở kit `bang-ngoai-n-co-can-cu` (14/10): P122, P126, `product_map` đỏ vì hồ sơ mới
   chưa lên bản đồ — mã thoát, không phải đường tệp, nên bộ lọc theo slug không chạm được.
+- Đo 14/10 trên lịch sử kit: 20 hồ sơ có `DO SAN executors.script.product_map` lúc chạy nền; chạy lại
+  `product-map.mjs --check` trên `git archive <sha>` của chính lượt đó → 13/20 XANH (đỏ do hồ sơ của
+  vòng viết dở), 7/20 đỏ thật ở HEAD. Các `DO SAN` corpus khác (`plugins_vung_*`, 27 hồ sơ có `DO SAN`
+  nói chung) chưa tách thật/giả.
 - 29/233 dòng `CAY BAN` lịch sử là mã / tài liệu / bản mẫu design-pass do phiên viết song song,
   đường không mang slug (đo 14/10, 8 hồ sơ).
 
