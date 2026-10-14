@@ -30,22 +30,21 @@ const CAU_A = 'đang làm mà chưa thuộc mốc nào — gắn việc này và
 const cauB = s => `hồ sơ ${s} đang mở mà không thuộc việc nào trong kế hoạch — thêm việc cho nó, hoặc ghi mã việc vào hồ sơ`;
 const CAU_C = 'Kho chưa khai lộ trình — việc mở ở đây không thuộc kế hoạch hay mốc nào; khai bằng khoá lo_trinh.tep trong _acceptance/config.yaml';
 
-// ── Hồ sơ theo ô bản đồ — dựng bằng code, mỗi khoá một hình dạng tối thiểu hợp lệ (cùng khuôn lo-trinh.test.mjs) ──
-const OPP = (stage, decision, ma = null) => `---\nschema_version: 1\nslug: x\nfeature: viec x\nowner: x@y.z\n${ma ? `lo_trinh_ma: ${ma}\n` : ''}stage: ${stage}\ndecision: ${decision}\ndecided_by: ${decision ? 'M' : ''}\ndecided_at: ${decision ? '2026-09-01T00:00:00Z' : ''}\n---\n\n## Vấn đề & ai gặp\n\nNgười dùng X.\n\n## Ngưỡng chết / ngưỡng UAT\n\n- Câu hỏi phép đo trả lời: có giảm không\n- Kết quả nào là SỐNG: giảm một nửa\n- Kết quả nào là CHẾT: không giảm\n- Timebox: một tháng\n`;
-const HD = (slug, status) => `---\nschema_version: 1\nfeature: viec ${slug}\nslug: ${slug}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- x\n- y\n`;
-const EV = slug => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nhuman_signoff: M 2026-09-02\n---\n\n## Evidence\n`;
-const UAT = slug => `---\nschema_version: 1\nslug: ${slug}\nfeature: viec ${slug}\nowner: x@y.z\nstage: held\nverdict: release\ndecided_by: M\ndecided_at: 2026-09-03T00:00:00Z\n---\n`;
+// ── Hồ sơ theo ô bản đồ — rút từ mô-đun dựng kho thử DÙNG CHUNG (lo-trinh-kho-thu.mjs, đã khai gạch ở hai lưới luật của
+// kho: chữ trạng thái và khuôn ô ngưỡng), không chép khuôn vào tệp này. Năm hình dạng mô-đun chưa có dựng bằng một
+// phép thay đúng một chỗ trên hình dạng có sẵn — thay không khớp thì ném (ca đỏ có tên).
+const KT = await import(pathToFileURL(path.join(HERE, 'lo-trinh-kho-thu.mjs')).href);
+const thay1 = (t, cu, moi) => { if (t.split(cu).length !== 2) throw new Error(`khuôn hồ sơ đổi: «${cu.slice(0, 40)}» khớp ${t.split(cu).length - 1} lần`); return t.replace(cu, moi); };
+const oppQuyet = (dec, ma) => { let o = KT.HO_SO['can-nhac']()['opportunity.md'];
+  o = thay1(o, 'stage: discovery\ndecision: \ndecided_by: \ndecided_at: \n', `stage: decided\ndecision: ${dec}\ndecided_by: M\ndecided_at: 2026-09-01T00:00:00Z\n`);
+  return ma ? thay1(o, '\nstage:', `\nlo_trinh_ma: ${ma}\nstage:`) : o; };
 const HO_SO = {
-  'can-nhac': () => ({ 'opportunity.md': OPP('discovery', '') }),
-  'sap-mo': (s, ma) => ({ 'opportunity.md': OPP('decided', 'build', ma) }),
-  'xep-lai': () => ({ 'opportunity.md': OPP('decided', 'park') }),
-  'da-bac': () => ({ 'opportunity.md': OPP('decided', 'kill') }),
-  'cho-duyet': s => ({ 'contract.md': HD(s, 'draft') }),
-  'dang-dung': s => ({ 'contract.md': HD(s, 'approved') }),
-  'da-ship': s => ({ 'contract.md': HD(s, 'signed-off'), 'evidence-report.md': EV(s) }),
-  'cho-nghiem-thu': s => ({ 'contract.md': HD(s, 'signed-off'), 'evidence-report.md': EV(s), 'opportunity.md': OPP('decided', 'build') }),
-  'da-nghiem-thu': s => ({ 'contract.md': HD(s, 'signed-off'), 'evidence-report.md': EV(s), 'opportunity.md': OPP('decided', 'build'), 'uat-session.md': UAT(s) }),
-  'hong': s => ({ 'contract.md': HD(s, 'khong-co-trang-thai-nay') }),
+  ...KT.HO_SO,
+  'sap-mo': (s, ma) => ({ 'opportunity.md': oppQuyet('build', ma) }),
+  'xep-lai': () => ({ 'opportunity.md': oppQuyet('park') }),
+  'da-bac': () => ({ 'opportunity.md': oppQuyet('kill') }),
+  'da-nghiem-thu': s => ({ ...KT.HO_SO['cho-nghiem-thu'](s), 'uat-session.md': `---\nschema_version: 1\nslug: ${s}\nfeature: viec ${s}\nowner: x@y.z\nstage: held\nverdict: release\ndecided_by: M\ndecided_at: 2026-09-03T00:00:00Z\n---\n` }),
+  'hong': s => ({ 'contract.md': thay1(KT.HO_SO['cho-duyet'](s)['contract.md'], 'status: draft', 'status: khong-co-trang-thai-nay') }),
 };
 let khoN = 0;
 // `tep`: {đường: data} · `cfg`: khối lo_trinh (null = không khai) · `hoSo`: {slug: hình | [hình, mã lo_trinh_ma]}.

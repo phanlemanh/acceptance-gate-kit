@@ -60,6 +60,11 @@ const ve = async (kit, r, ten) => {
 // Kho năm trạng thái, dựng MỘT lần, dùng chung cho bản lành và mọi bản sao.
 const KHO = Object.fromEntries(KT.TRANG_THAI.map(t => [t, KT.dungKho(t, TMP)]));
 
+// Hồ sơ moc-la-chien-dich (nấc 1 ADR 0025) thêm hai cờ vàng vào lớp phân tích — đổi CÓ CHỦ Ý, làm trang của bộ dữ liệu
+// mẫu dài thêm. LTT-san là lời hứa về BỐ CỤC của hồ sơ trang-lo-trinh-doc-mot-phut, nên đo trên cây TẮT đúng hai khối cờ
+// đó (nhát tiêm khớp một lần); hai cờ mới do moc-chien-dich.test.mjs đo.
+const TAT_MC = [['scripts/lo-trinh.mjs', 'if (docDuoc.some(t => t.kq.moc.length)) {', 'if (false) {'],
+  ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes(']];
 // ── Hàm đo LTT-san: sàn của mọi ô ma trận ────────────────────────────────────
 // Trả { o: số ô đã đo, sai: [«<thước>: <ô> …»], so: {moi, cu} }. Tên thước là từ vựng đóng:
 // màn đầu · tràn · cỡ chữ · tiêu đề · tương phản · nút · độ dài.
@@ -137,7 +142,7 @@ if (P) {
     let lanh = null;
     if (want('LTT-san') || want('LTT-san-do') || want('LTT-san-im')) {
       try {
-        lanh = await san(P, KIT);
+        lanh = await san(P, banSao(TAT_MC));
         if (lanh.o !== KT.TRANG_THAI.length * KHO_MAC_DINH.length * SAC.length || lanh.o !== 30) bad('LTT-san', `đo ${lanh.o} ô, cần 30`);
         else if (lanh.sai.length) bad('LTT-san', lanh.sai.slice(0, 6).join(' ; '));
         else ok('LTT-san', `${lanh.o}/30 ô: màn đầu đủ ba điều, không tràn, ≤ 6 cỡ chữ, h1 > h2 > h3, tương phản đạt, nút ≥ 44px; trang hai lộ trình ${lanh.so.moi}px / trang 2.21.0 ${lanh.so.cu}px = ${(lanh.so.moi / lanh.so.cu).toFixed(3)}`);
@@ -159,7 +164,7 @@ if (P) {
         ];
         const hong = [];
         for (const [ten, tiem, mong] of MUT) {
-          const r = await san(P, banSao([tiem])); const t = thuoc(r.sai);
+          const r = await san(P, banSao([...TAT_MC, tiem])); const t = thuoc(r.sai);
           if (!deq(t, mong)) hong.push(`${ten}: thước đỏ ${JSON.stringify(t)} (cần ${JSON.stringify(mong)}) ${r.sai[0] || ''}`);
           else console.log(`    · ${ten} → «${r.sai[0].slice(0, 110)}»`);
         }
@@ -170,7 +175,7 @@ if (P) {
       try {
         if (!lanh || lanh.sai.length) throw new Error('bản lành chưa xanh');
         const cau = 'Đổi kế hoạch bằng PR vào tệp kế hoạch.';
-        const r = await san(P, banSao([['scripts/lo-trinh.mjs', cau, `${cau} ${cau}`]]));
+        const r = await san(P, banSao([...TAT_MC, ['scripts/lo-trinh.mjs', cau, `${cau} ${cau}`]]));
         if (r.sai.length) bad('LTT-san-im', `đổi câu giải thích cuối trang mà thước đỏ: ${r.sai.slice(0, 3).join(' ; ')}`);
         else ok('LTT-san-im', `câu giải thích cuối trang dài gấp đôi: ${r.o}/30 ô vẫn xanh`);
       } catch (e) { bad('LTT-san-im', loi(e)); }

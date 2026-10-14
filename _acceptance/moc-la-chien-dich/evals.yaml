@@ -104,7 +104,7 @@ evals:
     cmd: config:executors.test.moc_chien_dich
     paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/moc-chien-dich.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: MC-7 moi-co-moc", "PASS: MC-7 moi-khong-moc", "PASS: MC-7 da-co-ho-so", "PASS: MC-6
+      exit 0; stdout có "PASS: MC-7 moi-co-moc", "PASS: MC-7 moi-khong-moc", "PASS: MC-7 da-co-ho-so", "PASS: MC-7
       ma-thoat", "PASS: MC-7 worktree", "PASS: MC-7 worktree-do". worktree: kho thử thư mục «kho-chinh», `git worktree
       add` ra thư mục tên khác, chạy --mo-o từ worktree và từ thư mục con của nó → `ten_phien` kết thúc «(kho-chinh)».
       worktree-do: bản sao lấy tên theo `git rev-parse --show-toplevel` → FAIL ghim «tên kho theo worktree: <tên>». Khối S0-MO-O rút từ SKILL chạy nguyên văn (WORKFLOWS_DIR trỏ cây) trên kho thử tên thư mục viết
