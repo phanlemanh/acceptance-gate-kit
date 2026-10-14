@@ -352,8 +352,11 @@ if (want('LC6')) {
     if (TRUOC.loi) sai.push(`khong dung duoc ban truoc vong: ${TRUOC.loi}`);
     else {
       const k = await hoSoCayDoi({ tiem: () => {} }); baoCao(k.d);
+      // Thay đổi render đã khai (một dòng một thay đổi, có ca canh riêng): CSS bảng Ngoài-n in trên MỌI thẻ
+      // (hồ sơ bang-ngoai-n-co-can-cu, 14/10 → tests/scripts/bang-ngoai-n.test.mjs BN-3 + răng man-hep.py).
+      const boKhai = s => String(s).split('\n').filter(l => !l.includes('.ngoai')).join('\n');
       const moi = the(k.d).html; const cu = the(k.d, path.join(TRUOC.d, 'scripts', 'gate-card.js')).html;
-      if (!moi || moi !== cu) sai.push(`khong dong cay-doi ma HTML khac ban truoc vong (${TRUOC.ref})`);
+      if (!moi || boKhai(moi) !== boKhai(cu)) sai.push(`khong dong cay-doi ma HTML khac ban truoc vong (${TRUOC.ref})`);
     }
   } catch (e) { sai.push(loi(e)); }
   if (sai.length) bad('LC6', `approvable/nhan: ${sai.join(' ; ')}`); else ok('LC6', '— thẻ khoá, nhãn + tệp + commit + câu việc; không dòng → HTML bằng bản trước vòng từng byte');

@@ -1,0 +1,120 @@
+schema_version: 1
+feature_slug: bang-ngoai-n-co-can-cu
+# Ca đo sống ở tests/scripts/bang-ngoai-n.test.mjs (mã BN-…); răng màn hẹp ở
+# _acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py (cần Python Playwright, ngoài feature_loop.suite_keys).
+# Khoá executor thêm ở S3. Mọi fixture do mã sinh trong lượt (mục ngoài hợp đồng điền từ khuôn OOC-ITEM-TEMPLATE rút
+# từ writer), đường dẫn suy từ vị trí tệp ca; bản base = `git archive 6ed3e410 scripts lib feature-loop` vào thư mục
+# tạm (in sha). Mỗi ca đỏ chạy CHÍNH phép đo trên bản base hoặc bản sao bị tiêm (nhát tiêm khớp đúng một lần, kiểm
+# trước khi tin), SAU khi bản lành xanh trên cùng fixture, và ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: <mã ca>".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.bang_ngoai_n
+    paths: [lib/out-of-contract.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/bang-ngoai-n.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BN-1" — khuôn rút từ khối marker OOC-ITEM-TEMPLATE của writer (giải escape nguồn JS),
+      điền mẫu sáu trường do ca sinh; bộ đọc thật trả đúng một mục với title/plain/can_cu/file/severity/proposal
+      bằng mẫu (so từng trường, in tên trường lệch). "PASS: BN-1-cu" — lib/out-of-contract.cjs của base 6ed3e410
+      (git archive) đọc CÙNG tài liệu: title/plain/file/severity/proposal và mucChuaDinhTuyen(tài liệu, sổ rỗng) bằng
+      đúng kết quả của chính bộ đọc base trên tài liệu đã gỡ dòng «Căn cứ» (lệch → FAIL «bộ đọc cũ hỏng trên khuôn
+      mới»). "PASS: BN-1-do" — bản sao bộ đọc với khoá «Căn cứ» bị gỡ khỏi
+      biểu thức khoá (nhát tiêm khớp đúng một lần) đọc CÙNG tài liệu → can_cu rỗng, ca ghim «bộ đọc bỏ Căn cứ»; bản
+      sao khuôn bỏ dòng «Căn cứ» → mục đọc ra can_cu rỗng, ca ghim «khuôn thiếu Căn cứ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.bang_ngoai_n
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/carry-plan.mjs, lib/out-of-contract.cjs, tests/scripts/bang-ngoai-n.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BN-2" — workflow chạy thật qua tests/workflows/harness.mjs: tác tử review giả trả một
+      finding, tác tử phân loại giả trả inContract=false + proposal known-limits + can_cu do ca sinh; ca kiểm (i)
+      schema của lượt gọi triage có "can_cu" trong required; (ii) dòng run-log kind finding mang đúng can_cu; (iii)
+      `node feature-loop/scripts/carry-plan.mjs` trên kho git thử chứa run-log ấy trả carriedFindings[0].can_cu đúng
+      câu; (iv) lượt 2 chạy với carriedFindings đó, tác tử tổng hợp trả findings KHÔNG có mục ấy, bản findings sau
+      chèn máy đọc bằng lib/out-of-contract.cjs có mục mang nhãn «(r1)» với can_cu đúng câu; (v) prompt của lời gọi
+      synthesize lượt 1 (harness bắt) chứa câu can_cu do ca sinh trong JSON của mục ngoài hợp đồng và chứa dòng khuôn
+      «Căn cứ: {can_cu}». "PASS: BN-2-rong" — lượt 2 với carriedFindings mà mục không có can_cu (dòng sổ đời cũ):
+      bản findings sau chèn máy đọc bằng bộ đọc thật ra can_cu === "" và file/severity/proposal/plain bằng mẫu (đối
+      chứng dương: cùng mục có căn cứ xanh trước), ghim «căn cứ rỗng nuốt dòng kế» khi lệch. "PASS: BN-2-do" — bản
+      sao workflow (srcOverride) bỏ can_cu khỏi FINDING-LINE → ghim «sổ finding mất căn cứ»; bản sao workflow bỏ
+      can_cu khỏi mục triagedRaw đưa tác tử tổng hợp → ghim «tổng hợp không thấy căn cứ»; bản sao carry-plan.mjs bỏ
+      can_cu khỏi mục mang sang → ghim «mang sang mất căn cứ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.bang_ngoai_n
+    paths: [scripts/gate-card.js, lib/out-of-contract.cjs, tests/scripts/bang-ngoai-n.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BN-3" — kho thử, hồ sơ verified PASS, review-findings ba mục điền từ khuôn writer
+      (new-contract, known-limits, wont-fix; tiêu đề mang chữ kỹ thuật «globToRe», tệp «src/x.ts»): khối «Ngoài hợp đồng
+      — bạn quyết» có đúng một <table>, hàng tiêu đề bốn ô theo thứ tự Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ;
+      mỗi mục đúng một hàng, ô thứ i bằng trường cột thứ i (Ngoài-<vị trí> · plain · câu đề xuất của thẻ · can_cu) và
+      thuộc tính data-cot của ô thứ i bằng chữ tiêu đề cột thứ i; ba nhãn lựa chọn rút
+      bằng cùng biểu thức P52 từ commands/acceptance-card.md xuất hiện đúng một lần trong khối; khối không chứa
+      «globToRe» lẫn «src/x.ts». "PASS: BN-3-do" — gate-card.js của base 6ed3e410 trên CÙNG hồ sơ: khối không có
+      <table>, ca ghim «base không bảng»; bản sao gate-card.js tráo hai ô cuối của hàng (nhát tiêm khớp đúng một
+      lần) → ca ghim «ô lệch cột».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.bang_ngoai_n
+    paths: [scripts/gate-card.js, scripts/dinh-tuyen-may.cjs, tests/scripts/bang-ngoai-n.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BN-4" — ma trận viết trước ba hồ sơ: A (định tuyến tắt; năm mục thứ tự tệp
+      known-limits, new-contract, wont-fix, rỗng, lạ → thứ tự hàng kỳ vọng Ngoài-2, Ngoài-4, Ngoài-5, Ngoài-1,
+      Ngoài-3; hai hàng tiêu đề nhóm); B (khoá ngoai_n_tu_dinh_tuyen bật, sổ ghi bằng dinh-tuyen-may.cjs --write của
+      cây; ba mục known-limits, new-contract, wont-fix → Ngoài-2, Ngoài-1, Ngoài-3; hai hàng tiêu đề nhóm «cần anh
+      quyết» và «máy đã định tuyến»); C (một mục known-limits → Ngoài-1; 0 hàng tiêu đề nhóm). Ca in "so o: <n>" và
+      n bằng tổng số phần tử ma trận (khác → FAIL «ma trận hụt»). Câu gộp ký (dòng lệnh signoff trong thẻ) của mỗi
+      hồ sơ bằng từng byte câu gộp do gate-card.js base 6ed3e410 in trên cùng hồ sơ. "PASS: BN-4-do" — bản sao
+      gate-card.js bỏ bước xếp nhóm (nhát tiêm khớp đúng một lần) → hồ sơ A ra thứ tự tệp, ca ghim «thứ tự tệp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.bang_ngoai_n
+    paths: [scripts/gate-card.js, lib/out-of-contract.cjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/bang-ngoai-n.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BN-5" — cùng ba mục ở ba bản: bản khuôn base (khuôn rút từ acceptance-verify.js của
+      base 6ed3e410) → ba ô «chưa có căn cứ» và đúng một cờ chứa «3/3 mục chưa có căn cứ»; bản thiếu một → cờ chứa
+      «1/3 mục chưa có căn cứ»; bản đủ → không cờ chứa «chưa có căn cứ»; với mỗi bản, tập cờ của thẻ cây trừ cờ
+      căn cứ bằng tập cờ của thẻ base 6ed3e410 trên cùng bản. "PASS: BN-5-cu" — carry-plan.mjs trên run-log có
+      dòng kind finding không khoá can_cu: exit 0, carriedFindings[0].can_cu === "".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.bang_ngoai_n_man_hep
+    paths: [scripts/gate-card.js, _acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py]
+    expected: >
+      exit 0; stdout có "man-hep 320: cuon-ngang=0 xep-chong=10/10" (scrollWidth của trang ≤ clientWidth; mười hàng,
+      mỗi hàng bốn ô có top tăng dần), "man-hep 1280: cung-dong=10/10" (bốn ô mỗi hàng cùng top), và
+      "do OK: khong xep chong o 320 (0/10)" — bản sao gate-card.js bỏ khối luật màn hẹp (nhát tiêm khớp đúng một
+      lần) dựng CÙNG hồ sơ, ở 320 px bốn ô mỗi hàng bị ép thành bốn cột (không cuộn ngang vì chữ tự xuống dòng). Thẻ dựng bằng gate-card.js của cây trên hồ sơ thử do răng sinh.
+      Thiếu Python Playwright → exit 2 «không đọc được ở đây: playwright».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs: [feature-loop/workflows/acceptance-verify.js]
+    question: >
+      Đọc khối giữa hai marker CAN-CU-CHI-DAN trong tệp (chỉ khối ấy là đối tượng chấm). Một tác tử phân loại làm
+      đúng khối này thì câu can_cu nó viết có cho người ký Cổng 2 biết vì sao đề xuất ấy — hậu quả nặng hay nhẹ, mất
+      hay lộ dữ liệu không, người dùng tự gỡ được không, sửa sau rẻ hay đắt — trong MỘT câu tiếng sản phẩm, cấm tên
+      hàm, đường dẫn, mã thoát? Khối có tránh bảo tác tử đọc mã hay đề xuất cách sửa không?
+    evidence_required: [verdict, rationale]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [CHANGELOG.md, commands/acceptance-card.md]
+    question: >
+      Chỉ đọc mục «Chưa phát hành» của CHANGELOG.md và đoạn khối «Ngoài hợp đồng» của commands/acceptance-card.md.
+      Một người dùng kit ở kho tiêu thụ đọc xong có biết: thẻ Cổng 2 in mục ngoài hợp đồng thành bảng bốn cột (Mục ·
+      Người dùng gặp gì · Máy đề xuất · Căn cứ); căn cứ do bước phân loại viết và đi theo cả mục mang sang lượt sau;
+      mục cần quyết đứng đầu; hồ sơ chấm trước bản này hiện «chưa có căn cứ» kèm một cờ vàng và không phải sửa; câu
+      gộp ký và ba lựa chọn không đổi; kho không phải làm gì ngoài nhận mốc?
+    evidence_required: [verdict, rationale]

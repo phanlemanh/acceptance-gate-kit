@@ -160,6 +160,13 @@ Steps:
      render (cùng luật với `gap_probe`: cái gì phải hiện trên thẻ thì script
      render, để không thể quên hay điền sai). Ba nhãn lựa chọn giữ NGUYÊN VĂN:
      (a) **ghi Known limits** — chấp nhận, ghi vào phần hạn chế đã biết, ship bản này; (b) **mở hợp đồng mới** — tách thành một việc riêng có tiêu chí nghiệm thu của nó; (c) **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
+     Script in khối thành một BẢNG bốn cột — Mục · Người dùng gặp gì · Máy đề xuất ·
+     Căn cứ — mục cần người quyết (mở hợp đồng mới, chưa đề xuất, đề xuất sai khuôn)
+     đứng đầu, rồi mục máy khuyên, rồi mục máy đã tự định tuyến; mã `Ngoài-<số>` là vị
+     trí trong tệp, không đổi theo thứ tự hiển thị. Cột Căn cứ là dòng `Căn cứ:` bước
+     phân loại viết; hồ sơ chấm trước bản có dòng ấy hiện «chưa có căn cứ» + một cờ
+     vàng đếm số mục thiếu — không phải sửa hồ sơ. Ba nhãn lựa chọn hiện MỘT lần dưới
+     bảng, dòng lệnh ký không đổi.
      File không có section "## Ngoài hợp đồng" (thế hệ cũ, hoặc round không có
      lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại (triage-failed)" → script THÊM một cờ vàng phía trên khối (không thay thế — các lỗi đã phân loại được vẫn hiện cho người quyết). Cờ cụm-ngoài-vùng-phủ
      cũng do script render, và cố ý KHÔNG nêu đường dẫn file: thẻ là chỗ quyết
