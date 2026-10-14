@@ -113,7 +113,9 @@
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
-      "hang": []
+      "hang": [
+        "MC1"
+      ]
     },
     {
       "ten": "Phát hành 2.31.0 — thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1); chủ kho duyệt mốc 14/10",
@@ -553,6 +555,18 @@
       "slug": "nen-khong-tinh-tep-cua-vong",
       "cau_giao": "«Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug và vi phạm của chính hồ sơ thành dòng vàng có tên»",
       "vi_sao": "Gốc: crm/_acceptance/dai-luu-tru-dung-chung — duong-nen.md ở 83f854cbf đỏ bảy dòng CAY BAN SAU SUITE đều là tệp S1 của vòng (crm-onehub#375, ba ca trong hai ngày); 233/233 dòng lịch sử là đỏ giả. Chủ kho ký Cổng Đáng lối A 14/10."
+    },
+    {
+      "ma": "MC1",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "moc-la-chien-dich",
+      "ten_ngan": "Mốc là chiến dịch",
+      "dung_tren": [],
+      "cau_giao": "«Mỗi vòng thuộc một mốc: lộ trình cắm cờ vàng cho việc đang mở mà chưa thuộc mốc nào, và lúc mở vòng máy in tên phiên cùng nhóm thanh bên của mốc đó»",
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ (BAN-GIAO.md viết tay lúc đổi tài khoản 14/10) + docs/plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md (PR #350) — owner gọi tên 14/10: vòng sửa kit duy nhất của cửa sổ sau 2.30.0.",
+      "bat_khi": "Trang lộ trình của crm cắm cờ vàng cho đúng các việc đang mở vòng mà chưa thuộc mốc nào, và lệnh mở vòng in tên phiên «<mã> · <tên ngắn> (<kho>)» cùng nhóm «<lộ trình> · <mốc>» — đo trên bản sao lộ trình thật của crm",
+      "ghi_chu": "Máy MacBook Pro giữ. Không chạm dieu-phoi/ (chip của gói dieu-phoi dùng cùng hàm là việc của M5, chỉ ghi sẵn chỗ nối)."
     }
   ],
   "chan_troi": [

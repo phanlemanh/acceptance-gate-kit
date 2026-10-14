@@ -1,0 +1,175 @@
+schema_version: 1
+feature_slug: moc-la-chien-dich
+# Ca đo sống ở tests/scripts/moc-chien-dich.test.mjs (ca MC-<n> = AC-n; AC-5 còn ở ca LT-97; đuôi .test.mjs nên cũng chạy trong mảnh mjs
+# của suite) — khoá riêng executors.test.moc_chien_dich, mọi eval máy của AC-1…AC-9, AC-11 chung MỘT lệnh. Phần bảng dịch của AC-5 đo ở
+# ca LT-97 của tests/scripts/lo-trinh.test.mjs (khoá executors.test.moc_chien_dich_lt97). AC-10 cần kho crm trên máy
+# nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (khoá executors.test.moc_chien_dich_crm;
+# crm vắng → thoát 2 nêu đường — mù, không xanh). Kho thử do code sinh trong lượt; «bộ máy gốc» = `git archive
+# f4e717bf scripts lib skills` bung trong lượt; mọi đường dẫn suy từ vị trí tệp ca. Mỗi ca đỏ chạy trên BẢN SAO của
+# vật với nhát tiêm khớp ĐÚNG một lần, SAU khi bản lành xanh trên cùng kho thử, và ghim thông điệp. Ca in đúng một
+# dòng «PASS: MC-…» hoặc «FAIL: MC-… — <vì sao>»; mỗi eval ghim dòng PASS của chính nó — lệnh xanh mà thiếu dòng
+# ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-1", "PASS: MC-1-do", "PASS: MC-1-do2". MC-1: kho thử dùng mốc, 20 hàng (9 trạng
+      thái × thuộc mốc / không, + hàng không mốc có hồ sơ nhận qua lo_trinh_ma với slug khác mã, + hàng «không suy
+      được» do hai hồ sơ cùng nhận), tập mã mang câu «đang làm mà chưa thuộc mốc nào — gắn việc này vào một mốc của kế hoạch» ở mục
+      «Cần sửa trong kế hoạch» == ở ô trạng thái hàng == ở `can_sua` của khối == ở `hang[].co` == tập viết sẵn năm
+      mã (cân nhắc, sắp mở, chờ duyệt, đang dựng — không mốc — và hàng nhận qua lo_trinh_ma); 15 hàng còn lại không
+      mang. MC-1-do: bản sao scripts/lo-trinh.mjs bỏ điều kiện «có hồ sơ» → FAIL ghim «hàng chưa có hồ sơ bị cờ:
+      <mã>». MC-1-do2: bản sao chỉ xét hồ sơ theo thư mục slug → FAIL ghim «hàng nhận qua lo_trinh_ma không bị cờ:
+      <mã>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-2", "PASS: MC-2-byte", "PASS: MC-2-do", "PASS: MC-2-byte-do". MC-2: kho hai lộ trình (A có mốc, B 0
+      mốc), hàng đang dựng không mốc của B mang cờ. MC-2-byte: ba kho thử (một lộ trình 0 mốc · không khai lộ trình
+      · một lộ trình 0 mốc có hàng đã có hồ sơ) — trang LO-TRINH.html, stdout thẻ start và opportunity.md do --mo-o
+      ghi giống TỪNG BYTE đầu ra của bộ máy gốc (git archive f4e717bf) trên cùng kho; bộ máy gốc không bung được →
+      FAIL nêu lệnh, không bỏ qua. Đối chứng dương TRƯỚC khi so: mỗi kho × mỗi bên, lệnh thoát 0, tệp so có mặt,
+      khác rỗng, chứa mã hàng viết sẵn — thiếu → FAIL ghim «đối chứng gốc không chạy: <bên> <tệp>». MC-2-do: bản sao
+      xét «dùng mốc» theo từng lộ trình → FAIL ghim «hàng của lộ trình không mốc không bị cờ: B1». MC-2-byte-do: bản
+      sao cây chèn một byte vào ô cơ hội của kho không mốc → FAIL ghim «khác bộ máy gốc: opportunity.md».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-3", "PASS: MC-3-hai-lo-trinh", "PASS: MC-3-do". MC-3: kho thử khai một lộ trình,
+      mười hồ sơ ngoài kế hoạch (một mỗi ô bản đồ: cân nhắc, sắp mở, chờ duyệt, đang dựng, đã giao, chờ nghiệm thu,
+      đã nghiệm thu, xếp lại, đã bác, hỏng) + một hồ sơ đang dựng nối hàng qua lo_trinh_ma: tập hồ sơ mang câu «hồ sơ
+      <tên> đang mở mà không thuộc việc nào trong kế hoạch — thêm việc cho nó, hoặc ghi mã việc vào hồ sơ» ở mục «Cần
+      sửa trong kế hoạch» == ở `can_sua` của khối == tập viết sẵn bốn tên; khối «hồ sơ không thuộc kế hoạch nào» cuối
+      trang liệt đủ mười tên (bằng bộ máy gốc). MC-3-hai-lo-trinh: kho hai lộ trình — mỗi cờ hồ sơ hiện đúng một lần,
+      ở lộ trình đầu. MC-3-do: bản sao coi mọi hồ sơ ngoài kế hoạch là đang mở → FAIL ghim «hồ sơ đã đóng bị cờ: <tên>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/start-scan.mjs, commands/start.md, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-4", "PASS: MC-4-do", "PASS: MC-4-do2" (do2: bản sao luôn in khoá kể cả rỗng → FAIL ghim «kho có khai lộ trình nhận cờ chưa khai: null»; kho có khoá: khoá vắng hẳn và JSON quét bằng bộ máy gốc). MC-4: kho thử có config mà không khai lo_trinh.tep — bộ quét
+      start in JSON có `loTrinh: null` và khoá cờ «kho chưa khai lộ trình» mang đúng câu viết sẵn; thân lệnh start
+      (khối START-LO-TRINH) gọi tên khoá đó và nói in nó nguyên văn; mọi khoá khác của JSON bằng bộ máy gốc trên cùng
+      kho (so sâu, trừ đúng khoá mới). Kho thử có khai: khoá đó null. MC-4-do: bản sao bộ quét bỏ điều kiện «không
+      khai» → FAIL ghim «kho có khai lộ trình nhận cờ chưa khai».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-5" — kho thử của MC-1 và MC-3 sau `product-map.mjs --root <kho>` + commit: `--check` thoát
+      0 trong khi trang có đúng năm + bốn câu cờ mới (ca đếm trước khi tin mã thoát; 0 câu → FAIL «trang không có cờ để
+      thử»); dòng «Lộ trình có N cờ» của thẻ start: N(cây) − N(bộ máy gốc) == số cờ mới của kho đó, mọi dòng khác của thẻ bằng nhau.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.moc_chien_dich_lt97
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-97", "PASS: LT-97-do", "PASS: LT-97-do2" và dòng «LT-97 số dạng: mã 25 · ma trận
+      25 · bảng dịch 25 · kho thử phát 25» (gốc vòng 23); ma trận có dòng `ngoai-moc` và dòng `ho-so-ngoai-ke-hoach` (câu đích «hồ sơ c đang mở mà không thuộc việc nào trong kế hoạch — thêm việc cho nó, hoặc ghi mã việc vào hồ sơ») với câu đích viết tay «A — đang
+      làm mà chưa thuộc mốc nào — gắn việc này vào một mốc của kế hoạch».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-6" và "PASS: MC-6-do". MC-6: ma trận viết sẵn ≥ 17 ca (tên ngắn hàng 4 nguồn ×
+      mốc 10 dạng gồm dấu tách « — », « (», «; », «: » × kho 1 / 3 lộ trình như hợp đồng, + `tenKho` trên thư mục
+      không phải kho git trả tên thư mục), mỗi ca `tenChienDich` trả ĐÚNG bộ ba viết sẵn (so sâu, in ca
+      lệch); số ca chạy == số dòng ma trận. MC-6-do: bản sao chọn mốc đứng cuối tệp → FAIL ghim «hai-moc-khac-ngay:
+      nhận mốc <tên>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-7 moi-co-moc", "PASS: MC-7 moi-khong-moc", "PASS: MC-7 da-co-ho-so", "PASS: MC-7
+      ma-thoat", "PASS: MC-7 worktree", "PASS: MC-7 worktree-do". worktree: kho thử thư mục «kho-chinh», `git worktree
+      add` ra thư mục tên khác, chạy --mo-o từ worktree và từ thư mục con của nó → `ten_phien` kết thúc «(kho-chinh)».
+      worktree-do: bản sao lấy tên theo `git rev-parse --show-toplevel` → FAIL ghim «tên kho theo worktree: <tên>». Khối S0-MO-O rút từ SKILL chạy nguyên văn (WORKFLOWS_DIR trỏ cây) trên kho thử tên thư mục viết
+      sẵn: JSON có `hoSo`, `moi` như cũ và `moc`/`ten_phien`/`nhom` BẰNG `tenChienDich` gọi trên cùng hàng với kho =
+      tên thư mục kho thử; hàng không mốc → `nhom: null`, `moc: null`; nhánh `moi: false` cũng mang ba khoá. Bốn mã
+      thoát 0 · 1 · 2 · 3 bằng bộ máy gốc trên cùng bốn đối số.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-8". Ô cơ hội của hàng thuộc mốc «M1» ngày 2026-11-01 có đúng một dòng `Mốc: M1 —
+      01/11/2026.` đứng ngay sau dòng «Mở từ hàng …»; hàng không mốc có đúng một dòng bắt đầu `Mốc: chưa gắn — `;
+      ô bản đồ (`classify`) của hai hồ sơ bằng ô bộ máy gốc xếp cho hồ sơ mở từ cùng hàng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-9", "PASS: MC-9-do", "PASS: MC-9-do2", "PASS: MC-9-do3". MC-9: tập khoá khối
+      S0-TEN-CHIEN-DICH của SKILL == tập khoá JSON --mo-o in thêm so với bộ máy gốc == {moc, ten_phien, nhom}; khối có
+      dòng luật máy đọc «nhom-rong: khong-xep»; đoạn S0 chứa cả «ten_phien» lẫn «nhom» trong câu đặt tên phiên / xếp
+      nhóm. MC-9-do3: bản sao SKILL bỏ dòng luật ca rỗng → FAIL ghim «thiếu luật nhom null». MC-9-do: bản sao SKILL bỏ `nhom` khỏi khối → FAIL ghim «khối
+      thiếu khoá: nhom». MC-9-do2: bản sao mã thêm khoá `x_thu` → FAIL ghim «lệnh in khoá ngoài khối: x_thu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.moc_chien_dich_crm
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/moc-chien-dich-crm.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-10 dem", "PASS: MC-10 dem-do", "PASS: MC-10 ten" (dem-do: bộ máy gốc ở cả hai bên → phép đếm đỏ, ghim «docs/plan/lo-trinh-okr.json: cờ 12 → 12 (cần 12 → 26)»). Bản sao crm @1997da85 (git archive trong lượt, kho ở
+      CRM_ROOT hoặc ~/dev/crm; vắng → thoát 2 «crm vắng: <đường>»): số cờ bộ máy gốc → cây theo lộ trình OKR 12→26,
+      Kho tài liệu 2→2, Việc và Dự án 4→5; tập cờ mới == {F8, F23, F24, F26} ∪ {DA0c} ∪ mười hồ sơ viết sẵn (agent-doi-truong-theo-quyen, bo-cao-noi-khi-hong-mot-phan, ma-tran-bam-khong-dong-hop, mo-o-dau, phan-tich-cau-hinh-bo-cao, the-gop-y-cot-cuon-rieng, the-gop-y-sua-nhanh, the-thong-tin-ca-nhan, thuoc-cua-lat-3a-co-rang, tim-trong-phan-khuc); mọi cờ cũ còn. Một hàng OKR
+      thuộc mốc «R2 lên production»: `nhom` == «OKR · R2 lên production 31/10», `ten_phien` == «<mã> · <ten_ngan>
+      (crm)».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [docs/plans/lo-trinh-kit.json, LO-TRINH.html, scripts/lo-trinh.mjs, tests/scripts/moc-chien-dich.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-11" — trên cây kit: MC1 nằm trong `hang` của đúng một mốc, ngày 2026-11-05; 0 cờ
+      «chưa thuộc mốc» ở lộ trình kit; cờ «hồ sơ đang mở không thuộc việc nào» == tập hồ sơ đang mở ngoài kế hoạch do ca tự đếm bằng ô bản đồ (≥ 1; in tập); `tenChienDich` cho MC1: `ten_phien` == «MC1 · Mốc là chiến dịch
+      (acceptance-gate-kit)» (chuỗi viết sẵn), `nhom` == «Tinh chỉnh sau hai đợt thử 05/11».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.product_map
+    paths: [LO-TRINH.html, PRODUCT-MAP.md, docs/plans/lo-trinh-kit.json, scripts/lo-trinh.mjs]
+    expected: >
+      exit 0 — bản đồ và trang lộ trình của cây khớp hồ sơ xưởng (`product-map.mjs --check`).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.moc_chien_dich_dp211
+    paths: [scripts/start-scan.mjs, tests/dieu-phoi/mo-dot.test.mjs]
+    expected: >
+      exit 0; stdout có "✔ DP2-11 khong-dot" và "ℹ fail 0" — ca của gói điều phối so JSON quét start của kho không chạy
+      đợt bằng bản ở gốc nhánh (deepEqual); trước vòng sửa nó đỏ vì khoá loTrinhChuaKhai: null (Cổng Bằng chứng lượt 2).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

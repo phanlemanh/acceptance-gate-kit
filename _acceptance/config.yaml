@@ -68,6 +68,14 @@ executors:
     # Bộ đọc hồ sơ khoan dung (hồ sơ bo-doc-ho-so-khoan-dung) — ca YC-… (bộ dò YAML chuẩn, cờ thẻ, lệnh kiểm) và
     # NK-… (một bộ đọc ngày ký cho bốn mặt). Cả hai tệp mang đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite.
     yaml_chuan: node tests/scripts/yaml-chuan.test.mjs
+    # Hồ sơ moc-la-chien-dich (hàng MC1, nấc 1 ADR 0025): ca MC-1…MC-9, MC-11 (tệp .test.mjs — cũng chạy trong mảnh mjs
+    # của suite) · phần bảng dịch của AC-5 ở LT-97 · MC-10 cần kho crm trên máy (CRM_ROOT, mặc định ~/dev/crm) nên tệp
+    # không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (crm vắng → thoát 2, mù).
+    moc_chien_dich: node tests/scripts/moc-chien-dich.test.mjs
+    moc_chien_dich_lt97: "LT_CASES=LT-97,LT-97-do,LT-97-do2 node tests/scripts/lo-trinh.test.mjs"
+    moc_chien_dich_crm: node tests/scripts/moc-chien-dich-crm.mjs
+    # AC-4 sau Cổng Bằng chứng lượt 2: chạy chính ca DP2-11 của gói điều phối (chỉ chạy, không sửa tệp ca của vùng M5).
+    moc_chien_dich_dp211: "node --test --test-name-pattern=DP2-11 tests/dieu-phoi/mo-dot.test.mjs"
     ngay_ky: node tests/scripts/ngay-ky.test.mjs
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"

@@ -12,6 +12,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Bộ máy vẽ trang mẫu: mặc định cây này; LO_TRINH_MAY trỏ bản sao khác (ca LT-06-mau / LT-99-mau của lo-trinh.test.mjs
+// so trang mẫu đã ký với cây TẮT hai cờ nấc 1 — hồ sơ moc-la-chien-dich). Tệp mẫu vẫn ghi/đọc trong cây này.
+const MAY = process.env.LO_TRINH_MAY || KIT;
 export const MAU = path.join(KIT, '_acceptance', 'trang-lo-trinh-doc-mot-phut', 'mau');
 export const TRANG = 'hai-lo-trinh.html';
 export const ANH = { 'hai-lo-trinh--1440.png': [1440, 900], 'hai-lo-trinh--375.png': [375, 812] };
@@ -32,8 +35,8 @@ export function kiemAnh(dir) {
 
 async function veMau() {
   const KT = await import(pathToFileURL(path.join(HERE, 'lo-trinh-kho-thu.mjs')).href);
-  const LT = await import(pathToFileURL(path.join(KIT, 'scripts', 'lo-trinh.mjs')).href);
-  const PM = await import(pathToFileURL(path.join(KIT, 'scripts', 'product-map.mjs')).href);
+  const LT = await import(pathToFileURL(path.join(MAY, 'scripts', 'lo-trinh.mjs')).href);
+  const PM = await import(pathToFileURL(path.join(MAY, 'scripts', 'product-map.mjs')).href);
   const g = mkdtempSync(path.join(tmpdir(), 'lo-trinh-mau-trang-'));
   try { return LT.veTrang({ root: KT.dungKho('hai-lo-trinh', g), classify: PM.classify, sections: PM.SECTIONS }); }
   finally { rmSync(g, { recursive: true, force: true }); }

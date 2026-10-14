@@ -11,6 +11,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Bộ máy vẽ trang mẫu: mặc định cây này; LO_TRINH_MAY trỏ bản sao khác (ca LT-06-mau / LT-99-mau của lo-trinh.test.mjs
+// so trang mẫu đã ký với cây TẮT hai cờ nấc 1 — hồ sơ moc-la-chien-dich). Tệp mẫu vẫn ghi/đọc trong cây này.
+const MAY = process.env.LO_TRINH_MAY || KIT;
 const OUT = path.join(KIT, '_acceptance', 'viec-ke-theo-plan', 'mau', 'lo-trinh-crm-okr.html');
 const check = process.argv.includes('--check');
 const f = JSON.parse(readFileSync(path.join(HERE, 'fixtures', 'lo-trinh', 'crm-okr.json'), 'utf8'));
@@ -39,8 +42,8 @@ try {
     const tier = (data.hang.find(h => h.slug === slug) || {}).hang;
     for (const [t, txt] of Object.entries(HO_SO[o](slug, tier))) writeFileSync(path.join(d, t), txt);
   }
-  const PM = await import(pathToFileURL(path.join(KIT, 'scripts', 'product-map.mjs')).href);
-  const LT = await import(pathToFileURL(path.join(KIT, 'scripts', 'lo-trinh.mjs')).href);
+  const PM = await import(pathToFileURL(path.join(MAY, 'scripts', 'product-map.mjs')).href);
+  const LT = await import(pathToFileURL(path.join(MAY, 'scripts', 'lo-trinh.mjs')).href);
   const html = LT.veTrang({ root: r, classify: PM.classify, sections: PM.SECTIONS });
   if (check) {
     const cu = existsSync(OUT) ? readFileSync(OUT, 'utf8') : null;

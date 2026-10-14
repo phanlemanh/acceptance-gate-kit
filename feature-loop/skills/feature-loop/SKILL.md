@@ -211,6 +211,13 @@ AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gat
 3 → dừng: in nguyên thông điệp (mã có ở nhiều lộ trình — người gọi lại bằng <tệp>:<mã>)
 ```
 <!-- S0-MO-O-THOAT>>> -->
+   **Tên phiên và nhóm thanh bên theo mốc** (hồ sơ moc-la-chien-dich): JSON của khối `S0-MO-O` — cả `moi: true` lẫn `moi: false` — mang thêm ba khoá liệt ở khối `S0-TEN-CHIEN-DICH` dưới đây, do MỘT hàm của bộ đọc lộ trình sinh: `moc` (mốc của hàng, hoặc `null`), `ten_phien` (`<mã> · <tên ngắn> (<kho>)`), `nhom` (`<lộ trình> · <mốc>`, kho một lộ trình thì `<mốc>`). In `ten_phien` và `nhom` ngay dưới slug — `nhom` rỗng thì in «chưa gắn mốc» thay cho nó. Phiên có công cụ đặt tên phiên và xếp nhóm thanh bên của app desktop → đặt tên phiên bằng đúng `ten_phien`, rồi xếp phiên vào nhóm tên đúng bằng `nhom` (tạo nhóm khi chưa có); luật ca `nhom` rỗng là dòng `nhom-rong` của khối. Mặt không có thanh bên chỉ in. Đây không phải câu hỏi cho người, không thêm lượt gọi; tên KHÔNG mang trạng thái (chờ ký, đang chấm…).
+<!-- <<<S0-TEN-CHIEN-DICH -->
+```
+khoa: moc ten_phien nhom
+nhom-rong: khong-xep
+```
+<!-- S0-TEN-CHIEN-DICH>>> -->
 <!-- <<<S0-NHAN-HANG -->
 ```
 AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs) && node "$AG/scripts/lo-trinh.mjs" --root . --hang '<mã>'

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cờ ngoài mốc</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;
+      --rule:rgba(45,49,66,.12);--accent:#eb6c36;--accent-text:#ba4513;
+      --sans:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',system-ui,sans-serif;
+      --serif:'Instrument Serif','Lora','Iowan Old Style',Georgia,serif;
+      --mono:'Geist Mono',ui-monospace,Menlo,monospace;
+    }
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem;background:var(--paper);color:var(--ink);font-family:var(--sans)}
+    .frame{width:100%;max-width:1040px}
+    .eyebrow{margin-bottom:.5rem;color:var(--muted);font:500 .66rem/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+    h1{margin-bottom:.35rem;font:400 clamp(1.5rem,2.4vw + .75rem,2rem)/1.15 var(--serif);letter-spacing:-.02em}
+    .subtitle{margin-bottom:1.5rem;color:var(--muted);font-size:.9rem;line-height:1.5;max-width:70ch}
+    .diagram{overflow-x:auto}
+    svg{display:block;width:100%;min-width:900px}
+    footer{margin-top:1.25rem;padding-top:.75rem;border-top:1px solid var(--rule);color:var(--soft);font:400 .68rem/1.6 var(--mono)}
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Hình tầng hồ sơ · moc-la-chien-dich · điểm quyết định Hỏi-1 (d-20261014T082738Z-1)</p>
+    <h1>Việc nào mang cờ «chưa thuộc mốc nào»</h1>
+    <p class="subtitle">Ba câu hỏi nối tiếp, đọc từ trên xuống. Chỉ một lối ra mang cờ. Dải dưới so hai cách đọc câu hỏi đầu (Hỏi-1): xét ở cấp kho hay cấp lộ trình — hai cách cho kết quả khác nhau ở một lộ trình không có mốc nào.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 1000 940" role="img" aria-labelledby="h1-title h1-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="h1-title">Cây quyết định cờ «chưa thuộc mốc nào» và hai lối của Hỏi-1</title>
+        <desc id="h1-desc">Câu 1: Kho có lộ trình nào khai mốc? Không: như cũ, không cờ. Có: câu 2: Việc có hồ sơ đang mở (chưa giao, chưa dừng)? Không: không cờ. Có: câu 3: Mã việc nằm trong một mốc của lộ trình nó? Có: không cờ, tên nhóm lộ trình · mốc. Không: cờ vàng, đang làm mà chưa thuộc mốc nào. Dải so Hỏi-1, ca crm lộ trình Việc và Dự án có 0 mốc: cấp kho (khuyên) thì DA0c bị cờ, cờ của lộ trình này 4 lên 5; cấp lộ trình thì DA0c im, 4 giữ 4.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+          </marker>
+        </defs>
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- ===== Connectors first (z-order behind nodes) ===== -->
+        <!-- D1 → R1 (không) -->
+        <line x1="470" y1="100" x2="568" y2="100" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D1 → D2 (có) -->
+        <line x1="310" y1="156" x2="310" y2="230" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D2 → R2 (không) -->
+        <line x1="470" y1="288" x2="568" y2="288" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D2 → D3 (có) -->
+        <line x1="310" y1="344" x2="310" y2="418" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D3 → R3 (có) -->
+        <line x1="470" y1="476" x2="568" y2="476" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D3 → R4 (không) — focal -->
+        <line x1="310" y1="532" x2="310" y2="598" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+
+        <!-- Arrow labels (masked, 8px gap) -->
+        <rect x="496" y="80" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="520" y="89" fill="#636b80" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+        <rect x="320" y="188" width="24" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="322" y="197" fill="#636b80" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">CÓ</text>
+        <rect x="496" y="268" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="520" y="277" fill="#636b80" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG</text>
+        <rect x="320" y="376" width="24" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="322" y="385" fill="#636b80" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">CÓ</text>
+        <rect x="504" y="456" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="520" y="465" fill="#636b80" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+        <rect x="320" y="560" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="322" y="569" fill="#ba4513" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">KHÔNG</text>
+
+        <!-- ===== Decision diamonds ===== -->
+        <!-- D1 -->
+        <polygon points="310,44 470,100 310,156 150,100" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <rect x="288" y="64" width="44" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.5)" stroke-width="0.8"/>
+        <text x="310" y="73" fill="#4f5d75" font-size="7" font-family="'Geist Mono',ui-monospace,Menlo,monospace" text-anchor="middle" letter-spacing="0.08em">HỎI-1</text>
+        <text x="310" y="108" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">Kho có lộ trình nào khai mốc?</text>
+
+        <!-- D2 -->
+        <polygon points="310,232 470,288 310,344 150,288" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="310" y="284" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">Việc có hồ sơ đang mở</text>
+        <text x="310" y="302" fill="#4f5d75" font-size="12" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">(chưa giao, chưa dừng)?</text>
+
+        <!-- D3 -->
+        <polygon points="310,420 470,476 310,532 150,476" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="310" y="472" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">Mã việc nằm trong một mốc</text>
+        <text x="310" y="490" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">của lộ trình nó?</text>
+
+        <!-- ===== Outcomes (rounded end nodes) ===== -->
+        <!-- R1 -->
+        <rect x="572" y="72" width="280" height="56" rx="20" fill="#f5f5f5" stroke="#4f5d75" stroke-width="1"/>
+        <text x="712" y="104" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">như cũ, không cờ</text>
+        <!-- R2 -->
+        <rect x="572" y="260" width="280" height="56" rx="20" fill="#f5f5f5" stroke="#4f5d75" stroke-width="1"/>
+        <text x="712" y="292" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">không cờ</text>
+        <!-- R3 -->
+        <rect x="572" y="444" width="280" height="64" rx="20" fill="#f5f5f5" stroke="#4f5d75" stroke-width="1"/>
+        <text x="712" y="472" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">không cờ, tên nhóm</text>
+        <text x="712" y="492" fill="#4f5d75" font-size="11" font-family="'Geist Mono',ui-monospace,Menlo,monospace" text-anchor="middle">&lt;lộ trình&gt; · &lt;mốc&gt;</text>
+        <!-- R4 — focal: the only exit that carries the flag -->
+        <rect x="150" y="600" width="320" height="64" rx="20" fill="#f5f5f5"/>
+        <rect x="150" y="600" width="320" height="64" rx="20" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.6"/>
+        <text x="310" y="628" fill="#ba4513" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">cờ vàng:</text>
+        <text x="310" y="648" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif" text-anchor="middle">đang làm mà chưa thuộc mốc nào</text>
+
+        <!-- ===== Comparison strip (Hỏi-1) ===== -->
+        <line x1="40" y1="700" x2="960" y2="700" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="40" y="728" fill="#4f5d75" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.14em">HỎI-1 · CÂU ĐẦU XÉT Ở CẤP NÀO</text>
+        <text x="40" y="752" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">Ca hai lối khác nhau: crm, lộ trình «Việc và Dự án» — 0 mốc</text>
+
+        <!-- Left: cấp kho (khuyên) -->
+        <rect x="40" y="772" width="440" height="96" rx="6" fill="#f5f5f5"/>
+        <rect x="40" y="772" width="440" height="96" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <text x="60" y="800" fill="#ba4513" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">Cấp kho (khuyên)</text>
+        <text x="60" y="828" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">DA0c bị cờ</text>
+        <text x="60" y="852" fill="#4f5d75" font-size="12" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">cờ của lộ trình này: <tspan font-family="'Geist Mono',ui-monospace,Menlo,monospace" fill="#2d3142">4 → 5</tspan></text>
+
+        <!-- Right: cấp lộ trình -->
+        <rect x="520" y="772" width="440" height="96" rx="6" fill="#f5f5f5" stroke="#4f5d75" stroke-width="1"/>
+        <text x="540" y="800" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">Cấp lộ trình</text>
+        <text x="540" y="828" fill="#2d3142" font-size="13" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">DA0c im</text>
+        <text x="540" y="852" fill="#4f5d75" font-size="12" font-family="'Geist',-apple-system,'Helvetica Neue',sans-serif">cờ của lộ trình này: <tspan font-family="'Geist Mono',ui-monospace,Menlo,monospace" fill="#2d3142">4 → 4</tspan></text>
+
+        <!-- ===== Legend strip ===== -->
+        <line x1="40" y1="892" x2="960" y2="892" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="40" y="916" fill="#4f5d75" font-size="8" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+        <polygon points="160,904 176,912 160,920 144,912" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+        <text x="184" y="916" fill="#4f5d75" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">CÂU HỎI</text>
+        <rect x="268" y="904" width="32" height="16" rx="8" fill="#f5f5f5" stroke="#4f5d75" stroke-width="1"/>
+        <text x="308" y="916" fill="#4f5d75" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">LỐI RA</text>
+        <rect x="388" y="904" width="32" height="16" rx="8" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="428" y="916" fill="#4f5d75" font-size="9" font-family="'Geist Mono',ui-monospace,Menlo,monospace" letter-spacing="0.06em">VIỀN CAM · LỐI MANG CỜ / LỐI KHUYÊN (CHỮ TRONG Ô ĐÃ GHI)</text>
+      </svg>
+    </div>
+
+    <footer>Nguồn: figures/index.md «Đề bài hình 1» · contract.md AC-1, AC-2, AC-9 · docs/superpowers/specs/2026-10-14-moc-la-chien-dich-design.md. Hình là chiếu của chữ, không phải nguồn.</footer>
+  </main>
+</body>
+</html>
