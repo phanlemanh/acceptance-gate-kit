@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0988fcb255cfde961386540d02c72e10049bd0c0
+verified_commit: 798fa47265debfc0bec017a7f43b0159bb939866
 human_signoff: manh 2026-10-13
 ---
 
@@ -185,3 +185,7 @@ none — every multi-run eval is uniform
 
 Round 1: verdict REJECT. Finder trả 12/12; có một finding trong hợp đồng (AC-2: ma trận E2 tự đếm chính nó, «10 hàng» chưa được ghim). Returned to implementation (S4-r1: vẽ lại bản đồ lộ trình, ghim 10 hàng/5 nguồn nhịp bằng hằng viết trước, thêm đối chứng dương cho kiểm vắng nhịp phiên).
 Round 2: E1, E2, E4, E5, E6 và 11 lệnh suite chạy lại, tất cả PASS; E3 carry-forward từ round 1 (delta không chạm paths của eval). Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-14, do mốc 2.30.0: đổi số ba gói + gộp DP11 (lưới --stale-all --base 6a9c0f9a); bo-doc-ho-so-khoan-dung để cũ vì môi trường (răng bảy kho cần ~/dev/radar)
+run_id: repin-20261014T011922Z-24656
+sha: 798fa47265debfc0bec017a7f43b0159bb939866 · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
