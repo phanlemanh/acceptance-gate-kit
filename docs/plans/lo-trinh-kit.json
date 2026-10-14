@@ -117,6 +117,16 @@
         "MC1",
         "RM1"
       ]
+    },
+    {
+      "ten": "Phát hành 2.31.0 — thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1); chủ kho duyệt mốc 14/10",
+      "ngay": "2026-10-16",
+      "loai": "phat-hanh",
+      "ai": "M5",
+      "hang": [
+        "BN1",
+        "NV1"
+      ]
     }
   ],
   "hang": [
@@ -530,6 +540,22 @@
       "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/release-2-27-0 — phát hiện khi cắt 2.27: A1 chưa chạy sống lần nào vì bản cài thiếu agents/ (38 lượt / 17 hồ sơ ghi tác tử vắng); M5 xác nhận 12/10 bản «2.27.0» cài được là mã main 294b29d, không phải tag a1e2e0b9.",
       "bat_khi": "Mốc kế: 0 lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» tới kho thật; mọi lỗi như vậy đỏ ở kho giả lập trước khi phát",
       "ghi_chu": "Vòng meta DUY NHẤT giữa 2.28 và mốc kế — chủ kho gọi tên 12/10 (luật chiều rộng (b)). Mở sau 2.28; máy giữ chốt ở hoà giải ba máy (crm issue #375). Liên quan S1."
+    },
+    {
+      "ma": "BN1",
+      "nhom": "cong-bang-chung",
+      "hang": "T3",
+      "slug": "bang-ngoai-n-co-can-cu",
+      "cau_giao": "«Thẻ Cổng 2 in mục Ngoài-n thành bảng Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ»",
+      "vi_sao": "Gốc: crm/_acceptance/kanban-viec (Ngoài-n không có căn cứ); chủ kho gọi tên 14/10; đã ký Cổng 2, PR kit #349."
+    },
+    {
+      "ma": "NV1",
+      "nhom": "duong-nen",
+      "hang": "T2",
+      "slug": "nen-khong-tinh-tep-cua-vong",
+      "cau_giao": "«Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug và vi phạm của chính hồ sơ thành dòng vàng có tên»",
+      "vi_sao": "Gốc: crm/_acceptance/dai-luu-tru-dung-chung — duong-nen.md ở 83f854cbf đỏ bảy dòng CAY BAN SAU SUITE đều là tệp S1 của vòng (crm-onehub#375, ba ca trong hai ngày); 233/233 dòng lịch sử là đỏ giả. Chủ kho ký Cổng Đáng lối A 14/10."
     },
     {
       "ma": "MC1",

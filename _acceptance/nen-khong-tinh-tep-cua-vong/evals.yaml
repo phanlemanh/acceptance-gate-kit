@@ -1,0 +1,156 @@
+schema_version: 1
+feature_slug: nen-khong-tinh-tep-cua-vong
+# Ca đo sống ở hai tệp: tests/scripts/duong-nen.test.mjs (NEN-TV1…NEN-TV6 — kho thử do code sinh trong
+# lượt bằng tests/scripts/duong-nen-fixture.mjs, suite fixture ghi tệp trong lúc chạy đúng như phiên S1)
+# và tests/scripts/gate-card-duong-nen.test.mjs (GN-TV1, GN-TV2 — thẻ đọc duong-nen.md do CHÍNH script
+# ghi; bản gốc rút bằng `git archive v2.30.0 feature-loop skills scripts lib`, trọn thư mục). Mỗi eval
+# ghim đúng dòng "PASS: …" — suite xanh mà thiếu dòng ghim là ĐỎ. Chiều đỏ: bản gốc duong-nen.mjs phải
+# đỏ NEN-TV1/TV2/TV3/TV5 (dòng của vòng thành đỏ); NEN-TV4 là BẤT BIẾN GIỮ (xanh cả hai bản) — chiều đỏ
+# của nó là đột biến (b) của NEN-TV6.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN0 " (đối chứng dương: kho lành, suite không ghi gì → mã 0, mục «Dòng
+      vàng» «không có») và "PASS: NEN-TV1 " — suite ghi hai tệp MỚI dưới _acceptance/<slug>/ trong lúc
+      chạy → mã 0, nen xanh, suite xanh, «Dòng đỏ» đúng «không có», tập bullet «Dòng vàng» BẰNG
+      {«nen suite: TEP CUA VONG _acceptance/<slug>/contract.md», «… decisions.jsonl»}. Chiều đỏ: bản
+      gốc v2.30.0 cùng kho thử → mã 1 với hai dòng CAY BAN (ca in bảng gốc · sau).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-TV2 " — suite ghi docs/superpowers/specs/2026-10-14-<slug>-design.md,
+      docs/superpowers/plans/2026-10-14-<slug>.md và sửa _acceptance/config.yaml đã theo dõi → mã 0, suite
+      xanh, tập «Dòng vàng» BẰNG ba dòng TEP CUA VONG của ba tệp, «Dòng đỏ» «không có».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có ĐÚNG HAI dòng "PASS: NEN-TV3 " — (thư mục mới) suite ghi apps/proto/<slug>/index.tsx
+      → mã 0, dòng TEP CUA VONG cho tệp ấy; (thư mục có sẵn ở HEAD) kho thử commit sẵn goi/<slug>/giu.txt,
+      suite ghi goi/<slug>/rac.txt → mã 1, tập dòng đỏ == {«nen suite: CAY BAN SAU SUITE goi/<slug>/rac.txt»},
+      «Dòng vàng» «không có».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-TV4 " — một lượt suite ghi _acceptance/<slug>/a.md và bốn tệp không của
+      vòng (sửa README.md · _acceptance/demo/rac.md · _acceptance/<slug>-2/a.md ·
+      docs/superpowers/specs/2026-10-14-<slug>x-design.md) → mã 1, suite do, tập dòng CAY BAN SAU SUITE
+      BẰNG bốn tệp ấy (đẳng thức tập), tập «Dòng vàng» BẰNG {TEP CUA VONG _acceptance/<slug>/a.md}.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, scripts/pre-merge-check.sh, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có ĐÚNG NĂM dòng "PASS: NEN-TV5 " — lưới trước-merge THẬT trên kho thử: (a) suite ghi hồ
+      sơ _acceptance/<slug>/ status verified thiếu evidence → mã 0, luoi xanh, «Dòng vàng» có «nen luoi: 1
+      vi pham cua chinh vong (khong tinh)» + nguyên văn dòng «VIOLATION [<slug>]», không «LOI CHAY»; (b)
+      nhánh gốc mang hồ sơ demo vi phạm (đối chứng dương của lưới) → mã 1, «nen luoi: 1 vi pham co san» +
+      nguyên văn «VIOLATION [demo]»; (c) cả hai → mã 1, dòng đỏ «nen luoi: 1 vi pham co san», dòng
+      «VIOLATION [<slug>]» chỉ ở mục vàng; (d) bản sao lưới in «VIOLATION [<slug>]: …» rồi chạy một lệnh
+      không tồn tại và thoát 1 không in dòng tóm → mã 1, luoi do, dòng đỏ «nen luoi: LOI CHAY ma 1»;
+      (e) nhánh gốc mang hồ sơ <slug>-2 vi phạm → mã 1, «nen luoi: 1 vi pham co san» + nguyên văn
+      «VIOLATION [<slug>-2]», mục vàng «không có».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/duong-nen.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-TV7 " — (a) kho lành: tệp ghi ra có «## Dòng vàng» với đúng một bullet
+      «không có», không dòng chứa DUONG-NEN-; (b) bản sao ag-root gỡ dòng mã suite-tep-cua-vong (chỗ tiêm khớp
+      1 lần) → mã 2, stderr «khuôn dòng vàng thiếu mã «suite-tep-cua-vong»», không có duong-nen.md; (c) bản
+      sao gỡ trọn khối DUONG-NEN-DONG-VANG → mã 2, stderr nêu «DUONG-NEN-DONG-VANG», không có tệp; (d) bản
+      sao gỡ dòng mã luoi-cua-vong → mã 2, stderr «khuôn dòng vàng thiếu mã «luoi-cua-vong»», không có tệp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ntv_the_nen
+    paths: [scripts/gate-card.js, feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/gate-card-duong-nen.test.mjs, tests/scripts/ntr-the-canh-gay.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: GN-TV1 " — duong-nen.md do CHÍNH script ghi ở kho thử của NEN-TV1 và NEN-TV4:
+      thẻ Cổng 1 in nhãn «Tệp của chính vòng — nền không tính» và tập dòng dưới nhãn BẰNG tập bullet mục
+      «Dòng vàng» của tệp; ca TV1 không có cờ «Nền hạ tầng có chân ĐỎ», ca TV4 có; và "PASS: GN-TV2 " —
+      duong-nen.md do bản gốc v2.30.0 ghi (git archive trọn thư mục) → thẻ bản vòng không in nhãn ấy và
+      khối «Nền hạ tầng» bằng từng chữ khối mà gate-card bản gốc dựng trên cùng tệp; và "PASS: GN-TV3 " —
+      thẻ Cổng 2 (hồ sơ kèm evidence-report REJECT có eval SUITE-* đỏ) dựng trên duong-nen.md của TV1 và
+      TV4: TV4 có câu «đỏ từ trước vòng» (đối chứng dương), TV1 không có, và HTML Cổng 2 của cả hai không
+      chứa «TEP CUA VONG». Mọi so sánh làm trên HTML gate-card in ra, sau khi bỏ thoát HTML.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-TV6 " — bản lành chạy trước trên cùng bốn kho thử xanh; bốn đột biến trên
+      bản sao duong-nen.mjs, mỗi chỗ tiêm khớp đúng 1 lần (đếm, không khớp → ca ĐỎ «chỗ tiêm lệch»):
+      (a) vị từ tệp-của-vòng trả false → phép đo TV1 đỏ nêu «_acceptance/<slug>/contract.md»; (b) trả true →
+      phép đo TV4 đỏ nêu «README.md»; (c) bỏ vế thư mục-không-có-ở-HEAD → phép đo TV3 đỏ nêu
+      «goi/<slug>/rac.txt»; (d) mẫu khớp VIOLATION bỏ dấu «]» → phép đo TV5(e) đỏ nêu «[<slug>-2]».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.ntv_tep_cua_vong
+    paths: [feature-loop/scripts/lib/tep-cua-vong.mjs, tests/scripts/fixtures/duong-nen-cay-ban-lich-su.tsv, tests/scripts/duong-nen.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NEN-TV8 " — đọc tests/scripts/fixtures/duong-nen-cay-ban-lich-su.tsv (đúng 230
+      dòng dữ liệu; tệp vắng/rỗng/sai số dòng → ca ĐỎ có tên), đưa từng đường qua hàm nhập từ
+      feature-loop/scripts/lib/tep-cua-vong.mjs (cùng hàm duong-nen.mjs nhập — ca kiểm import, không chép),
+      in bảng lớp → vàng/đỏ và ghim: GIA-S1 197 vàng 0 đỏ · KHAC 3 vàng 26 đỏ · CAT 0 vàng 4 đỏ · 7/7 dòng
+      slug dai-luu-tru-dung-chung vàng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    paths: [feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0 — khoá có từ trước vòng (hồ sơ nen-cay-ban-dong-dau), không sửa: mọi ca NEN0…NEN9, NEN-TD*,
+      NEN-CB* nó ghim vẫn có dòng PASS trên bản vòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0 — khoá có từ trước vòng (hồ sơ nen-chay-bang-moi-truong-nguoi-goi), không sửa: NEN-LC*, NEN-ENV*
+      vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ndk_nen_dieu_kien
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    expected: >
+      exit 0 — khoá có từ trước vòng (hồ sơ nen-dieu-kien-va-static-khong-do-duoc), không sửa: NEN-DK* (cả hai
+      dòng NEN-DK2) vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.tcc_the_nen
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-duong-nen.test.mjs]
+    expected: >
+      exit 0 — khoá có từ trước vòng (hồ sơ thuoc-co-cua), không sửa: GN1…GN5 vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

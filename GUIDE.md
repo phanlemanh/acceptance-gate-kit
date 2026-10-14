@@ -540,7 +540,11 @@ một lần, lần lượt, rồi cây còn sạch · lưới trước-merge ch�
 theo slug) · ba bản bộ máy (chép trong repo · plugin cache · bản đang chạy). Kết quả vào
 `_acceptance/<slug>/duong-nen.md` và khối «Nền hạ tầng» trên thẻ Cổng Phạm vi. Đỏ ở đây theo
 định nghĩa không phải lỗi của vòng: máy tự gỡ thứ gỡ được, thứ chỉ người gỡ được gom một lần
-vào lời mời cổng. Khuôn tệp và khuôn dòng đỏ: `skills/acceptance/references/duong-nen-template.md`.
+vào lời mời cổng. Vòng soạn S1 song song với nền nên nền thấy cả tệp của chính vòng: tệp mang
+slug (`_acceptance/<slug>/…`, spec/plan theo khuôn tên, thư mục mới tên slug), `_acceptance/config.yaml`
+và `VIOLATION [<slug>]` của chính hồ sơ vào mục **Dòng vàng** — có tên trên thẻ, không lật nền, không
+phải lý do chạy lại (2.31 · hồ sơ nen-khong-tinh-tep-cua-vong). Khuôn tệp, khuôn dòng đỏ và dòng vàng:
+`skills/acceptance/references/duong-nen-template.md`.
 
 **Trong lượt chấm:** lệnh eval tự khai `status: not-run` không bị thi hành (bộ sinh args dùng
 cùng hàm của `lib/evidence-core.cjs` với làn ghim lại), báo cáo nói ra chúng bằng một dòng; các

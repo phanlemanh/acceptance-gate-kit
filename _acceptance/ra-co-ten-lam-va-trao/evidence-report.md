@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 798fa47265debfc0bec017a7f43b0159bb939866
+verified_commit: 5663751d914e1c359ea69cf21d286fa5d3b98be7
 human_signoff: Manh 2026-08-25
 ---
 
@@ -406,3 +406,7 @@ sha: 0ea126220ad045f92625db387deb70b1756e8a58 · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 38 — 2026-10-14, do mốc 2.30.0: đổi số ba gói + gộp DP11 (lưới --stale-all --base 6a9c0f9a); bo-doc-ho-so-khoan-dung để cũ vì môi trường (răng bảy kho cần ~/dev/radar)
 run_id: repin-20261014T011922Z-24656
 sha: 798fa47265debfc0bec017a7f43b0159bb939866 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 39 — 2026-10-14, do khai khác biệt đọc-cũ cho nen-khong-tinh-tep-cua-vong (RT13) — d-20261014T111319Z-41
+run_id: repin-20261014T112623Z-39651
+sha: 5663751d914e1c359ea69cf21d286fa5d3b98be7 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
