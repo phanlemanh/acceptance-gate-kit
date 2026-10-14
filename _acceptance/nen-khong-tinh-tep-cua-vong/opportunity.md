@@ -76,9 +76,15 @@ cờ vàng → bật thêm theo lựa chọn → đổi mặc định.
 
 | Lối | Làm gì | Ba gốc | Kho vỡ | Giá |
 |---|---|---|---|---|
-| **A (máy khuyên)** | Mặc định: dòng `CAY BAN` mang đường chứa slug của vòng hoặc `_acceptance/config.yaml`, và VIOLATION nêu `[<slug>]`, thành **dòng vàng có tên** «tệp của vòng — nền không tính», không lật `nen` sang đỏ. Thêm khoá bật-theo-lựa-chọn `feature_loop.duong_nen_cay: head` → chân suite + lưới chạy trên worktree tạm ở HEAD (tái dùng cách dựng của baseline S4); kit bật. | 3/3 (kit nhờ khoá) | 0 | một vòng T2; khoá mới là CỘNG — cần phê đích danh |
+| **A (máy + Điều phối M5 khuyên)** | Mặc định, mọi kho: dòng `CAY BAN` mang đường chứa slug của vòng hoặc `_acceptance/config.yaml`, và VIOLATION nêu `[<slug>]`, thành **dòng vàng có tên** «tệp của vòng — nền không tính», không lật `nen` sang đỏ. Không thêm khoá cấu hình nào. | 2/3 trọn (hai ca crm); kit: 12/15 dòng — 3 `DO SAN` corpus còn đỏ | 0 | một vòng T2, không CỘNG |
+| A2 | A + khoá bật-theo-lựa-chọn `feature_loop.duong_nen_cay: head` → chân suite + lưới chạy trên worktree tạm ở HEAD (tái dùng cách dựng baseline S4); kit bật | 3/3 | 0 | khoá mới là CỘNG — cần phê đích danh; vòng lớn hơn |
 | B | Hướng (a) nguyên bản: đổi mặc định sang worktree, dựng `node_modules` thật (clonefile APFS) + nối mọi `.env*` mọi tầng để không vỡ | 3/3 | chưa đo được 0 — oneflow phải đo lại | vòng lớn hơn, cách dựng mới chưa từng chạy ở kho nào |
 | C | Chỉ khoá worktree bật-theo-lựa-chọn, không lọc | 1/3 — crm không bật được (Turbopack) | 0 | rẻ nhất, không chữa kho báo lỗi |
+
+Vì sao khoá tách khỏi A: CỘNG cần phê riêng và kit giữ đơn giản; phần lọc tự nó trả 204/233 dòng.
+3 `DO SAN` corpus của kit và 29 dòng mã/bản mẫu viết song song đi vào hạt giống
+`docs/plans/2026-10-14-hat-giong-nen-tren-worktree-head.md` (Gốc: hồ sơ này) — mở khi chúng gây
+đỏ giả có giá ở một vòng sau khi A lên `main`.
 
 Vì sao A không phải «nới phép cây bẩn» (lối (b) đã bác): suite không biết slug của vòng — slug chỉ
 sinh ở S0 — nên một suite không thể ghi vào đường mang slug ấy; lọc đường đó không mất chiều đỏ nào.
@@ -97,8 +103,7 @@ Không đo được — việc nội bộ của bộ công cụ, không có ngư
 - Kho mẫu: suite lành, phiên ghi `_acceptance/<slug>/contract.md` + spec mang slug + `config.yaml`
   trong lúc chân suite chạy → `nen: xanh`, ba dòng vàng có tên (đối chứng: cùng kho, suite ghi
   `README.md` → vẫn đỏ, thông điệp ghim `CAY BAN SAU SUITE README.md`).
-- Kho mẫu bật `duong_nen_cay: head`: phiên ghi bất kỳ tệp nào vào cây gốc trong lúc chạy → nền không
-  thấy; suite ghi rác vào cây nó chạy → vẫn đỏ; worktree tạm được dọn kể cả khi bị ngắt.
+- Kho mẫu: VIOLATION lưới nêu `[<slug>]` của chính vòng → vàng có tên; VIOLATION nêu hồ sơ khác → vẫn đỏ.
 - Kho không khai khoá: hành vi chân suite y như 2.30.0 trừ đúng các dòng mang slug.
 
 ## Out of scope từ khám phá
@@ -106,6 +111,8 @@ Không đo được — việc nội bộ của bộ công cụ, không có ngư
 - Đổi mặc định sang worktree cho mọi kho (lối B) — vỡ 4/8 kho theo số đo 14/10; mở lại khi có cách
   dựng `node_modules` thật đã đo trên oneflow.
 - Lọc 29 dòng mã/bản mẫu phiên viết song song ở mặc định — đường không mang slug thì không phân biệt
-  được với rác suite; kho cần thì bật khoá.
+  được với rác suite; vào hạt giống worktree-HEAD.
+- Khoá bật-theo-lựa-chọn chạy nền trên worktree ở HEAD (lối A2) — CỘNG, tách ra hạt giống; chữa 3
+  `DO SAN` corpus của kit.
 - Dặn phiên «đừng ghi tệp S1 trong lúc nền chạy» (lối c) — dặn-bằng-lời không phải nghiệm.
 - Lai cây của gói workspace qua symlink (cũng có ở baseline S4) — khai giới hạn, không sửa ở vòng này.
