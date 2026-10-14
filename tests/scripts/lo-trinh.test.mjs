@@ -121,7 +121,7 @@ function banSao(tiem = [], goc = KIT) {
 // cây tắt đúng ba khối mới, lời hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa.
 const TAT_MC = [['scripts/lo-trinh.mjs', 'if (docDuoc.some(t => t.kq.moc.length)) {', 'if (false) {'],
   ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes('],
-  ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });']];
+  ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; if (rs[i] && rs[i].canh_bao) t.raSoatCanh = rs[i].canh_bao; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });']];
 const tatCache = new Map();
 const tatMC = goc => { if (!tatCache.has(goc)) tatCache.set(goc, banSao(TAT_MC, goc)); return tatCache.get(goc); };
 
