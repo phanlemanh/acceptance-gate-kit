@@ -26,6 +26,12 @@
       "source": "./dieu-phoi",
       "description": "Orchestrator–workers for parallel feature-loop sessions: a scheduler that holds the S4 / baseline / merge locks, a batch CLI with five /dieu-phoi commands, five hook entries (block S4 without a lock, heartbeat, waiting-for-human ×2, out-of-quota safety net) and a usage-reading mod. Opt-in per repo (--scope project); hooks stay silent when the repo has no running batch.",
       "tags": ["bat-theo-lua-chon"]
+    },
+    {
+      "name": "road-map",
+      "source": "./road-map",
+      "description": "Outer loop of the roadmap: reviews a repo's plan and flags which rows should move milestone, wait for a condition, or be rejected — with machine-readable grounds. Command shell; code lives in acceptance-gate core. Opt-in per repo (--scope project).",
+      "tags": ["bat-theo-lua-chon"]
     }
   ]
 }

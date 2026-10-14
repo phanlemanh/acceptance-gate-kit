@@ -291,7 +291,9 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
   return {
     ten: khuon.ten, dong, co, hangKe, hangKeMaDon: keMaDon, ngoaiLoTrinh, songQuaCongDang: { k, n }, tuKhaiNgoai,
     tinTheoLoi: { n: dong.filter(d => d.tinTheoLoi).length, tong: dong.length },
-    moc: khuon.moc, daBac: khuon.daBac, demTheoO, daGiao, chinhSach: khuon.chinhSach || null,
+    moc: khuon.moc, daBac: khuon.daBac, demTheoO, daGiao,
+    // Chính sách rà soát (hồ sơ ra-soat-lo-trinh): khoá CHỈ có khi kho khai đúng — kho không khai giữ lớp phân tích từng byte.
+    ...(khuon.chinhSach ? { chinhSach: khuon.chinhSach } : {}),
   };
 }
 

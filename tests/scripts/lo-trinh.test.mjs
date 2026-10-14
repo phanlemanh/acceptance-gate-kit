@@ -117,8 +117,11 @@ function banSao(tiem = [], goc = KIT) {
 // Hồ sơ moc-la-chien-dich (nấc 1 ADR 0025) thêm hai cờ vàng ở `phanTichKho` — đổi CÓ CHỦ Ý. Các ca so «giống
 // bộ máy đời trước» của hồ sơ đã ký so bộ máy cũ với CÂY TẮT ĐÚNG hai khối cờ đó (bản sao, nhát tiêm khớp một
 // lần), nên lời hứa gốc «mọi thứ khác không đổi» giữ nguyên nghĩa; hai khối mới do moc-chien-dich.test.mjs đo.
+// ra-soat-lo-trinh (hàng RM1) thêm nhát thứ ba: tắt khối rà soát trên thẻ start — các ca so «giống bộ máy đời trước» so với
+// cây tắt đúng ba khối mới, lời hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa.
 const TAT_MC = [['scripts/lo-trinh.mjs', 'if (docDuoc.some(t => t.kq.moc.length)) {', 'if (false) {'],
-  ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes(']];
+  ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes('],
+  ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });']];
 const tatCache = new Map();
 const tatMC = goc => { if (!tatCache.has(goc)) tatCache.set(goc, banSao(TAT_MC, goc)); return tatCache.get(goc); };
 
@@ -1595,8 +1598,8 @@ const MA_TRAN_97 = [
   ['thieu-truong', () => kho({ data: { schema: 1, hang: [{ ma: 'A' }] } }), 'A — chưa có câu mô tả việc giao'],
   ['dung-tren-mang', () => kho({ data: { schema: 1, hang: [H('A', { dung_tren: 'B' })] } }), 'A — ô «cần xong trước» phải là danh sách'],
   ['phu-mang', () => kho({ data: { schema: 1, hang: [H('A', { phu: 'X1' })] } }), 'A — ô «mã đã phủ» phải là danh sách'],
-  ['khoi-chan-troi', () => kho({ data: { schema: 1, chan_troi: {}, hang: [H('A')] } }), 'danh sách chân trời phải là một mảng'],
-  ['chan-troi-object', () => kho({ data: { schema: 1, chan_troi: ['x'], hang: [H('A')] } }), 'mục chân trời thứ 1 không đúng dạng'],
+  ['khoi-chan-troi', () => kho({ data: { schema: 1, chan_troi: {}, hang: [H('A')] } }), 'danh sách chờ điều kiện phải là một mảng'],
+  ['chan-troi-object', () => kho({ data: { schema: 1, chan_troi: ['x'], hang: [H('A')] } }), 'mục chờ điều kiện thứ 1 không đúng dạng'],
   ['khong-object', () => kho({ data: { schema: 1, hang: ['x', H('A')] } }), 'việc thứ 1 không đúng dạng'],
   ['khoi-hang', () => kho({ data: { schema: 1, hang: {} } }), 'danh sách việc phải là một mảng'],
   ['ma-trung', () => kho({ data: { schema: 1, hang: [H('T'), H('T')] } }), 'hai việc cùng mã T — đổi mã một trong hai'],
@@ -1618,6 +1621,10 @@ const MA_TRAN_97 = [
   // moc-la-chien-dich (nấc 1 ADR 0025): hai dạng cờ vàng.
   ['ngoai-moc', () => kho({ hoSo: { s: 'dang-dung' }, data: { schema: 1, moc: [{ ten: 'M1', ngay: '2026-11-01', hang: ['B'] }], hang: [H('A', { slug: 's' }), H('B')] } }), 'A — đang làm mà chưa thuộc mốc nào — gắn việc này vào một mốc của kế hoạch'],
   ['ho-so-ngoai-ke-hoach', () => kho({ hoSo: { c: 'dang-dung' }, data: { schema: 1, hang: [H('A')] } }), 'hồ sơ c đang mở mà không thuộc việc nào trong kế hoạch — thêm việc cho nó, hoặc ghi mã việc vào hồ sơ'],
+  // ra-soat-lo-trinh: ba dạng cờ khuôn của chính sách rà soát.
+  ['chinh-sach-object', () => kho({ data: { schema: 1, chinh_sach: [], hang: [H('A')] } }), 'chính sách rà soát phải là một object'],
+  ['chinh-sach-tuoi', () => kho({ data: { schema: 1, chinh_sach: { tuoi_ngay: 0 }, hang: [H('A')] } }), 'chính sách tuoi_ngay phải là số nguyên dương'],
+  ['chinh-sach-tran', () => kho({ data: { schema: 1, chinh_sach: { tran_ke_tiep: -1 }, hang: [H('A')] } }), 'chính sách tran_ke_tiep phải là số nguyên không âm'],
 ];
 const CAM_CO = ['cau_giao', 'dung_tren', 'lo_trinh_', 'tu_vung', 'tự khai', 'tệp khai khác hồ sơ', 'đứng trên', 'tệp ý định'];
 const CAM_TRANG = ['tin theo lời', 'câu giao', 'hàng kế', 'Hàng kế', 'Vòng ngoài lộ trình', 'Cổng Đáng', 'tệp ý định', 'Cờ'];
