@@ -126,3 +126,6 @@ Không đo được — việc nội bộ của bộ công cụ, không có ngư
   `DO SAN` corpus của kit.
 - Dặn phiên «đừng ghi tệp S1 trong lúc nền chạy» (lối c) — dặn-bằng-lời không phải nghiệm.
 - Lai cây của gói workspace qua symlink (cũng có ở baseline S4) — khai giới hạn, không sửa ở vòng này.
+- RT13 so bộ quét mốc cũ với cả hồ sơ sinh sau mốc (lộ ra ở chữ ký 14/10 của chính ô này) — hạt giống
+  `docs/plans/2026-10-14-hat-giong-rt13-so-ban-cu-voi-ho-so-sau-moc.md`; gỡ tạm bằng một dòng khai trong
+  `_acceptance/ra-co-ten-lam-va-trao/contract.md`.
