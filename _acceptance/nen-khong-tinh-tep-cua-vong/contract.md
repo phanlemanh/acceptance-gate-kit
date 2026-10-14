@@ -6,7 +6,7 @@ owner: manh@mstar.vn
 risk_tier: T2               # feature-loop/scripts/duong-nen.mjs + khuôn đường nền + scripts/gate-card.js (khối Nền hạ tầng) + test + một câu SKILL/GUIDE — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-nen-khong-tinh-tep-cua-vong-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
