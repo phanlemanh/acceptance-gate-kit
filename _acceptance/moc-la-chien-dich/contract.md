@@ -69,4 +69,7 @@ Quét bằng `morphological-scan` (preset entity-feature, thực thể = một h
 
 ## Notes
 
+- Con trỏ thay thế (ca đo, không sửa hồ sơ đã ký): AC-1/AC-3 thay vế «vòng ngoài lộ trình không cờ» của ca LT-11 và vế «một cờ đúng bằng» của LT-05 (hồ sơ `viec-ke-theo-plan`); AC-7 thay vế «JSON đúng hai khoá» của LT-75/LT-76 (hồ sơ `lo-trinh-tren-du-lieu-that`) — hai ca giữ lời hứa về hai khoá cũ. Các ca so-với-bộ-máy-đời-trước (LT-73 khong-truong, LT-100, LT-112, LT-06-mau, LT-99-mau) nay so với CÂY TẮT đúng hai khối cờ mới (bản sao, nhát tiêm), nên lời hứa «mọi thứ khác không đổi» giữ nguyên nghĩa.
+- Lỗi kit gặp ở bước thiết kế, ghi hạt giống `docs/plans/2026-10-14-hat-giong-khuon-giu-co-bi-can-cu-danh-do.md`: khuôn DEC-GIU-CO trỏ hợp đồng nhưng bộ xếp căn cứ đánh đỏ «vật của chính vòng».
+
 - Mù (Thước↔Vật): công cụ đặt tên phiên và xếp nhóm thanh bên của app desktop không gọi được trong lượt chấm, nên không eval nào chứng rằng phiên THẬT SỰ được xếp. Reality đọc ở hồ sơ mốc kế bằng số ở «Đường đo» dòng 2. Phiên mở vòng này (MC1) đã tự đặt tên «MC1 · Mốc là chiến dịch (kit)» và xếp vào nhóm «Kit · Tinh chỉnh sau hai đợt thử 05/11» bằng tay lúc mở — trước khi có hàm.
