@@ -6,7 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs + feature-loop/skills/feature-loop/SKILL.md (S0) + test + lộ trình kit — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-moc-la-chien-dich-design.md
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-14T09:03:39Z
 ---
 
 # Acceptance Contract: moc-la-chien-dich

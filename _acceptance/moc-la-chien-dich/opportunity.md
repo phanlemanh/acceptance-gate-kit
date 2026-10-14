@@ -3,10 +3,10 @@ schema_version: 1
 slug: moc-la-chien-dich
 feature: "Mỗi vòng thuộc một mốc: lộ trình cắm cờ vàng cho việc đang mở mà chưa thuộc mốc nào, và lúc mở vòng máy in tên phiên cùng nhóm thanh bên của mốc đó"
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-14T09:03:39Z   # chủ kho gọi tên vòng 14/10 và gõ «duyệt» ở Cổng Phạm vi gộp; máy ghi «làm» theo đó (sổ d-…-12)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
