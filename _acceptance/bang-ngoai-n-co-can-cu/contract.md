@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/out-of-contract.cjs (t3_paths lib/**) + scripts/gate-card.js + feature-loop/workflows/acceptance-verify.js + feature-loop/scripts/carry-plan.mjs + test + tài liệu — không chạm hooks/**, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-bang-ngoai-n-co-can-cu-design.md
-status: verified
+status: signed-off
 approved_by: manh
 approved_at: 2026-10-14
 ---
@@ -65,3 +65,14 @@ quyết định]` · `[NGÀNH: WCAG 2.1 SC 1.4.10 Reflow — đọc được ở
 - Ca đo: `tests/scripts/bang-ngoai-n.test.mjs` (mã BN-…), răng màn hẹp `_acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py`
   (cần Python Playwright, ngoài `feature_loop.suite_keys`). Khoá executor thêm ở S3. Ca P52/P53/P53b/P55/P201 và các
   ca đang ghim chữ khối giữ xanh; tệp mẫu P53 trong hồ sơ `s4-scope-triage` sinh lại bằng chính script sinh.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-14:
+  - Ngoài-1: Thẻ Cổng 2 mẫu của hồ sơ đã ký `khoi-viec-cua-anh` nay có bố cục bảng khác bản người ký đã đọc, nhưng sổ của hồ sơ đó không ghi vì sao.
+  - Ngoài-2: Dòng báo xanh của ca LC6 vẫn nói «bằng nhau từng byte» trong khi phép so bỏ qua các dòng giao diện của bảng đã khai.
+  - Ngoài-3: Chữ «căn cứ» dùng cho hai thứ khác nhau trong kit — căn cứ của lựa chọn ở bước thiết kế và câu căn cứ của mục ngoài hợp đồng.
+  - Ngoài-4: Ca phá thử BN-1-do khi chạy riêng không có đối chứng xanh ngay trong ca, nên có thể đỏ vì lý do khác lý do nó định bắt.
+  - Ngoài-5: Bằng chứng lượt chấm chỉ giữ vài dòng cuối của bộ ca BN, nên người đọc không thấy từng dòng PASS chi tiết.
+  - Ngoài-6: Khi bước phân loại quên viết căn cứ, cờ vàng vẫn nói hồ sơ do bản kit cũ chấm.
+  - Ngoài-7: Trên màn hẹp, nhãn nhóm và ô Mục bị ép còn khoảng 100 px nên chữ bị bẻ nhiều dòng; thẻ vẫn không cuộn ngang.
+  - Ngoài-9: Vế «thẻ REJECT không thêm cờ căn cứ» của BN-3 không đỏ được, nên nếu sau này thẻ REJECT in sai cờ thì có thể không ai biết.
+  - Ngoài-10: Ca phá thử BN-1-do không cho bản lành xanh trên cùng mẫu trước khi tin chiều đỏ.
+  - Trong hợp đồng (AC-4, lượt chấm 2): ca BN-4 chỉ so tổng số hàng của ba hồ sơ thử, nên một hồ sơ in thừa hàng cùng lúc hồ sơ khác in thiếu hàng có thể bù trừ và lọt; phép so thứ tự từng hàng vẫn còn.

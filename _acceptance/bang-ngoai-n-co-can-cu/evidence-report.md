@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: bang-ngoai-n-co-can-cu
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: fe496352f74e57766e0f389e2cf753a1646a69a4
-human_signoff:
+human_signoff: manh 2026-10-14
 ---
 
 # Evidence Report: bang-ngoai-n-co-can-cu
@@ -95,7 +95,7 @@ human_signoff:
     - domain-correctness: PASS — Khối CAN-CU-CHI-DAN (dòng 430–432) bắt tác tử viết MỘT câu ngôn ngữ sản phẩm, đủ bốn ý: hậu quả nặng hay nhẹ, có mất hoặc lộ dữ liệu không, người dùng tự gỡ được không (tải lại, thử lại), sửa sau rẻ hay đắt. Khối cấm tên hàm, đường dẫn tệp, mã thoát, từ ngữ regex hay schema, và nói rõ «Khong de xuat cach sua, khong doc code». Câu căn cứ làm cột «Căn cứ» trên thẻ Cổng 2, nên người ký đọc là đồng ý hoặc đảo được mà không phải mở tệp.
     - operational-feasibility: PASS — Khối CAN-CU-CHI-DAN (dòng 430–432 của acceptance-verify.js) bắt buộc đúng MỘT câu ngôn ngữ sản phẩm nêu hậu quả nặng hay nhẹ, mất hay lộ dữ liệu, người dùng tự gỡ được không, sửa sau rẻ hay đắt; cấm tên hàm, đường dẫn, mã thoát, từ ngữ regex/schema, cấm đề xuất cách sửa và cấm đọc code. Tác tử làm đúng khối sẽ viết ra câu căn cứ đủ bốn ý mà người ký đọc được ngay trên thẻ.
     - spec-alignment: PASS — Khối CAN-CU-CHI-DAN (dòng 430–432) bắt tác tử viết can_cu là MỘT câu ngôn ngữ sản phẩm nói đủ bốn ý: hậu quả nặng hay nhẹ, có mất hoặc lộ dữ liệu không, người dùng tự gỡ được không, sửa sau rẻ hay đắt; cấm tên hàm, đường dẫn, mã thoát, từ ngữ regex/schema, cấm đề xuất cách sửa và cấm đọc code.
-  human_override:  # chi nguoi ghi
+  human_override: manh 2026-10-14 — Đạt
 
 - eval: E8
   judged_by: judge panel (fresh context) — đề xuất PASS, chưa có người chốt
@@ -104,7 +104,7 @@ human_signoff:
     - domain-correctness: PASS — Mục đầu của CHANGELOG.md (2.30.0, mục con «Thẻ Cổng Bằng chứng: mục ngoài hợp đồng thành bảng có cột Căn cứ») nói đủ bảy ý: bảng bốn cột Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ; căn cứ do bước phân loại viết và đi theo cả mục mang sang lượt chấm sau; mục cần quyết đứng đầu; hồ sơ cũ hiện «chưa có căn cứ» kèm MỘT cờ vàng và không phải sửa; dòng lệnh ký và ba lựa chọn không đổi; kho chỉ cần nhận mốc (không khoá mới, không tệp mới). Đoạn «Ngoài hợp đồng» trong commands/acceptance-card.md (dòng 158–173) khớp từng điểm. Lưu ý: CHANGELOG không có tiêu đề «Chưa phát hành» theo đúng chữ; dòng 11 ghi mục đầu tiên chính là phần chưa phát hành, nên judge đọc mục 2.30.0 là mục đó.
     - operational-feasibility: PASS — CHANGELOG.md nói rõ mục đầu tiên (2.30.0) là phần chưa phát hành (dòng 11). Mục «Thẻ Cổng Bằng chứng: mục ngoài hợp đồng thành bảng có cột Căn cứ» (dòng 235–257) nêu đủ bảy ý; khối «Ngoài hợp đồng» trong commands/acceptance-card.md (dòng 158–169) khớp từng điểm đó.
     - spec-alignment: PASS — CHANGELOG.md dòng 235–257 (mục mới nhất, đứng dưới tiêu đề 2.30.0 vì không còn tiêu đề «Chưa phát hành» riêng) và commands/acceptance-card.md dòng 158–173 cùng nói đủ bảy ý. Điểm lệch nhỏ: đề bài viết «câu gộp ký» còn hai tệp viết «dòng lệnh ký», cùng một thứ, không làm đổi kết luận.
-  human_override:  # chi nguoi ghi
+  human_override: manh 2026-10-14 — Đạt
 
 ### Lệnh suite (hồi quy)
 
