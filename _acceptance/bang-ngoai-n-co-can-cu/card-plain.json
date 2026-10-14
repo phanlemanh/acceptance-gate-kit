@@ -1,34 +1,7 @@
 {
   "feature_plain": "Ở Cổng Bằng chứng, anh thấy các lỗi ngoài hợp đồng thành một bảng, mỗi lỗi một hàng kèm lý do máy đề xuất như vậy, lỗi cần anh quyết đứng đầu.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ có chỗ ghi lý do (căn cứ) trong mỗi mục ngoài hợp đồng, và máy đọc lại đúng chữ đã ghi; kho chưa cập nhật bộ đọc vẫn đọc đúng các trường cũ."},
-    {"id": "AC-2", "p": "Sẽ giữ được lý do qua mọi bước của lượt chấm, kể cả khi mục được mang sang lượt sau; mục cũ không có lý do không làm lệch các trường khác."},
-    {"id": "AC-3", "p": "Sẽ in khối ngoài hợp đồng thành bảng bốn cột (Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ), mỗi ô đúng cột, không lộ tên kỹ thuật hay đường dẫn tệp."},
-    {"id": "AC-4", "p": "Sẽ đưa mục cần anh quyết lên đầu, rồi mục máy khuyên, rồi mục máy đã tự định tuyến; số Ngoài-n và dòng lệnh ký giữ nguyên như hôm nay."},
-    {"id": "AC-5", "p": "Sẽ hiện «chưa có căn cứ» cùng một cờ vàng đếm số mục thiếu khi hồ sơ được chấm bằng bản cũ — không bắt sửa hồ sơ cũ."}
-  ],
-  "wont_do": [
-    {"id": "AC-6", "p": "Chặn cuộn ngang trên màn hẹp: mỗi hàng của bảng xếp thành một thẻ dọc có nhãn cột; màn rộng vẫn là bảng."},
-    {"id": "OOS-1", "p": "KHÔNG thêm cột «Loại» (lỗi người dùng thấy · thiếu bài kiểm · nợ mã) — đây là Hỏi-1, máy khuyên bỏ."},
-    {"id": "OOS-2", "p": "KHÔNG đổi dòng lệnh ký, ba lựa chọn cho mỗi mục, hay luật máy tự định tuyến."},
-    {"id": "OOS-3", "p": "KHÔNG đổi các khối khác của thẻ Cổng 2 và thẻ Cổng 1."},
-    {"id": "OOS-4", "p": "KHÔNG thêm lý do vào hồ sơ đã ký, ở kit hay ở kho dùng kit."},
-    {"id": "OOS-5", "p": "KHÔNG chạm lưới chặn trước khi gộp và móc kiểm chữ ký."}
-  ],
-  "coverage_plain": [
-    {"i": 0, "p": "Lý do được đo ở từng bước nó đi qua — từ khuôn, bước phân loại, sổ, bước tổng hợp, mang sang lượt sau, tới bộ đọc và thẻ (AC-1 khuôn và bộ đọc, AC-2 các bước của lượt chấm, AC-3 thẻ)."},
-    {"i": 1, "p": "Mọi loại đề xuất đều có ca: mở việc mới, ghi hạn chế, chấp nhận, chưa đề xuất, đề xuất lạ; có và không có máy tự định tuyến; có và thiếu lý do (AC-3 bảng, AC-4 thứ tự, AC-5 hồ sơ cũ)."},
-    {"i": 2, "p": "Mọi mặt đọc được đo: bảng trên màn rộng, màn hẹp, dòng lệnh ký, các cờ khác của thẻ (AC-4 lệnh ký, AC-5 cờ, AC-6 màn hẹp)."},
-    {"i": 3, "p": "Mỗi phép đo máy có cả chiều đúng, chiều không đổi những gì không được đổi, và chiều đỏ trên bản cũ hoặc bản bị phá."},
-    {"i": 4, "p": "Thêm: thẻ không lộ tên kỹ thuật (AC-3), chữ chỉ dẫn viết lý do (AC-7), ghi chú phát hành cho kho dùng kit (AC-8)."},
-    {"i": 5, "p": "Để sau: cột «Loại», bảng cho các khối khác của thẻ, đo chất lượng câu lý do bằng model thật."},
-    {"i": 6, "p": "Không bao giờ: đánh số lại Ngoài-n theo thứ tự hiển thị, sửa hồ sơ đã ký để thêm lý do."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Chưa đo bước tổng hợp có nhận lý do để chép vào hồ sơ hay không — thiếu nó thì mọi mục ở lượt đầu đều trống lý do. Đã thêm phép đo và chiều đỏ cho bước này."},
-    {"i": 1, "p": "Phép đo bảng chỉ thấy chữ có mặt trong hàng, không thấy chữ đúng cột. Đã đổi sang so từng ô với cột của nó, kể cả nhãn cột ở màn hẹp."},
-    {"i": 2, "p": "Việc bỏ ba nút lặp ở từng mục, thêm hàng tiêu đề nhóm và thẻ màn hẹp chưa có dòng quyết định. Đã ghi: ba nút chỉ để trình bày, quyết định từng mục vẫn đi qua dòng lệnh ký giữ nguyên."},
-    {"i": 3, "p": "Chưa đo kho dùng kit với bộ đọc cũ có đọc lệch hồ sơ mới không. Đã thêm phép đo bộ đọc bản cũ trên hồ sơ mới."},
-    {"i": 4, "p": "Chưa đo mục mang sang không có lý do có làm lệch các trường khác không. Đã thêm phép đo qua đúng bước máy chèn mục."}
+  "decisions": [
+    {"id": "E7", "q": "Chỉ dẫn có khiến bước phân loại viết lý do đủ để anh quyết không?", "why": "Hội đồng ba người chấm đều khuyên Đạt; vòng T3 nên mọi câu chấm bằng mắt người là của anh."},
+    {"id": "E8", "q": "Ghi chú phát hành có đủ để kho khác hiểu thay đổi không?", "why": "Hội đồng ba người chấm đều khuyên Đạt; anh đọc mục «Chưa phát hành» trong CHANGELOG."}
   ]
 }
