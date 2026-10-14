@@ -755,6 +755,7 @@ const tpl = m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
 const SAMPLE = {
   title: 'rmSync before clone resolves',
   plain: 'Bấm Cập nhật có thể làm mất tiện ích đang cài.',
+  can_cu: 'Mất tiện ích nhưng cài lại là có; người dùng tự gỡ được.',
   file: 'src/install.ts:10',
   severity: 'high',
   proposal: 'known-limits',
@@ -766,7 +767,7 @@ const doc = '## Ngoài hợp đồng — người quyết ở Gate 2\n\n' + fill
 const r = parser.parse(doc);
 const f = r.findings[0];
 if (!f) { console.error('reader parse ra 0 finding tu khuon cua writer — hai dau da lech'); process.exit(1); }
-for (const k of ['title', 'file', 'severity', 'proposal', 'plain']) {
+for (const k of ['title', 'file', 'severity', 'proposal', 'plain', 'can_cu']) {
   if (f[k] !== SAMPLE[k]) {
     console.error('reader parse truong ' + k + ' = [' + f[k] + '] nhung phai la [' + SAMPLE[k] + '] — hai dau da lech');
     process.exit(1);
