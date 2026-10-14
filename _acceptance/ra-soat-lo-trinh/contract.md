@@ -80,5 +80,10 @@ lại đồng hồ), `[NGÀNH: Linear — auto-close]` (không đóng khi chu k�
 - Mốc chiến dịch chỉ là `loai: phat-hanh` — mốc không khai `loai` (crm: 3 mốc, đều của người) không được rà soát.
 - Tín hiệu nối vào hàng chưa tính là chạm khi tính tuổi.
 - Đổi chữ «chân trời» đổi byte trang lộ trình CHỈ ở kho có cờ khuôn `chan_troi` sai dạng — kho ấy vẽ lại trang khi nâng engine.
+- Con trỏ thay thế (ca đo, không sửa hồ sơ đã ký): LT-97 thêm ba dạng cờ chính sách và đổi hai câu đích sang «chờ điều kiện»;
+  LT-131, LT-132, LT-166 đổi câu ghim sang «chờ điều kiện»; LT-147 và LT-168 so răng phủ với bộ máy đời trước qua phép đổi chữ
+  «chân trời» → «chờ điều kiện»; LT-100 so với cây tắt thêm nhát tắt khối rà soát trên thẻ start (TAT_MC); MC-5 (hồ sơ
+  `moc-la-chien-dich`) bỏ đúng khối rà soát trước khi so dòng thẻ với bộ máy gốc — lời hứa gốc của mỗi ca giữ nguyên nghĩa.
+  P200 khoá thêm số phiên bản gói road-map (7 đột biến). Lý do từng chỗ: sổ quyết định, dòng `fix` stage S3.
 - Tuổi hàng tính theo lịch sử git tới HEAD: kho clone nông cho tuổi tối thiểu — lệnh in một dòng «lịch sử cụt».
 - Gói `road-map` đọc lõi qua bộ giải gói (bản mới nhất trên máy); chỉ đọc nên lệch phiên bản chỉ ảnh hưởng hiển thị.
