@@ -301,8 +301,10 @@ function kiemBN4(gc) {
     const kho = khoMaTran(o);
     const b = bang(khoiNgoai(theCua(kho, gc)));
     const thuTu = b.data.map(h => Number((h.td[0].html.match(/^Ngoài-(\d+)$/) || [])[1]));
-    o.thuTu.forEach((n, i) => { soO++; if (thuTu[i] !== n) loi.push(`hồ sơ ${o.ten}: hàng ${i + 1} = Ngoài-${thuTu[i]} ≠ Ngoài-${n}`); });
-    if (thuTu.length !== o.thuTu.length) loi.push(`hồ sơ ${o.ten}: ${thuTu.length} hàng ≠ ${o.thuTu.length}`);
+    // soO đếm từ phía ĐƯỢC ĐO — số hàng dữ liệu thẻ THẬT in ra — rồi đối chiếu với số phần tử viết trước
+    // (mẫu P105). Đếm lại từ chính ma trận kỳ vọng thì hai vế luôn bằng nhau: chốt chết (S4-r1, finding t7).
+    soO += thuTu.length;
+    o.thuTu.forEach((n, i) => { if (thuTu[i] !== undefined && thuTu[i] !== n) loi.push(`hồ sơ ${o.ten}: hàng ${i + 1} = Ngoài-${thuTu[i]} ≠ Ngoài-${n}`); });
     if (JSON.stringify(b.nhom) !== JSON.stringify(o.nhom)) loi.push(`hồ sơ ${o.ten}: hàng nhóm ${JSON.stringify(b.nhom)}`);
     const one = g => JSON.parse(theCua(kho, g, ['--extract'])).one_shot;
     if (one(gc) !== one(GC_BASE())) loi.push(`hồ sơ ${o.ten}: câu gộp ký đổi`);
@@ -323,6 +325,12 @@ test('BN-4-do', () => {
   const { loi } = kiemBN4(path.join(d, 'scripts', 'gate-card.js'));
   if (!loi.some(x => x.startsWith('hồ sơ A: hàng 1 = Ngoài-1'))) throw new Error(`bỏ xếp nhóm không đỏ thứ tự tệp: ${loi.join(' · ')}`);
   console.log('  do OK: thứ tự tệp');
+  // Chốt «ma trận hụt» phải đỏ được: bản sao bỏ hàng của mục cuối tệp → thẻ in thiếu một hàng.
+  const d2 = banSao(ROOT, ['scripts', 'lib', 'feature-loop', 'commands', 'skills']);
+  tiemTep(path.join(d2, 'scripts', 'gate-card.js'), '  for (const { f, fi, g } of hang) {\n', '  for (const { f, fi, g } of hang) {\n    if (fi === ooc.findings.length - 1) continue;\n', 'bỏ hàng mục cuối');
+  const r2 = kiemBN4(path.join(d2, 'scripts', 'gate-card.js'));
+  if (!r2.loi.some(x => x.startsWith('ma trận hụt'))) throw new Error(`bỏ một hàng không đỏ «ma trận hụt»: ${r2.loi.join(' · ')}`);
+  console.log('  do OK: ma trận hụt');
 });
 
 // AC-5 · đọc-cũ — ô «chưa có căn cứ» + đúng một cờ vàng đếm; cờ khác không đổi so base.

@@ -1370,7 +1370,9 @@ if (ooc.findings.length) {
   // nay gom thành MỘT dòng ba lựa chọn dưới bảng; quyết từng mục vẫn đi qua câu gộp ký.
   const COT = ['Mục', 'Người dùng gặp gì', 'Máy đề xuất', 'Căn cứ'];
   const NHOM = ['Cần anh quyết', 'Máy khuyên — chỉ đổi khi anh nghĩ khác', 'Máy đã định tuyến'];
-  const nhomCua = (f, fi) => (dtmMay(fi) ? 2 : (f.proposal === 'known-limits' || f.proposal === 'wont-fix') ? 1 : 0);
+  // «Máy khuyên» = mọi token đề xuất hợp lệ trừ mở hợp đồng mới — rút từ MỘT nguồn OOC-PROPOSALS, không chép tay.
+  const KHUYEN = new Set(outOfContract.PROPOSALS.filter(p => p !== 'new-contract'));
+  const nhomCua = (f, fi) => (dtmMay(fi) ? 2 : KHUYEN.has(f.proposal) ? 1 : 0);
   const hang = ooc.findings.map((f, fi) => ({ f, fi, g: nhomCua(f, fi) }));
   // <<<XEP-NHOM
   hang.sort((a, b) => a.g - b.g || a.fi - b.fi);
