@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f6cac108e710632594423d91b995b0ecde71abd3
+verified_commit: 928b9ff98317b2fc2c5492375322a6c8c1d75bfb
 human_signoff: Manh Phan 2026-10-14
 ---
 
@@ -232,3 +232,7 @@ none — every multi-run eval is uniform
 Round 1: chạy đầu tiên của vòng, ghi vào sổ chạy; các sửa sau lượt này vào ở commit 009d5ca1.
 Round 2: S4 lượt 2 PASS ở 009d5ca1, dừng ở Cổng Bằng chứng với 11 mục ngoài hợp đồng chờ người.
 Round 3: sau vòng sửa Ngoài-6 (nâng phạm vi, chủ kho 14/10) — khoá loTrinhChuaKhai chỉ có mặt khi kho chưa khai lộ trình, thêm E14 và siết E4; E1–E9, E11, E12, E14 chạy lại trên f6cac108, E10 và E13 carry-forward từ round 1; toàn bộ PASS.
+
+### Re-pin lần 1 — 2026-10-14, do gộp origin/main (#349–#353) vào nhánh PR #354
+run_id: repin-20261014T133924Z-90432
+sha: 928b9ff98317b2fc2c5492375322a6c8c1d75bfb · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
