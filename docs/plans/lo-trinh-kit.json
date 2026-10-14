@@ -100,13 +100,20 @@
       ]
     },
     {
-      "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
-      "ngay": "2026-11-05",
+      "ten": "Phát hành 2.30.0 — ĐÃ PHÁT HÀNH 14/10, tag v2.30.0 = 7cf78c36 (PR #346; số thay «2.29.1» đã báo crm — thêm lệnh yaml-chuan.cjs và luật lưới chặt hơn): bộ đọc hồ sơ khoan dung (R2) của MacBook Pro; khoá do dãy giữ tính nhịp khoá (DP10) và định tuyến mục Ngoài-n theo mã mục (DP11) của M5. crm nhận thẳng từ 2.28.0",
+      "ngay": "2026-10-14",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "R2"
       ]
+    },
+    {
+      "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
+      "ngay": "2026-11-05",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": []
     }
   ],
   "hang": [
@@ -222,7 +229,7 @@
       "cau_giao": "«Kit đọc hồ sơ thật của kho không im lặng sai: evals.yaml sai cú pháp chuẩn lên cờ vàng có tên, chữ ký ghi ngày/tháng/năm được đọc ra ngày»",
       "vi_sao": "Gốc: crm-onehub#375 (Mac Studio 13/10 09:09Z — evals.yaml sai cú pháp YAML chuẩn lọt mọi lưới của kit, crm có hồ sơ đã ký Bun.YAML/PyYAML không đọc được) + docs/plans/2026-10-13-hat-giong-ngay-ky-dang-ngay-thang-nam.md (chữ ký «10/09/2026» làm câu cho người gửi mất ngày giao, --cau đỏ).",
       "bat_khi": "Thẻ hai cổng của crm cắm cờ trên hồ sơ có evals.yaml sai cú pháp chuẩn, và bốn mặt đọc ngày ký ra ngày cho crm/nen-chat-ai-elements — đo bằng _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs",
-      "ghi_chu": "Máy MacBook Pro giữ. Không chạm lib/, pre-merge-check.sh, dieu-phoi/ (lib/out-of-contract.cjs là vùng DP11 của M5). Gộp sau khi M5 cắt 2.29.1 (kit #308), theo khoá #308."
+      "ghi_chu": "Máy MacBook Pro giữ. Không chạm lib/, pre-merge-check.sh, dieu-phoi/ (lib/out-of-contract.cjs là vùng DP11 của M5). Gộp 13/10 (#344), phát hành ở 2.30.0 (thay «2.29.1»)."
     },
     {
       "ma": "G3",

@@ -1,0 +1,18 @@
+# Kiểm bản cài SAU khi gắn thẻ (bước sau-tag của KC1, GUIDE §7.2) — chạy 14/10/2026 trên máy M5, gốc kit tại
+# 7cf78c36 (thẻ v2.30.0): node scripts/kiem-ban-cai.mjs --ref v2.30.0
+[kiem-ban-cai] ref v2.30.0 = 7cf78c36 · nguồn: git archive · cấu hình cách ly <thư mục tạm> · kho giả lập <thư mục tạm>
+[kiem-ban-cai] ĐẠT so-phien-ban: acceptance-gate 2.30.0 · feature-loop 2.30.0 · diagram-design 2.7.1 · dieu-phoi 2.30.0
+[kiem-ban-cai] ĐẠT khop-tag: 4 gói, 4519 tệp khớp
+[kiem-ban-cai] ĐẠT thu-muc-goi: đủ thư mục cấp một của mọi gói
+[kiem-ban-cai] ĐẠT tac-tu-cham: 3 loại tác tử có định nghĩa: cham-lenh, cham-ui, cham-doc
+[kiem-ban-cai] ĐẠT hook-goi: mọi tệp móc nối trỏ tới đều có
+[kiem-ban-cai] ĐẠT the-cong: thẻ Cổng Phạm vi của hồ sơ kho-thu dựng được
+[kiem-ban-cai] ĐẠT luoi-truoc-gop: kho lành thoát 0 · hồ sơ phạm luật bị chặn (VIOLATION)
+[kiem-ban-cai] ĐẠT dieu-phoi: chẩn đoán đợt chạy được từ bản cài
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.30.0 (7cf78c36) cài đúng tag
+
+# Cùng lúc: node scripts/kiem-ban-cai.mjs --may --ref v2.30.0 --root . — máy M5 CHƯA nâng plugin (đúng dự kiến);
+# TỔNG KẾT ra ĐẠT chỉ vì diagram-design 2.7.1 trùng số — xem đính chính ở CHANGELOG 2.30.0 và hạt giống
+# docs/plans/2026-10-14-hat-giong-kiem-ban-cai-may-dat-nho-goi-khong-doi-so.md.
+[kiem-ban-cai] máy: cấu hình /Users/manhphan/.claude · ref v2.30.0 = 7cf78c36 · chợ acceptance-gate-kit
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 26 bản ghi khớp v2.30.0 (7cf78c36) · 81 bản ghi khác số (VÀNG)

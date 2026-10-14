@@ -120,7 +120,10 @@ của dãy P1 khi lượt đang chạy, vì bộ phát lịch báo `khoa-khong-n
 - **Máy dev: cài `acceptance-gate`, `feature-loop` (và `dieu-phoi` nếu kho dùng) theo ĐÚNG THẺ ở MỌI phạm vi**, rồi
   kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.30.0 --root <bản clone kit đã git fetch
   --tags>`. Sống là dòng `[kiem-ban-cai] TỔNG KẾT: ĐẠT <n> bản ghi khớp v2.30.0`, không còn dòng `ĐỎ may:` hay `VÀNG
-  may:` nào (máy còn bản cũ chỉ in VÀNG mà TỔNG KẾT vẫn ĐỎ).
+  may:` nào của ba gói. **Đính chính sau thẻ (14/10):** dòng TỔNG KẾT một mình KHÔNG đủ — `--may` chỉ ra ĐỎ khi
+  không bản ghi nào mang số của thẻ, mà `diagram-design` giữ `2.7.1`, nên máy chưa nâng `acceptance-gate`,
+  `feature-loop`, `dieu-phoi` vẫn in `TỔNG KẾT: ĐẠT` kèm các dòng VÀNG (đo trên máy M5 sau thẻ: «ĐẠT 26 bản ghi khớp
+  · 81 khác số»). Đọc các dòng `VÀNG may:`. Hạt giống `2026-10-14-hat-giong-kiem-ban-cai-may-dat-nho-goi-khong-doi-so`.
 - **Kho có hồ sơ lưới chặn vì DP11** («chưa người định tuyến … dòng sổ theo số ghi trước lượt chấm»): người định tuyến
   lại các mục bằng `/acceptance-gate:signoff`; dòng mới mang `tieu_de` + `tep`.
 - **Kho muốn chặn `evals.yaml` không chuẩn trong CI** (tuỳ chọn, R2): chép `scripts/yaml-chuan.cjs` và thêm bước `node
@@ -149,7 +152,8 @@ nhận của các mốc trước nữa vẫn áp):
    đang chạy, không vòng nào giữa hai cổng. Không đổi engine dưới chân một vòng đang chạy.
 2. **Cài theo thẻ `v2.30.0`:** gỡ rồi cài lại `acceptance-gate`, `feature-loop`, `dieu-phoi` ở mọi bản ghi (phạm vi
    `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.30.0` — sống là `TỔNG KẾT: ĐẠT …
-   khớp v2.30.0`. Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
+   khớp v2.30.0` VÀ không còn dòng `VÀNG may:` nào của `acceptance-gate`, `feature-loop`, `dieu-phoi` (TỔNG KẾT một
+   mình không đủ — đính chính sau thẻ ở mục trên). Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
 3. **Lớp chép CI từ thẻ** (`git archive v2.30.0`) — đo 14/10 trên `onehub` 60fc1b02d, crm khai cả `tin_hieu` lẫn
    `lo_trinh`: mười bảy tệp đã khớp (kể cả ba tệp `dieu-phoi/scripts/` chép ở crm#374); chép lại tám — bốn tệp DP11
    cùng lúc (`lib/out-of-contract.cjs`, `scripts/pre-merge-check.sh`, `scripts/khong-can-nguoi.mjs`,
