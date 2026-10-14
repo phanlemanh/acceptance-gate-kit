@@ -15,8 +15,10 @@ không bao giờ được tính cho vật.
 ## Khuôn tệp
 
 Mỗi dòng frontmatter `khoá: {…}` được thay bằng giá trị của chân; dòng bullet
-giữ chỗ được thay bằng từng dòng đỏ nguyên văn, mỗi dòng một bullet — nền xanh
-thì đúng một bullet «không có». Hai dòng marker không vào tệp ghi ra.
+giữ chỗ của mỗi mục được thay bằng từng dòng của MỤC ĐÓ nguyên văn, mỗi dòng một
+bullet — mục rỗng thì đúng một bullet «không có». Hai dòng marker không vào tệp
+ghi ra. Mục «Dòng vàng» (hồ sơ nen-khong-tinh-tep-cua-vong) có từ 2.31; tệp đời
+trước không có mục ấy, bên đọc coi như rỗng.
 
 <!-- <<<DUONG-NEN-TEMPLATE -->
 ---
@@ -33,6 +35,10 @@ engine: {xanh|do|bo-qua}
 ## Dòng đỏ
 
 - {nguyên văn một dòng đỏ, mỗi dòng một bullet; nền xanh thì đúng một bullet «không có»}
+
+## Dòng vàng
+
+- {nguyên văn một dòng của chính vòng, mỗi dòng một bullet — tệp vòng viết trong lúc nền chạy, vi phạm lưới của chính hồ sơ; không lật nền; không có thì đúng một bullet «không có»}
 <!-- DUONG-NEN-TEMPLATE>>> -->
 
 ## Khuôn dòng đỏ
@@ -50,6 +56,27 @@ tra khuôn theo mã; mã vắng → thoát mã 2.
 - engine-lech: `nen engine: LECH {tep} ({a} ≠ {b})`
 - engine-tu-host: `nen engine: tu-host`
 <!-- DUONG-NEN-DONG-DO>>> -->
+
+## Khuôn dòng vàng
+
+Dòng của CHÍNH vòng — vòng viết tệp S1 trong lúc nền chạy (feature-loop S1#0 dặn soạn
+song song), nên chân suite thấy cây bẩn và chân lưới thấy hồ sơ viết dở. Những dòng ấy
+vào mục «Dòng vàng»: vẫn có tên trên thẻ, KHÔNG lật `nen` hay chân nào sang đỏ. Cùng
+cách tra như khuôn dòng đỏ; mã vắng hoặc khối vắng → thoát mã 2, không ghi tệp.
+
+<!-- <<<DUONG-NEN-DONG-VANG -->
+- suite-tep-cua-vong: `nen suite: TEP CUA VONG {tep} (khong tinh)`
+- luoi-cua-vong: `nen luoi: {k} vi pham cua chinh vong (khong tinh)`
+<!-- DUONG-NEN-DONG-VANG>>> -->
+
+Tệp nào là của vòng — vị từ MỘT chỗ, `feature-loop/scripts/lib/tep-cua-vong.mjs`: đường
+bắt đầu `_acceptance/<slug>/` · tên tệp `YYYY-MM-DD-<slug>-design.md` hoặc
+`YYYY-MM-DD-<slug>.md` · đúng `_acceptance/config.yaml` · một đoạn thư mục bằng `<slug>`
+mà thư mục ấy chưa có ở HEAD. Suite không biết slug của vòng (slug sinh ở S0), nên lọc
+các đường ấy không mất chiều đỏ; đánh đổi duy nhất là `config.yaml`. Vi phạm lưới của
+vòng = dòng mở đầu đúng `VIOLATION [<slug>]:`; chân lưới chỉ xanh với các dòng ấy khi
+lưới tự giải thích mã thoát — mã 1, có dòng tóm `pre-merge-check: <N> violation(s) —
+merge blocked`, N bằng số dòng VIOLATION; thiếu một vế thì vẫn `LOI CHAY`.
 
 ## Bốn chân
 

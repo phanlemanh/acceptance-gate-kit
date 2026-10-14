@@ -162,7 +162,7 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
     .filter(l => l.kind === 'finding' && l.round === prevRound && l.inContract === false
       && !l.unclassified && l.file)
     .map(l => ({ file: l.file, title: l.title, severity: l.severity || '', plain: l.plain || '',
-      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round,
+      can_cu: l.can_cu || '', proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round,
       tepDoi: deltaFiles.includes(l.file) }));
 
   // Mặc định an toàn (AC-8): BẤT KỲ dòng round trước nào thiếu sha, hoặc sha

@@ -210,6 +210,10 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
 - `docs/plans/2026-10-13-hat-giong-kenh-lien-may-dieu-phoi.md` — 13/10 kênh issue #308 (kit) và crm #375: không đánh
   thức phiên, danh tính tự khai, khoá không chặn được hai máy, ≈ 20 nghìn token mỗi lần đọc trọn; thiết kế kho git làm hộp thư. Đánh giá
   cuối 13/10: giữ SỔ, ngưỡng đổi sang đếm thiệt hại; bước nhỏ trước là bộ canh kênh có chiều đỏ.
+- `docs/plans/2026-10-14-hat-giong-bang-ngoai-n-co-can-cu.md` — 14/10 crm `kanban-viec`: phiên tự soạn tay bảng Ngoài-n
+  có cột «Căn cứ» ở Cổng 2; khuôn mục ngoài hợp đồng không có trường lý do cho đề xuất, thẻ in khối xếp chồng.
+- `docs/plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md` — 14/10 đổi tài khoản giữa ngày: thanh bên mất mọi
+  phiên thợ, người mất bản đồ «xong · đang dở · kế» (3 lượt hỏi ngoài thiết kế); «bước kế» nằm ở ba hình dạng tự do.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

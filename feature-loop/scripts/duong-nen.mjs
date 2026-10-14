@@ -18,6 +18,10 @@
 // rút khuôn lúc chạy, không chép vào mã. Danh sách tệp engine: rút từ marker
 // INIT-CI-COPY-LIST của `<agRoot>/commands/acceptance-init.md`.
 //
+// Dòng của CHÍNH vòng (S1#0 soạn song song với nền): tệp mang slug + `_acceptance/config.yaml` mà
+// suite thấy mới, và `VIOLATION [<slug>]` của lưới, vào mục «Dòng vàng» — có tên, không lật nền.
+// Vị từ một chỗ: `lib/tep-cua-vong.mjs` (hồ sơ nen-khong-tinh-tep-cua-vong).
+//
 // Chạy NỀN: chân suite chạy trọn các suite của repo (ở kho kit là chân dài nhất
 // của cả vòng) — không lời gọi công cụ nào được ôm trọn thời gian đó.
 import fs from 'node:fs';
@@ -26,6 +30,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { tepCuaVong, viPhamCuaVong } from './lib/tep-cua-vong.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KNOWN = new Set(['root', 'slug', 'base', 'ag-root', 'cache-root']);
@@ -110,6 +115,18 @@ const dongDo = (ma, vals = {}) => {
 for (const ma of ['cong-cu-thieu', 'suite-khong-lenh', 'suite-do-san', 'suite-cay-ban', 'luoi-co-san', 'luoi-loi-chay', 'engine-lech', 'engine-tu-host']) {
   if (!DONG_DO.has(ma)) die(`khuôn dòng đỏ thiếu mã «${ma}» trong ${TEMPLATE_REL}`);
 }
+// Khuôn dòng VÀNG (hồ sơ nen-khong-tinh-tep-cua-vong): dòng của CHÍNH vòng — có tên, không lật nền.
+const khuonDongVang = khoiMarker(templateText, 'DUONG-NEN-DONG-VANG');
+if (!khuonDongVang) die(`khuôn ${TEMPLATE_REL} thiếu marker DUONG-NEN-DONG-VANG`);
+const DONG_VANG = new Map();
+for (const l of khuonDongVang) {
+  const m = l.match(/^- ([a-z-]+): `(.*)`$/);
+  if (m) DONG_VANG.set(m[1], m[2]);
+}
+for (const ma of ['suite-tep-cua-vong', 'luoi-cua-vong']) {
+  if (!DONG_VANG.has(ma)) die(`khuôn dòng vàng thiếu mã «${ma}» trong ${TEMPLATE_REL}`);
+}
+const dongVang = (ma, vals = {}) => DONG_VANG.get(ma).replace(/\{(\w+)\}/g, (_, t) => (t in vals ? String(vals[t]) : `{${t}}`));
 
 let initText;
 try { initText = fs.readFileSync(path.join(agRoot, INIT_REL), 'utf8'); } catch { die(`thiếu ${INIT_REL} ở ${agRoot}`); }
@@ -245,6 +262,7 @@ const bashNguoiGoi = (lenh, thamSo, o) =>
 
 const chan = { cong_cu: 'xanh', suite: 'xanh', luoi: 'xanh', engine: 'xanh' };
 const DO = [];
+const VANG = [];
 {
   const coTrenMay = new Map();
   for (const khoa of khoaExecutor(configText)) {
@@ -304,11 +322,14 @@ async function chaySuite(root, lenh) {
   for (const { khoa, ma } of await chaySuite(root, lenh)) {
     if (ma !== 0) { chan.suite = 'do'; DO.push(dongDo('suite-do-san', { khoa, ma })); }
   }
+  // Tệp CHÍNH vòng viết trong lúc nền chạy (S1#0 soạn song song) → mục vàng, không lật chân suite.
+  const coOHead = d => gitTry('cat-file', '-e', `HEAD:${d}`) !== null;
   for (const dong of trangThai()) {
     if (truoc.has(dong)) continue;
-    chan.suite = 'do';
     let tep = dong.slice(3);
     if (tep.includes(' -> ')) tep = tep.split(' -> ').pop();
+    if (tepCuaVong(tep, flags.slug, coOHead)) { VANG.push(dongVang('suite-tep-cua-vong', { tep })); continue; }
+    chan.suite = 'do';
     DO.push(dongDo('suite-cay-ban', { tep }));
   }
 }
@@ -335,10 +356,19 @@ async function chaySuite(root, lenh) {
   if (lyDo) { chan.luoi = 'bo-qua'; log(`luoi: bo-qua — ${lyDo}`); }
   else {
     const r = spawnSync('bash', [pm, root, '--base', base, '--no-t1-escape'], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-    const viPham = `${r.stdout || ''}\n${r.stderr || ''}`.split('\n').filter(l => l.startsWith('VIOLATION '));
-    log(`luoi: ${pm} --base ${base} → ma ${r.status}, ${viPham.length} vi pham`);
-    if (viPham.length) { chan.luoi = 'do'; DO.push(dongDo('luoi-co-san', { k: viPham.length }), ...viPham); }
-    else if (r.status !== 0) { chan.luoi = 'do'; DO.push(dongDo('luoi-loi-chay', { ma: r.status === null ? `tin-hieu-${r.signal}` : r.status })); }
+    const tatCa = `${r.stdout || ''}\n${r.stderr || ''}`.split('\n');
+    const viPham = tatCa.filter(l => l.startsWith('VIOLATION '));
+    // Vi phạm của CHÍNH hồ sơ (S1 viết dở trong lúc nền chạy) → mục vàng. Lưới chỉ được coi là xanh
+    // với chúng khi nó TỰ GIẢI THÍCH mã thoát: mã 1 + dòng tóm có số khớp số dòng VIOLATION; lưới
+    // chết sau khi in vi phạm (mã khác, dòng tóm vắng hay lệch số) vẫn là LOI CHAY.
+    const cuaVong = viPham.filter(l => viPhamCuaVong(l, flags.slug));
+    const khac = viPham.filter(l => !viPhamCuaVong(l, flags.slug));
+    const tom = tatCa.map(l => l.match(/^pre-merge-check: (\d+) violation\(s\) — merge blocked$/)).find(Boolean);
+    const tuGiai = r.status === 1 && !!tom && Number(tom[1]) === viPham.length;
+    log(`luoi: ${pm} --base ${base} → ma ${r.status}, ${viPham.length} vi pham (${cuaVong.length} cua chinh vong)`);
+    if (cuaVong.length) VANG.push(dongVang('luoi-cua-vong', { k: cuaVong.length }), ...cuaVong);
+    if (khac.length) { chan.luoi = 'do'; DO.push(dongDo('luoi-co-san', { k: khac.length }), ...khac); }
+    else if (r.status !== 0 && !(cuaVong.length && tuGiai)) { chan.luoi = 'do'; DO.push(dongDo('luoi-loi-chay', { ma: r.status === null ? `tin-hieu-${r.signal}` : r.status })); }
   }
 }
 
@@ -380,13 +410,20 @@ async function chaySuite(root, lenh) {
 const nen = Object.values(chan).includes('do') ? 'do' : 'xanh';
 const vals = { slug: flags.slug, at: new Date().toISOString(), sha, nen, ...chan };
 const out = [];
+// Bullet giữ chỗ điền theo MỤC chứa nó: «Dòng đỏ» nhận DO, «Dòng vàng» nhận VANG.
+const THEO_MUC = { 'Dòng đỏ': DO, 'Dòng vàng': VANG };
+let mucHienTai = null;
 for (const l of khuonTep) {
   const fmM = l.match(/^(\w+): \{[^}]*\}$/);
+  const hd = l.match(/^##\s+(.+?)\s*$/);
+  if (hd) mucHienTai = hd[1];
   if (fmM) {
     if (!(fmM[1] in vals)) die(`khuôn có khoá lạ «${fmM[1]}» trong ${TEMPLATE_REL}`);
     out.push(`${fmM[1]}: ${vals[fmM[1]]}`);
   } else if (/^- \{.*\}$/.test(l)) {
-    for (const d of (DO.length ? DO : ['không có'])) out.push(`- ${d}`);
+    const ds = THEO_MUC[mucHienTai];
+    if (!ds) die(`khuôn ${TEMPLATE_REL} có bullet giữ chỗ ngoài mục «Dòng đỏ»/«Dòng vàng» (mục: ${mucHienTai || 'không có'})`);
+    for (const d of (ds.length ? ds : ['không có'])) out.push(`- ${d}`);
   } else out.push(l);
 }
 const dich = path.join(root, '_acceptance', flags.slug, 'duong-nen.md');

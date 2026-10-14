@@ -133,6 +133,53 @@ check('GN5 chieu do cua seam — doi khuon dong do o ben viet thi GN2 do', () =>
   if (!/khong in nguyen van dong do/.test(loi)) die('GN2 do vi ly do khac: ' + loi);
 });
 
+// ── GN-TV* — hồ sơ nen-khong-tinh-tep-cua-vong AC-7: thẻ đọc mục «Dòng vàng» do CHÍNH script ghi ──
+const NEN_VANG_LAB = hang('NEN_VANG_LAB');
+const unesc = s => String(s).replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+const mucVang = tep => { const d = String(tep).split('\n'); const i = d.findIndex(l => l === '## Dòng vàng'); if (i < 0) return null; const sau = d.slice(i + 1); const j = sau.findIndex(l => /^#{1,6}\s/.test(l)); return (j < 0 ? sau : sau.slice(0, j)).filter(l => l.startsWith('- ')).map(l => l.slice(2)).filter(l => l !== 'không có'); };
+// Dòng in dưới nhãn vàng: các <p class="li"> sau nhãn tới hết khối Nền hạ tầng.
+const dongDuoiNhan = h => {
+  const i = h.indexOf(esc(NEN_VANG_LAB)); if (i < 0) return null;
+  const khoi = h.slice(i, h.indexOf('</div>', i));
+  return [...khoi.matchAll(/<p class="li">([\s\S]*?)<\/p>/g)].map(m => unesc(m[1])).filter(t => !t.includes(NEN_VANG_LAB));
+};
+const ghiTV = (...ds) => ds.map(d => `mkdir -p "$(dirname '${d}')" && echo x > '${d}'\n`).join('');
+const KHO_GN = {
+  tv1: () => dungKho({ giuaA: ghiTV('_acceptance/demo/a.md', '_acceptance/demo/b.md') }),
+  tv4: () => dungKho({ giuaA: 'echo sua >> README.md\n' + ghiTV('_acceptance/demo/a.md') }),
+};
+check('GN-TV1 the Cong 1 in nguyen van muc vang duoi nhan rieng; nen chi do khi co dong do', () => {
+  for (const [ca, coDo] of [['tv1', false], ['tv4', true]]) {
+    const kho = KHO_GN[ca](); const r = chayNen(kho, { cache: CACHE });
+    if (!r.tep) die(`${ca}: duong-nen khong ghi tep`);
+    const want = mucVang(r.tep);
+    if (!want || !want.length) die(`${ca}: fixture khong sinh dong vang nao — ${r.tep.slice(-300)}`);
+    hoSo(kho.dir);
+    const h = the(kho.dir);
+    const got = dongDuoiNhan(h);
+    if (!got) die(`${ca}: the khong co nhan «${NEN_VANG_LAB}»`);
+    if (JSON.stringify([...got].sort()) !== JSON.stringify([...want].sort())) die(`${ca}: dong duoi nhan ${JSON.stringify(got)} ≠ muc vang ${JSON.stringify(want)}`);
+    if (!h.includes(`${esc(NEN_VANG_LAB)} (${want.length})`)) die(`${ca}: nhan thieu so dem (${want.length})`);
+    if (h.includes(esc(NEN_DO)) !== coDo) die(`${ca}: co nen do ${coDo ? 'phai co' : 'khong duoc co'}`);
+  }
+});
+check('GN-TV2 doc-cu — duong-nen.md do ban goc v2.30.0 ghi: khoi Nen ha tang cua the ban vong BANG the ban goc, khong nhan vang', () => {
+  const goc = tamDir('gn-tv2-goc-');
+  const ar = spawnSync('bash', ['-c', `git -C "$1" archive v2.30.0 feature-loop skills commands lib scripts | tar -x -C "$2"`, '_', KIT, goc], { encoding: 'utf8' });
+  if (ar.status !== 0) die(`khong rut duoc ban goc v2.30.0: ${(ar.stderr || '').slice(0, 200)}`);
+  const kho = dungKho({ giuaA: 'echo sua >> README.md\n' });
+  const r = chayNen(kho, { cache: CACHE, script: path.join(goc, 'feature-loop', 'scripts', 'duong-nen.mjs'), agRoot: goc });
+  if (!r.tep || r.tep.includes('## Dòng vàng')) die('ban goc phai ghi tep khong co muc vang');
+  hoSo(kho.dir);
+  const khoi = h => { const i = h.indexOf(LAB); return i < 0 ? null : h.slice(i, h.indexOf('</div></div>', i)); };
+  const sau = khoi(the(kho.dir));
+  const rg = spawnSync(process.execPath, [path.join(goc, 'scripts', 'gate-card.js'), '--root', kho.dir, '--slug', 'demo'], { encoding: 'utf8' });
+  const truoc = khoi(String(rg.stdout || '').replace(/\x1b\[[0-9;]*m/g, ''));
+  if (!sau || !truoc) die(`thieu khoi Nen ha tang (sau ${!!sau}, truoc ${!!truoc})`);
+  if (sau.includes(esc(NEN_VANG_LAB))) die('the ban vong in nhan vang tren tep doi truoc');
+  if (sau !== truoc) die(`khoi lech ban goc:\n  goc: ${truoc.slice(0, 300)}\n  sau: ${sau.slice(0, 300)}`);
+});
+
 donDep();
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-duong-nen)`);
 process.exit(failed ? 1 : 0);

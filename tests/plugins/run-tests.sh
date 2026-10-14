@@ -755,6 +755,7 @@ const tpl = m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
 const SAMPLE = {
   title: 'rmSync before clone resolves',
   plain: 'Bấm Cập nhật có thể làm mất tiện ích đang cài.',
+  can_cu: 'Mất tiện ích nhưng cài lại là có; người dùng tự gỡ được.',
   file: 'src/install.ts:10',
   severity: 'high',
   proposal: 'known-limits',
@@ -766,7 +767,7 @@ const doc = '## Ngoài hợp đồng — người quyết ở Gate 2\n\n' + fill
 const r = parser.parse(doc);
 const f = r.findings[0];
 if (!f) { console.error('reader parse ra 0 finding tu khuon cua writer — hai dau da lech'); process.exit(1); }
-for (const k of ['title', 'file', 'severity', 'proposal', 'plain']) {
+for (const k of ['title', 'file', 'severity', 'proposal', 'plain', 'can_cu']) {
   if (f[k] !== SAMPLE[k]) {
     console.error('reader parse truong ' + k + ' = [' + f[k] + '] nhung phai la [' + SAMPLE[k] + '] — hai dau da lech');
     process.exit(1);
@@ -6131,8 +6132,12 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #       repin-lane-noi-ra.test.mjs ca GN09/GN10 (noi dung + round-trip + 5 mutant).
     #       Co BAO, khong doi routing; fixture feat-jr5 chi co mot eval judgment nen
     #       no bat o day.
+    #   (8) CSS cua bang Ngoai-n (ho so bang-ngoai-n-co-can-cu, 14/10): cac dong
+    #       style ".gc table.ngoai" / ".gc .ngoai" / "@media (max-width:560px)" in
+    #       tren MOI the vi nam trong khoi <style> chung -> luoi tests/scripts/
+    #       bang-ngoai-n.test.mjs (BN-3 bang + o dung cot) + rang man-hep.py.
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s#<div class=\"flag finfo\">AC không có chốt máy khi ghim lại:[^<]*</div>##g" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
+    norm() { grep -v "\.ngoai" | grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s#<div class=\"flag finfo\">AC không có chốt máy khi ghim lại:[^<]*</div>##g" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }

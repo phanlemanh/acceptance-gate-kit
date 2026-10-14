@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>122 việc"]
+  GB --> DG["Đã giao<br/>124 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>29 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -81,6 +81,7 @@ flowchart TD
 ## Đã giao
 
 - Đưa bài học đo lường của tuần 08–14/08 vào engine — bốn lớp lỗi mới có ca đại diện, nguyên tắc lật-allow-list, và một bánh cóc hai chiều buộc bảng lớp lỗi trace về sổ nguồn (`bai-hoc-do-luong-vao-engine`)
+- Thẻ Cổng Bằng chứng in các mục ngoài hợp đồng thành một bảng có cột «Căn cứ» — mỗi mục một hàng (Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ), mục cần người quyết lên đầu; căn cứ do tác tử phân loại viết và đi trọn đường tới thẻ, kể cả mục mang sang lượt sau (`bang-ngoai-n-co-can-cu`)
 - Làn đối chứng S4 (baseline:diffBase) chạy MỘT lệnh do kit sinh — có trần mỗi lệnh và trần tổng, bỏ qua eval trỏ tệp chưa có ở merge-base (ghi lý do vào báo cáo), tự dọn worktree tạm khi bị dừng/hỏng; lane không về trọn là BLOCKED hạ tầng có tên, lượt chấm vẫn ra báo cáo (`baseline-tran-bo-qua-don`)
 - Kit đọc hồ sơ thật của kho tiêu thụ không im lặng sai — evals.yaml không phải YAML chuẩn lên cờ vàng có tên (thẻ hai cổng + một lệnh kiểm kho tự bật trong CI), và chữ ký ghi ngày kiểu ngày/tháng/năm được bốn mặt đọc ra ngày qua một bộ đọc chung (`bo-doc-ho-so-khoan-dung`)
 - Thẻ quyết định in đúng thứ hồ sơ viết — đường dẫn có dấu sao không còn bị cụt khi lột định dạng, và mọi hình dạng dấu sao khác đều có kỳ vọng đã khai trước thay vì tuỳ hệ quả (`card-text-fidelity`)
@@ -144,6 +145,7 @@ flowchart TD
 - Chân công cụ của đường nền đọc đúng lệnh chỉ-gán mang lệnh con — `B=$(git merge-base …) && …` tra `git`, không tra `merge-base`; lệnh con của một chương trình không bị coi là chương trình riêng; lệnh mở đầu bằng tên chương trình thật sự vắng vẫn đỏ gọi đúng tên (`nen-cong-cu-gan-bang-lenh-con`)
 - Chân công cụ của đường nền thôi báo động giả cho executor dựng đường bằng cú pháp shell — token đầu không phải tên chương trình thì không tra tên, và nói ra khoá nào không được tra; lệnh mở đầu bằng một tên thật vẫn bị tra như cũ kể cả khi phần sau có ống dẫn (`nen-cong-cu-lenh-shell`)
 - Hai thước kit thôi nói sai trên kho tiêu thụ — chân engine của đường nền bỏ qua tệp có điều kiện khi kho không khai ổ cắm, và design-gate gọi tên «không đo được» thay vì PASS trên tệp không phải HTML; không đổi mã thoát nào, không đổi mặc định (`nen-dieu-kien-va-static-khong-do-duoc`)
+- Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug của vòng và vi phạm lưới của chính hồ sơ thành dòng vàng có tên, không lật nền (`nen-khong-tinh-tep-cua-vong`) — đã giao — không đo, khai ở Cổng Đáng
 - hồ sơ đã nghỉ vẫn mang cờ quá hạn trên thẻ khởi động — bên viết khớp lại bên đọc của RT13 (`nghi-van-mang-co-qua-han`) — đã giao — máy thông, cửa veto còn mở
 - Máy tự định tuyến mục Ngoài-n mà chính máy đề xuất known-limits hoặc wont-fix — kho bật bằng một khoá, máy ghi dòng sổ gate2 phân biệt được với người kèm lệnh đảo một dòng, thẻ Cổng 2 hiện chúng là dòng báo, làn V chạy được; kho không bật không đổi byte nào (`ngoai-n-tu-dinh-tuyen`)
 - Nhãn lối ra của hồ sơ máy-đi-trước theo hướng sản phẩm — «đi tiếp hay kéo lại», máy điền sẵn «đi tiếp» ở dòng báo, signoff vẫn nhận chữ cũ (`nhan-lan-v-theo-huong`)

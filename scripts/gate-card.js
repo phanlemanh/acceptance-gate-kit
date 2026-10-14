@@ -94,6 +94,9 @@ const MSG_OOC_SUSPECT = 'mục «Ngoài hợp đồng» có chữ nhưng máy kh
 const MSG_PROPOSAL_LA = 'đề xuất không đọc được';
 // Hai cờ khối «Nền hạ tầng» trên thẻ Cổng Phạm vi (thuoc-co-cua AC-8) — chữ thuật ở commands/acceptance-card.md.
 const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây không phải lỗi của vòng này; quyết nó trong gói này trước khi duyệt.';
+// Nhãn mục «Dòng vàng» của duong-nen.md (hồ sơ nen-khong-tinh-tep-cua-vong): tệp/vi phạm của CHÍNH vòng —
+// có tên trên thẻ, không phải nền đỏ.
+const NEN_VANG_LAB = 'Tệp của chính vòng — nền không tính';
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
 // Cờ dòng đếm vật · thước · nhát trên thẻ Cổng Bằng chứng (thuoc-co-cua AC-13).
 const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.';
@@ -490,6 +493,13 @@ const STYLE = `<style>
 .gc .li:before{content:"";position:absolute;left:1px;top:7px;width:7px;height:7px;border-radius:50%}
 .gc .gdo .li{color:#085041}.gc .gdo .li:before{background:#1D9E75}.gc .gnot .li{color:#56544d}.gc .gnot .li:before{background:#b4b2a9}
 .gc .item{background:#FAEEDA;border:1px solid #EF9F27;border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.gc table.ngoai{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 8px;table-layout:fixed}
+.gc .ngoai th{text-align:left;font-size:11px;color:#8a887f;font-weight:600;padding:6px 8px;border-bottom:1px solid #e6e4de}
+.gc .ngoai td{padding:8px;vertical-align:top;border-bottom:1px solid #efede7;color:#412402;overflow-wrap:anywhere}
+.gc .ngoai th:first-child,.gc .ngoai td:first-child{width:84px;white-space:nowrap}
+.gc .ngoai tr.nhom td{background:#FAEEDA;font-weight:600;color:#633806}
+.gc .ngoai .mo{color:#9a988f}
+@media (max-width:560px){.gc table.ngoai,.gc .ngoai tbody,.gc .ngoai tr,.gc .ngoai td{display:block;width:auto}.gc .ngoai thead{display:none}.gc .ngoai tr{border:1px solid #e6e4de;border-radius:9px;margin-bottom:8px}.gc .ngoai td:before{content:attr(data-cot);display:block;font-size:11px;color:#8a887f;font-weight:600}.gc .ngoai td:first-child{white-space:normal}}
 .gc .q{font-size:14px;font-weight:600;color:#412402;margin:0 0 3px}.gc .ai{font-size:12px;color:#854F0B;margin:0 0 9px}
 .gc .flag{display:flex;gap:8px;font-size:13px;padding:8px 11px;border-radius:9px;margin-bottom:6px}
 .gc .fwarn{background:#FAEEDA;color:#633806}.gc .finfo{background:#f4f2ec;color:#56544d}.gc .fok{background:#E1F5EE;color:#085041}.gc .fred{background:#FAECE7;color:#712B13}
@@ -878,7 +888,7 @@ if (gate === '1') {
   else P.push(`<div class="grp gnot">${decSort(decsChung).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map((t, i) => `<p class="li">${esc(pIdx(pl.coverage_plain, i) || stripMd(t))}</p>`).join('')}</div>`);
-  if (nen.present) P.push(`<div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div><div class="grp gnot"><p class="li">Nền: <b>${esc(nen.nen || '?')}</b> · công cụ ${esc(nen.cong_cu || '?')} · bộ kiểm ${esc(nen.suite || '?')} · lưới như CI ${esc(nen.luoi || '?')} · bộ máy ${esc(nen.engine || '?')}</p>${nen.do.map(l => `<p class="li">${esc(l)}</p>`).join('')}</div>`);
+  if (nen.present) P.push(`<div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div><div class="grp gnot"><p class="li">Nền: <b>${esc(nen.nen || '?')}</b> · công cụ ${esc(nen.cong_cu || '?')} · bộ kiểm ${esc(nen.suite || '?')} · lưới như CI ${esc(nen.luoi || '?')} · bộ máy ${esc(nen.engine || '?')}</p>${nen.do.map(l => `<p class="li">${esc(l)}</p>`).join('')}${nen.vang.length ? `<p class="li"><b>${esc(NEN_VANG_LAB)} (${nen.vang.length})</b></p>${nen.vang.map(l => `<p class="li">${esc(l)}</p>`).join('')}` : ''}</div>`);
   if (ddLines.length) P.push(`<div class="lab">Đường đo (con số cho ngưỡng sẽ đến từ đâu)</div><div class="grp gnot">${ddLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
   if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p><p class="li">Phản ứng ở nấc: <b>${esc(REACTION_LABEL[dp.reaction] || dp.reaction || '(chưa khai)')}</b>${dp.options ? ' · có bộ phương án đính kèm' : ''}</p></div>`);
   // Dòng ngưỡng in NGUYÊN VĂN (AC-1 hồ sơ moi-noi-vong-trao): chỉ bỏ dấu đầu dòng, không đi qua
@@ -976,10 +986,10 @@ function docNen(nenT) {
   const f = frontmatter(nenT);
   // Cắt mục theo CẢ DÒNG tiêu đề, không qua section(): bộ cắt chung neo `\b` sau tên mục,
   // mà `\b` của JS không coi «ỏ» là chữ — «## Dòng đỏ» không bao giờ khớp (ca GN2 bắt).
-  const dongs = nenT.split('\n'); const iDo = dongs.findIndex(l => /^##\s+Dòng đỏ\s*$/.test(l));
-  const khoiDo = iDo < 0 ? [] : dongs.slice(iDo + 1, (i => i < 0 ? undefined : iDo + 1 + i)(dongs.slice(iDo + 1).findIndex(l => /^#{1,6}\s/.test(l))));
-  const do_ = bullets(khoiDo).filter(l => l.trim() && l.trim() !== 'không có');
-  return { present: true, nen: clean(f.nen), cong_cu: clean(f.cong_cu), suite: clean(f.suite), luoi: clean(f.luoi), engine: clean(f.engine), do: do_ };
+  // «Dòng vàng» (2.31) cắt cùng cách; tệp đời trước không có mục → rỗng (đường đọc-cũ).
+  const dongs = nenT.split('\n');
+  const muc = re => { const i = dongs.findIndex(l => re.test(l)); if (i < 0) return []; const sau = dongs.slice(i + 1); const j = sau.findIndex(l => /^#{1,6}\s/.test(l)); return bullets(j < 0 ? sau : sau.slice(0, j)).filter(l => l.trim() && l.trim() !== 'không có'); };
+  return { present: true, nen: clean(f.nen), cong_cu: clean(f.cong_cu), suite: clean(f.suite), luoi: clean(f.luoi), engine: clean(f.engine), do: muc(/^##\s+Dòng đỏ\s*$/), vang: muc(/^##\s+Dòng vàng\s*$/) };
 }
 
 // ================= GATE 2 =================
@@ -1341,28 +1351,51 @@ if (ooc.findings.length) {
   // nói SAI với người đọc thẻ. Bản chép thứ hai của câu này sống trong prompt
   // synthesize của acceptance-verify.js; hai bên đổi CÙNG lượt, P53b canh bản render.
   P.push(`<div class="flag fwarn">Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.</div>`);
-  ooc.findings.forEach((f, fi) => {
-    const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
-      : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
-      // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
-      // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
-      // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
-      : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
-      // Token ngoài danh sách KHÔNG được nuốt thành «chưa đề xuất»: bước triage
-      // ĐÃ nêu hướng, chỉ viết sai khuôn máy-đọc. Nói sai thành «chưa có» là
-      // giấu một đề xuất có thật khỏi người quyết (vết 01/09: «ghi Known limits»).
-      : f.proposal_raw ? `${MSG_PROPOSAL_LA}: «${f.proposal_raw}» — dùng một trong: ${outOfContract.PROPOSALS.join(' · ')}`
-      : 'Máy chưa đề xuất hướng nào.';
-    // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
-    // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
-    // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
-    // Nhãn Ngoài-<n> là mã tra cứu (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó.
-    const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    const dm = dtmMay(fi);
-    const ai = dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(rec);
+  const recCua = f => f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
+    : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
+    // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
+    // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
+    // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
+    : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
+    // Token ngoài danh sách KHÔNG được nuốt thành «chưa đề xuất»: bước triage
+    // ĐÃ nêu hướng, chỉ viết sai khuôn máy-đọc. Nói sai thành «chưa có» là
+    // giấu một đề xuất có thật khỏi người quyết (vết 01/09: «ghi Known limits»).
+    : f.proposal_raw ? `${MSG_PROPOSAL_LA}: «${f.proposal_raw}» — dùng một trong: ${outOfContract.PROPOSALS.join(' · ')}`
+    : 'Máy chưa đề xuất hướng nào.';
+  // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
+  // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
+  // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
+  const qCua = f => (f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)');
+  const aiCua = (f, fi) => { const dm = dtmMay(fi); return dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(recCua(f)); };
+  // BẢNG (hồ sơ bang-ngoai-n-co-can-cu, gốc crm/_acceptance/kanban-viec): mỗi mục một hàng bốn cột, mục cần
+  // người quyết lên đầu. Nhãn Ngoài-<n> vẫn là VỊ TRÍ TRONG TỆP — câu gộp ký, sổ định tuyến và mucChuaDinhTuyen
+  // đều đếm theo vị trí; chỉ thứ tự HIỂN THỊ đổi. Ba nút lặp ở từng mục cũ là chữ trình bày (không hành vi),
+  // nay gom thành MỘT dòng ba lựa chọn dưới bảng; quyết từng mục vẫn đi qua câu gộp ký.
+  const COT = ['Mục', 'Người dùng gặp gì', 'Máy đề xuất', 'Căn cứ'];
+  const NHOM = ['Cần anh quyết', 'Máy khuyên — chỉ đổi khi anh nghĩ khác', 'Máy đã định tuyến'];
+  // «Máy khuyên» = mọi token đề xuất hợp lệ trừ mở hợp đồng mới — rút từ MỘT nguồn OOC-PROPOSALS, không chép tay.
+  const KHUYEN = new Set(outOfContract.PROPOSALS.filter(p => p !== 'new-contract'));
+  const nhomCua = (f, fi) => (dtmMay(fi) ? 2 : KHUYEN.has(f.proposal) ? 1 : 0);
+  const hang = ooc.findings.map((f, fi) => ({ f, fi, g: nhomCua(f, fi) }));
+  // <<<XEP-NHOM
+  hang.sort((a, b) => a.g - b.g || a.fi - b.fi);
+  // XEP-NHOM>>>
+  const nhomCo = new Set(hang.map(h => h.g));
+  const tr = [];
+  let truoc = -1;
+  for (const { f, fi, g } of hang) {
+    if (nhomCo.size > 1 && g !== truoc) tr.push(`<tr class="nhom"><td colspan="4">${esc(NHOM[g])}</td></tr>`);
+    truoc = g;
     const nhanL = luatG2 ? luatG2.nhanNgoai(f) : '';
-    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}${nhanL ? ' · ' + esc(nhanL) : ''}</p><p class="ai">${ai}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
-  });
+    const o = [`Ngoài-${fi + 1}`, esc(qCua(f)) + (nhanL ? ' · ' + esc(nhanL) : ''), aiCua(f, fi),
+      f.can_cu ? esc(f.can_cu) : '<span class="mo">chưa có căn cứ</span>'];
+    tr.push(`<tr>${o.map((x, i) => `<td data-cot="${COT[i]}">${x}</td>`).join('')}</tr>`);
+  }
+  P.push(`<table class="ngoai"><thead><tr>${COT.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${tr.join('')}</tbody></table>`);
+  P.push(`<p class="ai">Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay — đổi bằng dòng lệnh ký.</p>`);
+  // Đọc-cũ: hồ sơ chấm trước bản có trường căn cứ — ô trống có tên + MỘT cờ vàng đếm, không bắt sửa hồ sơ.
+  const thieuCanCu = ooc.findings.filter(f => !f.can_cu).length;
+  if (thieuCanCu) P.push(`<div class="flag fwarn">${thieuCanCu}/${ooc.findings.length} mục chưa có căn cứ — hồ sơ chấm bằng bản kit trước khi có trường này; lý do của đề xuất nằm trong review-findings.md nếu có</div>`);
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {

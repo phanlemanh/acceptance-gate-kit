@@ -122,6 +122,8 @@ executors:
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs
     kiem_ban_cai_moc: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
+    # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
+    bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Câu cho người gửi trên dữ liệu thật (hồ sơ cau-tin-hieu-nguoi-gui, E9): bản sao crm ở sha đã ghim + kit 2.27.
@@ -131,6 +133,9 @@ executors:
     # «không đọc được ở đây» (mù, không xanh giả). KHÔNG vào feature_loop.suite_keys. E9: hàng R2 trên lộ trình kit.
     bo_doc_bay_kho: node _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs
     lo_trinh_r2: node _acceptance/bo-doc-ho-so-khoan-dung/rang/hang-r2.mjs
+    # Răng màn hẹp của hồ sơ bang-ngoai-n-co-can-cu (E6): cần Python Playwright + Chromium; thiếu → thoát 2
+    # «không đọc được ở đây». KHÔNG vào feature_loop.suite_keys (CI không có trình duyệt).
+    bang_ngoai_n_man_hep: python3 _acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
@@ -503,6 +508,9 @@ executors:
     ndk_static_khong_do: "bash -c 'out=$(node tests/scripts/design-gate-khong-do-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DG-KDD1 DG-KDD2 DG-KDD3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ndk_doc_khoi_chep: "bash -c 'out=$(node tests/scripts/consumer-esm.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CE1 CE2g; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GN1 GN2 GN3 GN4 GN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # nen-khong-tinh-tep-cua-vong (14/10): dòng của vòng thành «Dòng vàng» — ca NEN-TV* và GN-TV*.
+    ntv_tep_cua_vong: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN-TV1 NEN-TV2 NEN-TV4 NEN-TV6 NEN-TV7 NEN-TV8; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done && [ \"$(printf \"%s\\n\" \"$out\" | grep -cF \"PASS: NEN-TV3 \")\" -eq 2 ] && [ \"$(printf \"%s\\n\" \"$out\" | grep -cF \"PASS: NEN-TV5 \")\" -eq 5 ]'"
+    ntv_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; out2=$(NTR_CASES=GN-TV3 node tests/scripts/ntr-the-canh-gay.test.mjs 2>&1); rc2=$?; printf \"%s\\n%s\\n\" \"$out\" \"$out2\" | tail -n 25; [ $rc -eq 0 ] && [ $rc2 -eq 0 ] && for c in GN-TV1 GN-TV2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done && printf \"%s\\n\" \"$out2\" | grep -qF \"PASS: GN-TV3 \"'"
     tcc_suite_tuan_tu: "bash -c 'out=$(node tests/workflows/suite-tuan-tu.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in ST0 ST1 ST2 ST3 ST4 ST5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_phan_loai: "bash -c 'out=$(node tests/scripts/phan-loai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in PL1 PL2 PL3 PL4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_dem_nhat: "bash -c 'out=$(node tests/scripts/thuoc-vat.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in TV1 TV2 TV3 TV4 TV7; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
