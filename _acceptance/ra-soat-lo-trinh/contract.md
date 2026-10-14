@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs · scripts/cat-luot.mjs · scripts/start-scan.mjs · commands/start.md · skill cắt lượt + khuôn · gói mới road-map/ + marketplace + P200 — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-ra-soat-lo-trinh-design.md
-status: verified
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-14T13:49:27Z
 ---

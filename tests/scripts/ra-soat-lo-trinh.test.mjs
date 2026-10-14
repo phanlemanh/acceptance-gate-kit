@@ -29,11 +29,34 @@ const node = (args, o = {}) => spawnSync(process.execPath, args, { encoding: 'ut
 const deq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // ═══ RS-0: gốc so đi theo nền ════════════════════════════════════════════════════════════════════
+// Quan hệ, không đếm commit: mã khác gốc (diff gốc..HEAD) chỉ được nằm ở tệp do commit CỦA VÒNG sửa, và mọi commit thường
+// chạm mã sau gốc phải thuộc vòng. Commit gộp nhánh chính không bị tính tên — phần mã nó mang vào đã ở dưới gốc thì diff
+// không thấy; mang vào thứ gốc chưa có thì tệp ấy lộ ở vế thứ nhất (14/10, gộp main sau MC1).
+const MA = ['scripts', 'lib', 'skills', 'commands'];
+function gocLech(kho, goc, nhan) {
+  const ds = git(kho, 'log', '--no-merges', '--format=%h %s', `${goc}..HEAD`, '--', ...MA).split('\n').filter(Boolean);
+  const la = ds.filter(l => !l.includes(nhan));
+  const tepVong = new Set(git(kho, 'log', '--no-merges', '--fixed-strings', `--grep=${nhan}`, '--format=', '--name-only', `${goc}..HEAD`, '--', ...MA).split('\n').filter(Boolean));
+  const tepLa = git(kho, 'diff', '--name-only', goc, 'HEAD', '--', ...MA).split('\n').filter(t => t && !tepVong.has(t));
+  return [...la.map(l => `commit không thuộc vòng: ${l}`), ...tepLa.map(t => `tệp khác gốc mà vòng không sửa: ${t}`)];
+}
 function rs0() {
-  const ds = git(KIT, 'log', '--format=%h %s', `${GOC}..HEAD`, '--', 'scripts', 'lib', 'skills', 'commands').split('\n').filter(Boolean);
-  const la = ds.filter(l => !l.includes('ra-soat-lo-trinh'));
-  if (la.length) { bad('RS-0', `gốc so thiếu nền — commit chạm mã không thuộc vòng: ${la.join(' | ')}`); return false; }
-  ok('RS-0', `${ds.length} commit chạm mã sau gốc ${GOC.slice(0, 8)}, đều thuộc vòng`); return true;
+  // Chiều đỏ trong bộ kiểm: kho tạm, một commit lạ vào qua commit gộp → phải đỏ gọi tên tệp; chỉ commit vòng → phải xanh.
+  const k = path.join(TMP, 'rs0'); mkdirSync(path.join(k, 'scripts'), { recursive: true });
+  git(k, 'init', '-q', '-b', 'main'); git(k, 'config', 'user.email', 'x@y.z'); git(k, 'config', 'user.name', 'x');
+  writeFileSync(path.join(k, 'scripts', 'a.mjs'), '1\n'); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'nen');
+  const g = git(k, 'rev-parse', 'HEAD');
+  git(k, 'checkout', '-qb', 'la'); writeFileSync(path.join(k, 'scripts', 'la.mjs'), 'x\n'); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'viec khac');
+  git(k, 'checkout', '-q', 'main'); writeFileSync(path.join(k, 'scripts', 'a.mjs'), '2\n'); git(k, 'commit', '-qam', 'feat(vong-thu): a');
+  const lanh = gocLech(k, g, 'vong-thu');
+  git(k, 'merge', '-q', '--no-ff', '--no-edit', 'la');
+  const do_ = gocLech(k, g, 'vong-thu');
+  if (lanh.length) { bad('RS-0-do', `bản lành chưa xanh: ${lanh.join(' | ')}`); return false; }
+  if (!do_.some(l => l.includes('scripts/la.mjs'))) { bad('RS-0-do', `commit lạ vào qua gộp mà không đỏ đúng tệp: ${JSON.stringify(do_)}`); return false; }
+  ok('RS-0-do', 'chỉ commit vòng → xanh; commit lạ qua gộp → đỏ gọi tên scripts/la.mjs');
+  const la = gocLech(KIT, GOC, 'ra-soat-lo-trinh');
+  if (la.length) { bad('RS-0', `gốc so thiếu nền — ${la.join(' | ')}`); return false; }
+  ok('RS-0', `mã khác gốc ${GOC.slice(0, 8)} chỉ ở tệp do commit của vòng sửa`); return true;
 }
 const GOC_XANH = rs0();
 
