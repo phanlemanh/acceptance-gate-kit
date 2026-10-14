@@ -64,7 +64,10 @@ function kho({ tep = {}, cfg = undefined, hoSo = {}, ten = null } = {}) {
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'kho thu');
   return r;
 }
-const clone = r => { const c = path.join(TMP, `clone-${++khoN}`); execFileSync('git', ['clone', '-q', r, c]); return c; };
+// Bản clone KHÔNG mang cấu hình cục bộ của kho gốc — đặt danh tính ngay khi tạo, để ca commit được trên máy không có
+// danh tính git toàn cục (runner CI; tái hiện: GIT_CONFIG_GLOBAL=/dev/null + user.useConfigOnly=true — run 38578722278).
+const clone = r => { const c = path.join(TMP, `clone-${++khoN}`); execFileSync('git', ['clone', '-q', r, c]);
+  git(c, 'config', 'user.email', 'x@y.z'); git(c, 'config', 'user.name', 'x'); return c; };
 const H = (ma, o = {}) => ({ ma, cau_giao: `«câu giao ${ma}»`, ...o });
 
 // Bản sao của vật: trọn scripts lib skills feature-loop của `goc`; nhát tiêm phải thay ĐÚNG một lần.
