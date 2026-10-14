@@ -151,7 +151,8 @@ const KHO_1 = () => kho1 || (kho1 = (() => {
   const hang = []; const hoSo = {}; const moc = Object.fromEntries(Object.entries(MOC_1).map(([k, m]) => [k, { ...m, hang: [] }]));
   for (const v of VT) for (const t of TT) {
     const ma = `RS1-${v}-${t}`; const s = `s-${v}-${t}`; let h = H(ma);
-    if (t === 'dang-mo') { h.slug = s; hoSo[s] = 'dang-dung'; }
+    // «Hồ sơ đang mở» ở nhóm CHƯA BẮT ĐẦU (sắp mở vòng): ô duy nhất mà bỏ chốt «có hồ sơ thì không đụng» sinh đề xuất sai.
+    if (t === 'dang-mo') { h.slug = s; hoSo[s] = 'sap-mo'; }
     if (t === 'da-giao') { h.slug = s; hoSo[s] = 'da-ship'; }
     if (t === 'xep-lai-ho-so') { h.slug = s; hoSo[s] = 'xep-lai'; }
     if (t === 'xep-lai-tu-khai') h = H(ma, { trang_thai: 'Xếp lại sau' });
@@ -178,7 +179,7 @@ async function rs1(kit) {
 }
 if (want('RS-1') && await chayCa('RS-1', rs1)) ok('RS-1', `${MONG_1.size} đề xuất đúng tập viết sẵn trên ma trận 6 × 8 (+ mốc ngày sai không kích hoạt)`);
 if (want('RS-1-do')) await chayDo('RS-1-do', rs1, [['scripts/lo-trinh.mjs', "const MOC_CHIEN_DICH = m => chuoi(m.loai) === 'phat-hanh';", "const MOC_CHIEN_DICH = m => ['phat-hanh', 'ngoai'].includes(chuoi(m.loai));"]], 'hàng mốc ngoài nhận đề xuất: RS1-ngoai-qua-chua-ho-so', 'bản sao coi mốc ngoai là mốc chiến dịch');
-if (want('RS-1-do2')) await chayDo('RS-1-do2', rs1, [['scripts/lo-trinh.mjs', '      if (d.coHoSo && mo.has(d.chu)) continue;\n', '']], 'hàng có hồ sơ đang mở nhận đề xuất: RS1-ph-qua-dang-mo', 'bản sao bỏ điều kiện hồ sơ đang mở');
+if (want('RS-1-do2')) await chayDo('RS-1-do2', rs1, [['scripts/lo-trinh.mjs', '      if (d.coHoSo) continue;\n', '']], 'hàng có hồ sơ đang mở nhận đề xuất: RS1-ph-qua-dang-mo', 'bản sao bỏ điều kiện hồ sơ đang mở');
 
 // ═══ RS-2 (AC-2): chính sách tuổi + trần ═════════════════════════════════════════════════════════════════════════
 const PB_2 = cs => {
