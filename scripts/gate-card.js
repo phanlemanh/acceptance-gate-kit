@@ -1095,17 +1095,21 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 // Luật sản phẩm của kho (bat-bien-san-pham): khối, ô, cờ rút ở luat-san-pham.cjs; kho không khai luật → null, thẻ y nguyên.
 let luatG2 = null; try { luatG2 = require('./luat-san-pham.cjs').theCong2({ root, slug, contractTxt: read(path.join(dir, 'contract.md')), evidenceTxt: read(path.join(dir, 'evidence-report.md')), esc }); } catch (_) { luatG2 = null; }
-// Mục máy tự định tuyến (hồ sơ ngoai-n-tu-dinh-tuyen): dòng gate2 MỚI NHẤT gọi tên Ngoài-n mang dấu
-// máy VÀ tiêu đề khớp mục hiện tại → mục là dòng BÁO (routing.bao), in kèm lệnh đảo. Dấu máy mà tiêu
-// đề lệch → cờ, mục về người. Sổ không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
-// Bộ đọc dùng CHUNG với bên ghi (scripts/dinh-tuyen-may.cjs) — nạp hỏng thì coi như không dòng máy.
+// Mục máy tự định tuyến (hồ sơ ngoai-n-tu-dinh-tuyen): dòng gate2 định tuyến mục mang dấu máy → mục là
+// dòng BÁO (routing.bao), in kèm lệnh đảo. Dòng máy không còn mục nào cùng mã → cờ, mục về người. Sổ
+// không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
+// Dòng sổ → mục đi qua bộ phân giải CHUNG của lib (`ganDinhTuyen`, hồ sơ dinh-tuyen-theo-ma-muc): khớp
+// theo mã mục (tiêu đề gỡ nhãn lượt + tệp), dòng chỉ số ghi trước một lượt chấm là «dòng cũ» → cờ vàng.
 const DTM_DAU = 'dinh-tuyen-ngoai-n';
 let dtmLib = null; try { dtmLib = require('./dinh-tuyen-may.cjs'); } catch (_) {}
-const dtmMap = dtmLib ? dtmLib.docDinhTuyen(read(path.join(dir, 'decisions.jsonl'))) : new Map();
-const dtmCua = fi => { const d = dtmMap.get(fi + 1); return d && d.may ? d : null; };
-// So «cùng mục» bằng CHÍNH hàm của bên ghi (gỡ nhãn lượt «(rN…)» trước khi so).
-const dtmMay = fi => { const d = dtmCua(fi); return d && dtmLib.cungMuc(d.tieu_de, ooc.findings[fi].title) ? d : null; };
-const dtmLech = ooc.findings.map((f, fi) => (dtmCua(fi) && !dtmMay(fi) ? 'Ngoài-' + (fi + 1) : null)).filter(Boolean);
+const ganG = outOfContract.ganDinhTuyen(ooc, read(path.join(dir, 'decisions.jsonl')), read(path.join(dir, 'run-log.jsonl')));
+const dtmMay = fi => {
+  const x = ganG.gan[fi]; const d = x && x.dong;
+  return d && d.may === DTM_DAU ? { id: d.id || '', dao: d.dao || '', de_xuat: dtmLib ? dtmLib.deXuatCua(d.decision) : '' } : null;
+};
+const dtmLech = ganG.moCoi.filter(m => m.may === DTM_DAU).map(m => 'Ngoài-' + (m.n || '?'));
+// Dòng cũ chỉ đáng cờ khi còn mục chưa định tuyến — người đã định tuyến lại đủ thì dòng cũ là sử liệu.
+const dtmCu = ganG.soCu.length && ganG.gan.some(x => !x) ? ganG : null;
 const dinhTuyenMay = ooc.findings.map((f, fi) => { const d = dtmMay(fi); return d ? { nhan: 'Ngoài-' + (fi + 1), id: d.id, de_xuat: d.de_xuat, dao: d.dao } : null; }).filter(Boolean);
 
 // DỜI LÊN TRƯỚC --extract (hồ sơ loi-moi-cong-may-sinh, Task 6): câu gộp của
@@ -1336,6 +1340,7 @@ if (luatG2) { for (const [c, t] of luatG2.co) P.push(`<div class="flag ${c}">${e
 // Dòng máy cũ trỏ một mục đã đổi sau lượt chấm mới (tiêu đề lệch) — mục ấy về người; lưới trước-merge
 // không bắt ca này (giới hạn khai ở hồ sơ ngoai-n-tu-dinh-tuyen), nên thẻ phải nói to.
 if (dtmLech.length) P.push(`<div class="flag fwarn">⚠ dòng máy trỏ mục đã đổi: ${esc(dtmLech.join(', '))} — dòng sổ máy định tuyến một mục khác mục đang ở vị trí ấy; người quyết lại mục này.</div>`);
+if (dtmCu) P.push(`<div class="flag fwarn">⚠ dòng sổ Cổng 2 theo SỐ ghi trước lượt chấm ${esc(dtmCu.luotCuoi)} (gọi tên ${esc(dtmCu.soCu.map(n => 'Ngoài-' + n).join(', '))}) — mục có thể đã đổi số kể từ khi ký; mục chưa định tuyến được hỏi lại: ${esc(dtmCu.gan.map((x, i) => (x ? null : 'Ngoài-' + (i + 1))).filter(Boolean).join(', '))}.</div>`);
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   // T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng KHÔNG còn đi qua

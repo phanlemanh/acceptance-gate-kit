@@ -46,7 +46,8 @@ const { frontmatterField, vetoGateState } = require(path.join(__dirname, '..', '
 const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'));
 // Nạp LƯỜI: chỉ khi hồ sơ có tệp phát hiện — cùng luật với bản bash (tệp vắng → vế này im,
 // không cần lib). Kho tiêu thụ chép thiếu lib thì chỉ hồ sơ CÓ tệp phát hiện nổ có tên.
-const mucChuaDinhTuyen = (f, l) => require(path.join(__dirname, '..', 'lib', 'out-of-contract.cjs')).mucChuaDinhTuyen(f, l);
+const ooc = () => require(path.join(__dirname, '..', 'lib', 'out-of-contract.cjs'));
+const mucChuaDinhTuyen = (f, l, r) => ooc().mucChuaDinhTuyen(f, l, r);
 
 // Cùng regex với bash: grep -qiE '(^|[^a-z])UNCERTAIN([^a-z]|$)' trên TRỌN file.
 const UNCERTAIN_RE = /(^|[^a-z])UNCERTAIN([^a-z]|$)/i;
@@ -64,12 +65,13 @@ function sectionState(txt, heading) {
 
 // Sáu điều kiện xanh-sạch, CÙNG THỨ TỰ với xanh_sach_check để `why` nêu cùng
 // điều kiện trượt đầu tiên. Trả { clean, why }.
-// `ctx` BẮT BUỘC (hồ sơ ho-so-khep-thoi-hoi AC-4/AC-8): `{ findings, ledger }` = văn bản
-// review-findings.md và decisions.jsonl cạnh báo cáo, `null` khi tệp vắng. Bên gọi quên
+// `ctx` BẮT BUỘC (hồ sơ ho-so-khep-thoi-hoi AC-4/AC-8; dinh-tuyen-theo-ma-muc AC-5): `{ findings, ledger,
+// runLog }` = văn bản review-findings.md, decisions.jsonl và run-log.jsonl cạnh báo cáo, `null` khi tệp vắng.
+// run-log cho bộ phân giải biết dòng sổ theo số nào ghi TRƯỚC một lượt chấm (mục có thể đã đổi số). Bên gọi quên
 // truyền thì NỔ có tên — vế «tệp vắng → im» không được là chỗ một bên gọi lặng lẽ mù.
 export function xanhSach(contractTxt, evidenceTxt, ctx) {
-  if (!ctx || typeof ctx !== 'object' || !('findings' in ctx) || !('ledger' in ctx))
-    throw new Error('xanhSach: thiếu ngữ cảnh { findings, ledger } — bên gọi phải đọc review-findings.md và decisions.jsonl cạnh báo cáo (null khi tệp vắng)');
+  if (!ctx || typeof ctx !== 'object' || !('findings' in ctx) || !('ledger' in ctx) || !('runLog' in ctx))
+    throw new Error('xanhSach: thiếu ngữ cảnh { findings, ledger, runLog } — bên gọi phải đọc review-findings.md, decisions.jsonl và run-log.jsonl cạnh báo cáo (null khi tệp vắng)');
   if (evidenceTxt == null) return { clean: false, why: 'không có evidence-report.md' };
   const v = (frontmatterField(evidenceTxt, 'verdict') || '').trim();
   // KCN-PASS: chỉ PASS mới sạch.
@@ -91,9 +93,9 @@ export function xanhSach(contractTxt, evidenceTxt, ctx) {
   // Vế hai của điều kiện «Ngoài hợp đồng»: báo cáo do tác tử tổng hợp viết, tệp phát hiện do
   // workflow viết từ triage — hai tệp trôi nhau được (crm khai-lang-gioi-thieu, 22/09). Mục
   // nào chưa có dòng sổ gate2 của người → còn cần người. CÙNG hàm xanh_sach_check gọi.
-  const m = ctx.findings == null ? { chua: [], suspect: false } : mucChuaDinhTuyen(ctx.findings, ctx.ledger);
+  const m = ctx.findings == null ? { chua: [], suspect: false } : mucChuaDinhTuyen(ctx.findings, ctx.ledger, ctx.runLog);
   if (m.suspect) return { clean: false, why: 'review-findings.md có chữ trong mục «Ngoài hợp đồng» nhưng không đọc ra mục nào (sai khuôn OOC-ITEM-TEMPLATE)' };
-  if (m.chua.length) return { clean: false, why: `review-findings.md có ${m.chua.length} mục ngoài hợp đồng chưa người định tuyến: ${m.chua.join(', ')}` };
+  if (m.chua.length) return { clean: false, why: `review-findings.md có ${m.chua.length} mục ngoài hợp đồng chưa người định tuyến: ${m.chua.join(', ')}${ooc().cumCu(ctx.findings, ctx.ledger, ctx.runLog)}` };
   return { clean: true, why: '' };
 }
 
@@ -145,6 +147,7 @@ if (_isMain) {
   try { evidence = fs.readFileSync(ep, 'utf8'); } catch { evidence = null; }
   const docCanh = f => { try { return fs.readFileSync(path.join(root, '_acceptance', slug, f), 'utf8'); } catch { return null; } };
   const ctx = { findings: docCanh('review-findings.md'), ledger: docCanh('decisions.jsonl') };
+  ctx.runLog = docCanh('run-log.jsonl');
   ctx.luat = ctxLuatHoSo(root, slug, contract, evidence);
   const status = (frontmatterField(contract, 'status') || '').trim().toLowerCase();
   const tier = (frontmatterField(contract, 'risk_tier') || '').trim().toUpperCase();
