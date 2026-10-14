@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs + feature-loop/skills/feature-loop/SKILL.md (S0) + test + lộ trình kit — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-moc-la-chien-dich-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-14T09:03:39Z
 ---
@@ -73,3 +73,12 @@ Quét bằng `morphological-scan` (preset entity-feature, thực thể = một h
 - Lỗi kit gặp ở bước thiết kế, ghi hạt giống `docs/plans/2026-10-14-hat-giong-khuon-giu-co-bi-can-cu-danh-do.md`: khuôn DEC-GIU-CO trỏ hợp đồng nhưng bộ xếp căn cứ đánh đỏ «vật của chính vòng».
 
 - Mù (Thước↔Vật): công cụ đặt tên phiên và xếp nhóm thanh bên của app desktop không gọi được trong lượt chấm, nên không eval nào chứng rằng phiên THẬT SỰ được xếp. Reality đọc ở hồ sơ mốc kế bằng số ở «Đường đo» dòng 2. Phiên mở vòng này (MC1) đã tự đặt tên «MC1 · Mốc là chiến dịch (kit)» và xếp vào nhóm «Kit · Tinh chỉnh sau hai đợt thử 05/11» bằng tay lúc mở — trước khi có hàm.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-14:
+  - Ngoài-1: Bộ đo DP2-11 của vòng đọc ký hiệu kết quả của Node bản mới; máy chấm chạy Node 22 có thể báo đỏ nhầm dù tính năng đúng.
+  - Ngoài-2: Mô tả kỳ vọng của bộ đo AC-4 còn một câu cũ nói kho có khai nhận giá trị rỗng — mã và ca đo đã theo luật «vắng hẳn».
+  - Ngoài-9: Ca MC-11 đọc lộ trình kit thật: dời hay đổi tên mốc 05/11, hoặc dọn hết hồ sơ ngoài kế hoạch, sẽ làm ca đỏ ở PR không liên quan.
+  - Ngoài-10: Việc thuộc hai mốc: dòng «Mốc:» theo mốc ngày sớm nhất, dòng Timebox của ô cơ hội vẫn theo mốc đầu tệp — hai câu có thể khác nhau.
+  - Ngoài-11: Mốc chưa có ngày được coi là sớm nhất, nên việc vừa thuộc mốc chưa ngày vừa thuộc mốc có ngày sẽ xếp vào nhóm của mốc chưa ngày.
+  - Ngoài-12: Mốc chỉ có ngày, không có tên, sinh tên nhóm có dấu cách thừa ở đầu.
+  - Ngoài-13: Trang mẫu của hai hồ sơ đã ký (viec-ke-theo-plan, trang-lo-trinh-doc-mot-phut) được so trên bản tắt hai cờ mới, không trên bộ máy giao đi.
+- Ngoài-3, Ngoài-4, Ngoài-5 (trang lộ trình của kho đông hồ sơ dài quá lời hứa ≤ 1/3 của trang-lo-trinh-doc-mot-phut; phép đo LTT-san đang đo bản tắt cờ): chủ kho chọn mở hợp đồng mới — ghi hạt giống `docs/plans/2026-10-14-hat-giong-co-ho-so-ngoai-ke-hoach-gon.md`.

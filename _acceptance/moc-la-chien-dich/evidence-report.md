@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f6cac108e710632594423d91b995b0ecde71abd3
-human_signoff:
+human_signoff: Manh Phan 2026-10-14
 ---
 
 # Evidence Report: moc-la-chien-dich
