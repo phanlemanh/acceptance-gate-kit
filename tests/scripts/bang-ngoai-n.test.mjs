@@ -198,6 +198,166 @@ test('BN-2-do', async () => {
   }
 });
 
+// ══ AC-3…AC-5 · bảng trên thẻ Cổng 2 ═════════════════════════════════════════════════════════
+const GC = path.join(ROOT, 'scripts', 'gate-card.js');
+const GC_BASE = () => path.join(BASE_DIR(), 'scripts', 'gate-card.js');
+const COT = ['Mục', 'Người dùng gặp gì', 'Máy đề xuất', 'Căn cứ'];
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// Kho thử: hồ sơ demo T2 verified, báo cáo PASS (hoặc REJECT), review-findings điền từ khuôn `tpl`.
+function mkKho(muc, { tpl = khuonTu(WF_SRC), verdict = 'PASS', config = '', findingsText } = {}) {
+  const d = fs.mkdtempSync(path.join(TMP, 'kho-'));
+  w(d, '_acceptance/config.yaml', 'schema_version: 1\n' + config);
+  w(d, '_acceptance/demo/contract.md', '---\nschema_version: 1\nfeature: Cập nhật tiện ích an toàn\nslug: demo\nrisk_tier: T2\nstatus: verified\n---\n\n## Criteria\n\n- AC-1: Given x, When y, Then z.\n\n## Out of scope\n\n- không làm gì thêm\n');
+  w(d, '_acceptance/demo/evidence-report.md', `---\nslug: demo\nround: 1\nverdict: ${verdict}\nenforcement_mode: strict\nbypass_used: false\n---\n\n## Results\n\n- eval: E1\n  run_id: r1234\n  exit_code: ${verdict === 'PASS' ? 0 : 1}\n  verifier: config:executors.test.unit\n  verified_at: 2026-10-14T00:00:00Z\n`);
+  w(d, '_acceptance/demo/review-findings.md', findingsText != null ? findingsText
+    : '# Review Findings: demo (round 1)\n\n' + HEAD + muc.map(m => dien(tpl, m)).join('\n') + '\n');
+  return d;
+}
+const theCua = (kho, gc = GC, them = []) => {
+  const r = spawnSync(process.execPath, [gc, '--root', kho, '--slug', 'demo', ...them], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`gate-card thoát ${r.status}: ${r.stderr.slice(0, 300)}`);
+  return r.stdout;
+};
+const khoiNgoai = h => { const a = h.indexOf('Ngoài hợp đồng — bạn quyết'); if (a < 0) return ''; const b = h.indexOf('<div class="lab">', a); return h.slice(a, b < 0 ? h.length : b); };
+const bang = k => {
+  const th = [...k.matchAll(/<th>([^<]*)<\/th>/g)].map(m => m[1]);
+  const hang = [...k.matchAll(/<tr( class="nhom")?>([\s\S]*?)<\/tr>/g)].filter(m => !/<th>/.test(m[2]))
+    .map(m => (m[1] ? { nhom: m[2].replace(/<[^>]+>/g, '') } : { td: [...m[2].matchAll(/<td data-cot="([^"]*)">([\s\S]*?)<\/td>/g)].map(x => ({ cot: x[1], html: x[2] })) }));
+  return { th, hang, data: hang.filter(h => h.td), nhom: hang.filter(h => h.nhom).map(h => h.nhom) };
+};
+const coCua = h => [...h.matchAll(/class="flag [^"]*">([^<]*)/g)].map(m => m[1]);
+const BA_NHAN = (() => {
+  const t = fs.readFileSync(path.join(ROOT, 'commands', 'acceptance-card.md'), 'utf8');
+  const m = t.match(/\(a\) \*\*([^*]*)\*\*.*\(b\) \*\*([^*]*)\*\*.*\(c\) \*\*([^*]*)\*\*/);
+  if (!m) throw new Error('không rút được ba nhãn lựa chọn từ commands/acceptance-card.md');
+  return [m[1], m[2], m[3]];
+})();
+const muc = (i, proposal, can_cu) => ({ title: `globToRe muc ${i}`, plain: `Người dùng thấy lỗi ${i}.`, can_cu, file: 'src/x.ts:1', severity: 'low', proposal });
+const BA = [muc(1, 'new-contract', 'Lộ <b>dữ liệu</b> | mức nặng.'), muc(2, 'known-limits', 'Tải lại là có.'), muc(3, 'wont-fix', 'Người dùng không thấy khác.')];
+// Đề xuất của mục k trong thẻ base (khối .item cũ) — chữ «Máy đề xuất» phải giữ nguyên ở bảng mới.
+const recBase = (kho, k) => { const m = theCua(kho, GC_BASE()).match(new RegExp(`Ngoài-${k} · [\\s\\S]*?<p class="ai">([\\s\\S]*?)</p>`)); return m ? m[1] : null; };
+function kiemBN3(gc) {
+  const loi = [];
+  const kho = mkKho(BA);
+  const k = khoiNgoai(theCua(kho, gc));
+  if ((k.match(/<table/g) || []).length !== 1) return [`base không bảng (khối có ${(k.match(/<table/g) || []).length} bảng)`];
+  const b = bang(k);
+  if (JSON.stringify(b.th) !== JSON.stringify(COT)) loi.push(`tiêu đề cột ${JSON.stringify(b.th)}`);
+  if (b.data.length !== 3) loi.push(`số hàng ${b.data.length} ≠ 3`);
+  for (const h of b.data) {
+    const n = Number((h.td[0] && h.td[0].html.match(/^Ngoài-(\d+)$/) || [])[1]);
+    const m = BA[n - 1];
+    if (!m) { loi.push(`ô Mục lạ: ${h.td[0] && h.td[0].html}`); continue; }
+    const mong = [`Ngoài-${n}`, escH(m.plain), recBase(kho, n), escH(m.can_cu)];
+    h.td.forEach((t, i) => {
+      if (t.html !== mong[i]) loi.push(`ô lệch cột: Ngoài-${n} cột ${COT[i]} = [${t.html}] ≠ [${mong[i]}]`);
+      if (t.cot !== COT[i]) loi.push(`ô lệch cột: data-cot Ngoài-${n} ô ${i} = ${t.cot}`);
+    });
+  }
+  for (const nh of BA_NHAN) { const c = k.split(nh).length - 1; if (c !== 1) loi.push(`nhãn «${nh}» xuất hiện ${c} lần`); }
+  for (const j of ['globToRe', 'src/x.ts']) if (k.includes(j)) loi.push(`khối lộ chữ kỹ thuật: ${j}`);
+  return loi;
+}
+test('BN-3', () => {
+  const loi = kiemBN3(GC);
+  // Thẻ KHÔNG ký được (REJECT) không in khối Ngoài-n — base cũng không (đo 14/10); vòng giữ nguyên hành vi đó.
+  const khoR = mkKho(BA, { verdict: 'REJECT' });
+  const hR = theCua(khoR), hRb = theCua(khoR, GC_BASE());
+  if (hRb.includes('Ngoài hợp đồng — bạn quyết')) loi.push('giả định đổi: thẻ REJECT base có khối Ngoài-n');
+  if (hR.includes('<table class="ngoai"') || hR.includes('mục chưa có căn cứ')) loi.push('thẻ REJECT thêm bảng/cờ mà base không có');
+  if (loi.length) throw new Error(loi.join(' · '));
+});
+test('BN-3-do', () => {
+  if (kiemBN3(GC).length) throw new Error('đối chứng dương hỏng: cây đỏ');
+  const loiBase = kiemBN3(GC_BASE());
+  if (!loiBase.some(x => x.includes('base không bảng'))) throw new Error(`base không đỏ đúng chỗ: ${loiBase.join(' · ')}`);
+  console.log('  do OK: base không bảng');
+  const d = banSao(ROOT, ['scripts', 'lib', 'feature-loop', 'commands', 'skills']);
+  tiemTep(path.join(d, 'scripts', 'gate-card.js'), "aiCua(f, fi),\n      f.can_cu ? esc(f.can_cu) : '<span class=\"mo\">chưa có căn cứ</span>'];",
+    "f.can_cu ? esc(f.can_cu) : '<span class=\"mo\">chưa có căn cứ</span>', aiCua(f, fi)];", 'tráo hai ô cuối');
+  const loi = kiemBN3(path.join(d, 'scripts', 'gate-card.js'));
+  if (!loi.some(x => x.includes('ô lệch cột'))) throw new Error(`tráo ô không đỏ: ${loi.join(' · ')}`);
+  console.log('  do OK: ô lệch cột');
+});
+
+// AC-4 · ma trận viết trước ba hồ sơ — thứ tự nhãn hàng, hàng nhóm, câu gộp ký không đổi.
+const MA_TRAN = [
+  { ten: 'A', props: ['known-limits', 'new-contract', 'wont-fix', '', 'ghi han che'], bat: false, thuTu: [2, 4, 5, 1, 3], nhom: ['Cần anh quyết', 'Máy khuyên — chỉ đổi khi anh nghĩ khác'] },
+  { ten: 'B', props: ['known-limits', 'new-contract', 'wont-fix'], bat: true, thuTu: [2, 1, 3], nhom: ['Cần anh quyết', 'Máy đã định tuyến'] },
+  { ten: 'C', props: ['known-limits'], bat: false, thuTu: [1], nhom: [] },
+];
+const khoMaTran = o => {
+  const kho = mkKho(o.props.map((p, i) => muc(i + 1, p, `Căn cứ mục ${i + 1}.`)), { config: o.bat ? 'feature_loop:\n  ngoai_n_tu_dinh_tuyen: true\n' : '' });
+  if (o.bat) {
+    const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'dinh-tuyen-may.cjs'), '--write', '--root', kho, '--slug', 'demo'], { encoding: 'utf8' });
+    const so = fs.existsSync(path.join(kho, '_acceptance/demo/decisions.jsonl')) ? fs.readFileSync(path.join(kho, '_acceptance/demo/decisions.jsonl'), 'utf8').trim().split('\n').length : 0;
+    if (r.status !== 0 || so !== 2) throw new Error(`hồ sơ B: dinh-tuyen-may không ghi đủ 2 dòng máy (thoát ${r.status}, ${so} dòng): ${r.stdout}${r.stderr}`);
+  }
+  return kho;
+};
+function kiemBN4(gc) {
+  const loi = []; let soO = 0;
+  for (const o of MA_TRAN) {
+    const kho = khoMaTran(o);
+    const b = bang(khoiNgoai(theCua(kho, gc)));
+    const thuTu = b.data.map(h => Number((h.td[0].html.match(/^Ngoài-(\d+)$/) || [])[1]));
+    o.thuTu.forEach((n, i) => { soO++; if (thuTu[i] !== n) loi.push(`hồ sơ ${o.ten}: hàng ${i + 1} = Ngoài-${thuTu[i]} ≠ Ngoài-${n}`); });
+    if (thuTu.length !== o.thuTu.length) loi.push(`hồ sơ ${o.ten}: ${thuTu.length} hàng ≠ ${o.thuTu.length}`);
+    if (JSON.stringify(b.nhom) !== JSON.stringify(o.nhom)) loi.push(`hồ sơ ${o.ten}: hàng nhóm ${JSON.stringify(b.nhom)}`);
+    const one = g => JSON.parse(theCua(kho, g, ['--extract'])).one_shot;
+    if (one(gc) !== one(GC_BASE())) loi.push(`hồ sơ ${o.ten}: câu gộp ký đổi`);
+  }
+  const tong = MA_TRAN.reduce((s, o) => s + o.thuTu.length, 0);
+  if (soO !== tong) loi.push(`ma trận hụt: so ${soO} ô ≠ ${tong}`);
+  return { loi, soO };
+}
+test('BN-4', () => {
+  const { loi, soO } = kiemBN4(GC);
+  console.log(`  so o: ${soO}`);
+  if (loi.length) throw new Error(loi.join(' · '));
+});
+test('BN-4-do', () => {
+  if (kiemBN4(GC).loi.length) throw new Error('đối chứng dương hỏng: cây đỏ');
+  const d = banSao(ROOT, ['scripts', 'lib', 'feature-loop', 'commands', 'skills']);
+  tiemTep(path.join(d, 'scripts', 'gate-card.js'), '  hang.sort((a, b) => a.g - b.g || a.fi - b.fi);\n', '', 'bỏ bước xếp nhóm');
+  const { loi } = kiemBN4(path.join(d, 'scripts', 'gate-card.js'));
+  if (!loi.some(x => x.startsWith('hồ sơ A: hàng 1 = Ngoài-1'))) throw new Error(`bỏ xếp nhóm không đỏ thứ tự tệp: ${loi.join(' · ')}`);
+  console.log('  do OK: thứ tự tệp');
+});
+
+// AC-5 · đọc-cũ — ô «chưa có căn cứ» + đúng một cờ vàng đếm; cờ khác không đổi so base.
+const CO_CC = /mục chưa có căn cứ/;
+test('BN-5', () => {
+  const loi = [];
+  const khuonBase = khuonTu(fs.readFileSync(path.join(BASE_DIR(), 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8'));
+  if (khuonBase.includes('Căn cứ')) throw new Error('khuôn base đã có dòng Căn cứ — fixture đọc-cũ không đọc-cũ');
+  const ban = [
+    { ten: 'base', kho: mkKho(BA, { tpl: khuonBase }), co: '3/3 mục chưa có căn cứ', o: 3 },
+    { ten: 'thiếu một', kho: mkKho([BA[0], { ...BA[1], can_cu: '' }, BA[2]]), co: '1/3 mục chưa có căn cứ', o: 1 },
+    { ten: 'đủ', kho: mkKho(BA), co: null, o: 0 },
+    { ten: 'rỗng', kho: mkKho([], { findingsText: '# Review Findings\n\n' + HEAD + '(rỗng — không có lỗi ngoài phạm vi)\n' }), co: null, o: 0, khongBang: true },
+  ];
+  for (const b of ban) {
+    const h = theCua(b.kho);
+    const co = coCua(h).filter(c => CO_CC.test(c));
+    if (b.co ? (co.length !== 1 || !co[0].startsWith(b.co)) : co.length) loi.push(`${b.ten}: cờ căn cứ ${JSON.stringify(co)}`);
+    const o = (khoiNgoai(h).match(/<span class="mo">chưa có căn cứ<\/span>/g) || []).length;
+    if (o !== b.o) loi.push(`${b.ten}: ${o} ô «chưa có căn cứ» ≠ ${b.o}`);
+    if (b.khongBang && h.includes('<table class="ngoai"')) loi.push(`${b.ten}: in bảng rỗng`);
+    const khac = coCua(h).filter(c => !CO_CC.test(c)), cu = coCua(theCua(b.kho, GC_BASE()));
+    if (JSON.stringify(khac) !== JSON.stringify(cu)) loi.push(`${b.ten}: cờ khác đổi so base (${JSON.stringify(khac)} ≠ ${JSON.stringify(cu)})`);
+  }
+  if (loi.length) throw new Error(loi.join(' · '));
+});
+test('BN-5-cu', async () => {
+  // Sổ THẬT của một lượt chấm (harness), rồi gỡ khoá can_cu khỏi dòng finding — đúng hình dòng đời cũ.
+  const r1 = await runWorkflow(WF, argsGoc(), traLoi());
+  const so = r1.result.runLog.map(l => { const o = JSON.parse(l); if (o.kind !== 'finding') return l; if (!('can_cu' in o)) throw new Error('dòng finding lượt thật không có can_cu để gỡ'); delete o.can_cu; return JSON.stringify(o); });
+  const cp = chayCarryPlan(so);
+  if (cp.status !== 0) throw new Error(`carry-plan thoát ${cp.status}: ${cp.stderr}`);
+  if (cp.cf.length !== 1 || cp.cf[0].can_cu !== '') throw new Error(`dòng đời cũ: ${JSON.stringify(cp.cf)}`);
+});
+
 const chon = (process.env.BN_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chay = chon.length ? CASES.filter(c => chon.includes(c.id)) : CASES;
 if (!chay.length) { console.log('FAIL: BN_CASES không khớp ca nào'); process.exit(1); }
