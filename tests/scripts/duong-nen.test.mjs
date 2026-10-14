@@ -1100,6 +1100,36 @@ Object.assign(KIEM_TV, {
   }
 }
 
+// ── NEN-TV6 — bốn đột biến trên bản sao vị từ; phép đo là CHÍNH hàm kiểm của TV1/TV4/TV3b/TV5e (AC-8) ──
+{
+  const sao = tamDir('duong-nen-dot-bien-');
+  cpSync(path.join(KIT, 'feature-loop', 'scripts'), path.join(sao, 'scripts'), { recursive: true });
+  const LIB = path.join(sao, 'scripts', 'lib', 'tep-cua-vong.mjs');
+  const goc = readFileSync(LIB, 'utf8');
+  const script = path.join(sao, 'scripts', 'duong-nen.mjs');
+  const loi = [];
+  const MO_HAM = 'export function tepCuaVong(duong, slug, coOHead) {\n';
+  const DOT = [
+    ['a', 'tv1', MO_HAM, MO_HAM + '  return false;\n', `_acceptance/${SL}/contract.md`],
+    ['b', 'tv4', MO_HAM, MO_HAM + '  return true;\n', 'README.md'],
+    ['c', 'tv3b', " && !coOHead(doan.slice(0, i + 1).join('/'))", '', `goi/${SL}/rac.txt`],
+    ['d', 'tv5e', '`VIOLATION [${slug}]:`', '`VIOLATION [${slug}`', `[${SL}-2]`],
+  ];
+  // Bản lành (bản sao chưa tiêm) chạy trước trên cùng bốn kho: bốn hàm kiểm phải trả null.
+  for (const [ten, ca] of DOT) { const e = KIEM_TV[ca](chayTV(ca, { script })); if (e) loi.push(`(${ten}) ban lanh khong xanh: ${e}`); }
+  if (!loi.length) for (const [ten, ca, tim, thay, can] of DOT) {
+    const n = goc.split(tim).length - 1;
+    if (n !== 1) { loi.push(`(${ten}) cho tiem lech: khop ${n} lan`); continue; }
+    writeFileSync(LIB, goc.replace(tim, thay));
+    const e = KIEM_TV[ca](chayTV(ca, { script }));
+    writeFileSync(LIB, goc);
+    if (!e) loi.push(`(${ten}) dot bien ma phep do ${ca} van xanh`);
+    else if (!e.includes(can)) loi.push(`(${ten}) phep do do nhung khong neu «${can}»: ${e.slice(0, 200)}`);
+  }
+  if (loi.length) bad('NEN-TV6 dot bien', loi.join(' | '));
+  else ok('NEN-TV6 ban lanh xanh; bon dot bien (luon sai · luon dung · bo ve HEAD · bo «]») deu do dung ten tep/ho so');
+}
+
 donDep();
 console.log(`\nResults: ${pass} passed, ${fail} failed (duong-nen)`);
 process.exit(fail ? 1 : 0);
