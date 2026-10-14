@@ -39,6 +39,23 @@ cho người đọc «xong · đang dở · kế tiếp» mà không phải qua 
 - **Nếp tiếp quản:** phiên điều phối mới in bản đồ đó làm tin đầu tiên. Hôm nay nếp này là lời dặn trong bộ nhớ
   máy, và hiến pháp cấm dặn-bằng-lời làm nghiệm; đó là lý do hạt giống này tồn tại.
 
+### Bổ sung cùng ngày: tên phiên và nhóm thanh bên khác nhau giữa các máy
+
+Owner hỏi ngày 14/10: mỗi máy đặt tên và xếp thanh bên cho phiên điều phối và phiên thợ một kiểu. Hiện trạng đo
+được:
+- Gói `dieu-phoi` đã có một nửa quy ước, nhưng chỉ là lời dặn trong `dieu-phoi/README.md` bước 6: nhóm «Đợt <tên>»
+  và ghim phiên giám sát. Không có quy ước tên phiên, và không lệnh nào sinh tên.
+- MacBook Pro không chạy gói `dieu-phoi` (điều phối nhẹ bằng tin nhắn + khoá máy). Nhóm ở đây là «Điều phối MacBook
+  Pro», còn tên phiên thợ là tiêu đề chip tự do («Mở vòng TH6 …», «Thợ TH · crm»).
+- Mac Studio dùng «r2 · Giám sát»; dòng đầu tin ở #375 đã có khuôn `[máy · phiên → máy · phiên]`, nhưng khuôn ấy
+  không nối với tên phiên trên thanh bên.
+
+Hướng: tên phiên là **một hình chiếu máy sinh** từ cùng nguồn với bản đồ hiện trạng (mã hàng + tên ngắn của hàng
+lộ trình + kho), do lệnh mở chip in ra để phiên đặt, chứ không phải một quy ước nữa bằng lời. Nhà đúng là gói
+`dieu-phoi` (đã giữ nhóm thanh bên và lời ghi danh chip), không phải lõi feature-loop. Trạng thái (chờ ký, đang
+chấm…) KHÔNG nhét vào tên, vì tên đặt một lần còn trạng thái đổi liên tục. Trạng thái thuộc về bản đồ ở trên.
+Hôm nay MacBook Pro tự theo khuôn «<mã> · <tên ngắn> (<kho>)» bằng tay, như một phép thử rẻ.
+
 Liên quan: `docs/plans/2026-10-13-hat-giong-kenh-lien-may-dieu-phoi.md` (kênh liên máy; cùng họ «trạng thái chỉ sống
 trong chuỗi tin / trong phiên»).
 
