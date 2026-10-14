@@ -208,6 +208,12 @@ bác), hồ sơ đang mở → bỏ qua, không khai chính sách → cờ vàng
 | S6 | **Chân trời không được rà soát** | Kit đã có 18 mục; phình y như «Kế tiếp» | `[NGÀNH: Shape Up]` |
 | S7 | **Hai luật cùng khớp mà ngược nhau** (trần đòi đẩy ra, tuổi còn trẻ) | Không có luật ưu tiên → máy tự chọn | trục C |
 
+| S8 | **Chính sách chiến dịch chốt ở đâu** — B′ ghi «Cổng Đáng», nhưng Cổng Đáng là của MỘT vòng, còn chiến dịch trải nhiều vòng | Vòng thứ hai của cùng mốc không biết chính sách nào đang áp | dò chu kỳ 14/10 |
+
+Nghiệm cho S8 (lần chu kỳ 14/10): chốt ở **khoảnh khắc mở chiến dịch đã có** — thẻ khởi tạo đợt của `dieu-phoi`
+(«phiên giám sát làm, sau khi owner duyệt thẻ khởi tạo», `dieu-phoi/README.md`); kho không chạy `dieu-phoi` thì ở
+Cổng Đáng của vòng ĐẦU TIÊN thuộc mốc, ghi vào mốc để các vòng sau đọc. 0 lượt gọi thêm.
+
 **Core — thêm vào phạm vi B′** (4 / 14 ô có nghĩa ≈ đúng trần ~20 % khi gộp):
 1. **Phép đếm đúng (S2 + S3):** trần và tuổi chỉ tính hàng chưa giao, chưa có hồ sơ; tuổi = ngày từ lần cuối hàng
    được chạm (commit sửa hàng · hồ sơ mở · tín hiệu nối); so hàng qua các lần đánh mã bằng câu giao.
