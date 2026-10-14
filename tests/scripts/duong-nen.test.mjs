@@ -32,12 +32,16 @@ if (!existsSync(DUONG_NEN)) {
 }
 
 const fm = (tep, k) => { const m = String(tep || '').match(new RegExp(`^${k}: (.*)$`, 'm')); return m ? m[1] : null; };
-const bullets = (tep) => {
-  const s = String(tep || '');
-  const i = s.indexOf('\n## Dòng đỏ\n');
+// Bullet của MỘT mục, cắt tới tiêu đề kế — tệp từ hồ sơ nen-khong-tinh-tep-cua-vong có thêm mục
+// «Dòng vàng» sau «Dòng đỏ»; đọc tới hết tệp là đếm lẫn hai mục.
+const muc = (tep, ten) => {
+  const d = String(tep || '').split('\n'); const i = d.findIndex(l => l === `## ${ten}`);
   if (i < 0) return null;
-  return s.slice(i).split('\n').filter(l => l.startsWith('- ')).map(l => l.slice(2));
+  const sau = d.slice(i + 1); const j = sau.findIndex(l => /^#{1,6}\s/.test(l));
+  return (j < 0 ? sau : sau.slice(0, j)).filter(l => l.startsWith('- ')).map(l => l.slice(2));
 };
+const bullets = tep => muc(tep, 'Dòng đỏ');
+const bulletsVang = tep => muc(tep, 'Dòng vàng');
 const tomTat = r => `code=${r.code} stderr=${r.stderr.split('\n').slice(-4).join(' | ')} tep=${JSON.stringify((r.tep || '').slice(0, 400))}`;
 
 // kiemTuanTu — đọc thứ tự DÒNG của thu-tu.log. Ghim ĐỦ BỐN dấu trước, rồi mới kết
@@ -942,6 +946,34 @@ const napTcv = async () => { try { return await import(TCV); } catch (e) { retur
     if (sai.length) bad('NEN-TV8b vi tu sai o', sai.join(', '));
     else ok(`NEN-TV8b vi tu dung ${o.length}/${o.length} o (slug co dau cham, thu muc co san, tien to VIOLATION)`);
   }
+}
+
+// ── NEN-TV7 — khuôn mục «Dòng vàng» một nguồn: rỗng → «không có»; mã/khối vắng → mã 2, không ghi tệp (AC-6) ──
+{
+  const ag = tamDir('duong-nen-ag-tv7-');
+  for (const d of ['skills', 'commands', 'lib', 'scripts']) cpSync(path.join(KIT, d), path.join(ag, d), { recursive: true });
+  const KHUON = path.join(ag, 'skills', 'acceptance', 'references', 'duong-nen-template.md');
+  const goc = readFileSync(KHUON, 'utf8');
+  const loi = [];
+  const ka = dungKho(); const ra = chayNen(ka, { cache: CACHE, agRoot: ag });
+  if (ra.code !== 0) loi.push(`(a) kho lanh tren ag ban sao phai ma 0: ${tomTat(ra)}`);
+  else if (JSON.stringify(bulletsVang(ra.tep)) !== JSON.stringify(['không có'])) loi.push(`(a) muc vang phai dung «không có»: ${JSON.stringify(bulletsVang(ra.tep))}`);
+  else if (/DUONG-NEN-/.test(ra.tep)) loi.push('(a) dong marker lot vao tep');
+  const tiem = (ten, re, can) => {
+    const n = (goc.match(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g')) || []).length;
+    if (n !== 1) { loi.push(`(${ten}) cho tiem lech: khop ${n} lan`); return; }
+    writeFileSync(KHUON, goc.replace(re, ''));
+    const k = dungKho(); const r = chayNen(k, { cache: CACHE, agRoot: ag });
+    writeFileSync(KHUON, goc);
+    if (r.code !== 2) loi.push(`(${ten}) phai ma 2: ${tomTat(r)}`);
+    else if (!r.stderr.includes(can)) loi.push(`(${ten}) stderr thieu «${can}»: ${r.stderr.slice(-300)}`);
+    else if (existsSync(r.tepPath)) loi.push(`(${ten}) van ghi duong-nen.md`);
+  };
+  tiem('b', /^- suite-tep-cua-vong: .*\n/m, 'khuôn dòng vàng thiếu mã «suite-tep-cua-vong»');
+  tiem('c', /<!-- <<<DUONG-NEN-DONG-VANG -->[\s\S]*?<!-- DUONG-NEN-DONG-VANG>>> -->\n?/, 'DUONG-NEN-DONG-VANG');
+  tiem('d', /^- luoi-cua-vong: .*\n/m, 'khuôn dòng vàng thiếu mã «luoi-cua-vong»');
+  if (loi.length) bad('NEN-TV7 khuon dong vang', loi.join(' | '));
+  else ok('NEN-TV7 muc vang rong → «không có»; go ma suite-tep-cua-vong / luoi-cua-vong / ca khoi → ma 2, khong ghi tep');
 }
 
 donDep();

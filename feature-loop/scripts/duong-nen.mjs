@@ -110,6 +110,18 @@ const dongDo = (ma, vals = {}) => {
 for (const ma of ['cong-cu-thieu', 'suite-khong-lenh', 'suite-do-san', 'suite-cay-ban', 'luoi-co-san', 'luoi-loi-chay', 'engine-lech', 'engine-tu-host']) {
   if (!DONG_DO.has(ma)) die(`khuôn dòng đỏ thiếu mã «${ma}» trong ${TEMPLATE_REL}`);
 }
+// Khuôn dòng VÀNG (hồ sơ nen-khong-tinh-tep-cua-vong): dòng của CHÍNH vòng — có tên, không lật nền.
+const khuonDongVang = khoiMarker(templateText, 'DUONG-NEN-DONG-VANG');
+if (!khuonDongVang) die(`khuôn ${TEMPLATE_REL} thiếu marker DUONG-NEN-DONG-VANG`);
+const DONG_VANG = new Map();
+for (const l of khuonDongVang) {
+  const m = l.match(/^- ([a-z-]+): `(.*)`$/);
+  if (m) DONG_VANG.set(m[1], m[2]);
+}
+for (const ma of ['suite-tep-cua-vong', 'luoi-cua-vong']) {
+  if (!DONG_VANG.has(ma)) die(`khuôn dòng vàng thiếu mã «${ma}» trong ${TEMPLATE_REL}`);
+}
+const dongVang = (ma, vals = {}) => DONG_VANG.get(ma).replace(/\{(\w+)\}/g, (_, t) => (t in vals ? String(vals[t]) : `{${t}}`));
 
 let initText;
 try { initText = fs.readFileSync(path.join(agRoot, INIT_REL), 'utf8'); } catch { die(`thiếu ${INIT_REL} ở ${agRoot}`); }
@@ -245,6 +257,7 @@ const bashNguoiGoi = (lenh, thamSo, o) =>
 
 const chan = { cong_cu: 'xanh', suite: 'xanh', luoi: 'xanh', engine: 'xanh' };
 const DO = [];
+const VANG = [];
 {
   const coTrenMay = new Map();
   for (const khoa of khoaExecutor(configText)) {
@@ -380,13 +393,20 @@ async function chaySuite(root, lenh) {
 const nen = Object.values(chan).includes('do') ? 'do' : 'xanh';
 const vals = { slug: flags.slug, at: new Date().toISOString(), sha, nen, ...chan };
 const out = [];
+// Bullet giữ chỗ điền theo MỤC chứa nó: «Dòng đỏ» nhận DO, «Dòng vàng» nhận VANG.
+const THEO_MUC = { 'Dòng đỏ': DO, 'Dòng vàng': VANG };
+let mucHienTai = null;
 for (const l of khuonTep) {
   const fmM = l.match(/^(\w+): \{[^}]*\}$/);
+  const hd = l.match(/^##\s+(.+?)\s*$/);
+  if (hd) mucHienTai = hd[1];
   if (fmM) {
     if (!(fmM[1] in vals)) die(`khuôn có khoá lạ «${fmM[1]}» trong ${TEMPLATE_REL}`);
     out.push(`${fmM[1]}: ${vals[fmM[1]]}`);
   } else if (/^- \{.*\}$/.test(l)) {
-    for (const d of (DO.length ? DO : ['không có'])) out.push(`- ${d}`);
+    const ds = THEO_MUC[mucHienTai];
+    if (!ds) die(`khuôn ${TEMPLATE_REL} có bullet giữ chỗ ngoài mục «Dòng đỏ»/«Dòng vàng» (mục: ${mucHienTai || 'không có'})`);
+    for (const d of (ds.length ? ds : ['không có'])) out.push(`- ${d}`);
   } else out.push(l);
 }
 const dich = path.join(root, '_acceptance', flags.slug, 'duong-nen.md');
