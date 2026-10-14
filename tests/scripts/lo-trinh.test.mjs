@@ -3422,7 +3422,8 @@ async function lt168(kit) {
     'kit-that': [cong(JSON.parse(readFileSync(path.join(KIT, 'docs', 'plans', 'lo-trinh-kit.json'), 'utf8'))), pvMoi, 'moi-1'],
     'crm-okr': [cong(fx('crm-okr.json')), pvMoi, 'moi-1'], 'crm-kho-tai-lieu': [cong(fx('crm-kho-tai-lieu.json')), pvMoi, 'moi-1'], 'oneflow': [cong(fx('oneflow.json')), pvMoi, 'moi-1'] };
   for (const [ten, [lt, pv, dot]] of Object.entries(KHO)) {
-    const r = khoCL({ pv, lt }); const a = rang(goc, r); const b = rang(kit, r);
+    // ra-soat-lo-trinh: bên đời trước qua phép đổi chữ «chân trời» → «chờ điều kiện» (như LT-147) trước khi so.
+    const r = khoCL({ pv, lt }); const a0 = rang(goc, r); const a = { ...a0, stdout: chuChoDieuKien(a0.stdout) }; const b = rang(kit, r);
     const khongVang = x => x.stdout.split('\n').filter(Boolean).filter(l => !l.startsWith('cảnh báo:'));
     if (a.status !== b.status) sai.push(`${ten}: mã thoát gốc ${a.status} ≠ mới ${b.status}`);
     if (!deq(khongVang(a), khongVang(b))) sai.push(`${ten}: dòng không vàng lệch — mới thêm ${JSON.stringify(khongVang(b).filter(l => !khongVang(a).includes(l)).slice(0, 2))}`);
