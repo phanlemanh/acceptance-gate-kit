@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/out-of-contract.cjs (t3_paths lib/**) + scripts/gate-card.js + feature-loop/workflows/acceptance-verify.js + feature-loop/scripts/carry-plan.mjs + test + tài liệu — không chạm hooks/**, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-bang-ngoai-n-co-can-cu-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: manh
+approved_at: 2026-10-14
 ---
 
 # Acceptance Contract: bang-ngoai-n-co-can-cu
