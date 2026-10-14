@@ -752,6 +752,8 @@ const metaOpen = (() => {
   kq.flag = kq.n >= 2;
   return kq;
 })();
-// Khoá `dotDangChay` CHỈ có mặt khi có đợt: kho không chạy đợt nhận đầu ra byte-bằng bản trước.
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh, loTrinhChuaKhai,
+// Khoá `dotDangChay` CHỈ có mặt khi có đợt: kho không chạy đợt nhận đầu ra byte-bằng bản trước. Cùng luật cho
+// `loTrinhChuaKhai` (moc-la-chien-dich, Ngoài-6 chủ kho nâng phạm vi 14/10): chỉ có mặt khi kho chưa khai lộ trình.
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh,
+  ...(loTrinhChuaKhai ? { loTrinhChuaKhai } : {}),
   ...(dotDangChay ? { dotDangChay: { ten: dotDangChay.ten, pha: dotDangChay.pha } } : {}) });
