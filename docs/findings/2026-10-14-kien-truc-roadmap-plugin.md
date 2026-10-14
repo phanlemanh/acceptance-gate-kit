@@ -3,6 +3,9 @@
 > Tài liệu đầu vào cho vòng plugin lộ trình (ADR 0025 gọi tên trước cho cửa sổ kế; chủ kho đặt tên `road-map`
 > 14/10, đồng dáng hai-từ-gạch-nối với `acceptance-gate`, `feature-loop`, `diagram-design`, `dieu-phoi`).
 >
+> **Chủ kho duyệt B′ ngày 14/10** (kèm các ô bổ sung §8–§11 và chữ «Chờ điều kiện»). Các phần CỘNG duyệt đích
+> danh ở Cổng Phạm vi khi vòng mở; vòng mở sau số MC1 và khi chủ kho gọi tên (luật (b)).
+>
 > **Bản 2 (sau đối kháng).** Bản 1 cùng ngày khuyên phương án «B-liên-bang» với lát 1 = cửa ra trước (bộ ghi
 > chuẩn + phiếu rà soát duyệt bằng gộp PR + trần + đóng băng). Chủ kho xin rà soát một lượt trước khi quyết;
 > ba tác tử đối kháng độc lập (luật kit · số liệu · kỹ thuật) cùng kết luận **B như đã viết đổ**, và bản 1 có

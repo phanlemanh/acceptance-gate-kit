@@ -23,3 +23,11 @@ máy × tài khoản, nên nhóm «<lộ trình> · <mốc>» chỉ là mỏ neo
 (ii) nấc 4 chỉ bật khi, sau một lần phát hành có nấc 1 và 3, vẫn còn ≥ 1 hồ sơ mới không nối hàng ở kho đã khai
 lộ trình. **Đường đảo:** gỡ cờ vàng (chỉ cảnh báo, không chặn) · không cài plugin `lo-trinh` · bỏ vòng meta
 đã gọi tên trước, nếu chủ kho gọi tên vòng khác.
+
+**Bổ sung 14/10 (chủ kho duyệt, cùng ngày):** plugin mang tên **`road-map`** (thay `lo-trinh`; đồng dáng hai-từ-gạch-nối
+với các gói khác — mã và khoá cấu hình `lo_trinh` giữ nguyên). Hướng cho vòng plugin là **B′** của
+`docs/findings/2026-10-14-kien-truc-roadmap-plugin.md`: rà soát lộ trình sống trong lõi, lên thẻ ở cổng đã có
+(0 lượt gọi thêm); máy chỉ tự áp theo chính sách chiến dịch chốt ở khoảnh khắc mở chiến dịch đã có, báo trước
+một nhịp, có cửa veto; gói `road-map` dựng khi nấc 4 đạt ngưỡng, hoặc sớm hơn chỉ để chứa lệnh người (quyết ở
+Cổng Phạm vi của vòng). Chữ hiển thị cho «chân trời» đổi thành «Chờ điều kiện» (khoá `chan_troi` giữ nguyên).
+Các phần CỘNG trong B′ vẫn duyệt đích danh ở Cổng Phạm vi khi vòng mở.
