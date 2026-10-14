@@ -32,6 +32,11 @@ khoá và máy tự gộp được; plugin thứ năm tạo thêm cặp lệch p
 để git tự gộp» sai khi thử thật; con trỏ liên kho trong trang đã commit làm CI đỏ; và bằng chứng «lộ trình không
 có cửa ra» mỏng hơn bản 1 nói.
 
+**Hình** (chiếu của chữ ở §6–§8, mở bằng trình duyệt):
+[luồng một đề xuất rà soát](assets/2026-10-14-kien-truc-roadmap/01-luong-de-xuat-ra-soat.html) ·
+[lượt chạm người, B so với B′](assets/2026-10-14-kien-truc-roadmap/02-luot-cham-nguoi-b-va-b-phay.html) ·
+[mã nằm đâu, ghi và đọc có cùng phiên bản không](assets/2026-10-14-kien-truc-roadmap/03-ma-nam-dau-phien-ban.html).
+
 ---
 
 ## 1. Khung — đọc lại ý định của chủ kho
@@ -174,6 +179,69 @@ cờ vàng cho hàng không có `bat_khi`; tên `road-map`.
 **Bài học cho máy:** bản 1 dựng khuyến nghị trên số chưa qua chiều đỏ — đếm «xếp lại» không loại đổi tên mốc,
 đếm «biến mất» không dò đánh lại mã. Ba lỗi cùng một hướng (phóng đại vấn đề mà phương án định chữa). Đúng lớp
 «máy diễn dịch dữ liệu thành kết luận».
+
+## 8. Quét hình thái độ phủ của B′ (14/10, skill `morphological-scan`, preset entity-feature)
+
+**Thực thể:** một hàng lộ trình lúc máy rà soát nó. **Chân sản phẩm:** `[SUY-TỪ-REPO: scripts/lo-trinh.mjs]`
+(ba danh sách ô, `chan_troi`, `da_bac`), hợp đồng MC1 AC-1 (ma trận trạng thái), số crm §2. **Chân ngành** (kiểm
+qua web 14/10): `[NGÀNH: GitHub actions/stale]` — đánh dấu cũ rồi mới đóng sau một khoảng chờ, nhãn miễn trừ, đụng
+vào thì đặt lại đồng hồ, trần số thao tác mỗi lượt · `[NGÀNH: Linear — auto-close]` — không tự đóng khi chu kỳ/dự
+án gắn với việc chưa xong, mở lại được · `[NGÀNH: Shape Up — không backlog]` — ý bị gác không giữ ưu tiên, muốn
+làm phải đề xuất lại.
+
+**Trục**
+- A · Vị trí hàng: trong mốc đang chạy | trong mốc đã quá ngày | ngoài mốc («Kế tiếp») | chân trời | đã bác  [CE: khoá `moc[].hang`, `chan_troi`, `da_bac`]
+- B · Trạng thái suy từ hồ sơ: chưa có hồ sơ | hồ sơ đang mở | đã giao | hồ sơ đóng khác (xếp lại · bác · hỏng) | không suy được  [CE: `DA_GIAO_O/DANG_LAM_O/CHUA_LAM_O`, MC1 AC-1]
+- C · Căn cứ chính sách: khai và khớp | khai, không khớp | không khai | hai luật cùng khớp mà ngược nhau | hàng được miễn trừ  [CE: §6 + actions/stale]
+- D · Kích hoạt: mốc khép | mốc quá ngày mà chưa khép | mở thẻ giữa mốc | tín hiệu mới | lệnh tay  [CE: §6 + Linear]
+
+**Lát A × B** (25 ô, 14 có nghĩa): B′ phủ đường chính — trong/ngoài mốc × chưa có hồ sơ (dời · chân trời ·
+bác), hồ sơ đang mở → bỏ qua, không khai chính sách → cờ vàng. **Sót 7 ca:**
+
+| # | Ca sót | Hệ quả nếu để nguyên | Nguồn |
+|---|---|---|---|
+| S1 | Hàng có hồ sơ **đóng khác** (bác / xếp lại / hỏng) | Luật «loại hàng có hồ sơ nhận» chặn luôn nó → kẹt mãi, không ai đề xuất đưa vào `da_bac` / chân trời | `[SUY-TỪ-REPO: scripts/lo-trinh.mjs]` |
+| S2 | Trần «Kế tiếp» và tuổi hàng **đếm cả hàng đã giao** | crm có 42 hàng đã giao ngoài mốc → trần vỡ ngay lượt đầu | số đo §2 G1 |
+| S3 | **Tuổi hàng** chưa định nghĩa; đánh lại mã làm đồng hồ về 0 | V0–V8 → DA0–DA8 ở crm: mọi hàng «mới» lại | `[NGÀNH: actions/stale]` (đụng thì đặt lại) + số đo §7 |
+| S4 | **«Mốc khép»** chưa định nghĩa máy đọc | Không biết khi nào rà soát; mốc ngoài / hạn của người có kích hoạt không | phản biện luật kit §7 |
+| S5 | Tự áp **không báo trước, không miễn trừ, không trần thao tác** | Một lượt có thể dời hàng loạt hàng; không có cách giữ hàng ghim | `[NGÀNH: actions/stale]`, `[NGÀNH: Linear]` |
+| S6 | **Chân trời không được rà soát** | Kit đã có 18 mục; phình y như «Kế tiếp» | `[NGÀNH: Shape Up]` |
+| S7 | **Hai luật cùng khớp mà ngược nhau** (trần đòi đẩy ra, tuổi còn trẻ) | Không có luật ưu tiên → máy tự chọn | trục C |
+
+**Core — thêm vào phạm vi B′** (4 / 14 ô có nghĩa ≈ đúng trần ~20 % khi gộp):
+1. **Phép đếm đúng (S2 + S3):** trần và tuổi chỉ tính hàng chưa giao, chưa có hồ sơ; tuổi = ngày từ lần cuối hàng
+   được chạm (commit sửa hàng · hồ sơ mở · tín hiệu nối); so hàng qua các lần đánh mã bằng câu giao.
+2. **«Mốc khép» máy đọc được (S4):** ngày mốc đã qua hoặc mọi hàng của mốc đã giao; chỉ mốc chiến dịch / phát hành —
+   mốc ngoài và hạn của người không kích hoạt rà soát.
+3. **Hàng có hồ sơ đóng khác (S1):** đề xuất theo hồ sơ — bác → `da_bac`, xếp lại → chân trời; vẫn cấm đụng hàng có
+   hồ sơ đang mở.
+4. **An toàn của tự áp (S5):** báo trước một nhịp (lượt rà soát này cắm cờ, lượt sau mới áp nếu không ai đụng) ·
+   miễn trừ theo hàng (khoá ghim) · trần số thao tác mỗi lượt.
+
+**Later:** rà soát chân trời theo `mo_lai_khi` (S6) · luật ưu tiên khi hai luật ngược nhau — mặc định chọn lối
+nhẹ nhất: giữ < dời < chân trời < bác (S7) · trần theo từng lộ trình khi kho có nhiều lộ trình · máy nào được tự áp
+khi ba máy cùng chạy (tạm: chỉ phiên đóng mốc) · cờ mâu thuẫn «hồ sơ đang mở trỏ hàng đã bác / chân trời»
+`[GIẢ ĐỊNH: chưa kiểm cờ hiện có]` · tín hiệu mới làm căn cứ.
+
+**Never:** tự áp trên hàng có hồ sơ đang mở — đụng việc đang làm · tự chấm điểm ưu tiên (RICE/WSJF) — glossary
+_Avoid_ · xoá hẳn hàng khỏi tệp thay vì `da_bac` — lối ra phải để vết · rà soát mốc ngoài và hạn của người — máy
+không chứng được việc của người.
+
+**Cross-cutting cho mọi ô Core:** sổ quyết định cho mỗi lần tự áp · cửa veto và hoàn tác · kho chép bản cũ gặp
+khoá chính sách lạ → bộ đọc khoan dung + cờ vàng · giữ thứ tự mảng (hàng kế = hàng đầu tiên) · ca đo hai chiều.
+
+**Kết luận độ phủ:** B′ đúng ở đường chính nhưng **chưa đủ để tự áp an toàn** — bốn ô Core trên là điều kiện để
+bật phần «máy tự áp»; thiếu chúng thì B′ chỉ nên chạy chế độ cờ vàng.
+
+## 9. Tên «Chân trời» cho người đọc
+
+«Chân trời» là ẩn dụ — người đọc phải dịch ngược ra «thứ chưa làm, đang chờ». Khuyến nghị **«Chờ điều kiện»**: nói
+đúng điều làm nó khác hàng — mỗi mục có `mo_lai_khi`, mở lại khi điều kiện tới. Bốn chỗ đứng đọc liền một mạch:
+**Trong mốc · Kế tiếp · Chờ điều kiện · Đã bác**. Đã cân: «Để sau» / «sau này» — glossary đang cấm vì nghe như
+không lý do · «Tạm gác» — trùng nghĩa với quyết định xếp lại (`park`) · «Chưa tới lượt» — gợi có hàng đợi xếp
+hạng, sai. Chỉ đổi chữ cho người: khoá `chan_troi` giữ nguyên (đổi khoá là đổi khuôn). Giá: ~10 thông báo ở
+`cat-luot.mjs` / `lo-trinh.mjs`, skill cắt lượt (12 chỗ), khuôn, 13 dòng test, mục glossary; trang lộ trình và ứng
+dụng crm không hiển thị chữ này.
 
 Liên quan: [ADR 0025](../adr/0025-lo-trinh-rang-buoc-theo-bac-thang.md) ·
 [hạt giống hiện trạng](../plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md) ·
