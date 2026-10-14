@@ -1,0 +1,120 @@
+{
+ "feature_plain": "Người nhìn trang lộ trình biết ngay việc nào đang chạy ngoài kế hoạch hay ngoài mốc, kho nào chưa có lộ trình; và lúc mở một việc, máy đưa sẵn tên phiên cùng tên nhóm trên thanh bên theo mốc của việc đó.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ cắm cờ vàng «đang làm mà chưa thuộc mốc nào» cho đúng các việc đã mở mà chưa gắn mốc — việc chưa mở, đã giao hay đã dừng thì không."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ cắm cờ đó cả ở lộ trình chưa có mốc khi kho đã dùng mốc ở lộ trình khác; kho không dùng mốc (và mọi hồ sơ đang mở đều thuộc việc) thì trang, thẻ bắt đầu và ô cơ hội giữ nguyên từng chữ."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ cắm cờ vàng cho hồ sơ đang mở mà không thuộc việc nào của kế hoạch — hồ sơ đã giao hay đã dừng thì không."
+  },
+  {
+   "id": "AC-4",
+   "p": "Sẽ nhắc một dòng vàng trên thẻ bắt đầu ở kho chưa khai lộ trình; kho đã khai không thấy dòng đó."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ chỉ cảnh báo: lệnh kiểm trang vẫn xanh khi có cờ, thẻ bắt đầu chỉ tăng số cờ, và cờ mới được dịch sang tiếng sản phẩm như mọi cờ khác."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ sinh tên phiên «mã · tên ngắn (kho)» và tên nhóm «lộ trình · mốc» bằng một quy tắc duy nhất, rút tên ngắn từ chính tệp lộ trình."
+  },
+  {
+   "id": "AC-7",
+   "p": "Sẽ in mốc, tên phiên và tên nhóm ngay khi mở việc từ một hàng lộ trình — cả khi việc đã có hồ sơ, cả khi mở từ một nhánh làm việc riêng."
+  },
+  {
+   "id": "AC-8",
+   "p": "Sẽ ghi một dòng «Mốc: …» (hoặc «chưa gắn») vào ô cơ hội để người quyết có làm thấy ngay việc thuộc chiến dịch nào."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ dặn phiên trên app đặt tên và xếp nhóm bằng đúng giá trị máy in, và không xếp nhóm khi việc chưa có mốc."
+  },
+  {
+   "id": "AC-10",
+   "p": "Sẽ chứng trên lộ trình thật của crm: thêm đúng 15 cờ (4 việc ngoài mốc ở OKR, DA0c ở Việc và Dự án, 10 hồ sơ ngoài kế hoạch), không cờ cũ nào mất, tên nhóm ra «OKR · R2 lên production 31/10»."
+  },
+  {
+   "id": "AC-11",
+   "p": "Sẽ gắn chính việc này (MC1) vào mốc 05/11 của kit, tên phiên của nó do máy sinh, và trang lộ trình của kit hiện các hồ sơ đang mở ngoài kế hoạch."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "OOS-1",
+   "p": "Không làm trang tổng «Đã xong · Đang dở · Kế tiếp» trong vòng này — để ở hạt giống."
+  },
+  {
+   "id": "OOS-2",
+   "p": "Không sửa gói điều phối của M5 — chỉ để sẵn hàm cho M5 gọi."
+  },
+  {
+   "id": "OOS-3",
+   "p": "Không thêm cờ «một việc thuộc hai mốc» — hôm nay không việc nào như vậy; máy lấy mốc gần nhất."
+  },
+  {
+   "id": "OOS-4",
+   "p": "Không chặn mở việc và không ghi vào tệp lộ trình của kho — chỉ cảnh báo."
+  },
+  {
+   "id": "OOS-5",
+   "p": "Không tự đóng hay xoá nhóm thanh bên khi mốc đã qua."
+  },
+  {
+   "id": "OOS-6",
+   "p": "Không làm nấc 2 (khởi tạo kho tạo sẵn lộ trình) và nấc 4 (chặn) — đi cùng plugin lộ trình ở cửa sổ kế."
+  },
+  {
+   "id": "OOS-7",
+   "p": "Máy khuyên chưa làm nấc 3 (tự thêm việc vào lộ trình khi mở từ mô tả tự do) — anh chọn ở Hỏi-3."
+  }
+ ],
+ "scope_plain": "Phần cắt khỏi vòng này:",
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Trạng thái việc và hồ sơ — từ chưa mở tới đã giao/đã dừng — đều có hàng thử; chỉ cái đang mở bị cờ (AC-1, AC-3)."
+  },
+  {
+   "i": 1,
+   "p": "Liên kết — hồ sơ không thuộc việc, việc không thuộc mốc, một mốc, nhiều mốc — có ca riêng (AC-1, AC-3, AC-6)."
+  },
+  {
+   "i": 2,
+   "p": "Loại kho — chưa khai lộ trình, có nhưng không mốc, một hay nhiều lộ trình — đo trên kho thử, crm và kit thật (AC-2, AC-4, AC-6, AC-10, AC-11)."
+  },
+  {
+   "i": 3,
+   "p": "Mọi chỗ cờ và tên hiện ra — trang, dữ liệu cho trang crm, thẻ bắt đầu, lệnh kiểm, lệnh mở việc, ô cơ hội, hướng dẫn của vòng (AC-1, AC-3, AC-4, AC-5, AC-7, AC-8, AC-9)."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Chưa có phép thử khi mở việc từ một nhánh làm việc riêng — tên kho có thể ra tên nhánh. Đã thêm ca đó, kèm chiều đỏ."
+  },
+  {
+   "i": 1,
+   "p": "Phép so «giữ nguyên từng chữ» chưa chứng hai bên thật sự chạy. Đã thêm đối chứng và chiều đỏ."
+  },
+  {
+   "i": 2,
+   "p": "Không phép đo nào chứng phiên thật sự được xếp nhóm trên app. Đã khai là điểm mù và chỉ cách đọc số ở mốc kế."
+  },
+  {
+   "i": 3,
+   "p": "Luật «việc chưa có mốc thì không xếp nhóm» chỉ được đo bằng chữ có mặt. Đã thành dòng máy đọc kèm chiều đỏ."
+  },
+  {
+   "i": 4,
+   "p": "Ma trận thử thiếu việc gắn hồ sơ theo mã và vài kiểu tên mốc. Đã bổ sung."
+  }
+ ]
+}

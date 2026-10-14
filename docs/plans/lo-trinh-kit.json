@@ -113,7 +113,9 @@
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
-      "hang": []
+      "hang": [
+        "MC1"
+      ]
     }
   ],
   "hang": [
@@ -527,6 +529,18 @@
       "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/release-2-27-0 — phát hiện khi cắt 2.27: A1 chưa chạy sống lần nào vì bản cài thiếu agents/ (38 lượt / 17 hồ sơ ghi tác tử vắng); M5 xác nhận 12/10 bản «2.27.0» cài được là mã main 294b29d, không phải tag a1e2e0b9.",
       "bat_khi": "Mốc kế: 0 lỗi kiểu «bản cài khác tag» hay «thiếu thư mục gói» tới kho thật; mọi lỗi như vậy đỏ ở kho giả lập trước khi phát",
       "ghi_chu": "Vòng meta DUY NHẤT giữa 2.28 và mốc kế — chủ kho gọi tên 12/10 (luật chiều rộng (b)). Mở sau 2.28; máy giữ chốt ở hoà giải ba máy (crm issue #375). Liên quan S1."
+    },
+    {
+      "ma": "MC1",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "moc-la-chien-dich",
+      "ten_ngan": "Mốc là chiến dịch",
+      "dung_tren": [],
+      "cau_giao": "«Mỗi vòng thuộc một mốc: lộ trình cắm cờ vàng cho việc đang mở mà chưa thuộc mốc nào, và lúc mở vòng máy in tên phiên cùng nhóm thanh bên của mốc đó»",
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ (BAN-GIAO.md viết tay lúc đổi tài khoản 14/10) + docs/plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md (PR #350) — owner gọi tên 14/10: vòng sửa kit duy nhất của cửa sổ sau 2.30.0.",
+      "bat_khi": "Trang lộ trình của crm cắm cờ vàng cho đúng các việc đang mở vòng mà chưa thuộc mốc nào, và lệnh mở vòng in tên phiên «<mã> · <tên ngắn> (<kho>)» cùng nhóm «<lộ trình> · <mốc>» — đo trên bản sao lộ trình thật của crm",
+      "ghi_chu": "Máy MacBook Pro giữ. Không chạm dieu-phoi/ (chip của gói dieu-phoi dùng cùng hàm là việc của M5, chỉ ghi sẵn chỗ nối)."
     }
   ],
   "chan_troi": [
