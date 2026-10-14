@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Chủ kho mở thẻ khởi động là thấy ngay hàng nào của lộ trình cần xem lại — dời mốc, chờ điều kiện hay bác — kèm lý do máy đọc được; máy chỉ đề xuất, không tự sửa kế hoạch và không gọi thêm người.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ đề xuất đúng ba loại sự thật: hàng của mốc phát hành đã qua ngày mà chưa mở thì dời mốc, hàng đã xếp lại thì chuyển sang chờ điều kiện, hàng đã bác thì bác — mốc của người không bị đụng."},
+    {"id": "AC-2", "p": "Sẽ áp chính sách tuổi và trần khi kho khai: hàng «Kế tiếp» quá tuổi hoặc vượt trần được đề xuất chờ điều kiện; hàng đã giao không bị đếm; kho không khai thì không có đề xuất loại này."},
+    {"id": "AC-3", "p": "Sẽ tính tuổi một hàng từ lần cuối nó được sửa trong lịch sử kế hoạch — đổi mã thôi không làm hàng trẻ lại."},
+    {"id": "AC-4", "p": "Sẽ hiện trên thẻ khởi động một dòng tổng và tối đa năm dòng chi tiết; kho không có đề xuất thì thẻ giữ nguyên từng chữ như trước."},
+    {"id": "AC-5", "p": "Sẽ có một lệnh chỉ đọc in trọn danh sách đề xuất kèm căn cứ (chữ hoặc dữ liệu máy), không ghi tệp nào."},
+    {"id": "AC-6", "p": "Sẽ giữ trang lộ trình y như cũ dù ngày đổi — đề xuất chỉ ở thẻ và lệnh, nên trang vẫn khớp ở mọi lần kiểm tự động."},
+    {"id": "AC-7", "p": "Sẽ nhắc người cắt lượt khi một việc mới bị gắn vào mốc đang chạy — để đích của chiến dịch không bị đổi lặng lẽ."},
+    {"id": "AC-9", "p": "Sẽ cho đúng kết quả đã đếm trước trên dữ liệu thật: crm có ba việc chờ điều kiện (DA6, DA7, DA8), kit có hai việc cần dời mốc (A3, DP8)."},
+    {"id": "AC-10", "p": "Sẽ có gói road-map trong bộ cài với một lệnh xem rà soát, cùng số phiên bản với các gói khác."}
+  ],
+  "wont_do": [
+    {"id": "AC-8", "p": "Sẽ KHÔNG còn chữ «chân trời» trong thông báo và tài liệu cho người — thay bằng «chờ điều kiện»; tệp kế hoạch cũ vẫn đọc như cũ."},
+    {"id": "OOS-1", "p": "KHÔNG tự áp đề xuất, KHÔNG ghi tệp kế hoạch, KHÔNG có lệnh ghim hay trả lại — để vòng 2."},
+    {"id": "OOS-2", "p": "KHÔNG đụng gói điều phối: chính sách chốt ở thẻ mở đợt và đề xuất của thợ vào cửa tín hiệu là việc của máy M5."},
+    {"id": "OOS-3", "p": "KHÔNG rà soát chính các mục chờ điều kiện, KHÔNG có luật ưu tiên khi hai luật ngược nhau."},
+    {"id": "OOS-4", "p": "KHÔNG thêm loại mốc vào dữ liệu trang, KHÔNG làm bản đồ hiện trạng nhiều kho, KHÔNG đọc tín hiệu thành công sau khi giao."},
+    {"id": "OOS-5", "p": "KHÔNG đổi tên khoá trong tệp kế hoạch — chỉ đổi chữ hiện cho người."}
+  ],
+  "scope_plain": "Vòng này chỉ cắm cờ; mọi việc máy tự sửa kế hoạch để vòng sau.",
+  "coverage_plain": [
+    {"i": 0, "p": "Vị trí của hàng: mốc phát hành đã qua, chưa tới, mốc của người, ngoài mốc — đủ khi ma trận sáu vị trí cho đúng đề xuất viết sẵn (AC-1 ma trận sự thật, AC-6 trang không đổi, AC-7 cắt lượt)."},
+    {"i": 1, "p": "Trạng thái của việc: chưa mở, đang làm, đã giao, xếp lại, đã bác, hỏng, không rõ — đủ khi tám trạng thái cho đúng đề xuất, và dữ liệu thật crm/kit khớp số đếm trước (AC-1, AC-9 dữ liệu thật)."},
+    {"i": 2, "p": "Chính sách: không khai, khai đúng, khai sai — đủ khi tuổi và trần chỉ chạy lúc khai đúng, khai sai thì có cờ (AC-2 chính sách, AC-3 tuổi); ghim để vòng 2."},
+    {"i": 3, "p": "Chỗ hiện: thẻ khởi động, lệnh chữ, lệnh dữ liệu, trang (không đổi), cắt lượt, gói road-map — mỗi chỗ một tiêu chí (AC-4, AC-5, AC-6, AC-7, AC-10)."},
+    {"i": 4, "p": "Chữ cho người: «chờ điều kiện» ở mọi thông báo và tài liệu (AC-8 đổi chữ)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Ba lựa chọn máy tự quyết dựa trên câu căn cứ chưa đủ chắc. Đã sửa: ghim dời sang vòng 2; tuổi ghi rõ chưa tính tín hiệu mới nối vào hàng; chỉ mốc phát hành mới được rà soát — vì cả ba mốc không khai loại của crm đều là mốc của người."},
+    {"i": 1, "p": "Thứ tự luật mâu thuẫn với tiêu chí ở hai ô. Đã sửa: luật «xếp lại» đứng trước «mốc qua ngày», nên việc đã tự khai xếp lại được đề xuất chờ điều kiện, không bị nhắc dời."},
+    {"i": 2, "p": "Ngưỡng đo giá trị bị hạ cho vừa vật. Đã sửa: ngưỡng và cách đo cùng một tập việc — chưa giao và không có hồ sơ đang mở — so với số trên dòng tổng, không đếm dòng chi tiết."},
+    {"i": 3, "p": "Điểm so sánh cố định sẽ đỏ oan khi nhánh nhận MC1. Đã sửa: điểm so đọc từ một tệp, đổi khi nhận nền mới, có ca gác bắt lần đổi sai."},
+    {"i": 4, "p": "Chưa nói trang có đổi chữ hay không. Đã sửa: trang chỉ đổi ở kho có lỗi khuôn mục chờ điều kiện; ghi rõ kho đó phải vẽ lại trang khi nâng bản."}
+  ]
+}
