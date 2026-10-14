@@ -272,6 +272,12 @@ giới mốc hoặc khi bị chặn. Đổi chạm `yeu-cau.mjs` của gói `die
 `viec-phu` / `hang-moi` trên máy này (nhật ký yêu cầu của đợt không nằm trong git crm) — mốc nền cần lấy từ máy
 chạy đợt trước khi tuyên số lượt giảm.
 
+**Cắt lượt dưới đóng băng.** Cắt lượt vẫn chạy bất cứ khi nào một bản phạm vi tới (skill `cat-luot` ở lõi,
+người gộp PR là người chốt), nhưng giữa chiến dịch chỉ ghi vào «Kế tiếp», «Chờ điều kiện» và mốc ngoài — KHÔNG gắn
+hàng vào mốc đang chạy (bước 3 luật 5 của skill hôm nay cho phép gắn mốc). Gắn vào mốc đang chạy chỉ khi mốc
+khép (sang mốc kế) hoặc khi việc đang chạy bị chặn. Răng: cờ của `cat-luot.mjs --co` cho hàng mới trỏ mốc đang
+chạy — dựng cùng vòng B′.
+
 ## 11. Bề mặt cho người — lệnh và hàm
 
 Nguyên tắc: người **trả lời trên thẻ** ở các khoảnh khắc đã có; lệnh chỉ cho ba việc không gắn với thẻ nào —
