@@ -94,6 +94,9 @@ const MSG_OOC_SUSPECT = 'mục «Ngoài hợp đồng» có chữ nhưng máy kh
 const MSG_PROPOSAL_LA = 'đề xuất không đọc được';
 // Hai cờ khối «Nền hạ tầng» trên thẻ Cổng Phạm vi (thuoc-co-cua AC-8) — chữ thuật ở commands/acceptance-card.md.
 const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây không phải lỗi của vòng này; quyết nó trong gói này trước khi duyệt.';
+// Nhãn mục «Dòng vàng» của duong-nen.md (hồ sơ nen-khong-tinh-tep-cua-vong): tệp/vi phạm của CHÍNH vòng —
+// có tên trên thẻ, không phải nền đỏ.
+const NEN_VANG_LAB = 'Tệp của chính vòng — nền không tính';
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
 // Cờ dòng đếm vật · thước · nhát trên thẻ Cổng Bằng chứng (thuoc-co-cua AC-13).
 const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.';
@@ -885,7 +888,7 @@ if (gate === '1') {
   else P.push(`<div class="grp gnot">${decSort(decsChung).map(e => `<p class="li">${e.type === 'descope' ? '<b>KHÔNG làm:</b> ' : ''}${decBaVe(e)}</p>`).join('')}</div>`);
   if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
   if (covLines.length) P.push(`<div class="lab">Độ phủ AC (bằng chứng "đủ")</div><div class="grp gnot">${covLines.map((t, i) => `<p class="li">${esc(pIdx(pl.coverage_plain, i) || stripMd(t))}</p>`).join('')}</div>`);
-  if (nen.present) P.push(`<div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div><div class="grp gnot"><p class="li">Nền: <b>${esc(nen.nen || '?')}</b> · công cụ ${esc(nen.cong_cu || '?')} · bộ kiểm ${esc(nen.suite || '?')} · lưới như CI ${esc(nen.luoi || '?')} · bộ máy ${esc(nen.engine || '?')}</p>${nen.do.map(l => `<p class="li">${esc(l)}</p>`).join('')}</div>`);
+  if (nen.present) P.push(`<div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div><div class="grp gnot"><p class="li">Nền: <b>${esc(nen.nen || '?')}</b> · công cụ ${esc(nen.cong_cu || '?')} · bộ kiểm ${esc(nen.suite || '?')} · lưới như CI ${esc(nen.luoi || '?')} · bộ máy ${esc(nen.engine || '?')}</p>${nen.do.map(l => `<p class="li">${esc(l)}</p>`).join('')}${nen.vang.length ? `<p class="li"><b>${esc(NEN_VANG_LAB)} (${nen.vang.length})</b></p>${nen.vang.map(l => `<p class="li">${esc(l)}</p>`).join('')}` : ''}</div>`);
   if (ddLines.length) P.push(`<div class="lab">Đường đo (con số cho ngưỡng sẽ đến từ đâu)</div><div class="grp gnot">${ddLines.map(t => `<p class="li">${esc(t)}</p>`).join('')}</div>`);
   if (dp.present) P.push(`<div class="lab">Bản mẫu &amp; ngữ cảnh</div><div class="grp gnot"><p class="li">Vật liệu: ${esc(dp.material || '(chưa khai)')} · sống ở: <b>${esc(CONTEXT_LABEL[dp.context] || dp.context || '(chưa khai)')}</b>${dp.scenes.length ? ' · ' + dp.scenes.length + ' cảnh ngữ-cảnh' : ''}</p><p class="li">Phản ứng ở nấc: <b>${esc(REACTION_LABEL[dp.reaction] || dp.reaction || '(chưa khai)')}</b>${dp.options ? ' · có bộ phương án đính kèm' : ''}</p></div>`);
   // Dòng ngưỡng in NGUYÊN VĂN (AC-1 hồ sơ moi-noi-vong-trao): chỉ bỏ dấu đầu dòng, không đi qua
@@ -983,10 +986,10 @@ function docNen(nenT) {
   const f = frontmatter(nenT);
   // Cắt mục theo CẢ DÒNG tiêu đề, không qua section(): bộ cắt chung neo `\b` sau tên mục,
   // mà `\b` của JS không coi «ỏ» là chữ — «## Dòng đỏ» không bao giờ khớp (ca GN2 bắt).
-  const dongs = nenT.split('\n'); const iDo = dongs.findIndex(l => /^##\s+Dòng đỏ\s*$/.test(l));
-  const khoiDo = iDo < 0 ? [] : dongs.slice(iDo + 1, (i => i < 0 ? undefined : iDo + 1 + i)(dongs.slice(iDo + 1).findIndex(l => /^#{1,6}\s/.test(l))));
-  const do_ = bullets(khoiDo).filter(l => l.trim() && l.trim() !== 'không có');
-  return { present: true, nen: clean(f.nen), cong_cu: clean(f.cong_cu), suite: clean(f.suite), luoi: clean(f.luoi), engine: clean(f.engine), do: do_ };
+  // «Dòng vàng» (2.31) cắt cùng cách; tệp đời trước không có mục → rỗng (đường đọc-cũ).
+  const dongs = nenT.split('\n');
+  const muc = re => { const i = dongs.findIndex(l => re.test(l)); if (i < 0) return []; const sau = dongs.slice(i + 1); const j = sau.findIndex(l => /^#{1,6}\s/.test(l)); return bullets(j < 0 ? sau : sau.slice(0, j)).filter(l => l.trim() && l.trim() !== 'không có'); };
+  return { present: true, nen: clean(f.nen), cong_cu: clean(f.cong_cu), suite: clean(f.suite), luoi: clean(f.luoi), engine: clean(f.engine), do: muc(/^##\s+Dòng đỏ\s*$/), vang: muc(/^##\s+Dòng vàng\s*$/) };
 }
 
 // ================= GATE 2 =================

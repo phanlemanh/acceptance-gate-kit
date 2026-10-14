@@ -6,6 +6,8 @@
 // NEN-DK1…NEN-DK6: tệp CÓ ĐIỀU KIỆN của danh sách chép (thẻ `[only-if-declared: <khoá>]`) — hồ sơ
 // nen-dieu-kien-va-static-khong-do-duoc AC-1…AC-5 (crm-onehub#375: crm không khai tin_hieu nên không
 // chép ba tệp tin_hieu, đường nền đỏ engine ở mọi dãy).
+// NEN-TV1…NEN-TV8: dòng của CHÍNH vòng vào mục «Dòng vàng» — hồ sơ nen-khong-tinh-tep-cua-vong AC-1…AC-8,
+// AC-10 (crm-onehub#375: S1 soạn song song với nền → «CAY BAN SAU SUITE» đỏ giả; 233/233 dòng lịch sử).
 // NEN-ENV1…NEN-ENV4: lệnh chạy bằng MÔI TRƯỜNG NGƯỜI GỌI, không bằng profile đăng nhập
 // (báo động giả đo ở crm@onehub 24/09, vòng mot-duong-ghi-phong-ban).
 //
@@ -18,7 +20,7 @@ import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync,
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { KIT, DUONG_NEN, CONFIG_LANH, dungKho, dungCache, chayNen, tamDir, donDep } from './duong-nen-fixture.mjs';
+import { KIT, DUONG_NEN, CONFIG_LANH, dungKho, dungCache, chayNen, tamDir, donDep, hoSoViPham } from './duong-nen-fixture.mjs';
 
 let pass = 0, fail = 0;
 const ok = m => { console.log(`  PASS: ${m}`); pass += 1; };
@@ -32,12 +34,16 @@ if (!existsSync(DUONG_NEN)) {
 }
 
 const fm = (tep, k) => { const m = String(tep || '').match(new RegExp(`^${k}: (.*)$`, 'm')); return m ? m[1] : null; };
-const bullets = (tep) => {
-  const s = String(tep || '');
-  const i = s.indexOf('\n## Dòng đỏ\n');
+// Bullet của MỘT mục, cắt tới tiêu đề kế — tệp từ hồ sơ nen-khong-tinh-tep-cua-vong có thêm mục
+// «Dòng vàng» sau «Dòng đỏ»; đọc tới hết tệp là đếm lẫn hai mục.
+const muc = (tep, ten) => {
+  const d = String(tep || '').split('\n'); const i = d.findIndex(l => l === `## ${ten}`);
   if (i < 0) return null;
-  return s.slice(i).split('\n').filter(l => l.startsWith('- ')).map(l => l.slice(2));
+  const sau = d.slice(i + 1); const j = sau.findIndex(l => /^#{1,6}\s/.test(l));
+  return (j < 0 ? sau : sau.slice(0, j)).filter(l => l.startsWith('- ')).map(l => l.slice(2));
 };
+const bullets = tep => muc(tep, 'Dòng đỏ');
+const bulletsVang = tep => muc(tep, 'Dòng vàng');
 const tomTat = r => `code=${r.code} stderr=${r.stderr.split('\n').slice(-4).join(' | ')} tep=${JSON.stringify((r.tep || '').slice(0, 400))}`;
 
 // kiemTuanTu — đọc thứ tự DÒNG của thu-tu.log. Ghim ĐỦ BỐN dấu trước, rồi mới kết
@@ -891,6 +897,239 @@ function quetNapTinh(goc, chiSo) {
     else if (!dot.loi.some(l => /^scripts\/product-map\.mjs:\d+ nạp tĩnh cat-luot\.mjs$/.test(l))) bad('NEN-DK6 dot bien import tinh ma phep quet khong neu', dot.loi.join(' | ') || 'im');
     else ok(`NEN-DK6 ${that.soTep} muc khong the khong nap tinh tep mang the; dot bien → «${dot.loi.find(l => l.includes('cat-luot'))}»`);
   } catch (e) { bad('NEN-DK6 khong dung duoc phep quet', String(e.message || e)); }
+}
+
+// ══ NEN-TV* — hồ sơ nen-khong-tinh-tep-cua-vong: dòng của CHÍNH vòng vào mục «Dòng vàng» ══════════
+const TCV = path.join(KIT, 'feature-loop', 'scripts', 'lib', 'tep-cua-vong.mjs');
+const napTcv = async () => { try { return await import(TCV); } catch (e) { return { loi: String(e.message || e) }; } };
+
+// ── NEN-TV8 — phát lại 230 dòng CAY BAN lịch sử thật qua CHÍNH vị từ (AC-10) ──
+{
+  const TSV = path.join(KIT, 'tests', 'scripts', 'fixtures', 'duong-nen-cay-ban-lich-su.tsv');
+  const mod = await napTcv();
+  const dong = existsSync(TSV) ? readFileSync(TSV, 'utf8').split('\n').filter(l => l && !l.startsWith('#')) : [];
+  if (mod.loi || typeof mod.tepCuaVong !== 'function') bad('NEN-TV8 khong nap duoc lib/tep-cua-vong.mjs', mod.loi || 'thieu tepCuaVong');
+  else if (dong.length !== 230) bad('NEN-TV8 tep du lieu phai co dung 230 dong', `${dong.length}`);
+  else {
+    const dem = {}; const goc = [];
+    for (const l of dong) {
+      const [slug, lop, duong] = l.split('\t');
+      const v = mod.tepCuaVong(duong, slug, () => false);
+      const k = `${lop}:${v ? 'vang' : 'do'}`; dem[k] = (dem[k] || 0) + 1;
+      if (slug === 'dai-luu-tru-dung-chung') goc.push(v);
+    }
+    const mong = { 'GIA-S1:vang': 197, 'KHAC:vang': 3, 'KHAC:do': 26, 'CAT:do': 4 };
+    const lech = Object.keys({ ...mong, ...dem }).filter(k => dem[k] !== mong[k]);
+    if (lech.length) bad('NEN-TV8 dem lop lech', `${JSON.stringify(dem)} — mong ${JSON.stringify(mong)}`);
+    else if (goc.length !== 7 || goc.some(x => !x)) bad('NEN-TV8 ca Goc dai-luu-tru-dung-chung phai 7/7 vang', JSON.stringify(goc));
+    else ok(`NEN-TV8 phat lai 230 dong lich su — ${JSON.stringify(dem)}, ca Goc 7/7 vang`);
+  }
+}
+// ── NEN-TV8b — slug có dấu chấm thoát regex; thư mục có sẵn ở HEAD; tiền tố VIOLATION phải có «]:» ──
+{
+  const mod = await napTcv();
+  if (mod.loi || typeof mod.tepCuaVong !== 'function' || typeof mod.viPhamCuaVong !== 'function') bad('NEN-TV8b khong nap duoc vi tu', mod.loi || 'thieu ham');
+  else {
+    const o = [
+      [mod.tepCuaVong('_acceptance/a.b/contract.md', 'a.b', () => true), true, 'ho so cua vong (ke ca khi da co o HEAD)'],
+      [mod.tepCuaVong('docs/superpowers/specs/2026-10-14-a.b-design.md', 'a.b', () => false), true, 'spec khuon ten'],
+      [mod.tepCuaVong('docs/superpowers/plans/2026-10-14-a.b.md', 'a.b', () => false), true, 'plan khuon ten'],
+      [mod.tepCuaVong('docs/superpowers/specs/2026-10-14-aXb-design.md', 'a.b', () => false), false, 'a.b khong khop aXb'],
+      [mod.tepCuaVong('_acceptance/a.b-2/x.md', 'a.b', () => false), false, 'tien to thu muc ho so'],
+      [mod.tepCuaVong('_acceptance/config.yaml', 'a.b', () => true), true, 'config.yaml'],
+      [mod.tepCuaVong('apps/api/x.ts', 'api', d => d === 'apps/api'), false, 'thu muc co san o HEAD'],
+      [mod.tepCuaVong('apps/proto/api/x.ts', 'api', d => d === 'apps/api'), true, 'thu muc moi bang slug'],
+      [mod.tepCuaVong('README.md', 'a.b', () => false), false, 'tep thuong'],
+      [mod.viPhamCuaVong('VIOLATION [a.b]: x', 'a.b'), true, 'vi pham cua vong'],
+      [mod.viPhamCuaVong('VIOLATION [a.b-2]: x', 'a.b'), false, 'vi pham tien to slug'],
+      [mod.viPhamCuaVong('VIOLATION [demo]: x _acceptance/a.b/ y', 'a.b'), false, 'slug giua dong'],
+    ];
+    const sai = o.filter(([got, want]) => got !== want).map(([, , ten]) => ten);
+    if (sai.length) bad('NEN-TV8b vi tu sai o', sai.join(', '));
+    else ok(`NEN-TV8b vi tu dung ${o.length}/${o.length} o (slug co dau cham, thu muc co san, tien to VIOLATION)`);
+  }
+}
+
+// ── NEN-TV7 — khuôn mục «Dòng vàng» một nguồn: rỗng → «không có»; mã/khối vắng → mã 2, không ghi tệp (AC-6) ──
+{
+  const ag = tamDir('duong-nen-ag-tv7-');
+  for (const d of ['skills', 'commands', 'lib', 'scripts']) cpSync(path.join(KIT, d), path.join(ag, d), { recursive: true });
+  const KHUON = path.join(ag, 'skills', 'acceptance', 'references', 'duong-nen-template.md');
+  const goc = readFileSync(KHUON, 'utf8');
+  const loi = [];
+  const ka = dungKho(); const ra = chayNen(ka, { cache: CACHE, agRoot: ag });
+  if (ra.code !== 0) loi.push(`(a) kho lanh tren ag ban sao phai ma 0: ${tomTat(ra)}`);
+  else if (JSON.stringify(bulletsVang(ra.tep)) !== JSON.stringify(['không có'])) loi.push(`(a) muc vang phai dung «không có»: ${JSON.stringify(bulletsVang(ra.tep))}`);
+  else if (/DUONG-NEN-/.test(ra.tep)) loi.push('(a) dong marker lot vao tep');
+  const tiem = (ten, re, can) => {
+    const n = (goc.match(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g')) || []).length;
+    if (n !== 1) { loi.push(`(${ten}) cho tiem lech: khop ${n} lan`); return; }
+    writeFileSync(KHUON, goc.replace(re, ''));
+    const k = dungKho(); const r = chayNen(k, { cache: CACHE, agRoot: ag });
+    writeFileSync(KHUON, goc);
+    if (r.code !== 2) loi.push(`(${ten}) phai ma 2: ${tomTat(r)}`);
+    else if (!r.stderr.includes(can)) loi.push(`(${ten}) stderr thieu «${can}»: ${r.stderr.slice(-300)}`);
+    else if (existsSync(r.tepPath)) loi.push(`(${ten}) van ghi duong-nen.md`);
+  };
+  tiem('b', /^- suite-tep-cua-vong: .*\n/m, 'khuôn dòng vàng thiếu mã «suite-tep-cua-vong»');
+  tiem('c', /<!-- <<<DUONG-NEN-DONG-VANG -->[\s\S]*?<!-- DUONG-NEN-DONG-VANG>>> -->\n?/, 'DUONG-NEN-DONG-VANG');
+  tiem('d', /^- luoi-cua-vong: .*\n/m, 'khuôn dòng vàng thiếu mã «luoi-cua-vong»');
+  if (loi.length) bad('NEN-TV7 khuon dong vang', loi.join(' | '));
+  else ok('NEN-TV7 muc vang rong → «không có»; go ma suite-tep-cua-vong / luoi-cua-vong / ca khoi → ma 2, khong ghi tep');
+}
+
+// Bản GỐC v2.30.0 cho chiều đỏ của các ca NEN-TV: rút TRỌN thư mục bằng git archive (không chép danh
+// sách tệp tay — luật «bản base lấy trọn thư mục»). Không rút được (clone nông, thiếu tag) → ca nói ra.
+const BAN_GOC = (() => {
+  const d = tamDir('duong-nen-goc-');
+  try {
+    execFileSync('bash', ['-c', `git -C "$1" archive v2.30.0 feature-loop skills commands lib scripts | tar -x -C "$2"`, '_', KIT, d], { stdio: ['ignore', 'ignore', 'pipe'] });
+    return { dir: d, script: path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs') };
+  } catch (e) { return { loi: String(e.stderr || e.message || e).split('\n')[0] }; }
+})();
+const SL = 'vong-thu';
+const tap = a => JSON.stringify([...(a || [])].sort());
+const cb = t => `nen suite: CAY BAN SAU SUITE ${t}`;
+const tv = t => `nen suite: TEP CUA VONG ${t} (khong tinh)`;
+const ghi = (...ds) => ds.map(d => `mkdir -p "$(dirname '${d}')" && echo x > '${d}'\n`).join('');
+// Mỗi ca: dựng kho (một hàm), kiểm (một hàm trả chuỗi lỗi hoặc null) — NEN-TV6 chạy lại đúng hai hàm
+// ấy trên bản sao đột biến, nên phép đo của đột biến là CHÍNH phép đo của ca.
+const KHO_TV = {
+  tv1: () => dungKho({ giuaA: ghi(`_acceptance/${SL}/contract.md`, `_acceptance/${SL}/decisions.jsonl`) }),
+  tv2: () => dungKho({ giuaA: ghi(`docs/superpowers/specs/2026-10-14-${SL}-design.md`, `docs/superpowers/plans/2026-10-14-${SL}.md`) + "printf 'them: 1\\n' >> _acceptance/config.yaml\n" }),
+  tv3a: () => dungKho({ giuaA: ghi(`apps/proto/${SL}/index.tsx`) }),
+  tv3b: () => dungKho({ coSan: [`goi/${SL}/giu.txt`], giuaA: ghi(`goi/${SL}/rac.txt`) }),
+  tv4: () => dungKho({ giuaA: 'echo sua >> README.md\n' + ghi(`_acceptance/${SL}/a.md`, '_acceptance/demo/rac.md', `_acceptance/${SL}-2/a.md`, `docs/superpowers/specs/2026-10-14-${SL}x-design.md`) }),
+};
+const vangXanh = (r, want) => {
+  if (r.code !== 0 || fm(r.tep, 'nen') !== 'xanh' || fm(r.tep, 'suite') !== 'xanh') return `phai ma 0, nen/suite xanh: ${tomTat(r)}`;
+  if (tap(bullets(r.tep)) !== tap(['không có'])) return `dong do phai «không có»: ${JSON.stringify(bullets(r.tep))}`;
+  if (tap(bulletsVang(r.tep)) !== tap(want)) return `tap dong vang ${JSON.stringify(bulletsVang(r.tep))} ≠ ${JSON.stringify(want)}`;
+  return null;
+};
+const KIEM_TV = {
+  tv1: r => vangXanh(r, [tv(`_acceptance/${SL}/contract.md`), tv(`_acceptance/${SL}/decisions.jsonl`)]),
+  tv2: r => vangXanh(r, [tv(`docs/superpowers/specs/2026-10-14-${SL}-design.md`), tv(`docs/superpowers/plans/2026-10-14-${SL}.md`), tv('_acceptance/config.yaml')]),
+  tv3a: r => vangXanh(r, [tv(`apps/proto/${SL}/index.tsx`)]),
+  tv3b: r => {
+    if (r.code !== 1 || fm(r.tep, 'suite') !== 'do') return `thu muc co san phai ma 1, suite do: ${tomTat(r)}`;
+    if (tap(bullets(r.tep)) !== tap([cb(`goi/${SL}/rac.txt`)])) return `tap dong do ${JSON.stringify(bullets(r.tep))}`;
+    if (tap(bulletsVang(r.tep)) !== tap(['không có'])) return `muc vang phai «không có»: ${JSON.stringify(bulletsVang(r.tep))}`;
+    return null;
+  },
+  tv4: r => {
+    if (r.code !== 1 || fm(r.tep, 'suite') !== 'do') return `lan voi do that phai ma 1, suite do: ${tomTat(r)}`;
+    const wantDo = [cb('README.md'), cb('_acceptance/demo/rac.md'), cb(`_acceptance/${SL}-2/a.md`), cb(`docs/superpowers/specs/2026-10-14-${SL}x-design.md`)];
+    if (tap(bullets(r.tep)) !== tap(wantDo)) return `tap dong do ${JSON.stringify(bullets(r.tep))} ≠ ${JSON.stringify(wantDo)}`;
+    if (tap(bulletsVang(r.tep)) !== tap([tv(`_acceptance/${SL}/a.md`)])) return `tap dong vang ${JSON.stringify(bulletsVang(r.tep))}`;
+    return null;
+  },
+};
+const chayTV = (ca, o = {}) => chayNen(KHO_TV[ca](), { cache: CACHE, slug: SL, ...o });
+// Chiều đỏ trên bản gốc: ca mà bản gốc cũng xanh thì phép đo không phân biệt được gì.
+const docGoc = ca => {
+  if (BAN_GOC.loi) return `ban goc v2.30.0 khong rut duoc (${BAN_GOC.loi})`;
+  const r = chayTV(ca, { script: BAN_GOC.script, agRoot: BAN_GOC.dir });
+  return r.code === 1 && (bullets(r.tep) || []).some(l => l.startsWith('nen suite: CAY BAN SAU SUITE ')) ? null : `ban goc khong do — phep do khong phan biet: ${tomTat(r)}`;
+};
+for (const [ten, cas, goc] of [['NEN-TV1', ['tv1'], true], ['NEN-TV2', ['tv2'], true], ['NEN-TV3', ['tv3a'], true], ['NEN-TV3', ['tv3b'], false], ['NEN-TV4', ['tv4'], false]]) {
+  const ca = cas[0];
+  const loi = KIEM_TV[ca](chayTV(ca)) || (goc ? docGoc(ca) : null);
+  if (loi) bad(`${ten} (${ca})`, loi);
+  else ok(`${ten} (${ca}) ${{ tv1: 'hai tep moi duoi _acceptance/<slug>/ → nen xanh, hai dong TEP CUA VONG; ban goc do', tv2: 'spec + plan khuon ten + config.yaml → vang; ban goc do', tv3a: 'thu muc moi bang slug → vang; ban goc do', tv3b: 'thu muc bang slug CO SAN o HEAD → do «CAY BAN SAU SUITE goi/<slug>/rac.txt»', tv4: 'bon tep khong cua vong van do (dang thuc tap), dong vang khong che dong do' }[ca]}`);
+}
+
+// ── NEN-TV5 — chân lưới: vi phạm của CHÍNH hồ sơ vào mục vàng khi lưới tự giải thích mã thoát (AC-5) ──
+// Suite ghi hồ sơ của vòng `status: verified` thiếu evidence → lưới trước-merge THẬT gọi tên nó.
+const ghiHoSoVong = `mkdir -p '_acceptance/${SL}' && cp "$NEN_DAU/hs.md" '_acceptance/${SL}/contract.md'\n`;
+const datHs = k => { writeFileSync(path.join(k.dau, 'hs.md'), hoSoViPham(SL)); return k; };
+const viVong = l => l.startsWith(`VIOLATION [${SL}]:`);
+Object.assign(KHO_TV, {
+  tv5a: () => datHs(dungKho({ giuaA: ghiHoSoVong })),
+  tv5b: () => dungKho({ noLuoi: true }),
+  tv5c: () => datHs(dungKho({ noLuoi: true, giuaA: ghiHoSoVong })),
+  tv5d: () => dungKho({ thayLuoi: `#!/usr/bin/env bash\necho "VIOLATION [${SL}]: luoi gia"\nkhong-co-lenh-nay-${SL}\nexit 1\n` }),
+  tv5e: () => dungKho({ noLuoi: true, noLuoiSlug: `${SL}-2` }),
+});
+Object.assign(KIEM_TV, {
+  tv5a: r => {
+    if (r.code !== 0 || fm(r.tep, 'luoi') !== 'xanh') return `chi vi pham cua vong phai ma 0, luoi xanh: ${tomTat(r)}`;
+    const v = bulletsVang(r.tep) || [];
+    if (!v.includes('nen luoi: 1 vi pham cua chinh vong (khong tinh)') || v.filter(viVong).length !== 1) return `muc vang thieu dong luoi: ${JSON.stringify(v)}`;
+    if ((bullets(r.tep) || []).some(l => l.includes('LOI CHAY'))) return 'lot LOI CHAY';
+    return null;
+  },
+  tv5b: r => {
+    const d = bullets(r.tep) || [];
+    if (r.code !== 1 || fm(r.tep, 'luoi') !== 'do') return `ho so khac vi pham phai ma 1, luoi do: ${tomTat(r)}`;
+    if (!d.includes('nen luoi: 1 vi pham co san') || d.filter(l => l.startsWith('VIOLATION [no-cu]:')).length !== 1) return `dong do luoi: ${JSON.stringify(d)}`;
+    return null;
+  },
+  tv5c: r => {
+    const d = bullets(r.tep) || []; const v = bulletsVang(r.tep) || [];
+    if (r.code !== 1 || fm(r.tep, 'luoi') !== 'do') return `ca hai phai ma 1, luoi do: ${tomTat(r)}`;
+    if (!d.includes('nen luoi: 1 vi pham co san') || d.some(viVong)) return `dong do phai dem dung 1, khong lan vi pham cua vong: ${JSON.stringify(d)}`;
+    if (v.filter(viVong).length !== 1) return `vi pham cua vong phai o muc vang: ${JSON.stringify(v)}`;
+    return null;
+  },
+  tv5d: r => {
+    const d = bullets(r.tep) || [];
+    if (r.code !== 1 || fm(r.tep, 'luoi') !== 'do') return `luoi chet sau khi in vi pham phai ma 1, luoi do: ${tomTat(r)}`;
+    if (!d.includes('nen luoi: LOI CHAY ma 1')) return `thieu «nen luoi: LOI CHAY ma 1»: ${JSON.stringify(d)}`;
+    return null;
+  },
+  tv5e: r => {
+    const d = bullets(r.tep) || [];
+    if (r.code !== 1 || fm(r.tep, 'luoi') !== 'do') return `ho so tien to slug phai ma 1, luoi do: ${tomTat(r)}`;
+    if (!d.includes('nen luoi: 1 vi pham co san') || d.filter(l => l.startsWith(`VIOLATION [${SL}-2]:`)).length !== 1) return `dong do: ${JSON.stringify(d)}`;
+    if (tap(bulletsVang(r.tep)) !== tap(['không có'])) return `vi pham [${SL}-2] lot vao muc vang: ${JSON.stringify(bulletsVang(r.tep))}`;
+    return null;
+  },
+});
+{
+  // Fixture phải sống: lưới THẬT trên kho tv5a sau khi chép hồ sơ phải gọi tên hồ sơ của vòng.
+  const k = KHO_TV.tv5a();
+  const p = path.join(k.dir, '_acceptance', SL); mkdirSync(p, { recursive: true });
+  writeFileSync(path.join(p, 'contract.md'), hoSoViPham(SL));
+  const base = git(k.dir, 'merge-base', 'main', 'HEAD');
+  const lr = spawnSync('bash', [path.join(k.dir, 'scripts', 'pre-merge-check.sh'), k.dir, '--base', base, '--no-t1-escape'], { encoding: 'utf8' });
+  const song = `${lr.stdout}${lr.stderr}`.split('\n').some(viVong);
+  if (!song) bad('NEN-TV5 fixture: luoi that khong thay ho so cua vong', `${lr.status} ${(lr.stdout || '').slice(-300)}`);
+  else for (const ca of ['tv5a', 'tv5b', 'tv5c', 'tv5d', 'tv5e']) {
+    const loi = KIEM_TV[ca](chayTV(ca));
+    if (loi) bad(`NEN-TV5 (${ca})`, loi);
+    else ok(`NEN-TV5 (${ca}) ${{ tv5a: 'chi vi pham cua vong → luoi xanh, dong luoi o muc vang', tv5b: 'ho so khac vi pham → do nhu truoc vong', tv5c: 'ca hai → do dem dung 1, vi pham cua vong o muc vang', tv5d: 'luoi chet sau khi in vi pham cua vong → LOI CHAY ma 1', tv5e: 'ho so tien to slug → do, khong lot vao vang' }[ca]}`);
+  }
+}
+
+// ── NEN-TV6 — bốn đột biến trên bản sao vị từ; phép đo là CHÍNH hàm kiểm của TV1/TV4/TV3b/TV5e (AC-8) ──
+{
+  const sao = tamDir('duong-nen-dot-bien-');
+  cpSync(path.join(KIT, 'feature-loop', 'scripts'), path.join(sao, 'scripts'), { recursive: true });
+  const LIB = path.join(sao, 'scripts', 'lib', 'tep-cua-vong.mjs');
+  const goc = readFileSync(LIB, 'utf8');
+  const script = path.join(sao, 'scripts', 'duong-nen.mjs');
+  const loi = [];
+  const MO_HAM = 'export function tepCuaVong(duong, slug, coOHead) {\n';
+  const DOT = [
+    ['a', 'tv1', MO_HAM, MO_HAM + '  return false;\n', `_acceptance/${SL}/contract.md`],
+    ['b', 'tv4', MO_HAM, MO_HAM + '  return true;\n', 'README.md'],
+    ['c', 'tv3b', " && !coOHead(doan.slice(0, i + 1).join('/'))", '', `goi/${SL}/rac.txt`],
+    ['d', 'tv5e', '`VIOLATION [${slug}]:`', '`VIOLATION [${slug}`', `[${SL}-2]`],
+  ];
+  // Bản lành (bản sao chưa tiêm) chạy trước trên cùng bốn kho: bốn hàm kiểm phải trả null.
+  for (const [ten, ca] of DOT) { const e = KIEM_TV[ca](chayTV(ca, { script })); if (e) loi.push(`(${ten}) ban lanh khong xanh: ${e}`); }
+  if (!loi.length) for (const [ten, ca, tim, thay, can] of DOT) {
+    const n = goc.split(tim).length - 1;
+    if (n !== 1) { loi.push(`(${ten}) cho tiem lech: khop ${n} lan`); continue; }
+    writeFileSync(LIB, goc.replace(tim, thay));
+    const e = KIEM_TV[ca](chayTV(ca, { script }));
+    writeFileSync(LIB, goc);
+    if (!e) loi.push(`(${ten}) dot bien ma phep do ${ca} van xanh`);
+    else if (!e.includes(can)) loi.push(`(${ten}) phep do do nhung khong neu «${can}»: ${e.slice(0, 200)}`);
+  }
+  if (loi.length) bad('NEN-TV6 dot bien', loi.join(' | '));
+  else ok('NEN-TV6 ban lanh xanh; bon dot bien (luon sai · luon dung · bo ve HEAD · bo «]») deu do dung ten tep/ho so');
 }
 
 donDep();
