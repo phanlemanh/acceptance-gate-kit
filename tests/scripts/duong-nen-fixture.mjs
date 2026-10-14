@@ -58,6 +58,7 @@ const suite = (ten, giua, cuoi) =>
  *   coSan       danh sách đường tương đối gốc kho commit SẴN ở nhánh gốc (vd thư mục trùng slug —
  *               hồ sơ nen-khong-tinh-tep-cua-vong NEN-TV3)
  *   noLuoiSlug  tên hồ sơ vi phạm của `noLuoi` (mặc định `no-cu`)
+ *   thayLuoi    nội dung thay `scripts/pre-merge-check.sh` của bản vendored (lưới giả — NEN-TV5 d)
  *   tuHost      chép thêm commands/acceptance-init.md + khuôn đường nền để kho
  *               đóng được vai `--ag-root` của chính nó
  * Trả { dir, dau } — `dau` là thư mục dấu của suite (ngoài cây).
@@ -103,6 +104,7 @@ export function dungKho(opts = {}) {
     mkdirSync(path.join(dir, '_acceptance', ns), { recursive: true });
     writeFileSync(path.join(dir, '_acceptance', ns, 'contract.md'), hoSoViPham(ns));
   }
+  if (opts.thayLuoi) writeFileSync(path.join(dir, 'scripts', 'pre-merge-check.sh'), opts.thayLuoi);
   for (const f of opts.coSan || []) {
     mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
     writeFileSync(path.join(dir, f), 'co san\n');

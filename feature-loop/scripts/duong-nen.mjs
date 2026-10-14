@@ -352,10 +352,19 @@ async function chaySuite(root, lenh) {
   if (lyDo) { chan.luoi = 'bo-qua'; log(`luoi: bo-qua — ${lyDo}`); }
   else {
     const r = spawnSync('bash', [pm, root, '--base', base, '--no-t1-escape'], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-    const viPham = `${r.stdout || ''}\n${r.stderr || ''}`.split('\n').filter(l => l.startsWith('VIOLATION '));
-    log(`luoi: ${pm} --base ${base} → ma ${r.status}, ${viPham.length} vi pham`);
-    if (viPham.length) { chan.luoi = 'do'; DO.push(dongDo('luoi-co-san', { k: viPham.length }), ...viPham); }
-    else if (r.status !== 0) { chan.luoi = 'do'; DO.push(dongDo('luoi-loi-chay', { ma: r.status === null ? `tin-hieu-${r.signal}` : r.status })); }
+    const tatCa = `${r.stdout || ''}\n${r.stderr || ''}`.split('\n');
+    const viPham = tatCa.filter(l => l.startsWith('VIOLATION '));
+    // Vi phạm của CHÍNH hồ sơ (S1 viết dở trong lúc nền chạy) → mục vàng. Lưới chỉ được coi là xanh
+    // với chúng khi nó TỰ GIẢI THÍCH mã thoát: mã 1 + dòng tóm có số khớp số dòng VIOLATION; lưới
+    // chết sau khi in vi phạm (mã khác, dòng tóm vắng hay lệch số) vẫn là LOI CHAY.
+    const cuaVong = viPham.filter(l => viPhamCuaVong(l, flags.slug));
+    const khac = viPham.filter(l => !viPhamCuaVong(l, flags.slug));
+    const tom = tatCa.map(l => l.match(/^pre-merge-check: (\d+) violation\(s\) — merge blocked$/)).find(Boolean);
+    const tuGiai = r.status === 1 && !!tom && Number(tom[1]) === viPham.length;
+    log(`luoi: ${pm} --base ${base} → ma ${r.status}, ${viPham.length} vi pham (${cuaVong.length} cua chinh vong)`);
+    if (cuaVong.length) VANG.push(dongVang('luoi-cua-vong', { k: cuaVong.length }), ...cuaVong);
+    if (khac.length) { chan.luoi = 'do'; DO.push(dongDo('luoi-co-san', { k: khac.length }), ...khac); }
+    else if (r.status !== 0 && !(cuaVong.length && tuGiai)) { chan.luoi = 'do'; DO.push(dongDo('luoi-loi-chay', { ma: r.status === null ? `tin-hieu-${r.signal}` : r.status })); }
   }
 }
 
