@@ -6,7 +6,7 @@ owner: manh@mstar.vn
 risk_tier: T2               # feature-loop/scripts/duong-nen.mjs + khuôn đường nền + scripts/gate-card.js (khối Nền hạ tầng) + test + một câu SKILL/GUIDE — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-nen-khong-tinh-tep-cua-vong-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -103,3 +103,11 @@ lịch sử thật (ma trận toàn phần 230 dòng) → AC-10.
 
 - Đánh đổi duy nhất đã khai ở Cổng Đáng: suite ghi vào `_acceptance/config.yaml` sẽ hiện vàng thay vì đỏ (0/233 ca lịch sử).
 - Giới hạn: slug trùng một thư mục MỚI mà suite tự tạo (không có ở HEAD) sẽ hiện vàng — chỉ xảy ra khi suite tình cờ đặt đúng tên slug sinh sau nó.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-14:
+  - Ngoài-1: Lời mô tả của bộ tiêu chí ghi vài tên ví dụ khác ca thật (hồ sơ «demo» thay «no-cu», báo cáo REJECT thay BLOCKED, tệp bị tiêm) — hành vi đường nền không đổi.
+  - Ngoài-2: Hướng dẫn S1 nói mọi tệp mang tên vòng đều thành dòng vàng, thật ra chỉ bốn loại đường của khuôn — phiên có thể tưởng một dòng đỏ trên tệp mang tên vòng là lỗi hạ tầng.
+  - Ngoài-3: Suite dời một tệp có sẵn vào đường của vòng thì chỉ hiện vàng (chỉ xét đường mới) — suite không biết tên vòng nên thực tế chỉ còn ca dời vào config.yaml, nằm trong đánh đổi đã ký.
+  - Ngoài-4: Tệp của vòng có tên tiếng Việt có dấu hay ký tự đặc biệt vẫn đỏ giả như trước vòng (git in đường trong ngoặc kép).
+  - Ngoài-5: Phép đo của luật «lưới tự giải thích mã thoát» chỉ phủ vế dòng tóm vắng; hai vế mã thoát khác 1 và số đếm lệch chưa có ca.
+  - Ngoài-6: Thông điệp của bốn đột biến được ghim bằng chuỗi có mặt trong bản in cả tệp, không ghim «nằm ở mục vàng».
+  - Ngoài-7: Ca «thẻ Cổng 2 không in dòng vàng» xanh theo cấu tạo vì Cổng 2 không in dòng nền nguyên văn nào.

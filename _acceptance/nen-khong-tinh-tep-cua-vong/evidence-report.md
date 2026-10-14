@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6aebf93355eb0c75eb648e23f89786b9d82e7ffd
-human_signoff:
+human_signoff: manh 2026-10-14
 ---
 
 # Evidence Report: nen-khong-tinh-tep-cua-vong

@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>123 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>124 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>28 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -45,7 +45,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug của vòng và vi phạm lưới của chính hồ sơ thành dòng vàng có tên, không lật nền (`nen-khong-tinh-tep-cua-vong`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -145,6 +144,7 @@ flowchart TD
 - Chân công cụ của đường nền đọc đúng lệnh chỉ-gán mang lệnh con — `B=$(git merge-base …) && …` tra `git`, không tra `merge-base`; lệnh con của một chương trình không bị coi là chương trình riêng; lệnh mở đầu bằng tên chương trình thật sự vắng vẫn đỏ gọi đúng tên (`nen-cong-cu-gan-bang-lenh-con`)
 - Chân công cụ của đường nền thôi báo động giả cho executor dựng đường bằng cú pháp shell — token đầu không phải tên chương trình thì không tra tên, và nói ra khoá nào không được tra; lệnh mở đầu bằng một tên thật vẫn bị tra như cũ kể cả khi phần sau có ống dẫn (`nen-cong-cu-lenh-shell`)
 - Hai thước kit thôi nói sai trên kho tiêu thụ — chân engine của đường nền bỏ qua tệp có điều kiện khi kho không khai ổ cắm, và design-gate gọi tên «không đo được» thay vì PASS trên tệp không phải HTML; không đổi mã thoát nào, không đổi mặc định (`nen-dieu-kien-va-static-khong-do-duoc`)
+- Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug của vòng và vi phạm lưới của chính hồ sơ thành dòng vàng có tên, không lật nền (`nen-khong-tinh-tep-cua-vong`) — đã giao — không đo, khai ở Cổng Đáng
 - hồ sơ đã nghỉ vẫn mang cờ quá hạn trên thẻ khởi động — bên viết khớp lại bên đọc của RT13 (`nghi-van-mang-co-qua-han`) — đã giao — máy thông, cửa veto còn mở
 - Máy tự định tuyến mục Ngoài-n mà chính máy đề xuất known-limits hoặc wont-fix — kho bật bằng một khoá, máy ghi dòng sổ gate2 phân biệt được với người kèm lệnh đảo một dòng, thẻ Cổng 2 hiện chúng là dòng báo, làn V chạy được; kho không bật không đổi byte nào (`ngoai-n-tu-dinh-tuyen`)
 - Nhãn lối ra của hồ sơ máy-đi-trước theo hướng sản phẩm — «đi tiếp hay kéo lại», máy điền sẵn «đi tiếp» ở dòng báo, signoff vẫn nhận chữ cũ (`nhan-lan-v-theo-huong`)
