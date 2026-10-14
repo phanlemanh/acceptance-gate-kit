@@ -56,6 +56,29 @@ lộ trình + kho), do lệnh mở chip in ra để phiên đặt, chứ không 
 chấm…) KHÔNG nhét vào tên, vì tên đặt một lần còn trạng thái đổi liên tục. Trạng thái thuộc về bản đồ ở trên.
 Hôm nay MacBook Pro tự theo khuôn «<mã> · <tên ngắn> (<kho>)» bằng tay, như một phép thử rẻ.
 
+### Bổ sung cùng ngày: mốc là chiến dịch, thanh bên là mỏ neo (ý owner 14/10)
+
+Owner nêu: lộ trình và mốc là kế hoạch tổng; lúc thực hiện, thanh bên là **mỏ neo của một chiến dịch** đi tới một
+mốc; kho có nhiều lộ trình (crm có ba) thì chia nhóm theo lộ trình × mốc.
+
+Đo ngày 14/10 trên `onehub` (bản ngày đó): `lo-trinh-okr.json` có 19 mốc, 124 hàng, 76 hàng không thuộc mốc nào;
+`lo-trinh-kho-tai-lieu.json` có 6 mốc, 7/12 hàng ngoài mốc; `lo-trinh-viec-du-an.json` có 0 mốc, 14 hàng. **Mọi vòng
+crm MacBook Pro và M5 đang chạy hôm đó (TB1, TH1, TH4, TH6, LT1c; DA2, DA3) đều không thuộc mốc nào.** Chúng chỉ có
+nhãn `dot` (đợt cắt lượt), là nhóm theo NGUỒN phạm vi, không theo KẾT QUẢ hay ngày. Chỉ Mac Studio (đợt r2, mốc
+«R2 lên production» 31/10, 21 hàng) đang chạy đúng mô hình owner nêu.
+
+Mô hình rút ra:
+- **Một vòng = một hàng = đúng một mốc.** Mốc là chiến dịch: một kết quả và một ngày. Hàng đang mở vòng mà không
+  thuộc mốc nào là việc không có «vì sao bây giờ / tới khi nào». Lộ trình nên cắm cờ vàng cho nó; đây là răng
+  máy giữ, đọc được từ chính tệp lộ trình.
+- **Nhóm thanh bên = «<lộ trình> · <mốc>»**, sinh từ tệp lộ trình. Kho một lộ trình thì rơi về «<mốc>» (cân trên
+  mọi kho, luật 26/09). Mốc tới thì nhóm đóng. Phiên điều phối ghim, đứng trên mọi nhóm vì nó trải nhiều chiến
+  dịch.
+- **Mốc người làm (`ai` = phòng ban, chủ kho…)** là mốc ngoài, không có phiên máy, nên không thành nhóm.
+- **Giới hạn phải khai:** thanh bên là theo máy × tài khoản, không chia sẻ. Một chiến dịch trải nhiều máy thì mỗi máy
+  chỉ thấy lát của mình, và đổi tài khoản thì mất cả. Vì vậy thanh bên là MỎ NEO CHÚ Ý, không phải nguồn thật;
+  nguồn thật vẫn là tệp lộ trình + hồ sơ, như các mục trên. Mặt không có thanh bên (CLI) thì lệnh chỉ in tên nhóm.
+
 Liên quan: `docs/plans/2026-10-13-hat-giong-kenh-lien-may-dieu-phoi.md` (kênh liên máy; cùng họ «trạng thái chỉ sống
 trong chuỗi tin / trong phiên»).
 
