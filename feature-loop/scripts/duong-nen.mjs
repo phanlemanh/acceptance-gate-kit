@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { tepCuaVong, viPhamCuaVong } from './lib/tep-cua-vong.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KNOWN = new Set(['root', 'slug', 'base', 'ag-root', 'cache-root']);
@@ -317,11 +318,14 @@ async function chaySuite(root, lenh) {
   for (const { khoa, ma } of await chaySuite(root, lenh)) {
     if (ma !== 0) { chan.suite = 'do'; DO.push(dongDo('suite-do-san', { khoa, ma })); }
   }
+  // Tệp CHÍNH vòng viết trong lúc nền chạy (S1#0 soạn song song) → mục vàng, không lật chân suite.
+  const coOHead = d => gitTry('cat-file', '-e', `HEAD:${d}`) !== null;
   for (const dong of trangThai()) {
     if (truoc.has(dong)) continue;
-    chan.suite = 'do';
     let tep = dong.slice(3);
     if (tep.includes(' -> ')) tep = tep.split(' -> ').pop();
+    if (tepCuaVong(tep, flags.slug, coOHead)) { VANG.push(dongVang('suite-tep-cua-vong', { tep })); continue; }
+    chan.suite = 'do';
     DO.push(dongDo('suite-cay-ban', { tep }));
   }
 }

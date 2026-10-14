@@ -55,6 +55,9 @@ const suite = (ten, giua, cuoi) =>
  *   khongGit    gỡ `.git` sau khi dựng (không còn là kho git)
  *   bo          danh sách đường tương đối gốc kho gỡ khỏi bản vendored TRƯỚC commit gốc
  *               (tệp có điều kiện của danh sách chép — hồ sơ nen-dieu-kien-va-static-khong-do-duoc)
+ *   coSan       danh sách đường tương đối gốc kho commit SẴN ở nhánh gốc (vd thư mục trùng slug —
+ *               hồ sơ nen-khong-tinh-tep-cua-vong NEN-TV3)
+ *   noLuoiSlug  tên hồ sơ vi phạm của `noLuoi` (mặc định `no-cu`)
  *   tuHost      chép thêm commands/acceptance-init.md + khuôn đường nền để kho
  *               đóng được vai `--ag-root` của chính nó
  * Trả { dir, dau } — `dau` là thư mục dấu của suite (ngoài cây).
@@ -96,9 +99,13 @@ export function dungKho(opts = {}) {
       path.join(dir, 'skills', 'acceptance', 'references', 'duong-nen-template.md'));
   }
   if (opts.noLuoi) {
-    mkdirSync(path.join(dir, '_acceptance', 'no-cu'), { recursive: true });
-    writeFileSync(path.join(dir, '_acceptance', 'no-cu', 'contract.md'),
-      '---\nschema_version: 1\nfeature: no-cu\nslug: no-cu\nrisk_tier: T2\nsurfaces: [api]\nstatus: verified\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n\n# no-cu\n');
+    const ns = opts.noLuoiSlug || 'no-cu';
+    mkdirSync(path.join(dir, '_acceptance', ns), { recursive: true });
+    writeFileSync(path.join(dir, '_acceptance', ns, 'contract.md'), hoSoViPham(ns));
+  }
+  for (const f of opts.coSan || []) {
+    mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
+    writeFileSync(path.join(dir, f), 'co san\n');
   }
   git(dir, 'add', '-A');
   git(dir, 'commit', '-qm', 'nhanh goc');
@@ -110,6 +117,10 @@ export function dungKho(opts = {}) {
   if (opts.khongGit) rmSync(path.join(dir, '.git'), { recursive: true, force: true });
   return { dir, dau };
 }
+
+/** hoSoViPham(slug) — hợp đồng `status: verified` thiếu evidence-report: lưới trước-merge gọi tên nó. */
+export const hoSoViPham = slug =>
+  `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [api]\nstatus: verified\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n\n# ${slug}\n`;
 
 /** dungCache() — plugin cache tạm, bố cục resolve-plugin đọc được, chép từ KIT. */
 export function dungCache() {
@@ -123,17 +134,18 @@ export function dungCache() {
 }
 
 /**
- * chayNen(kho, { cache, agRoot, root, script, them, env }) — chạy đường nền, trả
+ * chayNen(kho, { cache, agRoot, root, script, them, env, slug }) — chạy đường nền, trả
  * { code, stdout, stderr, tep } với `tep` = nội dung duong-nen.md hoặc null.
  * `env` đè lên môi trường của lượt test (vd HOME, PATH của ca NEN-ENV).
  */
 export function chayNen(kho, o = {}) {
   const root = o.root || kho.dir;
-  const args = [o.script || DUONG_NEN, '--root', root, '--slug', 'demo',
+  const slug = o.slug || 'demo';
+  const args = [o.script || DUONG_NEN, '--root', root, '--slug', slug,
     '--ag-root', o.agRoot || KIT, '--cache-root', o.cache, ...(o.them || [])];
   const r = spawnSync(process.execPath, args, {
     encoding: 'utf8', env: { ...process.env, ...(o.env || {}), NEN_DAU: kho.dau }, maxBuffer: 64 * 1024 * 1024,
   });
-  const p = path.join(root, '_acceptance', 'demo', 'duong-nen.md');
+  const p = path.join(root, '_acceptance', slug, 'duong-nen.md');
   return { code: r.status, stdout: r.stdout || '', stderr: r.stderr || '', tep: existsSync(p) ? readFileSync(p, 'utf8') : null, tepPath: p };
 }

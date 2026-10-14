@@ -976,6 +976,67 @@ const napTcv = async () => { try { return await import(TCV); } catch (e) { retur
   else ok('NEN-TV7 muc vang rong → «không có»; go ma suite-tep-cua-vong / luoi-cua-vong / ca khoi → ma 2, khong ghi tep');
 }
 
+// Bản GỐC v2.30.0 cho chiều đỏ của các ca NEN-TV: rút TRỌN thư mục bằng git archive (không chép danh
+// sách tệp tay — luật «bản base lấy trọn thư mục»). Không rút được (clone nông, thiếu tag) → ca nói ra.
+const BAN_GOC = (() => {
+  const d = tamDir('duong-nen-goc-');
+  try {
+    execFileSync('bash', ['-c', `git -C "$1" archive v2.30.0 feature-loop skills commands lib scripts | tar -x -C "$2"`, '_', KIT, d], { stdio: ['ignore', 'ignore', 'pipe'] });
+    return { dir: d, script: path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs') };
+  } catch (e) { return { loi: String(e.stderr || e.message || e).split('\n')[0] }; }
+})();
+const SL = 'vong-thu';
+const tap = a => JSON.stringify([...(a || [])].sort());
+const cb = t => `nen suite: CAY BAN SAU SUITE ${t}`;
+const tv = t => `nen suite: TEP CUA VONG ${t} (khong tinh)`;
+const ghi = (...ds) => ds.map(d => `mkdir -p "$(dirname '${d}')" && echo x > '${d}'\n`).join('');
+// Mỗi ca: dựng kho (một hàm), kiểm (một hàm trả chuỗi lỗi hoặc null) — NEN-TV6 chạy lại đúng hai hàm
+// ấy trên bản sao đột biến, nên phép đo của đột biến là CHÍNH phép đo của ca.
+const KHO_TV = {
+  tv1: () => dungKho({ giuaA: ghi(`_acceptance/${SL}/contract.md`, `_acceptance/${SL}/decisions.jsonl`) }),
+  tv2: () => dungKho({ giuaA: ghi(`docs/superpowers/specs/2026-10-14-${SL}-design.md`, `docs/superpowers/plans/2026-10-14-${SL}.md`) + "printf 'them: 1\\n' >> _acceptance/config.yaml\n" }),
+  tv3a: () => dungKho({ giuaA: ghi(`apps/proto/${SL}/index.tsx`) }),
+  tv3b: () => dungKho({ coSan: [`goi/${SL}/giu.txt`], giuaA: ghi(`goi/${SL}/rac.txt`) }),
+  tv4: () => dungKho({ giuaA: 'echo sua >> README.md\n' + ghi(`_acceptance/${SL}/a.md`, '_acceptance/demo/rac.md', `_acceptance/${SL}-2/a.md`, `docs/superpowers/specs/2026-10-14-${SL}x-design.md`) }),
+};
+const vangXanh = (r, want) => {
+  if (r.code !== 0 || fm(r.tep, 'nen') !== 'xanh' || fm(r.tep, 'suite') !== 'xanh') return `phai ma 0, nen/suite xanh: ${tomTat(r)}`;
+  if (tap(bullets(r.tep)) !== tap(['không có'])) return `dong do phai «không có»: ${JSON.stringify(bullets(r.tep))}`;
+  if (tap(bulletsVang(r.tep)) !== tap(want)) return `tap dong vang ${JSON.stringify(bulletsVang(r.tep))} ≠ ${JSON.stringify(want)}`;
+  return null;
+};
+const KIEM_TV = {
+  tv1: r => vangXanh(r, [tv(`_acceptance/${SL}/contract.md`), tv(`_acceptance/${SL}/decisions.jsonl`)]),
+  tv2: r => vangXanh(r, [tv(`docs/superpowers/specs/2026-10-14-${SL}-design.md`), tv(`docs/superpowers/plans/2026-10-14-${SL}.md`), tv('_acceptance/config.yaml')]),
+  tv3a: r => vangXanh(r, [tv(`apps/proto/${SL}/index.tsx`)]),
+  tv3b: r => {
+    if (r.code !== 1 || fm(r.tep, 'suite') !== 'do') return `thu muc co san phai ma 1, suite do: ${tomTat(r)}`;
+    if (tap(bullets(r.tep)) !== tap([cb(`goi/${SL}/rac.txt`)])) return `tap dong do ${JSON.stringify(bullets(r.tep))}`;
+    if (tap(bulletsVang(r.tep)) !== tap(['không có'])) return `muc vang phai «không có»: ${JSON.stringify(bulletsVang(r.tep))}`;
+    return null;
+  },
+  tv4: r => {
+    if (r.code !== 1 || fm(r.tep, 'suite') !== 'do') return `lan voi do that phai ma 1, suite do: ${tomTat(r)}`;
+    const wantDo = [cb('README.md'), cb('_acceptance/demo/rac.md'), cb(`_acceptance/${SL}-2/a.md`), cb(`docs/superpowers/specs/2026-10-14-${SL}x-design.md`)];
+    if (tap(bullets(r.tep)) !== tap(wantDo)) return `tap dong do ${JSON.stringify(bullets(r.tep))} ≠ ${JSON.stringify(wantDo)}`;
+    if (tap(bulletsVang(r.tep)) !== tap([tv(`_acceptance/${SL}/a.md`)])) return `tap dong vang ${JSON.stringify(bulletsVang(r.tep))}`;
+    return null;
+  },
+};
+const chayTV = (ca, o = {}) => chayNen(KHO_TV[ca](), { cache: CACHE, slug: SL, ...o });
+// Chiều đỏ trên bản gốc: ca mà bản gốc cũng xanh thì phép đo không phân biệt được gì.
+const docGoc = ca => {
+  if (BAN_GOC.loi) return `ban goc v2.30.0 khong rut duoc (${BAN_GOC.loi})`;
+  const r = chayTV(ca, { script: BAN_GOC.script, agRoot: BAN_GOC.dir });
+  return r.code === 1 && (bullets(r.tep) || []).some(l => l.startsWith('nen suite: CAY BAN SAU SUITE ')) ? null : `ban goc khong do — phep do khong phan biet: ${tomTat(r)}`;
+};
+for (const [ten, cas, goc] of [['NEN-TV1', ['tv1'], true], ['NEN-TV2', ['tv2'], true], ['NEN-TV3', ['tv3a'], true], ['NEN-TV3', ['tv3b'], false], ['NEN-TV4', ['tv4'], false]]) {
+  const ca = cas[0];
+  const loi = KIEM_TV[ca](chayTV(ca)) || (goc ? docGoc(ca) : null);
+  if (loi) bad(`${ten} (${ca})`, loi);
+  else ok(`${ten} (${ca}) ${{ tv1: 'hai tep moi duoi _acceptance/<slug>/ → nen xanh, hai dong TEP CUA VONG; ban goc do', tv2: 'spec + plan khuon ten + config.yaml → vang; ban goc do', tv3a: 'thu muc moi bang slug → vang; ban goc do', tv3b: 'thu muc bang slug CO SAN o HEAD → do «CAY BAN SAU SUITE goi/<slug>/rac.txt»', tv4: 'bon tep khong cua vong van do (dang thuc tap), dong vang khong che dong do' }[ca]}`);
+}
+
 donDep();
 console.log(`\nResults: ${pass} passed, ${fail} failed (duong-nen)`);
 process.exit(fail ? 1 : 0);
