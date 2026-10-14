@@ -18,6 +18,10 @@
 // rút khuôn lúc chạy, không chép vào mã. Danh sách tệp engine: rút từ marker
 // INIT-CI-COPY-LIST của `<agRoot>/commands/acceptance-init.md`.
 //
+// Dòng của CHÍNH vòng (S1#0 soạn song song với nền): tệp mang slug + `_acceptance/config.yaml` mà
+// suite thấy mới, và `VIOLATION [<slug>]` của lưới, vào mục «Dòng vàng» — có tên, không lật nền.
+// Vị từ một chỗ: `lib/tep-cua-vong.mjs` (hồ sơ nen-khong-tinh-tep-cua-vong).
+//
 // Chạy NỀN: chân suite chạy trọn các suite của repo (ở kho kit là chân dài nhất
 // của cả vòng) — không lời gọi công cụ nào được ôm trọn thời gian đó.
 import fs from 'node:fs';

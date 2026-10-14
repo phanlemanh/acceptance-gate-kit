@@ -6,6 +6,8 @@
 // NEN-DK1…NEN-DK6: tệp CÓ ĐIỀU KIỆN của danh sách chép (thẻ `[only-if-declared: <khoá>]`) — hồ sơ
 // nen-dieu-kien-va-static-khong-do-duoc AC-1…AC-5 (crm-onehub#375: crm không khai tin_hieu nên không
 // chép ba tệp tin_hieu, đường nền đỏ engine ở mọi dãy).
+// NEN-TV1…NEN-TV8: dòng của CHÍNH vòng vào mục «Dòng vàng» — hồ sơ nen-khong-tinh-tep-cua-vong AC-1…AC-8,
+// AC-10 (crm-onehub#375: S1 soạn song song với nền → «CAY BAN SAU SUITE» đỏ giả; 233/233 dòng lịch sử).
 // NEN-ENV1…NEN-ENV4: lệnh chạy bằng MÔI TRƯỜNG NGƯỜI GỌI, không bằng profile đăng nhập
 // (báo động giả đo ở crm@onehub 24/09, vòng mot-duong-ghi-phong-ban).
 //
