@@ -249,6 +249,55 @@ hạng, sai. Chỉ đổi chữ cho người: khoá `chan_troi` giữ nguyên (�
 `cat-luot.mjs` / `lo-trinh.mjs`, skill cắt lượt (12 chỗ), khuôn, 13 dòng test, mục glossary; trang lộ trình và ứng
 dụng crm không hiển thị chữ này.
 
+## 10. Đề xuất giữa chiến dịch — thợ và điều phối nói gì thì đi đâu
+
+**Hôm nay:** thợ gửi yêu cầu theo khuôn của gói `dieu-phoi` (`{phien, loai, hang, noi_dung, luc}`); hai loại
+mang việc mới — `viec-phu` (việc phụ) và `hang-moi` (việc mới mở từ một cổng) — đều trả `can_phan`
+(`dieu-phoi/scripts/yeu-cau.mjs`: «việc phụ mới», «loại … cần phán»). Tức là MỌI ý mới giữa chừng dừng lại chờ
+giám sát phán, và có thể leo lên người. Cùng khuôn đó đã là khuôn **tín hiệu** của cửa tín hiệu (glossary
+«Tín hiệu»: «phiên thợ phát sinh việc giữa lúc làm»), nên đường vào lộ trình đã có sẵn — chỉ thiếu luật phân loại.
+
+**B′ — luật phân loại theo nguồn căn cứ, máy giữ:**
+
+| Thợ / điều phối nói | Đi đâu | Ai xử | Lộ trình đổi lúc nào |
+|---|---|---|---|
+| Sai hợp đồng của chính vòng đang chạy | Sửa trong vòng | Thợ | Không đổi |
+| Hệ thống chết | Thử lại một lần | Máy | Không đổi |
+| Giới hạn đo / giới hạn hệ thống | Nhãn trên thẻ ở cổng đã có | Người, ở cổng đã có | Không đổi |
+| **Chặn** việc đang chạy (thiếu phụ thuộc) | `can_phan` như nay | Giám sát; người chỉ khi khó-đảo | Ngay — ngoại lệ duy nhất của đóng băng, có sổ |
+| Ý mới · việc phụ không chặn · hàng mới | **Cửa tín hiệu**, trả thợ «đã ghi, xử ở mốc khép» | Không ai giữa chừng | Ở mốc khép: gom → cắt lượt → «Kế tiếp» hoặc «Chờ điều kiện» |
+
+Hệ quả: giữa chiến dịch, đề xuất **không vào thẳng lộ trình** và không đẻ lượt phán; lộ trình chỉ đổi ở ranh
+giới mốc hoặc khi bị chặn. Đổi chạm `yeu-cau.mjs` của gói `dieu-phoi` — vùng máy M5. **Chưa đo** được tần suất
+`viec-phu` / `hang-moi` trên máy này (nhật ký yêu cầu của đợt không nằm trong git crm) — mốc nền cần lấy từ máy
+chạy đợt trước khi tuyên số lượt giảm.
+
+## 11. Bề mặt cho người — lệnh và hàm
+
+Nguyên tắc: người **trả lời trên thẻ** ở các khoảnh khắc đã có; lệnh chỉ cho ba việc không gắn với thẻ nào —
+nhìn, ghim, trả lại. Tên theo dáng của `dieu-phoi` (`mo-dot`, `xem`, `tiep-tuc`): tiếng Việt không dấu, gạch nối.
+
+| Lệnh | Việc | Khoá model-invocation (ADR 0002) |
+|---|---|---|
+| `/road-map:xem` | Bản đồ xong · đang dở · kế, cờ vàng, các lần tự áp đang báo trước | Mở (chỉ đọc) |
+| `/road-map:ghim <mã>` · `bo-ghim` | Miễn trừ một hàng khỏi tự áp | **Khoá** — quyết của người |
+| `/road-map:tra-lai <mã>` | Veto một lần tự áp: hoàn tác + ghi sổ | **Khoá** |
+| `/road-map:gui <nội dung>` | Người gửi một ý vào cửa tín hiệu, cùng khuôn với thợ | Mở |
+
+Không phải lệnh — trả lời trên thẻ đã có: chính sách chiến dịch (thẻ mở đợt) · ba cổng mỗi vòng · Cổng Giá trị ·
+`observed`. Lệnh giữ nguyên: `/acceptance-gate:start`, `/feature-loop:feature-loop <mã hàng>`, `/dieu-phoi:mo-dot`.
+
+Hàm máy giữ (người không gọi): đã có — `phanTichKho`, `suyTrangThai`, `loTrinhThe`, `dungCoHoi`, `tenChienDich` (MC1);
+B′ thêm — `raSoat` (đề xuất kèm căn cứ), `docChinhSach` (đọc chính sách từ mốc), `apChinhSach` (báo trước một
+nhịp, áp trong trần, ghi sổ), `ghiLoTrinh` (dời hàng, giữ định dạng · thứ tự · khoá lạ); phía `dieu-phoi` —
+`chuyenVaoCua` (yêu cầu không chặn → tệp tín hiệu).
+
+**Hai ràng buộc khi dựng:** (i) lệnh gọi **bản chép trong kho** (`scripts/lo-trinh.mjs` của kho), không gọi
+`resolve-plugin` — để bộ ghi luôn cùng phiên bản với bộ đọc CI (P0 kỹ thuật §7); (ii) thêm `ghim`, `bo-ghim`,
+`tra-lai` vào danh sách khoá là CỘNG — sửa ADR 0002 và danh sách khoá của P32 trong cùng PR. **Đánh đổi mở:**
+hai lệnh khoá là lý do đầu tiên để dựng vỏ gói `road-map` sớm hơn nấc 4 (chỉ lệnh, mã vẫn ở lõi) — đặt lệnh ở
+lõi rồi dời sau là đổi tên một bề mặt người đã quen. Quyết ở Cổng Phạm vi của vòng.
+
 Liên quan: [ADR 0025](../adr/0025-lo-trinh-rang-buoc-theo-bac-thang.md) ·
 [hạt giống hiện trạng](../plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md) ·
 [toàn trình playbook vs kit](2026-09-07-toan-trinh-playbook-vs-kit.md) (R4, R5).
