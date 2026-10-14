@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0ea126220ad045f92625db387deb70b1756e8a58
+verified_commit: 798fa47265debfc0bec017a7f43b0159bb939866
 human_signoff: manh 2026-10-14
 ---
 
@@ -216,3 +216,7 @@ Round 2: đã sửa ba finding của round 1 (lưới đọc run-log ở chính 
 ### Re-pin lần 1 — 2026-10-13, do gộp origin/main 6ed3e410 (#343 #344) + chữ ký tac-tu/RT13
 run_id: repin-20261013T154121Z-31498
 sha: 0ea126220ad045f92625db387deb70b1756e8a58 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-14, do mốc 2.30.0: đổi số ba gói + gộp DP11 (lưới --stale-all --base 6a9c0f9a); bo-doc-ho-so-khoan-dung để cũ vì môi trường (răng bảy kho cần ~/dev/radar)
+run_id: repin-20261014T011922Z-24656
+sha: 798fa47265debfc0bec017a7f43b0159bb939866 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

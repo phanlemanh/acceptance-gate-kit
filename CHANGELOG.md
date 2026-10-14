@@ -130,7 +130,17 @@ của dãy P1 khi lượt đang chạy, vì bộ phát lịch báo `khoa-khong-n
 **Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.30.0` (KC1) — dòng TỔNG KẾT ghi
 vào hồ sơ `release-2-30-0`.
 
-@@REPIN@@
+**Chiến dịch ghim lại — một hồ sơ để cũ hoá vì MÔI TRƯỜNG, một hồ sơ để cũ hoá theo cấu tạo:** lưới trước-gộp
+`--stale-all` so mốc `6a9c0f9a` chọn sáu hồ sơ. Làn `repin-20261014T011922Z-24656` xanh cho bốn trên máy M5 (61,1 phút,
+21 lệnh, 0 chập chờn): `dieu-phoi-khoa-day-giu-nhip`, `dinh-tuyen-theo-ma-muc`, `ra-co-ten-lam-va-trao`,
+`tac-tu-cham-chi-cham-khong`. Hai hồ sơ không ghim, không phải lỗi của mốc:
+
+- `bo-doc-ho-so-khoan-dung` — *không đọc được ở đây*: làn trước `repin-20261014T001214Z-64143` (66,4 phút) xanh 11/11
+  suite nhưng E2/E7 thoát 2 vì răng bảy kho (`rang/bay-kho.mjs`) cần bản sao sáu kho tiêu thụ ở `$HOME/dev/<kho>` hay
+  biến `KHO_<TÊN>` — máy M5 không có `radar`, crm nằm ở `$HOME/dev/crm-onehub`. Máy MacBook Pro (đủ bảy kho) ghim được.
+  PR mốc không chạm hồ sơ này nên lưới trước-gộp không chặn.
+- `release-2-29-0` — E4/E8 của nó đo `72eb55f3..HEAD`, nên mọi mốc sau làm nó đỏ theo cấu tạo; nó vào tập chỉ vì dòng
+  `kiem-ban-cai-sau-tag.txt` ghi vào hồ sơ sau thẻ (#341). `release-2-30-0` sẽ cùng hình dạng ở mốc sau.
 
 **crm, theo thứ tự** (crm nhận THẲNG từ 2.28.0, bỏ qua 2.29.0 — các bước dưới đã gộp phần nhận của 2.29.0; ghi chú
 nhận của các mốc trước nữa vẫn áp):

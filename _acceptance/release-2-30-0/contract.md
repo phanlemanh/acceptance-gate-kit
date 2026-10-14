@@ -5,7 +5,7 @@ slug: release-2-30-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 3 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 3 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -79,3 +79,6 @@ hồ sơ · crm#375 · kit #308.
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm nhận thẳng; vòng meta của cửa sổ: không.
 - Hạt giống đo ở PR mốc: `docs/plans/2026-10-14-hat-giong-ho-so-tom-tat-can-ca-khi-khai-tin-hieu.md` — thẻ chép của
   `ho-so-tom-tat.cjs` chỉ nói `lo_trinh` trong khi `tin-hieu.mjs`/`cat-luot.mjs` nạp nó; 0 kho trúng hôm nay.
+- Ghim lại ở mốc (sổ `d-20261014T022058Z-8`): bốn hồ sơ xanh ở `repin-20261014T011922Z-24656`;
+  `bo-doc-ho-so-khoan-dung` để cũ hoá vì môi trường — làn `repin-20261014T001214Z-64143` đỏ E2/E7 «không đọc được ở
+  đây» vì máy M5 thiếu `~/dev/radar`; `release-2-29-0` để cũ hoá theo cấu tạo.
