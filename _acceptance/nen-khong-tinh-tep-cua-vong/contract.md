@@ -6,9 +6,11 @@ owner: manh@mstar.vn
 risk_tier: T2               # feature-loop/scripts/duong-nen.mjs + khuôn đường nền + scripts/gate-card.js (khối Nền hạ tầng) + test + một câu SKILL/GUIDE — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-nen-khong-tinh-tep-cua-vong-design.md
-status: draft
+status: approved
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-14T08:21:56Z
 ---
 
 # Acceptance Contract: nen-khong-tinh-tep-cua-vong
@@ -57,10 +59,10 @@ kho), không khoá cấu hình mới.
   `khuôn dòng vàng thiếu mã «luoi-cua-vong»`, không ghi tệp.
 - AC-7: Given `duong-nen.md` do CHÍNH script ghi ở ca AC-1 và ca AC-4, When dựng thẻ Cổng Phạm vi (HTML
   `gate-card.js` in ra) của hồ sơ, Then khối «Nền hạ tầng» in dưới nhãn «Tệp của chính vòng — nền không
-  tính» nguyên văn MỌI bullet của mục «Dòng vàng» (tập dòng sau khi bỏ thoát HTML BẰNG tập trong tệp); ca
-  AC-1 không có cờ «Nền hạ tầng có chân ĐỎ», ca AC-4 có; và When dựng thẻ Cổng Bằng chứng trên cùng hai
-  tệp (hồ sơ kèm báo cáo REJECT có eval suite đỏ), Then câu «đỏ từ trước vòng» chỉ dựa trên dòng đỏ:
-  ca AC-1 không có câu ấy, ca AC-4 có (đối chứng dương), và không dòng `TEP CUA VONG` nào lên thẻ Cổng 2
+  tính» nguyên văn MỌI bullet của mục «Dòng vàng» (tập dòng sau khi bỏ thoát HTML BẰNG tập trong tệp);
+  thẻ của ca AC-1 không có cờ «Nền hạ tầng có chân ĐỎ», thẻ của ca AC-4 có; và When dựng thẻ Cổng Bằng
+  chứng trên cùng hai tệp (hồ sơ kèm báo cáo REJECT có eval suite đỏ), Then câu «đỏ từ trước vòng» chỉ
+  dựa trên dòng đỏ: thẻ của ca AC-1 không có câu ấy, thẻ của ca AC-4 có (đối chứng dương), và không dòng `TEP CUA VONG` nào lên thẻ Cổng 2
   như một dòng nền đỏ; và với `duong-nen.md` do bản gốc v2.30.0 ghi (`git archive v2.30.0 feature-loop skills scripts lib`,
   trọn thư mục) thẻ không in nhãn ấy và khối giữ nguyên chữ như bản gốc dựng.
 - AC-8: Given bốn đột biến trên bản sao `duong-nen.mjs` — (a) vị từ tệp-của-vòng luôn sai, (b) luôn đúng,
