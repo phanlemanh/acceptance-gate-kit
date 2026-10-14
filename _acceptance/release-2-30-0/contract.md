@@ -82,3 +82,6 @@ hồ sơ · crm#375 · kit #308.
 - Ghim lại ở mốc (sổ `d-20261014T022058Z-8`): bốn hồ sơ xanh ở `repin-20261014T011922Z-24656`;
   `bo-doc-ho-so-khoan-dung` để cũ hoá vì môi trường — làn `repin-20261014T001214Z-64143` đỏ E2/E7 «không đọc được ở
   đây» vì máy M5 thiếu `~/dev/radar`; `release-2-29-0` để cũ hoá theo cấu tạo.
+- Sau thẻ (14/10): `kiem-ban-cai --may` trên máy M5 ra «TỔNG KẾT: ĐẠT» dù ba gói chính chưa nâng, chỉ vì
+  `diagram-design` giữ số — đính chính ở CHANGELOG 2.30.0; hạt giống
+  `docs/plans/2026-10-14-hat-giong-kiem-ban-cai-may-dat-nho-goi-khong-doi-so.md`.
