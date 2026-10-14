@@ -15,6 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runWorkflow } from '../workflows/harness.mjs';
 import { dungKho, SLUG as SLUG_TV } from './thuoc-vat-fixture.mjs';
+import { dungKho as nenKho, dungCache as nenCache, chayNen as nenChay } from './duong-nen-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -183,6 +184,32 @@ if (want('NC-AC5-nen')) {
     else if (b.html.includes('đỏ từ trước vòng')) bad('NC-AC5-nen', 'khong co duong-nen ma van in cau');
     else ok('NC-AC5-nen', '— đường nền thật đỏ cùng khoá E2: khối chỗ mù có «đỏ từ trước vòng»; vắng tệp thì không');
   } catch (e) { bad('NC-AC5-nen', loi(e)); }
+}
+
+// ── GN-TV3 — hồ sơ nen-khong-tinh-tep-cua-vong AC-7: dòng VÀNG của đường nền không thành «đỏ từ trước
+// vòng» trên thẻ Cổng 2. Bộ đọc Cổng 2 coi dòng nền `nen suite:` là đỏ cho eval SUITE-* — dòng vàng
+// cũng mở bằng `nen suite:`, nên ca đo đúng chỗ nó có thể lọt: một lượt BLOCKED vì lệnh suite (sổ chạy
+// do bộ chấm thật sinh) + duong-nen.md do CHÍNH duong-nen.mjs ghi (một tệp chỉ có dòng vàng, một tệp
+// có dòng đỏ CAY BAN làm đối chứng dương).
+if (want('GN-TV3')) {
+  try {
+    const SUITE_CMD = 'npm run build';
+    const resp = traLoi({ exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false });
+    const r = (await runWorkflow(WF, argsCham(), c => (c.label === `machine:${SUITE_CMD}` ? { exitCode: 127, outputTail: '', runId: '', cannotRun: false } : resp(c)))).result;
+    if (!r.runLog.some(l => /"evalId":"SUITE-/.test(l) && /"cannot_run":true/.test(l))) throw new Error('so chay khong co dong SUITE-* bi chan — fixture khong dung hinh');
+    const cache = nenCache();
+    const nenTxt = giuaA => { const k = nenKho({ giuaA }); const x = nenChay(k, { cache }); if (!x.tep) throw new Error(`duong-nen khong ghi tep: ${x.stderr.slice(-200)}`); return x.tep; };
+    const chiVang = nenTxt(`mkdir -p _acceptance/demo && echo x > _acceptance/demo/a.md\n`);
+    const coDo = nenTxt(`echo sua >> README.md\nmkdir -p _acceptance/demo && echo x > _acceptance/demo/a.md\n`);
+    if (!chiVang.includes('TEP CUA VONG') || /nen suite: CAY BAN/.test(chiVang)) throw new Error('tep chi-vang khong dung hinh');
+    if (!/nen suite: CAY BAN SAU SUITE README\.md/.test(coDo)) throw new Error('tep co-do khong dung hinh');
+    const a = the(hoSo({ verdict: 'BLOCKED', runLog: r.runLog, duongNen: coDo }).d);
+    const b = the(hoSo({ verdict: 'BLOCKED', runLog: r.runLog, duongNen: chiVang }).d);
+    if (!a.html.includes('đỏ từ trước vòng')) bad('GN-TV3', 'doi chung duong: tep co dong do CAY BAN ma the Cong 2 khong co «đỏ từ trước vòng»');
+    else if (b.html.includes('đỏ từ trước vòng')) bad('GN-TV3', 'tep chi co dong vang ma the Cong 2 in «đỏ từ trước vòng»');
+    else if (a.html.includes('TEP CUA VONG') || b.html.includes('TEP CUA VONG')) bad('GN-TV3', 'dong TEP CUA VONG len the Cong 2');
+    else ok('GN-TV3', '— SUITE-* bị chặn: tệp có dòng đỏ → «đỏ từ trước vòng»; tệp chỉ có dòng vàng → không; dòng vàng không lên thẻ Cổng 2');
+  } catch (e) { bad('GN-TV3', loi(e)); }
 }
 
 // ── AC-6 ────────────────────────────────────────────────────────────────────

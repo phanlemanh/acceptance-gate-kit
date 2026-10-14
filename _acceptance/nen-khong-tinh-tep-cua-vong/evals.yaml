@@ -84,7 +84,7 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.script.ntv_the_nen
-    paths: [scripts/gate-card.js, feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/gate-card-duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    paths: [scripts/gate-card.js, feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/gate-card-duong-nen.test.mjs, tests/scripts/ntr-the-canh-gay.test.mjs, tests/scripts/duong-nen-fixture.mjs]
     expected: >
       exit 0; stdout có "PASS: GN-TV1 " — duong-nen.md do CHÍNH script ghi ở kho thử của NEN-TV1 và NEN-TV4:
       thẻ Cổng 1 in nhãn «Tệp của chính vòng — nền không tính» và tập dòng dưới nhãn BẰNG tập bullet mục
