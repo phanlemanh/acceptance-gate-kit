@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>122 việc"]
+  GB --> DG["Đã giao<br/>123 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>28 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -81,6 +81,7 @@ flowchart TD
 ## Đã giao
 
 - Đưa bài học đo lường của tuần 08–14/08 vào engine — bốn lớp lỗi mới có ca đại diện, nguyên tắc lật-allow-list, và một bánh cóc hai chiều buộc bảng lớp lỗi trace về sổ nguồn (`bai-hoc-do-luong-vao-engine`)
+- Thẻ Cổng Bằng chứng in các mục ngoài hợp đồng thành một bảng có cột «Căn cứ» — mỗi mục một hàng (Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ), mục cần người quyết lên đầu; căn cứ do tác tử phân loại viết và đi trọn đường tới thẻ, kể cả mục mang sang lượt sau (`bang-ngoai-n-co-can-cu`)
 - Làn đối chứng S4 (baseline:diffBase) chạy MỘT lệnh do kit sinh — có trần mỗi lệnh và trần tổng, bỏ qua eval trỏ tệp chưa có ở merge-base (ghi lý do vào báo cáo), tự dọn worktree tạm khi bị dừng/hỏng; lane không về trọn là BLOCKED hạ tầng có tên, lượt chấm vẫn ra báo cáo (`baseline-tran-bo-qua-don`)
 - Kit đọc hồ sơ thật của kho tiêu thụ không im lặng sai — evals.yaml không phải YAML chuẩn lên cờ vàng có tên (thẻ hai cổng + một lệnh kiểm kho tự bật trong CI), và chữ ký ghi ngày kiểu ngày/tháng/năm được bốn mặt đọc ra ngày qua một bộ đọc chung (`bo-doc-ho-so-khoan-dung`)
 - Thẻ quyết định in đúng thứ hồ sơ viết — đường dẫn có dấu sao không còn bị cụt khi lột định dạng, và mọi hình dạng dấu sao khác đều có kỳ vọng đã khai trước thay vì tuỳ hệ quả (`card-text-fidelity`)
