@@ -33,6 +33,30 @@ thụ nay **không im lặng** ở hai chỗ:
 hồ sơ đang mang cờ sẽ hiện cờ khi mở lại; sửa khi tiện, hoặc bật lệnh kiểm trong CI cho hồ sơ mới. Lưới trước-gộp
 (`pre-merge-check.sh`) và `lib/` không đổi.
 
+### Thẻ Cổng Bằng chứng: mục ngoài hợp đồng thành bảng có cột «Căn cứ» (hồ sơ `bang-ngoai-n-co-can-cu`)
+
+Gốc: crm `kanban-viec` (14/10) — ở Cổng Bằng chứng, phiên crm tự soạn tay cho chủ kho một bảng mười mục Ngoài-n kèm lý
+do từng đề xuất, vì thẻ không in lý do nào. Nay thẻ tự làm điều đó:
+
+- **Bảng bốn cột** Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ thay cho các khối xếp chồng; mỗi mục một hàng, mã
+  `Ngoài-<số>` giữ đúng số như trước (theo vị trí trong `review-findings.md`).
+- **Mục cần anh quyết đứng đầu**: đề xuất mở việc mới, chưa đề xuất hay đề xuất viết sai khuôn → rồi mục máy khuyên ghi
+  hạn chế hoặc chấp nhận → rồi mục máy đã tự định tuyến (kho bật `feature_loop.ngoai_n_tu_dinh_tuyen`).
+- **Căn cứ** là một câu bước phân loại phạm vi của lượt chấm viết cho mỗi mục: hậu quả nặng hay nhẹ, mất hay lộ dữ liệu
+  không, người dùng tự gỡ được không, sửa sau rẻ hay đắt. Nó nằm trong `review-findings.md` (dòng `Căn cứ:` của khuôn
+  mục) và đi theo cả mục mang sang lượt chấm sau.
+- **Màn hẹp** (≤ 560 px): mỗi hàng thành một thẻ dọc có nhãn cột.
+- Ba nút lặp ở từng mục gom thành một dòng «Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay».
+
+**Không đổi:** dòng lệnh ký (`Ngoài-<số>: …`), ba lựa chọn, chữ đề xuất của máy, luật máy tự định tuyến.
+
+**Hồ sơ chấm trước bản này** (không có dòng `Căn cứ:`): ô hiện «chưa có căn cứ» và thẻ cắm MỘT cờ vàng đếm số mục thiếu
+— không phải sửa hồ sơ, lượt chấm kế sẽ có căn cứ. Bộ đọc cũ (lớp CI vendored chưa chép lại) đọc tệp khuôn mới không
+lệch trường nào (đo bằng ca BN-1-cu).
+
+**Ai bị ảnh hưởng:** kho tiêu thụ chỉ cần nhận mốc như mọi lần — lớp CI vendored chép lại `lib/out-of-contract.cjs`
+theo mốc. Không khoá mới, không tệp mới phải chép.
+
 ## 2.29.0 — 13/10/2026
 
 Cửa sổ 2.28.0 → 2.29.0 nằm trong **một ngày** (13/10; ba vòng của máy M5 và ba vòng của máy MacBook Pro chờ thẻ
