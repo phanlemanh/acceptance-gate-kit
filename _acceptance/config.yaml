@@ -111,6 +111,8 @@ executors:
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs
     kiem_ban_cai_moc: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
+    # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
+    bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Câu cho người gửi trên dữ liệu thật (hồ sơ cau-tin-hieu-nguoi-gui, E9): bản sao crm ở sha đã ghim + kit 2.27.
@@ -120,6 +122,9 @@ executors:
     # «không đọc được ở đây» (mù, không xanh giả). KHÔNG vào feature_loop.suite_keys. E9: hàng R2 trên lộ trình kit.
     bo_doc_bay_kho: node _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs
     lo_trinh_r2: node _acceptance/bo-doc-ho-so-khoan-dung/rang/hang-r2.mjs
+    # Răng màn hẹp của hồ sơ bang-ngoai-n-co-can-cu (E6): cần Python Playwright + Chromium; thiếu → thoát 2
+    # «không đọc được ở đây». KHÔNG vào feature_loop.suite_keys (CI không có trình duyệt).
+    bang_ngoai_n_man_hep: python3 _acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.

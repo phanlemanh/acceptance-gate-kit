@@ -93,8 +93,8 @@ evals:
     expected: >
       exit 0; stdout có "man-hep 320: cuon-ngang=0 xep-chong=10/10" (scrollWidth của trang ≤ clientWidth; mười hàng,
       mỗi hàng bốn ô có top tăng dần), "man-hep 1280: cung-dong=10/10" (bốn ô mỗi hàng cùng top), và
-      "do OK: cuon ngang o 320" — bản sao gate-card.js bỏ khối luật màn hẹp (nhát tiêm khớp đúng một lần) dựng CÙNG
-      hồ sơ, ở 320 px scrollWidth > clientWidth. Thẻ dựng bằng gate-card.js của cây trên hồ sơ thử do răng sinh.
+      "do OK: khong xep chong o 320 (0/10)" — bản sao gate-card.js bỏ khối luật màn hẹp (nhát tiêm khớp đúng một
+      lần) dựng CÙNG hồ sơ, ở 320 px bốn ô mỗi hàng bị ép thành bốn cột (không cuộn ngang vì chữ tự xuống dòng). Thẻ dựng bằng gate-card.js của cây trên hồ sơ thử do răng sinh.
       Thiếu Python Playwright → exit 2 «không đọc được ở đây: playwright».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
