@@ -80,10 +80,10 @@
       "hang": []
     },
     {
-      "ten": "OneFlow: đợt thử thứ hai trên gói bản 2.28.0 — đo «chạy được mà không sửa lõi»",
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản kit mới nhất có kiểm bản cài (2.30.0 trở lên) — đo «chạy được mà không sửa lõi»; chủ kho giao M5 13/10",
       "ngay": "2026-10-27",
       "loai": "ngoai",
-      "ai": "OneFlow",
+      "ai": "M5",
       "hang": []
     },
     {
@@ -100,12 +100,29 @@
       ]
     },
     {
+      "ten": "Phát hành 2.30.0 — ĐÃ PHÁT HÀNH 14/10 (M5 cắt, tag v2.30.0 = 7cf78c36, PR #346): khoá dãy giữ nhịp (DP10), quyết định ngoài hợp đồng khớp theo mã mục thay vì số — lưới chặt (DP11), bộ đọc hồ sơ khoan dung (R2); đổi số từ «2.29.1» vì có luật cổng mới; crm nhận thẳng 2.30.0 ở quãng lặng r2",
+      "ngay": "2026-10-14",
+      "loai": "phat-hanh",
+      "ai": "M5",
+      "hang": [
+        "R2"
+      ]
+    },
+    {
       "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
+      "hang": []
+    },
+    {
+      "ten": "Phát hành 2.31.0 — thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1); chủ kho duyệt mốc 14/10",
+      "ngay": "2026-10-16",
+      "loai": "phat-hanh",
+      "ai": "M5",
       "hang": [
-        "R2"
+        "BN1",
+        "NV1"
       ]
     }
   ],
@@ -222,7 +239,7 @@
       "cau_giao": "«Kit đọc hồ sơ thật của kho không im lặng sai: evals.yaml sai cú pháp chuẩn lên cờ vàng có tên, chữ ký ghi ngày/tháng/năm được đọc ra ngày»",
       "vi_sao": "Gốc: crm-onehub#375 (Mac Studio 13/10 09:09Z — evals.yaml sai cú pháp YAML chuẩn lọt mọi lưới của kit, crm có hồ sơ đã ký Bun.YAML/PyYAML không đọc được) + docs/plans/2026-10-13-hat-giong-ngay-ky-dang-ngay-thang-nam.md (chữ ký «10/09/2026» làm câu cho người gửi mất ngày giao, --cau đỏ).",
       "bat_khi": "Thẻ hai cổng của crm cắm cờ trên hồ sơ có evals.yaml sai cú pháp chuẩn, và bốn mặt đọc ngày ký ra ngày cho crm/nen-chat-ai-elements — đo bằng _acceptance/bo-doc-ho-so-khoan-dung/rang/bay-kho.mjs",
-      "ghi_chu": "Máy MacBook Pro giữ. Không chạm lib/, pre-merge-check.sh, dieu-phoi/ (lib/out-of-contract.cjs là vùng DP11 của M5). Gộp sau khi M5 cắt 2.29.1 (kit #308), theo khoá #308."
+      "ghi_chu": "Máy MacBook Pro giữ. Không chạm lib/, pre-merge-check.sh, dieu-phoi/ (lib/out-of-contract.cjs là vùng DP11 của M5). Gộp 13/10 (#344), phát hành ở 2.30.0 (thay «2.29.1»)."
     },
     {
       "ma": "G3",
@@ -510,14 +527,6 @@
       "ghi_chu": "Máy M5 giữ. Chỉ chạm dieu-phoi/. Gộp #332 (057000da) 12/10 — vào 2.28.0, bản vá 2.28.1 không cần. Hồ sơ cũ hoá có chủ đích sau mốc: ghim lại trên M5 (phép kiểm cần bản sao crm chỉ M5 có)."
     },
     {
-      "ma": "S1",
-      "nhom": "cho-xet-lai",
-      "hang": "T2",
-      "slug": "lop-vendored-tu-xung",
-      "cau_giao": "«Kho biết mình đang chạy đúng bản kit đã khai, kiểm bằng một lệnh trong CI»",
-      "ghi_chu": "Ký build 19/09, chưa mở vòng sau ba tuần. Neo là hồ sơ của chính kit (thuoc-co-cua) — đề xuất xét lại khi ký lộ trình này. Cùng lớp có neo bốn kho: hạt giống 2026-09-23-lop-chep-tu-xoa-2-18-3 (oneflow #127, artifact-platform #391, media-library #66, crm #70). Có neo ngoài 11/10 (Mac Studio, M5 xác nhận 12/10): bản cài kit lấy mã main thay vì tag — xem KC1 (kiểm bản cài sau phát hành)."
-    },
-    {
       "ma": "KC1",
       "nhom": "phat-hanh",
       "hang": "T2",
@@ -530,12 +539,20 @@
       "ghi_chu": "Vòng meta DUY NHẤT giữa 2.28 và mốc kế — chủ kho gọi tên 12/10 (luật chiều rộng (b)). Mở sau 2.28; máy giữ chốt ở hoà giải ba máy (crm issue #375). Liên quan S1."
     },
     {
-      "ma": "S2",
-      "nhom": "cho-xet-lai",
+      "ma": "BN1",
+      "nhom": "cong-bang-chung",
+      "hang": "T3",
+      "slug": "bang-ngoai-n-co-can-cu",
+      "cau_giao": "«Thẻ Cổng 2 in mục Ngoài-n thành bảng Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ»",
+      "vi_sao": "Gốc: crm/_acceptance/kanban-viec (Ngoài-n không có căn cứ); chủ kho gọi tên 14/10; đã ký Cổng 2, PR kit #349."
+    },
+    {
+      "ma": "NV1",
+      "nhom": "duong-nen",
       "hang": "T2",
-      "slug": "phep-do-o-doc-lap-thuoc-co-cua",
-      "cau_giao": "«Ba phép đo của thước-có-cửa đỏ đúng ô của chính nó»",
-      "ghi_chu": "Ký build 17/09, chưa mở vòng. Neo nội bộ (meta) — luật chiều rộng (b) chỉ cho một vòng meta giữa hai mốc kho nhận; đề xuất xét lại."
+      "slug": "nen-khong-tinh-tep-cua-vong",
+      "cau_giao": "«Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — tệp mang slug và vi phạm của chính hồ sơ thành dòng vàng có tên»",
+      "vi_sao": "Gốc: crm/_acceptance/dai-luu-tru-dung-chung — duong-nen.md ở 83f854cbf đỏ bảy dòng CAY BAN SAU SUITE đều là tệp S1 của vòng (crm-onehub#375, ba ca trong hai ngày); 233/233 dòng lịch sử là đỏ giả. Chủ kho ký Cổng Đáng lối A 14/10."
     }
   ],
   "chan_troi": [
@@ -658,6 +675,16 @@
       "ma": "G2",
       "cau_giao": "«Ca kiểm chập chờn chạy lại một lần trước khi làm đỏ cả lượt dài hay CI»",
       "ly_do": "Đã phủ — kiểm trước khi mở 11/10. (1) Phần crm giao cho kit (ca-chap-chon-cach-ly/opportunity.md: chạy lại một lần trong làn ghim lại) là repin_retry của N4 (2.23, feature-loop/scripts/lib/chay-lai.mjs); crm bật từ 06/10, ~70 lượt ghim lại, cứu đúng 1 lượt thật (07/10), mọi lượt đỏ khác đỏ cả lần chạy lại và là đỏ thật. (2) Lớp CI kit chép sang không chạy suite — chạy lại ở CI là việc bộ chạy test của kho; crm đã làm kín ca ở tầng test (ca-chap-chon-cach-ly, ca-chap-chon-con-lai #340, e6ba8ebed), CI crm 0 lượt đỏ từ 10/10. (3) S4 cố ý không chạy lại: 04–10/10 chỉ 1 lượt mất vì ca chập chờn, trước khi crm vá. (4) GL03 của kit sửa đúng tầng ở 70db1a9c. Lỗi còn lại — tên ca qua tiền tố turbo rỗng — đi vòng ten-ca-qua-tien-to-turbo. Mở lại khi: một tuần CI crm vẫn đỏ vì ca chập chờn đã biết sau 17/10."
+    },
+    {
+      "ma": "S1",
+      "cau_giao": "«Kho biết mình đang chạy đúng bản kit đã khai, kiểm bằng một lệnh trong CI»",
+      "ly_do": "Đã phủ phần lớn bởi KC1 (2.29.0): kiểm bản cài sau phát hành ở lượt cắt + chế độ máy nhận `kiem-ban-cai --may --ref <tag>` (MacBook Pro chạy 14/10 trên v2.30.0: ĐẠT). Ký build 19/09, chưa mở vòng ba tuần. Mở lại khi: một kho tiêu thụ chạy sai bản kit mà kiem-ban-cai không bắt. (bỏ khỏi lộ trình 14/10 — TRỪ, điều phối MacBook Pro; chủ kho có quyền đảo)"
+    },
+    {
+      "ma": "S2",
+      "cau_giao": "«Ba phép đo của thước-có-cửa đỏ đúng ô của chính nó»",
+      "ly_do": "Meta (thước của thước) — luật chiều rộng (b) chỉ cho một vòng meta giữa hai mốc kho nhận, KC1 đã dùng lượt đó. Ký build 17/09, chưa mở vòng. Mở lại khi: một lượt chấm sai do ô đo của thước-có-cửa đỏ nhầm ô. (bỏ khỏi lộ trình 14/10 — TRỪ, điều phối MacBook Pro; chủ kho có quyền đảo)"
     }
   ]
 }
