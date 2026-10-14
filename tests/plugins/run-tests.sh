@@ -10924,6 +10924,8 @@ const FL = 'feature-loop/.claude-plugin/plugin.json';
 const DD = 'diagram-design/.claude-plugin/plugin.json';
 // Gói thứ tư (hồ sơ dieu-phoi-dong-goi-loi AC-9): đi cùng số với feature-loop.
 const DP = 'dieu-phoi/.claude-plugin/plugin.json';
+// Gói thứ năm (hồ sơ ra-soat-lo-trinh AC-10): vỏ lệnh road-map, đi cùng số với acceptance-gate.
+const RM = 'road-map/.claude-plugin/plugin.json';
 // Mục của MỘT số trong mô tả = từ «v<số>» tới hết chuỗi (mô tả xếp theo thời gian).
 const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null : mota.slice(i); };
 
@@ -10931,15 +10933,16 @@ const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null 
 function kiem(root) {
   const out = [];
   const load = (rel, ten) => { try { return { v: rd(root, rel) }; } catch (e) { return { err: `${ten}: ${String(e.message).split('\n')[0]}` }; } };
-  const A = load(AG, 'manifest acceptance-gate'), F = load(FL, 'manifest feature-loop'), D = load(DD, 'manifest diagram-design'), P = load(DP, 'manifest dieu-phoi');
-  for (const X of [A, F, D, P]) if (X.err) out.push(red(`khong doc duoc ${X.err}`));
-  if (A.err || F.err || D.err || P.err) return out;   // nguồn hỏng: đã có vế đỏ có tên, không đoán tiếp
+  const A = load(AG, 'manifest acceptance-gate'), F = load(FL, 'manifest feature-loop'), D = load(DD, 'manifest diagram-design'), P = load(DP, 'manifest dieu-phoi'), R = load(RM, 'manifest road-map');
+  for (const X of [A, F, D, P, R]) if (X.err) out.push(red(`khong doc duoc ${X.err}`));
+  if (A.err || F.err || D.err || P.err || R.err) return out;   // nguồn hỏng: đã có vế đỏ có tên, không đoán tiếp
 
   const V = A.v.version;
-  for (const [n, v] of [['acceptance-gate', V], ['feature-loop', F.v.version], ['diagram-design', D.v.version], ['dieu-phoi', P.v.version]])
+  for (const [n, v] of [['acceptance-gate', V], ['feature-loop', F.v.version], ['diagram-design', D.v.version], ['dieu-phoi', P.v.version], ['road-map', R.v.version]])
     out.push(/^\d+\.\d+\.\d+$/.test(v) ? ok(`${n} hop semver: ${v}`) : red(`${n} khong hop semver: ${v}`));
   out.push(F.v.version === V ? ok(`hai plugin cung so: ${V}`) : red(`hai plugin lech so: acceptance-gate ${V} vs feature-loop ${F.v.version}`));
   out.push(P.v.version === V ? ok(`dieu-phoi cung so: ${V}`) : red(`dieu-phoi lech so: acceptance-gate ${V} vs dieu-phoi ${P.v.version}`));
+  out.push(R.v.version === V ? ok(`road-map cung so: ${V}`) : red(`road-map lech so: acceptance-gate ${V} vs road-map ${R.v.version}`));
 
   const want = `Khớp phiên bản: acceptance-gate ${V} · feature-loop ${F.v.version} · diagram-design ${D.v.version} · dieu-phoi ${P.v.version}.`;
   let g = null; try { g = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8'); } catch { g = null; }
@@ -10961,7 +10964,7 @@ const tmps = [];
 process.on('exit', () => { for (const d of tmps) { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} } });
 function banSao() {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'p200-')); tmps.push(d);
-  for (const rel of [AG, FL, DD, DP]) { fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel)); }
+  for (const rel of [AG, FL, DD, DP, RM]) { fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel)); }
   fs.copyFileSync(path.join(ROOT, 'GUIDE.md'), path.join(d, 'GUIDE.md'));
   return d;
 }
@@ -10982,7 +10985,7 @@ if (sach.length) loi.push(`ban sao NGUYEN VEN da do (${sach.map(x => x.m).join('
 let nMut = 0;
 function dot(ten, sua, mong) {
   const d = banSao();
-  const doc = () => [AG, FL, DD, DP, 'GUIDE.md'].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
+  const doc = () => [AG, FL, DD, DP, RM, 'GUIDE.md'].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
   const truoc = doc(); sua(d);
   if (truoc === doc()) { loi.push(`DOT BIEN KHONG AP DUOC [${ten}] — neo doi, phep do khong con chieu do`); return; }
   const r = kiem(d).filter(x => !x.ok);
@@ -10992,6 +10995,7 @@ function dot(ten, sua, mong) {
 }
 const V0 = rd(ROOT, AG).version;
 dot('hai plugin lech so', d => suaJSON(path.join(d, FL), j => { j.version = '0.0.1'; }), 'hai plugin lech so');
+dot('road-map lech so', d => suaJSON(path.join(d, RM), j => { j.version = '0.0.1'; }), 'road-map lech so');
 dot('GUIDE giu so cu', d => fs.writeFileSync(path.join(d, 'GUIDE.md'), fs.readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8').replace(`acceptance-gate ${V0}`, 'acceptance-gate 0.0.1')), 'GUIDE khong chua cau dan xuat');
 dot('mo ta ag thieu muc cua so hien tai', d => suaJSON(path.join(d, AG), j => { j.description = j.description.split('v' + V0).join('vXXX'); }), `mo ta acceptance-gate khong co muc v${V0}`);
 // DỜI THẬT: gỡ câu khai cặp khỏi mục hiện tại rồi chèn vào một mục LỊCH SỬ
@@ -11011,12 +11015,12 @@ dot('dieu-phoi lech so', d => suaJSON(path.join(d, DP), j => { j.version = '0.0.
 // S4-r3 (18/08) bắt bản trước: một khối chèn thêm đã cắt mất nhánh đọc `loi`,
 // nên P200 chỉ còn canh cỗ máy đột biến của CHÍNH NÓ và nuốt trọn vế đỏ của
 // cây thật. Đừng thêm `process.exit` thứ hai ở bất kỳ đâu trong file này.
-const MUT_KY_VONG = 6;
+const MUT_KY_VONG = 7;
 if (nMut !== MUT_KY_VONG) loi.push(`so dot bien chay that ${nMut} != ${MUT_KY_VONG} khai truoc`);
 if (loi.length) { for (const l of loi) console.error(`  P200 LOI: ${l}`); process.exit(1); }
 console.log(`P200 OK (so doc tu manifest — khong ghim mot moc; ${nMut}/${MUT_KY_VONG} dot bien chay that, moi cai ghim dung cau; doi chung duong ban-sao-nguyen-ven)`);
 P200JS
-run "P200 mot lan cat so nhat quan: hai plugin cung so · dieu-phoi cung so · GUIDE dan xuat · muc mo ta cua chinh so do (6 dot bien, mot loi thoat)" \
+run "P200 mot lan cat so nhat quan: hai plugin cung so · dieu-phoi cung so · road-map cung so · GUIDE dan xuat · muc mo ta cua chinh so do (7 dot bien, mot loi thoat)" \
   node "$P200TMP/p200.mjs" "$ROOT"
 rm -rf "$P200TMP"
 
