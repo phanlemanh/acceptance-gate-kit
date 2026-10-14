@@ -9,7 +9,7 @@
 > `- \`<mã>\` — <một dòng mô tả>` là một mã. Dòng khác (tiêu đề, văn giải thích, trích dẫn) bộ đọc bỏ
 > qua; dòng bắt đầu bằng `- \`` mà sai khuôn thì bộ đọc báo lỗi kèm số dòng, không bỏ lặng.
 >
-> - `dot` — tên đợt, viết liền không dấu cách (ví dụ `okr-1410`). Mỗi hàng và mỗi mục chân trời cắt từ
+> - `dot` — tên đợt, viết liền không dấu cách (ví dụ `okr-1410`). Mỗi hàng và mỗi mục chờ điều kiện cắt từ
 >   bản này mang đúng giá trị này ở trường `dot`.
 > - `dang` — `chuoi` (chuỗi tính năng: mỗi hàng đứng trên dữ liệu thật của hàng trước) hoặc `lan-va`
 >   (làn vá: gói lỗi theo màn hay vùng sản phẩm, các hàng chạy song song).

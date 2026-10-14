@@ -427,7 +427,7 @@ async function rs8(kit) {
   writeFileSync(path.join(r, 'docs', 'pv.md'), '---\ndot: d9\ndang: chuoi\nnguon: thu\n---\n\n- `x-1` — một\n- `x-2` — hai\n- `x-3` — ba\n');
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'pv');
   const x = catLuot(kit, r, ['--pham-vi', 'docs/pv.md', '--lo-trinh', L]);
-  const cau = x.stdout.split('\n').filter(l => /ly_do|x-3/.test(l));
+  const cau = x.stdout.split('\n').filter(l => l.startsWith('lỗi:') && /ly_do|x-3/.test(l));
   if (cau.length < 2) sai.push(`không phát đủ hai câu (thiếu ly_do · mã không ở đâu): ${JSON.stringify(x.stdout.slice(0, 300))}`);
   for (const c of cau) { if (c.includes(CU)) sai.push(`câu còn chữ cũ: ${c}`); if (!c.includes(MOI)) sai.push(`câu thiếu «${MOI}»: ${c}`); }
   const M = await nap(kit); const k = M.LT.kiemKhuon({ schema: 1, moc: [], hang: [], chan_troi: 'x' });
@@ -437,9 +437,12 @@ async function rs8(kit) {
   return sai;
 }
 if (want('RS-8') && await chayCa('RS-8', rs8)) ok('RS-8', 'răng phủ + bộ đọc khuôn nói «chờ điều kiện», không còn «chân trời»');
+// Khối TIN-HIEU-CAU-CAM là DANH SÁCH TỪ CẤM trong câu gửi người dùng — giữ «chân trời» ở đó là cấm tên cũ lọt ra ngoài,
+// không phải một lần dùng chữ; phép quét bỏ khối này.
+const boKhoiCam = txt => txt.replace(/<!-- <<<TIN-HIEU-CAU-CAM -->[\s\S]*?<!-- TIN-HIEU-CAU-CAM>>> -->/g, '');
 const quetChu = goc => TEP_8.concat(['CONTEXT.md']).flatMap(t => {
   const p = path.join(goc, t); if (!existsSync(p)) return [];
-  return readFileSync(p, 'utf8').split('\n').map((l, i) => [t, i + 1, l])
+  return boKhoiCam(readFileSync(p, 'utf8')).split('\n').map((l, i) => [t, i + 1, l])
     .filter(([, , l]) => !/^\s*(\/\/|#|\*)/.test(l) && l.toLowerCase().includes(CU) && !/_?[Aa]void_?/.test(l));
 });
 if (want('RS-8-quet') && await chayCa('RS-8-quet', async kit => {
