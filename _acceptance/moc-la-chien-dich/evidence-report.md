@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 928b9ff98317b2fc2c5492375322a6c8c1d75bfb
+verified_commit: 59f00b150944569e6a29691baa8373100befd32f
 human_signoff: Manh Phan 2026-10-14
 ---
 
@@ -236,3 +236,7 @@ Round 3: sau vòng sửa Ngoài-6 (nâng phạm vi, chủ kho 14/10) — khoá l
 ### Re-pin lần 1 — 2026-10-14, do gộp origin/main (#349–#353) vào nhánh PR #354
 run_id: repin-20261014T133924Z-90432
 sha: 928b9ff98317b2fc2c5492375322a6c8c1d75bfb · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-14, do sửa danh tính git của bản clone kho thử (MC-5 đỏ trên CI)
+run_id: repin-20261014T144602Z-62859
+sha: 59f00b150944569e6a29691baa8373100befd32f · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
