@@ -10,9 +10,60 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
-## Chưa phát hành
+## 2.30.0 — 14/10/2026
 
-### Bộ đọc hồ sơ khoan dung (R2, hồ sơ `bo-doc-ho-so-khoan-dung`)
+Cửa sổ 2.29.0 → 2.30.0 nằm trong **một đêm** (13/10 chiều → 14/10 sáng), có **bốn hồ sơ được ký** — tập đối chiếu
+bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): khoá do dãy giữ tính nhịp khoá (DP10, gói `dieu-phoi`), bộ đọc hồ sơ
+khoan dung (R2, máy MacBook Pro), định tuyến mục Ngoài-n theo mã mục (DP11, T3) và `tac-tu-cham-chi-cham-khong` (A1
+của 2.27.0, máy-thông 10/10 — chủ kho ký Cổng Bằng chứng trong PR của DP11 vì DP11 đổi định tuyến của nó). Cả ba vòng
+mới đều có gốc ở crm-onehub#375. Kho chờ nhận: `crm` — máy Mac Studio nhận THẲNG từ bản đang cài (2.28.0), bỏ qua
+2.29.0. Mốc đi **làn V**, không dựng răng mới. Ba gói `acceptance-gate`, `feature-loop`, `dieu-phoi` cùng lên
+`2.30.0`; `diagram-design` giữ `2.7.1`. Tag `v2.30.0` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.30.0, không 2.29.1** (lời đã báo crm là «2.29.1»; điều phối M5 đồng ý đổi 14/10 và báo lại crm#375): mốc
+thêm bề mặt mới cho kho tiêu thụ — lệnh tuỳ chọn `scripts/yaml-chuan.cjs` và một loại cờ vàng mới trên thẻ hai cổng
+(R2), khuôn dòng sổ người mới mang `tieu_de` + `tep` và một luật lưới CHẶT hơn: hồ sơ qua lưới ở 2.29.0 có thể bị chặn
+ở 2.30.0 (DP11 — crm `zalo-qua-webhook` là một). GUIDE: «minor cho luật gate mới». Nội dung không đổi so với lời hứa:
+DP10 + R2 + DP11.
+
+**Lớp chép CI giữ 26 tệp, không thêm:** đổi bảy tệp so với `v2.29.0` — kể ở mục «Kho tiêu thụ làm gì khi nhận».
+Mười chín tệp còn lại giống từng byte `v2.29.0` (AC-8 đo trên cây mốc, danh sách mong đợi đọc TỪ chính gạch ghi chú).
+`scripts/yaml-chuan.cjs` KHÔNG vào danh sách — kho muốn chặn trong CI thì tự chép. Diff engine của cửa sổ còn ở:
+`scripts/gate-card.js`, `scripts/start-scan.mjs`, `scripts/dinh-tuyen-may.cjs`, `commands/signoff.md` (khối
+`NGOAI-N-GATE2-LINE`), `commands/acceptance-card.md`, `skills/acceptance/references/eval-executors.md` (mục «Standard
+YAML»), `dieu-phoi/scripts/phat-lich.mjs` và `dieu-phoi/README.md`. `feature-loop/` không đổi một byte.
+
+### Mục Ngoài-n định tuyến theo mã mục, không theo số (hồ sơ `dinh-tuyen-theo-ma-muc`, hàng DP11, T3)
+
+Gốc: crm-onehub#375, bình luận 13/10 09:39Z — đo ở crm `them-buoc-bao-dung`: sau chữ ký, một lượt chấm S4 chèn mục mới
+lên đầu `review-findings.md`, tám dòng sổ ký theo SỐ trỏ nhầm mục, và lệnh máy tự đóng làn V chỉ báo `Ngoài-9`. Đo 8
+kho: 0/2 235 dòng sổ người mang tiêu đề mục; hai hồ sơ máy-thông đứng trên định tuyến lệch (kit
+`tac-tu-cham-chi-cham-khong`, crm `zalo-qua-webhook`).
+
+- **Mã mục** = tiêu đề của mục đã gỡ nhãn lượt `(rN…)` + tệp của mục. Bộ phân giải mới trong `lib/out-of-contract.cjs`
+  gán dòng sổ → mục theo mã; mục đổi số vì mục mới chèn đầu vẫn khớp dòng cũ của nó, mục TƯƠI trùng mã với mục đã quyết
+  thì không thừa kế quyết định.
+- **Dòng sổ người từ nay mang mã:** khuôn `NGOAI-N-GATE2-LINE` của `/acceptance-gate:signoff` ghi thêm `tieu_de` và `tep`.
+- **Đường đọc cũ:** dòng chỉ có số mà ghi SAU lượt chấm cuối — tin như trước. Dòng chỉ có số mà `run-log.jsonl` có một
+  lượt chấm (`round-tally`) MỚI hơn — coi là **chưa định tuyến**, kèm cờ vàng trên thẻ Cổng Bằng chứng nêu nhãn các mục
+  và giờ lượt chấm; mọi mục ấy thành ô hỏi. Không ghi lại (migrate) sổ của kho nào.
+- **Một luật, bốn bên đọc:** lưới trước-gộp, `khong-can-nguoi.mjs`, bộ quét đầu phiên và `product-map.mjs` đều truyền
+  `run-log.jsonl` vào cùng bộ phân giải; ngữ cảnh `xanhSach` nay BẮT BUỘC khoá `runLog` — bên gọi quên truyền thì lỗi
+  có tên, không lặng lẽ mù. Lưới áp luật CHẶT (chủ kho chọn ở Cổng Phạm vi 13/10): hồ sơ máy-thông có dòng cũ →
+  VIOLATION «chưa người định tuyến».
+- **Máy định tuyến** (`dinh-tuyen-may.cjs`, kho bật `feature_loop.ngoai_n_tu_dinh_tuyen`) khớp dòng máy theo mã; sổ có
+  dòng người chỉ số đã cũ thì thoát 2 với dòng `dinh-tuyen-may:` nêu «ghi trước lượt chấm», không ghi byte nào.
+- **Hệ quả trên kit:** `tac-tu-cham-chi-cham-khong` được chủ kho định tuyến bảy mục và ký trong PR #345; `rang.sh` của
+  hồ sơ ấy kiểm cú pháp tệp workflow như bộ chạy bọc (Node 24.21 từ chối `node --check` trên lệnh `return` cấp đầu).
+- **Giới hạn đã khai:** năm mục ở Notes hợp đồng — bốn ca kiểm yếu (DM1 chiều đỏ nhận mọi lỗi · DM1 chỉ loại trừ
+  Ngoài-2 · DM4 nhận mọi lý do chặn · DM7 đếm nhãn trên cả dòng cờ) và ca DM9 «lưới trên cây kit» xanh mà chưa chạm
+  khối định tuyến. Hạt giống `2026-10-14-hat-giong-dong-may-mo-coi-vinh-vien` (dòng máy mồ côi thành «lệch» vĩnh viễn —
+  hồi quy so với A3, chỉ chạm kho bật `ngoai_n_tu_dinh_tuyen`).
+- **Ai bị ảnh hưởng:** mọi kho — hồ sơ chưa ký mà sổ gate2 chỉ ghi số rồi có lượt chấm sau đó sẽ hiện cờ vàng và các mục
+  thành ô hỏi; hồ sơ máy-thông như thế bị lưới chặn. **Khi update:** chép bốn tệp DP11 đổi CÙNG LÚC (mục «Kho tiêu thụ
+  làm gì khi nhận»), rồi định tuyến lại từng hồ sơ lưới chặn bằng `/acceptance-gate:signoff` — dòng mới mang mã.
+
+### Bộ đọc hồ sơ khoan dung (hồ sơ `bo-doc-ho-so-khoan-dung`, hàng R2, T2 — máy MacBook Pro)
 
 Gốc: crm-onehub#375 (Mac Studio, 13/10) và hạt giống ngày ký của vòng câu tín hiệu. Kit đọc hồ sơ thật của kho tiêu
 thụ nay **không im lặng** ở hai chỗ:
@@ -29,9 +80,157 @@ thụ nay **không im lặng** ở hai chỗ:
   đọc ra y hệt trước (654/655 chữ ký khác rỗng của bảy kho); chữ ký chỉ có ngày/tháng/năm (crm `nen-chat-ai-elements`
   «10/09/2026») nay ra 10/9/2026 thay vì mất ngày và làm `--cau` đỏ. Đọc theo lối Việt, ngày trước tháng.
 
-**Ai bị ảnh hưởng:** kho không có hai sự cố trên — không phải làm gì, không tệp nào phải chép thêm. crm — thẻ của các
-hồ sơ đang mang cờ sẽ hiện cờ khi mở lại; sửa khi tiện, hoặc bật lệnh kiểm trong CI cho hồ sơ mới. Lưới trước-gộp
-(`pre-merge-check.sh`) và `lib/` không đổi.
+- **Giới hạn đã khai:** bảy mục ở Notes hợp đồng — đáng nhớ nhất: lệnh kiểm gọi `--base` với biến rỗng thì lặng lẽ kiểm
+  cả hồ sơ cũ (một bước CI `--base $BASE_REF` mà biến trống sẽ đỏ vì hồ sơ đã ký); `--base` báo sạch sai khi thư mục
+  hồ sơ nằm trong thư mục con của kho git; lỗi đọc tệp hay lỗi git thoát 1 thay vì 2; bộ đọc ngày chung cũng đọc
+  ngày/tháng/năm ở các trường ngày khác của dải tóm tắt.
+- **Ai bị ảnh hưởng:** kho không có hai sự cố trên — phán quyết không đổi, cờ không hiện. crm — năm hồ sơ mang cờ vàng
+  (mục «crm, theo thứ tự»); sửa khi tiện, hoặc bật lệnh kiểm trong CI cho hồ sơ mới. Lưới trước-gộp (`pre-merge-check.sh`)
+  và `lib/` không đổi ở vòng này. **Khi update:** bộ đọc ngày chung sống trong `scripts/ho-so-tom-tat.cjs` mà
+  `tin-hieu.mjs` và `cat-luot.mjs` nạp — kho khai `lo_trinh` hay `tin_hieu` chép lại cả ba (mục «Kho tiêu thụ làm gì khi
+  nhận»).
+
+### Khoá do một dãy giữ cũng tính nhịp khoá (hồ sơ `dieu-phoi-khoa-day-giu-nhip`, hàng DP10, T2, gói `dieu-phoi`)
+
+Gốc: crm-onehub#375, bình luận Mac Studio 13/10 08:16Z (đợt `r2` trên crm): phiên giám sát nhả nhầm khoá `duong-nen`
+của dãy P1 khi lượt đang chạy, vì bộ phát lịch báo `khoa-khong-nhip` cho một khoá mà dãy giữ nhịp bằng `giu-nhip.mjs`
+— đúng như `LUAT.md` dặn. Lỗi có từ DP8 (2.28.0, `dieu-phoi-on-dinh-r2` AC-9 ghim chính hành vi sai).
+
+- **Đổi gì:** `viecNenGiuNhip` (`dieu-phoi/scripts/phat-lich.mjs`) thôi loại khoá của DÃY khỏi nhịp khoá
+  (`khoa/<tài nguyên>/nhip`). Dãy chờ một lượt dài (đường nền, S4, ghim lại) chạy qua `giu-nhip.mjs` thì không bị báo
+  dù phiên không gọi công cụ nào; khoá của dãy không có nhịp phiên lẫn nhịp khoá từ lúc cấp vẫn bị báo. Chỉ worktree
+  đang giữ khoá chạm được nhịp khoá của nó. README gói nói lại đúng hành vi.
+- Hồ sơ cũ `dieu-phoi-on-dinh-r2` không sửa (sổ chỉ thêm); hàng lời hứa của nó đổi thân có tên ở AC-6 của DP10.
+- **Giới hạn đã khai:** ca tài liệu chỉ dò cụm chữ của câu cũ — README viết ngược hành vi bằng chữ khác vẫn qua; hành vi
+  thật do ma trận khoá đo.
+- **Ai bị ảnh hưởng:** kho cài gói `dieu-phoi` (crm). **Khi update:** cài lại gói theo thẻ — không tệp nào phải chép.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.30.0` bảy tệp. Luôn cần, và chép CÙNG LÚC (DP11): `lib/out-of-contract.cjs`,
+  `scripts/pre-merge-check.sh`, `scripts/khong-can-nguoi.mjs`, `scripts/product-map.mjs` — chép lệch bộ thì
+  `khong-can-nguoi.mjs` mới báo lỗi «thiếu ngữ cảnh { findings, ledger, runLog }» khi bản đồ cũ gọi nó, hay lưới mới gọi
+  `cumCu` mà lib cũ không có (lưới đóng thay vì mở). Kho khai `lo_trinh` hoặc `tin_hieu`: `scripts/ho-so-tom-tat.cjs`
+  (R2). Chỉ khi kho khai `tin_hieu`: `scripts/tin-hieu.mjs` và `scripts/cat-luot.mjs` (R2). Mười chín tệp còn lại không
+  đổi byte so với `v2.29.0`.
+- **Lỗ đã biết của danh sách chép (có từ 2.29.0):** thẻ máy-đọc của `ho-so-tom-tat.cjs` chỉ nói «khi khai `lo_trinh`»,
+  nhưng `tin-hieu.mjs` (từ 2.29.0) và `cat-luot.mjs` (từ 2.30.0) nạp tệp ấy lúc tải — kho khai `tin_hieu` mà không khai
+  `lo_trinh` vẫn phải chép nó, và đường nền sẽ không nhắc. Đo 14/10: 0 kho trúng (crm khai cả hai). Hạt giống
+  `2026-10-14-hat-giong-ho-so-tom-tat-can-ca-khi-khai-tin-hieu`.
+- **Máy dev: cài `acceptance-gate`, `feature-loop` (và `dieu-phoi` nếu kho dùng) theo ĐÚNG THẺ ở MỌI phạm vi**, rồi
+  kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.30.0 --root <bản clone kit đã git fetch
+  --tags>`. Sống là dòng `[kiem-ban-cai] TỔNG KẾT: ĐẠT <n> bản ghi khớp v2.30.0`, không còn dòng `ĐỎ may:` hay `VÀNG
+  may:` nào (máy còn bản cũ chỉ in VÀNG mà TỔNG KẾT vẫn ĐỎ).
+- **Kho có hồ sơ lưới chặn vì DP11** («chưa người định tuyến … dòng sổ theo số ghi trước lượt chấm»): người định tuyến
+  lại các mục bằng `/acceptance-gate:signoff`; dòng mới mang `tieu_de` + `tep`.
+- **Kho muốn chặn `evals.yaml` không chuẩn trong CI** (tuỳ chọn, R2): chép `scripts/yaml-chuan.cjs` và thêm bước `node
+  scripts/yaml-chuan.cjs --root . --base origin/<nhánh chính>`; biến của `--base` không được rỗng (giới hạn đã khai).
+- **Kho có lộ trình:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs --root .`).
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.30.0` (KC1) — dòng TỔNG KẾT ghi
+vào hồ sơ `release-2-30-0`.
+
+**Chiến dịch ghim lại — một hồ sơ để cũ hoá vì MÔI TRƯỜNG, một hồ sơ để cũ hoá theo cấu tạo:** lưới trước-gộp
+`--stale-all` so mốc `6a9c0f9a` chọn sáu hồ sơ. Làn `repin-20261014T011922Z-24656` xanh cho bốn trên máy M5 (61,1 phút,
+21 lệnh, 0 chập chờn): `dieu-phoi-khoa-day-giu-nhip`, `dinh-tuyen-theo-ma-muc`, `ra-co-ten-lam-va-trao`,
+`tac-tu-cham-chi-cham-khong`. Hai hồ sơ không ghim, không phải lỗi của mốc:
+
+- `bo-doc-ho-so-khoan-dung` — *không đọc được ở đây*: làn trước `repin-20261014T001214Z-64143` (66,4 phút) xanh 11/11
+  suite nhưng E2/E7 thoát 2 vì răng bảy kho (`rang/bay-kho.mjs`) cần bản sao sáu kho tiêu thụ ở `$HOME/dev/<kho>` hay
+  biến `KHO_<TÊN>` — máy M5 không có `radar`, crm nằm ở `$HOME/dev/crm-onehub`. Máy MacBook Pro (đủ bảy kho) ghim được.
+  PR mốc không chạm hồ sơ này nên lưới trước-gộp không chặn.
+- `release-2-29-0` — E4/E8 của nó đo `72eb55f3..HEAD`, nên mọi mốc sau làm nó đỏ theo cấu tạo; nó vào tập chỉ vì dòng
+  `kiem-ban-cai-sau-tag.txt` ghi vào hồ sơ sau thẻ (#341). `release-2-30-0` sẽ cùng hình dạng ở mốc sau.
+
+**crm, theo thứ tự** (crm nhận THẲNG từ 2.28.0, bỏ qua 2.29.0 — các bước dưới đã gộp phần nhận của 2.29.0; ghi chú
+nhận của các mốc trước nữa vẫn áp):
+
+1. **Khi nào, ở đâu:** máy Mac Studio — máy duy nhất cài kit vào crm — ở **quãng lặng của đợt `r2`**: không lượt S4 nào
+   đang chạy, không vòng nào giữa hai cổng. Không đổi engine dưới chân một vòng đang chạy.
+2. **Cài theo thẻ `v2.30.0`:** gỡ rồi cài lại `acceptance-gate`, `feature-loop`, `dieu-phoi` ở mọi bản ghi (phạm vi
+   `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.30.0` — sống là `TỔNG KẾT: ĐẠT …
+   khớp v2.30.0`. Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
+3. **Lớp chép CI từ thẻ** (`git archive v2.30.0`) — đo 14/10 trên `onehub` 60fc1b02d, crm khai cả `tin_hieu` lẫn
+   `lo_trinh`: mười bảy tệp đã khớp (kể cả ba tệp `dieu-phoi/scripts/` chép ở crm#374); chép lại tám — bốn tệp DP11
+   cùng lúc (`lib/out-of-contract.cjs`, `scripts/pre-merge-check.sh`, `scripts/khong-can-nguoi.mjs`,
+   `scripts/product-map.mjs`), `scripts/ho-so-tom-tat.cjs`, `scripts/tin-hieu.mjs`, `scripts/cat-luot.mjs` và
+   `skills/acceptance/references/tin-hieu-template.md` (TH-cau của 2.29.0); thêm tệp MỚI `scripts/co-hop-dong.cjs` (S3c
+   của 2.29.0 — thiếu thì `MODULE_NOT_FOUND` khi `tin-hieu.mjs` nạp `cat-luot.mjs`). Đo lại bằng đường nền sau khi chép.
+4. **`zalo-qua-webhook` sẽ bị lưới chặn** (DP11 — chủ kho chọn luật CHẶT): đo 14/10, bộ phân giải mới thấy năm mục
+   `Ngoài-1`…`Ngoài-5` chưa định tuyến vì tám dòng sổ theo số ghi trước lượt chấm 24/09 01:37Z (cùng sổ, lib 2.29.0: 0
+   mục). Người định tuyến lại năm mục bằng `/acceptance-gate:signoff`, rồi lưới xanh lại. Hồ sơ khác cùng hình dạng hiện
+   ra ở bước 9.
+5. **Năm hồ sơ mang cờ vàng «evals.yaml không phải YAML chuẩn»** (R2; đo 14/10 ở 60fc1b02d, mười chỗ):
+   `dieu-phoi-hai-tang` 1 · `no-sau-luot-5-okr` 3 · `zalo-gui-hong-ghi-ly-do` 3 · `danh-sach-keo-chung` 2 ·
+   `bo-ca-mau-quy-4` 1. Không chặn, không đổi phán quyết — sửa khi tiện (bảng cách sửa ở `eval-executors.md` mục
+   «Standard YAML»). Muốn chặn hồ sơ MỚI trong CI: chép `yaml-chuan.cjs` và chạy với `--base origin/onehub`.
+6. **LT2 crm đọc câu cho người gửi bằng `b.cau_nguoi_gui ?? b.cau`** (TH-cau, 2.29.0) — trang vẽ bằng kit trước 2.29
+   hiện câu cũ kèm cờ vàng «bản vẽ cũ»; vẽ lại `LO-TRINH.html` bằng 2.30.0 thì cờ hết. Chạy lại E14 của
+   `gui-tin-hieu-trong-crm` sau khi vẽ lại.
+7. **Luật sản phẩm** (BB1, 2.29.0, tuỳ chọn): chủ kho viết bản luật đầu (vd múi giờ đọc từ cấu hình) bằng commit riêng,
+   thêm một dòng trỏ `PRODUCT-INVARIANTS.md` vào `CLAUDE.md` của crm.
+8. **Hồ sơ nháp ≥ 13 tiêu chí đang mở** dừng ở lối vào Cổng Phạm vi tới khi tách hay ghi dòng giữ cỡ (S3c, 2.29.0).
+   Gói `dieu-phoi` (DP10): không bước tay — giám sát thôi thấy `khoa-khong-nhip` oan cho dãy chạy lượt dài qua
+   `giu-nhip.mjs`.
+9. **Đo trước → sau** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây, lưới
+   trước-merge và thẻ của các hồ sơ đang mở dưới 2.28.0 rồi 2.30.0 — phán quyết từng hồ sơ phải bằng nhau, TRỪ chỗ hai
+   mốc hứa đổi: cờ cỡ hợp đồng trên thẻ hồ sơ nháp (S3c), khối luật sản phẩm (chỉ sau khi có tệp luật), chân engine của
+   đường nền thôi đỏ cho tệp có điều kiện (DP9), cờ vàng YAML (R2), và hồ sơ có dòng sổ chỉ số ghi trước lượt chấm —
+   cờ vàng + ô hỏi, máy-thông thì VIOLATION (DP11). Khác ở chỗ nào khác là tín hiệu.
+10. **Đọc ngưỡng ở vòng crm đầu tiên sau khi nhận:** `tin-hieu.mjs --cau` sau lượt gom thật đầu tiên ra 0 câu lọt
+    (TH-cau); `luat-san-pham.cjs --root . --dem --tu <ngày khai>` — cột dòng nạp phủ mọi vòng mới (BB1); `cat-luot.mjs
+    --co --tu <ngày cài>`, nhóm `phai-tach`, `n_chot − n_giu` = 0 (S3c); số dòng `"kind":"loai-tac-tu-vang"` trong
+    run-log không tăng sau lượt chấm đầu (KC1, dấu A1 sống); dòng sổ gate2 mới đều mang `tieu_de` (DP11); 0 lần giám sát
+    nhả khoá của dãy đang chạy qua `giu-nhip.mjs` (DP10).
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng của từng vòng — đủ ở bốn hợp đồng):
+`bo-doc-ho-so-khoan-dung` 7 · `dinh-tuyen-theo-ma-muc` 5 · `dieu-phoi-khoa-day-giu-nhip` 1 · `tac-tu-cham-chi-cham-khong`
+7 (định tuyến lại 13/10 trong PR #345). `docs/research/known-limits-ledger.tsv` có hàng cho cả bốn. Hạt giống mới:
+`2026-10-14-hat-giong-dong-may-mo-coi-vinh-vien` (DP11 Ngoài-2) · `2026-10-14-hat-giong-ho-so-tom-tat-can-ca-khi-khai-tin-hieu`
+(đo ở PR mốc). `#343` chỉ thêm hạt giống kênh liên máy cho phiên điều phối — tài liệu, không vào bản.
+
+**Năm dòng số của luật (c)** — ba vòng có lượt chấm trong cửa sổ (giờ VN; nguồn: giờ commit `contract.md`,
+`usage-report.md`, `decisions.jsonl`, `run-log.jsonl` của hồ sơ; dòng 1 tính từ commit đặt `implemented` tới commit chữ
+ký Cổng Bằng chứng; ba khối token theo khuôn 2.25: chứng-minh-vật = machine+ui+judge+baseline · tìm-lỗi = review+refute
+· tổng hợp = triage+capture+synthesize; Cổng Đáng không tính, theo khuôn 2.26). `tac-tu-cham-chi-cham-khong` không có
+lượt chấm trong cửa sổ — chỉ một chữ ký, đếm ở dòng 2 của DP11:
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `dieu-phoi-khoa-day-giu-nhip` (DP10, máy M5) | 3 g 45 · 2 | 1 / 0 (3) | 0 | 53 761 · 50,5 / 13,1 / 36,4 | 50 · 48 = 98 |
+| `bo-doc-ho-so-khoan-dung` (R2, máy MacBook Pro) | 1 g 11 · 1 | 1 / 0 (3) | 0 | 36 159 · 47,3 / 15,4 / 37,2 | 37 |
+| `dinh-tuyen-theo-ma-muc` (DP11, T3, máy M5) | 9 g 27 · 2 (lượt 2 xong 22:38 13/10, ký 06:17 14/10 — chờ người qua đêm 7 g 39) | 2 / 0 (4) + chữ ký `tac-tu-cham-chi-cham-khong` (giá của Hỏi-1 «chặt») | 0 | 71 354 · 41,4 / 24,2 / 34,4 | 53 · 51 = 104 |
+
+Cộng ba vòng: **5 lượt chấm** (trung vị làm-xong→quyết-được 3 g 45) · **161 274 out-token** (chứng-minh-vật 45,8 % ·
+tìm-lỗi 18,5 % · tổng hợp 35,7 %) · **≈ 239 phút máy** · **4 lượt gọi người theo thiết kế + 1 chữ ký kèm**, 0 ngoài
+thiết kế, **0 vòng vượt trần** · hạ tầng đốt **0 lượt chấm**. Phiên chính không đo token.
+
+**Đọc số:**
+
+- **Cửa sổ ngắn vì vòng nhỏ:** ba vòng là ba vá có gốc ở một kênh (crm#375); R2 qua trong một lượt, DP10 và DP11 mỗi
+  vòng một lượt sửa thật. Dòng 1 của DP11 phình vì chờ chữ ký qua đêm, không vì chấm.
+- **Tìm-lỗi 18,5 % token** (2.29: 15,9 %), kéo lên bởi lượt 1 của DP11 (T3, ba tác tử phản bác; khối tìm-lỗi chiếm 33 %
+  token của lượt ấy).
+- **A1 ở máy MacBook Pro vẫn chưa đọc được:** lượt chấm R2 có một dòng `loai-tac-tu-vang`; hai vòng máy M5 không có dòng
+  nào. Lệnh `kiem-ban-cai.mjs --may` (2.29.0) là đường kiểm việc đó.
+
+**Điều kiện tin cậy:** (i) đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần —
+`git diff v2.29.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/` rỗng. Không vòng nào đổi đầu vào lượt chấm.
+(ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** phán quyết tới người ký sai. Ngưỡng (a) đếm **0/2**. Dòng 4–5
+cắt được, 3/3 vòng có lượt chấm có số.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | = | không mục nào chạm đoạn từ `implemented` tới chữ ký |
+| 2 | ↑ một lần ở kho có sổ cũ, rồi = | dòng sổ chỉ số ghi trước lượt chấm thành ô hỏi (DP11) — hồ sơ máy-thông như crm `zalo-qua-webhook` cần một lượt người định tuyến lại; sổ mới mang mã nên lượt chấm sau chữ ký thôi làm lệch định tuyến |
+| 3 | ↓ ở kho dùng `dieu-phoi` | giám sát thôi nhả nhầm khoá của dãy đang chạy lượt dài (DP10) |
+| 4 | = / lượt | thành phần lượt không đổi |
+| 5 | = / lượt | như trên |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (14/10,
+đọc trên cây mốc). **N không tăng so với mốc 2.29.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ### Thẻ Cổng Bằng chứng: mục ngoài hợp đồng thành bảng có cột «Căn cứ» (hồ sơ `bang-ngoai-n-co-can-cu`)
 
