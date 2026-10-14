@@ -3,7 +3,7 @@
 **Ngày:** 2026-10-14 · **Hồ sơ:** `_acceptance/ra-soat-lo-trinh/` · **Hạng:** T2 · **Hàng lộ trình:** RM1 (mốc 05/11)
 **Nguồn:** `docs/findings/2026-10-14-kien-truc-roadmap-plugin.md` (B′, chủ kho duyệt 14/10) · ADR 0025 (bổ sung 14/10)
 **Đứng trên:** vòng MC1 `moc-la-chien-dich` (nhánh `claude/vibrant-chatterjee-5d468b`, chưa gộp) — cùng tệp `scripts/lo-trinh.mjs`.
-**Gốc vòng (bộ máy gốc của mọi ca so):** `1baceb96`.
+**Gốc so (bộ máy gốc của mọi ca so):** đọc từ `_acceptance/ra-soat-lo-trinh/goc-so` (hôm nay `1baceb96`). Nhánh nhận nền mới (MC1 gộp) thì tệp đổi sang commit nhận nền, kèm một dòng sổ `fix`; ca RS-0 đỏ nếu trong `gốc..HEAD` có commit chạm `scripts/ lib/ skills/ commands/` mà không thuộc vòng.
 
 ## 1. Một kết quả
 
@@ -25,27 +25,31 @@ so từng byte ở CI và ở mọi lần đóng cổng. Rà soát phụ thuộc
 ## 3. Luật đề xuất
 
 Một hàng được xét khi: **chưa giao**, **không** «không suy được». Hàng có hồ sơ **đang mở** (ô thuộc nhóm đang làm /
-chưa bắt đầu của bản đồ) → không đụng. Hàng `ghim: true` được miễn hai luật theo thời gian (`tuoi`, `tran`) và không
-tính vào K; ba luật sự thật vẫn áp. Một hàng nhận đề xuất của luật ĐẦU khớp theo thứ tự bảng.
+chưa bắt đầu của bản đồ) → không đụng (nó đã hiện ở dòng «Hàng trễ» khi mốc qua ngày). Một hàng nhận đề xuất của luật
+ĐẦU khớp theo thứ tự bảng — «xếp lại» đứng trước «mốc qua ngày»: hàng kho đã tự khai xếp lại thì đề xuất đúng trạng
+thái của nó, không đề xuất dời.
 
 | Mã luật | Khi nào | Đề xuất | Căn cứ máy đọc | Cần chính sách? |
 |---|---|---|---|---|
-| `moc-qua-ngay` | Hàng thuộc **mốc chiến dịch** đã qua ngày, chưa có hồ sơ | `doi-moc` (dời sang mốc kế, hoặc chờ điều kiện) | tên mốc + ngày | Không — sự thật |
 | `xep-lai` | Hàng ở trạng thái «Xếp lại sau» — từ hồ sơ, hoặc lời tự khai khi chưa có hồ sơ (cùng luật suy trạng thái kit đang dùng) | `cho-dieu-kien` | nguồn (`ho-so` + slug, hoặc `tu-khai` + chữ khai) | Không |
 | `ho-so-bac` | Hồ sơ của hàng ở ô «Đã bác từ khám phá» | `bac` | slug + ô | Không |
-| `tuoi` | Hàng «Kế tiếp» (không thuộc mốc chiến dịch nào), chưa có hồ sơ, không ghim, tuổi ≥ `chinh_sach.tuoi_ngay` | `cho-dieu-kien` | tuổi + ngày + sha lần chạm cuối | Có |
-| `tran` | Sau mọi đề xuất trên, số hàng «Kế tiếp» chưa có hồ sơ, không ghim, chưa có đề xuất vẫn vượt `chinh_sach.tran_ke_tiep` | `cho-dieu-kien` cho các hàng cũ nhất còn lại tới khi còn đúng trần | K, trần | Có |
+| `moc-qua-ngay` | Hàng thuộc **mốc chiến dịch** đã qua ngày, chưa có hồ sơ, trạng thái thuộc nhóm chưa bắt đầu | `doi-moc` (dời sang mốc kế, hoặc chờ điều kiện) | tên mốc + ngày | Không — sự thật |
+| `tuoi` | Hàng «Kế tiếp» (không thuộc mốc chiến dịch nào), chưa có hồ sơ, tuổi ≥ `chinh_sach.tuoi_ngay` | `cho-dieu-kien` | tuổi + ngày + sha lần chạm cuối | Có |
+| `tran` | Sau mọi đề xuất trên, số hàng «Kế tiếp» chưa có hồ sơ, chưa giao, chưa có đề xuất vẫn vượt `chinh_sach.tran_ke_tiep` | `cho-dieu-kien` cho các hàng cũ nhất còn lại tới khi còn đúng trần | K, trần | Có |
 
-**Mốc chiến dịch** = mốc có `loai` vắng hoặc `phat-hanh`. Mốc `ngoai`, `han`, `han-cung`, `su-kien` là việc của
-người hay sự kiện ngoài — máy không chứng được nên không kích hoạt rà soát (B′ §8 Core 2).
+**Mốc chiến dịch** = mốc có `loai: phat-hanh`. Mốc `ngoai`, `han`, `han-cung`, `su-kien` và mốc KHÔNG khai `loai` không
+kích hoạt rà soát: số đo 14/10 — cả 3 mốc không khai `loai` của crm là mốc của người (mang `ai`: «Phiên nghiệm thu R1»,
+«Đọc số lượt 6», «OKR năm 2027»); kit khai `loai` ở mọi mốc. Kho muốn mốc được rà soát thì khai `loai: phat-hanh`.
 
 **Tuổi hàng** (B′ §8 Core 1): số ngày từ lần cuối hàng được CHẠM trong lịch sử git của tệp lộ trình tới hôm nay.
-Chạm = đổi bất kỳ trường nào trừ `ma`, hoặc đổi tập mốc chứa hàng. Đổi mã đơn thuần không chạm — danh tính hàng
+Chạm = commit đổi bất kỳ trường nào của hàng trừ `ma`, hoặc đổi tập mốc chứa hàng, trong tệp lộ trình. Tín hiệu nối vào
+hàng (B′ §8) CHƯA tính là chạm — đọc nó cần cửa tín hiệu đã khai (chỉ crm có); giới hạn §9. Đổi mã đơn thuần không chạm — danh tính hàng
 đi theo câu giao (crm V0–V8 → DA0–DA8 giữ câu giao từng chữ). Đổi CẢ mã lẫn câu giao trong cùng một commit = hàng
 mới (giới hạn khai). Tính trên lịch sử tới HEAD; tệp đang sửa chưa commit không tính.
 
 **Chính sách** khai ở đầu tệp lộ trình — `"chinh_sach": {"tuoi_ngay": <nguyên dương>, "tran_ke_tiep": <nguyên ≥ 0>}`;
-`"ghim": true` ở cấp hàng. Vắng → chỉ ba luật sự thật chạy. Giá trị sai → một cờ khuôn (trang «Cần sửa») và
+Vắng → chỉ ba luật sự thật chạy. Khoá `ghim` (miễn trừ theo hàng) dời sang vòng 2 cùng phần tự áp — B′ §8 đặt nó
+trong «An toàn của tự áp». Giá trị sai → một cờ khuôn (trang «Cần sửa») và
 không luật chính sách nào chạy (không đoán). Vì sao ở tệp lộ trình (Hỏi-2): tệp là ý định người viết qua PR; thẻ
 mở đợt thuộc gói điều phối (vùng máy M5) — vòng sau thẻ ấy đọc/ghi CÙNG khoá này.
 
@@ -77,7 +81,8 @@ vào mô tả PR».
 
 Chữ hiển thị cho mục `chan_troi` đổi thành «chờ điều kiện» ở mọi thông báo người đọc của `cat-luot.mjs` và
 `lo-trinh.mjs`, skill cắt lượt, khuôn phạm vi / tín hiệu, mục glossary. Khoá `chan_troi` KHÔNG đổi — tệp cũ đọc như
-cũ, không ai phải chuyển (luật đổi khuôn: đường đọc-cũ).
+cũ, không ai phải chuyển (luật đổi khuôn: đường đọc-cũ). Trang lộ trình chỉ in chữ này trong hai câu cờ khuôn (khối
+`chan_troi` sai dạng) — đổi chữ làm đổi byte trang CHỈ ở kho có cờ đó; kho ấy vẽ lại trang khi nâng engine (khai ở Notes).
 
 ## 7. Mã đổi
 
@@ -93,7 +98,7 @@ cũ, không ai phải chuyển (luật đổi khuôn: đường đọc-cũ).
 
 ## 8. Không làm (vòng này)
 
-Tự áp + báo trước một nhịp + trần thao tác + bộ ghi · lệnh `ghim`/`bo-ghim`/`tra-lai`/`gui` · chính sách ở thẻ mở đợt
+Tự áp + báo trước một nhịp + trần thao tác + bộ ghi + khoá `ghim` · lệnh `ghim`/`bo-ghim`/`tra-lai`/`gui` · chính sách ở thẻ mở đợt
 và phân loại yêu cầu của thợ (gói điều phối, vùng M5) · rà soát chính mục «chờ điều kiện» theo `mo_lai_khi` · luật
 ưu tiên khi hai luật ngược nhau · `loai` vào khối dữ liệu · bản đồ hiện trạng liên kho.
 
@@ -102,5 +107,7 @@ và phân loại yêu cầu của thợ (gói điều phối, vùng M5) · rà s
 - Tuổi tính theo lịch sử git tới HEAD — kho clone nông (`--depth`) cho tuổi sai; bộ đọc thấy lịch sử cụt thì in
   một dòng «lịch sử cụt — tuổi tối thiểu».
 - Đổi cả mã lẫn câu giao trong một commit = hàng mới.
+- Tín hiệu nối vào hàng chưa tính là chạm: hàng «Kế tiếp» lâu không sửa mà vừa có tín hiệu vẫn có thể nhận đề xuất
+  `tuoi` — chủ kho bỏ qua đề xuất, hoặc vòng sau tính cả tín hiệu.
 - Gói `road-map` đọc lõi qua bộ giải (bản mới nhất trên máy) — chỉ đọc nên lệch phiên bản chỉ ảnh hưởng hiển thị;
   vòng có bộ ghi phải gọi bản chép trong kho (B′ §11).

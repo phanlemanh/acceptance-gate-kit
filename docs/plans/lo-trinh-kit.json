@@ -552,7 +552,7 @@
       "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào, không có cửa ra: OKR crm 125 hàng từng có, 1 hàng rời; 18–19/35 lần sửa lộ trình kit là xếp lại bằng tay. Hướng B′ chủ kho duyệt 14/10 (docs/findings/2026-10-14-kien-truc-roadmap-plugin.md)",
       "hang": "T2",
       "slug": "ra-soat-lo-trinh",
-      "bat_khi": "Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»",
+      "bat_khi": "Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao và chưa có hồ sơ đang mở đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»",
       "nhom": "lo-trinh"
     }
   ],

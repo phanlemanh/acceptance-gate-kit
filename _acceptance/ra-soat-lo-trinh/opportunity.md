@@ -43,7 +43,7 @@ meta MC1 của cửa sổ sau 2.30 còn mở — vòng meta thứ hai trong mộ
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»» khi hết timebox
+- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao và chưa có hồ sơ đang mở đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»» chưa?
+- Kết quả nào là SỐNG: [đề xuất] Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao và chưa có hồ sơ đang mở đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»
+- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao và chưa có hồ sơ đang mở đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»» khi hết timebox
 - Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)

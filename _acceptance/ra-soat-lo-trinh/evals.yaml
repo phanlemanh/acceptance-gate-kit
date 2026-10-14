@@ -6,7 +6,8 @@ feature_slug: ra-soat-lo-trinh
 # executors.test.ra_soat_lo_trinh_crm; crm vắng → thoát 2 nêu đường — mù, không xanh). Phần khoá số phiên bản của AC-10
 # đo bằng ca P200 có sẵn ở suite plugin vùng 3 (khoá executors.test.plugins_vung_3). Kho thử do code sinh trong lượt
 # (commit ghim ngày bằng GIT_COMMITTER_DATE/GIT_AUTHOR_DATE, hôm nay ghim bằng ACCEPTANCE_TODAY); «bộ máy gốc» =
-# `git archive 1baceb96 scripts lib skills commands` (gốc vòng, ghim sha) bung trong lượt; mọi đường dẫn suy từ vị trí
+# `git archive <gốc so> scripts lib skills commands` bung trong lượt, gốc so đọc từ _acceptance/ra-soat-lo-trinh/goc-so; ca gác
+# RS-0 chạy trước mọi ca so (commit chạm scripts/lib/skills/commands trong gốc..HEAD phải thuộc vòng); mọi đường dẫn suy từ vị trí
 # tệp ca. Mỗi ca đỏ chạy trên BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi bản
 # lành xanh trên cùng kho thử, và ghim thông điệp. Ca in đúng một dòng «PASS: RS-…» hoặc «FAIL: RS-… — <vì sao>»; mỗi
 # eval ghim dòng PASS của chính nó — lệnh xanh mà thiếu dòng ghim là ĐỎ.
@@ -17,11 +18,11 @@ evals:
     cmd: config:executors.test.ra_soat_lo_trinh
     paths: [scripts/lo-trinh.mjs, tests/scripts/ra-soat-lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: RS-1", "PASS: RS-1-do", "PASS: RS-1-do2". RS-1: kho thử 48 hàng (6 vị trí × 8 trạng thái,
+      exit 0; stdout có "PASS: RS-0", "PASS: RS-1", "PASS: RS-1-do", "PASS: RS-1-do2". RS-1: kho thử 48 hàng (6 vị trí × 8 trạng thái,
       ma trận sinh bằng code, mỗi hàng một mã RS1-<vị trí>-<trạng thái>), không chính sách, ACCEPTANCE_TODAY=2026-10-14 —
-      tập (mã, de_xuat, luat) của `--ra-soat --json` BẰNG tập viết sẵn 20 phần tử: 2 × doi-moc/moc-qua-ngay
-      (phat-hanh-qua × chua-ho-so, khong-loai-qua × chua-ho-so) · 12 × cho-dieu-kien/xep-lai (6 vị trí × {xep-lai-ho-so,
-      xep-lai-tu-khai}) · 6 × bac/ho-so-bac; đối chứng dương trước khi so: lệnh thoát 0 và mảng khác rỗng. RS-1-do: bản
+      tập (mã, de_xuat, luat) của `--ra-soat --json` BẰNG tập viết sẵn 19 phần tử: 1 × doi-moc/moc-qua-ngay
+      (phat-hanh-qua × chua-ho-so) · 12 × cho-dieu-kien/xep-lai (6 vị trí × {xep-lai-ho-so, xep-lai-tu-khai}, gồm hai ô
+      phat-hanh-qua — ghim tên hai ô này khi lệch) · 6 × bac/ho-so-bac; hàng mốc không khai loai không mang đề xuất; đối chứng dương trước khi so: lệnh thoát 0 và mảng khác rỗng. RS-1-do: bản
       sao scripts/lo-trinh.mjs coi `ngoai` là mốc chiến dịch → FAIL ghim «hàng mốc ngoài nhận đề xuất: RS1-ngoai-qua-chua-ho-so».
       RS-1-do2: bản sao bỏ điều kiện «hồ sơ đang mở thì không đụng» → FAIL ghim «hàng có hồ sơ đang mở nhận đề xuất: <mã>».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -34,11 +35,11 @@ evals:
       exit 0; stdout có "PASS: RS-2", "PASS: RS-2-khong-chinh-sach", "PASS: RS-2-sai-kieu", "PASS: RS-2-do",
       "PASS: RS-2-do2". RS-2: kho thử có lịch sử commit ghim ngày, chinh_sach {tuoi_ngay: 30, tran_ke_tiep: 1} — đề xuất
       chính sách BẰNG tập viết sẵn {K30 → cho-dieu-kien/tuoi, K45 → cho-dieu-kien/tuoi, K29 → cho-dieu-kien/tran}; mục
-      tran mang can_cu {k: 4, tran: 1}; hàng ghim G90 và ba hàng đã giao D100a/b/c không mang đề xuất. RS-2-khong-chinh-sach:
+      tran mang can_cu {k: 4, tran: 1}; ba hàng đã giao D100a/b/c không mang đề xuất. RS-2-khong-chinh-sach:
       cùng kho bỏ khoá chinh_sach → 0 đề xuất luật tuoi/tran. RS-2-sai-kieu: tuoi_ngay "30" → trang có đúng một mục
       «chính sách tuoi_ngay phải là số nguyên dương» ở mục «Cần sửa trong kế hoạch» và trong `can_sua` của khối, 0 đề xuất
-      tuoi/tran. RS-2-do: bản sao đếm cả hàng đã giao vào K → FAIL ghim «K = 7, cần 4». RS-2-do2: bản sao bỏ qua ghim →
-      FAIL ghim «hàng ghim nhận đề xuất: G90».
+      tuoi/tran. RS-2-do: bản sao đếm cả hàng đã giao vào K → FAIL ghim «K = 7, cần 4». RS-2-do2: bản sao so tuổi bằng «>» →
+      FAIL ghim «hàng tuổi 30 thiếu đề xuất tuoi».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -61,7 +62,7 @@ evals:
       exit 0; stdout có "PASS: RS-4", "PASS: RS-4-byte", "PASS: RS-4-do". RS-4: kho thử 8 đề xuất — `loTrinh.dong` của
       bộ quét start có đúng một dòng bắt đầu «Rà soát: 8 đề xuất — », đúng 5 dòng chi tiết «  · » và một dòng «  … còn 3
       — xem: », liền nhau và đứng ngay trước dòng «Lộ trình có » (kho không cờ: ngay trước dòng «Trang lộ trình»);
-      `loTrinh.ds[0].raSoat` deepEqual mảng `--ra-soat --json`. RS-4-byte: ba kho 0 đề xuất (không khai · một lộ trình
+      `loTrinh.ds[0].raSoat` deepEqual mảng `--ra-soat --json`. RS-4-byte (sau RS-0 xanh): ba kho 0 đề xuất (không khai · một lộ trình
       không mốc không chính sách · có mốc chưa tới ngày) — stdout bộ quét start giống TỪNG BYTE bộ máy gốc; đối chứng
       dương trước: mỗi kho × mỗi bên lệnh thoát 0, stdout khác rỗng, thiếu → FAIL ghim «đối chứng gốc không chạy: <bên>
       <kho>». RS-4-do: bản sao in «Rà soát: 0 đề xuất» khi rỗng → FAIL ghim «khác bộ máy gốc: <kho>».
@@ -85,7 +86,7 @@ evals:
     cmd: config:executors.test.ra_soat_lo_trinh
     paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/ra-soat-lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: RS-6", "PASS: RS-6-do". RS-6: kho thử của RS-1 và RS-2 — LO-TRINH.html vẽ với
+      exit 0; stdout có "PASS: RS-6", "PASS: RS-6-do". RS-6: (sau RS-0 xanh) kho thử của RS-1 và RS-2 — LO-TRINH.html vẽ với
       ACCEPTANCE_TODAY 2026-10-14 và 2026-12-31 giống nhau từng byte, giống từng byte bộ máy gốc, `product-map.mjs
       --check` thoát 0; đối chứng dương: mỗi bên tệp có mặt, khác rỗng, chứa mã hàng viết sẵn. RS-6-do: bản sao chèn
       dòng rà soát vào trang → FAIL ghim «trang khác bộ máy gốc: <kho>».
