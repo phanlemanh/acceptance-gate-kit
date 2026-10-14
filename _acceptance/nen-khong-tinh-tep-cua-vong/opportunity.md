@@ -3,10 +3,13 @@ schema_version: 1
 slug: nen-khong-tinh-tep-cua-vong
 feature: Đường nền không đổ đỏ cho tệp mà chính vòng viết trong lúc nền chạy — S1 soạn song song mà nền vẫn đọc đúng
 owner: manh@mstar.vn
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: build
+decided_by: manh
+decided_at: 2026-10-14T05:43:05Z   # chủ kho gõ «Làm A» trong phiên 14/10 sau khi xem đánh giá A ↔ A2, máy ghi hộ
+prototype:
+  base_commit:
+  disposition: archive
 ---
 
 ## Vấn đề & ai gặp
@@ -92,6 +95,13 @@ Dòng vẫn hiện, có tên, trên thẻ — chỉ không lật màu. `config.y
 đổi: một suite ghi vào `config.yaml` sẽ hiện vàng thay vì đỏ (0 ca trong 233 dòng lịch sử).
 29 dòng còn lại (mã, bản mẫu design-pass do phiên viết song song) vẫn đỏ ở mặc định — kho nào gặp
 nhiều thì bật khoá.
+
+## Cổng 0
+
+- **decision = build — lối A.** Căn cứ: chủ kho gõ «Làm A» 14/10 sau bảng so A ↔ A2 (A2 chỉ lợi cho
+  kit — luật chiều rộng; crm không bật được khoá). Không thêm khoá cấu hình nào; A2 sống ở hạt giống
+  `docs/plans/2026-10-14-hat-giong-nen-tren-worktree-head.md`.
+- **disposition = archive** — không có prototype.
 
 ## Ngưỡng chết / ngưỡng UAT
 
