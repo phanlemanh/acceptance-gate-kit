@@ -39,7 +39,10 @@ evals:
       cùng kho bỏ khoá chinh_sach → 0 đề xuất luật tuoi/tran. RS-2-sai-kieu: tuoi_ngay "30" → trang có đúng một mục
       «chính sách tuoi_ngay phải là số nguyên dương» ở mục «Cần sửa trong kế hoạch» và trong `can_sua` của khối, 0 đề xuất
       tuoi/tran. RS-2-do: bản sao đếm cả hàng đã giao vào K → FAIL ghim «K = 7, cần 4». RS-2-do2: bản sao so tuổi bằng «>» →
-      FAIL ghim «hàng tuổi 30 thiếu đề xuất tuoi».
+      FAIL ghim «hàng tuổi 30 thiếu đề xuất tuoi». RS-2-tu-khai (Cổng Bằng chứng 15/10): cùng kho thêm ba hàng chưa hồ sơ,
+      ngoài mốc chiến dịch, tuổi 100, tự khai «Đã bác từ khám phá» (TKB) · «Đang làm» (TKD) · «Ngoài phạm vi đã ký» (TKN)
+      → tập đề xuất BẰNG tập của RS-2 (K vẫn = 4), ba hàng tự khai không mang đề xuất. RS-2-do3: bản sao đếm mọi hàng chưa
+      giao vào K → FAIL ghim mã «TKB».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -65,7 +68,10 @@ evals:
       `loTrinh.ds[0].raSoat` deepEqual mảng `--ra-soat --json`. RS-4-byte (sau RS-0 xanh): ba kho 0 đề xuất (không khai · một lộ trình
       không mốc không chính sách · có mốc chưa tới ngày) — stdout bộ quét start giống TỪNG BYTE bộ máy gốc; đối chứng
       dương trước: mỗi kho × mỗi bên lệnh thoát 0, stdout khác rỗng, thiếu → FAIL ghim «đối chứng gốc không chạy: <bên>
-      <kho>». RS-4-do: bản sao in «Rà soát: 0 đề xuất» khi rỗng → FAIL ghim «khác bộ máy gốc: <kho>».
+      <kho>». RS-4-do: bản sao in «Rà soát: 0 đề xuất» khi rỗng → FAIL ghim «khác bộ máy gốc: <kho>». RS-4-lenh (Cổng Bằng
+      chứng 15/10): lệnh rút từ dòng «… còn 3 — xem: <lệnh>» chạy nguyên văn bằng shell với cwd = kho thử (không có thư mục
+      scripts/) → thoát 0, stdout BẰNG `--ra-soat` của lõi trên cùng kho. RS-4-lenh-do: bản sao in đường tương đối
+      `node scripts/lo-trinh.mjs` → FAIL ghim «lệnh xem không chạy được ở kho tiêu thụ».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -148,4 +154,23 @@ evals:
     expected: >
       exit 0; dòng «Results:» báo 0 FAIL; ca P200 (vùng 3) khoá số phiên bản của bốn gói acceptance-gate, feature-loop,
       dieu-phoi, road-map, với một đột biến mới lệch số của road-map đỏ nêu «road-map» (MUT_KY_VONG tăng 1).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.ra_soat_lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, road-map/commands/xem.md, tests/scripts/ra-soat-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: RS-11-hong", "PASS: RS-11-con", "PASS: RS-11-khong-git", "PASS: RS-11-cut", "PASS: RS-11-do",
+      "PASS: RS-11-do2", "PASS: RS-11-do3". RS-11-hong: kho khai hai lộ trình, một tệp `{bad` + một tệp lành có đề xuất —
+      bản chữ thoát 1, stdout có dòng đề xuất của tệp lành, stderr có đúng một dòng bắt đầu «lo-trinh: không đọc được tệp ý
+      định — » nêu tên tệp hỏng; bản JSON thoát 1, phần tử tệp hỏng có `loi` khác rỗng và `de_xuat` rỗng. RS-11-con: kho
+      git, lộ trình + _acceptance trong `sub/`, tuoi_ngay 30, hàng commit 2026-09-01 → `--root sub` cho đúng một đề xuất
+      tuoi tuổi 43, BẰNG đề xuất của cùng nội dung ở gốc kho (đối chứng dương: gốc kho ra tuổi 43). RS-11-khong-git: cùng
+      nội dung bung vào thư mục không phải kho git → JSON `canh_bao` chứa «không đọc được tuổi hàng — luật tuổi không chạy»,
+      bản chữ và thẻ start in đúng một dòng chứa câu ấy, thoát 0. RS-11-cut: clone `--depth 1` có chính sách tuổi →
+      `lich_su_cut: true`, `canh_bao` chứa «lịch sử cụt — tuổi hàng là tuổi tối thiểu», bản chữ và thẻ start in đúng một
+      dòng chứa câu ấy. RS-11-do: bản sao trả tệp hỏng về im → FAIL ghim «tệp hỏng mà lệnh im: <tệp>». RS-11-do2: bản sao
+      đọc `<sha>:<tệp>` không `./` → FAIL ghim «thư mục con: thiếu đề xuất tuoi <mã>». RS-11-do3: bản sao bỏ cảnh báo lịch
+      sử cụt → FAIL ghim «lịch sử cụt mà không cảnh báo».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
