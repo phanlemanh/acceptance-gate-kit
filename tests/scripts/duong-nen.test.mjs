@@ -893,6 +893,57 @@ function quetNapTinh(goc, chiSo) {
   } catch (e) { bad('NEN-DK6 khong dung duoc phep quet', String(e.message || e)); }
 }
 
+// ══ NEN-TV* — hồ sơ nen-khong-tinh-tep-cua-vong: dòng của CHÍNH vòng vào mục «Dòng vàng» ══════════
+const TCV = path.join(KIT, 'feature-loop', 'scripts', 'lib', 'tep-cua-vong.mjs');
+const napTcv = async () => { try { return await import(TCV); } catch (e) { return { loi: String(e.message || e) }; } };
+
+// ── NEN-TV8 — phát lại 230 dòng CAY BAN lịch sử thật qua CHÍNH vị từ (AC-10) ──
+{
+  const TSV = path.join(KIT, 'tests', 'scripts', 'fixtures', 'duong-nen-cay-ban-lich-su.tsv');
+  const mod = await napTcv();
+  const dong = existsSync(TSV) ? readFileSync(TSV, 'utf8').split('\n').filter(l => l && !l.startsWith('#')) : [];
+  if (mod.loi || typeof mod.tepCuaVong !== 'function') bad('NEN-TV8 khong nap duoc lib/tep-cua-vong.mjs', mod.loi || 'thieu tepCuaVong');
+  else if (dong.length !== 230) bad('NEN-TV8 tep du lieu phai co dung 230 dong', `${dong.length}`);
+  else {
+    const dem = {}; const goc = [];
+    for (const l of dong) {
+      const [slug, lop, duong] = l.split('\t');
+      const v = mod.tepCuaVong(duong, slug, () => false);
+      const k = `${lop}:${v ? 'vang' : 'do'}`; dem[k] = (dem[k] || 0) + 1;
+      if (slug === 'dai-luu-tru-dung-chung') goc.push(v);
+    }
+    const mong = { 'GIA-S1:vang': 197, 'KHAC:vang': 3, 'KHAC:do': 26, 'CAT:do': 4 };
+    const lech = Object.keys({ ...mong, ...dem }).filter(k => dem[k] !== mong[k]);
+    if (lech.length) bad('NEN-TV8 dem lop lech', `${JSON.stringify(dem)} — mong ${JSON.stringify(mong)}`);
+    else if (goc.length !== 7 || goc.some(x => !x)) bad('NEN-TV8 ca Goc dai-luu-tru-dung-chung phai 7/7 vang', JSON.stringify(goc));
+    else ok(`NEN-TV8 phat lai 230 dong lich su — ${JSON.stringify(dem)}, ca Goc 7/7 vang`);
+  }
+}
+// ── NEN-TV8b — slug có dấu chấm thoát regex; thư mục có sẵn ở HEAD; tiền tố VIOLATION phải có «]:» ──
+{
+  const mod = await napTcv();
+  if (mod.loi || typeof mod.tepCuaVong !== 'function' || typeof mod.viPhamCuaVong !== 'function') bad('NEN-TV8b khong nap duoc vi tu', mod.loi || 'thieu ham');
+  else {
+    const o = [
+      [mod.tepCuaVong('_acceptance/a.b/contract.md', 'a.b', () => true), true, 'ho so cua vong (ke ca khi da co o HEAD)'],
+      [mod.tepCuaVong('docs/superpowers/specs/2026-10-14-a.b-design.md', 'a.b', () => false), true, 'spec khuon ten'],
+      [mod.tepCuaVong('docs/superpowers/plans/2026-10-14-a.b.md', 'a.b', () => false), true, 'plan khuon ten'],
+      [mod.tepCuaVong('docs/superpowers/specs/2026-10-14-aXb-design.md', 'a.b', () => false), false, 'a.b khong khop aXb'],
+      [mod.tepCuaVong('_acceptance/a.b-2/x.md', 'a.b', () => false), false, 'tien to thu muc ho so'],
+      [mod.tepCuaVong('_acceptance/config.yaml', 'a.b', () => true), true, 'config.yaml'],
+      [mod.tepCuaVong('apps/api/x.ts', 'api', d => d === 'apps/api'), false, 'thu muc co san o HEAD'],
+      [mod.tepCuaVong('apps/proto/api/x.ts', 'api', d => d === 'apps/api'), true, 'thu muc moi bang slug'],
+      [mod.tepCuaVong('README.md', 'a.b', () => false), false, 'tep thuong'],
+      [mod.viPhamCuaVong('VIOLATION [a.b]: x', 'a.b'), true, 'vi pham cua vong'],
+      [mod.viPhamCuaVong('VIOLATION [a.b-2]: x', 'a.b'), false, 'vi pham tien to slug'],
+      [mod.viPhamCuaVong('VIOLATION [demo]: x _acceptance/a.b/ y', 'a.b'), false, 'slug giua dong'],
+    ];
+    const sai = o.filter(([got, want]) => got !== want).map(([, , ten]) => ten);
+    if (sai.length) bad('NEN-TV8b vi tu sai o', sai.join(', '));
+    else ok(`NEN-TV8b vi tu dung ${o.length}/${o.length} o (slug co dau cham, thu muc co san, tien to VIOLATION)`);
+  }
+}
+
 donDep();
 console.log(`\nResults: ${pass} passed, ${fail} failed (duong-nen)`);
 process.exit(fail ? 1 : 0);
