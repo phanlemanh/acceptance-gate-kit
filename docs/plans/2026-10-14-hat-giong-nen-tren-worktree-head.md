@@ -1,6 +1,6 @@
 # Hạt giống — đường nền chạy trên worktree tạm ở HEAD, bật theo lựa chọn
 
-Gốc: acceptance-gate-kit/_acceptance/nen-khong-tinh-tep-cua-vong — lối A2 tách khỏi vòng ngày 14/10
+Gốc: acceptance-gate-kit/_acceptance/nen-khong-tinh-tep-cua-vong/ — lối A2 tách khỏi vòng ngày 14/10
 (Điều phối M5: «CỘNG cần phê riêng + giữ đơn giản; phần lọc tự nó đã trả gần hết giá»)
 
 ## Ý
@@ -19,6 +19,10 @@ viết gì vào cây gốc trong lúc nền chạy, nền không thấy.
   `product-map.mjs --check` trên `git archive <sha>` của chính lượt đó → 13/20 XANH (đỏ do hồ sơ của
   vòng viết dở), 7/20 đỏ thật ở HEAD. Các `DO SAN` corpus khác (`plugins_vung_*`, 27 hồ sơ có `DO SAN`
   nói chung) chưa tách thật/giả.
+- Ca mới cùng lớp, ngay ở đường nền của chính hồ sơ này (14/10 07:30→08:17Z, sha `ee004af5`): P122,
+  P126, `product_map` và VC8 đỏ vì ô cơ hội + hạt giống của vòng đã commit mà bản đồ chưa vẽ lại — đỏ
+  của vòng nằm TRONG cây đã commit, nên worktree ở HEAD cũng không chữa; lối chữa đúng tầng là vẽ lại bản
+  đồ trước khi chạy nền.
 - 29/233 dòng `CAY BAN` lịch sử là mã / tài liệu / bản mẫu design-pass do phiên viết song song,
   đường không mang slug (đo 14/10, 8 hồ sơ).
 
