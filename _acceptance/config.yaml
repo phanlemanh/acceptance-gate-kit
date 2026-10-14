@@ -74,6 +74,8 @@ executors:
     moc_chien_dich: node tests/scripts/moc-chien-dich.test.mjs
     moc_chien_dich_lt97: "LT_CASES=LT-97,LT-97-do,LT-97-do2 node tests/scripts/lo-trinh.test.mjs"
     moc_chien_dich_crm: node tests/scripts/moc-chien-dich-crm.mjs
+    ra_soat_lo_trinh: node tests/scripts/ra-soat-lo-trinh.test.mjs
+    ra_soat_lo_trinh_crm: node tests/scripts/ra-soat-lo-trinh-crm.mjs
     ngay_ky: node tests/scripts/ngay-ky.test.mjs
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"

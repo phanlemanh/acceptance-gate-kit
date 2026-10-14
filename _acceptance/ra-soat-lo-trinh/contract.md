@@ -1,0 +1,76 @@
+---
+schema_version: 1
+feature: Chủ kho mở thẻ khởi động và thấy ngay hàng nào của lộ trình cần rà soát — dời mốc, chờ điều kiện hay bác — kèm căn cứ máy đọc, mà máy không sửa tệp lộ trình và không thêm lượt gọi người
+slug: ra-soat-lo-trinh
+owner: phanlemanh@gmail.com
+risk_tier: T2               # scripts/lo-trinh.mjs · scripts/cat-luot.mjs · scripts/start-scan.mjs · commands/start.md · skill cắt lượt + khuôn · gói mới road-map/ + marketplace + P200 — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
+surfaces: [cli]
+design_doc: docs/superpowers/specs/2026-10-14-ra-soat-lo-trinh-design.md
+status: draft
+approved_by:
+approved_at:
+---
+
+# Acceptance Contract: ra-soat-lo-trinh
+
+## Context
+
+Vòng 1 của gói `road-map` theo hướng B′ (`docs/findings/2026-10-14-kien-truc-roadmap-plugin.md`, chủ kho duyệt
+14/10; ADR 0025 bổ sung 14/10). Gốc: `crm/_acceptance/tin-hieu-tu-ve-kho/` — lộ trình chỉ có cửa vào, không có cửa ra.
+Lát «chỉ cờ»: máy tính đề xuất rà soát kèm căn cứ và hiện trên thẻ khởi động + một lệnh chỉ đọc; KHÔNG tự áp, KHÔNG
+ghi tệp lộ trình. Rà soát phụ thuộc hôm nay nên KHÔNG vào trang lộ trình (trang phải tất định — `--check` so byte).
+Chủ kho gọi tên vòng 14/10 khi vòng meta MC1 của cửa sổ còn mở — ngoại lệ luật chiều rộng (b), ghi ở sổ.
+
+Kho thử trong mọi ca do code sinh trong lượt (thư mục tạm, `git init`, commit ghim ngày bằng `GIT_COMMITTER_DATE` /
+`GIT_AUTHOR_DATE`, hồ sơ dựng theo hình dạng ô của bản đồ); «hôm nay» ghim bằng `ACCEPTANCE_TODAY=2026-10-14`. Giá trị
+mong đợi viết sẵn trong ca, không rút từ đầu ra của hàm rà soát. «Bộ máy gốc» = `scripts lib skills commands` lấy bằng
+`git archive 1baceb96` (gốc vòng, ghim sha) trong lượt.
+
+## Criteria
+
+- AC-1: Given kho thử dùng mốc, không khai chính sách, ma trận hàng viết sẵn {mốc `phat-hanh` đã qua ngày · mốc không `loai` đã qua ngày · mốc `phat-hanh` chưa tới ngày · mốc `ngoai` đã qua ngày · mốc `han-cung` đã qua ngày · không thuộc mốc} × {chưa có hồ sơ · hồ sơ đang mở · đã giao · xếp lại có hồ sơ · xếp lại tự khai không hồ sơ · đã bác · hỏng · không suy được}, When chạy `lo-trinh.mjs --ra-soat --json`, Then tập (mã, đề xuất, luật) BẰNG tập viết sẵn: `doi-moc`/`moc-qua-ngay` ĐÚNG ở hai ô (hai dạng mốc chiến dịch đã qua ngày × chưa có hồ sơ); `cho-dieu-kien`/`xep-lai` ở mọi hàng xếp lại (sáu vị trí × hai nguồn); `bac`/`ho-so-bac` ở mọi hàng đã bác; không hàng nào khác mang đề xuất. Chiều đỏ: bản sao coi mốc `ngoai` là mốc chiến dịch → ca đỏ nêu mã hàng mốc ngoài; bản sao không loại hàng có hồ sơ đang mở → ca đỏ nêu mã hàng đó.
+- AC-2: Given kho thử có lịch sử commit ghim ngày và `chinh_sach: {tuoi_ngay: 30, tran_ke_tiep: 1}`, hàng «Kế tiếp» (không thuộc mốc chiến dịch) chưa có hồ sơ tuổi {10, 29, 30, 45} ngày, một hàng `ghim: true` tuổi 90, ba hàng ngoài mốc đã giao tuổi 100, When rà soát, Then `cho-dieu-kien`/`tuoi` ĐÚNG ở hai hàng tuổi 30 và 45 (ngưỡng tính ≥); số hàng «Kế tiếp» K = 4 (hàng ghim và hàng đã giao không đếm); luật `tran` thêm `cho-dieu-kien` cho ĐÚNG hàng tuổi 29 (hàng cũ nhất còn lại, đưa phần còn lại về bằng trần); hàng ghim và hàng đã giao không mang đề xuất. Given cùng kho mà không khai chính sách, Then không đề xuất `tuoi`/`tran` nào. Given `tuoi_ngay: "30"` (chuỗi), Then trang lộ trình có đúng một cờ «chính sách tuoi_ngay phải là số nguyên dương» ở mục «Cần sửa trong kế hoạch» và không đề xuất chính sách nào. Chiều đỏ: bản sao đếm cả hàng đã giao vào K → ca đỏ nêu «K = 7, cần 4»; bản sao bỏ qua `ghim` → ca đỏ nêu mã hàng ghim.
+- AC-3: Given kho thử với chuỗi commit ghim ngày — c1 01/09 tạo X, Y, Z, W; c2 10/09 sửa `vi_sao` của Y; c3 20/09 đổi mã Z → Z2 giữ câu giao; c4 25/09 gắn X vào một mốc `ngoai`, c5 01/10 gỡ X khỏi mốc đó; c6 05/10 đổi CẢ mã lẫn câu giao của W thành W2 — và `chinh_sach.tuoi_ngay: 1`, When rà soát hôm nay 14/10, Then tuổi và (ngày, sha) lần chạm cuối của từng hàng BẰNG bảng viết sẵn: X 13 (c5) · Y 34 (c2) · Z2 43 (c1 — đổi mã không chạm) · W2 9 (c6 — hàng mới); sha lấy từ chính kho thử trong lượt. Chiều đỏ: bản sao theo dấu hàng bằng mã → ca đỏ nêu «Z2: tuổi 24, cần 43».
+- AC-4: Given kho thử có 8 đề xuất, When chạy bộ quét thẻ start, Then `loTrinh.dong` có ĐÚNG một dòng tổng `Rà soát: 8 đề xuất — <a> dời mốc · <b> chờ điều kiện · <c> bác`, đúng 5 dòng chi tiết `  · <mã> — <đề xuất>: <căn cứ>` và một dòng `  … còn 3 — xem: <lệnh>`, đặt ngay trước dòng «Lộ trình có N cờ» (không có cờ thì trước dòng trang); `loTrinh.ds[].raSoat` BẰNG mảng của `--ra-soat --json` trên cùng kho. Given ba kho thử 0 đề xuất (không khai lộ trình · khai một lộ trình không mốc, không chính sách · khai có mốc chưa tới ngày), Then stdout bộ quét giống TỪNG BYTE bộ máy gốc — sau đối chứng dương (mỗi kho × mỗi bên: lệnh thoát 0, stdout khác rỗng; thiếu → ca đỏ «đối chứng gốc không chạy: <bên> <kho>»). Chiều đỏ: bản sao in dòng «Rà soát: 0 đề xuất» → ca so byte đỏ nêu kho.
+- AC-5: Given kho thử có đề xuất của cả năm luật, When chạy `--ra-soat` (chữ) và `--ra-soat --json`, Then cả hai thoát 0; mỗi mục JSON có `ma`, `cau_giao`, `de_xuat`, `luat`, `can_cu` và `can_cu` đúng hình theo luật (`moc-qua-ngay`: `moc` + `ngay` · `xep-lai`: `nguon` ∈ {`ho-so`, `tu-khai`} + `ho_so` hoặc `chu` · `ho-so-bac`: `ho_so` + `o` · `tuoi`: `tuoi` + `cham_cuoi.ngay` + `cham_cuoi.sha` · `tran`: `k` + `tran`); bản chữ in mỗi mục đúng một dòng cùng câu với dòng chi tiết của thẻ; sau lệnh `git status --porcelain` của kho thử rỗng và mtime tệp lộ trình không đổi. Given kho chưa khai lộ trình, Then thoát 1 với thông điệp nêu khoá `lo_trinh.tep`; `--ra-soat` đi cùng `--hang` → thoát 2. Chiều đỏ: bản sao ghi một tệp vào kho trong lúc rà soát → ca đỏ «lệnh rà soát ghi tệp: <tệp>».
+- AC-6: Given các kho thử của AC-1 và AC-2 (trừ ca chính sách sai), When vẽ trang lộ trình hai lần với `ACCEPTANCE_TODAY` khác nhau (2026-10-14 và 2026-12-31), Then hai lần ra cùng byte, giống TỪNG BYTE bộ máy gốc, và `product-map.mjs --check` thoát 0. Chiều đỏ: bản sao đưa đề xuất rà soát vào trang → ca đỏ «trang khác bộ máy gốc: <kho>».
+- AC-7: Given kho thử có bản phạm vi đợt `d2` và lộ trình có mốc A (`phat-hanh`, ngày sau hôm nay, đã có hàng của đợt `d1`) · mốc B (`phat-hanh`, ngày sau hôm nay, chỉ hàng của `d2`) · mốc C (`phat-hanh`, đã qua ngày, có hàng `d1`) · mốc N (`ngoai`, ngày sau hôm nay, có hàng `d1`), mỗi mốc gắn một hàng của `d2`, When chạy `cat-luot.mjs --co` và răng phủ `--pham-vi` với hôm nay 2026-10-14, Then có ĐÚNG MỘT cảnh báo `[gan-moc-dang-chay]` nêu hàng gắn A và tên mốc A; mã thoát của cả hai lệnh bằng bộ máy gốc trên cùng kho. Chiều đỏ: bản sao bỏ điều kiện «mốc đã có hàng ngoài đợt» → ca đỏ nêu hàng gắn B.
+- AC-8: Given cây, When chạy các lệnh phát thông báo về mục `chan_troi` (răng phủ cắt lượt với mục thiếu `ly_do`; mã không nằm ở hàng, mục hay mốc ngoài nào; bộ đọc khuôn với `chan_troi` không phải mảng), Then thông báo dùng chữ «chờ điều kiện» (ghim từng câu) và không câu nào chứa «chân trời»; quét chuỗi thông báo trong `scripts/cat-luot.mjs`, `scripts/lo-trinh.mjs`, `scripts/tin-hieu.mjs`, skill `cat-luot`, skill `gom-tin-hieu`, khuôn `pham-vi-template.md`, `tin-hieu-template.md`, `lo-trinh-du-lieu.md` và mục glossary của `CONTEXT.md`: 0 chữ «chân trời» ngoài khoá `chan_troi` và chú thích mã; một tệp lộ trình dùng khoá `chan_troi` đọc ra cùng kết quả răng phủ như bộ máy gốc (trừ chữ). Chiều đỏ: bản sao trả một thông báo về chữ cũ → ca đỏ nêu câu.
+- AC-9: Given bản sao `docs/plan/` + `_acceptance/` của crm ở `d0351bcd` (bung bằng `git archive` trong lượt; crm vắng trên máy → thoát 2 nêu đường, không xanh) và tệp lộ trình kit ở `1baceb96`, hôm nay 2026-10-14, không chính sách, When rà soát, Then crm: OKR 0 đề xuất · Kho tài liệu 0 · Việc và Dự án đúng `DA6`, `DA7`, `DA8` → `cho-dieu-kien` (`xep-lai`, nguồn `tu-khai`); kit: đúng `A3`, `DP8` → `doi-moc` (`moc-qua-ngay`) — danh sách viết sẵn trong ca từ phép đếm độc lập 14/10 (bộ máy gốc + luật viết riêng).
+- AC-10: Given cây, When đọc marketplace, các manifest và chạy suite plugin vùng 3, Then marketplace có gói thứ năm `road-map` (`source: ./road-map`, tag `bat-theo-lua-chon`); `road-map/.claude-plugin/plugin.json` cùng số phiên bản với `acceptance-gate`, `feature-loop`, `dieu-phoi` và P200 khoá cả bốn (đột biến lệch số của `road-map` → P200 đỏ nêu `road-map`); `road-map/commands/xem.md` KHÔNG khoá model-invocation (chỉ đọc — ADR 0002 không đổi); dòng lệnh trong `xem.md` (rút từ tệp, không chép tay) chạy trên kho thử của AC-5 ra đúng đầu ra `--ra-soat` của lõi. Chiều đỏ: bản sao marketplace thiếu `road-map` → ca đỏ «marketplace không có gói road-map».
+
+## Coverage
+
+Quét bằng `morphological-scan` (preset entity-feature, thực thể = một hàng lộ trình lúc máy rà soát) — bản đầy đủ ở
+`_acceptance/ra-soat-lo-trinh/coverage-scan.md` (rút từ tài liệu B′ §8). Chân sản phẩm `[SUY-TỪ-REPO: scripts/lo-trinh.mjs]`
++ số đo 14/10 trên crm và kit; chân ngành `[NGÀNH: GitHub actions/stale]` (đánh dấu cũ · nhãn miễn trừ · đụng thì đặt
+lại đồng hồ), `[NGÀNH: Linear — auto-close]` (không đóng khi chu kỳ gắn việc chưa xong), `[NGÀNH: Shape Up — không backlog]`.
+
+- Trục A — vị trí hàng: mốc chiến dịch đã qua ngày · mốc chiến dịch chưa tới · mốc người/sự kiện · không thuộc mốc  [thước CE: `moc[].loai`, `moc[].ngay`, B′ §8 Core 2] → AC-1, AC-6, AC-7
+- Trục B — trạng thái: chưa có hồ sơ · đang mở · đã giao · xếp lại (hồ sơ / tự khai) · đã bác · hỏng · không suy được  [thước CE: ô bản đồ `SECTIONS`, `suyTrangThai`] → AC-1, AC-9
+- Trục C — chính sách: không khai · khai đúng · khai sai · hàng ghim  [thước CE: B′ §6 + actions/stale] → AC-2, AC-3
+- Trục D — mặt hiện: thẻ khởi động · lệnh chữ · lệnh JSON · trang (không đổi) · cắt lượt · gói road-map  [thước CE: B′ §11] → AC-4, AC-5, AC-6, AC-7, AC-10
+- Lớp chữ: «chờ điều kiện» ở mọi mặt người đọc  [thước CE: B′ §9] → AC-8
+
+## Đường đo
+
+- «Ở lần mở thẻ đầu sau mốc khép kế, mọi hàng của mốc đã khép mà chưa giao đều hiện đề xuất» — số đọc ở hồ sơ mốc kế
+  (mốc kit 05/11; crm mốc «R2 lên production» 31/10): đếm hàng của mốc chiến dịch đã qua ngày mà chưa giao, chưa có hồ
+  sơ (lệnh `--ra-soat --json` lúc đó) so với số dòng `moc-qua-ngay` trên thẻ — bảo đảm bởi AC-1, AC-4. Đếm tay mỗi mốc,
+  như năm dòng số.
+- «Chủ kho không phải hỏi hàng nào cần dời» — dòng 2 của luật (c) (lượt gọi người ngoài thiết kế) ở hồ sơ mốc kế; vòng
+  này bảo đảm vật (thẻ có đề xuất), việc chủ kho thôi hỏi là cạnh *mù* — reality đọc.
+
+## Out of scope
+
+- Máy tự áp đề xuất (báo trước một nhịp, trần thao tác), bộ ghi tệp lộ trình, lệnh `ghim`/`bo-ghim`/`tra-lai`/`gui` — vòng 2 của gói road-map.
+- Chính sách chốt ở thẻ mở đợt và phân loại đề xuất của thợ vào cửa tín hiệu — gói điều phối, vùng máy M5.
+- Rà soát chính các mục «chờ điều kiện» theo `mo_lai_khi`; luật ưu tiên khi hai luật ngược nhau (vòng này một hàng nhận đề xuất của luật đầu khớp theo thứ tự bảng §3 của design).
+- `loai` của mốc vào khối dữ liệu trang; bản đồ hiện trạng liên kho; đọc `bat_khi` sau khi giao.
+- Đổi khoá `chan_troi` (chỉ đổi chữ hiển thị).
+
+## Notes
+
+- Rà soát chỉ hiện ở thẻ khởi động và lệnh vì nó phụ thuộc hôm nay; trang lộ trình tất định (AC-6).
+- Tuổi hàng tính theo lịch sử git tới HEAD: kho clone nông cho tuổi tối thiểu — lệnh in một dòng «lịch sử cụt».
+- Gói `road-map` đọc lõi qua bộ giải gói (bản mới nhất trên máy); chỉ đọc nên lệch phiên bản chỉ ảnh hưởng hiển thị.
