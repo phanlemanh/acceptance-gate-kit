@@ -41,19 +41,39 @@ function gocLech(kho, goc, nhan) {
   return [...la.map(l => `commit không thuộc vòng: ${l}`), ...tepLa.map(t => `tệp khác gốc mà vòng không sửa: ${t}`)];
 }
 function rs0() {
-  // Chiều đỏ trong bộ kiểm: kho tạm, một commit lạ vào qua commit gộp → phải đỏ gọi tên tệp; chỉ commit vòng → phải xanh.
-  const k = path.join(TMP, 'rs0'); mkdirSync(path.join(k, 'scripts'), { recursive: true });
-  git(k, 'init', '-q', '-b', 'main'); git(k, 'config', 'user.email', 'x@y.z'); git(k, 'config', 'user.name', 'x');
-  writeFileSync(path.join(k, 'scripts', 'a.mjs'), '1\n'); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'nen');
-  const g = git(k, 'rev-parse', 'HEAD');
-  git(k, 'checkout', '-qb', 'la'); writeFileSync(path.join(k, 'scripts', 'la.mjs'), 'x\n'); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'viec khac');
-  git(k, 'checkout', '-q', 'main'); writeFileSync(path.join(k, 'scripts', 'a.mjs'), '2\n'); git(k, 'commit', '-qam', 'feat(vong-thu): a');
-  const lanh = gocLech(k, g, 'vong-thu');
-  git(k, 'merge', '-q', '--no-ff', '--no-edit', 'la');
-  const do_ = gocLech(k, g, 'vong-thu');
-  if (lanh.length) { bad('RS-0-do', `bản lành chưa xanh: ${lanh.join(' | ')}`); return false; }
-  if (!do_.some(l => l.includes('scripts/la.mjs'))) { bad('RS-0-do', `commit lạ vào qua gộp mà không đỏ đúng tệp: ${JSON.stringify(do_)}`); return false; }
-  ok('RS-0-do', 'chỉ commit vòng → xanh; commit lạ qua gộp → đỏ gọi tên scripts/la.mjs');
+  // Chiều đỏ trong bộ kiểm — mỗi vế một ca CÔ LẬP (Cổng Bằng chứng 15/10, Ngoài-1/5/6), kho tạm dựng trong lượt:
+  //  · vế tệp: commit lạ thêm tệp vòng không sửa, vào qua commit gộp → đỏ gọi tên tệp;
+  //  · vế commit: commit lạ sửa ĐÚNG tệp vòng cũng sửa (vế tệp bỏ qua tệp đó) → đỏ gọi tên commit, không câu tệp nào;
+  //  · đặc hiệu: nhánh vòng gộp nhánh chính, gốc = đỉnh nhánh chính → XANH (lý do của lần sửa 14/10).
+  let n = 0;
+  const khoTam = () => {
+    const k = path.join(TMP, `rs0-${++n}`); mkdirSync(path.join(k, 'scripts'), { recursive: true });
+    git(k, 'init', '-q', '-b', 'main'); git(k, 'config', 'user.email', 'x@y.z'); git(k, 'config', 'user.name', 'x');
+    writeFileSync(path.join(k, 'scripts', 'a.mjs'), '1\nx\ny\nz\n'); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'nen');
+    return { k, g: git(k, 'rev-parse', 'HEAD') };
+  };
+  const ghi = (k, tep, noi, tin) => { writeFileSync(path.join(k, 'scripts', tep), noi); git(k, 'add', '-A'); git(k, 'commit', '-qm', tin); };
+  const vong = k => ghi(k, 'a.mjs', '2\nx\ny\nz\n', 'feat(vong-thu): a');
+  const sai = [];
+  // Lành: chỉ commit vòng.
+  { const { k, g } = khoTam(); vong(k); const x = gocLech(k, g, 'vong-thu'); if (x.length) sai.push(`bản lành chưa xanh: ${x.join(' | ')}`); }
+  // Vế tệp.
+  { const { k, g } = khoTam(); git(k, 'checkout', '-qb', 'la'); ghi(k, 'la.mjs', 'x\n', 'viec khac');
+    git(k, 'checkout', '-q', 'main'); vong(k); git(k, 'merge', '-q', '--no-ff', '--no-edit', 'la');
+    const x = gocLech(k, g, 'vong-thu'); if (!x.includes('tệp khác gốc mà vòng không sửa: scripts/la.mjs')) sai.push(`vế tệp: commit lạ vào qua gộp mà không đỏ đúng tệp: ${JSON.stringify(x)}`); }
+  // Vế commit, cô lập.
+  { const { k, g } = khoTam(); git(k, 'checkout', '-qb', 'la'); ghi(k, 'a.mjs', '1\nx\ny\nZ\n', 'viec khac 2');
+    git(k, 'checkout', '-q', 'main'); vong(k); git(k, 'merge', '-q', '--no-ff', '--no-edit', 'la');
+    const x = gocLech(k, g, 'vong-thu');
+    if (!x.some(l => l.startsWith('commit không thuộc vòng: ') && l.endsWith(' viec khac 2'))) sai.push(`vế commit: commit lạ sửa tệp của vòng mà không đỏ gọi tên commit: ${JSON.stringify(x)}`);
+    if (x.some(l => l.startsWith('tệp khác gốc'))) sai.push(`vế commit không cô lập — vế tệp cũng đỏ: ${JSON.stringify(x)}`); }
+  // Đặc hiệu: gộp nhánh chính, gốc dời lên đỉnh nhánh chính.
+  { const { k } = khoTam(); git(k, 'checkout', '-qb', 'vong'); vong(k);
+    git(k, 'checkout', '-q', 'main'); ghi(k, 'b.mjs', 'b\n', 'main tien'); const g = git(k, 'rev-parse', 'HEAD');
+    git(k, 'checkout', '-q', 'vong'); git(k, 'merge', '-q', '--no-ff', '--no-edit', 'main');
+    const x = gocLech(k, g, 'vong-thu'); if (x.length) sai.push(`đặc hiệu: gộp nhánh chính với gốc = đỉnh nhánh chính mà vẫn đỏ: ${x.join(' | ')}`); }
+  if (sai.length) { bad('RS-0-do', sai.join(' ; ')); return false; }
+  ok('RS-0-do', 'lành xanh · commit lạ qua gộp → đỏ gọi tên tệp · commit lạ sửa tệp vòng → đỏ gọi tên commit (cô lập) · gộp nhánh chính, gốc = đỉnh → xanh');
   const la = gocLech(KIT, GOC, 'ra-soat-lo-trinh');
   if (la.length) { bad('RS-0', `gốc so thiếu nền — ${la.join(' | ')}`); return false; }
   ok('RS-0', `mã khác gốc ${GOC.slice(0, 8)} chỉ ở tệp do commit của vòng sửa`); return true;
@@ -205,9 +225,12 @@ if (want('RS-1-do')) await chayDo('RS-1-do', rs1, [['scripts/lo-trinh.mjs', "con
 if (want('RS-1-do2')) await chayDo('RS-1-do2', rs1, [['scripts/lo-trinh.mjs', '      if (d.coHoSo) continue;\n', '']], 'hàng có hồ sơ đang mở nhận đề xuất: RS1-ph-qua-dang-mo', 'bản sao bỏ điều kiện hồ sơ đang mở');
 
 // ═══ RS-2 (AC-2): chính sách tuổi + trần ═════════════════════════════════════════════════════════════════════════
-const PB_2 = cs => {
+// `tuKhai`: thêm ba hàng chưa hồ sơ tự khai đã bác / đang làm / ngoài phạm vi, tuổi 100 (Cổng Bằng chứng 15/10, Ngoài-4/13).
+const TU_KHAI_2 = [['TKB', 'Đã bác từ khám phá'], ['TKD', 'Đang làm'], ['TKN', 'Ngoài phạm vi đã ký']];
+const PB_2 = (cs, tuKhai = false) => {
   const csx = cs === undefined ? {} : { chinh_sach: cs };
-  const D = ['D100a', 'D100b', 'D100c'].map(m => H(m, { trang_thai: 'Đã giao' }));
+  const D = ['D100a', 'D100b', 'D100c'].map(m => H(m, { trang_thai: 'Đã giao' }))
+    .concat(tuKhai ? TU_KHAI_2.map(([m, tt]) => H(m, { trang_thai: tt })) : []);
   const v = hang => ({ schema: 1, ten: 'Chính sách', ...csx, moc: [], hang });
   return [
     { ngay: '2026-07-06', data: v([...D]) },
@@ -218,7 +241,7 @@ const PB_2 = cs => {
   ];
 };
 const kho2 = {};
-const KHO_2 = (ten, cs) => kho2[ten] || (kho2[ten] = kho({ ten: `kho-rs2-${ten}`, phienBan: PB_2(cs) }).r);
+const KHO_2 = (ten, cs, tuKhai = false) => kho2[ten] || (kho2[ten] = kho({ ten: `kho-rs2-${ten}`, phienBan: PB_2(cs, tuKhai) }).r);
 const MONG_2 = new Set(['K45|cho-dieu-kien|tuoi', 'K30|cho-dieu-kien|tuoi', 'K29|cho-dieu-kien|tran']);
 async function rs2(kit) {
   const sai = []; const rs = rsJson(kit, KHO_2('dung', { tuoi_ngay: 30, tran_ke_tiep: 1 })); const tap = new Set(rsTap(rs));
@@ -245,8 +268,19 @@ if (want('RS-2-sai-kieu') && await chayCa('RS-2-sai-kieu', async kit => {
   const x = rsTap(rsJson(kit, r)).filter(s => /\|(tuoi|tran)$/.test(s)); if (x.length) sai.push(`chính sách sai mà vẫn có đề xuất: ${x.join(', ')}`);
   return sai;
 })) ok('RS-2-sai-kieu', 'tuoi_ngay chuỗi → một cờ khuôn trên trang và khối, 0 đề xuất chính sách');
-if (want('RS-2-do')) await chayDo('RS-2-do', rs2, [['scripts/lo-trinh.mjs', '      if (!trongCD.has(ma) && !da) keTiep.push(g);', '      if (!trongCD.has(ma)) keTiep.push(g);']], 'K = 7, cần 4', 'bản sao đếm cả hàng đã giao vào K');
+const KE_TIEP = '      if (!trongCD.has(ma) && chuaLam.has(d.chu)) keTiep.push(g);';
+if (want('RS-2-do')) await chayDo('RS-2-do', rs2, [['scripts/lo-trinh.mjs', KE_TIEP, '      if (!trongCD.has(ma)) keTiep.push(g);']], 'K = 7, cần 4', 'bản sao đếm cả hàng đã giao vào K');
 if (want('RS-2-do2')) await chayDo('RS-2-do2', rs2, [['scripts/lo-trinh.mjs', 'tuoi >= cs.tuoi_ngay', 'tuoi > cs.tuoi_ngay']], 'hàng tuổi 30 thiếu đề xuất tuoi', 'bản sao so tuổi bằng «>»');
+// «Kế tiếp» chỉ là việc CHƯA BẮT ĐẦU: hàng tự khai bác / đang làm / ngoài phạm vi không đếm vào K, không nhận đề xuất.
+async function rs2tk(kit) {
+  const sai = []; const rs = rsJson(kit, KHO_2('tu-khai', { tuoi_ngay: 30, tran_ke_tiep: 1 }, true)); const tap = new Set(rsTap(rs));
+  for (const [m] of TU_KHAI_2) { const x = rs[0].de_xuat.filter(d => d.ma === m); if (x.length) sai.push(`hàng tự khai ${m} nhận đề xuất ${x.map(d => d.luat).join(',')}`); }
+  const tran = rs[0].de_xuat.find(m => m.luat === 'tran'); if (tran && tran.can_cu.k !== 4) sai.push(`K = ${tran.can_cu.k}, cần 4`);
+  for (const x of MONG_2) if (!tap.has(x)) sai.push(`thiếu đề xuất: ${x}`);
+  return sai;
+}
+if (want('RS-2-tu-khai') && await chayCa('RS-2-tu-khai', rs2tk)) ok('RS-2-tu-khai', 'ba hàng tự khai đã bác / đang làm / ngoài phạm vi: K vẫn 4, không đề xuất');
+if (want('RS-2-do3')) await chayDo('RS-2-do3', rs2tk, [['scripts/lo-trinh.mjs', KE_TIEP, '      if (!trongCD.has(ma) && !daGiao.has(d.chu)) keTiep.push(g);']], 'hàng tự khai TKB', 'bản sao đếm mọi hàng chưa giao vào K');
 
 // ═══ RS-3 (AC-3): tuổi theo lịch sử, sống qua đánh lại mã ═══════════════════════════════════════════════════════
 const PB_3 = () => {
@@ -297,19 +331,32 @@ const KHO_4 = () => kho4 || (kho4 = kho({ ten: 'kho-rs4', data: { schema: 1, ten
 const DONG_4 = [
   'Rà soát: 8 đề xuất — 8 dời mốc · 0 chờ điều kiện · 0 bác',
   ...P8.slice(0, 5).map(m => `  · ${m} — dời mốc: mốc «Phát hành một» đã qua ngày 01/09/2026`),
-  '  … còn 3 — xem: node scripts/lo-trinh.mjs --root . --ra-soat',
 ];
+const DONG_4_CON = '  … còn 3 — xem: ';
 async function rs4(kit) {
   const sai = []; const j = JSON.parse(quet(kit, KHO_4())); const dong = j.loTrinh.dong;
   const i = dong.indexOf(DONG_4[0]);
   if (i < 0) return [`thiếu dòng tổng «${DONG_4[0]}»: ${JSON.stringify(dong)}`];
   if (!deq(dong.slice(i, i + DONG_4.length), DONG_4)) sai.push(`dòng rà soát khác viết sẵn: ${JSON.stringify(dong.slice(i, i + DONG_4.length))}`);
-  const ke = dong[i + DONG_4.length] || '';
+  if (!(dong[i + DONG_4.length] || '').startsWith(DONG_4_CON)) sai.push(`thiếu dòng «${DONG_4_CON}…»: ${JSON.stringify(dong[i + DONG_4.length])}`);
+  const ke = dong[i + DONG_4.length + 1] || '';
   if (!(ke.startsWith('Lộ trình có ') || ke.startsWith('Trang lộ trình'))) sai.push(`dòng sau khối rà soát là «${ke}», cần «Lộ trình có …» hoặc «Trang lộ trình …»`);
   if (dong.filter(d => d.startsWith('Rà soát:')).length !== 1) sai.push('dòng tổng không duy nhất');
   if (!deq(j.loTrinh.ds[0].raSoat, rsJson(kit, KHO_4())[0].de_xuat)) sai.push('ds[0].raSoat khác --ra-soat --json');
   return sai;
 }
+// Lệnh trong dòng «… còn 3 — xem:» chạy NGUYÊN VĂN ở kho thử (không có thư mục scripts/) — Cổng Bằng chứng 15/10, Ngoài-8.
+async function rs4lenh(kit) {
+  const r = KHO_4(); if (existsSync(path.join(r, 'scripts'))) return ['kho thử có thư mục scripts/ — ca không đo được kho tiêu thụ'];
+  const d = JSON.parse(quet(kit, r)).loTrinh.dong.find(x => x.startsWith(DONG_4_CON));
+  if (!d) return [`thiếu dòng «${DONG_4_CON}…»`];
+  const x = spawnSync('bash', ['-c', d.slice(DONG_4_CON.length)], { cwd: r, encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
+  const loi1 = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--ra-soat'], { env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
+  if (!loi1.stdout.trim() || loi1.status !== 0) return ['đối chứng lõi không chạy'];
+  return x.status === 0 && x.stdout === loi1.stdout ? [] : [`lệnh xem không chạy được ở kho tiêu thụ (thoát ${x.status}: ${(x.stderr || '').slice(0, 120)})`];
+}
+if (want('RS-4-lenh') && await chayCa('RS-4-lenh', rs4lenh)) ok('RS-4-lenh', 'lệnh «xem» rút từ thẻ chạy nguyên văn ở kho không có scripts/ → ra đúng lõi');
+if (want('RS-4-lenh-do')) await chayDo('RS-4-lenh-do', rs4lenh, [['scripts/lo-trinh.mjs', "export const LENH_RA_SOAT = `node \"${path.join(__dirname, 'lo-trinh.mjs')}\" --root . --ra-soat`;", "export const LENH_RA_SOAT = 'node scripts/lo-trinh.mjs --root . --ra-soat';"]], 'lệnh xem không chạy được ở kho tiêu thụ', 'bản sao in đường tương đối');
 if (want('RS-4') && await chayCa('RS-4', rs4)) ok('RS-4', 'dòng tổng + 5 dòng chi tiết + «còn 3», đặt trước dòng cờ/trang; ds[0].raSoat == --ra-soat --json');
 const KHO_4B = () => [
   ['khong-khai', kho({ ten: 'kho-rs4-kk', cfg: null, data: { schema: 1, ten: 'x', moc: [], hang: [H('A')] } }).r],
@@ -499,6 +546,76 @@ async function rs10(kit) {
 }
 if (want('RS-10') && await chayCa('RS-10', rs10)) ok('RS-10', 'gói road-map trong marketplace, cùng số, lệnh xem không khoá, dòng lệnh rút từ tệp chạy ra đúng lõi');
 if (want('RS-10-do')) await chayDo('RS-10-do', rs10, [['.claude-plugin/marketplace.json', '"name": "road-map"', '"name": "road-map-bo"']], 'marketplace không có gói road-map', 'bản sao marketplace bỏ gói road-map');
+
+// ═══ RS-11 (AC-11): rà soát không bao giờ im khi không đọc được (Cổng Bằng chứng 15/10) ═══════════════════════════
+const CANH_TUOI = 'không đọc được tuổi hàng — luật tuổi không chạy';
+const CANH_CUT = 'lịch sử cụt — tuổi hàng là tuổi tối thiểu';
+const LOI_TEP = 'lo-trinh: không đọc được tệp ý định — ';
+const rsRaw = (kit, r, json) => node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--ra-soat', ...(json ? ['--json'] : [])], { env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
+const motDong = (ds, cau) => ds.filter(d => d.includes(cau)).length;
+let kho11h = null;
+const KHO_11H = () => kho11h || (kho11h = (() => {
+  const { r } = kho({ ten: 'kho-rs11-hong', cfg: 'lo_trinh:\n  tep:\n    - docs/a.json\n    - docs/b.json\n' });
+  mkdirSync(path.join(r, 'docs'), { recursive: true });
+  writeFileSync(path.join(r, 'docs/a.json'), JSON.stringify({ schema: 1, ten: 'Lành', moc: [{ ten: 'Mốc A', ngay: '2026-09-01', loai: 'phat-hanh', hang: ['A1'] }], hang: [H('A1')] }, null, 2) + '\n');
+  writeFileSync(path.join(r, 'docs/b.json'), '{bad\n'); git(r, 'add', '-A'); git(r, 'commit', '-qm', 'hai tệp'); return r;
+})());
+async function rs11hong(kit) {
+  const r = KHO_11H(); const sai = [];
+  const c = rsRaw(kit, r, false); const dl = c.stderr.split('\n').filter(l => l.startsWith(LOI_TEP));
+  if (c.status === 0 || dl.length !== 1 || !dl[0].includes('docs/b.json')) sai.push(`tệp hỏng mà lệnh im: docs/b.json (thoát ${c.status}, ${dl.length} dòng lỗi)`);
+  if (!c.stdout.includes('  · A1 — dời mốc')) sai.push('tệp lành không còn in đề xuất khi tệp kia hỏng');
+  const j = rsRaw(kit, r, true); let ds = null; try { ds = JSON.parse(j.stdout); } catch { sai.push(`JSON không đọc được: ${j.stdout.slice(0, 80)}`); }
+  const b = ds && ds.find(x => x.tep === 'docs/b.json');
+  if (j.status === 0 || !b || typeof b.loi !== 'string' || !b.loi || (b.de_xuat || []).length) sai.push(`JSON: tệp hỏng mà lệnh im: docs/b.json (thoát ${j.status}, phần tử ${JSON.stringify(b)})`);
+  return sai;
+}
+if (want('RS-11-hong') && await chayCa('RS-11-hong', rs11hong)) ok('RS-11-hong', 'tệp hỏng → một dòng lỗi có tên tệp, thoát 1; tệp lành vẫn in; JSON mang loi');
+if (want('RS-11-do')) await chayDo('RS-11-do', rs11hong, [['scripts/lo-trinh.mjs', 'process.exit(rs.some(t => t.loi) ? 1 : 0);', 'process.exit(0);']], 'tệp hỏng mà lệnh im: docs/b.json', 'bản sao trả tệp hỏng về im');
+// Lộ trình trong thư mục con: cùng nội dung, đặt ở gốc kho (đối chứng dương) và ở `sub/` — tuổi phải bằng nhau.
+const DATA_11 = { schema: 1, ten: 'Tuổi', chinh_sach: { tuoi_ngay: 30 }, moc: [], hang: [H('C1')] };
+const CFG_11 = `schema_version: 1\nlo_trinh:\n  tep: ${TEP}\n`;
+const dungCon = (r, con) => {
+  const g = path.join(r, con); mkdirSync(path.join(g, '_acceptance'), { recursive: true }); mkdirSync(path.join(g, 'docs'), { recursive: true });
+  writeFileSync(path.join(g, '_acceptance', 'config.yaml'), CFG_11); writeFileSync(path.join(g, TEP), JSON.stringify(DATA_11, null, 2) + '\n');
+};
+// Hai kho RIÊNG: gốc kho có tệp ở gốc, kho con CHỈ có tệp trong `sub/` — đọc nhầm đường từ gốc kho không thể trúng tệp.
+const KHO_11C = {};
+const kho11 = con => KHO_11C[con] || (KHO_11C[con] = (() => {
+  const r = path.join(TMP, `kho-rs11-${con === '.' ? 'goc' : 'con'}`); mkdirSync(r, { recursive: true });
+  execFileSync('git', ['init', '-q', '-b', 'main', r]); git(r, 'config', 'user.email', 'x@y.z'); git(r, 'config', 'user.name', 'x');
+  dungCon(r, con);
+  const env = { ...process.env, GIT_AUTHOR_DATE: '2026-09-01T12:00:00Z', GIT_COMMITTER_DATE: '2026-09-01T12:00:00Z' };
+  execFileSync('git', ['-C', r, 'add', '-A'], { env }); execFileSync('git', ['-C', r, 'commit', '-qm', 'c1'], { env }); return path.join(r, con);
+})());
+async function rs11con(kit) {
+  const tuoi = g => (rsJson(kit, g)[0].de_xuat.find(m => m.ma === 'C1' && m.luat === 'tuoi') || {}).can_cu;
+  const goc = tuoi(kho11('.')); if (!goc || goc.tuoi !== 43) return [`đối chứng gốc kho chưa xanh: ${JSON.stringify(goc)}`];
+  const con = tuoi(kho11('sub'));
+  return con && con.tuoi === 43 ? [] : [`thư mục con: thiếu đề xuất tuoi C1 (${JSON.stringify(con)})`];
+}
+if (want('RS-11-con') && await chayCa('RS-11-con', rs11con)) ok('RS-11-con', 'lộ trình trong thư mục con: tuổi 43 bằng ở gốc kho');
+if (want('RS-11-do2')) await chayDo('RS-11-do2', rs11con, [['scripts/lo-trinh.mjs', 'g(\'show\', `${sha}:./${tep}`)', 'g(\'show\', `${sha}:${tep}`)']], 'thư mục con: thiếu đề xuất tuoi C1', 'bản sao đọc phiên bản cũ bằng <sha>:<tệp>');
+// Không phải kho git / clone nông: cảnh báo đúng một dòng ở JSON, lệnh chữ và thẻ start.
+const baMat = (kit, r, cau) => {
+  const sai = []; const j = rsJson(kit, r)[0];
+  if (!(j.canh_bao || []).some(c => c.includes(cau))) sai.push(`JSON thiếu canh_bao «${cau}»: ${JSON.stringify(j.canh_bao)}`);
+  const c = rsRaw(kit, r, false); if (c.status !== 0) sai.push(`lệnh chữ thoát ${c.status}`);
+  if (motDong(c.stdout.split('\n'), cau) !== 1) sai.push(`lệnh chữ có ${motDong(c.stdout.split('\n'), cau)} dòng «${cau}», cần 1`);
+  const d = JSON.parse(quet(kit, r)).loTrinh.dong; if (motDong(d, cau) !== 1) sai.push(`thẻ start có ${motDong(d, cau)} dòng «${cau}», cần 1`);
+  return sai;
+};
+if (want('RS-11-khong-git') && await chayCa('RS-11-khong-git', async kit => {
+  const r = path.join(TMP, 'kho-rs11-kg'); if (!existsSync(r)) { mkdirSync(r, { recursive: true }); dungCon(r, '.'); }
+  return baMat(kit, r, CANH_TUOI);
+})) ok('RS-11-khong-git', `không phải kho git → «${CANH_TUOI}» đúng một dòng ở JSON, lệnh chữ, thẻ start`);
+async function rs11cut(kit) {
+  const c = path.join(TMP, 'clone-nong-11'); if (!existsSync(c)) execFileSync('git', ['clone', '-q', '--depth', '1', `file://${KHO_3().r}`, c]);
+  const sai = rsJson(kit, c)[0].lich_su_cut === true ? [] : ['clone nông mà không lich_su_cut'];
+  const m = baMat(kit, c, CANH_CUT); return m.length ? [...sai, 'lịch sử cụt mà không cảnh báo', ...m] : sai;
+}
+if (want('RS-11-cut') && await chayCa('RS-11-cut', rs11cut)) ok('RS-11-cut', `clone nông → «${CANH_CUT}» đúng một dòng ở JSON, lệnh chữ, thẻ start`);
+if (want('RS-11-do3')) await chayDo('RS-11-do3', rs11cut, [['scripts/lo-trinh.mjs', '    if (cut) canh.push(CANH_CUT);\n', '']], 'lịch sử cụt mà không cảnh báo', 'bản sao bỏ cảnh báo lịch sử cụt');
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ra-soat-lo-trinh)`);
 process.exit(fail ? 1 : 0);
