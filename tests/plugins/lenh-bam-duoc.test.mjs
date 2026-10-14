@@ -257,6 +257,8 @@ if (want('LB5')) {
   const CONG = [
     { moi: 'AC không có chốt máy khi ghim lại',
       viSao: 'ghim-lai-noi-ra-o-khong-do (20/09): thẻ nói ra AC mà mọi eval phủ nó đều ngoài làn ghim lại — cờ BÁO, không đổi routing' },
+    { moi: 'mục chưa có căn cứ',
+      viSao: 'bang-ngoai-n-co-can-cu (14/10): hồ sơ chấm trước khi khuôn mục ngoài hợp đồng có dòng Căn cứ — cờ BÁO đọc-cũ, không đổi routing' },
   ];
   const congDung = new Set();
   const doiVanDung = new Set();

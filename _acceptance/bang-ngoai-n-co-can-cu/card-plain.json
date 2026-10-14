@@ -1,0 +1,7 @@
+{
+  "feature_plain": "Ở Cổng Bằng chứng, anh thấy các lỗi ngoài hợp đồng thành một bảng, mỗi lỗi một hàng kèm lý do máy đề xuất như vậy, lỗi cần anh quyết đứng đầu.",
+  "decisions": [
+    {"id": "E7", "q": "Chỉ dẫn có khiến bước phân loại viết lý do đủ để anh quyết không?", "why": "Hội đồng ba người chấm đều khuyên Đạt; vòng T3 nên mọi câu chấm bằng mắt người là của anh."},
+    {"id": "E8", "q": "Ghi chú phát hành có đủ để kho khác hiểu thay đổi không?", "why": "Hội đồng ba người chấm đều khuyên Đạt; anh đọc mục «Chưa phát hành» trong CHANGELOG."}
+  ]
+}

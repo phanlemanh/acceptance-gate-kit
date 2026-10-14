@@ -6,13 +6,19 @@
 > round 2 bị bắt vì fixture cũ là văn viết tay mà không code path nào sinh ra.
 Ngoài hợp đồng — bạn quyết (2)
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.
-Ngoài-1 · Bấm "Cập nhật" có thể làm mất tiện ích đang cài, nếu mạng hỏng giữa chừng thì kết quả là "đã gỡ cài" chứ không phải bản mới.
-Máy đề xuất: ghi vào hạn chế đã biết rồi ship.
-ghi Known limits
-mở hợp đồng mới
-nâng phạm vi sửa ngay
-Ngoài-2 · Tiện ích cài đúng theo hướng dẫn trong tài liệu vẫn bị nhận nhầm là đã dời chỗ, nên lần cập nhật sau có thể bị gỡ đi.
+Mục
+Người dùng gặp gì
+Máy đề xuất
+Căn cứ
+Cần anh quyết
+Ngoài-2
+Tiện ích cài đúng theo hướng dẫn trong tài liệu vẫn bị nhận nhầm là đã dời chỗ, nên lần cập nhật sau có thể bị gỡ đi.
 Máy đề xuất: tách thành một việc riêng.
-ghi Known limits
-mở hợp đồng mới
-nâng phạm vi sửa ngay
+chưa có căn cứ
+Máy khuyên — chỉ đổi khi anh nghĩ khác
+Ngoài-1
+Bấm "Cập nhật" có thể làm mất tiện ích đang cài, nếu mạng hỏng giữa chừng thì kết quả là "đã gỡ cài" chứ không phải bản mới.
+Máy đề xuất: ghi vào hạn chế đã biết rồi ship.
+chưa có căn cứ
+Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay — đổi bằng dòng lệnh ký.
+2/2 mục chưa có căn cứ — hồ sơ chấm bằng bản kit trước khi có trường này; lý do của đề xuất nằm trong review-findings.md nếu có

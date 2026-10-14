@@ -12,6 +12,13 @@
 .gc .li:before{content:"";position:absolute;left:1px;top:7px;width:7px;height:7px;border-radius:50%}
 .gc .gdo .li{color:#085041}.gc .gdo .li:before{background:#1D9E75}.gc .gnot .li{color:#56544d}.gc .gnot .li:before{background:#b4b2a9}
 .gc .item{background:#FAEEDA;border:1px solid #EF9F27;border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.gc table.ngoai{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 8px;table-layout:fixed}
+.gc .ngoai th{text-align:left;font-size:11px;color:#8a887f;font-weight:600;padding:6px 8px;border-bottom:1px solid #e6e4de}
+.gc .ngoai td{padding:8px;vertical-align:top;border-bottom:1px solid #efede7;color:#412402;overflow-wrap:anywhere}
+.gc .ngoai th:first-child,.gc .ngoai td:first-child{width:84px;white-space:nowrap}
+.gc .ngoai tr.nhom td{background:#FAEEDA;font-weight:600;color:#633806}
+.gc .ngoai .mo{color:#9a988f}
+@media (max-width:560px){.gc table.ngoai,.gc .ngoai tbody,.gc .ngoai tr,.gc .ngoai td{display:block;width:auto}.gc .ngoai thead{display:none}.gc .ngoai tr{border:1px solid #e6e4de;border-radius:9px;margin-bottom:8px}.gc .ngoai td:before{content:attr(data-cot);display:block;font-size:11px;color:#8a887f;font-weight:600}.gc .ngoai td:first-child{white-space:normal}}
 .gc .q{font-size:14px;font-weight:600;color:#412402;margin:0 0 3px}.gc .ai{font-size:12px;color:#854F0B;margin:0 0 9px}
 .gc .flag{display:flex;gap:8px;font-size:13px;padding:8px 11px;border-radius:9px;margin-bottom:6px}
 .gc .fwarn{background:#FAEEDA;color:#633806}.gc .finfo{background:#f4f2ec;color:#56544d}.gc .fok{background:#E1F5EE;color:#085041}.gc .fred{background:#FAECE7;color:#712B13}
@@ -28,7 +35,9 @@
 <div class="lab">PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người ở phần vượt nhận thức</div><div class="grp gnot"><p class="li">Phản biện context sạch: <b>không đọc được</b> · P0 0 · P1 0 · P2 0 · đã sửa 0/0</p><p class="li">Rà soát đối kháng: 1 mục ngoài hợp đồng · 1 mục cần mắt người</p></div>
 <div class="lab">Ngoài hợp đồng — bạn quyết (1)</div>
 <div class="flag fwarn">Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.</div>
-<div class="item"><p class="q">Ngoài-1 · Lỗi hiếm khi tên file có dấu hỏi</p><p class="ai">Máy đề xuất: ghi vào hạn chế đã biết rồi ship.</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>
+<table class="ngoai"><thead><tr><th>Mục</th><th>Người dùng gặp gì</th><th>Máy đề xuất</th><th>Căn cứ</th></tr></thead><tbody><tr><td data-cot="Mục">Ngoài-1</td><td data-cot="Người dùng gặp gì">Lỗi hiếm khi tên file có dấu hỏi</td><td data-cot="Máy đề xuất">Máy đề xuất: ghi vào hạn chế đã biết rồi ship.</td><td data-cot="Căn cứ"><span class="mo">chưa có căn cứ</span></td></tr></tbody></table>
+<p class="ai">Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay — đổi bằng dòng lệnh ký.</p>
+<div class="flag fwarn">1/1 mục chưa có căn cứ — hồ sơ chấm bằng bản kit trước khi có trường này; lý do của đề xuất nằm trong review-findings.md nếu có</div>
 <div class="lab">Việc chỉ mình bạn quyết được — 2 việc</div>
 <div class="item"><p class="q">E9 (câu hỏi cần mắt người) · Given a, When b, Then c.</p><p class="ai">Máy: chưa chắc — máy chưa chắc</p><div class="btns"><button class="b bn">Đạt</button><button class="b no">Chưa đạt</button></div></div>
 <div class="item"><p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p><p class="ai">Hoãn x.</p><div class="btns"><button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button></div></div>

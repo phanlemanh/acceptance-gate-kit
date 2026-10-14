@@ -493,6 +493,13 @@ const STYLE = `<style>
 .gc .li:before{content:"";position:absolute;left:1px;top:7px;width:7px;height:7px;border-radius:50%}
 .gc .gdo .li{color:#085041}.gc .gdo .li:before{background:#1D9E75}.gc .gnot .li{color:#56544d}.gc .gnot .li:before{background:#b4b2a9}
 .gc .item{background:#FAEEDA;border:1px solid #EF9F27;border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.gc table.ngoai{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 8px;table-layout:fixed}
+.gc .ngoai th{text-align:left;font-size:11px;color:#8a887f;font-weight:600;padding:6px 8px;border-bottom:1px solid #e6e4de}
+.gc .ngoai td{padding:8px;vertical-align:top;border-bottom:1px solid #efede7;color:#412402;overflow-wrap:anywhere}
+.gc .ngoai th:first-child,.gc .ngoai td:first-child{width:84px;white-space:nowrap}
+.gc .ngoai tr.nhom td{background:#FAEEDA;font-weight:600;color:#633806}
+.gc .ngoai .mo{color:#9a988f}
+@media (max-width:560px){.gc table.ngoai,.gc .ngoai tbody,.gc .ngoai tr,.gc .ngoai td{display:block;width:auto}.gc .ngoai thead{display:none}.gc .ngoai tr{border:1px solid #e6e4de;border-radius:9px;margin-bottom:8px}.gc .ngoai td:before{content:attr(data-cot);display:block;font-size:11px;color:#8a887f;font-weight:600}.gc .ngoai td:first-child{white-space:normal}}
 .gc .q{font-size:14px;font-weight:600;color:#412402;margin:0 0 3px}.gc .ai{font-size:12px;color:#854F0B;margin:0 0 9px}
 .gc .flag{display:flex;gap:8px;font-size:13px;padding:8px 11px;border-radius:9px;margin-bottom:6px}
 .gc .fwarn{background:#FAEEDA;color:#633806}.gc .finfo{background:#f4f2ec;color:#56544d}.gc .fok{background:#E1F5EE;color:#085041}.gc .fred{background:#FAECE7;color:#712B13}
@@ -1344,28 +1351,51 @@ if (ooc.findings.length) {
   // nói SAI với người đọc thẻ. Bản chép thứ hai của câu này sống trong prompt
   // synthesize của acceptance-verify.js; hai bên đổi CÙNG lượt, P53b canh bản render.
   P.push(`<div class="flag fwarn">Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.</div>`);
-  ooc.findings.forEach((f, fi) => {
-    const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
-      : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
-      // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
-      // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
-      // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
-      : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
-      // Token ngoài danh sách KHÔNG được nuốt thành «chưa đề xuất»: bước triage
-      // ĐÃ nêu hướng, chỉ viết sai khuôn máy-đọc. Nói sai thành «chưa có» là
-      // giấu một đề xuất có thật khỏi người quyết (vết 01/09: «ghi Known limits»).
-      : f.proposal_raw ? `${MSG_PROPOSAL_LA}: «${f.proposal_raw}» — dùng một trong: ${outOfContract.PROPOSALS.join(' · ')}`
-      : 'Máy chưa đề xuất hướng nào.';
-    // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
-    // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
-    // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
-    // Nhãn Ngoài-<n> là mã tra cứu (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó.
-    const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    const dm = dtmMay(fi);
-    const ai = dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(rec);
+  const recCua = f => f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
+    : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
+    // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
+    // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
+    // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
+    : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
+    // Token ngoài danh sách KHÔNG được nuốt thành «chưa đề xuất»: bước triage
+    // ĐÃ nêu hướng, chỉ viết sai khuôn máy-đọc. Nói sai thành «chưa có» là
+    // giấu một đề xuất có thật khỏi người quyết (vết 01/09: «ghi Known limits»).
+    : f.proposal_raw ? `${MSG_PROPOSAL_LA}: «${f.proposal_raw}» — dùng một trong: ${outOfContract.PROPOSALS.join(' · ')}`
+    : 'Máy chưa đề xuất hướng nào.';
+  // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
+  // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
+  // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
+  const qCua = f => (f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)');
+  const aiCua = (f, fi) => { const dm = dtmMay(fi); return dm ? `Máy đã định tuyến: ${esc(outOfContract.OOC_GLOSS_NGUOI[dm.de_xuat] || dm.decision)} — đảo: <code>${esc(dm.dao)}</code>` : esc(recCua(f)); };
+  // BẢNG (hồ sơ bang-ngoai-n-co-can-cu, gốc crm/_acceptance/kanban-viec): mỗi mục một hàng bốn cột, mục cần
+  // người quyết lên đầu. Nhãn Ngoài-<n> vẫn là VỊ TRÍ TRONG TỆP — câu gộp ký, sổ định tuyến và mucChuaDinhTuyen
+  // đều đếm theo vị trí; chỉ thứ tự HIỂN THỊ đổi. Ba nút lặp ở từng mục cũ là chữ trình bày (không hành vi),
+  // nay gom thành MỘT dòng ba lựa chọn dưới bảng; quyết từng mục vẫn đi qua câu gộp ký.
+  const COT = ['Mục', 'Người dùng gặp gì', 'Máy đề xuất', 'Căn cứ'];
+  const NHOM = ['Cần anh quyết', 'Máy khuyên — chỉ đổi khi anh nghĩ khác', 'Máy đã định tuyến'];
+  // «Máy khuyên» = mọi token đề xuất hợp lệ trừ mở hợp đồng mới — rút từ MỘT nguồn OOC-PROPOSALS, không chép tay.
+  const KHUYEN = new Set(outOfContract.PROPOSALS.filter(p => p !== 'new-contract'));
+  const nhomCua = (f, fi) => (dtmMay(fi) ? 2 : KHUYEN.has(f.proposal) ? 1 : 0);
+  const hang = ooc.findings.map((f, fi) => ({ f, fi, g: nhomCua(f, fi) }));
+  // <<<XEP-NHOM
+  hang.sort((a, b) => a.g - b.g || a.fi - b.fi);
+  // XEP-NHOM>>>
+  const nhomCo = new Set(hang.map(h => h.g));
+  const tr = [];
+  let truoc = -1;
+  for (const { f, fi, g } of hang) {
+    if (nhomCo.size > 1 && g !== truoc) tr.push(`<tr class="nhom"><td colspan="4">${esc(NHOM[g])}</td></tr>`);
+    truoc = g;
     const nhanL = luatG2 ? luatG2.nhanNgoai(f) : '';
-    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}${nhanL ? ' · ' + esc(nhanL) : ''}</p><p class="ai">${ai}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
-  });
+    const o = [`Ngoài-${fi + 1}`, esc(qCua(f)) + (nhanL ? ' · ' + esc(nhanL) : ''), aiCua(f, fi),
+      f.can_cu ? esc(f.can_cu) : '<span class="mo">chưa có căn cứ</span>'];
+    tr.push(`<tr>${o.map((x, i) => `<td data-cot="${COT[i]}">${x}</td>`).join('')}</tr>`);
+  }
+  P.push(`<table class="ngoai"><thead><tr>${COT.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${tr.join('')}</tbody></table>`);
+  P.push(`<p class="ai">Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay — đổi bằng dòng lệnh ký.</p>`);
+  // Đọc-cũ: hồ sơ chấm trước bản có trường căn cứ — ô trống có tên + MỘT cờ vàng đếm, không bắt sửa hồ sơ.
+  const thieuCanCu = ooc.findings.filter(f => !f.can_cu).length;
+  if (thieuCanCu) P.push(`<div class="flag fwarn">${thieuCanCu}/${ooc.findings.length} mục chưa có căn cứ — hồ sơ chấm bằng bản kit trước khi có trường này; lý do của đề xuất nằm trong review-findings.md nếu có</div>`);
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
 if (yourCount) {
