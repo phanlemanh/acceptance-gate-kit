@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # hàng RM2 khai T3: CỘNG ba lệnh khoá (ADR 0002 + P32) · scripts/lo-trinh.mjs ghi tệp kế hoạch của kho · SKILL feature-loop S0 · gói road-map — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-ap-chinh-sach-lo-trinh-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-15T02:16:50Z
 ---
@@ -212,3 +212,18 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một l
 - Sổ tất định chỉ chống xung đột khi hai máy áp CÙNG ngày. Hai máy áp KHÁC ngày trên hai nhánh có thể xung đột khi gộp.
   Đây là giới hạn đã khai, kèm ngưỡng mở lại: ≥ 1 lần gộp xung đột ở tệp lộ trình hay sổ do máy áp.
 - Cắt lượt chưa tự gợi ý khối chính sách khi cắt mốc: chủ kho thêm tay; dòng nhắc trên thẻ khởi động (AC-9) là lời nhắc.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-15:
+  - Ngoài-1: Một bài kiểm tra của bộ máy chấm có thể báo xanh dù nó chưa thật sự bắt được lỗi mà nó định bắt. Người dùng cuối không thấy gì ngay, nhưng độ tin của màu xanh ở chỗ đó yếu hơn vẻ ngoài.
+  - Ngoài-2: Một bài kiểm tra nội bộ có thể vẫn xanh khi hồ sơ mẫu được chọn vốn đã có lỗi, nên không phân biệt được lỗi do bài tiêm với lỗi sẵn có. Người dùng cuối chưa bị ảnh hưởng.
+  - Ngoài-3: Một bài kiểm tra nội bộ của bộ máy chấm có thể xanh vì lý do khác với lý do nó tuyên bố, nên màu xanh đó đáng tin kém hơn. Người dùng cuối không thấy hậu quả trực tiếp.
+  - Ngoài-4: Nếu chủ kho tự hoàn tác thay đổi máy vừa dời bằng git hoặc undo mà không dùng lệnh trả lại, rồi lần chạy kế trong cùng ngày thì máy có thể áp lại đúng thay đổi đó. Thay đổi bị áp lại sẽ nằm lẫn trong commit khác, không có commit riêng của máy.
+  - Ngoài-5: Nếu máy bị ngắt đúng giữa lúc ghi sổ và ghi tệp, rồi lần chạy kế rơi sang ngày hôm sau, sổ sẽ báo một hàng đã được dời trong khi tệp lộ trình chưa hề đổi. Lệnh xem và thẻ khởi động có thể hiện cả «đã dời» lẫn «sẽ dời» cho cùng hàng đó, và lệnh trả lại báo sai là hàng đã bị sửa tay.
+  - Ngoài-6: Khi mở việc mới bị từ chối (ví dụ thư mục đã tồn tại), máy vẫn có thể đã dời hàng trong lộ trình rồi. Thay đổi đó nằm lại chưa commit, lần mở sau có thể không còn được tách thành commit riêng của máy.
+  - Ngoài-7: Hướng dẫn mà phiên Claude đọc lúc mở việc vừa nói kit không ghi gì vào lộ trình, vừa nói máy sẽ tự dời hàng và commit riêng tệp lộ trình. Hai chỉ dẫn trái nhau có thể khiến phiên làm sai hoặc bối rối.
+  - Ngoài-8: Ở kho còn giữ bản chép mã cũ, máy vẫn tự dời hàng nhưng lệnh trả lại hàng báo lỗi tham số lạ. Chủ kho không đảo được việc máy vừa làm bằng một lệnh cho tới khi kho cập nhật bản chép.
+  - Ngoài-9: Ba lệnh ghim, bỏ ghim, trả lại mỗi lệnh giữ một bản chép riêng của quy tắc lọc đối số người gõ. Nếu quy tắc gốc đổi sau này, ba bản chép có thể lệch mà không ai hay.
+  - Ngoài-10: Nếu tệp lộ trình có dấu BOM đầu tệp và kho bật tự áp, thẻ khởi động phiên và lệnh xem bản đồ có thể vỡ bằng một đống thông báo lỗi thay vì chạy bình thường. Trước thay đổi này, tệp như vậy vẫn đọc được.
+  - Ngoài-12: Khi lịch sử có một commit với tệp lộ trình hỏng, số đo trước/sau của vòng này sẽ lệch lặng lẽ mà không có cảnh báo. Con số báo cho chủ kho có thể không phản ánh đúng thực tế.
+  - Ngoài-13: Bài kiểm cho trường hợp khai chính sách sai kiểu chỉ chứng minh máy không ghi gì, chưa chứng minh cùng kho khai đúng thì máy có ghi. Nếu máy vốn không báo trước ngày đó thì bài vẫn xanh mà không bắt được gì.
+  - Ngoài-14: Bài kiểm cho tệp lộ trình chưa commit chỉ xác nhận không có đề xuất theo tuổi, không xác nhận lý do hay lời cảnh báo. Nếu luật tuổi hỏng hoàn toàn, bài vẫn xanh.
+- Ngoài-11 (cờ giả «hồ sơ trỏ hàng không có» sau khi máy dời hàng có hồ sơ) → hạt giống `docs/plans/2026-10-15-hat-giong-co-gia-ho-so-tro-hang-sau-tu-ap.md`.
