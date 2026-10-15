@@ -1,6 +1,6 @@
 ---
 slug: lo-trinh-gio-may
-at: 2026-10-15T08:30:00Z
+at: 2026-10-15T07:52:00Z
 verdict: findings
 p0: 3
 p1: 2

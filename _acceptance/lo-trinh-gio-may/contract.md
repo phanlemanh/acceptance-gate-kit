@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6 khai T2: scripts/lo-trinh.mjs + script mới scripts/do-vong.mjs + khối SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-lo-trinh-gio-may-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-15T07:56:41Z
 ---
 
 # Acceptance Contract: lo-trinh-gio-may
