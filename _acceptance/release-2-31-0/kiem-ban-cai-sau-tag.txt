@@ -1,0 +1,17 @@
+# Kiểm bản cài SAU khi gắn thẻ (bước sau-tag của KC1, GUIDE §7.2) — chạy 15/10/2026 trên máy M5, gốc kit tại
+# f0634454 (thẻ v2.31.0): node scripts/kiem-ban-cai.mjs --ref v2.31.0
+[kiem-ban-cai] ref v2.31.0 = f0634454 · nguồn: git archive · cấu hình cách ly <thư mục tạm> · kho giả lập <thư mục tạm>
+[kiem-ban-cai] ĐẠT so-phien-ban: acceptance-gate 2.31.0 · feature-loop 2.31.0 · diagram-design 2.7.1 · dieu-phoi 2.31.0 · road-map 2.31.0
+[kiem-ban-cai] ĐẠT khop-tag: 5 gói, 4620 tệp khớp
+[kiem-ban-cai] ĐẠT thu-muc-goi: đủ thư mục cấp một của mọi gói
+[kiem-ban-cai] ĐẠT tac-tu-cham: 3 loại tác tử có định nghĩa: cham-lenh, cham-ui, cham-doc
+[kiem-ban-cai] ĐẠT hook-goi: mọi tệp móc nối trỏ tới đều có
+[kiem-ban-cai] ĐẠT the-cong: thẻ Cổng Phạm vi của hồ sơ kho-thu dựng được
+[kiem-ban-cai] ĐẠT luoi-truoc-gop: kho lành thoát 0 · hồ sơ phạm luật bị chặn (VIOLATION)
+[kiem-ban-cai] ĐẠT dieu-phoi: chẩn đoán đợt chạy được từ bản cài
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.31.0 (f0634454) cài đúng tag
+
+# Cùng lúc: node scripts/kiem-ban-cai.mjs --may --ref v2.31.0 --root . — máy M5 CHƯA nâng plugin (đúng dự kiến: phạm vi
+# user giữ 2.28 tới khi crm cài 2.30); đọc các dòng VÀNG, không đọc riêng TỔNG KẾT (đính chính CHANGELOG 2.30.0).
+[kiem-ban-cai] máy: cấu hình /Users/manhphan/.claude · ref v2.31.0 = f0634454 · chợ acceptance-gate-kit
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 34 bản ghi khớp v2.31.0 (f0634454) · 100 bản ghi khác số (VÀNG)
