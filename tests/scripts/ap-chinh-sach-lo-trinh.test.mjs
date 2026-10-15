@@ -199,6 +199,267 @@ async function ap1KhongBat(kit) {
 }
 if (want('AP-1-khong-bat') && await chayCa('AP-1-khong-bat', ap1KhongBat)) ok('AP-1-khong-bat', 'ba kho không bật: --ap --write không ghi gì; --ra-soat chữ + JSON giống từng byte bộ máy gốc');
 
+if (want('AP-1-do2')) await chayDo('AP-1-do2', ap1KhongBat, [['scripts/lo-trinh.mjs', 'tu_ap: !!(csM && csM.tu_ap),', 'tu_ap: !!((csM && csM.tu_ap) || csT),']], 'kho không bật tự áp mà máy ghi sổ', 'bản sao đọc tu_ap từ khối của tệp');
+
+// ═══ AP-2 (AC-2): nhịp báo trước → áp, trần, huỷ, đổi ══════════════════════════════════════════════════════════
+const D20 = '2026-10-20'; const D21 = '2026-10-21'; const D22 = '2026-10-22'; const D23 = '2026-10-23'; const D24 = '2026-10-24';
+const TOI = (cs = {}) => ({ ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', chinh_sach: { tu_ap: true, tuoi_ngay: 30, ...cs }, hang: [] });
+const QUA = (hang, ten = 'Qua') => ({ ten, ngay: '2026-09-15', loai: 'phat-hanh', hang });
+const DATA_2 = tran => ({ schema: 1, moc: [QUA(['Y']), TOI({ tran_ap: tran })], hang: [H('X'), H('Y'), H('Z', { slug: 'z-bac' })] });
+const dayDx = so => so.map(d => `${d.loai} ${d.ma} ${d.de_xuat} ${d.ngay}`);
+const viPham = so => [...so.filter(d => d.loai === 'ap' && so.some(b => b.loai === 'bao-truoc' && b.ma === d.ma && b.ngay === d.ngay)).map(d => `áp trước nhịp: ${d.ma}`),
+  ...so.filter(d => d.loai === 'ap' && d.ma === 'Y').map(() => 'áp hàng đã có hồ sơ mở: Y')];
+async function ap2(kit, tran = 2) {
+  const sai = []; const { r } = kho({ hoSo: { 'z-bac': 'da-bac' }, data: DATA_2(tran) }); const tep = path.join(r, TEP);
+  const b0 = bam(tep); apGhiOk(kit, r, D20);
+  if (bam(tep) !== b0) sai.push('ngày báo trước mà tệp lộ trình đổi');
+  const so20 = docSo(r);
+  const mong20 = ['bao-truoc X 2026-10-20', 'bao-truoc Y 2026-10-20', 'bao-truoc Z 2026-10-20'];
+  if (!deq(daySo(so20).filter(x => x.startsWith('bao-truoc')), mong20) || so20.some(d => d.loai === 'bao-truoc' && d.ap_tu !== D21)) sai.push(`sổ ngày báo trước: ${JSON.stringify(daySo(so20))}`);
+  const bs = bam(path.join(r, SO)); apGhi(kit, r, D20);
+  if (bam(path.join(r, SO)) !== bs) sai.push('chạy lại cùng ngày mà sổ đổi');
+  commitNgay(r, D20, 'ngay 20');
+  ghiHoSo(r, { 'y-mo': ['sap-mo', 'Y'] }); commitNgay(r, D21, 'Y mo');
+  apGhiOk(kit, r, D21); commitNgay(r, D21, 'ap 21'); apGhiOk(kit, r, D22);
+  const so = docSo(r); sai.push(...viPham(so));
+  const mong = tran === 2 ? [...mong20, 'ap X 2026-10-21', 'huy Y 2026-10-21', 'ap Z 2026-10-21'] : [...mong20, 'ap X 2026-10-21', 'huy Y 2026-10-21', 'ap Z 2026-10-22'];
+  if (!deq(daySo(so), mong)) sai.push(`dãy sổ ${JSON.stringify(daySo(so))}, cần ${JSON.stringify(mong)}`);
+  return sai;
+}
+if (want('AP-2') && await chayCa('AP-2', k => ap2(k, 2))) ok('AP-2', 'ngày 20: tệp không đổi, ba báo trước áp từ 21; chạy lại cùng ngày sổ không đổi; ngày 21: áp X, Z (trần 2), Y có hồ sơ mở → huỷ; ngày 22: không thêm dòng');
+if (want('AP-2-tran-1') && await chayCa('AP-2-tran-1', k => ap2(k, 1))) ok('AP-2-tran-1', 'trần 1: ngày 21 áp đúng X (thứ tự hàng), ngày 22 áp Z');
+if (want('AP-2-do')) await chayDo('AP-2-do', k => ap2(k, 2), [['scripts/lo-trinh.mjs', 'if (!cho) { baoTruoc(e); continue; }', "if (!cho) { const ket = apMot(data, e, cdI, today); doi = true; soAp += 1; moi.push({ ngay: today, loai: 'ap', ma, de_xuat: e.de_xuat, luat: e.luat, can_cu: e.can_cu, ...ket, lenh_tra_lai: LENH_TRA_LAI(ma) }); baoTruoc(e); continue; }"]], 'áp trước nhịp: X', 'bản sao áp ngay ngày báo trước');
+if (want('AP-2-do2')) await chayDo('AP-2-do2', k => ap2(k, 2), [['scripts/lo-trinh.mjs', 'for (const [ma, c] of P.cho) if (!coDeXuat.has(ma)) huy(c);', "for (const [ma, c] of P.cho) if (!coDeXuat.has(ma)) { const ket = apMot(data, c, cdI, today); doi = true; moi.push({ ngay: today, loai: 'ap', ma, de_xuat: c.de_xuat, luat: c.luat, can_cu: c.can_cu, ...ket, lenh_tra_lai: LENH_TRA_LAI(ma) }); }"]], 'áp hàng đã có hồ sơ mở: Y', 'bản sao không kiểm đề xuất còn nguyên');
+async function ap2tran(kit) {
+  const data = { schema: 1, moc: [TOI({ tran_ap: 2 })], hang: [H('X'), H('W'), H('Z', { slug: 'z-bac' })] };
+  const { r } = kho({ hoSo: { 'z-bac': 'da-bac' }, data });
+  apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const n = docSo(r).filter(d => d.loai === 'ap' && d.ngay === D21).length;
+  return n === 2 ? [] : [`áp ${n}, trần 2`];
+}
+if (want('AP-2-do3')) await chayDo('AP-2-do3', ap2tran, [['scripts/lo-trinh.mjs', ' || soAp >= cs.tran_ap', '']], 'áp 3, trần 2', 'bản sao bỏ trần');
+async function ap2doi(kit) {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [TOI()], hang: [H('X')] } }); const tep = path.join(r, TEP);
+  apGhiOk(kit, r, D20); commitNgay(r, D20, 'ngay 20');
+  mkdirSync(path.join(r, '_acceptance', 'x-bac'), { recursive: true }); writeFileSync(path.join(r, '_acceptance', 'x-bac', 'opportunity.md'), oppQuyet('kill', 'X')); commitNgay(r, D21, 'X bac');
+  const b = bam(tep); apGhiOk(kit, r, D21);
+  if (bam(tep) !== b) sai.push('ngày đề xuất đổi mà tệp đổi');
+  for (const d of docSo(r)) if (d.loai === 'ap' && d.ngay === D21) sai.push(`áp đề xuất chưa báo trước: ${d.ma} ${d.de_xuat}`);
+  commitNgay(r, D21, 'ap 21'); apGhiOk(kit, r, D22);
+  const mong = ['bao-truoc X cho-dieu-kien 2026-10-20', 'huy X cho-dieu-kien 2026-10-21', 'bao-truoc X bac 2026-10-21', 'ap X bac 2026-10-22'];
+  if (!deq(dayDx(docSo(r)), mong)) sai.push(`dãy sổ ${JSON.stringify(dayDx(docSo(r)))}, cần ${JSON.stringify(mong)}`);
+  const lt = docLT(r); if (!lt.da_bac || lt.da_bac.at(-1).ma !== 'X') sai.push(`X không là mục cuối da_bac: ${JSON.stringify(lt.da_bac)}`);
+  return sai;
+}
+if (want('AP-2-doi') && await chayCa('AP-2-doi', ap2doi)) ok('AP-2-doi', 'đề xuất đổi (chờ điều kiện → bác) giữa nhịp: huỷ cũ + báo trước mới, tệp không đổi ngày 21, áp bác ngày 22');
+if (want('AP-2-do4')) await chayDo('AP-2-do4', ap2doi, [['scripts/lo-trinh.mjs', 'if (cho.de_xuat !== e.de_xuat || cho.luat !== e.luat) { huy(cho); baoTruoc(e); continue; }', '']], 'áp đề xuất chưa báo trước: X bac', 'bản sao chỉ so mã khi áp');
+if (want('AP-2-ngay-sai') && await chayCa('AP-2-ngay-sai', async kit => {
+  const { r } = kho({ data: { schema: 1, moc: [TOI()], hang: [H('X')] } }); const x = apGhi(kit, r, '15/10/2026');
+  return x.status === 2 && x.stderr.includes('ACCEPTANCE_TODAY phải dạng YYYY-MM-DD') && !existsSync(path.join(r, SO)) ? [] : [`ngày sai dạng: thoát ${x.status} «${x.stderr.trim()}»`];
+})) ok('AP-2-ngay-sai', 'ngày sai dạng → thoát 2 có tên, không sổ');
+
+// ═══ AP-3 (AC-3): ba hành động, đích đúng, không hàng nào biến mất ═════════════════════════════════════════════
+const DATA_3 = () => ({ schema: 1,
+  moc: [{ ten: 'QuaA', ngay: '2026-09-15', loai: 'phat-hanh', hang: ['M', 'L'] }, { ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', chinh_sach: { tu_ap: true, tuoi_ngay: 30 }, hang: ['K1'] }],
+  hang: [H('M'), H('T'), H('L', { trang_thai: 'Xếp lại sau', ly_do: 'lý do cũ' }), H('B', { slug: 'b-bac' }), H('K1')],
+  chan_troi: [{ ma: 'H0', cau_giao: '«câu giao H0»', ly_do: 'có sẵn' }] });
+const SAU_3 = { schema: 1,
+  moc: [{ ten: 'QuaA', ngay: '2026-09-15', loai: 'phat-hanh', hang: [] }, { ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', chinh_sach: { tu_ap: true, tuoi_ngay: 30 }, hang: ['K1', 'M'] }],
+  hang: [H('M'), H('K1')],
+  chan_troi: [{ ma: 'H0', cau_giao: '«câu giao H0»', ly_do: 'có sẵn' },
+    { ma: 'T', cau_giao: '«câu giao T»', ly_do: '50 ngày chưa ai sửa (lần cuối 01/09/2026)', mo_lai_khi: 'chủ kho trả lại, hoặc căn cứ đổi', tu_ap: { ngay: D21 } },
+    { ma: 'L', cau_giao: '«câu giao L»', trang_thai: 'Xếp lại sau', ly_do: 'lý do cũ', ly_do_may: 'kế hoạch tự khai «Xếp lại sau»', mo_lai_khi: 'chủ kho trả lại, hoặc căn cứ đổi', tu_ap: { ngay: D21 } }],
+  da_bac: [{ ma: 'B', cau_giao: '«câu giao B»', slug: 'b-bac', ly_do: 'hồ sơ b-bac đã bác', tu_ap: { ngay: D21 } }] };
+const tapMa = d => new Set(['hang', 'chan_troi', 'da_bac'].flatMap(k => (d[k] || []).map(x => x.ma)));
+async function ap3(kit) {
+  const sai = []; const { r } = kho({ hoSo: { 'b-bac': 'da-bac' }, data: DATA_3() });
+  apGhiOk(kit, r, D20); commitNgay(r, D20, 'ngay 20'); apGhiOk(kit, r, D21);
+  const sau = docLT(r); const truoc = tapMa(DATA_3()); const con = tapMa(sau);
+  const mat = [...truoc].filter(m => !con.has(m)); if (mat.length) sai.push(`hàng biến mất: ${mat.join(', ')}`);
+  const ct = (sau.chan_troi || []).map(x => x.ma); if (ct.slice(-2).join() !== 'T,L') sai.push(`mục máy không ở cuối chan_troi: ${ct.join(', ')}`);
+  if (JSON.stringify(sau) !== JSON.stringify(SAU_3)) sai.push(`tệp sau áp khác đối tượng viết sẵn: ${JSON.stringify(sau).slice(0, 300)}`);
+  return sai;
+}
+if (want('AP-3') && await chayCa('AP-3', ap3)) ok('AP-3', 'M cuối hàng của mốc đang chạy, rời mốc cũ; T, L hai mục cuối «chờ điều kiện» (L giữ lý do cũ, câu máy ở ly_do_may); B cuối «đã bác»; tệp BẰNG đối tượng viết sẵn; tập mã không đổi');
+if (want('AP-3-do')) await chayDo('AP-3-do', ap3, [['scripts/lo-trinh.mjs', '  data[khoi].push(mucMay(hangGoc, e, ngay, khoi));\n', '']], 'hàng biến mất: T', 'bản sao xoá hàng thay vì chuyển');
+if (want('AP-3-do2')) await chayDo('AP-3-do2', ap3, [['scripts/lo-trinh.mjs', 'data[khoi].push(mucMay(', 'data[khoi].unshift(mucMay(']], 'mục máy không ở cuối chan_troi', 'bản sao chèn đầu mảng');
+if (want('AP-3-khong-moc') && await chayCa('AP-3-khong-moc', async kit => {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [{ ten: 'Cu', ngay: '2026-09-15', loai: 'phat-hanh', chinh_sach: { tu_ap: true }, hang: ['Q'] }], hang: [H('Q')] } });
+  const b = bam(path.join(r, TEP)); apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  if (bam(path.join(r, TEP)) !== b || existsSync(path.join(r, SO))) sai.push('không còn chiến dịch phía trước mà máy vẫn ghi');
+  const j = apJson(kit, r, D21)[0];
+  if (!(j.canh_bao || []).some(c => c.includes('không có mốc chiến dịch phía trước'))) sai.push(`không cảnh báo: ${JSON.stringify(j)}`);
+  return sai;
+})) ok('AP-3-khong-moc', 'chiến dịch bật tự áp đã qua, không có chiến dịch phía trước: tệp không đổi, JSON cảnh báo «không có mốc chiến dịch phía trước»');
+if (want('AP-3-hai-moc') && await chayCa('AP-3-hai-moc', async kit => {
+  const sai = []; const data = { schema: 1, moc: [QUA(['R'], 'QuaA'), QUA(['X0', 'R'], 'QuaB'), TOI()], hang: [H('X0', { trang_thai: 'Đã giao' }), H('R')] };
+  const { r } = kho({ data }); const goc = readFileSync(path.join(r, TEP), 'utf8');
+  apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const sau = docLT(r);
+  if (sau.moc[0].hang.includes('R') || sau.moc[1].hang.includes('R') || sau.moc[2].hang.at(-1) !== 'R') sai.push(`một mã ở hai mốc đã qua: ${JSON.stringify(sau.moc.map(m => m.hang))}`);
+  const x = chay(kit, r, D21, ['--tra-lai', 'R', '--write']);
+  if (x.status !== 0) sai.push(`trả lại thoát ${x.status}: ${x.stderr}`);
+  else if (readFileSync(path.join(r, TEP), 'utf8') !== goc) sai.push('trả lại không khôi phục đủ hai mốc');
+  return sai;
+})) ok('AP-3-hai-moc', 'mã ở hai mốc đã qua: dời gỡ khỏi cả hai; trả lại khôi phục cả hai, tệp về đúng byte');
+
+// ═══ AP-4 (AC-4): bộ ghi giữ byte ════════════════════════════════════════════════════════════════════════════
+// Phép ngược ĐỘC LẬP của ca (không gọi traLai): từ tệp sau áp + dòng `ap` của sổ dựng lại tệp trước, so từng byte.
+function nguoc(sau, so) {
+  const d = JSON.parse(JSON.stringify(sau));
+  for (const a of [...so].reverse().filter(x => x.loai === 'ap')) {
+    if (a.dich.khoi === 'moc') { const h = d.moc[a.dich.chi_so].hang; h.splice(h.lastIndexOf(a.ma), 1); }
+    else { const ds = d[a.dich.khoi]; ds.splice(ds.findIndex(x => x.ma === a.ma), 1); if (a.tao_khoi && !ds.length) delete d[a.dich.khoi]; d.hang.splice(a.vi_tri.chi_so, 0, a.hang_goc); }
+    for (const v of a.vi_tri.moc) d.moc[v.chi_so].hang.splice(v.vt, 0, a.ma);
+  }
+  return JSON.stringify(d, null, 2) + '\n';
+}
+const khoaDeQuy = (o, ra = []) => { if (o && typeof o === 'object') { if (!Array.isArray(o)) ra.push(Object.keys(o).join(',')); for (const v of Object.values(o)) khoaDeQuy(v, ra); } return ra; };
+async function ap4(kit) {
+  const sai = [];
+  const data = JSON.parse(git(KIT, 'show', `${GOC}:docs/plans/lo-trinh-kit.json`));
+  data._x_goc = 1; data.hang[0].x_la = 'x'; data.moc[0].x_moc = { a: { b: 1 } };
+  const ung = data.moc.map((m, i) => ({ m, i })).filter(({ m }) => m.loai === 'phat-hanh' && m.ngay >= D20).sort((a, b) => a.m.ngay.localeCompare(b.m.ngay) || a.i - b.i)[0];
+  ung.m.chinh_sach = { tu_ap: true, tran_ap: 1 };
+  const { r } = kho({ data }); const goc = readFileSync(path.join(r, TEP), 'utf8');
+  apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const sau = readFileSync(path.join(r, TEP), 'utf8'); const so = docSo(r);
+  if (!so.some(d => d.loai === 'ap')) return ['không có lần áp nào — ca không đo được gì'];
+  if (sau === goc) sai.push('có dòng áp mà tệp không đổi');
+  if (sau !== JSON.stringify(JSON.parse(sau), null, 2) + '\n' || !sau.endsWith('}\n') || sau.endsWith('\n\n')) sai.push('byte ngoài phần dời đổi (tệp sau áp không ở dạng chuẩn)');
+  if (nguoc(JSON.parse(sau), so) !== goc) sai.push('byte ngoài phần dời đổi');
+  const truocK = khoaDeQuy(JSON.parse(goc)); const sauK = khoaDeQuy(JSON.parse(nguoc(JSON.parse(sau), so)));
+  if (!deq(truocK, sauK)) sai.push('thứ tự khoá đổi');
+  const p = JSON.parse(sau); if (p._x_goc !== 1 || !p.moc[0].x_moc || p.hang.every(h => h.x_la === undefined) && !(p.chan_troi || []).concat(p.da_bac || []).some(h => h.x_la)) sai.push('khoá lạ mất');
+  return sai;
+}
+if (want('AP-4') && await chayCa('AP-4', ap4)) ok('AP-4', 'tệp lộ trình kit + khoá lạ ở gốc, hàng, mốc, object lồng: phép ngược độc lập từ sổ ra đúng từng byte tệp trước; tệp sau ở dạng chuẩn, một dòng cuối; thứ tự khoá và khoá lạ giữ');
+if (want('AP-4-do')) await chayDo('AP-4-do', ap4, [['scripts/lo-trinh.mjs', 'writeFileSync(t, JSON.stringify(data, null, 2)', 'writeFileSync(t, JSON.stringify(data, null, 4)']], 'byte ngoài phần dời đổi', 'bản sao ghi thụt 4 dấu cách');
+const DATA_4 = () => ({ schema: 1, moc: [TOI()], hang: [H('X')] });
+const KHONG_CHUAN = {
+  'thut-4': () => JSON.stringify(DATA_4(), null, 4) + '\n',
+  'thieu-dong-cuoi': () => JSON.stringify(DATA_4(), null, 2),
+  'bom': () => '﻿' + JSON.stringify(DATA_4(), null, 2) + '\n',
+  'khoa-so': () => JSON.stringify({ ...DATA_4(), tu_vung: { b: 'Đã giao', 1: 'Đã giao' } }, null, 2).replace('"1": "Đã giao",\n    "b": "Đã giao"', '"b": "Đã giao",\n    "1": "Đã giao"') + '\n',
+};
+async function ap4TuChoi(kit) {
+  const sai = [];
+  for (const [ca, tao] of Object.entries(KHONG_CHUAN)) {
+    const { r } = kho({ data: DATA_4() }); ghiTep(r, tao()); commitNgay(r, '2026-09-01', ca);
+    const p = path.join(r, TEP); const b = bam(p); const mt = statSync(p).mtimeMs;
+    const x = apGhi(kit, r, D20);
+    if (x.status !== 2 || !x.stderr.includes(`tệp lộ trình không ở dạng chuẩn — máy không ghi: ${TEP}`) || bam(p) !== b || statSync(p).mtimeMs !== mt || existsSync(path.join(r, SO))) sai.push(`ghi đè tệp không chuẩn: ${ca} (thoát ${x.status})`);
+  }
+  const { r } = kho({ data: DATA_4() }); const x = apGhi(kit, r, D20);
+  if (x.status !== 0 || !existsSync(path.join(r, SO))) sai.push(`đối chứng dương: tệp chuẩn mà không áp được (thoát ${x.status})`);
+  return sai;
+}
+if (want('AP-4-tu-choi') && await chayCa('AP-4-tu-choi', ap4TuChoi)) ok('AP-4-tu-choi', 'bốn tệp không chuẩn (thụt 4 · thiếu dòng cuối · BOM · khoá dạng số) → thoát 2 có tên, tệp và sổ không đổi; tệp chuẩn → áp được');
+if (want('AP-4-do2')) await chayDo('AP-4-do2', ap4TuChoi, [['scripts/lo-trinh.mjs', 'if (!chuan && ghi) return', 'if (false && !chuan && ghi) return']], 'ghi đè tệp không chuẩn: thut-4', 'bản sao bỏ điều kiện trước');
+
+// ═══ AP-5 (AC-5): sổ tất định, gộp sạch, đứt giữa chừng ════════════════════════════════════════════════════════
+const KHOA_AP = ['ngay', 'loai', 'ma', 'de_xuat', 'luat', 'can_cu', 'vi_tri', 'dich', 'hang_goc', 'lenh_tra_lai'];
+async function ap5(kit) {
+  const sai = []; const { r } = kho({ hoSo: { 'b-bac': 'da-bac' }, data: DATA_3() });
+  const hai = ['a', 'b'].map(n => { const c = path.join(TMP, `clone-${n}-${++khoN}`); execFileSync('git', ['clone', '-q', r, c]); git(c, 'config', 'user.email', 'x@y.z'); git(c, 'config', 'user.name', 'Người Thử'); git(c, 'checkout', '-qb', `nhanh-${n}`);
+    apGhiOk(kit, c, D20); commitNgay(c, D20, `${n} 20`); apGhiOk(kit, c, D21); commitNgay(c, D21, `${n} 21`); return c; });
+  if (bam(path.join(hai[0], TEP)) !== bam(path.join(hai[1], TEP)) || bam(path.join(hai[0], SO)) !== bam(path.join(hai[1], SO))) sai.push('sổ hai máy khác byte');
+  for (const d of docSo(hai[0]).filter(x => x.loai === 'ap')) {
+    const thieu = KHOA_AP.filter(k => d[k] === undefined); if (thieu.length) sai.push(`dòng ap ${d.ma} thiếu ${thieu.join(', ')}`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.ngay)) sai.push(`dòng ap ${d.ma}: ngay «${d.ngay}» không phải YYYY-MM-DD`);
+  }
+  git(hai[0], 'fetch', '-q', hai[1], 'nhanh-b');
+  const m = spawnSync('git', ['-C', hai[0], 'merge', '--no-edit', 'FETCH_HEAD'], { encoding: 'utf8' });
+  if (m.status !== 0) sai.push(`gộp hai nhánh xung đột: ${m.stdout}${m.stderr}`);
+  return sai;
+}
+if (want('AP-5') && await chayCa('AP-5', ap5)) ok('AP-5', 'hai bản clone áp ngày 20 rồi 21 trên nhánh riêng: tệp và sổ cùng byte; dòng ap đủ khoá, ngày không giờ; gộp nhánh thoát 0 không xung đột');
+if (want('AP-5-do')) await chayDo('AP-5-do', ap5, [['scripts/lo-trinh.mjs', "moi.push({ ngay: today, loai: 'ap', ma,", "moi.push({ ngay: new Date().toISOString(), loai: 'ap', ma,"]], 'sổ hai máy khác byte', 'bản sao ghi giờ vào ngày');
+if (want('AP-5-dut') && await chayCa('AP-5-dut', async kit => {
+  const sai = []; const { r } = kho({ hoSo: { 'b-bac': 'da-bac' }, data: DATA_3() });
+  const c = path.join(TMP, `clone-dut-${++khoN}`); execFileSync('git', ['clone', '-q', r, c]);
+  apGhiOk(kit, r, D20); apGhiOk(kit, c, D20);
+  const dut = banSao([['scripts/lo-trinh.mjs', 'ghiSo(root, t.tep, moi);\n      if (doi)', 'ghiSo(root, t.tep, moi); process.exit(0);\n      if (doi)']]);
+  const b = bam(path.join(r, TEP)); apGhiOk(dut, r, D21);
+  if (bam(path.join(r, TEP)) !== b) return ['bản sao đứt mà tệp đã đổi — ca không dựng được tình huống đứt'];
+  apGhiOk(kit, r, D21); apGhiOk(kit, c, D21);
+  const so = docSo(r); for (const ma of ['M', 'T', 'L', 'B']) { const n = so.filter(d => d.loai === 'ap' && d.ma === ma).length; if (n !== 1) sai.push(`${ma}: ${n} dòng ap sau khi chạy lại`); }
+  if (bam(path.join(r, TEP)) !== bam(path.join(c, TEP))) sai.push('tệp sau khi chạy lại khác lần chạy không đứt');
+  return sai;
+})) ok('AP-5-dut', 'đứt sau khi ghi sổ, trước khi ghi tệp: chạy lại cùng ngày đổi tệp đúng một lần, mỗi mã một dòng ap, tệp bằng lần chạy không đứt');
+if (want('AP-5-so-hong') && await chayCa('AP-5-so-hong', async kit => {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [TOI()], hang: [H('X')] } });
+  apGhiOk(kit, r, D20); writeFileSync(path.join(r, SO), readFileSync(path.join(r, SO), 'utf8') + '{bad\n');
+  const j = apJson(kit, r, D21)[0];
+  if (!(j.canh_bao || []).some(c => c.includes('sổ tự áp có 1 dòng không đọc được'))) sai.push(`không cảnh báo sổ hỏng: ${JSON.stringify(j)}`);
+  const b = bam(path.join(r, TEP)); const bs = bam(path.join(r, SO)); apGhiOk(kit, r, D21);
+  if (bam(path.join(r, TEP)) !== b || bam(path.join(r, SO)) !== bs) sai.push('sổ hỏng mà máy vẫn ghi');
+  return sai;
+})) ok('AP-5-so-hong', 'sổ có một dòng hỏng: JSON cảnh báo, máy không ghi gì vào tệp đó');
+
+// ═══ AP-6 (AC-6): trả lại · ghim · bỏ ghim ══════════════════════════════════════════════════════════════════
+const DATA_6 = () => ({ schema: 1, moc: [QUA(['M']), { ...TOI(), hang: ['K1'] }], hang: [H('M'), H('T'), H('K1')] }); // K1 ở mốc đang chạy: không đề xuất
+const lenhNg = (kit, r, today, lenh, ma) => chay(kit, r, today, [`--${lenh}`, ma, '--write']);
+async function ap6(kit) {
+  const sai = []; const { r } = kho({ data: DATA_6() }); const p = path.join(r, TEP); const goc = bam(p);
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20'); apGhiOk(kit, r, D21); commitNgay(r, D21, '21');
+  if (bam(p) === goc) return ['không có lần áp nào — ca không đo được gì'];
+  for (const ma of ['T', 'M']) { const x = lenhNg(kit, r, D21, 'tra-lai', ma); if (x.status !== 0) sai.push(`trả lại ${ma} thoát ${x.status}: ${x.stderr}`); }
+  commitNgay(r, D21, 'tra lai');
+  if (bam(p) !== goc) sai.push('trả lại T và M mà tệp không về đúng byte trước lần áp');
+  const n0 = docSo(r).length; apGhiOk(kit, r, D22); commitNgay(r, D22, '22');
+  for (const d of docSo(r).slice(n0)) if (d.loai === 'bao-truoc' && ['T', 'M'].includes(d.ma)) sai.push(`máy báo trước lại đề xuất vừa trả: ${d.ma} ${d.luat}`);
+  const tl = docSo(r).filter(d => d.loai === 'tra-lai');
+  if (tl.length !== 2 || tl.some(d => d.boi !== 'Người Thử')) sai.push(`dòng tra-lai: ${JSON.stringify(tl)}`);
+  return sai;
+}
+if (want('AP-6') && await chayCa('AP-6', ap6)) ok('AP-6', 'trả lại T và M: tệp về đúng byte trước lần áp; ngày kế không báo trước lại đề xuất vừa trả; dòng tra-lai mang tên người');
+if (want('AP-6-do')) await chayDo('AP-6-do', ap6, [['scripts/lo-trinh.mjs', '      if (!cho && tl && tl.de_xuat === e.de_xuat && tl.luat === e.luat) continue;\n', '']], 'máy báo trước lại đề xuất vừa trả: M moc-qua-ngay', 'bản sao bỏ luật chặn đề xuất vừa trả');
+if (want('AP-6-doi') && await chayCa('AP-6-doi', async kit => {
+  const { r } = kho({ data: DATA_6() });
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20'); apGhiOk(kit, r, D21); commitNgay(r, D21, '21');
+  lenhNg(kit, r, D21, 'tra-lai', 'T'); commitNgay(r, D21, 'tra');
+  mkdirSync(path.join(r, '_acceptance', 't-bac'), { recursive: true }); writeFileSync(path.join(r, '_acceptance', 't-bac', 'opportunity.md'), oppQuyet('kill', 'T')); commitNgay(r, D22, 'T bac');
+  const n0 = docSo(r).length; apGhiOk(kit, r, D22);
+  const moi = docSo(r).slice(n0).filter(d => d.loai === 'bao-truoc' && d.ma === 'T');
+  return moi.length === 1 && moi[0].de_xuat === 'bac' ? [] : [`đề xuất đổi sau khi trả lại mà không báo trước mới: ${JSON.stringify(moi)}`];
+})) ok('AP-6-doi', 'trả lại T (chờ điều kiện), sau đó hồ sơ T bị bác → báo trước mới «bác»');
+async function ap6ghim(kit) {
+  const sai = []; const LTm = await import(pathToFileURL(LT(kit)).href + `?g=${++napN}`);
+  const { r } = kho({ data: DATA_6() }); const p = path.join(r, TEP);
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20'); apGhiOk(kit, r, D21); commitNgay(r, D21, '21');
+  lenhNg(kit, r, D21, 'tra-lai', 'M'); commitNgay(r, D21, 'tra M');
+  const tuoi = () => { const t = LTm.tuoiHang(r, TEP).theoMa; return JSON.stringify(['M', 'T'].map(m => t.get(m))); };
+  const b = bam(p); const t0 = tuoi();
+  const g = lenhNg(kit, r, D22, 'ghim', 'M'); if (g.status !== 0) sai.push(`ghim thoát ${g.status}: ${g.stderr}`);
+  commitNgay(r, D22, 'ghim M');
+  if (bam(p) !== b) sai.push('lệnh ghim đổi tệp lộ trình');
+  if (tuoi() !== t0) sai.push(`ghim đặt lại tuổi hàng: ${t0} → ${tuoi()}`);
+  const n0 = docSo(r).length; apGhiOk(kit, r, D23); apGhiOk(kit, r, D24);
+  if (docSo(r).slice(n0).some(d => d.ma === 'M')) sai.push('hàng ghim vẫn có dòng tự áp');
+  const bg = lenhNg(kit, r, D24, 'bo-ghim', 'M'); if (bg.status !== 0) sai.push(`bỏ ghim thoát ${bg.status}`);
+  const n1 = docSo(r).length; apGhiOk(kit, r, D24);
+  if (docSo(r).slice(n1).some(d => d.ma === 'M' && d.loai === 'bao-truoc')) sai.push('bỏ ghim mà máy báo trước lại đúng đề xuất vừa trả');
+  // (e) ghim một hàng đang có báo trước chờ → đúng một dòng huỷ.
+  const k2 = kho({ data: { schema: 1, moc: [TOI()], hang: [H('X')] } }).r;
+  apGhiOk(kit, k2, D20); lenhNg(kit, k2, D20, 'ghim', 'X'); apGhiOk(kit, k2, D20);
+  const hx = docSo(k2).filter(d => d.loai === 'huy' && d.ma === 'X').length; if (hx !== 1) sai.push(`ghim hàng đang báo trước: ${hx} dòng huỷ`);
+  const gb = docSo(r).filter(d => ['ghim', 'bo-ghim'].includes(d.loai)); if (gb.length !== 2 || gb.some(d => d.boi !== 'Người Thử')) sai.push(`dòng ghim/bỏ ghim: ${JSON.stringify(gb)}`);
+  return sai;
+}
+if (want('AP-6-ghim') && await chayCa('AP-6-ghim', ap6ghim)) ok('AP-6-ghim', 'ghim chỉ ghi sổ: tệp không đổi, tuổi hàng không đổi, không dòng tự áp nào cho hàng ghim; bỏ ghim không mở lại đề xuất vừa trả; ghim hàng đang báo trước → một dòng huỷ');
+if (want('AP-6-do2')) await chayDo('AP-6-do2', ap6ghim, [['scripts/lo-trinh.mjs', "  ghiSo(root, tep, [{ ngay: today, loai: bo ? 'bo-ghim' : 'ghim', ma, boi }]);\n", "  ghiSo(root, tep, [{ ngay: today, loai: bo ? 'bo-ghim' : 'ghim', ma, boi }]);\n  { const p = path.join(root, tep); const d = JSON.parse(readFileSync(p, 'utf8')); for (const h of d.hang) if (h.ma === ma) h.ghim = { ngay: today }; ghiLoTrinh(p, d); }\n"]], 'lệnh ghim đổi tệp lộ trình', 'bản sao ghi khoá ghim lên hàng');
+if (want('AP-6-tu-choi') && await chayCa('AP-6-tu-choi', async kit => {
+  const sai = []; const { r } = kho({ data: DATA_6() }); const p = path.join(r, TEP);
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20'); apGhiOk(kit, r, D21);
+  const x1 = lenhNg(kit, r, D21, 'tra-lai', 'K1');
+  if (x1.status !== 2 || !x1.stderr.includes('không có lần áp nào của K1 để trả lại')) sai.push(`trả lại mã chưa áp: thoát ${x1.status} «${x1.stderr.trim()}»`);
+  const d = docLT(r); d.chan_troi.find(x => x.ma === 'T').ly_do = 'người sửa tay'; ghiTep(r, d); const b = bam(p);
+  const x2 = lenhNg(kit, r, D21, 'tra-lai', 'T');
+  if (x2.status !== 2 || !x2.stderr.includes('hàng đã đổi sau khi máy áp — trả lại bằng tay') || bam(p) !== b) sai.push(`trả lại mục đã sửa tay: thoát ${x2.status} «${x2.stderr.trim()}»`);
+  return sai;
+})) ok('AP-6-tu-choi', 'trả lại mã chưa từng áp → thoát 2 có tên; mục máy chuyển đã bị sửa tay → thoát 2 «hàng đã đổi sau khi máy áp», tệp không đổi');
+
 // ═══ CA MỚI THÊM TRÊN DÒNG NÀY ═══
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ap-chinh-sach-lo-trinh)`);

@@ -107,7 +107,8 @@ evals:
       dòng huy cho hàng ấy; dòng tra-lai/ghim/bo-ghim mang boi = git config user.name của kho thử. AP-6-tu-choi: tra-lai
       mã chưa từng áp → thoát 2 «không có lần áp nào của <mã> để trả lại»; tra-lai khi mục máy chuyển đã bị sửa tay → thoát
       2 «hàng đã đổi sau khi máy áp — trả lại bằng tay», băm tệp không đổi. AP-6-do: bản sao bỏ luật chặn đề xuất vừa trả →
-      FAIL ghim «máy báo trước lại đề xuất vừa trả: T tuoi». AP-6-do2: bản sao ghi khoá ghim lên hàng → FAIL ghim «lệnh
+      FAIL ghim «máy báo trước lại đề xuất vừa trả: M moc-qua-ngay» (đổi từ T: trả lại một hàng dời vì tuổi làm tuổi tính lại —
+      giới hạn ở Notes của hợp đồng, sổ fix S3). AP-6-do2: bản sao ghi khoá ghim lên hàng → FAIL ghim «lệnh
       ghim đổi tệp lộ trình».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
