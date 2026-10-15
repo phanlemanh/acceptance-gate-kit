@@ -380,13 +380,13 @@ function ck7(kit) {
   if (r.status !== 0) throw new Error(`khối S0-THEM-HANG thoát ${r.status}: ${r.stderr}`);
   const d = docLt(goc); const txt = readFileSync(path.join(goc, TEP_LT), 'utf8');
   if (d.hang.length !== 3) throw new Error(`tệp có ${d.hang.length} hàng, cần 3`);
+  const h = chayHook(kit, goc, W(`_acceptance/${S7}/contract.md`, HOP_DONG.replace('slug: x', `slug: ${S7}`)));
+  if (h.ma !== 0) throw new Error(`hàng máy thêm không nối hồ sơ — hook chặn hợp đồng: ${h.err.slice(0, 200)}`);
   const mong = { ma: S7, cau_giao: CAU7, slug: S7, vi_sao: 'Máy thêm khi mở vòng từ mô tả, 2026-10-20' };
   if (JSON.stringify(d.hang[2]) !== JSON.stringify(mong)) throw new Error(`hàng thêm ${JSON.stringify(d.hang[2])} ≠ ${JSON.stringify(mong)}`);
   if (JSON.stringify(d.hang.slice(0, 2)) !== JSON.stringify(truoc)) throw new Error('hai hàng đầu bị đổi');
   if (!LT.dangChuan(txt)) throw new Error('tệp sau khi thêm không ở dạng chuẩn');
   const co = LT.kiemKhuon(d).co; if (co.length) throw new Error(`kiemKhuon có cờ: ${co.join('; ')}`);
-  const h = chayHook(kit, goc, W(`_acceptance/${S7}/contract.md`, HOP_DONG.replace('slug: x', `slug: ${S7}`)));
-  if (h.ma !== 0) throw new Error(`hàng máy thêm không nối hồ sơ — hook chặn hợp đồng: ${h.err.slice(0, 200)}`);
   writeFileSync(path.join(goc, '_acceptance', S7, 'contract.md'), HOP_DONG.replace('slug: x', `slug: ${S7}`));
   const k = LT.phanTichKho({ root: goc, classify: PM.classify, sections: PM.SECTIONS });
   const dong = k.cacTep[0].kq.dong.find(x => x._ma === S7);
