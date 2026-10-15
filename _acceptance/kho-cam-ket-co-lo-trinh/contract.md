@@ -83,5 +83,8 @@ Mỗi dòng ngưỡng của ô cơ hội trỏ đúng một lệnh:
   chép CI `[only-if-declared: lo_trinh]`.
 - Phụ thuộc RM4 (`docBat`, `khoaBat`) — PR #362 chưa gộp lúc mở vòng; nhánh dựng cắt từ `origin/main` nếu đã gộp, không
   thì từ đỉnh nhánh RM4.
+- Giới hạn khai ở S3: hai phiên cùng thêm hàng một lúc có thể mất một hàng (đọc-sửa-ghi tệp lộ trình không khoá); hai hồ
+  sơ cùng ghi `lo_trinh_ma` của một hàng đều được bộ đọc chặn coi là nối, trong khi bản đồ lộ trình cắm cờ «được nhiều
+  hồ sơ nhận» — chặn không bắt ca ấy.
 - `lib/chan-lo-trinh.cjs`, `scripts/pre-merge-check.sh`, `scripts/lo-trinh.mjs` nằm trong danh sách chép CI → ghi chú
   phát hành nêu «chép lại».

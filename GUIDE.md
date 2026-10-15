@@ -632,6 +632,17 @@ Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi
 đã có cấu hình) — bước 5d làm sẵn mọi việc dưới đây: tệp `docs/plan/lo-trinh.json` rỗng đúng khuôn, khoá, miễn trừ,
 bản chép CI, trang. Chỉ khi `.claude/settings.json` của kho bật `road-map`; kho không cài gói thì không đổi byte nào.
 
+**Kho cam kết có lộ trình — chặn mở việc ngoài kế hoạch** (hồ sơ kho-cam-ket-co-lo-trinh, nấc 4 + nấc 3 của ADR 0025).
+Mặc định TẮT. Kho bật bằng hai điều kiện cùng lúc: gói `road-map` cài cho cả đội (`--scope project`, tức bật ở
+`.claude/settings.json` — `settings.local.json` và phạm vi người dùng không tính) và một dòng `chan: true` (khoá `lo_trinh.chan`) trong khối
+`lo_trinh:` của `_acceptance/config.yaml`. Khi bật: (1) ghi `contract.md` hay `opportunity.md` mở một hồ sơ MỚI không thuộc
+hàng nào bị chặn lúc ghi, thông điệp nêu hai lối — mở từ một hàng, hoặc để máy thêm hàng; (2) lưới trước-merge chặn hồ sơ
+mới không thuộc hàng nào trong diff của PR; (3) mở vòng từ một câu mô tả thì feature-loop tự thêm một hàng mã = slug vào
+tệp lộ trình đầu tiên (khối `S0-THEM-HANG`). Hồ sơ đã có từ trước không bị chấm. Tắt: đặt `chan: false` hoặc xoá dòng —
+hết chặn ngay. Giá trị khác `true`/`false` thì bị từ chối có tên. Giới hạn: tệp ghi bằng dòng lệnh (Bash) và
+`ACCEPTANCE_GATE_BYPASS` né được kiểm lúc ghi — lưới trước-merge bắt lúc gộp; lưới không có `--base` chỉ in một dòng
+`NOTE … NOT ENFORCED`; hai phiên cùng thêm hàng một lúc có thể mất một hàng (đọc-sửa-ghi không khoá).
+
 **Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
 `skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
 `vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` · `gio_may` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`

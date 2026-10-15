@@ -446,7 +446,36 @@ if (want('CK-8')) {
   }
 }
 
-// __CA_SAU__
+// ── CK-9: lời khai — bảng mã thoát round-trip, dòng chép CI, README/GUIDE, khuôn cấu hình ────────────────────
+function ck9(kit) {
+  const b = khoiMd(SKILL(kit), 'S0-THEM-HANG-THOAT'); if (b == null) throw new Error('không rút được khối S0-THEM-HANG-THOAT');
+  const ma = new Set(b.split('\n').map(x => x.match(/^(\d+) →/)).filter(Boolean).map(m => Number(m[1])));
+  const cho = new Set();
+  cho.add(chayThemHang(kit, kho(), 'ck9-them', 'Một câu').status);            // bật → 0
+  cho.add(chayThemHang(kit, kho({ chan: null }), 'ck9-tat', 'Một câu').status); // không bật → 1
+  cho.add(chayThemHang(kit, kho({ hang: [{ ma: 'ck9-trung', cau_giao: 'Có' }] }), 'ck9-trung', 'Một câu').status); // trùng → 2
+  for (const m of ma) if (!cho.has(m)) throw new Error(`mã ${m} không ca nào cho ra`);
+  for (const m of cho) if (!ma.has(m)) throw new Error(`ca cho ra mã ${m} mà bảng không có`);
+  if ([...ma].sort().join() !== '0,1,2') throw new Error(`bảng mã ${[...ma].sort()} ≠ {0,1,2}`);
+  const ds = khoiMd(readFileSync(path.join(kit, 'commands', 'acceptance-init.md'), 'utf8'), 'INIT-CI-COPY-LIST') || '';
+  if (ds.split('\n').filter(x => x.includes('lib/chan-lo-trinh.cjs') && x.includes('[only-if-declared: lo_trinh]')).length !== 1) throw new Error('danh sách chép CI thiếu dòng lib/chan-lo-trinh.cjs [only-if-declared: lo_trinh]');
+  for (const f of ['road-map/README.md', 'GUIDE.md']) {
+    const t = readFileSync(path.join(kit, f), 'utf8');
+    for (const y of ['lo_trinh.chan', '--scope project', 'lưới trước-merge']) if (!t.includes(y)) throw new Error(`${f} thiếu «${y}»`);
+    if (!/false|xoá/.test(t)) throw new Error(`${f} không nói cách tắt`);
+  }
+  const yaml = readFileSync(path.join(kit, 'commands', 'acceptance-init.md'), 'utf8').match(/```yaml\n([\s\S]*?)```/);
+  if (!yaml) throw new Error('không rút được khối cấu hình mẫu');
+  if (/^\s*chan:/m.test(yaml[1])) throw new Error('khuôn cấu hình mẫu có khoá chan — mặc định phải là vắng');
+  return 'bảng mã {0,1,2} khớp hai chiều với ca; dòng chép CI; README + GUIDE; khuôn cấu hình không khoá chan';
+}
+if (want('CK-9')) {
+  if (await chayCa('CK-9', () => ck9(KIT)) && want('CK-9-do')) {
+    const m = banSao([['feature-loop/skills/feature-loop/SKILL.md', '2 → dừng: in nguyên thông điệp (tệp lệch khuôn, đã có hàng, câu rỗng, khoá sai giá trị)\n', '2 → dừng: in nguyên thông điệp (tệp lệch khuôn, đã có hàng, câu rỗng, khoá sai giá trị)\n3 → giả.\n']]);
+    await chayDo('CK-9-do', () => ck9(m), 'mã 3 không ca nào cho ra');
+  }
+}
+
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`kho-cam-ket-co-lo-trinh: ${pass} PASS, ${fail} FAIL`);
