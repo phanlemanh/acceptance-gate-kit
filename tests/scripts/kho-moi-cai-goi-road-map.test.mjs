@@ -267,9 +267,15 @@ function km4(kit) {
 if (want('KM-4')) {
   if (want('KM-4-truoc')) {
     try {
-      const g = kho(); node([path.join(KIT, 'scripts', 'config-patch.mjs'), '--config', path.join(g, '_acceptance', 'config.yaml'), '--key', 'lo_trinh.tep', '--value', DICH, '--write']);
-      node([path.join(KIT, 'scripts', 'product-map.mjs'), '--root', g]); commit(g); const c = check(KIT, g);
-      if (c.status === 1) ok('KM-4-truoc', 'đối chứng số đo trước: khai tay khoá, vẽ, commit → --check 1'); else bad('KM-4-truoc', `--check thoát ${c.status}`);
+      const g = kho(); const sai = [];
+      const p1 = node([path.join(KIT, 'scripts', 'config-patch.mjs'), '--config', path.join(g, '_acceptance', 'config.yaml'), '--key', 'lo_trinh.tep', '--value', DICH, '--write']);
+      if (p1.status !== 0) sai.push(`dựng: config-patch thoát ${p1.status}`);
+      const p2 = node([path.join(KIT, 'scripts', 'product-map.mjs'), '--root', g]); if (p2.status !== 0) sai.push(`dựng: vẽ thoát ${p2.status}`);
+      commit(g); const c = check(KIT, g);
+      const ghim = 'không glob nào trong risk_tiers.t1_skip_globs phủ LO-TRINH.html';
+      if (c.status !== 1) sai.push(`--check thoát ${c.status}, cần 1`);
+      if (!c.stderr.includes(ghim)) sai.push(`--check không nêu «${ghim}»: ${c.stderr.trim().slice(0, 200)}`);
+      if (sai.length) bad('KM-4-truoc', sai.join(' ; ')); else ok('KM-4-truoc', `đối chứng số đo trước: khai tay khoá, vẽ, commit → --check 1 «${ghim}»`);
     } catch (e) { bad('KM-4-truoc', loi(e)); }
   }
   if (chayCa('KM-4', () => km4(KIT))) ok('KM-4', 'commit khởi tạo: --check 0, quét không cờ chưa khai, loi null, rà soát rỗng, bản đồ vẽ vì kho đã bật');
