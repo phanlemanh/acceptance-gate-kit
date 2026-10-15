@@ -698,6 +698,26 @@ if (tepLoTrinh != null) {
     banDoBat: map.enabled, lenhVe: `node ${path.join(__dirname, 'product-map.mjs')} --root .`,
     slugGiu: dotDangChay ? dotDangChay.slugGiu : null });
 }
+// Cửa tín hiệu (hồ sơ cua-tin-hieu-giua-chien-dich, B′ §10): ý nêu giữa chiến dịch được trả «xử ở mốc khép» — dòng
+// này là vật giữ lời hứa ấy trên thẻ đã có. Chỉ thêm vào `loTrinh.dong` khi kho khai cửa VÀ có ý chưa gom; không có
+// thì thẻ giữ từng byte. Đọc lỗi → một dòng «!», không sập thẻ.
+const khaiCua = cfgRead.err || cfgRead.t == null ? null : require(path.join(__dirname, 'tin-hieu-khoa.cjs')).khoaTinHieu(cfgRead.t);
+if (khaiCua && loTrinh && Array.isArray(loTrinh.dong)) {
+  try {
+    const TH = await import('./tin-hieu.mjs');
+    const cg = TH.chuaGom({ root });
+    if (cg) {
+      // Thư mục nguồn CHƯA CÓ (kho mới khai cửa, bản clone mới — git không giữ thư mục rỗng) là 0 ý, không phải lỗi.
+      const vang = khaiCua.nguon.filter((ng) => !existsSync(path.resolve(root, ng))).map((ng) => `nguồn tín hiệu không phải thư mục có thật: ${ng}`);
+      const loiThat = cg.loi.filter((l) => !vang.includes(l));
+      if (loiThat.length) loTrinh.dong.push(`! cửa tín hiệu: ${loiThat.length} tệp không đọc được — sửa ở nguồn rồi gom`);
+      const n = cg.tin_hieu.length;
+      if (n) loTrinh.dong.push(`Cửa tín hiệu: ${n} ý chờ gom ở mốc khép — gom bằng skill gom-tin-hieu`);
+    }
+  } catch (e) {
+    loTrinh.dong.push(`! cửa tín hiệu: không đọc được — ${String(e && e.message).split('\n')[0]}`);
+  }
+}
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.
