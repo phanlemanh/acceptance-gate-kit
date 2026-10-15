@@ -44,7 +44,7 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   Trang có đúng hai cờ khuôn:
   - «hàng C: gio_may phải là số giờ dương hoặc cặp [thấp, cao]»;
   - «hàng D: gio_may phải là số giờ dương hoặc cặp [thấp, cao]».
-  Trang có đúng một dòng «4/6 hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè».
+  Trang có đúng một lần chữ «4/6 hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè», nằm trong tiêu đề «Việc còn mở».
   Given kho thử không có khoá `gio_may` nào và không hồ sơ đo, Then:
   - `--ra-soat` (chữ và JSON), `--ap --json` và `--mo-o` (stdout và ô cơ hội) giống TỪNG BYTE bộ máy gốc, sau đối chứng dương;
   - khối dữ liệu máy đọc của trang giống từng byte bộ máy gốc.
@@ -57,7 +57,8 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   - hàng T2 chưa khoá ghi `3–6 (theo 6 vòng đo)` (p25–p75 lấy theo thứ hạng gần nhất, không nội suy);
   - hàng T3 chưa khoá vẫn ghi `7–10 (máy ước)` vì T3 chưa đủ năm vòng;
   - % ước của hàng T2 là `~4 %`.
-  Given chỉ bốn hồ sơ có `phan_tram_tuan`, Then ô % ghi đúng «chưa ước (4/5 vòng đo)».
+  Given chỉ bốn hồ sơ có `phan_tram_tuan`, Then hàng chưa ước không mang % trong ô, và tiêu đề «Việc còn mở» ghi đúng
+  «% hạn mức tuần chưa ước (4/5 vòng đo)».
   Given một hồ sơ đo mà chưa giao, Then nó không vào phép ước.
   Chiều đỏ: bản sao đếm cả hồ sơ chưa giao → ca đỏ «hồ sơ chưa giao vào phép ước: <slug>».
 - AC-3: Given kho thử có mốc M `phat-hanh`, mục tiêu D+2, gắn ba hàng chưa giao:

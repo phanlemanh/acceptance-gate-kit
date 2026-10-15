@@ -101,8 +101,11 @@ const ve = async (kit, r, today = D) => {
 const giaiMa = s => s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 const chuTron = s => giaiMa(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 const coTrang = html => [...html.matchAll(/<ul class="co-ds">([\s\S]*?)<\/ul>/g)].flatMap(u => [...u[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => chuTron(m[1])));
-const oGio = html => [...html.matchAll(/<td data-nhan="Giờ máy">([^<]*)/g)].map(m => giaiMa(m[1]));
-const oPt = html => [...html.matchAll(/<td data-nhan="Giờ máy">[^<]*<div class="mu nho">% hạn mức tuần: ([^<]*)<\/div>/g)].map(m => giaiMa(m[1]));
+// Ô «Giờ máy»: phần trước <div> là giờ máy (nhãn nguồn trong <span> nhỏ), <div> (chỉ có khi đã ước) là % hạn mức tuần.
+const oGioTho = html => [...html.matchAll(/<td data-nhan="Giờ máy">([\s\S]*?)<\/td>/g)].map(m => m[1]);
+const oGio = html => oGioTho(html).map(s => chuTron(s.split('<div')[0]));
+const oPt = html => oGioTho(html).map(s => { const m = s.match(/<div class="mu nho">([^<]*) hạn mức tuần<\/div>/); return m ? giaiMa(m[1]) : null; });
+const demUoc = html => (html.match(/<h3>Việc còn mở \(\d+\) <span class="mu nho">— ([^<]*)<\/span><\/h3>/) || [])[1] || '';
 const liMoc = (html, ten) => { const m = html.match(new RegExp(`<li data-ngay="[^"]*" data-ten="${ten.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/"/g, '&quot;')}"[^>]*>([\\s\\S]*?)</li>`)); return m ? chuTron(m[1]) : null; };
 const tenNgan = async (kit, m) => (await nap(kit)).LT.tenNganMoc(m);
 
@@ -120,7 +123,7 @@ const gm1 = async kit => {
   const M = await nap(kit); const { kq } = M.LT.phanTich({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS });
   for (const ma of ['C', 'D']) if (!kq.co.includes(`hàng ${ma}: gio_may phải là số giờ dương hoặc cặp [thấp, cao]`)) sai.push(`lớp phân tích thiếu cờ hàng ${ma}`);
   const dem = (html.match(/4\/6 hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè/g) || []).length;
-  if (dem !== 1) sai.push(`dòng đếm máy ước xuất hiện ${dem} lần, cần 1`);
+  if (dem !== 1 || !demUoc(html).startsWith('4/6 hàng máy tự ước giờ máy')) sai.push(`dòng đếm máy ước xuất hiện ${dem} lần (cần 1, trong tiêu đề việc còn mở)`);
   return sai;
 };
 if (want('GM-1')) { if (await chayCa('GM-1', gm1)) ok('GM-1', 'sáu ô giờ máy đúng dãy, hai cờ C/D, một dòng 4/6 máy ước'); }
@@ -169,8 +172,11 @@ if (want('GM-2')) { if (await chayCa('GM-2', async kit => {
   return sai;
 })) ok('GM-2', 'T2 «3–6 (theo 6 vòng đo)», T3 «7–10 (máy ước)», % «~4 %»'); }
 if (want('GM-2-thieu-phan-tram') && await chayCa('GM-2-thieu-phan-tram', async kit => {
-  const { pt } = await gm2([2, 3, 4, 5])(kit); return pt[0] === 'chưa ước (4/5 vòng đo)' ? [] : [`ô % «${pt[0]}»`];
-})) ok('GM-2-thieu-phan-tram', 'bốn vòng có % → «chưa ước (4/5 vòng đo)»');
+  const html = await ve(kit, kho({ data: gm2Data, hoSo: sauVong([2, 3, 4, 5]) })); const pt = oPt(html); const sai = [];
+  if (pt[0] !== null) sai.push(`ô % «${pt[0]}» — hàng chưa ước không mang %`);
+  if (!demUoc(html).endsWith('% hạn mức tuần chưa ước (4/5 vòng đo)')) sai.push(`tiêu đề «${demUoc(html)}» thiếu «% hạn mức tuần chưa ước (4/5 vòng đo)»`);
+  return sai;
+})) ok('GM-2-thieu-phan-tram', 'bốn vòng có %: hàng không mang %, tiêu đề ghi «% hạn mức tuần chưa ước (4/5 vòng đo)»');
 const gm2ChuaGiao = async kit => {
   const { gio } = await gm2([2, 3, 4, 5, 6], { s7: { hinh: 'dang-dung', tier: 'T2', gm: { gio_may: 100, gio_cho: 1 } } })(kit);
   return gio[0] === '3–6 (theo 6 vòng đo)' ? [] : [`hồ sơ chưa giao vào phép ước: s7 (ô «${gio[0]}»)`];

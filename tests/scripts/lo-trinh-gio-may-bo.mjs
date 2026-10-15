@@ -5,9 +5,9 @@
 // chứng: trang/bản đồ của bộ máy mới PHẢI mang phần giờ máy, không thì phép bỏ không bỏ gì và ca so mất nghĩa.
 export const MAU_TRANG = [
   /<th>Giờ máy<\/th>/g,
-  /<td data-nhan="Giờ máy">[^<]*<div class="mu nho">% hạn mức tuần: [^<]*<\/div><\/td>/g,
-  /\n<p class="co-o">\d+\/\d+ hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè<\/p>/g,
-  / <span class="mu nho">· (?:~[\d,–]+ giờ máy · [^<]*?|dự báo lúc bắt đầu [^<]*?)<\/span>(?:<span class="co-o">mốc quá tải: [^<]*<\/span>)?/g,
+  /<td data-nhan="Giờ máy">[^<]*(?:<span class="mu nho"> \([^<)]*\)<\/span>)?(?:<div class="mu nho">[^<]* hạn mức tuần<\/div>)?<\/td>/g,
+  / <span class="mu nho">— \d+\/\d+ hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè[^<]*<\/span>(?=<\/h3>)/g,
+  / <span class="mu nho">· (?:~[\d,–]+ giờ máy[^<]*?|dự báo lúc bắt đầu [^<]*?)<\/span>(?:<span class="co-o">mốc quá tải: [^<]*<\/span>)?/g,
   /<span class="co-o">mốc quá tải: [^<]*<\/span>/g,
 ];
 export const boGioMayTrang = html => MAU_TRANG.reduce((s, re) => s.replace(re, ''), String(html ?? ''));

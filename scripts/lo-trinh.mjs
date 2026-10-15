@@ -526,7 +526,7 @@ function oHang(i, d, kq, theoNhan) {
     ma: esc(d._nhan),
     cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug ? `<div class="mu nho"><code>${esc(d.slug)}</code></div>` : ''}`,
     hang: esc(chuoi(d.hang)),
-    gio_may: kq._gm ? (u => `${esc(GM.oGioMay(u))}<div class="mu nho">% hạn mức tuần: ${esc(GM.oPhanTram(u))}</div>`)(kq._gm.uoc(d)) : '',
+    gio_may: kq._gm ? (u => `${esc(GM.khoangVN(u.khoang))}${u.nhan ? `<span class="mu nho"> (${esc(u.nhan)})</span>` : ''}${u.phanTram.gia != null ? `<div class="mu nho">${esc(GM.oPhanTram(u))} hạn mức tuần</div>` : ''}`)(kq._gm.uoc(d)) : '',
     dung_tren: (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', '),
     chu: `${tt}${d.tinTheoLoi ? '<span class="mu nho"> theo ghi chép, chưa có hồ sơ</span>' : ''}${d.khaiNgoai ? `<span class="co-o">${esc(cauKhaiNgoai(d))}</span>` : ''}${d.coHang.map(c => `<span class="co-o">${esc(dichCo(c).chu)}</span>`).join('')}${buocKeCua(d) ? `<div class="mu nho">bước kế: ${esc(buocKeCua(d))}</div>` : ''}`,
     bat_khi: esc(chuoi(d.bat_khi)),
@@ -553,8 +553,10 @@ function mucLoTrinh(i, t) {
   // với hồ sơ — thêm từ đó vào `tu_vung`).
   const la = khaiLa(kq);
   if (kq.co.length || la.length) P.push(`<h3 id="lt${i}-co">Cần sửa trong kế hoạch (${kq.co.length + la.length})</h3><ul class="co-ds">${kq.co.map(c => moCo(i, c, theoNhan)).join('')}${la.map(([w, ds]) => `<li><span>${esc(cauKhaiLa(w, ds))} (việc ${ds.map(d => `<a href="#${idHang.get(d)}">${esc(d._nhan)}</a>`).join(', ')})</span></li>`).join('')}</ul>`);
-  P.push(`<h3>Việc còn mở (${mo.length})</h3>`);
-  if (kq._gm) { const n = kq.dong.filter(d => d.gio_may === undefined || !GM.kiemGioMay(d.gio_may)).length; if (n) P.push(`<p class="co-o">${n}/${kq.dong.length} hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè</p>`); }
+  // Dòng đếm máy ước nằm NGAY TRONG tiêu đề (không thêm dòng): trang giữ lời hứa «đọc một phút» về độ dài (ca LTT-san).
+  const nUoc = kq._gm ? kq.dong.filter(d => d.gio_may === undefined || !GM.kiemGioMay(d.gio_may)).length : 0;
+  const ptChua = kq._gm ? kq.dong.map(d => kq._gm.uoc(d)).find(u => !u.laCatBan && u.phanTram.gia == null) || null : null;
+  P.push(`<h3>Việc còn mở (${mo.length})${nUoc ? ` <span class="mu nho">— ${nUoc}/${kq.dong.length} hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè${ptChua ? ` · % hạn mức tuần ${GM.oPhanTram(ptChua)}` : ''}</span>` : ''}</h3>`);
   P.push(mo.length ? bangViec(i, mo, kq, theoNhan, idHang)
     : `<p class="mu">${kq.dong.length ? 'Mọi việc trong kế hoạch đã giao.' : `Kế hoạch chưa có việc nào — thêm hàng vào <code>${esc(t.tep)}</code>.`}</p>`);
   if (xong.length) P.push(`<details><summary>${xong.length} việc đã giao</summary>${bangViec(i, xong, kq, theoNhan, idHang)}</details>`);
@@ -577,7 +579,7 @@ function gioMayMoc(kq, m) {
   const ma = ganMoc(m); const mo = ma.map(x => kq.dong.find(d => String(d._nhan) === x)).filter(d => d && !kq.daGiao.has(d.chu));
   const kVong = kq._gm.doVong.filter(v => v.daGiao && typeof v.phan_tram_tuan === 'number').length;
   const P = [];
-  if (mo.length) { const tg = GM.tongMoc(m, mo, kq._gm.uoc); P.push(`~${GM.khoangVN(tg.khoang)} giờ máy · ${GM.chuPhanTramMoc(tg, kVong)}`); }
+  if (mo.length) { const tg = GM.tongMoc(m, mo, kq._gm.uoc); P.push(`~${GM.khoangVN(tg.khoang)} giờ máy${tg.phanTram.gia != null ? ` · ${GM.chuPhanTramMoc(tg, kVong)}` : ''}`); }
   const db = duBaoDongBang(kq, m);
   if (db) P.push(`dự báo lúc bắt đầu (${GM.ngayVN(db.ngay_tinh)}): hoàn tất ${GM.ngayVN(db.moc.hoan_tat)}`);
   const muc = chuoi(m.ngay);

@@ -20,8 +20,8 @@ evals:
       exit 0; stdout có "PASS: GM-1", "PASS: GM-1-doc-cu", "PASS: GM-1-nang-kit", "PASS: GM-1-do". GM-1: sáu hàng A gio_may 6 · B [3,5] · C "nhiều"
       · D [5,3] (A–D hạng T2) · E T3 không khoá · F không khoá không hạng — ô giờ máy trên trang BẰNG dãy viết sẵn
       [6 · 3–5 · 4–7 (máy ước) · 4–7 (máy ước) · 7–10 (máy ước) · 4–7 (máy ước, chưa khai hạng)]; trang có đúng hai cờ
-      «hàng C: gio_may phải là số giờ dương hoặc cặp [thấp, cao]» và «hàng D: …» (đếm bằng nhau), và đúng một dòng
-      «4/6 hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè». GM-1-doc-cu: kho không khoá gio_may, không hồ sơ đo —
+      «hàng C: gio_may phải là số giờ dương hoặc cặp [thấp, cao]» và «hàng D: …» (đếm bằng nhau), và đúng một lần
+      «4/6 hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè» trong tiêu đề «Việc còn mở». GM-1-doc-cu: kho không khoá gio_may, không hồ sơ đo —
       `--ra-soat` (chữ và JSON), `--ap --json`, `--mo-o` (stdout và ô cơ hội) và khối dữ liệu máy đọc của trang giống TỪNG
       BYTE bộ máy gốc sau đối chứng dương. GM-1-nang-kit: kho đã commit trang vẽ bằng bộ máy gốc — `product-map.mjs
       --check` của bộ máy mới thoát ≠ 0 với câu «LO-TRINH.html lệch với tệp ý định và hồ sơ — chạy:»; vẽ lại rồi --check thoát 0. GM-1-do: bản sao nhận gio_may chuỗi → FAIL ghim «gio_may sai kiểu mà không cờ: C».
@@ -30,12 +30,12 @@ evals:
     criterion: AC-2
     executor: test
     cmd: config:executors.test.lo_trinh_gio_may
-    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
     expected: >
       exit 0; stdout có "PASS: GM-2", "PASS: GM-2-thieu-phan-tram", "PASS: GM-2-chua-giao", "PASS: GM-2-do". GM-2: sáu hồ sơ
       T2 đã giao mang dòng gio-may đo [3,4,5,6,8,2], năm có phan_tram_tuan [2,3,4,5,6] — hàng T2 chưa khoá ghi
       «3–6 (theo 6 vòng đo)», hàng T3 chưa khoá ghi «7–10 (máy ước)», % ước hàng T2 «~4 %». GM-2-thieu-phan-tram: chỉ bốn hồ
-      sơ có phan_tram_tuan → ô % đúng «chưa ước (4/5 vòng đo)». GM-2-chua-giao: thêm một hồ sơ đo chưa giao → ô giờ máy không
+      sơ có phan_tram_tuan → hàng không mang % trong ô, tiêu đề «Việc còn mở» ghi «% hạn mức tuần chưa ước (4/5 vòng đo)». GM-2-chua-giao: thêm một hồ sơ đo chưa giao → ô giờ máy không
       đổi so với GM-2. GM-2-do: bản sao đếm cả hồ sơ chưa giao → FAIL ghim «hồ sơ chưa giao vào phép ước: <slug>».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3

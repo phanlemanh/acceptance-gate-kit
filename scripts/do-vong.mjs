@@ -19,7 +19,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 export const KHOANG_HOAT_DONG_GIAY = 600;
-// Giá niêm yết tương đối ($ / 1M token: vào · ra · đọc bộ đệm · ghi bộ đệm 5 phút), bảng giá công bố 10/2026. Token quy
+// Giá niêm yết tương đối ($ / 1M token: vào · ra · đọc bộ đệm · ghi bộ đệm hạn ngắn), bảng giá công bố 10/2026. Token quy
 // đổi = $ tương đương API; % hạn mức tuần hiệu chuẩn trên CÙNG đơn vị nên chỉ tỉ lệ giữa các ô là quan trọng.
 // Ghi bộ đệm lấy 1,25 × vào; Haiku 5.5 đọc bộ đệm lấy 0,1 × vào (bảng không công bố). Model lạ → hàng `khac` (giá Opus 5.5).
 export const TRONG_SO = [
