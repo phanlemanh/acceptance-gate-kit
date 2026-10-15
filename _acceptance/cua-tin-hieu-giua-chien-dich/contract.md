@@ -120,7 +120,8 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
 ## Đường đo
 
 - «Trong một chiến dịch, mọi ý mới thợ hay người nêu đều có chỗ trong cửa tín hiệu và không đẻ lượt gọi người ngoài thiết
-  kế». Số đọc ở đợt đầu tiên của kho chạy đợt (crm, máy M5) sau khi cài bản chứa vòng này:
+  kế». Số đọc ở đợt đầu tiên mở bằng gói điều phối, ở bất kỳ kho nào, sau khi cài bản chứa vòng này. M5 trả lời trên
+  #308 (15/10): M5 không mở đợt bằng gói (điều phối thợ bằng tay), nên máy duy nhất từng chạy đợt là Mac Studio (đợt r2):
   `jq -c 'select(.loai=="yeu-cau" and (.kieu=="viec-phu" or .kieu=="hang-moi"))' <thư mục đợt>/su-kien.jsonl` — đếm dòng
   N = số dòng `chan != true` (mọi ý không chặn, dù kết quả là gì). SỐNG khi N ≥ 1, 0 dòng trong N mang `can_phan ==
   true`, và mỗi dòng `ket_qua == "ghi"` có tệp `<nguon>/<id>.json`. CHẾT khi ≥ 1 dòng trong N mang `can_phan == true`,
@@ -130,7 +131,8 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
   (một id một tệp, không đè).
 - Vế «ý của người» không sinh sự kiện đợt nên không đọc bằng câu trên: đếm tệp `nguoi-*.json` trong nguồn của cửa, so
   với số lần chủ kho nhớ đã gửi — giới hạn đã khai, đọc tay.
-- Mốc nền: số sự kiện `can_phan` kiểu viec-phu/hang-moi ở các đợt đã chạy — xin M5 trên issue #308.
+- Mốc nền: M5 có 0 sự kiện `yeu-cau` (không có thư mục đợt nào). Số thật chỉ có ở máy Mac Studio (đợt r2) — chưa đo;
+  ngưỡng vẫn đọc được từ sổ của đợt kế mà không cần nền. Không có đợt nào trước hạn 02/11 → «chưa đọc được».
 
 ## Out of scope
 
