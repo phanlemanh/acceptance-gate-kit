@@ -422,7 +422,9 @@ async function mc11(kit) {
   const M = await nap(kit); const sai = [];
   const d = JSON.parse(readFileSync(path.join(KIT, 'docs', 'plans', 'lo-trinh-kit.json'), 'utf8'));
   const moc = d.moc.filter(m => (m.hang || []).includes('MC1'));
-  if (moc.length !== 1 || moc[0].ngay !== '2026-11-05') sai.push(`MC1 thuộc ${moc.length} mốc ${JSON.stringify(moc.map(m => m.ngay))}`);
+  // Mốc của MC1 đổi 15/10: chuyển từ «Tinh chỉnh sau hai đợt thử» 05/11 sang «Phát hành 2.31.0» 16/10 trong PR mốc
+  // (điều phối M5 quyết 07:00Z sau khi hỏi MacBook Pro trên kit #308) — Known limit Ngoài-9 của hồ sơ này, sửa ca ở mốc.
+  if (moc.length !== 1 || moc[0].ngay !== '2026-10-16') sai.push(`MC1 thuộc ${moc.length} mốc ${JSON.stringify(moc.map(m => m.ngay))}`);
   const k = phan(M, KIT); const kq = k.cacTep[0].kq;
   const coA = kq.co.filter(c => / đang mở vòng mà chưa thuộc mốc nào$/.test(c)); if (coA.length) sai.push(`lộ trình kit có cờ ngoài mốc: ${JSON.stringify(coA)}`);
   // Tự đếm độc lập: thư mục hồ sơ không hàng nào trỏ (slug, hồ sơ nhận) và không tự ghi lo_trinh_ma, ô bản đồ đang mở.
@@ -436,11 +438,11 @@ async function mc11(kit) {
   const h = d.hang.find(x => x.ma === 'MC1');
   const t = M.LT.tenChienDich({ hang: h, moc: d.moc, loTrinh: d, tep: 'docs/plans/lo-trinh-kit.json', nhieuLoTrinh: false, kho: M.LT.tenKho(KIT) });
   if (t.ten_phien !== 'MC1 · Mốc là chiến dịch (acceptance-gate-kit)') sai.push(`ten_phien «${t.ten_phien}»`);
-  if (t.nhom !== 'Tinh chỉnh sau hai đợt thử 05/11') sai.push(`nhom «${t.nhom}»`);
+  if (t.nhom !== 'Phát hành 2.31.0 16/10') sai.push(`nhom «${t.nhom}»`);
   console.log(`    · MC-11 hồ sơ đang mở ngoài kế hoạch (${tu.length}): ${tu.join(', ')}`);
   return sai;
 }
-if (want('MC-11') && await chayCa('MC-11', mc11)) ok('MC-11', 'MC1 thuộc đúng mốc 2026-11-05; 0 cờ ngoài mốc; cờ hồ sơ ngoài kế hoạch == tự đếm; tên phiên/nhóm viết sẵn');
+if (want('MC-11') && await chayCa('MC-11', mc11)) ok('MC-11', 'MC1 thuộc đúng mốc 2026-10-16; 0 cờ ngoài mốc; cờ hồ sơ ngoài kế hoạch == tự đếm; tên phiên/nhóm viết sẵn');
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (moc-chien-dich)`);
