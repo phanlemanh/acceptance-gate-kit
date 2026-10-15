@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fe496352f74e57766e0f389e2cf753a1646a69a4
+verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
 human_signoff: manh 2026-10-14
 ---
 
@@ -181,3 +181,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, determi
 
 Round 1: REJECT — 1 finding trong hợp đồng (BN-4 đếm số hàng thẻ chưa đúng, finding t7) và 2 suite đỏ (LB5/LC6/P190/P201 lệch theo bảng mới). Returned to implementation.
 Round 2: E1–E6 pass, mọi lệnh suite xanh; E7 và E8 hội đồng đề xuất PASS nhưng chờ người chốt nên verdict là PENDING-JUDGMENT. Còn 1 finding trong hợp đồng mức low (BN-4 chỉ chốt tổng số hàng) và 2 mục ngoài hợp đồng cho người quyết ở Cổng 2, cộng 8 mục mang sang từ round 1 (xem review-findings.md).
+
+### Re-pin lần 1 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
+run_id: repin-20261015T083739Z-10776
+sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-7, AC-8
