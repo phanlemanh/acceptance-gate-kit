@@ -987,6 +987,8 @@ export function tuoiHang(root, tep) {
     truoc = nay;
   }
   for (const p of truoc) if (p.ma) theoMa.set(p.ma, p.cham);
+  // RM1 Ngoài-3 (hồ sơ ap-chinh-sach-lo-trinh): tệp có trên đĩa mà chưa từng vào lịch sử git → nói ra, không im.
+  if (!soCommit && existsSync(path.join(root, tep))) return { cut, theoMa, hong: 'tệp lộ trình chưa từng commit' };
   return { cut, theoMa, ...(soCommit && !docDuoc ? { hong: 'không đọc được phiên bản nào trong lịch sử git' } : {}) };
 }
 const soNgay = (tu, den) => Math.round((Date.UTC(+den.slice(0, 4), +den.slice(5, 7) - 1, +den.slice(8, 10)) - Date.UTC(+tu.slice(0, 4), +tu.slice(5, 7) - 1, +tu.slice(8, 10))) / 864e5);
@@ -1213,6 +1215,38 @@ export function apChinhSach({ root, cacTep, sections, today, ghi = false, hangMo
   });
 }
 
+// Bản đồ của lệnh xem (/road-map:xem): xong · đang dở · kế, rà soát, tự áp. Chỉ đọc — không ghi tệp nào.
+const soHoac = v => (v == null ? '—' : String(v));
+export function xemBanDo({ root, cacTep, sections, today }) {
+  const nhom = nhomVe(sections); const nhieu = cacTep.length > 1; const ra = [];
+  const rs = raSoat({ root, cacTep, sections, today }); const ap = apChinhSach({ root, cacTep, sections, today, ghi: false });
+  cacTep.forEach((t, i) => {
+    if (nhieu) ra.push(`Lộ trình ${(t.kq && t.kq.ten) || t.tep} (${t.tep}):`);
+    if (!t.kq) { ra.push(`Không đọc được tệp kế hoạch — ${dichLoi(t.loi || 'không đọc được')}`); return; }
+    const kq = t.kq; const d = demTienDo(kq, nhom);
+    ra.push(`Xong ${d.da_giao} · Đang dở ${d.dang_lam} · Kế ${d.chua_bat_dau}`);
+    const dang = kq.dong.filter(x => nhomTienDo(x.chu, kq, nhom) === 'dang-lam');
+    ra.push(dang.length ? 'Đang dở:' : 'Đang dở: không có');
+    for (const x of dang) ra.push(`  · ${x._nhan} — ${chuoi(x.cau_giao) || CHUA_CAU} (${x.chu})`);
+    const ke = hangKeCua(kq, nhom.chuaLam);
+    ra.push(ke ? `Kế: ${ke._nhan} — ${chuoi(ke.cau_giao) || CHUA_CAU}` : 'Kế: chưa có việc đủ điều kiện mở');
+    for (const x of kq.dong.filter(y => y !== ke && nhomTienDo(y.chu, kq, nhom) === 'chua-bat-dau').slice(0, 3)) ra.push(`  · ${x._nhan} — ${chuoi(x.cau_giao) || CHUA_CAU}`);
+    const ghim = new Set(phatLai(docSo(root, t.tep).dong).ghim);
+    const dx = rs[i].de_xuat; const dem = k => dx.filter(m => m.de_xuat === k).length;
+    ra.push(dx.length ? `Rà soát: ${dx.length} đề xuất — ${dem('doi-moc')} dời mốc · ${dem('cho-dieu-kien')} chờ điều kiện · ${dem('bac')} bác` : 'Rà soát: không có đề xuất');
+    for (const m of dx) ra.push(dongRaSoat(m) + (ghim.has(m.ma) ? ' (ghim — máy không tự áp)' : ''));
+    for (const c of rs[i].canh_bao || []) ra.push(`  ! ${c}`);
+    const a = ap[i];
+    if (a.chinh_sach && a.chinh_sach.tu_ap) {
+      const c = a.chinh_sach;
+      ra.push(`Tự áp — chiến dịch ${a.chien_dich}: tuổi ${soHoac(c.tuoi_ngay)} · trần kế tiếp ${soHoac(c.tran_ke_tiep)} · nhịp ${c.nhip_ngay} ngày · trần áp ${c.tran_ap}/ngày`);
+      ra.push(...dongTuAp(a));
+      for (const x of (a.canh_bao || []).filter(x => !(rs[i].canh_bao || []).includes(x))) ra.push(`  ! ${x}`);
+    } else for (const x of a.canh_bao || []) ra.push(`  ! ${x}`);
+  });
+  return ra;
+}
+
 // Trả lại MỘT lần áp (lệnh khoá /road-map:tra-lai): hoàn tác đúng lần áp cuối của mã về vị trí cũ, ghi dòng `tra-lai`.
 // Chỉ chặn ĐÚNG đề xuất ấy tới khi đề xuất đổi (B′ §11 «Veto một lần tự áp») — hàng không bị ghim.
 export function traLai({ root, tep, ma, today, boi }) {
@@ -1264,12 +1298,13 @@ if (isMain) {
   const bail = m => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(2); };
   const thoat = (c, m) => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(c); };
   let root = '.'; let ref = null; let moO = false; let slugMoi = null; let owner = ''; let raSoatCo = false; let jsonCo = false;
-  let apCo = false; let ghiCo = false; let lenhNguoi = null;
+  let apCo = false; let ghiCo = false; let lenhNguoi = null; let xemCo = false;
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--mo-o') { moO = true; continue; }
     if (a[i] === '--ra-soat') { raSoatCo = true; continue; }
     if (a[i] === '--json') { jsonCo = true; continue; }
     if (a[i] === '--ap') { apCo = true; continue; }
+    if (a[i] === '--xem') { xemCo = true; continue; }
     if (a[i] === '--write') { ghiCo = true; continue; }
     if (['--tra-lai', '--ghim', '--bo-ghim'].includes(a[i])) {
       const v = a[i + 1]; if (v == null || v === '' || v.startsWith('--')) bail(`${a[i]} cần một mã ngay sau nó`);
@@ -1282,7 +1317,7 @@ if (isMain) {
       if (v == null || (v === '' && a[i] !== '--owner') || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
       if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
-    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write])`);
+    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write] | --xem | --tra-lai|--ghim|--bo-ghim <mã> --write)`);
   }
   // Rà soát (hồ sơ ra-soat-lo-trinh): chỉ đọc — 0 = in đề xuất · 1 = kho chưa khai · 2 = lỗi dùng.
   if (raSoatCo) {
@@ -1303,6 +1338,19 @@ if (isMain) {
     // Tệp không đọc được: một dòng có tên tệp ra stderr, thoát 1 — không bao giờ trông như «không có đề xuất».
     for (const t of rs) if (t.loi) process.stderr.write(`lo-trinh: không đọc được tệp ý định — ${t.tep}: ${t.loi}\n`);
     process.exit(rs.some(t => t.loi) ? 1 : 0);
+  }
+  // Bản đồ của /road-map:xem: chỉ đọc — 0 = in · 1 = kho chưa khai / tệp không đọc được · 2 = lỗi dùng.
+  if (xemCo) {
+    if (ref != null || moO || raSoatCo || apCo || jsonCo || ghiCo || lenhNguoi) bail('--xem chỉ đi với --root');
+    const today = process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10);
+    if (!NGAY_RE.test(today)) bail(`ACCEPTANCE_TODAY phải dạng YYYY-MM-DD (đang là «${today}»)`);
+    root = path.resolve(root);
+    if (docCacTep(root) == null) thoat(1, `kho chưa khai ${KHOA} trong _acceptance/config.yaml`);
+    const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
+    const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
+    process.stdout.write(xemBanDo({ root, cacTep: kho.cacTep, sections: PM.SECTIONS, today }).join('\n') + '\n');
+    for (const t of kho.cacTep) if (t.loi) process.stderr.write(`lo-trinh: không đọc được tệp ý định — ${t.tep}: ${t.loi}\n`);
+    process.exit(kho.cacTep.some(t => t.loi) ? 1 : 0);
   }
   // Tự áp (hồ sơ ap-chinh-sach-lo-trinh): 0 = xong · 1 = kho chưa khai / tệp không đọc được · 2 = lỗi dùng, tệp không chuẩn.
   if (apCo) {

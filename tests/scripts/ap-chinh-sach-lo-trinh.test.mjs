@@ -500,6 +500,68 @@ async function ap7do(kit) { const x = chayP32(kit); return x.status === 0 ? [] :
 if (want('AP-7-do')) await chayDo('AP-7-do', ap7do, [['road-map/commands/ghim.md', 'disable-model-invocation: true\n', '']], 'road-map/commands/ghim.md', 'bản sao gỡ khoá ghim.md');
 if (want('AP-7-do2')) await chayDo('AP-7-do2', ap7do, [['road-map/commands/xem.md', 'argument-hint: (không đối số)\n', 'argument-hint: (không đối số)\ndisable-model-invocation: true\n']], 'xem.md', 'bản sao khoá xem.md');
 
+// ═══ AP-8 (AC-8): lệnh xem thành bản đồ + RM1 Ngoài-3 ══════════════════════════════════════════════════════════
+const xemLenh = kit => { const t = readFileSync(path.join(kit, 'road-map', 'commands', 'xem.md'), 'utf8');
+  const m = t.match(/<!-- <<<RM-XEM-LENH -->\n```\n([^\n]+)\n```\n<!-- RM-XEM-LENH>>> -->/); if (!m) throw new Error('xem.md thiếu khối RM-XEM-LENH'); return m[1]; };
+const chayXem = (kit, r, today) => spawnSync('bash', ['-c', xemLenh(kit)], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: kit, ACCEPTANCE_TODAY: today } });
+function kho8(kit) {
+  const data = { schema: 1, moc: [QUA(['M1', 'M2']), { ...TOI(), hang: ['K1'] }],
+    hang: [H('G1', { slug: 'g1' }), H('G2', { slug: 'g2' }), H('G3', { slug: 'g3' }), H('D1', { slug: 'd1' }), H('D2', { slug: 'd2' }), H('M1'), H('M2'), H('T1'), H('K1'), H('B1', { slug: 'b1-bac' })] };
+  const { r } = kho({ hoSo: { g1: 'da-ship', g2: 'da-ship', g3: 'da-ship', d1: 'dang-dung', d2: 'dang-dung' }, data });
+  apGhiOk(kit, r, D20); chay(kit, r, D20, ['--ghim', 'T1', '--write']); apGhiOk(kit, r, D20); commitNgay(r, D20, '20');
+  ghiHoSo(r, { 'b1-bac': 'da-bac' }); commitNgay(r, D21, 'B1 bac');
+  apGhiOk(kit, r, D21); chay(kit, r, D21, ['--tra-lai', 'M2', '--write']); commitNgay(r, D21, '21');
+  return r;
+}
+const MONG_8 = [
+  'Xong 3 · Đang dở 2 · Kế 4',
+  'Đang dở:',
+  '  · D1 — câu giao D1 (Đang làm)',
+  '  · D2 — câu giao D2 (Đang làm)',
+  'Kế: M1 — câu giao M1',
+  '  · M2 — câu giao M2',
+  '  · T1 — câu giao T1',
+  '  · K1 — câu giao K1',
+  'Rà soát: 3 đề xuất — 1 dời mốc · 1 chờ điều kiện · 1 bác',
+  '  · M2 — dời mốc: mốc «Qua» đã qua ngày 15/09/2026',
+  '  · T1 — chờ điều kiện: 50 ngày chưa ai sửa (lần cuối 01/09/2026) (ghim — máy không tự áp)',
+  '  · B1 — bác: hồ sơ b1-bac đã bác',
+  'Tự áp — chiến dịch Toi 30/10: tuổi 30 · trần kế tiếp — · nhịp 1 ngày · trần áp 5/ngày',
+  '  · B1 — sẽ bác từ 22/10/2026: hồ sơ b1-bac đã bác',
+  '  · M1 — đã dời mốc 21/10/2026 — trả lại: /road-map:tra-lai M1',
+];
+async function ap8(kit) {
+  const sai = []; const r = kho8(kit); const x = chayXem(kit, r, D21);
+  if (x.status !== 0) return [`lệnh xem thoát ${x.status}: ${x.stderr}`];
+  const dong = x.stdout.split('\n').filter(Boolean);
+  if (!deq(dong, MONG_8)) sai.push(`bản đồ khác khối viết sẵn: ${JSON.stringify(dong)}`);
+  const ghi = trangThaiSach(r); if (ghi) sai.push(`lệnh xem ghi tệp: ${ghi.split('\n').map(l => l.slice(3)).join(', ')}`);
+  return sai;
+}
+if (want('AP-8') && await chayCa('AP-8', ap8)) ok('AP-8', 'dòng lệnh rút từ xem.md in đúng khối viết sẵn: đếm · đang dở · kế · rà soát (hàng ghim có hậu tố) · tự áp (báo trước, đã áp kèm lệnh trả lại, chính sách); thoát 0, không ghi tệp');
+if (want('AP-8-do')) await chayDo('AP-8-do', ap8, [['scripts/lo-trinh.mjs', '  return ra;\n}\n\n// Trả lại MỘT lần áp', "  writeFileSync(path.join(root, '_xem.tmp'), 'x');\n  return ra;\n}\n\n// Trả lại MỘT lần áp"]], 'lệnh xem ghi tệp: _xem.tmp', 'bản sao để lệnh xem ghi tệp');
+if (want('AP-8-khong-bat') && await chayCa('AP-8-khong-bat', async kit => {
+  const { r } = kho({ phienBan: [{ ngay: '2026-09-05', data: KHONG_BAT['khong-chinh-sach'] }] });
+  const x = chayXem(kit, r, HN1); const sai = [];
+  if (x.status !== 0 || !x.stdout.includes('Rà soát:')) sai.push(`lệnh xem thoát ${x.status}`);
+  if (x.stdout.includes('Tự áp')) sai.push('kho không bật mà có khối Tự áp');
+  const a = chay(kit, r, HN1, ['--ra-soat']); const b = chay(banGoc(), r, HN1, ['--ra-soat']);
+  if (!b.stdout || chuanKit(a.stdout, kit) !== chuanKit(b.stdout, banGoc())) sai.push('--ra-soat khác bộ máy gốc');
+  return sai;
+})) ok('AP-8-khong-bat', 'kho không bật: bản đồ không có khối Tự áp; --ra-soat giống từng byte bộ máy gốc');
+const CANH_CHUA = 'không đọc được tuổi hàng — luật tuổi không chạy (tệp lộ trình chưa từng commit)';
+async function ap8chua(kit) {
+  const sai = []; const { r } = kho({ chuaCommit: true, data: { schema: 1, chinh_sach: { tuoi_ngay: 30 }, hang: [H('K')] } });
+  const j = rsJson(kit, r, HN1)[0];
+  if (!(j.canh_bao || []).includes(CANH_CHUA)) sai.push(`tệp chưa commit mà không cảnh báo: ${JSON.stringify(j)}`);
+  const n1 = chayXem(kit, r, HN1).stdout.split('\n').filter(l => l.includes(CANH_CHUA)).length;
+  const n2 = quet(kit, r, HN1).split('\n').filter(l => l.includes(CANH_CHUA)).length;
+  if (n1 !== 1 || n2 !== 1) sai.push(`tệp chưa commit mà không cảnh báo đúng một dòng: xem ${n1} · thẻ ${n2}`);
+  return sai;
+}
+if (want('AP-8-chua-commit') && await chayCa('AP-8-chua-commit', ap8chua)) ok('AP-8-chua-commit', 'tệp lộ trình chưa từng commit: JSON, lệnh xem và thẻ khởi động cảnh báo đúng một dòng (RM1 Ngoài-3)');
+if (want('AP-8-do2')) await chayDo('AP-8-do2', ap8chua, [['scripts/lo-trinh.mjs', "  if (!soCommit && existsSync(path.join(root, tep))) return { cut, theoMa, hong: 'tệp lộ trình chưa từng commit' };\n", '']], 'tệp chưa commit mà không cảnh báo', 'bản sao bỏ cảnh báo tệp chưa commit');
+
 // ═══ CA MỚI THÊM TRÊN DÒNG NÀY ═══
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ap-chinh-sach-lo-trinh)`);

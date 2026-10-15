@@ -541,7 +541,10 @@ async function rs10(kit) {
   const lenh = khoi[1].replace(/"\$AG/g, `"${kit}`);
   const x = spawnSync('bash', ['-c', lenh], { cwd: KHO_5(), encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
   const loi1 = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', KHO_5(), '--ra-soat'], { env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
-  if (x.status !== 0 || x.stdout !== loi1.stdout || !x.stdout.trim()) sai.push(`dòng lệnh của xem.md ra khác lệnh lõi (thoát ${x.status})`);
+  // Con trỏ thay thế (hồ sơ ap-chinh-sach-lo-trinh): lệnh xem thành bản đồ — lời hứa «xem in đúng rà soát của lõi» đọc là
+  // mọi dòng của `--ra-soat` có mặt trong đầu ra lệnh xem, đúng thứ tự.
+  const dong = t => t.split('\n').filter(Boolean); const can = dong(loi1.stdout); let k = 0; for (const l of dong(x.stdout)) if (l === can[k]) k += 1;
+  if (x.status !== 0 || !can.length || k !== can.length) sai.push(`dòng lệnh của xem.md ra khác lệnh lõi (thoát ${x.status})`);
   return sai;
 }
 if (want('RS-10') && await chayCa('RS-10', rs10)) ok('RS-10', 'gói road-map trong marketplace, cùng số, lệnh xem không khoá, dòng lệnh rút từ tệp chạy ra đúng lõi');

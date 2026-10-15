@@ -199,7 +199,8 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một l
 
 - Ghim chỉ sống trong sổ tự áp: tệp lộ trình và trang không cho thấy hàng nào đang ghim — xem bằng `/road-map:xem`.
 - Con trỏ thay thế (ca đo, không sửa hồ sơ đã ký): LT-97 thêm năm dòng ma trận cho năm dạng cờ khuôn của chính sách trên mốc;
-  lời hứa gốc giữ nguyên nghĩa. Lý do: sổ quyết định, dòng `fix` stage S3.
+  lời hứa gốc giữ nguyên nghĩa. RS-10 (hồ sơ `ra-soat-lo-trinh`) so «mọi dòng `--ra-soat` có mặt trong đầu ra lệnh xem, đúng
+  thứ tự» thay cho so byte, vì lệnh xem thành bản đồ. Lý do: sổ quyết định, dòng `fix` stage S3.
 - Trả lại một hàng bị dời vì tuổi thì tuổi hàng tính lại từ ngày trả lại: luật tuổi chỉ theo dõi hàng trong danh sách việc,
   nên hàng rời đi rồi quay về được coi là hàng mới. Hệ quả: hàng ấy không bị đề xuất lại theo tuổi cho tới khi đủ tuổi lần
   nữa (chiều đỏ AP-6-do ghim theo hàng dời mốc M thay cho T).
