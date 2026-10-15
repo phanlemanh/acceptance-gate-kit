@@ -13,7 +13,9 @@ claude plugin install road-map@acceptance-gate-kit --scope project
 
 ## Lệnh
 
-- `/road-map:xem` — rà soát lộ trình của kho hiện tại (chỉ đọc). Cùng danh sách in trên thẻ `/acceptance-gate:start`.
+- `/road-map:xem` — bản đồ lộ trình của kho hiện tại: xong · đang dở · kế, rà soát, và các lần tự áp (chỉ đọc).
+- `/road-map:ghim <mã>` · `/road-map:bo-ghim <mã>` — miễn trừ / bỏ miễn trừ một hàng khỏi tự áp (chỉ người gõ).
+- `/road-map:tra-lai <mã>` — trả lại một lần máy tự áp: hàng về đúng chỗ cũ (chỉ người gõ).
 
 ## Chính sách rà soát (tuỳ chọn, khai ở đầu tệp lộ trình)
 
@@ -22,5 +24,20 @@ claude plugin install road-map@acceptance-gate-kit --scope project
 ```
 
 Vắng → chỉ ba luật sự thật (xếp lại · đã bác · mốc phát hành qua ngày). Chỉ mốc `loai: phat-hanh` được rà soát.
+
+## Tự áp theo chính sách chiến dịch (hồ sơ `ap-chinh-sach-lo-trinh`, hàng RM2)
+
+Chủ kho khai MỘT lần trên mốc chiến dịch (`loai: phat-hanh`) lúc cắt mốc:
+
+```json
+{ "ten": "…", "ngay": "2026-11-19", "loai": "phat-hanh", "hang": ["…"],
+  "chinh_sach": { "tu_ap": true, "tuoi_ngay": 30, "tran_ke_tiep": 8, "nhip_ngay": 1, "tran_ap": 5 } }
+```
+
+Chiến dịch đang chạy = mốc phát hành gần nhất có ngày ≥ hôm nay. Chỉ khi nó khai `tu_ap: true` thì máy tự áp: báo trước
+(ghi sổ, tệp không đổi) → sau `nhip_ngay` ngày, nếu đề xuất còn nguyên thì dời (tối đa `tran_ap` hàng mỗi ngày). Dời mốc →
+cuối mốc đang chạy; chờ điều kiện → cuối `chan_troi`; bác → cuối `da_bac`. Mọi lần báo trước / áp / huỷ / trả lại / ghim ghi
+vào `<tệp>.so.jsonl` cạnh tệp lộ trình. Máy chỉ ghi khi tệp lộ trình ở đúng dạng `JSON.stringify(…, null, 2)`; mỗi lần mở việc
+từ một hàng (`/feature-loop:feature-loop <mã>`) máy tự áp trước, hàng đang mở không bị đụng.
 
 Hướng thiết kế: `docs/findings/2026-10-14-kien-truc-roadmap-plugin.md` (B′) · ADR 0025.

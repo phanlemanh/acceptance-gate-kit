@@ -304,6 +304,13 @@ for name in LOCKED:
 card = (root / "commands/acceptance-card.md").read_text()
 assert "disable-model-invocation" not in card, \
     "acceptance-card must stay model-invocable (feature-loop invokes it at both Gates)"
+# Gói road-map (hồ sơ ap-chinh-sach-lo-trinh, CỘNG chủ kho duyệt 15/10): ba lệnh người khoá; xem giữ mở (chỉ đọc).
+LOCKED_ROAD_MAP = ["ghim", "bo-ghim", "tra-lai"]
+for name in LOCKED_ROAD_MAP:
+    t = (root / "road-map" / "commands" / f"{name}.md").read_text()
+    assert "disable-model-invocation: true" in t, f"road-map/commands/{name}.md lacks lock"
+xem = (root / "road-map/commands/xem.md").read_text()
+assert "disable-model-invocation" not in xem, "road-map/commands/xem.md must stay model-invocable (chỉ đọc)"
 PY
 
 run "P33 no source file globs the plugin cache (resolve-plugin.mjs is the only path)" \

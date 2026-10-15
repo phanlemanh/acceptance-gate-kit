@@ -460,6 +460,46 @@ if (want('AP-6-tu-choi') && await chayCa('AP-6-tu-choi', async kit => {
   return sai;
 })) ok('AP-6-tu-choi', 'trả lại mã chưa từng áp → thoát 2 có tên; mục máy chuyển đã bị sửa tay → thoát 2 «hàng đã đổi sau khi máy áp», tệp không đổi');
 
+// ═══ AP-7 (AC-7): ba lệnh khoá — CỘNG chủ kho duyệt ở Cổng Phạm vi ═════════════════════════════════════════════
+const khoiP32 = goc => { const t = readFileSync(path.join(goc, 'tests', 'plugins', 'run-tests.sh'), 'utf8'); const i = t.indexOf('run "P32 ');
+  const j = t.indexOf("<<'PY'\n", i); const k = t.indexOf('\nPY\n', j); if (i < 0 || j < 0 || k < 0) throw new Error('không rút được khối P32'); return t.slice(j + 7, k + 1); };
+const chayP32 = goc => spawnSync('python3', ['-', goc], { input: khoiP32(KIT), encoding: 'utf8' });
+const tenTrong = (txt, bien) => { const m = txt.match(new RegExp(`${bien} = \\[([^\\]]*)\\]`)); return m ? [...m[1].matchAll(/"([a-z-]+)"/g)].map(x => x[1]) : null; };
+const fm = t => t.split('\n---')[0];
+const LENH_KHOA = { ghim: 'RM-GHIM-LENH', 'bo-ghim': 'RM-BO-GHIM-LENH', 'tra-lai': 'RM-TRA-LAI-LENH' };
+if (want('AP-7') && await chayCa('AP-7', async kit => {
+  const sai = [];
+  for (const n of Object.keys(LENH_KHOA)) if (!/^disable-model-invocation: true$/m.test(fm(readFileSync(path.join(kit, 'road-map', 'commands', `${n}.md`), 'utf8')))) sai.push(`${n}.md không khoá`);
+  if (/disable-model-invocation/.test(fm(readFileSync(path.join(kit, 'road-map', 'commands', 'xem.md'), 'utf8')))) sai.push('xem.md bị khoá');
+  const k = khoiP32(kit); const rm = tenTrong(k, 'LOCKED_ROAD_MAP'); const lk = tenTrong(k, 'LOCKED');
+  if (!deq(rm, ['ghim', 'bo-ghim', 'tra-lai'])) sai.push(`LOCKED_ROAD_MAP = ${JSON.stringify(rm)}`);
+  if (!k.includes('"road-map" / "commands"')) sai.push('P32 không đọc road-map/commands');
+  const lkGoc = tenTrong(git(KIT, 'show', `${GOC}:tests/plugins/run-tests.sh`), 'LOCKED');
+  if (!lkGoc || lkGoc.length !== 7 || !deq(lk, lkGoc)) sai.push(`LOCKED của acceptance-gate đổi: ${JSON.stringify(lk)} ≠ ${JSON.stringify(lkGoc)}`);
+  const adr = readFileSync(path.join(kit, 'docs', 'adr', '0002-human-gate-invocation-lock.md'), 'utf8');
+  for (const n of Object.keys(LENH_KHOA)) if (!adr.includes(`\`${n}\``)) sai.push(`ADR 0002 thiếu ${n}`);
+  return sai;
+})) ok('AP-7', 'ba lệnh ghim/bo-ghim/tra-lai khoá, xem mở; P32 có LOCKED_ROAD_MAP đọc road-map/commands; LOCKED bảy tên như bộ máy gốc; ADR 0002 nêu ba tên');
+if (want('AP-7-lenh') && await chayCa('AP-7-lenh', async kit => {
+  const sai = [];
+  const dung = () => { const { r } = kho({ data: DATA_6() }); apGhiOk(kit, r, D20); apGhiOk(kit, r, D21); return r; };
+  for (const [n, khoi] of Object.entries(LENH_KHOA)) {
+    const t = readFileSync(path.join(kit, 'road-map', 'commands', `${n}.md`), 'utf8');
+    const m = t.match(new RegExp(`<!-- <<<${khoi} -->\\n\`\`\`\\n([\\s\\S]*?)\\n\`\`\`\\n<!-- ${khoi}>>> -->`)); if (!m) { sai.push(`${n}: không rút được khối ${khoi}`); continue; }
+    const ma = n === 'tra-lai' ? 'T' : 'M';
+    const a = dung(); const b = dung();
+    if (n === 'bo-ghim') for (const r of [a, b]) chay(kit, r, D21, ['--ghim', ma, '--write']);
+    const x = spawnSync('bash', ['-c', m[1].replace("'<mã>'", `'${ma}'`)], { cwd: a, encoding: 'utf8', env: { ...process.env, AG: kit, ACCEPTANCE_TODAY: D21 } });
+    const y = chay(kit, b, D21, [`--${n}`, ma, '--write']);
+    if (x.status !== 0 || y.status !== 0) { sai.push(`${n}: lệnh thoát ${x.status}/${y.status} ${x.stderr}`); continue; }
+    if (bam(path.join(a, TEP)) !== bam(path.join(b, TEP)) || bam(path.join(a, SO)) !== bam(path.join(b, SO))) sai.push(`${n}: dòng lệnh của tệp lệnh ra khác lời gọi thẳng`);
+  }
+  return sai;
+})) ok('AP-7-lenh', 'dòng lệnh rút từ ba tệp lệnh (kho không có bản chép → $AG) ra cùng tệp + sổ như gọi thẳng');
+async function ap7do(kit) { const x = chayP32(kit); return x.status === 0 ? [] : [`P32 đỏ: ${(x.stderr || '').trim().split('\n').pop()}`]; }
+if (want('AP-7-do')) await chayDo('AP-7-do', ap7do, [['road-map/commands/ghim.md', 'disable-model-invocation: true\n', '']], 'road-map/commands/ghim.md', 'bản sao gỡ khoá ghim.md');
+if (want('AP-7-do2')) await chayDo('AP-7-do2', ap7do, [['road-map/commands/xem.md', 'argument-hint: (không đối số)\n', 'argument-hint: (không đối số)\ndisable-model-invocation: true\n']], 'xem.md', 'bản sao khoá xem.md');
+
 // ═══ CA MỚI THÊM TRÊN DÒNG NÀY ═══
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ap-chinh-sach-lo-trinh)`);
