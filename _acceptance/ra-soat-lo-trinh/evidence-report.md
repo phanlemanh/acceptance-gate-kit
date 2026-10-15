@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 576882966f7b258a07b2cb451aff4218fa02afe4
+verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
 human_signoff: Manh Phan 2026-10-15
 ---
 
@@ -223,3 +223,7 @@ Round 3: Cong Bang chung tra lai de nang pham vi (RS-2-tu-khai, RS-4-lenh, RS-11
 ### Re-pin lần 1 — 2026-10-15, do sửa RS-0 sau chữ ký: chỉ gác gốc so khi hồ sơ chưa ký (merge-base sống)
 run_id: repin-20261015T031058Z-62673
 sha: 576882966f7b258a07b2cb451aff4218fa02afe4 · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
+run_id: repin-20261015T083739Z-10776
+sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
