@@ -4,14 +4,16 @@
 // Mỗi mẫu khớp đúng một hình phần tử bộ vẽ giờ máy sinh ra; phần khác của trang giữ nguyên từng byte. `coGioMay` là đối
 // chứng: trang/bản đồ của bộ máy mới PHẢI mang phần giờ máy, không thì phép bỏ không bỏ gì và ca so mất nghĩa.
 export const MAU_TRANG = [
-  /<th>Giờ máy<\/th>/g,
-  /<td data-nhan="Giờ máy">[^<]*(?:<span class="mu nho"> \([^<)]*\)<\/span>)?(?:<div class="mu nho">[^<]* hạn mức tuần<\/div>)?<\/td>/g,
+  // Dòng giờ máy dưới câu giao: hàng có tên hồ sơ mang « · <span class="gm">…</span>» sau <code>; hàng không có thì cả dòng nhỏ
+  // chỉ là giờ máy.
+  / · <span class="gm">[^<]*<\/span>/g,
+  /<div class="mu nho"><span class="gm">[^<]*<\/span><\/div>/g,
   / <span class="mu nho">— \d+\/\d+ hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè[^<]*<\/span>(?=<\/h3>)/g,
   / <span class="mu nho">· (?:~[\d,–]+ giờ máy[^<]*?|dự báo lúc bắt đầu [^<]*?)<\/span>(?:<span class="co-o">mốc quá tải: [^<]*<\/span>)?/g,
   /<span class="co-o">mốc quá tải: [^<]*<\/span>/g,
 ];
 export const boGioMayTrang = html => MAU_TRANG.reduce((s, re) => s.replace(re, ''), String(html ?? ''));
-export const coGioMayTrang = html => /<th>Giờ máy<\/th>/.test(String(html ?? ''));
+export const coGioMayTrang = html => /<span class="gm">/.test(String(html ?? ''));
 // Bản đồ xem: khối «Giờ máy theo mốc:» cùng các dòng «  · …» ngay sau nó.
 export function boGioMayXem(dong) {
   const ra = []; let trong = false;

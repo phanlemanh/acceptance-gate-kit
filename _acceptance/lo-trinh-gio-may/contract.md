@@ -39,8 +39,8 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   - D `gio_may: [5, 3]`;
   - E không khoá, hạng T3;
   - F không khoá, không hạng;
-  When vẽ trang lộ trình, Then ô giờ máy của sáu hàng BẰNG dãy viết sẵn
-  `6 · 3–5 · 4–7 (máy ước) · 4–7 (máy ước) · 7–10 (máy ước) · 4–7 (máy ước, chưa khai hạng)`.
+  When vẽ trang lộ trình, Then dòng giờ máy dưới câu giao của sáu hàng BẰNG dãy viết sẵn
+  `6 giờ máy · 3–5 giờ máy · 4–7 giờ máy (máy ước) · 4–7 giờ máy (máy ước) · 7–10 giờ máy (máy ước) · 4–7 giờ máy (máy ước, chưa khai hạng)`.
   Trang có đúng hai cờ khuôn:
   - «hàng C: gio_may phải là số giờ dương hoặc cặp [thấp, cao]»;
   - «hàng D: gio_may phải là số giờ dương hoặc cặp [thấp, cao]».

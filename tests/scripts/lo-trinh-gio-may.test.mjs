@@ -101,10 +101,10 @@ const ve = async (kit, r, today = D) => {
 const giaiMa = s => s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 const chuTron = s => giaiMa(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 const coTrang = html => [...html.matchAll(/<ul class="co-ds">([\s\S]*?)<\/ul>/g)].flatMap(u => [...u[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => chuTron(m[1])));
-// Ô «Giờ máy»: phần trước <div> là giờ máy (nhãn nguồn trong <span> nhỏ), <div> (chỉ có khi đã ước) là % hạn mức tuần.
-const oGioTho = html => [...html.matchAll(/<td data-nhan="Giờ máy">([\s\S]*?)<\/td>/g)].map(m => m[1]);
-const oGio = html => oGioTho(html).map(s => chuTron(s.split('<div')[0]));
-const oPt = html => oGioTho(html).map(s => { const m = s.match(/<div class="mu nho">([^<]*) hạn mức tuần<\/div>/); return m ? giaiMa(m[1]) : null; });
+// Giờ máy nằm trên dòng chữ nhỏ dưới câu giao: <span class="gm">«<khoảng> giờ máy (<nhãn>)»[ · ~X % hạn mức tuần]</span>.
+const oGioTho = html => [...html.matchAll(/<span class="gm">([^<]*)<\/span>/g)].map(m => giaiMa(m[1]));
+const oGio = html => oGioTho(html).map(s => s.split(' · ')[0]);
+const oPt = html => oGioTho(html).map(s => { const m = s.match(/ · (~[^·]*?) hạn mức tuần$/); return m ? m[1] : null; });
 const demUoc = html => (html.match(/<h3>Việc còn mở \(\d+\) <span class="mu nho">— ([^<]*)<\/span><\/h3>/) || [])[1] || '';
 const liMoc = (html, ten) => { const m = html.match(new RegExp(`<li data-ngay="[^"]*" data-ten="${ten.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/"/g, '&quot;')}"[^>]*>([\\s\\S]*?)</li>`)); return m ? chuTron(m[1]) : null; };
 const tenNgan = async (kit, m) => (await nap(kit)).LT.tenNganMoc(m);
@@ -115,7 +115,7 @@ const gm1Data = { schema: 1, ten: 'Kế hoạch thử', moc: [], hang: [
   H('D', { hang: 'T2', gio_may: [5, 3] }), H('E', { hang: 'T3' }), H('F')] };
 const gm1 = async kit => {
   const r = kho({ data: gm1Data }); const html = await ve(kit, r); const sai = [];
-  const muon = ['6', '3–5', '4–7 (máy ước)', '4–7 (máy ước)', '7–10 (máy ước)', '4–7 (máy ước, chưa khai hạng)'];
+  const muon = ['6 giờ máy', '3–5 giờ máy', '4–7 giờ máy (máy ước)', '4–7 giờ máy (máy ước)', '7–10 giờ máy (máy ước)', '4–7 giờ máy (máy ước, chưa khai hạng)'];
   if (!deq(oGio(html), muon)) sai.push(`ô giờ máy ${JSON.stringify(oGio(html))} ≠ ${JSON.stringify(muon)}`);
   const co = coTrang(html).filter(c => c.includes('ô «giờ máy» phải là số giờ dương hoặc cặp [thấp, cao]'));
   for (const ma of ['C', 'D']) if (co.filter(c => c.startsWith(`${ma} `)).length !== 1) sai.push(`gio_may sai kiểu mà không cờ: ${ma}`);
@@ -126,7 +126,7 @@ const gm1 = async kit => {
   if (dem !== 1 || !demUoc(html).startsWith('4/6 hàng máy tự ước giờ máy')) sai.push(`dòng đếm máy ước xuất hiện ${dem} lần (cần 1, trong tiêu đề việc còn mở)`);
   return sai;
 };
-if (want('GM-1')) { if (await chayCa('GM-1', gm1)) ok('GM-1', 'sáu ô giờ máy đúng dãy, hai cờ C/D, một dòng 4/6 máy ước'); }
+if (want('GM-1')) { if (await chayCa('GM-1', gm1)) ok('GM-1', 'sáu dòng giờ máy dưới câu giao đúng dãy, hai cờ C/D, một dòng 4/6 máy ước'); }
 if (want('GM-1-do')) await chayDo('GM-1-do', gm1, [['scripts/gio-may.mjs', 'if (so(v) && v > 0) return [v, v];', "if ((so(v) && v > 0) || typeof v === 'string') return [Number(v) || 1, Number(v) || 1];"]], 'gio_may sai kiểu mà không cờ: C', 'bản sao nhận chuỗi');
 
 // Đọc-cũ: kho không khoá gio_may, không hồ sơ đo — các lệnh khác giống từng byte bộ máy gốc; khối dữ liệu trang không đổi.
@@ -167,7 +167,7 @@ const gm2 = (pts, them = {}) => async kit => {
 };
 if (want('GM-2')) { if (await chayCa('GM-2', async kit => {
   const { gio, pt } = await gm2([2, 3, 4, 5, 6])(kit); const sai = [];
-  if (!deq(gio, ['3–6 (theo 6 vòng đo)', '7–10 (máy ước)'])) sai.push(`ô giờ máy ${JSON.stringify(gio)}`);
+  if (!deq(gio, ['3–6 giờ máy (theo 6 vòng đo)', '7–10 giờ máy (máy ước)'])) sai.push(`ô giờ máy ${JSON.stringify(gio)}`);
   if (pt[0] !== '~4 %') sai.push(`% hàng T2 «${pt[0]}», cần «~4 %»`);
   return sai;
 })) ok('GM-2', 'T2 «3–6 (theo 6 vòng đo)», T3 «7–10 (máy ước)», % «~4 %»'); }
@@ -179,7 +179,7 @@ if (want('GM-2-thieu-phan-tram') && await chayCa('GM-2-thieu-phan-tram', async k
 })) ok('GM-2-thieu-phan-tram', 'bốn vòng có %: hàng không mang %, tiêu đề ghi «% hạn mức tuần chưa ước (4/5 vòng đo)»');
 const gm2ChuaGiao = async kit => {
   const { gio } = await gm2([2, 3, 4, 5, 6], { s7: { hinh: 'dang-dung', tier: 'T2', gm: { gio_may: 100, gio_cho: 1 } } })(kit);
-  return gio[0] === '3–6 (theo 6 vòng đo)' ? [] : [`hồ sơ chưa giao vào phép ước: s7 (ô «${gio[0]}»)`];
+  return gio[0] === '3–6 giờ máy (theo 6 vòng đo)' ? [] : [`hồ sơ chưa giao vào phép ước: s7 (ô «${gio[0]}»)`];
 };
 if (want('GM-2-chua-giao') && await chayCa('GM-2-chua-giao', gm2ChuaGiao)) ok('GM-2-chua-giao', 'hồ sơ đo mà chưa giao không vào phép ước');
 if (want('GM-2-do')) await chayDo('GM-2-do', gm2ChuaGiao, [['scripts/gio-may.mjs', 'const giao = doVong.filter(v => v.daGiao);', 'const giao = doVong;']], 'hồ sơ chưa giao vào phép ước: s7', 'bản sao đếm cả hồ sơ chưa giao');

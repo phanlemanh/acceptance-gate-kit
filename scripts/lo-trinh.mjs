@@ -438,9 +438,9 @@ var o=document.getElementById(ol.getAttribute('data-the'));if(!o||(!ke&&hong))re
 
 const neoHang = (i, ma) => `lt${i}-h-${String(ma).replace(/[^A-Za-z0-9_-]/g, '_')}`;
 const ngayVN = s => chuoi(s).split('-').reverse().join('/');
-const COT = [['ma', 'Mã'], ['cau_giao', 'Việc giao'], ['hang', 'Hạng'], ['gio_may', 'Giờ máy'], ['dung_tren', 'Cần xong trước'], ['chu', 'Trạng thái'], ['bat_khi', 'Bật khi'], ['vi_sao', 'Vì sao']];
+const COT = [['ma', 'Mã'], ['cau_giao', 'Việc giao'], ['hang', 'Hạng'], ['dung_tren', 'Cần xong trước'], ['chu', 'Trạng thái'], ['bat_khi', 'Bật khi'], ['vi_sao', 'Vì sao']];
 // Cột «Giờ máy» chỉ có khi lớp phân tích kho đã gắn ước (`_gm`, không liệt kê được — JSON của các lệnh khác không đổi).
-const coDuLieu = (d, k, kq) => (k === 'gio_may' ? !!(kq && kq._gm) : k === 'dung_tren' ? Array.isArray(d.dung_tren) && d.dung_tren.length > 0 : !!chuoi(d[k]));
+const coDuLieu = (d, k) => (k === 'dung_tren' ? Array.isArray(d.dung_tren) && d.dung_tren.length > 0 : !!chuoi(d[k]));
 
 // Neo mỗi hàng: mã (hoặc nhãn) — hàng trùng mã lấy hậu tố để mọi id trên trang là duy nhất. `theoNhan`
 // trỏ nhãn → id của hàng ĐẦU mang nhãn đó (liên kết từ chỗ cần sửa, cần xong trước, mốc).
@@ -522,13 +522,19 @@ function moCo(i, c, theoNhan) {
   const d = dichCo(c); const id = d.ma != null ? theoNhan.get(String(d.ma)) : null;
   return id ? `<li><a href="#${id}"><b>${esc(d.ma)}</b> — ${esc(d.chu)}</a></li>` : `<li><span>${d.ma != null ? `<b>${esc(d.ma)}</b> — ` : ''}${esc(d.chu)}</span></li>`;
 }
+// Phần giờ máy trong ô Hạng: «<khoảng> giờ máy (<nhãn nguồn>)», và % hạn mức tuần chỉ khi đã ước.
+function gioMayO(u) {
+  return `${esc(GM.khoangVN(u.khoang))} giờ máy${u.nhan ? ` (${esc(u.nhan)})` : ''}${u.phanTram.gia != null ? ` · ${esc(GM.oPhanTram(u))} hạn mức tuần` : ''}`;
+}
 function oHang(i, d, kq, theoNhan) {
   const tt = `<span class="tt${kq.daGiao.has(d.chu) ? ' giao' : (d.chu === CHUA_MO ? ' chua' : '')}">${esc(d.chu)}</span>`;
   return {
     ma: esc(d._nhan),
-    cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug ? `<div class="mu nho"><code>${esc(d.slug)}</code></div>` : ''}`,
+    // Giờ máy đi CÙNG dòng chữ nhỏ dưới câu giao (dòng tên hồ sơ có sẵn) — không thêm cột, không ép hẹp «Việc giao»
+    // (ca LTT-san: trang hai lộ trình ≤ 1/3 trang 2.21.0, kể cả với phông rộng của máy CI).
+    cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug || kq._gm ? `<div class="mu nho">${d.slug ? `<code>${esc(d.slug)}</code>` : ''}${d.slug && kq._gm ? ' · ' : ''}${kq._gm ? `<span class="gm">${gioMayO(kq._gm.uoc(d))}</span>` : ''}</div>` : ''}`,
+    // Giờ máy nằm TRONG ô Hạng (không thêm cột): thêm cột ép hẹp «Việc giao» và trang dài quá 1/3 (ca LTT-san).
     hang: esc(chuoi(d.hang)),
-    gio_may: kq._gm ? (u => `${esc(GM.khoangVN(u.khoang))}${u.nhan ? `<span class="mu nho"> (${esc(u.nhan)})</span>` : ''}${u.phanTram.gia != null ? `<div class="mu nho">${esc(GM.oPhanTram(u))} hạn mức tuần</div>` : ''}`)(kq._gm.uoc(d)) : '',
     dung_tren: (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', '),
     chu: `${tt}${d.tinTheoLoi ? '<span class="mu nho"> theo ghi chép, chưa có hồ sơ</span>' : ''}${d.khaiNgoai ? `<span class="co-o">${esc(cauKhaiNgoai(d))}</span>` : ''}${d.coHang.map(c => `<span class="co-o">${esc(dichCo(c).chu)}</span>`).join('')}${buocKeCua(d) ? `<div class="mu nho">bước kế: ${esc(buocKeCua(d))}</div>` : ''}`,
     bat_khi: esc(chuoi(d.bat_khi)),
@@ -536,7 +542,7 @@ function oHang(i, d, kq, theoNhan) {
   };
 }
 function bangViec(i, rows, kq, theoNhan, idHang) {
-  const cot = COT.filter(([k]) => k === 'ma' || k === 'chu' || rows.some(d => coDuLieu(d, k, kq)));
+  const cot = COT.filter(([k]) => k === 'ma' || k === 'chu' || rows.some(d => coDuLieu(d, k)));
   return `<div class="bang"><table><thead><tr>${cot.map(([, n]) => `<th>${n}</th>`).join('')}</tr></thead><tbody>
 ${rows.map(d => { const o = oHang(i, d, kq, theoNhan); return `<tr id="${idHang.get(d)}">${cot.map(([k, n]) => `<td data-nhan="${n}">${o[k]}</td>`).join('')}</tr>`; }).join('\n')}
 </tbody></table></div>`;
