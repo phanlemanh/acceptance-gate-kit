@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs · scripts/cat-luot.mjs · scripts/start-scan.mjs · commands/start.md · skill cắt lượt + khuôn · gói mới road-map/ + marketplace + P200 — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-14-ra-soat-lo-trinh-design.md
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-15T02:10:00Z
 ---
@@ -95,8 +95,8 @@ lại đồng hồ), `[NGÀNH: Linear — auto-close]` (không đóng khi chu k�
   P200 khoá thêm số phiên bản gói road-map (7 đột biến). Lý do từng chỗ: sổ quyết định, dòng `fix` stage S3.
 - Tuổi hàng tính theo lịch sử git tới HEAD: kho clone nông cho tuổi tối thiểu — lệnh và thẻ in một dòng «lịch sử cụt» (AC-11).
 - Known limits — chọn ở Cổng Bằng chứng 2026-10-15:
-  - Ngoài-9: hai câu cảnh báo về chính sách tuổi và trần trên trang lộ trình vẫn in tên khoá kỹ thuật (`tuoi_ngay`, `tran_ke_tiep`) thay vì chữ thường — khó đọc hơn, không sai kết quả.
-  - Ngoài-14: một mốc chứa mã gõ sai hoặc mã đã xoá có thể sinh cảnh báo thừa «đổi đích chiến dịch giữa chừng» khi cắt lượt.
-  - Ngoài-15: phép kiểm đổi chữ «chờ điều kiện» chưa so mã thoát của răng phủ với bộ máy gốc — đổi hành vi răng phủ mà giữ chữ sẽ lọt ca này (ca khác phủ một phần).
-  - Ngoài-18: phép quét chữ «chân trời» bỏ qua dòng tiêu đề và gạch đầu dòng trong tài liệu markdown — chữ cũ viết lại ở đó sẽ không bị bắt.
+  - Ngoài-14: hai câu cảnh báo về chính sách tuổi và trần trên trang lộ trình vẫn in tên khoá kỹ thuật (`tuoi_ngay`, `tran_ke_tiep`) thay vì chữ thường — khó đọc hơn, không sai kết quả.
+  - Ngoài-19: một mốc chứa mã gõ sai hoặc mã đã xoá có thể sinh cảnh báo thừa «đổi đích chiến dịch giữa chừng» khi cắt lượt.
+  - Ngoài-20: phép kiểm đổi chữ «chờ điều kiện» chưa so mã thoát của răng phủ với bộ máy gốc — đổi hành vi răng phủ mà giữ chữ sẽ lọt ca này (ca khác phủ một phần).
+  - Ngoài-23: phép quét chữ «chân trời» bỏ qua dòng tiêu đề và gạch đầu dòng trong tài liệu markdown — chữ cũ viết lại ở đó sẽ không bị bắt.
 - Gói `road-map` đọc lõi qua bộ giải gói (bản mới nhất trên máy); chỉ đọc nên lệch phiên bản chỉ ảnh hưởng hiển thị.
