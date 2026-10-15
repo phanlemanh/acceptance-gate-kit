@@ -359,6 +359,93 @@ if (want('CK-5')) {
   }
 }
 
+// ── Nấc 3: khối S0-THEM-HANG rút NGUYÊN VĂN từ SKILL feature-loop ─────────────────────────────────────────────
+const SKILL = kit => readFileSync(path.join(kit, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+const lenhKhoi = (kit, ten) => {
+  const b = khoiMd(SKILL(kit), ten); if (b == null) throw new Error(`không rút được khối ${ten}`);
+  const m = b.match(/```\n([\s\S]*?)```/); if (!m) throw new Error(`khối ${ten} không có khối lệnh`);
+  return m[1].replace(/^AG=\$\(.*?\) && /, `AG='${kit}' && `);
+};
+const maThay = new Set();
+function chayThemHang(kit, goc, slug, cau) {
+  const l = lenhKhoi(kit, 'S0-THEM-HANG').split("'<slug>'").join(`'${slug}'`).split('<mô tả>').join(cau);
+  const r = spawnSync('bash', ['-c', l], { encoding: 'utf8', cwd: goc, env: { ...process.env, HOME, ACCEPTANCE_TODAY: '2026-10-20' } });
+  maThay.add(r.status); return r;
+}
+const docLt = goc => JSON.parse(readFileSync(path.join(goc, TEP_LT), 'utf8'));
+const S7 = 'sua-loi-dang-nhap'; const CAU7 = 'Sửa lỗi đăng nhập khi mất mạng';
+function ck7(kit) {
+  const goc = kho(); const truoc = docLt(goc).hang;
+  const r = chayThemHang(kit, goc, S7, CAU7);
+  if (r.status !== 0) throw new Error(`khối S0-THEM-HANG thoát ${r.status}: ${r.stderr}`);
+  const d = docLt(goc); const txt = readFileSync(path.join(goc, TEP_LT), 'utf8');
+  if (d.hang.length !== 3) throw new Error(`tệp có ${d.hang.length} hàng, cần 3`);
+  const mong = { ma: S7, cau_giao: CAU7, slug: S7, vi_sao: 'Máy thêm khi mở vòng từ mô tả, 2026-10-20' };
+  if (JSON.stringify(d.hang[2]) !== JSON.stringify(mong)) throw new Error(`hàng thêm ${JSON.stringify(d.hang[2])} ≠ ${JSON.stringify(mong)}`);
+  if (JSON.stringify(d.hang.slice(0, 2)) !== JSON.stringify(truoc)) throw new Error('hai hàng đầu bị đổi');
+  if (!LT.dangChuan(txt)) throw new Error('tệp sau khi thêm không ở dạng chuẩn');
+  const co = LT.kiemKhuon(d).co; if (co.length) throw new Error(`kiemKhuon có cờ: ${co.join('; ')}`);
+  const h = chayHook(kit, goc, W(`_acceptance/${S7}/contract.md`, HOP_DONG.replace('slug: x', `slug: ${S7}`)));
+  if (h.ma !== 0) throw new Error(`hàng máy thêm không nối hồ sơ — hook chặn hợp đồng: ${h.err.slice(0, 200)}`);
+  writeFileSync(path.join(goc, '_acceptance', S7, 'contract.md'), HOP_DONG.replace('slug: x', `slug: ${S7}`));
+  const k = LT.phanTichKho({ root: goc, classify: PM.classify, sections: PM.SECTIONS });
+  const dong = k.cacTep[0].kq.dong.find(x => x._ma === S7);
+  if (!dong || dong.hoSo !== S7) throw new Error(`hàng máy thêm không nối hồ sơ — bản đồ: ${JSON.stringify(dong && dong.hoSo)}`);
+  const mo = spawnSync('bash', ['-c', lenhKhoi(KIT, 'S0-MO-O').split("'<mã>'").join(`'${S7}'`)], { encoding: 'utf8', cwd: goc, env: { ...process.env, HOME } });
+  let j; try { j = JSON.parse(mo.stdout); } catch { throw new Error(`S0-MO-O không in JSON: ${mo.stderr}`); }
+  if (j.moi !== false || j.hoSo !== S7) throw new Error(`mở lại bằng slug: ${mo.stdout}`);
+  if (existsSync(path.join(goc, '_acceptance', S7, 'opportunity.md'))) throw new Error('mở lại bằng slug sinh ô cơ hội');
+  node([path.join(kit, 'scripts', 'product-map.mjs'), '--root', goc]); git(goc, 'add', '-A'); git(goc, 'commit', '-qm', 'them');
+  const c = node([path.join(kit, 'scripts', 'product-map.mjs'), '--root', goc, '--check']);
+  if (c.status !== 0) throw new Error(`product-map --check thoát ${c.status}: ${c.stdout}${c.stderr}`);
+  return 'thêm đúng một hàng; tệp chuẩn; hook cho qua hợp đồng; bản đồ nối hàng; mở lại bằng slug = tiếp tục; --check xanh';
+}
+const CA_TU_CHOI = [
+  { ten: 'tệp không dạng chuẩn', dung: () => kho({ tepLt: JSON.stringify({ schema: 1, ten: 'T', moc: [], hang: [{ ma: 'A1', cau_giao: 'Một' }], chan_troi: [], da_bac: [] }) }), slug: 'x', cau: 'Câu', ghim: 'không ở dạng chuẩn' },
+  { ten: 'đã có hàng mã x', dung: () => kho({ hang: [{ ma: 'x', cau_giao: 'Một' }] }), slug: 'x', cau: 'Câu', ghim: 'đã có hàng mang mã hay slug x' },
+  { ten: 'đã có hàng slug x', dung: () => kho({ hang: [{ ma: 'B1', cau_giao: 'Một', slug: 'x' }] }), slug: 'x', cau: 'Câu', ghim: 'đã có hàng mang mã hay slug x' },
+  { ten: 'stdin rỗng', dung: () => kho(), slug: 'x', cau: '', ghim: 'câu giao rỗng' },
+  { ten: 'slug sai mẫu', dung: () => kho(), slug: 'X Y', cau: 'Câu', ghim: 'slug không hợp lệ' },
+  { ten: 'khoá chan sai giá trị', dung: () => kho({ chan: '"co"' }), slug: 'x', cau: 'Câu', ghim: CAU_KHOA_SAI },
+];
+function ck8(kit) {
+  let n = 0;
+  for (const c of CA_TU_CHOI) {
+    const goc = c.dung(); const truoc = createHash('sha256').update(readFileSync(path.join(goc, TEP_LT))).digest('hex'); n += 1;
+    const r = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', goc, '--them-hang', '--slug', c.slug], { input: c.cau, env: { ...process.env, HOME } });
+    maThay.add(r.status);
+    const sau = createHash('sha256').update(readFileSync(path.join(goc, TEP_LT))).digest('hex');
+    if (c.ten === 'tệp không dạng chuẩn' && sau !== truoc) throw new Error('ghi đè tệp lộ trình không chuẩn');
+    if (r.status !== 2 || !r.stderr.includes(c.ghim)) throw new Error(`ca «${c.ten}»: mã ${r.status}, stderr ${JSON.stringify(r.stderr.slice(0, 160))}`);
+    if (sau !== truoc) throw new Error(`ca «${c.ten}»: tệp lộ trình bị đổi`);
+  }
+  if (n !== 6) throw new Error(`chạy ${n} ca, cần 6`);
+  return '6 ca thoát 2 nêu nguyên nhân, tệp lộ trình nguyên byte';
+}
+function ck8KyTu(kit) {
+  const goc = kho(); const cau = 'Sửa $(touch CANH) và `touch CANH2` \'đơn\' "kép"';
+  const r = chayThemHang(kit, goc, 'ky-tu', cau);
+  if (r.status !== 0) throw new Error(`thoát ${r.status}: ${r.stderr}`);
+  const h = docLt(goc).hang.find(x => x.ma === 'ky-tu');
+  if (!h || h.cau_giao !== cau) throw new Error(`câu giao ghi sai: ${JSON.stringify(h && h.cau_giao)}`);
+  for (const t of ['CANH', 'CANH2']) if (existsSync(path.join(goc, t)) || existsSync(path.join(process.cwd(), t))) throw new Error(`tệp ${t} bị tạo — câu giao bị chạy như lệnh`);
+  return 'câu giao ghi nguyên văn; không lệnh nào trong câu bị chạy';
+}
+if (want('CK-7')) {
+  if (await chayCa('CK-7', () => ck7(KIT)) && want('CK-7-do')) {
+    const m = banSao([['scripts/lo-trinh.mjs', 'data.hang.push({ ma: slugMoi, cau_giao: cau, slug: slugMoi, vi_sao:', 'data.hang.push({ ma: slugMoi, cau_giao: cau, vi_sao:']]);
+    await chayDo('CK-7-do', () => ck7(m), 'hàng máy thêm không nối hồ sơ');
+  }
+}
+if (want('CK-8')) {
+  const xanh = await chayCa('CK-8', () => ck8(KIT));
+  await chayCa('CK-8-ky-tu', () => ck8KyTu(KIT));
+  if (xanh && want('CK-8-do')) {
+    const m = banSao([['scripts/lo-trinh.mjs', '    if (!dangChuan(txt)) bail(', '    if (false) bail(']]);
+    await chayDo('CK-8-do', () => ck8(m), 'ghi đè tệp lộ trình không chuẩn');
+  }
+}
+
 // __CA_SAU__
 
 rmSync(TMP, { recursive: true, force: true });

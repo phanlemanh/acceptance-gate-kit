@@ -1429,9 +1429,10 @@ if (isMain) {
   const bail = m => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(2); };
   const thoat = (c, m) => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(c); };
   let root = '.'; let ref = null; let moO = false; let slugMoi = null; let owner = ''; let raSoatCo = false; let jsonCo = false;
-  let apCo = false; let ghiCo = false; let lenhNguoi = null; let xemCo = false; let doLechCo = false;
+  let apCo = false; let ghiCo = false; let lenhNguoi = null; let xemCo = false; let doLechCo = false; let themHang = false;
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--mo-o') { moO = true; continue; }
+    if (a[i] === '--them-hang') { themHang = true; continue; }
     if (a[i] === '--ra-soat') { raSoatCo = true; continue; }
     if (a[i] === '--json') { jsonCo = true; continue; }
     if (a[i] === '--ap') { apCo = true; continue; }
@@ -1449,7 +1450,41 @@ if (isMain) {
       if (v == null || (v === '' && a[i] !== '--owner') || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
       if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
-    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write] | --xem | --do-lech | --tra-lai|--ghim|--bo-ghim <mã> --write)`);
+    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write] | --xem | --do-lech | --tra-lai|--ghim|--bo-ghim <mã> --write | --them-hang --slug <s> (câu giao qua stdin))`);
+  }
+  // Nấc 3 của ADR 0025 (hồ sơ kho-cam-ket-co-lo-trinh, hàng RM5): mở vòng từ mô tả ở kho BẬT CHẶN → máy thêm một hàng
+  // mã = slug vào tệp lộ trình đầu tiên đã khai, rồi tạo thư mục hồ sơ (mở lại bằng slug đi đường tiếp tục, không sinh ô
+  // cơ hội). Câu giao chỉ đi qua stdin. 0 = đã thêm · 1 = kho không bật chặn (0 byte) · 2 = từ chối, tệp nguyên byte.
+  if (themHang) {
+    if (ref != null || moO || raSoatCo || apCo || jsonCo || ghiCo || lenhNguoi || xemCo || doLechCo) bail('--them-hang chỉ đi với --root và --slug');
+    if (!slugMoi) bail('--them-hang cần --slug <slug>');
+    if (!SLUG_RE.test(slugMoi)) bail(`slug không hợp lệ: «${slugMoi}»`);
+    root = path.resolve(root);
+    const CL = require(path.join(__dirname, '..', 'lib', 'chan-lo-trinh.cjs'));
+    const tt = CL.trangThaiChan(root);
+    if (tt.loi) bail(tt.loi);
+    if (!tt.bat) thoat(1, 'kho không bật chặn lộ trình — không thêm hàng');
+    let cau = '';
+    try { cau = readFileSync(0, 'utf8').trim(); } catch { cau = ''; }
+    if (!cau) bail('câu giao rỗng — đưa câu mô tả qua stdin');
+    const khai = docCacTep(root);
+    if (khai == null) bail(`kho chưa khai ${KHOA} trong _acceptance/config.yaml`);
+    const tep = khai.tep[0]; const p = path.join(root, tep);
+    let txt = null;
+    try { txt = readFileSync(p, 'utf8'); } catch { bail(`không đọc được tệp lộ trình ${tep}`); }
+    if (!dangChuan(txt)) bail(`tệp lộ trình ${tep} không ở dạng chuẩn — không ghi; thêm hàng bằng tay hoặc bằng skill cắt lượt`);
+    const data = JSON.parse(txt);
+    if (!Array.isArray(data.hang)) data.hang = [];
+    if (data.hang.some(r => r && (chuoi(r.ma) === slugMoi || chuoi(r.slug) === slugMoi))) bail(`đã có hàng mang mã hay slug ${slugMoi} trong ${tep} — không thêm`);
+    const dich = path.join(root, '_acceptance', slugMoi);
+    if (existsSync(path.join(dich, 'contract.md')) || existsSync(path.join(dich, 'opportunity.md'))) bail(`hồ sơ ${slugMoi} đã có — không thêm hàng`);
+    const today = process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10);
+    if (!NGAY_RE.test(today)) bail(`ACCEPTANCE_TODAY phải dạng YYYY-MM-DD (đang là «${today}»)`);
+    data.hang.push({ ma: slugMoi, cau_giao: cau, slug: slugMoi, vi_sao: `Máy thêm khi mở vòng từ mô tả, ${today}` });
+    ghiLoTrinh(p, data);
+    mkdirSync(dich, { recursive: true });
+    process.stdout.write(JSON.stringify({ hang: slugMoi, tep }) + '\n');
+    process.exit(0);
   }
   // Rà soát (hồ sơ ra-soat-lo-trinh): chỉ đọc — 0 = in đề xuất · 1 = kho chưa khai · 2 = lỗi dùng.
   if (raSoatCo) {
