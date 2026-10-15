@@ -40,6 +40,7 @@ export const LY_DO = {
   khacMoc: 'hai lần đọc hạn mức khác mốc đặt lại (đổi tài khoản hoặc sang tuần mới) — % không quy đổi được',
   giam: 'phần trăm hạn mức giảm giữa hai lần đọc (đổi tài khoản) — % không quy đổi được',
   khongDung: 'không có lượng dùng nào giữa hai lần đọc — % không quy đổi được',
+  duoiPhanGiai: 'hạn mức tuần chưa nhích giữa hai lần đọc (dưới 1 %, độ phân giải của công cụ đọc) — % không quy đổi được',
 };
 
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
@@ -116,13 +117,17 @@ function batDauVong(root, slug) {
   } catch { /* không phải kho git */ }
   return null;
 }
+// Mốc đặt lại so theo PHÚT: công cụ đọc hạn mức trả cùng một mốc lệch vài mili-giây giữa hai lần đọc (đo 15/10:
+// 02:00:00.324Z rồi 01:59:59.754Z).
+export const phutCua = s => new Date(Math.round(Date.parse(s) / 60e3) * 60e3).toISOString();
 // Hai lần đọc gần nhất → tỉ lệ % trên mỗi đơn vị quy đổi, hoặc lý do loại.
 export function tiLe(docDs, phien) {
   if (docDs.length < 2) return { ly_do: LY_DO.motLan };
   const [a, b] = docDs.slice(-2);
   const khoang = { tu: a.ts, den: b.ts, phan_tram: [a.phan_tram, b.phan_tram] };
-  if (a.dat_lai !== b.dat_lai) return { ly_do: LY_DO.khacMoc, khoang };
+  if (phutCua(a.dat_lai) !== phutCua(b.dat_lai)) return { ly_do: LY_DO.khacMoc, khoang };
   if (b.phan_tram < a.phan_tram) return { ly_do: LY_DO.giam, khoang };
+  if (b.phan_tram === a.phan_tram) return { ly_do: LY_DO.duoiPhanGiai, khoang };
   const tu = Date.parse(a.ts); const den = Date.parse(b.ts);
   const tm = congToken(phien.flatMap(p => p.loi), tu, den);
   const q = tongQuyDoi(tm);
@@ -180,7 +185,7 @@ if (isMain) {
     if (!Number.isFinite(pt) || pt < 0 || pt > 100) bail(`--doc-han-muc phải là phần trăm 0..100 (đang là «${f['doc-han-muc']}»)`);
     if (!f['dat-lai'] || !/^\d{4}-\d{2}-\d{2}T/.test(f['dat-lai']) || !Number.isFinite(Date.parse(f['dat-lai']))) bail(`--dat-lai phải là thời điểm ISO (đang là «${f['dat-lai'] ?? ''}»)`);
     const p = tepHanMuc(); mkdirSync(path.dirname(p), { recursive: true });
-    const o = { ts: new Date().toISOString(), phan_tram: pt, dat_lai: new Date(Date.parse(f['dat-lai'])).toISOString() };
+    const o = { ts: new Date().toISOString(), phan_tram: pt, dat_lai: phutCua(f['dat-lai']) };
     appendFileSync(p, JSON.stringify(o) + '\n'); process.stdout.write(JSON.stringify(o) + '\n'); process.exit(0);
   }
   if (!f.root || !f.slug) bail('cần --root <kho> --slug <s> (hoặc --doc-han-muc <phần trăm> --dat-lai <ISO>)');

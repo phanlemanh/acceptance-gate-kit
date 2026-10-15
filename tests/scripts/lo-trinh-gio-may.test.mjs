@@ -398,23 +398,27 @@ if (want('GM-7')) { if (await chayCa('GM-7', async kit => {
   if (o.phan_tram_tuan !== 2.99) sai.push(`phan_tram_tuan ${o.phan_tram_tuan}, cần 2.99`);
   if (!(typeof o.ty_le === 'number')) sai.push('thiếu ty_le');
   if (!deq(o.khoang_doc, { tu: '2026-10-20T00:30:00.000Z', den: '2026-10-20T02:05:00.000Z', phan_tram: [20, 30] })) sai.push(`khoang_doc ${JSON.stringify(o.khoang_doc)}`);
+  // Cùng mốc đặt lại mà công cụ trả lệch mili-giây (đo thật 15/10: 02:00:00.324Z rồi 01:59:59.754Z) vẫn là MỘT tuần.
+  const ms = doc2(20, 30); ms[0].dat_lai = '2026-10-26T02:00:00.324Z'; ms[1].dat_lai = '2026-10-26T01:59:59.754Z';
+  const o2 = await gm7Chay(kit, ms); if (o2.phan_tram_tuan !== 2.99) sai.push(`mốc đặt lại lệch mili-giây bị loại: ${o2.ly_do || o2.phan_tram_tuan}`);
   return sai;
-})) ok('GM-7', 'hai lần đọc 20 % → 30 %: phan_tram_tuan 2,99 kèm ty_le và khoảng đọc'); }
+})) ok('GM-7', 'hai lần đọc 20 % → 30 %: phan_tram_tuan 2,99 kèm ty_le và khoảng đọc; mốc đặt lại lệch mili-giây vẫn cùng tuần'); }
 const LYDO = {
   khac: 'hai lần đọc hạn mức khác mốc đặt lại (đổi tài khoản hoặc sang tuần mới) — % không quy đổi được',
   giam: 'phần trăm hạn mức giảm giữa hai lần đọc (đổi tài khoản) — % không quy đổi được',
   mot: 'chưa đủ hai lần đọc hạn mức tuần — % không quy đổi được',
+  duoi: 'hạn mức tuần chưa nhích giữa hai lần đọc (dưới 1 %, độ phân giải của công cụ đọc) — % không quy đổi được',
 };
 const gm7Loai = async kit => {
   const sai = [];
-  for (const [ten, ds, ly] of [['khác mốc đặt lại', doc2(20, 30, '2026-11-02T02:00:00.000Z'), LYDO.khac], ['% giảm', doc2(30, 20), LYDO.giam], ['một lần đọc', doc2(20, 30).slice(0, 1), LYDO.mot]]) {
+  for (const [ten, ds, ly] of [['khác mốc đặt lại', doc2(20, 30, '2026-11-02T02:00:00.000Z'), LYDO.khac], ['% giảm', doc2(30, 20), LYDO.giam], ['một lần đọc', doc2(20, 30).slice(0, 1), LYDO.mot], ['chưa nhích', doc2(30, 30), LYDO.duoi]]) {
     const o = await gm7Chay(kit, ds);
     if (o.phan_tram_tuan !== null) sai.push(ten === 'khác mốc đặt lại' ? 'tỉ lệ qua hai tài khoản' : `${ten}: phan_tram_tuan ${o.phan_tram_tuan}`);
     else if (o.ly_do !== ly) sai.push(`${ten}: ly_do «${o.ly_do}»`);
   }
   return sai;
 };
-if (want('GM-7-loai') && await chayCa('GM-7-loai', gm7Loai)) ok('GM-7-loai', 'ba ca loại: phan_tram_tuan null, ly_do đúng ba câu viết sẵn');
+if (want('GM-7-loai') && await chayCa('GM-7-loai', gm7Loai)) ok('GM-7-loai', 'bốn ca loại (khác mốc · % giảm · một lần đọc · chưa nhích): phan_tram_tuan null, ly_do đúng bốn câu viết sẵn');
 if (want('GM-7-doc') && await chayCa('GM-7-doc', async kit => {
   const sai = []; const p = path.join(TMP, `doc-${++khoN}.jsonl`); const env = { ...process.env, HAN_MUC_TEP: p };
   const x = node([DV(kit), '--doc-han-muc', '23', '--dat-lai', '2026-10-26T02:00:00Z'], { env });
@@ -427,7 +431,7 @@ if (want('GM-7-doc') && await chayCa('GM-7-doc', async kit => {
   const sau = readFileSync(p, 'utf8').split('\n').filter(Boolean).length; if (sau !== 1) sai.push(`giá trị sai vẫn ghi: ${sau} dòng`);
   return sai;
 })) ok('GM-7-doc', '--doc-han-muc 23 thêm đúng một dòng; -5, 120, ISO hỏng → thoát 2 nêu cờ, không ghi');
-if (want('GM-7-do')) await chayDo('GM-7-do', gm7Loai, [['scripts/do-vong.mjs', '  if (a.dat_lai !== b.dat_lai) return { ly_do: LY_DO.khacMoc, khoang };\n', '']], 'tỉ lệ qua hai tài khoản', 'bản sao nhận cặp khác mốc đặt lại');
+if (want('GM-7-do')) await chayDo('GM-7-do', gm7Loai, [['scripts/do-vong.mjs', '  if (phutCua(a.dat_lai) !== phutCua(b.dat_lai)) return { ly_do: LY_DO.khacMoc, khoang };\n', '']], 'tỉ lệ qua hai tài khoản', 'bản sao nhận cặp khác mốc đặt lại');
 
 // ═══ GM-8 (AC-8): đo lệch ═══════════════════════════════════════════════════════════════════════════════════════════
 const MM = { ten: 'Mốc M', ngay: '2026-10-21', loai: 'phat-hanh', hang: ['A', 'B', 'C'] };
@@ -472,25 +476,30 @@ const gm9 = async kit => {
   const sai = []; const skill = readFileSync(path.join(kit, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
   const khoi = [...skill.matchAll(/<!-- <<<S4-DO-VONG -->([\s\S]*?)<!-- S4-DO-VONG>>> -->/g)];
   if (khoi.length !== 1) return [`SKILL có ${khoi.length} khối S4-DO-VONG, cần 1`];
-  const lenh = khoi[0][1].split('\n').map(s => s.trim()).filter(s => s.startsWith('node '));
+  const lenh = khoi[0][1].split('\n').map(s => s.trim()).filter(s => s.includes('do-vong.mjs'));
+  if (lenh.some(l => !/^AG=\$\(node "\$WORKFLOWS_DIR\/\.\.\/scripts\/resolve-plugin\.mjs" --plugin acceptance-gate --require scripts\/do-vong\.mjs\) && node "\$AG\/scripts\/do-vong\.mjs" /.test(l))) sai.push('khối S4-DO-VONG không tự giải đường dẫn gói');
   if (lenh.length !== 3) sai.push(`khối có ${lenh.length} dòng lệnh, cần 3`);
   if (lenh.filter(l => l.includes('--doc-han-muc')).length !== 2) sai.push('khối không có hai dòng đọc hạn mức');
   const ghi = lenh.find(l => l.includes('do-vong.mjs') && !l.includes('--doc-han-muc'));
   if (!ghi) return [...sai, 'khối không có dòng do-vong'];
   // Chạy chính dòng rút từ khối (thay $AG và <slug>) trên kho thử có bản ghi lệch về quá khứ gần (để «bây giờ» nằm sau cửa sổ).
   const base = Date.now() - 3 * 3600e3; const r = khoVong('vong', base); const { projects } = banGhi('vong', base);
-  const cmd = ghi.replace(/\$AG|"\$AG"/g, kit).replace(/"([^"]*)"/g, '$1').replace(/<slug>/g, 'vong').replace(/\s+#.*$/, '');
-  spawnSync('bash', ['-c', cmd], { cwd: r, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECTS_DIR: projects, HAN_MUC_TEP: path.join(TMP, 'khong.jsonl') } });
+  // Chạy CHÍNH dòng rút từ khối: chỉ thay <slug> và thêm `--root <cây đang kiểm>` sau `--plugin acceptance-gate` (dạng kho tự host
+  // mà khối tự khai) — $AG do dòng tự giải, ca không cấp hộ (bản trước thay $AG nên che mất lỗi dòng không tự giải).
+  const cmd = ghi.replace(/<slug>/g, 'vong').replace('--plugin acceptance-gate', `--plugin acceptance-gate --root "${kit}"`);
+  const { AG: _bo, ...envSach } = process.env;
+  spawnSync('bash', ['-c', cmd], { cwd: r, encoding: 'utf8', env: { ...envSach, WORKFLOWS_DIR: path.join(kit, 'feature-loop', 'workflows'), CLAUDE_PROJECTS_DIR: projects, HAN_MUC_TEP: path.join(TMP, 'khong.jsonl') } });
   const dong = readFileSync(path.join(r, '_acceptance', 'vong', 'run-log.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(o => o.kind === 'gio-may');
   if (dong.length !== 1) sai.push('khối S4-DO-VONG không ghi dòng gio-may');
   else if (dong[0].gio_may !== 0.55 || !deq(dong[0].token, TOKEN6)) sai.push(`dòng gio-may từ khối: ${JSON.stringify(dong[0]).slice(0, 200)}`);
   const xem = readFileSync(path.join(kit, 'road-map', 'commands', 'xem.md'), 'utf8');
   if (!xem.includes('Giờ máy theo mốc') || !xem.includes('quá tải')) sai.push('xem.md không nêu khối giờ máy và cờ quá tải');
-  const guide = readFileSync(path.join(KIT, 'GUIDE.md'), 'utf8');
+  const guide = readFileSync(path.join(kit, 'GUIDE.md'), 'utf8');
   if (!guide.includes('`gio_may`') || !guide.includes('hàng thiếu khoá: máy tự ước')) sai.push('GUIDE không nêu khoá gio_may và đường đọc-cũ');
   return sai;
 };
 if (want('GM-9')) { if (await chayCa('GM-9', gm9)) ok('GM-9', 'khối S4-DO-VONG ba dòng; dòng rút từ khối ghi đúng dòng gio-may; xem.md và GUIDE nêu khoá'); }
+if (want('GM-9-do2')) await chayDo('GM-9-do2', gm9, [['feature-loop/skills/feature-loop/SKILL.md', 'AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/do-vong.mjs) && node "$AG/scripts/do-vong.mjs" --root . --slug <slug> --write', 'node "$AG/scripts/do-vong.mjs" --root . --slug <slug> --write']], 'khối S4-DO-VONG không tự giải đường dẫn gói', 'bản sao khối bỏ phần tự giải gói');
 if (want('GM-9-do')) await chayDo('GM-9-do', gm9, [['feature-loop/skills/feature-loop/SKILL.md', 'do-vong.mjs" --root . --slug <slug> --write', 'do-vong.mjs" --root . --slug <slug>']], 'khối S4-DO-VONG không ghi dòng gio-may', 'bản sao khối thiếu --write');
 
 try { rmSync(TMP, { recursive: true, force: true }); } catch { /* bỏ */ }

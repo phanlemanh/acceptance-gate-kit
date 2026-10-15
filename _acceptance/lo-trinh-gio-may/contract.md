@@ -128,11 +128,13 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
 - AC-7: Given tệp đọc hạn mức có hai lần đọc cùng mốc đặt lại (20 % rồi 30 %) và bản ghi giả cả máy trong khoảng ấy có
   token quy đổi viết sẵn, When đo vòng, Then `phan_tram_tuan` của dòng `gio-may` BẰNG số viết sẵn (tỉ lệ × token quy đổi
   của vòng). Dòng ghi kèm `ty_le` và khoảng đọc.
+  Given hai lần đọc cùng mốc đặt lại mà công cụ trả lệch mili-giây, Then vẫn là một tuần (so theo phút).
   Given:
   - hai lần đọc khác mốc đặt lại;
   - hay % giảm;
   - hay chỉ một lần đọc;
-  Then `phan_tram_tuan:null` kèm `ly_do` đúng ba câu viết sẵn, mỗi ca một câu.
+  - hay % chưa nhích (dưới độ phân giải 1 %);
+  Then `phan_tram_tuan:null` kèm `ly_do` đúng bốn câu viết sẵn, mỗi ca một câu.
   `--doc-han-muc 23 --dat-lai <ISO>` thêm đúng một dòng vào tệp đọc. Giá trị sai (âm, > 100, ISO hỏng) → thoát 2 nêu cờ.
   Chiều đỏ: bản sao nhận cặp khác mốc đặt lại → ca đỏ «tỉ lệ qua hai tài khoản».
 - AC-8: Given kho thử có:
@@ -152,14 +154,17 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   - bản sao lấy dự báo mới nhất thay vì sớm nhất → ca đỏ «dự báo không phải bản đóng băng»;
   - bản sao bỏ hàng thiếu đo → ca đỏ «vòng thiếu số đo bị giấu».
 - AC-9: Given cây, When đọc SKILL feature-loop và `road-map/commands/xem.md`, Then:
-  - SKILL có khối máy đọc `S4-DO-VONG` mang ba dòng lệnh:
+  - SKILL có khối máy đọc `S4-DO-VONG` mang ba dòng lệnh, mỗi dòng tự giải gói acceptance-gate ngay trong dòng
+    (`--require scripts/do-vong.mjs`), không dựa vào biến đặt ở lệnh khác:
     - đọc hạn mức lúc mở;
     - đọc hạn mức khi lượt chấm trả về;
     - `do-vong.mjs --write`;
-  - dòng lệnh rút từ khối (không chép tay) chạy trên kho thử của AC-6 ra đúng dòng `gio-may`;
+  - dòng lệnh rút từ khối (không chép tay, ca không cấp hộ đường dẫn gói) chạy trên kho thử của AC-6 ra đúng dòng `gio-may`;
   - `xem.md` nêu khối giờ máy và cờ quá tải;
   - GUIDE (mục khuôn tệp lộ trình) nêu khoá `gio_may` cùng đường đọc-cũ.
-  Chiều đỏ: bản sao khối thiếu `--write` → ca đỏ «khối S4-DO-VONG không ghi dòng gio-may».
+  Chiều đỏ:
+  - bản sao khối thiếu `--write` → ca đỏ «khối S4-DO-VONG không ghi dòng gio-may»;
+  - bản sao khối bỏ phần tự giải gói → ca đỏ «khối S4-DO-VONG không tự giải đường dẫn gói».
 
 ## Coverage
 

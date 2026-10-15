@@ -109,7 +109,7 @@ evals:
       exit 0; stdout có "PASS: GM-7", "PASS: GM-7-loai", "PASS: GM-7-doc", "PASS: GM-7-do". GM-7: hai lần đọc cùng mốc đặt lại
       20 % rồi 30 %, bản ghi cả máy trong khoảng có token quy đổi viết sẵn → phan_tram_tuan BẰNG số viết sẵn, dòng mang ty_le
       và khoảng đọc. GM-7-loai: ba ca (khác mốc đặt lại · % giảm · một lần đọc) → phan_tram_tuan null, ly_do BẰNG ba câu viết
-      sẵn, mỗi ca một câu. GM-7-doc: `--doc-han-muc 23 --dat-lai <ISO>` thêm đúng một dòng; -5, 120, ISO hỏng → thoát 2 nêu
+      sẵn, mỗi ca một câu, cộng ca chưa nhích (30 % → 30 %) mang câu thứ tư; GM-7 thêm cặp đọc lệch mili-giây cùng mốc → vẫn 2,99. GM-7-doc: `--doc-han-muc 23 --dat-lai <ISO>` thêm đúng một dòng; -5, 120, ISO hỏng → thoát 2 nêu
       cờ. GM-7-do: bản sao nhận cặp khác mốc đặt lại → FAIL ghim «tỉ lệ qua hai tài khoản».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
@@ -134,9 +134,10 @@ evals:
     cmd: config:executors.test.lo_trinh_gio_may
     paths: [feature-loop/skills/feature-loop/SKILL.md, road-map/commands/xem.md, GUIDE.md, tests/scripts/lo-trinh-gio-may.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: GM-9", "PASS: GM-9-do". GM-9: SKILL feature-loop có đúng một khối marker S4-DO-VONG mang ba dòng
+      exit 0; stdout có "PASS: GM-9", "PASS: GM-9-do", "PASS: GM-9-do2". GM-9: SKILL feature-loop có đúng một khối marker S4-DO-VONG mang ba dòng
       lệnh (đọc hạn mức lúc mở · đọc hạn mức khi lượt chấm trả về · do-vong.mjs --write); dòng do-vong rút từ khối (thay
       $AG và <slug>) chạy trên kho thử của GM-6 → run-log thêm đúng dòng gio-may như GM-6; xem.md có câu nêu khối giờ máy và
       «quá tải»; GUIDE (mục khuôn tệp lộ trình) nêu khoá gio_may và câu đọc-cũ «hàng thiếu khoá: máy tự ước». GM-9-do: bản sao khối
-      thiếu --write → FAIL ghim «khối S4-DO-VONG không ghi dòng gio-may».
+      thiếu --write → FAIL ghim «khối S4-DO-VONG không ghi dòng gio-may». GM-9-do2: bản sao khối bỏ phần tự giải gói → FAIL ghim «khối S4-DO-VONG
+      không tự giải đường dẫn gói». Mỗi dòng khối mang AG=$(… resolve-plugin.mjs --plugin acceptance-gate --require scripts/do-vong.mjs).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
