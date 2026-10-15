@@ -76,8 +76,12 @@ check('JR11b recheck strict trên corpus thật == baseline viết-trước (0 f
 
 check('JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report → recheck ĐỎ đúng thông điệp', () => {
   const acc = path.join(ROOT, '_acceptance');
-  const src = readdirSync(acc).map(s => path.join(acc, s)).find(d => existsSync(path.join(d, 'evidence-report.md')));
-  assert.ok(src, 'không có workspace nào để sao');
+  // Phép tiêm «verdict: FAIL» chỉ lộ mâu thuẫn trên báo cáo KHAI PASS (sửa 15/10, hồ sơ ap-chinh-sach-lo-trinh): bản cũ lấy hồ
+  // sơ đầu tiên theo chữ cái có báo cáo — một vòng đang giữa lượt chấm với báo cáo REJECT đứng đầu thì bản tiêm «vẫn xanh»
+  // (FAIL chồng lên REJECT là nhất quán) và ca đỏ vì chính vòng đang chấm.
+  const khaiPass = d => /^verdict:\s*PASS\s*$/m.test(readFileSync(path.join(d, 'evidence-report.md'), 'utf8').split('\n---')[0]);
+  const src = readdirSync(acc).sort().map(s => path.join(acc, s)).find(d => existsSync(path.join(d, 'evidence-report.md')) && khaiPass(d));
+  assert.ok(src, 'không có workspace nào khai PASS để sao');
   const t = mkdtempSync(path.join(tmpdir(), 'jr11-'));
   const dir = path.join(t, '_acceptance', path.basename(src));
   mkdirSync(path.dirname(dir), { recursive: true });

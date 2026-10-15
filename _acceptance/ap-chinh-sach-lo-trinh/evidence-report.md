@@ -2,16 +2,18 @@
 schema_version: 2
 feature_slug: ap-chinh-sach-lo-trinh
 verdict: REJECT
-failed_evals: ["E7b"]
+failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6a69b37d2b2facd5e64397d148868b435691955a
+verified_commit: 3376ae3a8ddc26e260c0ed584a5a725613bc9788
 human_signoff:
 ---
 
 # Evidence Report: ap-chinh-sach-lo-trinh
+
+Verdict REJECT ở round 2: cả 12 eval của hợp đồng đều xanh (không eval nào hỏng, nên `failed_evals` rỗng), nhưng hai lệnh suite hồi quy không gắn eval nào đỏ: `bash tests/scripts/run-tests.sh --manh mjs:3/3` (31 đạt, 1 hỏng) và suite plugin vùng 3 (dòng hỏng đọc được: `P179 [MBC] E6 ledger known-limits`). Hai lệnh này ghi ở mục «Lệnh suite (hồi quy)» bên dưới, kèm run_id.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -22,7 +24,7 @@ human_signoff:
 | E5 | AC-5 | test | PASS |
 | E6 | AC-6 | test | PASS |
 | E7 | AC-7 | test | PASS |
-| E7b | AC-7 | test | FAIL |
+| E7b | AC-7 | test | PASS |
 | E8 | AC-8 | test | PASS |
 | E9 | AC-9 | test | PASS |
 | E10 | AC-10 | test | PASS |
@@ -31,165 +33,178 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-ap-chinh-sach-lo-trinh-E1-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E1-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E2
-  run_id: minted-ap-chinh-sach-lo-trinh-E2-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E2-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E3
-  run_id: minted-ap-chinh-sach-lo-trinh-E3-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E3-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E4
-  run_id: minted-ap-chinh-sach-lo-trinh-E4-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E5
-  run_id: minted-ap-chinh-sach-lo-trinh-E5-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E6
-  run_id: minted-ap-chinh-sach-lo-trinh-E6-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E7
-  run_id: minted-ap-chinh-sach-lo-trinh-E7-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E7b
-  run_id: minted-ap-chinh-sach-lo-trinh-E7b-r1
-  exit_code: 1
-  baseline: green
+  run_id: minted-ap-chinh-sach-lo-trinh-E7b-r2
+  exit_code: 0
+  baseline: n-a
   verifier: config:executors.test.plugins_vung_1
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    FAIL: P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)
-    Results: 1 failed
+    cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
+    Results: all plugin tests passed
 
 - eval: E8
-  run_id: minted-ap-chinh-sach-lo-trinh-E8-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E9
-  run_id: minted-ap-chinh-sach-lo-trinh-E9-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E9-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E10
-  run_id: minted-ap-chinh-sach-lo-trinh-E10-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E10-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
-    Results: 53 passed, 0 failed (ap-chinh-sach-lo-trinh)
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    Results: 59 passed, 0 failed (ap-chinh-sach-lo-trinh)
 
 - eval: E11
-  run_id: minted-ap-chinh-sach-lo-trinh-E11-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-E11-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.ap_chinh_sach_lo_trinh_crm
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
   output: |
+    cmd: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs
     Results: 1 passed, 0 failed (ap-chinh-sach-lo-trinh-crm)
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
-  exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  exit_code: 1
+  verified_at: 2026-10-15T05:41:51Z
+  # HỎNG, không gắn eval nào. Tail kết quả: «Results: 31 passed, 1 failed». Phần tail chỉ còn các ca thuoc-vat, vong-meta-dang-mo, xuat-du-qua-pipe đều đạt; ca hỏng nằm ngoài đoạn đuôi đã lưu, chưa định danh được từ dữ liệu có sẵn.
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 1
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
+  # HỎNG, không gắn eval nào. Dòng hỏng: «FAIL: P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=»; tail kết «Results: 1 failed».
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-ap-chinh-sach-lo-trinh-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-15T04:31:38Z
+  verified_at: 2026-10-15T05:41:51Z
 
 ## Known limits
 
@@ -197,16 +212,21 @@ human_signoff:
 
 ## Analyst
 
-none — moi eval feature deu red tren baseline (co phan biet)
+carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi, round 1). Field baseline cua tung eval ghi n-a.
 
-Baseline khong do:
-- node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs: bo qua baseline: tep tests/scripts/ap-chinh-sach-lo-trinh.test.mjs co o cay dang kiem nhung chua co o merge-base 59ab26e746522bf16028b80cb1cf3485b20f6080 — eval moi, chay tren code cu khong phan biet gi
-- node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs: bo qua baseline: tep tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs co o cay dang kiem nhung chua co o merge-base 59ab26e746522bf16028b80cb1cf3485b20f6080 — eval moi, chay tren code cu khong phan biet gi
+Eval không phân biệt (xanh cả HEAD lẫn baseline): none — danh sách rỗng. Lệnh suite xanh cả hai phía là regression-guard bình thường, không liệt kê.
+
+Hai lệnh suite đỏ nêu ở trên không gắn eval nào: đây là hồi quy cần người đọc ở Cổng 2, không phải eval của hợp đồng.
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — every multi-run eval is uniform (mọi eval chạy một lần, xác định; không eval nào có phương sai).
+
+## Judge
+
+none — không eval nào khai judge panel; không có phiếu chấm nào để ghi.
 
 ## Iterations
 
-Round 1: E7b failed — suite vùng 1 của plugin đỏ ở ca P93 (bảng luật một nguồn + cấp marker duy nhất toàn kho); lệnh vùng 3 cũng đỏ ở ca LB2 (lệnh có tiền tố ngoài bảng, feature-loop/skills/feature-loop/SKILL.md dòng 221 nêu /road-map:tra-lai và /road-map:ghim) nhưng không gắn eval nào. Returned to implementation.
+Round 1: lượt chấm đầu; vòng S4-r1 đã sửa (commit 24bc5aa5) và ghi sổ fix lượt 1 (commit 3376ae3a). Returned to implementation.
+Round 2: 12/12 eval của hợp đồng xanh, nhưng hai lệnh suite hồi quy không gắn eval (mjs:3/3 và plugins vùng 3, dòng P179) đỏ nên verdict REJECT. Returned to implementation.
