@@ -177,6 +177,119 @@ if (want('CK-2')) {
 }
 if (want('CK-4-lib')) await chayCa('CK-4-lib', () => ck4Lib(LIB));
 
+// ── Hook: gọi như harness gọi ─────────────────────────────────────────────────────────────────────────────
+function chayHook(kit, goc, lenh, env = {}) {
+  const fp = lenh.rel ? lenh.file : path.join(goc, lenh.file);
+  const ti = lenh.tool === 'Edit' ? { file_path: fp, old_string: lenh.old, new_string: lenh.moi } : { file_path: fp, content: lenh.content };
+  const input = JSON.stringify({ tool_name: lenh.tool, tool_input: ti });
+  const e = { ...process.env, HOME, ...env }; if (!('ACCEPTANCE_GATE_BYPASS' in env)) delete e.ACCEPTANCE_GATE_BYPASS;
+  const r = spawnSync(process.execPath, [path.join(kit, 'hooks', 'acceptance-evidence-gate.js')], { input, encoding: 'utf8', cwd: goc, env: e });
+  return { ma: r.status, out: r.stdout, err: r.stderr };
+}
+const W = (file, content) => ({ tool: 'Write', file, content });
+const OPP_CU = opp(null);
+const BON_LENH = [
+  { ten: 'Write contract.md mới không nối', l: W('_acceptance/x/contract.md', HOP_DONG), mo: true },
+  { ten: 'Write opportunity.md mới không mã', l: W('_acceptance/x/opportunity.md', opp(null)), mo: true },
+  { ten: 'Write opportunity.md mới có mã thật', l: W('_acceptance/x/opportunity.md', opp('A1')), mo: false },
+  { ten: 'Edit opportunity.md của hồ sơ cũ', l: { tool: 'Edit', file: '_acceptance/cu/opportunity.md', old: '## Vấn đề', moi: '## Vấn đề & ai gặp' }, mo: false },
+];
+const khoBon = (goi, chan, them = '') => kho({ goi, chan, hoSo: { cu: { 'opportunity.md': OPP_CU } }, ...(them ? { cfg: cfgCua({ chan, them }) } : {}) });
+const coDongChan = (r, slug) => ['lo_trinh.chan', slug, '/feature-loop:feature-loop', `--them-hang --slug ${slug}`].every(t => r.err.includes(t));
+
+function ck1(kit) {
+  const goc = kho({ hoSo: {} });
+  for (const c of BON_LENH.slice(0, 2)) {
+    const r = chayHook(kit, goc, c.l);
+    if (r.ma !== 2 || !coDongChan(r, 'x')) throw new Error(`hồ sơ ngoài lộ trình lọt hook — «${c.ten}»: mã ${r.ma}, stderr ${JSON.stringify(r.err.slice(0, 160))}`);
+    if (existsSync(path.join(goc, '_acceptance', 'x'))) throw new Error('thư mục x bị tạo');
+  }
+  // Review Focus 1, 2, 4: Edit trên tệp vắng · đường dẫn tương đối · tệp lộ trình hỏng.
+  const r1 = chayHook(kit, goc, { tool: 'Edit', file: '_acceptance/x/opportunity.md', old: 'a', moi: 'b' });
+  if (r1.ma !== 0 || r1.err.includes('lo_trinh.chan')) throw new Error(`Edit trên tệp vắng bị chặn: ${r1.ma}`);
+  const r2 = chayHook(kit, goc, { ...W('_acceptance/x/contract.md', HOP_DONG), rel: true });
+  if (r2.ma !== 2 || !coDongChan(r2, 'x')) throw new Error(`hồ sơ ngoài lộ trình lọt hook — đường dẫn tương đối: mã ${r2.ma}`);
+  const hong = kho({ tepLt: '{ hỏng' });
+  const r3 = chayHook(kit, hong, W('_acceptance/x/contract.md', HOP_DONG));
+  if (r3.ma !== 2 || !r3.err.includes('không phải JSON')) throw new Error(`hồ sơ ngoài lộ trình lọt hook — tệp lộ trình hỏng: mã ${r3.ma}`);
+  return 'hai lệnh mở hồ sơ bị chặn với hai lối ra; Edit tệp vắng qua; đường tương đối chặn; tệp lộ trình hỏng chặn có tên';
+}
+function ck3(kit) {
+  const goc = kho({ hoSo: { cu: { 'contract.md': HOP_DONG.replace('slug: x', 'slug: cu') }, cu2: { 'opportunity.md': OPP_CU } } });
+  const lenh = [
+    W('_acceptance/cu/contract.md', HOP_DONG.replace('slug: x', 'slug: cu')), W('_acceptance/cu/opportunity.md', OPP_CU), W('_acceptance/cu/design-pass.md', '# d\n'),
+    { tool: 'Edit', file: '_acceptance/cu/contract.md', old: '# x', moi: '# cu' },
+    W('_acceptance/cu2/contract.md', HOP_DONG.replace('slug: x', 'slug: cu2')), W('_acceptance/cu2/opportunity.md', OPP_CU),
+    { tool: 'Edit', file: '_acceptance/cu2/opportunity.md', old: '## Vấn đề', moi: '## Vấn đề mới' }, W('_acceptance/cu2/design-pass.md', '# d\n'),
+    W('_acceptance/x/design-pass.md', '# d\n'),
+  ];
+  for (const l of lenh) {
+    const r = chayHook(kit, goc, l);
+    if (r.ma !== 0 || r.err.includes('lo_trinh.chan')) throw new Error(`hồ sơ cũ bị chặn — ${l.tool} ${l.file}: mã ${r.ma}`);
+  }
+  const d = chayHook(kit, goc, W('_acceptance/x/contract.md', HOP_DONG));
+  if (d.ma !== 2) throw new Error(`đối chứng dương: Write contract.md của x phải bị chặn, nhận ${d.ma}`);
+  return `${lenh.length} lệnh vào hồ sơ cũ / tệp phụ qua; đối chứng dương chặn`;
+}
+function ck4(kit) {
+  const goc0 = bayGoc(); let n = 0;
+  for (const g of GOI) for (const c of CHAN) for (const b of BON_LENH) {
+    const goc = khoBon(g, c); n += 1;
+    const r = chayHook(kit, goc, b.l);
+    const bat = g === 'du-an' && c === 'true'; const sai = g === 'du-an' && c === '"co"';
+    if (bat) {
+      if (b.mo && (r.ma !== 2 || !coDongChan(r, 'x'))) throw new Error(`ô bật, «${b.ten}»: mong chặn, nhận ${r.ma}`);
+      if (!b.mo && r.ma !== 0) throw new Error(`ô bật, «${b.ten}»: mong qua, nhận ${r.ma} ${r.err.slice(0, 120)}`);
+    } else if (sai) {
+      if (b.l.tool === 'Write' && (r.ma !== 2 || !r.err.includes(CAU_KHOA_SAI))) throw new Error(`ô khoá sai, «${b.ten}»: mong chặn nêu khoá, nhận ${r.ma}`);
+      if (b.l.tool === 'Edit' && r.ma !== 0) throw new Error(`ô khoá sai, Edit: mong qua, nhận ${r.ma}`);
+    } else {
+      const r0 = chayHook(goc0, goc, b.l);
+      if (r.ma !== r0.ma || r.out !== r0.out || r.err !== r0.err) {
+        const tep = b.l.file.endsWith('opportunity.md') ? 'opportunity.md' : 'contract.md';
+        if (g === 'local') throw new Error(`phạm vi local không được bật chặn — ô (${g}, ${c}) «${b.ten}»`);
+        throw new Error(`kho không bật đổi hành vi ở ${tep} — ô (${g}, ${c}) «${b.ten}»: ${r.ma}/${r0.ma}`);
+      }
+    }
+  }
+  if (n !== 64) throw new Error(`ma trận chạy ${n} lần, cần 64`);
+  return '64 lần: chỉ ô bật chặn hai lệnh mở hồ sơ; khoá sai chặn có tên; 14 ô × 4 lệnh giống từng byte bộ máy gốc';
+}
+function ck4ChinhSach(kit) {
+  const off = chayHook(kit, khoBon('du-an', 'true', 'enforcement: off'), BON_LENH[0].l);
+  if (off.ma !== 0 || off.err.includes('lo_trinh.chan')) throw new Error(`enforcement off: ${off.ma}`);
+  const by = chayHook(kit, khoBon('du-an', 'true'), BON_LENH[0].l, { ACCEPTANCE_GATE_BYPASS: '1' });
+  if (by.ma !== 0) throw new Error(`BYPASS: ${by.ma}`);
+  const warn = chayHook(kit, khoBon('du-an', 'true', 'enforcement: warn'), BON_LENH[0].l);
+  if (warn.ma !== 0 || !warn.err.includes('lo_trinh.chan')) throw new Error(`enforcement warn: ${warn.ma}`);
+  return 'off → qua im · BYPASS → qua · warn → qua kèm dòng chặn';
+}
+
+if (want('CK-1')) {
+  if (await chayCa('CK-1', () => ck1(KIT)) && want('CK-1-do')) {
+    const m = banSao([['hooks/acceptance-evidence-gate.js', "const chan = luatChanLoTrinh(path.resolve(filePath), (ti.content || '').toString(), !isContract);", 'const chan = null;']]);
+    await chayDo('CK-1-do', () => ck1(m), 'hồ sơ ngoài lộ trình lọt hook');
+  }
+}
+if (want('CK-3')) {
+  if (await chayCa('CK-3', () => ck3(KIT)) && want('CK-3-do')) {
+    const m = banSao([['hooks/acceptance-evidence-gate.js', '  if (!L.laHoSoMoi(root, slug)) return null;\n', '']]);
+    await chayDo('CK-3-do', () => ck3(m), 'hồ sơ cũ bị chặn');
+  }
+}
+if (want('CK-4')) {
+  const xanh = await chayCa('CK-4', () => ck4(KIT));
+  await chayCa('CK-4-chinh-sach', () => ck4ChinhSach(KIT));
+  if (xanh && want('CK-4-do')) {
+    const m = banSao([['lib/chan-lo-trinh.cjs', "  const t = docTho(path.join(root, '.claude', 'settings.json'));", "  const t = docTho(path.join(root, '.claude', 'settings.json')) ?? docTho(path.join(root, '.claude', 'settings.local.json'));"]]);
+    await chayDo('CK-4-do', () => ck4(m), 'phạm vi local không được bật chặn');
+  }
+  if (xanh && want('CK-4-do2')) {
+    const m = banSao([['hooks/acceptance-evidence-gate.js', '  if (!tt.bat) return null;', '  if (!tt.bat && !laOpp) return null;']]);
+    await chayDo('CK-4-do2', () => ck4(m), 'kho không bật đổi hành vi ở opportunity.md');
+  }
+}
+
 // __CA_SAU__
 
 rmSync(TMP, { recursive: true, force: true });
