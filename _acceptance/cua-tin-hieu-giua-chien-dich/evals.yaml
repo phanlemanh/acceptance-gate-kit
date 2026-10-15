@@ -44,14 +44,19 @@ evals:
     paths: [dieu-phoi/scripts/cua-tin-hieu.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/yeu-cau.mjs, scripts/tin-hieu.mjs, tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs]
     expected: >
       exit 0; stdout có "PASS: CT-3", "PASS: CT-3-lan-hai", "PASS: CT-3-gop", "PASS: CT-3-do", "PASS: CT-3-khac-than",
-      "PASS: CT-3-do2", "PASS: CT-3-do3". CT-3: sau CT-1 có đúng một tệp tin-hieu/kho/<id>.json mỗi id, thân BẰNG thân yêu
-      cầu {phien, loai, hang, noi_dung, luc}; `scripts/tin-hieu.mjs --chua-gom` (bộ đọc thật) liệt cả hai id đúng tiêu đề,
-      `--rang` không lỗi khuôn cho chúng. CT-3-lan-hai: nhịp thứ hai → vẫn một tệp mỗi id, mtime không đổi. CT-3-gop:
-      viec-phu thứ ba trùng tiêu đề trong 24 giờ → gop, voi = id thứ nhất, không tệp thứ ba. CT-3-khac-than:
-      tin-hieu/kho/<id>.json có sẵn với thân KHÁC → tệp cũ giữ nguyên từng byte (so băm trước/sau), yêu cầu mới can_phan với
-      ly_do mở đầu «id trùng một ý khác trong cửa —». CT-3-do: bản sao ghi thêm khoá _ten → FAIL ghim «tệp tín hiệu khác
-      thân yêu cầu: <id>». CT-3-do2: bản sao bỏ kiểm tệp đã có → FAIL ghim «nhịp xét hai lần đẻ tệp mới: <id>». CT-3-do3:
-      bản sao ghi đè tệp có sẵn → FAIL ghim «ý bị đè: <id>».
+      "PASS: CT-3-do2", "PASS: CT-3-do3", "PASS: CT-3-dot-sau", "PASS: CT-3-khong-tieu-de", "PASS: CT-3-do4", "PASS:
+      CT-3-do5". CT-3: sau CT-1 có đúng một tệp tin-hieu/kho/<đợt>-<id>.json mỗi id, thân BẰNG thân yêu cầu {phien, loai,
+      hang, noi_dung, luc}; `scripts/tin-hieu.mjs --chua-gom` (bộ đọc thật) liệt cả hai id đúng tiêu đề, `--rang` không lỗi
+      khuôn cho chúng. CT-3-lan-hai: nhịp thứ hai → vẫn một tệp mỗi id, mtime không đổi. CT-3-gop: viec-phu thứ ba trùng
+      tiêu đề trong 24 giờ → gop, voi = id thứ nhất, không tệp thứ ba. CT-3-khac-than: tin-hieu/kho/<đợt>-<id>.json có sẵn
+      với thân KHÁC → tệp cũ giữ nguyên từng byte (so băm trước/sau), yêu cầu mới can_phan với ly_do mở đầu «id trùng một ý
+      khác trong cửa —». CT-3-do: bản sao ghi thêm khoá _ten → FAIL ghim «tệp tín hiệu khác thân yêu cầu: <id>». CT-3-do2:
+      bản sao bỏ kiểm tệp đã có → FAIL ghim «nhịp xét hai lần đẻ tệp mới: <id>». CT-3-do3: bản sao ghi đè tệp có sẵn → FAIL
+      ghim «ý bị đè: <id>». CT-3-dot-sau (Ngoài-1, nâng phạm vi): hai đợt tên dot-a, dot-b cùng ghi P1-1 khác thân vào một
+      cửa → đợt sau trả ghi, cửa có hai tệp, tệp đợt trước nguyên băm. CT-3-khong-tieu-de (Ngoài-3): hai hang-moi chỉ có
+      cau_giao khác nhau trong 24 giờ → cả hai ghi (hai tệp); hai viec-phu cùng «viec» → gộp. CT-3-do4: bản sao đặt tên tệp
+      bằng mã trần → FAIL ghim «đợt sau đánh thức giám sát: P1-1». CT-3-do5: bản sao so tiêu đề chỉ bằng tieu_de → FAIL ghim
+      «ý không tiêu đề bị gộp mất».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -114,12 +119,14 @@ evals:
     cmd: config:executors.test.cua_tin_hieu_giua_chien_dich
     paths: [scripts/start-scan.mjs, scripts/tin-hieu.mjs, tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: CT-8", "PASS: CT-8-khong", "PASS: CT-8-sai-khuon", "PASS: CT-8-do". CT-8: kho thử khai lộ
-      trình và cửa, 3 tín hiệu chưa gom và 2 đã ở một bản gom → đầu ra thẻ của scripts/start-scan.mjs có đúng một dòng «Cửa
-      tín hiệu: 3 ý chờ gom ở mốc khép — gom bằng skill gom-tin-hieu». CT-8-khong: 0 tín hiệu chưa gom, và kho không khai
-      cửa → đầu ra thẻ giống từng byte bộ máy gốc trên cùng kho, sau đối chứng dương (gốc thoát 0, đầu ra khác rỗng).
-      CT-8-sai-khuon: một tệp tín hiệu sai khuôn → dòng mở đầu «!» nêu số tệp không đọc được, start-scan thoát 0. CT-8-do:
-      bản sao đếm cả tín hiệu đã gom → FAIL ghim «thẻ đếm cả ý đã gom: 5 ≠ 3».
+      exit 0; stdout có "PASS: CT-8", "PASS: CT-8-khong", "PASS: CT-8-sai-khuon", "PASS: CT-8-do", "PASS: CT-8-do2". CT-8:
+      kho thử khai lộ trình và cửa, 3 tín hiệu chưa gom và 2 đã ở một bản gom → đầu ra thẻ của scripts/start-scan.mjs có
+      đúng một dòng «Cửa tín hiệu: 3 ý chờ gom ở mốc khép — gom bằng skill gom-tin-hieu». CT-8-khong: 0 tín hiệu chưa gom,
+      kho không khai cửa, và kho khai cửa mà chưa có thư mục nguồn → đầu ra thẻ giống từng byte bộ máy gốc trên cùng kho,
+      sau đối chứng dương (gốc thoát 0, đầu ra khác rỗng). CT-8-sai-khuon: một tệp tín hiệu sai khuôn → dòng mở đầu «!» nêu
+      số tệp không đọc được, start-scan thoát 0. CT-8-do: bản sao đếm cả tín hiệu đã gom → FAIL ghim «thẻ đếm cả ý đã gom: 5
+      ≠ 3». CT-8-do2: bản sao đếm cả lỗi «thư mục nguồn chưa có» → FAIL ghim «thẻ đổi khi không có ý chờ gom: kho khai cửa
+      chưa có thư mục nguồn».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9

@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM3 khai T2: chạm dieu-phoi/scripts (vùng M5, khai trên #308), scripts/start-scan.mjs, gói road-map, khối TRONG-DOT của SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-cua-tin-hieu-giua-chien-dich-design.md
-status: verified
+status: approved
 approved_by: Manh Phan
-approved_at: 2026-10-15T08:00:56Z
+approved_at: 2026-10-15T21:28:06Z
 ---
 
 # Acceptance Contract: cua-tin-hieu-giua-chien-dich
@@ -48,14 +48,22 @@ giá trị `đã ghi, xử ở mốc khép` — ca đọc hằng ấy bằng imp
   cặp: cùng nội dung bỏ `--chan` thì ra `ghi` (AC-1) — hai kết quả khác nhau chỉ vì cờ.
   Chiều đỏ: bản sao bỏ nhánh chặn → FAIL ghim «ý khai chặn không được phán: <id>»; bản sao lệnh `yeu-cau` bỏ đọc `--chan`
   → FAIL ghim «cờ --chan không vào noi_dung».
-- AC-3: Given yêu cầu được `ghi` ở AC-1, Then có ĐÚNG một tệp `tin-hieu/kho/<id>.json` mỗi id, thân bằng thân yêu cầu
+- AC-3: Given yêu cầu được `ghi` ở AC-1, Then có ĐÚNG một tệp `tin-hieu/kho/<đợt>-<id>.json` mỗi id (`<đợt>` = tên đợt
+  trong `hang-viec.json`), thân bằng thân yêu cầu
   `{phien, loai, hang, noi_dung, luc}`; bộ đọc THẬT của kit (`scripts/tin-hieu.mjs --chua-gom`) liệt cả hai id với đúng
   tiêu đề và `--rang` không báo lỗi khuôn cho chúng. When chạy nhịp xét lần hai, Then vẫn đúng một tệp mỗi id, mtime không
   đổi. Given yêu cầu `viec-phu` thứ ba trùng tiêu đề yêu cầu thứ nhất trong 24 giờ, Then `ket_qua: "gop"` với `voi` = id
-  thứ nhất và không có tệp thứ ba. Given `tin-hieu/kho/<id>.json` đã có với thân KHÁC (ý cũ chưa gom), Then tệp cũ còn
-  nguyên từng byte, yêu cầu mới hạ về `can_phan` với `ly_do` mở đầu «id trùng một ý khác trong cửa —».
+  thứ nhất và không có tệp thứ ba. Given `tin-hieu/kho/<đợt>-<id>.json` đã có với thân KHÁC (ý cũ chưa gom), Then tệp cũ
+  còn nguyên từng byte, yêu cầu mới hạ về `can_phan` với `ly_do` mở đầu «id trùng một ý khác trong cửa —».
+  Given cửa đã có tệp ý của một đợt TRƯỚC (tên đợt khác) mang cùng mã yêu cầu `P1-1`, When đợt mới xét `P1-1` không chặn,
+  Then ý được ghi thành tệp riêng của đợt mới và trả «đã ghi» — không `can_phan`, tệp cũ còn nguyên (Ngoài-1, chủ kho nâng
+  phạm vi ở Cổng Bằng chứng lượt 1).
+  Given hai `hang-moi` khác nhau, đều không có `tieu_de` (chỉ `cau_giao`, như khuôn trong luật của thợ), trong 24 giờ,
+  Then cả hai được ghi thành hai tệp, không gộp; hai ý chỉ gộp khi tiêu đề — rút lần lượt từ `tieu_de` → `viec` →
+  `cau_giao`, như bộ đọc tín hiệu — sau chuẩn hoá KHÔNG rỗng và bằng nhau (Ngoài-3, cùng lần nâng phạm vi).
   Chiều đỏ: bản sao ghi đè tệp có sẵn → FAIL ghim «ý bị đè: <id>»; bản sao ghi tệp mang thêm khoá `_ten` → FAIL ghim «tệp tín hiệu khác thân yêu cầu: <id>»; bản sao bỏ kiểm
-  tệp đã có → FAIL ghim «nhịp xét hai lần đẻ tệp mới: <id>».
+  tệp đã có → FAIL ghim «nhịp xét hai lần đẻ tệp mới: <id>»; bản sao đặt tên tệp bằng mã trần → FAIL ghim «đợt sau đánh
+  thức giám sát: P1-1»; bản sao so tiêu đề chỉ bằng `tieu_de` → FAIL ghim «ý không tiêu đề bị gộp mất».
 - AC-4: Given bốn đợt thử — kho KHÔNG khai `tin_hieu` · đợt không có `goc_kho` · kho khai cửa nhưng yêu cầu thuộc loại
   vận hành (`cham-tep`, `s4-gom`, `gia-han`, `can-nguoi`, `chuyen-hang`, `khac`, mỗi loại một yêu cầu) · kho không khai
   cửa với `viec-phu`/`hang-moi`, kèm một cặp `hang-moi` trùng tiêu đề trong 24 giờ — When một nhịp xét bằng bộ máy hiện tại và bằng bộ máy gốc trên cùng fixture, Then
@@ -123,7 +131,7 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
   kế». Số đọc ở đợt đầu tiên mở bằng gói điều phối, ở bất kỳ kho nào, sau khi cài bản chứa vòng này. M5 trả lời trên
   #308 (15/10): M5 không mở đợt bằng gói (điều phối thợ bằng tay), nên máy duy nhất từng chạy đợt là Mac Studio (đợt r2).
   Trong sổ sự kiện của đợt, N = số yêu cầu việc-phụ/việc-mới `chan != true` (mọi ý không chặn, dù kết quả là gì). SỐNG khi N ≥ 1, 0 dòng trong N mang `can_phan ==
-  true`, và mỗi dòng `ket_qua == "ghi"` có tệp `<nguon>/<id>.json`. CHẾT khi ≥ 1 dòng trong N mang `can_phan == true`,
+  true`, và mỗi dòng `ket_qua == "ghi"` có tệp `<nguon>/<đợt>-<id>.json`. CHẾT khi ≥ 1 dòng trong N mang `can_phan == true`,
   hoặc một id `ghi` không có tệp. N = 0 → «chưa đọc được». Câu đọc:
   `jq -s '[.[]|select(.loai=="yeu-cau" and (.kieu=="viec-phu" or .kieu=="hang-moi") and .chan!=true)]|{n:length,can_phan:(map(select(.can_phan==true))|length),ghi:(map(select(.ket_qua=="ghi"))|map(.id))}' <thư mục đợt>/su-kien.jsonl`
   — AC-1 chạy nguyên văn câu này trên sổ sinh trong lượt. Bảo đảm bởi AC-1 (sự kiện mang `kieu`·`chan`·`ket_qua`), AC-3
@@ -146,5 +154,11 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
 - Tệp tín hiệu sinh trên đĩa của máy chạy đợt, chưa theo dõi bởi git; lưới cây bẩn của làn ghim lại không tính tệp chưa
   theo dõi. Mất máy trước khi gom = mất ý — giới hạn đã khai.
 - Ý của thợ NGOÀI đợt đi `/road-map:gui` như người.
+- Known limits — chọn ở Cổng Bằng chứng lượt 1 (2026-10-15):
+  - Ngoài-2: kho chỉ khai cửa mà không khai lộ trình thì thẻ khởi động không nhắc số ý chờ gom (dòng nhắc sống trong khối
+    lộ trình của thẻ). Ý không mất; gom tay vẫn thấy.
+  - Đợt dựng lại với CÙNG tên và cùng mã yêu cầu khi ý cũ chưa gom: tệp trùng tên khác thân → ý rơi về «cần phán» (không
+    đè, không mất). Tên tệp mang tên đợt nên chỉ ca dùng lại tên đợt mới chạm.
+  - Ngoài-4, Ngoài-5: hai ca đo nội bộ (CT-6-do nhận cờ lành cứng, CT-7-rong không ghim thông điệp) giữ như hiện tại.
 - Thợ thật ra bị chặn mà quên `--chan` nhận «đã ghi» và phải tự gửi lại (câu trả chỉ lối) — ngưỡng không đếm được ca này,
   vì không sinh `can_phan`. Ngưỡng mở lại: ≥ 1 lần trong một đợt thợ gửi lại cùng ý kèm `--chan` sau một lần «đã ghi».

@@ -72,11 +72,11 @@ function kho({ cua = true, nguonLaTep = false, them = '', ten = 'Người Thử'
 }
 const tepCua = k => (existsSync(path.join(k, 'tin-hieu', 'kho')) && statSync(path.join(k, 'tin-hieu', 'kho')).isDirectory()
   ? readdirSync(path.join(k, 'tin-hieu', 'kho')).filter(f => f.endsWith('.json')).sort() : []);
-function dot({ gocKho = null, w1 = null } = {}) {
+function dot({ gocKho = null, w1 = null, ten = 'thu' } = {}) {
   const d = tam('dot');
   const cfg = { ...MAU.CFG_PHAT_LICH }; if (gocKho) cfg.goc_kho = gocKho; else delete cfg.goc_kho;
   writeFileSync(path.join(d, 'dieu-phoi.config.json'), JSON.stringify(cfg));
-  writeFileSync(path.join(d, 'hang-viec.json'), JSON.stringify(MAU.hangViecHai({ dot: 'thu', w1: w1 ?? tam('w'), w2: tam('w'), link: true })));
+  writeFileSync(path.join(d, 'hang-viec.json'), JSON.stringify(MAU.hangViecHai({ dot: ten, w1: w1 ?? tam('w'), w2: tam('w'), link: true })));
   for (const x of ['khoa', 'xin', 'yeu-cau', 'tra-loi', 'cho-nguoi', 'tiep']) mkdirSync(path.join(d, x));
   return d;
 }
@@ -163,20 +163,20 @@ async function ca2(goc, { chan = true } = {}) {
 async function ca3(goc) {
   const { sai, k, d } = await ca1(goc);
   const files = tepCua(k);
-  if (JSON.stringify(files) !== JSON.stringify(['P1-1.json', 'P1-2.json'])) sai.push(`tệp trong cửa: ${JSON.stringify(files)}`);
+  if (JSON.stringify(files) !== JSON.stringify(['thu-P1-1.json', 'thu-P1-2.json'])) sai.push(`tệp trong cửa: ${JSON.stringify(files)}`);
   for (const f of files) {
-    const id = f.slice(0, -5); const cu = docJson(path.join(d, 'yeu-cau', f)); const moi = docJson(path.join(k, 'tin-hieu', 'kho', f));
+    const id = f.slice(4, -5); const cu = docJson(path.join(d, 'yeu-cau', `${id}.json`)); const moi = docJson(path.join(k, 'tin-hieu', 'kho', f));
     if (JSON.stringify(Object.keys(moi)) !== JSON.stringify(['phien', 'loai', 'hang', 'noi_dung', 'luc'])
       || ['phien', 'loai', 'hang', 'noi_dung', 'luc'].some(x => JSON.stringify(moi[x]) !== JSON.stringify(cu[x]))) sai.push(`tệp tín hiệu khác thân yêu cầu: ${id}`);
   }
   const th = (...a) => spawnSync(process.execPath, [path.join(goc, 'scripts', 'tin-hieu.mjs'), '--root', k, ...a], { encoding: 'utf8' });
   const cg = th('--chua-gom'); let j = null; try { j = JSON.parse(cg.stdout); } catch { j = null; }
   const tieuDe = { 'P1-1': 'Thêm lọc theo phòng', 'P1-2': 'Mở việc báo cáo tuần' };
-  for (const [id, td] of Object.entries(tieuDe)) if (!j?.tin_hieu?.some(t => t.id === id && t.tieu_de === td)) sai.push(`bộ đọc không liệt ${id}: ${cg.stdout.slice(0, 200)}${cg.stderr}`);
+  for (const [id, td] of Object.entries(tieuDe)) if (!j?.tin_hieu?.some(t => t.id === `thu-${id}` && t.tieu_de === td)) sai.push(`bộ đọc không liệt ${id}: ${cg.stdout.slice(0, 200)}${cg.stderr}`);
   const rg = th('--rang');
   for (const id of Object.keys(tieuDe)) if ((rg.stdout + rg.stderr).split('\n').some(l => l.includes(id) && l.includes('sai khuôn'))) sai.push(`răng báo sai khuôn: ${id}`);
   // Nhịp hai lần: giả lập sập giữa ghi tệp và ghi trả lời.
-  const p1 = path.join(k, 'tin-hieu', 'kho', 'P1-1.json'); const cu = new Date('2026-01-01T00:00:00Z');
+  const p1 = path.join(k, 'tin-hieu', 'kho', 'thu-P1-1.json'); const cu = new Date('2026-01-01T00:00:00Z');
   utimesSync(p1, cu, cu); const bam1 = bam(p1);
   rmSync(path.join(d, 'tra-loi', 'P1-1.json'));
   await nhip(d, goc);
@@ -185,13 +185,13 @@ async function ca3(goc) {
   yc(d, 'P1-3', 'viec-phu', { tieu_de: 'Thêm lọc theo phòng' }, '2026-10-05T11:30:00Z');
   await nhip(d, goc);
   const t3 = traLoi(d, 'P1-3');
-  if (t3?.ket_qua !== 'gop' || t3.voi !== 'P1-1' || tepCua(k).includes('P1-3.json')) sai.push(`trùng không gộp: ${JSON.stringify(t3)}`);
+  if (t3?.ket_qua !== 'gop' || t3.voi !== 'P1-1' || tepCua(k).includes('thu-P1-3.json')) sai.push(`trùng không gộp: ${JSON.stringify(t3)}`);
   return sai;
 }
 
 async function ca3KhacThan(goc) {
   const sai = []; const k = kho(); const d = dot({ gocKho: k });
-  const p = path.join(k, 'tin-hieu', 'kho', 'P1-1.json');
+  const p = path.join(k, 'tin-hieu', 'kho', 'thu-P1-1.json');
   writeFileSync(p, `${JSON.stringify({ phien: 'P9', loai: 'tin-hieu', hang: null, noi_dung: { tieu_de: 'ý cũ chưa gom' }, luc: '2026-10-01T00:00:00Z' }, null, 2)}\n`);
   const h = bam(p);
   yc(d, 'P1-1', 'viec-phu', { tieu_de: 'Ý mới cùng số' });
@@ -199,6 +199,32 @@ async function ca3KhacThan(goc) {
   if (bam(p) !== h) sai.push('ý bị đè: P1-1');
   const ev = suKien(d).filter(e => e.loai === 'yeu-cau' && e.id === 'P1-1');
   if (traLoi(d, 'P1-1') || ev.length !== 1 || ev[0].can_phan !== true || !String(ev[0].ly_do).startsWith('id trùng một ý khác trong cửa —')) sai.push(`id trùng không rơi về phán: ${JSON.stringify(ev)}`);
+  return sai;
+}
+
+// AC-3 (Ngoài-1, nâng phạm vi): hai đợt khác tên cùng ghi P1-1 vào một cửa.
+async function ca3DotSau(goc) {
+  const k = kho(); const a = dot({ gocKho: k, ten: 'dot-a' }); const b = dot({ gocKho: k, ten: 'dot-b' });
+  yc(a, 'P1-1', 'viec-phu', { tieu_de: 'Ý của đợt trước' }); await nhip(a, goc);
+  const f = tepCua(k); const h = f.length ? bam(path.join(k, 'tin-hieu', 'kho', f[0])) : null;
+  yc(b, 'P1-1', 'viec-phu', { tieu_de: 'Ý của đợt sau' }); await nhip(b, goc);
+  const t = traLoi(b, 'P1-1');
+  if (!t || t.ket_qua !== 'ghi' || suKien(b).some(e => e.id === 'P1-1' && e.can_phan === true)) return ['đợt sau đánh thức giám sát: P1-1'];
+  const sai = [];
+  if (tepCua(k).length !== 2) sai.push(`cửa có ${tepCua(k).length} tệp, cần 2`);
+  if (f.length !== 1 || bam(path.join(k, 'tin-hieu', 'kho', f[0])) !== h) sai.push('ý đợt trước bị đổi');
+  return sai;
+}
+// AC-3 (Ngoài-3): hai việc mới không tieu_de, khác cau_giao → hai tệp, không gộp.
+async function ca3KhongTieuDe(goc) {
+  const k = kho(); const d = dot({ gocKho: k });
+  yc(d, 'P1-1', 'hang-moi', { cau_giao: 'Mở việc báo cáo tuần' }); yc(d, 'P2-1', 'hang-moi', { cau_giao: 'Mở việc nhắc hạn KR' }, '2026-10-05T11:20:00Z');
+  yc(d, 'P1-2', 'viec-phu', { viec: 'Thêm cột phòng ban' }, '2026-10-05T11:30:00Z'); yc(d, 'P2-2', 'viec-phu', { viec: 'Thêm cột phòng ban' }, '2026-10-05T11:40:00Z');
+  await nhip(d, goc);
+  const sai = [];
+  if (traLoi(d, 'P2-1')?.ket_qua !== 'ghi' || tepCua(k).length !== 3) sai.push('ý không tiêu đề bị gộp mất');
+  const t = traLoi(d, 'P2-2');
+  if (t?.ket_qua !== 'gop' || t.voi !== 'P1-2') sai.push(`hai việc phụ cùng «viec» không gộp: ${JSON.stringify(t)}`);
   return sai;
 }
 
@@ -368,7 +394,8 @@ function ca8(goc) {
 }
 function ca8Khong(goc) {
   const sai = []; const g = gocMay();
-  for (const [ten, tao] of [['0 ý chờ gom', () => kho8({ soTin: 2, gom: 2 })], ['kho không cửa', () => kho8({ cua: false })]]) {
+  const thieuThuMuc = () => { const k = kho8({ soTin: 0, gom: 0 }); rmSync(path.join(k, 'tin-hieu', 'kho'), { recursive: true, force: true }); git(k, 'add', '-A'); git(k, 'commit', '-qm', 'bỏ thư mục nguồn'); return k; };
+  for (const [ten, tao] of [['0 ý chờ gom', () => kho8({ soTin: 2, gom: 2 })], ['kho không cửa', () => kho8({ cua: false })], ['kho khai cửa chưa có thư mục nguồn', thieuThuMuc]]) {
     const k = tao(); const b = the(g, k); const a = the(goc, k);
     if (b.status !== 0 || !b.raw.trim()) { sai.push(`đối chứng gốc không chạy: ${ten}`); continue; }
     if (a.raw !== b.raw) sai.push(`thẻ đổi khi không có ý chờ gom: ${ten}`);
@@ -425,7 +452,7 @@ async function ca10(goc) {
     return [`bản lõi theo đợt thiếu module: ${mod}`];
   }
   await m.motNhip(d, IO);
-  return traLoi(d, 'P1-1')?.ket_qua === 'ghi' && tepCua(k).includes('P1-1.json') ? [] : [`bản lõi không ghi vào cửa: ${JSON.stringify(traLoi(d, 'P1-1'))}`];
+  return traLoi(d, 'P1-1')?.ket_qua === 'ghi' && tepCua(k).includes('thu-P1-1.json') ? [] : [`bản lõi không ghi vào cửa: ${JSON.stringify(traLoi(d, 'P1-1'))}`];
 }
 
 // ── Chạy: lành (KIT) rồi đỏ (bản sao) ─────────────────────────────────────────────────────────────────────────────
@@ -476,6 +503,10 @@ if (want('CT-3-lan-hai') || want('CT-3-gop')) { for (const id of ['CT-3-lan-hai'
 const l3k = await lanh('CT-3-khac-than', g => ca3KhacThan(g));
 await do_('CT-3-do', [[CUA, 'JSON.stringify({ phien, loai, hang, noi_dung, luc }, null, 2)', "JSON.stringify({ phien, loai, hang, noi_dung, luc, _ten: 'x' }, null, 2)"]], g => ca3(g), 'tệp tín hiệu khác thân yêu cầu: P1-1', l3);
 await do_('CT-3-do2', [[CUA, "if (cu === than) return 'da-co';", "if (cu === than) { fs.writeFileSync(tep, than); return 'da-co'; }"]], g => ca3(g), 'nhịp xét hai lần đẻ tệp mới: P1-1', l3);
+const l3d = await lanh('CT-3-dot-sau', g => ca3DotSau(g));
+const l3t = await lanh('CT-3-khong-tieu-de', g => ca3KhongTieuDe(g));
+await do_('CT-3-do4', [[PL, 'const tenTep = `${tenDot}-${y._ten}`;', 'const tenTep = y._ten;']], g => ca3DotSau(g), 'đợt sau đánh thức giám sát: P1-1', l3d);
+await do_('CT-3-do5', [[YC, 'const tieuDeYc = (nd) => chuanHoa(tieuDeCua(nd));', 'const tieuDeYc = (nd) => chuanHoa(nd?.tieu_de);']], g => ca3KhongTieuDe(g), 'ý không tiêu đề bị gộp mất', l3t);
 await do_('CT-3-do3', [[CUA, "return 'khac-than';", "fs.writeFileSync(tep, than); return 'moi';"]], g => ca3KhacThan(g), 'ý bị đè: P1-1', l3k);
 
 const l4 = await lanh('CT-4', g => ca4(g));
@@ -499,7 +530,8 @@ if (want('CT-7-mot-ghi')) (l7 ? ok('CT-7-mot-ghi', 'trong CT-7: tệp người d
 await do_('CT-7-do', [['scripts/gui-tin-hieu.mjs', 'const r = ghiVaoCua(cua, id, yc);', "fs.writeFileSync(path.join(cua.nguon, `${id}.json`), JSON.stringify(yc)); const r = { ket: 'moi', tep: path.join(cua.nguon, `${id}.json`) };"]], async g => (await ca7(g)).sai, 'hai khuôn tệp tín hiệu: nguoi-chu-kho-thu-1.json', l7);
 
 const l8 = await lanh('CT-8', g => ca8(g));
-await lanh('CT-8-khong', g => ca8Khong(g));
+const l8k = await lanh('CT-8-khong', g => ca8Khong(g));
+await do_('CT-8-do2', [['scripts/start-scan.mjs', 'const loiThat = cg.loi.filter((l) => !vang.includes(l));', 'const loiThat = cg.loi;']], g => ca8Khong(g), 'thẻ đổi khi không có ý chờ gom: kho khai cửa chưa có thư mục nguồn', l8k);
 await lanh('CT-8-sai-khuon', g => ca8SaiKhuon(g));
 await do_('CT-8-do', [['scripts/start-scan.mjs', 'const n = cg.tin_hieu.length;', 'const n = TH.docTinHieu(root, TH.docKhai(root).nguon).tinHieu.length;']], g => ca8(g), 'thẻ đếm cả ý đã gom: 5 ≠ 3', l8);
 
