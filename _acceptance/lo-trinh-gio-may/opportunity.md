@@ -3,10 +3,10 @@ schema_version: 1
 slug: lo-trinh-gio-may
 feature: Người nhìn lộ trình thấy mỗi hàng và mỗi mốc ước bằng giờ máy và phần trăm hạn mức tuần; ngày mốc do máy tính từ tổng giờ máy, mốc quá tải có cờ vàng, và mỗi vòng khép ghi giờ máy cùng token thật để ước lần sau sát hơn
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-15T07:38:15Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 15/10 — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -63,14 +63,14 @@ hoàn tất theo B′» mà chủ kho gọi tên 15/10. Chữ ký ở cổng nà
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] ở mốc phát hành đầu tiên BẮT ĐẦU sau khi RM6 lên `main`, ngày hoàn tất máy dự
+- Câu hỏi phép đo trả lời: ở mốc phát hành đầu tiên BẮT ĐẦU sau khi RM6 lên `main`, ngày hoàn tất máy dự
   báo lúc mốc bắt đầu (đóng băng trong sổ dự báo, không phải ngày tính lại hôm khép) lệch ngày khép thật bao nhiêu, và
   mỗi vòng khép trong mốc ấy có giờ máy + token thật cạnh số ước không?
-- Kết quả nào là SỐNG: [đề xuất] lệch ≤ 1 ngày (nền: trung vị 9 ngày, tốt nhất 3 ngày), và 100 % vòng khép trong
+- Kết quả nào là SỐNG: lệch ≤ 1 ngày (nền: trung vị 9 ngày, tốt nhất 3 ngày), và 100 % vòng khép trong
   mốc có giờ máy + token thật cạnh số ước.
-- Kết quả nào là CHẾT: [đề xuất] lệch ≥ 3 ngày (không tốt hơn mốc gõ tay tốt nhất), hoặc có vòng khép thiếu số đo.
-- Ở giữa (ITERATE): [đề xuất] lệch 2 ngày — đọc sổ dự báo xem lệch ở giờ máy hay ở giờ chờ.
-- Timebox: [đề xuất] 2026-11-05 (mốc «Tinh chỉnh sau hai đợt thử»). Tới hạn mà chưa mốc nào bắt đầu sau khi RM6 gộp →
+- Kết quả nào là CHẾT: lệch ≥ 3 ngày (không tốt hơn mốc gõ tay tốt nhất), hoặc có vòng khép thiếu số đo.
+- Ở giữa (ITERATE): lệch 2 ngày — đọc sổ dự báo xem lệch ở giờ máy hay ở giờ chờ.
+- Timebox: 2026-11-05 (mốc «Tinh chỉnh sau hai đợt thử»). Tới hạn mà chưa mốc nào bắt đầu sau khi RM6 gộp →
   «chưa đọc được ở đây», không phải CHẾT.
 
 ## Kết quả prototype
@@ -86,9 +86,9 @@ Không dựng prototype — việc nội bộ của bộ công cụ; đo tại m
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: lời chủ kho 15/10 + gói B′ đã gọi tên; số trước cho thấy mốc gõ tay lệch trung vị 9 ngày.
-- **disposition = …** Căn cứ: không prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **decision = build** Căn cứ: lời chủ kho 15/10 + gói B′ đã gọi tên; số trước cho thấy mốc gõ tay lệch trung vị 9 ngày.
+- **disposition = —** Căn cứ: không prototype.
+- **Ngưỡng UAT chốt cùng lúc ký:** nhận nguyên ngưỡng máy đề xuất (lệch ≤ 1 ngày SỐNG · ≥ 3 ngày CHẾT · hạn đọc 05/11).
 
 ## Thước đo thành công → ứng viên criterion
 
