@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>124 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>125 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>30 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -45,7 +45,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Phát hành kit 2.31.0 — đóng số cho cửa sổ 2.30.0 → 2.31.0 (bảng Ngoài-n có căn cứ · đường nền không tính tệp của chính vòng · mốc là chiến dịch · rà soát lộ trình và gói road-map), để crm nhận một lần sau 2.30; làn V, không dựng răng (`release-2-31-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -182,6 +181,7 @@ flowchart TD
 - Phát hành kit 2.29.0 — đóng số cho cửa sổ 2.28.0 → 2.29.0 (cỡ vòng ở bước thiết kế · trạng thái đợt trong app · luật sản phẩm của kho · câu trạng thái cho người gửi tín hiệu · kiểm bản cài sau phát hành · hai thước của gói dieu-phoi thôi nói sai ở kho tiêu thụ), để crm nhận ở quãng lặng của đợt r2; làn V, không dựng răng (`release-2-29-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.30.0 — đóng số cho cửa sổ 2.29.0 → 2.30.0 (khoá do dãy giữ tính nhịp khoá · bộ đọc hồ sơ khoan dung · định tuyến mục Ngoài-n theo mã mục), để crm nhận thẳng từ bản đang cài; làn V, không dựng răng (`release-2-30-0`)
+- Phát hành kit 2.31.0 — đóng số cho cửa sổ 2.30.0 → 2.31.0 (bảng Ngoài-n có căn cứ · đường nền không tính tệp của chính vòng · mốc là chiến dịch · rà soát lộ trình và gói road-map), để crm nhận một lần sau 2.30; làn V, không dựng răng (`release-2-31-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)
