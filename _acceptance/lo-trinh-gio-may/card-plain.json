@@ -1,47 +1,4 @@
 {
-  "feature_plain": "Người nhìn lộ trình thấy mỗi việc tốn bao nhiêu giờ máy và bao nhiêu phần trăm hạn mức tuần, mỗi mốc có ngày bắt đầu và ngày xong do máy tính, mốc không kịp có cờ vàng; mỗi vòng làm xong tự ghi giờ máy và lượng dùng thật để lần ước sau sát hơn.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ hiện giờ máy của từng việc trên trang lộ trình: số chủ kho khai tay thì dùng số ấy, không khai thì máy ước và ghi rõ «máy ước»; khai sai thì có cờ; kho chưa khai gì vẫn chạy y như cũ, chỉ phải vẽ lại trang một lần khi nâng kit."},
-    {"id": "AC-2", "p": "Sẽ chuyển từ ước theo luật sang ước theo số đo khi đã có từ năm vòng xong trở lên cùng hạng; phần trăm hạn mức chỉ ước khi đủ năm vòng có số đo, chưa đủ thì ghi «chưa ước (k/5 vòng đo)»."},
-    {"id": "AC-3", "p": "Sẽ cộng giờ máy cho từng mốc trên trang (gồm cả giờ gộp và giờ cắt bản, không đếm cắt bản hai lần), hiện dự báo đã đóng băng lúc mốc bắt đầu và cờ vàng «mốc quá tải» khi dự báo trễ hơn mục tiêu; trang không đổi theo ngày xem."},
-    {"id": "AC-4", "p": "Sẽ in ở lệnh xem bản đồ một dòng cho mỗi mốc chưa xong: bắt đầu dự kiến, giờ máy, phần trăm hạn mức, ngày hoàn tất dự kiến, ngày mục tiêu — mốc phụ thuộc mốc khác thì bắt đầu sau mốc ấy, việc đang dở chỉ tính phần còn lại."},
-    {"id": "AC-5", "p": "Sẽ đóng băng dự báo của mốc ngay lúc mở một việc trong mốc, ghi một lần và không bao giờ ghi đè, để sau này so được với ngày xong thật."},
-    {"id": "AC-6", "p": "Sẽ tự đo mỗi vòng ngay khi lượt chấm trả về: giờ máy thật, giờ chờ, lượng dùng theo từng loại; các tác tử chạy song song không bị cộng trùng; máy không có bản ghi phiên thì ghi «không đọc được ở đây» thay vì số bịa; có thêm một ca chạy trên bản ghi thật của chính vòng này."},
-    {"id": "AC-7", "p": "Sẽ quy đổi lượng dùng của vòng ra phần trăm hạn mức tuần bằng hai lần đọc hạn mức trong cùng tuần; đổi tài khoản giữa chừng hay thiếu lần đọc thì để trống kèm lý do, không đoán."},
-    {"id": "AC-8", "p": "Sẽ có một lệnh đo độ lệch: với mỗi mốc đã xong, in ngày dự báo đóng băng, ngày xong thật, lệch bao nhiêu ngày, giờ chờ ước so với đo, và từng việc ước so với đo — việc thiếu số đo được gọi tên, không bị giấu."},
-    {"id": "AC-9", "p": "Sẽ gắn bước đo vào vòng làm việc chuẩn (đọc hạn mức lúc mở và khi chấm xong, rồi ghi số đo), và tài liệu nói rõ khoá giờ máy cùng cách đọc lộ trình cũ chưa khai."}
-  ],
-  "wont_do": [
-    {"id": "OOS-1", "p": "Chưa đưa giờ máy vào khối dữ liệu mà các trang chiếu bên ngoài (như trang trong CRM) đọc — đổi khối ấy làm mọi bản sao ở kho khác phải cập nhật, để vòng riêng."},
-    {"id": "OOS-2", "p": "Không đo bù các vòng đã ký từ bản ghi cũ — ghi vào hồ sơ đã ký là chạm hồ sơ đã ký; năm vòng đầu sau khi gộp tự đủ số."},
-    {"id": "OOS-3", "p": "Không tự tính hệ số khi việc chạm vùng máy khác, hàng chờ khoá máy hay lô gộp — chủ kho khai giờ máy tay khi biết."},
-    {"id": "OOS-4", "p": "Không xếp nhiều làn song song trong một mốc — mỗi mốc tính là một làn chạy lần lượt."},
-    {"id": "OOS-5", "p": "Thẻ khởi động phiên không đổi gì."}
-  ],
-  "scope_plain": "Năm thứ để ngoài vòng này, mỗi thứ đã có lý do và đường quay lại:",
-  "coverage_plain": [
-    {"i": 0, "p": "Nguồn số của một việc — khai tay đúng, khai tay sai, ước theo luật, ước theo số đo, việc chưa khai hạng: đủ cả năm (AC-1 hiện giờ máy, AC-2 chuyển sang số đo); thước là bảng luật chủ kho nói 15/10 và cách FogBugz dự báo ngày giao từ lịch sử ước-so-thật."},
-    {"i": 1, "p": "Những chỗ người hoặc máy chạm tới số giờ máy:"},
-    {"i": 2, "p": "trang lộ trình (AC-1 tới AC-3, không đổi theo ngày xem);"},
-    {"i": 3, "p": "lệnh xem bản đồ theo hôm nay (AC-4 dòng ngày dự kiến);"},
-    {"i": 4, "p": "lúc mở một việc — đóng băng dự báo (AC-5);"},
-    {"i": 5, "p": "sổ chạy của hồ sơ — số đo vòng và phần trăm hạn mức (AC-6, AC-7);"},
-    {"i": 6, "p": "lệnh đo độ lệch (AC-8);"},
-    {"i": 7, "p": "bước của vòng làm việc chuẩn (AC-9) — thước: mọi chỗ trong bộ đọc lộ trình và hai bước mở/chấm của vòng."},
-    {"i": 8, "p": "Trạng thái việc — chưa mở, đang dở (chỉ tính phần còn lại), đã xong (vào phép ước, ra khỏi tổng mốc): AC-2, AC-3, AC-4; thước là ba nhóm tiến độ trang đã dùng."},
-    {"i": 9, "p": "Dữ liệu đo có thể ở năm dạng:"},
-    {"i": 10, "p": "đủ;"},
-    {"i": 11, "p": "máy không có bản ghi phiên (ghi «không đọc được ở đây»);"},
-    {"i": 12, "p": "thiếu lần đọc hạn mức;"},
-    {"i": 13, "p": "đổi tài khoản giữa hai lần đọc;"},
-    {"i": 14, "p": "bản ghi không liên quan hay lời nhắn lặp (AC-6, AC-7) — cờ vàng: cấu trúc bản ghi phiên không có đặc tả công bố, nên có thêm ca chạy trên bản ghi thật."},
-    {"i": 15, "p": "Để sau: khối dữ liệu cho trang chiếu ngoài, đo bù vòng cũ, hệ số khác máy, nhiều làn song song. Không bao giờ: ước theo ngày người, hiện lượng dùng thô cho người (chủ kho 15/10: đơn vị là phần trăm hạn mức tuần)."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Việc bật giờ máy ở mọi kho bị ghi là máy tự quyết, trong khi đó là đánh đổi chủ kho phải chọn (kho nào nâng kit cũng phải vẽ lại trang) — đã sửa: thành câu hỏi Hỏi-3, và thêm ca kiểm đường nâng kit."},
-    {"i": 1, "p": "Bộ đo chỉ chạy trên bản ghi phiên giả do chính nó dựng, nên có thể xanh mà đo thật sai — đã sửa: thêm ca chạy trên bản ghi thật của chính vòng này, máy không có bản ghi thì bỏ qua có tên chứ không xanh."},
-    {"i": 2, "p": "Mốc phát hành có việc cắt bản sẽ bị đếm phần cắt bản hai lần, trễ 3–5 giờ máy đúng ở mốc mà ngưỡng đọc — đã sửa: việc cắt bản chính là phần cắt bản, thêm ca kiểm và ca đỏ."},
-    {"i": 3, "p": "Chưa nói các tác tử chạy song song tính giờ thế nào, nên năm tác tử 20 phút có thể thành 100 phút — đã sửa: tính theo giờ đồng hồ chồng nhau, chỉ đếm trong cửa sổ của vòng, có hai ca đỏ."},
-    {"i": 4, "p": "Hai nhánh của ngưỡng (lệch do giờ máy hay do giờ chờ; vòng thiếu số đo) chưa có đường đo — đã sửa: dự báo ghi cả giờ chờ, lệnh đo lệch in giờ chờ và gọi tên việc thiếu số đo."}
-  ]
+  "feature_plain": "Người nhìn lộ trình thấy mỗi việc tốn bao nhiêu giờ máy (và % hạn mức tuần khi đã đủ số đo), mỗi mốc có ngày bắt đầu và ngày xong do máy tính, mốc không kịp có cờ vàng; mỗi vòng tự ghi giờ máy và lượng dùng thật — chính vòng này là vòng đầu tự đo: 4,48 giờ máy.",
+  "scope_plain": "Năm thứ để ngoài vòng, như anh đã duyệt ở Cổng Phạm vi:"
 }
