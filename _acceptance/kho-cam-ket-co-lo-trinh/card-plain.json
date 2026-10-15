@@ -1,0 +1,38 @@
+{
+  "feature_plain": "Kho nào chọn cam kết có lộ trình thì không mở được việc mới nằm ngoài kế hoạch — và khi mở việc từ một câu mô tả, máy tự thêm việc đó vào kế hoạch trước, nên người không phải làm gì thêm.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ từ chối mở một việc mới không thuộc hàng nào của kế hoạch, ở kho đã bật chặn, và nói đúng hai cách gỡ: mở từ một hàng, hoặc để máy thêm hàng."},
+    {"id": "AC-2", "p": "Sẽ cho qua việc đã gắn đúng một hàng có thật, và hiểu «gắn hàng» y hệt cách trang lộ trình hiểu — hai bên không được lệch nhau."},
+    {"id": "AC-4", "p": "Sẽ chỉ chặn khi kho bật cả gói lộ trình cho cả đội lẫn dòng khoá chặn; gõ sai giá trị khoá thì báo tên khoá, không đoán."},
+    {"id": "AC-7", "p": "Sẽ tự thêm một hàng vào kế hoạch khi việc được mở từ một câu mô tả, rồi việc đi tiếp như thường; mở lại việc đó về sau không đẻ thêm bước duyệt."},
+    {"id": "AC-8", "p": "Sẽ không đụng vào kế hoạch khi tệp kế hoạch viết lệch khuôn, việc đã có hàng, hay câu mô tả rỗng; câu mô tả có ký tự lạ được ghi nguyên văn, không bị chạy như lệnh."},
+    {"id": "AC-9", "p": "Sẽ có hướng dẫn nói cách bật, cách tắt và chỗ chặn còn hở (ghi tệp bằng lệnh dòng lệnh) cho người dùng gói lộ trình."}
+  ],
+  "wont_do": [
+    {"id": "AC-3", "p": "Sẽ KHÔNG chặn việc đã mở từ trước, kể cả việc nằm ngoài kế hoạch — không bắt kho dọn sổ cũ."},
+    {"id": "AC-5", "p": "Chặn lúc gộp: việc mới ngoài kế hoạch lọt qua lúc mở (vì ghi tệp bằng dòng lệnh) vẫn bị bắt trước khi vào nhánh chính."},
+    {"id": "AC-6", "p": "Sẽ KHÔNG đổi gì ở mọi kho chưa bật — đo trên mọi kho thật của máy."},
+    {"id": "OOS-1", "p": "Không hỏi «gắn vào mốc nào» trên thẻ duyệt cho hàng máy tự thêm — cờ trên thẻ khởi động đã nhắc."},
+    {"id": "OOS-2", "p": "Không bật chặn cho kit hay crm — mỗi kho tự bật bằng một dòng."},
+    {"id": "OOS-3", "p": "Không thêm lệnh bật/tắt riêng trong gói lộ trình — một dòng cấu hình là đủ."},
+    {"id": "OOS-4", "p": "Không miễn trừ theo loại việc (cắt bản, sửa sự cố) — loại nào cũng được máy thêm một hàng."},
+    {"id": "OOS-5", "p": "Không tự thêm hàng ở kho có kế hoạch mà chưa bật chặn — làm vậy là đổi mặc định cho mọi kho."},
+    {"id": "OOS-6", "p": "Không ghi hàng máy thêm vào sổ tự dời việc — dấu vết là một câu trong chính hàng và lịch sử commit."}
+  ],
+  "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Kho cam kết hay chưa: đủ mọi tổ hợp gói lộ trình (vắng · cả đội · chỉ một người) × dòng khoá (vắng · tắt · bật · gõ sai) × chế độ cưỡng chế — AC-4 (chỉ bật khi đủ hai điều kiện), AC-6 (kho thật không đổi)."},
+    {"i": 1, "p": "Cách một việc gắn vào kế hoạch: hàng trỏ việc · việc trỏ hàng · trỏ sai mã · trỏ sai tệp · trỏ nhầm việc khác — AC-2 (hiểu như trang lộ trình)."},
+    {"i": 2, "p": "Tuổi việc: mới hoàn toàn · đã có phiếu cơ hội · đã có hợp đồng · tệp phụ của việc mới — AC-1 (việc mới bị chặn), AC-3 (việc cũ không bị)."},
+    {"i": 3, "p": "Đường ghi tệp: qua công cụ ghi (bắt lúc mở) · qua dòng lệnh (bắt lúc gộp) — AC-1, AC-5 (lưới trước khi gộp)."},
+    {"i": 4, "p": "Máy tự thêm hàng: thêm được · tệp lệch khuôn · trùng · câu rỗng hoặc có ký tự lạ · kho chưa bật — AC-7, AC-8."},
+    {"i": 5, "p": "Hướng dẫn và bảng mã thoát cho phiên máy: khớp hai chiều với hành vi thật — AC-9."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Vế «kho chưa bật không đổi gì» chỉ được thử với việc ghi hợp đồng, trong khi vòng này còn soi thêm phiếu cơ hội — đã sửa: thử cả bốn kiểu ghi (64 lần chạy) và thêm một ca phá thử."},
+    {"i": 1, "p": "Cách đo «máy tự gỡ bao nhiêu lần» trỏ vào một sổ mà thiết kế cấm ghi, và vế «chủ kho tắt chặn» không có cách đo — đã sửa: đo bằng câu đánh dấu trong hàng máy thêm và lịch sử dòng khoá; lượt gọi người do chặn vẫn phải đếm tay (khai giới hạn)."},
+    {"i": 2, "p": "Phép so với trang lộ trình rỗng nghĩa khi tệp mới chỉ đang chờ ghi — đã sửa: ghi tệp vào bản sao rồi mới so, và kiểm việc đó có mặt ở cả 6 ca."},
+    {"i": 3, "p": "Căn cứ của «gõ sai khoá thì chặn» chỉ liên quan chứ không quyết — đã sửa: ghi lại lý do vì sao cách «coi như tắt» bị loại (kho tưởng đã bật mà việc lọt im lặng), thêm ca khoá sai cho lệnh tự thêm hàng."},
+    {"i": 4, "p": "Mã hàng máy thêm trùng tên việc nên mở lại bằng tên việc có thể rẽ nhầm sang bước duyệt cơ hội — đã sửa: thêm bước kiểm mở lại đi đúng đường tiếp tục; khai cửa sổ hở nếu phiên dừng giữa lúc thêm hàng và lúc ghi hợp đồng."}
+  ]
+}
