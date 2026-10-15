@@ -1,38 +1,3 @@
 {
-  "feature_plain": "Kho chọn cài gói road-map chạy lệnh khởi tạo kho một lần là có ngay lộ trình rỗng đúng khuôn, bước kiểm CI xanh — không phải tự làm năm việc tay như hôm nay.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ chỉ tạo lộ trình khi cả kho đã chọn gói road-map (khai trong tệp cấu hình đội commit); một người cài thử riêng, hay cài cho mọi kho, thì không đổi byte nào và nói rõ vì sao."},
-    {"id": "AC-2", "p": "Sẽ tạo tệp lộ trình rỗng đúng khuôn, mang tên kho, ở dạng mà máy tự dời hàng của RM2 ghi được, kèm một dòng chỉ cách thêm việc."},
-    {"id": "AC-3", "p": "Sẽ tự khai lộ trình trong cấu hình kho và miễn kiểm trang lộ trình — chỉ thêm dòng, không đổi gì khác đang được miễn."},
-    {"id": "AC-4", "p": "Sẽ để bước kiểm CI xanh ngay ở commit khởi tạo (hôm nay đỏ), và thẻ khởi động thôi báo «kho chưa khai lộ trình»."},
-    {"id": "AC-5", "p": "Sẽ chạy lại an toàn: lần hai không đổi gì, đứt giữa chừng ở bất kỳ bước nào thì chạy lại là xong; gặp tệp có sẵn của kho thì dừng, không ghi đè."},
-    {"id": "AC-6", "p": "Sẽ chép thêm hai tệp CI lộ trình cần cho kho đã chép bộ kiểm CI, và không đụng bản chép cũ khác phiên bản (chỉ báo một dòng)."},
-    {"id": "AC-7", "p": "Sẽ chỉ việc kế trên thẻ khi lộ trình chưa có việc nào (thêm việc bằng cắt lượt, rồi mở vòng), và vòng đầu mở được từ hàng vừa thêm; máy tự dời hàng vẫn chạy trên tệp này."},
-    {"id": "AC-8", "p": "Sẽ ghi bước mới vào lệnh khởi tạo kho và hướng dẫn cài gói, không đổi một chữ nào ở các phần khác của lệnh."}
-  ],
-  "wont_do": [
-    {"id": "AC-9", "p": "Sẽ KHÔNG đổi byte nào ở 14 kho đang có trên máy (chưa kho nào cài road-map); kho đã có lộ trình như kit cũng không đổi gì khi cài thêm gói."},
-    {"id": "OOS-1", "p": "KHÔNG làm việc máy tự thêm hàng khi mở vòng từ một câu mô tả tự do — đây là câu Hỏi-1 dưới."},
-    {"id": "OOS-2", "p": "KHÔNG chặn mở vòng không thuộc hàng — việc của RM5."},
-    {"id": "OOS-3", "p": "KHÔNG thêm lệnh /road-map:khoi-tao riêng — lệnh khởi tạo kho đã là cửa vào."},
-    {"id": "OOS-4", "p": "KHÔNG tự bật bản đồ sản phẩm, cài gói hộ kho, hay đưa road-map vào bộ gói mặc định — bước chỉ nói ra một dòng."},
-    {"id": "OOS-5", "p": "KHÔNG để hàng mẫu trong tệp — hàng mẫu sẽ hiện thành «việc kế» giả trên kho thật."},
-    {"id": "OOS-6", "p": "KHÔNG ghi đè bản chép CI cũ — chép lại theo đợt phát hành như mọi tệp CI khác."}
-  ],
-  "scope_plain": "Những phần dưới cố ý để ngoài vòng này:",
-  "coverage_plain": [
-    {"i": 0, "p": "Gói road-map ở mọi chỗ có thể khai (không cài, tắt, cài cho kho, cài riêng một người, cài cho mọi kho, tệp hỏng) — AC-1, AC-9."},
-    {"i": 1, "p": "Lộ trình ở mọi trạng thái đầu (chưa khai, đã khai có/không tệp, chỗ đặt tệp bị chiếm) — AC-2, AC-5, AC-9."},
-    {"i": 2, "p": "Cấu hình miễn kiểm (thiếu, có luật rộng sẵn, chưa có khối nào, đã đủ) — đủ khi tập được miễn chỉ thêm đúng trang lộ trình — AC-3, AC-5."},
-    {"i": 3, "p": "Bộ kiểm CI chép trong kho (chưa chép, chép thiếu, chép lệch bản) — AC-6."},
-    {"i": 4, "p": "Bước kế của chủ kho sau khởi tạo (kiểm CI, thẻ khởi động, rà soát, mở vòng đầu) — AC-4, AC-7."},
-    {"i": 5, "p": "Lời dặn trong lệnh khởi tạo kho khớp đúng việc lệnh làm — AC-8."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Bản đầu tính cả cài-riêng-một-người là kho đã chọn — một người thử gói có thể vô tình đưa lộ trình cho cả kho. Đã sửa: chỉ tính cấu hình đội commit."},
-    {"i": 1, "p": "Bản đầu ghi tệp trước khi khai cấu hình — đứt đúng lúc ấy thì mọi lần chạy lại dừng mãi. Đã sửa thứ tự và đo đủ bốn điểm đứt."},
-    {"i": 2, "p": "Phép đo viết cứng tên gói, nên tên đổi thì bước im lặng không chạy mà phép đo vẫn xanh. Đã sửa: tên rút từ danh mục gói, kèm ca phá thử."},
-    {"i": 3, "p": "Lời hứa «máy tự dời hàng ghi được tệp này» mới chỉ đo hình dạng tệp. Đã thêm ca chạy thật bộ tự dời trên tệp khởi tạo."},
-    {"i": 4, "p": "Kho chưa có khối miễn kiểm: chưa đo được là không làm mất miễn trừ cũ. Đã đo bằng quan hệ «được miễn sau = trước + đúng trang lộ trình»."}
-  ]
+  "feature_plain": "Kho chọn cài gói road-map chạy lệnh khởi tạo kho một lần là có ngay lộ trình rỗng đúng khuôn, bước kiểm CI xanh — không phải tự làm năm việc tay như hôm nay."
 }
