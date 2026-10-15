@@ -8,6 +8,8 @@
 
 **Tech Stack:** Node ≥ 20 (CJS cho hook/lib, ESM cho scripts), bash cho lưới trước-merge, `node:test`-free ca tự viết theo nếp `tests/scripts/kho-moi-cai-goi-road-map.test.mjs` (`PASS: CK-…` / `FAIL: CK-… — …`).
 
+**Duyệt Gate 1.5:** Manh Phan, 16/10 («duyệt kế hoạch»).
+
 **Spec:** `docs/superpowers/specs/2026-10-16-kho-cam-ket-co-lo-trinh-design.md` · hợp đồng `_acceptance/kho-cam-ket-co-lo-trinh/contract.md` · thước `evals.yaml`.
 
 ## Global Constraints
