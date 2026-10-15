@@ -20,7 +20,10 @@ trong vòng này. Mọi lần ghi vào thư mục đợt (xin lượt, nhả lư
 nguyên» của tệp `luat` trong JSON — khối này không chép cách ghi; đọc `luat` trước S1.
 - **S0, hàng chưa có ô** (khối S0-MO-O in `moi: true`): không trình thẻ Cổng Đáng ở phiên thợ — gửi yêu cầu
   `hang-moi` (slug + câu giao) cho giám sát rồi chờ trả lời bằng lệnh nền. Cổng Đáng của hàng phát sinh gom về
-  giám sát.
+  giám sát. Yêu cầu này KHAI CHẶN — phiên đứng chờ nó; không khai thì kho có cửa tín hiệu trả «đã ghi» và thợ kẹt:
+  <!-- <<<TRONG-DOT-HANG-MOI -->
+  `node <thư mục đợt>/loi/dieu-phoi.mjs yeu-cau hang-moi --chan --hang <slug> --noi-dung '{"cau_giao":"<câu giao>"}'`
+  <!-- TRONG-DOT-HANG-MOI>>> -->
 - **S1:** không mở hỏi đáp brainstorm — trả lời từ ô của hàng (hoặc ô dù nó trỏ), câu giao của hàng lộ trình và
   `luat`; mỗi câu xin duyệt thiết kế thành một dòng sổ `approach` (Cổng Phạm vi vẫn theo luật làn V); không in
   khối GOAL-TEMPLATE. Câu chỉ người biết → gửi yêu cầu `can-nguoi` (câu hỏi + khuyến nghị) TRƯỚC khi hỏi bằng

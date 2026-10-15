@@ -311,6 +311,9 @@ for name in LOCKED_ROAD_MAP:
     assert "disable-model-invocation: true" in t, f"road-map/commands/{name}.md lacks lock"
 xem = (root / "road-map/commands/xem.md").read_text()
 assert "disable-model-invocation" not in xem, "road-map/commands/xem.md must stay model-invocable (chỉ đọc)"
+# Hồ sơ cua-tin-hieu-giua-chien-dich (RM3): gửi một ý không phải quyết định — lệnh gui giữ mở.
+gui = (root / "road-map/commands/gui.md").read_text()
+assert "disable-model-invocation" not in gui, "road-map/commands/gui.md must stay model-invocable (gửi ý, không phải quyết định)"
 PY
 
 run "P33 no source file globs the plugin cache (resolve-plugin.mjs is the only path)" \

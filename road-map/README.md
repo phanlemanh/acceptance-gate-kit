@@ -16,6 +16,8 @@ claude plugin install road-map@acceptance-gate-kit --scope project
 - `/road-map:xem` — bản đồ lộ trình của kho hiện tại: xong · đang dở · kế, rà soát, và các lần tự áp (chỉ đọc).
 - `/road-map:ghim <mã>` · `/road-map:bo-ghim <mã>` — miễn trừ / bỏ miễn trừ một hàng khỏi tự áp (chỉ người gõ).
 - `/road-map:tra-lai <mã>` — trả lại một lần máy tự áp: hàng về đúng chỗ cũ (chỉ người gõ).
+- `/road-map:gui <câu>` — gửi một ý vào cửa tín hiệu của kho; được trả «đã ghi, xử ở mốc khép», không gọi ai giữa
+  chừng. Kho phải khai `tin_hieu` trong `_acceptance/config.yaml`.
 
 ## Chính sách rà soát (tuỳ chọn, khai ở đầu tệp lộ trình)
 
