@@ -11,6 +11,11 @@ claude plugin install road-map@acceptance-gate-kit --scope project
 
 `acceptance-init` không tự bật gói này — kho chọn cài. Gói không có hook.
 
+Cài xong (với `--scope project`, để lựa chọn nằm trong `.claude/settings.json` đội commit), chạy
+`/acceptance-gate:acceptance-init` — chạy lại an toàn trên kho đã có cấu hình. Bước 5d của lệnh ấy tạo sẵn lộ trình
+rỗng đúng khuôn ở `docs/plan/lo-trinh.json`, khai `lo_trinh.tep`, miễn trừ `LO-TRINH.html` và vẽ trang — bước kiểm CI
+xanh ngay ở commit đó. Thêm việc bằng `/acceptance-gate:cat-luot`, mở vòng bằng `/feature-loop:feature-loop <mã>`.
+
 ## Lệnh
 
 - `/road-map:xem` — bản đồ lộ trình của kho hiện tại: xong · đang dở · kế, rà soát, và các lần tự áp (chỉ đọc).
