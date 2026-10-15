@@ -152,7 +152,21 @@ export function kiemKhuon(data) {
       if (!sai) chinhSach = { tuoi_ngay: t ?? null, tran_ke_tiep: n ?? null };
     }
   }
-  return { ten: chuoi(data.ten), hang, moc, daBac, tuVung, co, chinhSach };
+  // Chính sách tự áp của CHIẾN DỊCH (hồ sơ ap-chinh-sach-lo-trinh): khối `chinh_sach` trên mốc `phat-hanh` — chủ kho chốt
+  // một lần lúc cắt mốc. Sai → cờ khuôn và chính sách của mốc đó KHÔNG chạy (không đoán). Khoá theo chỉ số trong `moc`.
+  const mocChinhSach = new Map();
+  moc.forEach((m, i) => {
+    if (m.chinh_sach === undefined) return;
+    const tm = tenNganMoc(m) || `#${i + 1}`; const cs = m.chinh_sach;
+    if (chuoi(m.loai) !== 'phat-hanh') { co.push(`chính sách chỉ khai ở mốc phát hành: ${tm}`); return; }
+    if (cs == null || typeof cs !== 'object' || Array.isArray(cs)) { co.push(`mốc ${tm}: chinh_sach phải là một object`); return; }
+    let sai = false;
+    if (cs.tu_ap !== undefined && typeof cs.tu_ap !== 'boolean') { co.push(`mốc ${tm}: chinh_sach.tu_ap phải là true hoặc false`); sai = true; }
+    for (const k of ['tuoi_ngay', 'nhip_ngay', 'tran_ap']) if (cs[k] !== undefined && !(Number.isInteger(cs[k]) && cs[k] > 0)) { co.push(`mốc ${tm}: chinh_sach.${k} phải là số nguyên dương`); sai = true; }
+    if (cs.tran_ke_tiep !== undefined && !(Number.isInteger(cs.tran_ke_tiep) && cs.tran_ke_tiep >= 0)) { co.push(`mốc ${tm}: chinh_sach.tran_ke_tiep phải là số nguyên không âm`); sai = true; }
+    if (!sai) mocChinhSach.set(i, { tu_ap: cs.tu_ap === true, tuoi_ngay: cs.tuoi_ngay ?? null, tran_ke_tiep: cs.tran_ke_tiep ?? null, nhip_ngay: cs.nhip_ngay ?? 1, tran_ap: cs.tran_ap ?? 5 });
+  });
+  return { ten: chuoi(data.ten), hang, moc, daBac, tuVung, co, chinhSach, mocChinhSach };
 }
 
 // ── Suy trạng thái ────────────────────────────────────────────────────────────
@@ -294,6 +308,8 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
     moc: khuon.moc, daBac: khuon.daBac, demTheoO, daGiao,
     // Chính sách rà soát (hồ sơ ra-soat-lo-trinh): khoá CHỈ có khi kho khai đúng — kho không khai giữ lớp phân tích từng byte.
     ...(khuon.chinhSach ? { chinhSach: khuon.chinhSach } : {}),
+    // Chính sách tự áp trên mốc (hồ sơ ap-chinh-sach-lo-trinh): cùng luật — khoá CHỈ có khi có mốc khai đúng.
+    ...(khuon.mocChinhSach && khuon.mocChinhSach.size ? { mocChinhSach: khuon.mocChinhSach } : {}),
   };
 }
 
@@ -361,6 +377,11 @@ export const CO_DICH = [
   { ten: 'chinh-sach-object', re: /^khối chinh_sach phải là một object$/, ra: () => ({ ma: null, chu: 'chính sách rà soát phải là một object' }) },
   { ten: 'chinh-sach-tuoi', re: /^chinh_sach\.tuoi_ngay phải là số nguyên dương$/, ra: () => ({ ma: null, chu: 'chính sách tuoi_ngay phải là số nguyên dương' }) },
   { ten: 'chinh-sach-tran', re: /^chinh_sach\.tran_ke_tiep phải là số nguyên không âm$/, ra: () => ({ ma: null, chu: 'chính sách tran_ke_tiep phải là số nguyên không âm' }) },
+  { ten: 'cs-moc-loai', re: /^chính sách chỉ khai ở mốc phát hành: (.+)$/, ra: m => ({ ma: null, chu: `chính sách chỉ khai ở mốc phát hành: ${m[1]}` }) },
+  { ten: 'cs-moc-object', re: /^mốc (.+?): chinh_sach phải là một object$/, ra: m => ({ ma: null, chu: `chính sách tự áp của mốc ${m[1]} phải là một object` }) },
+  { ten: 'cs-moc-tu-ap', re: /^mốc (.+?): chinh_sach\.tu_ap phải là true hoặc false$/, ra: m => ({ ma: null, chu: `chính sách tu_ap phải là true hoặc false (mốc ${m[1]})` }) },
+  { ten: 'cs-moc-duong', re: /^mốc (.+?): chinh_sach\.(tuoi_ngay|nhip_ngay|tran_ap) phải là số nguyên dương$/, ra: m => ({ ma: null, chu: `chính sách ${m[2]} phải là số nguyên dương (mốc ${m[1]})` }) },
+  { ten: 'cs-moc-tran', re: /^mốc (.+?): chinh_sach\.tran_ke_tiep phải là số nguyên không âm$/, ra: m => ({ ma: null, chu: `chính sách tran_ke_tiep phải là số nguyên không âm (mốc ${m[1]})` }) },
   { ten: 'ho-so-ngoai-ke-hoach', re: /^hồ sơ (.+?) đang mở mà không thuộc việc nào trong kế hoạch$/, ra: m => ({ ma: null, chu: `hồ sơ ${m[1]} đang mở mà không thuộc việc nào trong kế hoạch — thêm việc cho nó, hoặc ghi mã việc vào hồ sơ` }) },
 ];
 export function dichCo(c) {
@@ -966,6 +987,27 @@ export function tuoiHang(root, tep) {
   return { cut, theoMa, ...(soCommit && !docDuoc ? { hong: 'không đọc được phiên bản nào trong lịch sử git' } : {}) };
 }
 const soNgay = (tu, den) => Math.round((Date.UTC(+den.slice(0, 4), +den.slice(5, 7) - 1, +den.slice(8, 10)) - Date.UTC(+tu.slice(0, 4), +tu.slice(5, 7) - 1, +tu.slice(8, 10))) / 864e5);
+// Chiến dịch đang chạy (hồ sơ ap-chinh-sach-lo-trinh): mốc `phat-hanh` có ngày ≥ hôm nay gần nhất; cùng ngày → đứng trước.
+export function chienDichDangChay(moc, today) {
+  let best = null;
+  (Array.isArray(moc) ? moc : []).forEach((m, i) => {
+    const ngay = chuoi(m && m.ngay);
+    if (!MOC_CHIEN_DICH(m) || !NGAY_RE.test(ngay) || ngay < today) return;
+    if (!best || ngay < best.ngay) best = { m, i, ngay };
+  });
+  return best ? { m: best.m, i: best.i } : null;
+}
+// Chính sách hiệu lực: lớp tệp (RM1, chỉ cờ) dưới, lớp chiến dịch đang chạy trên. `tu_ap` CHỈ từ mốc. null = không lớp nào.
+export function chinhSachHieuLuc(kq, today) {
+  const cd = chienDichDangChay(kq.moc, today);
+  const csM = cd && kq.mocChinhSach ? kq.mocChinhSach.get(cd.i) || null : null;
+  const csT = kq.chinhSach || null;
+  if (!csM && !csT) return null;
+  return {
+    tu_ap: !!(csM && csM.tu_ap), tuoi_ngay: csM?.tuoi_ngay ?? csT?.tuoi_ngay ?? null, tran_ke_tiep: csM?.tran_ke_tiep ?? csT?.tran_ke_tiep ?? null,
+    nhip_ngay: csM?.nhip_ngay ?? 1, tran_ap: csM?.tran_ap ?? 5, moc: cd ? tenNganMoc(cd.m) : null,
+  };
+}
 // `cacTep` = phanTichKho(...).cacTep. Trả mỗi lộ trình { tep, ten, de_xuat, lich_su_cut? } theo thứ tự hàng trong tệp.
 export function raSoat({ root, cacTep, sections, today }) {
   const TEN = Object.fromEntries(sections || []);
@@ -991,8 +1033,9 @@ export function raSoat({ root, cacTep, sections, today }) {
       // «Kế tiếp» = việc CHƯA BẮT ĐẦU (chưa mở · cân nhắc · sắp mở) — hàng tự khai bác/đang làm/ngoài phạm vi không đếm.
       if (!trongCD.has(ma) && chuaLam.has(d.chu)) keTiep.push(g);
     }
-    const cs = kq.chinhSach; let cut = false; const canh = [];
-    if (cs && keTiep.length) {
+    const cs = chinhSachHieuLuc(kq, today); let cut = false; const canh = [];
+    // Luật tuổi/trần chạy khi tệp khai chính sách (như RM1) hoặc chiến dịch đang chạy khai một trong hai ngưỡng.
+    if (cs && keTiep.length && (kq.chinhSach || cs.tuoi_ngay != null || cs.tran_ke_tiep != null)) {
       const th = tuoiHang(root, t.tep); cut = th.cut;
       if (th.hong) canh.push(`${CANH_TUOI} (${th.hong})`);
       const conLai = [];
@@ -1014,6 +1057,26 @@ export function raSoat({ root, cacTep, sections, today }) {
   });
 }
 
+// ── Tự áp chính sách (hồ sơ ap-chinh-sach-lo-trinh) ────────────────────────────────────────────────────────────────
+// Mỗi lộ trình: { tep, chien_dich, chinh_sach, bao_truoc, da_ap, huy, canh_bao? } — `chinh_sach` là chính sách hiệu lực
+// (không kèm tên mốc), null khi tệp không khai lớp nào. Chỉ tệp có `tu_ap` của chiến dịch đang chạy mới được áp.
+// Dòng chữ của một lộ trình đã tự áp — cùng câu cho lệnh `--ap`, lệnh xem và thẻ khởi động.
+export function dongTuAp(t, today) {
+  const ra = [];
+  for (const m of t.bao_truoc || []) ra.push(`  · ${m.ma} — sẽ ${DE_XUAT_CHU[m.de_xuat]} từ ${ddmmyyyy(m.ap_tu)}`);
+  for (const m of t.da_ap || []) ra.push(`  · ${m.ma} — đã ${DE_XUAT_CHU[m.de_xuat]} ${ddmmyyyy(m.ngay)} — trả lại: ${m.lenh_tra_lai}`);
+  for (const m of t.huy || []) ra.push(`  · ${m.ma} — thôi ${DE_XUAT_CHU[m.de_xuat]} (đề xuất không còn)`);
+  return ra;
+}
+export function apChinhSach({ root, cacTep, sections, today, ghi = false, hangMo = null }) {
+  return cacTep.map(t => {
+    if (!t.kq) return { tep: t.tep, loi: t.loi || 'không đọc được', bao_truoc: [], da_ap: [], huy: [] };
+    const cs = chinhSachHieuLuc(t.kq, today);
+    const { moc: tenMoc, ...csRa } = cs || {};
+    return { tep: t.tep, chien_dich: cs ? cs.moc : null, chinh_sach: cs ? csRa : null, bao_truoc: [], da_ap: [], huy: [] };
+  });
+}
+
 // Mã thoát là HỢP ĐỒNG với bảng S0-MO-O-THOAT của SKILL feature-loop: 0 = hàng (JSON) · 1 = không
 // phải hàng (kho chưa khai, không có mã) · 2 = lỗi dùng/ghi · 3 = mã ở nhiều lộ trình.
 const isMain = (() => {
@@ -1025,17 +1088,20 @@ if (isMain) {
   const bail = m => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(2); };
   const thoat = (c, m) => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(c); };
   let root = '.'; let ref = null; let moO = false; let slugMoi = null; let owner = ''; let raSoatCo = false; let jsonCo = false;
+  let apCo = false; let ghiCo = false;
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--mo-o') { moO = true; continue; }
     if (a[i] === '--ra-soat') { raSoatCo = true; continue; }
     if (a[i] === '--json') { jsonCo = true; continue; }
+    if (a[i] === '--ap') { apCo = true; continue; }
+    if (a[i] === '--write') { ghiCo = true; continue; }
     if (['--root', '--hang', '--slug', '--owner'].includes(a[i])) {
       const v = a[i + 1];
       // `--owner` nhận chuỗi rỗng: máy không khai email git vẫn mở được việc (Ngoài-9).
       if (v == null || (v === '' && a[i] !== '--owner') || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
       if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
-    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json])`);
+    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write])`);
   }
   // Rà soát (hồ sơ ra-soat-lo-trinh): chỉ đọc — 0 = in đề xuất · 1 = kho chưa khai · 2 = lỗi dùng.
   if (raSoatCo) {
@@ -1057,7 +1123,28 @@ if (isMain) {
     for (const t of rs) if (t.loi) process.stderr.write(`lo-trinh: không đọc được tệp ý định — ${t.tep}: ${t.loi}\n`);
     process.exit(rs.some(t => t.loi) ? 1 : 0);
   }
-  if (jsonCo) bail('--json chỉ đi với --ra-soat');
+  // Tự áp (hồ sơ ap-chinh-sach-lo-trinh): 0 = xong · 1 = kho chưa khai / tệp không đọc được · 2 = lỗi dùng, tệp không chuẩn.
+  if (apCo) {
+    if (ref != null || moO || raSoatCo) bail('--ap không đi cùng --hang, --mo-o hay --ra-soat');
+    const today = process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10);
+    if (!NGAY_RE.test(today)) bail(`ACCEPTANCE_TODAY phải dạng YYYY-MM-DD (đang là «${today}»)`);
+    root = path.resolve(root);
+    if (docCacTep(root) == null) thoat(1, `kho chưa khai ${KHOA} trong _acceptance/config.yaml`);
+    const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
+    const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
+    const kq = apChinhSach({ root, cacTep: kho.cacTep, sections: PM.SECTIONS, today, ghi: ghiCo });
+    for (const t of kq) if (t.thoat === 2) bail(t.thong_diep);
+    if (jsonCo) process.stdout.write(JSON.stringify(kq) + '\n');
+    else {
+      const nhieu = kq.length > 1; const tien = t => (nhieu ? `${t.tep}: ` : '');
+      const dong = kq.flatMap(t => [...dongTuAp(t, today).map(x => tien(t) + x), ...(t.canh_bao || []).map(c => `${tien(t)}  ! ${c}`)]);
+      if (dong.length) process.stdout.write(dong.join('\n') + '\n');
+    }
+    for (const t of kq) if (t.loi) process.stderr.write(`lo-trinh: không đọc được tệp ý định — ${t.tep}: ${t.loi}\n`);
+    process.exit(kq.some(t => t.loi) ? 1 : 0);
+  }
+  if (ghiCo) bail('--write chỉ đi với --ap');
+  if (jsonCo) bail('--json chỉ đi với --ra-soat hoặc --ap');
   if (ref == null) bail('thiếu --hang <mã>');
   root = path.resolve(root);
   const khai = docCacTep(root);
