@@ -61,7 +61,9 @@ phần còn lại (kết quả bằng lần chạy liền một mạch), và ch�
    Kho chưa chép lớp CI → bỏ bước, một dòng.
 5. **Trang.** `LO-TRINH.html` vắng → vẽ bằng ĐÚNG hàm của bản đồ: `product-map.mjs` export thêm `veTrangLoTrinh(root)`
    (phần thân hiện có, tách ra — `product-map` main gọi lại nó, không đổi hành vi) rồi ghi. Trang có rồi → để nguyên
-   (khởi tạo không bảo trì trang). Bước này không ghi `PRODUCT-MAP.md`.
+   (khởi tạo không bảo trì trang). Kho đã bật bản đồ (`t1_skip_globs` có `PRODUCT-MAP.md` — vị từ `mapTracked`) mà
+   `PRODUCT-MAP.md` vắng → vẽ luôn bằng `renderProductMap`: kho mới theo khuôn khởi tạo ở đúng trạng thái này tới lần đóng
+   cổng đầu và `--check` đỏ vì nó (sửa ở S3 — bản duyệt nói «không ghi PRODUCT-MAP.md»). Kho chưa bật bản đồ không nhận tệp.
 
 Kết: một dòng tóm tắt việc đã làm + «commit các tệp này». Kho chưa bật bản đồ sản phẩm (`t1_skip_globs` không có
 `PRODUCT-MAP.md`) → thêm một dòng vàng: bốn lệnh đóng cổng sẽ không vẽ lại trang (cờ thẻ start đã có nói cùng điều).

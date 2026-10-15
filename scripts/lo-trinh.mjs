@@ -33,6 +33,8 @@ export const TEP_TRANG = 'LO-TRINH.html';
 export const CHUA_MO = 'Chưa mở';
 export const KHONG_SUY = 'Không suy được';
 export const TIN_THEO_LOI = 'tin theo lời';
+// Dòng «Hàng kế» của thẻ khởi động khi lộ trình chưa có việc nào — một nguồn cho thẻ và bước khởi tạo lộ trình.
+export const CHUA_CO_VIEC = 'Lộ trình chưa có việc nào — thêm việc bằng skill cắt lượt (/acceptance-gate:cat-luot), rồi mở bằng /feature-loop:feature-loop <mã>';
 // Ô bản đồ nào là «đã giao» và «chưa làm» — tra bằng KHOÁ ô, chữ rút từ SECTIONS của bản đồ.
 export const DA_GIAO_O = ['cho-nghiem-thu', 'da-ship', 'da-nghiem-thu'];
 export const DANG_LAM_O = ['cho-duyet', 'dang-dung'];
@@ -822,7 +824,9 @@ export function loTrinhThe({ root, classify, sections, today, banDoBat = null, l
   for (const t of ds) {
     if (nhieu) dong.push(`Lộ trình ${t.ten || t.tep}:`);
     if (t.loi) { dong.push(`${nhieu ? 'K' : 'Lộ trình: k'}hông đọc được tệp ý định — ${t.loi}`); continue; }
-    dong.push(t.hangKe ? `Hàng kế: ${t.hangKe.ma} — ${t.hangKe.cauGiao}` : 'Hàng kế: chưa có hàng đủ điều kiện mở');
+    // Lộ trình 0 việc (hồ sơ kho-moi-cai-goi-road-map — tệp vừa khởi tạo): chỉ việc kế thay vì «chưa đủ điều kiện».
+    const rong = (k.cacTep[ds.indexOf(t)]?.kq?.dong || [null]).length === 0;
+    dong.push(t.hangKe ? `Hàng kế: ${t.hangKe.ma} — ${t.hangKe.cauGiao}` : rong ? `Hàng kế: ${CHUA_CO_VIEC}` : 'Hàng kế: chưa có hàng đủ điều kiện mở');
     const tre = t.hangTre.length ? `Hàng trễ: ${t.hangTre.map(h => `${h.ma} (mốc ${h.moc}, ${h.ngay})`).join(' · ')}` : 'Hàng trễ: không có';
     dong.push(t.mocKhongHang.k > 0 ? `${tre} (${t.mocKhongHang.k}/${t.mocKhongHang.n} mốc không gắn hàng nào)` : tre);
     dong.push(`Tin theo lời: ${t.tinTheoLoi.n}/${t.tinTheoLoi.tong} hàng${t.tuKhaiNgoai > 0 ? ` · ${t.tuKhaiNgoai} hàng tự khai ngoài từ vựng — không so được với hồ sơ` : ''}`);

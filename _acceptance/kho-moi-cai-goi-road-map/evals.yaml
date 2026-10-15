@@ -66,11 +66,14 @@ evals:
     cmd: config:executors.test.kho_moi_cai_goi_road_map
     paths: [scripts/lo-trinh-khoi-tao.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: KM-4-truoc", "PASS: KM-4". KM-4-truoc (đối chứng số đo trước): kho thử khai tay
+      exit 0; stdout có "PASS: KM-4-truoc", "PASS: KM-4", "PASS: KM-4-chua-bat-ban-do", "PASS: KM-4-do". KM-4-truoc (đối chứng số đo trước): kho thử khai tay
       lo_trinh.tep (không tệp, không miễn trừ), vẽ rồi commit → `product-map.mjs --check` thoát 1. KM-4: kho thử bật
       road-map, khởi tạo, `git add -A && git commit` → `--check` thoát 0 và stdout chứa «LO-TRINH.html khớp tệp ý định
       và hồ sơ.»; JSON start-scan không có khoá loTrinhChuaKhai, loTrinh.loi === null; `lo-trinh.mjs --ra-soat` thoát 0,
-      stdout rỗng; PRODUCT-MAP.md không có trong danh sách tệp bước khởi tạo tạo ra (so cây trước/sau khởi tạo).
+      stdout rỗng; kho thử theo khuôn (t1_skip_globs có PRODUCT-MAP.md, tệp vắng) → PRODUCT-MAP.md có sau khởi tạo; kho thử
+      thứ hai bỏ PRODUCT-MAP.md khỏi t1_skip_globs → PRODUCT-MAP.md KHÔNG có trong tập tệp bước khởi tạo tạo ra (so cây
+      trước/sau) và `--check` vẫn thoát 0. KM-4-do: bản sao bỏ vẽ bản đồ → `--check` của kho theo khuôn thoát 1, stdout/stderr
+      chứa «PRODUCT-MAP.md».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
