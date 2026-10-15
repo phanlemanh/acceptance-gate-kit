@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6 khai T2: scripts/lo-trinh.mjs + script mới scripts/do-vong.mjs + khối SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-lo-trinh-gio-may-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-15T07:56:41Z
 ---
@@ -79,7 +79,7 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   - bản sao đọc hôm nay khi vẽ trang → ca đỏ «trang đổi theo hôm nay»;
   - bản sao cộng cắt bản cấp mốc dù mốc có hàng cắt bản → ca đỏ «cắt bản đếm hai lần: M′».
 - AC-4: Given kho thử hôm nay D có:
-  - mốc M1: mục tiêu D+1, hai hàng T2 không khoá, chưa mở;
+  - mốc M1: mục tiêu D, ba hàng T3 không khoá, chưa mở;
   - mốc M2: mục tiêu D+5, một hàng `dung_tren` một hàng của M1;
   - một hàng đang dở có dòng `gio-may` đo 3 giờ trên ước 4–7;
   When chạy `lo-trinh.mjs --xem`, Then mỗi mốc chưa khép có đúng một dòng khuôn
@@ -98,7 +98,8 @@ Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra của h
   BẰNG đối tượng viết sẵn:
   - `ngay_tinh`;
   - `hang: {ma, gio_may, phan_tram}`;
-  - `moc: {ten, bat_dau, hoan_tat, gio_may, gio_cho, gio_cho_do, muc_tieu}` — `gio_cho` là giờ chờ đã cộng vào dự báo,
+  - `moc: {ten, bat_dau, hoan_tat, gio_may, gio_cho, gio_cho_do, muc_tieu, hang}` — `hang` là danh sách mã của mốc lúc
+    đóng băng, `gio_cho` là giờ chờ đã cộng vào dự báo,
     `gio_cho_do` là false khi chưa có vòng đo (dự báo là cận sớm).
   Stdout và ô cơ hội giống từng byte lần chạy của bộ máy gốc.
   Given `du-bao.json` đã có, When chạy lại, Then tệp không đổi byte. Given hàng không gắn mốc nào, Then tệp chỉ có `hang`.
@@ -197,7 +198,8 @@ Jira (ước gốc so thời gian đã tiêu).
 
 ## Out of scope
 
-- Khối dữ liệu máy đọc `lo-trinh-du-lieu` mang giờ máy (đổi khuôn sang bản 3 — vòng riêng có neo).
+- Khối dữ liệu máy đọc `lo-trinh-du-lieu` mang giờ máy (đổi khuôn sang bản 3 — vòng riêng có neo; hạt giống
+  `docs/plans/2026-10-15-hat-giong-khoi-du-lieu-gio-may.md`).
 - Đo bù vòng cũ từ bản ghi phiên (ghi vào hồ sơ đã ký).
 - Hệ số ×1,3 khi chạm vùng máy khác, hàng chờ khoá máy và lô gộp trong «bắt đầu dự kiến» — người khai `gio_may` tay.
 - Nhiều làn song song trên một mốc.

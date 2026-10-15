@@ -60,7 +60,7 @@ evals:
     paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
     expected: >
       exit 0; stdout có "PASS: GM-4", "PASS: GM-4-do-du", "PASS: GM-4-khong-ngay", "PASS: GM-4-do", "PASS: GM-4-do2". GM-4:
-      hôm nay D, mốc M1 mục tiêu D+1 hai hàng T2 chưa mở, mốc M2 mục tiêu D+5 một hàng dung_tren hàng của M1, một hàng đang
+      hôm nay D, mốc M1 mục tiêu D ba hàng T3 chưa mở, mốc M2 mục tiêu D+5 một hàng dung_tren hàng của M1, một hàng đang
       dở đo 3 giờ trên ước 4–7 — các dòng mốc của `--xem` BẰNG khối viết sẵn theo khuôn «<mốc>: bắt đầu ~dd/mm · ~X giờ máy
       · ~Y % hạn mức tuần · hoàn tất dự kiến dd/mm · mục tiêu dd/mm»: bắt đầu M2 = hoàn tất M1, hàng đang dở tính 1–4 giờ, giờ
       chờ 0 kèm «(chưa có giờ chờ đo)», M1 mang «(quá tải — dự kiến dd/mm, mục tiêu dd/mm)»; lệnh thoát 0, git status rỗng. GM-4-do-du: có vòng
@@ -76,7 +76,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: GM-5", "PASS: GM-5-chay-lai", "PASS: GM-5-khong-moc", "PASS: GM-5-do". GM-5: trên kho của GM-4,
       `--hang <hàng M1> --mo-o` → JSON.parse của _acceptance/<slug>/du-bao.json BẰNG (deepStrictEqual) đối tượng viết sẵn
-      {ngay_tinh, hang:{ma, gio_may, phan_tram}, moc:{ten, bat_dau, hoan_tat, gio_may, gio_cho, gio_cho_do, muc_tieu}}; stdout và ô cơ hội giống
+      {ngay_tinh, hang:{ma, gio_may, phan_tram}, moc:{ten, bat_dau, hoan_tat, gio_may, gio_cho, gio_cho_do, muc_tieu, hang}}; stdout và ô cơ hội giống
       từng byte lần chạy của bộ máy gốc. GM-5-chay-lai: tệp đã có → băm + mtime không đổi sau lần chạy thứ hai. GM-5-khong-moc:
       hàng không gắn mốc → tệp chỉ có khoá ngay_tinh và hang. GM-5-do: bản sao ghi đè tệp đã có → FAIL ghim «dự báo đóng băng
       bị ghi đè».

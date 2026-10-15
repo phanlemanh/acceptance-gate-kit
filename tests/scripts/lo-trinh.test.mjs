@@ -121,7 +121,9 @@ function banSao(tiem = [], goc = KIT) {
 // cây tắt đúng ba khối mới, lời hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa.
 const TAT_MC = [['scripts/lo-trinh.mjs', 'if (docDuoc.some(t => t.kq.moc.length)) {', 'if (false) {'],
   ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes('],
-  ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; if (rs[i] && rs[i].canh_bao) t.raSoatCanh = rs[i].canh_bao; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });']];
+  ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; if (rs[i] && rs[i].canh_bao) t.raSoatCanh = rs[i].canh_bao; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });'],
+  // lo-trinh-gio-may (hàng RM6) thêm nhát thứ tư: tắt phần giờ máy (cột, dòng đếm, dòng mốc) — giờ máy hiện mặc định ở mọi kho.
+  ['scripts/lo-trinh.mjs', 'for (const t of docDuoc) gangGioMay(t.kq, doVong, duBaoDs);', 'for (const t of []) gangGioMay(t.kq, doVong, duBaoDs);']];
 const tatCache = new Map();
 const tatMC = goc => { if (!tatCache.has(goc)) tatCache.set(goc, banSao(TAT_MC, goc)); return tatCache.get(goc); };
 
@@ -1632,6 +1634,8 @@ const MA_TRAN_97 = [
   ['cs-moc-tu-ap', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { tu_ap: 'x' } })], hang: [H('A')] } }), 'chính sách tu_ap phải là true hoặc false (mốc P 01/11)'],
   ['cs-moc-duong', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { nhip_ngay: 0 } })], hang: [H('A')] } }), 'chính sách nhip_ngay phải là số nguyên dương (mốc P 01/11)'],
   ['cs-moc-tran', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { tran_ke_tiep: -1 } })], hang: [H('A')] } }), 'chính sách tran_ke_tiep phải là số nguyên không âm (mốc P 01/11)'],
+  // lo-trinh-gio-may: khoá giờ máy trên hàng sai dạng.
+  ['gio-may-sai', () => kho({ data: { schema: 1, hang: [H('A', { gio_may: 'nhiều' })] } }), 'A — ô «giờ máy» phải là số giờ dương hoặc cặp [thấp, cao]'],
 ];
 const CAM_CO = ['cau_giao', 'dung_tren', 'lo_trinh_', 'tu_vung', 'tự khai', 'tệp khai khác hồ sơ', 'đứng trên', 'tệp ý định'];
 const CAM_TRANG = ['tin theo lời', 'câu giao', 'hàng kế', 'Hàng kế', 'Vòng ngoài lộ trình', 'Cổng Đáng', 'tệp ý định', 'Cờ'];
@@ -2429,13 +2433,16 @@ async function lt140(kit) {
   if (sc(kit) !== sc(banGocL2())) sai.push(`JSON quét start khác bản ${GOC_L2}`);
   return sai;
 }
+const GM_BO = await import(pathToFileURL(path.join(HERE, 'lo-trinh-gio-may-bo.mjs')).href);
 async function lt141(kit) {
   const r = kho({ data: { schema: 1, moc: [{ ten: 'M', ngay: '2026-12-01', hang: ['B'] }], hang: [H('A'), H('B', { dung_tren: ['A'], trang_thai: 'Đang làm' })] } });
   const moiGoc = veBang(kit, r).trang; const cuGoc = veBang(banGocL2(), r).trang;
   if (!moiGoc || !cuGoc) return ['trang vắng'];
   // Hàng X2 (trang-ho-so-mot-viec): phần nhìn thấy so sau khi bỏ ngoặc câu giao ở bên cũ; khối so theo
   // dữ liệu (bỏ khoá tom_tat và số phiên bản — hai thứ duy nhất bản 2 thêm), không theo byte.
-  const moi = goKhoi(moiGoc); const cu = trangX2(goKhoi(cuGoc), r);
+  // lo-trinh-gio-may (RM6): giờ máy hiện mặc định — gỡ ĐÚNG phần giờ máy (mô-đun bỏ dùng chung với RS-6, MC-2-byte, AP-8).
+  if (!GM_BO.coGioMayTrang(moiGoc)) return ['đối chứng: trang mới không có cột giờ máy để gỡ'];
+  const moi = GM_BO.boGioMayTrang(goKhoi(moiGoc)); const cu = trangX2(goKhoi(cuGoc), r);
   const kd = h => { const d = LT.docDuLieu(h).duLieu; return d && JSON.stringify(duLieuX2({ ...d, phien_ban: null })); };
   if (kd(moiGoc) !== kd(cuGoc)) return ['khối dữ liệu khác bộ vẽ cũ (ngoài tom_tat và số phiên bản)'];
   if (moi === cu) return [];

@@ -630,13 +630,21 @@ Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi
 
 **Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
 `skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
-`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
+`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` · `gio_may` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
 cấp tệp; mọi trường khác là trường tự do của kho) rồi bật bằng hai dòng:
 
 ```yaml
 lo_trinh:
   tep: docs/plan/lo-trinh.json
 ```
+
+**Giờ máy trên lộ trình (hồ sơ lo-trinh-gio-may).** Khoá `gio_may` trên hàng là ước giờ máy chủ kho khai — một số giờ
+dương hoặc cặp `[thấp, cao]`; sai dạng thì trang có cờ và hàng coi như chưa khai. Đường đọc-cũ: hàng thiếu khoá: máy tự ước
+— theo luật (T2 4–7 · T3 7–10 · hàng nhóm `phat-hanh` là phần cắt bản 1,5–2), hoặc theo số đo khi kho đã có từ năm vòng
+cùng hạng mang dòng `gio-may` — và trang đếm số hàng máy tự ước trong một dòng. Mốc cộng giờ máy các hàng chưa giao, cộng
+gộp 1–1,5 mỗi hàng và cắt bản ở mốc phát hành; `ngay` của mốc đọc là MỤC TIÊU. `/road-map:xem` in ngày bắt đầu và hoàn tất
+dự kiến; `--mo-o` đóng băng dự báo vào `_acceptance/<slug>/du-bao.json`; bước đo vòng (khối `S4-DO-VONG` của feature-loop)
+ghi giờ máy và token thật; `lo-trinh.mjs --do-lech` so dự báo đóng băng với ngày khép thật.
 
 và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md` (cùng lý do: view máy
 sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng

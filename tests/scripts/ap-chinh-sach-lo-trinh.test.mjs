@@ -576,10 +576,13 @@ const MONG_8 = [
   '  · B1 — sẽ bác từ 22/10/2026: hồ sơ b1-bac đã bác',
   '  · M1 — đã dời mốc 21/10/2026 — trả lại: /road-map:tra-lai M1',
 ];
+const GM_BO = await import(pathToFileURL(path.join(HERE, 'lo-trinh-gio-may-bo.mjs')).href);
 async function ap8(kit) {
   const sai = []; const r = kho8(kit); const x = chayXem(kit, r, D21);
   if (x.status !== 0) return [`lệnh xem thoát ${x.status}: ${x.stderr}`];
-  const dong = x.stdout.split('\n').filter(Boolean);
+  // Giờ máy (hồ sơ lo-trinh-gio-may): khối «Giờ máy theo mốc» hiện mặc định — so phần còn lại; đối chứng là khối có mặt.
+  const tho = x.stdout.split('\n').filter(Boolean); if (!tho.includes('Giờ máy theo mốc:')) sai.push('đối chứng: bản đồ thiếu khối giờ máy');
+  const dong = GM_BO.boGioMayXem(tho);
   if (!deq(dong, MONG_8)) sai.push(`bản đồ khác khối viết sẵn: ${JSON.stringify(dong)}`);
   const ghi = trangThaiSach(r); if (ghi) sai.push(`lệnh xem ghi tệp: ${ghi.split('\n').map(l => l.slice(3)).join(', ')}`);
   return sai;
