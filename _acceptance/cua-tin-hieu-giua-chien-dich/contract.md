@@ -160,5 +160,9 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
   - Đợt dựng lại với CÙNG tên và cùng mã yêu cầu khi ý cũ chưa gom: tệp trùng tên khác thân → ý rơi về «cần phán» (không
     đè, không mất). Tên tệp mang tên đợt nên chỉ ca dùng lại tên đợt mới chạm.
   - Ngoài-4, Ngoài-5: hai ca đo nội bộ (CT-6-do nhận cờ lành cứng, CT-7-rong không ghim thông điệp) giữ như hiện tại.
+- Giới hạn đo — chờ chủ kho chọn ở Cổng Bằng chứng lượt 2 (2026-10-16): vế «tiêu đề rỗng thì không bao giờ trùng» của
+  AC-3 có trong vật (chốt so tiêu đề ở bộ xét việc mới) và bộ chấm lượt 2 kiểm đúng trên bản sao, nhưng CHƯA có ca đỏ riêng
+  canh chốt ấy; ca CT-3-do5 ghim thông điệp «ý không tiêu đề bị gộp mất» nhưng đỏ vì một vế khác (hai việc phụ cùng «viec»
+  không gộp). Ngưỡng mở lại: vòng kế chạm bộ xét việc mới thêm một mutant gỡ chốt trên fixture hai ý không có tiêu đề nào.
 - Thợ thật ra bị chặn mà quên `--chan` nhận «đã ghi» và phải tự gửi lại (câu trả chỉ lối) — ngưỡng không đếm được ca này,
   vì không sinh `can_phan`. Ngưỡng mở lại: ≥ 1 lần trong một đợt thợ gửi lại cùng ý kèm `--chan` sau một lần «đã ghi».
