@@ -634,13 +634,21 @@ bản chép CI, trang. Chỉ khi `.claude/settings.json` của kho bật `road-m
 
 **Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
 `skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
-`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
+`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` · `gio_may` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
 cấp tệp; mọi trường khác là trường tự do của kho) rồi bật bằng hai dòng:
 
 ```yaml
 lo_trinh:
   tep: docs/plan/lo-trinh.json
 ```
+
+**Giờ máy trên lộ trình (hồ sơ lo-trinh-gio-may).** Khoá `gio_may` trên hàng là ước giờ máy chủ kho khai — một số giờ
+dương hoặc cặp `[thấp, cao]`; sai dạng thì trang có cờ và hàng coi như chưa khai. Đường đọc-cũ: hàng thiếu khoá: máy tự ước
+— theo luật (T2 4–7 · T3 7–10 · hàng nhóm `phat-hanh` là phần cắt bản 1,5–2), hoặc theo số đo khi kho đã có từ năm vòng
+cùng hạng mang dòng `gio-may` — và trang đếm số hàng máy tự ước trong một dòng. Mốc cộng giờ máy các hàng chưa giao, cộng
+gộp 1–1,5 mỗi hàng và cắt bản ở mốc phát hành; `ngay` của mốc đọc là MỤC TIÊU. `lo-trinh.mjs --xem` (lệnh xem bản đồ của gói road-map) in ngày bắt đầu và hoàn tất
+dự kiến; `--mo-o` đóng băng dự báo vào `_acceptance/<slug>/du-bao.json`; bước đo vòng (khối `S4-DO-VONG` của feature-loop)
+ghi giờ máy và token thật; `lo-trinh.mjs --do-lech` so dự báo đóng băng với ngày khép thật.
 
 và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md` (cùng lý do: view máy
 sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng
@@ -1006,7 +1014,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 26 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 27 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1034,6 +1042,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `scripts/gio-may.mjs` — phép ước giờ máy mà `lo-trinh.mjs` import lúc nạp (ước hàng, tổng mốc, dự báo); thiếu → bước bản đồ `ERR_MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`

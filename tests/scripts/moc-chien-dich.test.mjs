@@ -189,6 +189,7 @@ function dauRa(kit, r, coLoTrinh) {
   }
   return ra;
 }
+const GM_BO = await import(pathToFileURL(path.join(HERE, 'lo-trinh-gio-may-bo.mjs')).href);
 async function mc2byte(kit) {
   const sai = [];
   for (const [ten, f] of Object.entries(KHO_2B)) {
@@ -199,7 +200,9 @@ async function mc2byte(kit) {
       const can = tep === 'quet' ? (!coLT ? 'q1' : ten.endsWith('co-ho-so-mo') ? 'R1' : 'R3') : 'R3';
       if (!noi || !noi.includes(can)) sai.push(`đối chứng gốc không chạy: ${ben} ${tep} (${ten}) rỗng hoặc thiếu «${can}»`);
     }
-    for (const tep of Object.keys(g)) if (g[tep] !== m[tep]) sai.push(`khác bộ máy gốc: ${tep} (${ten})`);
+    // Giờ máy (hồ sơ lo-trinh-gio-may) hiện mặc định: trang so sau khi bỏ ĐÚNG phần giờ máy, đối chứng là trang cây có cột ấy.
+    if (coLT && !GM_BO.coGioMayTrang(m.trang)) sai.push(`đối chứng: trang cây (${ten}) thiếu cột giờ máy`);
+    for (const tep of Object.keys(g)) if (g[tep] !== (tep === 'trang' ? GM_BO.boGioMayTrang(m[tep]) : m[tep])) sai.push(`khác bộ máy gốc: ${tep} (${ten})`);
   }
   return sai;
 }

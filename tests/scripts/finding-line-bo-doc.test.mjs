@@ -209,7 +209,10 @@ function so(khong, co, ten, dauSong) {
   // ganDinhTuyen của lib/out-of-contract.cjs, hàm luotCham chỉ lấy dòng `kind: round-tally`; dòng
   // `kind: finding` (và mọi kind khác) không vào nhánh nào. Chiều im đo ở ca DM3 hàng 10 (sổ chỉ có dòng
   // kind khác) và hàng 17 (dòng hỏng) của tests/scripts/dinh-tuyen-theo-ma-muc.test.mjs.
-  const BO_DOC_KHAI = 17;
+  // 19 từ 15/10 (hồ sơ lo-trinh-gio-may): thêm scripts/do-vong.mjs (chỉ NỐI một dòng `kind: gio-may`, không đọc dòng nào) và
+  // scripts/gio-may.mjs (docDoVong chỉ lấy dòng có `kind: gio-may`, dòng hỏng bỏ). Dòng `kind: finding` không vào nhánh nào
+  // của chúng; chiều im đo ở GM-6 (sổ chạy của kho thử có sẵn một dòng kind khác, đầu ra chỉ một dòng gio-may).
+  const BO_DOC_KHAI = 19;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],
