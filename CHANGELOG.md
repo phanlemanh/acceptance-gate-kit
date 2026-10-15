@@ -132,7 +132,7 @@ KHÔNG ghi tệp lộ trình.
 - **Cắt lượt:** `cat-luot.mjs --co` cảnh báo `[gan-moc-dang-chay]` khi đợt mới gắn hàng vào một mốc phát hành chưa qua
   ngày mà đã có hàng của đợt khác. Chữ «chân trời» trong thông báo đổi thành «chờ điều kiện» (khoá `chan_troi` không
   đổi) — byte trang lộ trình đổi CHỈ ở kho có cờ khuôn `chan_troi` sai dạng.
-- **Gói thứ năm `road-map`** (vỏ lệnh, mã ở lõi): `claude plugin install road-map@acceptance-gate-kit --scope project`,
+- **Gói thứ năm `road-map`** (vỏ lệnh, mã ở lõi): cài theo kho, phạm vi project — lệnh cài ở `road-map/README.md`;
   lệnh chỉ đọc `/road-map:xem`. `acceptance-init` không tự bật; gói không có hook. P200 khoá số của nó cùng ba gói kia.
 - **Giới hạn đã khai:** tám mục ở Notes hợp đồng — đáng nhớ nhất: tệp lộ trình chưa từng commit trong kho git thì luật
   tuổi không chạy mà không có dòng cảnh báo (Ngoài-3); một mốc chứa mã gõ sai có thể sinh cảnh báo thừa «đổi đích chiến
@@ -173,8 +173,8 @@ vào hồ sơ `release-2-31-0`.
 4. **Vẽ lại `LO-TRINH.html`** trong PR nâng kit. Cờ mới (MC1) là vàng: đo ở `1997da85`, OKR thêm F8, F23, F24, F26
    «chưa thuộc mốc» và mười hồ sơ đang mở không thuộc việc nào; Việc và Dự án thêm DA0c. Gắn hàng vào mốc hay gắn hồ
    sơ vào hàng khi tiện — không chặn.
-5. **`road-map` (tuỳ chọn):** `claude plugin install road-map@acceptance-gate-kit --scope project` ở gốc crm nếu muốn
-   lệnh `/road-map:xem`; khối rà soát trên thẻ khởi động có sẵn trong lõi, không cần gói. Đo ở `d0351bcd`: `DA6`, `DA7`,
+5. **Gói `road-map` — cài khi muốn lệnh `/road-map:xem`:** cài theo kho, phạm vi project ở gốc crm, lệnh cài ở
+   `road-map/README.md`; khối rà soát trên thẻ khởi động có sẵn trong lõi, không cần gói. Đo ở `d0351bcd`: `DA6`, `DA7`,
    `DA8` → chờ điều kiện. Máy không áp đề xuất nào — người sửa tệp lộ trình nếu đồng ý.
 6. **Đường nền (NV1) và thẻ Cổng Bằng chứng (BN1):** không bước tay. Hồ sơ chấm trước 2.31 mang cờ vàng «chưa có căn
    cứ» trên thẻ Cổng Bằng chứng tới lượt chấm kế.
