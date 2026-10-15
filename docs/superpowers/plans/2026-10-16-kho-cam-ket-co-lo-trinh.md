@@ -29,6 +29,15 @@
 
 ---
 
+### Task 0: Nền nhánh trước khi sửa (điều phối 16/10) · independent: false
+
+Thứ tự gộp kit do điều phối chốt: RM6 (#363) → RM3 → RM5. RM6 sửa `scripts/lo-trinh.mjs`, `INIT-CI-COPY-LIST` và ca KM-8;
+RM3 sửa khối TRONG-DOT ở S0 của SKILL feature-loop. Trước khi chạm ba tệp đó:
+- [ ] Đã có sha gộp từ điều phối → `git merge origin/main` (sau #363 và PR RM3). Chưa có → `git fetch origin` rồi gộp đỉnh
+  `origin/claude/gracious-greider-59b434` (RM6) và `origin/claude/charming-merkle-19270a` (RM3) vào nhánh này.
+- [ ] Chạy lại `node tests/scripts/kho-moi-cai-goi-road-map.test.mjs` và `node tests/scripts/lo-trinh.test.mjs` trên nền mới — xanh mới sang Task 1.
+- Task 1–3 (lib, hook, lưới trước-merge) không chạm vùng của RM6/RM3 — được làm trước khi gộp nếu sha chưa về.
+
 ### Task 1: Bộ đọc `lib/chan-lo-trinh.cjs` (phục vụ E2, E4 — nền cho mọi việc sau) · independent: false
 
 **Files:**
