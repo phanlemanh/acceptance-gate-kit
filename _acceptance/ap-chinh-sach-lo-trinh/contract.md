@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # hàng RM2 khai T3: CỘNG ba lệnh khoá (ADR 0002 + P32) · scripts/lo-trinh.mjs ghi tệp kế hoạch của kho · SKILL feature-loop S0 · gói road-map — không chạm lib/**, hooks/**, lưới trước-merge, dieu-phoi/
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-ap-chinh-sach-lo-trinh-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-15T02:16:50Z
 ---
