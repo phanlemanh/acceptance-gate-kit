@@ -214,6 +214,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   có cột «Căn cứ» ở Cổng 2; khuôn mục ngoài hợp đồng không có trường lý do cho đề xuất, thẻ in khối xếp chồng.
 - `docs/plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md` — 14/10 đổi tài khoản giữa ngày: thanh bên mất mọi
   phiên thợ, người mất bản đồ «xong · đang dở · kế» (3 lượt hỏi ngoài thiết kế); «bước kế» nằm ở ba hình dạng tự do.
+- `docs/plans/2026-10-15-hat-giong-duyet-giu-co-mot-luot.md` — 15/10 crm `so-do-quanh-muc-tieu`: chốt cỡ hợp đồng
+  chặn 4/5 vòng đợt OKR điều hướng ở Cổng Phạm vi; «giữ cỡ» và «duyệt» là hai lượt gõ, DH5 tốn 4 lượt cho một quyết định.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
