@@ -1440,8 +1440,23 @@ if (isMain) {
   // «Hàng đã có hồ sơ chưa» đọc từ CÙNG hàm của bộ vẽ — hai bên không thể nói khác nhau.
   const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
   const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
+  // Tự áp ở điểm mở việc (hồ sơ ap-chinh-sach-lo-trinh, Hỏi-1 chủ kho duyệt 15/10): tệp của hàng có chiến dịch đang chạy bật
+  // tự áp → áp TRƯỚC khi mở ô; hàng đang mở coi như có hồ sơ đang mở — không bị đụng. Tệp không chuẩn → bỏ qua tự áp, vẫn mở
+  // việc (mở việc không bị chặn vì tự áp). JSON mang `ap` CHỈ khi có dòng sổ mới — kho không bật giữ đầu ra từng byte.
+  let apDem = null;
+  {
+    const today = process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10);
+    const tAp = kho.cacTep.find(t => t.tep === tep);
+    const cs = NGAY_RE.test(today) && tAp && tAp.kq ? chinhSachHieuLuc(tAp.kq, today) : null;
+    if (cs && cs.tu_ap) {
+      const k1 = apChinhSach({ root, cacTep: [tAp], sections: PM.SECTIONS, today, ghi: true, hangMo: ma })[0];
+      if (k1.thoat) process.stderr.write(`lo-trinh: ${k1.thong_diep} — bỏ qua tự áp, vẫn mở việc\n`);
+      else if (k1.moi.bao_truoc || k1.moi.da_ap || k1.moi.huy) apDem = k1.moi;
+    }
+  }
+  const apRa = apDem ? { ap: apDem } : {};
   const d = kho.cacTep.find(t => t.tep === tep)?.kq?.dong.find(x => x._ma === ma);
-  if (d && d.hoSo) { process.stdout.write(JSON.stringify({ hoSo: d.hoSo, moi: false, ...ten() }) + '\n'); process.exit(0); }
+  if (d && d.hoSo) { process.stdout.write(JSON.stringify({ hoSo: d.hoSo, moi: false, ...ten(), ...apRa }) + '\n'); process.exit(0); }
   if (d && d.nhieuNhan.length) bail(`hàng ${ma} được nhiều hồ sơ nhận: ${d.nhieuNhan.join(', ')} — không mở thêm hồ sơ; sửa lo_trinh_ma của các hồ sơ đó`);
   const slug = slugMoi || chuoi(hang.slug) || suySlug(hang.cau_giao);
   if (!slug || !SLUG_RE.test(slug)) bail(`slug không hợp lệ: «${slug}» — truyền --slug`);
@@ -1453,5 +1468,5 @@ if (isMain) {
   try { noiDung = dungCoHoi({ khuon, hang, tep, tenLoTrinh: k.ten, slug, owner, moc: k.moc, khoDungMoc }); } catch (e) { bail(e.message); }
   mkdirSync(dich, { recursive: true });
   writeFileSync(path.join(dich, 'opportunity.md'), noiDung);
-  process.stdout.write(JSON.stringify({ hoSo: slug, moi: true, ...ten() }) + '\n');
+  process.stdout.write(JSON.stringify({ hoSo: slug, moi: true, ...ten(), ...apRa }) + '\n');
 }

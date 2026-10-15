@@ -606,6 +606,62 @@ if (want('AP-9-nhac') && await chayCa('AP-9-nhac', async kit => {
   return sai;
 })) ok('AP-9-nhac', 'chiến dịch đang chạy chưa khai tu_ap: có đề xuất → đúng một dòng nhắc; không đề xuất → không dòng nào');
 
+// ═══ AP-10 (AC-10): mở việc thì tự áp + thước dời tay trừ theo sổ ══════════════════════════════════════════════
+const moO = (kit, r, today, ma) => chay(kit, r, today, ['--hang', ma, '--mo-o', '--owner', 'x@y.z']);
+async function ap10(kit) {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [TOI()], hang: [H('X'), H('H')] } });
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20');
+  const x = moO(kit, r, D21, 'H'); if (x.status !== 0) return [`--mo-o thoát ${x.status}: ${x.stderr}`];
+  const j = JSON.parse(x.stdout);
+  if (!deq(j.ap, { bao_truoc: 0, da_ap: 1, huy: 1 })) sai.push(`khoá ap ${JSON.stringify(j.ap)}, cần {bao_truoc:0, da_ap:1, huy:1}`);
+  const so = docSo(r);
+  if (so.some(d => d.loai === 'ap' && d.ma === 'H')) sai.push('áp hàng đang mở: H');
+  if (so.filter(d => d.loai === 'huy' && d.ma === 'H').length !== 1) sai.push('hàng đang mở không có đúng một dòng huỷ');
+  const lt = docLT(r); if (!lt.hang.some(h => h.ma === 'H') || (lt.chan_troi || []).at(-1)?.ma !== 'X') sai.push(`tệp sau mở việc: ${JSON.stringify(lt)}`);
+  if (!existsSync(path.join(r, '_acceptance', j.hoSo, 'opportunity.md'))) sai.push('ô cơ hội của H không được tạo');
+  return sai;
+}
+if (want('AP-10') && await chayCa('AP-10', ap10)) ok('AP-10', 'mở việc H: áp X trước khi mở ô, H giữ chỗ cũ + một dòng huỷ, JSON mang ap {0,1,1}, ô cơ hội được tạo');
+if (want('AP-10-do')) await chayDo('AP-10-do', ap10, [['scripts/lo-trinh.mjs', 'ghi: true, hangMo: ma })[0];', 'ghi: true, hangMo: null })[0];']], 'áp hàng đang mở: H', 'bản sao áp cả hàng đang mở');
+if (want('AP-10-byte') && await chayCa('AP-10-byte', async kit => {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [{ ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', hang: ['A'] }, QUA(['B'])], hang: [H('A'), H('B')] } });
+  const ra = kit2 => { const x = moO(kit2, r, D20, 'A'); const j = JSON.parse(x.stdout || '{}'); const o = j.hoSo ? readFileSync(path.join(r, '_acceptance', j.hoSo, 'opportunity.md'), 'utf8') : null;
+    if (j.hoSo) rmSync(path.join(r, '_acceptance', j.hoSo), { recursive: true }); return { st: x.status, out: chuanKit(x.stdout, kit2), o }; };
+  const g = ra(banGoc()); const m = ra(kit);
+  if (g.st !== 0 || !g.o) sai.push('đối chứng gốc không chạy: --mo-o của bộ máy gốc');
+  if (m.st !== g.st || m.out.replace(chuanKit(kit, kit), '') !== g.out.replace(chuanKit(banGoc(), banGoc()), '') || m.o !== g.o) sai.push(`--mo-o ở kho không bật khác bộ máy gốc: ${m.out} ≠ ${g.out}`);
+  if (trangThaiSach(r)) sai.push(`kho không bật mà mở việc ghi thêm: ${trangThaiSach(r)}`);
+  return sai;
+})) ok('AP-10-byte', 'kho không bật: stdout và ô cơ hội của --mo-o giống từng byte bộ máy gốc, không tệp nào khác đổi');
+if (want('AP-10-skill') && await chayCa('AP-10-skill', async kit => {
+  const t = readFileSync(path.join(kit, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+  const m = t.match(/<!-- <<<S0-AP-COMMIT -->\n```\n([^\n]+)\n```\n<!-- S0-AP-COMMIT>>> -->/);
+  const DN = await import(pathToFileURL(path.join(kit, '_acceptance', 'ap-chinh-sach-lo-trinh', 'nen', 'do-nen.mjs')).href + `?s=${++napN}`);
+  if (!m) return ['SKILL feature-loop thiếu khối S0-AP-COMMIT'];
+  return m[1] === `${DN.TIEU_DE_MAY}: <n> hàng — <YYYY-MM-DD>` ? [] : [`tiêu đề trong SKILL «${m[1]}» khác hằng của thước «${DN.TIEU_DE_MAY}»`];
+})) ok('AP-10-skill', 'khối S0-AP-COMMIT của SKILL ghim tiêu đề «lo-trinh(may-ap): <n> hàng — <ngày>», tiền tố trùng hằng của thước');
+const doNen = (kit, r) => { const x = node([path.join(kit, '_acceptance', 'ap-chinh-sach-lo-trinh', 'nen', 'do-nen.mjs'), r, 'HEAD', TEP]);
+  if (x.status !== 0) throw new Error(`do-nen thoát ${x.status}: ${x.stderr.slice(0, 200)}`); return JSON.parse(x.stdout).tong; };
+const doiTay = (r, ma, tu, den) => { const d = docLT(r); const a = d.moc.find(m => m.ten === tu); a.hang.splice(a.hang.indexOf(ma), 1); d.moc.find(m => m.ten === den).hang.push(ma); ghiTep(r, d); };
+async function ap10thuoc(kit) {
+  const { r } = kho({ data: { schema: 1, moc: [QUA(['A', 'M1', 'M2']), TOI({ tran_ap: 1 })], hang: [H('A'), H('M1'), H('M2')] } });
+  doiTay(r, 'A', 'Qua', 'Toi'); commitNgay(r, '2026-10-19', 'docs(lo-trinh): dời A bằng tay');
+  apGhiOk(kit, r, D20); commitNgay(r, D20, 'bao truoc');
+  apGhiOk(kit, r, D21); commitNgay(r, D21, 'lo-trinh(may-ap): 1 hàng — 2026-10-21');
+  apGhiOk(kit, r, D22); commitNgay(r, D22, 'feat: gop squash cua mot PR');
+  const t = doNen(kit, r);
+  return t.doi === 1 && t.may === 2 ? [] : [`lớp dời ${t.doi}, cần 1 (máy ${t.may}, cần 2)`];
+}
+if (want('AP-10-thuoc') && await chayCa('AP-10-thuoc', ap10thuoc)) ok('AP-10-thuoc', 'ba commit (dời tay · máy áp có tiêu đề · máy áp mất tiêu đề như gộp squash): thước đếm lớp dời 1, phần máy 2');
+if (want('AP-10-do2')) await chayDo('AP-10-do2', ap10thuoc, [['_acceptance/ap-chinh-sach-lo-trinh/nen/do-nen.mjs', 'const tay = [...maDoi].filter(m => !may.has(m));', "const tay = sh('log', '-1', '--format=%s', s).startsWith(TIEU_DE_MAY) ? [] : [...maDoi];"]], 'lớp dời 2, cần 1', 'bản sao thước trừ theo tiêu đề commit');
+if (want('AP-10-tron') && await chayCa('AP-10-tron', async kit => {
+  const { r } = kho({ data: { schema: 1, moc: [QUA(['A', 'M1']), TOI()], hang: [H('A'), H('M1')] } });
+  chay(kit, r, D20, ['--ghim', 'A', '--write']); apGhiOk(kit, r, D20); commitNgay(r, D20, 'bao truoc');
+  apGhiOk(kit, r, D21); doiTay(r, 'A', 'Qua', 'Toi'); commitNgay(r, D21, 'lo-trinh(may-ap): 1 hàng — 2026-10-21');
+  const t = doNen(kit, r);
+  return t.doi === 1 ? [] : [`commit lẫn máy áp + dời tay: lớp dời ${t.doi}, cần 1`];
+})) ok('AP-10-tron', 'một commit vừa có phần máy áp (khớp sổ) vừa có một lần dời tay: thước đếm lớp dời 1');
+
 // ═══ CA MỚI THÊM TRÊN DÒNG NÀY ═══
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ap-chinh-sach-lo-trinh)`);

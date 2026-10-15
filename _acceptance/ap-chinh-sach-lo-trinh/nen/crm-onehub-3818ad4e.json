@@ -1,11 +1,13 @@
 {
- "ref": "origin/onehub",
+ "ref": "3818ad4ecbaa06034dd83d0fa904a03cdc20aaeb",
  "sha": "3818ad4ecbaa06034dd83d0fa904a03cdc20aaeb",
  "tong": {
   "commit": 50,
   "tu": "2026-10-03",
   "den": "2026-10-14",
+  "tieu_de_may": 0,
   "doi": 10,
+  "may": 0,
   "xep": 4,
   "trang-thai": 11,
   "them": 15,
@@ -19,6 +21,8 @@
    "ngay": "2026-10-03",
    "tieu_de": "chore(acceptance): nhận kit 2.21.0 — lớp CI 5 tệp, lộ trình OKR và Kho tài liệu cạnh bản đồ",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "tao-tep": 1
    }
@@ -29,6 +33,8 @@
    "ngay": "2026-10-03",
    "tieu_de": "docs(plan): lộ trình — tệp JSON là nguồn duy nhất, gỡ trang dựng tay và bản chụp",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 3
    }
@@ -39,6 +45,8 @@
    "ngay": "2026-10-04",
    "tieu_de": "docs(plan): lộ trình — cả CRM cho mọi phòng ban trước 14/10, làn R1 tám hàng, Kara song song",
    "lop": "xep",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 4,
     "hang.dung_tren": 2,
@@ -53,6 +61,8 @@
    "ngay": "2026-10-04",
    "tieu_de": "docs(plan): lộ trình — đánh dấu việc chủ kho đã làm trên production",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1
    }
@@ -63,6 +73,8 @@
    "ngay": "2026-10-06",
    "tieu_de": "docs(plan): lộ trình — làn R1 tám hàng, K1, l4/l4a/l4b đã gộp; bốn hạt giống giảm giá ghim lại vào làn vệ sinh máy",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 3,
     "hang.buoc_ke": 3,
@@ -78,6 +90,8 @@
    "ngay": "2026-10-07",
    "tieu_de": "docs(plan): lộ trình Kho tài liệu — l4 tro-ly-doc-kho hạng T3 như hồ sơ",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.hang": 1
    }
@@ -88,6 +102,11 @@
    "ngay": "2026-10-11",
    "tieu_de": "docs(lo-trinh): lộ trình chỉ chứa việc dựng; thiếu dữ liệu thì dùng dữ liệu mẫu",
    "lop": "doi",
+   "ma_tay": [
+    "ct",
+    "l5"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 3,
     "hang.cau_giao": 1,
@@ -109,6 +128,8 @@
    "ngay": "2026-10-11",
    "tieu_de": "docs(lo-trinh): d6, d9 thôi chờ chạy thật — số đo chạy thật là tín hiệu xếp lại",
    "lop": "xep",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.dung_tren": 2,
     "hang.buoc_ke": 2
@@ -120,6 +141,10 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs(lo-trinh): theo khuôn S3b của kit — mốc ngoài, dữ liệu giả có nhãn, xếp R2 và R3",
    "lop": "doi",
+   "ma_tay": [
+    "l5"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 3,
     "hang.slug": 1,
@@ -139,6 +164,8 @@
    "ngay": "2026-10-03",
    "tieu_de": "chore(acceptance): nhận kit 2.21.0 — lớp CI 5 tệp, lộ trình OKR và Kho tài liệu cạnh bản đồ",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "tao-tep": 1
    }
@@ -149,6 +176,10 @@
    "ngay": "2026-10-03",
    "tieu_de": "docs(plan): lộ trình — tệp JSON là nguồn duy nhất, gỡ trang dựng tay và bản chụp",
    "lop": "doi",
+   "ma_tay": [
+    "T"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.slug": 2,
     "hang.trang_thai": 22,
@@ -174,6 +205,10 @@
    "ngay": "2026-10-04",
    "tieu_de": "docs(plan): lộ trình — dãy Kara (đã giao MK/KN/KG/K0, K1–K5 theo thứ tự chốt 04/10), Soạn OKR đã bật",
    "lop": "doi",
+   "ma_tay": [
+    "T"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 2,
     "hang.buoc_ke": 2,
@@ -201,6 +236,10 @@
    "ngay": "2026-10-04",
    "tieu_de": "docs(plan): lộ trình — cả CRM cho mọi phòng ban trước 14/10, làn R1 tám hàng, Kara song song",
    "lop": "doi",
+   "ma_tay": [
+    "T"
+   ],
+   "ma_may": [],
    "doi": {
     "hang+": 18,
     "hang.cau_giao": 5,
@@ -227,6 +266,10 @@
    "ngay": "2026-10-04",
    "tieu_de": "docs(plan): lộ trình — đánh dấu việc chủ kho đã làm trên production",
    "lop": "doi",
+   "ma_tay": [
+    "ZT"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1,
     "hang.trang_thai": 1,
@@ -243,6 +286,8 @@
    "ngay": "2026-10-06",
    "tieu_de": "docs(plan): lộ trình — làn R1 tám hàng, K1, l4/l4a/l4b đã gộp; bốn hạt giống giảm giá ghim lại vào làn vệ sinh máy",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 9,
     "hang.buoc_ke": 9,
@@ -258,6 +303,8 @@
    "ngay": "2026-10-08",
    "tieu_de": "docs(plan): lộ trình — LT1 trang Lộ trình trong CRM, LT2 gửi tín hiệu trong CRM",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 2
    }
@@ -268,6 +315,8 @@
    "ngay": "2026-10-08",
    "tieu_de": "docs(plan): lộ trình — đồng bộ bước kế sáu hàng đã gộp 08/10",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 6,
     "hang.buoc_ke": 6
@@ -279,6 +328,8 @@
    "ngay": "2026-10-09",
    "tieu_de": "docs(plan): lộ trình — NM1 khung màn chung, NM2 lọc và kiểu xem chung, NM3 màu trạng thái chung",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 3
    }
@@ -289,6 +340,8 @@
    "ngay": "2026-10-09",
    "tieu_de": "docs(plan): đợt sau 14/10 — nối NM1, NM2, NM3 vào cuối dãy P3",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 3
    }
@@ -299,6 +352,8 @@
    "ngay": "2026-10-09",
    "tieu_de": "docs(lo-trinh-okr): ghi chú LT1 — khối dữ liệu lộ trình phát hành ở mốc kit 2.26",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1
    }
@@ -309,6 +364,8 @@
    "ngay": "2026-10-09",
    "tieu_de": "docs(lo-trinh): đồng bộ lộ trình OKR sau đợt sau-14-10 (09/10)",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 26,
     "hang.ngay": 8,
@@ -323,6 +380,8 @@
    "ngay": "2026-10-10",
    "tieu_de": "docs(lo-trinh): LT1 thôi chờ NM3, NM3 xếp sau LT1 (chủ kho chốt 10/10)",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1,
     "hang.buoc_ke": 1
@@ -334,6 +393,8 @@
    "ngay": "2026-10-10",
    "tieu_de": "refactor(ui): bảng nghĩa → màu vào lib để app import được",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1
    }
@@ -344,6 +405,8 @@
    "ngay": "2026-10-10",
    "tieu_de": "docs(plan): LT1 đã lên onehub (#329); vẽ lại lộ trình và bản đồ",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 1,
     "hang.trang_thai": 1,
@@ -356,6 +419,8 @@
    "ngay": "2026-10-10",
    "tieu_de": "docs(plan): lộ trình — LT1b ngăn hồ sơ trong trang Lộ trình (chủ kho đồng ý 10/10)",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 1
    }
@@ -366,6 +431,10 @@
    "ngay": "2026-10-11",
    "tieu_de": "docs(lo-trinh): khép sổ đợt sau-14-10 vào lộ trình OKR",
    "lop": "doi",
+   "ma_tay": [
+    "F20"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 19,
     "hang.trang_thai": 19,
@@ -381,6 +450,8 @@
    "ngay": "2026-10-11",
    "tieu_de": "docs(lo-trinh): lộ trình chỉ chứa việc dựng; thiếu dữ liệu thì dùng dữ liệu mẫu",
    "lop": "xep",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ten": 1,
     "hang.buoc_ke": 1,
@@ -395,6 +466,8 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs(lo-trinh-okr): LT1b và LT2 mở vòng ngay — chủ kho bỏ chờ 12/10",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 2,
     "hang.ghi_chu": 1
@@ -406,6 +479,8 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs(lo-trinh-okr): LT2 hạng T3 — lối hàng chờ thêm bảng dữ liệu (chủ kho chọn 12/10)",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.hang": 1,
     "hang.ghi_chu": 1
@@ -417,6 +492,35 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs(lo-trinh): theo khuôn S3b của kit — mốc ngoài, dữ liệu giả có nhãn, xếp R2 và R3",
    "lop": "doi",
+   "ma_tay": [
+    "N1",
+    "C",
+    "K6a",
+    "K2f",
+    "L2",
+    "L3",
+    "L4",
+    "E4b",
+    "E5",
+    "E6b",
+    "NM1",
+    "NM2",
+    "NM3",
+    "NM4",
+    "V2a",
+    "V2b",
+    "V2c",
+    "V2e",
+    "V2f",
+    "LT1b",
+    "LT2",
+    "10",
+    "8b",
+    "L",
+    "T",
+    "K5"
+   ],
+   "ma_may": [],
    "doi": {
     "hang.slug": 1,
     "hang.du_lieu": 2,
@@ -433,6 +537,8 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs: một việc một tên — mã DA cho Việc và Dự án, luật tên và giao tiếp của đợt r2",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1,
     "hang.buoc_ke": 3
@@ -444,6 +550,8 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(lo-trinh): nhận kit 2.28.0 — mốc kit mới, DA0a đã gộp, bốn hàng tách từ Cổng Bằng chứng",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 2,
     "moc+": 3
@@ -455,6 +563,8 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(lo-trinh): tăng tốc — nhận kit 13/10, mở đợt r2 14/10, R2 tạm 31/10",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.buoc_ke": 17,
     "moc+": 3,
@@ -467,6 +577,10 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(lo-trinh): F27 vào da_bac — kit 2.28.0 đóng Ngoài-18; DA1–DA8 sang máy M5",
    "lop": "doi",
+   "ma_tay": [
+    "F27"
+   ],
+   "ma_may": [],
    "doi": {
     "hang-": 1,
     "da_bac": 1
@@ -478,6 +592,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): cắt đợt vòng tín hiệu tự chạy thành 8 hàng và 1 chân trời",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 8,
     "chan_troi": 1
@@ -489,6 +605,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): khai vai và số tiêu chí dự kiến cho 8 hàng đợt vòng tín hiệu",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.vai": 8,
     "hang.tieu_chi": 8
@@ -500,6 +618,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): câu giao mở bằng vai; TB1 về 10 tiêu chí",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.cau_giao": 8,
     "hang.tieu_chi": 1
@@ -511,6 +631,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): thêm LT1c (lộ trình đọc bản chụp), LT3 (lộ trình nhiều sản phẩm), chân trời TH8; TH3 đứng trên LT1c",
    "lop": "xep",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.dung_tren": 1,
     "hang.cau_giao": 1,
@@ -526,6 +648,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): LT3 ghi đề xuất cấu hình — CRM cố định trong mã, sản phẩm khác khai động",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.ghi_chu": 1
    }
@@ -536,6 +660,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(lo-trinh): cắt đợt okr-dieu-huong-1410 — DH1–DH5 và chân trời DH6–DH10",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 5,
     "chan_troi": 1
@@ -547,6 +673,8 @@
    "ngay": "2026-10-05",
    "tieu_de": "docs(lo-trinh): khai lộ trình Việc và Dự án cạnh OKR và Kho tài liệu",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "tao-tep": 1
    }
@@ -557,6 +685,8 @@
    "ngay": "2026-10-07",
    "tieu_de": "docs(context): mở mục «Việc» và «Dự án» cho lộ trình Việc và Dự án",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.chay_khi": 2
    }
@@ -567,6 +697,8 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs(dot-r2): gói đợt giai đoạn hai — chạy Điều phối – Thợ từ gói dieu-phoi của kit",
    "lop": "khac",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.slug": 1
    }
@@ -577,6 +709,19 @@
    "ngay": "2026-10-12",
    "tieu_de": "docs: một việc một tên — mã DA cho Việc và Dự án, luật tên và giao tiếp của đợt r2",
    "lop": "doi",
+   "ma_tay": [
+    "V0",
+    "V0a",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8"
+   ],
+   "ma_may": [],
    "doi": {
     "hang+": 10,
     "hang-": 10
@@ -588,6 +733,8 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(lo-trinh): nhận kit 2.28.0 — mốc kit mới, DA0a đã gộp, bốn hàng tách từ Cổng Bằng chứng",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 1,
     "hang.pr": 1,
@@ -601,6 +748,8 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(lo-trinh): thêm hàng DA1b chép-việc-cần-làm-cũ (tách từ DA1, Hỏi-4; khai ở #375)",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang+": 1
    }
@@ -611,6 +760,8 @@
    "ngay": "2026-10-13",
    "tieu_de": "docs(viec-chung): hàng DA1 đang dựng, PR #386",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 1,
     "hang.pr": 1,
@@ -623,6 +774,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(kanban-viec): lộ trình — DA2 đang dựng; thêm DA2b không lộ tiêu đề việc cha (Ngoài-2 của Cổng Bằng chứng)",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 1,
     "hang+": 1
@@ -634,6 +787,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(chep-viec-can-lam-cu): lộ trình — DA1b đang dựng, đã ký Cổng Bằng chứng",
    "lop": "trang-thai",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "hang.trang_thai": 1,
     "hang.buoc_ke": 1
@@ -645,6 +800,8 @@
    "ngay": "2026-10-14",
    "tieu_de": "docs(plan): mốc cho lộ trình Việc–Dự án — m-1015, m-1024",
    "lop": "them",
+   "ma_tay": [],
+   "ma_may": [],
    "doi": {
     "moc+": 2
    }
