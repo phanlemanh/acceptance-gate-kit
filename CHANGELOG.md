@@ -158,7 +158,13 @@ KHÔNG ghi tệp lộ trình.
 **Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.31.0` (KC1) — dòng TỔNG KẾT ghi
 vào hồ sơ `release-2-31-0`.
 
-<<CHIEN-DICH-GHIM-LAI>>
+**Chiến dịch ghim lại — một hồ sơ để cũ hoá theo cấu tạo:** lưới trước-gộp `--stale-all` so mốc `7cf78c36` chọn tám hồ
+sơ. Làn `repin-20261015T083739Z-10776` xanh cho bảy trên máy M5 (72,7 phút, 26 lệnh, 0 chập chờn; `CRM_ROOT` trỏ bản
+clone crm của máy để răng đọc crm ở sha ghim của MC1/RM1 chạy được): `bang-ngoai-n-co-can-cu`, `khoi-viec-cua-anh`,
+`moc-la-chien-dich`, `nen-khong-tinh-tep-cua-vong`, `ra-co-ten-lam-va-trao`, `ra-soat-lo-trinh`, `s4-scope-triage`. Làn
+trước `repin-20261015T070702Z-99542` (84,1 phút) đỏ đúng một ca PD7b — chính ghi chú này từng viết lệnh cài gói và chữ
+«tuỳ chọn» cạnh tên gói; đã sửa chữ. `release-2-30-0` để cũ hoá theo cấu tạo (E4/E8 đo `6a9c0f9a..HEAD`); `release-2-31-0`
+sẽ cùng hình dạng ở mốc sau.
 
 **crm, theo thứ tự** (nhận SAU 2.30.0 — crm PR #413; ghi chú nhận của các mốc trước vẫn áp):
 

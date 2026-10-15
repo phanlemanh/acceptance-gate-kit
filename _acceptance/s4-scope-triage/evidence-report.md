@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 2764cdda38e442b0a6dfc2e5bf468403682d4459
+verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -623,3 +623,7 @@ sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 42 — 2026-10-14, do hoá cũ do vòng bang-ngoai-n-co-can-cu đổi gate-card.js (bảng Ngoài-n)
 run_id: repin-20261014T081837Z-17896
 sha: 2764cdda38e442b0a6dfc2e5bf468403682d4459 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng · ngoài làn máy: E11 (E11 không khai paths)
+
+### Re-pin lần 43 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
+run_id: repin-20261015T083739Z-10776
+sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng · ngoài làn máy: E11 (E11 không khai paths)

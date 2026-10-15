@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 59f00b150944569e6a29691baa8373100befd32f
+verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
 human_signoff: Manh Phan 2026-10-14
 ---
 
@@ -240,3 +240,7 @@ sha: 928b9ff98317b2fc2c5492375322a6c8c1d75bfb · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-14, do sửa danh tính git của bản clone kho thử (MC-5 đỏ trên CI)
 run_id: repin-20261014T144602Z-62859
 sha: 59f00b150944569e6a29691baa8373100befd32f · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
+run_id: repin-20261015T083739Z-10776
+sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng

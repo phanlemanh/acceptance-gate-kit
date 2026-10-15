@@ -5,7 +5,7 @@ slug: release-2-31-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 4 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -73,4 +73,5 @@ hồ sơ · crm#375 · kit #308.
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths` (`hooks/**`, `lib/**`, `pre-merge-check.sh`, `recheck-evidence.cjs`).
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm nhận sau 2.30.0; vòng meta của cửa sổ: MC1 (CỘNG, chủ kho gọi tên) và RM1 (ngoại lệ luật chiều rộng (b) ghi ở sổ của hồ sơ ấy).
+- Ghim lại ở mốc: bảy hồ sơ xanh ở `repin-20261015T083739Z-10776`; `release-2-30-0` để cũ hoá theo cấu tạo.
 - Plugin phạm vi user trên máy M5 GIỮ 2.28 tới khi crm cài 2.30 — mốc không nâng bản cài của máy cắt.
