@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6 khai T2: scripts/lo-trinh.mjs + script mới scripts/do-vong.mjs + khối SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-lo-trinh-gio-may-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-15T07:56:41Z
 ---
@@ -214,3 +214,11 @@ Jira (ước gốc so thời gian đã tiêu).
 ## Notes
 
 - Đo trước ước sau: token chỉ ước khi ≥ 5 vòng có % đo; năm vòng đầu sau gộp hiện «chưa ước (k/5 vòng đo)».
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-16:
+  - Ngoài-1: Một dòng mốc đặt lại hỏng (sửa tay, ghi dở) trong tệp đọc hạn mức của máy làm bước đo vòng báo lỗi và vòng ấy không có dòng giờ máy cho tới khi gỡ dòng hỏng.
+  - Ngoài-2: Cùng gốc Ngoài-1: tệp đọc hạn mức dùng chung cả máy, nên dòng hỏng chặn bước đo của mọi vòng trên máy tới khi gỡ.
+  - Ngoài-3: Gọi lệnh đo vòng qua đường dẫn liên kết (symlink) thì lệnh thoát êm mà không ghi gì; gọi bằng đường dẫn thật thì ghi đúng.
+  - Ngoài-4: Mốc chỉ còn bước cắt bản hiện «~0 % hạn mức tuần» thay vì «chưa ước».
+  - Ngoài-5: Lệnh đo độ lệch gặp tệp lộ trình hỏng vẫn báo «chưa có mốc nào khép» và thoát 0 thay vì báo lỗi đọc.
+  - Ngoài-7: Phần ghi số đo và phần đọc số đo chỉ khớp nhau qua dữ liệu thử viết tay; đổi tên trường ở một bên mà quên bên kia thì bộ kiểm vẫn xanh.
+- Ngoài-6 (dời ngày mục tiêu làm mất dự báo đóng băng): chủ kho chọn mở hợp đồng mới — hạt giống `docs/plans/2026-10-16-hat-giong-du-bao-dong-bang-theo-ma-moc.md`.
