@@ -1,0 +1,132 @@
+{
+ "feature_plain": "Chủ kho khai chính sách một lần trên mốc chiến dịch; từ đó máy tự dời những hàng quá hạn, quá tuổi hay đã bác — báo trước một ngày, ghi sổ — và chủ kho trả lại hay ghim một hàng bằng một lệnh, còn tệp kế hoạch giữ nguyên từng byte ngoài phần bị dời.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ chỉ tự áp khi chiến dịch đang chạy (mốc phát hành gần nhất phía trước) bật tự áp; kho không bật thì mọi thứ y như hôm nay."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ báo trước một ngày rồi mới dời, tối đa 5 hàng mỗi ngày; đề xuất biến mất thì huỷ, đề xuất đổi thì báo trước lại."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ dời đúng chỗ: hàng trễ mốc sang mốc đang chạy, hàng quá tuổi hay xếp lại sang «chờ điều kiện», hàng bị bác sang «đã bác» — không hàng nào biến mất."
+  },
+  {
+   "id": "AC-4",
+   "p": "Sẽ giữ tệp kế hoạch nguyên từng byte ngoài phần bị dời, kể cả khoá lạ và thứ tự; tệp không ở dạng chuẩn thì máy từ chối ghi."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ ghi một dòng sổ cho mỗi lần dời; hai máy dời cùng ngày ra cùng kết quả nên gộp nhánh không xung đột."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ cho chủ kho trả lại một lần dời về đúng chỗ cũ (máy không đề xuất lại đúng điều đó), và ghim hay bỏ ghim một hàng mà không sửa tệp kế hoạch."
+  },
+  {
+   "id": "AC-7",
+   "p": "Sẽ thêm ba lệnh chỉ người gõ được — ghim, bỏ ghim, trả lại — (cần chủ kho duyệt đích danh: thêm lệnh khoá)."
+  },
+  {
+   "id": "AC-8",
+   "p": "Sẽ biến lệnh xem thành bản đồ: đã xong · đang dở · kế, đề xuất rà soát, những lần sắp dời và vừa dời; và cảnh báo khi tệp kế hoạch chưa từng commit."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ in trên thẻ khởi động một dòng «Tự áp» khi kho bật; kho không bật thì thẻ giống hệt hôm nay."
+  },
+  {
+   "id": "AC-10",
+   "p": "Sẽ tự áp mỗi lần mở việc từ một hàng kế hoạch (trừ chính hàng đang mở), và thước «dời bằng tay» trừ phần máy làm dựa trên sổ."
+  },
+  {
+   "id": "AC-11",
+   "p": "Sẽ chạy đúng trên bản chụp kế hoạch thật của crm cộng một chính sách giả, hai ngày liền."
+  }
+ ],
+ "scope_plain": "Bỏ ngoài vòng này, có lý do:",
+ "wont_do": [
+  {
+   "id": "OOS-1",
+   "p": "KHÔNG làm chế độ đóng băng chiến dịch — để vòng sau, cùng chỗ với cắt lượt."
+  },
+  {
+   "id": "OOS-2",
+   "p": "KHÔNG làm lệnh gửi ý vào cửa tín hiệu và câu hỏi chính sách ở thẻ mở đợt — thuộc gói điều phối của máy khác."
+  },
+  {
+   "id": "OOS-3",
+   "p": "KHÔNG làm tệp kế hoạch khởi tạo cho kho mới và việc chặn mở vòng — điều kiện chưa đạt; chặn luôn là câu hỏi cho chủ kho."
+  },
+  {
+   "id": "OOS-4",
+   "p": "KHÔNG tự kéo hàng «chờ điều kiện» về lại khi điều kiện đạt, và chưa hiện sổ trên trang kế hoạch."
+  },
+  {
+   "id": "OOS-5",
+   "p": "KHÔNG áp khi mở thẻ khởi động — thẻ chỉ đọc."
+  },
+  {
+   "id": "OOS-6",
+   "p": "KHÔNG gộp ý định bổ sung «lộ trình tính theo giờ máy và token» (tới sau khi anh ký Cổng Đáng) — ghi hạt giống, chờ một hàng và Cổng Đáng riêng; muốn gộp thì trả lời «sửa: gộp» (RM2 sẽ phải tách hai vòng)."
+  }
+ ],
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Chân sản phẩm: bộ rà soát sẵn có, tài liệu kiến trúc hướng B′ và số đo 8 lần dời tay ở crm."
+  },
+  {
+   "i": 1,
+   "p": "Chân ngành: công cụ dọn việc cũ của GitHub (báo trước rồi mới đóng, có nhãn miễn trừ), tự đóng của Linear, bảng duyệt của Renovate."
+  },
+  {
+   "i": 2,
+   "p": "Mọi loại đề xuất đều có hành động riêng, kể cả ca không còn mốc nào phía trước — AC-3 (dời đúng chỗ), AC-11 (dữ liệu thật)."
+  },
+  {
+   "i": 3,
+   "p": "Mọi pha của một đề xuất — báo trước, chờ, áp, huỷ, trả lại, ghim — AC-2 (nhịp báo trước), AC-6 (trả lại, ghim)."
+  },
+  {
+   "i": 4,
+   "p": "Mọi cách khai chính sách — không khai, khai mà không bật, bật đúng, khai sai, mốc đã qua — AC-1 (đọc chính sách)."
+  },
+  {
+   "i": 5,
+   "p": "Mọi chỗ chịu tác động — tệp kế hoạch, sổ, thẻ khởi động, lệnh xem, ba lệnh khoá, trang, nhiều máy — AC-4, AC-5, AC-7, AC-8, AC-9."
+  },
+  {
+   "i": 6,
+   "p": "Điểm máy tự chạy và thước đếm dời tay — AC-10 (mở việc thì áp, thước trừ theo sổ)."
+  },
+  {
+   "i": 7,
+   "p": "Dữ liệu thật của crm — AC-11 (bản chụp crm)."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Trả lại từng tự ghim luôn cả hàng và ghim từng sửa tệp kế hoạch — đã sửa: trả lại chỉ chặn đúng lần dời bị trả, ghim chỉ ghi sổ nên không làm đặt lại tuổi hàng."
+  },
+  {
+   "i": 1,
+   "p": "Ca bỏ ghim mâu thuẫn với việc ghim đặt lại tuổi — đã sửa: ghim không đổi tệp nữa, ca đo có commit ghim ngày và đo tuổi trước/sau."
+  },
+  {
+   "i": 2,
+   "p": "Mở việc cho một hàng có thể dời chính hàng đó đi — đã sửa: hàng đang mở không bị áp, báo trước của nó bị huỷ."
+  },
+  {
+   "i": 3,
+   "p": "Thước dời tay chỉ trừ phần máy nhờ tiêu đề commit (mất khi gộp squash) — đã sửa: trừ dựa trên sổ, thêm ca commit lẫn và ca squash."
+  },
+  {
+   "i": 4,
+   "p": "Không ca nào đo đề xuất đổi giữa lúc báo trước và lúc áp — đã sửa: đổi thì huỷ cái cũ, báo trước cái mới, áp ngày sau."
+  }
+ ]
+}
