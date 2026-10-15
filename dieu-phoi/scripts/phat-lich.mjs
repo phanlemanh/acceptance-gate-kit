@@ -170,9 +170,12 @@ function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs) {
     yeuCauGanDay: tatCa.filter((y) => nowMs - Date.parse(y.luc) < MOT_NGAY_MS).map((y) => ({ ...y, id: y._ten })),
     cua: docCua(cfg.goc_kho),
   };
+  // Tên tệp tín hiệu mang tên đợt: mã yêu cầu `<dãy>-<số>` đếm lại từ 1 mỗi đợt, mà tệp ở cửa sống qua nhiều đợt.
+  const tenDot = hangViec.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, '');
   for (const y of choXet) {
     let kq = xetYeuCau({ ...y, id: y._ten }, nguCanh, cfg);
-    if (kq.ket_qua === 'ghi') kq = chuyenVaoCua(nguCanh.cua, y._ten, y, kq);
+    const tenTep = `${tenDot}-${y._ten}`;
+    if (kq.ket_qua === 'ghi') kq = chuyenVaoCua(nguCanh.cua, tenTep, y, kq);
     if (kq.ket_qua === 'can_phan') {
       ghiSuKien(thuMuc, { loai: 'yeu-cau', id: y._ten, phien: y.phien, kieu: y.loai, ...chanCua(y), ly_do: kq.ly_do, dich: kq.dich ?? 'giam-sat', can_phan: true });
       daBao.add(y._ten);

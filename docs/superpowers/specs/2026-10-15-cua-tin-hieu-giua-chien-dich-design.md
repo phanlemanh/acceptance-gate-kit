@@ -122,3 +122,15 @@ rỗng → thoát 2.
 
 Câu `jq` ở mục «Đường đo» của hợp đồng: N = mọi yêu cầu việc-phụ/việc-mới `chan != true`; SỐNG khi N ≥ 1 và 0 trong
 số đó `can_phan`, mỗi id `ghi` có tệp; N = 0 là «chưa đọc được». AC-1 chạy nguyên văn câu ấy trên sổ sinh trong lượt.
+
+## 6. Sửa sau Cổng Bằng chứng lượt 1 (chủ kho nâng phạm vi, 2026-10-15)
+
+- **Tên tệp mang tên đợt** (Ngoài-1): `<nguon>/<đợt>-<mã yêu cầu>.json`, `<đợt>` = `hang-viec.json.dot` (vắng thì tên thư
+  mục đợt bỏ tiền tố `dieu-phoi-`). Mã `<dãy>-<số>` đếm lại từ 1 mỗi đợt mà tệp ở cửa sống qua nhiều đợt, nên tên trần
+  làm ý của đợt sau đụng ý chưa gom của đợt trước. Ca còn lại (dùng lại CÙNG tên đợt) rơi về đường an toàn sẵn có: không
+  đè, «cần phán» — Known limits.
+- **So tiêu đề có đường rơi** (Ngoài-3): `tieu_de` → `viec` → `cau_giao` (bản chép `tieuDeCua` của bộ đọc tín hiệu); tiêu
+  đề rỗng không bao giờ «trùng». Chỉ áp ở nhánh có cửa — nhánh không cửa giữ `xetViecPhu` cũ từng byte (AC-4).
+- **Thư mục nguồn chưa có = 0 ý** (AC-8, lỗi trong hợp đồng): thẻ khởi động bỏ đúng câu «nguồn tín hiệu không phải thư
+  mục có thật» cho nguồn vắng trên đĩa; nguồn là tệp vẫn báo.
+

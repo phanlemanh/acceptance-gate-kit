@@ -63,6 +63,14 @@ function xetGiaHan(yc, nguCanh, cfg) {
 }
 
 const chuanHoa = (s) => (s ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+// Tiêu đề của một ý: cùng thứ tự rơi với bộ đọc tín hiệu của kit (`tieuDeCua` trong scripts/tin-hieu.mjs — gói này
+// được chép phẳng vào thư mục đợt nên mang bản chép). Tiêu đề rỗng thì không bao giờ là «trùng».
+function tieuDeCua(nd) {
+  if (typeof nd === 'string') return nd.trim();
+  if (nd && typeof nd === 'object') for (const k of ['tieu_de', 'viec', 'cau_giao']) if (typeof nd[k] === 'string' && nd[k].trim()) return nd[k].trim();
+  return '';
+}
+const tieuDeYc = (nd) => chuanHoa(tieuDeCua(nd));
 
 const truocDo = (c, yc) => {
   const lc = Date.parse(c.luc);
@@ -85,6 +93,7 @@ function xetYMoi(yc, nguCanh) {
 function timTrung(yc, nguCanh) {
   const luc = Date.parse(yc.luc);
   const tepMoi = yc.noi_dung?.tep ?? [];
+  const td = tieuDeYc(yc.noi_dung);
   return nguCanh.yeuCauGanDay.find(
     (c) =>
       c.loai === yc.loai &&
@@ -92,8 +101,7 @@ function timTrung(yc, nguCanh) {
       truocDo(c, yc) &&
       luc - Date.parse(c.luc) < MOT_NGAY_MS &&
       c.noi_dung?.kho === yc.noi_dung?.kho &&
-      (chuanHoa(c.noi_dung?.tieu_de) === chuanHoa(yc.noi_dung?.tieu_de) ||
-        (c.noi_dung?.tep ?? []).some((t) => tepMoi.includes(t))),
+      ((td !== '' && tieuDeYc(c.noi_dung) === td) || (c.noi_dung?.tep ?? []).some((t) => tepMoi.includes(t))),
   );
 }
 
