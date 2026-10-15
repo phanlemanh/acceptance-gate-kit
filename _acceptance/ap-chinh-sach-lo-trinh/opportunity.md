@@ -3,10 +3,10 @@ schema_version: 1
 slug: ap-chinh-sach-lo-trinh
 feature: Chủ kho khai chính sách một lần khi mở chiến dịch; máy tự dời hàng khớp chính sách — báo trước một nhịp, ghi sổ — và chủ kho trả lại hay ghim một hàng bằng một lệnh, còn tệp lộ trình giữ nguyên định dạng, thứ tự và mọi khoá lạ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-15T01:13:06Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 15/10 — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -50,20 +50,20 @@ Kit (`docs/plans/lo-trinh-kit.json`): 18–19 trên 35 lần sửa là xếp l�
 Điều kiện trong lộ trình là «crm cài bản chứa RM1 và khai thử `chinh_sach`», và nó CHƯA đạt: crm chưa cài bản nào
 chứa RM1. Lời gọi tên tới qua một phiên khác — phiên RM1 chuyển lại lời chủ kho ngày 15/10: «Tôi muốn phiên điều phối
 sắp xếp và thực hiện luôn.» Máy KHÔNG coi lời chuyển ấy là đã duyệt. Chủ kho xác nhận ngoại lệ bằng chính chữ ký ở
-cổng này. Đây là vòng meta thứ ba trong cửa sổ sau 2.30 (MC1, RM1, RM2); hồ sơ mốc kế sẽ đếm.
+cổng này — đã ký 15/10 («đáng: build · ngưỡng: nhận»). Đây là vòng meta thứ ba trong cửa sổ sau 2.30 (MC1, RM1, RM2); hồ sơ mốc kế sẽ đếm.
 
 **Hệ quả cho phép đo:** vì crm chưa cài RM1, ngưỡng dưới chỉ đọc được sau khi crm cài bản chứa RM2 và khai chính sách.
 Nếu tới hạn mà crm chưa cài, ô đo ghi «chưa đọc được ở đây» — đó là nhãn trạng thái, không phải CHẾT.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] ở kho đã khai chính sách (crm là kho đầu), trong khoảng giữa hai mốc khép sau khi
+- Câu hỏi phép đo trả lời: ở kho đã khai chính sách (crm là kho đầu), trong khoảng giữa hai mốc khép sau khi
   cài bản chứa RM2, còn bao nhiêu commit dời hàng bằng tay, và mỗi lần máy tự dời có một dòng sổ trả lại được bằng
   một lệnh hay không? Thước: `nen/do-nen.mjs`, lớp «dời», bỏ các commit do máy áp chính sách (máy đánh dấu được).
-- Kết quả nào là SỐNG: [đề xuất] **0** commit dời bằng tay giữa hai mốc khép (nền: 8 commit / 12 ngày), và 100 % lần
+- Kết quả nào là SỐNG: **0** commit dời bằng tay giữa hai mốc khép (nền: 8 commit / 12 ngày), và 100 % lần
   máy tự dời có dòng sổ cùng lệnh trả lại chạy được.
-- Kết quả nào là CHẾT: [đề xuất] số commit dời bằng tay không giảm so với nền (≥ 8 trong cửa sổ cùng độ dài), hoặc có
+- Kết quả nào là CHẾT: số commit dời bằng tay không giảm so với nền (≥ 8 trong cửa sổ cùng độ dài), hoặc có
   một lần máy tự dời mà không có dòng sổ hay không trả lại được.
 - Ở giữa (ITERATE): giảm nhưng chưa về 0 — đọc từng commit còn sót để xem chính sách thiếu khoá gì.
-- Timebox: [đề xuất] 2026-11-19 (mốc Gói road-map — máy tự áp theo chính sách (RM2)). crm chưa cài tới hạn →
+- Timebox: 2026-11-19 (mốc Gói road-map — máy tự áp theo chính sách (RM2)). crm chưa cài tới hạn →
   «chưa đọc được ở đây», không phải CHẾT.
