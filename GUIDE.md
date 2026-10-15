@@ -628,6 +628,10 @@ Repo dựng trước 1.31.0 không tự bật: các thân cổng đọc `t1_skip
 thấy `PRODUCT-MAP.md` thì **bỏ qua** bước vẽ lại và in hai dòng chỉ cách bật.
 Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi và merge kẹt.
 
+**Kho cài gói `road-map`** (hồ sơ kho-moi-cai-goi-road-map): chạy `/acceptance-gate:acceptance-init` (an toàn trên kho
+đã có cấu hình) — bước 5d làm sẵn mọi việc dưới đây: tệp `docs/plan/lo-trinh.json` rỗng đúng khuôn, khoá, miễn trừ,
+bản chép CI, trang. Chỉ khi `.claude/settings.json` của kho bật `road-map`; kho không cài gói thì không đổi byte nào.
+
 **Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
 `skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
 `vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` · `gio_may` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
