@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2764cdda38e442b0a6dfc2e5bf468403682d4459
+verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -213,3 +213,7 @@ sha: 36f1efed73cb1210a82faca6b9dcdbd8d0a7b4e1 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 19 — 2026-10-14, do hoá cũ do vòng bang-ngoai-n-co-can-cu đổi gate-card.js (bảng Ngoài-n)
 run_id: repin-20261014T081837Z-17896
 sha: 2764cdda38e442b0a6dfc2e5bf468403682d4459 · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
+
+### Re-pin lần 20 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
+run_id: repin-20261015T083739Z-10776
+sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
