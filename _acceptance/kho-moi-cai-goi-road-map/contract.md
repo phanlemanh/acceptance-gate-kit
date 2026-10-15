@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm scripts/ (khởi tạo mới, config-patch, product-map, lo-trinh) + commands/acceptance-init.md + road-map/README.md — không chạm hooks/**, lib/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-kho-moi-cai-goi-road-map-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-15T07:54:38Z
 ---
 
 # Acceptance Contract: kho-moi-cai-goi-road-map
