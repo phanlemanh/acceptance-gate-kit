@@ -639,7 +639,7 @@
       ],
       "bat_khi": "Ở kho đã cài gói road-map và bật chặn, không hồ sơ mới nào mở mà không thuộc hàng lộ trình; kho không bật thì không đổi byte nào",
       "nhom": "lo-trinh",
-      "ghi_chu": "Máy MacBook Pro giữ. Trước đây ở chân trời (ngưỡng nấc 4) — chủ kho gọi tên làm luôn 15/10. Chặn là KHÓ ĐẢO → luôn là câu hỏi cho chủ kho ở Cổng Phạm vi. Ước 6–7 giờ máy."
+      "ghi_chu": "Máy MacBook Pro giữ. Trước đây ở chân trời (ngưỡng nấc 4) — chủ kho gọi tên làm luôn 15/10. Chặn là KHÓ ĐẢO → luôn là câu hỏi cho chủ kho ở Cổng Phạm vi. Ước 6–7 giờ máy. Nấc 3 của ADR 0025 (mở vòng từ mô tả tự do thì máy thêm hàng) đi cùng hàng này — chủ kho nhận khuyến nghị ở Cổng Phạm vi RM4 15/10 (Hỏi-1): khi bật chặn, lối máy tự thêm hàng là đường thoát của vòng mở từ mô tả."
     },
     {
       "ma": "RM3",
