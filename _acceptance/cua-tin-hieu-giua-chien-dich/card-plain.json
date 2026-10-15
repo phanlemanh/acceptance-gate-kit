@@ -1,5 +1,5 @@
 {
- "feature_plain": "Giữa một đợt, ý mới của thợ hay của anh không còn gọi ai dậy: nó vào cửa tín hiệu, được trả «đã ghi, xử ở mốc khép», và chỉ việc thật sự chặn mới được phán ngay.",
+ "feature_plain": "Giữa một đợt, ý mới không chặn của thợ hay của anh vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép»; chỉ ý khai chặn mới được phán ngay.",
  "will_do": [
   {
    "id": "AC-1",
@@ -120,5 +120,6 @@
    "i": 4,
    "p": "Phép kiểm «không nằm trong việc chờ» thiếu đối chứng — đã thêm vế dương ở ca chặn."
   }
- ]
+ ],
+ "analyst_plain": ""
 }
