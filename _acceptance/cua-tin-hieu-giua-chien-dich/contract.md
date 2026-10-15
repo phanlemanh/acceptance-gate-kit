@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM3 khai T2: chạm dieu-phoi/scripts (vùng M5, khai trên #308), scripts/start-scan.mjs, gói road-map, khối TRONG-DOT của SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-cua-tin-hieu-giua-chien-dich-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-15T21:28:06Z
 ---
@@ -154,15 +154,10 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
 - Tệp tín hiệu sinh trên đĩa của máy chạy đợt, chưa theo dõi bởi git; lưới cây bẩn của làn ghim lại không tính tệp chưa
   theo dõi. Mất máy trước khi gom = mất ý — giới hạn đã khai.
 - Ý của thợ NGOÀI đợt đi `/road-map:gui` như người.
-- Known limits — chọn ở Cổng Bằng chứng lượt 1 (2026-10-15):
-  - Ngoài-2: kho chỉ khai cửa mà không khai lộ trình thì thẻ khởi động không nhắc số ý chờ gom (dòng nhắc sống trong khối
-    lộ trình của thẻ). Ý không mất; gom tay vẫn thấy.
-  - Đợt dựng lại với CÙNG tên và cùng mã yêu cầu khi ý cũ chưa gom: tệp trùng tên khác thân → ý rơi về «cần phán» (không
-    đè, không mất). Tên tệp mang tên đợt nên chỉ ca dùng lại tên đợt mới chạm.
-  - Ngoài-4, Ngoài-5: hai ca đo nội bộ (CT-6-do nhận cờ lành cứng, CT-7-rong không ghim thông điệp) giữ như hiện tại.
-- Giới hạn đo — chờ chủ kho chọn ở Cổng Bằng chứng lượt 2 (2026-10-16): vế «tiêu đề rỗng thì không bao giờ trùng» của
-  AC-3 có trong vật (chốt so tiêu đề ở bộ xét việc mới) và bộ chấm lượt 2 kiểm đúng trên bản sao, nhưng CHƯA có ca đỏ riêng
-  canh chốt ấy; ca CT-3-do5 ghim thông điệp «ý không tiêu đề bị gộp mất» nhưng đỏ vì một vế khác (hai việc phụ cùng «viec»
-  không gộp). Ngưỡng mở lại: vòng kế chạm bộ xét việc mới thêm một mutant gỡ chốt trên fixture hai ý không có tiêu đề nào.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-16:
+  - Ngoài-5: kho chỉ khai cửa mà không khai lộ trình thì thẻ khởi động không nhắc số ý chờ gom (dòng nhắc sống trong khối lộ trình của thẻ); ý không mất, gom tay vẫn thấy.
+  - Ngoài-2: dọn thư mục đợt rồi mở lại đợt với CÙNG tên cũ khi ý cũ chưa gom thì ý trùng mã rơi về «cần phán» (không đè, không mất) — tên tệp mang tên đợt nên chỉ ca dùng lại tên mới chạm.
+  - Giới hạn đo AC-3: vế «tiêu đề rỗng thì không bao giờ trùng» có trong vật và bộ chấm lượt 2 kiểm đúng trên bản sao, nhưng chưa có ca đỏ riêng canh chốt ấy (CT-3-do5 đỏ vì vế khác); vòng kế chạm bộ xét việc mới thêm một mutant gỡ chốt trên hai ý không tiêu đề.
+- Chấp nhận, không sửa (Cổng Bằng chứng lượt 1 và 2): hai ca đo nội bộ CT-6-do (nhận cờ lành cứng), CT-7-rong (không ghim thông điệp); nhãn lệch của CT-3-do5 gộp vào giới hạn đo AC-3.
 - Thợ thật ra bị chặn mà quên `--chan` nhận «đã ghi» và phải tự gửi lại (câu trả chỉ lối) — ngưỡng không đếm được ca này,
   vì không sinh `can_phan`. Ngưỡng mở lại: ≥ 1 lần trong một đợt thợ gửi lại cùng ý kèm `--chan` sau một lần «đã ghi».

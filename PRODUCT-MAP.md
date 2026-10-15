@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>125 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>31 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>32 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -44,7 +44,6 @@ flowchart TD
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
-- Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui (`cua-tin-hieu-giua-chien-dich`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 
 ## Đã giao — chờ phiên nghiệm thu
@@ -56,6 +55,7 @@ flowchart TD
 - Người gửi tín hiệu ở phòng ban đọc được tín hiệu của mình đang ở đâu bằng một câu tiếng sản phẩm — tên nhóm, việc đã thành, đã giao ngày nào; không mã việc, không tên hồ sơ, không từ nội bộ (`cau-tin-hieu-nguoi-gui`)
 - Lượt chấm không tự đốt lượt — mã thoát máy đọc từ dấu, lượt chặn vì hạ tầng mang nhãn hạ tầng và thử lại cùng round, verified_commit từ máy; thẻ Cổng Phạm vi hiện đủ «sẽ không làm» và mọi bảng phản biện; bảng chi phí S4 tách theo khối; ảnh ui-check neo trong hồ sơ (`cham-khong-tu-dot-luot`)
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
+- Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui (`cua-tin-hieu-giua-chien-dich`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)
