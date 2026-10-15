@@ -198,6 +198,8 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một l
 ## Notes
 
 - Ghim chỉ sống trong sổ tự áp: tệp lộ trình và trang không cho thấy hàng nào đang ghim — xem bằng `/road-map:xem`.
+- Chính sách không tự chuyển sang chiến dịch kế: khi mốc mang chính sách qua ngày, tự áp dừng tới khi mốc kế khai chính sách
+  (thẻ khởi động nhắc nếu có đề xuất). Đo trên crm (AC-11): mốc Việc–Dự án đổi khoảng 9 ngày một lần.
 - Con trỏ thay thế (ca đo, không sửa hồ sơ đã ký): LT-97 thêm năm dòng ma trận cho năm dạng cờ khuôn của chính sách trên mốc;
   lời hứa gốc giữ nguyên nghĩa. RS-10 (hồ sơ `ra-soat-lo-trinh`) so «mọi dòng `--ra-soat` có mặt trong đầu ra lệnh xem, đúng
   thứ tự» thay cho so byte, vì lệnh xem thành bản đồ. Lý do: sổ quyết định, dòng `fix` stage S3.
