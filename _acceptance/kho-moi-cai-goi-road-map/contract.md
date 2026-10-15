@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm scripts/ (khởi tạo mới, config-patch, product-map, lo-trinh) + commands/acceptance-init.md + road-map/README.md — không chạm hooks/**, lib/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-kho-moi-cai-goi-road-map-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-15T07:54:38Z
 ---
@@ -72,3 +72,30 @@ ghi đè]` `[NGÀNH: Terraform/Ansible — bước hội tụ, chạy lại khô
 - CỘNG (ADR 0018) duyệt đích danh bằng chữ ký Cổng Phạm vi: script `lo-trinh-khoi-tao.mjs` · bước `5d` của `acceptance-init` · chế độ `--append` của `config-patch.mjs` · hàm `veTrangLoTrinh` export từ `product-map.mjs`.
 - `config-patch.mjs` và `product-map.mjs` nằm trong danh sách chép CI (`product-map.mjs`) hoặc được kho gọi trực tiếp — ghi chú phát hành nêu «chép lại».
 - Phụ thuộc RM2: bộ ghi `ghiLoTrinh` + `dangChuan`. Nhánh dựng từ đỉnh nhánh RM2; RM2 gộp main thì gộp main vào nhánh này.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-16:
+  - Ngoài-2: Khi cấu hình của kho khai đường lộ trình trỏ ra ngoài kho, bước khởi tạo từ chối và báo «không ghi gì».
+  - Ngoài-3: Hai bài kiểm của tính năng này có thể vẫn xanh dù bước kiểm tương ứng không chạy thật.
+  - Ngoài-7: Với kho viết danh sách cấu hình theo kiểu gọn, bước thêm miễn trừ có thể làm tệp cấu hình hỏng và các công cụ khác không đọc được.
+  - Ngoài-8: Một bài kiểm có thể xanh dù bước khởi tạo không chạy.
+  - Ngoài-9: Bài kiểm cho kho chưa chép bộ kiểm có thể xanh dù lần khởi tạo chưa chạy tới đó.
+  - Ngoài-10: Bài kiểm trang cũ có thể xanh dù lần khởi tạo đã dừng sớm.
+  - Ngoài-11: Bài kiểm việc từ chối thêm mục trùng không phân biệt được lý do từ chối.
+  - Ngoài-12: Bài kiểm chiều đỏ của bản đồ có thể chấp nhận một lỗi khác với lỗi định bắt.
+  - Ngoài-13: Bài kiểm lời dặn trong lệnh khởi tạo chỉ kiểm có nhắc bước 5d, không kiểm nó nằm trong nhóm bước vẫn chạy.
+  - Ngoài-14: Kịch bản đứt giữa lúc chép bộ kiểm chưa từng được thử thật.
+  - Ngoài-15: Nếu tệp cấu hình của kho viết danh sách miễn trừ theo kiểu gạch đầu dòng sát lề, bước khởi tạo thêm mục mới vào sai chỗ và tệp cấu hình trở thành không hợp lệ với các công cụ đọc cấu hình chuẩn bên ngoài.
+  - Ngoài-16: Phép kiểm xác nhận trang lộ trình có sẵn không bị ghi đè có thể báo xanh ngay cả khi bước khởi tạo hoàn toàn không chạy, nên màu xanh của riêng ca này chưa đủ để tin.
+  - Ngoài-17: Phép kiểm kho chưa chép lớp CI có thể báo xanh dù bước khởi tạo chết ngay từ đầu, nên người đọc kết quả có thể tin nhầm là hành vi đúng đã được xác nhận.
+  - Ngoài-18: Phép kiểm xác nhận kho chưa bật bản đồ không bị vẽ thêm bản đồ có thể xanh dù bước khởi tạo không làm gì cả, nên lời hứa này chưa được chứng minh chắc bằng ca đó.
+  - Ngoài-19: Khi kho khai tệp lộ trình nằm ngoài kho, công cụ báo «từ chối, không ghi gì» nhưng thực ra đã thêm một dòng miễn trừ vào cấu hình của kho.
+  - Ngoài-20: Bộ kiểm tra không phân biệt được hai lý do từ chối khi thêm trùng một mục miễn trừ, nên nếu chế độ thêm bị hỏng thì bộ kiểm tra vẫn xanh.
+  - Ngoài-21: Nếu bản công cụ kiểm tra chép sẵn trong kho cũ hơn bản trong gói, trang lộ trình vẽ lúc khởi tạo có thể bị kiểm tra của kho báo đỏ ngay ở commit đầu.
+  - Ngoài-24: Nếu gói được cài qua một thư mục là đường tắt, lệnh khởi tạo lộ trình im lặng không làm gì và báo xong.
+  - Ngoài-25: Khi kho khai tệp lộ trình nằm ngoài kho, lệnh báo «từ chối, không ghi» nhưng đã thêm một dòng miễn trừ vào cấu hình.
+  - Ngoài-26: Khi mọi kho trên máy đều đã cài road-map, phép đo trên các kho thật vẫn báo xanh dù không đo kho nào.
+  - Ngoài-27: Lời hứa «đứt giữa chừng thì chạy lại là xong» chưa từng được thử cho bước chép công cụ kiểm tra vào kho.
+  - Ngoài-28: Bộ kiểm tra không phân biệt được «kho đã có lộ trình đầy đủ» với «công cụ không nhận ra kho đã bật».
+  - Ngoài-29: Bộ kiểm tra không phân biệt hai lý do từ chối cùng một mã, nên nếu chế độ thêm hỏng nó vẫn xanh.
+  - Ngoài-30: Phép đo trên các kho thật có thể báo xanh mà không đo kho nào khi mọi kho đã cài road-map.
+  - Ngoài-31: Nếu ai đó sau này sửa lời dặn để 5d bị xếp vào nhóm bước bỏ qua, bộ kiểm tra vẫn xanh.
+- Mở hợp đồng mới (Ngoài-1, Ngoài-6) — ghi thành hạt giống `docs/plans/2026-10-16-hat-giong-khoi-tao-lo-trinh-im-lang.md`, không tạo ô.
