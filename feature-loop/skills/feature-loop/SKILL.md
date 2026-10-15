@@ -218,7 +218,7 @@ khoa: moc ten_phien nhom
 nhom-rong: khong-xep
 ```
 <!-- S0-TEN-CHIEN-DICH>>> -->
-   **Tự áp chính sách ở điểm mở việc** (hồ sơ ap-chinh-sach-lo-trinh): khi chiến dịch đang chạy của lộ trình khai `chinh_sach.tu_ap: true`, lệnh của khối `S0-MO-O` áp chính sách TRƯỚC khi mở ô (báo trước · dời · huỷ, ghi sổ `<tệp>.so.jsonl`; hàng đang mở không bị đụng) và JSON mang thêm khoá `ap` khi có dòng sổ mới. Có khoá `ap` → commit RIÊNG tệp lộ trình + sổ tự áp TRƯỚC commit mở ô, đúng tiêu đề trong khối dưới. Không hỏi người: chính sách là chữ chủ kho đã chốt lúc cắt mốc; đường đảo là `/road-map:tra-lai` và `/road-map:ghim` (lệnh người). Thước «dời bằng tay» nhận phần máy làm bằng dòng `ap` của sổ, không bằng tiêu đề — tiêu đề là để người đọc lịch sử.
+   **Tự áp chính sách ở điểm mở việc** (hồ sơ ap-chinh-sach-lo-trinh): khi chiến dịch đang chạy của lộ trình khai `chinh_sach.tu_ap: true`, lệnh của khối `S0-MO-O` áp chính sách TRƯỚC khi mở ô (báo trước · dời · huỷ, ghi sổ `<tệp>.so.jsonl`; hàng đang mở không bị đụng) và JSON mang thêm khoá `ap` khi có dòng sổ mới. Có khoá `ap` → commit RIÊNG tệp lộ trình + sổ tự áp TRƯỚC commit mở ô, đúng tiêu đề trong khối dưới. Không hỏi người: chính sách là chữ chủ kho đã chốt lúc cắt mốc; đường đảo là lệnh trả lại và lệnh ghim của gói road-map (lệnh chỉ người gõ). Thước «dời bằng tay» nhận phần máy làm bằng dòng `ap` của sổ, không bằng tiêu đề — tiêu đề là để người đọc lịch sử.
 <!-- <<<S0-AP-COMMIT -->
 ```
 lo-trinh(may-ap): <n> hàng — <YYYY-MM-DD>

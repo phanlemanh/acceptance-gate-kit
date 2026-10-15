@@ -14,6 +14,7 @@
 // thứ chỉ thẻ start in; số ngày còn lại tới mốc do script nội tuyến của trang tính lúc xem.
 import { readFileSync, readdirSync, existsSync, statSync, realpathSync, mkdirSync, writeFileSync, appendFileSync, renameSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -1087,7 +1088,7 @@ export function ghiLoTrinh(p, data) { const t = `${p}.tam-${process.pid}`; write
 // Sổ tự áp: `<tệp>.so.jsonl` cạnh tệp lộ trình, chỉ thêm dòng. Dòng TẤT ĐỊNH (ngày không giờ, khoá theo thứ tự cố định,
 // không đường dẫn) — hai máy áp cùng ngày trên cùng nội dung ra cùng byte nên gộp nhánh không xung đột.
 export const tepSo = tep => String(tep).replace(/\.json$/, '') + '.so.jsonl';
-const KHOA_SO = ['ngay', 'loai', 'ma', 'de_xuat', 'luat', 'can_cu', 'ap_tu', 'vi_tri', 'dich', 'tao_khoi', 'hang_goc', 'lenh_tra_lai', 'boi'];
+const KHOA_SO = ['ngay', 'loai', 'ma', 'de_xuat', 'luat', 'can_cu', 'ap_tu', 'vi_tri', 'dich', 'tao_khoi', 'hang_goc', 'tep_truoc', 'lenh_tra_lai', 'boi'];
 const dongSo = d => JSON.stringify(Object.fromEntries(KHOA_SO.filter(k => d[k] !== undefined).map(k => [k, d[k]])));
 export function docSo(root, tep) {
   const txt = doc(path.join(root, tepSo(tep))); if (txt == null) return { dong: [], hong: 0 };
@@ -1126,11 +1127,14 @@ function mucMay(hangGoc, e, ngay, khoi) {
   muc.tu_ap = { ngay };
   return muc;
 }
-// Áp MỘT đề xuất lên `data` (object vừa đọc từ tệp). Trả phần sổ cần để trả lại: vị trí cũ, đích, hàng gốc.
+// Áp MỘT đề xuất lên `data` (object vừa đọc từ tệp). Trả phần sổ cần để trả lại: vị trí cũ, đích, hàng gốc. Hàng không có
+// mã thật hay không còn trong `hang` → null, KHÔNG đụng tệp (S4-r1: splice(-1) từng xoá nhầm hàng cuối).
+const viTriHang = (data, ma) => (Array.isArray(data.hang) ? data.hang : []).findIndex(h => laObj(h).ma !== undefined && chuoi(laObj(h).ma) === ma);
 function apMot(data, e, cdI, ngay) {
   const ma = e.ma; const moc = Array.isArray(data.moc) ? data.moc : [];
-  const idx = (Array.isArray(data.hang) ? data.hang : []).findIndex(h => laObj(h).ma !== undefined && chuoi(laObj(h).ma) === ma);
-  const hangGoc = idx >= 0 ? data.hang[idx] : null;
+  const idx = viTriHang(data, ma);
+  if (idx < 0) return null;
+  const hangGoc = data.hang[idx];
   const viTriMoc = []; moc.forEach((m, mi) => { const ds = Array.isArray(laObj(m).hang) ? m.hang : null; const k = ds ? ds.map(chuoi).indexOf(ma) : -1; if (k >= 0) viTriMoc.push({ moc: chuoi(m.ten), chi_so: mi, vt: k }); });
   if (e.de_xuat === 'doi-moc') {
     const go = viTriMoc.filter(v => v.chi_so !== cdI && MOC_CHIEN_DICH(laObj(moc[v.chi_so])) && chuoi(moc[v.chi_so].ngay) < ngay);
@@ -1147,11 +1151,7 @@ function apMot(data, e, cdI, ngay) {
   data[khoi].push(mucMay(hangGoc, e, ngay, khoi));
   return { vi_tri: { chi_so: idx, moc: viTriMoc }, dich: { khoi }, ...(tao ? { tao_khoi: true } : {}), hang_goc: hangGoc };
 }
-// Lần áp có còn hiệu lực trong tệp không (khôi phục sau khi đứt giữa «ghi sổ» và «ghi tệp», cùng ngày).
-function conHieuLuc(data, d) {
-  if (d.dich.khoi === 'moc') { const m = laObj((data.moc || [])[d.dich.chi_so]); return Array.isArray(m.hang) && m.hang.map(chuoi).includes(d.ma); }
-  return Array.isArray(data[d.dich.khoi]) && data[d.dich.khoi].some(x => chuoi(laObj(x).ma) === d.ma && laObj(laObj(x).tu_ap).ngay === d.ngay);
-}
+const bamTxt = t => createHash('sha256').update(t).digest('hex');
 
 // Dòng chữ của một lộ trình đã tự áp — cùng câu cho lệnh `--ap`, lệnh xem và thẻ khởi động.
 export function dongTuAp(t) {
@@ -1192,8 +1192,12 @@ export function apChinhSach({ root, cacTep, sections, today, ghi = false, hangMo
     const rs = raSoat({ root, cacTep: [t], sections, today })[0];
     for (const c of rs.canh_bao || []) canh.push(c);
     let doi = false; const moi = []; const xong = new Set();
-    // Đứt giữa chừng hôm nay: sổ có dòng `ap` mà tệp chưa đổi → làm lại thay đổi, không thêm dòng.
-    for (const [ma, d] of P.daAp) if (d.ngay === today && !conHieuLuc(data, d)) { apMot(data, d, d.dich.khoi === 'moc' ? d.dich.chi_so : cdI, today); doi = true; xong.add(ma); }
+    // Đứt giữa chừng hôm nay: dòng `ap` mang băm tệp TRƯỚC lần ghi (`tep_truoc`). Tệp còn đúng byte ấy = tệp chưa kịp ghi →
+    // làm lại các lần áp đó theo thứ tự sổ, không thêm dòng. Tệp khác = người đã sửa sau khi ghi → máy KHÔNG làm lại (không đè).
+    const bamGoc = bamTxt(goc);
+    for (const d of dong) if (d.loai === 'ap' && d.ngay === today && d.tep_truoc === bamGoc && P.daAp.get(chuoi(d.ma)) === d) {
+      if (apMot(data, d, d.dich.khoi === 'moc' ? d.dich.chi_so : cdI, today)) { doi = true; xong.add(chuoi(d.ma)); }
+    }
     let soAp = dong.filter(d => d.loai === 'ap' && d.ngay === today).length;
     const huy = c => moi.push({ ngay: today, loai: 'huy', ma: c.ma, de_xuat: c.de_xuat, luat: c.luat, can_cu: c.can_cu });
     const baoTruoc = e => moi.push({ ngay: today, loai: 'bao-truoc', ma: e.ma, de_xuat: e.de_xuat, luat: e.luat, can_cu: e.can_cu, ap_tu: congNgay(today, cs.nhip_ngay) });
@@ -1204,12 +1208,13 @@ export function apChinhSach({ root, cacTep, sections, today, ghi = false, hangMo
       if (ma === hangMo || P.ghim.has(ma)) { if (cho) huy(cho); continue; }
       const tl = P.traLai.get(ma);
       if (!cho && tl && tl.de_xuat === e.de_xuat && tl.luat === e.luat) continue;
+      if (viTriHang(data, ma) < 0) { canh.push(`hàng ${ma} không có mã trong danh sách việc — máy không tự áp hàng này`); if (cho) huy(cho); continue; }
       if (e.de_xuat === 'doi-moc' && cdI == null) { canh.push(`không có mốc chiến dịch phía trước — ${ma} không dời được`); if (cho) huy(cho); continue; }
       if (!cho) { baoTruoc(e); continue; }
       if (cho.de_xuat !== e.de_xuat || cho.luat !== e.luat) { huy(cho); baoTruoc(e); continue; }
       if (today < cho.ap_tu || soAp >= cs.tran_ap) continue;
       const ket = apMot(data, e, cdI, today); doi = true; soAp += 1;
-      moi.push({ ngay: today, loai: 'ap', ma, de_xuat: e.de_xuat, luat: e.luat, can_cu: e.can_cu, ...ket, lenh_tra_lai: LENH_TRA_LAI(ma) });
+      moi.push({ ngay: today, loai: 'ap', ma, de_xuat: e.de_xuat, luat: e.luat, can_cu: e.can_cu, ...ket, tep_truoc: bamGoc, lenh_tra_lai: LENH_TRA_LAI(ma) });
     }
     for (const [ma, c] of P.cho) if (!coDeXuat.has(ma)) huy(c);
     // Thứ tự dòng mới theo thứ tự hàng trong tệp (ổn định: huỷ trước báo trước lại của cùng mã).

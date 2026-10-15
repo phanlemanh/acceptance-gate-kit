@@ -368,12 +368,18 @@ async function ap5(kit) {
     const thieu = KHOA_AP.filter(k => d[k] === undefined); if (thieu.length) sai.push(`dòng ap ${d.ma} thiếu ${thieu.join(', ')}`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d.ngay)) sai.push(`dòng ap ${d.ma}: ngay «${d.ngay}» không phải YYYY-MM-DD`);
   }
-  git(hai[0], 'fetch', '-q', hai[1], 'nhanh-b');
-  const m = spawnSync('git', ['-C', hai[0], 'merge', '--no-edit', 'FETCH_HEAD'], { encoding: 'utf8' });
-  if (m.status !== 0) sai.push(`gộp hai nhánh xung đột: ${m.stdout}${m.stderr}`);
+  hai5 = hai;
   return sai;
 }
+let hai5 = null;
+async function ap5gop() {
+  if (!hai5) return ['AP-5 chưa dựng hai bản clone'];
+  git(hai5[0], 'fetch', '-q', hai5[1], 'nhanh-b');
+  const m = spawnSync('git', ['-C', hai5[0], 'merge', '--no-edit', 'FETCH_HEAD'], { encoding: 'utf8' });
+  return m.status === 0 && !/CONFLICT/.test(m.stdout + m.stderr) ? [] : [`gộp hai nhánh xung đột: ${m.stdout}${m.stderr}`];
+}
 if (want('AP-5') && await chayCa('AP-5', ap5)) ok('AP-5', 'hai bản clone áp ngày 20 rồi 21 trên nhánh riêng: tệp và sổ cùng byte; dòng ap đủ khoá, ngày không giờ; gộp nhánh thoát 0 không xung đột');
+if (want('AP-5-gop') && await chayCa('AP-5-gop', ap5gop)) ok('AP-5-gop', 'gộp nhánh của bản clone thứ hai vào bản thứ nhất: thoát 0, không đánh dấu xung đột');
 if (want('AP-5-do')) await chayDo('AP-5-do', ap5, [['scripts/lo-trinh.mjs', "moi.push({ ngay: today, loai: 'ap', ma,", "moi.push({ ngay: new Date().toISOString(), loai: 'ap', ma,"]], 'sổ hai máy khác byte', 'bản sao ghi giờ vào ngày');
 if (want('AP-5-dut') && await chayCa('AP-5-dut', async kit => {
   const sai = []; const { r } = kho({ hoSo: { 'b-bac': 'da-bac' }, data: DATA_3() });
@@ -396,6 +402,46 @@ if (want('AP-5-so-hong') && await chayCa('AP-5-so-hong', async kit => {
   if (bam(path.join(r, TEP)) !== b || bam(path.join(r, SO)) !== bs) sai.push('sổ hỏng mà máy vẫn ghi');
   return sai;
 })) ok('AP-5-so-hong', 'sổ có một dòng hỏng: JSON cảnh báo, máy không ghi gì vào tệp đó');
+
+// S4-r1 (finding trong hợp đồng, AC-3/AC-5): hàng không còn trong danh sách việc hay không có mã thì máy không đụng tệp;
+// nhánh khôi phục chỉ làm lại khi tệp còn đúng byte trước lần ghi (người sửa sau khi ghi thì máy không đè).
+const DATA_XT = () => ({ schema: 1, moc: [TOI({ tuoi_ngay: 30, tran_ap: 1 })], hang: [H('A'), H('B'), H('C')] });
+async function ap5XoaTay(kit) {
+  const sai = []; const { r } = kho({ data: DATA_XT() });
+  apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const d = docLT(r); const ap = docSo(r).find(x => x.loai === 'ap'); if (!ap) return ['không có lần áp nào — ca không đo được gì'];
+  d.chan_troi = d.chan_troi.filter(x => x.ma !== ap.ma); ghiTep(r, d);
+  const truoc = readFileSync(path.join(r, TEP), 'utf8'); const nAp = docSo(r).filter(x => x.loai === 'ap').length;
+  apGhiOk(kit, r, D21);
+  const sau = docLT(r);
+  const mat = ['B', 'C', 'A'].filter(m => m !== ap.ma && !tapMa(sau).has(m)); if (mat.length) sai.push(`hàng biến mất: ${mat.join(', ')}`);
+  if ((sau.chan_troi || []).some(x => x.ma === undefined)) sai.push('mục không mã trong chan_troi');
+  if (readFileSync(path.join(r, TEP), 'utf8') !== truoc) sai.push(`máy làm lại lần áp đè lên sửa tay: tệp đổi sau khi người xoá mục ${ap.ma}`);
+  if (docSo(r).filter(x => x.loai === 'ap').length !== nAp) sai.push('thêm dòng ap khi chạy lại cùng ngày');
+  return sai;
+}
+if (want('AP-5-xoa-tay') && await chayCa('AP-5-xoa-tay', ap5XoaTay)) ok('AP-5-xoa-tay', 'người xoá mục máy vừa chuyển rồi chạy lại cùng ngày: không hàng nào biến mất, không mục rỗng mã, máy không làm lại lần áp');
+if (want('AP-5-xoa-tay-do')) await chayDo('AP-5-xoa-tay-do', ap5XoaTay, [['scripts/lo-trinh.mjs', 'd.tep_truoc === bamGoc && ', ''], ['scripts/lo-trinh.mjs', '  if (idx < 0) return null;\n', '']], 'hàng biến mất', 'bản sao bỏ cả kiểm băm lẫn kiểm vị trí hàng (như trước S4-r1)');
+async function ap5DuaVe(kit) {
+  const { r } = kho({ data: DATA_XT() });
+  apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const ap = docSo(r).find(x => x.loai === 'ap'); const d = docLT(r); const muc = d.chan_troi.find(x => x.ma === ap.ma);
+  d.chan_troi = d.chan_troi.filter(x => x !== muc); d.hang.push(ap.hang_goc); ghiTep(r, d);
+  const truoc = readFileSync(path.join(r, TEP), 'utf8'); apGhiOk(kit, r, D21);
+  return readFileSync(path.join(r, TEP), 'utf8') === truoc ? [] : [`người đưa ${ap.ma} về danh sách việc cùng ngày mà máy dời lại`];
+}
+if (want('AP-5-dua-ve') && await chayCa('AP-5-dua-ve', ap5DuaVe)) ok('AP-5-dua-ve', 'người tự đưa hàng vừa bị dời về danh sách việc trong cùng ngày: máy không dời lại');
+if (want('AP-5-dua-ve-do')) await chayDo('AP-5-dua-ve-do', ap5DuaVe, [['scripts/lo-trinh.mjs', 'd.tep_truoc === bamGoc && ', '']], 'mà máy dời lại', 'bản sao làm lại lần áp bất kể tệp đã đổi');
+if (want('AP-3-khong-ma') && await chayCa('AP-3-khong-ma', async kit => {
+  const sai = []; const data = { schema: 1, moc: [TOI({ tuoi_ngay: undefined, tran_ke_tiep: 0 })], hang: [H('B'), { cau_giao: '«việc chưa có mã»' }, H('C')] };
+  const { r } = kho({ data }); apGhiOk(kit, r, D20); apGhiOk(kit, r, D21);
+  const sau = docLT(r);
+  if (!sau.hang.some(h => h.ma === undefined)) sai.push('hàng không mã biến mất');
+  if ((sau.chan_troi || []).some(x => x.ma === undefined)) sai.push('mục không mã trong chan_troi');
+  const con = [...tapMa(sau)].filter(Boolean).sort().join(); if (con !== 'B,C') sai.push(`hàng biến mất: tập mã còn ${con}`);
+  if (!(apJson(kit, r, D21)[0].canh_bao || []).some(c => c.includes('không có mã trong danh sách việc'))) sai.push('không cảnh báo hàng không mã');
+  return sai;
+})) ok('AP-3-khong-ma', 'hàng không có mã mà luật trần đề xuất: máy không áp, cảnh báo; các hàng khác dời đúng, không mục rỗng mã');
 
 // ═══ AP-6 (AC-6): trả lại · ghim · bỏ ghim ══════════════════════════════════════════════════════════════════
 const DATA_6 = () => ({ schema: 1, moc: [QUA(['M']), { ...TOI(), hang: ['K1'] }], hang: [H('M'), H('T'), H('K1')] }); // K1 ở mốc đang chạy: không đề xuất

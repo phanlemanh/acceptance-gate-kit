@@ -43,7 +43,7 @@ nằm ở `road-map/commands/`. Thẻ khởi động và lệnh xem chỉ đọc
 
 ## Bảng tóm tắt cho người
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Sau việc này, người dùng thấy | Chạm vào | Tiêu chí |
 |---|---|---|
 | Ca gác của hồ sơ RM1 thôi đỏ oan với mọi PR sửa mã sau khi RM1 đã ký (kể cả PR của máy M5) | `tests/scripts/ra-soat-lo-trinh.test.mjs` (RS-0) | — (giữ suite xanh) |
 | Chính sách khai trên mốc chiến dịch được đọc đúng | `scripts/lo-trinh.mjs` | AC-1 (đọc chính sách) |
