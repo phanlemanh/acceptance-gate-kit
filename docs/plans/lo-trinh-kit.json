@@ -129,12 +129,16 @@
       ]
     },
     {
-      "ten": "Gói road-map — máy tự áp theo chính sách (RM2); ngày máy đề xuất 15/10, chủ kho dời được bằng PR",
-      "ngay": "2026-11-19",
+      "ten": "Gói road-map hoàn tất theo B′ — ngày tính từ ước 32–40 giờ máy (RM2 8–10 · RM4 5–6 · RM5 6–7 · RM3 6–8 + M5 · RM6 5–6 · cắt bản 1,5–2); chủ kho gọi tên làm luôn 15/10",
+      "ngay": "2026-10-19",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
-        "RM2"
+        "RM2",
+        "RM4",
+        "RM5",
+        "RM3",
+        "RM6"
       ]
     }
   ],
@@ -604,7 +608,68 @@
       ],
       "bat_khi": "Ở kho đã khai chính sách, một mốc khép mà chủ kho không phải sửa tay tệp lộ trình lần nào để dời hàng quá hạn; mỗi lần máy tự dời có một dòng sổ và trả lại được bằng một lệnh",
       "nhom": "lo-trinh",
-      "ghi_chu": "Máy MacBook Pro giữ. Mở khi crm cài bản phát hành chứa RM1 và khai thử chính sách (luật chiều rộng (b): một vòng meta sau một mốc được kho nhận; mốc nền = số lần sửa tay lộ trình giữa hai mốc). CỘNG duyệt ở Cổng Phạm vi: ba lệnh khoá ghim · bo-ghim · tra-lai (sửa ADR 0002 + danh sách khoá P32). Gộp vào vòng: /road-map:xem thành bản đồ xong · đang dở · kế; giới hạn đã biết của RM1 Ngoài-3 (tệp chưa commit thì luật tuổi tắt không cảnh báo)."
+      "ghi_chu": "Máy MacBook Pro giữ. Chủ kho gọi tên mở LUÔN 15/10 («road-map hoàn tất theo B′», ngoại lệ luật chiều rộng (b)) — ký Cổng Đáng 01:13Z; điều kiện cũ «crm cài bản chứa RM1» không còn chặn. CỘNG duyệt ở Cổng Phạm vi: ba lệnh khoá ghim · bo-ghim · tra-lai (sửa ADR 0002 + danh sách khoá P32). Gộp vào vòng: /road-map:xem thành bản đồ xong · đang dở · kế; giới hạn đã biết của RM1 Ngoài-3. Ước 8–10 giờ máy."
+    },
+    {
+      "ma": "RM4",
+      "ten_ngan": "Kho mới có sẵn lộ trình",
+      "cau_giao": "Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn",
+      "vai": "Chủ kho",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào; chủ kho gọi tên «road-map hoàn tất theo B′, làm luôn» 15/10 (ADR 0025; docs/findings/2026-10-14-kien-truc-roadmap-plugin.md). Nấc 2 của ADR 0025.",
+      "hang": "T2",
+      "dung_tren": [
+        "RM2"
+      ],
+      "bat_khi": "Kho mới cài gói road-map mở vòng đầu tiên mà không phải tự viết tệp lộ trình; tệp sinh ra qua --check ngay",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Trước đây ở chân trời («chưa kho mới nào cần») — chủ kho gọi tên làm luôn 15/10. Chạm lệnh khởi tạo kho (commands/acceptance-init.md, INIT-CI-COPY-LIST) → cùng vùng lệnh với RM2, nên đi sau RM2. Ước 5–6 giờ máy."
+    },
+    {
+      "ma": "RM5",
+      "ten_ngan": "Chặn theo lựa chọn từng kho",
+      "cau_giao": "Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho",
+      "vai": "Chủ kho",
+      "tieu_chi": 9,
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào; chủ kho gọi tên «road-map hoàn tất theo B′, làm luôn» 15/10 (ADR 0025; docs/findings/2026-10-14-kien-truc-roadmap-plugin.md). Nấc 4 của ADR 0025, giới hạn (ii).",
+      "hang": "T3",
+      "dung_tren": [
+        "RM2",
+        "RM4"
+      ],
+      "bat_khi": "Ở kho đã cài gói road-map và bật chặn, không hồ sơ mới nào mở mà không thuộc hàng lộ trình; kho không bật thì không đổi byte nào",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Trước đây ở chân trời (ngưỡng nấc 4) — chủ kho gọi tên làm luôn 15/10. Chặn là KHÓ ĐẢO → luôn là câu hỏi cho chủ kho ở Cổng Phạm vi. Ước 6–7 giờ máy."
+    },
+    {
+      "ma": "RM3",
+      "ten_ngan": "Cửa tín hiệu giữa chiến dịch",
+      "cau_giao": "Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào; chủ kho gọi tên «road-map hoàn tất theo B′, làm luôn» 15/10 (ADR 0025; docs/findings/2026-10-14-kien-truc-roadmap-plugin.md). B′ §10.",
+      "hang": "T2",
+      "dung_tren": [
+        "RM2"
+      ],
+      "bat_khi": "Trong một chiến dịch, mọi ý mới thợ hay người nêu đều có chỗ trong cửa tín hiệu và không đẻ lượt gọi người ngoài thiết kế",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ, PHỐI HỢP M5: chạm gói dieu-phoi (vùng M5) — khai trên kit #308 trước Cổng Phạm vi. Trước đây ở chân trời — chủ kho gọi tên làm luôn 15/10. Ước 6–8 giờ máy + thời gian M5."
+    },
+    {
+      "ma": "RM6",
+      "ten_ngan": "Lộ trình tính bằng giờ máy và token",
+      "cau_giao": "Người nhìn lộ trình thấy mỗi hàng và mỗi mốc ước bằng giờ máy và phần trăm hạn mức tuần; ngày mốc do máy tính từ tổng giờ máy, mốc quá tải có cờ vàng, và mỗi vòng khép ghi giờ máy cùng token thật để ước lần sau sát hơn",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: _acceptance/ap-chinh-sach-lo-trinh/ — chủ kho 15/10: «người dùng kit nhìn roadmap là vòng làm của MÁY, không phải của người»; cả khối lượng token cũng là ước lượng để dễ hình dung. Hạt giống docs/plans/2026-10-15-hat-giong-gio-may-va-token-lo-trinh.md (4 phần + số nền 9 vòng kit). Đo trước ước sau: token thật mỗi vòng = S4 usage-report + transcript phiên thợ; ước khi ≥ 5 vòng; đơn vị % hạn mức tuần.",
+      "hang": "T2",
+      "dung_tren": [
+        "RM2"
+      ],
+      "bat_khi": "Ở mốc khép kế tiếp, ngày mốc máy tính lệch ngày khép thật không quá một ngày, và mỗi vòng đã khép có giờ máy và token thật cạnh số ước",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Khoá mới vào khuôn lộ trình = đổi schema → đường đọc-cũ (hàng thiếu khoá: máy tự ước + cờ vàng) và là CỘNG duyệt ở Cổng Phạm vi. Cùng tệp scripts/lo-trinh.mjs với RM2 → đi sau RM2. Ước 5–6 giờ máy."
     }
   ],
   "chan_troi": [
@@ -715,24 +780,6 @@
       "cau_giao": "Tầng chủ kho của dải tóm tắt hiện danh sách tiêu chí kèm kết cục và danh sách câu giới hạn",
       "ly_do": "LT1b đề nghị 12/10; vòng dai-tom-tat-doc-dung để ngoài (đổi khuôn khối) — hạt giống docs/plans/2026-10-12-hat-giong-dai-tom-tat-sau-x2s.md.",
       "mo_lai_khi": "Sau 2.28 và LT1b lên crm"
-    },
-    {
-      "ma": "RM3",
-      "cau_giao": "Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui",
-      "ly_do": "B′ §10: chạm gói dieu-phoi (vùng máy M5); chưa đo được tần suất yêu cầu việc phụ / hàng mới — nhật ký yêu cầu của đợt không nằm trong git crm.",
-      "mo_lai_khi": "máy chạy đợt đếm được ≥ 1 đợt có yêu cầu việc phụ hoặc hàng mới leo lên người"
-    },
-    {
-      "ma": "RM4",
-      "cau_giao": "Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn",
-      "ly_do": "ADR 0025 nấc 2; chưa kho mới nào cần.",
-      "mo_lai_khi": "một kho cài gói road-map mà chưa có tệp lộ trình"
-    },
-    {
-      "ma": "RM5",
-      "cau_giao": "Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho",
-      "ly_do": "ADR 0025 nấc 4, giới hạn (ii).",
-      "mo_lai_khi": "sau một lần phát hành có nấc 1 và 3, vẫn còn ≥ 1 hồ sơ mới không nối hàng ở kho đã khai lộ trình"
     }
   ],
   "da_bac": [
