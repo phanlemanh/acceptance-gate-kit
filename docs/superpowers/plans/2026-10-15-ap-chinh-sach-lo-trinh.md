@@ -63,6 +63,10 @@ Mọi task `independent: false`: chúng cùng sửa `scripts/lo-trinh.mjs` và c
 
 ### Task 1: Khung ca đo + gác gốc so của RM1 chỉ áp khi hồ sơ RM1 chưa ký
 
+> **Cập nhật 15/10 (điều phối):** phần sửa RS-0 (Step 1, 2, 5) đã RÚT ra PR riêng, nhánh `claude/rs0-chi-gac-khi-chua-ky`,
+> gộp trước PR 2.31 của M5. Ở vòng RM2, Task 1 chỉ còn Step 3–4 (khung ca đo). Trước Task 2 thì nhận nền main có PR ấy,
+> dời `goc-so` của RM2 sang commit nhận nền, và ghi một dòng sổ `fix`.
+
 **Files:**
 - Create: `tests/scripts/ap-chinh-sach-lo-trinh.test.mjs`
 - Modify: `tests/scripts/ra-soat-lo-trinh.test.mjs` (hàm `gocLech`, lời gọi `gocLech(KIT, GOC, 'ra-soat-lo-trinh')`)
