@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM3 khai T2: chạm dieu-phoi/scripts (vùng M5, khai trên #308), scripts/start-scan.mjs, gói road-map, khối TRONG-DOT của SKILL feature-loop — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-15-cua-tin-hieu-giua-chien-dich-design.md
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-15T21:28:06Z
 ---
