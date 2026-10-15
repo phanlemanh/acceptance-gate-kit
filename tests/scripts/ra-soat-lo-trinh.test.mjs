@@ -12,6 +12,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -43,7 +44,11 @@ function gocLech(kho, goc, nhan) {
 // Gác gốc so chỉ có vai LÚC VÒNG CÒN MỞ (sửa 15/10 sau chữ ký, rút Task 1 của hồ sơ ap-chinh-sach-lo-trinh): khi hồ sơ
 // đã ký và gộp, `gốc..HEAD` là merge-base SỐNG — mọi PR sửa mã về sau (của vòng nào cũng vậy) làm RS-0 đỏ dù không đụng
 // lời hứa nào của vòng. Đã ký → không kiểm commit; mỗi ca so byte với bộ máy gốc vẫn tự gọi tên chỗ lệch.
-const daKy = txt => /^status:\s*(signed-off|machine-cleared)\b/m.test(String(txt).split('\n---')[0]);
+// «Đã ký» đọc qua hằng một nguồn của lib (DA_THONG_CONG_2) — không chép tên trạng thái vào tệp ca (RT13 canh bộ đọc).
+const rq = createRequire(import.meta.url);
+const { DA_THONG_CONG_2 } = rq(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const { frontmatterField } = rq(path.join(KIT, 'lib', 'evidence-core.cjs'));
+const daKy = txt => DA_THONG_CONG_2.includes(String(frontmatterField(String(txt), 'status') || '').toLowerCase());
 const gacGoc = (kho, contractTxt, goc, nhan) => (daKy(contractTxt) ? [] : gocLech(kho, goc, nhan));
 function rs0() {
   // Chiều đỏ trong bộ kiểm — mỗi vế một ca CÔ LẬP (Cổng Bằng chứng 15/10, Ngoài-1/5/6), kho tạm dựng trong lượt:
@@ -82,7 +87,7 @@ function rs0() {
   // RS-0-ky — cùng một kho: vòng đã gộp, rồi một PR khác sửa mã sau gốc. Chiều đỏ: luật merge-base sống (gocLech, như
   // trước 15/10) PHẢI đỏ gọi tên commit lạ; đối chứng dương: gacGoc với hồ sơ đã ký xanh; hồ sơ chưa ký vẫn bị gác.
   { const { k, g } = khoTam(); vong(k); ghi(k, 'pr-khac.mjs', 'x\n', 'feat(vong-khac): sua ma sau ky');
-    const ky = '---\nslug: x\nstatus: signed-off\n---\n# body status: verified\n'; const chua = '---\nslug: x\nstatus: verified\n---\n';
+    const ky = `---\nslug: x\nstatus: ${DA_THONG_CONG_2[0]}\n---\n# body status: verified\n`; const chua = '---\nslug: x\nstatus: verified\n---\n';
     const song = gocLech(k, g, 'vong-thu'); const sau = gacGoc(k, ky, g, 'vong-thu'); const mo = gacGoc(k, chua, g, 'vong-thu');
     const s2 = [];
     if (!song.some(l => l.startsWith('commit không thuộc vòng: ') && l.endsWith(' feat(vong-khac): sua ma sau ky'))) s2.push(`luật merge-base sống không đỏ với PR sửa mã sau ký: ${JSON.stringify(song)}`);
