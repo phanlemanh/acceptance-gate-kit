@@ -356,8 +356,8 @@ function km6(kit) {
   if (lt.length < 2) return [`chỉ ${lt.length} mục mang dấu lộ trình`];
   const g = khoCI(kit); const truoc = dsTep(g); const r = chay(kit, g);
   if (r.status !== 0) return [`khởi tạo thoát ${r.status}: ${r.stderr}`];
-  const moi = dsTep(g).filter(x => !truoc.includes(x) && x.startsWith('scripts/'));
-  if (!deq(moi.sort(), lt.map(x => x.dich).sort())) sai.push(`tệp mới dưới scripts/ ${JSON.stringify(moi)} ≠ ${JSON.stringify(lt.map(x => x.dich))}`);
+  const moi = dsTep(g).filter(x => !truoc.includes(x) && (x.startsWith('scripts/') || x.startsWith('lib/')));
+  if (!deq(moi.sort(), lt.map(x => x.dich).sort())) sai.push(`tệp mới dưới scripts/ và lib/ ${JSON.stringify(moi)} ≠ ${JSON.stringify(lt.map(x => x.dich))}`);
   for (const m of lt) if (existsSync(path.join(g, m.dich)) && !readFileSync(path.join(g, m.dich)).equals(readFileSync(path.join(KIT, m.nguon)))) sai.push(`${m.dich} khác bản gói`);
   commit(g); const c = node([path.join(g, 'scripts', 'product-map.mjs'), '--root', '.', '--check'], { cwd: g });
   if (c.status !== 0) sai.push(`bản chép --check thoát ${c.status}: ${(c.stdout + c.stderr).trim().slice(0, 400)}`);
@@ -465,11 +465,12 @@ if (want('KM-8')) {
   }
   if (want('KM-8-khoi-khac')) chayCa('KM-8-khoi-khac', () => {
     const a = readFileSync(path.join(KIT, 'commands', 'acceptance-init.md'), 'utf8'); const b = readFileSync(path.join(banGoc(), 'commands', 'acceptance-init.md'), 'utf8');
-    // Hồ sơ lo-trinh-gio-may (RM6) thêm ĐÚNG một dòng `scripts/gio-may.mjs` vào INIT-CI-COPY-LIST (lo-trinh.mjs import nó) —
-    // gỡ đích danh dòng ấy trước khi so, đối chứng là dòng có mặt đúng một lần; phần còn lại vẫn phải giống từng byte.
-    const GM_DONG = /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/gio-may\.mjs[^\n]*/g;
+    // Vòng sau thêm dòng vào INIT-CI-COPY-LIST: lo-trinh-gio-may (RM6) `scripts/gio-may.mjs` (lo-trinh.mjs import nó) và
+    // kho-cam-ket-co-lo-trinh (RM5) `lib/chan-lo-trinh.cjs` (lưới trước-merge gọi nó). Gỡ đích danh từng dòng trước khi so,
+    // đối chứng là mỗi dòng có mặt đúng một lần; phần còn lại vẫn phải giống từng byte.
+    const DONG_SAU = [['gio-may.mjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/gio-may\.mjs[^\n]*/g], ['chan-lo-trinh.cjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/lib\/chan-lo-trinh\.cjs[^\n]*/g]];
     return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { let x = khoi(a, k); const y = khoi(b, k); if (!x || !y) return [`đối chứng: khối ${k} rút không được`];
-      if (k === 'INIT-CI-COPY-LIST') { const n = (x.match(GM_DONG) || []).length; if (n !== 1) return [`đối chứng: dòng gio-may.mjs có ${n} lần trong ${k}`]; x = x.replace(GM_DONG, ''); }
+      if (k === 'INIT-CI-COPY-LIST') for (const [ten, re] of DONG_SAU) { const n = (x.match(re) || []).length; if (n !== 1) return [`đối chứng: dòng ${ten} có ${n} lần trong ${k}`]; x = x.replace(re, ''); }
       return x === y ? [] : [`khối ${k} khác bộ máy gốc`]; });
   }) && ok('KM-8-khoi-khac', 'ba khối máy đọc khác giống từng byte bộ máy gốc');
   if (want('KM-8-do')) chayDo('KM-8-do', km8MaThoat, banSao([['commands/acceptance-init.md', '    <!-- INIT-LO-TRINH>>> -->', '    - exit 4 → giả.\n    <!-- INIT-LO-TRINH>>> -->']]), 'mã 4 không kho thử nào cho ra');

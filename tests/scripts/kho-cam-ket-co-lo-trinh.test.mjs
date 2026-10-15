@@ -290,6 +290,75 @@ if (want('CK-4')) {
   }
 }
 
+// ── Lưới trước-merge trên lớp CI chép theo INIT-CI-COPY-LIST (rút trong lượt) ───────────────────────────────
+const khoiMd = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n([\\s\\S]*?)<!-- ${ten}>>> -->`)); return m ? m[1] : null; };
+function mucCI(kit) {
+  const b = khoiMd(readFileSync(path.join(kit, 'commands', 'acceptance-init.md'), 'utf8'), 'INIT-CI-COPY-LIST');
+  if (b == null) throw new Error('không rút được khối INIT-CI-COPY-LIST');
+  const ra = [];
+  for (const d of b.split('\n')) {
+    const x = d.match(/`\$\{CLAUDE_PLUGIN_ROOT\}\/([^`]+)` → `([^`]+)`/); if (!x) continue;
+    const dk = d.match(/\[only-if-declared: (\w+)\]/);
+    if (dk && dk[1] !== 'lo_trinh') continue;
+    ra.push({ nguon: x[1], dich: path.posix.join(x[2], path.posix.basename(x[1])) });
+  }
+  return ra;
+}
+function chepCI(kit, goc, boQua = []) {
+  for (const m of mucCI(kit)) {
+    if (boQua.includes(m.dich) || !existsSync(path.join(kit, m.nguon))) continue;
+    mkdirSync(path.dirname(path.join(goc, m.dich)), { recursive: true }); cpSync(path.join(kit, m.nguon), path.join(goc, m.dich), { recursive: true });
+  }
+}
+// main: hồ sơ cu (không nối) + hàng N1 mang slug noi · nhánh viec: thêm moi (không nối) + noi, sửa cu.
+function khoNhanh(chan) {
+  const goc = kho({ chan, hang: [{ ma: 'A1', cau_giao: 'Một' }, { ma: 'N1', cau_giao: 'Có hàng', slug: 'noi' }], hoSo: { cu: { 'contract.md': HOP_DONG.replace('slug: x', 'slug: cu') } } });
+  git(goc, 'checkout', '-qb', 'viec');
+  for (const s of ['moi', 'noi']) { mkdirSync(path.join(goc, '_acceptance', s), { recursive: true }); writeFileSync(path.join(goc, '_acceptance', s, 'contract.md'), HOP_DONG.replace('slug: x', `slug: ${s}`)); }
+  writeFileSync(path.join(goc, '_acceptance', 'cu', 'contract.md'), HOP_DONG.replace('slug: x', 'slug: cu').replace('# x', '# cu sửa'));
+  git(goc, 'add', '-A'); git(goc, 'commit', '-qm', 'viec');
+  return goc;
+}
+function chayLuoi(kit, goc, { boQua = [], base = 'main' } = {}) {
+  const d = banSaoKho(goc); chepCI(kit, d, boQua);
+  const r = spawnSync('bash', [path.join(d, 'scripts', 'pre-merge-check.sh'), d, ...(base ? ['--base', base] : [])], { encoding: 'utf8', env: { ...process.env, HOME }, maxBuffer: 64 * 1024 * 1024 });
+  return { ma: r.status, out: (r.stdout || '').split(d).join('<KHO>') };
+}
+const VI_MOI = 'VIOLATION [moi]: hồ sơ mới không thuộc hàng lộ trình nào (lo_trinh.chan)';
+function ck5(kit) {
+  const r = chayLuoi(kit, khoNhanh('true'));
+  const dong = r.out.split('\n');
+  if (dong.filter(x => x === VI_MOI).length !== 1) throw new Error(`hồ sơ ngoài lộ trình lọt lưới trước-merge — mã ${r.ma}, dòng chặn: ${JSON.stringify(dong.filter(x => x.includes('lo_trinh.chan')))}`);
+  if (dong.some(x => x.includes('lo_trinh.chan') && /\[(noi|cu)\]/.test(x))) throw new Error('lưới chấm nhầm hồ sơ noi/cu');
+  if (r.ma === 0) throw new Error('lưới thoát 0 dù có VIOLATION');
+  return `mã ${r.ma}; đúng một dòng VIOLATION [moi]; noi và cu không bị chấm`;
+}
+function ck5Tat(kit) {
+  const goc = khoNhanh(null);
+  const r = chayLuoi(kit, goc); const r0 = chayLuoi(bayGoc(), goc);
+  if (!/^pre-merge-check: rules ran=\d+ declared-off=\d+ expected=\d+$/m.test(r0.out)) throw new Error('đối chứng: bản gốc không chạy tới dòng sổ luật — phép so rỗng nghĩa');
+  if (r.out.includes('lo_trinh.chan')) throw new Error('kho không bật mà lưới in dòng lo_trinh.chan');
+  if (r.ma !== r0.ma || r.out !== r0.out) throw new Error(`kho không bật: đầu ra lưới khác bộ máy gốc (mã ${r.ma}/${r0.ma})`);
+  return `kho không bật: stdout + mã (${r.ma}) giống từng byte bộ máy gốc`;
+}
+function ck5ThieuLib(kit) {
+  const r = chayLuoi(kit, khoNhanh('true'), { boQua: ['lib/chan-lo-trinh.cjs'] });
+  const n = r.out.split('\n').filter(x => x.startsWith('NOTE') && x.includes('luật chặn lộ trình NOT ENFORCED')).length;
+  if (n !== 1) throw new Error(`thiếu lib: ${n} dòng NOTE NOT ENFORCED (cần 1)`);
+  const k = chayLuoi(kit, khoNhanh('true'), { base: null });
+  if (k.out.split('\n').filter(x => x.startsWith('NOTE') && x.includes('luật chặn lộ trình NOT ENFORCED')).length !== 1) throw new Error('không base: thiếu dòng NOTE NOT ENFORCED');
+  return 'thiếu lib → một NOTE; không base → một NOTE';
+}
+if (want('CK-5')) {
+  const xanh = await chayCa('CK-5', () => ck5(KIT));
+  await chayCa('CK-5-tat', () => ck5Tat(KIT));
+  await chayCa('CK-5-thieu-lib', () => ck5ThieuLib(KIT));
+  if (xanh && want('CK-5-do')) {
+    const m = banSao([['scripts/pre-merge-check.sh', '_clt="$(node "$CLT_LIB" --root "$ROOT" --base "$BASE_SHA" 2>&1)"; _clt_rc=$?', '_clt=""; _clt_rc=0']]);
+    await chayDo('CK-5-do', () => ck5(m), 'hồ sơ ngoài lộ trình lọt lưới trước-merge');
+  }
+}
+
 // __CA_SAU__
 
 rmSync(TMP, { recursive: true, force: true });
