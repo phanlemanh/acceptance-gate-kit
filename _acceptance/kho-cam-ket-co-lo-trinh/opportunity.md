@@ -3,10 +3,10 @@ schema_version: 1
 slug: kho-cam-ket-co-lo-trinh
 feature: Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-15T23:29:40Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 16/10 — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
