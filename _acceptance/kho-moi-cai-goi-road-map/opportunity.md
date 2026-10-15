@@ -3,10 +3,10 @@ schema_version: 1
 slug: kho-moi-cai-goi-road-map
 feature: Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-15T07:38:11Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 15/10 — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
