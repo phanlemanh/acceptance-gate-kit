@@ -16,7 +16,9 @@ Cửa sổ 2.30.0 → 2.31.0 (14/10 sáng → 15/10 sáng) có **bốn hồ sơ 
 `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): thẻ Cổng Bằng chứng in mục Ngoài-n thành bảng có căn cứ (BN1, T3, máy
 M5), đường nền không tính tệp của chính vòng (NV1, máy M5), mốc là chiến dịch (MC1, máy MacBook Pro) và rà soát lộ
 trình + gói thứ năm `road-map` (RM1, máy MacBook Pro). Phạm vi chốt giữa hai máy trên kit #308 (15/10 00:29Z): MC1 và
-RM1 gộp vào mốc này để crm nhận MỘT lần cắt thay vì hai. Kho chờ nhận: `crm` — máy Mac Studio, đợt nhận kế sau 2.30.0
+RM1 gộp vào mốc này để crm nhận MỘT lần cắt thay vì hai. Hàng MC1 và RM1 chuyển sang mốc «Phát hành 2.31.0» của lộ
+trình kit NGAY trong PR mốc — điều phối M5 quyết 07:00Z sau khi hỏi MacBook Pro trên #308 (không có PR lộ trình
+riêng), chủ kho đồng ý; mốc «Tinh chỉnh sau hai đợt thử» 05/11 giữ lại với 0 hàng. Kho chờ nhận: `crm` — máy Mac Studio, đợt nhận kế sau 2.30.0
 (crm PR #413). Mốc đi **làn V**, không dựng răng mới. Bốn gói `acceptance-gate`, `feature-loop`, `dieu-phoi`,
 `road-map` cùng lên `2.31.0` (`dieu-phoi` không đổi vật — số đi cùng; `road-map` lần đầu có trong một mốc);
 `diagram-design` giữ `2.7.1`. Tag `v2.31.0` gắn vào commit gộp PR mốc.
@@ -100,8 +102,13 @@ thang). Chủ kho gọi tên 14/10 — CỘNG, duyệt đích danh ở Cổng Ph
   eval nào chứng phiên THẬT SỰ được xếp; reality đọc ở «Đường đo» dưới.
 - **Giới hạn đã khai:** bảy mục ở Notes hợp đồng — đáng nhớ nhất: bộ đo DP2-11 đọc ký hiệu kết quả của Node bản mới,
   máy chấm Node 22 có thể đỏ nhầm (Ngoài-1); ca MC-11 đọc lộ trình kit thật — dời hay đổi tên mốc 05/11 sẽ làm ca đỏ ở
-  PR không liên quan (Ngoài-9). Ba mục chủ kho chọn mở hợp đồng mới → hạt giống
+  PR không liên quan (Ngoài-9) — đã xảy ra ở chính PR mốc này, xem con trỏ dưới. Ba mục chủ kho chọn mở hợp đồng mới →
+  hạt giống
   `2026-10-14-hat-giong-co-ho-so-ngoai-ke-hoach-gon`.
+- **Con trỏ thay thế ở mốc (ca đo, không sửa hồ sơ đã ký):** AC-11 của `moc-la-chien-dich` hứa «hàng MC1 thuộc đúng
+  một mốc (ngày 2026-11-05)» và `nhom` = «Tinh chỉnh sau hai đợt thử 05/11». PR mốc chuyển MC1 sang mốc «Phát hành 2.31.0»
+  16/10 nên ca MC-11 nay đòi ngày `2026-10-16` và `nhom` = «Phát hành 2.31.0 16/10»; hàm `tenChienDich` không đổi. Chiều
+  đỏ đo trên lộ trình mới trước khi sửa ca: `FAIL: MC-11 — MC1 thuộc 1 mốc ["2026-10-16"] ; nhom «Phát hành 2.31.0 16/10»`.
 - **Ai bị ảnh hưởng:** MỌI kho không khai `lo_trinh.tep` thấy thêm MỘT dòng vàng trên thẻ khởi động (không chặn); kho
   khai lộ trình và dùng mốc thấy thêm cờ trên trang — đo crm ở `1997da85`: OKR 12 → 26 cờ, Việc và Dự án 4 → 5, Kho
   tài liệu 2 → 2. **Khi update:** chép lại `scripts/lo-trinh.mjs` (kho khai `lo_trinh`), vẽ lại `LO-TRINH.html`.

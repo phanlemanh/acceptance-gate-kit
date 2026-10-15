@@ -19,7 +19,8 @@ veto_opened_at: 2026-10-15T01:18:12Z
 **Kho chờ nhận — đo được trước khi cắt:** `crm`. Neo ở kho tiêu thụ: crm issue `phanlemanh/crm-onehub#375` — máy Mac
 Studio đang nhận 2.30.0 qua crm PR #413 (chưa gộp 15/10); 2.31.0 là đợt nhận kế. Phạm vi chốt giữa hai máy điều phối
 trên kit #308 (15/10 00:29Z): BN1 + NV1 (máy M5) + MC1 + RM1 (máy MacBook Pro) vào cùng một mốc để crm nhận MỘT lần cắt
-thay vì hai. Gốc của bốn vòng: BN1 — crm `kanban-viec` (14/10); NV1 — crm#375 (13/10 16:51Z); MC1, RM1 —
+thay vì hai. Hàng MC1 + RM1 chuyển sang mốc «Phát hành 2.31.0» của lộ trình kit ngay trong PR mốc (điều phối M5 quyết
+07:00Z 15/10 sau khi hỏi MacBook Pro trên #308; chủ kho đồng ý), kèm sửa ca MC-11 — con trỏ thay thế ở CHANGELOG. Gốc của bốn vòng: BN1 — crm `kanban-viec` (14/10); NV1 — crm#375 (13/10 16:51Z); MC1, RM1 —
 `crm/_acceptance/tin-hieu-tu-ve-kho/`.
 
 **Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ (bốn):
