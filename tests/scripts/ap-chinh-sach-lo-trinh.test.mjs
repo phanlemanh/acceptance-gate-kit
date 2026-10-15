@@ -562,6 +562,50 @@ async function ap8chua(kit) {
 if (want('AP-8-chua-commit') && await chayCa('AP-8-chua-commit', ap8chua)) ok('AP-8-chua-commit', 'tệp lộ trình chưa từng commit: JSON, lệnh xem và thẻ khởi động cảnh báo đúng một dòng (RM1 Ngoài-3)');
 if (want('AP-8-do2')) await chayDo('AP-8-do2', ap8chua, [['scripts/lo-trinh.mjs', "  if (!soCommit && existsSync(path.join(root, tep))) return { cut, theoMa, hong: 'tệp lộ trình chưa từng commit' };\n", '']], 'tệp chưa commit mà không cảnh báo', 'bản sao bỏ cảnh báo tệp chưa commit');
 
+// ═══ AP-9 (AC-9): thẻ khởi động — dòng «Tự áp» ═══════════════════════════════════════════════════════════════
+const theDong = (kit, r, today) => JSON.parse(quet(kit, r, today)).loTrinh.dong;
+if (want('AP-9') && await chayCa('AP-9', async kit => {
+  const sai = []; const { r } = kho({ data: { schema: 1, moc: [QUA(['M1']), TOI({ tran_ap: 1 })], hang: [H('M1'), H('T1'), H('X2')] } });
+  apGhiOk(kit, r, D20); commitNgay(r, D20, '20'); apGhiOk(kit, r, D21); commitNgay(r, D21, '21');
+  const dong = theDong(kit, r, D21);
+  const MONG = ['Tự áp: 2 báo trước (áp từ 21/10/2026) · 1 đã áp 7 ngày qua',
+    '  · T1 — sẽ chờ điều kiện từ 21/10/2026: 49 ngày chưa ai sửa (lần cuối 01/09/2026)', // căn cứ chụp lúc báo trước (20/10)
+    '  · X2 — sẽ chờ điều kiện từ 21/10/2026: 49 ngày chưa ai sửa (lần cuối 01/09/2026)', // căn cứ chụp lúc báo trước (20/10)
+    '  · M1 — đã dời mốc 21/10/2026 — trả lại: /road-map:tra-lai M1'];
+  const i = dong.findIndex(d => d.startsWith('Rà soát:')); const j = dong.indexOf(MONG[0]);
+  if (j < 0) return [`thiếu dòng tổng tự áp: ${JSON.stringify(dong)}`];
+  if (!deq(dong.slice(j, j + 4), MONG)) sai.push(`dòng tự áp khác viết sẵn: ${JSON.stringify(dong.slice(j, j + 4))}`);
+  if (i < 0 || j !== i + 3) sai.push(`dòng tự áp không đứng ngay sau khối rà soát (rà soát ở ${i}, tự áp ở ${j})`);
+  if (dong.filter(d => d.startsWith('Tự áp:')).length !== 1) sai.push('dòng tổng tự áp không duy nhất');
+  if (trangThaiSach(r)) sai.push(`thẻ khởi động ghi tệp: ${trangThaiSach(r)}`);
+  return sai;
+})) ok('AP-9', 'thẻ khởi động: đúng một dòng «Tự áp: 2 báo trước (áp từ 21/10/2026) · 1 đã áp 7 ngày qua» + ba dòng chi tiết, ngay sau khối rà soát; không ghi tệp');
+const KHO_9 = {
+  'khong-khai': () => kho({ cfg: null, data: { schema: 1, hang: [H('A')] } }).r,
+  'khong-moc': () => kho({ data: { schema: 1, hang: [H('A'), H('B')] } }).r,
+  'moc-chua-toi': () => kho({ data: { schema: 1, moc: [{ ten: 'Toi', ngay: '2026-11-30', loai: 'phat-hanh', hang: ['A'] }], hang: [H('A'), H('B')] } }).r,
+};
+async function ap9byte(kit) {
+  const sai = [];
+  for (const [ten, tao] of Object.entries(KHO_9)) {
+    const r = tao(); let a; let b;
+    try { a = quet(kit, r, D20); b = quet(banGoc(), r, D20); } catch (e) { sai.push(`đối chứng gốc không chạy: ${ten} ${loi(e)}`); continue; }
+    if (!a || !b) { sai.push(`đối chứng gốc không chạy: ${ten}`); continue; }
+    if (chuanKit(a, kit) !== chuanKit(b, banGoc())) sai.push(`thẻ khác bộ máy gốc: ${ten}`);
+  }
+  return sai;
+}
+if (want('AP-9-byte') && await chayCa('AP-9-byte', ap9byte)) ok('AP-9-byte', 'ba kho không bật, không đề xuất: thẻ khởi động giống từng byte bộ máy gốc');
+if (want('AP-9-do')) await chayDo('AP-9-do', ap9byte, [['scripts/lo-trinh.mjs', '    if (!t.tuAp) return t.nhacChinhSach ?', '    if (!t.tuAp) t.tuAp = { bao_truoc: [], da_ap: [] };\n    if (!t.tuAp) return t.nhacChinhSach ?']], 'thẻ khác bộ máy gốc: khong-moc', 'bản sao in dòng tổng không điều kiện');
+if (want('AP-9-nhac') && await chayCa('AP-9-nhac', async kit => {
+  const sai = []; const NHAC = '  ! chiến dịch Toi 30/10 chưa khai chính sách tự áp — chỉ cờ';
+  const co = kho({ data: { schema: 1, moc: [QUA(['M1']), { ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', hang: [] }], hang: [H('M1')] } }).r;
+  const khong = kho({ data: { schema: 1, moc: [{ ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', hang: ['M1'] }], hang: [H('M1')] } }).r;
+  const n1 = theDong(kit, co, D20).filter(d => d === NHAC).length; const n2 = theDong(kit, khong, D20).filter(d => d.includes('chưa khai chính sách tự áp')).length;
+  if (n1 !== 1) sai.push(`có đề xuất mà ${n1} dòng nhắc`); if (n2 !== 0) sai.push(`không đề xuất mà ${n2} dòng nhắc`);
+  return sai;
+})) ok('AP-9-nhac', 'chiến dịch đang chạy chưa khai tu_ap: có đề xuất → đúng một dòng nhắc; không đề xuất → không dòng nào');
+
 // ═══ CA MỚI THÊM TRÊN DÒNG NÀY ═══
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ap-chinh-sach-lo-trinh)`);

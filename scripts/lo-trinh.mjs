@@ -795,6 +795,20 @@ export function loTrinhThe({ root, classify, sections, today, banDoBat = null, l
   // Rà soát (hồ sơ ra-soat-lo-trinh): khoá `raSoat` CHỈ có khi khác rỗng — kho không có đề xuất giữ thẻ từng byte.
   const rs = raSoat({ root, cacTep: k.cacTep, sections, today });
   ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; if (rs[i] && rs[i].canh_bao) t.raSoatCanh = rs[i].canh_bao; });
+  // Tự áp (hồ sơ ap-chinh-sach-lo-trinh): khoá `tuAp` CHỈ có khi chiến dịch đang chạy bật tự áp và có việc báo trước hay
+  // vừa áp; `nhacChinhSach` CHỈ có khi có chiến dịch đang chạy chưa bật mà rà soát có đề xuất — kho khác giữ thẻ từng byte.
+  const ap = apChinhSach({ root, cacTep: k.cacTep, sections, today, ghi: false });
+  ds.forEach((t, i) => {
+    const a = ap[i]; const kq = k.cacTep[i].kq; if (!a || !kq) return;
+    if (a.chinh_sach && a.chinh_sach.tu_ap) { if (a.bao_truoc.length || a.da_ap.length) t.tuAp = { bao_truoc: a.bao_truoc, da_ap: a.da_ap }; }
+    else if (t.raSoat) { const cd = chienDichDangChay(kq.moc, today); if (cd) t.nhacChinhSach = tenNganMoc(cd.m); }
+  });
+  const dongTu = t => {
+    if (!t.tuAp) return t.nhacChinhSach ? [`  ! chiến dịch ${t.nhacChinhSach} chưa khai chính sách tự áp — chỉ cờ`] : [];
+    const sm = t.tuAp.bao_truoc.map(m => m.ap_tu).sort()[0];
+    return [`Tự áp: ${t.tuAp.bao_truoc.length} báo trước${sm ? ` (áp từ ${ddmmyyyy(sm)})` : ''} · ${t.tuAp.da_ap.length} đã áp 7 ngày qua`,
+      ...dongTuAp(t.tuAp).slice(0, 3)];
+  };
   const dongRs = t => {
     if (!t.raSoat) return [];
     const dem = x => t.raSoat.filter(m => m.de_xuat === x).length;
@@ -811,7 +825,7 @@ export function loTrinhThe({ root, classify, sections, today, banDoBat = null, l
     const tre = t.hangTre.length ? `Hàng trễ: ${t.hangTre.map(h => `${h.ma} (mốc ${h.moc}, ${h.ngay})`).join(' · ')}` : 'Hàng trễ: không có';
     dong.push(t.mocKhongHang.k > 0 ? `${tre} (${t.mocKhongHang.k}/${t.mocKhongHang.n} mốc không gắn hàng nào)` : tre);
     dong.push(`Tin theo lời: ${t.tinTheoLoi.n}/${t.tinTheoLoi.tong} hàng${t.tuKhaiNgoai > 0 ? ` · ${t.tuKhaiNgoai} hàng tự khai ngoài từ vựng — không so được với hồ sơ` : ''}`);
-    dong.push(...dongRs(t), ...(t.raSoatCanh || []).map(c => (t.raSoat ? `  ! ${c}` : `Rà soát: ${c}`)));
+    dong.push(...dongRs(t), ...(t.raSoatCanh || []).map(c => (t.raSoat ? `  ! ${c}` : `Rà soát: ${c}`)), ...dongTu(t));
     if (t.co.length) dong.push(`Lộ trình có ${t.co.length} cờ — xem trang lộ trình`);
   }
   const trang = path.join(root, TEP_TRANG);
