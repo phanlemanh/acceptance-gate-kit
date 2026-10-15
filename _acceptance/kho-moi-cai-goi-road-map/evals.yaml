@@ -1,0 +1,147 @@
+schema_version: 1
+feature_slug: kho-moi-cai-goi-road-map
+# Ca đo sống ở tests/scripts/kho-moi-cai-goi-road-map.test.mjs (ca KM-<n> = AC-n; đuôi .test.mjs nên cũng chạy trong mảnh
+# mjs của suite) — khoá riêng executors.test.kho_moi_cai_goi_road_map, mọi eval của AC-1…AC-8 chung MỘT lệnh. AC-9 đo trên
+# bản sao các kho thật của máy nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (khoá
+# executors.test.kho_moi_cai_goi_road_map_cac_kho; không dò được kho nào → thoát 2 nêu đường — mù, không xanh). Kho thử
+# do code sinh trong lượt; «bộ máy gốc» = `git archive <gốc so> scripts lib skills commands road-map .claude-plugin` bung
+# trong lượt, gốc so đọc từ _acceptance/kho-moi-cai-goi-road-map/goc-so; mọi đường dẫn suy từ vị trí tệp ca. Mỗi ca đỏ
+# chạy trên BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi bản lành xanh trên cùng kho
+# thử, và ghim thông điệp. Ca in đúng một dòng «PASS: KM-…» hoặc «FAIL: KM-… — <vì sao>»; mỗi eval ghim dòng PASS của
+# chính nó — lệnh xanh mà thiếu dòng ghim là ĐỎ. Mọi ca «0 byte đổi» băm TOÀN cây kho thử (kể cả tệp chưa theo dõi và
+# .claude/) trước và sau.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, commands/acceptance-init.md, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-1", "PASS: KM-1-do", "PASS: KM-1-do2", "PASS: KM-1-do3". Khoá bật dựng từ
+      .claude-plugin/marketplace.json của cây (mục name "road-map" + name của marketplace, rút trong lượt). KM-1: lệnh rút
+      NGUYÊN VĂN từ khối INIT-LO-TRINH (thay <path>, ${CLAUDE_PLUGIN_ROOT} = gốc cây kit) chạy trên bảy kho thử, ma trận
+      viết trước: không settings · settings.json không khoá · khoá false · true ở settings.json · true CHỈ ở
+      settings.local.json · true ở settings.json + false ở settings.local.json · settings.json hỏng; mọi ca HOME trỏ thư mục
+      thử có ~/.claude/settings.json bật khoá. Tập ca có docs/plan/lo-trinh.json BẰNG {true-project, true-project+local-false};
+      bốn ca không bật thoát 0, stdout chứa «kho chưa cài road-map ở phạm vi kho — không tạo lộ trình» (ca chỉ-local thêm
+      «--scope project»), băm cây trước = sau; ca hỏng thoát 3, stderr nêu .claude/settings.json, băm cây trước = sau.
+      KM-1-do: bản sao bỏ điều kiện bật → FAIL ghim «tệp bị tạo ở kho không bật». KM-1-do2: bản sao đọc thêm
+      settings.local.json → FAIL ghim «phạm vi local không được bật». KM-1-do3: bản sao viết cứng
+      "road-map@acceptance-gate-kit", chạy với bản sao marketplace.json đổi name → FAIL ghim «khoá bật không rút từ
+      marketplace.json» (đối chứng: bản lành trên cùng bản sao marketplace ghi tệp ở ca true-project).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, scripts/lo-trinh.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-2", "PASS: KM-2-worktree", "PASS: KM-2-do". KM-2: kho thử thư mục «kho-thu-rm4» bật
+      road-map — kiemKhuon(JSON.parse(tệp)).co rỗng; Object.keys(gốc) sắp xếp BẰNG [chan_troi, da_bac, ghi_chu, hang, moc,
+      schema, ten] và mọi khoá trừ ghi_chu nằm trong Object.keys(lo-trinh-template.json rút trong lượt); moc/hang/chan_troi/da_bac là mảng rỗng; schema === 1; ten === "Lộ trình kho-thu-rm4" (chuỗi ca dựng từ
+      tên thư mục); dangChuan(nội dung) === true; ghi_chu chứa "/acceptance-gate:cat-luot". KM-2-worktree: chạy từ
+      `git worktree add ../wt-ten-khac` của kho thử → ten vẫn "Lộ trình kho-thu-rm4". KM-2-do: bản sao thay ghi bằng
+      writeFileSync(JSON.stringify(data)) → FAIL ghim «tệp không ở dạng chuẩn — bộ tự áp của RM2 không ghi được».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, scripts/config-patch.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-3", "PASS: KM-3-glob-rong", "PASS: KM-3-khong-khoi", "PASS: KM-3-append-trung",
+      "PASS: KM-3-do". Bộ đường mẫu viết sẵn {docs/x.md, PRODUCT-MAP.md, LO-TRINH.html, src/a.ts, trang.html}; miễn(cấu hình)
+      = tập đường mẫu mà match_globs (hai hàm rút từ scripts/pre-merge-check.sh, như product-map.mjs) thoát 0 với
+      configList(t1_skip_globs). Ở cả ba kho: miễn(sau) BẰNG miễn(trước) ∪ {LO-TRINH.html}; đối chứng: miễn(trước) khác rỗng
+      ở kho có khối. KM-3: docCacTep(root).tep BẰNG ["docs/plan/lo-trinh.json"]; `git diff --numstat _acceptance/config.yaml`
+      cột xoá = 0; không có _acceptance/config.yaml.bak. KM-3-glob-rong: có "*.html" → số dòng chứa "LO-TRINH.html" trong
+      config = 0. KM-3-khong-khoi: không có risk_tiers → configList(t1_skip_globs) BẰNG ["LO-TRINH.html"].
+      KM-3-append-trung: `config-patch.mjs --key risk_tiers.t1_skip_globs --append --value LO-TRINH.html --write` trên
+      config đã có mục → thoát 2, băm config không đổi. KM-3-do: bản sao bỏ bước miễn trừ → `product-map.mjs --check` thoát
+      1 và stderr chứa «không glob nào trong risk_tiers.t1_skip_globs phủ LO-TRINH.html».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-4-truoc", "PASS: KM-4". KM-4-truoc (đối chứng số đo trước): kho thử khai tay
+      lo_trinh.tep (không tệp, không miễn trừ), vẽ rồi commit → `product-map.mjs --check` thoát 1. KM-4: kho thử bật
+      road-map, khởi tạo, `git add -A && git commit` → `--check` thoát 0 và stdout chứa «LO-TRINH.html khớp tệp ý định
+      và hồ sơ.»; JSON start-scan không có khoá loTrinhChuaKhai, loTrinh.loi === null; `lo-trinh.mjs --ra-soat` thoát 0,
+      stdout rỗng; PRODUCT-MAP.md không có trong danh sách tệp bước khởi tạo tạo ra (so cây trước/sau khởi tạo).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-5-lan-hai", "PASS: KM-5-chiem-cho", "PASS: KM-5-trang-cu", "PASS: KM-5-dut-1",
+      "PASS: KM-5-dut-2", "PASS: KM-5-dut-3", "PASS: KM-5-dut-4", "PASS: KM-5-do", "PASS: KM-5-do2". Băm tham chiếu = băm cây
+      của kho thử cùng khuôn chạy liền một mạch. Lần hai: băm cây trước = sau, stdout chứa «lộ trình đã sẵn». Chiếm chỗ: tệp
+      «không phải lộ trình» ở docs/plan/lo-trinh.json, chưa khai → thoát 2, stderr chứa "docs/plan/lo-trinh.json", băm cây
+      trước = sau. Trang cũ: LO-TRINH.html viết sẵn «cũ» → giữ byte. KM-5-dut-k (k = 1..4, ma trận bốn phần tử viết trước):
+      bản sao tiêm `process.exit(9)` ngay sau bước k (ca tự kiểm nhát tiêm khớp đúng một lần) → thoát 9 (đối chứng: bước
+      k+1 chưa để lại dấu); chạy lại bằng bản lành → thoát 0, băm cây BẰNG băm tham chiếu. KM-5-do: bản sao bỏ phép kiểm
+      tệp-đã-có → FAIL ghim «tệp của kho bị ghi đè». KM-5-do2: bản sao đảo thứ tự (tệp trước khoá) → KM-5-dut-1 trên bản ấy
+      FAIL ghim «thoát 2 trên tệp do khởi tạo ghi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh-khoi-tao.mjs, commands/acceptance-init.md, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-6", "PASS: KM-6-chua-chep", "PASS: KM-6-lech", "PASS: KM-6-do". KM-6: kho thử chép mọi mục
+      INIT-CI-COPY-LIST (rút từ khối, đích theo cột «→») TRỪ mục mang [only-if-declared: lo_trinh]; sau khởi tạo tập tệp
+      mới dưới scripts/ BẰNG tập đích của các mục mang dấu ấy (ca tự đếm ≥ 2), mỗi tệp băm bằng bản gói; `node
+      scripts/product-map.mjs --root . --check` (BẢN CHÉP của kho, sau commit) thoát 0. KM-6-chua-chep: không chép lớp CI →
+      0 tệp mới dưới scripts/. KM-6-lech: bản chép scripts/lo-trinh.mjs viết sẵn khác gói → giữ byte, stdout đúng một dòng
+      chứa «bản chép khác bản gói». KM-6-do: bản sao khối bỏ mục ho-so-tom-tat.cjs → bản chép `--check` thoát khác 0, stderr
+      chứa «ho-so-tom-tat» hoặc «MODULE_NOT_FOUND».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [scripts/lo-trinh.mjs, scripts/lo-trinh-khoi-tao.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-7-rong", "PASS: KM-7-co-viec", "PASS: KM-7-mo-o", "PASS: KM-7-tu-ap", "PASS: KM-7-do".
+      KM-7-rong: loTrinh.dong có phần tử BẰNG «Lộ trình chưa có việc nào — thêm việc bằng skill cắt lượt
+      (/acceptance-gate:cat-luot), rồi mở bằng /feature-loop:feature-loop <mã>» (chuỗi viết sẵn trong ca). KM-7-co-viec: kho
+      thử một hàng dung_tren hàng vắng → cả mảng loTrinh.dong giống từng byte bộ máy gốc (đối chứng gốc: lệnh thoát 0, mảng
+      khác rỗng). KM-7-mo-o: hàng chép từ hang[0] của lo-trinh-template.json (rút trong lượt; ma = "1", bỏ slug/dot/phu) ghi
+      vào tệp khởi tạo bằng ghiLoTrinh; chạy NGUYÊN VĂN khối S0-MO-O (rút từ SKILL, AG = gốc cây kit, <mã> = 1) → JSON moi
+      === true, opportunity.md có «lo_trinh_ma: 1»; vẽ lại + commit → `--check` thoát 0. KM-7-tu-ap: thêm bằng ghiLoTrinh
+      mốc phát hành đã qua chứa "1" và mốc chiến dịch tương lai chinh_sach {tu_ap: true, nhip_ngay: 1}; `lo-trinh.mjs --ap
+      --write` ngày D (ACCEPTANCE_TODAY) → thoát 0, băm tệp lộ trình không đổi; ngày D+1 → thoát 0, hàng "1" không còn trong
+      hang của mốc đã qua, dangChuan(tệp) === true. KM-7-do: bản sao giữ câu cũ cho ca 0 việc → FAIL ghim câu nhận được.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map
+    paths: [commands/acceptance-init.md, road-map/README.md, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-8", "PASS: KM-8-ma-thoat", "PASS: KM-8-khoi-khac", "PASS: KM-8-do". KM-8: khối
+      INIT-LO-TRINH có đúng một dòng bắt đầu `node "${CLAUDE_PLUGIN_ROOT}/scripts/lo-trinh-khoi-tao.mjs"` chứa `--root <path>
+      --write`; bước 1 của tệp nêu «5d»; road-map/README.md mục «Cài cho một kho» chứa "/acceptance-gate:acceptance-init".
+      KM-8-ma-thoat: tập mã trong bảng nhánh của khối BẰNG {0, 2, 3} và mỗi mã do một kho thử của KM-1/KM-5 cho ra.
+      KM-8-khoi-khac: ba khối INIT-CI-COPY-LIST, INIT-PLUGIN-DECLARE, CONSUMER-ALLOW-ADVICE giống từng byte bản ở gốc so
+      (đối chứng: ba khối rút được ở cả hai bên, khác rỗng). KM-8-do: bản sao khối thêm dòng «- exit 4 → …» → FAIL ghim
+      «mã 4 không kho thử nào cho ra».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.kho_moi_cai_goi_road_map_cac_kho
+    paths: [scripts/lo-trinh-khoi-tao.mjs, tests/scripts/kho-moi-cai-goi-road-map-cac-kho.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KM-9", "PASS: KM-9-kit". KM-9: dò KHO_GOC (mặc định ~/dev) lấy mọi thư mục có
+      _acceptance/config.yaml (in danh sách, ≥ 1; 0 → thoát 2 nêu đường); với mỗi kho: `git archive HEAD` + chép .claude/
+      đang có vào thư mục tạm, chạy khởi tạo → kho không bật road-map ở phạm vi kho: thoát 0, đúng dòng «kho chưa cài
+      road-map…», băm cây trước = sau. KM-9-kit: bản sao của cây kit thêm `road-map@acceptance-gate-kit: true` vào
+      .claude/settings.json → khởi tạo thoát 0, băm mọi tệp trừ .claude/settings.json trước = sau.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

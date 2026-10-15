@@ -80,6 +80,10 @@ executors:
     # ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (crm vắng → thoát 2, mù).
     ap_chinh_sach_lo_trinh: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
     ap_chinh_sach_lo_trinh_crm: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs
+    # Hồ sơ kho-moi-cai-goi-road-map (RM4): ca KM-1…KM-8 chung một lệnh; KM-9 đo trên bản sao các kho thật của máy
+    # (KHO_GOC hoặc ~/dev) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (không dò được → thoát 2, mù).
+    kho_moi_cai_goi_road_map: node tests/scripts/kho-moi-cai-goi-road-map.test.mjs
+    kho_moi_cai_goi_road_map_cac_kho: node tests/scripts/kho-moi-cai-goi-road-map-cac-kho.mjs
     # AC-4 sau Cổng Bằng chứng lượt 2: chạy chính ca DP2-11 của gói điều phối (chỉ chạy, không sửa tệp ca của vùng M5).
     moc_chien_dich_dp211: "node --test --test-name-pattern=DP2-11 tests/dieu-phoi/mo-dot.test.mjs"
     ngay_ky: node tests/scripts/ngay-ky.test.mjs
