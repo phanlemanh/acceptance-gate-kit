@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: eb3b62050567867f7b3d4b97d343583199dbe485
+verified_commit: 576882966f7b258a07b2cb451aff4218fa02afe4
 human_signoff: Manh Phan 2026-10-15
 ---
 
@@ -219,3 +219,7 @@ none — every multi-run eval is uniform (moi eval chay 1 lan, deterministic)
 Round 1: moi eval va lenh suite PASS tren sha b7b8f1d2; E10b duoc ghi khong-phan-biet o baseline.
 Round 2: sua RS-0 (do quan he tep thay vi dem commit gop, them chieu do), them 5 hang so known-limits, ha implemented cho S4 luot 2; chay lai E1-E8, E10 va 11 lenh suite tren 1297d6a9 — tat ca PASS. E9 va E10b carry-forward tu round 1.
 Round 3: Cong Bang chung tra lai de nang pham vi (RS-2-tu-khai, RS-4-lenh, RS-11 moi, RS-0 hai ve co lap); them E11 cho AC-11; chay lai E1-E11 (tru E10b) va 11 lenh suite tren eb3b6205 — tat ca PASS, ra-soat-lo-trinh.test.mjs 42 ca. E10b carry-forward tu round 1 (delta khong cham paths cua eval). Moc verified_at cua cac khoi round 3 la ngay soan bao cao (payload khong kem gio tung eval).
+
+### Re-pin lần 1 — 2026-10-15, do sửa RS-0 sau chữ ký: chỉ gác gốc so khi hồ sơ chưa ký (merge-base sống)
+run_id: repin-20261015T031058Z-62673
+sha: 576882966f7b258a07b2cb451aff4218fa02afe4 · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
