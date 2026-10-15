@@ -114,7 +114,8 @@
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
-        "MC1"
+        "MC1",
+        "RM1"
       ]
     },
     {
@@ -125,6 +126,15 @@
       "hang": [
         "BN1",
         "NV1"
+      ]
+    },
+    {
+      "ten": "Gói road-map — máy tự áp theo chính sách (RM2); ngày máy đề xuất 15/10, chủ kho dời được bằng PR",
+      "ngay": "2026-11-19",
+      "loai": "phat-hanh",
+      "ai": "MacBook Pro",
+      "hang": [
+        "RM2"
       ]
     }
   ],
@@ -567,6 +577,34 @@
       "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ (BAN-GIAO.md viết tay lúc đổi tài khoản 14/10) + docs/plans/2026-10-14-hat-giong-hien-trang-sau-doi-tai-khoan.md (PR #350) — owner gọi tên 14/10: vòng sửa kit duy nhất của cửa sổ sau 2.30.0.",
       "bat_khi": "Trang lộ trình của crm cắm cờ vàng cho đúng các việc đang mở vòng mà chưa thuộc mốc nào, và lệnh mở vòng in tên phiên «<mã> · <tên ngắn> (<kho>)» cùng nhóm «<lộ trình> · <mốc>» — đo trên bản sao lộ trình thật của crm",
       "ghi_chu": "Máy MacBook Pro giữ. Không chạm dieu-phoi/ (chip của gói dieu-phoi dùng cùng hàm là việc của M5, chỉ ghi sẵn chỗ nối)."
+    },
+    {
+      "ma": "RM1",
+      "ten_ngan": "Rà soát lộ trình trên thẻ",
+      "cau_giao": "Chủ kho mở thẻ khởi động và thấy ngay hàng nào của lộ trình cần rà soát — dời mốc, chờ điều kiện hay bác — kèm căn cứ máy đọc, mà máy không sửa tệp lộ trình và không thêm lượt gọi người",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào, không có cửa ra: OKR crm 125 hàng từng có, 1 hàng rời; 18–19/35 lần sửa lộ trình kit là xếp lại bằng tay. Hướng B′ chủ kho duyệt 14/10 (docs/findings/2026-10-14-kien-truc-roadmap-plugin.md)",
+      "hang": "T2",
+      "slug": "ra-soat-lo-trinh",
+      "bat_khi": "Ở lần mở thẻ đầu tiên sau mốc khép kế tiếp, mọi hàng của mốc đã khép mà chưa giao và chưa có hồ sơ đang mở đều hiện đề xuất kèm căn cứ trên thẻ — chủ kho không phải hỏi «hàng nào cần dời»",
+      "nhom": "lo-trinh"
+    },
+    {
+      "ma": "RM2",
+      "ten_ngan": "Máy tự áp chính sách lộ trình",
+      "cau_giao": "Chủ kho khai chính sách một lần khi mở chiến dịch; máy tự dời hàng khớp chính sách — báo trước một nhịp, ghi sổ — và chủ kho trả lại hay ghim một hàng bằng một lệnh, còn tệp lộ trình giữ nguyên định dạng, thứ tự và mọi khoá lạ",
+      "vai": "Chủ kho",
+      "tieu_chi": 11,
+      "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào; RM1 (ra-soat-lo-trinh, ký 15/10) đo trên dữ liệu thật: không chính sách chỉ ra 3 đề xuất ở crm, giá trị nằm ở chính sách. Phần còn lại của B′ §6 mục 2–3 và §11 (docs/findings/2026-10-14-kien-truc-roadmap-plugin.md); chủ kho gọi tên «road-map hoàn tất theo B′» 15/10.",
+      "hang": "T3",
+      "slug": "ap-chinh-sach-lo-trinh",
+      "dung_tren": [
+        "RM1"
+      ],
+      "bat_khi": "Ở kho đã khai chính sách, một mốc khép mà chủ kho không phải sửa tay tệp lộ trình lần nào để dời hàng quá hạn; mỗi lần máy tự dời có một dòng sổ và trả lại được bằng một lệnh",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Mở khi crm cài bản phát hành chứa RM1 và khai thử chính sách (luật chiều rộng (b): một vòng meta sau một mốc được kho nhận; mốc nền = số lần sửa tay lộ trình giữa hai mốc). CỘNG duyệt ở Cổng Phạm vi: ba lệnh khoá ghim · bo-ghim · tra-lai (sửa ADR 0002 + danh sách khoá P32). Gộp vào vòng: /road-map:xem thành bản đồ xong · đang dở · kế; giới hạn đã biết của RM1 Ngoài-3 (tệp chưa commit thì luật tuổi tắt không cảnh báo)."
     }
   ],
   "chan_troi": [
@@ -677,6 +715,24 @@
       "cau_giao": "Tầng chủ kho của dải tóm tắt hiện danh sách tiêu chí kèm kết cục và danh sách câu giới hạn",
       "ly_do": "LT1b đề nghị 12/10; vòng dai-tom-tat-doc-dung để ngoài (đổi khuôn khối) — hạt giống docs/plans/2026-10-12-hat-giong-dai-tom-tat-sau-x2s.md.",
       "mo_lai_khi": "Sau 2.28 và LT1b lên crm"
+    },
+    {
+      "ma": "RM3",
+      "cau_giao": "Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui",
+      "ly_do": "B′ §10: chạm gói dieu-phoi (vùng máy M5); chưa đo được tần suất yêu cầu việc phụ / hàng mới — nhật ký yêu cầu của đợt không nằm trong git crm.",
+      "mo_lai_khi": "máy chạy đợt đếm được ≥ 1 đợt có yêu cầu việc phụ hoặc hàng mới leo lên người"
+    },
+    {
+      "ma": "RM4",
+      "cau_giao": "Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn",
+      "ly_do": "ADR 0025 nấc 2; chưa kho mới nào cần.",
+      "mo_lai_khi": "một kho cài gói road-map mà chưa có tệp lộ trình"
+    },
+    {
+      "ma": "RM5",
+      "cau_giao": "Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho",
+      "ly_do": "ADR 0025 nấc 4, giới hạn (ii).",
+      "mo_lai_khi": "sau một lần phát hành có nấc 1 và 3, vẫn còn ≥ 1 hồ sơ mới không nối hàng ở kho đã khai lộ trình"
     }
   ],
   "da_bac": [

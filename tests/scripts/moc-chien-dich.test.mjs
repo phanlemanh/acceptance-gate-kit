@@ -274,7 +274,10 @@ async function mc5(kit) {
     const dm = quet(kit, c).loTrinh.dong; const dg = quet(banGoc(), c).loTrinh.dong;
     const so = ds => { const l = ds.find(x => /^Lộ trình có \d+ cờ/.test(x)); return l ? Number(l.match(/có (\d+) cờ/)[1]) : 0; };
     if (so(dm) - so(dg) !== moi) sai.push(`${ten}: dòng đếm cờ của thẻ start tăng ${so(dm) - so(dg)}, cần ${moi}`);
-    const bo = ds => ds.filter(x => !/^Lộ trình có \d+ cờ/.test(x)).map(x => [realpathSync(kit), kit, realpathSync(banGoc()), banGoc()].reduce((y, g) => y.split(g).join('<kit>'), x));
+    // ra-soat-lo-trinh (hàng RM1): khối rà soát là dòng mới CÓ CHỦ Ý của thẻ start — bỏ đúng khối đó ở bên mới trước khi so;
+    // lời hứa gốc của MC-5 (không dòng nào khác đổi) giữ nguyên nghĩa.
+    const laRaSoat = x => /^Rà soát: \d+ đề xuất — /.test(x) || /^  [·…] /.test(x);
+    const bo = ds => ds.filter(x => !/^Lộ trình có \d+ cờ/.test(x) && !laRaSoat(x)).map(x => [realpathSync(kit), kit, realpathSync(banGoc()), banGoc()].reduce((y, g) => y.split(g).join('<kit>'), x));
     if (!deq(bo(dm), bo(dg))) sai.push(`${ten}: dòng khác của thẻ start đổi: ${JSON.stringify(bo(dm))} / ${JSON.stringify(bo(dg))}`);
   }
   return sai;

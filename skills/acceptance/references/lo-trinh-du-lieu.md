@@ -126,7 +126,7 @@ tin_hieu.luc — lúc gửi (ISO)
 tin_hieu.cho — chua-gom · le · da-phu · nhom-chua-cat · chan-troi · hang-chua-ho-so · hang-co-ho-so
 tin_hieu.nhom — mã nhóm trong bản gom (null khi không ở nhóm)
 tin_hieu.ten_nhom — tên nhóm bằng tiếng sản phẩm
-tin_hieu.ly_do — lý do lẻ, hoặc lý do để sau của chân trời
+tin_hieu.ly_do — lý do lẻ, hoặc lý do để sau của mục chờ điều kiện
 tin_hieu.ho_so_phu — hồ sơ đã giao phủ tín hiệu (ngăn đã phủ)
 tin_hieu.hang — mã việc trong lộ trình mà nhóm đã thành
 tin_hieu.ho_so — hồ sơ của việc đó
