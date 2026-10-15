@@ -121,9 +121,8 @@ Quét bằng `morphological-scan` (preset entity-feature; thực thể = một �
 
 - «Trong một chiến dịch, mọi ý mới thợ hay người nêu đều có chỗ trong cửa tín hiệu và không đẻ lượt gọi người ngoài thiết
   kế». Số đọc ở đợt đầu tiên mở bằng gói điều phối, ở bất kỳ kho nào, sau khi cài bản chứa vòng này. M5 trả lời trên
-  #308 (15/10): M5 không mở đợt bằng gói (điều phối thợ bằng tay), nên máy duy nhất từng chạy đợt là Mac Studio (đợt r2):
-  `jq -c 'select(.loai=="yeu-cau" and (.kieu=="viec-phu" or .kieu=="hang-moi"))' <thư mục đợt>/su-kien.jsonl` — đếm dòng
-  N = số dòng `chan != true` (mọi ý không chặn, dù kết quả là gì). SỐNG khi N ≥ 1, 0 dòng trong N mang `can_phan ==
+  #308 (15/10): M5 không mở đợt bằng gói (điều phối thợ bằng tay), nên máy duy nhất từng chạy đợt là Mac Studio (đợt r2).
+  Trong sổ sự kiện của đợt, N = số yêu cầu việc-phụ/việc-mới `chan != true` (mọi ý không chặn, dù kết quả là gì). SỐNG khi N ≥ 1, 0 dòng trong N mang `can_phan ==
   true`, và mỗi dòng `ket_qua == "ghi"` có tệp `<nguon>/<id>.json`. CHẾT khi ≥ 1 dòng trong N mang `can_phan == true`,
   hoặc một id `ghi` không có tệp. N = 0 → «chưa đọc được». Câu đọc:
   `jq -s '[.[]|select(.loai=="yeu-cau" and (.kieu=="viec-phu" or .kieu=="hang-moi") and .chan!=true)]|{n:length,can_phan:(map(select(.can_phan==true))|length),ghi:(map(select(.ket_qua=="ghi"))|map(.id))}' <thư mục đợt>/su-kien.jsonl`

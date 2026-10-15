@@ -1,0 +1,124 @@
+{
+ "feature_plain": "Giữa một đợt, ý mới của thợ hay của anh không còn gọi ai dậy: nó vào cửa tín hiệu, được trả «đã ghi, xử ở mốc khép», và chỉ việc thật sự chặn mới được phán ngay.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ trả ngay «đã ghi, xử ở mốc khép» cho việc phụ / việc mới không chặn của thợ, không đánh thức giám sát, và câu trả chỉ lối gửi lại nếu thợ thật ra đang bị chặn."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ vẫn đưa lên giám sát phán ngay mọi ý thợ khai là chặn việc đang chạy — đường duy nhất phán giữa chừng."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ ghi mỗi ý đúng một lần vào cửa tín hiệu của kho, đọc lại được bằng bộ gom, không bao giờ đè một ý cũ chưa gom."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ đọc chỗ đặt cửa tín hiệu của kho giống hệt cách bộ gom đọc, trên mọi kiểu khai cấu hình."
+  },
+  {
+   "id": "AC-7",
+   "p": "Sẽ cho anh gửi một ý bằng /road-map:gui và nhận cùng câu «đã ghi, xử ở mốc khép»; kho chưa có cửa thì được chỉ chỗ khai."
+  },
+  {
+   "id": "AC-8",
+   "p": "Sẽ nhắc trên thẻ khởi động có bao nhiêu ý đang chờ gom ở mốc khép, khi có ít nhất một ý."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ dạy thợ khai chặn đúng chỗ: thợ đang chờ một việc chưa có ô thì luôn được phán, không bị trả «đã ghi»."
+  },
+  {
+   "id": "AC-10",
+   "p": "Sẽ vẫn chạy đúng khi gói điều phối được chép sang thư mục của đợt."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "AC-4",
+   "p": "Sẽ KHÔNG đổi gì ở kho chưa khai cửa tín hiệu hay với các yêu cầu vận hành khác — giống từng chữ như hôm nay."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ KHÔNG để mất ý khi không ghi được vào cửa: ý đó rơi về giám sát phán, kèm lý do."
+  },
+  {
+   "id": "OOS-1",
+   "p": "Không làm cờ cảnh báo khi cắt lượt gắn hàng mới vào mốc đang chạy."
+  },
+  {
+   "id": "OOS-2",
+   "p": "Không để máy tự lưu các ý vào lịch sử kho — chúng nằm trên máy chạy đợt tới khi phiên gom lưu."
+  },
+  {
+   "id": "OOS-3",
+   "p": "Không để máy tự gom hay tự xếp ý vào kế hoạch giữa chiến dịch."
+  },
+  {
+   "id": "OOS-4",
+   "p": "Không cho ý của người đi vào hộp yêu cầu của đợt."
+  },
+  {
+   "id": "OOS-5",
+   "p": "Không khoá lệnh gửi ý khỏi máy — nó là lệnh mở như lệnh xem."
+  }
+ ],
+ "scope_plain": "Những việc gần kề cố ý để ngoài vòng này:",
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Nguồn sản phẩm: bản kiến trúc B′ §10–§11, bộ xét yêu cầu hiện nay và khuôn tín hiệu."
+  },
+  {
+   "i": 1,
+   "p": "Nguồn ngành: Linear Triage (việc từ ngoài vào hộp phân loại) và Scrum Guide (mục tiêu chu kỳ giữ cố định)."
+  },
+  {
+   "i": 2,
+   "p": "Ai nêu ý — thợ trong đợt, anh, thợ ngoài đợt — phủ bởi AC-1 (thợ) và AC-7 (người)."
+  },
+  {
+   "i": 3,
+   "p": "Loại ý — việc phụ, việc mới, ý của người, yêu cầu vận hành — phủ bởi AC-1, AC-4, AC-7."
+  },
+  {
+   "i": 4,
+   "p": "Chặn hay không — phủ bởi AC-2 (chặn) và AC-9 (thợ khai đúng chỗ)."
+  },
+  {
+   "i": 5,
+   "p": "Tình trạng cửa — có, không, ghi lỗi, trùng — phủ bởi AC-3, AC-4, AC-5."
+  },
+  {
+   "i": 6,
+   "p": "Ba lớp xuyên: đọc chỗ cửa (AC-6), thẻ mốc khép (AC-8), chép gói sang đợt (AC-10)."
+  },
+  {
+   "i": 7,
+   "p": "Giả định: thợ ngoài đợt dùng chính lệnh gửi ý của người là đủ — không đo riêng."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Chiều mặc định của cờ chặn là khẩu vị rủi ro của anh, không phải máy quyết — đã thành câu hỏi Hỏi-2, và câu trả cho thợ nay chỉ lối gửi lại."
+  },
+  {
+   "i": 1,
+   "p": "Kho chưa khai cửa có thể đổi hành vi với hai việc mới trùng nhau — đã đổi thứ tự xét và thêm ca so từng chữ với bản cũ."
+  },
+  {
+   "i": 2,
+   "p": "Cách đọc ngưỡng lệch với ngưỡng anh đã ký — đã sửa để đếm mọi ý không chặn, và một ca chạy đúng câu đọc ấy."
+  },
+  {
+   "i": 3,
+   "p": "Một ý có thể đè ý cũ chưa gom khi trùng số — đã cấm đè, ý trùng rơi về phán, lệnh gửi ý lấy số kế."
+  },
+  {
+   "i": 4,
+   "p": "Phép kiểm «không nằm trong việc chờ» thiếu đối chứng — đã thêm vế dương ở ca chặn."
+  }
+ ]
+}
