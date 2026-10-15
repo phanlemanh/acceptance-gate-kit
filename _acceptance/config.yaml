@@ -76,6 +76,10 @@ executors:
     moc_chien_dich_crm: node tests/scripts/moc-chien-dich-crm.mjs
     ra_soat_lo_trinh: node tests/scripts/ra-soat-lo-trinh.test.mjs
     ra_soat_lo_trinh_crm: node tests/scripts/ra-soat-lo-trinh-crm.mjs
+    # Hồ sơ ap-chinh-sach-lo-trinh (RM2): ca AP-1…AP-10 chung một lệnh; AP-11 cần kho crm trên máy (KHO_CRM hoặc
+    # ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (crm vắng → thoát 2, mù).
+    ap_chinh_sach_lo_trinh: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    ap_chinh_sach_lo_trinh_crm: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs
     # AC-4 sau Cổng Bằng chứng lượt 2: chạy chính ca DP2-11 của gói điều phối (chỉ chạy, không sửa tệp ca của vùng M5).
     moc_chien_dich_dp211: "node --test --test-name-pattern=DP2-11 tests/dieu-phoi/mo-dot.test.mjs"
     ngay_ky: node tests/scripts/ngay-ky.test.mjs

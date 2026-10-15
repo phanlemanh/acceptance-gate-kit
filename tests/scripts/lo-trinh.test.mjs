@@ -1594,6 +1594,7 @@ if (want('LT-96-do')) await chayDo('LT-96-do', lt96, [['scripts/lo-trinh.mjs', '
 // Mỗi hàng: tên dạng (khớp CO_DICH), cách kích, câu ĐÍCH viết tay (mã — câu, hoặc câu không mã).
 // Câu đích KHÔNG rút từ bảng dịch; giá trị (mã, lời khai, ô, slug, hạng) nằm sẵn trong câu.
 const TEN_O_97 = Object.fromEntries(PMM.SECTIONS);
+const PP = o => ({ ten: 'P', ngay: '2026-11-01', loai: 'phat-hanh', hang: [], ...o });
 const MA_TRAN_97 = [
   ['thieu-truong', () => kho({ data: { schema: 1, hang: [{ ma: 'A' }] } }), 'A — chưa có câu mô tả việc giao'],
   ['dung-tren-mang', () => kho({ data: { schema: 1, hang: [H('A', { dung_tren: 'B' })] } }), 'A — ô «cần xong trước» phải là danh sách'],
@@ -1625,6 +1626,12 @@ const MA_TRAN_97 = [
   ['chinh-sach-object', () => kho({ data: { schema: 1, chinh_sach: [], hang: [H('A')] } }), 'chính sách rà soát phải là một object'],
   ['chinh-sach-tuoi', () => kho({ data: { schema: 1, chinh_sach: { tuoi_ngay: 0 }, hang: [H('A')] } }), 'chính sách tuoi_ngay phải là số nguyên dương'],
   ['chinh-sach-tran', () => kho({ data: { schema: 1, chinh_sach: { tran_ke_tiep: -1 }, hang: [H('A')] } }), 'chính sách tran_ke_tiep phải là số nguyên không âm'],
+  // ap-chinh-sach-lo-trinh: năm dạng cờ khuôn của chính sách tự áp trên mốc chiến dịch.
+  ['cs-moc-loai', () => kho({ data: { schema: 1, moc: [{ ten: 'N', ngay: '2026-11-01', loai: 'ngoai', chinh_sach: { tu_ap: true }, hang: [] }], hang: [H('A')] } }), 'chính sách chỉ khai ở mốc phát hành: N 01/11'],
+  ['cs-moc-object', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: [] })], hang: [H('A')] } }), 'chính sách tự áp của mốc P 01/11 phải là một object'],
+  ['cs-moc-tu-ap', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { tu_ap: 'x' } })], hang: [H('A')] } }), 'chính sách tu_ap phải là true hoặc false (mốc P 01/11)'],
+  ['cs-moc-duong', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { nhip_ngay: 0 } })], hang: [H('A')] } }), 'chính sách nhip_ngay phải là số nguyên dương (mốc P 01/11)'],
+  ['cs-moc-tran', () => kho({ data: { schema: 1, moc: [PP({ chinh_sach: { tran_ke_tiep: -1 } })], hang: [H('A')] } }), 'chính sách tran_ke_tiep phải là số nguyên không âm (mốc P 01/11)'],
 ];
 const CAM_CO = ['cau_giao', 'dung_tren', 'lo_trinh_', 'tu_vung', 'tự khai', 'tệp khai khác hồ sơ', 'đứng trên', 'tệp ý định'];
 const CAM_TRANG = ['tin theo lời', 'câu giao', 'hàng kế', 'Hàng kế', 'Vòng ngoài lộ trình', 'Cổng Đáng', 'tệp ý định', 'Cờ'];
