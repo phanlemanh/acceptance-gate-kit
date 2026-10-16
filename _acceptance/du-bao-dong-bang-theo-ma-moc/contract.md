@@ -6,7 +6,11 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6b khai T2: chỉ bộ đọc dự báo trong scripts/lo-trinh.mjs + ca đo — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-du-bao-dong-bang-theo-ma-moc-design.md
-status: draft
+status: approved
+approved_by:
+approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-16T01:55:21Z
 ---
 
 # Acceptance Contract: du-bao-dong-bang-theo-ma-moc
