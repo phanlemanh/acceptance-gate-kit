@@ -81,6 +81,8 @@ executors:
     ap_chinh_sach_lo_trinh: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
     # Hồ sơ lo-trinh-gio-may (RM6): ca GM-1…GM-9 chung một lệnh (giờ máy + token trên lộ trình, đo vòng, đo lệch).
     lo_trinh_gio_may: node tests/scripts/lo-trinh-gio-may.test.mjs
+    # Hồ sơ lo-trinh-du-lieu-ngay-du-kien (RM6c): ca ND-1…ND-8 chung một lệnh (giờ máy + ngày dự kiến trong khối dữ liệu trang).
+    lo_trinh_du_lieu_ngay: node tests/scripts/lo-trinh-du-lieu-ngay.test.mjs
     ap_chinh_sach_lo_trinh_crm: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs
     # Hồ sơ kho-moi-cai-goi-road-map (RM4): ca KM-1…KM-8 chung một lệnh; KM-9 đo trên bản sao các kho thật của máy
     # (KHO_GOC hoặc ~/dev) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (không dò được → thoát 2, mù).
