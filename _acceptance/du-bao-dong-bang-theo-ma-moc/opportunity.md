@@ -3,10 +3,10 @@ schema_version: 1
 slug: du-bao-dong-bang-theo-ma-moc
 feature: Chủ kho dời hay ghi đè ngày mục tiêu của một mốc mà trang lộ trình vẫn giữ dự báo lúc mốc bắt đầu, cờ quá tải vẫn tính theo mục tiêu mới, và phép đo lệch vẫn đọc được mốc ấy
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-16T01:43:27Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 16/10 — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -70,9 +70,9 @@ Không dựng prototype — sửa bộ đọc của bộ công cụ; đo bằng 
 
 ## Cổng 0
 
-- **decision =** 
+- **decision = build** Căn cứ: chủ kho chọn «mở hợp đồng mới» cho Ngoài-6 của RM6; số trước 1 → 0 dòng dự báo khi dời ngày mốc; phải gộp trước lần cắt mốc tới.
 - **disposition = —** Căn cứ: không prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** 
+- **Ngưỡng UAT chốt cùng lúc ký:** nhận nguyên ngưỡng máy đề xuất (SỐNG: phép đo lệch in độ lệch của mốc đã ghi đè ngày · CHẾT: in «chưa đóng băng» khi mốc có hồ sơ đã đóng băng · hạn đọc 05/11).
 
 ## Thước đo thành công → ứng viên criterion
 
