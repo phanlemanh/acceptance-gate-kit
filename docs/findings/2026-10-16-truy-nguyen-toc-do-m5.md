@@ -598,6 +598,15 @@ tắt Preview**. Hai lối B và C (nhánh Neon cho Preview) chỉ có lý do t�
    - đẩy một nhánh thử thì ba dự án tạo 0 bản Preview;
    - 7 ngày sau, đếm lại, phải bằng 0.
 
+**Kết quả sau gộp (kiểm độc lập 16/10, chỉ đọc):** crm #442 (`ops/tat-ban-preview`, gộp 10:02Z, merge `28d8ca19`).
+- Bản production dựng từ `28d8ca19` ở cả bốn dự án đều **READY**.
+- Sau gộp chỉ một nhánh còn dựng Preview ở app, api, agent: `fix/thu-paths-e15-giai-doan` (`a9f9cfb10`), nhánh này
+  **không chứa** `28d8ca19`. Vercel đọc `vercel.json` theo commit được dựng, nên nhánh cắt trước #442 vẫn dựng
+  Preview cho tới khi gộp onehub vào — đây là trạng thái chuyển tiếp, đúng như dự kiến.
+- Nhánh `feat/cua-toi-ba-phan` (#443) **có chứa** `28d8ca19` và được đẩy sau gộp → **0** bản Preview.
+- Hai nhánh này là một cặp đối chứng tự nhiên: thiếu luật thì dựng, có luật thì không — tức luật có chiều đỏ.
+- Còn lại: đếm lại vào 23/10, chỉ tính các commit có chứa `28d8ca19`.
+
 Trong lúc đo có một request ra ngoài do máy gây ra: GET `/health` vào bản Preview của chính kho, bị SSO chặn, không
 chạm hàm nào.
 
