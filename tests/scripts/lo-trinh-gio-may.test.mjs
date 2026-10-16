@@ -526,7 +526,8 @@ const TIEM = {
   moiUngVien: [LT_MJS, 'if (ung.length) theoMoc[ung[0].i].push(x);', 'for (const u of ung) theoMoc[u.i].push(x);'],
   tenTruocMa: [LT_MJS, 'ung.sort((a, b) => b.khop - a.khop || b.giao - a.giao || b.boNgay - a.boNgay || a.i - b.i);', 'ung.sort((a, b) => b.khop - a.khop || b.boNgay - a.boNgay || b.giao - a.giao || a.i - b.i);'],
   boTenNguyenVan: [LT_MJS, 'const khop = x.moc.ten === ten[i];', 'const khop = false;'],
-  mucDongBang: [LT_MJS, '  const muc = chuoi(m.ngay);\n  const tre = db', '  const muc = chuoi((db && db.moc.muc_tieu) || m.ngay);\n  const tre = db'],
+  // RM6c tách dòng mốc thành mocGioMay (trang + khối dùng chung) — nhát tiêm theo dòng mới, cùng nghĩa.
+  mucDongBang: [LT_MJS, '  const muc = chuoi(m.ngay);\n  const quaTai = db', '  const muc = chuoi((db && db.moc.muc_tieu) || m.ngay);\n  const quaTai = db'],
 };
 const DOI = (m, o) => ({ ...m, ...o });
 const DUOI_DB = 'dự báo lúc bắt đầu';
@@ -549,7 +550,8 @@ if (want('DB-1') && await chayCa('DB-1', db1Doi)) ok('DB-1', 'mốc M dời 22/1
 if (want('DB-1-doi-ten') && await chayCa('DB-1-doi-ten', db1(DOI(mocM, { ten: 'Bản M đổi tên', ngay: '2026-10-25' })))) ok('DB-1-doi-ten', 'mốc M đổi tên và dời 25/10: dòng mốc (tên mới) vẫn mang dự báo đóng băng');
 if (want('DB-1-do')) await chayDo('DB-1-do', db1Doi, [TIEM.chiTen], 'dời ngày mục tiêu làm mất dự báo đóng băng', 'bản sao chỉ khớp tên kèm ngày');
 const db2 = async kit => {
-  const sai = []; const dem = (h, s) => h.split(s).length - 1;
+  // Đếm trên phần người nhìn thấy — khối dữ liệu máy đọc (RM6c) mang lại đúng chữ cờ ấy cho bản chiếu ngoài kho.
+  const sai = []; const dem = (h, s) => h.replace(/<script type="application\/json" id="lo-trinh-du-lieu">[\s\S]*?<\/script>/, '').split(s).length - 1;
   const h21 = await ve(kit, await khoP(DOI(mocM, { ngay: '2026-10-21' }))); const h25 = await ve(kit, await khoP(DOI(mocM, { ngay: '2026-10-25' })));
   if (dem(h21, 'mốc quá tải: dự kiến 23/10, mục tiêu 22/10') || dem(h25, 'mốc quá tải: dự kiến 23/10, mục tiêu 22/10')) sai.push('cờ quá tải theo mục tiêu lúc đóng băng');
   const c21 = dem(h21, 'mốc quá tải: dự kiến 23/10, mục tiêu 21/10'); if (c21 !== 1) sai.push(`dời 21/10: cờ «mục tiêu 21/10» ${c21} lần, cần 1`);
@@ -657,7 +659,9 @@ const db7 = async kit => {
     r: { hinh: 'da-ship' }, p: { hinh: 'dang-dung', duBao: await duBaoP() }, ...(await gm8HoSo()),
     le: { hinh: 'da-ship', ky: '2026-10-11', duBao: { ...(await duBaoP()), ngay_tinh: '2026-10-10' } } } });
   const hg = await ve(goc, r); if (!hg || !hg.includes(`${DUOI_DB} (10/10)`)) sai.push('đối chứng gốc không chạy: trang');
-  if ((await ve(kit, r)) !== hg) sai.push('khác bộ máy gốc: trang');
+  // RM6c: khối dữ liệu mang thêm bốn khoá giờ máy — gỡ đúng bốn khoá ấy trước khi so (đối chứng: khối mới phải mang chúng).
+  const vm = await ve(kit, r); if (!GM_BO.coKhoiGioMay(vm)) sai.push('đối chứng: khối dữ liệu của bộ máy mới thiếu khoá giờ máy để gỡ');
+  if (GM_BO.boKhoiGioMay(vm) !== hg) sai.push('khác bộ máy gốc: trang');
   for (const a of [['--do-lech'], ['--ra-soat', '--json'], ['--ap', '--json'], ['--xem']]) {
     const g = chay(goc, r, D, a); const m = chay(kit, r, D, a);
     if (g.status !== 0 || !g.stdout) { sai.push(`đối chứng gốc không chạy: ${a.join(' ')}`); continue; }
