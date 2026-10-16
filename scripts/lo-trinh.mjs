@@ -522,10 +522,15 @@ function moCo(i, c, theoNhan) {
   const d = dichCo(c); const id = d.ma != null ? theoNhan.get(String(d.ma)) : null;
   return id ? `<li><a href="#${id}"><b>${esc(d.ma)}</b> — ${esc(d.chu)}</a></li>` : `<li><span>${d.ma != null ? `<b>${esc(d.ma)}</b> — ` : ''}${esc(d.chu)}</span></li>`;
 }
-// Phần giờ máy trong ô Hạng: «<khoảng> giờ máy (<nhãn nguồn>)», và % hạn mức tuần chỉ khi đã ước.
-function gioMayO(u) {
-  return `${esc(GM.khoangVN(u.khoang))} giờ máy${u.nhan ? ` (${esc(u.nhan)})` : ''}${u.phanTram.gia != null ? ` · ${esc(GM.oPhanTram(u))} hạn mức tuần` : ''}`;
+// Phần giờ máy trong ô Hạng: «<khoảng> giờ máy (<nhãn nguồn>)», và % hạn mức tuần chỉ khi đã ước. Chữ thô dùng chung cho
+// trang (thoát HTML) và khối dữ liệu (nguyên văn) — hồ sơ lo-trinh-du-lieu-ngay-du-kien, hàng RM6c.
+function gioMayChu(u) {
+  return `${GM.khoangVN(u.khoang)} giờ máy${u.nhan ? ` (${u.nhan})` : ''}${u.phanTram.gia != null ? ` · ${GM.oPhanTram(u)} hạn mức tuần` : ''}`;
 }
+function gioMayO(u) { return esc(gioMayChu(u)); }
+// Ô giờ máy của một hàng trong khối dữ liệu: đúng chữ trang in + số. `co` = nhãn trang in khi ước theo bảng luật (chưa đủ
+// số đo cùng hạng), null khi kho khai hay ước theo số đo.
+const gioMayHangDuLieu = u => ({ thap: u.khoang[0], cao: u.khoang[1], nguon: u.nguon, chu: gioMayChu(u), co: u.nguon === 'luat' ? u.nhan || null : null, phan_tram_tuan: u.phanTram.gia, phan_tram_chu: GM.oPhanTram(u) });
 function oHang(i, d, kq, theoNhan) {
   const tt = `<span class="tt${kq.daGiao.has(d.chu) ? ' giao' : (d.chu === CHUA_MO ? ' chua' : '')}">${esc(d.chu)}</span>`;
   return {
@@ -582,17 +587,25 @@ function mucLoTrinh(i, t) {
 
 // Dòng giờ máy của một mốc trên trang (tất định — không «hôm nay»): tổng các hàng chưa giao, % hạn mức, dự báo đóng
 // băng lúc mốc bắt đầu và cờ quá tải so với mục tiêu hiện tại. Mốc không còn hàng chưa giao: chỉ dự báo đóng băng (nếu có).
-function gioMayMoc(kq, m) {
-  if (!kq._gm) return '';
+// Ba phần của dòng mốc — dùng chung cho trang và khối dữ liệu (RM6c) để hai bên không trôi khỏi nhau: `gio` (tổng hàng
+// chưa giao, null khi mốc hết việc mở), `duKien` (dự báo đóng băng, null khi mốc chưa đóng băng), `quaTai` (chữ cờ).
+// null cả cụm khi lộ trình không qua phân tích kho.
+function mocGioMay(kq, m) {
+  if (!kq._gm) return null;
   const ma = ganMoc(m); const mo = ma.map(x => kq.dong.find(d => String(d._nhan) === x)).filter(d => d && !kq.daGiao.has(d.chu));
   const kVong = kq._gm.doVong.filter(v => v.daGiao && typeof v.phan_tram_tuan === 'number').length;
-  const P = [];
-  if (mo.length) { const tg = GM.tongMoc(m, mo, kq._gm.uoc); P.push(`~${GM.khoangVN(tg.khoang)} giờ máy${tg.phanTram.gia != null ? ` · ${GM.chuPhanTramMoc(tg, kVong)}` : ''}`); }
+  const tg = mo.length ? GM.tongMoc(m, mo, kq._gm.uoc) : null;
+  const gio = tg ? { tg, kVong, chu: `~${GM.khoangVN(tg.khoang)} giờ máy${tg.phanTram.gia != null ? ` · ${GM.chuPhanTramMoc(tg, kVong)}` : ''}` } : null;
   const db = duBaoDongBang(kq, m);
-  if (db) P.push(`dự báo lúc bắt đầu (${GM.ngayVN(db.ngay_tinh)}): hoàn tất ${GM.ngayVN(db.moc.hoan_tat)}`);
+  const duKien = db ? { ngay_tinh: db.ngay_tinh, hoan_tat: db.moc.hoan_tat, chu: `dự báo lúc bắt đầu (${GM.ngayVN(db.ngay_tinh)}): hoàn tất ${GM.ngayVN(db.moc.hoan_tat)}` } : null;
   const muc = chuoi(m.ngay);
-  const tre = db && /^\d{4}-\d{2}-\d{2}$/.test(muc) && db.moc.hoan_tat > muc;
-  return (P.length ? ` <span class="mu nho">· ${esc(P.join(' · '))}</span>` : '') + (tre ? `<span class="co-o">mốc quá tải: dự kiến ${esc(GM.ngayVN(db.moc.hoan_tat))}, mục tiêu ${esc(GM.ngayVN(muc))}</span>` : '');
+  const quaTai = db && /^\d{4}-\d{2}-\d{2}$/.test(muc) && db.moc.hoan_tat > muc ? `mốc quá tải: dự kiến ${GM.ngayVN(db.moc.hoan_tat)}, mục tiêu ${GM.ngayVN(muc)}` : null;
+  return { gio, duKien, quaTai };
+}
+function gioMayMoc(kq, m) {
+  const x = mocGioMay(kq, m); if (!x) return '';
+  const P = [x.gio && x.gio.chu, x.duKien && x.duKien.chu].filter(Boolean);
+  return (P.length ? ` <span class="mu nho">· ${esc(P.join(' · '))}</span>` : '') + (x.quaTai ? `<span class="co-o">${esc(x.quaTai)}</span>` : '');
 }
 
 // ── Khối dữ liệu máy đọc (hồ sơ xuat-du-lieu-lo-trinh) ─────────────────────────
@@ -602,6 +615,8 @@ function gioMayMoc(kq, m) {
 // (skills/acceptance/references/lo-trinh-du-lieu.md) chép bảng khoá, ca LT-119 so hai bên.
 export const ID_DU_LIEU = 'lo-trinh-du-lieu';
 // Bản 2 (hàng X2): thêm khoá `tom_tat` ở cấp hàng. Bộ đọc bản 1 gặp bản 2 «đọc phần biết» + một cảnh báo.
+// Cùng bản 2 (hàng RM6c, chủ kho chốt giữ số ở Cổng Phạm vi 16/10 — «kit chỉ THÊM khoá trong cùng phiên bản»):
+// `hang.gio_may`, `moc.gio_may`, `moc.du_kien`, `moc.qua_tai` và ba cấp con. Bộ đọc nhận ra trang đời trước bằng khoá vắng.
 export const PHIEN_BAN_DU_LIEU = 2;
 export const KHUON_DU_LIEU = {
   goc: ['khuon', 'phien_ban', 'nguon', 'lo_trinh', 'ngoai_lo_trinh'],
@@ -609,12 +624,15 @@ export const KHUON_DU_LIEU = {
   hang_ke: ['ma', 'cau_giao', 'lenh'],
   can_sua: ['ma', 'chu'],
   tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
-  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat'],
-  moc: ['ten', 'ngay', 'hang', 'con_viec'],
+  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat', 'gio_may'],
+  moc: ['ten', 'ngay', 'hang', 'con_viec', 'gio_may', 'du_kien', 'qua_tai'],
   da_bac: ['ma', 'ly_do'],
   tom_tat: ['moi_nguoi', 'chu_kho'],
   moi_nguoi: [...HS.O_MOI_NGUOI],
   chu_kho: [...HS.O_CHU_KHO],
+  gio_may: ['thap', 'cao', 'nguon', 'chu', 'co', 'phan_tram_tuan', 'phan_tram_chu'],
+  gio_may_moc: ['thap', 'cao', 'chu', 'phan_tram_tuan', 'phan_tram_chu'],
+  du_kien: ['ngay_tinh', 'hoan_tat', 'chu'],
 };
 const nhomVe = sections => { const TEN = Object.fromEntries(sections || []); const ten = ds => new Set(ds.map(k => TEN[k]).filter(Boolean)); return { dangLam: ten(DANG_LAM_O), chuaLam: ten(CHUA_LAM_O) }; };
 const tienDoRong = () => ({ tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 });
@@ -641,8 +659,17 @@ export function duLieuTrang(cacTep, sections = null, tinHieu = null) {
         trang_thai: d.chu, nhom_trang_thai: nhomTienDo(d.chu, kq, nhom), ho_so: d.hoSo || null, theo_loi: !!d.tinTheoLoi,
         co: [...(d.khaiNgoai ? [cauKhaiNgoai(d)] : []), ...d.coHang.map(c => dichCo(c).chu)],
         bat_khi: chuoi(d.bat_khi), vi_sao: chuoi(d.vi_sao), tom_tat: d.tomTat || null,
+        gio_may: kq._gm ? gioMayHangDuLieu(kq._gm.uoc(d)) : null,
       })),
-      moc: mocTheoNgay(kq).map(m => ({ ten: chuoi(m.ten), ngay: chuoi(m.ngay), hang: ganMoc(m), con_viec: conViecMoc(m, kq) })),
+      moc: mocTheoNgay(kq).map(m => {
+        const x = mocGioMay(kq, m) || {};
+        return {
+          ten: chuoi(m.ten), ngay: chuoi(m.ngay), hang: ganMoc(m), con_viec: conViecMoc(m, kq),
+          gio_may: x.gio ? { thap: x.gio.tg.khoang[0], cao: x.gio.tg.khoang[1], chu: x.gio.chu, phan_tram_tuan: x.gio.tg.phanTram.gia, phan_tram_chu: GM.chuPhanTramMoc(x.gio.tg, x.gio.kVong) } : null,
+          du_kien: x.duKien || null,
+          qua_tai: x.quaTai || null,
+        };
+      }),
       da_bac: kq.daBac.map(b => ({ ma: chuoi(b.ma), ly_do: chuoi(b.ly_do) })),
     };
   });
@@ -679,24 +706,29 @@ export function docDuLieu(html) {
     hang_ke: ['ma', 'cau_giao', 'lenh'],
     can_sua: ['ma', 'chu'],
     tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
-    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat'],
-    moc: ['ten', 'ngay', 'hang', 'con_viec'],
+    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat', 'gio_may'],
+    moc: ['ten', 'ngay', 'hang', 'con_viec', 'gio_may', 'du_kien', 'qua_tai'],
     da_bac: ['ma', 'ly_do'],
     tom_tat: ['moi_nguoi', 'chu_kho'],
     moi_nguoi: ['da_giao', 'vi_sao', 'trang_thai', 'ngay', 'production', 'do_gi', 'ket_qua', 'chua_lam', 'ai_quyet'],
     chu_kho: ['tieu_chi', 'phep_do', 'luot_cham', 'token', 'quyet_dinh_may', 'quyet_dinh_nguoi', 'ma'],
+    gio_may: ['thap', 'cao', 'nguon', 'chu', 'co', 'phan_tram_tuan', 'phan_tram_chu'],
+    gio_may_moc: ['thap', 'cao', 'chu', 'phan_tram_tuan', 'phan_tram_chu'],
+    du_kien: ['ngay_tinh', 'hoan_tat', 'chu'],
   };
   const MANG = ['nguon', 'lo_trinh', 'ngoai_lo_trinh', 'can_sua', 'hang', 'moc', 'da_bac', 'dung_tren', 'co'];
   const BOOL = ['theo_loi', 'con_viec']; const SO = ['phien_ban', 'tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'];
-  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho'];
+  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho', 'gio_may', 'du_kien', 'qua_tai'];
   // Ô của dải vắng → null («chưa có»), xét theo CẤP chứ không theo tên: tên ô trùng tên trường ở cấp khác
-  // (da_giao của tien_do, ma, trang_thai, vi_sao của hang) vẫn rỗng theo kiểu như bản 1.
-  const rong = (k, cap) => (cap === 'moi_nguoi' || cap === 'chu_kho' ? null : MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
+  // (da_giao của tien_do, ma, trang_thai, vi_sao của hang) vẫn rỗng theo kiểu như bản 1. Ô vắng của giờ máy / dự kiến
+  // cũng null — «chưa có», không phải 0 giờ.
+  const ODON = ['moi_nguoi', 'chu_kho', 'gio_may', 'gio_may_moc', 'du_kien'];
+  const rong = (k, cap) => (ODON.includes(cap) ? null : MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
     : k === 'tien_do' ? { tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 } : '');
   const va = (o, cap) => {
     if (o == null || typeof o !== 'object' || Array.isArray(o)) return o;
     const ra = { ...o };
-    for (const k of KHUON[cap]) if (!(k in ra)) ra[k] = rong(k, cap);
+    for (const k of KHUON[cap] || []) if (!(k in ra)) ra[k] = rong(k, cap);
     return ra;
   };
   const m = String(html ?? '').match(new RegExp(`<script type="application/json" id="${ID}">([\\s\\S]*?)</script>`));
@@ -707,6 +739,10 @@ export function docDuLieu(html) {
   const canhBao = [];
   if (Number(o.phien_ban) > PHIEN_BAN) canhBao.push(`khuôn phiên bản ${o.phien_ban} mới hơn bộ đọc (${PHIEN_BAN}) — đọc phần biết`);
   if (Number(o.phien_ban) === 1) canhBao.push('trang vẽ bằng khuôn bản 1 — chưa có tóm tắt hồ sơ (tom_tat null); vẽ lại bằng bộ kit mới');
+  // Trang đời trước khi khối mang giờ máy (kit trước RM6c, cùng phiên bản 2): nhận ra bằng khoá vắng ở việc nào đó.
+  // Trang khuôn bản 1 đã có cờ «vẽ lại bằng bộ kit mới» — không thêm cờ thứ hai cho cùng một việc vẽ lại.
+  const thieuGio = Number(o.phien_ban) !== 1 && (Array.isArray(o.lo_trinh) ? o.lo_trinh : []).some(t => t && Array.isArray(t.hang) && t.hang.some(h => h && typeof h === 'object' && !('gio_may' in h)));
+  if (thieuGio) canhBao.push('trang vẽ bằng bộ kit chưa có giờ máy trong khối — chưa có giờ máy và ngày dự kiến (gio_may, du_kien null); vẽ lại bằng bộ kit mới');
   const g = va(o, 'goc');
   g.lo_trinh = (Array.isArray(g.lo_trinh) ? g.lo_trinh : []).map(t => {
     const x = va(t, 'lo_trinh');
@@ -717,6 +753,11 @@ export function docDuLieu(html) {
     for (const h of x.hang) if (h && typeof h === 'object' && h.tom_tat != null && typeof h.tom_tat === 'object') {
       h.tom_tat = va(h.tom_tat, 'tom_tat');
       for (const cap of ['moi_nguoi', 'chu_kho']) h.tom_tat[cap] = va(h.tom_tat[cap] == null || typeof h.tom_tat[cap] !== 'object' ? {} : h.tom_tat[cap], cap);
+    }
+    for (const h of x.hang) if (h && typeof h === 'object' && h.gio_may != null && typeof h.gio_may === 'object') h.gio_may = va(h.gio_may, 'gio_may');
+    for (const m of x.moc) if (m && typeof m === 'object') {
+      if (m.gio_may != null && typeof m.gio_may === 'object') m.gio_may = va(m.gio_may, 'gio_may_moc');
+      if (m.du_kien != null && typeof m.du_kien === 'object') m.du_kien = va(m.du_kien, 'du_kien');
     }
     return x;
   });
