@@ -40,6 +40,10 @@ Kênh ba máy **không** phải nút cổ chai (trung vị trả lời 1 phút).
 
 Về chạm: hạt giống «duyệt, giữ cỡ trong một lượt gõ» (đã có) là nghiệm duy nhất cho việc phạm trần ≤1 chạm/lượt.
 
+**Chỗ người chỉ là hình thức (§8):** 33/35 quyết định cổng trong hai ngày trùng đúng khuyến nghị máy, và không
+ca nào khó-đảo. Cách đẩy người ra biên mà vòng không đứng chờ: chọn **chế độ cổng một lần cho mỗi đợt** — Đồng
+hành · Biên · Tự lái. Chế độ Biên ước còn ≈0,6–1 lượt gọi người mỗi vòng. Phần cần đổi kit chỉ ghi hạt giống.
+
 ## 1. Số nền — 9 vòng crm của M5
 
 Nguồn số liệu:
@@ -337,8 +341,108 @@ Ba hạt giống mới dưới đây **chưa tạo tệp**, vì răng VC8 cũ tr
   ký→gộp trung vị >6 h.
 4. `2026-10-16-hat-giong-ci-kit-loc-path.md` — riêng kit: `gate.yml` chạy 37′ cho PR chỉ có tài liệu (11 lượt
   ≈6,8 h trong cửa sổ).
+5. `2026-10-16-hat-giong-che-do-cong.md` — **chế độ cổng chọn một lần cho mỗi đợt** (§8): Đồng hành · Biên · Tự lái.
+   Lõi của chế độ Biên: một Cổng Đáng cho cả đợt kèm chính sách, và cổng tự đi khi mọi mục khớp chính sách (cửa
+   veto, khối «CHƯA duyệt», làn V). Đây là CỘNG ở kit, chạm cả bốn tên cổng. Cân trên mọi kho: kho không chọn thì
+   giữ Đồng hành, tức hành vi hôm nay, nên không mất gì. Ngưỡng mở: owner gọi tên nó làm vòng meta của cửa sổ.
+   Hạt giống này trùng một phần với hạt giống 1: khi chính sách «giữ cỡ khi tiêu chí là rào chắn» đã khai ở Cổng
+   Đáng thì chốt cỡ không còn phải hỏi.
 
-## 8. Giới hạn đo
+## 8. Chỗ người chỉ là hình thức — và ba chế độ cổng
+
+Câu hỏi của chủ kho sau khi đọc §7: «những nơi nào tôi xuất hiện chỉ là hình thức, hầu như không có thay đổi?», và
+«làm sao đẩy người ra biên mà không ảnh hưởng tốc độ vòng — hoặc là có nhiều chế độ để lựa chọn».
+
+### 8.1 Số đo: 33 trên 35 quyết định trùng khuyến nghị
+
+**Cách đo.** Đọc mọi lượt người gõ trong transcript 10 phiên thợ (14–15/10), bỏ câu mở phiên của chip, và đặt
+mỗi câu cạnh đoạn cuối tin máy ngay trước nó (`h5b.py`). Đếm theo **quyết định**, không theo lần gõ: một lần
+«sửa: giữ cỡ» rồi «duyệt» là một quyết định Cổng Phạm vi. Định tuyến từng mục Ngoài-n ở Cổng Bằng chứng tính
+chung là một quyết định cho mỗi lần ký.
+
+| Chỗ | Quyết định | Trùng khuyến nghị | Vì sao là hình thức |
+|---|---|---|---|
+| Cổng Đáng từng vòng | 8 | **8/8** («build · ngưỡng theo đề xuất máy») | Chủ kho đã chọn các vòng này khi «Mở» đợt (15/10 02:05Z); mỗi vòng hỏi lại đúng điều đó |
+| Cổng Phạm vi | 8 (15 lần gõ) | **8/8**; «giữ cỡ» 4/4, cùng một lý do (rào chắn) | Căn cứ là quy tắc đã khai |
+| Gate 1.5 | 2 | **2/2** | Cùng lớp với trên |
+| Lựa chọn ở dừng-vá | 6 | **6/6** (DH4 thu phạm vi · DA3 «hướng a» · DH2 lối A · sửa gốc · hydration · đường B) | Một chính sách khai một lần là đủ: chạm trần thì thu phạm vi; đỏ sẵn thì tách vòng vệ sinh |
+| Gỡ nhãn cross-layer sau ký | 2 | **2/2** | Máy tự kiểm được: có eval API trên cùng bộ mẫu thì gỡ |
+| Cổng Bằng chứng (gồm ≈150 mục Ngoài-n) | 8 | **7/8** | Ngoài-n gần như toàn bộ là dòng máy điền sẵn |
+| Nâng phạm vi Ngoài-3/6/7 (DH3) | 1 | **chưa kiểm được** | — |
+| **Cộng** | **35** | **33** | |
+
+Hai ca người thật sự cần thiết, và cả hai **không** khó-đảo:
+- **E17 của DH3:** hội đồng UNCERTAIN, chủ kho phán «Đạt». Phán đoán giá trị về màn hình, máy không có căn cứ.
+- **DH3 nâng phạm vi sửa ngay Ngoài-3/6/7:** đổi thời gian lấy độ đủ.
+
+Số này khớp số đo 11/10: người định tuyến Ngoài-n trùng đề xuất máy **94,9 %**
+([`2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md`](2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md)).
+
+**Đọc theo luật 01/09** trong `CLAUDE.md`, phép thử là: «người trả lời khác khuyến nghị thì dựa vào điều gì máy
+không có?». Với 33 quyết định trên, câu trả lời là *không có gì*. Chúng là **trạm thu phí**, không phải điểm
+quyết định.
+
+Kit **đã có luật** để đẩy người ra biên, nhưng crm chưa áp:
+- luật 01/09: mục nào có căn cứ là quy tắc đã khai thì máy đi tiếp, ghi sổ, mở cửa veto; làn V là ca-rỗng;
+- khối ĐỊNH VỊ 21/09: *chính sách* của vòng chốt MỘT lần ở Cổng Đáng, rồi máy áp nó cho mọi cạnh gãy sau đó mà
+  không hỏi lại.
+
+Số 21/09 cho thấy ý định mới được ghi ở 9 % hồ sơ. Tôi chưa kiểm xem máy có đọc chính sách ghi ở ô cơ hội hay
+chưa.
+
+### 8.2 Ba chế độ cổng
+
+Chủ kho chọn chế độ **một lần cho mỗi đợt**, ngay ở Cổng Đáng của đợt. Ở mọi chế độ đều giữ: ADR 0002 (máy không
+ký thay; «máy đã thông» ≠ «đã ký»), khó-đảo luôn hỏi người, và mọi việc máy tự quyết đều có sổ, đường đảo, và
+hiện ở khối «CHƯA duyệt».
+
+| Chế độ | Người xuất hiện ở đâu | Dùng khi |
+|---|---|---|
+| **Đồng hành** (hôm nay) | Mọi cổng của mọi vòng | Vòng T3, vùng mới, có thứ khó-đảo |
+| **Biên** | (1) Một Cổng Đáng cho cả đợt: danh sách vòng + ngưỡng + chính sách. (2) Cổng Bằng chứng chỉ khi có mục ngoài chính sách: hội đồng UNCERTAIN/FAIL, Ngoài-n mức cao, «mở hợp đồng mới». (3) Mọi thứ khó-đảo. | Đợt có lộ trình đã duyệt |
+| **Tự lái** | Cổng Đáng của đợt · khó-đảo · dòng hiệu chuẩn hằng tuần `ĐẠT đã ký → prod đỏ: k / N` (ADR 0020) | T1/T2 ở vùng quen, đảo được bằng revert |
+
+**Chính sách đợt** — cái làm chế độ Biên chạy được. Viết từ chính 33 quyết định ở §8.1:
+- tiêu chí là rào chắn (phân quyền · giữ xanh hồ sơ đã ký · ranh giới tệp) → giữ cỡ;
+- chạm trần 3 lượt chấm → thu phạm vi, mục bị cắt vào Known limits;
+- eval đỏ sẵn trên nền → tách vòng vệ sinh, vòng đang chạy không sửa;
+- Ngoài-n mức thấp hoặc vừa → Known limits; mức cao → hỏi người;
+- nhãn cross-layer mà phía máy chủ đã có eval API trên cùng bộ mẫu → gỡ nhãn.
+
+**Người không chặn vòng.** Ở chế độ Biên, lời mời còn lại được gom vào một tin trong khung giờ chủ kho thức. Vòng
+đi tiếp trên lối khuyến nghị nếu lối đó đảo được rẻ; nếu không đảo rẻ được thì đó là khó-đảo, và luôn hỏi.
+
+### 8.3 Ước hiệu quả và đánh đổi
+
+Ước trên số 2 ngày, chế độ Biên:
+
+| Thước | Hôm nay | Biên | Căn cứ |
+|---|---|---|---|
+| Lượt gọi người/vòng | 4,2 | **≈0,6–1** | Cổng Đáng đợt chia 5 vòng ≈0,2 · ca kiểu E17 ≈0,3–0,5 · «mở hợp đồng mới» ≈0,1 |
+| Chạm/lượt | tới 4 | 1 | Không còn chốt cỡ, không còn gõ lại |
+| Chờ đêm dài nhất | 6,5 h (DA2b) · 5,3 h (DH2) | ≈0 ở hai ca này | DA2b chỉ vướng một mục Ngoài-n «chấp nhận» → làn V; DH2 có chính sách «đỏ sẵn → tách vòng» thì máy chọn đường B ngay lúc 16:03Z |
+
+Đánh đổi:
+- **Mất thước 94 %.** Khi người thôi đọc, tỉ lệ «trùng khuyến nghị» không đo được nữa. Chiều đỏ của chính quyết
+  định đổi chế độ phải dựa vào thứ kit đã có: tỉ lệ veto trên khối «CHƯA duyệt», và dòng hiệu chuẩn prod (ADR
+  0020). Ngưỡng tự quay về Đồng hành: ≥1 veto trong một đợt, hoặc k > 0 trên dòng hiệu chuẩn. Nhớ rằng dòng hiệu
+  chuẩn vô hiệu khi N không tăng.
+- **Luật gộp của crm phải đổi.** Hiện crm chỉ gộp hồ sơ «signed-off manh». Muốn hồ sơ làn V được gộp thì luật ấy
+  phải đổi — chỉ chủ kho quyết được.
+- **Phân loại sai** (máy xếp một mục là «theo chính sách» mà thật ra không phải) được đỡ bằng cửa veto và khối
+  «CHƯA duyệt». Khó-đảo vẫn luôn là câu hỏi cho người, bất kể máy phân loại thế nào.
+
+### 8.4 Làm được tới đâu khi chưa đổi kit
+
+- **Làm được ngay, máy tự đi:**
+  - gom lời mời cổng theo khung giờ thức;
+  - ghi chính sách ở §8.2 vào ô cơ hội lúc Cổng Đáng;
+  - lời mời Cổng Phạm vi in sẵn dòng «giữ cỡ» khi khớp chính sách (đã là nếp từ 15/10 08:00Z).
+- **Phải đổi kit:** một Cổng Đáng cho cả đợt, và cổng tự đi khi mọi mục khớp chính sách. Đây là CỘNG ở kit, nên
+  theo luật chiều rộng chỉ là hạt giống (§7.3, mục 5), trừ khi chủ kho gọi tên nó làm vòng meta duy nhất của cửa
+  sổ.
+
+## 9. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
 - `duong-nen.md` không ghi thời lượng. `run-log.jsonl` ghi chung một `ts` cho cả lượt, nên phút S4 lấy từ
@@ -347,11 +451,13 @@ Ba hạt giống mới dưới đây **chưa tạo tệp**, vì răng VC8 cũ tr
   «118 push × 15′» cho cả ba máy là ước, chưa đo.
 - DH2 và VS chưa ký, nên số của hai vòng này là cận dưới. Cột ký→gộp cũng là cận dưới với 5 vòng còn chờ.
 - Token đọc kênh là ước theo ≈3 ký tự/token, không phải số đếm thật.
+- Số 33/35 (§8.1) so lời người với đoạn cuối tin máy ngay trước. Khuyến nghị nằm trong thẻ mà không in ở đoạn
+  cuối thì tôi xếp «chưa kiểm được» (ca DH3 Ngoài-3/6/7). Mẫu là 10 phiên trong 2 ngày.
 - Trong lúc đo, một tác tử chạy `git fetch origin main` ở kho oneflow và kho kit. Lệnh này chỉ cập nhật ref theo
   dõi, không chạm cây làm việc.
 
 ## Nguồn và cách chạy lại
 
 Mọi script đo nằm ở thư mục scratchpad của phiên này, không commit vì có dữ liệu crm thô: `dec.py`, `rl.py`,
-`repin.py`, `usage.py`, `h5.py`, `h7.py`, `allheavy.py`, `an.py`, `an2.py`. Chạy lại theo «Nguồn số đo» của đề
+`repin.py`, `usage.py`, `h5.py`, `h5b.py`, `h7.py`, `allheavy.py`, `an.py`, `an2.py`. Chạy lại theo «Nguồn số đo» của đề
 bài chung, với tham số ở đầu tệp này.
