@@ -465,7 +465,12 @@ if (want('KM-8')) {
   }
   if (want('KM-8-khoi-khac')) chayCa('KM-8-khoi-khac', () => {
     const a = readFileSync(path.join(KIT, 'commands', 'acceptance-init.md'), 'utf8'); const b = readFileSync(path.join(banGoc(), 'commands', 'acceptance-init.md'), 'utf8');
-    return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { const x = khoi(a, k); const y = khoi(b, k); if (!x || !y) return [`đối chứng: khối ${k} rút không được`]; return x === y ? [] : [`khối ${k} khác bộ máy gốc`]; });
+    // Hồ sơ lo-trinh-gio-may (RM6) thêm ĐÚNG một dòng `scripts/gio-may.mjs` vào INIT-CI-COPY-LIST (lo-trinh.mjs import nó) —
+    // gỡ đích danh dòng ấy trước khi so, đối chứng là dòng có mặt đúng một lần; phần còn lại vẫn phải giống từng byte.
+    const GM_DONG = /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/gio-may\.mjs[^\n]*/g;
+    return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { let x = khoi(a, k); const y = khoi(b, k); if (!x || !y) return [`đối chứng: khối ${k} rút không được`];
+      if (k === 'INIT-CI-COPY-LIST') { const n = (x.match(GM_DONG) || []).length; if (n !== 1) return [`đối chứng: dòng gio-may.mjs có ${n} lần trong ${k}`]; x = x.replace(GM_DONG, ''); }
+      return x === y ? [] : [`khối ${k} khác bộ máy gốc`]; });
   }) && ok('KM-8-khoi-khac', 'ba khối máy đọc khác giống từng byte bộ máy gốc');
   if (want('KM-8-do')) chayDo('KM-8-do', km8MaThoat, banSao([['commands/acceptance-init.md', '    <!-- INIT-LO-TRINH>>> -->', '    - exit 4 → giả.\n    <!-- INIT-LO-TRINH>>> -->']]), 'mã 4 không kho thử nào cho ra');
 }

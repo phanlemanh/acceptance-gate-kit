@@ -28,6 +28,8 @@ const { KHOA: KHOA_, khoaTuConfig: khoaTuConfig_, cacTepTuConfig } = require(pat
 // Mô-đun đọc hồ sơ dùng chung với trang hồ sơ (hồ sơ trang-ho-so-mot-viec, hàng X2): dải tóm tắt của
 // khối dữ liệu bản 2 và phép bỏ một cặp «» quanh câu giao đều rút từ ĐÂY — trang hồ sơ gọi cùng hàm.
 const HS = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
+// Giờ máy và % hạn mức tuần (hồ sơ lo-trinh-gio-may, hàng RM6): mọi phép tính ở mô-đun thuần gio-may.mjs.
+import * as GM from './gio-may.mjs';
 export const KHOA = KHOA_;
 export const TEP_TRANG = 'LO-TRINH.html';
 export const CHUA_MO = 'Chưa mở';
@@ -124,6 +126,8 @@ export function kiemKhuon(data) {
     if (r.dung_tren !== undefined && !Array.isArray(r.dung_tren)) co.push(`hàng ${nhan}: dung_tren phải là một mảng`);
     // `phu` (mã của bản phạm vi hàng gánh — skill cắt lượt ghi, răng cat-luot.mjs đọc).
     if (r.phu !== undefined && !Array.isArray(r.phu)) co.push(`hàng ${nhan}: phu phải là một mảng`);
+    // `gio_may` (hồ sơ lo-trinh-gio-may): số giờ dương hoặc cặp [thấp, cao]. Sai → cờ khuôn, hàng coi như chưa khai (máy ước).
+    if (r.gio_may !== undefined && !GM.kiemGioMay(r.gio_may)) co.push(`hàng ${nhan}: gio_may phải là số giờ dương hoặc cặp [thấp, cao]`);
     if (ma) { if (daThay.has(ma) && !trung.includes(ma)) trung.push(ma); daThay.add(ma); }
     // Câu giao là TIÊU ĐỀ: bỏ đúng một cặp «» bao trọn câu (hàng X2) — mọi chỗ in nó (trang, khối, thẻ
     // start, ô cơ hội của --mo-o) đi qua đây. Tệp kế hoạch của kho không bị ghi; vi_sao/bat_khi giữ nguyên.
@@ -356,6 +360,7 @@ export const CO_DICH = [
   { ten: 'thieu-truong', re: /^hàng (.+?) thiếu (cau_giao|ma)$/, ra: m => ({ ma: m[1], chu: m[2] === 'ma' ? 'chưa có mã' : 'chưa có câu mô tả việc giao' }) },
   { ten: 'dung-tren-mang', re: /^hàng (.+?): dung_tren phải là một mảng$/, ra: m => ({ ma: m[1], chu: 'ô «cần xong trước» phải là danh sách' }) },
   { ten: 'phu-mang', re: /^hàng (.+?): phu phải là một mảng$/, ra: m => ({ ma: m[1], chu: 'ô «mã đã phủ» phải là danh sách' }) },
+  { ten: 'gio-may-sai', re: /^hàng (.+?): gio_may phải là số giờ dương hoặc cặp \[thấp, cao\]$/, ra: m => ({ ma: m[1], chu: 'ô «giờ máy» phải là số giờ dương hoặc cặp [thấp, cao]' }) },
   { ten: 'khoi-chan-troi', re: /^khối chan_troi phải là một mảng$/, ra: () => ({ ma: null, chu: 'danh sách chờ điều kiện phải là một mảng' }) },
   { ten: 'chan-troi-object', re: /^chan_troi #(\d+) không phải object$/, ra: m => ({ ma: null, chu: `mục chờ điều kiện thứ ${m[1]} không đúng dạng` }) },
   { ten: 'khong-object', re: /^hàng #(\d+) không phải object$/, ra: m => ({ ma: null, chu: `việc thứ ${m[1]} không đúng dạng` }) },
@@ -434,6 +439,7 @@ var o=document.getElementById(ol.getAttribute('data-the'));if(!o||(!ke&&hong))re
 const neoHang = (i, ma) => `lt${i}-h-${String(ma).replace(/[^A-Za-z0-9_-]/g, '_')}`;
 const ngayVN = s => chuoi(s).split('-').reverse().join('/');
 const COT = [['ma', 'Mã'], ['cau_giao', 'Việc giao'], ['hang', 'Hạng'], ['dung_tren', 'Cần xong trước'], ['chu', 'Trạng thái'], ['bat_khi', 'Bật khi'], ['vi_sao', 'Vì sao']];
+// Cột «Giờ máy» chỉ có khi lớp phân tích kho đã gắn ước (`_gm`, không liệt kê được — JSON của các lệnh khác không đổi).
 const coDuLieu = (d, k) => (k === 'dung_tren' ? Array.isArray(d.dung_tren) && d.dung_tren.length > 0 : !!chuoi(d[k]));
 
 // Neo mỗi hàng: mã (hoặc nhãn) — hàng trùng mã lấy hậu tố để mọi id trên trang là duy nhất. `theoNhan`
@@ -516,11 +522,18 @@ function moCo(i, c, theoNhan) {
   const d = dichCo(c); const id = d.ma != null ? theoNhan.get(String(d.ma)) : null;
   return id ? `<li><a href="#${id}"><b>${esc(d.ma)}</b> — ${esc(d.chu)}</a></li>` : `<li><span>${d.ma != null ? `<b>${esc(d.ma)}</b> — ` : ''}${esc(d.chu)}</span></li>`;
 }
+// Phần giờ máy trong ô Hạng: «<khoảng> giờ máy (<nhãn nguồn>)», và % hạn mức tuần chỉ khi đã ước.
+function gioMayO(u) {
+  return `${esc(GM.khoangVN(u.khoang))} giờ máy${u.nhan ? ` (${esc(u.nhan)})` : ''}${u.phanTram.gia != null ? ` · ${esc(GM.oPhanTram(u))} hạn mức tuần` : ''}`;
+}
 function oHang(i, d, kq, theoNhan) {
   const tt = `<span class="tt${kq.daGiao.has(d.chu) ? ' giao' : (d.chu === CHUA_MO ? ' chua' : '')}">${esc(d.chu)}</span>`;
   return {
     ma: esc(d._nhan),
-    cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug ? `<div class="mu nho"><code>${esc(d.slug)}</code></div>` : ''}`,
+    // Giờ máy đi CÙNG dòng chữ nhỏ dưới câu giao (dòng tên hồ sơ có sẵn) — không thêm cột, không ép hẹp «Việc giao»
+    // (ca LTT-san: trang hai lộ trình ≤ 1/3 trang 2.21.0, kể cả với phông rộng của máy CI).
+    cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug || kq._gm ? `<div class="mu nho">${d.slug ? `<code>${esc(d.slug)}</code>` : ''}${d.slug && kq._gm ? ' · ' : ''}${kq._gm ? `<span class="gm">${gioMayO(kq._gm.uoc(d))}</span>` : ''}</div>` : ''}`,
+    // Giờ máy nằm TRONG ô Hạng (không thêm cột): thêm cột ép hẹp «Việc giao» và trang dài quá 1/3 (ca LTT-san).
     hang: esc(chuoi(d.hang)),
     dung_tren: (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', '),
     chu: `${tt}${d.tinTheoLoi ? '<span class="mu nho"> theo ghi chép, chưa có hồ sơ</span>' : ''}${d.khaiNgoai ? `<span class="co-o">${esc(cauKhaiNgoai(d))}</span>` : ''}${d.coHang.map(c => `<span class="co-o">${esc(dichCo(c).chu)}</span>`).join('')}${buocKeCua(d) ? `<div class="mu nho">bước kế: ${esc(buocKeCua(d))}</div>` : ''}`,
@@ -548,7 +561,11 @@ function mucLoTrinh(i, t) {
   // với hồ sơ — thêm từ đó vào `tu_vung`).
   const la = khaiLa(kq);
   if (kq.co.length || la.length) P.push(`<h3 id="lt${i}-co">Cần sửa trong kế hoạch (${kq.co.length + la.length})</h3><ul class="co-ds">${kq.co.map(c => moCo(i, c, theoNhan)).join('')}${la.map(([w, ds]) => `<li><span>${esc(cauKhaiLa(w, ds))} (việc ${ds.map(d => `<a href="#${idHang.get(d)}">${esc(d._nhan)}</a>`).join(', ')})</span></li>`).join('')}</ul>`);
-  P.push(`<h3>Việc còn mở (${mo.length})</h3>`, mo.length ? bangViec(i, mo, kq, theoNhan, idHang)
+  // Dòng đếm máy ước nằm NGAY TRONG tiêu đề (không thêm dòng): trang giữ lời hứa «đọc một phút» về độ dài (ca LTT-san).
+  const nUoc = kq._gm ? kq.dong.filter(d => d.gio_may === undefined || !GM.kiemGioMay(d.gio_may)).length : 0;
+  const ptChua = kq._gm ? kq.dong.map(d => kq._gm.uoc(d)).find(u => !u.laCatBan && u.phanTram.gia == null) || null : null;
+  P.push(`<h3>Việc còn mở (${mo.length})${nUoc ? ` <span class="mu nho">— ${nUoc}/${kq.dong.length} hàng máy tự ước giờ máy — khai gio_may trên hàng để ghi đè${ptChua ? ` · % hạn mức tuần ${GM.oPhanTram(ptChua)}` : ''}</span>` : ''}</h3>`);
+  P.push(mo.length ? bangViec(i, mo, kq, theoNhan, idHang)
     : `<p class="mu">${kq.dong.length ? 'Mọi việc trong kế hoạch đã giao.' : `Kế hoạch chưa có việc nào — thêm hàng vào <code>${esc(t.tep)}</code>.`}</p>`);
   if (xong.length) P.push(`<details><summary>${xong.length} việc đã giao</summary>${bangViec(i, xong, kq, theoNhan, idHang)}</details>`);
   if (kq.moc.length) {
@@ -556,11 +573,26 @@ function mucLoTrinh(i, t) {
     // Mốc còn việc chưa giao: script trên trang tô «đã qua — còn việc chưa giao» khi ngày đã qua.
     const conViec = m => conViecMoc(m, kq);
     const mk = mocKhongHang(kq);
-    P.push(`<h3>Mốc${mk.k ? ` <span class="mu nho">— ${mk.k}/${mk.n} mốc chưa gắn việc nào</span>` : ''}</h3><ol class="moc" data-the="lt${i}-moc-ke">${mocs.map(m => `<li data-ngay="${esc(chuoi(m.ngay))}" data-ten="${esc(chuoi(m.ten))}"${conViec(m) ? ' data-con-viec' : ''}><span class="ngay">${esc(ngayVN(m.ngay))}</span>${esc(chuoi(m.ten))}<span class="con"></span>${gan(m).length ? ` <span class="mu nho">· việc ${gan(m).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', ')}</span>` : '<span class="trong">chưa gắn việc</span>'}</li>`).join('')}</ol>`);
+    P.push(`<h3>Mốc${mk.k ? ` <span class="mu nho">— ${mk.k}/${mk.n} mốc chưa gắn việc nào</span>` : ''}</h3><ol class="moc" data-the="lt${i}-moc-ke">${mocs.map(m => `<li data-ngay="${esc(chuoi(m.ngay))}" data-ten="${esc(chuoi(m.ten))}"${conViec(m) ? ' data-con-viec' : ''}><span class="ngay">${esc(ngayVN(m.ngay))}</span>${esc(chuoi(m.ten))}<span class="con"></span>${gioMayMoc(kq, m)}${gan(m).length ? ` <span class="mu nho">· việc ${gan(m).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', ')}</span>` : '<span class="trong">chưa gắn việc</span>'}</li>`).join('')}</ol>`);
   }
   if (kq.daBac.length) P.push(`<h3>Đã bác</h3><ul>${kq.daBac.map(b => `<li>${esc(chuoi(b.ma))} — ${esc(chuoi(b.ly_do))}</li>`).join('')}</ul>`);
   P.push('</section>');
   return P.join('\n');
+}
+
+// Dòng giờ máy của một mốc trên trang (tất định — không «hôm nay»): tổng các hàng chưa giao, % hạn mức, dự báo đóng
+// băng lúc mốc bắt đầu và cờ quá tải so với mục tiêu hiện tại. Mốc không còn hàng chưa giao: chỉ dự báo đóng băng (nếu có).
+function gioMayMoc(kq, m) {
+  if (!kq._gm) return '';
+  const ma = ganMoc(m); const mo = ma.map(x => kq.dong.find(d => String(d._nhan) === x)).filter(d => d && !kq.daGiao.has(d.chu));
+  const kVong = kq._gm.doVong.filter(v => v.daGiao && typeof v.phan_tram_tuan === 'number').length;
+  const P = [];
+  if (mo.length) { const tg = GM.tongMoc(m, mo, kq._gm.uoc); P.push(`~${GM.khoangVN(tg.khoang)} giờ máy${tg.phanTram.gia != null ? ` · ${GM.chuPhanTramMoc(tg, kVong)}` : ''}`); }
+  const db = duBaoDongBang(kq, m);
+  if (db) P.push(`dự báo lúc bắt đầu (${GM.ngayVN(db.ngay_tinh)}): hoàn tất ${GM.ngayVN(db.moc.hoan_tat)}`);
+  const muc = chuoi(m.ngay);
+  const tre = db && /^\d{4}-\d{2}-\d{2}$/.test(muc) && db.moc.hoan_tat > muc;
+  return (P.length ? ` <span class="mu nho">· ${esc(P.join(' · '))}</span>` : '') + (tre ? `<span class="co-o">mốc quá tải: dự kiến ${esc(GM.ngayVN(db.moc.hoan_tat))}, mục tiêu ${esc(GM.ngayVN(muc))}</span>` : '');
 }
 
 // ── Khối dữ liệu máy đọc (hồ sơ xuat-du-lieu-lo-trinh) ─────────────────────────
@@ -761,8 +793,31 @@ export function phanTichKho({ root, classify, sections }) {
       if (!daNoi.has(s) && NHOM_MO.includes(classify(path.join(root, '_acceptance', s), s).key)) dat(null, `hồ sơ ${s} đang mở mà không thuộc việc nào trong kế hoạch`);
     }
   }
+  // Giờ máy (hồ sơ lo-trinh-gio-may): số đo các vòng + dự báo đóng băng đọc MỘT lần cho cả kho, gắn vào từng lộ trình bằng
+  // thuộc tính KHÔNG liệt kê — JSON của --ra-soat / --ap / --mo-o không đổi byte.
+  if (docDuoc.length) {
+    const daGiaoKey = new Set(DA_GIAO_O);
+    const doVong = GM.docDoVong(root, s => daGiaoKey.has(classify(path.join(root, '_acceptance', s), s).key));
+    const duBaoDs = GM.docDuBao(root);
+    for (const t of docDuoc) gangGioMay(t.kq, doVong, duBaoDs);
+  }
   return { cacTep, nhan };
 }
+// Gắn `_gm` (không liệt kê) cho một lộ trình: ước mỗi hàng (nhớ theo hàng), số đo, dự báo đóng băng.
+function gangGioMay(kq, doVong, duBaoDs) {
+  const nho = new Map();
+  const uoc = d => { if (!nho.has(d)) nho.set(d, GM.uocHang(d, doVong)); return nho.get(d); };
+  const doCua = slug => doVong.find(v => v.slug === slug) || null;
+  Object.defineProperty(kq, '_gm', { value: { doVong, duBao: duBaoDs, uoc, doCua }, enumerable: false, configurable: true });
+}
+// Dự báo đóng băng sớm nhất của một mốc (tên ngắn khớp `moc.ten` trong du-bao.json); không có → null.
+function duBaoDongBang(kq, m) {
+  const ten = tenNganMoc(m);
+  const ds = kq._gm.duBao.filter(x => x.moc && x.moc.ten === ten).sort((a, b) => a.ngay_tinh.localeCompare(b.ngay_tinh) || a.slug.localeCompare(b.slug));
+  return ds[0] || null;
+}
+// Hàng của lộ trình theo dạng lớp ngày cần: đã giao / đang dở do bên vẽ phân nhóm.
+const hangGioMay = (kq, nhom) => kq.dong.map(d => Object.assign(Object.create(d), { daGiao: kq.daGiao.has(d.chu), dangDo: nhomTienDo(d.chu, kq, nhom) === 'dang-lam' }));
 // Lối cũ của lát 1 (một lộ trình): phần tử đầu.
 export function phanTich(opts) {
   const k = phanTichKho(opts);
@@ -1240,6 +1295,58 @@ export function apChinhSach({ root, cacTep, sections, today, ghi = false, hangMo
 
 // Bản đồ của lệnh xem (/road-map:xem): xong · đang dở · kế, rà soát, tự áp. Chỉ đọc — không ghi tệp nào.
 const soHoac = v => (v == null ? '—' : String(v));
+// Khối «Giờ máy theo mốc» của /road-map:xem (hồ sơ lo-trinh-gio-may): mỗi mốc còn hàng chưa giao một dòng khuôn luật 15/10,
+// xếp theo ngày mục tiêu. Kho không mốc nào còn việc → không in gì.
+export function duBaoLoTrinh(kq, nhom, today) {
+  const dong = hangGioMay(kq, nhom);
+  return GM.duBao({ dong, moc: kq.moc, uoc: kq._gm.uoc, doCua: kq._gm.doCua, doVong: kq._gm.doVong, today });
+}
+// Đo lệch (hồ sơ lo-trinh-gio-may, đường đo của ngưỡng Cổng Đáng): mỗi mốc mà mọi hàng gắn đã giao — dự báo ĐÓNG BĂNG
+// sớm nhất so với ngày khép thật (ngày ký Cổng Bằng chứng muộn nhất của các hàng), giờ chờ ước so với đo, từng hàng ước so
+// với đo; hàng thiếu số đo gọi tên. Chỉ đọc.
+const ngayKyHoSo = (root, slug) => {
+  const ev = doc(path.join(root, '_acceptance', slug, 'evidence-report.md')) || '';
+  return HS.ngayChuKy(frontmatterField(ev, 'human_signoff')) || HS.ngayChuKy(frontmatterField(ev, 'verified_at'));
+};
+export function doLech({ root, cacTep, sections }) {
+  const nhom = nhomVe(sections); const nhieu = cacTep.length > 1; const ra = [];
+  for (const t of cacTep) {
+    if (!t.kq || !t.kq._gm) continue;
+    const kq = t.kq; const tien = nhieu ? `${t.tep}: ` : '';
+    for (const m of mocTheoNgay(kq)) {
+      const ma = ganMoc(m); const ds = ma.map(x => kq.dong.find(d => String(d._nhan) === x)).filter(Boolean);
+      if (!ds.length || ds.some(d => !kq.daGiao.has(d.chu))) continue;
+      const ten = tenNganMoc(m); const db = duBaoDongBang(kq, m);
+      if (!db) { ra.push(`${tien}${ten}: chưa đóng băng dự báo — không đo được lệch`); continue; }
+      const khep = ds.map(d => (d.hoSo ? ngayKyHoSo(root, d.hoSo) : null)).filter(Boolean).sort().pop() || null;
+      const lech = khep ? Math.round(Math.abs(Date.parse(khep) - Date.parse(db.moc.hoan_tat)) / 864e5) : null;
+      const them = ma.filter(x => !(Array.isArray(db.moc.hang) ? db.moc.hang : []).map(String).includes(x)).length;
+      ra.push(`${tien}${ten}: dự báo ${GM.ngayVN(db.moc.hoan_tat)} (đóng băng ${GM.ngayVN(db.ngay_tinh)}) · khép thật ${khep ? GM.ngayVN(khep) : '?'} · lệch ${lech == null ? '?' : lech} ngày${them ? ` · ${them} hàng thêm sau đóng băng` : ''}`);
+      const doCua = d => (d.hoSo ? kq._gm.doCua(d.hoSo) : null);
+      const choDo = ds.map(doCua).filter(v => v && typeof v.gio_cho === 'number').reduce((a, v) => a + v.gio_cho, 0);
+      ra.push(`  giờ chờ: ước ${GM.soVN(db.moc.gio_cho || 0)} (đo được lúc đóng băng: ${db.moc.gio_cho_do ? 'có' : 'không'}) · đo ${GM.soVN(choDo)}`);
+      let k = 0;
+      for (const d of ds) {
+        const v = doCua(d);
+        if (!v || typeof v.gio_may !== 'number') { ra.push(`  ${d._nhan}: thiếu số đo`); continue; }
+        k += 1;
+        const rieng = kq._gm.duBao.find(x => x.slug === d.hoSo && x.hang && Array.isArray(x.hang.gio_may));
+        const uoc = rieng ? rieng.hang.gio_may : kq._gm.uoc(d).khoang;
+        ra.push(`  ${d._nhan}: ước ${GM.khoangVN(uoc)} giờ máy · đo ${GM.soVN(v.gio_may)} giờ máy · ${typeof v.phan_tram_tuan === 'number' ? `~${GM.soVN(v.phan_tram_tuan)} % hạn mức tuần` : '% hạn mức tuần chưa đo'}`);
+      }
+      ra.push(`  ${k}/${ds.length} vòng có số đo`);
+    }
+  }
+  return ra;
+}
+function dongGioMayXem(kq, nhom, today) {
+  if (!kq._gm || !kq.moc.length) return [];
+  const db = duBaoLoTrinh(kq, nhom, today);
+  const kVong = kq._gm.doVong.filter(v => v.daGiao && typeof v.phan_tram_tuan === 'number').length;
+  const thuTu = kq.moc.map((m, i) => i).sort((a, b) => chuoi(kq.moc[a].ngay).localeCompare(chuoi(kq.moc[b].ngay)) || a - b);
+  const dong = thuTu.filter(i => db.get(i).mo > 0).map(i => `  · ${GM.dongMoc(tenNganMoc(kq.moc[i]), db.get(i), kVong)}`);
+  return dong.length ? ['Giờ máy theo mốc:', ...dong] : [];
+}
 export function xemBanDo({ root, cacTep, sections, today }) {
   const nhom = nhomVe(sections); const nhieu = cacTep.length > 1; const ra = [];
   const rs = raSoat({ root, cacTep, sections, today }); const ap = apChinhSach({ root, cacTep, sections, today, ghi: false });
@@ -1266,6 +1373,7 @@ export function xemBanDo({ root, cacTep, sections, today }) {
       ra.push(...dongTuAp(a));
       for (const x of (a.canh_bao || []).filter(x => !(rs[i].canh_bao || []).includes(x))) ra.push(`  ! ${x}`);
     } else for (const x of a.canh_bao || []) ra.push(`  ! ${x}`);
+    ra.push(...dongGioMayXem(kq, nhom, today));
   });
   return ra;
 }
@@ -1321,13 +1429,14 @@ if (isMain) {
   const bail = m => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(2); };
   const thoat = (c, m) => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(c); };
   let root = '.'; let ref = null; let moO = false; let slugMoi = null; let owner = ''; let raSoatCo = false; let jsonCo = false;
-  let apCo = false; let ghiCo = false; let lenhNguoi = null; let xemCo = false;
+  let apCo = false; let ghiCo = false; let lenhNguoi = null; let xemCo = false; let doLechCo = false;
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--mo-o') { moO = true; continue; }
     if (a[i] === '--ra-soat') { raSoatCo = true; continue; }
     if (a[i] === '--json') { jsonCo = true; continue; }
     if (a[i] === '--ap') { apCo = true; continue; }
     if (a[i] === '--xem') { xemCo = true; continue; }
+    if (a[i] === '--do-lech') { doLechCo = true; continue; }
     if (a[i] === '--write') { ghiCo = true; continue; }
     if (['--tra-lai', '--ghim', '--bo-ghim'].includes(a[i])) {
       const v = a[i + 1]; if (v == null || v === '' || v.startsWith('--')) bail(`${a[i]} cần một mã ngay sau nó`);
@@ -1340,7 +1449,7 @@ if (isMain) {
       if (v == null || (v === '' && a[i] !== '--owner') || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
       if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
-    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write] | --xem | --tra-lai|--ghim|--bo-ghim <mã> --write)`);
+    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]] | --ra-soat [--json] | --ap [--json] [--write] | --xem | --do-lech | --tra-lai|--ghim|--bo-ghim <mã> --write)`);
   }
   // Rà soát (hồ sơ ra-soat-lo-trinh): chỉ đọc — 0 = in đề xuất · 1 = kho chưa khai · 2 = lỗi dùng.
   if (raSoatCo) {
@@ -1361,6 +1470,17 @@ if (isMain) {
     // Tệp không đọc được: một dòng có tên tệp ra stderr, thoát 1 — không bao giờ trông như «không có đề xuất».
     for (const t of rs) if (t.loi) process.stderr.write(`lo-trinh: không đọc được tệp ý định — ${t.tep}: ${t.loi}\n`);
     process.exit(rs.some(t => t.loi) ? 1 : 0);
+  }
+  // Đo lệch (hồ sơ lo-trinh-gio-may): chỉ đọc — 0 = in · 1 = kho chưa khai · 2 = lỗi dùng.
+  if (doLechCo) {
+    if (ref != null || moO || raSoatCo || apCo || jsonCo || ghiCo || lenhNguoi || xemCo) bail('--do-lech chỉ đi với --root');
+    root = path.resolve(root);
+    if (docCacTep(root) == null) thoat(1, `kho chưa khai ${KHOA} trong _acceptance/config.yaml`);
+    const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
+    const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
+    const dong = doLech({ root, cacTep: kho.cacTep, sections: PM.SECTIONS });
+    process.stdout.write((dong.length ? dong : ['Chưa có mốc nào khép — chưa có gì để đo lệch.']).join('\n') + '\n');
+    process.exit(0);
   }
   // Bản đồ của /road-map:xem: chỉ đọc — 0 = in · 1 = kho chưa khai / tệp không đọc được · 2 = lỗi dùng.
   if (xemCo) {
@@ -1477,5 +1597,18 @@ if (isMain) {
   try { noiDung = dungCoHoi({ khuon, hang, tep, tenLoTrinh: k.ten, slug, owner, moc: k.moc, khoDungMoc }); } catch (e) { bail(e.message); }
   mkdirSync(dich, { recursive: true });
   writeFileSync(path.join(dich, 'opportunity.md'), noiDung);
+  // Đóng băng dự báo (hồ sơ lo-trinh-gio-may): ước của hàng + dự báo của mốc chứa nó TẠI ngày mở, ghi một lần, không bao giờ
+  // ghi đè. Tệp riêng — ô cơ hội và stdout giữ nguyên byte. Lỗi tính dự báo không chặn việc mở.
+  try {
+    const tK = kho.cacTep.find(x => x.tep === tep); const dK = tK?.kq?.dong.find(x => x._ma === ma);
+    const pDb = path.join(dich, GM.DU_BAO_TEP);
+    if (tK && tK.kq._gm && dK && !existsSync(pDb)) {
+      const today = process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10);
+      const nhomV = nhomVe(PM.SECTIONS); const mocI = tK.kq.moc.findIndex(m => ganMoc(m).includes(String(dK._nhan)));
+      const r = mocI >= 0 && NGAY_RE.test(today) ? duBaoLoTrinh(tK.kq, nhomV, today).get(mocI) : null;
+      const o = GM.duBaoHoSo({ d: dK, u: tK.kq._gm.uoc(dK), mocI: mocI >= 0 ? mocI : null, r, ten: mocI >= 0 ? tenNganMoc(tK.kq.moc[mocI]) : null, today });
+      writeFileSync(pDb, JSON.stringify(o, null, 2) + '\n');
+    }
+  } catch (e) { process.stderr.write(`lo-trinh: không đóng băng được dự báo — ${e.message}\n`); }
   process.stdout.write(JSON.stringify({ hoSo: slug, moi: true, ...ten(), ...apRa }) + '\n');
 }
