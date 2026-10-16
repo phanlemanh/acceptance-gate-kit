@@ -707,6 +707,25 @@ Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó 
 - **Máy kit:** K-E, kiểm đường đọc-cũ của DP11.
 - **Chủ kho:** gọi tên K-A, và ký Cổng Đáng khi phiên vòng mở.
 
+### 10.5 Đối chiếu hiện trạng 14:15Z (Điều phối M5 + kiểm độc lập)
+
+| Hạng mục | Trạng thái |
+|---|---|
+| PV1 (tắt Preview), bảo vệ onehub | **xong**, đã kiểm |
+| K-F, C-2 tạm (luật ba máy) | Mac Studio **đã nhận** (#375 `6217058484`). Làn đêm chạy luân phiên M5 16/10 → Mac Studio 17/10 → MacBook Pro |
+| 4a đo tỉ lệ R2 | **xong**: với `t3_paths` hiện tại là **0/9** vòng; với bản mở rộng là **2/9** (#442 `vercel.json`, #444 trợ lý Zalo). Tỉ lệ ≈22 %, thấp hơn giả định «một nửa» ở §9.4. 4b chờ chủ kho chọn «ghi t3» hay «không». |
+| C-1 pre-push cho T1 | đã thành vòng crm `chore/pre-push-t1`, **chờ chủ kho ký Cổng Đáng** |
+| Vòng dọn 242 hồ sơ | chưa vào lộ trình crm; Điều phối thêm hàng sau khi C-1 gộp |
+| K-A, K-E, K-B/C/D, R-1 (kit) | giao MacBook Pro (#308 `6217112243`), **MacBook Pro chưa xác nhận**; chưa có hàng nào trên lộ trình kit ở mọi nhánh trên GitHub |
+| Bàn giao phiên K-A trên M5 | **chưa**: phiên còn chạy. Hàng K-A chỉ có trong `docs/plans/lo-trinh-kit.json` chưa commit ở worktree `cranky-pare-e65e59` |
+| PA1–PA3 | đang áp (ký ức nối lại của Điều phối) |
+| PA4, chính sách đợt vào ô cơ hội | có trong ký ức nhưng **chưa vào đề bài chip** (DA4, DA3b, C-1 đều thiếu); Điều phối tự vá |
+| Gom lời mời theo giờ thức | chưa làm |
+
+**Một trạm thu phí mới đo được:** C-1 đã được chủ kho duyệt ngày 16/10, mà vẫn phải qua Cổng Đáng của một vòng
+feature-loop. Đây đúng là lớp «cổng hỏi lại điều đã quyết» ở §8.1. Nó tự làm chứng cho hạt giống chế độ cổng (§7.3,
+mục 5).
+
 ## 11. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
