@@ -6,7 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6c khai T2: scripts/lo-trinh.mjs (vùng khối dữ liệu) + tài liệu kho tiêu thụ + ca đo mới — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-lo-trinh-du-lieu-ngay-du-kien-design.md
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-16T03:16:23Z
 ---
 
 # Acceptance Contract: lo-trinh-du-lieu-ngay-du-kien
