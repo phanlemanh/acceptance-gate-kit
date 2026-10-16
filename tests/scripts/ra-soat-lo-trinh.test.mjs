@@ -457,6 +457,7 @@ if (want('RS-5-loi') && await chayCa('RS-5-loi', async kit => {
 if (want('RS-5-do')) await chayDo('RS-5-do', rs5, [['scripts/lo-trinh.mjs', "  if (raSoatCo) {\n", "  if (raSoatCo) {\n    writeFileSync(path.join(root, '.ra-soat-tam'), '');\n"]], 'lệnh rà soát ghi tệp: .ra-soat-tam', 'bản sao ghi tệp trong lúc rà soát');
 
 // ═══ RS-6 (AC-6): trang tất định ════════════════════════════════════════════════════════════════════════════════
+const GM_BO = await import(pathToFileURL(path.join(HERE, 'lo-trinh-gio-may-bo.mjs')).href);
 async function rs6(kit) {
   if (!GOC_XANH) return ['RS-0 đỏ — gốc so không tin được, không so byte'];
   const sai = []; const goc = banGoc();
@@ -464,7 +465,10 @@ async function rs6(kit) {
     const a = await ve(kit, r, HOM_NAY); const b = await ve(kit, r, '2026-12-31'); const g = await ve(goc, r, HOM_NAY);
     for (const [ben, h] of [['cây', a], ['gốc', g]]) if (!h || !h.includes(ma)) sai.push(`đối chứng: trang ${ben} ${ten} rỗng hoặc thiếu ${ma}`);
     if (a !== b) sai.push(`trang đổi theo ngày: ${ten}`);
-    if (a !== g) sai.push(`trang khác bộ máy gốc: ${ten}`);
+    // Giờ máy (hồ sơ lo-trinh-gio-may) hiện mặc định ở mọi kho: so phần còn lại sau khi bỏ ĐÚNG phần giờ máy; đối chứng là
+    // trang cây có cột giờ máy.
+    if (!GM_BO.coGioMayTrang(a)) sai.push(`đối chứng: trang cây ${ten} thiếu cột giờ máy`);
+    if (GM_BO.boGioMayTrang(a) !== g) sai.push(`trang khác bộ máy gốc: ${ten}`);
   }
   return sai;
 }

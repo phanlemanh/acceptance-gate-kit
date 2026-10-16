@@ -79,6 +79,8 @@ executors:
     # Hồ sơ ap-chinh-sach-lo-trinh (RM2): ca AP-1…AP-10 chung một lệnh; AP-11 cần kho crm trên máy (KHO_CRM hoặc
     # ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (crm vắng → thoát 2, mù).
     ap_chinh_sach_lo_trinh: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
+    # Hồ sơ lo-trinh-gio-may (RM6): ca GM-1…GM-9 chung một lệnh (giờ máy + token trên lộ trình, đo vòng, đo lệch).
+    lo_trinh_gio_may: node tests/scripts/lo-trinh-gio-may.test.mjs
     ap_chinh_sach_lo_trinh_crm: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs
     # Hồ sơ cua-tin-hieu-giua-chien-dich (RM3): ca CT-1…CT-10 chung một lệnh (tệp .test.mjs — cũng chạy trong mảnh mjs).
     cua_tin_hieu_giua_chien_dich: node tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs
