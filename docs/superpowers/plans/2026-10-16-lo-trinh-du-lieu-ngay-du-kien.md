@@ -3,7 +3,7 @@
 Design: `docs/superpowers/specs/2026-10-16-lo-trinh-du-lieu-ngay-du-kien-design.md` · hợp đồng đã duyệt 16/10 (giữ phiên
 bản khuôn 2, CỘNG bốn khoá đã phê). Hạng T2 — đi thẳng S3, tuần tự (mọi task chạm cùng `scripts/lo-trinh.mjs`).
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Thay đổi người dùng thấy | Chỗ chạm | Tiêu chí phục vụ |
 |---|---|---|
 | Có ca đo đỏ trước cho mọi lời hứa của vòng | `tests/scripts/lo-trinh-du-lieu-ngay.test.mjs` | AC-1…AC-8 (E1…E8) |
 | Dữ liệu trang mang giờ máy từng việc, đúng chữ trang | `scripts/lo-trinh.mjs` (`duLieuTrang`, `KHUON_DU_LIEU`) | AC-1, AC-2 (giờ máy việc, cờ chưa đủ đo) |
