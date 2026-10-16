@@ -54,6 +54,6 @@ Bản vá đi CÙNG bản phát hành với gói road-map (một lần kho nhậ
   lượt mang (`git show`); với mỗi dòng `thuoc-lech`, so `sha` với `sha` của round-tally cùng round.
 - Kết quả nào là SỐNG: 0 dòng mang sang có định nghĩa đổi · 0 dòng thước/cây mang sha lượt khác.
 - Kết quả nào là CHẾT: ≥ 1 dòng như thế trên nhánh chính crm sau khi nhận.
-- Ở giữa (ITERATE): 0 dòng sai nhưng ≥ 1 lượt `thuoc-vat` dừng «không tệp args nào thuộc lượt cuối» phải gọi người.
+- Ở giữa (ITERATE): 0 dòng sai nhưng ≥ 1 lượt `thuoc-vat` dừng «không tệp args nào thuộc lượt cuối» mà phiên phải hỏi người thay vì tự chạy lại với `--args`.
 - Timebox: 2026-11-19. Tới hạn mà crm chưa nhận bản → «chưa đọc được ở đây» (nhãn trạng thái, không phải CHẾT); kho
   thử máy sinh trong bộ kiểm đọc được ngay ở lượt chấm.
