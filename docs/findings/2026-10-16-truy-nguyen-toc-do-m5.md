@@ -727,6 +727,38 @@ Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó 
 feature-loop. Đây đúng là lớp «cổng hỏi lại điều đã quyết» ở §8.1. Nó tự làm chứng cho hạt giống chế độ cổng (§7.3,
 mục 5).
 
+### 10.6 Bảng kiểm tra lúc 14:57Z ngày 16/10
+
+**Quyết định mới của chủ kho (qua phiên điều phối MacBook Pro, kit #308 `6217403363`, 14:13Z):** «nới luật chiều
+rộng (b) cho cửa sổ này — KHÔNG phải tiền lệ». Cụ thể:
+- bản vá kit VA1 đi cùng bản gói road-map, để crm nhận một lần, ước tối 17/10;
+- K-A chạy song song, nhưng **chỉ cắt bản sau khi crm đã nhận** bản đó.
+
+Câu «máy không tự suy ra việc nới luật» ở §10.3 vẫn đúng: lần nới này do chủ kho nói ra, không phải máy suy.
+
+| # | Hạng mục | Tầng | Ai | Trạng thái | Bằng chứng | Chờ gì |
+|---|---|---|---|---|---|---|
+| 1 | Tắt Preview (PV1) | crm | M5 | ✅ xong | crm #442, kiểm độc lập §9.6 | đếm lại 23/10 |
+| 2 | Bảo vệ onehub | crm | phiên này | ✅ xong | API `protected=true`; #375 `6216803091` | danh tính gộp không phải admin — để sau |
+| 3 | K-F giữ đầu hàng 2 giờ | ba máy | Mac Studio | ✅ đang áp | #375 `6217058484` | — |
+| 4 | C-2 tạm, lịch đêm | ba máy | M5 → Mac Studio → MacBook Pro | ⏳ đêm đầu 16/10 (M5) | #375 `6217041874` | M5 báo trước 01:00Z 17/10; MacBook Pro chưa nhận lượt |
+| 5 | C-1 pre-push cho T1 | crm | M5, phiên C1 | ⏳ đang chạy | phiên C1 `local_5754c5ec…` | chủ kho ký Cổng Đáng (trạm thu phí, §10.5) |
+| 6 | 4a đo tỉ lệ R2 | crm | M5 | ✅ 2/9 | §10.5 | — |
+| 7 | 4b ghi `t3_paths` | crm | M5 | ⏳ PR #448 vào lô | #375 `6217420138` (cham-tep), `6218099921` (vào lô; kiểm hai chiều: #442, #444 → T3, #435, #437 giữ hạng) | gọi lượt sau #447 |
+| 8 | Vòng dọn 242 hồ sơ | crm | M5 | ⛔ chưa vào lộ trình | — | sau khi C-1 gộp; chủ kho ký Cổng Đáng |
+| 9 | K-A | kit | MacBook Pro | ⏳ đã bàn giao | PR kit #369 @ `b4083567`; #308 `6217615422` | MacBook Pro mở phiên K-A; chủ kho ký Cổng Đáng; cắt bản sau khi crm nhận bản road-map + VA1 |
+| 10 | K-E đường đọc-cũ | kit | M5 (trước bàn giao) | ✅ không cần sửa | §10.5 | ngưỡng mở việc đã khai |
+| 11 | K-B · K-C · K-D | kit | MacBook Pro | ⏸ xếp sau K-A | #308 `6217112243` | MacBook Pro chưa nói tới |
+| 12 | R-1 CI kit lọc path | kho kit | MacBook Pro | ⏸ chưa bắt đầu | như trên | MacBook Pro chưa nói tới |
+| 13 | VA1 bản vá kit (mới) | kit | MacBook Pro | ⏳ ước tối 17/10 | #375 `6217403955` | — |
+| 14 | PA1–PA3 nếp điều phối | điều phối | M5 | ✅ đang áp | ký ức nối lại | — |
+| 15 | PA4 + chính sách đợt trong đề bài chip | điều phối | M5 | ⏳ đang vá | bảng 14:15Z của Điều phối | chưa kiểm đề bài chip mới |
+| 16 | Gom lời mời theo giờ thức | điều phối | M5 | ⛔ chưa làm | — | — |
+| 17 | PR hàng chờ tín hiệu bị chặn bởi bảo vệ nhánh | crm | ai gặp trước | 👁 theo dõi | §9.7 | lần đầu kẹt thì đóng rồi mở lại PR |
+
+**Kết quả trên thước gốc (H10, đã ký mà chưa gộp):** sáu vòng còn kẹt lúc 16/10 00:00Z nay **đều đã gộp onehub**:
+DH1 #437, DH3 #443, DH4 #429, DH5 #441, gieoNguoi #430, DA3 #432. Riêng DH2 còn chờ vòng vệ sinh.
+
 ## 11. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
