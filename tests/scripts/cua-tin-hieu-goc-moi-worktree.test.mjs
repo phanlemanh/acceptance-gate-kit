@@ -141,6 +141,17 @@ async function ca2(goc) {
   return sai;
 }
 
+// Phép lọc «thư mục nguồn chưa có» của thẻ: thư mục chính CHƯA có nguồn, worktree còn một thư mục nguồn cũ (rỗng) → thẻ
+// ở worktree phải giống thẻ ở thư mục chính (không dòng cửa nào).
+function ca2Vang(goc) {
+  const { k, w } = kho({ loTrinh: true, wt: ['a'] });
+  mkdirSync(path.join(w.a, 'tin-hieu', 'kho'), { recursive: true });
+  const the = r => { const x = spawnSync(process.execPath, [path.join(goc, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-16' } }); let j = null; try { j = JSON.parse(x.stdout); } catch { j = null; } return JSON.stringify((j?.loTrinh?.dong || ['<thẻ không chạy>']).filter(l => l.startsWith('Cửa tín hiệu:') || l.startsWith('! cửa tín hiệu:'))); };
+  const tk = the(k); const ta = the(w.a);
+  if (tk !== ta) return [ta.includes('! cửa tín hiệu') ? 'thẻ worktree báo nguồn chưa có' : `thẻ: ${tk} · ${ta}`];
+  return [];
+}
+
 function ca3(goc) {
   const { k, w } = kho({ wt: ['a'] });
   const x = gui(goc, w.a, 'Ý sẽ bị dọn'); if (x.status !== 0) return [`gửi thoát ${x.status}`];
@@ -251,14 +262,14 @@ const l1 = await lanh('GW-1', g => ca1(g));
 await do_('GW-1-do', [[GUI, ...NGHI]], g => ca1(g), 'ý người nằm trong worktree', l1);
 // GW-1-do2 (phản biện P1): đếm số thứ tự theo nguồn của GỐC PHIÊN mà ghi vào thư mục chính, cộng bộ ghi không độc quyền.
 await do_('GW-1-do2', [[GUI, 'const thuMucDem = cua.nguon;', "const thuMucDem = path.resolve(root, 'tin-hieu', 'kho');"], ['dieu-phoi/scripts/cua-tin-hieu.mjs', "if (fs.existsSync(tep)) return { ket: soSanh(tep, than), tep };", "if (fs.existsSync(tep)) { fs.writeFileSync(tep, than); return { ket: 'moi', tep }; }"]], g => ca1(g), 'ý bị ghi đè', l1);
-const l2 = await lanh('GW-2', g => ca2(g));
+const l2 = await lanh('GW-2', async g => [...await ca2(g), ...ca2Vang(g)]);
 await do_('GW-2-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', 'const dir = path.resolve(root, ng);']], g => ca2(g), 'bộ đọc ở worktree thấy tập khác thư mục chính', l2);
-await do_('GW-2-do2', [['scripts/start-scan.mjs', 'existsSync(path.resolve(TH.gocNguon(root), ng))', 'existsSync(path.resolve(root, ng))']], g => ca2(g), 'thẻ worktree báo nguồn chưa có', l2);
+await do_('GW-2-do2', [['scripts/start-scan.mjs', 'existsSync(path.resolve(TH.gocNguon(root), ng))', 'existsSync(path.resolve(root, ng))']], g => ca2Vang(g), 'thẻ worktree báo nguồn chưa có', l2);
 const l3 = await lanh('GW-3', g => ca3(g));
 await do_('GW-3-do', [[GUI, ...NGHI]], g => ca3(g), 'ý mất khi dọn worktree', l3);
 const l4 = await lanh('GW-4', g => ca4(g));
 await lanh('GW-4-con', g => ca4(g, { con: true }));
-await do_('GW-4-do', [[TH, '  try { return gocKhoChinh(r); } catch { return r; }', '  return path.dirname(r);']], g => ca4(g), 'thư mục chính đổi đầu ra: gui-tin-hieu', l4);
+await do_('GW-4-do', [[TH, '  try { return gocKhoChinh(r); } catch { return r; }', '  return path.dirname(r);']], g => ca4(g), 'thư mục chính đổi đầu ra:', l4);
 const l5 = await lanh('GW-5', g => banSaoKhac(g, ca5));
 await do_('GW-5-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', "const dir = path.resolve(execFileSync('git', ['-C', path.resolve(root), 'rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim(), ng);"]], g => banSaoKhac(g, ca5), 'bên ghi và bên đọc dùng hai bộ giải', l5);
 const l6 = await lanh('GW-6', g => ca6(g));

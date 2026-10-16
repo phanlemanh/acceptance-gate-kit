@@ -708,7 +708,7 @@ if (khaiCua && loTrinh && Array.isArray(loTrinh.dong)) {
     const cg = TH.chuaGom({ root });
     if (cg) {
       // Thư mục nguồn CHƯA CÓ (kho mới khai cửa, bản clone mới — git không giữ thư mục rỗng) là 0 ý, không phải lỗi.
-      const vang = khaiCua.nguon.filter((ng) => !existsSync(path.resolve(root, ng))).map((ng) => `nguồn tín hiệu không phải thư mục có thật: ${ng}`);
+      const vang = khaiCua.nguon.filter((ng) => !existsSync(path.resolve(TH.gocNguon(root), ng))).map((ng) => `nguồn tín hiệu không phải thư mục có thật: ${ng}`);
       const loiThat = cg.loi.filter((l) => !vang.includes(l));
       if (loiThat.length) loTrinh.dong.push(`! cửa tín hiệu: ${loiThat.length} tệp không đọc được — sửa ở nguồn rồi gom`);
       const n = cg.tin_hieu.length;
