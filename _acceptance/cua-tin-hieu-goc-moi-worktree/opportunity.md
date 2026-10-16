@@ -3,10 +3,10 @@ schema_version: 1
 slug: cua-tin-hieu-goc-moi-worktree
 feature: Ý gửi vào cửa tín hiệu từ bất kỳ worktree nào đều nằm ở thư mục chính của kho — mọi bộ đọc ở mọi worktree thấy cùng một tập, và dọn worktree không làm mất ý
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided               # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-16T08:03:46Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 16/10
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
