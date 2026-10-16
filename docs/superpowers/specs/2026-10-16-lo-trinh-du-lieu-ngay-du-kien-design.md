@@ -31,7 +31,7 @@ mang số nào trong đó. Trang Lộ trình trong CRM chỉ đọc khối, nên
 **Khối mang đúng chữ trang in, kèm số có cấu trúc** (luật của tài liệu kho tiêu thụ: «Mọi trạng thái trong khối là ĐÚNG chữ
 trang in»). Không chữ nào trong khối mà trang không in; số `thap`/`cao`/`phan_tram_tuan` là chính số trang đã in thành chữ.
 
-Ba khoá mới ở hai cấp đã có, ba cấp mới:
+Bốn khoá mới (`hang.gio_may`, `moc.gio_may`, `moc.du_kien`, `moc.qua_tai`) ở hai cấp đã có, ba cấp con mới (`gio_may`, `gio_may_moc`, `du_kien`):
 
 ```
 hang.gio_may — null | { thap, cao, nguon, chu, co, phan_tram_tuan, phan_tram_chu }
@@ -55,6 +55,17 @@ Trang vẽ không qua phân tích kho (các lối `renderTrang`/`renderNhieu` kh
 «hôm nay» thì CI kho đỏ mỗi sáng. Bản sống tính theo hôm nay đã có ở `/road-map:xem`. Hệ quả nói thẳng: mốc chưa việc nào
 được mở từ bản kit có giờ máy thì chưa có ngày dự kiến (`du_kien: null`), bản chiếu hiện «chưa có».
 
+Số trước ở crm (`onehub` 8decc2f36, 16/10): 7 mốc đang chạy, 0/7 có dự báo đóng băng (crm chưa nhận bản kit có RM6). Sau
+khi nhận kit, 5/7 mốc còn việc chưa mở có ngày ngay lần mở việc kế; 2/7 mốc đã mở hết việc (gồm «R2 lên production», 21
+việc) không bao giờ có ngày theo luật đóng băng — giới hạn khai, cần một lệnh đóng băng tay cho mốc đang chạy (vòng khác).
+
+**Hai vai «gốc» trong ca đo tách nhau** (phản biện 16/10): bộ đọc gốc là hàm `docDuLieu` rút từ 31c5b8df, ghim băm — hàm
+này không đổi theo lịch sử; bộ máy NỀN vẽ trang để so «trang giữ» và «chỉ thêm» là merge-base của nhánh với nhánh chính,
+tính trong lượt — RM3/RM5/RM6b gộp trước S4 không làm ca đỏ vì vật của vòng khác.
+
+**Lưới độ dài trang (LTT-san) không bị chạm:** nó đo chiều cao hiển thị (px) của trang, khối dữ liệu là thẻ script không
+hiện; phần ngoài khối giữ từng byte (ND-1-trang-giu).
+
 **Ngày dự kiến theo mốc, không theo hàng.** Trang không in ngày riêng từng hàng; hàng đọc ngày của mốc chứa nó qua
 `moc.hang` (đã có).
 
@@ -77,7 +88,7 @@ bộ kiểm crm `bang khoa du muoi mot cap cua ban 2` phải đổi tên cùng l
   Với Hỏi-1 theo khuyến nghị: 0 cảnh báo. Lớp zod của crm không chạy trong kit (kit không phụ thuộc zod, CI kit không có
   kho crm) — số đo tay ở bảng trên là bằng chứng cho lớp đó; LT1e bên crm đo lại khi nhận kit.
 
-**Bộ đọc mẫu** `docDuLieu` thêm ba cấp vào bảng khoá bên trong, ba khoá vào danh sách `null`, và một nhánh điền cho object
+**Bộ đọc mẫu** `docDuLieu` thêm ba cấp con vào bảng khoá bên trong, bốn khoá vào danh sách `null`, và một nhánh điền cho object
 `gio_may`/`du_kien` (ô vắng → `null`, như ô của dải tóm tắt). Hàm vẫn tự đủ (LT-118 chép rời).
 
 **Tài liệu** `skills/acceptance/references/lo-trinh-du-lieu.md`: thêm dòng khoá vào khối `LO-TRINH-DU-LIEU-KHOA` (LT-119 so

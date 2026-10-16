@@ -36,6 +36,9 @@ dự kiến» (crm-onehub PR #435) chờ đúng bản kit này để hiển th�
   · bản 2 + khoá giờ máy/ngày dự kiến mới → đọc được, 0 cảnh báo, khoá mới bị **bỏ im lặng** (không vỡ, không hiện);
   · bản 3 + khoá mới → đọc được, nhưng **1 cảnh báo** «khuôn phiên bản 3 mới hơn bộ đọc (2)», trang CRM bật hộp «Trang có
     thể thiếu một phần» cho tới khi crm chép bộ đọc mới.
+- crm hôm nay có 7 mốc đang chạy, **0/7** có dự báo đóng băng (crm chưa nhận bản kit có RM6). Sau khi nhận kit, 5/7 mốc
+  còn việc chưa mở có ngày ngay lần mở việc kế; 2/7 đã mở hết việc (gồm «R2 lên production», 21 việc) không có ngày theo
+  luật đóng băng — giới hạn khai ở hợp đồng (đo bổ sung sau phản biện 16/10).
   Nghĩa là: không cách nào làm VỠ trang crm cũ; câu còn lại chỉ là có tăng phiên bản (và chịu hộp cảnh báo trong quãng
   crm chưa chép) hay không — câu đó lên Cổng Phạm vi kèm khuyến nghị.
 
