@@ -1,0 +1,144 @@
+schema_version: 1
+feature_slug: kho-cam-ket-co-lo-trinh
+# Ca đo sống ở tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs (ca CK-<n> = AC-n; đuôi .test.mjs nên cũng chạy trong
+# mảnh mjs của suite) — khoá riêng executors.test.kho_cam_ket_co_lo_trinh, mọi eval của AC-1…AC-5 và AC-7…AC-9 chung
+# MỘT lệnh. AC-6 đo trên bản sao các kho thật của máy nên tệp không mang đuôi .test.mjs và KHÔNG vào
+# feature_loop.suite_keys (khoá executors.test.kho_cam_ket_co_lo_trinh_cac_kho; không dò được kho nào → thoát 2 nêu
+# đường — mù, không xanh). Kho thử do code sinh trong lượt; hook gọi bằng JSON PreToolUse qua stdin như harness gọi;
+# «bộ máy gốc» = `git archive <gốc so> hooks lib scripts skills commands feature-loop road-map .claude-plugin` bung trong
+# lượt, gốc so đọc từ _acceptance/kho-cam-ket-co-lo-trinh/goc-so; mọi đường dẫn suy từ vị trí tệp ca. Mỗi ca đỏ chạy trên
+# BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi bản lành xanh trên cùng kho thử, và
+# ghim thông điệp. Ca in đúng một dòng «PASS: CK-…» hoặc «FAIL: CK-… — <vì sao>»; mỗi eval ghim dòng PASS của chính nó —
+# lệnh xanh mà thiếu dòng ghim là ĐỎ. Mọi ca «0 byte đổi» băm TOÀN cây kho thử (kể cả tệp chưa theo dõi và .claude/).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [hooks/acceptance-evidence-gate.js, lib/chan-lo-trinh.cjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-1", "PASS: CK-1-do". CK-1: kho thử bật chặn (settings.json bật khoá rút từ
+      .claude-plugin/marketplace.json của cây; config lo_trinh.chan: true), hồ sơ x vắng, tệp lộ trình hai hàng không
+      hàng nào mang slug x. Hai ca viết trước: Write tạo _acceptance/x/contract.md · Write tạo _acceptance/x/opportunity.md
+      không có lo_trinh_ma. Mỗi ca: mã thoát 2; stderr chứa "x", "lo_trinh.chan", "/feature-loop:feature-loop" và
+      "--them-hang --slug x"; thư mục _acceptance/x vắng sau lượt. CK-1-do: bản sao hook bỏ lời gọi luật chặn (nhát tiêm
+      khớp đúng một lần) → ca FAIL ghim «hồ sơ ngoài lộ trình lọt hook» (đối chứng: bản lành chặn trên cùng kho thử).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [lib/chan-lo-trinh.cjs, hooks/acceptance-evidence-gate.js, scripts/lo-trinh.mjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-2", "PASS: CK-2-do". CK-2: ma trận sáu ca viết trước (hàng slug x · ô cơ hội sẵn có
+      lo_trinh_ma có thật · ô cơ hội đang ghi mang lo_trinh_ma có thật · mã không có · lo_trinh_tep không khai · hàng
+      mang slug của hồ sơ khác); số ca chạy BẰNG 6; ba ca đầu thoát 0, ba ca sau thoát 2; ca mã sai stderr nêu đúng mã.
+      Với mỗi ca: ghi tệp đang chờ vào BẢN SAO của kho thử rồi gọi phanTichKho trên bản sao ấy; đối chứng dương: số ca mà
+      x có mặt trong tập hồ sơ phanTichKho thấy BẰNG 6; rồi phán nối của lib/chan-lo-trinh.cjs BẰNG phán suy từ
+      phanTichKho (hồ sơ không thuộc ngoaiLoTrinh và không mang cờ «ghi lo_trinh_ma … không có hàng»). CK-2-do: bản sao bộ đọc bỏ nhánh lo_trinh_ma → ca ô-cơ-hội-sẵn-có FAIL ghim «bộ đọc chặn lệch bản
+      đồ lộ trình».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [lib/chan-lo-trinh.cjs, hooks/acceptance-evidence-gate.js, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-3", "PASS: CK-3-do". CK-3: kho thử bật chặn; hồ sơ cu không nối ở hai trạng thái (có
+      contract.md · chỉ có opportunity.md); ma trận viết trước Write/Edit vào contract.md, opportunity.md, design-pass.md
+      của cu + Write tạo _acceptance/x/design-pass.md của hồ sơ mới x; mọi ca thoát 0, stderr không chứa "lo_trinh.chan".
+      Đối chứng dương: cùng kho thử, Write tạo _acceptance/x/contract.md thoát 2. CK-3-do: bản sao coi mọi tệp
+      _acceptance/*/ là mở hồ sơ → ca cu FAIL ghim «hồ sơ cũ bị chặn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [lib/chan-lo-trinh.cjs, hooks/acceptance-evidence-gate.js, scripts/lo-trinh-khoi-tao.mjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-4", "PASS: CK-4-chinh-sach", "PASS: CK-4-do", "PASS: CK-4-do2",
+      "PASS: CK-4-settings-hong", "PASS: CK-4-settings-hong-do". CK-4: ma trận 4 × 4 × 4
+      viết trước (gói: không settings · settings.json true · CHỈ settings.local.json true · settings.json false; khoá:
+      vắng · false · true · "co"; lệnh ghi: Write tạo contract.md mới không nối · Write tạo opportunity.md mới không
+      lo_trinh_ma · Write tạo opportunity.md mới có lo_trinh_ma có thật · Edit opportunity.md của hồ sơ cũ), HOME trỏ thư
+      mục thử có ~/.claude/settings.json bật gói; số lần chạy BẰNG 64. Ô (settings.json true, true): hai lệnh đầu thoát 2
+      với dòng chặn của CK-1, hai lệnh sau thoát 0; ô (settings.json true, "co"): hai lệnh đầu thoát 2, stderr chứa
+      «lo_trinh.chan phải là true hoặc false»; 14 ô còn lại × 4 lệnh: mã thoát, stdout, stderr giống từng byte bộ máy gốc
+      chạy trên cùng kho thử. CK-4-chinh-sach: ô chặn với
+      enforcement: off → 0, stderr không chứa "lo_trinh.chan"; ACCEPTANCE_GATE_BYPASS=1 → 0; enforcement: warn → 0 và
+      stderr chứa "lo_trinh.chan". CK-4-do: bản sao đọc thêm settings.local.json → ô chỉ-local FAIL ghim «phạm vi local
+      không được bật chặn». CK-4-do2: bản sao áp luật opportunity.md khi gói không bật → FAIL ghim «kho không bật đổi
+      hành vi ở opportunity.md». CK-4-settings-hong (thêm sau S4 lượt 1, AC-6): .claude/settings.json không phải JSON — khoá
+      vắng/false: 8 lệnh hook giống từng byte bộ máy gốc và bộ đọc --base HEAD im; khoá true: lệnh mở hồ sơ thoát 2 nêu
+      settings.json. CK-4-settings-hong-do: bản sao đọc settings trước khoá → FAIL ghim «kho không bật bị chặn vì
+      settings.json hỏng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [scripts/pre-merge-check.sh, lib/chan-lo-trinh.cjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-5", "PASS: CK-5-tat", "PASS: CK-5-thieu-lib", "PASS: CK-5-do". CK-5: kho thử git có
+      nhánh main (hồ sơ cu không nối, có contract) và nhánh việc thêm hồ sơ moi (không nối) + noi (hàng mang slug noi) +
+      sửa cu; chạy scripts/pre-merge-check.sh --base main của cây trên bản sao kho thử (lớp CI chép theo INIT-CI-COPY-LIST
+      rút trong lượt); mã thoát ≠ 0; số dòng stdout khớp `VIOLATION [moi]: hồ sơ mới không thuộc hàng lộ trình nào
+      (lo_trinh.chan)` BẰNG 1; không dòng nào chứa "lo_trinh.chan" mà nêu noi hay cu. CK-5-tat: cùng nhánh, kho không bật →
+      không dòng nào chứa "lo_trinh.chan", mã thoát BẰNG mã của bộ máy gốc trên cùng kho thử. CK-5-thieu-lib: kho bật, xoá
+      lib/chan-lo-trinh.cjs khỏi bản chép → đúng một dòng bắt đầu "NOTE" chứa «luật chặn lộ trình NOT ENFORCED». CK-5-do:
+      bản sao lưới bỏ lời gọi bộ đọc → ca bật FAIL ghim «hồ sơ ngoài lộ trình lọt lưới trước-merge».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh_cac_kho
+    paths: [lib/chan-lo-trinh.cjs, hooks/acceptance-evidence-gate.js, scripts/lo-trinh.mjs, tests/scripts/kho-cam-ket-co-lo-trinh-cac-kho.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-6" và một dòng «đã đo N kho (bật: K)» với N ≥ 1. Ca dò mọi kho có _acceptance/config.yaml
+      dưới KHO_GOC (mặc định ~/dev); không dò được kho nào → thoát 2 nêu đường. Với mỗi kho: bản sao `git archive HEAD` +
+      `.claude/` đang có; hook với bốn lệnh ghi của CK-4 → mỗi lệnh stdout + stderr + mã thoát giống bộ máy gốc; `node lib/chan-lo-trinh.cjs --root <bản sao> --base HEAD` → stdout rỗng, thoát 0; `lo-trinh.mjs --them-hang
+      --slug thu-ck6` (stdin một câu) → thoát 1 và băm cây trước = sau. Kho bật chặn (K > 0) bị bỏ khỏi phép so «không
+      đổi» và được in tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, hooks/acceptance-evidence-gate.js, lib/chan-lo-trinh.cjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-7", "PASS: CK-7-do". CK-7: kho thử bật chặn, tệp lộ trình dạng chuẩn hai hàng; lệnh rút
+      NGUYÊN VĂN từ khối S0-THEM-HANG của SKILL feature-loop (thay <slug> = sua-loi-dang-nhap, <mô tả> = «Sửa lỗi đăng nhập
+      khi mất mạng», AG = gốc cây), ACCEPTANCE_TODAY=2026-10-20; thoát 0; tệp có đúng 3 hàng; hàng 3 BẰNG {"ma":
+      "sua-loi-dang-nhap", "cau_giao": "Sửa lỗi đăng nhập khi mất mạng", "slug": "sua-loi-dang-nhap", "vi_sao": "Máy thêm
+      khi mở vòng từ mô tả, 2026-10-20"}; hai hàng đầu deepEqual bản trước; dangChuan true; kiemKhuon(…).co rỗng; rồi hook
+      cho Write tạo _acceptance/sua-loi-dang-nhap/contract.md thoát 0; phanTichKho đặt hồ sơ ấy vào hàng
+      sua-loi-dang-nhap; khối S0-MO-O rút nguyên văn với mã sua-loi-dang-nhap → JSON moi false, hoSo "sua-loi-dang-nhap",
+      _acceptance/sua-loi-dang-nhap/opportunity.md vắng (resume, không Cổng Đáng); sau product-map.mjs vẽ lại + git commit, `product-map.mjs --root <kho> --check` thoát 0. CK-7-do:
+      bản sao bỏ trường slug khỏi hàng thêm → bước hook FAIL ghim «hàng máy thêm không nối hồ sơ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-8", "PASS: CK-8-ky-tu", "PASS: CK-8-do". CK-8: sáu ca viết trước (tệp không dạng chuẩn ·
+      đã có hàng mã x · đã có hàng slug x · stdin rỗng · slug "X Y" · khoá lo_trinh.chan: "co"); số ca chạy BẰNG 6; mỗi ca thoát 2, stderr nêu lý do
+      của ca (sáu chuỗi ghim viết trước; ca khoá: «lo_trinh.chan phải là true hoặc false»), băm tệp lộ trình trước = sau. CK-8-ky-tu: qua khối S0-THEM-HANG nguyên văn, câu
+      giao = `Sửa $(touch CANH) và \`touch CANH2\` 'đơn' "kép"` → thoát 0, cau_giao của hàng thêm BẰNG chuỗi nhập, tệp
+      CANH và CANH2 không tồn tại trong kho thử lẫn thư mục chạy. CK-8-do: bản sao bỏ phép kiểm dangChuan → ca không chuẩn
+      FAIL ghim «ghi đè tệp lộ trình không chuẩn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.kho_cam_ket_co_lo_trinh
+    paths: [feature-loop/skills/feature-loop/SKILL.md, commands/acceptance-init.md, road-map/README.md, GUIDE.md, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CK-9", "PASS: CK-9-do". CK-9: rút khối S0-THEM-HANG-THOAT → tập mã BẰNG {0, 1, 2}, và mỗi mã
+      có một ca của CK-6/7/8 trong lượt cho ra nó (CK-6 dùng kho thử không bật thay kho thật); INIT-CI-COPY-LIST có một
+      dòng chứa "lib/chan-lo-trinh.cjs" và "[only-if-declared: lo_trinh]"; road-map/README.md và GUIDE.md mỗi tệp chứa
+      "lo_trinh.chan", "--scope project", cách tắt («false» hoặc xoá khoá) và «lưới trước-merge»; khối cấu hình mẫu của
+      commands/acceptance-init.md không chứa "chan:". CK-9-do: bản sao khối thêm dòng mã 3 → FAIL ghim «mã 3 không ca nào
+      cho ra».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

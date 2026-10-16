@@ -232,6 +232,21 @@ lo-trinh(may-ap): <n> hàng — <YYYY-MM-DD>
 AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs) && node "$AG/scripts/lo-trinh.mjs" --root . --hang '<mã>'
 ```
 <!-- S0-NHAN-HANG>>> -->
+   **Kho bật chặn lộ trình, đối số là mô tả** (hồ sơ kho-cam-ket-co-lo-trinh; kho bật = gói `road-map` ở `.claude/settings.json` + `lo_trinh.chan: true`): đối số không khớp `S0-MA-HANG-RE`, hoặc `S0-MO-O` thoát 1 → sau khi chọn slug ở bước 3, chạy khối `S0-THEM-HANG` (thay `<slug>` và `<mô tả>`) — câu mô tả đi trong heredoc CÓ NHÁY, không bao giờ vào đối số shell — rồi làm đúng bảng `S0-THEM-HANG-THOAT`. Máy thêm một hàng mã = slug vào tệp lộ trình đầu tiên của kho; câu «gắn mốc nào» không hỏi ở đây — cờ «chưa thuộc mốc nào» hiện trên thẻ khởi động. Phiên quên chạy khối thì bước ghi hợp đồng bị hook chặn kèm đúng lệnh này.
+<!-- <<<S0-THEM-HANG -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs --require lib/chan-lo-trinh.cjs) && node "$AG/scripts/lo-trinh.mjs" --root . --them-hang --slug '<slug>' <<'CAU_GIAO_HET'
+<mô tả>
+CAU_GIAO_HET
+```
+<!-- S0-THEM-HANG>>> -->
+<!-- <<<S0-THEM-HANG-THOAT -->
+```
+0 → đã thêm hàng mã <slug> vào lộ trình → đi tiếp S1 như cũ; commit tệp lộ trình cùng hồ sơ
+1 → kho không bật chặn → đi tiếp như cũ, không nói gì thêm
+2 → dừng: in nguyên thông điệp (tệp lệch khuôn, đã có hàng, câu rỗng, khoá sai giá trị)
+```
+<!-- S0-THEM-HANG-THOAT>>> -->
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 

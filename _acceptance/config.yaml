@@ -90,6 +90,8 @@ executors:
     # (KHO_GOC hoặc ~/dev) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (không dò được → thoát 2, mù).
     kho_moi_cai_goi_road_map: node tests/scripts/kho-moi-cai-goi-road-map.test.mjs
     kho_moi_cai_goi_road_map_cac_kho: node tests/scripts/kho-moi-cai-goi-road-map-cac-kho.mjs
+    kho_cam_ket_co_lo_trinh: node tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs
+    kho_cam_ket_co_lo_trinh_cac_kho: node tests/scripts/kho-cam-ket-co-lo-trinh-cac-kho.mjs
     # AC-4 sau Cổng Bằng chứng lượt 2: chạy chính ca DP2-11 của gói điều phối (chỉ chạy, không sửa tệp ca của vùng M5).
     moc_chien_dich_dp211: "node --test --test-name-pattern=DP2-11 tests/dieu-phoi/mo-dot.test.mjs"
     ngay_ky: node tests/scripts/ngay-ky.test.mjs
