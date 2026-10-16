@@ -42,7 +42,13 @@ Về chạm: hạt giống «duyệt, giữ cỡ trong một lượt gõ» (đã
 
 **Chỗ người chỉ là hình thức (§8):** 33/35 quyết định cổng trong hai ngày trùng đúng khuyến nghị máy, và không
 ca nào khó-đảo. Cách đẩy người ra biên mà vòng không đứng chờ: chọn **chế độ cổng một lần cho mỗi đợt** — Đồng
-hành · Biên · Tự lái. Chế độ Biên ước còn ≈0,6–1 lượt gọi người mỗi vòng. Phần cần đổi kit chỉ ghi hạt giống.
+hành · Biên · Tự lái. Phần cần đổi kit chỉ ghi hạt giống.
+
+**Lỗ hổng (§9):** ở crm, gộp vào onehub **là** lên production. Bản Preview dùng chung DB với prod, và chiều đỏ của
+việc bớt người đang chết (N = 7 đứng yên từ 22/09; onehub không có check bắt buộc). Vì thế phải **tin được trước,
+nhanh sau**. Ba việc chỉ chủ kho làm được đứng đầu: tách DB của Preview, bật check bắt buộc kèm `enforce_admins`,
+mở rộng `t3_paths`. Sau đó người đứng ở phần khó-đảo của mỗi lần ship (hạng R0/R1/R2 tính trên diff), không đứng
+ở mọi cổng. Với kit hôm nay, ước ≈1,2–1,5 lượt gọi người mỗi vòng; con số 0,6–1 ở §8 là sai.
 
 ## 1. Số nền — 9 vòng crm của M5
 
@@ -347,8 +353,24 @@ Ba hạt giống mới dưới đây **chưa tạo tệp**, vì răng VC8 cũ tr
    giữ Đồng hành, tức hành vi hôm nay, nên không mất gì. Ngưỡng mở: owner gọi tên nó làm vòng meta của cửa sổ.
    Hạt giống này trùng một phần với hạt giống 1: khi chính sách «giữ cỡ khi tiêu chí là rào chắn» đã khai ở Cổng
    Đáng thì chốt cỡ không còn phải hỏi.
+6. `2026-10-16-hat-giong-hang-tu-khai-noi-dien-t3.md` — `risk_tier` của hợp đồng là tự khai. Diff chạm `t3_paths`
+   vẫn đi được làn V nếu hợp đồng ghi T2, vì không luật nào nối `DIFF_T3_HITS` với hạng của hợp đồng (§9.2 L10).
+   Đây là TRỪ một đường lách, đi theo thang «cờ vàng trước, chặn sau». Cân trên mọi kho: kho khai hạng đúng không
+   đổi gì.
+7. `2026-10-16-hat-giong-the-hien-muc-va-rang-chet.md` — thẻ Cổng Bằng chứng hiện mức của từng mục Ngoài-n. Mục
+   mức cao, và mục «răng chết» (eval của một AC không thể đỏ), không được đi Known limits: AC đó lên thẻ là ĐẠT-MÙ
+   (§9.2 L3, L4). Đây là áp lại bất biến «assertion âm-tính-một-mình» của kit lên lời mời. Cờ vàng trước.
+8. `2026-10-16-hat-giong-tin-hieu-prod-theo-sha.md` — máy đọc log lỗi runtime của bản đang chạy theo sha (chỉ đọc),
+   rồi đề xuất dòng `observed` cho người ký một chạm. Lý do: N của dòng hiệu chuẩn đã đứng yên ở 7 từ 22/09. Chạm
+   ADR 0020, nên chỉ là hạt giống.
+9. *(CỘNG, owner)* nới điều kiện xanh-sạch của làn V: cho Known limits chứa mục mức thấp/vừa đã được máy định
+   tuyến. Không có bước này thì chế độ Biên không xuống dưới ≈1,2 lượt/vòng (§9.4).
 
 ## 8. Chỗ người chỉ là hình thức — và ba chế độ cổng
+
+> **Đính chính 16/10 (xem §9):** ở crm, gộp vào `onehub` là lên production. Vì thế chế độ Biên/Tự lái như viết ở
+> §8.2–8.3 sẽ để máy tự chạm khó-đảo, và con số «≈0,6–1 lượt/vòng» không đứng được với kit hôm nay. §8.1 (số
+> 33/35) vẫn đúng, nhưng phải đọc kèm L3 ở §9.2. Bản thay thế là §9.3.
 
 Câu hỏi của chủ kho sau khi đọc §7: «những nơi nào tôi xuất hiện chỉ là hình thức, hầu như không có thay đổi?», và
 «làm sao đẩy người ra biên mà không ảnh hưởng tốc độ vòng — hoặc là có nhiều chế độ để lựa chọn».
@@ -420,7 +442,7 @@ hiện ở khối «CHƯA duyệt».
 |---|---|---|---|
 | Lượt gọi người/vòng | 4,2 | **≈0,6–1** | Cổng Đáng đợt chia 5 vòng ≈0,2 · ca kiểu E17 ≈0,3–0,5 · «mở hợp đồng mới» ≈0,1 |
 | Chạm/lượt | tới 4 | 1 | Không còn chốt cỡ, không còn gõ lại |
-| Chờ đêm dài nhất | 6,5 h (DA2b) · 5,3 h (DH2) | ≈0 ở hai ca này | DA2b chỉ vướng một mục Ngoài-n «chấp nhận» → làn V; DH2 có chính sách «đỏ sẵn → tách vòng» thì máy chọn đường B ngay lúc 16:03Z |
+| Chờ đêm dài nhất | 6,5 h (DA2b) · 5,3 h (DH2) | ≈0 ở hai ca này | DA2b chỉ vướng một mục Ngoài-n «chấp nhận» (*sai — xem §9.4: xanh-sạch đòi mục Ngoài hợp đồng rỗng, nên DA2b vẫn phải ký*); DH2 có chính sách «đỏ sẵn → tách vòng» thì máy chọn đường B ngay lúc 16:03Z |
 
 Đánh đổi:
 - **Mất thước 94 %.** Khi người thôi đọc, tỉ lệ «trùng khuyến nghị» không đo được nữa. Chiều đỏ của chính quyết
@@ -442,7 +464,99 @@ hiện ở khối «CHƯA duyệt».
   theo luật chiều rộng chỉ là hạt giống (§7.3, mục 5), trừ khi chủ kho gọi tên nó làm vòng meta duy nhất của cửa
   sổ.
 
-## 9. Giới hạn đo
+## 9. Lỗ hổng của chế độ Biên và bản hoàn thiện
+
+Câu hỏi của chủ kho sau §8: «với mục đích dẫn dắt bằng northstar, tìm lỗ hổng, tình huống chưa phủ hết, hoặc điều
+gì tối ưu hơn để hoàn thiện nó». Làm ba bước, đều chỉ đọc:
+- một tác tử đọc mã kit (làn V, thẻ, thẻ khởi tạo đợt, khó-đảo, mức Ngoài-n);
+- một tác tử đọc `origin/onehub` của crm (đường lên production, reality, mức Ngoài-n);
+- một tác tử phản biện phá bản nháp.
+
+### 9.1 Ba sự thật đổi bài toán
+
+1. **Ở crm, gộp vào `onehub` là lên production**, cả bốn dự án, không có bước tay. Migration chạy trong build trên
+   DB thật (`docs/production.md` của crm; `production.nhanh: onehub` trong `config.yaml`). Nhịp là ≈12 lần gộp mỗi
+   ngày, do phiên máy bấm bằng `gh` của chủ kho. Trong 14–16/10 có 6 migration lên prod tự động, đều chỉ thêm.
+   `release` và `main` là di sản, không dùng.
+2. **Bản Preview dùng chung DB với production.** Mỗi lần đẩy nhánh, code chưa qua cổng nào chạy trên dữ liệu thật.
+   Vì vậy «trước khi gộp thì mọi thứ còn nằm trong nhánh» là **sai** ở crm.
+3. **Chiều đỏ của việc bớt người đang chết:**
+   - Dòng hiệu chuẩn reality có N = 7, cả 7 quan sát ghi 21–22/09, từ đó 0 quan sát mới, và k chưa từng được ghi.
+   - `onehub` không được bảo vệ (rules `[]`, protection 404), nên `pre-merge-check` chỉ là lời khuyên. Chốt gộp thật
+     là một luật lời của đợt.
+   - Hai núm `require_human_commit`/`agent_authors` đã hết hiệu lực từ 2.1 (ADR 0012), và provenance giờ lấy từ
+     người bấm merge trên forge. Ở crm, máy bấm merge bằng tài khoản chủ kho, nên provenance cũng sụp.
+
+### 9.2 Lỗ hổng
+
+| Mã | Lỗ | Nguyên tố bị chạm | Phán quyết đối kháng |
+|---|---|---|---|
+| L1 | Danh sách khó-đảo của kit (KHO-DAO-V) có «ship ra người dùng thật». Ở crm, mọi lần gộp là ship → Biên/Tự lái như §8 để máy tự chạm khó-đảo. Đọc đúng chữ thì lượt gọi còn **tăng**. | 3 | GIỮ-CÓ-SỬA: cần chủ kho chốt «khó-đảo = lần ship mà revert không đảo được» (đáng một ADR) |
+| L2 | Chiều đỏ của quyết định bớt người đã chết (§9.1 mục 3). Bật Biên lúc này là ĐẠT-MÙ cho chính việc uỷ quyền. | 2 | GIỮ |
+| L3 | Số 33/35 không chứng máy đúng. Thẻ Cổng Bằng chứng **không hiện mức** Ngoài-n, nên người định tuyến 105 mục mà không thấy mức — người không có căn cứ để bất đồng. Bỏ người thì thước này biến mất. | 2, 3 | GIỮ |
+| L4 | Known limits đang nuốt **răng chết** của các phép thử phân quyền: 8/12 mục mức cao vào Known limits, phần lớn là âm-tính-một-mình (DH1 Ngoài-10: phép thử «máy chủ từ chối thành viên tạo mục tiêu» luôn xanh). Việc này xảy ra **dưới chữ ký người**. | 2 | GIỮ-CÓ-SỬA: lý lẽ chống «người là bảo hiểm», không chống Biên |
+| L5 | Gộp đêm: rollback là việc của chủ kho, nên đảo cần người đang ngủ. | 3 | GIỮ cho R1, R2; R0 máy revert được thì hết |
+| L6 | Điều phối vừa áp chính sách vừa bấm gộp. Check bắt buộc cũng không tách vai, vì token admin bỏ qua được nếu không bật `enforce_admins`. | 2 | GIỮ: cần danh tính gộp không phải admin |
+| L7 | Chế độ chọn theo đợt hoặc theo máy, nhưng `onehub` chung ba máy → luật ship phải ở cấp KHO. | 3 | GIỮ |
+| L8 | Ý định không ai đọc. DH4 khai «vòng chỉ đọc, không ghi DB» mà vẫn đẻ lệnh nạp ghi DB, và nó chỉ bị bắt như một Ngoài-n mức *vừa*. | 1 | GIỮ |
+| L9 | Preview chung DB prod (§9.1 mục 2). | 2, 3 | GIỮ, nặng hơn nháp nói |
+| L10 | `risk_tier` là tự khai: diff chạm `t3_paths` vẫn đi được làn V nếu hợp đồng ghi T2. | 2 | đối kháng phát hiện |
+
+Hai dữ kiện nháp ghi sai, đối kháng đã bắt và đã sửa ở trên:
+- Hai núm chữ ký người/máy đã chết từ 2.1 (ADR 0012), không còn bật được.
+- Trong 12 hồ sơ crm đi làn V, có 5 có `approved_by` và 7 đi qua cửa veto. Nháp ghi «10/12» là sai.
+
+### 9.3 Bản hoàn thiện — người đứng ở phần khó-đảo của mỗi lần ship
+
+Người không đứng ở cổng; người đứng ở **phần không đảo được của mỗi lần ship**. Hạng rủi ro tính trên **vật** (diff),
+không theo lời khai. Không cần bộ phân loại mới: kit đã có `pre-merge-check.sh --hang-pr`. Nó tất định, và trả
+`khong-ro` khi PR đổi chính danh sách hạng so với merge-base, nên đã chặn kiểu tác tử con tự sửa danh sách.
+
+| Hạng | Vật | Đảo bằng gì | Người |
+|---|---|---|---|
+| R0 | UI/logic; không migration; không ghi dữ liệu; không gửi tin ra ngoài; không chạm đường phân quyền | revert PR — máy làm được, vì revert gộp là tự deploy | không; cửa veto + khối «CHƯA duyệt» |
+| R1 | migration chỉ-thêm; khoá config | **sửa tiến**, không revert: `migrate deploy` không lùi; cột NOT NULL không mặc định hay enum mới làm bản cũ lỗi; lệnh «sửa lệch schema» mà build gợi ý sẽ DROP cột có dữ liệu | gộp trong giờ chủ kho thức; hỏi khi có hồi quy |
+| R2 | migration phá; script ghi dữ liệu prod; gửi tin ra ngoài (Zalo); đường phân quyền/che chắn; env, secret; cron xoá dữ liệu (`vercel.json`) | không đảo được | **luôn hỏi**, một chạm, thẻ có mức |
+
+**Thứ tự áp:**
+
+| # | Việc | Tầng | TRỪ / CỘNG | Ai |
+|---|---|---|---|---|
+| 1 | Tách DB của Preview khỏi prod | crm hạ tầng | an toàn, độc lập với Biên | **chủ kho** |
+| 2 | Bật check bắt buộc trên `onehub` (acceptance gate + CI), kèm `enforce_admins`; máy gộp bằng danh tính không phải admin | GitHub của crm | đặt răng cho luật lời | **chủ kho** (cài đặt bảo mật — máy không tự đổi) |
+| 3 | Làn đêm ghim lại (PC1) — chiều đỏ duy nhất đang sống: nó đã đỏ với lỗi prod thật (hydration, 403 quản trị) | crm | CỘNG quy trình | chủ kho (đã có ở §7.2) |
+| 4 | Mở rộng `t3_paths` của crm (service phân quyền, `apps/api/vercel.json`, script ghi DB, `apps/agent/**` gửi tin); dùng `--hang-pr` đếm tỉ lệ R2 thật trên 9 vòng | config crm | 0 dòng kit | chủ kho (luật kho) |
+| 5 | Ghi trọng số và chính sách vào ô cơ hội ở Cổng Đáng (§8.4) | nếp thợ | TRỪ | máy |
+| 6 | Thẻ hiện mức; răng chết không được Known limits | kit | CỘNG → hạt giống 7 | owner gọi tên |
+| 7 | Trao máy quyền revert, **chỉ R0** | luật crm | — | chủ kho |
+| 8 | Nới xanh-sạch cho Known limits | kit | CỘNG → hạt giống 9 | owner |
+| 9 | Mẫu mù: chọn theo hạng R và trọng số AC, **cộng dồn qua các đợt**, là phép hiệu chuẩn chứ không phải cò hạ chế độ | điều phối | — | máy, sau cùng |
+
+Về cỡ mẫu (đối kháng): 1–2 mẫu mỗi đợt quá nhỏ. Theo quy tắc ba, 0 lệch trên n mẫu chỉ chặn tỉ lệ sai dưới 3/n;
+muốn chặn dưới 5 % cần ≈60 mẫu, tức ≈30 đợt. Với n = 2, một lần người tự nhiễu cũng đủ hạ chế độ oan khoảng 10 %
+số đợt. Vì thế mẫu mù là thước dài hạn, không phải cò.
+
+### 9.4 Ước lại, theo đúng luật kit hôm nay
+
+- **Lượt gọi người ≈1,2–1,5 mỗi vòng**, không phải 0,6–1. Lý do: vị từ xanh-sạch của làn V
+  (`scripts/khong-can-nguoi.mjs`) đòi mục Known limits và mục Ngoài hợp đồng có mặt **và rỗng**. Mà 78/105 mục
+  Ngoài-n đã vào Known limits, nên gần như hồ sơ nào cũng phải có người ký Cổng Bằng chứng. Đây cũng là lý do ô
+  DA2b ở §8.3 sai.
+- Xuống ≈0,75 lượt/vòng chỉ khi có cả bước 8 (CỘNG kit) lẫn bước 4 (để biết tỉ lệ R2 thật; ước «một nửa vòng chạm
+  R2» chưa đo).
+- **Phần chắc chắn hơn mọi con số trên:** các bước 1–3 sửa an toàn thật cho người dùng crm ngay hôm nay, độc lập
+  với chế độ nào được chọn. Theo kim chỉ nam — sản phẩm tới tay người dùng nhanh hơn **mà vẫn tin được** — chúng
+  phải đi trước việc bớt người.
+
+### 9.5 Lời mời chủ kho (một dòng)
+
+> **Ba việc chỉ anh làm được, cùng hướng «tin được trước, nhanh sau»: (1) tách DB của Preview khỏi prod; (2) bật
+> check bắt buộc trên `onehub` kèm `enforce_admins`, để máy gộp bằng danh tính không phải admin; (3) cho phép mở
+> rộng `t3_paths` của crm — gõ «duyệt», hoặc «bỏ <số>».**
+
+(1) và (2) là cài đặt hạ tầng và bảo mật, máy không tự đổi. (3) là luật kho. Cả ba đảo được.
+
+## 10. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
 - `duong-nen.md` không ghi thời lượng. `run-log.jsonl` ghi chung một `ts` cho cả lượt, nên phút S4 lấy từ
