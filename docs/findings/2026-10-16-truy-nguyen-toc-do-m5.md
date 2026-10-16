@@ -645,6 +645,68 @@ Chủ kho: «Thực hiện hạng mục 1. Bật check bắt buộc trên onehub
 
 **Đường đảo:** `gh api -X DELETE repos/phanlemanh/crm-onehub/branches/onehub/protection`.
 
+## 11. Ranh giới tầng và thứ tự sau khi chủ kho duyệt (16/10)
+
+Chủ kho: *«Tôi phê duyệt vậy hãy phân rõ ranh giới để điều chỉnh phù hợp luôn ưu tiên kit vì nó tác động mọi
+repo.»*
+
+Luật đọc từ câu duyệt này: **gốc nằm ở kit thì sửa ở kit trước**, vì một nhát sửa ở đó tới được mọi kho. Kho và luật
+ba máy chỉ giữ phần thuộc riêng mình, và phần chữa tạm không chờ được kit. Mọi nhát sửa kit vẫn qua phép thử «kho
+KHÔNG gặp sự cố được gì, mất gì?»: mặc định không đổi, có cờ bật và đường đọc-cũ.
+
+### 11.1 Sáu tầng — ai sở hữu, ai đổi được
+
+| Tầng | Gồm | Tác động tới | Đổi bằng | Ai quyết |
+|---|---|---|---|---|
+| **Kit — engine** | `scripts/` · `lib/` · `skills/` · `commands/` · `feature-loop/` · `dieu-phoi/` | **mọi kho tiêu thụ** | một vòng kit, rồi phát hành mốc | chủ kho gọi tên vòng (luật chiều rộng) và ký Cổng Đáng |
+| Kit — kho riêng | CI của chính kit (`gate.yml`), hồ sơ của kit | chỉ kit | PR kit, dưới khoá #308 | chủ kho |
+| Kho crm | hook pre-push, `_acceptance/config.yaml` (`t3_paths`…), CI, `vercel.json`, cài đặt GitHub | chỉ crm | PR crm, luật kho | chủ kho (đã duyệt 16/10) |
+| Luật ba máy | hàng gộp onehub, hạn giữ đầu hàng, làn đêm luân phiên, kênh #375/#308 | ba máy | dòng luật trên #375 | chủ kho (đã duyệt 16/10); Mac Studio xếp lô |
+| Nếp điều phối M5 | PA1–PA4 (§7.1) | máy M5 | ký ức và đề bài chip | máy tự đi |
+| Chủ kho | khó-đảo · khẩu vị rủi ro · giờ ký | — | — | chỉ chủ kho |
+
+### 11.2 Mỗi việc về đúng tầng
+
+| # | Việc | Gốc ở | Sửa ở kit (mọi kho) | Phần ở kho / ba máy | Thứ tự |
+|---|---|---|---|---|---|
+| K-A | Hồ sơ đã ký hoá cũ âm thầm, rồi «đỏ sẵn» (crm 242 vi phạm; kit #349, #359; 5/6 đường nền «đỏ sẵn») | **kit** | Một lệnh **giữ bộ hồ sơ đã ký luôn tươi**: chọn hồ sơ cũ do các lần gộp trong ngày, ghim lại trên đỉnh nhánh chính, quy đỏ về PR gây ra bằng cặp sha. Kèm **nhãn trạng thái «đỏ sẵn trên nền»** — cùng ca, cùng thông điệp trên merge-base; HEAD thêm ca đỏ thì vẫn đỏ. Mặc định tắt, có đường đọc-cũ. | crm: chạy lịch đêm bằng lệnh kit; vòng dọn 242 tồn đọng (giữ / nghỉ / thay bởi). **Tạm thời**, trước khi K-A phát hành: lịch đêm dùng `repin-lane.mjs` hiện có, chỉ cho phần mới phát sinh. | **kit #1** |
+| K-B | Lời mời hình thức: thẻ không hiện mức Ngoài-n; răng chết vào Known limits; chốt cỡ tốn 4 lần gõ | **kit** | Thẻ hiện mức; mục mức cao và mục răng chết không được Known limits (AC lên thẻ là ĐẠT-MÙ, cờ vàng trước); «duyệt, giữ cỡ» trong một lần gõ (hạt giống đã có) | không | kit #2 |
+| K-C | Hạng rủi ro tự khai, không nối với diff (L10) | **kit** | Nối `DIFF_T3_HITS` với `risk_tier` của hợp đồng: cờ vàng trước, chặn sau | crm: (4a) đo tỉ lệ R2 bằng `--hang-pr` với danh sách mở rộng — **máy làm ngay**; (4b) ghi `t3_paths` vào `config.yaml` sau khi có số | kit #3 |
+| K-D | Làn V gần như không bật (xanh-sạch đòi Known limits rỗng) | **kit** | Nới cho mục mức thấp/vừa đã được máy định tuyến | — | kit #4, **sau** K-B và K-C vì an toàn |
+| K-E | Đường đọc-cũ của DP11 (2.28 → 2.30) có thể hỏng | **kit** | Máy **kiểm ngay**. Hỏng thì đó là *sai hợp đồng* của kit, tức máy sửa vật (K8), không cần vòng mới | — | ngay |
+| K-F | Kit ra bản dồn dập, PR nâng kit kẹt đầu hàng ≈31 giờ | kit (nhịp phát hành) + ba máy | Vế «mốc chỉ cắt khi có kho chờ nhận» vẫn là giới hạn đã khai (luật b, chưa có răng); không mở vòng mới | ba máy: **hạn giữ đầu hàng 2 giờ**, kèm một suất cố định ở lô đầu buổi sáng cho PR nâng kit | ba máy, ngay |
+| C-1 | Pre-push chạy lại trọn suite trùng CI | crm | — | crm: bỏ `test` + `build` khi push chỉ chạm tệp T1 | crm, ngay |
+| C-2 | Làn đêm ghim lại | kit (K-A) + crm | xem K-A | crm: bật lịch, chạy luân phiên giữa ba máy | sau K-A; tạm bằng công cụ có sẵn |
+| C-3 | CI app-ui chập chờn | crm | — | crm: hàng sửa test chập chờn | crm |
+| C-4 | Preview · bảo vệ onehub | crm | — | **đã xong** (§9.6, §9.7) | — |
+| R-1 | CI của kit 37′ cả với PR chỉ có tài liệu | kho kit | — | kit: lọc path trong `gate.yml` cho PR chỉ có tài liệu (không chạm kho tiêu thụ) | kho kit, nhỏ |
+
+### 11.3 Luật chiều rộng: mỗi cửa sổ chỉ một vòng meta
+
+Luật (b) cho **tối đa một vòng meta** giữa hai mốc được một kho tiêu thụ nhận. Vòng đó phải do chủ kho gọi tên.
+
+**Đề xuất gọi tên K-A** làm vòng meta của cửa sổ này:
+- chung cả ba kho;
+- tăng chiều đỏ (bắt hồi quy hằng ngày);
+- bớt lượt gọi người nhiều nhất (≈ −0,5/vòng ở crm);
+- có neo ngoài: `crm-onehub/_acceptance/okr-soat-anh-luot-3` (hồ sơ đã ký trên onehub, đỏ sẵn E9/E13 ngày 15/10).
+
+K-B, K-C, K-D xếp hàng cho các cửa sổ kế, mở khi một kho cài mốc chứa K-A. Riêng K-E là việc kiểm, không phải vòng.
+
+Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó là **nới luật (b)**. Câu duyệt 16/10 chưa nói rõ điều
+đó, nên máy không tự suy ra.
+
+### 11.4 Việc giao ngay
+
+- **Điều phối M5** (crm và ba máy — chủ kho đã duyệt):
+  - C-1 pre-push cho T1;
+  - K-F hạn giữ đầu hàng 2 giờ, kèm suất buổi sáng;
+  - C-2 lịch đêm bằng công cụ có sẵn, chỉ cho phần mới phát sinh;
+  - 4a đo tỉ lệ R2;
+  - đưa vòng dọn 242 hồ sơ tồn đọng vào lộ trình crm (Cổng Đáng của nó do chủ kho ký).
+- **Máy kit:** K-E, kiểm đường đọc-cũ của DP11.
+- **Chủ kho:** gọi tên K-A, và ký Cổng Đáng khi phiên vòng mở.
+
 ## 10. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
