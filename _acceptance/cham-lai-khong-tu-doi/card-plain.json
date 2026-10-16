@@ -1,30 +1,85 @@
 {
   "feature_plain": "Khi chấm lại một vòng, máy chỉ giữ kết quả cũ của một phép đo nếu chính phép đo và tiêu chí của nó không đổi, và thẻ ký không còn bị khoá oan vì máy so lượt mới bằng tham số của lượt cũ.",
   "will_do": [
-    {"id": "AC-4", "p": "Sẽ giữ nguyên hành vi cũ khi chỉ trạng thái hợp đồng, ghi chú, chú thích, khoảng trắng, phép đo khác hay sổ quyết định đổi — kết quả giữ lại y như bản trước."},
-    {"id": "AC-5", "p": "Sẽ chạy lại mọi phép đo khi không đọc được định nghĩa của lượt gốc (tệp chưa từng lưu vào git, hay lịch sử đã viết lại), và nói rõ vì sao."},
-    {"id": "AC-6", "p": "Sẽ tự nhận đúng tệp tham số của lượt vừa chấm khi phiên lưu mỗi lượt một tệp, dừng có tên khi chỉ có tệp của lượt cũ, và nhận tệp mới nhất khi lượt sau chết giữa chừng."},
-    {"id": "AC-7", "p": "Sẽ cho ra đúng mã thoát và đúng các dòng sổ như bản cũ ở kho chỉ dùng một tệp tham số — kho không gặp lỗi này không thấy gì khác."}
+    {
+      "id": "AC-4",
+      "p": "Sẽ giữ nguyên hành vi cũ khi chỉ trạng thái hợp đồng, ghi chú, chú thích, khoảng trắng, phép đo khác hay sổ quyết định đổi — kết quả giữ lại y như bản trước."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ chạy lại mọi phép đo khi không đọc được định nghĩa của lượt gốc (tệp chưa từng lưu vào git, hay lịch sử đã viết lại), và nói rõ vì sao."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ tự nhận đúng tệp tham số của lượt vừa chấm khi phiên lưu mỗi lượt một tệp, dừng có tên khi chỉ có tệp của lượt cũ, và nhận tệp mới nhất khi lượt sau chết giữa chừng."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ cho ra đúng mã thoát và đúng các dòng sổ như bản cũ ở kho chỉ dùng một tệp tham số — kho không gặp lỗi này không thấy gì khác."
+    }
   ],
   "wont_do": [
-    {"id": "AC-1", "p": "Sẽ KHÔNG giữ kết quả cũ của một phép đo khi chủ kho đổi bất kỳ trường nào của nó (kết quả mong đợi, lệnh, loại người chấm, mã thoát đã khai, tiêu chí phục vụ) — ca thật ở crm: kết quả mong đợi 21→22."},
-    {"id": "AC-2", "p": "Sẽ KHÔNG giữ kết quả cũ khi chữ của tiêu chí mà phép đo phục vụ đã đổi; và đổi tiêu chí số 10 không làm chạy lại phép đo của tiêu chí số 1 (mã trùng phần đầu)."},
-    {"id": "AC-3", "p": "Sẽ KHÔNG hợp thức hoá một lần giữ nhầm cũ: so định nghĩa với lượt phép đo thật sự chạy, không với lượt chỉ chép kết quả sang."},
-    {"id": "AC-8", "p": "Sẽ KHÔNG còn khoá thẻ ký ở nhãn «thước lệch» khi thước không hề lệch trong lượt vừa chấm; lệch thật vẫn khoá."},
-    {"id": "OOS-1", "p": "Không sửa bộ đọc của thẻ để tự mở khoá các hồ sơ đã mang dòng nhãn sai (như K7) — đó là câu Hỏi-1."},
-    {"id": "OOS-2", "p": "Không tách «đỏ vì bộ kiểm chập chờn rồi chạy lại xanh» khỏi trần ba lượt — để dành mốc tinh chỉnh 05/11."},
-    {"id": "OOS-3", "p": "Không ghi dấu vân tay phép đo vào sổ chạy lúc chấm — lối thay thế của câu Hỏi-2."},
-    {"id": "OOS-4", "p": "Không đổi cách giữ kết quả của phép đo do hội đồng chấm — đã có cơ chế riêng theo nội dung đầu vào."}
+    {
+      "id": "AC-1",
+      "p": "Sẽ KHÔNG giữ kết quả cũ của một phép đo khi chủ kho đổi bất kỳ trường nào của nó (kết quả mong đợi, lệnh, loại người chấm, mã thoát đã khai, tiêu chí phục vụ) — ca thật ở crm: kết quả mong đợi 21→22."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ KHÔNG giữ kết quả cũ khi chữ của tiêu chí mà phép đo phục vụ đã đổi; và đổi tiêu chí số 10 không làm chạy lại phép đo của tiêu chí số 1 (mã trùng phần đầu)."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ KHÔNG hợp thức hoá một lần giữ nhầm cũ: so định nghĩa với lượt phép đo thật sự chạy, không với lượt chỉ chép kết quả sang."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ KHÔNG còn khoá thẻ ký ở nhãn «thước lệch» khi thước không hề lệch trong lượt vừa chấm; lệch thật vẫn khoá."
+    },
+    {
+      "id": "OOS-1",
+      "p": "Không sửa bộ đọc của thẻ để tự mở khoá các hồ sơ đã mang dòng nhãn sai (như K7) — đó là câu Hỏi-1."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Không tách «đỏ vì bộ kiểm chập chờn rồi chạy lại xanh» khỏi trần ba lượt — để dành mốc tinh chỉnh 05/11."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Không ghi dấu vân tay phép đo vào sổ chạy lúc chấm — lối thay thế của câu Hỏi-2."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Không đổi cách giữ kết quả của phép đo do hội đồng chấm — đã có cơ chế riêng theo nội dung đầu vào."
+    }
   ],
   "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này:",
   "coverage_plain": [
-    {"i": 0, "p": "Bỏ quét hình thái có ghi sổ: không gian đã là hai ma trận đóng viết sẵn trong tiêu chí — năm kiểu đổi phép đo (AC-1) và tệp tham số theo từng lượt (AC-6, AC-7)."}
+    {
+      "i": 0,
+      "p": "Bỏ quét hình thái có ghi sổ: không gian đã là hai ma trận đóng viết sẵn trong tiêu chí — năm kiểu đổi phép đo (AC-1) và tệp tham số theo từng lượt (AC-6, AC-7)."
+    }
   ],
   "gap_probe_plain": [
-    {"i": 0, "p": "Chọn «đọc định nghĩa từ lịch sử git» thay vì «ghi dấu vân tay lúc chấm» là một đánh đổi, không phải lối duy nhất — đã đưa thành câu Hỏi-2 cho anh."},
-    {"i": 1, "p": "Phản biện lo rằng máy dừng khi không tìm thấy tệp tham số sẽ gọi người — bác: bước này chỉ cảnh báo một dòng, máy tự chạy lại với tệp đúng, không hỏi ai."},
-    {"i": 2, "p": "Thiếu ca có cùng lúc tệp lượt 2 khớp và tệp lượt 3 mới hơn (lượt 3 chết) — đã sửa: máy nay nhận tệp mới nhất, và thêm ca đo cho đúng hình dạng này."},
-    {"i": 3, "p": "Cách đọc ngưỡng sau khi phát hành từng dùng chính bộ máy để đo nó, và bỏ sót dòng «cây đổi» — đã sửa thành phép so độc lập và thêm dòng đếm."},
-    {"i": 4, "p": "Kho thử chưa có mã trùng phần đầu như ca thật (E1 với E10) — đã thêm, đổi tiêu chí số 10 không chạm phép đo số 1."}
-  ]
+    {
+      "i": 0,
+      "p": "Chọn «đọc định nghĩa từ lịch sử git» thay vì «ghi dấu vân tay lúc chấm» là một đánh đổi, không phải lối duy nhất — đã đưa thành câu Hỏi-2 cho anh."
+    },
+    {
+      "i": 1,
+      "p": "Phản biện lo rằng máy dừng khi không tìm thấy tệp tham số sẽ gọi người — bác: bước này chỉ cảnh báo một dòng, máy tự chạy lại với tệp đúng, không hỏi ai."
+    },
+    {
+      "i": 2,
+      "p": "Thiếu ca có cùng lúc tệp lượt 2 khớp và tệp lượt 3 mới hơn (lượt 3 chết) — đã sửa: máy nay nhận tệp mới nhất, và thêm ca đo cho đúng hình dạng này."
+    },
+    {
+      "i": 3,
+      "p": "Cách đọc ngưỡng sau khi phát hành từng dùng chính bộ máy để đo nó, và bỏ sót dòng «cây đổi» — đã sửa thành phép so độc lập và thêm dòng đếm."
+    },
+    {
+      "i": 4,
+      "p": "Kho thử chưa có mã trùng phần đầu như ca thật (E1 với E10) — đã thêm, đổi tiêu chí số 10 không chạm phép đo số 1."
+    }
+  ],
+  "analyst_plain": ""
 }
