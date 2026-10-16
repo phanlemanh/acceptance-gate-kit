@@ -1025,7 +1025,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 27 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 28 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1054,6 +1054,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
 - `scripts/gio-may.mjs` — phép ước giờ máy mà `lo-trinh.mjs` import lúc nạp (ước hàng, tổng mốc, dự báo); thiếu → bước bản đồ `ERR_MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `lib/chan-lo-trinh.cjs` — bộ đọc DUY NHẤT của luật chặn lộ trình `lo_trinh.chan` mà lưới trước-merge gọi cho hồ sơ mới ngoài lộ trình; chỉ cần khi kho khai `lo_trinh.tep` — thiếu ở kho đã bật thì lưới in một dòng `NOTE: luật chặn lộ trình NOT ENFORCED`
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
