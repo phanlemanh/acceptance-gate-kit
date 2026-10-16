@@ -717,7 +717,8 @@ Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó 
 | C-1 pre-push cho T1 | đã thành vòng crm `chore/pre-push-t1`, **chờ chủ kho ký Cổng Đáng** |
 | Vòng dọn 242 hồ sơ | chưa vào lộ trình crm; Điều phối thêm hàng sau khi C-1 gộp |
 | K-A, K-E, K-B/C/D, R-1 (kit) | giao MacBook Pro (#308 `6217112243`), **MacBook Pro chưa xác nhận**; chưa có hàng nào trên lộ trình kit ở mọi nhánh trên GitHub |
-| Bàn giao phiên K-A trên M5 | **chưa**: phiên còn chạy. Hàng K-A chỉ có trong `docs/plans/lo-trinh-kit.json` chưa commit ở worktree `cranky-pare-e65e59` |
+| Bàn giao phiên K-A trên M5 | **xong** (kiểm độc lập): nhánh `vong/ho-so-da-ky-giu-tuoi` @ `b4083567`, PR kit #369 (nháp, base main). Hàng K-A đã vào `docs/plans/lo-trinh-kit.json` trên nhánh đó: T3, 8–12 giờ máy, mốc 05/11. Ô `_acceptance/ho-so-da-ky-giu-tuoi/` đang chờ Cổng Đáng. Tệp bàn giao: `docs/handoff/2026-10-16-ban-giao-k-a-sang-macbook-pro.md`. Không làn nặng nào đã chạy. |
+| K-E (đường đọc-cũ DP11) | **xong, không sửa.** Kit 2.30/2.31 đọc đúng hồ sơ ký bằng 2.28 ở mọi chỗ có cổng. Vi phân trên 567 hồ sơ ở 8 kho: 9 hồ sơ đổi kết quả, trong đó 7 đúng thiết kế DP11 và 2 lệch hiển thị (một do `at` chỉ ghi ngày, một do `tieu_de` bị rút gọn). Fixture do code sinh: 5/6 ca đúng; ca sai tái hiện đúng lệch do `at` chỉ ghi ngày. Ngưỡng mở việc: ≥1 hồ sơ chưa ký, làn V hay machine-cleared đổi phán quyết vì `at` chỉ ghi ngày. Như vậy điều kiện của PA1 được thoả. |
 | PA1–PA3 | đang áp (ký ức nối lại của Điều phối) |
 | PA4, chính sách đợt vào ô cơ hội | có trong ký ức nhưng **chưa vào đề bài chip** (DA4, DA3b, C-1 đều thiếu); Điều phối tự vá |
 | Gom lời mời theo giờ thức | chưa làm |
