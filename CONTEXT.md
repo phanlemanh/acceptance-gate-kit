@@ -185,6 +185,9 @@ mục yêu cầu của một đợt.
 Ổ cắm `tin_hieu` trong `_acceptance/config.yaml` — `nguon` (thư mục tín hiệu, một hoặc danh sách) và `gom`
 (thư mục bản gom). Kit không giữ kho tín hiệu: kho khai nơi đặt, kit chỉ đọc, kiểm, vẽ. Kho không khai
 thì không lệnh nào của cửa chạy và mọi trang giữ nguyên từng byte.
+Giữa chiến dịch, việc phụ / việc mới không khai chặn của thợ được gói điều phối chép vào nguồn ĐẦU và trả «đã
+ghi, xử ở mốc khép»; người gửi bằng `/road-map:gui`. Chỉ ý khai chặn (`--chan`) được phán giữa chừng. Hồ sơ
+`cua-tin-hieu-giua-chien-dich`.
 _Avoid_: hộp thư thứ hai (khuôn tín hiệu là khuôn yêu cầu của gói Điều phối); để kit lưu tín hiệu.
 
 **Câu cho người gửi**:
