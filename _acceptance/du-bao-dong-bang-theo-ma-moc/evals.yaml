@@ -1,0 +1,82 @@
+schema_version: 1
+feature_slug: du-bao-dong-bang-theo-ma-moc
+# Ca đo sống ở tests/scripts/lo-trinh-gio-may.test.mjs (ca DB-<n> = AC-n của hồ sơ này, cạnh ca GM-<n> của RM6) — khoá
+# executors.test.du_bao_theo_ma_moc chạy đúng các ca DB (GM_CASES=DB). Kho thử do code sinh trong lượt (git init, commit
+# ghim ngày, hôm nay ghim bằng ACCEPTANCE_TODAY, du-bao.json viết sẵn trong ca); «bộ máy gốc» = `git archive <gốc so>
+# scripts lib skills commands road-map`, gốc so đọc từ _acceptance/du-bao-dong-bang-theo-ma-moc/goc-so; mọi đường dẫn suy
+# từ vị trí tệp ca. Mỗi ca đỏ chạy trên BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi
+# bản lành xanh trên cùng kho thử, và ghim thông điệp. Ca in đúng một dòng «PASS: DB-…» hoặc «FAIL: DB-… — <vì sao>»;
+# mỗi eval ghim dòng PASS của chính nó — lệnh xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-1", "PASS: DB-1-doi-ten", "PASS: DB-1-do". DB-1: mốc M dời 22/10 → 25/10, dòng mốc trên trang có «dự báo lúc bắt đầu (15/10): hoàn tất 23/10». DB-1-doi-ten: M đổi tên «Bản M đổi tên» và dời 25/10 → dòng mốc (tìm theo tên mới) vẫn có câu ấy. DB-1-do: bản sao chỉ khớp tên kèm ngày (nhát tiêm biến số mã chung thành 0) → FAIL ghim «dời ngày mục tiêu làm mất dự báo đóng băng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-2", "PASS: DB-2-do". DB-2: M dời 21/10 → trang có đúng MỘT «mốc quá tải: dự kiến 23/10, mục tiêu 21/10» (đếm bằng nhau); M dời 25/10 → trang có 0 lần «mốc quá tải». DB-2-do: bản sao so với mục tiêu lúc đóng băng → FAIL ghim «cờ quá tải theo mục tiêu lúc đóng băng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-3", "PASS: DB-3-mo-o", "PASS: DB-3-do". DB-3: «Mốc M» ghi đè 21/10 → 20/10; `--do-lech` thoát 0, stdout BẰNG mảng viết sẵn sáu dòng [«Mốc M 20/10: dự báo 19/10 (đóng băng 15/10) · khép thật 20/10 · lệch 1 ngày · 1 hàng thêm sau đóng băng», «  giờ chờ: ước 0 (đo được lúc đóng băng: không) · đo 3,5», «  A: ước 4–7 giờ máy · đo 5 giờ máy · ~3 % hạn mức tuần», «  B: ước 5–6 giờ máy · đo 6 giờ máy · % hạn mức tuần chưa đo», «  C: ước 4–7 giờ máy · đo 4 giờ máy · ~2 % hạn mức tuần», «  3/3 vòng có số đo»]; `git status --porcelain` rỗng. DB-3-mo-o: hàng không khai slug, mở bằng chính `lo-trinh.mjs --mo-o` của cây đang kiểm (ô cơ hội + du-bao.json do lệnh ghi), rồi ca dựng các tệp giao/ký của hồ sơ (không đụng ô cơ hội và du-bao.json), ghi đè ngày mốc → dòng đầu `--do-lech` bắt đầu «Mốc K 20/10: dự báo» và không chứa «chưa đóng băng». DB-3-do: bản sao chỉ khớp tên kèm ngày → FAIL ghim «đo lệch báo chưa đóng băng sau khi ghi đè ngày».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-4", "PASS: DB-4-do". DB-4: Y (đứng trước) dời 18/10 → 17/10, X đổi tên «Mốc X đã phát hành» và dời 21/10 → 20/10; `--do-lech` có dòng đúng «Mốc Y 17/10: chưa đóng băng dự báo — không đo được lệch» và một dòng bắt đầu «Mốc X đã phát hành 20/10: dự báo 19/10 (đóng băng 15/10)»; trên trang, đối chứng dương: dòng của Y TÌM THẤY (theo tên «Mốc Y») và dòng của X chứa «dự báo lúc bắt đầu (15/10)»; rồi dòng Y không chứa «dự báo lúc bắt đầu». DB-4-do: bản sao đếm mọi mã đóng băng là mã chung → FAIL ghim «dự báo gắn nhầm mốc không chung mã: Mốc Y».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-5", "PASS: DB-5-do". DB-5: kho khai docs/lo-trinh-1.json và docs/lo-trinh-2.json; cả hai mốc dời; `--do-lech` có dòng đúng «docs/lo-trinh-2.json: Mốc Z 21/10: chưa đóng băng dự báo — không đo được lệch» và một dòng bắt đầu «docs/lo-trinh-1.json: Mốc X 20/10: dự báo 19/10». DB-5-do: bản sao bỏ điều kiện hồ sơ thuộc chính lộ trình → FAIL ghim «dự báo của lộ trình khác gắn vào: Mốc Z».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-6", "PASS: DB-6-thu-tu", "PASS: DB-6-do", "PASS: DB-6-do2". DB-6: dự báo đóng băng hàng [A, B, C]; mốc X còn [A, B], mốc W mới chở [C]; cả hai dời; dòng X trên trang chứa «dự báo lúc bắt đầu (15/10)», dòng W không; `--do-lech` có dòng đúng «Mốc W 22/10: chưa đóng băng dự báo — không đo được lệch». DB-6-thu-tu: X giữ tên «Mốc X» nhưng chỉ còn [A], W «Mốc W» chở [B, C], cả hai dời → dòng W trên trang chứa «dự báo lúc bắt đầu (15/10)», dòng X (tìm thấy) không. DB-6-do: bản sao gắn vào mọi ứng viên → FAIL ghim «dự báo hiện ở hai mốc: Mốc W». DB-6-do2: bản sao xếp tên bỏ ngày trước số mã chung → FAIL ghim «dự báo về mốc chung ít mã hơn: Mốc X».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-7", "PASS: DB-7-do". DB-7: kho không dời ngày (dữ liệu AC-1 + AC-3 + hồ sơ `le` không thuộc hàng, dự báo tên «Phát hành M 22/10» đóng băng 10/10); đối chứng dương: bộ máy gốc vẽ được trang chứa «dự báo lúc bắt đầu (10/10)» và mỗi lệnh `--do-lech`, `--ra-soat --json`, `--ap --json`, `--xem` của bộ máy gốc thoát 0 với stdout khác rỗng (thiếu → «đối chứng gốc không chạy: <bên>»); trang và stdout bốn lệnh ấy của bộ máy mới giống TỪNG BYTE bộ máy gốc. DB-7-do: bản sao bỏ đường khớp tên nguyên văn → FAIL ghim «khác bộ máy gốc: trang».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.du_bao_theo_ma_moc
+    paths: [scripts/lo-trinh.mjs, docs/plans/lo-trinh-kit.json, _acceptance/du-bao-dong-bang-theo-ma-moc/du-bao.json, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DB-8", "PASS: DB-8-do". DB-8: chép docs/plans/lo-trinh-kit.json và _acceptance/du-bao-dong-bang-theo-ma-moc/du-bao.json của cây đang kiểm vào kho thử; lùi ngày mốc chở RM6b một ngày; dòng của mốc ấy trên trang chứa «dự báo lúc bắt đầu (16/10)». Dòng «SKIP: DB-8 — …» KHÔNG thoả eval này. DB-8-do: bản sao chỉ khớp tên kèm ngày → FAIL ghim «dữ liệu thật: dời mốc làm mất dự báo».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7b
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh_gio_may
+    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, scripts/do-vong.mjs, tests/scripts/lo-trinh-gio-may.test.mjs]
+    expected: >
+      exit 0; dòng cuối «Results: <n> passed, 0 failed» với n ≥ 64 (45 ca GM của RM6 hôm nay cộng 20 ca DB, trừ tối đa một ca GM-6-that in SKIP trên máy không có bản ghi phiên); không dòng «FAIL:» nào.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

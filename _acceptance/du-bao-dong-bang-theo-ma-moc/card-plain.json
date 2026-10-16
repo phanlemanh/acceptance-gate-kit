@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Chủ kho dời hay ghi đè ngày của một mốc mà lộ trình vẫn nhớ dự báo lúc mốc bắt đầu — trang vẫn hiện nó, cờ quá tải vẫn tính theo ngày mới, và phép đo lệch vẫn đọc được mốc ấy.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ giữ dòng «dự báo lúc bắt đầu» trên trang lộ trình khi mốc dời ngày, kể cả khi mốc đổi tên."},
+    {"id": "AC-2", "p": "Sẽ bật cờ «mốc quá tải» theo ngày mục tiêu MỚI: dời sớm hơn dự báo thì có cờ, dời muộn hơn thì không."},
+    {"id": "AC-3", "p": "Sẽ để phép đo lệch in độ lệch của mốc đã ghi đè ngày bằng ngày phát hành thật — cả khi dự báo do chính lệnh mở việc ghi."},
+    {"id": "AC-4", "p": "Sẽ không gắn dự báo của một mốc sang mốc khác không chở chung hàng nào."},
+    {"id": "AC-5", "p": "Sẽ không gắn dự báo của lộ trình này sang lộ trình khác trong cùng kho, dù trùng mã hàng."},
+    {"id": "AC-6", "p": "Sẽ đưa dự báo về đúng một mốc khi hàng đã dời mốc sau lúc đóng băng — mốc chở nhiều hàng đóng băng hơn được nhận."},
+    {"id": "AC-8", "p": "Sẽ giữ dự báo trên chính lộ trình của bộ công cụ: lùi ngày mốc 19/10 một ngày, trang vẫn hiện dự báo đóng băng 16/10."}
+  ],
+  "wont_do": [
+    {"id": "AC-7", "p": "Sẽ KHÔNG đổi một chữ nào ở kho chưa dời hay đổi tên mốc: trang, phép đo lệch và các lệnh xuất dữ liệu ra giống hệt bản trước."},
+    {"id": "OOS-1", "p": "KHÔNG đổi khuôn tệp dự báo hay tệp lộ trình — chỉ đổi cách đọc, nên kho tiêu thụ không phải sửa gì."},
+    {"id": "OOS-2", "p": "KHÔNG đóng băng lại dự báo khi mốc đổi hàng — phép đo lệch đã đếm số hàng thêm sau lúc đóng băng."},
+    {"id": "OOS-3", "p": "KHÔNG gỡ trường hợp hai lộ trình có mốc trùng cả tên lẫn ngày — giữ như bản trước."},
+    {"id": "OOS-4", "p": "KHÔNG đụng dòng «giờ máy theo mốc» của lệnh xem — dòng ấy tính theo hôm nay, không dùng dự báo đóng băng."}
+  ],
+  "scope_plain": "Bốn thứ cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Mốc đổi gì sau lúc đóng băng: không đổi (AC-7), dời ngày (AC-1, AC-3), đổi tên kèm ngày (AC-1, AC-4), hàng dời sang mốc khác (AC-6) — đủ ba thứ của mốc mà bộ đọc dùng: tên, ngày, danh sách hàng."},
+    {"i": 1, "p": "Chỗ người thấy dự báo: dòng mốc trên trang (AC-1), cờ quá tải (AC-2), phép đo lệch (AC-3) — đủ hai nơi trong bộ công cụ đọc dự báo đóng băng."},
+    {"i": 2, "p": "Dự báo đến từ đâu: hồ sơ của hàng trong lộ trình (AC-1), hồ sơ của lộ trình khác trùng mã (AC-5), hồ sơ không gắn hàng nào (AC-7), mốc chưa có dự báo (AC-4)."},
+    {"i": 3, "p": "Dữ liệu thật: lộ trình của chính bộ công cụ cùng dự báo đóng băng thật đầu tiên (AC-8)."},
+    {"i": 4, "p": "Lệnh mở việc ghi dự báo không đổi: ca đo có sẵn của vòng giờ máy (RM6) tiếp tục canh, chạy trong AC-7."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Chưa nói rõ máy dựa vào đâu để biết hồ sơ thuộc lộ trình nào, và mọi kho thử đều dựng tay. Đã sửa: dùng đúng phép gắn hàng ↔ hồ sơ của cột trạng thái, thêm ca dùng chính lệnh mở việc để ghi dự báo. Phần đo lệch trên dữ liệu thật để tới lúc cắt mốc."},
+    {"i": 1, "p": "Thứ tự phân xử khi hai mốc cùng nhận một dự báo bị viết mâu thuẫn. Đã sửa: theo ý định đã ký — chung nhiều hàng đóng băng hơn thắng tên giống; thêm ca và chiều đỏ tách hai hạng."},
+    {"i": 2, "p": "Ca «mốc khác» chỉ khẳng định thiếu dự báo, không kiểm dòng có mặt. Đã sửa: kiểm dòng tìm thấy và mốc đúng có dự báo trước. Không thêm nhát tiêm riêng cho trang vì trang và phép đo lệch dùng chung một bộ tìm."},
+    {"i": 3, "p": "Chưa so các lệnh xuất dữ liệu với bản trước. Đã sửa: so thêm ba lệnh từng byte."},
+    {"i": 4, "p": "Bỏ cờ vàng mà không nói vì sao. Đã ghi lý do: ghi đè ngày là việc thường lệ của mọi mốc phát hành nên cờ sẽ bật khắp nơi, và trang gần chạm trần độ dài."}
+  ]
+}
