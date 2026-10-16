@@ -480,6 +480,8 @@ gì tối ưu hơn để hoàn thiện nó». Làm ba bước, đều chỉ đ�
    `release` và `main` là di sản, không dùng.
 2. **Bản Preview dùng chung DB với production.** Mỗi lần đẩy nhánh, code chưa qua cổng nào chạy trên dữ liệu thật.
    Vì vậy «trước khi gộp thì mọi thứ còn nằm trong nhánh» là **sai** ở crm.
+   *Hiệu chỉnh sau bước 0 (§9.6):* bản Preview nằm sau lớp đăng nhập SSO của Vercel, và 24 giờ qua không có request
+   nào chạy vào nó. Rủi ro thật nhỏ hơn câu trên: là rủi ro tiềm ẩn, cộng 840 lần dựng mỗi tuần không ai dùng.
 3. **Chiều đỏ của việc bớt người đang chết:**
    - Dòng hiệu chuẩn reality có N = 7, cả 7 quan sát ghi 21–22/09, từ đó 0 quan sát mới, và k chưa từng được ghi.
    - `onehub` không được bảo vệ (rules `[]`, protection 404), nên `pre-merge-check` chỉ là lời khuyên. Chốt gộp thật
@@ -499,7 +501,7 @@ gì tối ưu hơn để hoàn thiện nó». Làm ba bước, đều chỉ đ�
 | L6 | Điều phối vừa áp chính sách vừa bấm gộp. Check bắt buộc cũng không tách vai, vì token admin bỏ qua được nếu không bật `enforce_admins`. | 2 | GIỮ: cần danh tính gộp không phải admin |
 | L7 | Chế độ chọn theo đợt hoặc theo máy, nhưng `onehub` chung ba máy → luật ship phải ở cấp KHO. | 3 | GIỮ |
 | L8 | Ý định không ai đọc. DH4 khai «vòng chỉ đọc, không ghi DB» mà vẫn đẻ lệnh nạp ghi DB, và nó chỉ bị bắt như một Ngoài-n mức *vừa*. | 1 | GIỮ |
-| L9 | Preview chung DB prod (§9.1 mục 2). | 2, 3 | GIỮ, nặng hơn nháp nói |
+| L9 | Preview chung DB prod (§9.1 mục 2). | 2, 3 | GIỮ, nhưng **hạ mức** sau bước 0 (§9.6): Preview nằm sau SSO, 0 request trong 24 h |
 | L10 | `risk_tier` là tự khai: diff chạm `t3_paths` vẫn đi được làn V nếu hợp đồng ghi T2. | 2 | đối kháng phát hiện |
 
 Hai dữ kiện nháp ghi sai, đối kháng đã bắt và đã sửa ở trên:
@@ -522,7 +524,7 @@ không theo lời khai. Không cần bộ phân loại mới: kit đã có `pre-
 
 | # | Việc | Tầng | TRỪ / CỘNG | Ai |
 |---|---|---|---|---|
-| 1 | Tách DB của Preview khỏi prod | crm hạ tầng | an toàn, độc lập với Biên | **chủ kho** |
+| 1 | **Tắt Preview** của app, api, agent (lối A, §9.6) — thay cho «tách DB của Preview» | `vercel.json` của crm | TRỪ | máy soạn PR, **chủ kho** duyệt gộp |
 | 2 | Bật check bắt buộc trên `onehub` (acceptance gate + CI), kèm `enforce_admins`; máy gộp bằng danh tính không phải admin | GitHub của crm | đặt răng cho luật lời | **chủ kho** (cài đặt bảo mật — máy không tự đổi) |
 | 3 | Làn đêm ghim lại (PC1) — chiều đỏ duy nhất đang sống: nó đã đỏ với lỗi prod thật (hydration, 403 quản trị) | crm | CỘNG quy trình | chủ kho (đã có ở §7.2) |
 | 4 | Mở rộng `t3_paths` của crm (service phân quyền, `apps/api/vercel.json`, script ghi DB, `apps/agent/**` gửi tin); dùng `--hang-pr` đếm tỉ lệ R2 thật trên 9 vòng | config crm | 0 dòng kit | chủ kho (luật kho) |
@@ -550,11 +552,54 @@ số đợt. Vì thế mẫu mù là thước dài hạn, không phải cò.
 
 ### 9.5 Lời mời chủ kho (một dòng)
 
-> **Ba việc chỉ anh làm được, cùng hướng «tin được trước, nhanh sau»: (1) tách DB của Preview khỏi prod; (2) bật
+> **Ba việc chỉ anh làm được, cùng hướng «tin được trước, nhanh sau»: (1) tắt Preview của app, api, agent (lối A — anh không dùng Preview); (2) bật
 > check bắt buộc trên `onehub` kèm `enforce_admins`, để máy gộp bằng danh tính không phải admin; (3) cho phép mở
 > rộng `t3_paths` của crm — gõ «duyệt», hoặc «bỏ <số>».**
 
-(1) và (2) là cài đặt hạ tầng và bảo mật, máy không tự đổi. (3) là luật kho. Cả ba đảo được.
+(1) là một PR đổi `vercel.json`; (2) là cài đặt bảo mật, máy không tự đổi; (3) là luật kho. Cả ba đảo được.
+
+### 9.6 Bước 0 đo bản Preview (16/10) và quyết lối A
+
+**Câu hỏi chỉ chủ kho trả lời được** — «anh có mở bản Preview để xem trước khi gộp không?». Trả lời: *«Hiện nay
+tôi chỉ giao tiếp qua Claude Code Desktop, khi nào cần thì xem Screenshot trên đó, và bản Local.»* → **chọn lối A:
+tắt Preview**. Hai lối B và C (nhánh Neon cho Preview) chỉ có lý do tồn tại khi có người dùng Preview.
+
+**Số đo** — chỉ đọc, bằng `vercel api` và `vercel logs` với lệnh GET, như `docs/production.md` của crm cho phép:
+
+| Đo | Kết quả |
+|---|---|
+| Bản Preview trong 7 ngày (09/10 01:18Z → 16/10 00:58Z) | app **280** · api **280** · agent **280**, đều READY, trên 106 nhánh. `agent-okr`: 1, CANCELED — luật `git.deploymentEnabled` của nó chạy đúng. |
+| Ai vào được bản Preview | Lớp đăng nhập SSO của Vercel: một GET `/health` vào bản Preview api mới nhất nhận **302 → `vercel.com/sso-api`** |
+| Request chạy vào hàm của bản Preview | **0** trong 24 giờ ở agent, và 0 dòng log 7 ngày ở cả ba dự án. Đối chứng dương: cùng lệnh với `--environment production` trả 50 dòng. Như vậy không có cron, lịch của agent hay lượt mở tay nào chạy trên Preview. |
+| Biến DB | app, api, agent đều có `DATABASE_URL` và `POSTGRES_URL_NON_POOLING` riêng cho đích **preview**, tách bản ghi khỏi đích production. `agent-okr` chỉ có production. |
+
+**Đọc số:**
+- Rủi ro «code chưa qua cổng chạy trên dữ liệu thật» là **tiềm ẩn**, không đang xảy ra. Nó chỉ xảy ra khi một tài
+  khoản đã đăng nhập mở bản Preview, và trong cửa sổ đo không có lượt nào.
+- Giá đang trả là **840 lần dựng mỗi tuần** mà không ai dùng.
+- Cả hai cùng chỉ về lối A. Lối A là TRỪ thuần: bỏ một thứ không ai dùng mà vẫn mang rủi ro.
+
+**Chưa xác minh được:**
+- Bản ghi `DATABASE_URL` của đích preview có trỏ **cùng** DB với production không. Kiểm điều này phải đọc giá trị
+  bí mật, nên tôi không làm. `docs/setup.md` của crm (đo 08/10) nói là cùng một giá trị. Sau khi lối A gộp, điều này
+  không còn quan trọng; chủ kho có thể tuỳ ý gỡ hẳn các bản ghi đích preview (bước 4 của kế hoạch).
+- Con số «0 dòng log 7 ngày» phụ thuộc thời gian lưu log của gói Vercel, mà tôi chưa kiểm. Con số chắc chắn là
+  24 giờ.
+
+**Việc kế** (crm, qua Điều phối M5 vì push là khoá nặng và phải ghi `cham-tep` lên #375):
+1. Commit phép thử trước: mở rộng mẫu `apps/agent-okr/test/vercel-trien-khai.spec.ts` cho app, api, agent. Thử
+   đỏ: đổi `"**": true` thì phép thử phải đỏ đúng thông điệp.
+2. Thêm `git.deploymentEnabled: {"**": false, "onehub": true}`. Với app và agent là tệp `vercel.json` mới ở thư
+   mục gốc của dự án. Riêng api: gốc dự án là gốc kho, nên phải xác minh dự án đọc tệp `vercel.json` nào trước khi
+   đặt khoá.
+3. Gộp trong giờ chủ kho thức, rồi kiểm:
+   - bản production dựng từ commit gộp ở cả bốn dự án phải READY, không phải Canceled (sự cố 04/10 trong
+     `docs/production.md`);
+   - đẩy một nhánh thử thì ba dự án tạo 0 bản Preview;
+   - 7 ngày sau, đếm lại, phải bằng 0.
+
+Trong lúc đo có một request ra ngoài do máy gây ra: GET `/health` vào bản Preview của chính kho, bị SSO chặn, không
+chạm hàm nào.
 
 ## 10. Giới hạn đo
 
