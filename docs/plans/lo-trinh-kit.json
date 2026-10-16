@@ -138,7 +138,8 @@
         "RM5",
         "RM3",
         "RM6",
-        "RM3b"
+        "RM3b",
+        "RM6b"
       ]
     }
   ],
@@ -687,6 +688,22 @@
       "bat_khi": "Ở mốc khép kế tiếp, ngày mốc máy tính lệch ngày khép thật không quá một ngày, và mỗi vòng đã khép có giờ máy và token thật cạnh số ước",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ. Khoá mới vào khuôn lộ trình = đổi schema → đường đọc-cũ (hàng thiếu khoá: máy tự ước + cờ vàng) và là CỘNG duyệt ở Cổng Phạm vi. Cùng tệp scripts/lo-trinh.mjs với RM2 → đi sau RM2. Ước 5–6 giờ máy."
+    },
+    {
+      "ma": "RM6b",
+      "ten_ngan": "Dự báo mốc không mất khi dời ngày",
+      "cau_giao": "Chủ kho dời hay ghi đè ngày mục tiêu của một mốc mà trang lộ trình vẫn giữ dự báo lúc mốc bắt đầu, cờ quá tải vẫn tính theo mục tiêu mới, và phép đo lệch vẫn đọc được mốc ấy",
+      "vai": "Chủ kho",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: _acceptance/lo-trinh-gio-may/ — Ngoài-6, chủ kho chọn «mở hợp đồng mới» ở Cổng Bằng chứng 16/10; hạt giống docs/plans/2026-10-16-hat-giong-du-bao-dong-bang-theo-ma-moc.md. Thói quen ghi đè ngày mốc bằng ngày phát hành thật (5/5 mốc 2.25→2.29) làm ngưỡng Cổng Đáng của RM6 không đọc được ở chính mốc đầu.",
+      "hang": "T2",
+      "slug": "du-bao-dong-bang-theo-ma-moc",
+      "dung_tren": [
+        "RM6"
+      ],
+      "bat_khi": "Ở mốc phát hành đầu tiên bắt đầu sau khi RM6 lên main, ngày mốc bị ghi đè bằng ngày phát hành thật mà phép đo lệch vẫn in độ lệch của mốc ấy, không in «chưa đóng băng»",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Phải gộp TRƯỚC khi cắt mốc phát hành đầu tiên bắt đầu sau khi RM6 lên main. Cùng tệp scripts/lo-trinh.mjs với RM6 → đi sau RM6. Ước 4–5 giờ máy."
     }
   ],
   "chan_troi": [
