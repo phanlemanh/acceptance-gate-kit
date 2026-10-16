@@ -56,7 +56,8 @@ evals:
     cmd: config:executors.test.kho_cam_ket_co_lo_trinh
     paths: [lib/chan-lo-trinh.cjs, hooks/acceptance-evidence-gate.js, scripts/lo-trinh-khoi-tao.mjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: CK-4", "PASS: CK-4-chinh-sach", "PASS: CK-4-do", "PASS: CK-4-do2". CK-4: ma trận 4 × 4 × 4
+      exit 0; stdout có "PASS: CK-4", "PASS: CK-4-chinh-sach", "PASS: CK-4-do", "PASS: CK-4-do2",
+      "PASS: CK-4-settings-hong", "PASS: CK-4-settings-hong-do". CK-4: ma trận 4 × 4 × 4
       viết trước (gói: không settings · settings.json true · CHỈ settings.local.json true · settings.json false; khoá:
       vắng · false · true · "co"; lệnh ghi: Write tạo contract.md mới không nối · Write tạo opportunity.md mới không
       lo_trinh_ma · Write tạo opportunity.md mới có lo_trinh_ma có thật · Edit opportunity.md của hồ sơ cũ), HOME trỏ thư
@@ -67,7 +68,10 @@ evals:
       enforcement: off → 0, stderr không chứa "lo_trinh.chan"; ACCEPTANCE_GATE_BYPASS=1 → 0; enforcement: warn → 0 và
       stderr chứa "lo_trinh.chan". CK-4-do: bản sao đọc thêm settings.local.json → ô chỉ-local FAIL ghim «phạm vi local
       không được bật chặn». CK-4-do2: bản sao áp luật opportunity.md khi gói không bật → FAIL ghim «kho không bật đổi
-      hành vi ở opportunity.md».
+      hành vi ở opportunity.md». CK-4-settings-hong (thêm sau S4 lượt 1, AC-6): .claude/settings.json không phải JSON — khoá
+      vắng/false: 8 lệnh hook giống từng byte bộ máy gốc và bộ đọc --base HEAD im; khoá true: lệnh mở hồ sơ thoát 2 nêu
+      settings.json. CK-4-settings-hong-do: bản sao đọc settings trước khoá → FAIL ghim «kho không bật bị chặn vì
+      settings.json hỏng».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5

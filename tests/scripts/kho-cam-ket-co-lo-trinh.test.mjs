@@ -477,6 +477,36 @@ if (want('CK-9')) {
 }
 
 
+// ── CK-4-settings-hong (S4 lượt 1, AC-6): .claude/settings.json không phải JSON ────────────────────────────────
+// Kho CHƯA khai chặn (khoá vắng / false) → hook bốn lệnh ghi giống từng byte bộ máy gốc + bộ đọc im; kho khai chặn → chặn
+// lệnh mở hồ sơ, nêu settings.json.
+function ck4SettingsHong(kit) {
+  const goc0 = bayGoc(); let n = 0;
+  const hong = goc => { writeFileSync(path.join(goc, '.claude', 'settings.json'), `{ "enabledPlugins": { "${KHOA}": true }, }`); git(goc, 'commit', '-qam', 'hong'); };
+  for (const c of [null, 'false']) {
+    const goc = khoBon('du-an', c); hong(goc);
+    for (const b of BON_LENH) {
+      n += 1; const r = chayHook(kit, goc, b.l); const r0 = chayHook(goc0, goc, b.l);
+      if (r.ma !== r0.ma || r.out !== r0.out || r.err !== r0.err) throw new Error(`kho không bật bị chặn vì settings.json hỏng — khoá ${c}, «${b.ten}»: ${r.ma}/${r0.ma} ${r.err.slice(0, 120)}`);
+    }
+    const l = node([path.join(kit, 'lib', 'chan-lo-trinh.cjs'), '--root', goc, '--base', 'HEAD']);
+    if (l.status !== 0 || l.stdout !== '') throw new Error(`kho không bật bị chặn vì settings.json hỏng — bộ đọc thoát ${l.status} «${l.stdout.trim()}»`);
+  }
+  const goc = khoBon('du-an', 'true'); hong(goc);
+  const r = chayHook(kit, goc, BON_LENH[0].l);
+  if (r.ma !== 2 || !r.err.includes('settings.json')) throw new Error(`kho khai chặn mà settings.json hỏng: mong chặn nêu settings.json, nhận ${r.ma}`);
+  if (n !== 8) throw new Error(`chạy ${n} lệnh, cần 8`);
+  return 'khoá vắng/false: 8 lệnh hook giống bộ máy gốc, bộ đọc im; khoá true: chặn nêu settings.json';
+}
+if (want('CK-4-settings-hong')) {
+  if (await chayCa('CK-4-settings-hong', () => ck4SettingsHong(KIT)) && want('CK-4-settings-hong-do')) {
+    const DONG = "  if (v === undefined || v === '' || v === 'false') return { bat: false };\n";
+    const m = banSao([['lib/chan-lo-trinh.cjs', DONG + '  let b;\n', '  let b;\n'], ['lib/chan-lo-trinh.cjs', '  if (!b.bat) return { bat: false };\n', '  if (!b.bat) return { bat: false };\n' + DONG]]);
+    await chayDo('CK-4-settings-hong-do', () => ck4SettingsHong(m), 'kho không bật bị chặn vì settings.json hỏng');
+  }
+}
+
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`kho-cam-ket-co-lo-trinh: ${pass} PASS, ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

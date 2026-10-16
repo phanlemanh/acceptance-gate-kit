@@ -56,7 +56,7 @@ function luatChanLoTrinh(fp, content, laOpp) {
   const root = L.gocKho(path.dirname(path.dirname(fp)));
   if (!root) return null;
   const tt = L.trangThaiChan(root);
-  if (tt.loi) return [`  x kho bật gói road-map: ${tt.loi} — sửa khoá trong _acceptance/config.yaml`];
+  if (tt.loi) return [`  x chặn lộ trình không đọc được cấu hình: ${tt.loi} — sửa tệp đó, hoặc đặt lo_trinh.chan: false`];
   if (!tt.bat) return null;
   const slug = path.basename(path.dirname(fp));
   if (!L.laHoSoMoi(root, slug)) return null;
