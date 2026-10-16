@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM6c khai T2: scripts/lo-trinh.mjs (vùng khối dữ liệu) + tài liệu kho tiêu thụ + ca đo mới — không chạm lib/**, hooks/**, lưới trước-merge, lệnh khoá
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-lo-trinh-du-lieu-ngay-du-kien-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-16T03:16:23Z
 ---
@@ -151,5 +151,20 @@ Later: ngày dự kiến sống trong khối · ngày riêng từng hàng. Never
 
 ## Notes
 
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-16:
+  - Ngoài-1: dòng báo đạt của một ca kiểm giờ máy cũ vẫn nói «giống từng byte» trong khi đã bỏ bốn mục mới trước khi so — báo cáo nói quá điều đã đo, trang người dùng không đổi.
+  - Ngoài-2: tài liệu cho kho tiêu thụ vẫn nói bộ đọc xử «sáu ca» trong khi bảng đọc khoan dung đã có tám dòng.
+  - Ngoài-3: tài liệu mô tả ngày tính dự báo là lúc việc đầu tiên của mốc được mở; với mốc lẫn hồ sơ cũ, thực tế là dự báo sớm nhất đang có.
+  - Ngoài-4: các ca kiểm ngày dự kiến dùng tệp dự báo dựng tay, không do lệnh mở việc sinh ra — đổi cách ghi dự báo sau này có thể lọt.
+  - Ngoài-5: ca kiểm «trang đã lưu không bị báo lệch» chỉ nhìn lệnh kết thúc êm, chưa xác nhận lệnh đã thật sự so trang.
+  - Ngoài-6: hồ sơ tuyên mọi kho thử đều so khối với trang, nhưng hai ca về ngày khác và về lệnh kiểm không chạy phép so đó.
+  - Ngoài-8: bản chép cách nhận «hai ý cùng tiêu đề» ở gói điều phối không có ca so với bản gốc (vùng cửa tín hiệu, RM3).
+  - Ngoài-9: một ca đỏ của bộ kiểm cửa tín hiệu tin chiều đỏ mà không buộc vào bản lành (RM3).
+  - Ngoài-10: ca từ chối câu rỗng khi gửi ý chỉ kiểm mã thoát, không kiểm lời báo (RM3).
+  - Ngoài-12: ca kiểm tín hiệu đúng khuôn có thể xanh khi lệnh kiểm chưa hề chạy (RM3).
+  - Ngoài-13: cùng lỗi Ngoài-10 do một người soát khác nêu (RM3).
+  - Ngoài-14: cùng lỗi Ngoài-9 do một người soát khác nêu (RM3).
+  - Ngoài-15: sau khi gộp vào bản chính, hai ca «trang giữ nguyên» và «chỉ thêm» tự so với chính nó nên không còn đo gì; chúng đã đo thật ở lượt chấm của vòng này.
+- Mở hợp đồng mới (Ngoài-7, Ngoài-11 — ý người gửi từ worktree mất im lặng, vùng cửa tín hiệu RM3): ghi hạt giống `docs/plans/2026-10-16-hat-giong-cua-tin-hieu-mot-goc.md`, không tạo ô.
 - Hỏi-1 (Cổng Phạm vi): giữ phiên bản khuôn 2 (khuyến nghị) hay tăng lên 3. AC-7 viết theo khuyến nghị; chủ kho chọn tăng
   thì AC-7 đổi vế «`canhBao` rỗng» thành «đúng một cảnh báo khuôn mới hơn», vế `phien_ban` thành 3, và bỏ chiều đỏ thứ hai.
