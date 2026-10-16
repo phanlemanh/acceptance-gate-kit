@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 4f1a50b0c30acb9132dd712f81a6d596f1d843a8
-human_signoff:
+human_signoff: Manh Phan 2026-10-17
 ---
 
 # Evidence Report: cham-lai-khong-tu-doi

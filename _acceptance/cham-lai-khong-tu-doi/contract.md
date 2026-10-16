@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/carry-plan.mjs · s4-args.mjs · thuoc-vat.mjs — không chạm t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-cham-lai-khong-tu-doi-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-16T14:52:03Z
 ---
@@ -66,3 +66,12 @@ là ma trận trường của khối eval (AC-1) và ma trận tệp args × lư
 ## Notes
 
 - Nới luật chiều rộng (b) cho cửa sổ 16/10, chủ kho quyết — không phải tiền lệ (ô cơ hội).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-17:
+  - Ngoài-2: cách so khối eval tự viết một bộ đọc riêng thay vì bộ đọc chung — chưa hồ sơ thật nào gặp hình dạng nó đọc sai.
+  - Ngoài-5: đổi nguồn số lượt của dòng «thước lệch» chưa có ca đo bắt được khi bị hoàn lại.
+  - Ngoài-6: lời «tự kiểm số mũi» của các ca đo là lưới không đỏ được; mỗi mũi vẫn có khẳng định thật.
+  - Ngoài-7: dòng báo «eval không mang sang» phụ thuộc đúng chữ lý do của bên kia; đổi chữ một phía thì dòng báo mất im (việc chạy lại vẫn đúng).
+  - Ngoài-8: không đọc được hợp đồng ở lượt gốc thì máy nói «tiêu chí đổi chữ» thay vì «không đọc được định nghĩa» (vẫn chạy lại).
+  - Ngoài-9: phép so chiều im AC-7 bỏ thêm hai trường giờ/sha nền ngoài «ts, sha» tiêu chí nêu.
+  - Ngoài-12: ma trận chiều im CL7 so bằng nhau với bản trước vòng, không ghim mã thoát hay loại dòng từng ô.
+- Hạt giống mở ở Cổng Bằng chứng 2026-10-17 (lối «mở hợp đồng mới»): `docs/plans/2026-10-17-hat-giong-so-chu-tieu-chi-nhieu-ma.md` (Ngoài-1, 3, 10) · `docs/plans/2026-10-17-hat-giong-args-tuong-minh-khong-doc-duoc.md` (Ngoài-4, 11).
