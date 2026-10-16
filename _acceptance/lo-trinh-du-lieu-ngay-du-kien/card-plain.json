@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Trang Lộ trình trong CRM có thêm giờ máy của từng việc, cùng giờ máy và ngày dự kiến của từng mốc. Khi số đo chưa đủ thì có cờ báo. Trang của kho chưa nâng kit vẫn chạy như cũ.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chuyển giờ máy của từng việc vào phần dữ liệu CRM đọc, đúng chữ trang kit đang in, kèm nguồn ước (kho tự khai, máy ước theo luật, hay theo số đo). Phần trang người nhìn thấy giữ nguyên từng chữ."},
+    {"id": "AC-2", "p": "Sẽ gắn cờ «máy ước» cho việc mà số đo chưa đủ 5 vòng, và bỏ cờ khi việc đã ước theo số đo hay kho tự khai giờ."},
+    {"id": "AC-3", "p": "Sẽ chuyển tổng giờ máy còn lại của từng mốc vào dữ liệu, đúng như dòng mốc trên trang. Mốc đã giao hết việc thì để trống."},
+    {"id": "AC-4", "p": "Sẽ chuyển ngày dự kiến hoàn tất của từng mốc, kèm cờ «mốc quá tải» khi ngày dự kiến trễ hơn mục tiêu. Mốc chưa có dự báo thì để trống, không tự đặt ngày."},
+    {"id": "AC-5", "p": "Sẽ giữ dữ liệu y nguyên dù mở trang vào ngày nào, ở múi giờ nào — trang không đỏ kiểm tra mỗi sáng."},
+    {"id": "AC-6", "p": "Sẽ để bộ đọc mới đọc được trang vẽ bằng kit cũ: phần mới để trống, kèm đúng một cờ «chưa có giờ máy và ngày dự kiến», không vỡ."},
+    {"id": "AC-7", "p": "Sẽ để bộ đọc cũ mà crm đang dùng đọc trang mới không vỡ, không cảnh báo, và mọi thông tin cũ giữ đúng như trước."},
+    {"id": "AC-8", "p": "Sẽ cập nhật tài liệu cho kho tiêu thụ, khớp đúng từng mục dữ liệu trong mã, kể cả cách đọc trang thiếu giờ máy."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG đưa ngày dự kiến tính theo hôm nay vào dữ liệu — bản đó đã có trong lệnh xem lộ trình."},
+    {"id": "OOS-2", "p": "KHÔNG làm ngày dự kiến riêng cho từng việc — mỗi việc dùng ngày của mốc chứa nó."},
+    {"id": "OOS-3", "p": "KHÔNG có ngày cho mốc đã mở hết việc trước khi có bản kit tính giờ máy — ở crm hôm nay là 2/7 mốc đang chạy, gồm «R2 lên production»; cần một vòng khác."},
+    {"id": "OOS-4", "p": "KHÔNG sửa trang Lộ trình trong CRM — việc đó là hàng LT1e bên crm."},
+    {"id": "OOS-5", "p": "KHÔNG kiểm lớp kiểm tra dữ liệu riêng của crm trong bộ kiểm kit — đã đo tay hôm nay, LT1e đo lại khi nhận kit."}
+  ],
+  "scope_plain": "Năm việc để ngoài phạm vi lần này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Đủ bốn loại thông tin trang đang in: giờ máy từng việc (AC-1, AC-2), giờ máy từng mốc (AC-3), ngày dự kiến và cờ quá tải (AC-4)."},
+    {"i": 1, "p": "Đủ mọi nguồn của con số: kho tự khai, máy ước theo luật, theo số đo, thiếu phần trăm, mốc hết việc, mốc chưa có dự báo (AC-1 tới AC-4)."},
+    {"i": 2, "p": "Đủ bốn cặp trang mới/cũ với bộ đọc mới/cũ (AC-6, AC-7) — chuẩn đối chiếu là quy tắc tương thích hai chiều của Protocol Buffers."},
+    {"i": 3, "p": "Dữ liệu không đổi theo ngày (AC-5), tài liệu khớp mã và bộ đọc chép đi được (AC-8)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Ca đo dùng một mốc so sánh cho hai việc khác nhau: khi việc khác gộp vào trước, ca đỏ oan. Đã sửa: tách thành hai mốc so sánh."},
+    {"i": 1, "p": "Lo trang dài thêm làm kiểm tra độ dài đỏ. Đã bác: kiểm tra đó đo chiều cao trang hiển thị, mà phần dữ liệu không hiện ra và phần hiện ra giữ nguyên từng chữ."},
+    {"i": 2, "p": "Mới so dữ liệu với trang ở vài ô, chưa so ở mốc mà việc mở đầu tiên chưa có dự báo. Đã sửa: so mọi ô của mọi việc, mọi mốc, và thêm ca mốc lẫn."},
+    {"i": 3, "p": "Chưa đếm crm sẽ thực sự thấy ngày ở bao nhiêu mốc. Đã đo: hiện 0/7 mốc; sau khi nhận kit, 5/7 có ngày ở lần mở việc kế, 2/7 không bao giờ có. Đã ghi vào giá của lựa chọn."},
+    {"i": 4, "p": "Hai chỗ chiều đỏ ghim chữ quá ngắn, và văn bản ghi «ba khoá» trong khi có bốn. Đã sửa cả hai."}
+  ]
+}
