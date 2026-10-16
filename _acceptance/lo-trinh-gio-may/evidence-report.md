@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 342e632ee30d5f8131504a80dd72b5172c22764c
+verified_commit: 77fb89bda18316f9e0d4a6399faaffd9cbfd4724
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -187,3 +187,7 @@ none — mọi eval chạy nhiều lần đều đồng nhất (không eval nào
 
 Round 1: bằng chứng lượt 1 cho kết quả PASS, kèm 1 finding trong hợp đồng; đã sửa (khối S4-DO-VONG tự giải gói, mốc đặt lại so theo phút, phần trăm không nhích ghi null).
 Round 2: E1–E9 và 11 lệnh suite đều xanh trên cây 342e632e; 2 finding ngoài hợp đồng (cùng một lỗi: mốc đặt lại hỏng trong tệp hạn mức dùng chung) và 6 mục mang từ round trước nằm ở review-findings.md để người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-10-16, do gộp main e584885b (RM4 #362) + giờ máy về dòng dưới câu giao (CI LTT-san)
+run_id: repin-20261015T235317Z-59615
+sha: 77fb89bda18316f9e0d4a6399faaffd9cbfd4724 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
