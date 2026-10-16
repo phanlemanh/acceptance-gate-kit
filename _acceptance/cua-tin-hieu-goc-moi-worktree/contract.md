@@ -97,6 +97,10 @@ Quét gọn (design doc §3). Chân sản phẩm: `[SUY-TỪ-REPO: _acceptance/c
 ## Notes
 
 - Bản gom và cấu hình vẫn đọc theo gốc phiên; chỉ thư mục nguồn đi theo thư mục chính.
+- Đóng hạt giống `docs/plans/2026-10-16-hat-giong-cua-tin-hieu-mot-goc.md` (Ngoài-7 và Ngoài-11 của hồ sơ
+  `lo-trinh-du-lieu-ngay-du-kien`, nhánh RM6c): cùng lỗi hai gốc mà vòng này sửa — khi gộp, hạt giống trỏ về hồ sơ này.
+- Không gộp sáu chỗ ca kiểm lỏng của cửa tín hiệu mà hồ sơ `lo-trinh-du-lieu-ngay-du-kien` ghi Known limits (Ngoài-8, 9,
+  10, 12, 13, 14): chúng nằm ở bộ xét yêu cầu của gói điều phối và tệp ca của RM3, ngoài các tệp vòng này sửa.
 - Trường `tep` của tín hiệu là đường tương đối THƯ MỤC NGUỒN ở thư mục chính; skill gom đọc `noi_dung` từ JSON của
   `--chua-gom`, không mở tệp theo `tep`.
 - Gốc phiên chỉ đi theo thư mục chính khi nó là ĐỈNH của chính worktree/kho của nó (`--show-toplevel` = gốc); thư mục
