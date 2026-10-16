@@ -19,9 +19,8 @@ lo_trinh_tep: docs/plans/lo-trinh-kit.json
 Mở từ hàng K-A của «Lộ trình kit nghiệm thu — từ 2.24.0» (`docs/plans/lo-trinh-kit.json`).
 Mốc: Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo — 05/11/2026.
 
-Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký trên onehub (ký 26/09), đỏ sẵn E9 (luật DS «lớp cấm»,
-`soi-ma.mjs`) và E13 ngày 15/10 khi vòng DH2 chạm vào, vì DH1 gộp trước đó (sổ `dieu-huong-khu-muc-tieu`,
-d-20261015T124855Z-42). Finding nền: `docs/findings/2026-10-16-truy-nguyen-toc-do-m5.md` (nhánh
+Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký trên onehub (ký 26/09), đỏ sẵn E9 và E13 ngày
+15/10 khi vòng DH2 chạm vào, vì một PR khác gộp trước đó. Finding nền: `docs/findings/2026-10-16-truy-nguyen-toc-do-m5.md` (nhánh
 `docs/truy-nguyen-toc-do-vong`) §5 PC, §10 — chủ kho duyệt 16/10 kèm câu «phân rõ ranh giới để điều chỉnh phù hợp
 luôn ưu tiên kit vì nó tác động mọi repo».
 
@@ -40,7 +39,7 @@ người khác ngay trong vòng mình, hoặc gọi người.
   hồ sơ đã ký cũ, quét 658 s · kit (main bd821d8d, phạm vi `all`) **148/168**, 91 s · oneflow (main, phạm vi `all`)
   **31/41**, 16 s. Ở kho phạm vi `all` mọi thay đổi mã đều làm cũ — con số là trần trên của tập lệnh giữ tươi phải
   ghim lại, nên lệnh phải chọn theo `paths` của eval để có giá chấp nhận được (giả định 4).
-- Hai ca «đỏ sẵn» trên onehub còn chứa lỗi prod thật (hydration, 403 của quản trị) — màu đỏ ấy có giá trị, chỉ là
+- Hai ca «đỏ sẵn» trên onehub còn chứa lỗi prod thật (finding §3) — màu đỏ ấy có giá trị, chỉ là
   đến sai người, sai lúc.
 
 **Công cụ đã có, và chỗ thiếu.** `repin-lane.mjs` ghim lại một danh sách slug (`--slug` lặp), có `--skip-unchanged`
@@ -61,7 +60,7 @@ K-D xếp sau, mở khi một kho cài mốc chứa K-A. Kho chờ nhận: crm (
 
 **Bước 0 (K-E, đã xong 16/10):** đường đọc-cũ của DP11 đọc đúng hồ sơ ký bằng 2.28 ở mọi chỗ có cổng — vi phân lib
 2.28 ↔ HEAD trên 567 hồ sơ của 8 kho: 9 đổi kết quả, 7 đúng thiết kế DP11, 1 lệch giả chỉ ở thẻ của một hồ sơ crm đã
-đóng (`khai-lang-gioi-thieu`, `at` chỉ có ngày), 1 lệch ở khuôn mới (người ký rút gọn `tieu_de`, 2/268 dòng). Không
+đóng (`at` chỉ có ngày), 1 lệch ở khuôn mới (người ký rút gọn `tieu_de`, 2/268 dòng). Không
 phải sai hợp đồng; khai giới hạn kèm ngưỡng, không mở nhánh sửa. Không trộn vào vòng này.
 
 Bộ hồ sơ đã ký của một kho được ghim lại trên đỉnh nhánh chính theo các lần gộp trong một khoảng; ca đỏ quy về PR gây ra bằng cặp sha trước/sau; ca đã đỏ sẵn trên nền mang nhãn trạng thái «đỏ sẵn trên nền» (cùng ca, cùng thông điệp, run_id của nền) thay vì chặn vòng khác — mặc định tắt, kho không bật thì hành vi không đổi
