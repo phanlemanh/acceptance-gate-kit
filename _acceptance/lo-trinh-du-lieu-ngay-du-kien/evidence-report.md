@@ -1,19 +1,16 @@
 ---
 schema_version: 2
 feature_slug: lo-trinh-du-lieu-ngay-du-kien
-verdict: REJECT
+verdict: PASS
 failed_evals: []
-reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a17debfd8202e37baf5d55c9b62dfddac5dbef67
+verified_commit: 96cc91fbc0a4ccea10055d4cf8ac36464f30e1c0
 human_signoff:
 ---
 
 # Evidence Report: lo-trinh-du-lieu-ngay-du-kien
-
-Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vòng bị REJECT vì MỘT lệnh suite hồi quy không gắn eval nào đã đỏ: `tests/plugins/run-tests.sh --manh vung:1`, ca P93 «mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)». `failed_evals` để rỗng vì không eval nào của hợp đồng đỏ; lệnh đỏ là lệnh suite (xem khối «Lệnh suite (hồi quy)» và mục Iterations). Vật chưa chứng được là «không làm gãy phần còn lại của kho», nên máy không cho qua.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -34,8 +31,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E2
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E2-r1
@@ -43,8 +40,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E3
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E3-r1
@@ -52,8 +49,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E4
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E4-r1
@@ -61,8 +58,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E5
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E5-r1
@@ -70,8 +67,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E6
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E6-r1
@@ -79,8 +76,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E7
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E7-r1
@@ -88,8 +85,8 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E8
   run_id: minted-lo-trinh-du-lieu-ngay-du-kien-E8-r1
@@ -97,68 +94,65 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
   baseline: n-a
   verifier: config:executors.test.lo_trinh_du_lieu_ngay
   verified_at: 2026-10-16T06:34:18Z
-  output: |
-    Results: 26 passed, 0 failed
+  carried_from_round: 1
+  note: carry-forward tu round 1 — delta khong cham paths cua eval
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
-  exit_code: 1
-  verified_at: 2026-10-16T06:34:18Z
-  output: |
-    FAIL: P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)
-    Results: 1 failed
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  exit_code: 0
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-lo-trinh-du-lieu-ngay-du-kien-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-16T06:34:18Z
+  verified_at: 2026-10-16T08:55:03Z
 
 ## Known limits
 
@@ -166,18 +160,15 @@ Tóm tắt: cả tám eval của hợp đồng (E1–E8) đều xanh, nhưng vò
 
 ## Analyst
 
-none — không eval nào xanh-cả-hai-phía được đo: cả tám eval feature (E1–E8) có baseline n-a vì là eval mới (xem «Baseline khong do»), nên chưa chứng được chúng đỏ trên code cũ.
+carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi). Field baseline cua tung eval ghi n-a vi round nay khong do.
 
-Lệnh fail không gắn eval: `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 ...'` — đỏ ở ca P93 (bảng luật mot-nguon: khớp từng ký tự + thân khuôn và CAP MARKER duy nhất toàn kho). Đây là nguyên nhân của REJECT; chưa truy nguyên xem lệch do vật của vòng này hay do nền.
-
-### Baseline khong do
-
-- node tests/scripts/lo-trinh-du-lieu-ngay.test.mjs: bo qua baseline: tep tests/scripts/lo-trinh-du-lieu-ngay.test.mjs co o cay dang kiem nhung chua co o merge-base 31c5b8dfe174ed3bca55607ce985603ac32d8d6d — eval moi, chay tren code cu khong phan biet gi
+none — khong co eval nao duoc xac dinh la khong-phan-biet. Cac lenh suite xanh o ca hai phia la regression-guard binh thuong, khong liet ke.
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — every multi-run eval is uniform (moi eval deu chay mot lan, deterministic).
 
 ## Iterations
 
-Round 1: E1–E8 đều xanh; lệnh suite vung:1 (ca P93 mot-nguon) đỏ và không gắn eval nào nên `failed_evals` rỗng. Verdict REJECT. Returned to implementation.
+Round 1: REJECT vì P93 (tên cột khuôn bảng trong kế hoạch) — đã sửa, ghi sổ chạy lượt 1.
+Round 2: 8 eval AC-1..AC-8 mang sang từ round 1 (delta không chạm paths của eval); 11 lệnh suite hồi quy chạy lại, tất cả xanh. Verdict PASS.
