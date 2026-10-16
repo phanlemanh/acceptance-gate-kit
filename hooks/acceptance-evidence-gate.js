@@ -43,6 +43,34 @@ try { core = require(CORE_PATH); } catch (_) {}
 
 const TARGET_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]evidence-report\.md$/i;
 const CONTRACT_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]contract\.md$/i;
+const OPPORTUNITY_RE = /(^|[\\/])_acceptance[\\/][^\\/]+[\\/]opportunity\.md$/i;
+
+// Chặn lộ trình — bộ đọc lib/chan-lo-trinh.cjs nạp LƯỜI (chỉ khi Write mở hồ sơ). → null (cho qua) | mảng dòng chặn.
+// Lib không nạp được → fail-open có tiếng (stderr), như phần còn lại của hook.
+function luatChanLoTrinh(fp, content, laOpp) {
+  let L;
+  try { L = require(path.join(__dirname, '..', 'lib', 'chan-lo-trinh.cjs')); } catch (e) {
+    process.stderr.write(`acceptance-evidence-gate: chặn lộ trình INACTIVE — không nạp được lib/chan-lo-trinh.cjs (${String(e.message).split('\n')[0]})\n`);
+    return null;
+  }
+  const root = L.gocKho(path.dirname(path.dirname(fp)));
+  if (!root) return null;
+  const tt = L.trangThaiChan(root);
+  if (tt.loi) return [`  x chặn lộ trình không đọc được cấu hình: ${tt.loi} — sửa tệp đó, hoặc đặt lo_trinh.chan: false`];
+  if (!tt.bat) return null;
+  const slug = path.basename(path.dirname(fp));
+  if (!L.laHoSoMoi(root, slug)) return null;
+  const r = L.noi(root, slug, { opportunityDangGhi: laOpp ? content : null });
+  if (r.noi) return null;
+  const goi = path.resolve(__dirname, '..');
+  return [
+    `  x kho bật chặn lộ trình (lo_trinh.chan): hồ sơ ${slug} chưa thuộc hàng nào của kế hoạch.`,
+    ...(r.ly_do === 'ma-sai' ? [`    mã ${r.ma} không có trong kế hoạch${r.tep ? ` (${r.tep})` : ''}.`] : []),
+    ...(r.ly_do === 'tep-loi' ? [`    ${r.loi}.`] : []),
+    '  Mở từ một hàng: /feature-loop:feature-loop <mã>',
+    `  Hoặc để máy thêm hàng (câu giao qua stdin): node "${path.join(goi, 'scripts', 'lo-trinh.mjs')}" --root . --them-hang --slug ${slug}`,
+  ];
+}
 
 // Consumer enforcement policy for a gate file: strict (default) | warn | off,
 // read from the nearest _acceptance/config.yaml. Shared by both targets.
@@ -98,6 +126,20 @@ process.stdin.on('end', () => {
 
     const isReport = TARGET_RE.test(filePath);
     const isContract = CONTRACT_RE.test(filePath);
+    // Chặn lộ trình (hồ sơ kho-cam-ket-co-lo-trinh): Write MỞ hồ sơ mới (contract.md / opportunity.md khi hồ sơ chưa có
+    // tệp nào trong hai) ở kho bật chặn mà hồ sơ không thuộc hàng nào → chặn. Kho không bật: không in gì, đi như cũ.
+    if ((isContract || OPPORTUNITY_RE.test(filePath)) && toolName === 'Write') {
+      const chan = luatChanLoTrinh(path.resolve(filePath), (ti.content || '').toString(), !isContract);
+      if (chan) {
+        const cfgC = readEnforcement(path.dirname(path.resolve(filePath)));
+        if (cfgC.enforcement !== 'off') {
+          const cl = ['', 'BLOCKED by acceptance-evidence-gate (chặn lộ trình)', `File: ${filePath}`, '', ...chan, '',
+            'Legacy bypass: ACCEPTANCE_GATE_BYPASS=1', ''];
+          if (cfgC.enforcement === 'warn') process.stderr.write(cl.join('\n').replace('BLOCKED by', 'WARNING from') + '\n');
+          else { process.stderr.write(cl.join('\n') + '\n'); process.exit(2); }
+        }
+      }
+    }
     if (!isReport && !isContract) {
       process.stdout.write(data);
       process.exit(0);

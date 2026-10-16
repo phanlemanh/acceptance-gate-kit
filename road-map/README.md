@@ -47,4 +47,19 @@ cuối mốc đang chạy; chờ điều kiện → cuối `chan_troi`; bác →
 vào `<tệp>.so.jsonl` cạnh tệp lộ trình. Máy chỉ ghi khi tệp lộ trình ở đúng dạng `JSON.stringify(…, null, 2)`; mỗi lần mở việc
 từ một hàng (`/feature-loop:feature-loop <mã>`) máy tự áp trước, hàng đang mở không bị đụng.
 
+## Chặn mở việc ngoài kế hoạch (hồ sơ `kho-cam-ket-co-lo-trinh`, hàng RM5)
+
+Mặc định TẮT — kho tự chọn. Bật cần cả hai: gói này cài cho cả đội (`--scope project`, bật ở `.claude/settings.json`) và
+một dòng `lo_trinh.chan` trong `_acceptance/config.yaml`:
+
+```yaml
+lo_trinh:
+  tep: docs/plan/lo-trinh.json
+  chan: true
+```
+
+Khi bật, hồ sơ mới không thuộc hàng nào bị chặn lúc ghi tệp mở hồ sơ và ở lưới trước-merge; mở vòng từ một câu mô tả thì
+máy tự thêm hàng. Tắt: `chan: false` hoặc xoá dòng. Giới hạn: tệp ghi bằng dòng lệnh né được kiểm lúc ghi — lưới
+trước-merge bắt lúc gộp.
+
 Hướng thiết kế: `docs/findings/2026-10-14-kien-truc-roadmap-plugin.md` (B′) · ADR 0025.
