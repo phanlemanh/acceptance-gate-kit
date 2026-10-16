@@ -645,7 +645,7 @@ Chủ kho: «Thực hiện hạng mục 1. Bật check bắt buộc trên onehub
 
 **Đường đảo:** `gh api -X DELETE repos/phanlemanh/crm-onehub/branches/onehub/protection`.
 
-## 11. Ranh giới tầng và thứ tự sau khi chủ kho duyệt (16/10)
+## 10. Ranh giới tầng và thứ tự sau khi chủ kho duyệt (16/10)
 
 Chủ kho: *«Tôi phê duyệt vậy hãy phân rõ ranh giới để điều chỉnh phù hợp luôn ưu tiên kit vì nó tác động mọi
 repo.»*
@@ -654,7 +654,7 @@ Luật đọc từ câu duyệt này: **gốc nằm ở kit thì sửa ở kit t
 ba máy chỉ giữ phần thuộc riêng mình, và phần chữa tạm không chờ được kit. Mọi nhát sửa kit vẫn qua phép thử «kho
 KHÔNG gặp sự cố được gì, mất gì?»: mặc định không đổi, có cờ bật và đường đọc-cũ.
 
-### 11.1 Sáu tầng — ai sở hữu, ai đổi được
+### 10.1 Sáu tầng — ai sở hữu, ai đổi được
 
 | Tầng | Gồm | Tác động tới | Đổi bằng | Ai quyết |
 |---|---|---|---|---|
@@ -665,7 +665,7 @@ KHÔNG gặp sự cố được gì, mất gì?»: mặc định không đổi, 
 | Nếp điều phối M5 | PA1–PA4 (§7.1) | máy M5 | ký ức và đề bài chip | máy tự đi |
 | Chủ kho | khó-đảo · khẩu vị rủi ro · giờ ký | — | — | chỉ chủ kho |
 
-### 11.2 Mỗi việc về đúng tầng
+### 10.2 Mỗi việc về đúng tầng
 
 | # | Việc | Gốc ở | Sửa ở kit (mọi kho) | Phần ở kho / ba máy | Thứ tự |
 |---|---|---|---|---|---|
@@ -681,7 +681,7 @@ KHÔNG gặp sự cố được gì, mất gì?»: mặc định không đổi, 
 | C-4 | Preview · bảo vệ onehub | crm | — | **đã xong** (§9.6, §9.7) | — |
 | R-1 | CI của kit 37′ cả với PR chỉ có tài liệu | kho kit | — | kit: lọc path trong `gate.yml` cho PR chỉ có tài liệu (không chạm kho tiêu thụ) | kho kit, nhỏ |
 
-### 11.3 Luật chiều rộng: mỗi cửa sổ chỉ một vòng meta
+### 10.3 Luật chiều rộng: mỗi cửa sổ chỉ một vòng meta
 
 Luật (b) cho **tối đa một vòng meta** giữa hai mốc được một kho tiêu thụ nhận. Vòng đó phải do chủ kho gọi tên.
 
@@ -696,7 +696,7 @@ K-B, K-C, K-D xếp hàng cho các cửa sổ kế, mở khi một kho cài mố
 Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó là **nới luật (b)**. Câu duyệt 16/10 chưa nói rõ điều
 đó, nên máy không tự suy ra.
 
-### 11.4 Việc giao ngay
+### 10.4 Việc giao ngay
 
 - **Điều phối M5** (crm và ba máy — chủ kho đã duyệt):
   - C-1 pre-push cho T1;
@@ -707,7 +707,7 @@ Nếu chủ kho muốn chạy hơn một vòng meta trong cửa sổ này, đó 
 - **Máy kit:** K-E, kiểm đường đọc-cũ của DP11.
 - **Chủ kho:** gọi tên K-A, và ký Cổng Đáng khi phiên vòng mở.
 
-## 10. Giới hạn đo
+## 11. Giới hạn đo
 
 - Giờ «~» trong nhật ký điều phối lệch tới +1,5 h so với commit; tôi lấy giờ commit.
 - `duong-nen.md` không ghi thời lượng. `run-log.jsonl` ghi chung một `ts` cho cả lượt, nên phút S4 lấy từ
