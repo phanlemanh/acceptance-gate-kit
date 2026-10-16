@@ -81,6 +81,7 @@ hang.co — các cờ lệch của việc, đúng câu trang in
 hang.bat_khi — điều kiện bật kho ghi, hoặc rỗng
 hang.vi_sao — lý do kho ghi, hoặc rỗng
 hang.tom_tat — dải tóm tắt hồ sơ của việc, hoặc null khi việc chưa có hồ sơ
+hang.gio_may — giờ máy ước của việc (mục «Giờ máy và ngày dự kiến»), hoặc null khi trang vẽ không qua phân tích kho
 tom_tat.moi_nguoi — tầng mọi người đọc: chín ô theo thứ tự trang hồ sơ in
 tom_tat.chu_kho — tầng chủ kho: bảy con số và mã
 moi_nguoi.da_giao — đã giao gì: câu giao của hợp đồng, đã bỏ một cặp «»
@@ -103,10 +104,45 @@ moc.ten — tên mốc
 moc.ngay — ngày mốc YYYY-MM-DD
 moc.hang — mã các việc gắn mốc
 moc.con_viec — true khi còn việc gắn mốc chưa giao
+moc.gio_may — tổng giờ máy các việc CHƯA giao của mốc, hoặc null khi mốc hết việc mở
+moc.du_kien — ngày dự kiến hoàn tất (dự báo đóng băng lúc mốc bắt đầu), hoặc null khi mốc chưa có dự báo
+moc.qua_tai — chữ cờ «mốc quá tải: dự kiến dd/mm, mục tiêu dd/mm» đúng như trang in, hoặc null
+gio_may.thap — cận dưới khoảng giờ máy ước (số)
+gio_may.cao — cận trên khoảng giờ máy ước (số)
+gio_may.nguon — khai (kho ghi gio_may trên việc) | luat (bảng luật, chưa đủ số đo) | do (đủ 5 vòng đã giao cùng hạng)
+gio_may.chu — đúng chữ trang in dưới câu giao, vd «4–7 giờ máy (máy ước) · ~4 % hạn mức tuần»
+gio_may.co — cờ số đo chưa đủ: nhãn trang in khi nguon là luat («máy ước», «máy ước, chưa khai hạng»…), null khi khai hay do
+gio_may.phan_tram_tuan — % hạn mức tuần ước (số), hoặc null khi chưa đủ 5 vòng đo
+gio_may.phan_tram_chu — chữ phần trăm: «~4 %» hoặc «chưa ước (k/5 vòng đo)»
+gio_may_moc.thap — cận dưới tổng giờ máy của mốc (số)
+gio_may_moc.cao — cận trên tổng giờ máy của mốc (số)
+gio_may_moc.chu — đúng chữ giờ máy trên dòng mốc của trang, vd «~15,5–20 giờ máy»
+gio_may_moc.phan_tram_tuan — tổng % hạn mức tuần của mốc (số), hoặc null khi chưa ước
+gio_may_moc.phan_tram_chu — chữ % của mốc, vd «~8 % hạn mức tuần» hoặc «% hạn mức tuần chưa ước (k/5 vòng đo)»
+du_kien.ngay_tinh — ngày đóng băng dự báo YYYY-MM-DD (lúc việc đầu tiên của mốc được mở)
+du_kien.hoan_tat — ngày hoàn tất dự kiến YYYY-MM-DD
+du_kien.chu — đúng chữ trang in, vd «dự báo lúc bắt đầu (16/10): hoàn tất 17/10»
 da_bac.ma — mã việc đã bác
 da_bac.ly_do — lý do bác
 ```
 <!-- LO-TRINH-DU-LIEU-KHOA>>> -->
+
+### Giờ máy và ngày dự kiến (cùng phiên bản 2, hàng RM6c)
+
+Trang lộ trình in giờ máy dưới câu giao của mỗi việc, và trên dòng mỗi mốc: tổng giờ máy còn lại, dự báo đóng băng, cờ
+quá tải. Khối mang đúng những chữ ấy kèm số: `hang.gio_may`, `moc.gio_may`, `moc.du_kien`, `moc.qua_tai`. Đây là thay
+đổi CHỈ THÊM nên phiên bản khuôn vẫn là 2 (chủ kho chốt 16/10); bộ đọc cũ bỏ qua khoá mới như mọi khoá lạ.
+
+- **Ngày dự kiến là dự báo ĐÓNG BĂNG, không phải dự báo sống.** Kit ghi dự báo của mốc lúc việc đầu tiên của mốc được mở
+  (`--mo-o`), rồi giữ nguyên — nên trang và khối không đổi theo ngày. Mốc chưa có việc nào mở từ bản kit có giờ máy thì
+  `du_kien` là `null`: hiện «chưa có ngày dự kiến», đừng tự tính từ ngày mục tiêu. Dự báo theo hôm nay có ở lệnh xem lộ
+  trình (`/road-map:xem`), không ở khối.
+- **Ngày theo mốc, không theo việc.** Trang không in ngày riêng từng việc; việc dùng ngày của mốc chứa nó (`moc.hang`).
+- **Cờ số đo chưa đủ.** `gio_may.co` khác `null` khi giờ máy là máy ước theo bảng luật (chưa đủ 5 vòng đã giao cùng hạng
+  có số đo) — hiện nó cạnh giờ máy như trang in «(máy ước)». `gio_may.phan_tram_chu` nói «chưa ước (k/5 vòng đo)» khi phần
+  trăm hạn mức tuần chưa ước được.
+- **Chữ là ĐÚNG chữ trang in.** `gio_may.chu`, `gio_may_moc.chu`, `du_kien.chu`, `qua_tai` hiện thẳng; số `thap`, `cao`,
+  `phan_tram_tuan`, `ngay_tinh`, `hoan_tat` để sắp xếp, vẽ thanh, so với hôm nay.
 
 ### Khoá tuỳ chọn `tin_hieu` (cửa tín hiệu)
 
@@ -167,7 +203,8 @@ Bộ đọc của bản chiếu không bao giờ được làm trang của nó v
 | `khuon` khác `lo-trinh-du-lieu` | không có dữ liệu; báo tên khuôn |
 | `phien_ban` lớn hơn bản mình biết | vẫn đọc phần biết; báo một cờ vàng «khuôn mới hơn bộ đọc» |
 | `phien_ban` 1 (trang vẽ bằng khuôn bản 1) | đọc đủ; mọi `hang.tom_tat` là `null`; báo một cờ vàng «khuôn bản 1» |
-| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng); riêng ô của dải (`moi_nguoi.*`, `chu_kho.*`) là `null`, và nhóm dải vắng là object đủ khoá toàn `null` |
+| việc không có khoá `gio_may` (trang vẽ bằng kit trước khi khối mang giờ máy) | đọc đủ; mọi `hang.gio_may`, `moc.gio_may`, `moc.du_kien`, `moc.qua_tai` là `null`; báo một cờ vàng «chưa có giờ máy và ngày dự kiến» |
+| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng); riêng ô của dải (`moi_nguoi.*`, `chu_kho.*`) và ô của giờ máy / dự kiến (`gio_may.*`, `gio_may_moc.*`, `du_kien.*`) là `null`, và nhóm dải vắng là object đủ khoá toàn `null` |
 | khoá lạ | giữ nguyên, bỏ qua |
 
 Kit chỉ THÊM khoá trong cùng phiên bản; đổi nghĩa hay bỏ khoá là phiên bản mới, và trang cũ vẫn
