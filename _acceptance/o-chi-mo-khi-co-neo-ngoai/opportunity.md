@@ -216,6 +216,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   phiên thợ, người mất bản đồ «xong · đang dở · kế» (3 lượt hỏi ngoài thiết kế); «bước kế» nằm ở ba hình dạng tự do.
 - `docs/plans/2026-10-15-hat-giong-duyet-giu-co-mot-luot.md` — 15/10 crm `so-do-quanh-muc-tieu`: chốt cỡ hợp đồng
   chặn 4/5 vòng đợt OKR điều hướng ở Cổng Phạm vi; «giữ cỡ» và «duyệt» là hai lượt gõ, DH5 tốn 4 lượt cho một quyết định.
+- `docs/plans/2026-10-16-hat-giong-tep-sinh-xung-dot-moi-lan-goi.md` — 16/10 crm `ke-hoach-sinh-viec`: `PRODUCT-MAP.md` và
+  `LO-TRINH.html` xung đột ở mọi lần nhánh chính dời; PR #432 push lại 3 lần trong một giờ, mỗi lần ~10′ pre-push.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

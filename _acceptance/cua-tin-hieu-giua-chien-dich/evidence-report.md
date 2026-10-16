@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0d9f2c42a275c1c60d1fc90009dbdf7b8bc951c5
+verified_commit: 9994d330a78470cc1505816b1ace564e399da1a7
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -204,3 +204,7 @@ none — every multi-run eval is uniform
 
 Round 1: 10/10 eval xanh nhưng có 1 lỗi trong hợp đồng mức vừa (AC-8) và 5 mục ngoài hợp đồng — chủ kho nâng phạm vi Ngoài-1, Ngoài-3, sửa vật và thêm ca đỏ trước vật; quay lại chấm lượt 2.
 Round 2: E1–E10 xanh (43 ca), các suite hồi quy xanh — verdict PASS.
+
+### Re-pin lần 1 — 2026-10-16, do gộp main 31c5b8df (#362 RM4, #363 RM6) sau chữ ký
+run_id: repin-20261016T032317Z-96868
+sha: 9994d330a78470cc1505816b1ace564e399da1a7 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
