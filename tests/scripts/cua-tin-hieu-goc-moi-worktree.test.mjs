@@ -121,16 +121,23 @@ async function ca2(goc) {
   const so = (ten, f) => { const v = goc3.map(([, r]) => JSON.stringify(f(r))); if (new Set(v).size !== 1) sai.push(`${ten}: ${goc3.map(([n], i) => `${n}=${v[i]}`).join(' · ')}`); return JSON.parse(v[0]); };
   const ids = so('--chua-gom', r => idsChuaGom(goc, r));
   if (ids.length !== 4) sai.push(`tập id ${JSON.stringify(ids)} — cần 4`);
-  so('--duong', r => idsDuong(goc, r));
-  so('--rang', r => { const x = th(goc, r, '--rang'); return [x.status, (x.stdout + x.stderr).split('\n').filter(l => l.includes('nguồn'))]; });
-  so('--cau', r => th(goc, r, '--cau').status);
+  // Đối chứng dương từng chân (phản biện S4 lượt 1): ba gốc bằng nhau chưa đủ — một chân sập ở cả ba gốc cũng bằng nhau.
+  const dg = so('--duong', r => idsDuong(goc, r));
+  if (JSON.stringify(dg) !== JSON.stringify(ids)) sai.push(`đối chứng không chạy: --duong ${JSON.stringify(dg)}`);
+  const rg = so('--rang', r => { const x = th(goc, r, '--rang'); return [x.status, (x.stdout + x.stderr).split('\n').filter(l => l.includes('nguồn') || /^- \S+ → /.test(l))]; });
+  const rIds = rg[1].map(l => (l.match(/^- (\S+) → /) || [])[1]).filter(Boolean).sort();
+  if (rg[0] !== 0 || JSON.stringify(rIds) !== JSON.stringify(ids)) sai.push(`đối chứng không chạy: --rang ${JSON.stringify(rg)}`);
+  const cu = so('--cau', r => { const x = th(goc, r, '--cau'); return [x.status, x.stdout.trim().split('\n').pop()]; });
+  if (!cu[1]) sai.push(`đối chứng không chạy: --cau ${JSON.stringify(cu)}`);
   const the = r => {
     const x = spawnSync(process.execPath, [path.join(goc, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-16' } });
     let j = null; try { j = JSON.parse(x.stdout); } catch { j = null; }
-    return (j?.loTrinh?.dong || ['<thẻ không chạy>']).filter(l => l.startsWith('Cửa tín hiệu:') || l.startsWith('! cửa tín hiệu:'));
+    return (j?.loTrinh?.dong || ['<thẻ không chạy>']).filter(l => l.startsWith('Cửa tín hiệu:') || l.startsWith('! cửa tín hiệu:') || l === '<thẻ không chạy>');
   };
   const v = goc3.map(([, r]) => JSON.stringify(the(r)));
   if (new Set(v).size !== 1) sai.push(v.some(x => x.includes('! cửa tín hiệu')) && !v[0].includes('! cửa tín hiệu') ? 'thẻ worktree báo nguồn chưa có' : `thẻ: ${v.join(' · ')}`);
+  const t0 = JSON.parse(v[0]);
+  if (t0.length !== 1 || !t0[0].startsWith('Cửa tín hiệu: 4 ý')) sai.push(`đối chứng không chạy: thẻ ${v[0]}`);
   for (const [n, r] of goc3) {
     const x = spawnSync(process.execPath, [path.join(goc, 'scripts', 'product-map.mjs'), '--root', r], { encoding: 'utf8' });
     const trang = existsSync(path.join(r, 'LO-TRINH.html')) ? readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8') : '';
@@ -183,18 +190,24 @@ function dungKhoKhongWt({ con = false } = {}) {
   writeFileSync(path.join(c, '_acceptance', 'config.yaml'), `schema_version: 1\n${KHAI}`);
   return c;
 }
-async function ca4(goc, { con = false } = {}) {
-  const sai = []; const g = gocMay();
+// `gocB`: bộ máy đối chứng (mặc định bộ máy gốc `git archive <goc-so>`); ca đỏ GW-4-do2 truyền một bộ máy sập.
+async function ca4(goc, { con = false, gocB = null } = {}) {
+  const sai = []; const g = gocB ?? gocMay();
   const a = dungKhoKhongWt({ con }); const b = dungKhoKhongWt({ con });
   const B = chupLenh(g, b);
-  for (const [ten, st, out] of B) if (st !== undefined && typeof st === 'number' && st !== 0 && ten === 'gui-tin-hieu') sai.push(`đối chứng gốc không chạy: ${ten}`);
-  if (!B[0][2].trim()) sai.push('đối chứng gốc không chạy: gui-tin-hieu');
+  // Đối chứng dương cho TỪNG lệnh (phản biện S4 lượt 1): bộ máy gốc thoát 0 và có đầu ra, trước khi tin phép so byte.
+  for (const [ten, st, out] of B) {
+    const rong = Array.isArray(st) ? !st.length : !String(out ?? '').trim();
+    if ((typeof st === 'number' && st !== 0) || rong) sai.push(`đối chứng gốc không chạy: ${ten}`);
+  }
   const A = chupLenh(goc, a);
   const norm = (r, root) => JSON.stringify(r).split(root).join('<KHO>');
   A.forEach((x, i) => { if (norm(x, a) !== norm(B[i], b)) sai.push(`thư mục chính đổi đầu ra: ${x[0]}`); });
   if (!con) {
     const da = await yThoQuaDot(goc, a, a); const db = await yThoQuaDot(g, b, b);
     const chup = d => JSON.stringify({ tra: readdirSync(path.join(d, 'tra-loi')).sort().map(f => boKhoa(docJson(path.join(d, 'tra-loi', f)))), ev: readFileSync(path.join(d, 'su-kien.jsonl'), 'utf8').trim().split('\n').map(l => { const o = JSON.parse(l); delete o.luc; delete o.chan; return o; }) });
+    const cb = JSON.parse(chup(db));
+    if (!cb.tra.length || !cb.ev.length) sai.push('đối chứng gốc không chạy: phat-lich');
     if (chup(da).split(a).join('<KHO>') !== chup(db).split(b).join('<KHO>')) sai.push('thư mục chính đổi đầu ra: phat-lich');
   }
   return sai;
@@ -221,7 +234,11 @@ function ca6(goc) {
   const sai = [];
   const n = tam('khong-git'); mkdirSync(path.join(n, '_acceptance'), { recursive: true }); writeFileSync(path.join(n, '_acceptance', 'config.yaml'), `schema_version: 1\n${KHAI}`);
   const x = gui(goc, n, 'Ý ngoài git');
-  if (x.status !== 0 || jsonNguon(n).length !== 1 || !idsChuaGom(goc, n).length) sai.push(`ngoài git: thoát ${x.status}, tệp ${jsonNguon(n).length}`);
+  const ten = jsonNguon(n).map(f => f.slice(0, -5));
+  if (x.status !== 0 || ten.length !== 1) return [`ngoài git: thoát ${x.status}, tệp ${ten.length}`];
+  // Quan hệ, không phải «có thứ gì đó» (phản biện S4 lượt 1): id bộ đọc liệt kê = tên tệp vừa ghi.
+  const doc = idsChuaGom(goc, n);
+  if (JSON.stringify(doc) !== JSON.stringify(ten)) sai.push(`bộ đọc không thấy ý ngoài git: ${JSON.stringify(doc)}`);
   return sai;
 }
 function ca6Long(goc) {
@@ -257,6 +274,9 @@ async function do_(id, tiem, fn, ghim, lanhOk) {
 const GUI = 'scripts/gui-tin-hieu.mjs';
 const TH = 'scripts/tin-hieu.mjs';
 const NGHI = ['const cua = docCua(root, { gocNguon: gocNguon(root) });', 'const cua = docCua(root, { gocNguon: root });'];
+// Bộ đọc sập: chân --duong, và bộ đọc nguồn chung (docTinHieu) — chiều đỏ của các đối chứng dương.
+const DUONG_SAP = [TH, 'const ds = duongDi({ root, classify: PM.classify, sections: PM.SECTIONS });', "const ds = (() => { throw new Error('đường sập'); })();"];
+const DOC_SAP = [TH, 'const dir = path.resolve(gocNguon(root), ng);', "const dir = (() => { throw new Error('bộ đọc sập'); })();"];
 
 const l1 = await lanh('GW-1', g => ca1(g));
 await do_('GW-1-do', [[GUI, ...NGHI]], g => ca1(g), 'ý người nằm trong worktree', l1);
@@ -265,11 +285,14 @@ await do_('GW-1-do2', [[GUI, 'const thuMucDem = cua.nguon;', "const thuMucDem = 
 const l2 = await lanh('GW-2', async g => [...await ca2(g), ...ca2Vang(g)]);
 await do_('GW-2-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', 'const dir = path.resolve(root, ng);']], g => ca2(g), 'bộ đọc ở worktree thấy tập khác thư mục chính', l2);
 await do_('GW-2-do2', [['scripts/start-scan.mjs', 'existsSync(path.resolve(TH.gocNguon(root), ng))', 'existsSync(path.resolve(root, ng))']], g => ca2Vang(g), 'thẻ worktree báo nguồn chưa có', l2);
+await do_('GW-2-do3', [DUONG_SAP], g => ca2(g), 'đối chứng không chạy: --duong', l2);
 const l3 = await lanh('GW-3', g => ca3(g));
 await do_('GW-3-do', [[GUI, ...NGHI]], g => ca3(g), 'ý mất khi dọn worktree', l3);
 const l4 = await lanh('GW-4', g => ca4(g));
 await lanh('GW-4-con', g => ca4(g, { con: true }));
 await do_('GW-4-do', [[TH, '  try { return gocKhoChinh(r); } catch { return r; }', '  return path.dirname(r);']], g => ca4(g), 'thư mục chính đổi đầu ra:', l4);
+// GW-4-do2: bộ máy ĐỐI CHỨNG sập ở --duong → phép so byte không được tin ngầm (bộ máy hiện tại lành).
+await do_('GW-4-do2', [DUONG_SAP], g => ca4(KIT, { gocB: g }), 'đối chứng gốc không chạy: --duong', l4);
 const l5 = await lanh('GW-5', g => banSaoKhac(g, ca5));
 await do_('GW-5-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', "const dir = path.resolve(execFileSync('git', ['-C', path.resolve(root), 'rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim(), ng);"]], g => banSaoKhac(g, ca5), 'bên ghi và bên đọc dùng hai bộ giải', l5);
 const l6 = await lanh('GW-6', g => ca6(g));
@@ -277,6 +300,7 @@ const l6l = await lanh('GW-6-long', g => ca6Long(g));
 const l6g = await lanh('GW-6-gom', g => ca6Gom(g));
 await do_('GW-6-do', [[TH, '  if (realpathSync(top) !== thuc) return r;\n', '']], g => ca6Long(g), 'ý rơi ra kho bên ngoài', l6l && l6);
 await do_('GW-6-do2', [[TH, '  const dir = path.resolve(root, khai.gom);', '  const dir = path.resolve(gocNguon(root), khai.gom);']], g => ca6Gom(g), 'bản gom của nhánh bị bỏ qua', l6g);
+await do_('GW-6-do3', [DOC_SAP], g => ca6(g), 'bộ đọc không thấy ý ngoài git', l6);
 
 // GW-5: bộ giải chung bị đổi (nhát tiêm vào gocKhoChinh) — chạy trên bản sao của BỘ MÁY `g` (bản lành hay bản đỏ).
 function banSaoKhac(g, fn) {

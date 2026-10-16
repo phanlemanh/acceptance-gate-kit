@@ -24,12 +24,16 @@ evals:
     cmd: config:executors.test.cua_tin_hieu_goc_moi_worktree
     paths: [scripts/tin-hieu.mjs, scripts/start-scan.mjs, scripts/product-map.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: GW-2", "PASS: GW-2-do", "PASS: GW-2-do2". GW-2: ba ý của GW-1 + một việc phụ thợ qua đợt
-      (goc_kho = thư mục chính); ở thư mục chính, A, B: --chua-gom (tập id), --duong (tập id), --rang (mã thoát + mọi dòng
-      nhắc nguồn), --cau (mã thoát), start-scan (TRỌN các dòng mở đầu «Cửa tín hiệu:» hoặc «! cửa tín hiệu:», kho khai thêm
-      lộ trình), product-map (trang lộ trình chứa đủ bốn id) → mỗi lệnh ba gốc bằng nhau, tập id đúng bốn. GW-2-do: bản sao
-      bộ đọc giải nguồn theo gốc phiên → FAIL ghim «bộ đọc ở worktree thấy tập khác thư mục chính». GW-2-do2: bản sao để
-      phép lọc «thư mục nguồn chưa có» của thẻ theo gốc phiên → FAIL ghim «thẻ worktree báo nguồn chưa có».
+      exit 0; stdout có "PASS: GW-2", "PASS: GW-2-do", "PASS: GW-2-do2", "PASS: GW-2-do3". GW-2: ba ý của GW-1 + một việc
+      phụ thợ qua đợt (goc_kho = thư mục chính); ở thư mục chính, A, B: --chua-gom (tập id), --duong (tập id), --rang (mã
+      thoát + mọi dòng nhắc nguồn + dòng bảng phủ), --cau (mã thoát + dòng tóm tắt), start-scan (TRỌN các dòng mở đầu «Cửa
+      tín hiệu:» hoặc «! cửa tín hiệu:», kho khai thêm lộ trình), product-map (trang lộ trình chứa đủ bốn id) → mỗi lệnh ba
+      gốc bằng nhau, tập id đúng bốn; đối chứng dương từng chân trên bản lành: --duong và bảng phủ của --rang đúng bốn id
+      của --chua-gom, --rang thoát 0, --cau có dòng tóm tắt, thẻ đúng một dòng «Cửa tín hiệu: 4 ý…» (thiếu → «đối chứng
+      không chạy: <chân>»). GW-2-do: bản sao bộ đọc giải nguồn theo gốc phiên → FAIL ghim «bộ đọc ở worktree thấy tập khác
+      thư mục chính». GW-2-do2: bản sao để phép lọc «thư mục nguồn chưa có» của thẻ theo gốc phiên → FAIL ghim «thẻ
+      worktree báo nguồn chưa có». GW-2-do3: bản sao chân --duong sập (ném lỗi) → FAIL ghim «đối chứng không chạy:
+      --duong».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -47,12 +51,14 @@ evals:
     cmd: config:executors.test.cua_tin_hieu_goc_moi_worktree
     paths: [scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/start-scan.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: GW-4", "PASS: GW-4-con", "PASS: GW-4-do". GW-4: kho thử không worktree, chạy ở thư mục chính;
-      gui-tin-hieu, --chua-gom, --rang, --duong, start-scan bằng bộ máy hiện tại và bộ máy gốc (git archive <goc-so>) trên
-      cùng fixture → stdout, stderr, mã thoát, tệp sinh giống từng byte (bỏ khoá luc và noi_dung.gui_tu của tệp ý); đối
-      chứng dương trước (gốc thoát 0, đầu ra khác rỗng; thiếu → «đối chứng gốc không chạy: <lệnh>»); một nhịp phat-lich
-      giống từng byte. GW-4-con: gốc là thư mục con của kho thử có config riêng → cùng phép so byte. GW-4-do: bản sao luôn
-      lấy thư mục cha của gốc làm thư mục chính → FAIL ghim «thư mục chính đổi đầu ra: <lệnh>».
+      exit 0; stdout có "PASS: GW-4", "PASS: GW-4-con", "PASS: GW-4-do", "PASS: GW-4-do2". GW-4: kho thử không worktree,
+      chạy ở thư mục chính; gui-tin-hieu, --chua-gom, --rang, --duong, start-scan bằng bộ máy hiện tại và bộ máy gốc (git
+      archive <goc-so>) trên cùng fixture → stdout, stderr, mã thoát, tệp sinh giống từng byte (bỏ khoá luc và
+      noi_dung.gui_tu của tệp ý); đối chứng dương trước cho TỪNG lệnh, tệp sinh và nhịp phat-lich (gốc thoát 0, đầu ra
+      khác rỗng; thiếu → «đối chứng gốc không chạy: <lệnh>»); một nhịp phat-lich giống từng byte. GW-4-con: gốc là thư
+      mục con của kho thử có config riêng → cùng phép so byte. GW-4-do: bản sao luôn lấy thư mục cha của gốc làm thư mục
+      chính → FAIL ghim «thư mục chính đổi đầu ra: <lệnh>». GW-4-do2: bộ máy đối chứng là bản sao có chân --duong sập →
+      FAIL ghim «đối chứng gốc không chạy: --duong».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -70,10 +76,11 @@ evals:
     cmd: config:executors.test.cua_tin_hieu_goc_moi_worktree
     paths: [scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: GW-6", "PASS: GW-6-long", "PASS: GW-6-gom", "PASS: GW-6-do", "PASS: GW-6-do2". GW-6: gốc
-      không phải kho git ngoài mọi kho, có config khai cửa → gui-tin-hieu và --chua-gom chạy theo gốc ấy, tệp ở
-      <gốc>/tin-hieu/kho/, không sập. GW-6-long: thư mục thường LỒNG trong kho thử → tệp ở <gốc>/tin-hieu/kho/, thư mục
+      exit 0; stdout có "PASS: GW-6", "PASS: GW-6-long", "PASS: GW-6-gom", "PASS: GW-6-do", "PASS: GW-6-do2", "PASS:
+      GW-6-do3". GW-6: gốc không phải kho git ngoài mọi kho, có config khai cửa → gui-tin-hieu và --chua-gom chạy theo gốc
+      ấy, tệp ở <gốc>/tin-hieu/kho/, không sập: tập id --chua-gom liệt kê BẰNG tên tệp vừa ghi. GW-6-long: thư mục thường LỒNG trong kho thử → tệp ở <gốc>/tin-hieu/kho/, thư mục
       chính của kho bên ngoài 0 tệp ý mới. GW-6-gom: worktree có bản gom commit trong nhánh phủ một id → --chua-gom ở
       worktree đó không còn id ấy. GW-6-do: bản sao bỏ chốt «gốc là đỉnh worktree» → FAIL ghim «ý rơi ra kho bên ngoài».
-      GW-6-do2: bản sao đọc bản gom theo thư mục chính → FAIL ghim «bản gom của nhánh bị bỏ qua».
+      GW-6-do2: bản sao đọc bản gom theo thư mục chính → FAIL ghim «bản gom của nhánh bị bỏ qua». GW-6-do3: bản sao bộ đọc
+      nguồn sập (ném lỗi) → FAIL ghim «bộ đọc không thấy ý ngoài git».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
