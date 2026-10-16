@@ -3,10 +3,10 @@ schema_version: 1
 slug: cham-lai-khong-tu-doi
 feature: Lượt chấm lại không tự dối — eval đổi định nghĩa thì chạy lại, và thước của lượt nào so bằng tham số của chính lượt ấy
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:                   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-16T14:52:03Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» cùng câu duyệt Cổng Phạm vi — xác nhận luôn ngoại lệ luật (b)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
