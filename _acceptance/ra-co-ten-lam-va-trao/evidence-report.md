@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7946c00825cd070ab6c10f09b9fb32a26a02534e
+verified_commit: d76ca283f3d27d58eb7bcc627661a343b98d0064
 human_signoff: Manh 2026-08-25
 ---
 
@@ -414,3 +414,7 @@ sha: 5663751d914e1c359ea69cf21d286fa5d3b98be7 · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 40 — 2026-10-15, do mốc 2.31.0: cũ hoá sau cửa sổ v2.30.0→HEAD (đổi số bốn gói, lộ trình kit chuyển MC1+RM1, ca MC-11)
 run_id: repin-20261015T083739Z-10776
 sha: 7946c00825cd070ab6c10f09b9fb32a26a02534e · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 41 — 2026-10-16, do gộp main 66951212 (#366 RM3) sau máy thông; khai RT13 cho RM6b
+run_id: repin-20261016T072836Z-20512
+sha: d76ca283f3d27d58eb7bcc627661a343b98d0064 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
