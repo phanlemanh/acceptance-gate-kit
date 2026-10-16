@@ -123,7 +123,10 @@ const TAT_MC = [['scripts/lo-trinh.mjs', 'if (docDuoc.some(t => t.kq.moc.length)
   ['scripts/lo-trinh.mjs', 'if (!daNoi.has(s) && NHOM_MO.includes(', 'if (false && NHOM_MO.includes('],
   ['scripts/lo-trinh.mjs', 'ds.forEach((t, i) => { if (rs[i] && rs[i].de_xuat.length) t.raSoat = rs[i].de_xuat; if (rs[i] && rs[i].canh_bao) t.raSoatCanh = rs[i].canh_bao; });', 'ds.forEach((t, i) => { if (false) t.raSoat = rs[i].de_xuat; });'],
   // lo-trinh-gio-may (hàng RM6) thêm nhát thứ tư: tắt phần giờ máy (cột, dòng đếm, dòng mốc) — giờ máy hiện mặc định ở mọi kho.
-  ['scripts/lo-trinh.mjs', 'for (const t of docDuoc) gangGioMay(t.kq, doVong, duBaoDs);', 'for (const t of []) gangGioMay(t.kq, doVong, duBaoDs);']];
+  ['scripts/lo-trinh.mjs', 'for (const t of docDuoc) gangGioMay(t.kq, doVong, duBaoDs);', 'for (const t of []) gangGioMay(t.kq, doVong, duBaoDs);'],
+  // lo-trinh-du-lieu-ngay-du-kien (hàng RM6c) thêm nhát thứ năm: bỏ bốn khoá giờ máy khỏi khối dữ liệu (chúng có mặt — null —
+  // cả khi lớp giờ máy tắt); trang mẫu đã ký của hồ sơ khác giữ nguyên, khoá mới do lo-trinh-du-lieu-ngay.test.mjs đo.
+  ['scripts/lo-trinh.mjs', 'id="${ID_DU_LIEU}">${JSON.stringify(o).replace', "id=\"${ID_DU_LIEU}\">${JSON.stringify(o, (k, v) => (['gio_may', 'du_kien', 'qua_tai'].includes(k) ? undefined : v)).replace"]];
 const tatCache = new Map();
 const tatMC = goc => { if (!tatCache.has(goc)) tatCache.set(goc, banSao(TAT_MC, goc)); return tatCache.get(goc); };
 
@@ -1751,9 +1754,14 @@ const KHUON_VIET_SAN = {
   hang_ke: ['ma', 'cau_giao', 'lenh'],
   can_sua: ['ma', 'chu'],
   tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
-  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat'],
-  moc: ['ten', 'ngay', 'hang', 'con_viec'],
+  // Cùng bản 2 (hồ sơ lo-trinh-du-lieu-ngay-du-kien, RM6c): hang.gio_may, moc.gio_may|du_kien|qua_tai — bảng viết sẵn từ
+  // design doc 2026-10-16 của vòng đó (mục Phương án).
+  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat', 'gio_may'],
+  moc: ['ten', 'ngay', 'hang', 'con_viec', 'gio_may', 'du_kien', 'qua_tai'],
   da_bac: ['ma', 'ly_do'],
+  gio_may: ['thap', 'cao', 'nguon', 'chu', 'co', 'phan_tram_tuan', 'phan_tram_chu'],
+  gio_may_moc: ['thap', 'cao', 'chu', 'phan_tram_tuan', 'phan_tram_chu'],
+  du_kien: ['ngay_tinh', 'hoan_tat', 'chu'],
   // Bản 2 (hồ sơ trang-ho-so-mot-viec): bảng viết sẵn từ design doc 2026-10-11 của vòng đó.
   tom_tat: ['moi_nguoi', 'chu_kho'],
   moi_nguoi: ['da_giao', 'vi_sao', 'trang_thai', 'ngay', 'production', 'do_gi', 'ket_qua', 'chua_lam', 'ai_quyet'],
@@ -2443,7 +2451,9 @@ async function lt141(kit) {
   // lo-trinh-gio-may (RM6): giờ máy hiện mặc định — gỡ ĐÚNG phần giờ máy (mô-đun bỏ dùng chung với RS-6, MC-2-byte, AP-8).
   if (!GM_BO.coGioMayTrang(moiGoc)) return ['đối chứng: trang mới không có cột giờ máy để gỡ'];
   const moi = GM_BO.boGioMayTrang(goKhoi(moiGoc)); const cu = trangX2(goKhoi(cuGoc), r);
-  const kd = h => { const d = LT.docDuLieu(h).duLieu; return d && JSON.stringify(duLieuX2({ ...d, phien_ban: null })); };
+  // lo-trinh-du-lieu-ngay-du-kien (RM6c): khối mang thêm bốn khoá giờ máy — gỡ đúng bốn khoá ấy trước khi so.
+  if (!GM_BO.coKhoiGioMay(moiGoc)) return ['đối chứng: khối dữ liệu mới thiếu khoá giờ máy để gỡ'];
+  const kd = h => { const d = LT.docDuLieu(GM_BO.boKhoiGioMay(h)).duLieu; return d && JSON.stringify(duLieuX2({ ...d, phien_ban: null })); };
   if (kd(moiGoc) !== kd(cuGoc)) return ['khối dữ liệu khác bộ vẽ cũ (ngoài tom_tat và số phiên bản)'];
   if (moi === cu) return [];
   let i = 0; while (moi[i] === cu[i]) i++; const tu = Math.max(0, i - 12);
@@ -2805,8 +2815,8 @@ async function lt157vang(kit) {
   return sai;
 }
 if (want('LT-157 khoa-vang') && await chayCa('LT-157 khoa-vang', lt157vang)) ok('LT-157 khoa-vang', 'khối thiếu trường: mọi khoá bản 1 == bộ đọc bản 1 thật (rỗng theo kiểu); nhóm dải vắng → object toàn null');
-if (want('LT-157-do theo-ten')) await chayDo('LT-157-do theo-ten', lt157vang, [['scripts/lo-trinh.mjs', "const rong = (k, cap) => (cap === 'moi_nguoi' || cap === 'chu_kho' ? null :", "const rong = (k, cap) => ([...KHUON.moi_nguoi, ...KHUON.chu_kho].includes(k) ? null :"]], 'tien_do.da_giao', 'bản sao xét ô dải theo tên trường');
-if (want('LT-157-do nhom-vang')) await chayDo('LT-157-do nhom-vang', lt157vang, [['scripts/lo-trinh.mjs', "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho'];", "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat'];"], ['scripts/lo-trinh.mjs', "h.tom_tat[cap] == null || typeof h.tom_tat[cap] !== 'object' ? {}", "h.tom_tat[cap] == null ? {}"]], 'tom_tat.moi_nguoi', 'bản sao để nhóm dải vắng thành chuỗi rỗng');
+if (want('LT-157-do theo-ten')) await chayDo('LT-157-do theo-ten', lt157vang, [['scripts/lo-trinh.mjs', "const rong = (k, cap) => (ODON.includes(cap) ? null :", "const rong = (k, cap) => ([...KHUON.moi_nguoi, ...KHUON.chu_kho].includes(k) ? null :"]], 'tien_do.da_giao', 'bản sao xét ô dải theo tên trường');
+if (want('LT-157-do nhom-vang')) await chayDo('LT-157-do nhom-vang', lt157vang, [['scripts/lo-trinh.mjs', "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho', 'gio_may', 'du_kien', 'qua_tai'];", "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'gio_may', 'du_kien', 'qua_tai'];"], ['scripts/lo-trinh.mjs', "h.tom_tat[cap] == null || typeof h.tom_tat[cap] !== 'object' ? {}", "h.tom_tat[cap] == null ? {}"]], 'tom_tat.moi_nguoi', 'bản sao để nhóm dải vắng thành chuỗi rỗng');
 if (want('LT-157 moi-doc-cu') && await chayCa('LT-157 moi-doc-cu', k => lt157(k, 'moi-doc-cu'))) ok('LT-157 moi-doc-cu', `bộ đọc mới đọc trang bộ vẽ ${GOC_X2}: tom_tat null mọi hàng, một cảnh báo «khuôn bản 1»`);
 if (want('LT-157 cu-doc-moi') && await chayCa('LT-157 cu-doc-moi', k => lt157(k, 'cu-doc-moi'))) ok('LT-157 cu-doc-moi', 'bản chép rời bộ đọc bản 1 đọc trang bản 2: mọi khoá bản 1 bằng bộ đọc mới, một cảnh báo «mới hơn bộ đọc»');
 if (want('LT-157 chep-roi') && await chayCa('LT-157 chep-roi', k => lt157(k, 'chep-roi'))) ok('LT-157 chep-roi', 'bản chép rời docDuLieu == bản trong mô-đun trên trang mới và cũ');

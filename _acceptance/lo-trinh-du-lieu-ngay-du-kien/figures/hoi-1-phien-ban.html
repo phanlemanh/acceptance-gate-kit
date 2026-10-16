@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hỏi-1 · Phiên bản khuôn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-rule:    rgba(45,49,66,0.12);
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); min-height: 100vh; padding: 3rem 2rem; color: var(--color-ink); }
+    .container { max-width: 1040px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.75rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.75rem, 3vw + 1rem, 2.5rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 64ch; }
+    .diagram-container { overflow-x: auto; }
+    svg { width: 100%; min-width: 860px; display: block; }
+    .footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(45,49,66,0.10); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--color-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="header-eyebrow">Cổng Phạm vi · Hỏi-1</p>
+      <h1>Giữ phiên bản 2 hay tăng lên 3</h1>
+      <p class="subtitle">Trưởng phòng thấy gì trên trang lộ trình, theo hai lựa chọn phiên bản và hai trạng thái của kho. Số đo 16/10 trên bản chép thật của crm.</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Cột khuyến nghị: nền cam rất nhạt chạy suốt cột -->
+        <rect x="296" y="28" width="316" height="444" rx="8" fill="rgba(235,108,54,0.04)"/>
+
+        <!-- Tiêu đề cột -->
+        <rect x="304" y="40" width="300" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <text x="320" y="64" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.18em">KHUYẾN NGHỊ CỦA MÁY</text>
+        <text x="320" y="96" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">giữ phiên bản 2 <tspan fill="#eb6c36" font-size="12">●</tspan></text>
+
+        <rect x="628" y="40" width="300" height="72" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="644" y="64" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LỐI KHÁC</text>
+        <text x="644" y="96" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">tăng lên 3</text>
+
+        <!-- Tiêu đề hàng -->
+        <rect x="40" y="128" width="240" height="160" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="56" y="152" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TRẠNG THÁI KHO</text>
+        <text x="56" y="192" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">kho chưa chép</text>
+        <text x="56" y="212" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">bộ đọc mới</text>
+        <text x="56" y="244" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif">crm hôm nay</text>
+
+        <rect x="40" y="304" width="240" height="160" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="56" y="328" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TRẠNG THÁI KHO</text>
+        <text x="56" y="368" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">kho đã chép</text>
+        <text x="56" y="388" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">bộ đọc mới</text>
+        <text x="56" y="420" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif">crm sau LT1e</text>
+
+        <!-- Ô: giữ 2 × chưa chép -->
+        <rect x="304" y="128" width="300" height="160" rx="6" fill="#f5f5f5"/>
+        <rect x="304" y="128" width="300" height="160" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="320" y="152" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">GIỮ 2 · CHƯA CHÉP</text>
+        <text x="320" y="192" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">trang chạy, không cảnh báo,</text>
+        <text x="320" y="216" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">chưa có ngày</text>
+        <text x="320" y="240" fill="#4f5d75" font-size="16" font-family="'Geist', sans-serif">(khoá mới bị bỏ im lặng)</text>
+
+        <!-- Ô: tăng 3 × chưa chép — tô vàng -->
+        <rect x="628" y="128" width="300" height="160" rx="6" fill="#f5f5f5"/>
+        <rect x="628" y="128" width="300" height="160" rx="6" fill="rgba(232,176,40,0.20)" stroke="#c99512" stroke-width="1.2"/>
+        <text x="644" y="152" fill="#8a6408" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TĂNG 3 · CHƯA CHÉP</text>
+        <text x="644" y="192" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">trang chạy, bật hộp</text>
+        <text x="644" y="216" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist', sans-serif">"Trang có thể thiếu một phần"</text>
+        <text x="644" y="240" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">cho trưởng phòng</text>
+        <text x="644" y="272" fill="#6b4e06" font-size="12" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">người thấy hộp không phải người sửa được nó</text>
+
+        <!-- Ô: giữ 2 × đã chép -->
+        <rect x="304" y="304" width="300" height="160" rx="6" fill="#f5f5f5"/>
+        <rect x="304" y="304" width="300" height="160" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="320" y="328" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">GIỮ 2 · ĐÃ CHÉP</text>
+        <text x="320" y="368" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">trang có giờ máy</text>
+        <text x="320" y="392" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">+ ngày dự kiến,</text>
+        <text x="320" y="416" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">không cảnh báo</text>
+
+        <!-- Ô: tăng 3 × đã chép -->
+        <rect x="628" y="304" width="300" height="160" rx="6" fill="#f5f5f5"/>
+        <rect x="628" y="304" width="300" height="160" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="644" y="328" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">TĂNG 3 · ĐÃ CHÉP</text>
+        <text x="644" y="368" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">trang có giờ máy</text>
+        <text x="644" y="392" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">+ ngày dự kiến,</text>
+        <text x="644" y="416" fill="#2d3142" font-size="16" font-weight="500" font-family="'Geist', sans-serif">không cảnh báo</text>
+
+        <!-- Chú thích dưới -->
+        <text x="40" y="512" fill="#2d3142" font-size="16" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Không ô nào làm trang crm vỡ. Khác nhau duy nhất: hộp cảnh báo trong quãng kho chưa chép bộ đọc mới.</text>
+
+        <!-- Chú giải -->
+        <line x1="40" y1="544" x2="920" y2="544" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="40" y="572" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+        <rect x="128" y="560" width="16" height="16" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="152" y="572" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">khuyến nghị của máy</text>
+        <rect x="284" y="560" width="16" height="16" rx="3" fill="rgba(232,176,40,0.20)" stroke="#c99512" stroke-width="1"/>
+        <text x="308" y="572" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">có hộp cảnh báo cho trưởng phòng</text>
+        <rect x="496" y="560" width="16" height="16" rx="3" fill="rgba(45,49,66,0.04)" stroke="rgba(79,93,117,0.28)" stroke-width="1"/>
+        <text x="520" y="572" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">không cảnh báo</text>
+      </svg>
+    </div>
+
+    <div class="footer">
+      <span>lo-trinh-du-lieu-ngay-du-kien · Cổng Phạm vi · Hỏi-1</span>
+      <span>AC-6 · AC-7 · số đo 16/10</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -12,7 +12,24 @@ export const MAU_TRANG = [
   / <span class="mu nho">· (?:~[\d,–]+ giờ máy[^<]*?|dự báo lúc bắt đầu [^<]*?)<\/span>(?:<span class="co-o">mốc quá tải: [^<]*<\/span>)?/g,
   /<span class="co-o">mốc quá tải: [^<]*<\/span>/g,
 ];
-export const boGioMayTrang = html => MAU_TRANG.reduce((s, re) => s.replace(re, ''), String(html ?? ''));
+// Khối dữ liệu máy đọc (hồ sơ lo-trinh-du-lieu-ngay-du-kien, hàng RM6c): bốn khoá giờ máy ở cuối object hàng/mốc —
+// gỡ đúng bốn khoá rồi viết lại khối bằng cùng cách thoát của bộ vẽ, để khối bằng từng byte bộ máy trước RM6c. Trang không
+// mang khoá nào thì trả nguyên văn (không viết lại).
+const RE_KHOI = /(<script type="application\/json" id="lo-trinh-du-lieu">)([\s\S]*?)(<\/script>)/;
+export function boKhoiGioMay(html) {
+  const s = String(html ?? ''); const m = s.match(RE_KHOI); if (!m) return s;
+  let o; try { o = JSON.parse(m[2]); } catch { return s; }
+  let co = false;
+  for (const t of Array.isArray(o.lo_trinh) ? o.lo_trinh : []) {
+    for (const h of Array.isArray(t.hang) ? t.hang : []) if (h && 'gio_may' in h) { delete h.gio_may; co = true; }
+    for (const mc of Array.isArray(t.moc) ? t.moc : []) for (const k of ['gio_may', 'du_kien', 'qua_tai']) if (mc && k in mc) { delete mc[k]; co = true; }
+  }
+  if (!co) return s;
+  const viet = JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  return s.replace(RE_KHOI, (_, a, __, c) => `${a}${viet}${c}`);
+}
+export const coKhoiGioMay = html => /"gio_may":/.test((String(html ?? '').match(RE_KHOI) || [])[2] || '');
+export const boGioMayTrang = html => boKhoiGioMay(MAU_TRANG.reduce((s, re) => s.replace(re, ''), String(html ?? '')));
 export const coGioMayTrang = html => /<span class="gm">/.test(String(html ?? ''));
 // Bản đồ xem: khối «Giờ máy theo mốc:» cùng các dòng «  · …» ngay sau nó.
 export function boGioMayXem(dong) {

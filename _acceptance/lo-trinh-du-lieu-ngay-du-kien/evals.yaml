@@ -1,0 +1,120 @@
+schema_version: 1
+feature_slug: lo-trinh-du-lieu-ngay-du-kien
+# Ca đo sống ở tests/scripts/lo-trinh-du-lieu-ngay.test.mjs (ca ND-<n> = AC-n; đuôi .test.mjs nên cũng chạy trong mảnh mjs
+# của suite) — khoá riêng executors.test.lo_trinh_du_lieu_ngay, mọi eval chung MỘT lệnh. Kho thử do code sinh trong lượt
+# (git init, commit ghim ngày, hôm nay ghim bằng ACCEPTANCE_TODAY, hồ sơ dựng bằng tests/scripts/lo-trinh-kho-thu.mjs);
+# hai vai «gốc» tách nhau: BỘ ĐỌC GỐC = hàm docDuLieu rút từ `git archive <gốc so> scripts` (gốc so đọc từ
+# _acceptance/lo-trinh-du-lieu-ngay-du-kien/goc-so, băm hàm ghim = bản chép của crm); BỘ MÁY NỀN = `git archive <merge-base
+# HEAD với origin/main|main> scripts lib skills commands road-map` (trọn thư mục) bung trong lượt — merge-base trùng HEAD
+# thì nền là HEAD và dòng PASS nói «nền so trùng HEAD». MA TRẬN TOÀN PHẦN «khối == trang» chạy trong mọi ca ND-1…ND-5:
+# mỗi hàng/mốc, mỗi ô chu/co/moc.gio_may.chu/du_kien.chu/qua_tai BẰNG chữ rút từ HTML cùng lần vẽ, null khi và chỉ khi
+# trang không in; số ô đã so BẰNG tổng viết sẵn của kho. Mọi đường dẫn suy từ vị trí tệp ca. Mỗi ca đỏ chạy CHÍNH hàm đo trên
+# BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi bản lành xanh trên cùng kho thử, và
+# ghim thông điệp. Ca in đúng một dòng «PASS: ND-…» hoặc «FAIL: ND-… — <vì sao>»; mỗi eval ghim dòng PASS của chính nó —
+# lệnh xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-1", "PASS: ND-1-khong-phan-tich", "PASS: ND-1-trang-giu", "PASS: ND-1-do". ND-1: kho năm
+      hàng A gio_may 6 · B [3,5] · C "nhiều" (A–C T2) · E T3 · F không hạng — mỗi hang.gio_may.chu BẰNG chữ <span class="gm">
+      của việc đó trong cùng lần vẽ, [thap,cao,nguon] BẰNG dãy viết sẵn A [6,6,khai] · B [3,5,khai] · C [4,7,luat] · E
+      [7,10,luat] · F [4,7,luat], co BẰNG A null · B null · C «máy ước» · E «máy ước» · F «máy ước, chưa khai hạng»,
+      phan_tram_tuan null và phan_tram_chu «chưa ước (0/5 vòng đo)» ở cả năm; ma trận khối == trang đủ ô. ND-1-khong-phan-tich:
+      renderTrang trên kết quả không có lớp giờ máy → mọi hang.gio_may null, không ném. ND-1-trang-giu: phần trang ngoài
+      khối giống từng byte trang bộ máy NỀN vẽ cùng kho (đối chứng dương: hai lần vẽ của bộ máy nền giống nhau). ND-1-do:
+      bản sao bỏ nhãn nguồn khỏi chu → FAIL ghim «chữ giờ máy của khối lệch trang: C».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-2", "PASS: ND-2-thieu-phan-tram", "PASS: ND-2-do". ND-2: sáu hồ sơ T2 đã giao đo
+      [3,4,5,6,8,2], năm có phan_tram_tuan [2,3,4,5,6] — G (T2 không khoá) nguon "do", co null, chu «3–6 giờ máy (theo 6 vòng
+      đo) · ~4 % hạn mức tuần», phan_tram_tuan 4; H (T3 không khoá) nguon "luat", co «máy ước», chu «7–10 giờ máy (máy ước) ·
+      ~4 % hạn mức tuần»; K (T2 gio_may 6) nguon "khai", co null. ND-2-thieu-phan-tram: chỉ bốn hồ sơ có phan_tram_tuan → G
+      phan_tram_tuan null, phan_tram_chu «chưa ước (4/5 vòng đo)». ND-2-do: bản sao luôn ghi co null → FAIL ghim «cờ số đo chưa
+      đủ vắng: H».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-3", "PASS: ND-3-do". ND-3: mốc M phat-hanh mục tiêu D+2 (T2 gio_may 5 · T3 không khoá · một
+      hàng đã giao) → moc.gio_may [thap,cao] [15.5,20], chu «~15,5–20 giờ máy» BẰNG phần giờ máy dòng mốc M trang in; mốc N
+      mọi hàng đã giao → moc.gio_may null. ND-3-do: bản sao cộng cả hàng đã giao vào tổng khối → FAIL ghim «giờ máy mốc lệch
+      trang: M».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-4", "PASS: ND-4-do", "PASS: ND-4-do lai". ND-4: hôm nay 2026-10-20; M mục tiêu 2026-10-22 có du-bao.json ngày tính
+      2026-10-18 hoàn tất 2026-10-23 → du_kien BẰNG {ngay_tinh "2026-10-18", hoan_tat "2026-10-23", chu «dự báo lúc bắt đầu
+      (18/10): hoàn tất 23/10»} và qua_tai «mốc quá tải: dự kiến 23/10, mục tiêu 22/10», cả hai BẰNG chữ dòng mốc M trang in;
+      P mục tiêu 2026-10-30 hoàn tất 2026-10-25 → qua_tai null; Q không du-bao.json → du_kien null, qua_tai null; R mốc lai
+      (hồ sơ mở sớm nhất không du-bao.json, hồ sơ sau có — ngày tính 2026-10-19 hoàn tất 2026-11-02) → du_kien.hoan_tat
+      "2026-11-02", du_kien.chu BẰNG chữ dòng mốc R trang in; ma trận khối == trang đủ ô. ND-4-do: bản sao điền du_kien mốc
+      chưa đóng băng bằng ngày mục tiêu → FAIL ghim «ngày dự kiến bịa: Q». ND-4-do lai: bản sao để khối đọc du-bao.json của
+      hồ sơ mở sớm nhất → FAIL ghim «ngày dự kiến khối lệch trang: R».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-5", "PASS: ND-5-check", "PASS: ND-5-do". ND-5: kho của ND-4 vẽ với ACCEPTANCE_TODAY
+      2026-10-20 / TZ Asia/Ho_Chi_Minh và 2026-11-30 / TZ America/Los_Angeles → hai khối giống từng byte (khối có du_kien khác
+      null — đối chứng không rỗng). ND-5-check: commit trang lần một, đổi hôm nay, product-map.mjs --check thoát 0. ND-5-do:
+      bản sao tính du_kien bằng dự báo sống theo hôm nay → FAIL ghim «khối đổi theo hôm nay».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-6", "PASS: ND-6-xoa-khoa", "PASS: ND-6-trang-moi", "PASS: ND-6-do". ND-6: trang bộ máy ở
+      gốc so 31c5b8df vẽ trên kho ND-4; ND-6-xoa-khoa: trang mới với bốn khoá mới bị xoá khỏi khối (code sinh trong lượt) —
+      mỗi trang đối chứng khối không có khoá gio_may ở hàng nào; docDuLieu mới không ném, duLieu khác null, mọi hang.gio_may /
+      moc.gio_may / moc.du_kien / moc.qua_tai null, canhBao đúng MỘT câu chứa «chưa có giờ máy và ngày dự kiến», mọi khoá khác
+      bằng kết quả bộ đọc gốc đọc cùng trang. ND-6-trang-moi: trang mới → 0 cảnh báo. ND-6-do: bản sao bỏ cảnh báo trang đời
+      trước → FAIL ghim «trang đời trước không cờ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-7", "PASS: ND-7-bam", "PASS: ND-7-do", "PASS: ND-7-do phien-ban". ND-7-bam: hàm docDuLieu rút
+      từ bộ máy gốc có sha256 081c13c3e674ad5cf2f8e37d7f3e88cd14a8a465ff0ddcc2431ee812946a3321 (lệch → FAIL «bộ đọc gốc không
+      phải bản chép của crm»). ND-7: bộ đọc gốc đọc trang mới của kho ND-4 → không ném, duLieu khác null, canhBao rỗng,
+      phien_ban 2; bỏ bốn khoá hang.gio_may, moc.gio_may, moc.du_kien, moc.qua_tai thì BẰNG kết quả bộ đọc gốc đọc trang bộ
+      máy NỀN trên cùng kho (cũng bỏ bốn khoá ấy). ND-7-do: bản sao thêm phần tử vào moc.hang của khối → FAIL ghim «khoá bản 2 đổi: moc.hang». ND-7-do
+      phien-ban: bản sao tăng PHIEN_BAN_DU_LIEU → FAIL ghim «bộ đọc gốc cảnh báo khuôn mới».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh_du_lieu_ngay
+    paths: [scripts/lo-trinh.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/lo-trinh-du-lieu-ngay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: ND-8", "PASS: ND-8-do tai-lieu", "PASS: ND-8-do bang-khoa". ND-8: khối LO-TRINH-DU-LIEU-KHOA
+      của tài liệu BẰNG KHUON_DU_LIEU ở mọi cấp (có gio_may, gio_may_moc, du_kien); bảng khoá trong docDuLieu (đọc khối rỗng
+      mọi cấp) BẰNG KHUON_DU_LIEU ở mọi cấp kể cả ba cấp mới; bản chép rời của docDuLieu cho đúng kết quả bản mô-đun trên
+      trang mới và trang đời trước; bảng «Đọc khoan dung» có dòng chứa «gio_may». ND-8-do tai-lieu: bản sao tài liệu bỏ dòng
+      du_kien.hoan_tat → FAIL ghim nguyên văn «cấp du_kien: mã so tài liệu thiếu hoan_tat» và đó là lệch DUY NHẤT. ND-8-do
+      bang-khoa: bản sao bộ đọc bỏ cấp du_kien khỏi bảng bên trong → FAIL ghim nguyên văn «bảng khoá trong docDuLieu lệch
+      KHUON_DU_LIEU — du_kien» và mọi cấp khác vẫn khớp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
