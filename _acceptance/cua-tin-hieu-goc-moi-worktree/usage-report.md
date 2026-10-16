@@ -43,3 +43,45 @@ wall: 4703s
 - **claude-opus-5-5**: 3 agent · 43 calls · out 7,779 · in 86 · cache_read 2,521,693 · cache_create 250,819
 - **claude-haiku-5-5**: 12 agent · 38 calls · out 13,809 · in 76 · cache_read 800,324 · cache_create 609,441
 
+### cua-tin-hieu-goc-moi-worktree — S4 lượt 2 — wf_70183e6f-710 (20 agent, 28,574 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 3 | 8,211 | 6 | 109,792 | 54 |
+| triage | claude-sonnet-5-5 | 2 | 3,519 | 4 | 38,740 | 28 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,687 | 4 | 2,869 | 450 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,628 | 4 | 2,869 | 443 |
+| review:bugs | claude-opus-5-5 | 19 | 2,403 | 38 | 1,066,246 | 164 |
+| review:conventions | claude-opus-5-5 | 10 | 1,992 | 20 | 470,881 | 94 |
+| review:measurement | claude-opus-5-5 | 5 | 1,784 | 10 | 208,490 | 82 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,681 | 4 | 37,088 | 85 |
+| refute:cua-tin-hieu-goc-moi-worktree.test.mjs | claude-sonnet-5-5 | 5 | 1,034 | 10 | 167,758 | 26 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 533 | 4 | 34,228 | 158 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 401 | 4 | 37,114 | 6 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 363 | 4 | 37,089 | 6 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 263 | 4 | 37,144 | 84 |
+| machine:node tests/scripts/cua-tin-hieu-goc-moi- | claude-haiku-5-5 | 2 | 219 | 4 | 37,113 | 16 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 187 | 4 | 37,088 | 8 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 175 | 4 | 2,869 | 436 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 175 | 4 | 37,144 | 73 |
+| baseline:diffBase | claude-sonnet-5-5 | 2 | 157 | 4 | 36,256 | 18 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 150 | 4 | 33,003 | 13 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 12 | 4 | 2,869 | 551 |
+
+
+wall: 2457s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 157 | 36,256 | 18 | 15:25:17 | 15:25:35 |
+| machine | 12 | 9,324 | 305,484 | 2325 | 15:25:17 | 16:04:02 |
+| review | 3 | 6,179 | 1,745,617 | 166 | 15:25:17 | 15:28:03 |
+| triage | 1 | 3,519 | 38,740 | 28 | 16:04:04 | 16:04:32 |
+| refute | 1 | 1,034 | 167,758 | 26 | 16:04:35 | 16:05:01 |
+| capture | 1 | 150 | 33,003 | 13 | 16:05:04 | 16:05:17 |
+| synthesize | 1 | 8,211 | 109,792 | 54 | 16:05:20 | 16:06:14 |
+
+- **claude-sonnet-5-5**: 5 agent · 14 calls · out 13,071 · in 28 · cache_read 385,549 · cache_create 244,279
+- **claude-haiku-5-5**: 12 agent · 24 calls · out 9,324 · in 48 · cache_read 305,484 · cache_create 573,068
+- **claude-opus-5-5**: 3 agent · 34 calls · out 6,179 · in 68 · cache_read 1,745,617 · cache_create 217,947
+
