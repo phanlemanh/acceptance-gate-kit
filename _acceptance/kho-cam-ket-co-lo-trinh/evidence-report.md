@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cdf38bada80e93c9a97c5fcd6e4dcec7a8f04343
+verified_commit: a3bf493925df2783a028de8fce39bb40a9a20beb
 human_signoff:
 ---
 
@@ -28,142 +28,142 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-kho-cam-ket-co-lo-trinh-E1-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E1-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E2
-  run_id: minted-kho-cam-ket-co-lo-trinh-E2-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E2-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E3
-  run_id: minted-kho-cam-ket-co-lo-trinh-E3-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E3-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E4
-  run_id: minted-kho-cam-ket-co-lo-trinh-E4-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E5
-  run_id: minted-kho-cam-ket-co-lo-trinh-E5-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E6
-  run_id: minted-kho-cam-ket-co-lo-trinh-E6-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh_cac_kho
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
     Results: 1 passed, 0 failed (kho-cam-ket-co-lo-trinh-cac-kho)
 
 - eval: E7
-  run_id: minted-kho-cam-ket-co-lo-trinh-E7-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E8
-  run_id: minted-kho-cam-ket-co-lo-trinh-E8-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 - eval: E9
-  run_id: minted-kho-cam-ket-co-lo-trinh-E9-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-E9-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kho_cam_ket_co_lo_trinh
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
   output: |
-    kho-cam-ket-co-lo-trinh: 22 PASS, 0 FAIL
+    kho-cam-ket-co-lo-trinh: 24 PASS, 0 FAIL
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-kho-cam-ket-co-lo-trinh-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-16T05:29:04Z
+  verified_at: 2026-10-16T06:36:37Z
 
 ## Known limits
 
@@ -183,4 +183,5 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, xác đ
 
 ## Iterations
 
-Round 1: mọi eval E1–E9 và mọi lệnh suite đều xanh; verdict PASS.
+Round 1: mọi eval E1–E9 và mọi lệnh suite đều xanh; hai phát hiện trong hợp đồng ở AC-6 (kho chưa khai chặn bị settings.json hỏng làm đổi hành vi) được sửa ở commit a3bf4939, kèm ca CK-4-settings-hong và chiều đỏ của nó.
+Round 2: mọi eval E1–E9 (24 ca của bộ feature) và mọi lệnh suite đều xanh trên a3bf4939; không còn phát hiện trong hợp đồng; verdict PASS.
