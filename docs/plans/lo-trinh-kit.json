@@ -139,7 +139,8 @@
         "RM3",
         "RM6",
         "RM3b",
-        "RM6b"
+        "RM6b",
+        "RM6c"
       ]
     }
   ],
@@ -704,6 +705,22 @@
       "bat_khi": "Ở mốc phát hành đầu tiên bắt đầu sau khi RM6 lên main, ngày mốc bị ghi đè bằng ngày phát hành thật mà phép đo lệch vẫn in độ lệch của mốc ấy, không in «chưa đóng băng»",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ. Phải gộp TRƯỚC khi cắt mốc phát hành đầu tiên bắt đầu sau khi RM6 lên main. Cùng tệp scripts/lo-trinh.mjs với RM6 → đi sau RM6. Ước 4–5 giờ máy."
+    },
+    {
+      "ma": "RM6c",
+      "ten_ngan": "Trang lộ trình mang ngày dự kiến",
+      "cau_giao": "Kho tiêu thụ đọc khối dữ liệu trang lộ trình và có giờ máy của từng hàng, giờ máy cùng ngày dự kiến của từng mốc — kèm cờ khi số đo chưa đủ; trang đọc bản cũ vẫn chạy y như trước",
+      "vai": "Trưởng phòng ban xem trang Lộ trình trong CRM",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: _acceptance/lo-trinh-gio-may/ — RM6 đưa giờ máy và ngày dự kiến lên LO-TRINH.html và /road-map:xem nhưng KHÔNG vào khối dữ liệu trang (phiên bản 2, bảng khoá KHUON_DU_LIEU của scripts/lo-trinh.mjs). Trang Lộ trình trong CRM (crm apps/app/lib/lo-trinh/doc-du-lieu.js, bản chép nguyên văn docDuLieu) chỉ đọc khối, nên trưởng phòng ban không thấy ngày dự kiến. Chủ kho mở 16/10 («mở RM6c và LT1e»); bên crm hàng LT1e (crm-onehub PR #435) hiển thị sau khi crm nhận bản kit có RM6c.",
+      "hang": "T2",
+      "slug": "lo-trinh-du-lieu-ngay-du-kien",
+      "dung_tren": [
+        "RM6"
+      ],
+      "bat_khi": "Sau khi crm nhận bản kit có RM6c, trang Lộ trình trong CRM hiện ngày dự kiến của ít nhất một mốc đang chạy mà không bật hộp cảnh báo «trang có thể thiếu một phần»",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Đổi khuôn khối dữ liệu = CỘNG → chủ kho phê ở Cổng Phạm vi; đường đọc-cũ hai chiều (bộ đọc mới đọc trang bản 2; bộ đọc cũ của crm gặp trang mới không vỡ). Cùng tệp scripts/lo-trinh.mjs với RM3/RM5/RM6b → gộp main khi chúng vào. Ước 4–5 giờ máy."
     }
   ],
   "chan_troi": [

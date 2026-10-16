@@ -632,6 +632,17 @@ Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi
 đã có cấu hình) — bước 5d làm sẵn mọi việc dưới đây: tệp `docs/plan/lo-trinh.json` rỗng đúng khuôn, khoá, miễn trừ,
 bản chép CI, trang. Chỉ khi `.claude/settings.json` của kho bật `road-map`; kho không cài gói thì không đổi byte nào.
 
+**Kho cam kết có lộ trình — chặn mở việc ngoài kế hoạch** (hồ sơ kho-cam-ket-co-lo-trinh, nấc 4 + nấc 3 của ADR 0025).
+Mặc định TẮT. Kho bật bằng hai điều kiện cùng lúc: gói `road-map` cài cho cả đội (`--scope project`, tức bật ở
+`.claude/settings.json` — `settings.local.json` và phạm vi người dùng không tính) và một dòng `chan: true` (khoá `lo_trinh.chan`) trong khối
+`lo_trinh:` của `_acceptance/config.yaml`. Khi bật: (1) ghi `contract.md` hay `opportunity.md` mở một hồ sơ MỚI không thuộc
+hàng nào bị chặn lúc ghi, thông điệp nêu hai lối — mở từ một hàng, hoặc để máy thêm hàng; (2) lưới trước-merge chặn hồ sơ
+mới không thuộc hàng nào trong diff của PR; (3) mở vòng từ một câu mô tả thì feature-loop tự thêm một hàng mã = slug vào
+tệp lộ trình đầu tiên (khối `S0-THEM-HANG`). Hồ sơ đã có từ trước không bị chấm. Tắt: đặt `chan: false` hoặc xoá dòng —
+hết chặn ngay. Giá trị khác `true`/`false` thì bị từ chối có tên. Giới hạn: tệp ghi bằng dòng lệnh (Bash) và
+`ACCEPTANCE_GATE_BYPASS` né được kiểm lúc ghi — lưới trước-merge bắt lúc gộp; lưới không có `--base` chỉ in một dòng
+`NOTE … NOT ENFORCED`; hai phiên cùng thêm hàng một lúc có thể mất một hàng (đọc-sửa-ghi không khoá).
+
 **Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
 `skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
 `vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` · `gio_may` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
@@ -1014,7 +1025,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 27 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 28 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1043,6 +1054,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
 - `scripts/gio-may.mjs` — phép ước giờ máy mà `lo-trinh.mjs` import lúc nạp (ước hàng, tổng mốc, dự báo); thiếu → bước bản đồ `ERR_MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
+- `lib/chan-lo-trinh.cjs` — bộ đọc DUY NHẤT của luật chặn lộ trình `lo_trinh.chan` mà lưới trước-merge gọi cho hồ sơ mới ngoài lộ trình; chỉ cần khi kho khai `lo_trinh.tep` — thiếu ở kho đã bật thì lưới in một dòng `NOTE: luật chặn lộ trình NOT ENFORCED`
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
