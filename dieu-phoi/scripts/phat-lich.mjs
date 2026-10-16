@@ -17,6 +17,7 @@ import { bangQuyet } from './the.mjs';
 import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
 import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc-khoe.mjs';
 import { xetYeuCau } from './yeu-cau.mjs';
+import { chuyenVaoCua, docCua } from './cua-tin-hieu.mjs';
 
 export const CAC_TAI_NGUYEN = ['s4', 'duong-nen', 'merge'];
 // Thư mục mã của CHÍNH bộ phát lịch đang chạy (bình thường là `<thư mục đợt>/loi/`, do `chay` chép).
@@ -26,6 +27,9 @@ const DAY_LOI = path.dirname(fileURLToPath(import.meta.url));
 export const loiCon = () => fs.existsSync(path.join(DAY_LOI, 'phat-lich.mjs'));
 const KHOA_TRONG_MS = NHIP.khoaTrongMs;
 const MOT_NGAY_MS = NHIP.motNgayMs;
+// Việc phụ / việc mới: sự kiện mang `chan` — đường đo của hồ sơ cua-tin-hieu-giua-chien-dich đếm ý không chặn.
+const Y_MOI = new Set(['viec-phu', 'hang-moi']);
+const chanCua = (y) => (Y_MOI.has(y.loai) ? { chan: y.noi_dung?.chan === true } : {});
 
 export function trangThaiHopDong(text) {
   return text.match(/^status:\s*(\S+)/m)?.[1] ?? null;
@@ -164,11 +168,16 @@ function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs) {
     nhanhCua: () => null,
     khoaCua: (phien) => CAC_TAI_NGUYEN.filter((tn) => docJson(path.join(thuMuc, 'khoa', tn, 'chu.json'))?.phien === phien),
     yeuCauGanDay: tatCa.filter((y) => nowMs - Date.parse(y.luc) < MOT_NGAY_MS).map((y) => ({ ...y, id: y._ten })),
+    cua: docCua(cfg.goc_kho),
   };
+  // Tên tệp tín hiệu mang tên đợt: mã yêu cầu `<dãy>-<số>` đếm lại từ 1 mỗi đợt, mà tệp ở cửa sống qua nhiều đợt.
+  const tenDot = hangViec.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, '');
   for (const y of choXet) {
-    const kq = xetYeuCau({ ...y, id: y._ten }, nguCanh, cfg);
+    let kq = xetYeuCau({ ...y, id: y._ten }, nguCanh, cfg);
+    const tenTep = `${tenDot}-${y._ten}`;
+    if (kq.ket_qua === 'ghi') kq = chuyenVaoCua(nguCanh.cua, tenTep, y, kq);
     if (kq.ket_qua === 'can_phan') {
-      ghiSuKien(thuMuc, { loai: 'yeu-cau', id: y._ten, phien: y.phien, kieu: y.loai, ly_do: kq.ly_do, dich: kq.dich ?? 'giam-sat', can_phan: true });
+      ghiSuKien(thuMuc, { loai: 'yeu-cau', id: y._ten, phien: y.phien, kieu: y.loai, ...chanCua(y), ly_do: kq.ly_do, dich: kq.dich ?? 'giam-sat', can_phan: true });
       daBao.add(y._ten);
       continue;
     }
@@ -179,7 +188,7 @@ function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs) {
       ghiJsonNguyenTu(pThem, moi);
       nguCanh = { ...nguCanh, ranhGioiThem: moi };
     }
-    ghiSuKien(thuMuc, { loai: 'yeu-cau', id: y._ten, phien: y.phien, kieu: y.loai, ket_qua: kq.ket_qua });
+    ghiSuKien(thuMuc, { loai: 'yeu-cau', id: y._ten, phien: y.phien, kieu: y.loai, ...chanCua(y), ket_qua: kq.ket_qua });
   }
   return [...daBao];
 }

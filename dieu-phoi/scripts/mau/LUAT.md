@@ -19,7 +19,7 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
   Lệnh bọc chạm tín hiệu sống của khoá mỗi phút tới khi lệnh con thoát, rồi trả đúng mã thoát của
   nó. Không bọc thì trong lúc anh chờ không có lời gọi công cụ nào, tín hiệu sống cũ dần, và khoá bị
   thu hồi giữa chừng. Hook chặn lệnh nặng chạy nền chưa bọc và in sẵn dòng lệnh đã bọc để chép.
-- Yêu cầu: `node <thư mục đợt>/loi/dieu-phoi.mjs yeu-cau <loại> [--hang <slug>] [--tep a,b]
+- Yêu cầu: `node <thư mục đợt>/loi/dieu-phoi.mjs yeu-cau <loại> [--chan] [--hang <slug>] [--tep a,b]
   [--noi-dung '<json>']` — lệnh in mã yêu cầu `<dãy>-<số>`; trả lời ở `tra-loi/<mã>.json`. Loại:
   `cham-tep` (đòi `--tep`), `viec-phu`, `hang-moi`, `chuyen-hang`, `s4-gom`, `gia-han`, `can-nguoi`, `khac`.
 - Gia hạn: yêu cầu `gia-han` với `--noi-dung '{"uoc_phut":<n>,"tai_nguyen":"<tài nguyên>"}'`. `uoc_phut` là số phút xin thêm;
@@ -28,6 +28,15 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
   phút đó, tính từ hạn còn lại (hạn đã qua thì tính từ lúc áp).
 - Hàng kế: đọc `tiep/<phiên>.json`.
 - Không tự gọi `spawn_task`: việc phụ đi qua yêu cầu `viec-phu`.
+
+<!-- <<<LUAT-CHAN -->
+Việc phụ (`viec-phu`) hay việc mới (`hang-moi`) KHÔNG chặn việc anh đang làm → máy trả ngay «đã ghi, xử ở mốc khép»
+và ghi ý vào cửa tín hiệu của kho; anh làm tiếp việc đang làm, không chờ ai. Chỉ khai `--chan` khi không đi tiếp được
+nếu thiếu nó — yêu cầu ấy mới lên giám sát phán ngay:
+`node <thư mục đợt>/loi/dieu-phoi.mjs yeu-cau viec-phu --chan --noi-dung '{"tieu_de":"<việc>"}'`
+Lỡ gửi không `--chan` mà thật ra đang bị chặn → gửi lại cùng ý kèm `--chan`. Kho chưa khai cửa tín hiệu thì mọi việc
+phụ, việc mới vẫn lên giám sát như cũ.
+<!-- LUAT-CHAN>>> -->
 
 ## Thứ tự gộp khi tranh chấp
 

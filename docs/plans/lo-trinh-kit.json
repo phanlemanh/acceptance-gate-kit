@@ -649,6 +649,7 @@
       "tieu_chi": 10,
       "vi_sao": "Gốc: crm/_acceptance/tin-hieu-tu-ve-kho/ — lộ trình chỉ có cửa vào; chủ kho gọi tên «road-map hoàn tất theo B′, làm luôn» 15/10 (ADR 0025; docs/findings/2026-10-14-kien-truc-roadmap-plugin.md). B′ §10.",
       "hang": "T2",
+      "slug": "cua-tin-hieu-giua-chien-dich",
       "dung_tren": [
         "RM2"
       ],
