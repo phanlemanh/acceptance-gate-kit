@@ -81,6 +81,8 @@ executors:
     ap_chinh_sach_lo_trinh: node tests/scripts/ap-chinh-sach-lo-trinh.test.mjs
     # Hồ sơ lo-trinh-gio-may (RM6): ca GM-1…GM-9 chung một lệnh (giờ máy + token trên lộ trình, đo vòng, đo lệch).
     lo_trinh_gio_may: node tests/scripts/lo-trinh-gio-may.test.mjs
+    # Hồ sơ lo-trinh-du-lieu-ngay-du-kien (RM6c): ca ND-1…ND-8 chung một lệnh (giờ máy + ngày dự kiến trong khối dữ liệu trang).
+    lo_trinh_du_lieu_ngay: node tests/scripts/lo-trinh-du-lieu-ngay.test.mjs
     # Hồ sơ du-bao-dong-bang-theo-ma-moc (RM6b): chỉ các ca DB-<n> của cùng tệp (ca GM chạy ở khoá trên và trong mảnh mjs).
     du_bao_theo_ma_moc: "env GM_CASES=DB node tests/scripts/lo-trinh-gio-may.test.mjs"
     ap_chinh_sach_lo_trinh_crm: node tests/scripts/ap-chinh-sach-lo-trinh-crm.mjs

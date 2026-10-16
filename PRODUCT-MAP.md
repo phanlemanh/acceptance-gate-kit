@@ -13,7 +13,7 @@ flowchart TD
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>125 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>36 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>37 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -73,6 +73,7 @@ flowchart TD
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
 - Lộ trình chỉ chứa việc phát triển — răng cắt lượt đặt việc vận hành của người vào mốc ngoài (chỗ thứ ba của bảng phủ), đỏ khi hàng đứng chờ mốc vận hành hay đo trên dữ liệu giả mà không có hàng sinh dữ liệu giả đứng trước, nhắc tự phục vụ cho vận hành lặp lại; SKILL tách vận hành trước sáu luật và sửa Ngoài-1/2 của S3 (`lo-trinh-chi-viec-phat-trien`)
+- Kho tiêu thụ đọc khối dữ liệu trang lộ trình và có giờ máy của từng hàng, giờ máy cùng ngày dự kiến của từng mốc — kèm cờ khi số đo chưa đủ; trang đọc bản cũ vẫn chạy y như trước (`lo-trinh-du-lieu-ngay-du-kien`)
 - Người nhìn lộ trình thấy mỗi hàng và mỗi mốc ước bằng giờ máy và phần trăm hạn mức tuần; ngày mốc do máy tính từ tổng giờ máy, mốc quá tải có cờ vàng, và mỗi vòng khép ghi giờ máy cùng token thật để ước lần sau sát hơn (`lo-trinh-gio-may`)
 - Bộ lọc hoá cũ theo paths đóng mặc định — chỉ bớt tệp khi MỌI mục paths thuộc dạng đã chứng trên cây git đang kiểm; thư mục trần có thật thành thư-mục/**; mục không trỏ tới tệp nào giữ luật cũ; làn ghim lại đọc paths bằng một nguồn (`loc-paths-dong-mac-dinh`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
