@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a3bf493925df2783a028de8fce39bb40a9a20beb
+verified_commit: dbb32641b1aa53c07ceeb32b8c7d398cdb0af923
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -185,3 +185,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, xác đ
 
 Round 1: mọi eval E1–E9 và mọi lệnh suite đều xanh; hai phát hiện trong hợp đồng ở AC-6 (kho chưa khai chặn bị settings.json hỏng làm đổi hành vi) được sửa ở commit a3bf4939, kèm ca CK-4-settings-hong và chiều đỏ của nó.
 Round 2: mọi eval E1–E9 (24 ca của bộ feature) và mọi lệnh suite đều xanh trên a3bf4939; không còn phát hiện trong hợp đồng; verdict PASS.
+
+### Re-pin lần 1 — 2026-10-16, do gộp main 6e9b95f9 (RM6b #364) trước khi gộp PR #367
+run_id: repin-20261016T093508Z-91969
+sha: dbb32641b1aa53c07ceeb32b8c7d398cdb0af923 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
