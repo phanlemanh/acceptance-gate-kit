@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d1226682cfcdd51fae4b5e662dd6b106ab47c859
-human_signoff:
+human_signoff: Manh Phan 2026-10-17
 ---
 
 # Evidence Report: cua-tin-hieu-goc-moi-worktree

@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM3b khai T2: scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/start-scan.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-cua-tin-hieu-goc-moi-worktree-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -105,3 +105,10 @@ Quét gọn (design doc §3). Chân sản phẩm: `[SUY-TỪ-REPO: _acceptance/c
   `--chua-gom`, không mở tệp theo `tep`.
 - Gốc phiên chỉ đi theo thư mục chính khi nó là ĐỈNH của chính worktree/kho của nó (`--show-toplevel` = gốc); thư mục
   con hay thư mục thường lồng trong kho giữ hành vi cũ.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-17:
+  - Ngoài-1: kho là submodule hoặc tách riêng thư mục git thì ý gửi vào cửa nằm trong thư mục git ẩn của kho cha hoặc ở thư mục cha ngoài kho, dù lệnh báo «đã ghi»; bộ đọc nhìn cùng chỗ nên ý không mất, chỉ khó tìm.
+  - Ngoài-2: gửi ý qua đường tắt (symlink) tới một thư mục thường thì ý mang nhãn «gửi từ worktree» dù không có worktree; chỉ số đếm của đường đo lệch, ý ghi đúng chỗ.
+  - Ngoài-3: kho bare kèm worktree thì hộp ý nằm ở thư mục chứa kho bare, có thể dùng chung với kho khác cùng thư mục cha khai cùng đường nguồn.
+  - Ngoài-4: kho cho git theo dõi chính các tệp ý thì bộ đọc ở worktree đọc bản ở thư mục chính, không thấy tệp ý riêng của nhánh; CI chạy bản tải sạch nên không lệch.
+  - Ngoài-5: gửi ý từ thư mục con của một worktree thì ý mang nhãn «gửi từ thư mục chính»; cùng gốc với Ngoài-2, chỉ số đếm lệch.
+  - Giới hạn đo AC-1: vế «dòng in nêu đường tương đối thư mục chính» có trong vật nhưng ca GW-1 chỉ kiểm chuỗi con của dòng in, nên đảo ngược vế này vẫn xanh; vòng kế chạm bên ghi người thêm phép so bằng nhau và một ca đỏ tiêm ngược.
