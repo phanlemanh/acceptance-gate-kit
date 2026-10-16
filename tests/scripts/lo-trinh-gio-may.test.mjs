@@ -1,4 +1,5 @@
-// lo-trinh-gio-may.test.mjs — hồ sơ lo-trinh-gio-may (hàng RM6), ca GM-<n> = AC-n của hợp đồng. Mỗi eval của evals.yaml ghim
+// lo-trinh-gio-may.test.mjs — hồ sơ lo-trinh-gio-may (hàng RM6), ca GM-<n> = AC-n của hợp đồng; hồ sơ
+// du-bao-dong-bang-theo-ma-moc (hàng RM6b), ca DB-<n> = AC-n của hợp đồng ấy. Mỗi eval của evals.yaml ghim
 // đúng dòng «PASS: GM-…» của tệp này (GM-6-that được phép in «SKIP: GM-6-that — …» khi máy không có bản ghi phiên).
 //
 // Kho thử và bản ghi phiên giả do CODE sinh trong lượt (git init trong thư mục tạm; «hôm nay» ghim bằng ACCEPTANCE_TODAY; bản
@@ -47,12 +48,15 @@ function ghiHoSo(r, hoSo) {
   }
 }
 let khoN = 0;
-function kho({ data, hoSo = {}, ten = null }) {
+// `cacTep` (hồ sơ du-bao-dong-bang-theo-ma-moc, ca DB-5): { <đường tệp>: <dữ liệu> } — kho khai nhiều lộ trình thay `data`.
+function kho({ data, hoSo = {}, ten = null, cacTep = null }) {
   const r = path.join(TMP, ten || `kho-${++khoN}`); mkdirSync(r, { recursive: true });
   execFileSync('git', ['init', '-q', '-b', 'main', r]); git(r, 'config', 'user.email', 'x@y.z'); git(r, 'config', 'user.name', 'Người Thử');
   mkdirSync(path.join(r, '_acceptance'), { recursive: true });
-  writeFileSync(path.join(r, '_acceptance', 'config.yaml'), `schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n    - "LO-TRINH.html"\nlo_trinh:\n  tep: ${TEP}\n`);
-  mkdirSync(path.join(r, 'docs'), { recursive: true }); writeFileSync(path.join(r, TEP), JSON.stringify(data, null, 2) + '\n');
+  const tep = cacTep || { [TEP]: data };
+  const khai = cacTep ? `\n${Object.keys(tep).map(t => `    - ${t}\n`).join('')}` : ` ${TEP}\n`;
+  writeFileSync(path.join(r, '_acceptance', 'config.yaml'), `schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n    - "LO-TRINH.html"\nlo_trinh:\n  tep:${khai}`);
+  for (const [t, d] of Object.entries(tep)) { mkdirSync(path.dirname(path.join(r, t)), { recursive: true }); writeFileSync(path.join(r, t), JSON.stringify(d, null, 2) + '\n'); }
   ghiHoSo(r, hoSo);
   const env = { ...process.env, GIT_AUTHOR_DATE: '2026-10-01T12:00:00Z', GIT_COMMITTER_DATE: '2026-10-01T12:00:00Z' };
   execFileSync('git', ['-C', r, 'add', '-A'], { env }); execFileSync('git', ['-C', r, 'commit', '-qm', 'c1'], { env });
@@ -72,15 +76,17 @@ function banSao(tiem = []) {
   }
   return c;
 }
-let gocDir = null;
-function banGoc() {
-  if (gocDir) return gocDir;
-  const d = path.join(TMP, 'goc-so'); mkdirSync(d, { recursive: true });
-  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', GOC, 'scripts', 'lib', 'skills', 'commands', 'road-map'], { maxBuffer: 1 << 28 });
+const gocDir = new Map();
+// Bộ máy gốc tại một gốc so: GM đọc gốc của hồ sơ lo-trinh-gio-may, DB đọc gốc của hồ sơ du-bao-dong-bang-theo-ma-moc.
+function banGocTai(sha, ten) {
+  if (gocDir.has(sha)) return gocDir.get(sha);
+  const d = path.join(TMP, ten); mkdirSync(d, { recursive: true });
+  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', sha, 'scripts', 'lib', 'skills', 'commands', 'road-map'], { maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
-  if (!existsSync(path.join(d, 'scripts', 'lo-trinh.mjs'))) throw new Error(`bộ máy gốc ${GOC} không bung được scripts/lo-trinh.mjs`);
-  return (gocDir = d);
+  if (!existsSync(path.join(d, 'scripts', 'lo-trinh.mjs'))) throw new Error(`bộ máy gốc ${sha} không bung được scripts/lo-trinh.mjs`);
+  gocDir.set(sha, d); return d;
 }
+const banGoc = () => banGocTai(GOC, 'goc-so');
 const LT = kit => path.join(kit, 'scripts', 'lo-trinh.mjs');
 const chay = (kit, r, today, args, env = {}) => node([LT(kit), '--root', r, ...args], { env: { ...process.env, ACCEPTANCE_TODAY: today, ...env } });
 const chayCa = async (id, f, kit = KIT) => { try { const s = await f(kit); if (s.length) bad(id, s.join(' ; ')); else return true; } catch (e) { bad(id, loi(e)); } return false; };
@@ -506,6 +512,182 @@ const gm9 = async kit => {
 if (want('GM-9')) { if (await chayCa('GM-9', gm9)) ok('GM-9', 'khối S4-DO-VONG ba dòng; dòng rút từ khối ghi đúng dòng gio-may; xem.md và GUIDE nêu khoá'); }
 if (want('GM-9-do2')) await chayDo('GM-9-do2', gm9, [['feature-loop/skills/feature-loop/SKILL.md', 'AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/do-vong.mjs) && node "$AG/scripts/do-vong.mjs" --root . --slug <slug> --write', 'node "$AG/scripts/do-vong.mjs" --root . --slug <slug> --write']], 'khối S4-DO-VONG không tự giải đường dẫn gói', 'bản sao khối bỏ phần tự giải gói');
 if (want('GM-9-do')) await chayDo('GM-9-do', gm9, [['feature-loop/skills/feature-loop/SKILL.md', 'do-vong.mjs" --root . --slug <slug> --write', 'do-vong.mjs" --root . --slug <slug>']], 'khối S4-DO-VONG không ghi dòng gio-may', 'bản sao khối thiếu --write');
+
+// ═══ DB-<n> (hồ sơ du-bao-dong-bang-theo-ma-moc, hàng RM6b — AC-n): dự báo đóng băng khớp theo mã hàng của mốc ═════════
+// Dời / ghi đè ngày mục tiêu (và đổi tên) không làm mất dự báo; dự báo về đúng MỘT mốc, chỉ từ hồ sơ của chính lộ trình.
+// Tên đóng băng tính bằng `tenNganMoc` của cây lành (bên ghi thật), không gõ tay. Bộ máy gốc của DB-7 đọc từ goc-so của hồ sơ.
+const GOC_DB = readFileSync(path.join(KIT, '_acceptance', 'du-bao-dong-bang-theo-ma-moc', 'goc-so'), 'utf8').trim();
+const LT_MJS = 'scripts/lo-trinh.mjs';
+const DONG_GIAO = 'const giao = cua.has(x.slug) ? dongBang.filter(c => maMoc[i].has(c)).length : 0;';
+const TIEM = {
+  chiTen: [LT_MJS, DONG_GIAO, 'const giao = 0;'],
+  moiMa: [LT_MJS, DONG_GIAO, 'const giao = cua.has(x.slug) ? dongBang.length : 0;'],
+  boLoTrinh: [LT_MJS, DONG_GIAO, 'const giao = dongBang.filter(c => maMoc[i].has(c)).length;'],
+  moiUngVien: [LT_MJS, 'if (ung.length) theoMoc[ung[0].i].push(x);', 'for (const u of ung) theoMoc[u.i].push(x);'],
+  tenTruocMa: [LT_MJS, 'ung.sort((a, b) => b.khop - a.khop || b.giao - a.giao || b.boNgay - a.boNgay || a.i - b.i);', 'ung.sort((a, b) => b.khop - a.khop || b.boNgay - a.boNgay || b.giao - a.giao || a.i - b.i);'],
+  boTenNguyenVan: [LT_MJS, 'const khop = x.moc.ten === ten[i];', 'const khop = false;'],
+  mucDongBang: [LT_MJS, '  const muc = chuoi(m.ngay);\n  const tre = db', '  const muc = chuoi((db && db.moc.muc_tieu) || m.ngay);\n  const tre = db'],
+};
+const DOI = (m, o) => ({ ...m, ...o });
+const DUOI_DB = 'dự báo lúc bắt đầu';
+const dongLech = (kit, r) => { const x = chay(kit, r, D, ['--do-lech']); return { x, ra: x.stdout.split('\n').filter(Boolean) }; };
+// du-bao.json do --mo-o ghi (khuôn RM6), viết sẵn với tên đóng băng của mốc gốc.
+const duBaoCua = async (mocGoc, ngay, hoanTat, hang, gio = [4, 7]) => ({ ngay_tinh: ngay, hang: { ma: 'x', gio_may: gio, phan_tram: null },
+  moc: { ten: await tenNgan(KIT, mocGoc), bat_dau: ngay, hoan_tat: hoanTat, gio_may: [10, 20], gio_cho: 0, gio_cho_do: false, muc_tieu: mocGoc.ngay, hang } });
+
+// AC-1 / AC-2: trang — dòng dự báo và cờ quá tải.
+const duBaoP = async () => ({ ngay_tinh: '2026-10-15', hang: { ma: 'P', gio_may: [5, 5], phan_tram: null },
+  moc: { ten: await tenNgan(KIT, mocM), bat_dau: '2026-10-15', hoan_tat: '2026-10-23', gio_may: [15.5, 20], gio_cho: 0, gio_cho_do: false, muc_tieu: '2026-10-22', hang: ['P', 'Q', 'R'] } });
+const khoP = async moc => kho({ data: { ...gm3Data, moc: [moc] }, hoSo: { r: { hinh: 'da-ship' }, p: { hinh: 'dang-dung', duBao: await duBaoP() } } });
+const db1 = moiMoc => async kit => {
+  const html = await ve(kit, await khoP(moiMoc)); const li = liMoc(html, moiMoc.ten);
+  if (li == null) return [`không tìm thấy dòng mốc «${moiMoc.ten}» trên trang`];
+  return li.includes(`${DUOI_DB} (15/10): hoàn tất 23/10`) ? [] : [`dời ngày mục tiêu làm mất dự báo đóng băng: «${li.slice(0, 160)}»`];
+};
+const db1Doi = db1(DOI(mocM, { ngay: '2026-10-25' }));
+if (want('DB-1') && await chayCa('DB-1', db1Doi)) ok('DB-1', 'mốc M dời 22/10 → 25/10: dòng mốc vẫn «dự báo lúc bắt đầu (15/10): hoàn tất 23/10»');
+if (want('DB-1-doi-ten') && await chayCa('DB-1-doi-ten', db1(DOI(mocM, { ten: 'Bản M đổi tên', ngay: '2026-10-25' })))) ok('DB-1-doi-ten', 'mốc M đổi tên và dời 25/10: dòng mốc (tên mới) vẫn mang dự báo đóng băng');
+if (want('DB-1-do')) await chayDo('DB-1-do', db1Doi, [TIEM.chiTen], 'dời ngày mục tiêu làm mất dự báo đóng băng', 'bản sao chỉ khớp tên kèm ngày');
+const db2 = async kit => {
+  const sai = []; const dem = (h, s) => h.split(s).length - 1;
+  const h21 = await ve(kit, await khoP(DOI(mocM, { ngay: '2026-10-21' }))); const h25 = await ve(kit, await khoP(DOI(mocM, { ngay: '2026-10-25' })));
+  if (dem(h21, 'mốc quá tải: dự kiến 23/10, mục tiêu 22/10') || dem(h25, 'mốc quá tải: dự kiến 23/10, mục tiêu 22/10')) sai.push('cờ quá tải theo mục tiêu lúc đóng băng');
+  const c21 = dem(h21, 'mốc quá tải: dự kiến 23/10, mục tiêu 21/10'); if (c21 !== 1) sai.push(`dời 21/10: cờ «mục tiêu 21/10» ${c21} lần, cần 1`);
+  const c25 = dem(h25, 'mốc quá tải'); if (c25 !== 0) sai.push(`dời 25/10: «mốc quá tải» ${c25} lần, cần 0`);
+  return sai;
+};
+if (want('DB-2') && await chayCa('DB-2', db2)) ok('DB-2', 'dời 21/10: đúng một cờ «dự kiến 23/10, mục tiêu 21/10»; dời 25/10: không cờ');
+if (want('DB-2-do')) await chayDo('DB-2-do', db2, [TIEM.mucDongBang], 'cờ quá tải theo mục tiêu lúc đóng băng', 'bản sao so với mục tiêu lúc đóng băng');
+
+// AC-3: --do-lech sau khi ghi đè ngày; vế bên ghi thật (--mo-o).
+const db3 = async kit => {
+  const r = kho({ data: { ...gm8Data, moc: [DOI(MM, { ngay: '2026-10-20' }), MN] }, hoSo: await gm8HoSo() }); const { x, ra } = dongLech(kit, r);
+  if (x.status !== 0) return [`--do-lech thoát ${x.status}: ${x.stderr}`];
+  const t = await tenNgan(KIT, DOI(MM, { ngay: '2026-10-20' })); const sai = [];
+  if (ra[0] && ra[0].includes('chưa đóng băng')) sai.push(`đo lệch báo chưa đóng băng sau khi ghi đè ngày: «${ra[0]}»`);
+  const muon = [`${t}: dự báo 19/10 (đóng băng 15/10) · khép thật 20/10 · lệch 1 ngày · 1 hàng thêm sau đóng băng`, '  giờ chờ: ước 0 (đo được lúc đóng băng: không) · đo 3,5',
+    '  A: ước 4–7 giờ máy · đo 5 giờ máy · ~3 % hạn mức tuần', '  B: ước 5–6 giờ máy · đo 6 giờ máy · % hạn mức tuần chưa đo', '  C: ước 4–7 giờ máy · đo 4 giờ máy · ~2 % hạn mức tuần', '  3/3 vòng có số đo'];
+  if (!deq(ra, muon)) sai.push(`đầu ra ${JSON.stringify(ra)} ≠ ${JSON.stringify(muon)}`);
+  if (git(r, 'status', '--porcelain')) sai.push('--do-lech ghi tệp');
+  return sai;
+};
+if (want('DB-3') && await chayCa('DB-3', db3)) ok('DB-3', '«Mốc M» ghi đè 21/10 → 20/10: khối đo lệch đúng từng chữ, không ghi tệp');
+if (want('DB-3-mo-o') && await chayCa('DB-3-mo-o', async kit => {
+  const MK = { ten: 'Mốc K', ngay: '2026-10-21', loai: 'phat-hanh', hang: ['K1'] }; const data = { schema: 1, ten: 'K', moc: [MK], hang: [H('K1', { hang: 'T2' })] };
+  const r = kho({ data }); const m = moO(kit, r, 'K1'); if (m.status !== 0) return [`--mo-o thoát ${m.status}: ${m.stderr}`];
+  const slug = JSON.parse(m.stdout).hoSo; const d = path.join(r, '_acceptance', slug);
+  if (!existsSync(path.join(d, 'du-bao.json'))) return [`--mo-o không ghi du-bao.json cho ${slug}`];
+  for (const [f, t] of Object.entries(KT.HO_SO['da-ship'](slug, 'T2'))) writeFileSync(path.join(d, f), t);
+  writeFileSync(path.join(d, 'evidence-report.md'), EV(slug, '2026-10-20')); writeFileSync(path.join(d, 'run-log.jsonl'), dongGM({ gio_may: 5, gio_cho: 1 }));
+  writeFileSync(path.join(r, TEP), JSON.stringify({ ...data, moc: [DOI(MK, { ngay: '2026-10-20' })] }, null, 2) + '\n');
+  const { x, ra } = dongLech(kit, r); const dau = `${await tenNgan(KIT, DOI(MK, { ngay: '2026-10-20' }))}: dự báo`;
+  if (x.status !== 0) return [`--do-lech thoát ${x.status}: ${x.stderr}`];
+  return ra[0] && ra[0].startsWith(dau) ? [] : [`đo lệch báo chưa đóng băng sau khi ghi đè ngày (dự báo do --mo-o ghi): ${JSON.stringify(ra)}`];
+})) ok('DB-3-mo-o', 'hàng không slug mở bằng --mo-o thật, giao, ghi đè ngày: --do-lech đọc được dự báo đóng băng');
+if (want('DB-3-do')) await chayDo('DB-3-do', db3, [TIEM.chiTen], 'đo lệch báo chưa đóng băng sau khi ghi đè ngày', 'bản sao chỉ khớp tên kèm ngày');
+
+// AC-4: mốc khác không chung mã.
+const MY = { ten: 'Mốc Y', ngay: '2026-10-18', loai: 'phat-hanh', hang: ['U'] };
+const MX = { ten: 'Mốc X', ngay: '2026-10-21', loai: 'phat-hanh', hang: ['A', 'B', 'C'] };
+const hangABC = [H('A', { hang: 'T2', slug: 'a' }), H('B', { hang: 'T2', slug: 'b' }), H('C', { hang: 'T2', slug: 'c' })];
+const hoSoABC = async (mocGoc, hangA = ['A', 'B'], hangB = ['A', 'B', 'C']) => ({
+  a: { hinh: 'da-ship', ky: '2026-10-18', gm: { gio_may: 5, gio_cho: 2 }, duBao: await duBaoCua(mocGoc, '2026-10-15', '2026-10-19', hangA) },
+  b: { hinh: 'da-ship', ky: '2026-10-19', gm: { gio_may: 6, gio_cho: 1 }, duBao: await duBaoCua(mocGoc, '2026-10-17', '2026-10-20', hangB, [5, 6]) },
+  c: { hinh: 'da-ship', ky: '2026-10-20', gm: { gio_may: 4, gio_cho: 0.5 } } });
+const db4 = async kit => {
+  const Y2 = DOI(MY, { ngay: '2026-10-17' }); const X2 = DOI(MX, { ten: 'Mốc X đã phát hành', ngay: '2026-10-20' });
+  const r = kho({ data: { schema: 1, ten: 'K', moc: [Y2, X2], hang: [H('U', { hang: 'T2', slug: 'u' }), ...hangABC] },
+    hoSo: { u: { hinh: 'da-ship', ky: '2026-10-17', gm: { gio_may: 3, gio_cho: 1 } }, ...(await hoSoABC(MX)) } });
+  const sai = []; const { ra } = dongLech(kit, r); const tY = await tenNgan(KIT, Y2); const tX = await tenNgan(KIT, X2);
+  const html = await ve(kit, r); const liY = liMoc(html, Y2.ten); const liX = liMoc(html, X2.ten);
+  if (liY == null) return ['không tìm thấy dòng mốc «Mốc Y» trên trang'];
+  if (!liX || !liX.includes(`${DUOI_DB} (15/10)`)) sai.push(`dòng «Mốc X đã phát hành» thiếu dự báo đóng băng: «${(liX || '').slice(0, 160)}»`);
+  if (liY.includes(DUOI_DB) || !ra.includes(`${tY}: chưa đóng băng dự báo — không đo được lệch`)) sai.push('dự báo gắn nhầm mốc không chung mã: Mốc Y');
+  if (!ra.some(l => l.startsWith(`${tX}: dự báo 19/10 (đóng băng 15/10)`))) sai.push(`--do-lech thiếu khối của «Mốc X đã phát hành»: ${JSON.stringify(ra)}`);
+  return sai;
+};
+if (want('DB-4') && await chayCa('DB-4', db4)) ok('DB-4', 'Y không chung mã: «chưa đóng băng» và dòng trang không dự báo; X đổi tên + dời vẫn mang dự báo trên trang và ở --do-lech');
+if (want('DB-4-do')) await chayDo('DB-4-do', db4, [TIEM.moiMa], 'dự báo gắn nhầm mốc không chung mã: Mốc Y', 'bản sao đếm mọi mã đóng băng là mã chung');
+
+// AC-5: lộ trình khác cùng mã.
+const db5 = async kit => {
+  const MZ = { ten: 'Mốc Z', ngay: '2026-10-21', loai: 'phat-hanh', hang: ['A'] };
+  const r = kho({ cacTep: {
+    'docs/lo-trinh-1.json': { schema: 1, ten: 'Một', moc: [DOI(MX, { ngay: '2026-10-20' })], hang: hangABC },
+    'docs/lo-trinh-2.json': { schema: 1, ten: 'Hai', moc: [MZ], hang: [H('A', { hang: 'T2', slug: 'a2' })] } },
+  hoSo: { ...(await hoSoABC(MX)), a2: { hinh: 'da-ship', ky: '2026-10-21', gm: { gio_may: 3, gio_cho: 1 } } } });
+  const { x, ra } = dongLech(kit, r); if (x.status !== 0) return [`--do-lech thoát ${x.status}: ${x.stderr}`];
+  const sai = []; const tZ = await tenNgan(KIT, MZ); const tX = await tenNgan(KIT, DOI(MX, { ngay: '2026-10-20' }));
+  if (!ra.includes(`docs/lo-trinh-2.json: ${tZ}: chưa đóng băng dự báo — không đo được lệch`)) sai.push(`dự báo của lộ trình khác gắn vào: Mốc Z — ${JSON.stringify(ra.filter(l => l.includes('Mốc Z')))}`);
+  if (!ra.some(l => l.startsWith(`docs/lo-trinh-1.json: ${tX}: dự báo 19/10`))) sai.push(`lộ trình một thiếu khối lệch của Mốc X: ${JSON.stringify(ra)}`);
+  return sai;
+};
+if (want('DB-5') && await chayCa('DB-5', db5)) ok('DB-5', 'hai lộ trình cùng mã A: Mốc Z (lộ trình hai) «chưa đóng băng», Mốc X (lộ trình một) đo được lệch');
+if (want('DB-5-do')) await chayDo('DB-5-do', db5, [TIEM.boLoTrinh], 'dự báo của lộ trình khác gắn vào: Mốc Z', 'bản sao bỏ điều kiện hồ sơ thuộc chính lộ trình');
+
+// AC-6: hàng dời mốc sau đóng băng — đúng một mốc; mã chung nhiều hơn thắng tên bỏ ngày.
+const MW = { ten: 'Mốc W', ngay: '2026-10-23', loai: 'phat-hanh', hang: ['C'] };
+const db6 = async kit => {
+  const X2 = DOI(MX, { ngay: '2026-10-20', hang: ['A', 'B'] }); const W2 = DOI(MW, { ngay: '2026-10-22' });
+  const r = kho({ data: { schema: 1, ten: 'K', moc: [X2, W2], hang: hangABC }, hoSo: await hoSoABC(MX) });
+  const sai = []; const html = await ve(kit, r); const liX = liMoc(html, X2.ten); const liW = liMoc(html, W2.ten); const { ra } = dongLech(kit, r);
+  if (liW == null) return ['không tìm thấy dòng mốc «Mốc W» trên trang'];
+  if (!liX || !liX.includes(`${DUOI_DB} (15/10)`)) sai.push(`dòng «Mốc X» thiếu dự báo đóng băng: «${(liX || '').slice(0, 160)}»`);
+  if (liW.includes(DUOI_DB) || !ra.includes(`${await tenNgan(KIT, W2)}: chưa đóng băng dự báo — không đo được lệch`)) sai.push('dự báo hiện ở hai mốc: Mốc W');
+  return sai;
+};
+if (want('DB-6') && await chayCa('DB-6', db6)) ok('DB-6', 'C dời sang W sau đóng băng: dự báo ở X, W «chưa đóng băng» và dòng trang không dự báo');
+const db6ThuTu = async kit => {
+  const X2 = DOI(MX, { ngay: '2026-10-20', hang: ['A'] }); const W2 = DOI(MW, { ngay: '2026-10-22', hang: ['B', 'C'] });
+  const r = kho({ data: { schema: 1, ten: 'K', moc: [X2, W2], hang: hangABC }, hoSo: {
+    a: { hinh: 'da-ship', ky: '2026-10-18', duBao: await duBaoCua(MX, '2026-10-15', '2026-10-19', ['A', 'B', 'C']) }, b: { hinh: 'da-ship', ky: '2026-10-19' }, c: { hinh: 'da-ship', ky: '2026-10-20' } } });
+  const html = await ve(kit, r); const liX = liMoc(html, X2.ten); const liW = liMoc(html, W2.ten);
+  if (liX == null || liW == null) return ['không tìm thấy dòng mốc «Mốc X» hay «Mốc W» trên trang'];
+  if (liX.includes(DUOI_DB)) return ['dự báo về mốc chung ít mã hơn: Mốc X'];
+  return liW.includes(`${DUOI_DB} (15/10)`) ? [] : [`dòng «Mốc W» thiếu dự báo đóng băng: «${liW.slice(0, 160)}»`];
+};
+if (want('DB-6-thu-tu') && await chayCa('DB-6-thu-tu', db6ThuTu)) ok('DB-6-thu-tu', 'X giữ tên chở [A], W chở [B, C]: dự báo về W (chung nhiều mã đóng băng hơn)');
+if (want('DB-6-do')) await chayDo('DB-6-do', db6, [TIEM.moiUngVien], 'dự báo hiện ở hai mốc: Mốc W', 'bản sao gắn vào mọi ứng viên');
+if (want('DB-6-do2')) await chayDo('DB-6-do2', db6ThuTu, [TIEM.tenTruocMa], 'dự báo về mốc chung ít mã hơn: Mốc X', 'bản sao xếp tên bỏ ngày trước số mã chung');
+
+// AC-7: kho không đổi mốc — giống từng byte bộ máy gốc (trang + bốn lệnh), có hồ sơ không thuộc hàng nào khớp theo tên.
+const db7 = async kit => {
+  const goc = banGocTai(GOC_DB, 'goc-db'); const sai = [];
+  const r = kho({ data: { schema: 1, ten: 'K', moc: [mocM, MM, MN], hang: [...gm3Data.hang, ...gm8Data.hang] }, hoSo: {
+    r: { hinh: 'da-ship' }, p: { hinh: 'dang-dung', duBao: await duBaoP() }, ...(await gm8HoSo()),
+    le: { hinh: 'da-ship', ky: '2026-10-11', duBao: { ...(await duBaoP()), ngay_tinh: '2026-10-10' } } } });
+  const hg = await ve(goc, r); if (!hg || !hg.includes(`${DUOI_DB} (10/10)`)) sai.push('đối chứng gốc không chạy: trang');
+  if ((await ve(kit, r)) !== hg) sai.push('khác bộ máy gốc: trang');
+  for (const a of [['--do-lech'], ['--ra-soat', '--json'], ['--ap', '--json'], ['--xem']]) {
+    const g = chay(goc, r, D, a); const m = chay(kit, r, D, a);
+    if (g.status !== 0 || !g.stdout) { sai.push(`đối chứng gốc không chạy: ${a.join(' ')}`); continue; }
+    if (m.status !== g.status || m.stdout !== g.stdout) sai.push(`khác bộ máy gốc: ${a.join(' ')}`);
+  }
+  if (git(r, 'status', '--porcelain')) sai.push('lệnh đọc ghi tệp');
+  return sai;
+};
+if (want('DB-7') && await chayCa('DB-7', db7)) ok('DB-7', 'kho không đổi mốc: trang, --do-lech, --ra-soat --json, --ap --json, --xem giống từng byte bộ máy gốc');
+if (want('DB-7-do')) await chayDo('DB-7-do', db7, [TIEM.boTenNguyenVan], 'khác bộ máy gốc: trang', 'bản sao bỏ đường khớp tên nguyên văn');
+
+// AC-8: dữ liệu thật — lộ trình kit + dự báo đóng băng thật của chính hồ sơ này.
+const HS_THAT = path.join(KIT, '_acceptance', 'du-bao-dong-bang-theo-ma-moc');
+const db8 = async kit => {
+  const data = JSON.parse(readFileSync(path.join(KIT, 'docs', 'plans', 'lo-trinh-kit.json'), 'utf8'));
+  const i = data.moc.findIndex(m => (Array.isArray(m.hang) ? m.hang : []).includes('RM6b'));
+  const lui = s => new Date(Date.parse(`${s}T00:00:00Z`) - 864e5).toISOString().slice(0, 10);
+  data.moc[i] = DOI(data.moc[i], { ngay: lui(data.moc[i].ngay) });
+  const r = kho({ data }); cpSync(HS_THAT, path.join(r, '_acceptance', 'du-bao-dong-bang-theo-ma-moc'), { recursive: true });
+  const li = liMoc(await ve(kit, r), data.moc[i].ten);
+  if (li == null) return [`không tìm thấy dòng mốc chở RM6b trên trang`];
+  return li.includes(`${DUOI_DB} (16/10)`) ? [] : [`dữ liệu thật: dời mốc làm mất dự báo — «${li.slice(0, 200)}»`];
+};
+if (want('DB-8')) {
+  const coTep = existsSync(path.join(HS_THAT, 'du-bao.json'));
+  const coMoc = JSON.parse(readFileSync(path.join(KIT, 'docs', 'plans', 'lo-trinh-kit.json'), 'utf8')).moc.some(m => (m.hang || []).includes('RM6b'));
+  if (!coTep || !coMoc) console.log(`  SKIP: DB-8 — ${!coTep ? 'tệp dự báo của hồ sơ vắng' : 'không mốc nào chở RM6b'}`);
+  else if (await chayCa('DB-8', db8)) ok('DB-8', 'lộ trình kit, mốc chở RM6b lùi một ngày: dòng mốc vẫn «dự báo lúc bắt đầu (16/10)»');
+}
+if (want('DB-8-do')) await chayDo('DB-8-do', db8, [TIEM.chiTen], 'dữ liệu thật: dời mốc làm mất dự báo', 'bản sao chỉ khớp tên kèm ngày');
 
 try { rmSync(TMP, { recursive: true, force: true }); } catch { /* bỏ */ }
 console.log(`\nResults: ${pass} passed, ${fail} failed`);

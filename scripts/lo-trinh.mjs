@@ -851,11 +851,38 @@ function gangGioMay(kq, doVong, duBaoDs) {
   const doCua = slug => doVong.find(v => v.slug === slug) || null;
   Object.defineProperty(kq, '_gm', { value: { doVong, duBao: duBaoDs, uoc, doCua }, enumerable: false, configurable: true });
 }
-// Dự báo đóng băng sớm nhất của một mốc (tên ngắn khớp `moc.ten` trong du-bao.json); không có → null.
+// Dự báo đóng băng theo mốc của MỘT lộ trình (hồ sơ du-bao-dong-bang-theo-ma-moc): mỗi du-bao.json về đúng một mốc. Ứng
+// viên: tên ngắn khớp nguyên văn `moc.ten` (đường RM6), hoặc mốc chung ≥ 1 mã với `moc.hang` lúc đóng băng — chỉ khi hồ sơ
+// là hồ sơ của một hàng trong chính lộ trình này (cùng phép gắn hàng ↔ hồ sơ của cột trạng thái). Nhiều ứng viên: tên khớp
+// nguyên văn > chung nhiều mã nhất > tên bỏ ngày khớp > đứng trước trong tệp. Dời / ghi đè ngày mục tiêu không làm mất dự
+// báo. Nhớ bên trong `kq._gm` (không liệt kê) — JSON các lệnh khác không đổi byte.
+const boNgayTen = t => chuoi(t).replace(/ \d{2}\/\d{2}$/, '');
+function ganDuBao(kq) {
+  if (kq._gm.theoMoc) return kq._gm.theoMoc;
+  const cua = new Set(kq.dong.map(d => d.hoSo).filter(Boolean));
+  const ten = kq.moc.map(m => tenNganMoc(m)); const tenBoNgay = kq.moc.map(m => tenMocTran(m));
+  const maMoc = kq.moc.map(m => new Set(ganMoc(m)));
+  const theoMoc = kq.moc.map(() => []);
+  for (const x of kq._gm.duBao) {
+    if (!x.moc) continue;
+    const dongBang = (Array.isArray(x.moc.hang) ? x.moc.hang : []).map(String);
+    const ung = [];
+    kq.moc.forEach((m, i) => {
+      const khop = x.moc.ten === ten[i];
+      const giao = cua.has(x.slug) ? dongBang.filter(c => maMoc[i].has(c)).length : 0;
+      if (khop || giao) ung.push({ i, khop: khop ? 1 : 0, giao, boNgay: boNgayTen(x.moc.ten) === tenBoNgay[i] ? 1 : 0 });
+    });
+    ung.sort((a, b) => b.khop - a.khop || b.giao - a.giao || b.boNgay - a.boNgay || a.i - b.i);
+    if (ung.length) theoMoc[ung[0].i].push(x);
+  }
+  for (const ds of theoMoc) ds.sort((a, b) => a.ngay_tinh.localeCompare(b.ngay_tinh) || a.slug.localeCompare(b.slug));
+  kq._gm.theoMoc = theoMoc;
+  return theoMoc;
+}
+// Dự báo đóng băng sớm nhất của một mốc; không có → null.
 function duBaoDongBang(kq, m) {
-  const ten = tenNganMoc(m);
-  const ds = kq._gm.duBao.filter(x => x.moc && x.moc.ten === ten).sort((a, b) => a.ngay_tinh.localeCompare(b.ngay_tinh) || a.slug.localeCompare(b.slug));
-  return ds[0] || null;
+  const i = kq.moc.indexOf(m);
+  return i < 0 ? null : (ganDuBao(kq)[i][0] || null);
 }
 // Hàng của lộ trình theo dạng lớp ngày cần: đã giao / đang dở do bên vẽ phân nhóm.
 const hangGioMay = (kq, nhom) => kq.dong.map(d => Object.assign(Object.create(d), { daGiao: kq.daGiao.has(d.chu), dangDo: nhomTienDo(d.chu, kq, nhom) === 'dang-lam' }));
