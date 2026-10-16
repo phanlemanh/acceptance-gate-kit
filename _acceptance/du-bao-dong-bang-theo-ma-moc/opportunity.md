@@ -19,7 +19,7 @@ lo_trinh_tep: docs/plans/lo-trinh-kit.json
 Mở từ hàng RM6b của «Lộ trình kit nghiệm thu — từ 2.24.0» (`docs/plans/lo-trinh-kit.json`).
 Mốc: Gói road-map hoàn tất theo B′ — 19/10/2026 (cùng gói với RM6, hàng này đứng trên RM6).
 
-Gốc: _acceptance/lo-trinh-gio-may/ — mục Ngoài-6 của Cổng Bằng chứng RM6 (16/10), chủ kho chọn «mở hợp đồng mới»;
+Gốc: kit/_acceptance/lo-trinh-gio-may/ — mục Ngoài-6 của Cổng Bằng chứng RM6 (16/10), chủ kho chọn «mở hợp đồng mới»;
 hạt giống `docs/plans/2026-10-16-hat-giong-du-bao-dong-bang-theo-ma-moc.md`.
 
 **Ai đau:** chủ kho, và mọi kho tiêu thụ có lộ trình. RM6 đóng băng dự báo của mốc lúc mở việc, nhưng tìm lại nó bằng
