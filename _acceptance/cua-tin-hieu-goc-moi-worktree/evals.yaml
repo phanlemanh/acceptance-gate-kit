@@ -16,7 +16,7 @@ evals:
       nguoi-<tên>-1/-2/-3.json ở thư mục chính, băm tệp trước giữ nguyên sau mỗi lần, 0 tệp .json trong nguồn của A và B,
       dòng in nêu đường tương đối thư mục chính, noi_dung.gui_tu = worktree, worktree, thu-muc-chinh. GW-1-do: bản sao bên
       ghi giải nguồn theo gốc phiên → FAIL ghim «ý người nằm trong worktree». GW-1-do2: bản sao tính số thứ tự theo nguồn
-      của gốc phiên → FAIL ghim «ý bị ghi đè».
+      của gốc phiên VÀ ghi không độc quyền → FAIL ghim «ý bị ghi đè».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2

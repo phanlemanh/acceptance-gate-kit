@@ -38,8 +38,9 @@ không có thư mục ấy — như kho thật, vì tệp ý chưa theo dõi), c
   `<thư mục chính>/tin-hieu/kho/` (băm tệp trước giữ nguyên sau mỗi lần gửi), 0 tệp `.json` trong thư mục nguồn của A và
   B, dòng in nêu đường tệp tương đối thư mục chính, và tệp mang `noi_dung.gui_tu` = `"worktree"` cho hai lần đầu,
   `"thu-muc-chinh"` cho lần cuối.
-  Chiều đỏ: bản sao bên ghi giải nguồn theo gốc phiên → FAIL ghim «ý người nằm trong worktree»; bản sao chỉ tính số thứ
-  tự theo thư mục nguồn của gốc phiên → FAIL ghim «ý bị ghi đè».
+  Chiều đỏ: bản sao bên ghi giải nguồn theo gốc phiên → FAIL ghim «ý người nằm trong worktree»; bản sao tính số thứ tự
+  theo thư mục nguồn của gốc phiên VÀ ghi không độc quyền → FAIL ghim «ý bị ghi đè» (chỉ đổi cách đếm thì bộ ghi độc quyền
+  của RM3 vẫn ra -1, -2, -3).
 - AC-2: Given ba ý của AC-1 và một việc phụ của thợ qua đợt (gốc kho đợt = thư mục chính), When chạy ở thư mục chính, ở A
   và ở B: `scripts/tin-hieu.mjs --chua-gom` (tập id), `--duong` (tập id), `--rang` (mã thoát và mọi dòng nhắc nguồn),
   `--cau` (mã thoát), và `scripts/start-scan.mjs` (TRỌN các dòng thẻ mở đầu «Cửa tín hiệu:» hoặc «! cửa tín hiệu:») trên
