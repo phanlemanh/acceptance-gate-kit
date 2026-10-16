@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm hooks/acceptance-evidence-gate.js, lib/ (bộ đọc mới), scripts/pre-merge-check.sh — t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-kho-cam-ket-co-lo-trinh-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-15T23:30:08Z
 ---
