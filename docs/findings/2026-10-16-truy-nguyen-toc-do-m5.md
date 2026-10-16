@@ -525,7 +525,7 @@ không theo lời khai. Không cần bộ phân loại mới: kit đã có `pre-
 | # | Việc | Tầng | TRỪ / CỘNG | Ai |
 |---|---|---|---|---|
 | 1 | **Tắt Preview** của app, api, agent (lối A, §9.6) — thay cho «tách DB của Preview» | `vercel.json` của crm | TRỪ | máy soạn PR, **chủ kho** duyệt gộp |
-| 2 | Bật check bắt buộc trên `onehub` (acceptance gate + CI), kèm `enforce_admins`; máy gộp bằng danh tính không phải admin | GitHub của crm | đặt răng cho luật lời | **chủ kho** (cài đặt bảo mật — máy không tự đổi) |
+| 2 | Bật check bắt buộc trên `onehub` (acceptance gate + CI), kèm `enforce_admins`; máy gộp bằng danh tính không phải admin | GitHub của crm | đặt răng cho luật lời | **chủ kho** giao máy làm 16/10 — phần check + `enforce_admins` **xong** (§9.7); phần danh tính chưa |
 | 3 | Làn đêm ghim lại (PC1) — chiều đỏ duy nhất đang sống: nó đã đỏ với lỗi prod thật (hydration, 403 quản trị) | crm | CỘNG quy trình | chủ kho (đã có ở §7.2) |
 | 4 | Mở rộng `t3_paths` của crm (service phân quyền, `apps/api/vercel.json`, script ghi DB, `apps/agent/**` gửi tin); dùng `--hang-pr` đếm tỉ lệ R2 thật trên 9 vòng | config crm | 0 dòng kit | chủ kho (luật kho) |
 | 5 | Ghi trọng số và chính sách vào ô cơ hội ở Cổng Đáng (§8.4) | nếp thợ | TRỪ | máy |
@@ -609,6 +609,41 @@ tắt Preview**. Hai lối B và C (nhánh Neon cho Preview) chỉ có lý do t�
 
 Trong lúc đo có một request ra ngoài do máy gây ra: GET `/health` vào bản Preview của chính kho, bị SSO chặn, không
 chạm hàm nào.
+
+### 9.7 Bước 2 đã làm: check bắt buộc trên onehub (16/10, chủ kho giao)
+
+Chủ kho: «Thực hiện hạng mục 1. Bật check bắt buộc trên onehub kèm enforce_admins cho tôi.»
+
+**Kiểm trước:**
+- gói Pro cho phép bảo vệ nhánh trên kho riêng tư;
+- trước đó onehub không có bảo vệ (404) và không có ruleset nào;
+- 30 ngày qua chỉ có 1 lần đẩy thẳng vào onehub (18/09);
+- không workflow nào đẩy thẳng vào onehub.
+
+**Đã đặt** (`PUT /repos/phanlemanh/crm-onehub/branches/onehub/protection`):
+
+| Khoá | Giá trị | Vì sao |
+|---|---|---|
+| Check bắt buộc | `acceptance gate` · `check-types, lint` · `lệnh dựng` | Ba check tất định. `acceptance gate` mang `pre-merge-check` — nó từ lời khuyên thành chốt thật. |
+| Không bắt buộc | `test (api)`, `test (app-ui)`, `test (con-lai)`, `ci-ok` | app-ui chập chờn (7/13 lần đỏ xanh khi chạy lại); bắt buộc lúc này sẽ tắc hàng gộp. Nếp của Điều phối «CI xanh trọn trước khi gộp» vẫn giữ. |
+| `strict` (nhánh phải cập nhật theo onehub) | **false** | Bật thì mọi lần onehub tiến lại đẻ một vòng gộp lại, làm H4 nặng thêm. |
+| `enforce_admins` | **true** | Máy gộp bằng tài khoản admin của chủ kho; không bật thì check có thể bị bỏ qua. |
+| force-push, xoá nhánh | cấm | Mặc định an toàn. |
+
+**Kiểm sau, có chiều đỏ:**
+- `protected=true`, đọc lại thấy đúng ba check.
+- PR #443: ba check bắt buộc xanh → `UNSTABLE`, tức gộp được; các job test chưa xong nhưng không bắt buộc.
+- PR #396: `acceptance gate` đỏ → **`BLOCKED`**. #396 là nháp, nhưng GitHub ghi BLOCKED chứ không ghi DRAFT.
+
+**Giới hạn đã biết:**
+- Workflow `tin-hieu-keo-ve` mở PR hàng chờ vào onehub bằng `GITHUB_TOKEN`. PR do token này mở không kích workflow
+  `pull_request`, nên ba check không bao giờ báo, và PR ấy sẽ đứng ở BLOCKED. Gỡ: người hoặc máy đóng rồi mở lại
+  PR (sự kiện `reopened` do người làm có kích workflow), hoặc đổi workflow sang token khác. Ngưỡng sửa: lần đầu một
+  PR hàng chờ bị kẹt.
+- Vế «máy gộp bằng danh tính không phải admin» **chưa làm**: cần dựng tài khoản bot hoặc GitHub App. Vì vậy
+  provenance trên forge vẫn chưa phân biệt được người với máy (L6).
+
+**Đường đảo:** `gh api -X DELETE repos/phanlemanh/crm-onehub/branches/onehub/protection`.
 
 ## 10. Giới hạn đo
 
