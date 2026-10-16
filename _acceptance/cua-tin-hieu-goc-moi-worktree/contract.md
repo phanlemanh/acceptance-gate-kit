@@ -6,9 +6,11 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # hàng RM3b khai T2: scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/start-scan.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-cua-tin-hieu-goc-moi-worktree-design.md
-status: draft
+status: approved
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-16T08:11:23Z
 ---
 
 # Acceptance Contract: cua-tin-hieu-goc-moi-worktree
