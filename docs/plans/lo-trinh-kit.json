@@ -137,7 +137,8 @@
         "RM4",
         "RM5",
         "RM3",
-        "RM6"
+        "RM6",
+        "RM3b"
       ]
     }
   ],
@@ -655,6 +656,22 @@
       "bat_khi": "Trong một chiến dịch, mọi ý mới thợ hay người nêu đều có chỗ trong cửa tín hiệu và không đẻ lượt gọi người ngoài thiết kế",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ, PHỐI HỢP M5: chạm gói dieu-phoi (vùng M5) — khai trên kit #308 trước Cổng Phạm vi. Trước đây ở chân trời — chủ kho gọi tên làm luôn 15/10. Ước 6–8 giờ máy + thời gian M5."
+    },
+    {
+      "ma": "RM3b",
+      "ten_ngan": "Cửa tín hiệu một gốc cho mọi worktree",
+      "cau_giao": "Ý gửi vào cửa tín hiệu từ bất kỳ worktree nào đều nằm ở thư mục chính của kho — mọi bộ đọc ở mọi worktree thấy cùng một tập, và dọn worktree không làm mất ý",
+      "vai": "Chủ kho",
+      "tieu_chi": 6,
+      "vi_sao": "Gốc: _acceptance/cua-tin-hieu-giua-chien-dich/ — lỗi tái hiện trên main 66951212 (kịch bản + đầu ra ở _acceptance/cua-tin-hieu-goc-moi-worktree/repro/): /road-map:gui từ worktree ghi vào worktree, thợ qua đợt ghi vào thư mục chính, hai bộ đọc thấy hai tập rời nhau, dọn worktree ép làm mất ý. Chủ kho gõ «mở RM3b» 16/10 ở phiên điều phối.",
+      "hang": "T2",
+      "slug": "cua-tin-hieu-goc-moi-worktree",
+      "dung_tren": [
+        "RM3"
+      ],
+      "bat_khi": "Ở kho có worktree, một ý gửi từ worktree bất kỳ được thấy bởi bộ đọc chạy ở thư mục chính và ở mọi worktree khác, và vẫn còn sau khi worktree gửi nó bị dọn",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Vòng sửa của RM3, mở trước khi cắt gói road-map (gói chỉ cắt sau khi RM3b gộp). Ước 3–4 giờ máy."
     },
     {
       "ma": "RM6",
