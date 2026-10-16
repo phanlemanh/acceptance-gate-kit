@@ -193,3 +193,4 @@ ap-chinh-sach-lo-trinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6
 cua-tin-hieu-giua-chien-dich	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 kho-moi-cai-goi-road-map	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|Ngoài-17|Ngoài-18|Ngoài-19|Ngoài-20|Ngoài-21|Ngoài-22|Ngoài-23|Ngoài-24|Ngoài-25|Ngoài-26|Ngoài-27|Ngoài-28|Ngoài-29|Ngoài-30|Ngoài-31|Ngoài-32|Ngoài-33|ký hay trả	bao=cắt/hoãn|Treo
 lo-trinh-gio-may	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+kho-cam-ket-co-lo-trinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo

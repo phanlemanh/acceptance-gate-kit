@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm hooks/acceptance-evidence-gate.js, lib/ (bộ đọc mới), scripts/pre-merge-check.sh — t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-16-kho-cam-ket-co-lo-trinh-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-15T23:30:08Z
 ---
@@ -88,3 +88,15 @@ Mỗi dòng ngưỡng của ô cơ hội trỏ đúng một lệnh:
   hồ sơ nhận» — chặn không bắt ca ấy.
 - `lib/chan-lo-trinh.cjs`, `scripts/pre-merge-check.sh`, `scripts/lo-trinh.mjs` nằm trong danh sách chép CI → ghi chú
   phát hành nêu «chép lại».
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-16:
+  - Ngoài-1: Khi khoá chặn mang giá trị sai, thông báo chặn không nêu tệp cấu hình cần sửa.
+  - Ngoài-2: Chú thích đầu bộ đọc chặn mô tả sai thứ tự máy đọc cấu hình; người dùng không thấy gì khác.
+  - Ngoài-3: Phép thử «bộ đọc im khi tệp cài đặt hỏng» chưa từng được thấy đỏ, nên nếu bộ đọc hỏng theo hướng luôn im thì phép thử vẫn xanh.
+  - Ngoài-4: Kho đặt hồ sơ trong thư mục con của kho git thì lưới trước khi gộp không thấy hồ sơ mới nào và cho qua im lặng.
+  - Ngoài-5: Hồ sơ bị xoá hay đổi tên ở nhánh chính sau khi nhánh việc tách ra có thể bị báo là hồ sơ mới ở nhánh việc.
+  - Ngoài-6: Kho đã tắt chặn mà chưa chép lớp kiểm mới vẫn thấy một dòng ghi chú «luật chặn chưa được thi hành».
+  - Ngoài-7: Gốc kho là thư mục con thì lưới lọt im lặng; đường dẫn đi qua liên kết thì lưới có thể báo vi phạm sai.
+  - Ngoài-8: Ở kho bật chặn mà cài gói cũ thiếu bộ đọc mới, mở vòng từ mô tả không thêm được hàng và phiên không báo gì cho tới khi bước ghi hợp đồng bị chặn.
+  - Ngoài-9: Tệp lộ trình lưu kèm ký tự ẩn đầu tệp làm bước chặn coi hồ sơ đã nối là chưa nối.
+  - Ngoài-10: Bộ kiểm hướng dẫn bật/tắt kiểm chữ trên toàn tệp, nên xoá câu hướng dẫn về sau có thể không bị phát hiện.
+  - Ngoài-11: Bộ kiểm «khuôn khởi tạo không bật sẵn chặn» đọc một khối không bao giờ chứa khối lộ trình, nên luôn xanh.
