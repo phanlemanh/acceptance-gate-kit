@@ -3,7 +3,7 @@
 Hợp đồng: `_acceptance/cham-lai-khong-tu-doi/contract.md` (duyệt 16/10). Ca đo: `tests/scripts/cham-lai-khong-tu-doi.test.mjs`
 (commit trước vật — đỏ trên bản hiện hành, xem commit S1).
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Người dùng thấy khác gì | Tệp chạm | Tiêu chí phục vụ |
 |---|---|---|
 | Chấm lại không giữ kết quả cũ của phép đo đã đổi định nghĩa | `feature-loop/scripts/carry-plan.mjs` | AC-1…AC-5 (giữ đúng, im khi không đổi) |
 | Lý do chạy lại hiện một dòng khi sinh tham số | `feature-loop/scripts/s4-args.mjs` | AC-1, AC-2, AC-5 (thông điệp ghim) |
