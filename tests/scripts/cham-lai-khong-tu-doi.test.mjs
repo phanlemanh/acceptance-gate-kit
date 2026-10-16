@@ -135,7 +135,7 @@ async function quaLuot1(d) {
 const MUI_KHOI = [
   ['expected 21→22 (ca DA3b)', { expected: '22' }],
   ['cmd', { cmd: 'config:executors.test.api2' }],
-  ['executor', { executor: 'script', cmd: 'config:executors.script.api' }],
+  ['executor', { executor: 'script' }],   // ĐÚNG một trường — cmd giữ nguyên (cmd có ô riêng ngay trên)
   ['expected_exit', { expected_exit: 3 }],
   ['criterion', { criterion: 'AC-3' }],
 ];
