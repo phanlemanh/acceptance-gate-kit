@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 96cc91fbc0a4ccea10055d4cf8ac36464f30e1c0
+verified_commit: eefb3deb2c0ff8c16ab14c5d4575c099e340b911
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -172,3 +172,7 @@ none — every multi-run eval is uniform (moi eval deu chay mot lan, determinist
 
 Round 1: REJECT vì P93 (tên cột khuôn bảng trong kế hoạch) — đã sửa, ghi sổ chạy lượt 1.
 Round 2: 8 eval AC-1..AC-8 mang sang từ round 1 (delta không chạm paths của eval); 11 lệnh suite hồi quy chạy lại, tất cả xanh. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-16, do gộp main bd821d8d (#364 RM6b, #367 RM5) sau chữ ký
+run_id: repin-20261016T132503Z-59987
+sha: eefb3deb2c0ff8c16ab14c5d4575c099e340b911 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
