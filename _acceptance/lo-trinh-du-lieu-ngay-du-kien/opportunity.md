@@ -3,10 +3,10 @@ schema_version: 1
 slug: lo-trinh-du-lieu-ngay-du-kien
 feature: Kho tiêu thụ đọc khối dữ liệu trang lộ trình và có giờ máy của từng hàng, giờ máy cùng ngày dự kiến của từng mốc — kèm cờ khi số đo chưa đủ; trang đọc bản cũ vẫn chạy y như trước
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-16T02:47:11Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 16/10
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -79,9 +79,9 @@ thật của crm.
 
 ## Cổng 0
 
-- **decision =** 
+- **decision = build** — chủ kho gõ «đáng: build · ngưỡng: nhận» 16/10.
 - **disposition = —** Căn cứ: không prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** 
+- **Ngưỡng UAT chốt cùng lúc ký:** nhận nguyên văn mục «Ngưỡng chết / ngưỡng UAT» ở trên.
 
 ## Thước đo thành công → ứng viên criterion
 
