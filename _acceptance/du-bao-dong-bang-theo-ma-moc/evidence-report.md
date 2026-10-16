@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f1f0de55000663748a14fd32fd8ded286317aa28
+verified_commit: d76ca283f3d27d58eb7bcc627661a343b98d0064
 human_signoff:
 ---
 
@@ -185,3 +185,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, tất �
 ## Iterations
 
 Round 1: E1–E8 và E7b đều xanh, các lệnh suite xanh; không eval nào lỗi. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-16, do gộp main 66951212 (#366 RM3) sau máy thông; khai RT13 cho RM6b
+run_id: repin-20261016T072836Z-20512
+sha: d76ca283f3d27d58eb7bcc627661a343b98d0064 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
