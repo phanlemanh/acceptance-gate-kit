@@ -128,7 +128,7 @@
       ]
     },
     {
-      "ten": "Gói road-map hoàn tất theo B′ — ngày tính từ ước 32–40 giờ máy (RM2 8–10 · RM4 5–6 · RM5 6–7 · RM3 6–8 + M5 · RM6 5–6 · cắt bản 1,5–2); chủ kho gọi tên làm luôn 15/10",
+      "ten": "Phát hành 2.32.0 — ĐÃ PHÁT HÀNH 17/10, tag v2.32.0 = f7d95695 (PR #373): gói road-map hoàn tất theo B′ (RM2 tự áp chính sách · RM4 kho mới có sẵn lộ trình · RM5 chặn mở việc ngoài kế hoạch · RM3 + RM3b cửa tín hiệu một gốc · RM6 + RM6b + RM6c giờ máy và ngày dự kiến) + lượt chấm lại không tự dối (VA1); ngày tính từ ước 32–40 giờ máy, chủ kho gọi tên làm luôn 15/10, điểm dừng chủ kho chốt 17/10",
       "ngay": "2026-10-19",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
