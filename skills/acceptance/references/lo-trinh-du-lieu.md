@@ -151,7 +151,9 @@ Kho khai cửa tín hiệu (`tin_hieu.nguon` + `tin_hieu.gom` trong `_acceptance
 để bản chiếu hiện cho người gửi tín hiệu của họ tới đâu. Kho không khai thì khối KHÔNG có khoá này (không
 phải mảng rỗng) và giống từng byte bản trước; khoá không nằm trong bảng khoá chuẩn ở trên, `phien_ban`
 không đổi, và bộ đọc mẫu `docDuLieu` giữ nó nguyên vẹn như mọi khoá lạ. Bản chiếu coi «không có khoá» là
-«kho chưa mở cửa tín hiệu». Trường của một phần tử:
+«kho chưa mở cửa tín hiệu». Mảng chỉ mang tín hiệu mà tệp ĐÃ ĐƯỢC GIT THEO DÕI trong chính cây vẽ trang (từ
+2.32.1, hồ sơ `ve-lo-trinh-doc-tin-hieu-cua-cay`): trang là vật commit và CI vẽ lại từ bản tải sạch, nên ý chưa
+commit chỉ lên trang khi được commit — nó vẫn hiện ở thẻ khởi động và `/road-map:xem`. Trường của một phần tử:
 
 <!-- <<<LO-TRINH-DU-LIEU-TUY-CHON -->
 ```
