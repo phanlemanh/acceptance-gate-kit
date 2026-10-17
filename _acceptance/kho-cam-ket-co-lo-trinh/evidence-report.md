@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dbb32641b1aa53c07ceeb32b8c7d398cdb0af923
+verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -189,3 +189,7 @@ Round 2: mọi eval E1–E9 (24 ca của bộ feature) và mọi lệnh suite đ
 ### Re-pin lần 1 — 2026-10-16, do gộp main 6e9b95f9 (RM6b #364) trước khi gộp PR #367
 run_id: repin-20261016T093508Z-91969
 sha: dbb32641b1aa53c07ceeb32b8c7d398cdb0af923 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
+run_id: repin-20261017T024130Z-65967
+sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

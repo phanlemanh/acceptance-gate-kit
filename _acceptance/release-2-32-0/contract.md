@@ -5,7 +5,7 @@ slug: release-2-32-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 4 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -79,4 +79,5 @@ hồ sơ · crm#375 · kit #308.
 ## Notes
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths` (`hooks/**`, `lib/**`, `pre-merge-check.sh`, `recheck-evidence.cjs`) — `lib/chan-lo-trinh.cjs`, `hooks/acceptance-evidence-gate.js` và `scripts/pre-merge-check.sh` đổi trong cửa sổ đã qua cổng của chính vòng ấy.
+- Ghim lại ở mốc: mười hồ sơ xanh ở `repin-20261017T024130Z-65967` (54 phút, 25 lệnh, 0 chập chờn); làn trước `repin-20261017T014450Z-66877` đỏ đúng một ca PD7b (ghi chú gọi `road-map` là gói «nếu đã cài»), đã sửa chữ. `release-2-31-0` để cũ hoá theo cấu tạo.
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm nhận sau 2.31.0. Cửa sổ chở nhiều vòng meta hơn trần «một vòng meta giữa hai mốc kho nhận»: gói road-map là một kết quả do chủ kho gọi tên làm luôn 15/10 (bảy hàng, một mốc), VA1 là nới luật (b) chủ kho quyết 16/10 «đi cùng bản phát hành gói road-map, không phải tiền lệ».

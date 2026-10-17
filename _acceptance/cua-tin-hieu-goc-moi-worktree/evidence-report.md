@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d1226682cfcdd51fae4b5e662dd6b106ab47c859
+verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
 human_signoff: Manh Phan 2026-10-17
 ---
 
@@ -161,3 +161,7 @@ none — every multi-run eval is uniform
 
 Round 1: BLOCKED — lệnh suite `--manh vung:2` của plugins không chạy xong trong ngưỡng; ba phát hiện trong hợp đồng về đối chứng dương thiếu (AC-2, AC-4, AC-6) trả về triển khai.
 Round 2: E1–E6 và mười hai lệnh suite đều xanh trên cây đã ghim ở verified_commit; còn một phát hiện trong hợp đồng mức vừa về AC-1, và các phát hiện ngoài hợp đồng, xem review-findings.md trước khi ký.
+
+### Re-pin lần 1 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
+run_id: repin-20261017T024130Z-65967
+sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
