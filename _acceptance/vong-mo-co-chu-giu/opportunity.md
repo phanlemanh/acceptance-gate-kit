@@ -3,10 +3,10 @@ schema_version: 1
 slug: vong-mo-co-chu-giu
 feature: Mỗi yêu cầu giữa các phiên — giám sát và thợ, máy và máy — có mã và hạn biên nhận, chỉ đóng khi có XONG kèm vật, TRẢ hay HUỶ; phiên không kết lượt khi còn tin gửi mình chưa nhận; lời giao việc thiếu kết quả hay ranh giới thì không mở chip
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-17T14:06:51Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 17/10
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -28,7 +28,7 @@ giám sát → thợ và máy ↔ máy vẫn đóng vòng bằng trí nhớ (s�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» khi hết timebox
-- Timebox: [đề xuất] 2026-10-22 (mốc Phát hành kế sau 2.32.1 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình)
+- Câu hỏi phép đo trả lời: đã đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» chưa?
+- Kết quả nào là SỐNG: Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã
+- Kết quả nào là CHẾT: chưa đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» khi hết timebox
+- Timebox: 2026-10-22 (mốc Phát hành kế sau 2.32.1 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình)
