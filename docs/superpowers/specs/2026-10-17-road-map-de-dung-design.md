@@ -79,7 +79,7 @@ Khối «Mốc» của trang, mỗi mốc:
   2 việc đã giao ▸
 ```
 
-- Tên: `ten_hien_thi` của khối (Hỏi-3; khuyến nghị câu giao đầy đủ, vắng thì tên ngắn).
+- Tên: `ten_hien_thi` của khối (chủ kho chốt 17/10: câu giao đầy đủ, vắng thì tên ngắn).
 - Trạng thái bằng chữ: chính chữ ô Trạng thái của bảng việc (`d.chu`) — một nguồn, không từ điển thứ hai.
 - Mã: chữ nhỏ cuối dòng, là liên kết tới hàng trong bảng việc.
 - Mở ra (`<details>`): tên hồ sơ (`slug`) khi có (lối tên ngắn: thêm câu giao đầy đủ) — không cần JavaScript.
@@ -94,7 +94,7 @@ mọi mặt chỉ vẽ:
 
 | Khoá (thêm trong phiên bản 2 của khối — luật «kit chỉ THÊM khoá trong cùng phiên bản», 16/10) | Nghĩa |
 |---|---|
-| `hang[].ten_hien_thi` | tên hiển thị của việc — luật chốt ở Hỏi-3; bản soạn theo khuyến nghị: câu giao đầy đủ bỏ «» (đúng trang crm), việc không có câu giao thì `ten_ngan` → `ten` |
+| `hang[].ten_hien_thi` | tên hiển thị của việc — chủ kho chốt 17/10 (Hỏi-3): câu giao đầy đủ bỏ «» (đúng trang crm), việc không có câu giao thì `ten_ngan` → `ten` |
 | `moc[].viec_hien` | mã các việc hiện dưới mốc — việc thuộc mốc ĐẦU TIÊN liệt nó (đúng luật `phangViec` của crm) |
 | `moc[].hien` | `true` khi `viec_hien` khác rỗng — luật «chỉ mốc có việc gắn» của trang crm |
 | `moc[].con_lai` | số việc của `viec_hien` chưa giao |
