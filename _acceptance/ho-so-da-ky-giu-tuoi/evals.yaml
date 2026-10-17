@@ -47,10 +47,12 @@ evals:
     cmd: config:executors.test.ho_so_da_ky_giu_tuoi
     paths: [feature-loop/scripts/giu-tuoi.mjs, lib/evidence-core.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
     expected: >
-      exit 0; stdout có dòng bắt đầu "PASS: GT4 — 4/4 ô". Ô chính: ket_cuc do-khoang, quy_ve = [{pr:12, sha_truoc: cha
+      exit 0; stdout có dòng bắt đầu "PASS: GT4 — 5/5 ô". Ô chính: ket_cuc do-khoang, quy_ve = [{pr:12, sha_truoc: cha
       đầu của gộp #12, sha_sau: gộp #12}], bảng chứa «đỏ do PR #12». Ô hai gộp → nhieu-pr, quy_ve có pr 12 và 13. Ô đỏ cùng
       băm ở <từ> → do-san-truoc-khoang, quy_ve rỗng. Ô eval không paths → quy_ve liệt mọi gộp có mã, ly_do chứa «eval
-      không khai paths». Ca tự kiểm số ô = 4.
+      không khai paths». Ô 5 (thêm 18/10): kho thử có thư mục phụ thuộc git bỏ qua — đỏ sẵn cùng thông điệp →
+      do-san-truoc-khoang, không «#12»; thiếu hẳn phụ thuộc ở cây tạm (mã 127, «Cannot find module») → ha-tang có ghi chú «không
+      chạy lại được ở đầu khoảng», không «#12». Chiều đỏ: bản lượt 1 gọi tên #12. Ca tự kiểm số ô = 5.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -58,10 +60,12 @@ evals:
     cmd: config:executors.test.ho_so_da_ky_giu_tuoi
     paths: [feature-loop/scripts/giu-tuoi.mjs, lib/nhan-canh-gay.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
     expected: >
-      exit 0; stdout có dòng bắt đầu "PASS: GT5 — 3/3 ô". Mỗi ô {mã 127 · mã ≥ 128 · xanh khi chạy lại trên đỉnh}:
+      exit 0; stdout có dòng bắt đầu "PASS: GT5 — 4/4 ô". Mỗi ô {mã 127 · mã ≥ 128 · xanh khi chạy lại trên đỉnh}:
       ket_cuc ha-tang, quy_ve rỗng, tu và sha của dòng sổ = sha đầu khoảng và đỉnh, bảng chứa «không
       quy được — hạ tầng» và cả hai sha ấy, dòng sổ và bảng KHÔNG chứa «#12» dù gộp #12 chạm
-      paths của E1. Đối chứng dương cùng kho: E1 đỏ thật vì #12 → bảng chứa «#12».
+      paths của E1. Đối chứng dương cùng kho: E1 đỏ thật vì #12 → bảng chứa «#12». Ô 4 (thêm 18/10): dòng nền
+      ket_cuc ha-tang + khoá bật + vòng khác cùng ca cùng thông điệp → repin-lane thoát 1, stderr «nhãn không gắn: dòng nền là đỏ
+      hạ tầng — không làm nền»; repin mang do_san trỏ dòng ấy → pre-merge VIOLATION nêu vế đó, recheck 1. Chiều đỏ: luật lượt 1 gắn nhãn.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -81,9 +85,10 @@ evals:
     cmd: config:executors.test.ho_so_da_ky_giu_tuoi
     paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, scripts/gate-card.js, scripts/product-map.mjs, lib/do-san-tren-nen.cjs, lib/nhan-canh-gay.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
     expected: >
-      exit 0; stdout có dòng bắt đầu "PASS: GT7 — 4/4 ô". Ô hợp lệ: pre-merge in «NOTE [H5]: đỏ sẵn trên nền — E1 (nền
+      exit 0; stdout có dòng bắt đầu "PASS: GT7 — 5/5 ô". Ô hợp lệ: pre-merge in «NOTE [H5]: đỏ sẵn trên nền — E1 (nền
       <run_id>, PR #12)», không dòng VIOLATION nào cho H5; recheck thoát 0; thẻ và bản đồ của H5 chứa «đỏ sẵn trên nền» và
-      không chứa «ĐẠT». Ba ô giả {run_id không có dòng nền · băm khác · khoá tắt lúc đọc}: pre-merge có VIOLATION [H5]
+      không chứa «ĐẠT». Bốn ô giả {run_id không có dòng nền · băm khác · khoá tắt lúc đọc · dòng nền chỉ do nhánh vòng tự thêm, không có ở
+      điểm tách với nhánh chính}: pre-merge có VIOLATION [H5]
       nêu vế hỏng, recheck thoát 1. Phá thử hàm chung trên bản sao: ép hàm export của lib/do-san-tren-nen.cjs luôn
       «không đạt» → repin-lane thoát 1, pre-merge có VIOLATION [H5], recheck thoát 1 ở ô hợp lệ; ép luôn «đạt» → cả ba nhận
       nhãn ở ô băm khác. Mỗi phía ghim thông điệp riêng — đo quan hệ, không đếm dòng nạp.
