@@ -5,8 +5,8 @@ feature: Trang lộ trình vẽ ở đâu cũng chỉ lấy ý đã theo dõi tr
 owner: phanlemanh@gmail.com
 stage: decided              # discovery | decided | archived
 decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+decided_by: Manh Phan
+decided_at: 2026-10-17T11:57:49Z   # chủ kho gõ «duyệt» trên thẻ Cổng Phạm vi mời «duyệt · đáng: build · ngưỡng: nhận» (tiền lệ VA1)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive

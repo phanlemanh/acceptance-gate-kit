@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs, scripts/product-map.mjs, tests — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-17-ve-lo-trinh-doc-tin-hieu-cua-cay-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-17T11:57:49Z
 ---
 
 # Acceptance Contract: ve-lo-trinh-doc-tin-hieu-cua-cay
