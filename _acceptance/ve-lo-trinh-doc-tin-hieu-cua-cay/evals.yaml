@@ -70,3 +70,13 @@ evals:
       thiếu → «đối chứng gốc không chạy: <ca>»). VT-4-do: bản sao trả rỗng khi gốc không phải git → FAIL ghim «thư mục
       thường mất ý trên trang».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  # Thêm ở S4 lượt 2 (sổ dòng fix S4-r2): vùng 2 của suite plugins chạy 671 s kể cả khi máy rảnh — quá trần 10 phút mỗi
+  # lệnh của tác tử chấm, nên lượt 2 BLOCKED vì hạ tầng. Eval này mang CHÍNH lệnh của suite với long_running để workflow
+  # chạy nền và chờ (tiền lệ release-2-32-0 E3i); không đổi phép đo của tiêu chí nào.
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins_vung_2
+    long_running: 60
+    expected: "vùng 2 của suite plugins XANH (Results: all plugin tests passed) — không hồi quy ở phần còn lại của kit"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
