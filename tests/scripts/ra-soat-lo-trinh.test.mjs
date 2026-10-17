@@ -198,6 +198,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 220)}`);
   } catch (e) { bad(id, loi(e)); }
 };
+
+// Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
+// gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
+// hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const KIT_TAT = () => tatRD1(KIT);
+const chayDoTat = async (id, f, tiem, ghim, moTa) => {
+  try {
+    const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
+    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
+  } catch (e) { bad(id, loi(e)); }
+};
 const rsTap = rs => rs.flatMap(t => t.de_xuat.map(m => `${m.ma}|${m.de_xuat}|${m.luat}`));
 
 // ═══ RS-1 (AC-1): ba luật sự thật — ma trận 6 vị trí × 8 trạng thái ═════════════════════════════════════════════
@@ -398,8 +411,8 @@ async function rs4byte(kit) {
   }
   return sai;
 }
-if (want('RS-4-byte') && await chayCa('RS-4-byte', rs4byte)) ok('RS-4-byte', 'ba kho 0 đề xuất: stdout thẻ start giống từng byte bộ máy gốc');
-if (want('RS-4-do')) await chayDo('RS-4-do', rs4byte, [['scripts/lo-trinh.mjs', '  if (!t.raSoat) return [];', "  if (!t.raSoat) return ['Rà soát: 0 đề xuất'];"]], 'khác bộ máy gốc: khong-moc', 'bản sao in «Rà soát: 0 đề xuất» khi rỗng');
+if (want('RS-4-byte') && await chayCa('RS-4-byte', rs4byte, KIT_TAT())) ok('RS-4-byte', 'ba kho 0 đề xuất: stdout thẻ start giống từng byte bộ máy gốc');
+if (want('RS-4-do')) await chayDoTat('RS-4-do', rs4byte, [['scripts/lo-trinh.mjs', '  if (!t.raSoat) return [];', "  if (!t.raSoat) return ['Rà soát: 0 đề xuất'];"]], 'khác bộ máy gốc: khong-moc', 'bản sao in «Rà soát: 0 đề xuất» khi rỗng');
 if (want('RS-4-hai') && await chayCa('RS-4-hai', async kit => {
   const { r } = kho({ ten: 'kho-rs4-hai', cfg: 'lo_trinh:\n  tep:\n    - docs/a.json\n    - docs/b.json\n' });
   for (const [t, ten, ma] of [['docs/a.json', 'Lộ A', 'A1'], ['docs/b.json', 'Lộ B', 'B1']]) { mkdirSync(path.join(r, 'docs'), { recursive: true }); writeFileSync(path.join(r, t), JSON.stringify({ schema: 1, ten, moc: [{ ten: `Mốc ${ma}`, ngay: '2026-09-01', loai: 'phat-hanh', hang: [ma] }], hang: [H(ma)] }, null, 2) + '\n'); }
@@ -472,8 +485,8 @@ async function rs6(kit) {
   }
   return sai;
 }
-if (want('RS-6') && await chayCa('RS-6', rs6)) ok('RS-6', 'trang hai kho: không đổi theo ngày, giống từng byte bộ máy gốc');
-if (want('RS-6-do')) await chayDo('RS-6-do', rs6, [['scripts/lo-trinh.mjs', 'export function veHtml(cacTep, sections = null, tinHieu = null) {', "export function veHtml(cacTep, sections = null, tinHieu = null) { return veHtmlGoc(cacTep, sections, tinHieu) + '<p>Rà soát</p>'; }\nfunction veHtmlGoc(cacTep, sections = null, tinHieu = null) {"]], 'trang khác bộ máy gốc: rs1', 'bản sao đưa rà soát vào trang');
+if (want('RS-6') && await chayCa('RS-6', rs6, KIT_TAT())) ok('RS-6', 'trang hai kho: không đổi theo ngày, giống từng byte bộ máy gốc');
+if (want('RS-6-do')) await chayDoTat('RS-6-do', rs6, [['scripts/lo-trinh.mjs', 'export function veHtml(cacTep, sections = null, tinHieu = null) {', "export function veHtml(cacTep, sections = null, tinHieu = null) { return veHtmlGoc(cacTep, sections, tinHieu) + '<p>Rà soát</p>'; }\nfunction veHtmlGoc(cacTep, sections = null, tinHieu = null) {"]], 'trang khác bộ máy gốc: rs1', 'bản sao đưa rà soát vào trang');
 if (want('RS-6-check') && await chayCa('RS-6-check', async kit => {
   const c = path.join(TMP, 'clone-rs6'); execFileSync('git', ['clone', '-q', KHO_1(), c]);
   const PMm = path.join(kit, 'scripts', 'product-map.mjs'); const env = { ...process.env, ACCEPTANCE_TODAY: HOM_NAY };

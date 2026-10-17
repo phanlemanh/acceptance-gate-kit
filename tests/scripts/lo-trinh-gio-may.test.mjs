@@ -97,6 +97,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
   } catch (e) { bad(id, loi(e)); }
 };
+
+// Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
+// gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
+// hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const KIT_TAT = () => tatRD1(KIT);
+const chayDoTat = async (id, f, tiem, ghim, moTa) => {
+  try {
+    const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
+    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
+  } catch (e) { bad(id, loi(e)); }
+};
 let napN = 0;
 const nap = async kit => ({
   LT: await import(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href + `?v=${++napN}`),
@@ -153,7 +166,7 @@ if (want('GM-1-doc-cu') && await chayCa('GM-1-doc-cu', async kit => {
   const a = khoiDuLieu(GM_BO.boKhoiGioMay(veMoi)); const b = khoiDuLieu(await ve(goc, r));
   if (!b) sai.push('đối chứng gốc không chạy: khối dữ liệu trang'); else if (a !== b) sai.push('khối dữ liệu máy đọc của trang khác bộ máy gốc');
   return sai;
-})) ok('GM-1-doc-cu', '--ra-soat (chữ, JSON), --ap --json, --mo-o (stdout + ô) và khối dữ liệu trang giống từng byte bộ máy gốc');
+}, KIT_TAT())) ok('GM-1-doc-cu', '--ra-soat (chữ, JSON), --ap --json, --mo-o (stdout + ô) và khối dữ liệu trang giống từng byte bộ máy gốc');
 
 if (want('GM-1-nang-kit') && await chayCa('GM-1-nang-kit', async kit => {
   const sai = []; const r = kho({ data: docCuData, hoSo: docCuHoSo });
@@ -250,20 +263,20 @@ const gm4 = async kit => {
   if (git(r, 'status', '--porcelain')) sai.push('--xem ghi tệp');
   return sai;
 };
-if (want('GM-4')) { if (await chayCa('GM-4', gm4)) ok('GM-4', 'hai dòng khuôn đúng từng chữ: M1 quá tải, M2 bắt đầu sau M1, hàng đang dở tính 1–4, chưa có giờ chờ đo'); }
+if (want('GM-4')) { if (await chayCa('GM-4', gm4, KIT_TAT())) ok('GM-4', 'hai dòng khuôn đúng từng chữ: M1 quá tải, M2 bắt đầu sau M1, hàng đang dở tính 1–4, chưa có giờ chờ đo'); }
 if (want('GM-4-do-du') && await chayCa('GM-4-do-du', async kit => {
   const r = kho({ data: gm4Data(), hoSo: gm4HoSo({ g1: { hinh: 'da-ship', gm: { gio_may: 5, gio_cho: 2 } }, g2: { hinh: 'da-ship', gm: { gio_may: 5, gio_cho: 4 } } }) });
   const ra = xemGM(chay(kit, r, D, ['--xem'])); const t2 = await tenNgan(KIT, M2);
   const muon = `${t2}: bắt đầu ~21/10 · ~7–14 giờ máy · % hạn mức tuần chưa ước (0/5 vòng đo) · hoàn tất dự kiến 22/10 · mục tiêu 25/10`;
   return ra[1] === muon ? [] : [`dòng M2 «${ra[1]}» ≠ «${muon}»`];
-})) ok('GM-4-do-du', 'có vòng đo: giờ chờ = trung vị 3 giờ, M2 hoàn tất 22/10, không nhãn «chưa có giờ chờ đo»');
+}, KIT_TAT())) ok('GM-4-do-du', 'có vòng đo: giờ chờ = trung vị 3 giờ, M2 hoàn tất 22/10, không nhãn «chưa có giờ chờ đo»');
 if (want('GM-4-khong-ngay') && await chayCa('GM-4-khong-ngay', async kit => {
   const r = kho({ data: gm4Data([M3]), hoSo: gm4HoSo() }); const ra = xemGM(chay(kit, r, D, ['--xem'])); const t3 = await tenNgan(KIT, M3);
   const muon = `${t3}: bắt đầu ~20/10 · ~5–8,5 giờ máy · % hạn mức tuần chưa ước (0/5 vòng đo) · hoàn tất dự kiến 20/10 (chưa có giờ chờ đo)`;
   return ra.includes(muon) ? [] : [`thiếu dòng «${muon}» trong ${JSON.stringify(ra)}`];
-})) ok('GM-4-khong-ngay', 'mốc không ngày: dòng không vế mục tiêu, không cờ quá tải');
-if (want('GM-4-do')) await chayDo('GM-4-do', gm4, [['scripts/gio-may.mjs', 'if (t.hoanTatGio > batDau) batDau = t.hoanTatGio;', 'if (false) batDau = t.hoanTatGio;']], 'M2 bắt đầu D, cần sau M1', 'bản sao bỏ phụ thuộc');
-if (want('GM-4-do2')) await chayDo('GM-4-do2', gm4, [['scripts/gio-may.mjs', 'if (!d.dangDo || !d.hoSo) return u.khoang;', 'return u.khoang;']], 'hàng đang dở tính lại phần đã làm', 'bản sao tính đủ hàng đang dở');
+}, KIT_TAT())) ok('GM-4-khong-ngay', 'mốc không ngày: dòng không vế mục tiêu, không cờ quá tải');
+if (want('GM-4-do')) await chayDoTat('GM-4-do', gm4, [['scripts/gio-may.mjs', 'if (t.hoanTatGio > batDau) batDau = t.hoanTatGio;', 'if (false) batDau = t.hoanTatGio;']], 'M2 bắt đầu D, cần sau M1', 'bản sao bỏ phụ thuộc');
+if (want('GM-4-do2')) await chayDoTat('GM-4-do2', gm4, [['scripts/gio-may.mjs', 'if (!d.dangDo || !d.hoSo) return u.khoang;', 'return u.khoang;']], 'hàng đang dở tính lại phần đã làm', 'bản sao tính đủ hàng đang dở');
 
 // ═══ GM-5 (AC-5): đóng băng dự báo lúc --mo-o ══════════════════════════════════════════════════════════════════════
 const moO = (kit, r, ma, slug) => chay(kit, r, D, ['--hang', ma, '--mo-o', '--owner', 'x@y.z', ...(slug ? ['--slug', slug] : [])]);
@@ -670,8 +683,8 @@ const db7 = async kit => {
   if (git(r, 'status', '--porcelain')) sai.push('lệnh đọc ghi tệp');
   return sai;
 };
-if (want('DB-7') && await chayCa('DB-7', db7)) ok('DB-7', 'kho không đổi mốc: trang, --do-lech, --ra-soat --json, --ap --json, --xem giống từng byte bộ máy gốc');
-if (want('DB-7-do')) await chayDo('DB-7-do', db7, [TIEM.boTenNguyenVan], 'khác bộ máy gốc: trang', 'bản sao bỏ đường khớp tên nguyên văn');
+if (want('DB-7') && await chayCa('DB-7', db7, KIT_TAT())) ok('DB-7', 'kho không đổi mốc: trang, --do-lech, --ra-soat --json, --ap --json, --xem giống từng byte bộ máy gốc');
+if (want('DB-7-do')) await chayDoTat('DB-7-do', db7, [TIEM.boTenNguyenVan], 'khác bộ máy gốc: trang', 'bản sao bỏ đường khớp tên nguyên văn');
 
 // AC-8: dữ liệu thật — lộ trình kit + dự báo đóng băng thật của chính hồ sơ này.
 const HS_THAT = path.join(KIT, '_acceptance', 'du-bao-dong-bang-theo-ma-moc');

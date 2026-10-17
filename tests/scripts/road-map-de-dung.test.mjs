@@ -501,5 +501,86 @@ async function rd9crm(kit) {
 if (want('RD-9-crm') && await chayCa('RD-9-crm', rd9crm)) ok('RD-9-crm', 'bản hạt giống crm onehub b1666c3ac: mỗi mốc quá ngày chưa khép rơi vào đúng một dòng (cờ mốc ngoài hoặc dòng gom)');
 if (want('RD-9-do')) await chayDo('RD-9-do', rd9, [['scripts/lo-trinh.mjs', " && chuoi(m.ngay) < today && !chuoi(m.that)\n", " && chuoi(m.ngay) < today\n"]], '|qua|co|', 'bản sao bỏ điều kiện «không that»');
 
+// ═══ AC-10: giờ máy nối tiếp theo làn + cân trên năm kho ══════════════════════════════════════════
+const xem = (kit, r, today = '2026-10-20') => node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--xem'], { env: { ...process.env, ACCEPTANCE_TODAY: today } });
+const dongGM = out => out.split('\n').filter(l => /^  · .+: (bắt đầu ~|không tính được)/.test(l)).map(l => l.slice(4));
+const batDau = (l, t) => ((l.find(x => x.startsWith(`${t} `) || x.startsWith(`${t}:`)) || '').match(/bắt đầu ~(\d\d\/\d\d)/) || [])[1];
+const hoanTat = (l, t) => ((l.find(x => x.startsWith(`${t} `) || x.startsWith(`${t}:`)) || '').match(/hoàn tất dự kiến (\d\d\/\d\d)/) || [])[1];
+const G = (ma, o = {}) => H8(ma, { gio_may: 6, ...o });
+async function rd10(kit) {
+  const sai = [];
+  // M1 đủ dài để tràn sang ngày sau (sáu việc × 6 giờ máy) — «bắt đầu M2» chỉ trùng «hoàn tất M1» khi thật sự nối.
+  const data = { schema: 1, hang: [G('A'), G('B'), G('A2'), G('B2'), G('A3'), G('B3'), G('C'), G('D')], moc: [{ ten: 'M2', ngay: '2026-10-25', loai: 'phat-hanh', hang: ['C'] }, { ten: 'M1', ngay: '2026-10-20', loai: 'phat-hanh', hang: ['A', 'B', 'A2', 'B2', 'A3', 'B3'] }, { ten: 'MX', loai: 'han', hang: ['D'] }] };
+  const lCu = dongGM(xem(KIT, kho({ tep: { 'docs/plan/lo-trinh.json': data } })).stdout);
+  if (hoanTat(lCu, 'M1') === '20/10') sai.push(`đối chứng: M1 không tràn sang ngày sau — ${JSON.stringify(lCu)}`);
+  const l = dongGM(xem(kit, kho({ tep: { 'docs/plan/lo-trinh.json': data } })).stdout);
+  if (!hoanTat(l, 'M1') || batDau(l, 'M2') !== hoanTat(l, 'M1')) sai.push(`M2 không nối sau M1: M1 hoàn tất ${hoanTat(l, 'M1')}, M2 bắt đầu ${batDau(l, 'M2')} — ${JSON.stringify(l)}`);
+  if (l.length !== 3 || !l[2].startsWith('MX') || batDau(l, 'MX') !== hoanTat(l, 'M2')) sai.push(`mốc không ngày phải đứng cuối làn, bắt đầu sau M2 — ${JSON.stringify(l)}`);
+  // Review Focus: hai mốc cùng ngày giữ thứ tự tệp, ổn định giữa hai lần chạy.
+  const cung = { schema: 1, hang: [G('A'), G('B')], moc: [{ ten: 'Một', ngay: '2026-10-22', loai: 'han', hang: ['A'] }, { ten: 'Hai', ngay: '2026-10-22', loai: 'han', hang: ['B'] }] };
+  const rc = kho({ tep: { 'docs/plan/lo-trinh.json': cung } }); const a = dongGM(xem(kit, rc).stdout); const b = dongGM(xem(kit, rc).stdout);
+  if (JSON.stringify(a) !== JSON.stringify(b) || batDau(a, 'Hai') !== hoanTat(a, 'Một')) sai.push(`cùng ngày: ${JSON.stringify(a)}`);
+  return sai;
+}
+if (want('RD-10') && await chayCa('RD-10', rd10)) ok('RD-10', 'M1 (D) và M2 (D+5) độc lập: M2 bắt đầu đúng ngày M1 hoàn tất; mốc không ngày đứng cuối làn; cùng ngày giữ thứ tự tệp, ổn định');
+async function rd10mot(kit) {
+  const r = kho({ tep: { 'docs/plan/lo-trinh.json': { schema: 1, hang: [G('A')], moc: [{ ten: 'Một', ngay: '2026-10-22', loai: 'phat-hanh', hang: ['A'] }] } } });
+  const moi = dongGM(xem(kit, r).stdout); const cu0 = dongGM(xem(boMayCu(), r).stdout);
+  return JSON.stringify(moi) === JSON.stringify(cu0.map(x => x + ' (máy chạy 24/24 — chưa đo nhịp ngày)')) && moi.length === 1 ? [] : [`một mốc: mới ${JSON.stringify(moi)} · cũ ${JSON.stringify(cu0)}`];
+}
+if (want('RD-10-mot-moc') && await chayCa('RD-10-mot-moc', rd10mot)) ok('RD-10-mot-moc', 'một mốc: dòng giờ máy bằng bộ máy v2.32.0 cộng đúng nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)»');
+async function rd10hai(kit) {
+  const r = kho({ tep: { 'docs/plan/a.json': { schema: 1, ten: 'A', hang: [G('A1')], moc: [{ ten: 'MA', ngay: '2026-10-22', loai: 'han', hang: ['A1'] }] }, 'docs/plan/b.json': { schema: 1, ten: 'B', hang: [G('B1')], moc: [{ ten: 'MB', ngay: '2026-10-23', loai: 'han', hang: ['B1'] }] } } });
+  const x = xem(kit, r).stdout; const l = dongGM(x);
+  return batDau(l, 'MA') === '20/10' && batDau(l, 'MB') === '20/10' && x.includes('Giờ máy theo mốc (mỗi lộ trình một làn, tính riêng):') ? [] : [`hai lộ trình: ${JSON.stringify(l)}`];
+}
+if (want('RD-10-hai-lo-trinh') && await chayCa('RD-10-hai-lo-trinh', rd10hai)) ok('RD-10-hai-lo-trinh', 'hai lộ trình cùng kho, mỗi lộ trình một mốc độc lập: cả hai bắt đầu hôm nay; tiêu đề nói «mỗi lộ trình một làn, tính riêng»');
+if (want('RD-10-do')) await chayDo('RD-10-do', rd10, [['scripts/gio-may.mjs', 'let bd = Math.max(r._bd, lan);', 'let bd = r._bd;']], 'M2 không nối sau M1', 'bản sao giữ bắt đầu = hôm nay');
+// RD-10-kho: năm kho — mọi khác biệt giữa bộ máy mới và v2.32.0 thuộc tập kỳ vọng.
+const chuanTrang = h => String(h ?? '').replace(/<style>[\s\S]*?<\/style>/g, '').replace(/<script type="application\/json"[\s\S]*?<\/script>/g, '')
+  .replace(/<h3>Mốc[\s\S]*?(?=<h3>|<\/section>)/g, '').replace(/<h3 id="lt\d+-co">Cần sửa trong kế hoạch \(\d+\)<\/h3><ul class="co-ds">[\s\S]*?<\/ul>/g, '')
+  .replace(/<a href="#lt\d+-co">\d+ chỗ cần sửa<\/a>|<span class="khong">Không có chỗ nào cần sửa<\/span>/g, '').replace(/\n+/g, '\n');
+const MOI_DUOC = [/^Mốc:$/, /^  · .+ — (còn \d+\/\d+ việc|đã giao đủ \d+ việc)$/, /^      – .+ \(.+\) \[.+\]$/, /^  · \d+ việc chưa hẹn mốc$/, /^  ! /, /^Giờ máy theo mốc/, /^  · .+: (bắt đầu ~|không tính được)/];
+const CU_DUOC = [/^Giờ máy theo mốc/, /^  · .+: (bắt đầu ~|không tính được)/];
+async function rd10kho(kit) {
+  const sai = [];
+  const KHO = { kit: { 'docs/plan/lo-trinh-kit.json': JSON.parse(readFileSync(path.join(KIT, 'docs', 'plans', 'lo-trinh-kit.json'), 'utf8')) },
+    'crm-okr': { 'docs/plan/lo-trinh-okr.json': fxCrm('okr.json') }, 'crm-kho-tai-lieu': { 'docs/plan/lo-trinh-kho-tai-lieu.json': fxCrm('kho-tai-lieu.json') },
+    'crm-viec-du-an': { 'docs/plan/lo-trinh-viec-du-an.json': fxCrm('viec-du-an.json') }, oneflow: { 'docs/plan/lo-trinh.json': JSON.parse(readFileSync(path.join(FX, 'oneflow.json'), 'utf8')) } };
+  for (const [ten, tep] of Object.entries(KHO)) {
+    const r = kho({ tep }); const a = await veTrang(boMayCu(), r); const b = await veTrang(kit, r);
+    if (chuanTrang(a) !== chuanTrang(b)) { const ca = chuanTrang(a); const cb = chuanTrang(b); let i = 0; while (ca[i] === cb[i]) i += 1; sai.push(`${ten}: trang khác ngoài vùng kỳ vọng — cũ ${JSON.stringify(ca.slice(Math.max(0, i - 20), i + 160))} · mới ${JSON.stringify(cb.slice(Math.max(0, i - 20), i + 160))}`); }
+    const xa = xem(boMayCu(), r).stdout.split('\n'); const xb = xem(kit, r).stdout.split('\n');
+    const them = xb.filter(l => !xa.includes(l)); const bot = xa.filter(l => !xb.includes(l));
+    const la = [...them.filter(l => !MOI_DUOC.some(re => re.test(l))), ...bot.filter(l => !CU_DUOC.some(re => re.test(l))).map(l => `(mất) ${l}`)];
+    console.log(`    · RD-10-kho ${ten}: bản xem thêm ${them.length} · bớt ${bot.length} dòng, ngoài tập kỳ vọng ${la.length}`);
+    if (la.length) sai.push(`${ten}: dòng ngoài tập kỳ vọng ${JSON.stringify(la.slice(0, 3))}`);
+  }
+  // Kho không khai lo_trinh: không đổi một byte.
+  const r0 = path.join(TMP, `khong-lt-${++n}`); mkdirSync(path.join(r0, '_acceptance'), { recursive: true }); execFileSync('git', ['init', '-q', r0]);
+  writeFileSync(path.join(r0, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+  const p0 = xem(boMayCu(), r0); const p1 = xem(kit, r0); const v0 = await veTrang(boMayCu(), r0); const v1 = await veTrang(kit, r0);
+  console.log(`    · RD-10-kho không lo_trinh: --xem thoát ${p0.status}/${p1.status}, trang ${v0 === null ? 'null' : 'có'}/${v1 === null ? 'null' : 'có'}`);
+  if (p0.status !== p1.status || p0.stdout !== p1.stdout || p0.stderr !== p1.stderr || v0 !== v1) sai.push('kho không khai lo_trinh: đầu ra khác bộ máy cũ');
+  return sai;
+}
+if (want('RD-10-kho') && await chayCa('RD-10-kho', rd10kho)) ok('RD-10-kho', 'năm kho (kit · crm ba lộ trình · oneflow) + kho không lo_trinh: trang ngoài khối Mốc/Cần sửa/khối dữ liệu/CSS giống từng byte bộ máy v2.32.0; bản xem chỉ khác ở dòng thuộc tập kỳ vọng; kho không lo_trinh không đổi');
+
+// ═══ RD-tat: bộ nhát tắt dùng chung cho các ca «giống bộ máy gốc» của hồ sơ đã ký ═══════════════════
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+async function rdTat(kit) {
+  const sai = []; const tat = tatRD1(kit); const cu0 = boMayCu();
+  const KHO_TAT = { crm: khoCrm(), 'kho-thu': kho({ tep: { 'docs/plan/lo-trinh.json': DATA11() } }), 'ra-soat': kho({ tep: { 'docs/plan/lo-trinh.json': fxCrm('okr-ra-soat-1017.json') } }) };
+  for (const [ten, r] of Object.entries(KHO_TAT)) {
+    if (await veTrang(tat, r) !== await veTrang(cu0, r)) sai.push(`${ten}: trang bản tắt khác v2.32.0`);
+    if (xem(tat, r).stdout !== xem(cu0, r).stdout) sai.push(`${ten}: bản xem chữ bản tắt khác v2.32.0`);
+    // Lệnh «xem» trên thẻ in đường của chính bộ máy — chuẩn hoá về KIT trước khi so.
+    const the = async k => { const M = await napLT(k); return JSON.stringify(M.LT.loTrinhThe({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS, today: HOM_NAY })?.dong).split(k).join('KIT'); };
+    { const x = JSON.parse(await the(tat)); const y = JSON.parse(await the(cu0)); const i = x.findIndex((l, k) => l !== y[k]); if (i >= 0 || x.length !== y.length) sai.push(`${ten}: thẻ khởi động bản tắt khác v2.32.0 ở dòng ${i}: «${x[i]}» ≠ «${y[i]}»`); }
+  }
+  return sai;
+}
+if (want('RD-tat') && await chayCa('RD-tat', rdTat)) ok('RD-tat', 'bản tắt đúng các khối RD1 (27 nhát, mỗi nhát khớp một lần): trang · bản xem chữ · thẻ khởi động giống từng byte v2.32.0 trên crm thật, kho thử, bản hạt giống rà soát');
+
 console.log(`\nRD Results: ${pass} PASS · ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

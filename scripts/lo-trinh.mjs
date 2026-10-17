@@ -1497,13 +1497,16 @@ export function doLech({ root, cacTep, sections }) {
   }
   return ra;
 }
-function dongGioMayXem(kq, nhom, today) {
+function dongGioMayXem(kq, nhom, today, nhieu = false) {
   if (!kq._gm || !kq.moc.length) return [];
   const db = duBaoLoTrinh(kq, nhom, today);
   const kVong = kq._gm.doVong.filter(v => v.daGiao && typeof v.phan_tram_tuan === 'number').length;
-  const thuTu = kq.moc.map((m, i) => i).sort((a, b) => chuoi(kq.moc[a].ngay).localeCompare(chuoi(kq.moc[b].ngay)) || a - b);
+  // Cùng thứ tự với làn của gio-may.duBao: mốc có ngày theo ngày, mốc không ngày đứng cuối, cùng ngày giữ thứ tự tệp.
+  const coNgay = i => NGAY_RE.test(chuoi(kq.moc[i].ngay));
+  const thuTu = kq.moc.map((m, i) => i).sort((a, b) => (coNgay(a) ? 0 : 1) - (coNgay(b) ? 0 : 1) || chuoi(kq.moc[a].ngay).localeCompare(chuoi(kq.moc[b].ngay)) || a - b);
   const dong = thuTu.filter(i => db.get(i).mo > 0).map(i => `  · ${GM.dongMoc(tenNganMoc(kq.moc[i]), db.get(i), kVong)}`);
-  return dong.length ? ['Giờ máy theo mốc:', ...dong] : [];
+  // Nhiều lộ trình cùng kho: mỗi lộ trình một làn, tính riêng (hồ sơ road-map-de-dung, AC-10) — nói ra ở tiêu đề khối.
+  return dong.length ? [nhieu ? 'Giờ máy theo mốc (mỗi lộ trình một làn, tính riêng):' : 'Giờ máy theo mốc:', ...dong] : [];
 }
 export function xemBanDo({ root, cacTep, sections, today }) {
   const nhom = nhomVe(sections); const nhieu = cacTep.length > 1; const ra = [];
@@ -1519,12 +1522,13 @@ export function xemBanDo({ root, cacTep, sections, today }) {
     const ke = hangKeCua(kq, nhom.chuaLam);
     ra.push(ke ? `Kế: ${ke._nhan} — ${chuoi(ke.cau_giao) || CHUA_CAU}` : 'Kế: chưa có việc đủ điều kiện mở');
     for (const x of kq.dong.filter(y => y !== ke && nhomTienDo(y.chu, kq, nhom) === 'chua-bat-dau').slice(0, 3)) ra.push(`  · ${x._nhan} — ${chuoi(x.cau_giao) || CHUA_CAU}`);
+    // Luật «chỉ việc phát triển» (AC-8): cờ của bộ đọc chung đứng TRƯỚC khối Rà soát — khối Rà soát và Tự áp liền nhau.
+    for (const c of kq.co) { const d = dichCo(c); if (CO_PHAT_TRIEN.includes(d.ten)) ra.push(`  ! ${d.chu}`); }
     const ghim = new Set(phatLai(docSo(root, t.tep).dong).ghim);
     const dx = rs[i].de_xuat; const dem = k => dx.filter(m => m.de_xuat === k).length;
     ra.push(dx.length ? `Rà soát: ${dx.length} đề xuất — ${dem('doi-moc')} dời mốc · ${dem('cho-dieu-kien')} chờ điều kiện · ${dem('bac')} bác` : 'Rà soát: không có đề xuất');
     for (const m of dx) ra.push(dongRaSoat(m) + (ghim.has(m.ma) ? ' (ghim — máy không tự áp)' : ''));
     for (const c of rs[i].canh_bao || []) ra.push(`  ! ${c}`);
-    for (const c of kq.co) { const d = dichCo(c); if (CO_PHAT_TRIEN.includes(d.ten)) ra.push(`  ! ${d.chu}`); }
     const a = ap[i];
     if (a.chinh_sach && a.chinh_sach.tu_ap) {
       const c = a.chinh_sach;
@@ -1532,7 +1536,7 @@ export function xemBanDo({ root, cacTep, sections, today }) {
       ra.push(...dongTuAp(a));
       for (const x of (a.canh_bao || []).filter(x => !(rs[i].canh_bao || []).includes(x))) ra.push(`  ! ${x}`);
     } else for (const x of a.canh_bao || []) ra.push(`  ! ${x}`);
-    ra.push(...dongGioMayXem(kq, nhom, today));
+    ra.push(...dongGioMayXem(kq, nhom, today, nhieu));
     ra.push(...dongMocXem(kq));
   });
   return ra;
