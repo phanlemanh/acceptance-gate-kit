@@ -434,7 +434,8 @@ await ca('GT7', () => {
   assert.deepEqual(viH5(pm.stdout), [], 'ô hợp lệ: không VIOLATION nào cho H5');
   const rc = MOI.rc(k.root, 'H5');
   assert.equal(rc.status, 0, rc.stderr);
-  assert.ok(rc.stderr.includes(`— đỏ sẵn trên nền — E1 (nền ${RUN_NEN7}, PR #12)`), `kiểm lại phải in nhãn: ${rc.stderr}`);
+  // Kiểm lại KHÔNG in nhãn (tệp giữ nguyên bản — lưới «chỉ thêm» DV5 và ca phá dây REm3 canh nó); nhãn đạt = thoát 0,
+  // dòng NOTE do lưới trước-gộp in (ô dưới). Ô giả của nó vẫn phải thoát 1.
   const gc = MOI.gc(k.root, 'H5');
   assert.equal(gc.status, 0, gc.stderr);
   assert.ok(gc.stdout.includes(NCG.NHAN.DO_SAN), 'thẻ phải hiện nhãn'); assert.ok(!gc.stdout.includes('ĐẠT'), 'thẻ không được có chữ ĐẠT');
@@ -480,7 +481,7 @@ await ca('GT7', () => {
       assert.ok(pT.stdout.split('\n').includes(NOTE7), `mutant đạt: lưới phải nhận nhãn ở ô băm khác:\n${pT.stdout}`);
       assert.deepEqual(viH5(pT.stdout), []);
       const rT = T.cc.rc(k.root, 'H5');
-      assert.equal(rT.status, 0, rT.stderr); assert.ok(rT.stderr.includes(`— đỏ sẵn trên nền — E1 (nền ${RUN_NEN7}, PR #12)`), rT.stderr);
+      assert.equal(rT.status, 0, rT.stderr);
     }
     hoan(k);
     soO += 1;
