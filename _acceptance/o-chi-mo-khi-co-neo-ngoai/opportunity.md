@@ -228,6 +228,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   chạy lại xanh vẫn tiêu một lượt trong trần ba; eval đỏ sẵn của hồ sơ đã ký chặn `stale_scope` không lối khai.
 - `docs/plans/2026-10-17-hat-giong-ky-lai-sau-doi-loi-tieu-chi.md` — 16/10 crm `tin-hieu-tu-ve-kho`: PR #453 đổi lời AC-8 sau chữ ký,
   thẻ và bước kiểm trước-gộp không thấy; ký lại ở #454 ghi đè chữ ký im lặng.
+- `docs/plans/2026-10-17-hat-giong-cap-nhat-plugin-cay-phu-nham-ban-ghi-goc.md` — 17/10 crm nhận 2.31.0 (crm-onehub#413): lệnh cập nhật
+  plugin trong cây phụ báo «đã mới nhất» theo bản ghi gốc, 14 bản ghi cây phụ lệch im lặng; kiểm bản cài chỉ in VÀNG, không lối sửa.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
