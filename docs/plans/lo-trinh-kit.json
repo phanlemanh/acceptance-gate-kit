@@ -131,8 +131,8 @@
       "hang": []
     },
     {
-      "ten": "Phát hành 2.33.0 — giao tiếp giữa các phiên có vòng mở máy giữ (GT1): mã tin, hạn biên nhận, chặn kết lượt khi còn tin chưa nhận, lời giao việc đủ trường",
-      "ngay": "2026-10-21",
+      "ten": "Phát hành kế sau 2.32.1 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình",
+      "ngay": "2026-10-22",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
