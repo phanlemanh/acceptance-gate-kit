@@ -260,9 +260,9 @@ lời giao việc §4.3 trong bộ dựng lời ghi danh; đọc lại §4.4 ở
 
 - **Máy giữ vòng:** MacBook Pro. Chủ kho giao 17/10 vì hàng của M5 đang tồn nhiều. `dieu-phoi/` là vùng của M5,
   nên MacBook Pro báo M5 trên #308 trước khi mở và không gộp chen giữa lô của M5. Hàng lộ trình `GT1`, slug
-  `vong-mo-co-chu-giu`, mốc 2.33.0.
+  `vong-mo-co-chu-giu`, mốc «Phát hành kế sau 2.32.1» (số đặt lúc cắt; gom cùng RD1, K-A).
 - **Ước:** `T2 · bắt đầu ~18/10 · ~6–8 giờ máy (×1,3 vì chạm vùng máy khác ≈ 8–10) · % hạn mức tuần đo khi ≥ 5 vòng ·
-  hoàn tất dự kiến ~20/10 · mục tiêu mốc 21/10`. Dùng ngay ở đợt thử hai OneFlow 27/10 (M5) và đợt kế của crm.
+  hoàn tất dự kiến ~21/10 · mục tiêu mốc 22/10` — S4 và PR đi sau VA2 (bản vá 2.32.1) và RD1. Dùng ngay ở đợt thử hai OneFlow 27/10 (M5) và đợt kế của crm.
 - **Neo ngoài:** gói giao tới crm (đợt r2, ba máy). Không phải vòng đo thước của thước. Vì vậy nó không chiếm suất vòng
   meta giữa hai mốc theo luật chiều rộng (b).
 - **Không làm trong vòng này:** kho git làm hộp thư (tệp 13/10, ngưỡng giữ nguyên) · danh tính có chữ ký · đánh thức
