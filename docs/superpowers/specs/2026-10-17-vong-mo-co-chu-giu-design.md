@@ -1,7 +1,8 @@
 # Vòng mở có chủ giữ — thiết kế (GT1)
 
-**Ngày:** 2026-10-17 · **Hồ sơ:** `_acceptance/vong-mo-co-chu-giu/` · **Hạng:** T2 · **Loại:** CỘNG (chủ kho ký Cổng
-Đáng 17/10, «đáng: build · ngưỡng: nhận»).
+**Ngày:** 2026-10-17 · **Hồ sơ:** `_acceptance/vong-mo-co-chu-giu/` · **Hạng:** T2 · **Loại:** CỘNG. Chủ kho ký Cổng
+Đáng 17/10 («đáng: build · ngưỡng: nhận»); ba phần CỘNG (lệnh `tin.mjs` · khối hook dừng · lời ghi danh sáu
+trường) chờ duyệt đích danh ở Cổng Phạm vi (ADR 0018).
 **Nguồn:** hạt giống `docs/plans/2026-10-17-hat-giong-luat-giao-tiep-giua-cac-phien.md` (§4 bộ luật, §5 bảng răng, §6
 phạm vi) · hàng `GT1` của `docs/plans/lo-trinh-kit.json` · gói `dieu-phoi/` như ở `main` 43ed9e2b · lưu ý của điều phối
 MacBook Pro 17/10: hook chặn kết lượt phải có lối thoát rõ và chiều đỏ trong bộ kiểm.

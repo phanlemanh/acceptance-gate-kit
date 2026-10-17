@@ -1,7 +1,6 @@
 schema_version: 1
 feature_slug: vong-mo-co-chu-giu
-# Ca đo của hàng GT1: tên ca bắt đầu «GT-». Khoá executor thêm ở S3 (đang hỏi điều phối GT1-1710-1 vì tệp cấu hình
-# nằm ngoài ranh giới đã giao):
+# Ca đo của hàng GT1: tên ca bắt đầu «GT-». Khoá executor thêm ở S3 (điều phối cho 17/10, XONG GT1-1710-1 — chỉ thêm khoá):
 #   executors.test.dieu_phoi_tin = node --test trên tests/dieu-phoi/tin.test.mjs, gộp dòng «ok … GT-», «not ok», dòng
 #     chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (cùng khuôn khoá dieu_phoi_khung). Suite xanh mà thiếu dòng ghim
 #     là ĐỎ.

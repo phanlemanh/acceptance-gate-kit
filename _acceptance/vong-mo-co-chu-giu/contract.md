@@ -234,5 +234,7 @@ Chân ngành:
     đổi hành vi đợt đang chạy (luật 26/09).
 - Thứ tự (điều phối 17/10): S3 chờ M5 trả lời MBP-1710-1 trên #308. S4 và PR đi sau VA2 (2.32.1) và RD1, không chen
   vào lô của M5.
-- Khoá đo `executors.test.tin_*` phải thêm vào `_acceptance/config.yaml`. Đang hỏi điều phối (GT1-1710-1), vì tệp này
-  nằm ngoài ranh giới đã giao.
+- Khoá đo phải thêm vào `_acceptance/config.yaml`. Điều phối cho phép 17/10 (XONG GT1-1710-1): chỉ THÊM khoá mới có
+  tiền tố của vòng, kèm một dòng chú thích hồ sơ; không sửa khoá cũ, không đụng `feature_loop.suite_keys`.
+- Ba phần CỘNG trình đích danh ở Cổng Phạm vi (ADR 0018): CỘNG-1 lệnh `tin.mjs` · CỘNG-2 khối hook dừng · CỘNG-3 lời
+  ghi danh sáu trường của chip. Chữ ký Cổng Đáng không phải phê duyệt CỘNG.
