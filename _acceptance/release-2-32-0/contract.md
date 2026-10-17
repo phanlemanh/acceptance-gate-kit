@@ -5,7 +5,7 @@ slug: release-2-32-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 4 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -81,3 +81,6 @@ hồ sơ · crm#375 · kit #308.
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths` (`hooks/**`, `lib/**`, `pre-merge-check.sh`, `recheck-evidence.cjs`) — `lib/chan-lo-trinh.cjs`, `hooks/acceptance-evidence-gate.js` và `scripts/pre-merge-check.sh` đổi trong cửa sổ đã qua cổng của chính vòng ấy.
 - Ghim lại ở mốc: mười hồ sơ xanh ở `repin-20261017T024130Z-65967` (54 phút, 25 lệnh, 0 chập chờn); làn trước `repin-20261017T014450Z-66877` đỏ đúng một ca PD7b (ghi chú gọi `road-map` là gói «nếu đã cài»), đã sửa chữ. `release-2-31-0` để cũ hoá theo cấu tạo.
 - Luật (b): mốc này là mốc KHO NHẬN kế tiếp — crm nhận sau 2.31.0. Cửa sổ chở nhiều vòng meta hơn trần «một vòng meta giữa hai mốc kho nhận»: gói road-map là một kết quả do chủ kho gọi tên làm luôn 15/10 (bảy hàng, một mốc), VA1 là nới luật (b) chủ kho quyết 16/10 «đi cùng bản phát hành gói road-map, không phải tiền lệ».
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-17:
+  - Ngoài-1: Phép kiểm tệp đổi của hai gói (E7) so với danh sách gõ tay trong khoá cấu hình, không đọc lời kể của ghi chú phát hành — sửa một nơi mà quên nơi kia thì E7 vẫn báo xanh.
+  - Ngoài-2: Phép kiểm tập hồ sơ được ký (E4) so với danh sách tên gõ tay trong khoá cấu hình, không đọc phần Context của hợp đồng — sửa một nơi mà quên nơi kia thì E4 vẫn báo xanh.
