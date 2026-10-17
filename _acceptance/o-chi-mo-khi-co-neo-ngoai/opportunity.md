@@ -230,6 +230,12 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   thẻ và bước kiểm trước-gộp không thấy; ký lại ở #454 ghi đè chữ ký im lặng.
 - `docs/plans/2026-10-17-hat-giong-cap-nhat-plugin-cay-phu-nham-ban-ghi-goc.md` — 17/10 crm nhận 2.31.0 (crm-onehub#413): lệnh cập nhật
   plugin trong cây phụ báo «đã mới nhất» theo bản ghi gốc, 14 bản ghi cây phụ lệch im lặng; kiểm bản cài chỉ in VÀNG, không lối sửa.
+- `docs/plans/2026-10-17-hat-giong-ra-soat-khong-xet-moc-qua-ngay.md` — 17/10 crm OKR (onehub b1666c3ac): bốn mốc đã quá ngày
+  chưa khép (m-1009, m-1013n, m-1014, m-1014d) không hiện ở khối Rà soát — luật chỉ rà hàng; tổng kết ba máy rà mốc bằng tay.
+- `docs/plans/2026-10-17-hat-giong-gio-may-theo-moc-khong-xep-noi-tiep.md` — 17/10 crm: mọi mốc «bắt đầu ~17/10», R3 (~35,5–53,5
+  giờ máy, mục tiêu 18/12) «hoàn tất 19/10»; mốc độc lập không xếp nối tiếp theo năng lực máy, ngày dự kiến vô nghĩa khi nhiều mốc.
+- `docs/plans/2026-10-17-hat-giong-hang-lo-trinh-thieu-slug-bao-nham-chua-xong.md` — 17/10 lộ trình kit: A3, DP8 không slug, hồ sơ
+  không `opportunity.md` → «Kế · dời mốc» dù đã phát hành; bốn lộ trình 24 hàng không slug, 2 xếp sai (cả hai ở kit).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
