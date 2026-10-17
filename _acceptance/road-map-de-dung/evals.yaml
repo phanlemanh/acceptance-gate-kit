@@ -24,19 +24,6 @@ evals:
       van-hanh-lap-chua-tu-phuc-vu. RD-1-do: bản sao vẫn tính phủ cho mốc ngoài → FAIL ghim «mã tính phủ ở mốc ngoài». RD-1-do2:
       bản sao không đọc da_bac làm chỗ phủ → FAIL ghim «không làm trong kho không phải chỗ phủ».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E2
-    criterion: AC-2
-    executor: test
-    cmd: config:executors.test.road_map_de_dung
-    paths: [scripts/lo-trinh.mjs, scripts/gio-may.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
-    expected: >
-      exit 0; stdout có "PASS: RD-2", "PASS: RD-2-im", "PASS: RD-2-crm", "PASS: RD-2-do". RD-2: F (hai mốc ngoài, một gắn hàng)
-      và F′ (bỏ đúng hai mốc) — trang, khối dữ liệu, --xem, thẻ khởi động của F bằng của F′ trừ ĐÚNG một dòng «2 mốc là việc
-      của người — trang không vẽ nữa (luật 17/10): <hai nhãn>»; mã thoát bằng nhau; khối dữ liệu F không có mốc nào mang tên
-      hai mốc ngoài; «Giờ máy theo mốc» không dòng mốc ngoài. RD-2-im: tệp không mốc ngoài → 0 dòng cờ ấy. RD-2-crm: trang bản
-      chụp onehub — OKR 11 mốc (28 − 17), Kho tài liệu 5 (6 − 1), số tính từ tệp in ra. RD-2-do: bản sao vẫn vẽ mốc ngoài →
-      FAIL ghim «mốc ngoài còn trên trang».
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
     executor: test
@@ -114,12 +101,12 @@ evals:
     cmd: config:executors.test.road_map_de_dung
     paths: [scripts/lo-trinh.mjs, scripts/cat-luot.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
     expected: >
-      exit 0; stdout có "PASS: RD-8", "PASS: RD-8-im", "PASS: RD-8-crm", "PASS: RD-8-do". RD-8: ma trận sáu ca (mốc không loai ·
-      dung_tren trỏ ma mốc · trỏ ten mốc · du_lieu sai giá trị · gia không đứng trên sinh-gia · mốc ngoài) — mỗi ca đúng một
+      exit 0; stdout có "PASS: RD-8", "PASS: RD-8-im", "PASS: RD-8-crm", "PASS: RD-8-do". RD-8: ma trận sáu ca (mốc loai ngoai — dòng nêu tên mốc + bốn chỗ đến · mốc không loai ·
+      dung_tren trỏ ma mốc · trỏ ten mốc · du_lieu sai giá trị · gia không đứng trên sinh-gia) — mỗi ca đúng một
       dòng cờ có tên ở trang («Cần sửa»), ở --xem (dòng «!») và ở thẻ khởi động, chữ ba mặt BẰNG nhau; mã thoát không đổi so
       với tệp sạch; in «6/6 ca». RD-8-im: tệp sạch → 0 dòng của sáu cờ ở cả ba mặt. RD-8-crm: bản chụp 55811c635^ OKR → dòng
       moc-chua-khai-loai nêu ĐÚNG bốn mốc (đo cây tổ chức · phiên nghiệm thu R1 · đọc số lượt 6 · BLĐ đặt OKR 2027) tính từ
-      tệp. RD-8-do: bản sao chỉ chạy luật trong lượt cắt (bộ đọc chung không gọi) → FAIL ghim «luật chỉ việc phát triển không
+      tệp; bản chụp b74ec7eae → dòng mốc ngoài nêu đúng 17 mốc OKR và 1 mốc Kho tài liệu tính từ tệp. RD-8-do: bản sao chỉ chạy luật trong lượt cắt (bộ đọc chung không gọi) → FAIL ghim «luật chỉ việc phát triển không
       chạy khi đọc tệp».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
@@ -132,7 +119,7 @@ evals:
       đúng các ô «đã qua · không that · (không hàng | mọi hàng đã giao)» (6 ô) vào một dòng gom «6 mốc đã qua ngày, chưa ghi ngày
       khép: <5 tên dd/mm>, …»; mọi ô khác không mang dòng gom; in «36/36 ô» (bảng kỳ vọng viết sẵn đủ 36 ô). Ô «còn hàng chưa giao»: đầu ra rà soát BẰNG bộ máy cũ v2.32.0 trên cùng ô (vi phân). RD-9-trang: trang vẽ ở hai
       «hôm nay» cho hai tập mốc qua ngày khác nhau giống từng byte và không chứa «mốc đã qua ngày, chưa ghi ngày khép».
-      RD-9-crm: bản chụp onehub — mỗi mốc đã qua ngày chưa khép rơi vào ĐÚNG một dòng (gom mốc ngoài AC-2 hoặc gom AC-9), in
+      RD-9-crm: bản chụp onehub — mỗi mốc đã qua ngày chưa khép rơi vào ĐÚNG một dòng (cờ mốc ngoài AC-8 hoặc gom AC-9), in
       bảng gán; tập rỗng → FAIL. RD-9-do: bản sao bỏ điều kiện «không that» → FAIL ghim «mốc đã khép vẫn bị báo».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
@@ -142,8 +129,7 @@ evals:
     paths: [scripts/gio-may.mjs, scripts/lo-trinh.mjs, scripts/cat-luot.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/**, docs/plans/lo-trinh-kit.json]
     expected: >
       exit 0; stdout có "PASS: RD-10", "PASS: RD-10-mot-moc", "PASS: RD-10-hai-lo-trinh", "PASS: RD-10-do", "PASS: RD-10-kho".
-      RD-10: M1 (mục tiêu D, 6 giờ máy) và M2 (D+5, độc lập) → bắt đầu M2 == hoàn tất M1; mốc không ngày đứng cuối; mốc ngoài
-      không vào làn. RD-10-mot-moc: một mốc → dòng bằng bộ máy cũ v2.32.0 trừ nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)».
+      RD-10: M1 (mục tiêu D, 6 giờ máy) và M2 (D+5, độc lập) → bắt đầu M2 == hoàn tất M1; mốc không ngày đứng cuối. RD-10-mot-moc: một mốc → dòng bằng bộ máy cũ v2.32.0 trừ nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)».
       RD-10-hai-lo-trinh: hai lộ trình cùng kho, mỗi lộ trình một mốc độc lập → cả hai bắt đầu hôm nay. RD-10-do: bản sao giữ
       batDau = hôm nay → FAIL ghim «M2 không nối sau M1». RD-10-kho: năm kho (kit · crm OKR · crm Kho tài liệu · crm Việc và Dự án
       · oneflow · kho không lo_trinh) — mọi dòng khác nhau giữa bộ máy mới và cũ (trang, khối dữ liệu, --xem) thuộc tập kỳ vọng
@@ -179,7 +165,7 @@ evals:
       exit 0; stdout có "PASS: RD-11", "PASS: RD-11-ba-mat", "PASS: RD-11-crm", "PASS: RD-11-doc-cu", "PASS: RD-11-do", "PASS: RD-11-do2".
       RD-11: kho thử tám mục (mốc M1 gắn A,B · M2 gắn B,C · M3 không gắn · mốc ngoài V gắn D · việc E không mốc · A có
       ten_ngan · C thiếu · F không câu giao, có ten_ngan) → khối: ten_hien_thi A = câu giao đầy đủ bỏ «», F (không câu giao) = ten_ngan; M1.viec_hien [A,B], M2.viec_hien [C],
-      M3.hien false, không mốc V; con_lai đúng; chua_hen_moc [D,E] — mọi ô so với kỳ vọng viết sẵn. RD-11-ba-mat: tập (mốc
+      M3.hien false, V.hien true + V.viec_hien [D] (mốc ngoài như mọi mốc); con_lai đúng; chua_hen_moc [E] — mọi ô so với kỳ vọng viết sẵn. RD-11-ba-mat: tập (mốc
       hiện, việc chưa giao, tên, trạng thái, số chưa hẹn mốc) rút từ chữ nhìn thấy của trang == rút từ khối == rút từ khối
       «Mốc» của --xem, in số phần tử. RD-11-crm: cùng phép so trên bản chụp onehub. RD-11-doc-cu: docDuLieu đọc trang bộ máy
       v2.32.0 → khoá mới rỗng/null + đúng một cờ vàng «khối chưa mang mô hình hiển thị»; bảng khoá tài liệu

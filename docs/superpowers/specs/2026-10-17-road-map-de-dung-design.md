@@ -29,7 +29,7 @@ sửa trang của mình; trang trong crm là việc của crm, ghi một dòng �
 
 | Phần | Loại | Vì sao loại ấy |
 |---|---|---|
-| A. Bỏ mốc ngoài | **TRỪ** | Gỡ một chỗ của bảng phủ và một loại mốc khỏi trang; chỗ thay là khối `da_bac` sẵn có, không khoá mới. Cờ vàng đọc-cũ là nghĩa vụ của luật «đổi schema phải có đường đọc-cũ», không phải tính năng mới. Chữ tiêu đề mục trên trang là Hỏi-2. |
+| A. Bỏ mốc ngoài (thu về đúng cách cắt lượt — chủ kho 17/10) | **TRỪ** | Gỡ một chỗ của bảng phủ; chỗ thay là khối `da_bac` sẵn có, không khoá mới. Cờ vàng đọc-cũ là nghĩa vụ của luật «đổi schema phải có đường đọc-cũ», không phải tính năng mới. Chữ tiêu đề mục trên trang là Hỏi-2. |
 | B. Trang đọc được trong một phút + một mô hình hiển thị chung | **Sửa lỗi** | Trang hứa «đọc một phút» (hồ sơ `trang-lo-trinh-doc-mot-phut`); khối Mốc in mã trần là trang không giữ lời hứa. Trang crm và trang kit trình cùng dữ liệu theo hai luật — người thấy hai lộ trình (chủ kho 17/10). Khối dữ liệu thêm năm khoá trong cùng phiên bản (luật 16/10), có đường đọc-cũ. |
 | C. Luật chỉ việc phát triển trên mọi lần đọc | **Sửa lỗi** | Luật chủ kho 11/10 đã chốt; răng chỉ chạy một đường nên lời khai «lộ trình chỉ chứa việc phát triển» sai trên tệp thật. |
 | D. Ngày dự kiến nối tiếp theo làn | **Sửa lỗi** | Ngày dự kiến hôm nay sai khi đọc chung (hạt giống 17/10). |
@@ -66,11 +66,11 @@ CỘNG. **Câu hỏi cho chủ kho (Hỏi-2):** trên trang, tiêu đề mục `
 - `[cho-van-hanh]` (hàng đứng trên mốc ngoài) giữ cho tệp cũ; `[van-hanh-lap-chua-tu-phuc-vu]` gỡ (mốc ngoài không còn là chỗ hợp
   lệ để nhắc). Các luật kiểm `ai`/`lap`/`tu_phuc_vu` của mốc ngoài gỡ cùng.
 
-**Trang, khối dữ liệu, bản xem chữ** (`scripts/lo-trinh.mjs`, `scripts/gio-may.mjs`): mốc `loai: ngoai` không vẽ ở khối Mốc,
-không vào đếm «k/n mốc chưa gắn việc», không vào khối dữ liệu, không vào «Giờ máy theo mốc». **Đường đọc-cũ:** tệp còn mốc ngoài
-vẫn đọc được, mã thoát không đổi, «Cần sửa trong kế hoạch» thêm ĐÚNG MỘT dòng gom có tên: «<k> mốc là việc của người — trang không
-vẽ nữa (luật 17/10): <nhãn…>; chuyển theo bước 2b của cắt lượt». Hàng từng gắn vào mốc ngoài mất mốc → cờ «chưa thuộc mốc nào»
-sẵn có (MC1) tự hiện — đúng hệ quả mong muốn.
+**Trang, khối dữ liệu, bản xem chữ — không luật riêng cho mốc ngoài (chủ kho chọn ở Cổng Phạm vi 17/10, «Đồng ý» thu A về
+đúng cách cắt lượt).** Mốc ngoài còn trong tệp được đối xử như mọi mốc: hiện khi có việc gắn (mô hình hiển thị chung, AC-11) —
+đo 17/10: 17/17 mốc ngoài OKR crm và 1/1 Kho tài liệu không gắn việc nên tự không hiện; chỉ một mốc ngoài gắn việc, ở lộ trình
+kit, vòng này dọn luôn. Lời nhắc dọn là cờ `moc-ngoai-da-bo` của bộ đọc chung (phần C, AC-8): một dòng gom nêu tên từng mốc và
+bốn chỗ đến. Đó cũng là đường đọc-cũ — tệp cũ đọc được, mã thoát không đổi.
 
 **SKILL + khuôn + từ điển + ADR:** khối `CAT-LUOT-VAN-HANH` viết lại theo bốn đích; khuôn `lo-trinh-template.json` bỏ mốc V1
 (mã C1 của bản phạm vi mẫu vào `da_bac` với `ly_do` «vận hành — ra khỏi kho»); bảng cờ SKILL bỏ
@@ -117,7 +117,7 @@ Máy khuyên câu giao đầy đủ (lời mới nhất, crm không đổi gì, 
 ngắn trước, câu giao trong phần mở (ảnh `ten-ngan--*`), crm đổi khi nhận. Cảnh báo thiếu tên ngắn giữ ở cả hai lối (tên phiên
 vẫn dùng tên ngắn). Trang kit (khối Mốc + nhóm chưa hẹn mốc)
 và `/road-map:xem` (thêm khối «Mốc» mỗi lộ trình: mốc hiện · còn k/n · tên — trạng thái từng việc chưa giao · số chưa hẹn mốc)
-chỉ đọc các khoá này. Mốc ngoài không vào khối (phần A). Ngày dự kiến SỐNG (phần D) phụ thuộc hôm nay nên không vào khối — khối
+chỉ đọc các khoá này. Mốc ngoài vào khối như mọi mốc (`hien` theo việc gắn). Ngày dự kiến SỐNG (phần D) phụ thuộc hôm nay nên không vào khối — khối
 giữ dự báo đóng băng sẵn có (`moc.du_kien`); đưa ngày sống lên trang là mục E2 của RD2. **Đường đọc-cũ:** khối không có các khoá
 mới (trang vẽ bằng kit cũ) → bộ đọc mẫu trả `null`/rỗng và một cờ vàng «khối chưa mang mô hình hiển thị»; trang crm giữ luật lọc
 hiện tại tới khi nhận bản mới. Ghi chú nhận cho crm: một ca đối chiếu trang crm với tập hiển thị của khối (crm tự làm khi nhận).
@@ -148,7 +148,7 @@ nên chỉ ở bản xem chữ và thẻ khởi động, không lên trang (tran
 
 ### 4.4 D — ngày dự kiến nối tiếp theo làn
 
-Một lộ trình là một làn. Mốc còn việc chưa giao (trừ mốc ngoài) sắp theo `ngay` (mốc không ngày đứng cuối, giữ thứ tự tệp);
+Một lộ trình là một làn. Mốc còn việc chưa giao sắp theo `ngay` (mốc không ngày đứng cuối, giữ thứ tự tệp);
 `batDau(k) = max(hôm nay, hoanTat(k−1), ràng buộc dung_tren sẵn có)`. Hàng thuộc nhiều mốc tính ở mốc đầu (như cũ). Dòng giờ máy
 thêm nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)» thay vì im. Nhiều lộ trình cùng kho tính riêng — khối «Giờ máy theo mốc» nói một
 dòng «mỗi lộ trình một làn, tính riêng». Đọc giờ máy/ngày từ số đo vòng (vế 2 của hạt giống) dời vòng sau — sổ `descope`.
