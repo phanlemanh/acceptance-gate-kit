@@ -218,6 +218,18 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   chặn 4/5 vòng đợt OKR điều hướng ở Cổng Phạm vi; «giữ cỡ» và «duyệt» là hai lượt gõ, DH5 tốn 4 lượt cho một quyết định.
 - `docs/plans/2026-10-16-hat-giong-tep-sinh-xung-dot-moi-lan-goi.md` — 16/10 crm `ke-hoach-sinh-viec`: `PRODUCT-MAP.md` và
   `LO-TRINH.html` xung đột ở mọi lần nhánh chính dời; PR #432 push lại 3 lần trong một giờ, mỗi lần ~10′ pre-push.
+- `docs/plans/2026-10-11-hat-giong-northstar-tu-dot-crm-sau-14-10.md` — đợt `sau-14-10` của crm (07–11/10, 51 hàng):
+  người xuất hiện theo từng hàng (~160 chữ ký), thước tự mục (46 % PASS lượt 1), CI theo từng lần đẩy; tám đề xuất, còn sống 2, 4, 5, 6, 8.
+- `docs/plans/2026-10-17-hat-giong-s4-args-moc-so-main-cuc-bo-cu.md` — 16/10 RM6b, RM6c, RM5: mốc so lấy từ `main` cục bộ cũ
+  dù dòng tự khai in «giải bằng remote»; lượt chấm soi cả vật của vòng khác vừa gộp.
+- `docs/plans/2026-10-17-hat-giong-khuon-bang-ke-hoach-bi-chep-tieu-de.md` — 15–16/10 RM2, RM6c, VA1: bản kế hoạch chép tiêu đề
+  khuôn bảng tóm tắt, P93 đỏ, mỗi lần đốt trọn lượt chấm 1 (~38 phút máy); lời dặn thua hai lần.
+- `docs/plans/2026-10-17-hat-giong-do-ngoai-vung-tieu-tran-ba-luot.md` — 16/10 crm K7 (crm-onehub#375): ca chập chờn ngoài vùng vật
+  chạy lại xanh vẫn tiêu một lượt trong trần ba; eval đỏ sẵn của hồ sơ đã ký chặn `stale_scope` không lối khai.
+- `docs/plans/2026-10-17-hat-giong-ky-lai-sau-doi-loi-tieu-chi.md` — 16/10 crm `tin-hieu-tu-ve-kho`: PR #453 đổi lời AC-8 sau chữ ký,
+  thẻ và bước kiểm trước-gộp không thấy; ký lại ở #454 ghi đè chữ ký im lặng.
+- `docs/plans/2026-10-17-hat-giong-cap-nhat-plugin-cay-phu-nham-ban-ghi-goc.md` — 17/10 crm nhận 2.31.0 (crm-onehub#413): lệnh cập nhật
+  plugin trong cây phụ báo «đã mới nhất» theo bản ghi gốc, 14 bản ghi cây phụ lệch im lặng; kiểm bản cài chỉ in VÀNG, không lối sửa.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
