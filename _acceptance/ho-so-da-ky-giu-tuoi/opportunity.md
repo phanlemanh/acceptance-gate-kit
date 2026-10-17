@@ -3,10 +3,10 @@ schema_version: 1
 slug: ho-so-da-ky-giu-tuoi
 feature: Bộ hồ sơ đã ký của một kho được ghim lại trên đỉnh nhánh chính theo các lần gộp trong một khoảng; ca đỏ quy về PR gây ra bằng cặp sha trước/sau; ca đã đỏ sẵn trên nền mang nhãn trạng thái «đỏ sẵn trên nền» (cùng ca, cùng thông điệp, run_id của nền) thay vì chặn vòng khác — mặc định tắt, kho không bật thì hành vi không đổi
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-17T13:08:02Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở phiên K-A
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -100,10 +100,10 @@ Vì sao: Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] Sau khi crm cài mốc chứa K-A và bật cờ, màu đỏ của hồ sơ đã ký có tới đúng PR gây ra trong ngày, thay vì thành lượt gọi người ở vòng khác không?
-- Kết quả nào là SỐNG: [đề xuất] Trong 14 ngày sau khi crm cài mốc và bật cờ: 0 lượt gọi người ngoài thiết kế trên onehub có nguyên nhân «đỏ sẵn» (hôm nay ≈4 lượt trong 2 ngày, finding §5), VÀ mỗi ca đỏ của lệnh giữ tươi quy về đúng PR gây ra (hoặc nói rõ «không quy được» kèm cặp sha), VÀ không lần nào onehub phải giữ đứng yên vì hồ sơ đã ký hoá cũ do PR khác (17/10: một lần ≈4,5 giờ, chặn cả ba máy).
-- Kết quả nào là CHẾT: [đề xuất] Trong cùng 14 ngày có ≥2 lượt gọi người ngoài thiết kế vì «đỏ sẵn», HOẶC có một PR làm đỏ thêm ca mà vẫn lọt nhờ nhãn (chiều đỏ của nhãn hỏng), HOẶC một ca đỏ vì hạ tầng bị quy về một PR (PR vô tội bị gọi tên).
-- Timebox: [đề xuất] Phát hành ở mốc kit đầu tiên sau khi ký Cổng Bằng chứng, trần 2026-11-05 (mốc «Tinh chỉnh sau hai đợt thử»); đọc số 14 ngày kể từ ngày crm cài mốc và bật cờ. Tới trần mà crm chưa cài → «chưa đọc được ở đây», không phải CHẾT.
+- Câu hỏi phép đo trả lời: Sau khi crm cài mốc chứa K-A và bật cờ, màu đỏ của hồ sơ đã ký có tới đúng PR gây ra trong ngày, thay vì thành lượt gọi người ở vòng khác không?
+- Kết quả nào là SỐNG: Trong 14 ngày sau khi crm cài mốc và bật cờ: 0 lượt gọi người ngoài thiết kế trên onehub có nguyên nhân «đỏ sẵn» (hôm nay ≈4 lượt trong 2 ngày, finding §5), VÀ mỗi ca đỏ của lệnh giữ tươi quy về đúng PR gây ra (hoặc nói rõ «không quy được» kèm cặp sha), VÀ không lần nào onehub phải giữ đứng yên vì hồ sơ đã ký hoá cũ do PR khác (17/10: một lần ≈4,5 giờ, chặn cả ba máy).
+- Kết quả nào là CHẾT: Trong cùng 14 ngày có ≥2 lượt gọi người ngoài thiết kế vì «đỏ sẵn», HOẶC có một PR làm đỏ thêm ca mà vẫn lọt nhờ nhãn (chiều đỏ của nhãn hỏng), HOẶC một ca đỏ vì hạ tầng bị quy về một PR (PR vô tội bị gọi tên).
+- Timebox: Phát hành ở mốc kit đầu tiên sau khi ký Cổng Bằng chứng, trần 2026-11-05 (mốc «Tinh chỉnh sau hai đợt thử»); đọc số 14 ngày kể từ ngày crm cài mốc và bật cờ. Tới trần mà crm chưa cài → «chưa đọc được ở đây», không phải CHẾT.
 
 ## Kết quả prototype
 
@@ -137,12 +137,12 @@ thật thì đỏ · độ đặc hiệu: chạm thứ không phải vật thì 
 
 ## Cổng 0
 
-- **decision = …** Máy khuyên `build`. Căn cứ: neo ngoài có thật trên onehub; 257/280 hồ sơ đã ký cũ ở crm và hai CI
+- **decision = build** (chủ kho, 17/10 13:08Z). Máy đã khuyên `build`. Căn cứ: neo ngoài có thật trên onehub; 257/280 hồ sơ đã ký cũ ở crm và hai CI
   đỏ ở kit cùng một gốc ở tầng kit; một ngày thật 17/10 trả ≈4 giờ máy ghim lại + ≈4,5 giờ onehub đứng yên cho đúng
   lớp này; bảy mục crm đã gom chờ K-A; chủ kho gọi tên K-A là vòng meta duy nhất của cửa sổ (16/10) và chính sách 17/10
   xếp nó trình Cổng Đáng ngay.
 - **disposition = —** Căn cứ: không prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** nhận nguyên bốn dòng ở mục «Ngưỡng chết / ngưỡng UAT» (chủ kho «ngưỡng: nhận»).
 
 ## Thước đo thành công → ứng viên criterion
 
