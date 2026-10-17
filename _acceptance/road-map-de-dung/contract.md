@@ -17,7 +17,7 @@ Vòng RD1 (chủ kho giao 17/10, phiên điều phối MacBook Pro; chính sách
 A TRỪ — bỏ mốc ngoài (chủ kho 17/10 «bỏ mốc ngoài», thay vế «vận hành → mốc ngoài» của luật S3b 11/10, hồ sơ
 `lo-trinh-chi-viec-phat-trien`); B sửa lỗi — khối Mốc của trang đọc được trong một phút; C sửa lỗi — luật «chỉ việc phát
 triển» chạy trên mọi lần đọc tệp, không chỉ lúc cắt lượt (crm #465, #466) + hạt giống «rà soát không xét mốc qua ngày»;
-D sửa lỗi — hạt giống «giờ máy theo mốc không xếp nối tiếp». Phần E (ba việc CỘNG) tách sang vòng RD2 — design §3.
+D sửa lỗi — hạt giống «giờ máy theo mốc không xếp nối tiếp». Phần E (ba việc CỘNG) tách sang vòng RD2 — design §3. Bổ sung 17/10 (chủ kho, qua điều phối): «Lộ trình CRM và lộ trình của phiên đọc cùng một nguồn; khi Lộ trình CRM đọc đúng thì phiên cũng phải đồng nhất» → AC-11, một mô hình hiển thị chung trong khối dữ liệu.
 
 Số đo nền (design §2): crm `onehub` b74ec7eae có 17/28 mốc OKR là mốc ngoài, 11/17 hàng Kho tài liệu thiếu `ten_ngan`; khối
 Mốc của trang kit in mã trần; năm mốc độc lập cùng «bắt đầu ~17/10».
@@ -38,6 +38,7 @@ Kho thử trong mọi ca do code sinh trong lượt (thư mục tạm, `git init
 - AC-8: Given tệp lộ trình bị sửa tay ngoài lượt cắt, When bất kỳ mặt nào đọc tệp (trang, bản xem chữ, thẻ khởi động) qua bộ đọc chung, Then trên ma trận viết sẵn {mốc không khai `loai` · `dung_tren` trỏ `ma` một mốc · trỏ `ten` một mốc · `du_lieu` sai giá trị · `du_lieu: gia` không đứng trên hàng `sinh-gia` · mốc ngoài} mỗi ca cho đúng một dòng cờ có tên ở cả ba mặt (cùng chữ, một nguồn), mã thoát không đổi; bản chụp crm `onehub` 55811c635^ (bốn mốc người không `loai` giữ hàng) → dòng `moc-chua-khai-loai` nêu đúng bốn mốc ấy; đối chứng im: tệp sạch → không dòng nào của sáu cờ.
 - AC-9: Given lộ trình có mốc đã qua ngày, When chạy rà soát (bản xem chữ, `--ra-soat`, thẻ khởi động), Then trên ma trận {loại `phat-hanh` · `han-cung` · `su-kien`} × {đã qua · chưa tới} × {có `that` · không} × {không hàng · mọi hàng đã giao · còn hàng chưa giao} đúng các ô «đã qua · không `that` · (không hàng hoặc mọi hàng đã giao)» vào MỘT dòng gom «<k> mốc đã qua ngày, chưa ghi ngày khép: <tên dd/mm…>» (tối đa 5 tên rồi «…»), các ô khác không mang dòng gom; với các ô «còn hàng chưa giao» đầu ra rà soát BẰNG bộ máy cũ trên cùng ô (vi phân); số ô kỳ vọng viết sẵn đủ 36; trang không mang chuỗi «mốc đã qua ngày, chưa ghi ngày khép» (vẽ ở hai ngày «hôm nay» cho hai tập mốc qua ngày khác nhau, giống từng byte); trên bản chụp crm `onehub` mỗi mốc đã qua ngày chưa khép rơi vào ĐÚNG một trong hai dòng (gom mốc ngoài của AC-2 hoặc gom AC-9) — tập rỗng là FAIL.
 - AC-10: Given lộ trình có nhiều mốc còn việc, When tính «Giờ máy theo mốc», Then mốc sắp theo `ngay` (mốc không ngày đứng cuối) và `bắt đầu` của mốc k == max(hôm nay, `hoàn tất` mốc k−1, ràng buộc `dung_tren` sẵn có); ca hai mốc độc lập M1 (mục tiêu D), M2 (D+5) → bắt đầu M2 == hoàn tất M1; một mốc duy nhất → dòng bằng bộ máy cũ trừ nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)»; mốc ngoài không vào làn; hai lộ trình cùng kho tính riêng; chiều đỏ: bản sao giữ `batDau = hôm nay` → ca đỏ nêu M2; và trên năm kho (kit `docs/plans/lo-trinh-kit.json` · ba tệp crm `onehub` · `oneflow.json` · kho không khai `lo_trinh`) mọi đầu ra của bộ máy mới khác bộ máy cũ CHỈ ở các dòng thuộc tập khác biệt tính độc lập từ dữ liệu của kho (mốc ngoài · tên trước mã · tên ngắn thiếu · sáu cờ AC-8 · dòng AC-9 · ngày AC-10), in kỳ vọng và thực tế từng kho; kho không khai `lo_trinh` → không đổi một byte.
+- AC-11: Given một lộ trình có mốc gắn việc, mốc không gắn việc, mốc ngoài, việc thuộc hai mốc, việc không thuộc mốc nào, việc có và thiếu `ten_ngan`, When vẽ trang và chạy bản xem chữ, Then khối dữ liệu mang `hang[].ten_hien_thi`, `moc[].viec_hien` (việc thuộc mốc ĐẦU TIÊN liệt nó), `moc[].hien` (= có việc hiện), `moc[].con_lai` và `chua_hen_moc` đúng kỳ vọng viết sẵn; tập (mốc hiện, việc chưa giao, tên, trạng thái, số chưa hẹn mốc) rút từ chữ nhìn thấy của trang BẰNG tập rút từ khối dữ liệu BẰNG tập rút từ khối «Mốc» của bản xem chữ, trên kho thử và trên bản chụp crm `onehub`; bộ đọc mẫu `docDuLieu` đọc trang vẽ bằng bộ máy cũ ra các khoá mới rỗng/`null` kèm đúng một cờ vàng «khối chưa mang mô hình hiển thị»; chiều đỏ: bản sao trang tự lọc lại mốc theo luật riêng (vẽ mốc không có việc) → FAIL ghim «trang lệch khối», bản sao bản xem chữ dùng câu giao thay tên hiển thị → FAIL ghim «bản xem lệch khối».
 
 ## Coverage
 
@@ -50,10 +51,10 @@ Advanced Roadmaps — dòng việc hiện summary, key là phụ]` · `[NGÀNH: 
 nối tiếp]` (giờ máy nối tiếp theo làn) · `[NGÀNH: Shape Up (Basecamp) — chu kỳ chỉ nhận việc dựng]` (chỉ việc phát triển).
 
 - Trục A — loại mục: mốc `phat-hanh` | `han`/`han-cung` | `su-kien` | `ngoai` | không `loai` | hàng có/thiếu `ten_ngan` | `da_bac` cùng đợt  [thước CE: luật 17/10 + khuôn lộ trình + ba tệp crm thật] → AC-1, AC-2, AC-5, AC-8, AC-9
-- Trục B — mặt đọc: răng cắt lượt | trang | khối dữ liệu | bản xem chữ (Rà soát, Giờ máy) | thẻ khởi động | SKILL (người cắt)  [thước CE: bảng nơi chạy của report khảo sát + design §4.3] → AC-1, AC-2, AC-3, AC-4, AC-5, AC-8, AC-9, AC-10
+- Trục B — mặt đọc: răng cắt lượt | trang | khối dữ liệu | bản xem chữ (Rà soát, Giờ máy) | thẻ khởi động | SKILL (người cắt) | trang Lộ trình trong sản phẩm crm (qua khối)  [thước CE: bảng nơi chạy của report khảo sát + design §4.3 + luật trang crm `apps/app/components/lo-trinh/viec.ts`] → AC-1, AC-2, AC-3, AC-4, AC-5, AC-8, AC-9, AC-10, AC-11
 - Trục C — trạng thái tệp: sạch | còn mốc ngoài | thiếu tên ngắn | sửa tay đi vòng răng | nhiều mốc mở | mốc qua ngày  [thước CE: crm #465/#466 + hai hạt giống 17/10] → AC-2, AC-5, AC-8, AC-9, AC-10
 - Trục D — kho: kit | crm (ba lộ trình) | OneFlow (fixture) | kho không khai lộ trình  [thước CE: luật 26/09 + đo `~/dev/*` 17/10] → AC-10
-- Người đọc (cross-cutting): người không biết mã đọc trang trong một phút → AC-5, AC-6, AC-7.
+- Người đọc (cross-cutting): người không biết mã đọc trang trong một phút, và thấy CÙNG một lộ trình ở trang kit, bản xem chữ và trang crm → AC-5, AC-6, AC-7, AC-11.
 - Later: lệnh `/road-map:xem` đưa đường dẫn trang · Rà soát + Giờ máy lên trang · cài road-map khi kho khai lộ trình (vòng RD2, hạt giống) · giờ máy mỗi ngày đọc từ số đo vòng (vế 2 hạt giống giờ máy) · trang Lộ trình trong sản phẩm crm (việc của crm).
 - Never: máy tự viết lại tệp lộ trình của kho (máy chỉ cờ) · răng đoán việc vận hành bằng nghĩa câu (blacklist trên không gian mở).
 
@@ -74,6 +75,8 @@ lần crm nhận mốc mang vòng này — số mốc ngoài còn lại trên tr
 
 ## Notes
 
+- Ghi chú nhận cho crm (đi vào CHANGELOG của mốc): trang Lộ trình trong sản phẩm đọc `ten_hien_thi`, `moc[].hien`/`viec_hien`/`con_lai`,
+  `chua_hen_moc` thay vì tự lọc, và thêm một ca đối chiếu trang crm với tập hiển thị của khối (crm tự làm khi nhận).
 - Ca đo: `tests/scripts/road-map-de-dung.test.mjs` (ca `RD-<n>`), khoá `executors.test.road_map_de_dung`; ca Chrome AC-6 thêm
   vào `tests/scripts/xem-trang-lo-trinh.test.mjs` (`LTT-ten-*`, khoá `lo_trinh_trang` sẵn có).
 - **Con trỏ thay thế (hồ sơ đã ký — KHÔNG sửa hợp đồng của chúng):** AC-1/AC-3 hồ sơ này thay các vế về mốc ngoài của

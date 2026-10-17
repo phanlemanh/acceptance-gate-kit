@@ -30,7 +30,7 @@ sửa trang của mình; trang trong crm là việc của crm, ghi một dòng �
 | Phần | Loại | Vì sao loại ấy |
 |---|---|---|
 | A. Bỏ mốc ngoài | **TRỪ** | Gỡ một chỗ của bảng phủ và một loại mốc khỏi trang; chỗ thay là khối `da_bac` sẵn có, không khoá mới. Cờ vàng đọc-cũ là nghĩa vụ của luật «đổi schema phải có đường đọc-cũ», không phải tính năng mới. Chữ tiêu đề mục trên trang là Hỏi-2. |
-| B. Trang đọc được trong một phút | **Sửa lỗi** | Trang hứa «đọc một phút» (hồ sơ `trang-lo-trinh-doc-mot-phut`); khối Mốc in mã trần là trang không giữ lời hứa. |
+| B. Trang đọc được trong một phút + một mô hình hiển thị chung | **Sửa lỗi** | Trang hứa «đọc một phút» (hồ sơ `trang-lo-trinh-doc-mot-phut`); khối Mốc in mã trần là trang không giữ lời hứa. Trang crm và trang kit trình cùng dữ liệu theo hai luật — người thấy hai lộ trình (chủ kho 17/10). Khối dữ liệu thêm năm khoá trong cùng phiên bản (luật 16/10), có đường đọc-cũ. |
 | C. Luật chỉ việc phát triển trên mọi lần đọc | **Sửa lỗi** | Luật chủ kho 11/10 đã chốt; răng chỉ chạy một đường nên lời khai «lộ trình chỉ chứa việc phát triển» sai trên tệp thật. |
 | D. Ngày dự kiến nối tiếp theo làn | **Sửa lỗi** | Ngày dự kiến hôm nay sai khi đọc chung (hạt giống 17/10). |
 | E. Ba việc CỘNG (lệnh xem đưa đường dẫn trang · Rà soát + Giờ máy lên trang · cài road-map mặc định) | **CỘNG — tách sang vòng RD2** | Luật CỘNG cần chủ kho duyệt đích danh; gộp vào thì hợp đồng 13+ tiêu chí (phải tách theo khối cỡ). E3 còn đi ngược ADR 0025 (lộ trình là lựa chọn của từng kho). Hạt giống `docs/plans/2026-10-17-hat-giong-road-map-xem-trang-va-cai-goi.md`. |
@@ -95,6 +95,28 @@ Khối «Mốc» của trang, mỗi mốc:
 - Mở ra (`<details>`): câu giao đầy đủ + tên hồ sơ (`slug`) khi có — không cần JavaScript, đọc được trên điện thoại.
 - Đầu mốc: «còn k/n việc» (k = việc chưa giao); việc đã giao gập thành một dòng đếm.
 - Mốc ngoài không vẽ (A).
+
+**Một mô hình hiển thị chung trong khối dữ liệu (chủ kho 17/10, qua điều phối: «Lộ trình CRM và lộ trình của phiên đọc cùng
+một nguồn; khi Lộ trình CRM đọc đúng thì phiên cũng phải đồng nhất»).** Nguồn dữ liệu đã chung (tệp lộ trình → `lo-trinh.mjs` →
+khối dữ liệu → trang kit, `/road-map:xem`, bản chụp sang crm), nhưng LUẬT HIỂN THỊ bị chia đôi: trang crm tự lọc «chỉ mốc có
+việc gắn», lấy câu giao làm tên; trang kit vẽ mọi mốc, liệt mã. Sửa: luật hiển thị sống MỘT chỗ — khối dữ liệu mang sẵn kết quả,
+mọi mặt chỉ vẽ:
+
+| Khoá (thêm trong phiên bản 2 của khối — luật «kit chỉ THÊM khoá trong cùng phiên bản», 16/10) | Nghĩa |
+|---|---|
+| `hang[].ten_hien_thi` | tên hiển thị của việc: `ten_ngan` → `ten` → câu giao rút gọn (hàm `tenNganHang`, một nguồn với tên phiên) |
+| `moc[].viec_hien` | mã các việc hiện dưới mốc — việc thuộc mốc ĐẦU TIÊN liệt nó (đúng luật `phangViec` của crm) |
+| `moc[].hien` | `true` khi `viec_hien` khác rỗng — luật «chỉ mốc có việc gắn» của trang crm |
+| `moc[].con_lai` | số việc của `viec_hien` chưa giao |
+| `chua_hen_moc` (cấp lộ trình) | mã các việc không thuộc mốc nào hiện — nhóm «chưa hẹn mốc» của trang crm |
+
+Chuẩn chung = luật trang crm đang chạy (đã qua Cổng Bằng chứng của crm), trừ một chỗ: **tên việc** theo lời giao gốc của chủ kho
+(tên ngắn → câu giao rút gọn), crm đổi từ câu giao đầy đủ sang `ten_hien_thi` khi nhận. Trang kit (khối Mốc + nhóm chưa hẹn mốc)
+và `/road-map:xem` (thêm khối «Mốc» mỗi lộ trình: mốc hiện · còn k/n · tên — trạng thái từng việc chưa giao · số chưa hẹn mốc)
+chỉ đọc các khoá này. Mốc ngoài không vào khối (phần A). Ngày dự kiến SỐNG (phần D) phụ thuộc hôm nay nên không vào khối — khối
+giữ dự báo đóng băng sẵn có (`moc.du_kien`); đưa ngày sống lên trang là mục E2 của RD2. **Đường đọc-cũ:** khối không có các khoá
+mới (trang vẽ bằng kit cũ) → bộ đọc mẫu trả `null`/rỗng và một cờ vàng «khối chưa mang mô hình hiển thị»; trang crm giữ luật lọc
+hiện tại tới khi nhận bản mới. Ghi chú nhận cho crm: một ca đối chiếu trang crm với tập hiển thị của khối (crm tự làm khi nhận).
 
 **Cảnh báo thiếu tên ngắn:** «Cần sửa trong kế hoạch» thêm MỘT dòng gom «<k> việc chưa có tên ngắn — trang đang rút gọn câu giao:
 <mã…≤8>». Kho đủ tên: không dòng nào. Không chặn, không đổi mã thoát.

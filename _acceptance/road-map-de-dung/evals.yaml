@@ -169,3 +169,19 @@ evals:
       từng byte mau/trang-moi.txt, mau/cau-hoi-trang.md, mau/dap-an-trang.json đã commit. RD-7-tuoi-do: bản sao trang-moi.txt
       lệch một byte → FAIL ghim «tệp mẫu cũ: trang-moi.txt».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-11", "PASS: RD-11-ba-mat", "PASS: RD-11-crm", "PASS: RD-11-doc-cu", "PASS: RD-11-do", "PASS: RD-11-do2".
+      RD-11: kho thử bảy mục (mốc M1 gắn A,B · M2 gắn B,C · M3 không gắn · mốc ngoài V gắn D · việc E không mốc · A có
+      ten_ngan · C thiếu) → khối: ten_hien_thi A = ten_ngan, C = câu giao rút gọn; M1.viec_hien [A,B], M2.viec_hien [C],
+      M3.hien false, không mốc V; con_lai đúng; chua_hen_moc [D,E] — mọi ô so với kỳ vọng viết sẵn. RD-11-ba-mat: tập (mốc
+      hiện, việc chưa giao, tên, trạng thái, số chưa hẹn mốc) rút từ chữ nhìn thấy của trang == rút từ khối == rút từ khối
+      «Mốc» của --xem, in số phần tử. RD-11-crm: cùng phép so trên bản chụp onehub. RD-11-doc-cu: docDuLieu đọc trang bộ máy
+      v2.32.0 → khoá mới rỗng/null + đúng một cờ vàng «khối chưa mang mô hình hiển thị»; bảng khoá tài liệu
+      lo-trinh-du-lieu.md == KHUON_DU_LIEU. RD-11-do: bản sao trang vẽ cả mốc không có việc → FAIL ghim «trang lệch khối».
+      RD-11-do2: bản sao --xem in câu giao thay ten_hien_thi → FAIL ghim «bản xem lệch khối».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
