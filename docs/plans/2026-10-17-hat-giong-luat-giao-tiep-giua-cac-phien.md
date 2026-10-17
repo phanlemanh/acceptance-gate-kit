@@ -25,7 +25,7 @@ Liên quan: `docs/plans/2026-10-13-hat-giong-kenh-lien-may-dieu-phoi.md` (đư�
   Hiến pháp kit đã nói trước điều này: lời dặn không phải nghiệm.
 - **Đề xuất:** một bộ khẩu lệnh nhỏ (§4) và **máy giữ bốn thứ**: mã tin, sổ vòng mở, chặn kết lượt khi còn tin chưa
   nhận, và khuôn lời giao việc. Tất cả dựng trên khuôn yêu cầu đã có của gói, không thêm hộp thư thứ hai.
-  Ước một vòng T2, khoảng 8–10 giờ máy, vùng tệp của M5.
+  Ước một vòng T2, khoảng 8–10 giờ máy; MacBook Pro giữ (chủ kho giao 17/10), chạm vùng tệp của M5.
 
 ---
 
@@ -258,9 +258,11 @@ khuôn yêu cầu cũ chính là GIAO / HỎI có mã.
 **Một vòng T2 trong gói `dieu-phoi`: «vòng mở có chủ giữ».** Phạm vi: §4.1–4.2 và §5 trừ hai dòng còn là lời; khuôn
 lời giao việc §4.3 trong bộ dựng lời ghi danh; đọc lại §4.4 ở mức lời của LUAT.md. Khoảng 8–10 tiêu chí.
 
-- **Máy giữ vòng:** M5. `dieu-phoi/` là vùng của M5, và M5 đang giữ mốc OneFlow đợt thử hai 27/10, chỗ dùng được ngay.
-- **Ước:** `T2 · bắt đầu sau khi crm nhận 2.32 · ~6–8 giờ máy (×1,3 vì chạm vùng máy khác ≈ 8–10) · % hạn mức tuần đo
-  khi ≥ 5 vòng`.
+- **Máy giữ vòng:** MacBook Pro. Chủ kho giao 17/10 vì hàng của M5 đang tồn nhiều. `dieu-phoi/` là vùng của M5,
+  nên MacBook Pro báo M5 trên #308 trước khi mở và không gộp chen giữa lô của M5. Hàng lộ trình `GT1`, slug
+  `vong-mo-co-chu-giu`, mốc 2.33.0.
+- **Ước:** `T2 · bắt đầu ~18/10 · ~6–8 giờ máy (×1,3 vì chạm vùng máy khác ≈ 8–10) · % hạn mức tuần đo khi ≥ 5 vòng ·
+  hoàn tất dự kiến ~20/10 · mục tiêu mốc 21/10`. Dùng ngay ở đợt thử hai OneFlow 27/10 (M5) và đợt kế của crm.
 - **Neo ngoài:** gói giao tới crm (đợt r2, ba máy). Không phải vòng đo thước của thước. Vì vậy nó không chiếm suất vòng
   meta giữa hai mốc theo luật chiều rộng (b).
 - **Không làm trong vòng này:** kho git làm hộp thư (tệp 13/10, ngưỡng giữ nguyên) · danh tính có chữ ký · đánh thức
