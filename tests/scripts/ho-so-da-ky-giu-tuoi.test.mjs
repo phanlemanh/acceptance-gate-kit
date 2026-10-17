@@ -3,7 +3,8 @@
 // (lib/do-san-tren-nen.cjs). Kho thử git do code sinh trong lượt; «bản trước vòng» = `git archive 43ed9e2b`
 // bung trong lượt. Mọi đường dẫn suy từ vị trí tệp này. Chọn ca: GT_CASES=GT0-bam,GT1 node <tệp>.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -113,6 +114,17 @@ const repinCua = (k, slug) => k.docLog(slug).filter(l => l.kind === 'repin');
 const chuKy = (k, slug) => (k.docReport(slug).match(/^human_(signoff|override)\s*:.*$/gm) || []).join('\n');
 // Dòng repin-do so giữa hai bản làn: bỏ giờ, mã lượt, thời lượng, tải máy, phút.
 const chuanDauDo = (o) => { const x = JSON.parse(JSON.stringify(o)); for (const kk of ['ts', 'lan_id', 'wall_s', 'tai']) delete x[kk]; if (x.tong_ket) x.tong_ket.phut = 0; return JSON.stringify(x).replace(/repin-\d{8}T\d{6}Z-\d{5}/g, 'RUN'); };
+// Lệnh giữ tươi (Task 4) — LỆNH THẬT `node <kit>/feature-loop/scripts/giu-tuoi.mjs` trên kho thử; `kit` = gốc bộ
+// máy (cây này, bản sao bị tiêm, hay bản trước vòng). Bản không có tệp lệnh → ném «khong co lenh giu tuoi»: mã
+// thoát của node khi thiếu tệp không bao giờ được đọc thành một kết quả.
+function giuTuoi(k, args, { kit = ROOT, env } = {}) {
+  const f = path.join(kit, 'feature-loop', 'scripts', 'giu-tuoi.mjs');
+  const r = spawnSync(process.execPath, [f, '--root', k.root, '--ag-root', kit, ...args],
+    { encoding: 'utf8', env: { ...process.env, GG_DAU: k.dau, ...(env || {}) }, timeout: 300000, killSignal: 'SIGKILL', maxBuffer: 256 * 1024 * 1024 });
+  if (!existsSync(f) || /Cannot find module/.test(r.stderr || '')) throw new Error(`khong co lenh giu tuoi (${f}, mã ${r.status})`);
+  return r;
+}
+const nenCua = (k, slug) => k.docLog(slug).filter(l => l.kind === 'nen-do');
 
 await ca('GT2', () => {
   const k = FX.mkKhoGiuTuoi({ hoSo: ['H1', 'H2', 'H5'] });
@@ -203,21 +215,54 @@ await ca('GT3', () => {
   const sj = JSON.parse(sd.stdout); assert.deepEqual([sj.slugs.H2.ket_cuc, sj.slugs.H5.ket_cuc], ['do', 'do']);
   const dsH2 = k.docLog('H2').pop();
   assert.equal(dsH2.kind, 'repin-do'); assert.equal(dsH2.lenh_do[0].suite, 0); assert.match(dsH2.lenh_do[0].thong_diep_bam, /^[0-9a-f]{64}$/);
-  return 'H2 ghim · H5 repin-do (E1, băm 64 hex, trích có ca) · không cờ = bản trước vòng · suite đỏ → 0 ghim · bản trước vòng: H2 không ghim';
+  // Phần lệnh giữ tươi (AC-3): CHÍNH lệnh --write trên kho mới — H2 ghim, H5 không, H5 đúng một dòng nen-do.
+  const kg = FX.mkKhoGiuTuoi({ hoSo: ['H2', 'H5'] });
+  const tu = kg.git('rev-parse', 'HEAD');
+  kg.gop(12, { 'vat/H2-E1-phu.txt': 'cham H2\n', 'vat/H5-E1.txt': FX.noiDungDo({ ca: 'ca-h5-e1' }) });
+  const dinhG = kg.git('rev-parse', 'HEAD');
+  const m0 = { H2: repinCua(kg, 'H2').length, H5: repinCua(kg, 'H5').length };
+  const vcG5 = kg.vc('H5');
+  const rg = giuTuoi(kg, ['--tu', tu, '--write']);
+  assert.equal(rg.status, 0, rg.stderr.slice(-800));
+  assert.equal(repinCua(kg, 'H2').length, m0.H2 + 1, 'lệnh: H2 được ghim dù H5 đỏ'); assert.equal(kg.vc('H2'), dinhG);
+  assert.equal(repinCua(kg, 'H5').length, m0.H5, 'lệnh: H5 không có repin mới'); assert.equal(kg.vc('H5'), vcG5, 'lệnh: verified_commit H5 giữ');
+  const nen = nenCua(kg, 'H5');
+  assert.equal(nen.length, 1, 'H5 đúng một dòng nen-do'); assert.equal(nenCua(kg, 'H2').length, 0, 'H2 xanh: không dòng nền');
+  const n = nen[0];
+  assert.equal(n.run_id, repinCua(kg, 'H2').pop().run_id, 'run_id của dòng nền = run_id của lượt ghim');
+  assert.equal(n.sha, dinhG); assert.equal(n.tu, tu); assert.equal(n.ket_cuc, 'do-khoang');
+  assert.equal(n.lenh_do[0].eval, 'E1'); assert.notEqual(n.lenh_do[0].exit, 0);
+  assert.match(n.lenh_do[0].thong_diep_bam, /^[0-9a-f]{64}$/); assert.ok(n.lenh_do[0].trich.includes('ca-h5-e1'), n.lenh_do[0].trich);
+  const dnG = DS.bamDinhNghia(readFileSync(path.join(kg.root, '_acceptance', 'H5', 'evals.yaml'), 'utf8'), 'E1');
+  assert.equal(n.evals_hash.E1, dnG); assert.equal(n.dinh_nghia.E1, dnG);
+  // Chiều đỏ của lệnh: suite chung đỏ → thoát 1, câu ghim, không repin mới, không dòng nền mới.
+  kg.git('add', '-A'); kg.git('commit', '-qm', 'giu tuoi: ghi so');
+  const tu2 = kg.git('rev-parse', 'HEAD');
+  kg.gop(13, { 'vat/suite-hong': 'x\n', 'vat/H2-E1-phu.txt': 'cham lai H2\n' });
+  const m1 = { H2: repinCua(kg, 'H2').length, nen: nenCua(kg, 'H5').length };
+  const sg = giuTuoi(kg, ['--tu', tu2, '--write']);
+  assert.equal(sg.status, 1, sg.stderr.slice(-600));
+  assert.ok(sg.stderr.includes('giu-tuoi: suite chung đỏ — không ghim hồ sơ nào'), sg.stderr.slice(-600));
+  assert.deepEqual([repinCua(kg, 'H2').length, nenCua(kg, 'H5').length], [m1.H2, m1.nen], 'lệnh, suite đỏ: không ghim, không dòng nền');
+  return 'H2 ghim · H5 repin-do (E1, băm 64 hex, trích có ca) · không cờ = bản trước vòng · suite đỏ → 0 ghim · bản trước vòng: H2 không ghim · lệnh --write: H5 một dòng nen-do (run_id, sha, tu, do-khoang, E1, evals_hash.E1), suite đỏ → thoát 1';
 });
 
 await ca('GT6', () => {
   const k = FX.mkKhoGiuTuoi({ hoSo: [{ slug: 'H5', evals: [{ id: 'E1', ca: 'ca-do' }, { id: 'E2', ca: 'ca-e2' }] }], khoa: true });
+  const tu6 = k.git('rev-parse', 'HEAD');
   const g12 = k.gop(12, { 'vat/H5-E1.txt': FX.noiDungDo({ ca: 'ca-do' }) });
-  // Nền: lượt ghim từng hồ sơ trên nhánh chính ghi repin-do; dòng nền chép lenh_do + dinh_nghia của nó (bản chép
-  // bên viết của lệnh giữ tươi — Task 4 thay bằng giu-tuoi.mjs --write).
-  const rg = k.lane(['H5'], ['--tung-ho-so', '--write']);
-  assert.equal(rg.status, 0, rg.stderr);
-  const RUN_NEN = 'giu-tuoi-gt6';
-  const dongNen = k.dongNenTuDauDo('H5', { runId: RUN_NEN, tu: g12.sha_truoc, quyVe: [{ pr: 12, sha_truoc: g12.sha_truoc, sha_sau: g12.sha_sau }] });
-  const bamNen = JSON.parse(dongNen).lenh_do[0].thong_diep_bam;
+  // Nền: CHÍNH lệnh giữ tươi --write trên nhánh chính ghi dòng nền (round-trip bên viết → luật nhãn của làn
+  // vòng khác). Thay hàm fixture dongNenTuDauDo của Task 2.
+  const rg = giuTuoi(k, ['--tu', tu6, '--write']);
+  assert.equal(rg.status, 0, rg.stderr.slice(-800));
+  const nens = nenCua(k, 'H5');
+  assert.equal(nens.length, 1, `lệnh giữ tươi phải ghi đúng một dòng nền: ${JSON.stringify(nens).slice(0, 300)}`);
+  const RUN_NEN = nens[0].run_id;
+  assert.deepEqual(nens[0].quy_ve, [{ pr: 12, sha_truoc: g12.sha_truoc, sha_sau: g12.sha_sau }]);
+  const dongNen = JSON.stringify(nens[0]);
+  const bamNen = nens[0].lenh_do[0].thong_diep_bam;
   assert.match(bamNen, /^[0-9a-f]{64}$/);
-  k.noiDong('H5', dongNen); k.git('add', '-A'); k.git('commit', '-qm', 'giu tuoi: dong nen');
+  k.git('add', '-A'); k.git('commit', '-qm', 'giu tuoi: dong nen');
   let soO = 0, i = 0;
   // Một ô: nhánh vòng tách từ `tu`, chạm paths của H5, sửa thêm theo ô, commit, chạy làn (không cờ, --write).
   const o = (ten, { tu = 'main', sua = {}, truoc } = {}) => {
@@ -461,6 +506,267 @@ await ca('GT9', () => {
   // Độ nhạy của phép so: bản mới đọc dòng nền nên đầu ra của nó PHẢI khác giữa hai trạng thái.
   assert.notEqual(moiKhong, moiCo, 'đối chứng: lưới bản mới phải đổi khi xoá dòng nen-do');
   return 'bản trước vòng: 4 công cụ mã ∈ {0,1}, không stack trace · lưới VIOLATION [H5] E1=1 · kiểm lại 1 · có/không nen-do bằng nhau (bản mới khác)';
+});
+
+// ── Task 4: lệnh giữ tươi (GT1, GT4, GT5, GT10, GT-rf1…rf4) ──────────────────────────────────────────────────
+// Mọi ca chạy LỆNH THẬT (giuTuoi ở trên) trên kho thử do giu-tuoi-fixture.mjs sinh.
+const PM = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
+const cuTay = (dir) => {
+  const r = spawnSync('bash', [PM, dir], { encoding: 'utf8', cwd: dir, maxBuffer: 64 * 1024 * 1024 });
+  assert.ok([0, 1].includes(r.status), `lưới chạy tay phải ra 0/1: ${r.status} ${r.stderr.slice(-300)}`);
+  return new Set(r.stdout.split('\n').map(l => (l.match(/^VIOLATION \[([^\]]+)\]: evidence is stale/) || [])[1]).filter(Boolean));
+};
+// Băm mọi tệp dưới _acceptance/ (đường + nội dung) — «kho và sổ không đổi byte nào».
+function bamSo(root) {
+  const h = createHash('sha256');
+  const di = (d) => { for (const t of readdirSync(d).sort()) { const p = path.join(d, t); if (statSync(p).isDirectory()) di(p); else h.update(`${path.relative(root, p)}\0`).update(readFileSync(p)).update('\0'); } };
+  di(path.join(root, '_acceptance'));
+  return h.digest('hex');
+}
+const jsonCua = (r) => { assert.equal(r.status, 0, r.stderr.slice(-800)); return JSON.parse(r.stdout); };
+const ketCucCua = (j) => Object.fromEntries(j.ho_so.map(h => [h.slug, h.ket_cuc]));
+const dongBang = (r, slug) => r.stdout.split('\n').filter(l => l.startsWith(`${slug} · `));
+const soWorktree = (k) => k.git('worktree', 'list').split('\n').filter(Boolean).length;
+// Thân eval «đỏ vì hạ tầng» và «chập chờn» — thay rang/<slug>-E1.sh trong một gộp.
+const RANG_127 = 'lenh_khong_ton_tai_gt5\n';
+const RANG_137 = "sh -c 'kill -9 $$'\nexit $?\n";
+const rangChapChon = (slug) => `if [ ! -f "$GG_DAU/chap-${slug}" ]; then : > "$GG_DAU/chap-${slug}"; echo "(fail) ca-chap [1.00ms]"; exit 1; fi\necho "(pass) ca-chap [0.10ms]"\nexit 0\n`;
+
+await ca('GT1', () => {
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['H1', 'H2', 'H3', 'H4'] });
+  k.commit({ 'vat/H3-E1-phu.txt': 'cu truoc khoang\n', 'vat/H4-E1-phu.txt': 'cu truoc khoang\n' }, 'cham H3 H4 truoc khoang');
+  const tu = k.git('rev-parse', 'HEAD');
+  k.themHoSo(['H6'], { thongDiep: 'gop H6 trong khoang' });
+  k.gop(12, { 'vat/H2-E1-phu.txt': 'cham H2\n', 'vat/H4-E1-phu.txt': 'cham H4\n' });
+  k.gop(13, { 'vat/H6-E1-phu.txt': 'cham H6\n' });
+  const dinh = k.git('rev-parse', 'HEAD');
+  // Ca tự kiểm ma trận: đúng 5 hồ sơ, cả 5 đã ký ở đỉnh; H6 chưa có ở <từ>.
+  const hs = readdirSync(path.join(k.root, '_acceptance')).filter(d => statSync(path.join(k.root, '_acceptance', d)).isDirectory()).sort();
+  assert.deepEqual(hs, ['H1', 'H2', 'H3', 'H4', 'H6']);
+  for (const s of hs) assert.match(k.docReport(s), /^human_signoff: \S/m, `${s} phải đã ký ở đỉnh`);
+  assert.equal(spawnSync('git', ['-C', k.root, 'cat-file', '-e', `${tu}:_acceptance/H6/contract.md`]).status, 128, 'H6 không có ở <từ>');
+  // Chiều đỏ: bản trước vòng không có lệnh → ca ghim câu của nó, không đọc mã thoát của node thành kết quả.
+  assert.throws(() => giuTuoi(k, ['--tu', tu, '--json'], { kit: FX.banTruocVong().dir }), /khong co lenh giu tuoi/);
+  const truoc = bamSo(k.root); const head0 = k.git('rev-parse', 'HEAD'); const wt0 = soWorktree(k);
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json']));
+  const bang = giuTuoi(k, ['--tu', tu]);
+  assert.equal(bang.status, 0, bang.stderr.slice(-600));
+  const chon = j.ho_so.map(h => h.slug);
+  assert.deepEqual(chon, ['H2', 'H6'], `cũ vì khoảng: ${chon}`);
+  assert.deepEqual(j.ton_dong, ['H3', 'H4']);
+  assert.equal(j.tu, tu); assert.equal(j.den, dinh);
+  assert.ok(!chon.includes('H1') && !j.ton_dong.includes('H1') && !bang.stdout.includes('H1'), 'H1 không xuất hiện');
+  assert.ok(bang.stdout.includes('tồn đọng (cũ từ trước khoảng, không ghim): H3, H4'), bang.stdout);
+  // Một nguồn với bên đọc: BẰNG hiệu hai lượt lưới chạy tay (đỉnh · cây tách ở <từ>), không --base.
+  const wt = path.join(thuMuc('gt1-tay-'), 'tu');
+  k.git('worktree', 'add', '--detach', '--quiet', wt, tu);
+  const cuDinh = cuTay(k.root); const cuTu = cuTay(wt);
+  k.git('worktree', 'remove', '--force', wt);
+  assert.deepEqual([...cuDinh].filter(s => !cuTu.has(s)).sort(), chon, 'tập chọn phải BẰNG cũ-ở-đỉnh − cũ-ở-từ');
+  assert.deepEqual([...cuDinh].filter(s => cuTu.has(s)).sort(), j.ton_dong, 'tồn đọng phải BẰNG cũ ở cả hai');
+  // Không --write: sổ không đổi byte, HEAD giữ, cây tạm đã dọn, cây sạch.
+  assert.equal(bamSo(k.root), truoc, 'không --write: mọi tệp dưới _acceptance/ phải giữ nguyên byte');
+  assert.equal(k.git('rev-parse', 'HEAD'), head0); assert.equal(soWorktree(k), wt0, 'cây tạm phải được dọn');
+  assert.equal(k.git('status', '--porcelain'), '');
+  return 'cũ vì khoảng [H2,H6] · tồn đọng [H3,H4] = hiệu hai lượt lưới chạy tay · sổ giữ byte · bản trước vòng: khong co lenh giu tuoi';
+});
+
+await ca('GT4', () => {
+  // Ba ô trên một kho: A đỏ vì đúng #12 · B hai gộp #13, #14 cùng chạm · C đỏ sẵn ở <từ> (paths hẹp, đỏ đến từ tệp
+  // ngoài paths trước khoảng; #15 chỉ chạm thân lệnh bằng một dòng chú thích).
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['A', 'B', { slug: 'C', evals: [{ id: 'E1', ca: 'ca-c', paths: ['rang/C-E1.sh'] }] }] });
+  k.commit({ 'vat/C-E1.txt': FX.noiDungDo({ ca: 'ca-c' }) }, 'C do ngoai paths truoc khoang');
+  const tu = k.git('rev-parse', 'HEAD');
+  const g12 = k.gop(12, { 'vat/A-E1.txt': FX.noiDungDo({ ca: 'ca-a-e1' }) });
+  const g13 = k.gop(13, { 'vat/B-E1-phu.txt': 'cham B\n' });
+  const g14 = k.gop(14, { 'vat/B-E1.txt': FX.noiDungDo({ ca: 'ca-b-e1' }) });
+  k.gop(15, { 'rang/C-E1.sh': `# cham C\n${k.doc('rang/C-E1.sh')}` });
+  let soO = 0;
+  const bang = giuTuoi(k, ['--tu', tu]);
+  assert.equal(bang.status, 0, bang.stderr.slice(-600));
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json', '--write']));
+  assert.deepEqual(ketCucCua(j), { A: 'do-khoang', B: 'nhieu-pr', C: 'do-san-truoc-khoang' });
+  const nen = (s) => { const n = nenCua(k, s); assert.equal(n.length, 1, `${s}: đúng một dòng nền`); return n[0]; };
+  // Ô chính.
+  assert.equal(nen('A').ket_cuc, 'do-khoang');
+  assert.deepEqual(nen('A').quy_ve, [{ pr: 12, sha_truoc: g12.sha_truoc, sha_sau: g12.sha_sau }]);
+  assert.deepEqual(dongBang(bang, 'A').length, 1); assert.ok(dongBang(bang, 'A')[0].includes('đỏ do PR #12'), dongBang(bang, 'A'));
+  soO += 1;
+  // Hai gộp cùng chạm.
+  assert.deepEqual(nen('B').quy_ve, [{ pr: 13, sha_truoc: g13.sha_truoc, sha_sau: g13.sha_sau }, { pr: 14, sha_truoc: g14.sha_truoc, sha_sau: g14.sha_sau }]);
+  assert.ok(dongBang(bang, 'B')[0].includes('nhiều PR cùng chạm (#13, #14)'), dongBang(bang, 'B'));
+  soO += 1;
+  // Đỏ cùng băm ở <từ>.
+  assert.equal(nen('C').ket_cuc, 'do-san-truoc-khoang'); assert.deepEqual(nen('C').quy_ve, []);
+  assert.ok(dongBang(bang, 'C')[0].includes('đỏ sẵn trước khoảng') && !dongBang(bang, 'C')[0].includes('#15'), dongBang(bang, 'C'));
+  soO += 1;
+  // Eval không khai paths: kho riêng (không paths là cũ theo MỌI tệp mã — commit trước khoảng sẽ làm nó tồn đọng).
+  const d = FX.mkKhoGiuTuoi({ hoSo: [{ slug: 'D', evals: [{ id: 'E1', ca: 'ca-d', paths: null }] }] });
+  const tuD = d.git('rev-parse', 'HEAD');
+  const d12 = d.gop(12, { 'vat/D-E1.txt': FX.noiDungDo({ ca: 'ca-d' }) });
+  const d13 = d.gop(13, { 'src/khac.txt': 'ma khac\n' });
+  const jd = jsonCua(giuTuoi(d, ['--tu', tuD, '--json', '--write']));
+  assert.deepEqual(ketCucCua(jd), { D: 'nhieu-pr' });
+  const nd = nenCua(d, 'D');
+  assert.equal(nd.length, 1);
+  assert.deepEqual(nd[0].quy_ve.map(q => [q.pr, q.sha_truoc, q.sha_sau]), [[12, d12.sha_truoc, d12.sha_sau], [13, d13.sha_truoc, d13.sha_sau]]);
+  assert.ok(nd[0].quy_ve.every(q => q.ly_do === 'eval không khai paths'), JSON.stringify(nd[0].quy_ve));
+  assert.ok(nd[0].ghi_chu.includes('eval không khai paths') && jd.ho_so[0].ghi_chu.includes('eval không khai paths'));
+  soO += 1;
+  assert.equal(soO, 4, `ca tự kiểm số ô: ${soO}`);
+  return `${soO}/4 ô`;
+});
+
+await ca('GT5', () => {
+  // Một gộp #12 chạm paths của cả ba hồ sơ; P đỏ mã 127, Q mã 137, R đỏ lần đầu rồi xanh khi chạy lại.
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['P', 'Q', 'R'] });
+  const tu = k.git('rev-parse', 'HEAD');
+  k.gop(12, { 'rang/P-E1.sh': RANG_127, 'rang/Q-E1.sh': RANG_137, 'rang/R-E1.sh': rangChapChon('R') });
+  const dinh = k.git('rev-parse', 'HEAD');
+  k.xoaDau();
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json', '--write']));
+  k.xoaDau();
+  k.git('checkout', '-q', '--', '_acceptance');
+  const bang = giuTuoi(k, ['--tu', tu, '--write']);
+  assert.equal(bang.status, 0, bang.stderr.slice(-600));
+  // Không gọi tên PR vô tội: kiểm TRƯỚC kết cục, để mọi chỗ hỏng của nhánh hạ tầng đỏ đúng câu này.
+  assert.ok(!bang.stdout.includes('#12'), `bảng không được chứa #12:\n${bang.stdout}`);
+  let soO = 0;
+  const maDo = { P: 127, Q: 137, R: 1 };
+  for (const s of ['P', 'Q', 'R']) {
+    assert.equal(ketCucCua(j)[s], 'ha-tang', `${s}: ${JSON.stringify(j.ho_so)}`);
+    const n = nenCua(k, s);
+    assert.equal(n.length, 1, `${s}: đúng một dòng nền`);
+    assert.equal(n[0].ket_cuc, 'ha-tang'); assert.deepEqual(n[0].quy_ve, []);
+    assert.equal(n[0].tu, tu); assert.equal(n[0].sha, dinh);
+    assert.equal(n[0].lenh_do[0].exit, maDo[s], `${s}: mã đỏ của lượt ghim`);
+    const dong = dongBang(bang, s);
+    assert.equal(dong.length, 1);
+    assert.ok(dong[0].includes(`không quy được — hạ tầng (${tu.slice(0, 7)}..${dinh.slice(0, 7)})`), dong[0]);
+    assert.ok(!JSON.stringify(n[0]).includes('#12') && !dong[0].includes('#12') && !JSON.stringify(n[0].quy_ve).includes('12'), `${s}: không được gọi tên #12`);
+    soO += 1;
+  }
+  // Đối chứng dương: cùng gộp #12, E1 đỏ THẬT vì nó → bảng gọi tên #12.
+  const c = FX.mkKhoGiuTuoi({ hoSo: ['S'] });
+  const tuC = c.git('rev-parse', 'HEAD');
+  c.gop(12, { 'vat/S-E1.txt': FX.noiDungDo({ ca: 'ca-s' }) });
+  const bc = giuTuoi(c, ['--tu', tuC]);
+  assert.equal(bc.status, 0, bc.stderr.slice(-400));
+  assert.ok(dongBang(bc, 'S')[0].includes('đỏ do PR #12'), bc.stdout);
+  assert.equal(soO, 3);
+  return `${soO}/3 ô · đối chứng dương: đỏ thật vì #12 → bảng gọi tên #12`;
+});
+
+await ca('GT10', () => {
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['A', 'B', 'C', { slug: 'D', evals: [{ id: 'E1', ca: 'ca-d', paths: ['rang/D-E1.sh'] }] }, 'E', 'T'] });
+  k.commit({ 'vat/D-E1.txt': FX.noiDungDo({ ca: 'ca-d' }), 'vat/T-E1-phu.txt': 'cu truoc khoang\n' }, 'truoc khoang');
+  const tu = k.git('rev-parse', 'HEAD');
+  k.gop(12, { 'vat/B-E1.txt': FX.noiDungDo({ ca: 'ca-b' }), 'vat/A-E1-phu.txt': 'cham A\n' });
+  k.gop(13, { 'vat/C-E1-phu.txt': 'cham C\n' });
+  k.gop(14, { 'vat/C-E1.txt': FX.noiDungDo({ ca: 'ca-c' }) });
+  k.gop(15, { 'rang/E-E1.sh': RANG_127 });
+  k.gop(16, { 'rang/D-E1.sh': `# cham D\n${k.doc('rang/D-E1.sh')}` });
+  const head0 = k.git('rev-parse', 'HEAD'); const nhanh0 = k.git('symbolic-ref', '--short', 'HEAD'); const soCommit0 = k.git('rev-list', '--count', 'HEAD');
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json']));
+  const MONG = { A: 'tuoi-lai', B: 'do-khoang', C: 'nhieu-pr', D: 'do-san-truoc-khoang', E: 'ha-tang' };
+  assert.deepEqual(ketCucCua(j), MONG); assert.deepEqual(j.ton_dong, ['T']);
+  assert.ok(j.ho_so.every(h => typeof h.phut === 'number') && typeof j.gio_may === 'number');
+  const bang = giuTuoi(k, ['--tu', tu, '--write']);
+  assert.equal(bang.status, 0, bang.stderr.slice(-600));
+  const CHU = { A: 'tươi lại', B: 'đỏ do PR #12', C: 'nhiều PR cùng chạm', D: 'đỏ sẵn trước khoảng', E: 'không quy được — hạ tầng' };
+  const tuBang = {};
+  for (const [s, chu] of Object.entries(CHU)) {
+    const dong = dongBang(bang, s);
+    assert.equal(dong.length, 1, `${s}: đúng một dòng: ${bang.stdout}`);
+    assert.match(dong[0], new RegExp(`^${s} · ${chu}.* · \\d+,\\d\\d phút$`), dong[0]);
+    // Kết cục đọc NGƯỢC từ chữ của bảng (chữ → mã), rồi so với --json.
+    tuBang[s] = Object.keys(CHU).map(x => [CHU[x], MONG[x]]).find(([c]) => dong[0].startsWith(`${s} · ${c}`))[1];
+  }
+  assert.deepEqual(tuBang, ketCucCua(j), '--json cùng tập kết cục với bảng');
+  assert.equal(dongBang(bang, 'T').length, 0, 'tồn đọng không có dòng kết cục');
+  const cuoi = bang.stdout.trim().split('\n').pop();
+  assert.match(cuoi, /^tồn đọng \d+ hồ sơ không ghim · tổng giờ máy /); assert.ok(cuoi.startsWith('tồn đọng 1 hồ sơ'), cuoi);
+  assert.equal(k.git('rev-parse', 'HEAD'), head0, 'lệnh không tạo commit'); assert.equal(k.git('symbolic-ref', '--short', 'HEAD'), nhanh0, 'lệnh không đổi nhánh');
+  assert.equal(k.git('rev-list', '--count', 'HEAD'), soCommit0);
+  // Cây bẩn ngoài _acceptance/ → thoát 2, câu ghim.
+  k.ghi('docs/README.md', 'sua chua commit\n');
+  const ban = giuTuoi(k, ['--tu', tu]);
+  assert.equal(ban.status, 2, ban.stderr); assert.ok(ban.stderr.includes('cây bẩn ngoài _acceptance/'), ban.stderr);
+  return '5 kết cục ghim chữ · --json cùng tập · dòng cuối ghim · HEAD/nhánh giữ · cây bẩn → 2';
+});
+
+await ca('GT-rf1', () => {
+  // Gộp kiểu nén: tiêu đề `feat: … (#12)` thay vì «Merge pull request #12».
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['H5'] });
+  const tu = k.git('rev-parse', 'HEAD');
+  const g = k.gop(12, { 'vat/H5-E1.txt': FX.noiDungDo({ ca: 'ca-h5' }) }, { kieu: 'nen', tieuDe: 'feat: sua vat H5 (#12)' });
+  assert.equal(k.git('log', '-1', '--format=%s'), 'feat: sua vat H5 (#12)');
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json']));
+  assert.deepEqual(j.ho_so[0].quy_ve, [{ pr: 12, sha_truoc: g.sha_truoc, sha_sau: g.sha_sau }]);
+  const b = giuTuoi(k, ['--tu', tu]);
+  assert.ok(dongBang(b, 'H5')[0].includes('đỏ do PR #12'), b.stdout);
+  return 'tiêu đề nén (#12) → PR 12';
+});
+
+await ca('GT-rf2', () => {
+  // Hồ sơ có evals.yaml mà KHÔNG eval máy nào (chỉ judgment) bị cũ vì khoảng → ghim như hôm nay, không dòng nền rỗng.
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['H1'] });
+  k.themHoSo(['H7'], { ghimDau: false, thongDiep: 'H7 judgment' });
+  const p = '_acceptance/H7/evals.yaml';
+  const goc = k.doc(p); const sua = goc.replace('    executor: script\n    cmd: config:executors.script.h7_e1\n', '    executor: judgment\n');
+  assert.notEqual(sua, goc, 'phải đổi được E1 thành judgment');
+  k.ghi(p, sua); k.git('add', '-A'); k.git('commit', '-qm', 'H7 chi judgment');
+  const tu = k.git('rev-parse', 'HEAD');
+  k.gop(12, { 'vat/H7-E1-phu.txt': 'cham H7\n' });
+  const n0 = repinCua(k, 'H7').length;
+  const j = jsonCua(giuTuoi(k, ['--tu', tu, '--json', '--write']));
+  assert.deepEqual(ketCucCua(j), { H7: 'tuoi-lai' });
+  assert.equal(repinCua(k, 'H7').length, n0 + 1, 'ghim như hôm nay');
+  assert.deepEqual(repinCua(k, 'H7').pop().evals_exit, {});
+  assert.equal(nenCua(k, 'H7').length, 0, 'không dòng nen-do rỗng');
+  return 'H7 chỉ judgment → tươi lại, một repin, 0 dòng nền';
+});
+
+await ca('GT-rf3', () => {
+  // Khoảng rỗng: <từ> = <đến> → «0 hồ sơ cũ vì khoảng», thoát 0, không chạy lượt ghim.
+  const k = FX.mkKhoGiuTuoi({ hoSo: ['H1'] });
+  k.commit({ 'vat/H1-E1-phu.txt': 'cu\n' }, 'H1 cu'); // có hồ sơ cũ: lệnh vẫn không được ghim gì
+  k.xoaDau();
+  const truoc = bamSo(k.root);
+  const b = giuTuoi(k, ['--tu', 'HEAD']);
+  assert.equal(b.status, 0, b.stderr);
+  assert.ok(b.stdout.includes('0 hồ sơ cũ vì khoảng'), b.stdout);
+  assert.ok(!b.stderr.includes('[lane]'), `không được chạy lượt ghim: ${b.stderr}`);
+  const j = jsonCua(giuTuoi(k, ['--tu', 'HEAD', '--json', '--write']));
+  assert.deepEqual([j.ho_so, j.ton_dong], [[], []]);
+  assert.equal(k.dem('suite.txt'), 0, 'suite không chạy');
+  assert.equal(bamSo(k.root), truoc);
+  return '0 hồ sơ, thoát 0, suite 0 lần';
+});
+
+await ca('GT-rf4', () => {
+  // Nhật ký đỏ có số ngẫu nhiên (cổng, pid, thời lượng ms). Phần giờ/đường dẫn/ms của băm đã đo ở GT0-bam (trỏ về
+  // đó, không viết lại); ca này đo cổng + pid qua LỆNH THẬT: E1 đỏ sẵn ở <từ> với cùng lỗi nhưng số khác mỗi lần chạy
+  // → «đỏ sẵn trước khoảng». Chiều đỏ: bản sao lib bỏ chuẩn hoá cổng/pid → cùng kho ra «do-khoang».
+  const RANG = 'p=$$\necho "Error: listen EADDRINUSE: address already in use 127.0.0.1:$((p % 40000 + 20000)) (pid $p) after $((p % 900 + 10))ms"\necho "(fail) ca-cong [$((p % 90 + 1)).25ms]"\nexit 1\n';
+  const k = FX.mkKhoGiuTuoi({ hoSo: [{ slug: 'H5', evals: [{ id: 'E1', ca: 'ca-cong', paths: ['vat/H5-E1*'] }] }] });
+  k.commit({ 'rang/H5-E1.sh': RANG }, 'E1 do truoc khoang (ngoai paths)');
+  const tu = k.git('rev-parse', 'HEAD');
+  k.gop(12, { 'vat/H5-E1-phu.txt': 'cham H5\n' });
+  const a = spawnSync('sh', ['rang/H5-E1.sh'], { cwd: k.root, encoding: 'utf8' });
+  const b = spawnSync('sh', ['rang/H5-E1.sh'], { cwd: k.root, encoding: 'utf8' });
+  assert.notEqual(a.stdout, b.stdout, 'hai lần chạy phải khác số');
+  assert.equal(DS.bamThongDiep(a.stdout, rutTenCa(a.stdout)), DS.bamThongDiep(b.stdout, rutTenCa(b.stdout)));
+  assert.deepEqual(ketCucCua(jsonCua(giuTuoi(k, ['--tu', tu, '--json']))), { H5: 'do-san-truoc-khoang' });
+  // Chiều đỏ trên bản sao bộ máy: bỏ hai phép chuẩn hoá cổng + pid.
+  const d = thuMuc('gt-rf4-');
+  for (const x of ['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks']) execFileSync('cp', ['-RL', path.join(ROOT, x), path.join(d, x)]);
+  const p = path.join(d, 'lib', 'do-san-tren-nen.cjs'); const goc = readFileSync(p, 'utf8');
+  const tiem = goc.replace(".replace(/:\\d+(:\\d+)?\\b/g, ':<so>')", '').replace(".replace(/\\bpid\\s*\\d+/gi, 'pid <so>')", '');
+  assert.notEqual(tiem, goc); assert.equal(tiem.length, goc.length - ".replace(/:\\d+(:\\d+)?\\b/g, ':<so>')".length - ".replace(/\\bpid\\s*\\d+/gi, 'pid <so>')".length, 'phải bỏ đúng hai phép');
+  writeFileSync(p, tiem);
+  assert.deepEqual(ketCucCua(jsonCua(giuTuoi(k, ['--tu', tu, '--json'], { kit: d }))), { H5: 'do-khoang' }, 'mutant phải đổ cho #12');
+  return 'cổng/pid khác mỗi lần → đỏ sẵn trước khoảng (giờ/đường dẫn/ms: GT0-bam) · mutant bỏ chuẩn hoá → do-khoang';
 });
 
 FX.donDep();
