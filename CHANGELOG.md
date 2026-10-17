@@ -226,7 +226,7 @@ luật (b) cho cửa sổ này 16/10 — không phải tiền lệ.
 |---|---|---|---|
 | `lo_trinh.chan` | `_acceptance/config.yaml` | vắng = tắt | kho muốn chặn hồ sơ ngoài lộ trình; cần `road-map` bật ở `.claude/settings.json` (RM5) |
 | `chinh_sach` trên mốc `phat-hanh`: `tu_ap` · `tuoi_ngay` · `tran_ke_tiep` · `nhip_ngay` · `tran_ap` | tệp lộ trình | `tu_ap` vắng = chỉ đề xuất; `nhip_ngay` 1; `tran_ap` 5 | chủ kho, lúc mở mốc (RM2) |
-| `gio_may` trên hàng | tệp lộ trình | vắng = máy ước | tuỳ chọn (RM6) |
+| `gio_may` trên hàng | tệp lộ trình | vắng = máy ước | kho tự khai khi muốn số tay (RM6) |
 
 Biến môi trường mới: `CLAUDE_PROJECTS_DIR`, `HAN_MUC_TEP` (RM6). Tệp khuôn mới: `_acceptance/<slug>/du-bao.json`, dòng
 run-log `kind:"gio-may"`, sổ `<tệp lộ trình>.so.jsonl`.
@@ -265,16 +265,16 @@ vào hồ sơ `release-2-32-0`.
 
 1. **Khi nào, ở đâu:** máy Mac Studio, sau khi đợt nhận 2.31.0 đã gộp và đo lại đường nền, ở quãng lặng: không lượt S4
    nào đang chạy, không vòng nào giữa hai cổng. Chưa nhận 2.31.0 → làm trọn các bước 2.31.0 trước rồi nâng tiếp.
-2. **Cài theo thẻ `v2.32.0`:** gỡ rồi cài lại `acceptance-gate`, `feature-loop`, `dieu-phoi` (và `road-map` nếu đã cài)
-   ở mọi bản ghi (phạm vi `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.32.0` —
+2. **Cài theo thẻ `v2.32.0`:** gỡ rồi cài lại mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`,
+   `road-map`) ở mọi bản ghi (phạm vi `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.32.0` —
    ĐẠT và không còn dòng `VÀNG may:` của các gói đã cài. Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
 3. **Lớp chép CI từ thẻ** (`git archive v2.32.0`) — crm khai cả `lo_trinh` lẫn `tin_hieu`: chép lại sáu tệp
    `scripts/pre-merge-check.sh`, `scripts/product-map.mjs`, `scripts/lo-trinh.mjs`, `scripts/gio-may.mjs`,
    `lib/chan-lo-trinh.cjs`, `scripts/tin-hieu.mjs` CÙNG MỘT commit. Đo lại bằng đường nền sau khi chép.
 4. **Vẽ lại `LO-TRINH.html`** trong PR nâng kit — trang có dòng giờ máy; khối dữ liệu có `gio_may`, `du_kien`, `qua_tai`
    cho trang Lộ trình của CRM (LT1e đọc chúng).
-5. **Gói `road-map`:** cài lại theo thẻ nếu đã cài — có thêm `/road-map:gui` (gửi ý vào cửa), `ghim`, `bo-ghim`,
-   `tra-lai`. Tự áp và luật chặn KHÔNG tự bật: chỉ khi chủ kho khai `tu_ap: true` trên mốc hay `lo_trinh.chan: true`.
+5. **Gói `road-map` — cài khi muốn các lệnh mới:** cài theo kho, phạm vi project ở gốc crm — có thêm
+   `/road-map:gui` (gửi ý vào cửa), `ghim`, `bo-ghim`, `tra-lai`. Tự áp và luật chặn KHÔNG tự bật: chỉ khi chủ kho khai `tu_ap: true` trên mốc hay `lo_trinh.chan: true`.
 6. **Đợt `dieu-phoi` đang chạy** giữ bản lõi đã chép vào thư mục đợt — ý mới giữa đợt chỉ vào cửa từ đợt mở sau khi cài.
 7. **Đo trước → sau** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây, lưới
    trước-merge và thẻ của các hồ sơ đang mở dưới 2.31.0 rồi 2.32.0 — phán quyết từng hồ sơ phải bằng nhau. Chỗ mốc hứa
