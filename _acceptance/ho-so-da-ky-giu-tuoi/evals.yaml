@@ -92,6 +92,8 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.ho_so_da_ky_giu_tuoi_cac_kho
+    # GT8 đo 17/10: 58,9 phút (crm 286 hồ sơ ≈55 phút) — vượt trần chờ mặc định 30 phút của lượt chấm.
+    long_running: 80
     paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, scripts/gate-card.js, scripts/product-map.mjs, feature-loop/scripts/repin-lane.mjs, lib/**, tests/scripts/ho-so-da-ky-giu-tuoi-cac-kho.mjs]
     expected: >
       exit 0; stdout có dòng bắt đầu "PASS: GT8" và mỗi kho có trên máy một dòng «<kho>: <n> hồ sơ so, 0 khác» với n > 0;
