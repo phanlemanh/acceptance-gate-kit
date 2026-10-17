@@ -9,7 +9,7 @@
     "phan_tram": null
   },
   "moc": {
-    "ten": "Phát hành 2.33.0 21/10",
+    "ten": "Phát hành kế sau 2.32.1 22/10",
     "bat_dau": "2026-10-17",
     "hoan_tat": "2026-10-17",
     "gio_may": [
@@ -18,7 +18,7 @@
     ],
     "gio_cho": 3.67,
     "gio_cho_do": true,
-    "muc_tieu": "2026-10-21",
+    "muc_tieu": "2026-10-22",
     "hang": [
       "GT1"
     ]

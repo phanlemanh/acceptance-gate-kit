@@ -17,7 +17,7 @@ lo_trinh_tep: docs/plans/lo-trinh-kit.json
 ## Vấn đề & ai gặp
 
 Mở từ hàng GT1 của «Lộ trình kit nghiệm thu — từ 2.24.0» (`docs/plans/lo-trinh-kit.json`).
-Mốc: Phát hành 2.33.0 — giao tiếp giữa các phiên có vòng mở máy giữ (GT1): mã tin, hạn biên nhận, chặn kết lượt khi còn tin chưa nhận, lời giao việc đủ trường — 21/10/2026.
+Mốc: Phát hành kế sau 2.32.1 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình — 22/10/2026.
 
 Mỗi yêu cầu giữa các phiên — giám sát và thợ, máy và máy — có mã và hạn biên nhận, chỉ đóng khi có XONG kèm vật, TRẢ hay HUỶ; phiên không kết lượt khi còn tin gửi mình chưa nhận; lời giao việc thiếu kết quả hay ranh giới thì không mở chip
 
@@ -31,4 +31,4 @@ giám sát → thợ và máy ↔ máy vẫn đóng vòng bằng trí nhớ (s�
 - Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» chưa?
 - Kết quả nào là SỐNG: [đề xuất] Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã
 - Kết quả nào là CHẾT: [đề xuất] chưa đạt «Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã» khi hết timebox
-- Timebox: [đề xuất] 2026-10-21 (mốc Phát hành 2.33.0 — giao tiếp giữa các phiên có vòng mở máy giữ (GT1): mã tin, hạn biên nhận, chặn kết lượt khi còn tin chưa nhận, lời giao việc đủ trường)
+- Timebox: [đề xuất] 2026-10-22 (mốc Phát hành kế sau 2.32.1 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình)
