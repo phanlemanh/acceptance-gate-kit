@@ -21,7 +21,8 @@ let pass = 0; let fail = 0;
 const ok = (id, m = '') => { pass += 1; console.log(`  PASS: ${id}${m ? ` — ${m}` : ''}`); };
 const bad = (id, m) => { fail += 1; console.log(`  FAIL: ${id} — ${m}`); };
 const only = (process.env.RD_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
-const want = id => !only.length || only.includes(id);
+const XUAT = process.argv.includes('--xuat-mau');
+const want = id => !XUAT && (!only.length || only.includes(id));
 const loi = e => String((e && (e.stack || e.message)) || e).split('\n').slice(0, 4).join(' | ');
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const node = (args, o = {}) => spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...o });
@@ -253,6 +254,196 @@ async function rd8crm(kit) {
 }
 if (want('RD-8-crm') && await chayCa('RD-8-crm', rd8crm)) ok('RD-8-crm', 'crm trước #466: dòng mốc chưa khai loại nêu đúng bốn mốc; onehub b74ec7eae: dòng mốc ngoài nêu đúng 17 (OKR) và 1 (Kho tài liệu) tính từ tệp');
 if (want('RD-8-do')) await chayDo('RD-8-do', rd8, [['scripts/lo-trinh.mjs', '    kq.co.push(...luatChiPhatTrien(data));\n', '']], RD8_GHIM, 'bản sao bộ đọc chung không gọi luật');
+
+// ═══ AC-5 · AC-7 · AC-11: khối Mốc đọc bằng tên, một mô hình hiển thị cho ba mặt ════════════════════
+// Bộ đọc CHỮ NHÌN THẤY của khối Mốc: bỏ thẻ và thuộc tính; trong <details> đang đóng chỉ <summary> nhìn thấy. Mỗi mốc là một
+// <li data-ngay> của <ol class="moc">; việc chưa giao = summary trong <div class="viec"> của mốc; việc đã giao chỉ là số đếm.
+function chuNhinThayMoc(html) {
+  const ra = [];
+  for (const ol of [...String(html).matchAll(/<ol class="moc"[^>]*>([\s\S]*?)<\/ol>/g)].map(m => m[1])) {
+    for (const seg of ol.split(/<li data-ngay=/).slice(1)) {
+      const s = seg;
+      const ten = chuTron((s.match(/<b>([\s\S]*?)<\/b>/) || [])[1] || '');
+      const vis = chuTron(s.replace(/<\/summary>[\s\S]*?<\/details>/g, '</summary>'));
+      const c = vis.match(/còn (\d+)\/(\d+) việc/); const du = vis.match(/đã giao đủ (\d+) việc/);
+      const viec = [...s.matchAll(/<summary>([\s\S]*?)<\/summary>|<div class="dong">([\s\S]*?)<\/div>/g)].map(m => (m[1] ?? m[2])).map(t0 => ({ 1: t0 })).map(m => {
+        const t = m[1]; const tenV = chuTron((t.match(/<span class="ten">([\s\S]*?)<\/span>/) || [])[1] || ''); const tt = chuTron((t.match(/<span class="tt[^"]*">([\s\S]*?)<\/span>/) || [])[1] || '');
+        const ma = chuTron((t.match(/class="ma"[^>]*>([\s\S]*?)<\/(?:a|span)>/) || [])[1] || ''); const chu = chuTron(t);
+        return { ten: tenV, tt, ma, maTruoc: !!(ma && tenV && chu.indexOf(ma) < chu.indexOf(tenV)) };
+      }).filter(v => v.ten || v.ma);
+      ra.push({ ten, con: c ? +c[1] : (du ? 0 : null), tong: c ? +c[2] : (du ? +du[1] : null), viec });
+    }
+  }
+  return ra;
+}
+// Bỏ ĐÚNG một cặp «» bao trọn câu (cặp mở đầu chỉ đóng ở ký tự cuối) — «» bên trong câu giữ nguyên. Viết độc lập với bộ đọc.
+const boNgoac = s => {
+  const t = String(s ?? '').trim(); if (!t.startsWith('«') || !t.endsWith('»')) return t;
+  let sau = 0; for (let i = 0; i < t.length; i++) { if (t[i] === '«') sau += 1; else if (t[i] === '»') { sau -= 1; if (sau === 0 && i < t.length - 1) return t; } }
+  return sau === 0 ? t.slice(1, -1).trim() : t;
+};
+// Đáp án tính từ TỆP (luật crm: việc thuộc mốc đầu tiên theo ngày liệt nó; tên = câu giao bỏ «», vắng thì ten_ngan → ten → mã);
+// trạng thái lấy từ chữ ô Trạng thái của cùng lần phân tích.
+async function dapAnMoc(kit, r, data, tep = 'docs/plan/lo-trinh.json') {
+  const M = await napLT(kit); const k = M.LT.phanTichKho({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS });
+  const kq = k.cacTep.find(t => t.tep === tep).kq;
+  const chu = new Map(kq.dong.map(d => [String(d._nhan), d.chu])); const giao = x => kq.daGiao.has(chu.get(x));
+  const hang = new Map((data.hang || []).map((h, i) => [String(h.ma || `#${i + 1}`), h])); const daCo = new Set(); const ra = [];
+  const mocs = [...(data.moc || [])].map((m, i) => ({ m, i })).sort((a, b) => String(a.m.ngay ?? '').localeCompare(String(b.m.ngay ?? '')) || a.i - b.i).map(x => x.m);
+  for (const m of mocs) {
+    const v = (Array.isArray(m.hang) ? m.hang : []).map(String).filter(x => hang.has(x) && !daCo.has(x) && (daCo.add(x), true));
+    if (!v.length) continue;
+    const mo = v.filter(x => !giao(x));
+    ra.push({ ten: String(m.ten), con: mo.length, tong: v.length, viec: mo.map(x => { const h = hang.get(x); return { ten: boNgoac(h.cau_giao) || String(h.ten_ngan || h.ten || x).trim(), tt: chu.get(x), ma: x }; }) });
+  }
+  return { moc: ra, chua_hen: [...hang.keys()].filter(x => !daCo.has(x)).length };
+}
+function soMoc(doc, mong) {
+  const sai = []; let o = 0;
+  if (doc.length !== mong.length) sai.push(`số mốc hiện ${doc.length} ≠ ${mong.length}`);
+  for (const m of mong) {
+    const d = doc.find(x => x.ten === m.ten); if (!d) { sai.push(`mốc «${m.ten}» không có trên trang`); continue; }
+    o += 1; if (d.con !== m.con || d.tong !== m.tong) sai.push(`mốc «${m.ten}»: «còn ${d.con}/${d.tong}» ≠ còn ${m.con}/${m.tong}`);
+    for (const v of m.viec) {
+      o += 1; const dv = d.viec.find(x => x.ma === v.ma);
+      if (!dv) { sai.push(`mốc «${m.ten}»: thiếu việc ${v.ma}`); continue; }
+      if (dv.ten !== v.ten || dv.tt !== v.tt) sai.push(`mốc «${m.ten}» việc ${v.ma}: «${dv.ten} — ${dv.tt}» ≠ «${v.ten} — ${v.tt}»`);
+      if (dv.maTruoc) sai.push(`mốc «${m.ten}» việc ${v.ma}: mã đứng trước tên`);
+    }
+  }
+  return { sai, o };
+}
+const veTrang = async (kit, r) => { const M = await napLT(kit); return M.LT.veTrang({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS }); };
+const fxCrm = f => JSON.parse(readFileSync(path.join(CRM, f), 'utf8'));
+let khoCrmR = null; const khoCrm = () => khoCrmR || (khoCrmR = kho({ tep: { 'docs/plan/lo-trinh-okr.json': fxCrm('okr.json'), 'docs/plan/lo-trinh-kho-tai-lieu.json': fxCrm('kho-tai-lieu.json'), 'docs/plan/lo-trinh-viec-du-an.json': fxCrm('viec-du-an.json') } }));
+async function rd5crm(kit, kitDap = KIT) {
+  const r = khoCrm(); const html = await veTrang(kit, r); const doc = chuNhinThayMoc(html); const sai = []; let o = 0; let tong = 0;
+  // Trang nhiều lộ trình: mỗi <ol class="moc"> một lộ trình, theo thứ tự khai.
+  const ols = [...html.matchAll(/<ol class="moc"[^>]*>[\s\S]*?<\/ol>/g)].map(m => chuNhinThayMoc(m[0]));
+  const TEP = ['lo-trinh-okr', 'lo-trinh-kho-tai-lieu', 'lo-trinh-viec-du-an'];
+  for (const [i, t] of TEP.entries()) {
+    const d = await dapAnMoc(kitDap, r, fxCrm(['okr.json', 'kho-tai-lieu.json', 'viec-du-an.json'][i]), `docs/plan/${t}.json`);
+    tong += d.moc.length + d.moc.reduce((a, m) => a + m.viec.length, 0);
+    const x = soMoc(ols[i] || [], d.moc); o += x.o; sai.push(...x.sai.map(m => `${t}: ${m}`));
+  }
+  console.log(`    · RD-5 bản chụp onehub: ${o}/${tong} ô so, ${tong} tính từ tệp (${doc.length} mốc trên trang)`);
+  if (!tong) sai.push('đối chứng: đáp án rỗng');
+  return sai;
+}
+if (want('RD-5') && await chayCa('RD-5', rd5crm)) ok('RD-5', 'bản chụp crm onehub: mỗi mốc hiện «còn k/n việc» đúng số, mỗi việc chưa giao «tên — trạng thái», mã sau tên; số ô so == tính từ tệp');
+async function rd5kt(kit) {
+  const data = { schema: 1, hang: [H8('A', { trang_thai: 'Đã giao' }), H8('B', { trang_thai: 'Đang làm', ten_ngan: 'Bê' }), H8('C'), { ma: 'D', ten_ngan: 'Đê ngắn' }, H8('E', { cau_giao: '«Việc «trong» ngoặc»' })],
+    moc: [{ ten: 'Mốc Một', ngay: '2026-11-01', loai: 'phat-hanh', hang: ['A', 'B', 'C'] }, { ten: 'Mốc Hai', ngay: '2026-11-08', loai: 'han', hang: ['C', 'D', 'X9'] }, { ten: 'Mốc Ba', ngay: '2026-11-09', loai: 'phat-hanh', hang: [] }] };
+  const r = kho({ tep: { 'docs/plan/lo-trinh.json': data } }); const doc = chuNhinThayMoc(await veTrang(kit, r));
+  const d = await dapAnMoc(KIT, r, data); const x = soMoc(doc, d.moc);
+  console.log(`    · RD-5 kho thử: ${x.o} ô so`);
+  return x.sai;
+}
+if (want('RD-5-kho-thu') && await chayCa('RD-5-kho-thu', rd5kt)) ok('RD-5-kho-thu', 'kho thử: đã giao · đang làm · chưa mở · không câu giao · ngoặc trong câu; việc thuộc mốc đầu; mã lạ bỏ; mốc không việc không hiện');
+if (want('RD-5-cu-do')) {
+  try { const lanh = await rd5crm(KIT); if (lanh.length) bad('RD-5-cu-do', `bản lành chưa xanh: ${lanh[0]}`);
+    else { const s = await rd5crm(boMayCu(), KIT); const g = s.find(m => /mốc «[^»]+»/.test(m)); g ? ok('RD-5-cu-do', `bộ máy v2.32.0 trên cùng bản chụp: «${g.slice(0, 140)}» (+${s.length - 1} lỗi khác)`) : bad('RD-5-cu-do', `bộ đọc không bắt trang cũ: ${JSON.stringify(s).slice(0, 200)}`); }
+  } catch (e) { bad('RD-5-cu-do', loi(e)); }
+}
+async function rd5ten(kit, f, k) {
+  const M = await napLT(kit); const html = await veTrang(kit, kho({ tep: { 'docs/plan/lo-trinh.json': fxCrm(f) } }));
+  const li = [...html.matchAll(/<ul class="co-ds">([\s\S]*?)<\/ul>/g)].flatMap(u => [...u[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => chuTron(m[1]))).filter(l => l.includes('việc chưa có tên ngắn'));
+  const mong = fxCrm(f).hang.filter(h => !String(h.ten_ngan ?? '').trim()).length;
+  if (mong !== k) return [`đối chứng: ${f} có ${mong} hàng thiếu ten_ngan, ca hứa ${k}`];
+  if (!k) return li.length ? [`${f}: đủ tên mà vẫn có dòng ${JSON.stringify(li)}`] : [];
+  return li.length === 1 && li[0].startsWith(`${k} việc chưa có tên ngắn — tên phiên đang rút gọn câu giao: `) ? [] : [`${f}: dòng ${JSON.stringify(li)}, cần đúng một dòng «${k} việc chưa có tên ngắn — …»`];
+}
+if (want('RD-5-ten-ngan') && await chayCa('RD-5-ten-ngan', kit => rd5ten(kit, 'kho-tai-lieu.json', 11))) ok('RD-5-ten-ngan', 'Kho tài liệu crm: đúng một dòng «11 việc chưa có tên ngắn — …» ở Cần sửa');
+if (want('RD-5-ten-ngan-im') && await chayCa('RD-5-ten-ngan-im', kit => rd5ten(kit, 'okr.json', 0))) ok('RD-5-ten-ngan-im', 'OKR crm đủ tên ngắn: không dòng nào');
+if (want('RD-5-do')) await chayDo('RD-5-do', rd5kt, [['scripts/lo-trinh.mjs', 'const dau = `<span class="ten">', 'const dau = `${ma} <span class="ten">']], 'mã đứng trước tên', 'bản sao in mã trước tên');
+
+// AC-7 vế máy: ba tệp mẫu cho giám khảo do code sinh từ bản chụp; vẽ lại trong lượt phải giống từng byte tệp đã commit.
+async function sinhMau(kit) {
+  const html = await veTrang(kit, khoCrm()); const ols = [...html.matchAll(/<ol class="moc"[^>]*>[\s\S]*?<\/ol>/g)].map(m => chuNhinThayMoc(m[0]));
+  const TEN = ['OKR', 'Kho tài liệu', 'Việc và Dự án'];
+  const dong = []; const tatCa = [];
+  ols.forEach((ds, i) => { dong.push(`Lộ trình ${TEN[i]}`); for (const m of ds) { tatCa.push({ lo: TEN[i], ...m }); dong.push(`  ${m.ten} — ${m.con ? `còn ${m.con}/${m.tong} việc` : `đã giao đủ ${m.tong} việc`}`); for (const v of m.viec) dong.push(`    • ${v.ten} — ${v.tt} (${v.ma})`); } });
+  const ba = [...tatCa].sort((a, b) => b.con - a.con || a.lo.localeCompare(b.lo) || a.ten.localeCompare(b.ten)).slice(0, 3);
+  const cau = `# Ba câu cho giám khảo (máy chọn: ba mốc còn nhiều việc nhất)\n\n${ba.map((m, i) => `${i + 1}. Lộ trình ${m.lo}, mốc «${m.ten}»: còn làm những gì, mỗi việc xong chưa?`).join('\n')}\n`;
+  const dap = JSON.stringify({ nguon: 'tests/scripts/fixtures/lo-trinh/crm-onehub-1017 (crm onehub b74ec7eae)', cau: ba.map(m => ({ lo_trinh: m.lo, moc: m.ten, con: m.con, tong: m.tong, viec: m.viec.map(v => ({ ten: v.ten, trang_thai: v.tt })) })) }, null, 1) + '\n';
+  return { 'trang-moi.txt': dong.join('\n') + '\n', 'cau-hoi-trang.md': cau, 'dap-an-trang.json': dap };
+}
+if (process.argv.includes('--xuat-mau')) { for (const [f, t] of Object.entries(await sinhMau(KIT))) writeFileSync(path.join(HO, 'mau', f), t); console.log('đã xuất ba tệp mẫu vào _acceptance/road-map-de-dung/mau/'); process.exit(0); }
+async function rd7(kit, doc = f => readFileSync(path.join(HO, 'mau', f), 'utf8')) {
+  const moi = await sinhMau(kit); return Object.entries(moi).filter(([f, t]) => doc(f) !== t).map(([f]) => `tệp mẫu cũ: ${f}`);
+}
+if (want('RD-7-tuoi') && await chayCa('RD-7-tuoi', rd7)) ok('RD-7-tuoi', 'vẽ lại trong lượt: trang-moi.txt, cau-hoi-trang.md, dap-an-trang.json giống từng byte tệp đã commit');
+if (want('RD-7-tuoi-do')) {
+  try { const lanh = await rd7(KIT); if (lanh.length) bad('RD-7-tuoi-do', `bản lành chưa xanh: ${lanh[0]}`);
+    else { const s = await rd7(KIT, f => { const t = readFileSync(path.join(HO, 'mau', f), 'utf8'); return f === 'trang-moi.txt' ? t.replace('—', '-') : t; }); const g = s.find(m => m === 'tệp mẫu cũ: trang-moi.txt'); g ? ok('RD-7-tuoi-do', `bản sao lệch một ký tự: «${g}»`) : bad('RD-7-tuoi-do', JSON.stringify(s)); }
+  } catch (e) { bad('RD-7-tuoi-do', loi(e)); }
+}
+
+// AC-11: một mô hình hiển thị — khối == trang == bản xem chữ.
+const DATA11 = () => ({ schema: 1, hang: [H8('A', { ten_ngan: 'Ây' }), H8('B'), H8('C'), H8('D'), H8('E'), { ma: 'F', ten_ngan: 'Ép ngắn' }],
+  moc: [{ ten: 'M1', ngay: '2026-11-01', loai: 'phat-hanh', hang: ['A', 'B'] }, { ten: 'M2', ngay: '2026-11-08', loai: 'phat-hanh', hang: ['B', 'C', 'F'] },
+    { ten: 'M3', ngay: '2026-11-15', loai: 'han', hang: [] }, { ten: 'V', ngay: '2026-11-20', loai: 'ngoai', hang: ['D'] }, { ten: 'M4', ngay: '2026-11-22', loai: 'phat-hanh', hang: ['Z9'] }] });
+const khoiCua = html => JSON.parse((String(html).match(/<script type="application\/json" id="lo-trinh-du-lieu">([\s\S]*?)<\/script>/) || [])[1].replace(/\\u003c/g, '<'));
+// Danh tính mốc so ba mặt = tên rút gọn (bản xem chữ in tên mốc cắt ở « — », trang và khối in đủ) — cùng hàm tenNganMoc của bộ đọc.
+let rutTen = t => t;
+const tapKhoi = lo => { const h = new Map(lo.hang.map(x => [x.ma, x])); return lo.moc.filter(m => m.hien).map(m => `${rutTen(m.ten)}|${m.con_lai}/${m.viec_hien.length}|${m.viec_hien.filter(x => h.get(x).nhom_trang_thai !== 'da-giao').map(x => `${h.get(x).ten_hien_thi}~${h.get(x).trang_thai}~${x}`).join(';')}`).concat(`chua-hen:${lo.chua_hen_moc.length}`); };
+const tapTrang = (html, lo) => { const ds = chuNhinThayMoc(html); const n = ((chuTron(html).match(/(\d+) việc chưa hẹn mốc/) || [])[1]) || '0'; return ds.map(m => `${rutTen(m.ten)}|${m.con}/${m.tong}|${m.viec.map(v => `${v.ten}~${v.tt}~${v.ma}`).join(';')}`).concat(`chua-hen:${n}`); };
+function tapXem(out, lo) {
+  const l = out.split('\n'); const i = l.indexOf('Mốc:'); if (i < 0) return [];
+  const ra = []; let cur = null;
+  for (const x of l.slice(i + 1)) {
+    if (!x.startsWith('  ')) break;
+    let m = x.match(/^  · (.+?) \d\d\/\d\d — (?:còn (\d+)\/(\d+) việc|đã giao đủ (\d+) việc)$/);
+    if (m) { cur = { ten: m[1], con: m[2] ? +m[2] : 0, tong: m[3] ? +m[3] : +m[4], v: [] }; ra.push(cur); continue; }
+    m = x.match(/^      – (.+) \((.+?)\) \[(.+)\]$/); if (m && cur) { cur.v.push(`${m[1]}~${m[2]}~${m[3]}`); continue; }
+    m = x.match(/^  · (\d+) việc chưa hẹn mốc$/); if (m) { cur = null; ra.push({ chua: m[1] }); }
+  }
+  const chua = (ra.find(x => x.chua) || { chua: '0' }).chua;
+  return ra.filter(x => !x.chua).map(x => `${x.ten}|${x.con}/${x.tong}|${x.v.join(';')}`).concat(`chua-hen:${chua}`);
+}
+async function rd11(kit) {
+  const sai = []; const r = kho({ tep: { 'docs/plan/lo-trinh.json': DATA11() } }); const html = await veTrang(kit, r); const lo = khoiCua(html).lo_trinh[0];
+  const h = new Map(lo.hang.map(x => [x.ma, x]));
+  const MONG = { ten: { A: '«việc A»', F: 'Ép ngắn' }, moc: { M1: [true, ['A', 'B'], 2], M2: [true, ['C', 'F'], 2], M3: [false, [], 0], V: [true, ['D'], 1], M4: [false, [], 0] }, chua: ['E'] };
+  if (h.get('A').ten_hien_thi !== 'việc A' || h.get('F').ten_hien_thi !== 'Ép ngắn') sai.push(`ten_hien_thi A «${h.get('A').ten_hien_thi}» F «${h.get('F').ten_hien_thi}»`);
+  for (const [t, [hien, viec, con]] of Object.entries(MONG.moc)) { const m = lo.moc.find(x => x.ten === t); if (!m || m.hien !== hien || JSON.stringify(m.viec_hien) !== JSON.stringify(viec) || m.con_lai !== con) sai.push(`mốc ${t}: ${JSON.stringify(m && { hien: m.hien, viec_hien: m.viec_hien, con_lai: m.con_lai })} ≠ ${JSON.stringify({ hien, viec, con })}`); }
+  if (JSON.stringify(lo.chua_hen_moc) !== JSON.stringify(MONG.chua)) sai.push(`chua_hen_moc ${JSON.stringify(lo.chua_hen_moc)} ≠ ${JSON.stringify(MONG.chua)}`);
+  // Review Focus: tệp không khối moc → mọi việc chưa hẹn mốc, không ném.
+  const r0 = kho({ tep: { 'docs/plan/lo-trinh.json': { schema: 1, hang: [H8('A'), H8('B')] } } }); const lo0 = khoiCua(await veTrang(kit, r0)).lo_trinh[0];
+  if (JSON.stringify(lo0.chua_hen_moc) !== '["A","B"]') sai.push(`không mốc: chua_hen_moc ${JSON.stringify(lo0.chua_hen_moc)}`);
+  return sai;
+}
+if (want('RD-11') && await chayCa('RD-11', rd11)) ok('RD-11', 'khối: ten_hien_thi (câu giao, vắng thì tên ngắn), viec_hien theo mốc đầu, hien, con_lai, chua_hen_moc đúng kỳ vọng viết sẵn; mã lạ bỏ; không mốc → mọi việc chưa hẹn');
+async function baTap(kit, r) {
+  { const M = await napLT(kit); rutTen = t => M.LT.tenNganMoc({ ten: t, ngay: '' }); }
+  const html = await veTrang(kit, r); const k = khoiCua(html);
+  const x = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--xem'], { env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
+  const ols = [...html.matchAll(/<section id="lt\d+">[\s\S]*?<\/section>/g)].map(m => m[0]).filter(sec => /<h3>Mốc/.test(sec) || /việc chưa hẹn mốc/.test(sec));
+  const phanXem = x.stdout.split(/\n(?=Lộ trình .+ \(.+\):$)/m);
+  return k.lo_trinh.map((lo, i) => ({ khoi: tapKhoi(lo), trang: tapTrang(ols[i] || '', lo), xem: tapXem(phanXem[i] || x.stdout, lo) }));
+}
+async function rd11ba(kit, r = kho({ tep: { 'docs/plan/lo-trinh.json': DATA11() } }), nhan = 'kho thử') {
+  const sai = []; let n2 = 0;
+  for (const [i, t] of (await baTap(kit, r)).entries()) {
+    n2 += t.khoi.length;
+    if (JSON.stringify(t.trang) !== JSON.stringify(t.khoi)) { const j = t.khoi.findIndex((v, k) => v !== t.trang[k]); sai.push(`${nhan} lộ trình ${i + 1}: trang lệch khối ở phần tử ${j} — trang «${String(t.trang[j]).slice(0, 200)}» · khối «${String(t.khoi[j]).slice(0, 200)}»`); }
+    if (JSON.stringify(t.xem) !== JSON.stringify(t.khoi)) { const j = t.khoi.findIndex((v, k) => v !== t.xem[k]); sai.push(`${nhan} lộ trình ${i + 1}: bản xem lệch khối ở phần tử ${j} — xem «${String(t.xem[j]).slice(0, 200)}» · khối «${String(t.khoi[j]).slice(0, 200)}»`); }
+  }
+  console.log(`    · RD-11 ${nhan}: ${n2} phần tử so ba mặt`);
+  return sai;
+}
+if (want('RD-11-ba-mat') && await chayCa('RD-11-ba-mat', kit => rd11ba(kit))) ok('RD-11-ba-mat', 'kho thử: tập (mốc hiện, việc chưa giao, tên, trạng thái, số chưa hẹn mốc) của trang == khối == bản xem chữ');
+if (want('RD-11-crm') && await chayCa('RD-11-crm', kit => rd11ba(kit, khoCrm(), 'bản chụp onehub'))) ok('RD-11-crm', 'bản chụp crm onehub (ba lộ trình): trang == khối == bản xem chữ');
+async function rd11cu() {
+  const html = await veTrang(boMayCu(), kho({ tep: { 'docs/plan/lo-trinh.json': DATA11() } })); const M = await napLT(KIT); const { duLieu, canhBao } = M.LT.docDuLieu(html);
+  const sai = []; const lo = duLieu.lo_trinh[0]; const c = canhBao.filter(x => x.includes('khối chưa mang mô hình hiển thị'));
+  if (c.length !== 1) sai.push(`cờ «khối chưa mang mô hình hiển thị»: ${c.length} — ${JSON.stringify(canhBao)}`);
+  if (JSON.stringify(lo.chua_hen_moc) !== '[]' || lo.hang.some(h => h.ten_hien_thi !== null) || lo.moc.some(m => m.hien !== null || m.con_lai !== null || JSON.stringify(m.viec_hien) !== '[]')) sai.push('khoá mới không rỗng/null ở trang cũ');
+  return sai;
+}
+if (want('RD-11-doc-cu') && await chayCa('RD-11-doc-cu', rd11cu)) ok('RD-11-doc-cu', 'bộ đọc mẫu đọc trang bộ máy v2.32.0: khoá mới null/rỗng + đúng một cờ vàng «khối chưa mang mô hình hiển thị»');
+if (want('RD-11-do')) await chayDo('RD-11-do', kit => rd11ba(kit), [['scripts/lo-trinh.mjs', 'const mocs = mocTheoNgay(kq).filter(m => mh.moc.get(m).hien);', 'const mocs = mocTheoNgay(kq);']], 'trang lệch khối', 'bản sao trang vẽ cả mốc không có việc');
+if (want('RD-11-do2')) await chayDo('RD-11-do2', kit => rd11ba(kit), [['scripts/lo-trinh.mjs', 'ra.push(`      – ${tenHienThi(d)} (${d.chu}) [${x}]`)', 'ra.push(`      – ${chuoi(d.cau_giao) || CHUA_CAU} (${d.chu}) [${x}]`)']], 'bản xem lệch khối', 'bản sao bản xem dùng câu giao thay tên hiển thị');
 
 console.log(`\nRD Results: ${pass} PASS · ${fail} FAIL`);
 process.exit(fail ? 1 : 0);
