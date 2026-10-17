@@ -150,7 +150,7 @@ const cache = new Map();
 export function tatRD1(goc, them = []) {
   const khoa = `${goc}|${JSON.stringify(them)}`; if (cache.has(khoa)) return cache.get(khoa);
   const c = mkdtempSync(path.join(tmpdir(), 'tat-rd1-'));
-  for (const d of ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', '.claude-plugin']) if (existsSync(path.join(goc, d))) cpSync(path.join(goc, d), path.join(c, d), { recursive: true });
+  for (const d of ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', 'dieu-phoi', '.claude-plugin']) if (existsSync(path.join(goc, d))) cpSync(path.join(goc, d), path.join(c, d), { recursive: true });
   for (const f of ['GUIDE.md']) if (existsSync(path.join(goc, f))) cpSync(path.join(goc, f), path.join(c, f));
   for (const [tep, cu, moi] of [...TAT_RD1, ...them]) {
     const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const k = s.split(cu).length - 1;

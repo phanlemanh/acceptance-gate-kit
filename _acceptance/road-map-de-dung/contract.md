@@ -93,3 +93,5 @@ lần crm nhận mốc mang vòng này — số mốc ngoài còn lại trên tr
   viết tay; LT-79 thêm dòng `  ! … chưa khai loại` vào kỳ vọng thẻ (đổi có chủ ý, AC-4); LT-110 thêm năm khoá mô hình hiển
   thị vào bảng viết sẵn (AC-11); LT-157-do nhát tiêm theo dòng NUL mới; khối START-SCAN-KEYS khai `loTrinh.ds[].raSoatCanh`
   (khoá có từ RM1, nay đồ thử LT-09 chạm tới vì dòng tên ngắn của AC-5 nằm ở khối Rà soát).
+  Sau gộp VA2 (`ve-lo-trinh-doc-tin-hieu-cua-cay`): ca VT-4 / VT-4-do «kho không có sự cố vẽ giống từng byte bộ máy gốc»
+  so trên cùng cây tắt RD1.
