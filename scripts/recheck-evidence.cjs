@@ -145,6 +145,7 @@ if (!core.determineEnforce(payload)) process.exit(0);
     const vc = vcm ? vcm[1] : '';
     const slug = path.basename(dir);
     const errs = [];
+    const notes = new Set();
     const logPath = path.join(dir, 'run-log.jsonl');
     if (!fs.existsSync(logPath)) {
       for (const id of cited) errs.push(`REPIN x report cites repin run_id "${id}" but _acceptance/${slug}/run-log.jsonl does not exist — no lane was ever logged for this workspace`);
@@ -179,10 +180,15 @@ if (!core.determineEnforce(payload)) process.exit(0);
           if (!e || e.sha !== vc) continue;
           // Gốc cây suy từ CHỖ ĐỨNG của báo cáo (<gốc>/_acceptance/<slug>/) — hồ sơ thay tra ở cây này,
           // không ở cwd (eval-thay-boi-co-chung).
-          for (const x of core.checkRepinEvals(e, evalsText, slug, payload, { root: path.resolve(dir, '..', '..') }).errs) errs.push(`REPIN x ${x}`);
+          const rr = core.checkRepinEvals(e, evalsText, slug, payload, { root: path.resolve(dir, '..', '..') });
+          // `note` (nhãn «đỏ sẵn trên nền» đạt — hồ sơ ho-so-da-ky-giu-tuoi) do CÙNG hàm trả; in nguyên
+          // văn một dòng, cùng khuôn NOTE của tệp này. Không có nhãn → khoá vắng, không in gì (như trước).
+          if (rr.note) notes.add(rr.note);
+          for (const x of rr.errs) errs.push(`REPIN x ${x}`);
         }
       }
     }
+    if (notes.size) process.stderr.write(`recheck-evidence: NOTE ${reportPath} — ${[...notes].join(' · ')}\n`);
     if (errs.length) {
       process.stderr.write(`recheck-evidence: ${reportPath} — re-pin provenance fails:\n` + errs.map(s => '  ' + s).join('\n') + '\n');
       process.exit(1);

@@ -3,7 +3,7 @@
 // (lib/do-san-tren-nen.cjs). Kho thử git do code sinh trong lượt; «bản trước vòng» = `git archive 43ed9e2b`
 // bung trong lượt. Mọi đường dẫn suy từ vị trí tệp này. Chọn ca: GT_CASES=GT0-bam,GT1 node <tệp>.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -275,6 +275,192 @@ await ca('GT6', () => {
   assert.ok(ks.stderr.includes('feature_loop.do_san_tren_nen') && ks.stderr.includes('true | false'), ks.stderr);
   assert.equal(k.docLog('H5').length, nLog, 'khoá sai: không ghi dòng nào');
   return `${soO}/7 ô · ca phụ khoá "co" thoát 2 · bản trước vòng ở ô khớp thoát 1`;
+});
+
+// ── Task 3: bên đọc — lưới, kiểm lại, thẻ, bản đồ (GT7, GT9) ───────────────────────────────────────────────────
+// Bốn công cụ chạy theo MỘT gốc bộ máy (cây này · bản sao bị tiêm · bản trước vòng) trên CÙNG kho thử.
+const congCu = (kit) => ({
+  pm: (root) => spawnSync('bash', [path.join(kit, 'scripts', 'pre-merge-check.sh'), root], { encoding: 'utf8', cwd: root, timeout: 300000, maxBuffer: 64 * 1024 * 1024 }),
+  rc: (root, slug) => spawnSync(process.execPath, [path.join(kit, 'scripts', 'recheck-evidence.cjs'), path.join(root, '_acceptance', slug, 'evidence-report.md')], { encoding: 'utf8', cwd: root }),
+  gc: (root, slug) => spawnSync(process.execPath, [path.join(kit, 'scripts', 'gate-card.js'), '--root', root, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }),
+  // Bản đồ GHI PRODUCT-MAP.md vào gốc kho: đọc rồi xoá ngay, để cây không bẩn cho công cụ sau.
+  mp: (root) => {
+    const r = spawnSync(process.execPath, [path.join(kit, 'scripts', 'product-map.mjs'), '--root', root], { encoding: 'utf8' });
+    const p = path.join(root, 'PRODUCT-MAP.md');
+    const map = existsSync(p) ? readFileSync(p, 'utf8') : '';
+    rmSync(p, { force: true });
+    return Object.assign(r, { map });
+  },
+});
+const MOI = congCu(ROOT);
+const RUN_NEN7 = 'giu-tuoi-gt7';
+const NOTE7 = `NOTE [H5]: đỏ sẵn trên nền — E1 (nền ${RUN_NEN7}, PR #12)`;
+const dongH5 = (map) => map.split('\n').filter(l => l.includes('`H5`'));
+const viH5 = (out) => out.split('\n').filter(l => l.startsWith('VIOLATION') && l.includes('[H5]'));
+// Bản sao cây bộ máy (cp -RL) với kiemDoSan bị ép trả `kq` — ba bên viết/đọc của BẢN SAO cùng gọi nó.
+function banSaoTiem(kq) {
+  const d = thuMuc('gt7-tiem-');
+  for (const x of ['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks']) execFileSync('cp', ['-RL', path.join(ROOT, x), path.join(d, x)]);
+  const p = path.join(d, 'lib', 'do-san-tren-nen.cjs');
+  const goc = readFileSync(p, 'utf8');
+  const tiem = goc.replace('function kiemDoSan({', `function kiemDoSan() { return ${JSON.stringify(kq)}; }\nfunction kiemDoSanGoc({`);
+  assert.notEqual(tiem, goc, 'nhát tiêm phải đổi tệp luật của bản sao');
+  writeFileSync(p, tiem);
+  assert.equal(require(p).kiemDoSan({}).dat, kq.dat, 'bản sao phải trả đúng kết quả bị ép');
+  return { dir: d, lane: path.join(d, 'feature-loop', 'scripts', 'repin-lane.mjs'), cc: congCu(d) };
+}
+// Kho của ô hợp lệ: H5 đỏ E1 do PR #12 trên main, dòng nền ghi (writer: dòng repin-do của làn thật), nhánh
+// vòng chạm paths H5. `truocGhim(k)` chạy trước lượt ghim thật (chỗ đo bên viết bị tiêm); sau đó làn thật ghi
+// pin mang nhãn và commit.
+function khoO7({ truocGhim } = {}) {
+  const k = FX.mkKhoGiuTuoi({ hoSo: [{ slug: 'H5', evals: [{ id: 'E1', ca: 'ca-do' }] }], khoa: true });
+  const g12 = k.gop(12, { 'vat/H5-E1.txt': FX.noiDungDo({ ca: 'ca-do' }) });
+  const rg = k.lane(['H5'], ['--tung-ho-so', '--write']);
+  assert.equal(rg.status, 0, rg.stderr);
+  k.noiDong('H5', k.dongNenTuDauDo('H5', { runId: RUN_NEN7, tu: g12.sha_truoc, quyVe: [{ pr: 12, sha_truoc: g12.sha_truoc, sha_sau: g12.sha_sau }] }));
+  k.git('add', '-A'); k.git('commit', '-qm', 'giu tuoi: dong nen');
+  k.git('checkout', '-q', '-b', 'vong-1');
+  k.commit({ 'vat/H5-E1-phu.txt': 'cham vong 1\n' }, 'vong 1');
+  if (truocGhim) truocGhim(k);
+  const r = k.lane(['H5'], ['--write', '--reason', 'vong khac']);
+  assert.equal(r.status, 0, `làn thật ở ô hợp lệ phải xanh: ${r.stderr.slice(-500)}`);
+  const pin = repinCua(k, 'H5').pop();
+  assert.equal(pin.do_san.E1.run_id, RUN_NEN7, JSON.stringify(pin));
+  k.git('add', '-A'); k.git('commit', '-qm', 'vong 1: repin');
+  assert.equal(k.git('status', '--porcelain'), '', 'kho phải sạch sau khi dựng');
+  return k;
+}
+// Sửa dòng repin cuối của H5 ngay trên cây (hoàn bằng git checkout).
+const suaPinCuoi = (k, f) => {
+  const p = path.join(k.root, '_acceptance', 'H5', 'run-log.jsonl');
+  const ls = readFileSync(p, 'utf8').split('\n').filter(Boolean);
+  const i = ls.map(l => JSON.parse(l).kind).lastIndexOf('repin');
+  const o = JSON.parse(ls[i]); f(o); ls[i] = JSON.stringify(o);
+  writeFileSync(p, ls.join('\n') + '\n');
+};
+const hoan = (k) => { k.git('checkout', '-q', '--', '_acceptance'); assert.equal(k.git('status', '--porcelain'), ''); };
+
+await ca('GT7', () => {
+  const F = banSaoTiem({ dat: false, veHong: 'khoa-tat' });
+  const T = banSaoTiem({ dat: true, veHong: null, runId: RUN_NEN7, pr: [12] });
+  const CAU_F = `nhãn đỏ sẵn trên nền không đạt: ${DS.cauVeHong('khoa-tat')}`;
+  let soO = 0;
+  // Bên viết bị ép «không đạt» → làn của bản sao đỏ đúng câu, không pin (đo trước lượt ghim thật).
+  const k = khoO7({ truocGhim: (kk) => {
+    const n = repinCua(kk, 'H5').length;
+    const r = kk.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: F.lane, agRoot: F.dir });
+    assert.equal(r.status, 1, `mutant không-đạt: làn phải thoát 1 — ${r.stderr.slice(-400)}`);
+    assert.ok(r.stderr.includes(`repin-lane: H5/E1: nhãn không gắn: ${DS.cauVeHong('khoa-tat')}`), r.stderr.slice(-600));
+    assert.equal(repinCua(kk, 'H5').length, n, 'mutant không-đạt: làn không được ghim');
+    hoan(kk);
+  } });
+  // Ô hợp lệ.
+  const pm = MOI.pm(k.root);
+  assert.equal(pm.status, 0, pm.stdout + pm.stderr);
+  assert.ok(pm.stdout.split('\n').includes(NOTE7), `lưới phải in đúng «${NOTE7}»:\n${pm.stdout}`);
+  assert.deepEqual(viH5(pm.stdout), [], 'ô hợp lệ: không VIOLATION nào cho H5');
+  const rc = MOI.rc(k.root, 'H5');
+  assert.equal(rc.status, 0, rc.stderr);
+  assert.ok(rc.stderr.includes(`— đỏ sẵn trên nền — E1 (nền ${RUN_NEN7}, PR #12)`), `kiểm lại phải in nhãn: ${rc.stderr}`);
+  const gc = MOI.gc(k.root, 'H5');
+  assert.equal(gc.status, 0, gc.stderr);
+  assert.ok(gc.stdout.includes(NCG.NHAN.DO_SAN), 'thẻ phải hiện nhãn'); assert.ok(!gc.stdout.includes('ĐẠT'), 'thẻ không được có chữ ĐẠT');
+  const mp = MOI.mp(k.root);
+  assert.equal(mp.status, 0, mp.stderr);
+  assert.equal(dongH5(mp.map).length, 1, mp.map);
+  assert.ok(dongH5(mp.map)[0].includes(NCG.NHAN.DO_SAN), `bản đồ phải hiện nhãn cho H5: ${dongH5(mp.map)}`);
+  assert.ok(!mp.map.includes('ĐẠT'), 'bản đồ không được có chữ ĐẠT');
+  soO += 1;
+  // Bên đọc bị ép «không đạt» ở ô hợp lệ → lưới và kiểm lại cùng đỏ, mỗi phía đúng câu của nó.
+  const pmF = F.cc.pm(k.root);
+  assert.notEqual(pmF.status, 0);
+  assert.ok(viH5(pmF.stdout).some(l => l.includes(CAU_F)), `mutant không-đạt: lưới phải VIOLATION [H5] «${CAU_F}»:\n${pmF.stdout}`);
+  assert.ok(!pmF.stdout.includes(NOTE7));
+  const rcF = F.cc.rc(k.root, 'H5');
+  assert.equal(rcF.status, 1); assert.ok(rcF.stderr.includes(CAU_F), rcF.stderr);
+  // Ba ô giả: sửa dòng pin (hay khoá) trên cây, đo, hoàn.
+  const gia = [
+    ['run_id không có dòng nền', 'khong-co-dong-nen', () => suaPinCuoi(k, o => { o.do_san.E1.run_id = 'giu-tuoi-khong-co'; })],
+    ['băm khác', 'khac-ca-hoac-thong-diep', () => suaPinCuoi(k, o => { o.do_san.E1.thong_diep_bam = 'c'.repeat(64); })],
+    ['khoá tắt lúc đọc', 'khoa-tat', () => { const p = '_acceptance/config.yaml'; const t = k.doc(p); assert.ok(t.includes('do_san_tren_nen: true')); k.ghi(p, t.replace('do_san_tren_nen: true', 'do_san_tren_nen: false')); }],
+  ];
+  const ban = congCu(FX.banTruocVong().dir);
+  for (const [ten, ve, tiem] of gia) {
+    tiem();
+    const cau = DS.cauVeHong(ve);
+    const p = MOI.pm(k.root);
+    assert.notEqual(p.status, 0, `${ten}: lưới phải đỏ`);
+    assert.ok(viH5(p.stdout).some(l => l.includes(`nhãn đỏ sẵn trên nền không đạt: ${cau}`)), `${ten}: VIOLATION [H5] phải nêu «${cau}»:\n${p.stdout}`);
+    assert.ok(!p.stdout.includes('NOTE [H5]: đỏ sẵn'), `${ten}: không NOTE nhãn`);
+    const r = MOI.rc(k.root, 'H5');
+    assert.equal(r.status, 1, `${ten}: kiểm lại phải thoát 1`); assert.ok(r.stderr.includes(cau), `${ten}: ${r.stderr}`);
+    // Chiều im của thẻ và bản đồ: nhãn không đạt → không chữ nhãn; khoá tắt → BẰNG bản trước vòng.
+    const g = MOI.gc(k.root, 'H5'); const m = MOI.mp(k.root);
+    assert.ok(!g.stdout.includes(NCG.NHAN.DO_SAN) && !m.map.includes(NCG.NHAN.DO_SAN), `${ten}: thẻ/bản đồ không được hiện nhãn`);
+    if (ve === 'khoa-tat') {
+      const gB = ban.gc(k.root, 'H5'); const mB = ban.mp(k.root);
+      assert.equal(g.stdout, gB.stdout, 'khoá tắt: thẻ phải BẰNG bản trước vòng'); assert.equal(m.map, mB.map, 'khoá tắt: bản đồ phải BẰNG bản trước vòng');
+    }
+    // Bên đọc bị ép «đạt» ở ô băm khác → lưới và kiểm lại cùng nhận nhãn.
+    if (ve === 'khac-ca-hoac-thong-diep') {
+      const pT = T.cc.pm(k.root);
+      assert.ok(pT.stdout.split('\n').includes(NOTE7), `mutant đạt: lưới phải nhận nhãn ở ô băm khác:\n${pT.stdout}`);
+      assert.deepEqual(viH5(pT.stdout), []);
+      const rT = T.cc.rc(k.root, 'H5');
+      assert.equal(rT.status, 0, rT.stderr); assert.ok(rT.stderr.includes(`— đỏ sẵn trên nền — E1 (nền ${RUN_NEN7}, PR #12)`), rT.stderr);
+    }
+    hoan(k);
+    soO += 1;
+  }
+  // Bên viết bị ép «đạt» ở ô băm khác: nhánh vòng mà E1 đỏ với lời lỗi khác dòng nền. Đối chứng: làn thật đỏ
+  // đúng vế; làn của bản sao nhận nhãn và ghim.
+  k.git('checkout', '-q', '-b', 'vong-2', 'main');
+  k.commit({ 'vat/H5-E1-phu.txt': 'cham vong 2\n', 'vat/H5-E1.txt': FX.noiDungDo({ ca: 'ca-do', loi: 'TypeError: x is not a function' }) }, 'vong 2');
+  const n2 = repinCua(k, 'H5').length;
+  const lt = k.lane(['H5'], ['--write', '--reason', 'vong khac']);
+  assert.equal(lt.status, 1, lt.stderr.slice(-400));
+  assert.ok(lt.stderr.includes(`repin-lane: H5/E1: nhãn không gắn: ${DS.cauVeHong('khac-ca-hoac-thong-diep')}`), lt.stderr.slice(-600));
+  hoan(k);
+  const lT = k.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: T.lane, agRoot: T.dir });
+  assert.equal(lT.status, 0, `mutant đạt: làn của bản sao phải ghim — ${lT.stderr.slice(-400)}`);
+  assert.equal(repinCua(k, 'H5').length, n2 + 1);
+  assert.equal(repinCua(k, 'H5').pop().do_san.E1.run_id, RUN_NEN7);
+  assert.equal(soO, 4, `ca tự kiểm số ô: ${soO}`);
+  return `${soO}/4 ô · mutant không-đạt: làn 1 · lưới VIOLATION [H5] · kiểm lại 1 · mutant đạt (ô băm khác): làn ghim · lưới NOTE · kiểm lại 0 · khoá tắt: thẻ/bản đồ = bản trước vòng`;
+});
+
+await ca('GT9', () => {
+  const k = khoO7();
+  const ban = congCu(FX.banTruocVong().dir);
+  const STACK = /^\s*at .*\.(?:c|m)?js:/m;
+  const chay = (cc) => {
+    const pm = cc.pm(k.root); const rc = cc.rc(k.root, 'H5'); const gc = cc.gc(k.root, 'H5'); const mp = cc.mp(k.root);
+    return { pm, rc, gc, mp };
+  };
+  const tom = (o) => JSON.stringify(Object.fromEntries(Object.entries(o).map(([t, r]) => [t, { status: r.status, stdout: r.stdout, stderr: r.stderr, map: r.map }])));
+  const co = chay(ban);
+  for (const [t, r] of Object.entries(co)) {
+    assert.ok([0, 1].includes(r.status), `${t}: mã thoát ${r.status} ngoài {0,1}: ${r.stderr.slice(-300)}`);
+    assert.ok(!STACK.test(r.stderr), `${t}: stack trace ở stderr: ${r.stderr.slice(-400)}`);
+  }
+  assert.notEqual(co.pm.status, 0, 'bản trước vòng: lưới phải đỏ');
+  assert.ok(viH5(co.pm.stdout).some(l => l.includes('E1=1')), `bản trước vòng: VIOLATION [H5] mã eval ≠ 0:\n${co.pm.stdout}`);
+  assert.equal(co.rc.status, 1, 'bản trước vòng: kiểm lại phải thoát 1');
+  assert.ok(co.rc.stderr.includes('E1=1'), co.rc.stderr);
+  const moiCo = MOI.pm(k.root).stdout;
+  // Xoá riêng dòng nen-do của H5 trên cây.
+  const p = path.join(k.root, '_acceptance', 'H5', 'run-log.jsonl');
+  const goc = readFileSync(p, 'utf8');
+  const bo = goc.split('\n').filter(l => !l.includes('"kind":"nen-do"')).join('\n');
+  assert.notEqual(bo, goc, 'phải có dòng nen-do để xoá');
+  writeFileSync(p, bo);
+  const khong = chay(ban);
+  const moiKhong = MOI.pm(k.root).stdout;
+  hoan(k);
+  assert.equal(tom(khong), tom(co), 'bản trước vòng: đầu ra bốn công cụ khi có dòng nen-do phải BẰNG khi xoá nó');
+  // Độ nhạy của phép so: bản mới đọc dòng nền nên đầu ra của nó PHẢI khác giữa hai trạng thái.
+  assert.notEqual(moiKhong, moiCo, 'đối chứng: lưới bản mới phải đổi khi xoá dòng nen-do');
+  return 'bản trước vòng: 4 công cụ mã ∈ {0,1}, không stack trace · lưới VIOLATION [H5] E1=1 · kiểm lại 1 · có/không nen-do bằng nhau (bản mới khác)';
 });
 
 FX.donDep();
