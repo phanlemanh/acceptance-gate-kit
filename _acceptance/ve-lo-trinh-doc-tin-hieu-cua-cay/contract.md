@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs, scripts/product-map.mjs, tests — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-17-ve-lo-trinh-doc-tin-hieu-cua-cay-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-17T11:57:49Z
 ---
@@ -99,3 +99,9 @@ Quét gọn ba trục (bỏ skill quét — sổ dòng `descope` «bỏ coverage
   thì CI khớp (bốn lệnh đóng cổng vẽ trước commit cùng lượt).
 - Bước khởi tạo lộ trình (`lo-trinh-khoi-tao.mjs`) vẽ trang qua đúng hàm `veTrangLoTrinh` của product-map nên đi cùng
   đường này.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-17:
+  - Ngoài-1: eval E5 mượn chỗ ở AC-4 chỉ để lệnh vùng 2 của bộ kiểm plugin chạy nền; một lỗi ở nơi khác trong kit có thể làm AC-4 báo trượt dù trang vẫn giống từng byte.
+  - Ngoài-3: tài liệu dữ liệu lộ trình (một câu thêm ở vòng này) nói ý chưa commit vẫn xem được ở /road-map:xem — sai: lệnh ấy không hiện tín hiệu; ý chưa commit hiện ở thẻ khởi động và các lệnh gom tín hiệu.
+  - Ngoài-4: nguồn tín hiệu khai ngoài kho hay bằng đường tuyệt đối, hoặc git báo lỗi lạ, thì trang có thể hiện nhầm ý chưa commit hoặc mất cả ý đã commit mà không cảnh báo.
+  - Ngoài-5: thư mục không có git riêng nằm trong một kho git khác thì trang không hiện ý nào (2.32.0 hiện đủ).
+  - Ngoài-6: thông điệp ghim chiều đỏ của vài ca cũng khớp khi bộ đọc sập hay trang không vẽ, nên khi đỏ khó phân biệt hỏng hẳn với lọc sai.
