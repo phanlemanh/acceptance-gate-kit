@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/ (bảng nhãn, hàm kiểm nhãn) + scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs ∈ t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-17-ho-so-da-ky-giu-tuoi-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-17T13:29:34Z
 ---

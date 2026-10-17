@@ -1731,6 +1731,49 @@ lại. Pin nói ra ô nào thay bởi đâu bằng hậu tố ` · thay bởi h�
 `lib/evidence-core.cjs` mới) thấy con trỏ thì vẫn chặn — hướng an toàn; luật cần thêm
 `lib/ac-line.cjs` và `lib/workspace-record.cjs`, cả hai đã có trong danh sách chép.
 
+**Giữ bộ hồ sơ đã ký luôn tươi (hồ sơ ho-so-da-ky-giu-tuoi · hàng K-A).** Một PR gộp vào nhánh chính
+có thể làm cũ hồ sơ đã ký của người khác; cái đỏ thường lộ ra ở vòng kế tiếp tình cờ chạm vào, không
+tới PR đã gây ra nó. Lệnh giữ tươi xử lý theo một khoảng gộp:
+
+```bash
+node <kit>/feature-loop/scripts/giu-tuoi.mjs --root . --tu <sha đầu khoảng> [--write] [--json]
+```
+
+- **Khi nào chạy:** sau một đợt gộp, trên cây sạch ở đỉnh nhánh chính (`--den` mặc định là đỉnh).
+  `<sha đầu khoảng>` = đỉnh nhánh chính ở lần giữ tươi trước. Cây bẩn ngoài `_acceptance/` → thoát 2,
+  «cây bẩn ngoài _acceptance/». Lệnh không commit, không đổi nhánh.
+- **Chọn hồ sơ nào:** hồ sơ cũ ở đỉnh mà còn tươi ở đầu khoảng — chính lưới trước-merge chạy hai lần,
+  không có luật «cũ» thứ hai. Hồ sơ đã cũ từ trước khoảng là **tồn đọng**: in tên, không ghim.
+- **Không `--write`:** chỉ in bảng, không ghi gì. **Có `--write`:** hồ sơ xanh được ghim lại (suite
+  chung chạy một lần cho cả lượt, một hồ sơ đỏ không kéo hồ sơ khác đỏ theo), hồ sơ đỏ nhận một
+  **dòng nền đỏ** (`kind: "nen-do"`) trong `run-log.jsonl` của nó.
+- **Đọc bảng:** mỗi hồ sơ một dòng — hồ sơ · kết cục · phút máy. Năm kết cục:
+
+  | Kết cục in ra | Nghĩa | Ai gỡ |
+  |---|---|---|
+  | «tươi lại» | ghim lại xanh trên đỉnh | không ai |
+  | «đỏ do PR #n» | đúng một gộp trong khoảng chạm `paths` của eval đỏ, và eval xanh ở đầu khoảng | chủ PR #n |
+  | «nhiều PR cùng chạm (#a, #b)» | nhiều gộp trong khoảng cùng chạm `paths` | chủ kho chọn người gỡ |
+  | «đỏ sẵn trước khoảng» | chạy lại lệnh đỏ ở đầu khoảng vẫn đỏ, cùng thông điệp | không PR nào trong khoảng — cái đỏ có từ trước |
+  | «không quy được — hạ tầng (từ..đến)» | lệnh không chạy được (mã 127), bị ngắt (≥ 128) hay chạy lại trên đỉnh thì xanh | người kiểm lại cặp sha in kèm; không gọi tên PR nào |
+
+  Dòng cuối: «tồn đọng N hồ sơ không ghim · tổng giờ máy X». `--json` cho cùng tập kết cục theo từng
+  hồ sơ, cộng `quy_ve` (PR, sha trước, sha sau).
+- **Kho tự commit:** `--write` chỉ ghi tệp dưới `_acceptance/`. Kho tự commit pin mới và dòng nền đỏ
+  thành một PR vào nhánh chính — dòng nền chỉ có hiệu lực cho vòng khác khi đã nằm trên nhánh chính.
+- **Nhãn «đỏ sẵn trên nền» — kho tự bật:** `feature_loop.do_san_tren_nen: true` trong
+  `_acceptance/config.yaml` (vắng hay `false` = tắt; giá trị khác → lỗi gọi tên khoá và `true | false`).
+  Khi bật, lượt ghim lại của một vòng KHÁC gặp đúng cái đỏ đã có dòng nền trên nhánh chính — cùng
+  eval, cùng ca, cùng thông điệp lỗi, định nghĩa eval không đổi — thì vẫn ghim: dòng ghim mang
+  `do_san`, mục Re-pin thêm « · đỏ sẵn trên nền: E←<lượt nền>», lưới trước-merge in NOTE thay vì
+  VIOLATION, thẻ và bản đồ hiện nhãn và không bao giờ in «ĐẠT» cạnh nó. Lệch vế nào → đỏ như cũ, kèm
+  câu nêu vế hỏng. Khoá tắt: lưới, thẻ, bản đồ và lượt ghim lại cho đầu ra như trước bản này (đo trên
+  bộ hồ sơ thật của các kho có trên máy — `tests/scripts/ho-so-da-ky-giu-tuoi-cac-kho.mjs`).
+- **Giới hạn:** nhãn chỉ áp cho eval — suite chung đỏ vẫn chặn mọi vòng. Tồn đọng không được ghim
+  (cần một vòng dọn riêng của kho). Quy về PR theo `paths` cộng một lần chạy lại ở đầu khoảng, không
+  chia đôi; eval không khai `paths` thì mọi gộp có mã trong khoảng là ứng viên, bảng ghi chú «eval
+  không khai paths».
+
 ### 7.2 Kiểm bản cài sau phát hành (`scripts/kiem-ban-cai.mjs`)
 
 Thứ kho tiêu thụ cài về không phải lúc nào cũng là thứ đã chấm: chợ plugin của kit là kiểu THƯ MỤC, nên bản
