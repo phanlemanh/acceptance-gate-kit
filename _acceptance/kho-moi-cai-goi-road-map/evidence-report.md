@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 49d39fb80ddbdcecf642d86ca957dcce965ea2c6
+verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -190,3 +190,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, tất �
 Round 1: E1–E9 và mọi lệnh suite xanh; không eval nào thất bại. Kết quả vòng đầu, không có vòng trước.
 Round 2: E1–E8 chạy lại xanh (38 ca đạt); E9 carry-forward từ vòng 1; 10 trên 11 lệnh suite xanh, riêng lệnh vùng 3 của bộ kiểm plugin báo hỏng một ca (P179, sổ known-limits thiếu dòng cho đề xuất của chính hồ sơ) — lệnh không gắn eval nên verdict REJECT với failed_evals rỗng.
 Round 3: sau khi sổ known-limits được bổ sung (commit 50e0b280, sổ fix lượt 2 ở 49d39fb8), cả 11 lệnh suite chạy lại xanh (bash 839, mjs 33+33+32, hooks 71, plugin vùng 1–3, workflows, product-map, kiểm bản cài bỏ qua vì không phải lượt cắt mốc); E1–E8 carry-forward từ vòng 2 và E9 từ vòng 1 vì delta không chạm paths của eval. Ghi chú: payload vòng 3 không mang giờ chạy từng lệnh nên `verified_at` của các khối suite vòng 3 ghi theo ngày chạy 2026-10-16 (giờ ghi 00:00:00Z là giá trị giữ chỗ); giờ chính xác nằm ở `ts` của run-log.
+
+### Re-pin lần 1 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
+run_id: repin-20261017T024130Z-65967
+sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
