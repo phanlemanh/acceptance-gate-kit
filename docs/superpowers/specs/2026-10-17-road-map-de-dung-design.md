@@ -89,10 +89,10 @@ Khối «Mốc» của trang, mỗi mốc:
   2 việc đã giao ▸
 ```
 
-- Tên: `ten_ngan`, vắng thì `ten`, vắng nữa thì rút gọn `cau_giao` — đúng hàm `tenNganHang` sẵn có (một nguồn với tên phiên).
+- Tên: `ten_hien_thi` của khối (Hỏi-3; khuyến nghị câu giao đầy đủ, vắng thì tên ngắn).
 - Trạng thái bằng chữ: chính chữ ô Trạng thái của bảng việc (`d.chu`) — một nguồn, không từ điển thứ hai.
 - Mã: chữ nhỏ cuối dòng, là liên kết tới hàng trong bảng việc.
-- Mở ra (`<details>`): câu giao đầy đủ + tên hồ sơ (`slug`) khi có — không cần JavaScript, đọc được trên điện thoại.
+- Mở ra (`<details>`): tên hồ sơ (`slug`) khi có (lối tên ngắn: thêm câu giao đầy đủ) — không cần JavaScript.
 - Đầu mốc: «còn k/n việc» (k = việc chưa giao); việc đã giao gập thành một dòng đếm.
 - Mốc ngoài không vẽ (A).
 
@@ -104,14 +104,18 @@ mọi mặt chỉ vẽ:
 
 | Khoá (thêm trong phiên bản 2 của khối — luật «kit chỉ THÊM khoá trong cùng phiên bản», 16/10) | Nghĩa |
 |---|---|
-| `hang[].ten_hien_thi` | tên hiển thị của việc: `ten_ngan` → `ten` → câu giao rút gọn (hàm `tenNganHang`, một nguồn với tên phiên) |
+| `hang[].ten_hien_thi` | tên hiển thị của việc — luật chốt ở Hỏi-3; bản soạn theo khuyến nghị: câu giao đầy đủ bỏ «» (đúng trang crm), việc không có câu giao thì `ten_ngan` → `ten` |
 | `moc[].viec_hien` | mã các việc hiện dưới mốc — việc thuộc mốc ĐẦU TIÊN liệt nó (đúng luật `phangViec` của crm) |
 | `moc[].hien` | `true` khi `viec_hien` khác rỗng — luật «chỉ mốc có việc gắn» của trang crm |
 | `moc[].con_lai` | số việc của `viec_hien` chưa giao |
 | `chua_hen_moc` (cấp lộ trình) | mã các việc không thuộc mốc nào hiện — nhóm «chưa hẹn mốc» của trang crm |
 
-Chuẩn chung = luật trang crm đang chạy (đã qua Cổng Bằng chứng của crm), trừ một chỗ: **tên việc** theo lời giao gốc của chủ kho
-(tên ngắn → câu giao rút gọn), crm đổi từ câu giao đầy đủ sang `ten_hien_thi` khi nhận. Trang kit (khối Mốc + nhóm chưa hẹn mốc)
+Chuẩn chung = luật trang crm đang chạy (đã qua Cổng Bằng chứng của crm). **Tên việc là Hỏi-3** — hai lời của chủ kho kéo hai
+chiều: lời giao gốc phần B (tên ngắn, vắng thì rút gọn câu giao) và lời bổ sung (trang crm như đang là = câu giao đầy đủ). Số đo
+`onehub`: 63 việc dưới mốc hiện; câu giao trung vị 105 ký tự (~23 chữ, dài nhất 171); tên ngắn trung vị 13 ký tự («Khung OKR»).
+Máy khuyên câu giao đầy đủ (lời mới nhất, crm không đổi gì, mỗi việc 1–3 dòng ở 375 — ảnh `ten-la-cau-giao--*`); lối khác: tên
+ngắn trước, câu giao trong phần mở (ảnh `ten-ngan--*`), crm đổi khi nhận. Cảnh báo thiếu tên ngắn giữ ở cả hai lối (tên phiên
+vẫn dùng tên ngắn). Trang kit (khối Mốc + nhóm chưa hẹn mốc)
 và `/road-map:xem` (thêm khối «Mốc» mỗi lộ trình: mốc hiện · còn k/n · tên — trạng thái từng việc chưa giao · số chưa hẹn mốc)
 chỉ đọc các khoá này. Mốc ngoài không vào khối (phần A). Ngày dự kiến SỐNG (phần D) phụ thuộc hôm nay nên không vào khối — khối
 giữ dự báo đóng băng sẵn có (`moc.du_kien`); đưa ngày sống lên trang là mục E2 của RD2. **Đường đọc-cũ:** khối không có các khoá

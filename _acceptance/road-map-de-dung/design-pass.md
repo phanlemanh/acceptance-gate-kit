@@ -6,10 +6,10 @@ material: real-components
 context: host-embedded
 context_scenes: []
 reaction: nac-1 (anh-chup-gui-goi)
-options:
-divergence: skipped — một khuôn IA khả dĩ (danh-sách-chi-tiết trong dải mốc sẵn có); chủ kho đã gọi tên vấn đề «mỗi mốc đọc các hạng mục bên trong không hiểu»
+options: evidence/design-pass/ten-la-cau-giao--* (khuyên) · evidence/design-pass/ten-ngan--* (lối khác) — Hỏi-3 trên thẻ Cổng Phạm vi
+divergence: opened
 ds_skill: repo-tokens
-states: [moc-con-viec, moc-het-viec, moc-chua-gan, moc-qua-ngay, tep-moc-ngoai, khong-lam-trong-kho]
+states: [ten-la-cau-giao, ten-ngan, moc-con-viec, moc-het-viec, moc-chua-gan, moc-qua-ngay, tep-moc-ngoai, khong-lam-trong-kho]
 breakpoints: [mobile-375, desktop-1280]
 themes: [light, dark]
 patched: 2
@@ -30,10 +30,12 @@ phát triển). Đo đủ thước (tương phản, độ dài ≤ 1/3 bản 2.2
 | state | breakpoint | theme | file |
 |---|---|---|---|
 | trước (bộ máy 2.32.0) | desktop-1280 | light | evidence/design-pass/truoc-ban-may-2-32-0--desktop-1280--light.jpg |
-| moc-con-viec + moc-het-viec + moc-qua-ngay | desktop-1280 | light | evidence/design-pass/moc-con-viec--desktop-1280--light.jpg |
-| moc-con-viec + moc-het-viec + moc-qua-ngay | desktop-1280 | dark | evidence/design-pass/moc-con-viec--desktop-1280--dark.jpg |
-| moc-con-viec + moc-het-viec + moc-qua-ngay | mobile-375 | light | evidence/design-pass/moc-con-viec--mobile-375--light.jpg |
-| moc-con-viec + moc-het-viec + moc-qua-ngay | mobile-375 | dark | evidence/design-pass/moc-con-viec--mobile-375--dark.jpg |
+| lối khuyên (Hỏi-3): tên = câu giao đầy đủ | desktop-1280 | light | evidence/design-pass/ten-la-cau-giao--desktop-1280--light.jpg |
+| lối khuyên (Hỏi-3): tên = câu giao đầy đủ | mobile-375 | light | evidence/design-pass/ten-la-cau-giao--mobile-375--light.jpg |
+| lối khác: tên ngắn trước | desktop-1280 | light | evidence/design-pass/ten-ngan--desktop-1280--light.jpg |
+| lối khác: tên ngắn trước | desktop-1280 | dark | evidence/design-pass/ten-ngan--desktop-1280--dark.jpg |
+| lối khác: tên ngắn trước | mobile-375 | light | evidence/design-pass/ten-ngan--mobile-375--light.jpg |
+| lối khác: tên ngắn trước | mobile-375 | dark | evidence/design-pass/ten-ngan--mobile-375--dark.jpg |
 
 `moc-chua-gan`, `tep-moc-ngoai`, `khong-lam-trong-kho` không chụp riêng: chữ «chưa gắn việc» giữ nguyên bản cũ; hai trạng thái
 sau là một dòng chữ ở «Cần sửa trong kế hoạch» và một tiêu đề mục — đo bằng ca RD-2 / RD-3-trang ở S4.
