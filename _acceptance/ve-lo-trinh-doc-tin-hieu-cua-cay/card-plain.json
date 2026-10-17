@@ -1,0 +1,27 @@
+{
+  "feature_plain": "Trang lộ trình vẽ trong worktree sẽ khớp đúng trang CI vẽ lại, nên crm nhận được kit mới mà không phải vẽ trong một bản tải riêng.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ vẽ trang lộ trình chỉ từ các ý đã commit trong chính cây đang vẽ — đúng ca crm: thư mục chính lùi nền mà trang vẽ trong worktree vẫn khớp CI, kể cả trang do bước khởi tạo lộ trình vẽ."}
+  ],
+  "wont_do": [
+    {"id": "AC-2", "p": "Sẽ KHÔNG đưa ý chưa commit lên trang; ý vừa thêm vào commit hay vừa sửa thì trang theo bản trên đĩa, và CI xanh ở mọi trạng thái."},
+    {"id": "AC-3", "p": "Sẽ KHÔNG đổi gì ở thẻ khởi động, xem lộ trình và gom ý — chúng vẫn thấy mọi ý ở thư mục chính, đúng lời hứa của vòng trước."},
+    {"id": "AC-4", "p": "Sẽ KHÔNG đổi một byte nào của trang ở kho không có sự cố: kho không mở cửa tín hiệu, kho mọi ý đã commit, thư mục ngoài git."},
+    {"id": "OOS-1", "p": "Không đụng các bộ đọc dùng lúc làm việc (thẻ khởi động, xem lộ trình, gom ý)."},
+    {"id": "OOS-2", "p": "Không thêm dòng nhắc «có ý chờ chưa lên trang» — trang là thứ được commit, không mang trạng thái máy riêng."},
+    {"id": "OOS-3", "p": "Không tự commit ý thay người, không đổi chỗ lệnh gửi ý ghi vào."}
+  ],
+  "scope_plain": "Chỉ sửa đường trang lộ trình lấy ý; mọi chỗ khác đọc ý giữ nguyên.",
+  "coverage_plain": [
+    {"i": 0, "p": "Nơi vẽ: worktree sạch (AC-1), thư mục chính (AC-2), bản tải sạch như CI (AC-1, AC-2), thư mục ngoài git (AC-4) — mỗi nơi có ca riêng."},
+    {"i": 1, "p": "Trạng thái từng ý ở chỗ vẽ: đã commit, mới thêm, chưa theo dõi, đã xoá, đã sửa, kho không theo dõi ý nào (AC-2), và ý chỉ có ở thư mục chính (AC-1, AC-3)."},
+    {"i": 2, "p": "Ai đọc ý: trang lộ trình qua hai đường vẽ (AC-1, AC-2, AC-4) và các bộ đọc lúc làm việc (AC-3)."},
+    {"i": 3, "p": "Kho không có sự cố nhận trang giống từng byte bản 2.32.0 (AC-4)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Việc trang chỉ lấy ý đã commit là ĐỔI MẶC ĐỊNH cho mọi kho mở cửa tín hiệu — máy đã ghi nhầm là tự quyết; nay thành câu hỏi cho anh, kèm ca kho giữ mọi ý ngoài git."},
+    {"i": 1, "p": "Chưa có ca cho ý đã sửa mà chưa thêm vào commit — đã thêm, kèm chiều đỏ «trang vẽ bản cũ»."},
+    {"i": 2, "p": "Bước khởi tạo lộ trình cũng vẽ trang nhưng chưa ca nào chạy nó — đã thêm vào AC-1."},
+    {"i": 3, "p": "Ca «trang ở worktree không có ý nào» thiếu đối chứng xanh — đã thêm: bản 2.32.0 vẽ ở đó phải thấy đủ ba ý."}
+  ]
+}
