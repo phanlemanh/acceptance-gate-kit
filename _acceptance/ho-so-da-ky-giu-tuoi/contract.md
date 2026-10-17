@@ -65,7 +65,7 @@ Ngưỡng ở ô cơ hội đọc sau khi crm cài mốc và bật khoá, 14 ng�
 
 - Lịch đêm chạy lệnh trên crm, luân phiên ba máy, vòng dọn hồ sơ tồn đọng — việc của crm (ô cơ hội).
 - Chia đôi để tìm PR gây ra — nhân giá ghim lại log₂N; quy theo `paths` + một lần chạy lại ở đầu khoảng (thiết kế §4).
-- Nhãn cho suite chung — suite đỏ trên nhánh chính đã chặn CI mọi PR; neo 15/10 là eval.
+- Nhãn cho suite chung — theo Hỏi-2 (máy khuyên chỉ eval): suite đỏ sẵn vẫn chặn vòng khác, khai ở Known limits kèm ngưỡng.
 - Hạn «đỏ sẵn quá N ngày», tự mở PR vệ sinh quy về PR gây ra, ghim cả tồn đọng theo cờ — Later.
 - K-B, K-C, K-D — cửa sổ kế (luật chiều rộng b).
 
