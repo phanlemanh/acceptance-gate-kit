@@ -5,7 +5,7 @@ slug: release-2-32-1
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 4 khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -65,3 +65,8 @@ crm-onehub#375 · kit #308.
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths`.
 - Ghim lại ở mốc: chỉ hồ sơ của cửa sổ (VA2), như nếp 2.32.0; hồ sơ khác cũ hoá vì `scripts/tin-hieu.mjs` đổi là trạng thái chấp nhận được giữa hai mốc (GUIDE §7.1).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
+  - Ngoài-1: hình «hai loại bộ đọc» và hợp đồng của hồ sơ VA2 lặp câu sai «ý chưa commit xem được ở /road-map:xem» (cùng gốc Ngoài-3 của VA2); ghi chú 2.32.1 chỉ đúng chỗ xem.
+  - Ngoài-2: git lỗi lạ trong một kho, hay nguồn tín hiệu khai bằng đường tuyệt đối, làm trang lặng lẽ hiện cả ý chưa commit hoặc mất mọi ý (trùng Ngoài-4 của VA2).
+  - Ngoài-3: tài liệu dữ liệu lộ trình vẫn nói ý chưa commit hiện ở /road-map:xem (trùng Ngoài-3 của VA2).
+  - Ngoài-4: ca kiểm «kho giữ mọi ý ngoài git» của VA2 thiếu đối chứng dương và chiều đỏ riêng, nên một hỏng tương lai ở ca hiếm này có thể lọt.
