@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mods cho kit · trải nghiệm sau kiến nghị</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-paper-2:#ececec; --color-ink:#2d3142; --color-muted:#4f5d75; --color-soft:#636b80; --color-rule:rgba(45,49,66,0.12); --color-accent:#eb6c36; --color-accent-text:#ba4513; --color-link:#2e5aa8; --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif','Lora',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); min-height: 100vh; padding: 3rem 2rem; color: var(--color-ink); }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 2.5rem; }
+    .header-eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.75rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.75rem, 3vw + 1rem, 2.5rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.5rem; }
+    h2 { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; letter-spacing: -0.01em; margin: 3rem 0 0.5rem; }
+    .subtitle { font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 64ch; }
+    .lede { font-size: 0.9rem; line-height: 1.55; color: var(--color-muted); max-width: 72ch; margin-bottom: 1rem; }
+    .diagram-container { background: var(--color-paper-2); border-radius: 8px; border: 1px solid var(--color-rule); padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .cards { display: grid; grid-template-columns: 1.2fr 1fr 0.9fr; gap: 1rem; margin-top: 1.5rem; }
+    @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
+    .card { background: #fff; border-radius: 6px; border: 1px solid var(--color-rule); padding: 1.25rem; }
+    .card .eyebrow { font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.875rem; padding-bottom: 0.875rem; border-bottom: 1px solid rgba(45,49,66,0.08); }
+    .card-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .card-dot.ink { background: var(--color-ink); } .card-dot.muted { background: var(--color-muted); } .card-dot.coral { background: var(--color-accent); }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card p, .card ul { color: var(--color-muted); font-size: 0.8125rem; line-height: 1.55; list-style: none; }
+    .card li { margin-bottom: 0.3rem; padding-left: 0.875rem; position: relative; }
+    .card li::before { content: '—'; position: absolute; left: 0; color: rgba(45,49,66,0.25); font-size: 0.75rem; }
+    .footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(45,49,66,0.10); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--color-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="header-eyebrow">Khảo sát Mods · kiến nghị cho kit · 17/10/2026</p>
+      <h1>Người dùng kit sẽ thấy gì khác</h1>
+      <p class="subtitle">Hai hình, một câu hỏi. Hình 1: trong một vòng, owner đau ở đâu hôm nay, và kiến nghị nào đỡ ở đó. Hình 2: sau kiến nghị, từng thứ hiện ra ở chỗ nào trong cửa sổ Claude Code, với dòng chữ mẫu.</p>
+    </div>
+
+    <!-- ═══════════════ HÌNH 1 — HÀNH TRÌNH MỘT VÒNG ═══════════════ -->
+    <h2>Hình 1 · Một vòng của owner, hôm nay</h2>
+    <p class="lede">Năm khoảnh khắc owner chạm vào kit trong một vòng. Đường cong là cảm nhận hôm nay (định tính, không có thang số). Hàng dưới cùng là kiến nghị đỡ đúng khoảnh khắc đó.</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1040 548" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hành trình năm khoảnh khắc của owner trong một vòng và kiến nghị cho từng khoảnh khắc">
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Đầu cột: khoảnh khắc -->
+        <text x="244" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.16em">XEM VÒNG</text>
+        <text x="412" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.16em">GIAO VIỆC</text>
+        <text x="580" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.16em">CHỜ PHIÊN KHÁC</text>
+        <text x="748" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.16em">QUYẾT Ở CỔNG</text>
+        <text x="916" y="64" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.16em">KHÉP VÒNG</text>
+
+        <!-- Vạch cột -->
+        <line x1="160" y1="80" x2="160" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+        <line x1="328" y1="80" x2="328" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+        <line x1="496" y1="80" x2="496" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+        <line x1="664" y1="80" x2="664" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+        <line x1="832" y1="80" x2="832" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+        <line x1="1000" y1="80" x2="1000" y2="456" stroke="rgba(45,49,66,0.10)" stroke-width="1"/>
+
+        <!-- Vạch băng -->
+        <line x1="40" y1="80"  x2="1000" y2="80"  stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <line x1="40" y1="176" x2="1000" y2="176" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <line x1="40" y1="360" x2="1000" y2="360" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <line x1="40" y1="456" x2="1000" y2="456" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+
+        <!-- Nhãn băng -->
+        <text x="48" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">HÔM NAY</text>
+        <text x="48" y="268" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">CẢM NHẬN</text>
+        <text x="48" y="404" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">KIẾN NGHỊ</text>
+
+        <!-- HÔM NAY — điểm chạm -->
+        <rect x="172" y="100" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="244" y="124" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Hỏi vòng ở đâu</text>
+        <text x="244" y="144" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">model dịch lại bảng</text>
+
+        <rect x="340" y="100" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="412" y="124" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tin «đang chạy»</text>
+        <text x="412" y="144" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">model tự khai</text>
+
+        <rect x="508" y="100" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="580" y="124" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tự đi kiểm phiên</text>
+        <text x="580" y="144" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">20/33 tin là đi kiểm</text>
+
+        <rect x="676" y="100" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="748" y="124" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đọc thẻ, gõ lệnh</text>
+        <text x="748" y="144" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gõ cú pháp để ký</text>
+
+        <rect x="844" y="100" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="916" y="124" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đếm token tay</text>
+        <text x="916" y="144" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">phiên chính</text>
+
+        <!-- CẢM NHẬN — mốc trung tính -->
+        <line x1="172" y1="264" x2="988" y2="264" stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="988" y="280" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.12em">TRUNG TÍNH</text>
+
+        <!-- CẢM NHẬN — đường cong (một nét trơn) -->
+        <path d="M 244 280 C 300 280 356 224 412 224 C 468 224 524 320 580 320 C 636 320 692 288 748 288 C 804 288 860 256 916 256"
+              fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+        <circle cx="244" cy="280" r="4" fill="#4f5d75"/>
+        <circle cx="412" cy="224" r="4" fill="#4f5d75"/>
+        <circle cx="748" cy="288" r="4" fill="#4f5d75"/>
+        <circle cx="916" cy="256" r="4" fill="#4f5d75"/>
+
+        <!-- Chú thích 1: yên tâm giả -->
+        <text x="412" y="204" fill="#2d3142" font-size="14" font-style="italic"
+              font-family="'Instrument Serif', 'Lora', serif" text-anchor="middle">Yên tâm — nhưng chỉ là lời model</text>
+
+        <!-- Điểm đau nhất (nhấn 1/2) -->
+        <circle cx="580" cy="320" r="6" fill="#eb6c36"/>
+        <line x1="580" y1="328" x2="580" y2="336" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="580" y="350" fill="#2d3142" font-size="14" font-style="italic"
+              font-family="'Instrument Serif', 'Lora', serif" text-anchor="middle">Sót tin 4 giờ · phiên đứng 12 giờ</text>
+
+        <!-- KIẾN NGHỊ — chữ trơn, không hộp -->
+        <text x="244" y="392" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K1 · trả lời tức thì</text>
+        <text x="244" y="408" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">chữ của bộ render, 0 token</text>
+
+        <text x="412" y="392" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K2 · máy viết dòng cuối</text>
+        <text x="412" y="408" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">«không gì đang chạy»</text>
+        <text x="412" y="432" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">đã đo: viết được; nền đọc sổ chạy</text>
+
+        <!-- Kiến nghị đỡ điểm đau (nhấn 2/2) -->
+        <text x="580" y="392" fill="#ba4513" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K3 · máy canh kênh</text>
+        <text x="580" y="408" fill="#ba4513" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">và đánh thức phiên đang rảnh</text>
+        <text x="580" y="432" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">đã đo: đánh thức được</text>
+
+        <text x="748" y="392" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K4 · mỗi lối ra một nút</text>
+        <text x="748" y="408" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">số lượt gọi giữ nguyên</text>
+
+        <text x="916" y="392" fill="#636b80" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K5 · máy tự đếm</text>
+        <text x="916" y="408" fill="#636b80" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">đóng băng tới mốc sau</text>
+
+        <!-- Chú giải -->
+        <line x1="40" y1="480" x2="1000" y2="480" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="40" y="500" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">CHÚ GIẢI</text>
+
+        <rect x="40" y="512" width="16" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="64" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm chạm hôm nay</text>
+
+        <circle cx="200" cy="518" r="4" fill="#4f5d75"/>
+        <text x="212" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cảm nhận</text>
+
+        <circle cx="300" cy="518" r="6" fill="#eb6c36"/>
+        <text x="316" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm đau nhất (đã đo)</text>
+
+        <line x1="460" y1="518" x2="488" y2="518" stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="496" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Mốc trung tính</text>
+
+        <text x="608" y="522" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist', sans-serif">K3</text>
+        <text x="628" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Kiến nghị đỡ điểm đau nhất</text>
+
+        <text x="800" y="522" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">đã đo</text>
+        <text x="844" y="522" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">kết quả thăm dò 17/10</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <p class="eyebrow">CÁCH ĐỌC</p>
+        <div class="card-header"><span class="card-dot coral"></span><h3>Đáy đường cong là «chờ phiên khác»</h3></div>
+        <p>Chấm cam ở cột giữa là chỗ đau nặng nhất đã đo: sót tin 1–4 giờ ba lần, hai phiên đứng yên khoảng 12 giờ, 20 trên 33 tin owner gửi là đi kiểm tra các phiên. K3 (chữ cam) là kiến nghị đỡ đúng chỗ đó.</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow">CÁCH ĐỌC</p>
+        <div class="card-header"><span class="card-dot ink"></span><h3>Đỉnh ở «giao việc» là đỉnh giả</h3></div>
+        <ul><li>Owner yên tâm vì model nói «đang chạy»</li><li>Lượt có thể đã dừng: 7/14 lần dừng là do máy tự chèn (26/07)</li><li>K2 thay lời model bằng một dòng máy đọc từ hồ sơ</li></ul>
+      </div>
+      <div class="card">
+        <p class="eyebrow">CHƯA CHẮC</p>
+        <div class="card-header"><span class="card-dot muted"></span><h3>Thăm dò 17/10 đã trả lời</h3></div>
+        <p>K3 giữ: mod tự gửi lượt đánh thức được phiên Desktop đang rảnh. K2 giữ nhưng thu phạm vi: dòng cuối lượt viết được, còn số tác tử nền phải đọc từ sổ chạy vì danh sách tác tử không thấy tác tử Workflow. K5 là việc meta, nên đóng băng.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════ HÌNH 2 — CỬA SỔ SAU KIẾN NGHỊ ═══════════════ -->
+    <h2>Hình 2 · Cửa sổ Claude Code sau kiến nghị</h2>
+    <p class="lede">Một khung hình của tab Code khi một vòng đang ở lượt chấm thứ hai. Mỗi vùng mang mã kiến nghị. Chữ trong vùng là chữ mẫu: dữ liệu minh hoạ, không phải dữ liệu thật.</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1040 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cửa sổ Claude Code với năm vùng mới: kết quả lệnh tức thì, dòng sự thật cuối lượt, pane thẻ cổng có nút, dải canh kênh trên ô nhập, dòng trạng thái">
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Khung cửa sổ -->
+        <rect x="40" y="40" width="960" height="528" rx="8" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1"/>
+        <rect x="40" y="40" width="960" height="28" rx="8" fill="#ececec"/>
+        <rect x="40" y="60" width="960" height="8" fill="#ececec"/>
+        <line x1="40" y1="68" x2="1000" y2="68" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <circle cx="60" cy="54" r="4" fill="rgba(45,49,66,0.20)"/>
+        <circle cx="76" cy="54" r="4" fill="rgba(45,49,66,0.20)"/>
+        <circle cx="92" cy="54" r="4" fill="rgba(45,49,66,0.20)"/>
+        <text x="520" y="58" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CLAUDE · CODE</text>
+
+        <!-- Vùng bản ghi phiên -->
+        <text x="56" y="92" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.16em">BẢN GHI PHIÊN</text>
+        <text x="56" y="116" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">› /acceptance-status</text>
+
+        <!-- K1: kết quả lệnh trả lời không qua model -->
+        <rect x="56" y="128" width="584" height="100" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="68" y="136" width="28" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="82" y="148" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">K1</text>
+        <text x="108" y="148" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">trả lời ngay, chữ của bộ render — không qua model</text>
+        <text x="72" y="172" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">vong-mo-co-chu-giu</text>
+        <text x="264" y="172" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">S4 lượt 2/3 · đang chấm</text>
+        <text x="72" y="192" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">tham-do-mod-desktop</text>
+        <text x="264" y="192" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">chờ Cổng Phạm vi · kế: /approve</text>
+        <text x="72" y="212" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">bat-bien-san-pham</text>
+        <text x="264" y="212" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">đã ký</text>
+
+        <!-- Lời model -->
+        <text x="56" y="256" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">Claude: «Lượt chấm đang chạy nền, tôi sẽ báo khi xong.»</text>
+
+        <!-- K2: dòng sự thật cuối lượt (nhấn 1/2) -->
+        <rect x="56" y="268" width="584" height="40" rx="6" fill="#ffffff"/>
+        <rect x="56" y="268" width="584" height="40" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="68" y="280" width="28" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.60)" stroke-width="0.8"/>
+        <text x="82" y="292" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">K2</text>
+        <text x="108" y="292" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">S4 lượt 2 · nền: không gì đang chạy · kế: /feature-loop &lt;slug&gt;</text>
+
+        <!-- Chú thích: máy nói ngược lời model -->
+        <text x="56" y="340" fill="#2d3142" font-size="14" font-style="italic"
+              font-family="'Instrument Serif', 'Lora', serif">Dòng do máy viết nằm ngay dưới lời model — khai sai là lộ ngay.</text>
+
+        <!-- K4: pane thẻ cổng có nút -->
+        <rect x="656" y="84" width="328" height="296" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="656" y="84" width="328" height="28" rx="6" fill="#ececec"/>
+        <rect x="656" y="104" width="328" height="8" fill="#ececec"/>
+        <line x1="656" y1="112" x2="984" y2="112" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <rect x="668" y="90" width="28" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="682" y="102" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">K4</text>
+        <text x="708" y="102" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif">Cổng Bằng chứng · vong-mo-co-chu-giu</text>
+
+        <text x="672" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">10/10 tiêu chí đạt, đã chạy chiều đỏ</text>
+        <text x="672" y="168" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Máy tự quyết 3 mục — có sổ, có cửa veto</text>
+        <text x="672" y="188" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Cần anh: 1 đánh đổi chỉ người biết</text>
+        <line x1="672" y1="208" x2="968" y2="208" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="672" y="232" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Giữ trần 3 lượt gọi người cho vòng T2,</text>
+        <text x="672" y="248" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">hay nhận thêm một lượt để có biên nhận tin?</text>
+        <text x="672" y="268" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">máy khuyến nghị: giữ trần 3</text>
+
+        <!-- Nút -->
+        <rect x="672" y="300" width="80" height="32" rx="4" fill="#2d3142"/>
+        <text x="712" y="320" fill="#ffffff" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ký</text>
+        <rect x="764" y="300" width="128" height="32" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="828" y="320" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Mở hợp đồng mới</text>
+        <rect x="904" y="300" width="64" height="32" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="936" y="320" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Trả về</text>
+        <text x="672" y="360" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">bấm nút = chữ ký người · gõ lệnh vẫn được</text>
+
+        <!-- K3: dải trên ô nhập (nhấn 2/2) -->
+        <text x="56" y="396" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.16em">DẢI TRÊN Ô NHẬP</text>
+        <rect x="56" y="404" width="928" height="60" rx="6" fill="#ffffff"/>
+        <rect x="56" y="404" width="928" height="60" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="68" y="416" width="28" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.60)" stroke-width="0.8"/>
+        <text x="82" y="428" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">K3</text>
+        <text x="108" y="428" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">Đợt crm · S4: LT1e → 14:20 · vòng mở 2 · quá hạn 1 (3 giờ)</text>
+        <text x="108" y="452" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">14:32 tin GT-0412 cho phiên này — máy đã đánh thức phiên</text>
+        <rect x="920" y="420" width="48" height="24" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="944" y="436" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">xem</text>
+
+        <!-- Ô nhập -->
+        <rect x="56" y="476" width="928" height="40" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1"/>
+        <text x="72" y="500" fill="#636b80" font-size="10" font-family="'Geist Mono', monospace">› Nhập yêu cầu…</text>
+
+        <!-- K2: dòng trạng thái dưới ô nhập -->
+        <rect x="56" y="528" width="28" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="70" y="540" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">K2</text>
+        <text x="96" y="540" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">⚠ acceptance-gate: vong-mo-co-chu-giu · S4 lượt 2/3</text>
+
+        <!-- Chú giải -->
+        <line x1="40" y1="592" x2="1000" y2="592" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="40" y="612" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.16em">CHÚ GIẢI</text>
+
+        <rect x="40" y="624" width="28" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="54" y="636" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Kn</text>
+        <text x="76" y="636" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Vùng mới, mang mã kiến nghị</text>
+
+        <rect x="252" y="624" width="28" height="16" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="288" y="636" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Máy nói thay model (ưu tiên)</text>
+
+        <rect x="468" y="624" width="28" height="16" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.40)" stroke-width="1"/>
+        <text x="504" y="636" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Vùng sẵn có của Claude Code</text>
+
+        <text x="688" y="636" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">chữ mẫu</text>
+        <text x="740" y="636" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">dữ liệu minh hoạ, không phải dữ liệu thật</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <p class="eyebrow">CÁCH ĐỌC</p>
+        <div class="card-header"><span class="card-dot coral"></span><h3>Hai viền cam: máy nói, model không chen</h3></div>
+        <ul><li>Dòng K2 dưới câu trả lời: máy đọc hồ sơ và danh sách tác tử, rồi viết sự thật cuối lượt</li><li>Dải K3 trên ô nhập: máy canh kênh mỗi vài chục giây, không tốn token, tự đánh thức phiên khi có tin cho nó</li></ul>
+      </div>
+      <div class="card">
+        <p class="eyebrow">CÁCH ĐỌC</p>
+        <div class="card-header"><span class="card-dot ink"></span><h3>K1 và K4 đổi cách người đọc và ký</h3></div>
+        <ul><li>K1: gõ lệnh xem, kết quả hiện ngay, đúng chữ bộ render in, kể cả khi Claude đang bận</li><li>K4: thẻ cổng nằm ở pane bên phải, mỗi lối ra là một nút; gõ lệnh vẫn dùng được</li></ul>
+      </div>
+      <div class="card">
+        <p class="eyebrow">KHÔNG CÓ MOD THÌ SAO</p>
+        <div class="card-header"><span class="card-dot muted"></span><h3>Cửa sổ trở về như hôm nay</h3></div>
+        <p>Mọi vùng mới có đường lùi: lệnh markdown cũ chạy thay, dải và dòng cuối lượt không hiện. VS Code không có dải trên ô nhập; chạy không giao diện (<code>claude -p</code>) thì không vẽ gì.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Nguồn chữ: docs/findings/2026-10-17-mods-claude-code-kien-nghi-cho-kit.md</span>
+      <span>hình là chiếu của nguồn chữ · diagram-design · journey + bản đồ màn hình</span>
+    </div>
+  </div>
+</body>
+</html>
