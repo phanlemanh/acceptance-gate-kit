@@ -53,6 +53,15 @@ function nhomBang(sections) {
   return t => m.get(t) || `rieng:${t}`;
 }
 const BAT_BUOC = ['ma', 'cau_giao'];
+// Luật 17/10 (hồ sơ road-map-de-dung, ADR 0026): việc của người không thành mục nào trên lộ trình — bốn chỗ đến. MỘT nguồn cho
+// dòng lỗi của răng cắt lượt (cat-luot.mjs) và cờ của bộ đọc chung.
+export const BON_CHO_DEN = [
+  'sự kiện của người tạo hạn → ngày của mốc phát triển bị ràng buộc',
+  'đo giá trị → ngưỡng và ngày đọc trong ô cơ hội của việc (kết quả ghi bằng lệnh observed)',
+  'vận hành thuần → Ra khỏi kho: không chép vào bản phạm vi, liệt dưới «Ra khỏi kho» ở mô tả PR',
+  'việc cần kết quả của việc ấy → Chờ điều kiện, kèm mo_lai_khi',
+];
+export const CAU_BON_CHO = `chuyển về một trong bốn chỗ: ${BON_CHO_DEN.join(' · ')}`;
 const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };

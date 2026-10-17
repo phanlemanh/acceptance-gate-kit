@@ -6,28 +6,11 @@
   },
   "moc": [
     {
-      "ten": "Hạn ngoài: mùa báo cáo quý",
+      "ten": "Hạn: mùa báo cáo quý — sự kiện của người, hàng 2 phải xong trước",
       "ngay": "2026-12-07",
       "loai": "han",
-      "ai": "Chủ sản phẩm",
       "hang": [
         "2"
-      ]
-    },
-    {
-      "ma": "V1",
-      "ten": "Nhân sự gửi danh sách người và phòng ban của tổ chức mới",
-      "ngay": "2026-11-03",
-      "loai": "ngoai",
-      "ai": "Nhân sự",
-      "dot": "mau-1",
-      "phu": [
-        "C1"
-      ],
-      "lap": true,
-      "tu_phuc_vu": "H2",
-      "hang": [
-        "1"
       ]
     }
   ],
