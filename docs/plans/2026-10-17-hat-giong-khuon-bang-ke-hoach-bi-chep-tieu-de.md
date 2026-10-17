@@ -14,8 +14,7 @@ Ba lần trong một gói, mỗi lần đốt trọn một lượt chấm (~38 p
 | RM6c | `_acceptance/lo-trinh-du-lieu-ngay-du-kien/` (evidence-report: «Round 1: REJECT vì P93») | 16/10 | 1 |
 | VA1 | `cham-lai-khong-tu-doi` (hồ sơ chưa lên `main`, PR #370) | 16/10 | 1 |
 
-Lần thứ hai và thứ ba xảy ra SAU khi ghi nhớ phiên đã dặn «bảng kế hoạch không chép tên cột khuôn». Đây là
-dặn-bằng-lời đang thua.
+Lần hai và ba xảy ra SAU khi ghi nhớ phiên đã dặn «không chép tên cột khuôn» — dặn-bằng-lời đang thua.
 
 ## Gốc
 
@@ -39,8 +38,7 @@ Dạng nghiệm đúng tầng: biến bất biến thành vật máy giữ, khô
 **Người hưởng:** máy (bớt ~38 phút máy và một lượt trong trần ba lượt mỗi lần dẫm) và owner (lượt chấm còn lại dành
 cho vật).
 
-**Kho không gặp sự cố này được gì, mất gì:** P93 là ca của kho kit; (1) chỉ chạy ở kho có ca đó. Kho tiêu thụ
-không đổi gì.
+**Kho không gặp sự cố này được gì, mất gì:** P93 là ca của kho kit; kho tiêu thụ không đổi gì.
 
 ## Ngưỡng mở thành ô
 
