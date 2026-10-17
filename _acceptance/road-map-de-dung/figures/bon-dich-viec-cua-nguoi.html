@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bốn đích việc của người</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Geist', system-ui, sans-serif; background: #f5f5f5; color: #2d3142;
+           min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1000 616" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Tiêu đề trong hình (để PNG mang theo) -->
+      <text x="20" y="32" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CỔNG PHẠM VI · ROAD-MAP-DE-DUNG · AC-1 · AC-2 · AC-3</text>
+      <text x="20" y="64" fill="#2d3142" font-size="28" font-family="'Instrument Serif', 'Lora', serif">Bỏ mốc ngoài — việc của người đi đâu</text>
+
+      <!-- Mũi tên (vẽ trước hộp) -->
+      <!-- gốc → nhánh 1 -->
+      <path d="M 404 144 L 404 156 Q 404 164 396 164 L 136 164 Q 128 164 128 172 L 128 196" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- gốc → nhánh 2 -->
+      <path d="M 468 144 L 468 168 Q 468 176 460 176 L 384 176 Q 376 176 376 184 L 376 196" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- gốc → nhánh 3 -->
+      <path d="M 532 144 L 532 168 Q 532 176 540 176 L 616 176 Q 624 176 624 184 L 624 196" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- gốc → nhánh 4 -->
+      <path d="M 596 144 L 596 156 Q 596 164 604 164 L 864 164 Q 872 164 872 172 L 872 196" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- câu hỏi → đích -->
+      <line x1="128" y1="320" x2="128" y2="356" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="376" y1="320" x2="376" y2="356" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="624" y1="320" x2="624" y2="356" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="872" y1="320" x2="872" y2="356" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Nhãn mũi tên (đặt cạnh đoạn dọc, cách 8px) -->
+      <rect x="136" y="332" width="24" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="148" y="344" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CÓ</text>
+      <rect x="384" y="332" width="24" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="396" y="344" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CÓ</text>
+      <rect x="632" y="332" width="24" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="344" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CÓ</text>
+      <rect x="880" y="332" width="24" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="892" y="344" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CÓ</text>
+
+      <!-- Gốc -->
+      <rect x="340" y="88" width="320" height="56" rx="28" fill="#f5f5f5"/>
+      <rect x="340" y="88" width="320" height="56" rx="28" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="500" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Một việc của người trên lộ trình</text>
+      <text x="500" y="130" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">mốc ngoài cũ</text>
+
+      <!-- Câu hỏi phân loại -->
+      <polygon points="128,200 236,260 128,320 20,260" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="128" y="256" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Sự kiện của người</text>
+      <text x="128" y="272" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">tạo HẠN?</text>
+
+      <polygon points="376,200 484,260 376,320 268,260" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="376" y="256" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đo giá trị?</text>
+      <text x="376" y="274" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">nghiệm thu, đọc số</text>
+
+      <polygon points="624,200 732,260 624,320 516,260" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="624" y="256" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Vận hành thuần?</text>
+      <text x="624" y="274" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">gửi danh sách, đào tạo</text>
+
+      <polygon points="872,200 980,260 872,320 764,260" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="872" y="256" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Hàng cần KẾT QUẢ</text>
+      <text x="872" y="272" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">của việc ấy?</text>
+
+      <!-- Đích -->
+      <rect x="20" y="360" width="216" height="120" rx="20" fill="#f5f5f5"/>
+      <rect x="20" y="360" width="216" height="120" rx="20" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="128" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ngày của mốc phát triển</text>
+      <text x="128" y="406" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">hạn vào chính mốc bị ràng buộc</text>
+      <line x1="48" y1="424" x2="208" y2="424" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="128" y="444" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Mã vào «Không làm trong kho»,</text>
+      <text x="128" y="460" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">lý do nêu mốc nhận hạn</text>
+
+      <rect x="268" y="360" width="216" height="120" rx="20" fill="#f5f5f5"/>
+      <rect x="268" y="360" width="216" height="120" rx="20" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="376" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ô cơ hội của hàng</text>
+      <text x="376" y="406" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">ngưỡng + ngày đọc</text>
+      <line x1="296" y1="424" x2="456" y2="424" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="376" y="444" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Kết quả ghi bằng lệnh <tspan font-family="'Geist Mono', monospace">observed</tspan></text>
+
+      <rect x="516" y="360" width="216" height="120" rx="20" fill="#f5f5f5"/>
+      <rect x="516" y="360" width="216" height="120" rx="20" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="624" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ra khỏi kho</text>
+      <text x="624" y="406" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">lịch của chủ kho</text>
+      <line x1="544" y1="424" x2="704" y2="424" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="624" y="444" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Mã vào «Không làm trong kho»</text>
+
+      <rect x="764" y="360" width="216" height="120" rx="20" fill="#f5f5f5"/>
+      <rect x="764" y="360" width="216" height="120" rx="20" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="872" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chờ điều kiện</text>
+      <text x="872" y="406" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">kèm «mở lại khi» nêu việc ấy</text>
+
+      <!-- Chân hình: đường đọc tệp cũ -->
+      <rect x="20" y="504" width="960" height="40" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="36" y="516" width="64" height="16" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="68" y="528" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TỆP CŨ</text>
+      <text x="116" y="528" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif">Tệp cũ còn mốc ngoài: vẫn đọc được · trang không vẽ · một dòng cờ có tên</text>
+
+      <!-- Chú giải -->
+      <line x1="20" y1="568" x2="980" y2="568" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="20" y="588" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="120" y="580" width="24" height="12" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="152" y="590" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Việc cần xếp / đích của nó</text>
+      <polygon points="320,586 332,580 344,586 332,592" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="352" y="590" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Câu hỏi phân loại — việc ấy là gì</text>
+      <rect x="548" y="580" width="24" height="12" rx="2" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="580" y="590" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường đọc tệp cũ</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -236,6 +236,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   giờ máy, mục tiêu 18/12) «hoàn tất 19/10»; mốc độc lập không xếp nối tiếp theo năng lực máy, ngày dự kiến vô nghĩa khi nhiều mốc.
 - `docs/plans/2026-10-17-hat-giong-hang-lo-trinh-thieu-slug-bao-nham-chua-xong.md` — 17/10 lộ trình kit: A3, DP8 không slug, hồ sơ
   không `opportunity.md` → «Kế · dời mốc» dù đã phát hành; bốn lộ trình 24 hàng không slug, 2 xếp sai (cả hai ở kit).
+- `docs/plans/2026-10-17-hat-giong-road-map-xem-trang-va-cai-goi.md` — 17/10 vòng RD1 phần E: ba việc CỘNG chủ kho gợi ý qua Mac
+  Studio (lệnh xem đưa đường dẫn trang · Rà soát + Giờ máy lên trang · road-map như feature-loop, ngược ADR 0025) tách sang RD2.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
