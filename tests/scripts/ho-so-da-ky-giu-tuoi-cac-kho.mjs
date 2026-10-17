@@ -25,8 +25,8 @@
 //     điệp), lượt ghim lại (`repin-lane.mjs --write`) cho từng hồ sơ: mã thoát + các dòng sổ mới (bỏ ts, sha, id
 //     lượt — cả id trong đường nhật ký lệnh đỏ — và số đo máy wall_s · tai · tong_ket.phut · tong_ket.chi_phi)
 //     + mục Re-pin của báo cáo (bỏ sha, id lượt, ngày giờ) của bản mới BẰNG bản trước vòng.
-// CHIỀU ĐỎ: bản sao bản mới (`git archive HEAD` trọn cây — cây đã commit) sửa khoaTuText để khoá vắng → bật. Đối chứng dương: bản nguyên ở (2) phải
-// xanh trước. Đột biến PHẢI làm (2) khác ở ô khoá vắng — ca ghim câu FAIL nêu kho + dòng khác đầu tiên. Ở kho
+// CHIỀU ĐỎ: bản sao bản mới (`git archive HEAD` trọn cây — cây đã commit) sửa khoaTuText để khoá vắng → bật.
+// Đối chứng dương: bản nguyên ở (2) phải xanh trước. Đột biến PHẢI làm (2) khác ở ô khoá vắng — ca ghim câu FAIL nêu kho + dòng khác đầu tiên. Ở kho
 // thật đột biến không đổi được đầu ra vì không hồ sơ nào mang dòng `nen-do` hay khoá `do_san` — ca ĐẾM điều ấy
 // trên từng bản sao và in ra (giới hạn đo được, không dặn bằng lời); chiều đỏ vì thế sống ở vế (2).
 //
