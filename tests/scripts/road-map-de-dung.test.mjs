@@ -346,15 +346,17 @@ if (want('RD-5-cu-do')) {
   } catch (e) { bad('RD-5-cu-do', loi(e)); }
 }
 async function rd5ten(kit, f, k) {
-  const M = await napLT(kit); const html = await veTrang(kit, kho({ tep: { 'docs/plan/lo-trinh.json': fxCrm(f) } }));
-  const li = [...html.matchAll(/<ul class="co-ds">([\s\S]*?)<\/ul>/g)].flatMap(u => [...u[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => chuTron(m[1]))).filter(l => l.includes('việc chưa có tên ngắn'));
-  const mong = fxCrm(f).hang.filter(h => !String(h.ten_ngan ?? '').trim()).length;
-  if (mong !== k) return [`đối chứng: ${f} có ${mong} hàng thiếu ten_ngan, ca hứa ${k}`];
+  const r = kho({ tep: { 'docs/plan/lo-trinh.json': fxCrm(f) } });
+  const li = ((await raSoatKho(kit, r, HOM_NAY))[0].canh_bao || []).filter(l => l.includes('việc chưa có tên ngắn'));
+  const ds = fxCrm(f).hang; const mong = ds.some(h => String(h.ten_ngan ?? '').trim()) ? ds.filter(h => !String(h.ten_ngan ?? '').trim()).length : 0;
+  if (mong !== k) return [`đối chứng: ${f} có ${mong} hàng thiếu ten_ngan (kho có dùng tên ngắn), ca hứa ${k}`];
   if (!k) return li.length ? [`${f}: đủ tên mà vẫn có dòng ${JSON.stringify(li)}`] : [];
-  return li.length === 1 && li[0].startsWith(`${k} việc chưa có tên ngắn — tên phiên đang rút gọn câu giao: `) ? [] : [`${f}: dòng ${JSON.stringify(li)}, cần đúng một dòng «${k} việc chưa có tên ngắn — …»`];
+  const html = await veTrang(kit, r); if (html.includes('việc chưa có tên ngắn')) return [`${f}: dòng tên ngắn lên trang`];
+  return li.length === 1 && li[0].startsWith(`${k} việc chưa có tên ngắn — tên phiên đang rút gọn tên việc: `) ? [] : [`${f}: rà soát ${JSON.stringify(li)}, cần đúng một dòng «${k} việc chưa có tên ngắn — …»`];
 }
-if (want('RD-5-ten-ngan') && await chayCa('RD-5-ten-ngan', kit => rd5ten(kit, 'kho-tai-lieu.json', 11))) ok('RD-5-ten-ngan', 'Kho tài liệu crm: đúng một dòng «11 việc chưa có tên ngắn — …» ở Cần sửa');
+if (want('RD-5-ten-ngan') && await chayCa('RD-5-ten-ngan', kit => rd5ten(kit, 'kho-tai-lieu.json', 11))) ok('RD-5-ten-ngan', 'Kho tài liệu crm (dùng tên ngắn ở 6/17 việc): đúng một dòng «11 việc chưa có tên ngắn — …» ở khối Rà soát, không lên trang');
 if (want('RD-5-ten-ngan-im') && await chayCa('RD-5-ten-ngan-im', kit => rd5ten(kit, 'okr.json', 0))) ok('RD-5-ten-ngan-im', 'OKR crm đủ tên ngắn: không dòng nào');
+if (want('RD-5-ten-ngan-khong-dung') && await chayCa('RD-5-ten-ngan-khong-dung', async kit => { const r = kho({ tep: { 'docs/plan/lo-trinh.json': { schema: 1, hang: [H8('A'), H8('B')] } } }); const li = ((await raSoatKho(kit, r, HOM_NAY))[0].canh_bao || []).filter(l => l.includes('tên ngắn')); return li.length ? [`kho không dùng tên ngắn vẫn bị nhắc: ${JSON.stringify(li)}`] : []; })) ok('RD-5-ten-ngan-khong-dung', 'kho chưa từng dùng tên ngắn: không bị nhắc');
 if (want('RD-5-do')) await chayDo('RD-5-do', rd5kt, [['scripts/lo-trinh.mjs', 'const dau = `<span class="ten">', 'const dau = `${ma} <span class="ten">']], 'mã đứng trước tên', 'bản sao in mã trước tên');
 
 // AC-7 vế máy: ba tệp mẫu cho giám khảo do code sinh từ bản chụp; vẽ lại trong lượt phải giống từng byte tệp đã commit.

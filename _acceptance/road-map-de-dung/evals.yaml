@@ -62,15 +62,15 @@ evals:
     cmd: config:executors.test.road_map_de_dung
     paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
     expected: >
-      exit 0; stdout có "PASS: RD-5", "PASS: RD-5-kho-thu", "PASS: RD-5-cu-do", "PASS: RD-5-ten-ngan", "PASS: RD-5-ten-ngan-im",
+      exit 0; stdout có "PASS: RD-5", "PASS: RD-5-kho-thu", "PASS: RD-5-cu-do", "PASS: RD-5-ten-ngan", "PASS: RD-5-ten-ngan-im", "PASS: RD-5-ten-ngan-khong-dung",
       "PASS: RD-5-do". RD-5: bộ đọc máy rút chữ nhìn thấy khối Mốc trang bản chụp onehub (bỏ thẻ, thuộc tính, nội dung details
       đóng); mỗi mốc còn việc: «còn k/n việc» đúng số, mỗi việc chưa giao một dòng «<tên> — <trạng thái>» với tên = ten_hien_thi của khối
       (câu giao đầy đủ bỏ «», vắng thì ten_ngan → ten), trạng thái = chữ ô Trạng thái cùng lần vẽ, mã đứng sau tên; details
       mở chứa slug khi có; in «<n>/<n> ô so,
       n tính từ tệp». RD-5-kho-thu: cùng phép đo trên kho thử năm trạng thái. RD-5-cu-do: CHÍNH bộ đọc trên trang bộ máy cũ
       v2.32.0 cùng bản chụp → FAIL nêu tên ≥ 1 mốc (ca PASS khi bộ đọc báo hỏng — chiều đỏ của thước, sau khi bản mới xanh).
-      RD-5-ten-ngan: Kho tài liệu → đúng một dòng «11 việc chưa có tên ngắn — tên phiên đang rút gọn câu giao: …» ở Cần sửa. RD-5-ten-ngan-im: OKR (đủ tên) →
-      0 dòng ấy. RD-5-do: bản sao in mã trước tên → FAIL ghim «mã đứng trước tên».
+      RD-5-ten-ngan: Kho tài liệu (dùng tên ngắn 6/17) → đúng một dòng «11 việc chưa có tên ngắn — …» ở khối Rà soát, không lên
+      trang. RD-5-ten-ngan-im: OKR (đủ tên) → 0 dòng. RD-5-ten-ngan-khong-dung: kho chưa từng dùng tên ngắn → 0 dòng. RD-5-do: bản sao in mã trước tên → FAIL ghim «mã đứng trước tên».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6

@@ -42,7 +42,7 @@ worktree/nhánh đọc từ git của `<path>`.
    vetoOpenUnsigned
    loTrinhChuaKhai
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
-   loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co loTrinh.trang loTrinh.trangCo loTrinh.ds[].tep loTrinh.ds[].ten loTrinh.ds[].loi loTrinh.ds[].hangKe.ma loTrinh.ds[].hangKe.cauGiao loTrinh.ds[].hangKe.thamSo loTrinh.ds[].hangTre[].ma loTrinh.ds[].hangTre[].moc loTrinh.ds[].hangTre[].ngay loTrinh.ds[].mocKhongHang.k loTrinh.ds[].mocKhongHang.n loTrinh.ds[].tinTheoLoi.n loTrinh.ds[].tinTheoLoi.tong loTrinh.ds[].tuKhaiNgoai loTrinh.ds[].co loTrinh.dong
+   loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co loTrinh.trang loTrinh.trangCo loTrinh.ds[].tep loTrinh.ds[].ten loTrinh.ds[].loi loTrinh.ds[].hangKe.ma loTrinh.ds[].hangKe.cauGiao loTrinh.ds[].hangKe.thamSo loTrinh.ds[].hangTre[].ma loTrinh.ds[].hangTre[].moc loTrinh.ds[].hangTre[].ngay loTrinh.ds[].mocKhongHang.k loTrinh.ds[].mocKhongHang.n loTrinh.ds[].tinTheoLoi.n loTrinh.ds[].tinTheoLoi.tong loTrinh.ds[].tuKhaiNgoai loTrinh.ds[].co loTrinh.ds[].raSoatCanh loTrinh.dong
    dotDangChay.ten dotDangChay.pha
    START-SCAN-KEYS>>> -->
 

@@ -11,7 +11,7 @@ import path from 'node:path';
 export const TAT_RD1 = [
  [
   "scripts/lo-trinh.mjs",
-  "    kq.co.push(...luatChiPhatTrien(data));\n    // Tên ngắn (hồ sơ road-map-de-dung, AC-5): tên phiên và nhóm thanh bên rút từ `ten_ngan`; vắng thì rút gọn câu giao.\n    const thieuTen = kq.dong.filter(d => !chuoi(d.ten_ngan)).map(d => String(d._nhan));\n    if (thieuTen.length) kq.co.push(`cờ thieu-ten-ngan: ${new Set(thieuTen).size} việc chưa có tên ngắn — tên phiên đang rút gọn câu giao: ${lietTen(thieuTen)}`);\n",
+  "    kq.co.push(...luatChiPhatTrien(data));\n",
   ""
  ],
  [
@@ -86,7 +86,7 @@ export const TAT_RD1 = [
  ],
  [
   "scripts/lo-trinh.mjs",
-  "    // Luật moc-chua-khep (hồ sơ road-map-de-dung, AC-9; hạt giống 2026-10-17-hat-giong-ra-soat-khong-xet-moc-qua-ngay): mốc có\n    // ngày hợp lệ đã qua, chưa ghi ngày khép (`that`), và không còn việc mở (không gắn việc, hoặc mọi việc đã giao) → MỘT dòng\n    // gom, ≤ 5 tên rồi «…». Mốc còn việc mở giữ luật moc-qua-ngay; mốc ngoài đã có cờ của bộ đọc chung. Phụ thuộc hôm nay nên\n    // chỉ ở bản xem chữ và thẻ khởi động, không lên trang.\n    const theoNhanRs = new Map(kq.dong.map(d => [String(d._nhan), d]));\n    const khep = kq.moc.filter(m => chuoi(m.loai) !== 'ngoai' && NGAY_RE.test(chuoi(m.ngay)) && chuoi(m.ngay) < today && !chuoi(m.that)\n      && ganMoc(m).map(x => theoNhanRs.get(x)).filter(Boolean).every(d => daGiao.has(d.chu))).map(tenNganMoc);\n    if (khep.length) { const u = [...new Set(khep)]; canh.push(`${u.length} mốc đã qua ngày, chưa ghi ngày khép: ${u.slice(0, 5).join(', ')}${u.length > 5 ? ', …' : ''}`); }\n",
+  "    // Luật moc-chua-khep (hồ sơ road-map-de-dung, AC-9; hạt giống 2026-10-17-hat-giong-ra-soat-khong-xet-moc-qua-ngay): mốc có\n    // ngày hợp lệ đã qua, chưa ghi ngày khép (`that`), và không còn việc mở (không gắn việc, hoặc mọi việc đã giao) → MỘT dòng\n    // gom, ≤ 5 tên rồi «…». Mốc còn việc mở giữ luật moc-qua-ngay; mốc ngoài đã có cờ của bộ đọc chung. Phụ thuộc hôm nay nên\n    // chỉ ở bản xem chữ và thẻ khởi động, không lên trang.\n    const theoNhanRs = new Map(kq.dong.map(d => [String(d._nhan), d]));\n    const khep = kq.moc.filter(m => chuoi(m.loai) !== 'ngoai' && NGAY_RE.test(chuoi(m.ngay)) && chuoi(m.ngay) < today && !chuoi(m.that)\n      && ganMoc(m).map(x => theoNhanRs.get(x)).filter(Boolean).every(d => daGiao.has(d.chu))).map(tenNganMoc);\n    // Tên ngắn (AC-5, chủ kho «Rà soát cảnh báo hàng thiếu ten_ngan»): tên phiên và nhóm thanh bên rút từ `ten_ngan`; vắng thì\n    // rút gọn câu giao — một dòng gom ở khối Rà soát (≤ 8 mã rồi «…»), không lên trang. Chỉ nhắc kho ĐÃ dùng tên ngắn (≥ 1 việc\n    // có) mà còn sót — kho chưa từng dùng không bị nhắc (luật cân trên mọi kho).\n    const thieuTen = kq.dong.some(d => chuoi(d.ten_ngan)) ? kq.dong.filter(d => !chuoi(d.ten_ngan)).map(d => String(d._nhan)) : [];\n    if (thieuTen.length) { const u = [...new Set(thieuTen)]; canh.push(`${u.length} việc chưa có tên ngắn — tên phiên đang rút gọn tên việc: ${u.slice(0, 8).join(', ')}${u.length > 8 ? ', …' : ''}`); }\n    if (khep.length) { const u = [...new Set(khep)]; canh.push(`${u.length} mốc đã qua ngày, chưa ghi ngày khép: ${u.slice(0, 5).join(', ')}${u.length > 5 ? ', …' : ''}`); }\n",
   ""
  ],
  [

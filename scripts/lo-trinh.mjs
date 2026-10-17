@@ -412,7 +412,7 @@ export const CO_DICH = [
   { ten: 'tu-khai-khong-ho-so', re: /^hàng (.+?): tự khai (.+?) mà không có hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi «${m[2]}» nhưng chưa có hồ sơ ${m[3]}` }) },
   { ten: 'khai-khac', re: /^hàng (.+?): tệp khai khác hồ sơ: khai (.+?)(?: \(([^()]*)\))?, hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi «${m[2]}», thực tế «${m[4]}»` }) },
   { ten: 'hang-khac', re: /^hàng (.+?): hạng tệp (.+?), hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi hạng ${m[2]}, thực tế hạng ${m[3]}` }) },
-  ...[...CO_PHAT_TRIEN, 'thieu-ten-ngan'].map(ten => ({ ten, re: new RegExp(`^cờ ${ten}: (.+)$`), ra: m => ({ ma: null, chu: m[1] }) })),
+  ...CO_PHAT_TRIEN.map(ten => ({ ten, re: new RegExp(`^cờ ${ten}: (.+)$`), ra: m => ({ ma: null, chu: m[1] }) })),
   { ten: 'dung-tren-khong-co', re: /^hàng (.+?): đứng trên mã không có: (.+)$/, ra: m => ({ ma: m[1], chu: `cần xong trước ${m[2]} nhưng kế hoạch không có việc ${m[2]}` }) },
   { ten: 'vong', re: /^đứng trên tạo vòng: (.+)$/, ra: m => ({ ma: null, chu: `thứ tự «cần xong trước» tạo vòng: ${m[1]}` }) },
   { ten: 'ho-so-tep', re: /^hồ sơ (.+?) ghi lo_trinh_tep (.+?) — kho không khai tệp đó$/, ra: m => ({ ma: null, chu: `hồ sơ ${m[1]} ghi kế hoạch ${m[2]} — kho không khai kế hoạch đó` }) },
@@ -875,9 +875,6 @@ export function phanTichKho({ root, classify, sections }) {
     if (loi) return { tep, loi, kq: null };
     const kq = suyTrangThai({ root, khuon: kiemKhuon(data), classify, sections, nhan: nhan.filter(n => !n.tep || n.tep === tep) });
     kq.co.push(...luatChiPhatTrien(data));
-    // Tên ngắn (hồ sơ road-map-de-dung, AC-5): tên phiên và nhóm thanh bên rút từ `ten_ngan`; vắng thì rút gọn câu giao.
-    const thieuTen = kq.dong.filter(d => !chuoi(d.ten_ngan)).map(d => String(d._nhan));
-    if (thieuTen.length) kq.co.push(`cờ thieu-ten-ngan: ${new Set(thieuTen).size} việc chưa có tên ngắn — tên phiên đang rút gọn câu giao: ${lietTen(thieuTen)}`);
     return { tep, loi: null, kq };
   });
   const docDuoc = cacTep.filter(t => t.kq);
@@ -1287,6 +1284,11 @@ export function raSoat({ root, cacTep, sections, today }) {
     const theoNhanRs = new Map(kq.dong.map(d => [String(d._nhan), d]));
     const khep = kq.moc.filter(m => chuoi(m.loai) !== 'ngoai' && NGAY_RE.test(chuoi(m.ngay)) && chuoi(m.ngay) < today && !chuoi(m.that)
       && ganMoc(m).map(x => theoNhanRs.get(x)).filter(Boolean).every(d => daGiao.has(d.chu))).map(tenNganMoc);
+    // Tên ngắn (AC-5, chủ kho «Rà soát cảnh báo hàng thiếu ten_ngan»): tên phiên và nhóm thanh bên rút từ `ten_ngan`; vắng thì
+    // rút gọn câu giao — một dòng gom ở khối Rà soát (≤ 8 mã rồi «…»), không lên trang. Chỉ nhắc kho ĐÃ dùng tên ngắn (≥ 1 việc
+    // có) mà còn sót — kho chưa từng dùng không bị nhắc (luật cân trên mọi kho).
+    const thieuTen = kq.dong.some(d => chuoi(d.ten_ngan)) ? kq.dong.filter(d => !chuoi(d.ten_ngan)).map(d => String(d._nhan)) : [];
+    if (thieuTen.length) { const u = [...new Set(thieuTen)]; canh.push(`${u.length} việc chưa có tên ngắn — tên phiên đang rút gọn tên việc: ${u.slice(0, 8).join(', ')}${u.length > 8 ? ', …' : ''}`); }
     if (khep.length) { const u = [...new Set(khep)]; canh.push(`${u.length} mốc đã qua ngày, chưa ghi ngày khép: ${u.slice(0, 5).join(', ')}${u.length > 5 ? ', …' : ''}`); }
     const thuTu = new Map(kq.dong.map((d, i) => [String(d._nhan), i]));
     out.sort((a, b) => thuTu.get(a.ma) - thuTu.get(b.ma));
