@@ -140,7 +140,8 @@
         "RM6",
         "RM3b",
         "RM6b",
-        "RM6c"
+        "RM6c",
+        "VA1"
       ]
     }
   ],
@@ -721,6 +722,19 @@
       "bat_khi": "Sau khi crm nhận bản kit có RM6c, trang Lộ trình trong CRM hiện ngày dự kiến của ít nhất một mốc đang chạy mà không bật hộp cảnh báo «trang có thể thiếu một phần»",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ. Đổi khuôn khối dữ liệu = CỘNG → chủ kho phê ở Cổng Phạm vi; đường đọc-cũ hai chiều (bộ đọc mới đọc trang bản 2; bộ đọc cũ của crm gặp trang mới không vỡ). Cùng tệp scripts/lo-trinh.mjs với RM3/RM5/RM6b → gộp main khi chúng vào. Ước 4–5 giờ máy."
+    },
+    {
+      "ma": "VA1",
+      "ten_ngan": "Chấm lại không tự dối",
+      "cau_giao": "Lượt chấm lại chỉ mang sang một eval khi khối eval và chữ tiêu chí của nó không đổi từ lần nó thật chạy, và dòng thước lệch hay cây đổi luôn so bằng tham số của chính lượt vừa chấm",
+      "vai": "Chủ kho",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/goi-y-mo-ke-hoach/ — DA3b lượt 3: E10 đổi expected 21→22 vẫn mang sang từ lượt 2 (M5 báo 16/10, crm-onehub #375); cùng ngày K7 (Mac Studio): thuoc-vat --write so lượt 2–3 bằng tham số lượt 1, thẻ khoá «thước lệch». Chủ kho quyết 16/10 nới luật (b) cho cửa sổ này — đi cùng bản phát hành gói road-map, không phải tiền lệ.",
+      "hang": "T2",
+      "slug": "cham-lai-khong-tu-doi",
+      "bat_khi": "Sau khi crm nhận bản có VA1, 30 ngày lượt chấm lại không có dòng mang sang nào mà định nghĩa eval đã đổi, và không dòng thước lệch hay cây đổi nào mang sha của lượt khác",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Gộp SAU RM3b, trước cắt bản gói road-map. Không chạm scripts/tin-hieu.mjs, gui-tin-hieu.mjs (RM3b). Ước 4–6 giờ máy."
     }
   ],
   "chan_troi": [
