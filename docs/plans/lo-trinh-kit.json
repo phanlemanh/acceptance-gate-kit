@@ -732,7 +732,7 @@
       "cau_giao": "Bộ hồ sơ đã ký của một kho được ghim lại trên đỉnh nhánh chính theo các lần gộp trong một khoảng; ca đỏ quy về PR gây ra bằng cặp sha trước/sau; ca đã đỏ sẵn trên nền mang nhãn trạng thái «đỏ sẵn trên nền» (cùng ca, cùng thông điệp, run_id của nền) thay vì chặn vòng khác — mặc định tắt, kho không bật thì hành vi không đổi",
       "vai": "Chủ kho",
       "tieu_chi": 10,
-      "vi_sao": "Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký trên onehub, đỏ sẵn E9/E13 ngày 15/10 khi vòng DH2 chạm vào (DH2 tốn 2,5 h máy ghim lại đỏ + 5,3 h chờ người, rồi đẻ một vòng vệ sinh). Quét pre-merge toàn phần trên onehub 16/10: 242 vi phạm trên 248 hồ sơ signed-off; kit đỏ CI hai lần vì hồ sơ vòng khác (#349, #359). Finding docs/findings/2026-10-16-truy-nguyen-toc-do-m5.md (nhánh docs/truy-nguyen-toc-do-vong) §5 PC, §10 — chủ kho duyệt 16/10.",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký trên onehub, đỏ sẵn E9/E13 ngày 15/10 khi vòng DH2 chạm vào (DH2 tốn 2,5 h máy ghim lại đỏ + 5,3 h chờ người, rồi đẻ một vòng vệ sinh). Quét pre-merge toàn phần trên onehub 16/10: 242 vi phạm trên 248 hồ sơ đã ký; kit đỏ CI hai lần vì hồ sơ vòng khác (#349, #359). Finding docs/findings/2026-10-16-truy-nguyen-toc-do-m5.md (nhánh docs/truy-nguyen-toc-do-vong) §5 PC, §10 — chủ kho duyệt 16/10.",
       "hang": "T3",
       "slug": "ho-so-da-ky-giu-tuoi",
       "dung_tren": [],
