@@ -298,7 +298,11 @@ kit 05/11.
 `cua-tin-hieu-goc-moi-worktree` 5 (+1 giới hạn đo) · `cham-lai-khong-tu-doi` 7. Hạt giống mới của cửa sổ:
 `2026-10-15-hat-giong-co-gia-ho-so-tro-hang-sau-tu-ap` (RM2 Ngoài-11) · `2026-10-16-hat-giong-khoi-tao-lo-trinh-im-lang`
 (RM4 Ngoài-1, Ngoài-6) · `2026-10-16-hat-giong-tep-sinh-xung-dot-moi-lan-goi` (#365) ·
-`2026-10-17-hat-giong-so-chu-tieu-chi-nhieu-ma` (VA1) · `2026-10-17-hat-giong-args-tuong-minh-khong-doc-duoc` (VA1);
+`2026-10-17-hat-giong-so-chu-tieu-chi-nhieu-ma` (VA1) · `2026-10-17-hat-giong-args-tuong-minh-khong-doc-duoc` (VA1) ·
+sáu hạt giống của đợt đóng 17/10 (#372): `2026-10-17-hat-giong-khuon-bang-ke-hoach-bi-chep-tieu-de` (bẫy P93) ·
+`2026-10-17-hat-giong-s4-args-moc-so-main-cuc-bo-cu` · `2026-10-17-hat-giong-ky-lai-sau-doi-loi-tieu-chi` ·
+`2026-10-17-hat-giong-do-ngoai-vung-tieu-tran-ba-luot` · `2026-10-17-hat-giong-cap-nhat-plugin-cay-phu-nham-ban-ghi-goc` ·
+`2026-10-11-hat-giong-northstar-tu-dot-crm-sau-14-10`;
 ba hạt giống đã thành hàng trong chính cửa sổ (`…-gio-may-va-token-lo-trinh` → RM6, `…-khoi-du-lieu-gio-may` → RM6c,
 `…-du-bao-dong-bang-theo-ma-moc` → RM6b) và một đã đóng (`…-cua-tin-hieu-mot-goc` → RM3b).
 
@@ -329,7 +333,8 @@ token. Số chạm: sổ không ghi trường riêng; mọi lượt có ghi đ�
 
 - **4/20 lượt REJECT mà mọi eval của hợp đồng đều đạt** — bộ kiểm luật kho bắt tệp của chính hồ sơ (P179 ở RM2, RM4;
   P93 ở RM6c, VA1; JR11c ở RM2). Bốn lượt tốn 132 974 token (21 %) và ≈ 148 phút máy. Hai bẫy đã ghi từ RM2 (15/10) mà
-  vẫn tái phạm 16/10: lời dặn không đủ làm nghiệm — ứng viên hạt giống, chưa mở.
+  vẫn tái phạm 16/10: lời dặn không đủ làm nghiệm — P93 đã thành hạt giống
+  `2026-10-17-hat-giong-khuon-bang-ke-hoach-bi-chep-tieu-de` (#372); P179 chưa có.
 - **Tìm-lỗi 23,7 % token, mốc thứ tư liên tiếp tăng** (2.29: 15,9 · 2.30: 18,5 · 2.31: 20,1); chứng-minh-vật giảm 43,4 →
   35,4 %, tổng hợp tăng 36,6 → 40,8 % theo số mục ngoài hợp đồng (RM4 33 mục, tổng hợp 48,2 %). Token trung bình mỗi
   lượt giảm 39 061 → 31 674.
