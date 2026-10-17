@@ -175,8 +175,16 @@ export function duBao({ dong, moc, uoc, doCua = () => null, doVong = [], today }
   // Một lộ trình là MỘT làn (hồ sơ road-map-de-dung, AC-10; hạt giống 2026-10-17-hat-giong-gio-may-theo-moc-khong-xep-noi-tiep):
   // mốc còn việc sắp theo ngày (mốc không ngày đứng cuối, cùng ngày giữ thứ tự tệp); bắt đầu của mốc k = max(hôm nay, hoàn tất
   // mốc trước trong làn, ràng buộc dung_tren). Máy coi như chạy 24/24 — nhịp ngày chưa đo (nhãn ở dòng mốc).
+  // Thứ tự làn theo PHỤ THUỘC trước, ngày sau: mốc chỉ vào làn khi mọi mốc nó đứng trên (`_phu`) đã vào — mốc sớm đứng trên
+  // việc của mốc muộn thì mốc muộn chạy trước (lượt chấm 1 của hồ sơ, AC-10). `_phu` của mốc không vòng chỉ chứa mốc không vòng
+  // nên đồ thị không có chu trình; vẫn giữ lối thoát: không mốc nào sẵn thì lấy mốc kế theo ngày.
   const coNgay = i => NGAY.test(chuoi(moc[i].ngay));
-  const thuTu = moc.map((m, i) => i).sort((a, b) => (coNgay(a) ? 0 : 1) - (coNgay(b) ? 0 : 1) || chuoi(moc[a].ngay).localeCompare(chuoi(moc[b].ngay)) || a - b);
+  const theoNgay = moc.map((m, i) => i).sort((a, b) => (coNgay(a) ? 0 : 1) - (coNgay(b) ? 0 : 1) || chuoi(moc[a].ngay).localeCompare(chuoi(moc[b].ngay)) || a - b);
+  const thuTu = []; const daXep = new Set(); const conLaiMoc = [...theoNgay];
+  while (conLaiMoc.length) {
+    const k = conLaiMoc.findIndex(i => { const r = kq.get(i); return !r || r.vong || r._phu.every(j => daXep.has(j) || !conLaiMoc.includes(j)); });
+    const [i] = conLaiMoc.splice(k < 0 ? 0 : k, 1); thuTu.push(i); daXep.add(i);
+  }
   let lan = gioTuNgay(today);
   for (const i of thuTu) {
     const r = kq.get(i); if (!r || r.vong || !r.mo) continue;
