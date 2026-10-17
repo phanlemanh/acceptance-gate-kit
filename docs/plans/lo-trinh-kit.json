@@ -14,13 +14,6 @@
       ]
     },
     {
-      "ten": "crm: làn R1 vá xong trên production",
-      "ngay": "2026-10-12",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
-    },
-    {
       "ten": "Phát hành 2.27.0 — đóng gói xong Điều phối – Thợ (DP1–DP4, lõi DP6, DP7), tác tử chấm không cầm bút (A1), bộ đọc khoan dung (R1), máy tự định tuyến Ngoài-n (A3), cùng các hàng gộp sớm L3, G3, X2, S3, S3b, C1; gộp hai mốc dự kiến 18/10 và 25/10; đã phát hành 12/10",
       "ngay": "2026-10-12",
       "loai": "phat-hanh",
@@ -57,13 +50,6 @@
       ]
     },
     {
-      "ten": "crm: công bố OKR quý 4 (chủ kho 13/10 đổi tên — người dùng đã dùng thử từ trước, bỏ ràng buộc «không đổi engine trước mốc này»)",
-      "ngay": "2026-10-14",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
-    },
-    {
       "ten": "crm nhận kit 2.28.0 HÔM NAY (chủ kho duyệt tăng tốc 13/10, Mac Studio giữ): lộ trình nhận → PR nhận kit theo CHANGELOG → #373 chuyển gói dieu-phoi; sau #373 MacBook Pro gộp LT1b (#371) rồi LT2 (#374)",
       "ngay": "2026-10-13",
       "loai": "ngoai",
@@ -71,13 +57,6 @@
       "hang": [
         "P1"
       ]
-    },
-    {
-      "ten": "crm: mở đợt r2 từ gói dieu-phoi bản 2.28.0 (đợt thử thứ nhất của gói — Mac Studio giữ)",
-      "ngay": "2026-10-14",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
     },
     {
       "ten": "OneFlow: đợt thử thứ hai trên gói bản kit mới nhất có kiểm bản cài (2.30.0 trở lên) — đo «chạy được mà không sửa lõi»; chủ kho giao M5 13/10",
@@ -143,6 +122,13 @@
         "RM6c",
         "VA1"
       ]
+    },
+    {
+      "ten": "crm nhận kit 2.32.0 — gói road-map + bản vá chấm lại",
+      "ngay": "2026-10-18",
+      "loai": "ngoai",
+      "ai": "Mac Studio",
+      "hang": []
     }
   ],
   "hang": [
@@ -430,6 +416,7 @@
       "ma": "A3",
       "nhom": "bot-goi-nguoi",
       "hang": "T2",
+      "slug": "ngoai-n-tu-dinh-tuyen",
       "dung_tren": [],
       "cau_giao": "«Hồ sơ T2 xanh đi tiếp không mời ký khi máy đã ghi sổ mọi mục ngoài hợp đồng chính nó đề xuất ghi hạn chế hay bỏ qua — người chỉ thấy mục cần mở việc mới»",
       "vi_sao": "Gốc: crm/_acceptance/okr-mau-xoa-cau-hinh — T2, PASS, 5 mục Ngoài-n đều đề xuất known-limits mà vẫn phải ký Cổng 2. Đợt crm sau-14-10: làn V (xanh-sạch) bắn 0/71 hồ sơ, 59 chỉ vì Ngoài-n chưa định tuyến; người định tuyến trùng đề xuất máy 357/376 (94,9 %). Hợp nhất đề 2 + 3 của hạt giống PR #301; số đo: docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §3. Chủ kho đồng ý mở 11/10; lựa chọn bật theo kho.",
@@ -536,6 +523,7 @@
       "ma": "DP8",
       "nhom": "dieu-phoi",
       "hang": "T2",
+      "slug": "dieu-phoi-on-dinh-r2",
       "dung_tren": [
         "DP7"
       ],
