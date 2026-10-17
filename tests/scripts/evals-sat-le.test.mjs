@@ -345,6 +345,8 @@ const BEN_DOC = {
   // Hồ sơ ho-so-da-ky-giu-tuoi (K-A): luật nhãn đỏ sẵn trên nền chỉ BĂM nguyên khối `- id: <E>` để biết định nghĩa
   // eval có đổi không — không lấy giá trị trường nào, không đọc trường danh sách.
   'lib/do-san-tren-nen.cjs': 'truong-don',
+  // Lệnh giữ tươi (K-A) đọc `paths` của eval đỏ để quy về PR — đi qua evalPathsOf của lib, không tự đọc danh sách.
+  'feature-loop/scripts/giu-tuoi.mjs': 'danh-sach',
   'feature-loop/scripts/chup-ho-so-da-thong.mjs': 'khong-doc',
   'feature-loop/scripts/lib/phan-loai.mjs': 'khong-doc',
   'feature-loop/workflows/acceptance-verify.js': 'khong-doc',

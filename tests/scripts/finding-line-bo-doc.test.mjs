@@ -215,7 +215,10 @@ function so(khong, co, ten, dauSong) {
   // 20 từ 17/10 (hồ sơ ho-so-da-ky-giu-tuoi): thêm lib/do-san-tren-nen.cjs — docDongNen chỉ lấy dòng `kind: nen-do` có
   // `lenh_do`, dòng hỏng bỏ. Dòng `kind: finding` không vào nhánh nào của nó; chiều im đo ở GT0-dong-hong (sổ có dòng hỏng
   // xen giữa) của tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs.
-  const BO_DOC_KHAI = 20;
+  // 21 từ 18/10 (cùng hồ sơ, sau lượt chấm 1): thêm feature-loop/scripts/giu-tuoi.mjs — chỉ lấy dòng `kind: repin-do` có
+  // `lan_id` đúng lượt ghim của nó (dòng hỏng bỏ) và NỐI một dòng `kind: nen-do`. Dòng `kind: finding` không vào nhánh nào;
+  // chiều im đo ở GT3 (sổ chạy của kho thử có sẵn dòng kind khác, lệnh chỉ thêm đúng một dòng nen-do).
+  const BO_DOC_KHAI = 21;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],

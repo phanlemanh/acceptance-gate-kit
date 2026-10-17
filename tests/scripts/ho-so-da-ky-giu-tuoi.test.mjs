@@ -58,9 +58,18 @@ await ca('GT0-bam — cùng ca khác lỗi khác băm · cùng lỗi khác giờ
   const t2 = t1.replace(/T13:00/g, 'T21:44').replace(/12ms/g, '9.5 ms');
   assert.equal(DS.bamThongDiep(t1, null), DS.bamThongDiep(t2, null));
   assert.notEqual(DS.bamThongDiep(t1, null), DS.bamThongDiep(t1.replace('dong 29', 'dong X'), null));
+  // S4 lượt 1 (finding trong AC-6): ca đỏ MỚI ngoài trần 10 tên ca, và dòng FAIL mới khi không rút được tên ca, phải đổi băm.
+  const bun = (n, them) => { const l = []; for (let i = 1; i <= n; i++) l.push(`expected ${i} got ${i + 1}`, `(fail) ca-${i} [1.00ms]`); if (them) l.push('TypeError: boom totally new', '(fail) ca-MOI [1.00ms]');
+    l.push('', ...Array.from({ length: n }, (_, i) => `(fail) ca-${i + 1}`), ...(them ? ['(fail) ca-MOI'] : []), ` ${n + (them ? 1 : 0)} fail`); return l.join('\n'); };
+  const tenCap10 = Array.from({ length: 10 }, (_, i) => `ca-${i + 1}`);   // đúng trần của bộ rút tên ca
+  assert.equal(DS.bamThongDiep(bun(12, false), tenCap10), DS.bamThongDiep(bun(12, false).replace(/1\.00ms/g, '7.3ms'), tenCap10), 'đối chứng dương: cùng 12 ca đỏ, khác giờ → bằng băm');
+  assert.notEqual(DS.bamThongDiep(bun(12, true), tenCap10), DS.bamThongDiep(bun(12, false), tenCap10), 'thêm ca đỏ thứ 13 ngoài trần 10 tên phải đổi băm');
+  const kit = Array.from({ length: 30 }, (_, i) => `PASS: GT${i}`).join('\n');
+  assert.notEqual(DS.bamThongDiep(`FAIL: GT9\n${kit}`, null), DS.bamThongDiep(kit.replace('PASS: GT0', 'FAIL: GT0'), null), 'dòng FAIL khác ở đầu nhật ký phải đổi băm');
+  assert.notEqual(DS.bamThongDiep(`FAIL: GT9\n${kit}`, null), DS.bamThongDiep(kit, null), 'thêm một dòng FAIL ngoài 20 dòng cuối phải đổi băm');
   const tr = DS.trichThongDiep(LOG_A, ['ca-do']);
   assert.ok(tr.split('\n').length <= 3 && tr.includes('ca-do'), `trích phải ≤ 3 dòng và có tên ca: ${tr}`);
-  return '4 cặp so + trích';
+  return '8 cặp so + trích';
 });
 
 await ca('GT0-khoa — vắng/false tắt, true bật, giá trị sai ném gọi tên khoá', () => {
