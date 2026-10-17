@@ -2,9 +2,8 @@
 // thật (luật 26/09: sửa kit phải cân trên MỌI kho). Đo trên bản sao các kho THẬT của máy nên tệp không mang đuôi
 // .test.mjs và không vào feature_loop.suite_keys; khoá chạy: executors.test.ho_so_da_ky_giu_tuoi_cac_kho.
 //
-// Hai vế, mỗi vế so BỘ MÁY BẢN MỚI (scripts/ lib/ feature-loop/ của cây chứa tệp này) với BẢN TRƯỚC VÒNG
-// (`git archive 43ed9e2b feature-loop lib scripts skills commands hooks`, bung qua giu-tuoi-fixture.mjs) trên CÙNG
-// một bản sao, khoá `feature_loop.do_san_tren_nen` để như kho đang có (vắng ở mọi kho thật hôm nay):
+// Hai vế, mỗi vế so BỘ MÁY BẢN MỚI (cây chứa tệp này) với BẢN TRƯỚC VÒNG (`git archive 43ed9e2b`, TRỌN cây — xem
+// bungTron) trên CÙNG một bản sao, khoá `feature_loop.do_san_tren_nen` để như kho đang có (vắng ở mọi kho thật hôm nay):
 //
 // (1) Kho thật — mỗi kho trong {acceptance-gate-kit, crm-onehub, oneflow}. acceptance-gate-kit = CHÍNH kho chứa cây
 //     này (HEAD đã commit của cây này, không phải bản cài). Hai kho kia dò dưới KHO_GOC (mặc định ~/dev): thư mục có
@@ -26,7 +25,7 @@
 //     điệp), lượt ghim lại (`repin-lane.mjs --write`) cho từng hồ sơ: mã thoát + các dòng sổ mới (bỏ ts, sha, id
 //     lượt — cả id trong đường nhật ký lệnh đỏ — và số đo máy wall_s · tai · tong_ket.phut · tong_ket.chi_phi)
 //     + mục Re-pin của báo cáo (bỏ sha, id lượt, ngày giờ) của bản mới BẰNG bản trước vòng.
-// CHIỀU ĐỎ: bản sao bản mới (cp -RL) sửa khoaTuText để khoá vắng → bật. Đối chứng dương: bản nguyên ở (2) phải
+// CHIỀU ĐỎ: bản sao bản mới (`git archive HEAD` trọn cây — cây đã commit) sửa khoaTuText để khoá vắng → bật. Đối chứng dương: bản nguyên ở (2) phải
 // xanh trước. Đột biến PHẢI làm (2) khác ở ô khoá vắng — ca ghim câu FAIL nêu kho + dòng khác đầu tiên. Ở kho
 // thật đột biến không đổi được đầu ra vì không hồ sơ nào mang dòng `nen-do` hay khoá `do_san` — ca ĐẾM điều ấy
 // trên từng bản sao và in ra (giới hạn đo được, không dặn bằng lời); chiều đỏ vì thế sống ở vế (2).
@@ -36,7 +35,7 @@
 // phút trên máy này (17/10), vượt mốc 40 phút dự tính. Không cắt mẫu: AC-8 đòi MỌI hồ sơ đã ký. Trần mỗi lượt lưới
 // 40 phút (vượt → FAIL nêu kho, không xanh). Mọi đường dẫn suy từ vị trí tệp này; không ghi vào kho thật nào.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync, realpathSync, statSync, cpSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync, realpathSync, statSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -65,8 +64,16 @@ function donDep() {
 process.on('exit', () => { try { donDep(); } catch { /* lối thoát cuối */ } });
 
 // ── chuẩn hoá + so ──────────────────────────────────────────────────────────────
-const banTruoc = FX.banTruocVong();
-const BO_MAY = { moi: KIT, cu: banTruoc.dir };
+// Hai bộ máy cùng là CÂY TRỌN: bản mới = chính cây này; bản trước vòng = `git archive 43ed9e2b` TRỌN cây. Không dùng
+// banTruocVong() của fixture (chỉ sáu thư mục): product-map.mjs nạp scripts/tin-hieu.mjs → dieu-phoi/scripts/, nên bản
+// thiếu thư mục đỏ vì HẠ TẦNG chứ không vì vật (đo 17/10 trên crm: bản đồ «mã 1 · ERR_MODULE_NOT_FOUND» — P150).
+const bungTron = (ref, dich) => {
+  execFileSync('mkdir', ['-p', dich]);
+  const x = spawnSync('tar', ['-x', '-C', dich], { input: execFileSync('git', ['-C', KIT, 'archive', ref], { maxBuffer: 1 << 30 }) });
+  if (x.status !== 0) throw new Error(`bung ${ref} thất bại: ${String(x.stderr)}`);
+  return dich;
+};
+const BO_MAY = { moi: KIT, cu: bungTron(FX.BAN_TRUOC_VONG, path.join(TMP, 'ban-truoc-vong')) };
 function chuanHoa(text, kitDir) {
   let t = String(text);
   const thay = new Set([kitDir, (() => { try { return realpathSync(kitDir); } catch { return kitDir; } })()]);
@@ -284,7 +291,9 @@ try {
   else dongKq.push('kho thử AC-6: khoá vắng và false — mã thoát + dòng sổ + mục Re-pin bằng bản trước vòng (H2 xanh, H5 E1 đỏ có dòng nền), 0 khác');
   // Chiều đỏ: bản sao bản mới, khoá vắng → bật.
   const dotBien = path.join(TMP, 'dot-bien');
-  for (const d of BO_MAY_DIRS) if (existsSync(path.join(KIT, d))) cpSync(path.join(KIT, d), path.join(dotBien, d), { recursive: true, dereference: true });
+  // Bản sao bản mới (tương đương cp -RL cây đã commit): `git archive HEAD` trọn cây; cây chưa commit thì báo.
+  if (spawnSync('git', ['-C', KIT, 'status', '--porcelain', '--', ...BO_MAY_DIRS], { encoding: 'utf8' }).stdout.trim()) loi.push('đột biến: bộ máy của cây có thay đổi chưa commit — bản sao HEAD không phải bản mới đang đo');
+  bungTron('HEAD', dotBien);
   const libP = path.join(dotBien, 'lib', 'do-san-tren-nen.cjs');
   const goc = readFileSync(libP, 'utf8');
   const tiem = goc.replace('if (v == null) return false;', 'if (v == null) return true;');
