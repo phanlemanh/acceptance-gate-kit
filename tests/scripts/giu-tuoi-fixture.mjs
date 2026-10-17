@@ -12,7 +12,8 @@
 // `feat: … (#<n>)`). «Bản trước vòng» = `git archive 77b3750e (gốc so sau khi gộp VA2 #378) feature-loop lib scripts skills commands hooks` bung
 // vào thư mục tạm — dùng cho chiều đỏ. Mọi đường dẫn suy từ vị trí tệp này.
 //
-// Export: ROOT · LANE · BAN_TRUOC_VONG · mkKhoGiuTuoi(opts) · banTruocVong() · noiDungDo({ca, loi}) · donDep().
+// Export: ROOT · LANE · BAN_TRUOC_VONG · BAN_LUOT_1 · mkKhoGiuTuoi(opts) · banTai(sha) · banTruocVong() · banLuot1() ·
+// noiDungDo({ca, loi}) · donDep().
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -32,17 +33,25 @@ export function donDep() { while (tmp.length) rmSync(tmp.pop(), { recursive: tru
 // Nội dung tệp vật làm eval đỏ: dòng lỗi TRƯỚC dòng ca (bun in lỗi trước «(fail)»).
 export const noiDungDo = ({ ca = 'ca-do', loi = 'expected 3 got 4' } = {}) => `${loi}\n(fail) ${ca} [1.00ms]\n`;
 
-// «Bản trước vòng» bung MỘT lần mỗi tiến trình. → { dir, lane, agRoot, recheck }
+// «Bản lượt chấm 1» = vật NGAY TRƯỚC nhát sửa ba ô duyệt thêm 18/10 (AC-4 ô 5 · AC-5 ô 4 · AC-7 ô giả 4) — chiều đỏ
+// của ba ô ấy chạy trên bản này. Commit của nhánh vòng; gộp kiểu merge commit giữ nó trong lịch sử main.
+export const BAN_LUOT_1 = '18f307d208a68b9eb3cc7f5513864f1c1a27b756';
+
+// Bản bộ máy ở một commit, bung MỘT lần mỗi tiến trình. → { dir, lane, agRoot, recheck }
 let _ban = null;
-export function banTruocVong() {
-  if (_ban) return _ban;
-  const dir = thuMuc('gt-ban-truoc-');
-  const tar = execFileSync('git', ['-C', ROOT, 'archive', BAN_TRUOC_VONG, 'feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks'], { maxBuffer: 1 << 30 });
+export function banTai(sha) {
+  if (!_ban) _ban = new Map();
+  if (_ban.has(sha)) return _ban.get(sha);
+  const dir = thuMuc('gt-ban-');
+  const tar = execFileSync('git', ['-C', ROOT, 'archive', sha, 'feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks'], { maxBuffer: 1 << 30 });
   const x = spawnSync('tar', ['-x', '-C', dir], { input: tar });
-  if (x.status !== 0) throw new Error(`bung bản trước vòng thất bại: ${String(x.stderr)}`);
-  _ban = { dir, lane: path.join(dir, 'feature-loop', 'scripts', 'repin-lane.mjs'), agRoot: dir, recheck: path.join(dir, 'scripts', 'recheck-evidence.cjs') };
-  return _ban;
+  if (x.status !== 0) throw new Error(`bung bản ${sha} thất bại: ${String(x.stderr)}`);
+  const b = { dir, lane: path.join(dir, 'feature-loop', 'scripts', 'repin-lane.mjs'), agRoot: dir, recheck: path.join(dir, 'scripts', 'recheck-evidence.cjs') };
+  _ban.set(sha, b);
+  return b;
 }
+export const banTruocVong = () => banTai(BAN_TRUOC_VONG);
+export const banLuot1 = () => banTai(BAN_LUOT_1);
 
 const khoaExec = (slug, id) => `${slug}_${id}`.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 const chuanHoSo = (h) => {
@@ -56,6 +65,8 @@ const chuanHoSo = (h) => {
 //         config: dòng YAML thêm dưới feature_loop (thụt 2), status: trạng thái hợp đồng (mặc định implemented),
 //         ghimDau: false → không chạy pin đầu }
 // e.paths vắng → ["vat/<slug>-<E>*", "rang/<slug>-<E>.sh"]; e.paths === null → không khai paths.
+// e.than (chuỗi) → thân rang/<slug>-<E>.sh thay thân mặc định (vd eval cần một thư viện cài sẵn của kho).
+// opts.truocHoSo(api) → chạy sau commit gốc, TRƯỚC khi dựng hồ sơ đầu (vd tạo .gitignore + thư mục phụ thuộc).
 export function mkKhoGiuTuoi(opts = {}) {
   const root = thuMuc('gt-kho-');
   const dau = thuMuc('gt-dau-');
@@ -78,7 +89,8 @@ export function mkKhoGiuTuoi(opts = {}) {
     return Array.isArray(p) ? `    paths:\n${p.map(x => `      - "${x}"\n`).join('')}` : '';
   };
   const evalsYaml = (h) => `schema_version: 1\nfeature_slug: ${h.slug}\nevals:\n${h.evals.map(e => `  - id: ${e.id}\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.${khoaExec(h.slug, e.id)}\n    expected: exit 0\n${khaiPaths(h, e)}    evidence_required: [run_id, exit_code, verifier, verified_at, output]\n`).join('')}`;
-  const thanEval = (h, e) => `[ -n "$GG_DAU" ] && echo ran >> "$GG_DAU/${h.slug}-${e.id}.txt"\nf=vat/${h.slug}-${e.id}.txt\nif [ "$(head -n 1 "$f")" = ok ]; then echo "(pass) ${e.ca} [0.10ms]"; exit 0; fi\ncat "$f"\nexit 1\n`;
+  const thanEval = (h, e) => (typeof e.than === 'string' ? e.than : thanMacDinh(h, e));
+  const thanMacDinh = (h, e) => `[ -n "$GG_DAU" ] && echo ran >> "$GG_DAU/${h.slug}-${e.id}.txt"\nf=vat/${h.slug}-${e.id}.txt\nif [ "$(head -n 1 "$f")" = ok ]; then echo "(pass) ${e.ca} [0.10ms]"; exit 0; fi\ncat "$f"\nexit 1\n`;
   // Dựng tệp của các hồ sơ (chưa commit) — `ghi` mọi thứ trừ pin.
   const dungTep = (hs) => {
     for (const h of hs) {
@@ -158,7 +170,12 @@ export function mkKhoGiuTuoi(opts = {}) {
   ghi('suite.sh', `[ -n "$GG_DAU" ] && echo ran >> "$GG_DAU/suite.txt"\nif [ -f vat/suite-hong ]; then echo "(fail) suite-chung [1.00ms]"; exit 1; fi\nexit 0\n`);
   ghi('docs/README.md', 'kho thu\n');
   const dau0 = (opts.hoSo || ['H1', 'H2', 'H3', 'H4', 'H5', 'H6']);
-  if (dau0.length) themHoSo(dau0, { ghimDau: opts.ghimDau !== false, thongDiep: 'goc' });
+  const api = { root, dau, git, ghi, doc, lane, recheck, themHoSo, gop, commit, docLog, docReport, vc, docDau, dem, xoaDau, datKhoa, dongNenTuDauDo, noiDong, hoSo };
+  if (opts.truocHoSo) {
+    ghi('_acceptance/config.yaml', dungConfig()); git('add', '-A'); git('commit', '-qm', 'goc');
+    opts.truocHoSo(api);
+    if (dau0.length) themHoSo(dau0, { ghimDau: opts.ghimDau !== false, thongDiep: 'ho so dau' });
+  } else if (dau0.length) themHoSo(dau0, { ghimDau: opts.ghimDau !== false, thongDiep: 'goc' });
   else { ghi('_acceptance/config.yaml', dungConfig()); git('add', '-A'); git('commit', '-qm', 'goc'); }
-  return { root, dau, git, ghi, doc, lane, recheck, themHoSo, gop, commit, docLog, docReport, vc, docDau, dem, xoaDau, datKhoa, dongNenTuDauDo, noiDong, hoSo };
+  return api;
 }

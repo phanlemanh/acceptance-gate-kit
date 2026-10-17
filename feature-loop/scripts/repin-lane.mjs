@@ -780,28 +780,16 @@ const thongDiep = (cmd, envTag) => {
   const ca = rutTenCa(t);
   return { thong_diep_bam: ds.bamThongDiep(t, ca), trich: ds.trichThongDiep(t, ca) };
 };
-// Mốc đọc dòng nền = merge-base của HEAD với nhánh chính. Dò nhánh chính như s4-args.mjs (PROBE-REGION):
-// remote khai HEAD branch → tên ấy (hoặc origin/<tên>), không đoán sang tên khác; remote không khai → main,
-// master, develop, trunk. s4-args là script không export hàm dò, nên chép LUẬT (không chép vùng có marker).
-let _mocNen;
-function mocNen() {
-  if (_mocNen) return _mocNen;
-  const gt = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 10000 }).trim(); } catch { return null; } };
-  let nhanh = null, khai = null;
-  const m = (gt('remote', 'show', 'origin') || '').match(/HEAD branch:\s*(\S+)/);
-  if (m && m[1] !== '(unknown)') { khai = m[1]; for (const c of [m[1], `origin/${m[1]}`]) if (gt('rev-parse', '--verify', '--quiet', c) !== null) { nhanh = c; break; } }
-  if (!nhanh && !khai) for (const b of ['main', 'master', 'develop', 'trunk']) if (gt('rev-parse', '--verify', '--quiet', b) !== null) { nhanh = b; break; }
-  const ref = nhanh ? gt('merge-base', nhanh, 'HEAD') : null;
-  _mocNen = ref ? { ref, nhanh } : { ref: null, lyDo: nhanh ? `không tính được merge-base giữa ${nhanh} và HEAD` : (khai ? `remote khai nhánh chính «${khai}» nhưng cây này không giải được` : 'không dò được nhánh chính (không remote, không main/master/develop/trunk)') };
-  return _mocNen;
-}
+// Mốc đọc dòng nền = điểm tách của HEAD với nhánh chính — CHÍNH hàm bên đọc dùng (ds.diemTachNhanhChinh), không
+// bản chép luật dò nhánh thứ hai.
 // Một eval đỏ có được nhãn không — MỘT luật (ds.kiemDoSan) với bên đọc. → { dat, cau, runId, bam }
 function kiemMot(s, e) {
   if (e.expected !== 0) return { dat: false, cau: `eval khai mã thoát ${e.expected} — nhãn chỉ áp cho eval mong đợi 0` };
-  const moc = mocNen();
-  if (!moc.ref) return { dat: false, cau: moc.lyDo };
+  if (typeof ds.diemTachNhanhChinh !== 'function') return { dat: false, cau: `bộ máy (root: ${agRoot}) thiếu hàm diemTachNhanhChinh trong ${DS_REL} — dùng bộ máy cùng đời với làn` };
+  const moc = ds.diemTachNhanhChinh(root);
+  if (!moc.sha) return { dat: false, cau: moc.lyDo };
   const bam = thongDiep(e.cmd, 'full').thong_diep_bam || null;
-  const r = ds.kiemDoSan({ root, slug: s.slug, evalId: e.id, bam, dinhNghia: ds.bamDinhNghia(s.evalsText, e.id), headRef: 'HEAD', baseRef: moc.ref, khoa: true });
+  const r = ds.kiemDoSan({ root, slug: s.slug, evalId: e.id, bam, dinhNghia: ds.bamDinhNghia(s.evalsText, e.id), headRef: 'HEAD', baseRef: moc.sha, khoa: true });
   return r.dat ? { dat: true, runId: r.runId, bam } : { dat: false, cau: ds.cauVeHong(r.veHong) };
 }
 const nhanCua = new Map(); // slug → { do_san: {E: {run_id, thong_diep_bam}} } — chỉ hồ sơ được nhãn phủ trọn

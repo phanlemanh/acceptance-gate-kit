@@ -16,7 +16,9 @@
 //      mọi eval đạt thì được ghim, hồ sơ có eval đỏ nhận `repin-do`. Tập chọn rỗng → không gọi lượt ghim.
 //   3. QUY VỀ PR cho hồ sơ đỏ: lớp hạ tầng (mã 126/127, ≥ 128 hay bị ngắt, mã hạ tầng của nhan-canh-gay, hoặc
 //      chạy lại lệnh đỏ trên đỉnh thì xanh) → `ha-tang`, không gọi tên PR nào; chạy lại ĐÚNG lệnh đỏ trong cây
-//      tạm ở <từ>: đỏ cùng băm thông điệp → `do-san-truoc-khoang`; còn lại → ứng viên = commit cha-đầu trong
+//      tạm ở <từ> (nối thư mục phụ thuộc git bỏ qua của kho bằng symlink): lỗi môi trường ở <từ> (mã 126/127,
+//      thiếu mô-đun/lệnh/tệp mà đỉnh không thiếu) → `ha-tang` «không chạy lại được ở đầu khoảng»; đỏ cùng băm
+//      thông điệp → `do-san-truoc-khoang`; còn lại → ứng viên = commit cha-đầu trong
 //      <từ>..<đến> có tệp đổi giao với `paths` của eval đỏ (eval không khai paths → mọi commit có tệp ngoài
 //      _acceptance/, kèm ghi chú). Một ứng viên → `do-khoang`; nhiều → `nhieu-pr`. Không chia đôi.
 //   4. --write → đúng MỘT dòng `kind: "nen-do"` mỗi hồ sơ đỏ vào run-log.jsonl của nó — bên VIẾT của bằng chứng
@@ -121,8 +123,10 @@ if (tuSha === denSha) {
 const tmpGoc = fs.mkdtempSync(path.join(os.tmpdir(), 'giu-tuoi-'));
 const wt = path.join(tmpGoc, 'tu');
 let daDon = false;
+const lienKetPhuThuoc = []; // symlink tạo trong cây tạm — gỡ TRƯỚC khi gỡ cây, để không lệnh dọn nào đi theo vào thư mục thật
 function donCay() {
   if (daDon) return; daDon = true;
+  for (const l of lienKetPhuThuoc) { try { if (fs.lstatSync(l).isSymbolicLink()) fs.unlinkSync(l); } catch { /* đã gỡ */ } }
   try { execFileSync('git', ['-C', root, 'worktree', 'remove', '--force', wt], { stdio: 'ignore' }); } catch { /* chưa tạo / đã gỡ */ }
   try { fs.rmSync(tmpGoc, { recursive: true, force: true }); } catch { /* */ }
   try { execFileSync('git', ['-C', root, 'worktree', 'prune'], { stdio: 'ignore' }); } catch { /* */ }
@@ -161,6 +165,38 @@ if (chon.length) {
   try { laneOut = JSON.parse(r.stdout); } catch { console.error('giu-tuoi: không đọc được kết quả của lượt ghim lại'); process.exit(1); }
 }
 
+// ── phụ thuộc của kho cho cây tạm ───────────────────────────────────────────────────────────────────────
+// Cây tạm do `git worktree add` chỉ có tệp git theo dõi; thư viện cài sẵn (node_modules, .venv, vendor) thì git bỏ
+// qua nên vắng — chạy lại ở <từ> mà thiếu chúng thì mọi eval đỏ đều «đỏ khác» và bị quy nhầm về một PR (S4 lượt 1,
+// ngoài hợp đồng; AC-4 ô 5). Với mỗi tên trong danh sách có ở gốc kho mà git BỎ QUA (`git check-ignore`), tạo một
+// symlink trong cây tạm trỏ về thư mục ấy — không chép. Tên đã có trong cây tạm (git theo dõi ở <từ>) thì để nguyên.
+// Phụ thuộc ở đường khác danh sách không được phủ: lần chạy lại khi ấy lỗi môi trường và bước dưới nói rõ «không
+// chạy lại được ở đầu khoảng» thay vì gọi tên PR.
+const THU_MUC_PHU_THUOC = ['node_modules', '.venv', 'vendor'];
+let _daNoiPhuThuoc = false;
+function noiPhuThuoc() {
+  if (_daNoiPhuThuoc) return; _daNoiPhuThuoc = true;
+  for (const ten of THU_MUC_PHU_THUOC) {
+    const nguon = path.join(root, ten);
+    let laThuMuc = false;
+    try { laThuMuc = fs.statSync(nguon).isDirectory(); } catch { /* vắng */ }
+    if (!laThuMuc || gitOr('check-ignore', '-q', ten) === null) continue;
+    const dich = path.join(wt, ten);
+    if (fs.existsSync(dich)) continue;
+    try { fs.symlinkSync(nguon, dich, 'dir'); lienKetPhuThuoc.push(dich); log(`cây tạm dùng ${ten}/ của kho (symlink)`); }
+    catch (e) { log(`không nối được ${ten}/ vào cây tạm: ${String((e && e.message) || e).split('\n')[0]}`); }
+  }
+}
+// Lỗi MÔI TRƯỜNG ở lần chạy lại tại <từ>: mã 126/127 (hay mọi mã hạ tầng / bị ngắt), hoặc nhật ký có dòng thiếu
+// mô-đun / lệnh / tệp mà nhật ký ở đỉnh KHÔNG có (so sau chuẩn hoá — cùng dòng ở đỉnh là cùng một cái đỏ thật).
+const LOI_MOI_TRUONG = /Cannot find module|ERR_MODULE_NOT_FOUND|command not found|No such file or directory/;
+const dongMoiTruong = (loi) => new Set(String(loi).split('\n').filter(l => LOI_MOI_TRUONG.test(l)).map(l => ds.chuanHoa(l)));
+function loiMoiTruongOTu(tu, dinh) {
+  if (tu.exit === 126 || tu.exit === 127 || laHaTang(tu.exit)) return true;
+  const oDinh = dongMoiTruong(dinh.loi);
+  return [...dongMoiTruong(tu.loi)].some(l => !oDinh.has(l));
+}
+
 // ── 3. quy về PR ────────────────────────────────────────────────────────────────────────────────────────
 // Mã hạ tầng: 126/127 (không chạy được lệnh), ≥ 128 (bị ngắt), mã hạ tầng của bảng nhãn dùng chung (lib/nhan-canh-gay).
 const MA_HA_TANG = new Set([126, 127, ...((ncg.nguonNhan() || {}).infraExits || [])]);
@@ -171,7 +207,7 @@ function chay(cmd, cwd) {
   const exit = r.status === null ? null : r.status;
   // Băm trên `${out}\n${err}` — đúng vật làn băm (repin-lane bóc khung nhật ký về đúng chuỗi này).
   const loi = `${r.stdout || ''}\n${r.stderr || ''}`;
-  return { exit, ms: Date.now() - t, bam: ds.bamThongDiep(loi, rutTenCa(loi)) };
+  return { exit, ms: Date.now() - t, loi, bam: ds.bamThongDiep(loi, rutTenCa(loi)) };
 }
 const datKyVong = (e, x) => x === e.expected || (e.expected !== 0 && x === 0);
 
@@ -209,7 +245,9 @@ for (const s of chon) {
     if (laHaTang(e.exit)) { lop.push({ id: e.id, lop: 'ha-tang' }); continue; }
     const dinh = chay(e.cmd, root); ms += dinh.ms;
     if (datKyVong(e, dinh.exit) || laHaTang(dinh.exit)) { lop.push({ id: e.id, lop: 'ha-tang' }); continue; }
+    noiPhuThuoc();
     const tu = chay(e.cmd, wt); ms += tu.ms;
+    if (!datKyVong(e, tu.exit) && tu.bam !== dinh.bam && loiMoiTruongOTu(tu, dinh)) { lop.push({ id: e.id, lop: 'ha-tang-tu' }); continue; }
     lop.push({ id: e.id, lop: !datKyVong(e, tu.exit) && tu.bam === dinh.bam ? 'do-san-truoc-khoang' : 'khoang' });
   }
   const doKhoang = lop.filter(x => x.lop === 'khoang');
@@ -231,7 +269,8 @@ for (const s of chon) {
     }
     quyVe = [...ungVien.values()].map(c => Object.assign({ pr: c.pr, sha_truoc: c.cha, sha_sau: c.sha }, khongPaths ? { ly_do: 'eval không khai paths' } : {}));
     ket = quyVe.length === 1 ? 'do-khoang' : 'nhieu-pr';
-  } else if (lop.some(x => x.lop === 'do-san-truoc-khoang')) ket = 'do-san-truoc-khoang';
+  } else if (lop.some(x => x.lop === 'ha-tang-tu')) ghiChu = 'không chạy lại được ở đầu khoảng';
+  else if (lop.some(x => x.lop === 'do-san-truoc-khoang')) ket = 'do-san-truoc-khoang';
   else if (!lop.length) ghiChu = 'lượt ghim báo đỏ mà không nêu eval nào';
   hoSo.push(Object.assign({ slug: s, ket_cuc: ket, quy_ve: quyVe, ms }, ghiChu ? { ghi_chu: ghiChu } : {}));
 }
