@@ -216,7 +216,9 @@ Chân ngành:
 
 - Kho git làm hộp thư (hạt giống 13/10, ngưỡng giữ nguyên).
 - Danh tính máy có chữ ký; đánh thức phiên đã đóng.
-- Phiên ngoài đợt trên cùng máy: chip `start_session` của điều phối không mở đợt. Vẫn ở Later cho tới khi Hỏi-1 được trả lời.
+- Phiên thợ mở bằng chip ngoài đợt (chip `start_session` của điều phối, không qua đợt). Vẫn ở Later cho tới khi Hỏi-1 được
+  trả lời. Cạnh điều phối ↔ điều phối trên kênh #375/#308 KHÔNG thuộc mục này — nó được phủ ở AC-5…AC-8. Hệ quả: ngưỡng
+  thứ hai đo trọn; ngưỡng thứ nhất chỉ được bảo đảm cho đợt và kênh, nên lần hỏi về chip ngoài đợt được đếm riêng.
 - So khớp ba dòng đọc lại với lời giao (còn là lời, hạt giống §5).
 - Đổi `loai` hay `kiemYeuCau` của `yeu-cau`; đổi bộ phát lịch giao việc; đổi bảy hành động của `tiep-tuc`.
 - Đường truyền `send_message` của app; `tin` chỉ là nơi chứa có mã, chữ nó in ra đi qua đường truyền nào cũng được.
