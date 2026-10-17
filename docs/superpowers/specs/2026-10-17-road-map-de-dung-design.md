@@ -210,7 +210,7 @@ nhận mốc. Không xoá dữ liệu: tệp lộ trình của kho không bị m
 ### 4. Hành vi
 
 - `<details>` gốc HTML, không JavaScript; `<summary>` vùng chạm ≥ 44px; liên kết mã trong dòng miễn như WCAG 2.5.8 (tiền lệ).
-- Khổ 1280 và 375, sáng và tối; trang kho thử năm trạng thái vẫn ≤ 1/3 trang 2.21.0 (thước LTT-san).
+- Khổ 1280 và 375, sáng và tối; trang kho thử năm trạng thái ≤ 0,4 trang 2.21.0 (thước LTT-san; chủ kho nới từ 1/3 ngày 17/10).
 
 ### 5. Xuất xứ component
 

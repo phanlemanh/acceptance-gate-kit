@@ -80,7 +80,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LTT-ten", "PASS: LTT-ten-do", "PASS: LTT-san". LTT-ten: Chrome thật, khổ 1280 và 375, sáng và
       tối — mọi summary dòng việc cao ≥ 44px, tương phản chữ tên và trạng thái ≥ 4,5 : 1, scrollWidth ≤ innerWidth ở 375.
-      LTT-san (sẵn có) vẫn xanh: trang kho thử ≤ 1/3 trang 2.21.0. LTT-ten-do: bản sao bỏ min-height của summary → FAIL ghim
+      LTT-san (sẵn có, trần nới 0,4 — chủ kho 17/10) xanh: trang kho thử ≤ 0,4 trang 2.21.0. LTT-ten-do: bản sao bỏ min-height của summary → FAIL ghim
       «vùng chạm < 44px».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7

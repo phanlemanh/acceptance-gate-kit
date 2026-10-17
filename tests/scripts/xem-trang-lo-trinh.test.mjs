@@ -89,7 +89,9 @@ async function san(P, kit) {
   }
   await P.mo(await ve(bo2210(), KHO['hai-lo-trinh'], 'cu'), { w: 1440, h: 900, sac: 'light' });
   so.cu = (await P.do()).cao;
-  if (!(so.cu > 0) || so.moi * 3 > so.cu) sai.push(`độ dài: trang mới ${so.moi}px, trang 2.21.0 ${so.cu}px (tỉ lệ ${(so.moi / so.cu).toFixed(3)} > 1/3)`);
+  // Trần 0,4 (chủ kho chốt 17/10, hồ sơ road-map-de-dung — thay trần 1/3 của trang-lo-trinh-doc-mot-phut): khối Mốc liệt đủ câu
+  // giao của từng việc chưa giao, nên trang dài hơn có chủ ý; vẫn ngắn hơn trang 2.21.0 khoảng 2,5 lần.
+  if (!(so.cu > 0) || so.moi * 10 > so.cu * 4) sai.push(`độ dài: trang mới ${so.moi}px, trang 2.21.0 ${so.cu}px (tỉ lệ ${(so.moi / so.cu).toFixed(3)} > 0,4)`);
   return { o, sai, so };
 }
 const thuoc = sai => [...new Set(sai.map(s => s.split(':')[0]))].sort();
