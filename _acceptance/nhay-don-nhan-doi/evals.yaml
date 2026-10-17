@@ -1,0 +1,92 @@
+# Eval cho hồ sơ nhay-don-nhan-doi.
+#
+# Tệp ca: tests/scripts/bo-giai-nhay.test.mjs (bộ răng sẵn có của bộ bóc nháy) — chân mới BG10a–BG10e nạp
+# CHÍNH lib/evidence-core.cjs, chạy CHÍNH feature-loop/scripts/s4-args.mjs và CHÍNH repin-lane.mjs trên kho mẫu
+# dựng trong lần chạy. Hằng mong đợi lấy từ PyYAML 6.0.3 lúc thiết kế, ghi cứng trong tệp ca; số khẳng định khai
+# hằng. Chiều đỏ: hàng mới của bảng DUONG (BG8 + BG5) và răng lịch sử rang/lich-su-do.mjs. Đường dẫn suy từ vị trí
+# tệp ca.
+schema_version: 1
+feature_slug: nhay-don-nhan-doi
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ndnd_ma_tran
+    expected: >-
+      BG10a chín scalar nháy đơn viết trước qua resolveConfigKey, mỗi ô BẰNG hằng PyYAML (a'b · 'a · a' · ' · ''
+      · bash -c 'echo "x y"; echo z' · it's · a ' # b · null), số khẳng định = hằng BG10A_ASSERTS khai trước.
+      Chiều đỏ: bản chưa vá trả a''b ở ô đầu — thông điệp «DO BG10a: [giua]».
+    paths: ["lib/evidence-core.cjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ndnd_danh_sach
+    expected: >-
+      BG10b danh sách inline [x, 'a''b', ''''] → ["x","a'b","'"], danh sách khối - 'it''s' → ["it's"],
+      parseFlowValue("'a''b'").value → a'b; so BẰNG trọn mảng (JSON), không includes.
+    paths: ["lib/evidence-core.cjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ndnd_chieu_im
+    expected: >-
+      BG10c chiều im: "a''b" → a''b · a''b → a''b · 'a'b' → 'a'b' (nguyên văn). Và BG1, BG2, BG3, BG4, BG6,
+      BG7, BG9 cùng tệp ca in PASS — bản vá không lan ra ngoài vỏ nháy đơn.
+    paths: ["lib/evidence-core.cjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ndnd_s4_args
+    expected: >-
+      BG10d kho mẫu với lệnh hình dạng crm bash -c ''export BG_VET=…; printf da-chay > "$BG_VET/vet"''' qua
+      CHÍNH s4-args.mjs: cmd trong tệp args không chứa '', bash -c thoát 0, tệp dấu vết = da-chay. Đối chứng
+      dương trước tiên: cùng lệnh viết nháy kép → dấu vết có (hỏng → «DO BG10d: doi chung nhay kep hong (ha
+      tang)»). Thiếu dấu vết ở ca nháy đơn → «DO BG10d: … lenh trong khong chay».
+    paths: ["lib/evidence-core.cjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ndnd_lan_ghim
+    expected: >-
+      BG10e kho mẫu của gia-lan-fixture: eval cmd config:executors.script.rang_e1, khoá đó trong config.yaml mang
+      scalar nháy đơn hình dạng crm (khoá fixture mới e.yaml), evals.yaml của kho mẫu không chứa '' (khẳng định).
+      CHÍNH repin-lane.mjs --write: làn thoát 0, dòng kind repin cuối trong run-log.jsonl có evals_exit.E1 === 0
+      (so theo trường JSON), tệp dấu vết của lệnh trong có dòng ran. Đối chứng dương trước tiên: cùng kho, lệnh
+      nháy kép, cùng đường config: → xanh; đối chứng hỏng → «DO BG10e: doi chung nhay kep hong (ha tang)», khác
+      thông điệp vật «DO BG10e: … khong dau vet».
+    paths: ["lib/evidence-core.cjs", "feature-loop/scripts/repin-lane.mjs", "tests/scripts/gia-lan-fixture.mjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ndnd_dot_bien
+    expected: >-
+      BG8 in «[phan biet] 10 unquoteScalar vo don -> BG10a DO» và PASS với BG8_MUTANTS = 7; BG5 in
+      «[chieu do] BG10a -> DO» (CHAN_DO có BG10a) và PASS — bản sao trọn cây, đối chứng dương xanh, băm đổi.
+    paths: ["lib/evidence-core.cjs", "tests/scripts/bo-giai-nhay.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ndnd_lich_su_do
+    expected: >-
+      rang/lich-su-do.mjs tìm commit ĐẦU TIÊN đưa «function bg10» vào tests/scripts/bo-giai-nhay.test.mjs và
+      archive sha đó. Bốn khẳng định ở sha đó: (1) nhánh nháy đơn của unquoteScalar CHƯA gỡ '' (chưa vá);
+      (2) tests/scripts/gia-lan-fixture.mjs đã nhận khoá e.yaml; (3) chạy BG10a,BG10d,BG10e → thoát 1, có ĐỦ ba
+      ghim vật «DO BG10a: [giua]», «lenh trong khong chay» (BG10d), «khong dau vet» (BG10e) và KHÔNG có ghim hạ
+      tầng «doi chung nhay kep hong»; (4) đối chứng dương: archive HEAD cùng ba chân → thoát 0. In
+      «XANH lich-su-do»; thiếu commit ca (lịch sử bị nén) → «MU lich-su-do» thoát 3, không xanh.
+    paths: ["lib/evidence-core.cjs", "tests/scripts/bo-giai-nhay.test.mjs", "tests/scripts/gia-lan-fixture.mjs", "_acceptance/nhay-don-nhan-doi/rang/lich-su-do.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >-
+      Bộ test scripts trọn (tests/scripts/run-tests.sh — chứa bo-giai-nhay và mọi ca repin-lane) thoát 0 trên cây
+      sau sửa; các mảnh còn lại của CI chạy trong suite_keys của lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
