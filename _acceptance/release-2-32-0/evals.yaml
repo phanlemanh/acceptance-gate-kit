@@ -64,6 +64,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.plugins_vung_2
+    long_running: 60
     expected: "vùng 2 của suite plugins XANH"
     evidence_required: [run_id, exit_code, verifier, verified_at]
   - id: E3j
