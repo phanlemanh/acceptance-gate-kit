@@ -1025,7 +1025,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 28 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 29 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1045,6 +1045,7 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
 - `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
 - `lib/nhan-canh-gay.cjs` — MỘT nguồn cho cạnh gãy ở Cổng Bằng chứng (đỏ vì bàn đo · đỏ vì vật · hệ thống chết) và cho «ký trên cạnh gãy có tên»; lưới trước-merge và re-check cùng gọi; thiếu → báo cáo BLOCKED có chữ ký vẫn là VIOLATION (cổng đóng, không mở)
+- `lib/do-san-tren-nen.cjs` — MỘT luật cho nhãn trạng thái «đỏ sẵn trên nền»: dòng ghim mang `do_san` chỉ được nhận khi luật này thấy đúng cái đỏ ấy đã ghi trên nhánh chính; `checkRepinEvals` nạp nó lúc cần; thiếu → mọi dòng ghim mang nhãn vẫn là VIOLATION (cổng đóng, không mở)
 - `scripts/product-map.mjs` — bước CI `product_map:` của khuôn config chạy THẲNG tệp này; thiếu → bước đó không chạy được
 - `scripts/trang-thai-ho-so.cjs` — bảng nhãn trạng thái MỘT nguồn mà `product-map.mjs` `require`; chép bản đồ mà thiếu nó là `MODULE_NOT_FOUND` ngay lượt CI đầu của kho tiêu thụ (crm, 22/09/2026)
 - `scripts/khong-can-nguoi.mjs` — vị từ làn V «không cần người» mà `product-map.mjs` nạp để từ chối hồ sơ tự khai máy-thông không có vật
