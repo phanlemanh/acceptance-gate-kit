@@ -445,5 +445,61 @@ if (want('RD-11-doc-cu') && await chayCa('RD-11-doc-cu', rd11cu)) ok('RD-11-doc-
 if (want('RD-11-do')) await chayDo('RD-11-do', kit => rd11ba(kit), [['scripts/lo-trinh.mjs', 'const mocs = mocTheoNgay(kq).filter(m => mh.moc.get(m).hien);', 'const mocs = mocTheoNgay(kq);']], 'trang lệch khối', 'bản sao trang vẽ cả mốc không có việc');
 if (want('RD-11-do2')) await chayDo('RD-11-do2', kit => rd11ba(kit), [['scripts/lo-trinh.mjs', 'ra.push(`      – ${tenHienThi(d)} (${d.chu}) [${x}]`)', 'ra.push(`      – ${chuoi(d.cau_giao) || CHUA_CAU} (${d.chu}) [${x}]`)']], 'bản xem lệch khối', 'bản sao bản xem dùng câu giao thay tên hiển thị');
 
+// ═══ AC-9: rà soát mốc đã qua ngày, chưa ghi ngày khép ══════════════════════════════════════════════
+const GOM9 = /^(\d+) mốc đã qua ngày, chưa ghi ngày khép: /;
+async function raSoatKho(kit, r, today) { const M = await napLT(kit); const k = M.LT.phanTichKho({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS }); return M.LT.raSoat({ root: r, cacTep: k.cacTep, sections: M.PM.SECTIONS, today }); }
+async function rd9(kit) {
+  const sai = []; let o = 0; const T = '2026-10-20';
+  const LOAI = ['phat-hanh', 'han-cung', 'su-kien']; const NGAY = { qua: '2026-10-10', toi: '2026-10-30' }; const THAT = { co: '2026-10-11', khong: null };
+  const HANG = { 'khong-hang': [], 'da-giao': ['G'], 'con-hang': ['C'] };
+  // Bảng kỳ vọng VIẾT SẴN: ô nào vào dòng gom (đã qua · không that · không việc mở).
+  const VAO = new Set(LOAI.flatMap(l => ['khong-hang', 'da-giao'].map(h => `${l}|qua|khong|${h}`)));
+  for (const l of LOAI) for (const [nq, ng] of Object.entries(NGAY)) for (const [nt, th] of Object.entries(THAT)) for (const [nh, hg] of Object.entries(HANG)) {
+    const o9 = `${l}|${nq}|${nt}|${nh}`; o += 1;
+    const data = { schema: 1, hang: [H8('G', { trang_thai: 'Đã giao' }), H8('C')], moc: [{ ten: 'Mốc thử', ngay: ng, loai: l, hang: hg, ...(th ? { that: th } : {}) }] };
+    const r = kho({ tep: { 'docs/plan/lo-trinh.json': data } });
+    const moi = (await raSoatKho(kit, r, T))[0]; const cu = (await raSoatKho(boMayCu(), r, T))[0];
+    const them = (moi.canh_bao || []).filter(c => !(cu.canh_bao || []).includes(c));
+    const vao = them.some(c => GOM9.test(c) && c.includes('Mốc thử 10/10'));
+    if (vao !== VAO.has(o9) || them.length !== (VAO.has(o9) ? 1 : 0)) sai.push(`${o9}: dòng thêm ${JSON.stringify(them)} (kỳ vọng ${VAO.has(o9) ? 'một dòng gom' : 'không'})`);
+    if (JSON.stringify(moi.de_xuat) !== JSON.stringify(cu.de_xuat)) sai.push(`${o9}: đề xuất lệch bộ máy cũ`);
+  }
+  console.log(`    · RD-9 ${o}/36 ô (bảng kỳ vọng viết sẵn, ${VAO.size} ô vào dòng gom)`);
+  if (o !== 36 || VAO.size !== 6) sai.push(`ma trận ${o} ô, ${VAO.size} ô vào — hợp đồng hứa 36 và 6`);
+  // Gom: sáu mốc vào → một dòng, năm tên rồi «…».
+  const sau = { schema: 1, hang: [H8('A')], moc: [1, 2, 3, 4, 5, 6].map(i => ({ ten: `Mốc ${i}`, ngay: `2026-10-0${i}`, loai: 'phat-hanh', hang: [] })) };
+  const g = ((await raSoatKho(kit, kho({ tep: { 'docs/plan/lo-trinh.json': sau } }), T))[0].canh_bao || []).filter(c => GOM9.test(c));
+  if (g.length !== 1 || g[0] !== '6 mốc đã qua ngày, chưa ghi ngày khép: Mốc 1 01/10, Mốc 2 02/10, Mốc 3 03/10, Mốc 4 04/10, Mốc 5 05/10, …') sai.push(`gom sáu mốc: ${JSON.stringify(g)}`);
+  return sai;
+}
+if (want('RD-9') && await chayCa('RD-9', rd9)) ok('RD-9', '36/36 ô: đúng sáu ô «đã qua · không that · không việc mở» vào một dòng gom; ô còn việc và mọi ô khác: rà soát bằng bộ máy v2.32.0; sáu mốc → năm tên rồi «…»');
+async function rd9trang(kit) {
+  const r = kho({ tep: { 'docs/plan/lo-trinh.json': { schema: 1, hang: [H8('A')], moc: [{ ten: 'Mốc X', ngay: '2026-10-05', loai: 'phat-hanh', hang: [] }, { ten: 'Mốc Y', ngay: '2026-10-25', loai: 'phat-hanh', hang: [] }] } } });
+  const ve1 = ngay => node(['--input-type=module', '-e', `const LT = await import(${JSON.stringify(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href)}); const PM = await import(${JSON.stringify(pathToFileURL(path.join(kit, 'scripts', 'product-map.mjs')).href)}); process.stdout.write(LT.veTrang({ root: ${JSON.stringify(r)}, classify: PM.classify, sections: PM.SECTIONS }));`], { env: { ...process.env, ACCEPTANCE_TODAY: ngay } }).stdout;
+  const a = ve1('2026-10-10'); const b = ve1('2026-10-30'); const sai = [];
+  const ra = [(await raSoatKho(kit, r, '2026-10-10'))[0].canh_bao || [], (await raSoatKho(kit, r, '2026-10-30'))[0].canh_bao || []].map(x => x.find(c => GOM9.test(c)) || '');
+  if (!ra[0].startsWith('1 mốc') || !ra[1].startsWith('2 mốc')) sai.push(`đối chứng: hai ngày phải cho hai tập mốc khác nhau — ${JSON.stringify(ra)}`);
+  if (!a || a !== b) sai.push('trang đổi theo hôm nay');
+  if (a.includes('mốc đã qua ngày, chưa ghi ngày khép')) sai.push('trang mang dòng gom của rà soát');
+  return sai;
+}
+if (want('RD-9-trang') && await chayCa('RD-9-trang', rd9trang)) ok('RD-9-trang', 'hai «hôm nay» cho hai tập mốc quá ngày khác nhau: trang giống từng byte và không mang dòng gom');
+async function rd9crm(kit) {
+  const sai = []; const T = '2026-10-17'; const data = fxCrm('okr-ra-soat-1017.json'); const r = kho({ tep: { 'docs/plan/lo-trinh.json': data } });
+  const M = await napLT(kit); const k = M.LT.phanTichKho({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS }); const kq = k.cacTep[0].kq;
+  const rs = (await raSoatKho(kit, r, T))[0]; const gom = (rs.canh_bao || []).find(c => GOM9.test(c)) || ''; const ngoai = kq.co.map(c => M.LT.dichCo(c)).find(d => d.ten === 'moc-ngoai-da-bo')?.chu || '';
+  const chu = new Map(kq.dong.map(d => [String(d._nhan), d.chu]));
+  const qua = data.moc.filter(m => /^\d{4}-\d{2}-\d{2}$/.test(m.ngay || '') && m.ngay < T && !m.that && (m.loai === 'ngoai' || (m.hang || []).filter(x => chu.has(x)).every(x => kq.daGiao.has(chu.get(x)))));
+  if (!qua.length) return ['tập mốc quá ngày chưa khép rỗng — bản chụp không đo được gì'];
+  for (const m of qua) {
+    const t = M.LT.tenNganMoc(m); const o = [ngoai.includes(t), gom.includes(t)].filter(Boolean).length;
+    console.log(`    · RD-9-crm «${t}» (${m.loai}) → ${ngoai.includes(t) ? 'cờ mốc ngoài' : gom.includes(t) ? 'dòng gom AC-9' : 'KHÔNG DÒNG NÀO'}`);
+    if (o !== 1) sai.push(`«${t}» rơi vào ${o} dòng`);
+  }
+  return sai;
+}
+if (want('RD-9-crm') && await chayCa('RD-9-crm', rd9crm)) ok('RD-9-crm', 'bản hạt giống crm onehub b1666c3ac: mỗi mốc quá ngày chưa khép rơi vào đúng một dòng (cờ mốc ngoài hoặc dòng gom)');
+if (want('RD-9-do')) await chayDo('RD-9-do', rd9, [['scripts/lo-trinh.mjs', " && chuoi(m.ngay) < today && !chuoi(m.that)\n", " && chuoi(m.ngay) < today\n"]], '|qua|co|', 'bản sao bỏ điều kiện «không that»');
+
 console.log(`\nRD Results: ${pass} PASS · ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

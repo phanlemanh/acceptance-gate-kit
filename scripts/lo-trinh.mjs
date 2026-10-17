@@ -1280,6 +1280,14 @@ export function raSoat({ root, cacTep, sections, today }) {
       }
     }
     if (cut) canh.push(CANH_CUT);
+    // Luật moc-chua-khep (hồ sơ road-map-de-dung, AC-9; hạt giống 2026-10-17-hat-giong-ra-soat-khong-xet-moc-qua-ngay): mốc có
+    // ngày hợp lệ đã qua, chưa ghi ngày khép (`that`), và không còn việc mở (không gắn việc, hoặc mọi việc đã giao) → MỘT dòng
+    // gom, ≤ 5 tên rồi «…». Mốc còn việc mở giữ luật moc-qua-ngay; mốc ngoài đã có cờ của bộ đọc chung. Phụ thuộc hôm nay nên
+    // chỉ ở bản xem chữ và thẻ khởi động, không lên trang.
+    const theoNhanRs = new Map(kq.dong.map(d => [String(d._nhan), d]));
+    const khep = kq.moc.filter(m => chuoi(m.loai) !== 'ngoai' && NGAY_RE.test(chuoi(m.ngay)) && chuoi(m.ngay) < today && !chuoi(m.that)
+      && ganMoc(m).map(x => theoNhanRs.get(x)).filter(Boolean).every(d => daGiao.has(d.chu))).map(tenNganMoc);
+    if (khep.length) { const u = [...new Set(khep)]; canh.push(`${u.length} mốc đã qua ngày, chưa ghi ngày khép: ${u.slice(0, 5).join(', ')}${u.length > 5 ? ', …' : ''}`); }
     const thuTu = new Map(kq.dong.map((d, i) => [String(d._nhan), i]));
     out.sort((a, b) => thuTu.get(a.ma) - thuTu.get(b.ma));
     return { tep: t.tep, ten: kq.ten || null, de_xuat: out, ...(cut ? { lich_su_cut: true } : {}), ...(canh.length ? { canh_bao: canh } : {}) };
