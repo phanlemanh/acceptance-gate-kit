@@ -10,6 +10,357 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.32.0 — 17/10/2026
+
+Cửa sổ 2.31.0 → 2.32.0 (15/10 chiều → 17/10) là **gói `road-map` hoàn tất theo hướng B′** cộng **lượt chấm lại không
+tự dối**. Điểm dừng do chủ kho chốt 17/10: «chọn điểm dừng để đóng mốc và lộ trình, rồi dọn trước khi mở mốc mới» —
+phía kit là bản này, ứng với mốc «Gói road-map hoàn tất theo B′» (19/10) của lộ trình kit. Có **tám hồ sơ được ký** —
+tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): máy tự áp chính sách lộ trình (RM2, T3), kho mới cài
+gói `road-map` có sẵn lộ trình (RM4), lộ trình tính bằng giờ máy (RM6), kho cam kết có lộ trình chặn mở việc ngoài kế
+hoạch (RM5, T3), cửa tín hiệu giữa chiến dịch (RM3), khối dữ liệu mang giờ máy và ngày dự kiến (RM6c), cửa tín hiệu một
+gốc cho mọi worktree (RM3b), lượt chấm lại không tự dối (VA1). Cộng **một vòng máy thông**: dự báo đóng băng không mất
+khi dời ngày mốc (RM6b, `machine-cleared`, cửa veto mở). Cả chín vòng chạy trên máy MacBook Pro. Kho chờ nhận: `crm` —
+máy Mac Studio, đợt nhận kế sau 2.31.0. Mốc đi **làn V**, không dựng răng mới. Bốn gói `acceptance-gate`,
+`feature-loop`, `dieu-phoi`, `road-map` cùng lên `2.32.0` (lần này `dieu-phoi` và `road-map` đều đổi vật);
+`diagram-design` giữ `2.7.1`. Tag `v2.32.0` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.32.0** (minor): mốc thêm bề mặt mới cho kho tiêu thụ — bốn lệnh mới của gói `road-map`, khoá cấu hình mới
+`lo_trinh.chan`, chính sách tự áp trên mốc phát hành, bước 5d của `acceptance-init`, hai tệp mới trong lớp chép CI, giờ
+máy và ngày dự kiến trên trang lộ trình. GUIDE: «minor cho luật gate mới».
+
+**Luật chiều rộng (b):** cửa sổ chở nhiều vòng meta hơn trần «một vòng meta giữa hai mốc kho nhận». Gói `road-map` là
+MỘT kết quả chủ kho gọi tên làm luôn 15/10 (bảy hàng, một mốc); VA1 là nới luật (b) chủ kho quyết 16/10 «đi cùng bản
+phát hành gói road-map, không phải tiền lệ».
+
+**Lớp chép CI 26 → 28 tệp:** thêm `scripts/gio-may.mjs` và `lib/chan-lo-trinh.cjs`; sáu tệp đổi byte so với `v2.31.0`
+— kể ở mục «Kho tiêu thụ làm gì khi nhận». Hai mươi hai tệp còn lại giống từng byte `v2.31.0` (AC-8 đo trên cây mốc,
+danh sách mong đợi đọc TỪ chính gạch ghi chú). Diff engine của cửa sổ còn ở: `scripts/lo-trinh-khoi-tao.mjs` (mới),
+`scripts/do-vong.mjs` (mới), `scripts/gui-tin-hieu.mjs` (mới), `scripts/config-patch.mjs`, `scripts/start-scan.mjs`,
+`hooks/acceptance-evidence-gate.js`, `commands/acceptance-init.md` (bước 5d),
+`skills/acceptance/references/lo-trinh-du-lieu.md`, `feature-loop/skills/feature-loop/SKILL.md`,
+`feature-loop/scripts/carry-plan.mjs`, `feature-loop/scripts/s4-args.mjs`, `feature-loop/scripts/thuoc-vat.mjs`, năm tệp
+`dieu-phoi/scripts/` (`cua-tin-hieu.mjs` mới, `yeu-cau.mjs`, `phat-lich.mjs`, `dieu-phoi.mjs`, `mau/LUAT.md`) và sáu tệp
+`road-map/` (`README.md`, bốn lệnh mới `gui`, `ghim`, `bo-ghim`, `tra-lai`, lệnh `xem` đổi).
+
+### Lệnh mới của gói `road-map`
+
+| Lệnh | Làm gì | Ghi gì | Vòng |
+|---|---|---|---|
+| `/road-map:gui <câu>` | Gửi một ý vào cửa tín hiệu; được trả «đã ghi, xử ở mốc khép» | Một tệp `nguoi-<tên git>-<n>.json` ở thư mục nguồn của **thư mục chính** của kho (chưa theo dõi git) | RM3, RM3b |
+| `/road-map:ghim <mã>` | Miễn trừ một hàng khỏi tự áp; báo trước đang chờ của hàng bị huỷ ở lần áp kế | Một dòng sổ `<tệp lộ trình>.so.jsonl`; tệp lộ trình không đổi | RM2 |
+| `/road-map:bo-ghim <mã>` | Bỏ miễn trừ; đề xuất vừa bị trả vẫn bị chặn tới khi căn cứ đổi | Một dòng sổ | RM2 |
+| `/road-map:tra-lai <mã>` | Hoàn tác lần áp cuối của mã; mục máy chuyển đã bị sửa tay thì từ chối | Tệp lộ trình + một dòng sổ | RM2 |
+| `/road-map:xem` (đổi) | Bản đồ «Xong · Đang dở · Kế» + «Rà soát» + «Tự áp» + «Giờ máy theo mốc» (lệnh nền đổi `--ra-soat` → `--xem`) | Không ghi | RM2, RM6 |
+
+`ghim`, `bo-ghim`, `tra-lai` chỉ người gõ (khoá model-invocation, danh sách `LOCKED_ROAD_MAP` của P32, đoạn bổ sung
+15/10 ở ADR 0002 — bảy lệnh khoá của `acceptance-gate` giữ nguyên); `gui` và `xem` để mở. Gói vẫn không có hook,
+`acceptance-init` vẫn không tự bật gói.
+
+### Máy tự áp chính sách lộ trình (hồ sơ `ap-chinh-sach-lo-trinh`, hàng RM2, T3)
+
+Gốc: vòng 2 của gói `road-map` theo B′ (`docs/findings/2026-10-14-kien-truc-roadmap-plugin.md`, ADR 0025). Số đo nền
+ở crm 03–14/10: 8 lần commit dời hàng bằng tay trong 12 ngày.
+
+- **Chính sách khai một lần trên mốc phát hành** (`loai: phat-hanh`):
+  `"chinh_sach": {"tu_ap": true, "tuoi_ngay", "tran_ke_tiep", "nhip_ngay": 1, "tran_ap": 5}`. Chiến dịch đang chạy là
+  mốc phát hành gần nhất có ngày ≥ hôm nay. Khai sai dạng, hay khai ở mốc không phải phát hành → một cờ trên trang.
+- **Báo trước rồi mới áp:** `lo-trinh.mjs --ap [--json] [--write]`. Ngày đầu chỉ báo trước, tệp lộ trình không đổi; sau
+  `nhip_ngay` ngày đề xuất còn nguyên thì máy dời, tối đa `tran_ap` hàng mỗi ngày — dời mốc vào cuối mốc đang chạy,
+  chờ điều kiện vào `chan_troi`, bác vào `da_bac`. Mở việc từ một hàng (khối `S0-MO-O`) thì máy áp trước, hàng đang mở
+  không bị đụng; commit riêng `lo-trinh(may-ap): <n> hàng — <ngày>`.
+- **Sổ tự áp** `<tệp lộ trình>.so.jsonl` cạnh tệp lộ trình, chỉ thêm dòng, mỗi dòng mang ngày. Máy chỉ ghi tệp lộ
+  trình đúng dạng chuẩn (`JSON.stringify(…, null, 2)` + một dòng cuối); khác dạng → thoát 2 «tệp lộ trình không ở dạng
+  chuẩn — máy không ghi».
+- **Thẻ `/acceptance-gate:start`** thêm dòng `Tự áp: N báo trước (áp từ …) · M đã áp 7 ngày qua`.
+- **Không đổi:** kho không có chiến dịch đang chạy khai `tu_ap: true` thì `--ra-soat`, `--mo-o` và thẻ giống từng byte
+  2.31.0. Trang lộ trình không hiện sổ hay ghim. Máy không bao giờ tự chặn.
+- **Giới hạn đã khai:** 13 mục ở Notes hợp đồng — đáng nhớ nhất: kho còn bản chép `scripts/lo-trinh.mjs` cũ thì máy vẫn
+  tự dời nhưng `/road-map:tra-lai` báo «tham số lạ» (Ngoài-8); tệp lộ trình có BOM ở kho bật tự áp có thể làm vỡ thẻ
+  khởi động và lệnh xem (Ngoài-10).
+- **Ai bị ảnh hưởng:** chỉ kho khai `tu_ap: true` trên mốc. **Khi update:** chép lại `scripts/lo-trinh.mjs` cùng
+  `scripts/gio-may.mjs`; cài `road-map` nếu muốn ba lệnh ghim / bỏ ghim / trả lại.
+
+### Kho mới cài gói `road-map` có sẵn lộ trình (hồ sơ `kho-moi-cai-goi-road-map`, hàng RM4, T2)
+
+Gốc: nấc 2 của ADR 0025 — kho trống tự khai lộ trình phải làm năm việc tay, và `product-map.mjs --check` đỏ tới khi đủ.
+
+- **Bước 5d mới của `/acceptance-gate:acceptance-init`** (khối `INIT-LO-TRINH`) chạy
+  `scripts/lo-trinh-khoi-tao.mjs --root <path> --write`, kể cả khi cấu hình đã có. Chỉ làm gì khi `.claude/settings.json`
+  đã commit của kho bật `road-map@<chợ>` — `settings.local.json` và phạm vi người dùng không tính; không bật → một dòng,
+  0 byte đổi.
+- **Năm bước hội tụ, chạy lại an toàn:** khai `lo_trinh.tep` → miễn trừ `LO-TRINH.html` trong `t1_skip_globs` (chế độ mới
+  `config-patch.mjs --append`) → lộ trình rỗng đúng khuôn ở `docs/plan/lo-trinh.json` → chép các tệp CI mang nhãn
+  `[only-if-declared: lo_trinh]` khi kho đã chép lớp CI → vẽ trang. Thoát 0 xong · 2 từ chối, không ghi gì · 3
+  `.claude/settings.json` hỏng.
+- **Thẻ khởi động của lộ trình rỗng** chỉ đường: thêm việc bằng skill cắt lượt, rồi mở bằng `/feature-loop:feature-loop <mã>`.
+- **Không đổi:** kho không cài `road-map` ở phạm vi kho — đo trên mọi kho của máy (AC-9): 0 byte. Không có lệnh khởi tạo
+  riêng; máy không tự cài gói hộ kho.
+- **Giới hạn đã khai:** 25 mục — nhiều nhất cửa sổ, phần lớn là ca đo có thể xanh khi bước không chạy. Đáng nhớ nhất:
+  danh sách miễn trừ viết dạng gạch sát lề thì mục mới chèn sai chỗ, `config.yaml` thành không hợp lệ (Ngoài-7,
+  Ngoài-15); khoá trỏ tệp ngoài kho thì lệnh báo «không ghi gì» mà đã thêm một dòng miễn trừ (Ngoài-19, Ngoài-25).
+- **Ai bị ảnh hưởng:** kho chọn cài `road-map --scope project`. **Khi update:** không bước tay; kho muốn lộ trình thì cài
+  gói rồi chạy lại `acceptance-init`.
+
+### Lộ trình tính bằng giờ máy (hồ sơ `lo-trinh-gio-may`, hàng RM6, T2)
+
+Gốc: ý định chủ kho 15/10 (hạt giống `2026-10-15-hat-giong-gio-may-va-token-lo-trinh`), Cổng Đáng ký 15/10.
+
+- **Mỗi việc trên trang có một dòng giờ máy.** Khoá `gio_may` trên hàng (số dương hoặc `[thấp, cao]`); vắng thì máy ước
+  theo hạng (T2 4–7 · T3 7–10 · hàng cắt bản 1,5–2), đủ năm vòng đo cùng hạng thì theo số đo. Khoá sai dạng → cờ.
+- **Mỗi mốc in tổng giờ máy** của việc chưa giao; có dự báo đóng băng thì in «dự báo lúc bắt đầu (dd/mm): hoàn tất
+  dd/mm» kèm cờ vàng «mốc quá tải». Trang vẫn tất định, không phụ thuộc hôm nay.
+- **Dự báo đóng băng:** `--mo-o` ghi `_acceptance/<slug>/du-bao.json` một lần, không ghi đè. Lệnh mới
+  `lo-trinh.mjs --do-lech` so dự báo với ngày mốc khép thật.
+- **Đo vòng:** `scripts/do-vong.mjs` (mới) đọc bản ghi phiên rồi nối dòng `kind:"gio-may"` (giờ máy · giờ chờ · token ·
+  % hạn mức tuần) vào run-log ở cuối lượt chấm (khối SKILL `S4-DO-VONG`). Lần đọc hạn mức lưu ở tệp cục bộ của máy
+  `~/.claude/acceptance-gate/han-muc.jsonl` (hoặc `HAN_MUC_TEP`).
+- **Không đổi:** đầu ra máy đọc (`--ra-soat`, `--ap`, `--mo-o`, khối dữ liệu) giống byte khi kho không khai `gio_may` và
+  không hồ sơ đo. **Trang người nhìn CÓ đổi** — thêm dòng giờ máy.
+- **Giới hạn đã khai:** 6 mục — đáng nhớ nhất: một dòng hỏng trong tệp hạn mức của máy chặn bước đo của MỌI vòng trên
+  máy tới khi gỡ (Ngoài-1, Ngoài-2); gọi `do-vong.mjs` qua đường tắt thì thoát êm mà không ghi gì (Ngoài-3). Ngoài-6
+  thành RM6b dưới.
+- **Ai bị ảnh hưởng:** MỌI kho khai `lo_trinh.tep` — trang vẽ bằng 2.31 thì `--check` của 2.32 đỏ «LO-TRINH.html lệch
+  với tệp ý định và hồ sơ — chạy: …» cho tới khi vẽ lại. **Khi update:** chép `scripts/gio-may.mjs` CÙNG
+  `scripts/lo-trinh.mjs`, rồi vẽ lại `LO-TRINH.html` một lần.
+
+### Dự báo đóng băng không mất khi dời ngày mốc (hồ sơ `du-bao-dong-bang-theo-ma-moc`, hàng RM6b, T2 — máy thông)
+
+Gốc: Ngoài-6 của RM6 — thói quen ghi đè ngày mốc bằng ngày phát hành thật (5/5 mốc) làm trang mất dòng dự báo.
+
+- **Bộ đọc khớp dự báo theo mã việc lúc đóng băng**, chỉ khi hồ sơ thuộc chính lộ trình ấy; dời ngày hay đổi tên mốc
+  vẫn giữ dòng «dự báo lúc bắt đầu», cờ quá tải tính theo mục tiêu mới, `--do-lech` đọc được mốc đã ghi đè ngày. Nhiều
+  mốc cùng nhận một dự báo: tên khớp nguyên văn > chung nhiều mã nhất > tên bỏ ngày khớp > đứng trước.
+- **Không đổi:** khuôn `du-bao.json` và bên ghi; không mốc nào đổi → trang và bốn lệnh giống từng byte (AC-7).
+- **Giới hạn đã khai:** 0 — lượt chấm không có mục nào trong hay ngoài hợp đồng. Hồ sơ `machine-cleared`, cửa veto mở.
+- **Khi update:** cùng tệp chép `scripts/lo-trinh.mjs` với RM6.
+
+### Kho cam kết có lộ trình: chặn mở việc ngoài kế hoạch (hồ sơ `kho-cam-ket-co-lo-trinh`, hàng RM5, T3)
+
+Gốc: nấc 3 + nấc 4 của ADR 0025. Đo trước: từ 10/10, 13/40 hồ sơ mới của kit và 11/49 của crm không thuộc hàng nào.
+
+- **Khoá mới `lo_trinh.chan`** trong `_acceptance/config.yaml` — vắng hoặc `false` là tắt, chỉ có hiệu lực khi `road-map`
+  bật ở `.claude/settings.json` của kho. Khuôn cấu hình của `acceptance-init` không có khoá này. CỘNG — duyệt ở Cổng
+  Phạm vi của RM5 (ADR 0018).
+- **Một bộ đọc `lib/chan-lo-trinh.cjs` cho ba bên gọi:** hook `hooks/acceptance-evidence-gate.js` chặn (mã 2) lệnh ghi
+  mở hồ sơ MỚI (`contract.md` / `opportunity.md`) không thuộc hàng nào, thông điệp nêu hai lối; lưới trước-gộp
+  `scripts/pre-merge-check.sh` in `VIOLATION [<slug>]: hồ sơ mới không thuộc hàng lộ trình nào (lo_trinh.chan)`; lệnh
+  mới `lo-trinh.mjs --them-hang --slug <s>` để máy tự thêm hàng khi mở vòng từ một câu mô tả (khối SKILL
+  `S0-THEM-HANG`).
+- **Hồ sơ đã có từ trước không bao giờ bị chấm.** `enforcement: warn/off` và `ACCEPTANCE_GATE_BYPASS=1` vẫn tác dụng.
+- **Không đổi:** kho không bật — ma trận 64 lần chạy và mọi kho của máy (AC-6): hook, lưới, bộ đọc giống từng byte;
+  luật không vào sổ luật của lưới nên dòng tổng kết không đổi.
+- **Giới hạn đã khai:** 11 mục — đáng nhớ nhất: tệp ghi bằng lệnh shell né được hook, lưới trước-gộp bắt lúc gộp; kho
+  đặt hồ sơ trong thư mục con thì lưới lọt im lặng (Ngoài-4, Ngoài-7); kho đã tắt bằng `chan: false` mà chưa chép lớp CI
+  mới vẫn thấy một dòng NOTE (Ngoài-6).
+- **Ai bị ảnh hưởng:** chỉ kho tự bật. **Khi update:** chép `lib/chan-lo-trinh.cjs` + `scripts/pre-merge-check.sh` +
+  `scripts/lo-trinh.mjs` nếu định bật.
+
+### Cửa tín hiệu giữa chiến dịch (hồ sơ `cua-tin-hieu-giua-chien-dich`, hàng RM3, T2)
+
+Gốc: B′ §10–§11 — trước vòng này mọi việc phụ / việc mới giữa đợt đều trả «cần phán» và đánh thức giám sát.
+
+- **Kho khai `tin_hieu`:** việc phụ / việc mới KHÔNG khai chặn được trả «đã ghi, xử ở mốc khép»; ý được chép thành
+  `<nguồn đầu>/<tên đợt>-<id>.json`, không bao giờ đè; ý trùng tiêu đề trong 24 giờ thì gộp. Cờ mới `--chan` trên
+  `dieu-phoi.mjs yeu-cau` cho ý cần giám sát phán ngay; luật thợ có khối `LUAT-CHAN` (`dieu-phoi/scripts/mau/LUAT.md`).
+- **Lệnh `/road-map:gui <câu>`** cho người gửi ý (chạy `scripts/gui-tin-hieu.mjs`).
+- **Thẻ khởi động** in `Cửa tín hiệu: N ý chờ gom ở mốc khép — gom bằng skill gom-tin-hieu`.
+- **Không đổi:** kho không khai cửa — `tra-loi/` và `su-kien.jsonl` giống từng byte trừ khoá mới `chan` trên sự kiện
+  việc phụ / việc mới; các loại yêu cầu vận hành giữ đường cũ; máy không tự gom, không tự commit tệp ý.
+- **Giới hạn đã khai:** 2 mục + 1 giới hạn đo — kho chỉ khai cửa mà không khai lộ trình thì thẻ không nhắc số ý chờ gom
+  (Ngoài-5); mở lại đợt cùng tên khi ý cũ chưa gom → ý trùng mã rơi về «cần phán» (Ngoài-2). Tệp ý chưa theo dõi git:
+  mất máy trước khi gom là mất ý.
+- **Ai bị ảnh hưởng:** kho khai `tin_hieu` và chạy đợt bằng gói `dieu-phoi`. **Khi update:** cài lại `dieu-phoi` theo
+  thẻ; đợt đang chạy dùng bản lõi đã chép phẳng vào thư mục đợt — mở đợt mới để nhận hành vi mới.
+
+### Cửa tín hiệu một gốc cho mọi worktree (hồ sơ `cua-tin-hieu-goc-moi-worktree`, hàng RM3b, T2)
+
+Gốc: tái hiện trên main `66951212` — `/road-map:gui` từ worktree ghi vào worktree còn thợ ghi vào thư mục chính, hai bộ
+đọc thấy hai tập rời nhau, dọn worktree làm mất ý. RM3 và RM3b vào CÙNG mốc nên lỗi hai gốc chưa từng tới kho tiêu thụ.
+
+- **Bên ghi và bên đọc của cửa cùng một bộ giải thư mục chính** (`gocKhoChinh` của `dieu-phoi/scripts/dot.mjs`, qua hàm
+  mới `gocNguon` của `scripts/tin-hieu.mjs`): ý gửi từ bất kỳ worktree nào nằm ở `<thư mục chính>/<nguồn>/`. Tệp ý mang
+  thêm `noi_dung.gui_tu` (`worktree` / `thu-muc-chinh`).
+- **Không đổi:** bản gom và cấu hình vẫn đọc theo gốc phiên; thư mục chính và CI giống từng byte trừ khoá `luc` và
+  `gui_tu` (AC-4).
+- **Giới hạn đã khai:** 5 mục + 1 giới hạn đo — kho là submodule hay tách thư mục git thì ý nằm trong thư mục git ẩn của
+  kho cha (Ngoài-1); kho bare kèm worktree có thể dùng chung hộp ý với kho khác cùng thư mục cha (Ngoài-3).
+- **Khi update:** kho khai `tin_hieu` chép lại `scripts/tin-hieu.mjs`.
+
+### Khối dữ liệu lộ trình mang giờ máy và ngày dự kiến (hồ sơ `lo-trinh-du-lieu-ngay-du-kien`, hàng RM6c, T2)
+
+Gốc: trang Lộ trình của crm chỉ đọc khối dữ liệu (neo crm LT1e, crm-onehub PR #435); crm 16/10: 7 mốc đang chạy, 0/7
+có dự báo.
+
+- **Khối `lo-trinh-du-lieu` thêm khoá CHỈ THÊM, giữ `phien_ban` 2:** `hang.gio_may`, `moc.gio_may`, `moc.du_kien`,
+  `moc.qua_tai`. Mỗi chữ bằng đúng chữ trang in; `null` khi và chỉ khi trang không in chỗ ấy. `du_kien` là dự báo
+  ĐÓNG BĂNG — không đổi theo hôm nay.
+- **Tài liệu cho kho tiêu thụ** `skills/acceptance/references/lo-trinh-du-lieu.md`: bảng khoá `LO-TRINH-DU-LIEU-KHOA`,
+  mục «Giờ máy và ngày dự kiến», một dòng mới trong bảng «Đọc khoan dung».
+- **Không đổi:** phần trang người nhìn giống từng byte; nghĩa mọi khoá bản 2 giữ nguyên.
+- **Giới hạn đã khai:** 13 mục — đáng nhớ nhất: tài liệu vẫn nói bộ đọc xử «sáu ca» trong khi bảng có tám dòng
+  (Ngoài-2); mốc đã mở hết việc trước bản kit có giờ máy thì không có ngày dự kiến (crm 16/10: 2/7 mốc).
+- **Ai bị ảnh hưởng:** crm (trang Lộ trình). **Khi update:** vẽ lại `LO-TRINH.html`; crm làm LT1e.
+
+### Lượt chấm lại không tự dối (hồ sơ `cham-lai-khong-tu-doi`, hàng VA1, T2)
+
+Gốc: crm `goi-y-mo-ke-hoach` 16/10 (crm-onehub#375) — hai ca cùng ngày: DA3b lượt 3 mang sang E10 dù `expected` đã đổi
+21 → 22, thẻ hiện «0 đỏ»; K7 (Mac Studio) khoá thẻ «thước lệch» oan vì so lượt 2–3 bằng tham số lượt 1. Chủ kho nới
+luật (b) cho cửa sổ này 16/10 — không phải tiền lệ.
+
+- **Mang sang theo định nghĩa** (`feature-loop/scripts/carry-plan.mjs`): một eval chỉ được mang sang khi khối eval và chữ
+  tiêu chí của nó ở sha lượt nó thật chạy bằng hôm nay; khác, hay không đọc được định nghĩa ở lượt gốc → chạy lại. Tham
+  số lượt chấm nói lý do mỗi eval một dòng: «E1 không mang sang — định nghĩa eval đổi so với lượt gốc r1».
+- **Thước lệch và cây đổi so bằng tham số của chính lượt vừa chấm:** `thuoc-vat.mjs --write` tự chọn tệp `s4-args*.json`
+  mới nhất thuộc lượt cuối; tệp của lượt khác → thoát 2 «tệp args không thuộc lượt cuối»; không tệp nào khớp → thoát 2
+  «không tệp args nào trong hồ sơ thuộc lượt cuối» — cả hai không ghi byte nào.
+- **Không đổi:** eval không đổi định nghĩa vẫn mang sang như cũ; hồ sơ dùng một tệp `s4-args.json` ghi đúng các dòng như
+  cũ (AC-7).
+- **Giới hạn đã khai:** 7 mục — đáng nhớ nhất: dòng báo «không mang sang» phụ thuộc đúng chữ lý do của bên kia, đổi chữ
+  một phía thì dòng báo mất im (việc chạy lại vẫn đúng — Ngoài-7). Sổ đã mang dòng thước lệch sai sha (K7) KHÔNG được cứu
+  hồi tố: hồ sơ ấy vẫn khoá tới khi người chọn lối ra.
+- **Ai bị ảnh hưởng:** mọi kho chạy chấm lại. **Khi update:** cài `feature-loop` theo thẻ; không tệp chép CI.
+
+**Khoá cấu hình mới của cửa sổ:**
+
+| Khoá | Ở đâu | Mặc định | Ai bật |
+|---|---|---|---|
+| `lo_trinh.chan` | `_acceptance/config.yaml` | vắng = tắt | kho muốn chặn hồ sơ ngoài lộ trình; cần `road-map` bật ở `.claude/settings.json` (RM5) |
+| `chinh_sach` trên mốc `phat-hanh`: `tu_ap` · `tuoi_ngay` · `tran_ke_tiep` · `nhip_ngay` · `tran_ap` | tệp lộ trình | `tu_ap` vắng = chỉ đề xuất; `nhip_ngay` 1; `tran_ap` 5 | chủ kho, lúc mở mốc (RM2) |
+| `gio_may` trên hàng | tệp lộ trình | vắng = máy ước | tuỳ chọn (RM6) |
+
+Biến môi trường mới: `CLAUDE_PROJECTS_DIR`, `HAN_MUC_TEP` (RM6). Tệp khuôn mới: `_acceptance/<slug>/du-bao.json`, dòng
+run-log `kind:"gio-may"`, sổ `<tệp lộ trình>.so.jsonl`.
+
+**Đường đọc-cũ — không kho nào phải sửa hồ sơ:**
+
+- Khối dữ liệu (RM6c): bộ đọc mới gặp trang cũ → bốn khoá `null` + đúng một cờ «trang vẽ bằng bộ kit chưa có giờ máy
+  trong khối — … vẽ lại bằng bộ kit mới»; bộ đọc cũ của crm gặp trang mới không ném, không cảnh báo, khoá bản 2 y nguyên
+  (AC-7, đo trên bản chép thật của crm).
+- Dự báo (RM6, RM6b): hồ sơ trước RM6 không có `du-bao.json` → `--do-lech` in «chưa đóng băng dự báo — không đo được
+  lệch», trang không in dòng dự báo.
+- `gio_may`, `chinh_sach` trên mốc: bộ đọc 2.31 bỏ qua, không vỡ.
+- `lo_trinh.chan`: vắng = tắt; lưới mới mà thiếu `lib/chan-lo-trinh.cjs` ở kho bật → một dòng
+  `NOTE: luật chặn lộ trình NOT ENFORCED — thiếu node hoặc lib/chan-lo-trinh.cjs (chép lại lớp CI theo đợt phát hành)`.
+- Cửa tín hiệu: bộ đọc bỏ qua `gui_tu`; thư mục nguồn chưa có → thẻ coi là 0 ý.
+- Mang sang (VA1): không đọc được định nghĩa ở lượt gốc → chạy lại, không mang sang mù.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.32.0` sáu tệp. Luôn cần: `scripts/pre-merge-check.sh` (RM5 — gọi luật chặn khi
+  có bộ đọc; kho không bật không khác) và `scripts/product-map.mjs` (RM4 — tách hàm vẽ trang cho bước 5d). Kho khai
+  `lo_trinh`: `scripts/lo-trinh.mjs` (RM2, RM4, RM5, RM6, RM6b, RM6c) CÙNG LÚC với tệp mới `scripts/gio-may.mjs` —
+  `lo-trinh.mjs` nạp nó ngay lúc nạp, thiếu thì bước bản đồ đỏ `ERR_MODULE_NOT_FOUND`; và tệp mới
+  `lib/chan-lo-trinh.cjs` (RM5 — chỉ có tác dụng khi bật `lo_trinh.chan`; thiếu ở kho bật thì một dòng NOTE, không vỡ).
+  Kho khai `tin_hieu`: `scripts/tin-hieu.mjs` (RM3b). Không phụ thuộc mới ngoài hai tệp mới đã kể.
+- **Máy dev: cài `acceptance-gate`, `feature-loop` (và `dieu-phoi`, `road-map` nếu kho dùng) theo ĐÚNG THẺ ở MỌI phạm
+  vi**, rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.32.0 --root <bản clone kit
+  đã git fetch --tags>`. Sống là `TỔNG KẾT: ĐẠT …` VÀ không còn dòng `VÀNG may:` nào của các gói đã cài.
+- **Kho có lộ trình:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs --root .`) —
+  trang có thêm dòng giờ máy.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.32.0` (KC1) — dòng TỔNG KẾT ghi
+vào hồ sơ `release-2-32-0`.
+
+**crm, theo thứ tự** (nhận SAU 2.31.0; ghi chú nhận của các mốc trước vẫn áp):
+
+1. **Khi nào, ở đâu:** máy Mac Studio, sau khi đợt nhận 2.31.0 đã gộp và đo lại đường nền, ở quãng lặng: không lượt S4
+   nào đang chạy, không vòng nào giữa hai cổng. Chưa nhận 2.31.0 → làm trọn các bước 2.31.0 trước rồi nâng tiếp.
+2. **Cài theo thẻ `v2.32.0`:** gỡ rồi cài lại `acceptance-gate`, `feature-loop`, `dieu-phoi` (và `road-map` nếu đã cài)
+   ở mọi bản ghi (phạm vi `user`, gốc crm, từng cây phụ có phiên). Kiểm bằng `kiem-ban-cai.mjs --may --ref v2.32.0` —
+   ĐẠT và không còn dòng `VÀNG may:` của các gói đã cài. Không cài từ `main` giữa hai thẻ. Mở phiên MỚI sau khi cài.
+3. **Lớp chép CI từ thẻ** (`git archive v2.32.0`) — crm khai cả `lo_trinh` lẫn `tin_hieu`: chép lại sáu tệp
+   `scripts/pre-merge-check.sh`, `scripts/product-map.mjs`, `scripts/lo-trinh.mjs`, `scripts/gio-may.mjs`,
+   `lib/chan-lo-trinh.cjs`, `scripts/tin-hieu.mjs` CÙNG MỘT commit. Đo lại bằng đường nền sau khi chép.
+4. **Vẽ lại `LO-TRINH.html`** trong PR nâng kit — trang có dòng giờ máy; khối dữ liệu có `gio_may`, `du_kien`, `qua_tai`
+   cho trang Lộ trình của CRM (LT1e đọc chúng).
+5. **Gói `road-map`:** cài lại theo thẻ nếu đã cài — có thêm `/road-map:gui` (gửi ý vào cửa), `ghim`, `bo-ghim`,
+   `tra-lai`. Tự áp và luật chặn KHÔNG tự bật: chỉ khi chủ kho khai `tu_ap: true` trên mốc hay `lo_trinh.chan: true`.
+6. **Đợt `dieu-phoi` đang chạy** giữ bản lõi đã chép vào thư mục đợt — ý mới giữa đợt chỉ vào cửa từ đợt mở sau khi cài.
+7. **Đo trước → sau** (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`): trên cùng một cây, lưới
+   trước-merge và thẻ của các hồ sơ đang mở dưới 2.31.0 rồi 2.32.0 — phán quyết từng hồ sơ phải bằng nhau. Chỗ mốc hứa
+   đổi đều là TRÌNH BÀY (dòng giờ máy, dòng tự áp và cửa tín hiệu trên thẻ khởi động) hoặc CHẠY LẠI eval đổi định nghĩa
+   ở lượt chấm lại (VA1). Phán quyết khác ở bất kỳ đâu là tín hiệu.
+8. **Đọc ngưỡng ở vòng crm đầu tiên sau khi nhận:** trang Lộ trình của CRM hiện ngày dự kiến của ít nhất một mốc đang
+   chạy mà không hộp cảnh báo (RM6c) · 30 ngày lượt chấm lại không có dòng mang sang nào mà định nghĩa eval đã đổi, không
+   dòng thước lệch hay cây đổi nào mang sha của lượt khác (VA1) · ý gửi từ worktree nằm ở thư mục chính (RM3b) · đợt đầu
+   mở bằng gói sau khi cài: mọi ý không chặn có chỗ trong cửa, 0 «cần phán» (RM3).
+
+**Đường đo của các vòng, đọc ở mốc này:** ngưỡng RM6 («lệch ≤ 1 ngày ở mốc phát hành đầu tiên bắt đầu sau khi RM6 lên
+`main`») chưa đọc — mốc «Gói road-map hoàn tất theo B′» bắt đầu 15/10, trước khi RM6 gộp 16/10, nên theo chữ nó không
+phải mốc đo. Số tham khảo, `lo-trinh.mjs --do-lech` trên lộ trình kit 17/10: dự báo hoàn tất 17/10 (đóng băng 16/10) ·
+khép thật 17/10 · lệch 0 ngày · 2 hàng thêm sau đóng băng; 3/8 vòng có số đo giờ máy. Ngưỡng RM6b đọc được trên dữ
+liệu thật: đổi tên mốc sang dạng đã phát hành và ghi đè ngày vẫn in dòng dự báo. MC1 và RM1 (hẹn từ 2.31) đọc ở mốc
+kit 05/11.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng của từng vòng — đủ ở chín hợp đồng): `ap-chinh-sach-lo-trinh`
+13 · `kho-moi-cai-goi-road-map` 25 · `lo-trinh-gio-may` 6 · `du-bao-dong-bang-theo-ma-moc` 0 ·
+`kho-cam-ket-co-lo-trinh` 11 · `cua-tin-hieu-giua-chien-dich` 2 (+1 giới hạn đo) · `lo-trinh-du-lieu-ngay-du-kien` 13 ·
+`cua-tin-hieu-goc-moi-worktree` 5 (+1 giới hạn đo) · `cham-lai-khong-tu-doi` 7. Hạt giống mới của cửa sổ:
+`2026-10-15-hat-giong-co-gia-ho-so-tro-hang-sau-tu-ap` (RM2 Ngoài-11) · `2026-10-16-hat-giong-khoi-tao-lo-trinh-im-lang`
+(RM4 Ngoài-1, Ngoài-6) · `2026-10-16-hat-giong-tep-sinh-xung-dot-moi-lan-goi` (#365) ·
+`2026-10-17-hat-giong-so-chu-tieu-chi-nhieu-ma` (VA1) · `2026-10-17-hat-giong-args-tuong-minh-khong-doc-duoc` (VA1);
+ba hạt giống đã thành hàng trong chính cửa sổ (`…-gio-may-va-token-lo-trinh` → RM6, `…-khoi-du-lieu-gio-may` → RM6c,
+`…-du-bao-dong-bang-theo-ma-moc` → RM6b) và một đã đóng (`…-cua-tin-hieu-mot-goc` → RM3b).
+
+**Năm dòng số của luật (c)** — chín vòng có lượt chấm trong cửa sổ (giờ VN; nguồn: giờ commit `contract.md`,
+`usage-report.md`, `decisions.jsonl`, `run-log.jsonl` của hồ sơ; dòng 1 tính từ commit đặt `implemented` đầu tiên tới
+commit chữ ký Cổng Bằng chứng — RM6b tới commit `cleared`; ba khối token theo khuôn 2.25: chứng-minh-vật =
+machine+ui+judge+baseline · tìm-lỗi = review+refute · tổng hợp = triage+capture+synthesize; Cổng Đáng không tính, theo
+khuôn 2.26; bộ đọc token đối chứng trên BN1 và MC1 của 2.31 ra đúng số đã in):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `ap-chinh-sach-lo-trinh` (RM2, T3) | 3 g 02 · 3 (lượt 1 REJECT thật — hai lỗi trong hợp đồng; lượt 2 REJECT chỉ vì P179 + JR11c bắt tệp của chính hồ sơ) | 3 / 0 (4) | 0 (+1 ca biên: lượt 2) | 94 318 · 30,9 / 26,4 / 42,7 | 38 · 36 · 37 = 111 |
+| `kho-moi-cai-goi-road-map` (RM4, T2) | 13 g 12 · 3 (lượt 2 REJECT chỉ vì P179; chờ gộp main giữa lượt 1 và 2 ≈ 7 g 50) | 2 / 0 (3) | 0 (+1 ca biên: lượt 2) | 114 833 · 29,9 / 21,9 / 48,2 | 39 · 36 · 36 = 111 |
+| `lo-trinh-gio-may` (RM6, T2) | 13 g 05 · 2 (`implemented` đặt sớm, S3 còn sửa ≈ 6 g; chờ ký qua đêm 5 g 52) | 2 / 0 (3) | 0 | 43 303 · 35,9 / 17,0 / 47,1 | 38 · 36 = 74 |
+| `du-bao-dong-bang-theo-ma-moc` (RM6b, T2, máy thông) | 3 g 14 · 1 | 0 / 0 (3) — Cổng Phạm vi làn V, không mời ký | 0 | 21 263 · 50,1 / 24,7 / 25,2 | 38 |
+| `kho-cam-ket-co-lo-trinh` (RM5, T3) | 5 g 34 · 2 | 2 / 0 (4) — Gate 1.5 không có dòng duyệt trong sổ; có thì 3 / 0 | 0 | 64 578 · 36,9 / 21,3 / 41,8 | 39 · 40 = 79 |
+| `cua-tin-hieu-giua-chien-dich` (RM3, T2) | 13 g 44 · 2 (chờ trước lượt 1 7 g 34; chờ người qua đêm 3 g 35) | 2 / 1 (3) — ngoài thiết kế: chủ kho nâng phạm vi Ngoài-1/3 ở Cổng Bằng chứng lượt 1 | 0 | 73 802 · 40,0 / 24,0 / 36,0 | 37 · 40 = 77 |
+| `lo-trinh-du-lieu-ngay-du-kien` (RM6c, T2) | 6 g 12 · 2 (lượt 1 REJECT chỉ vì P93, 8/8 eval đạt; mốc so lấy `main` cục bộ cũ) | 2 / 0 (3) | 0 (+1 ca biên: lượt 1) | 66 497 · 33,9 / 27,6 / 38,5 | 37 · 40 = 77 |
+| `cua-tin-hieu-goc-moi-worktree` (RM3b, T2) | 15 g 26 · 2 (chờ ký qua đêm 7 g 38) | 1 / 0 (3) — Cổng Phạm vi làn V | **1** — lượt 1 BLOCKED: vùng 2 suite plugins quá 30 phút khi 11 bộ kiểm chạy song song (đo riêng 454 s xanh); cùng lượt có 4 lỗi đo thật | 67 692 · 34,6 / 27,2 / 38,2 | 78 · 41 = 119 |
+| `cham-lai-khong-tu-doi` (VA1, T2) | 8 g 46 · 3 (lượt 1 REJECT chỉ vì P93, 9/9 eval đạt; chờ ký qua đêm 4 g 55) | 2 / 0 (3) — Cổng Đáng và Phạm vi ký chung một câu | 0 (+1 ca biên: lượt 1) | 87 186 · 40,9 / 22,2 / 36,9 | 39 · 39 · 37 = 115 |
+
+Cộng chín vòng: **20 lượt chấm** (trung vị làm-xong→quyết-được 8 g 46) · **633 472 out-token** (chứng-minh-vật 35,4 % ·
+tìm-lỗi 23,7 % · tổng hợp 40,8 %) · **≈ 799 phút máy** · **17 lượt gọi người — 16 theo thiết kế, 1 ngoài thiết kế**
+(RM3), **0 vòng vượt trần** theo khuôn 2.26 · hạ tầng đốt **1 lượt chấm** (RM3b; 4 ca biên). Phiên chính không đo
+token. Số chạm: sổ không ghi trường riêng; mọi lượt có ghi đều là một câu gộp.
+
+**Đọc số:**
+
+- **4/20 lượt REJECT mà mọi eval của hợp đồng đều đạt** — bộ kiểm luật kho bắt tệp của chính hồ sơ (P179 ở RM2, RM4;
+  P93 ở RM6c, VA1; JR11c ở RM2). Bốn lượt tốn 132 974 token (21 %) và ≈ 148 phút máy. Hai bẫy đã ghi từ RM2 (15/10) mà
+  vẫn tái phạm 16/10: lời dặn không đủ làm nghiệm — ứng viên hạt giống, chưa mở.
+- **Tìm-lỗi 23,7 % token, mốc thứ tư liên tiếp tăng** (2.29: 15,9 · 2.30: 18,5 · 2.31: 20,1); chứng-minh-vật giảm 43,4 →
+  35,4 %, tổng hợp tăng 36,6 → 40,8 % theo số mục ngoài hợp đồng (RM4 33 mục, tổng hợp 48,2 %). Token trung bình mỗi
+  lượt giảm 39 061 → 31 674.
+- **Dòng 1 gần gấp đôi** (trung vị 4 g 32 → 8 g 46) trong khi máy chấm chỉ tốn 38–119 phút mỗi vòng: phần còn lại là
+  chờ ký qua đêm và chờ gộp main giữa các lượt. Ngoài lượt chấm, tám làn ghim lại có số tốn ≈ 298 phút (≈ 37 % phút S4)
+  — giá của việc gộp nối tiếp nhiều PR chạm cùng `scripts/lo-trinh.mjs` trong một cửa sổ.
+- **Gọi người ngoài thiết kế 2 → 1**, trung bình 1,9 lượt gọi mỗi vòng (2.31: 2,25). Ca duy nhất (RM3) cùng hình dạng
+  MC1/RM1 của 2.31: chủ kho nâng phạm vi ở Cổng Bằng chứng.
+
+**Điều kiện tin cậy:** (i) đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần:
+`git diff v2.31.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/` rỗng, cả 20 lượt chạy cùng một bản
+workflow. Gần đường verdict có một đổi ĐẦU VÀO: VA1 làm luật mang sang chặt hơn (`carry-plan.mjs`, `thuoc-vat.mjs`,
+`s4-args.mjs`) — lượt chấm lại có thể chạy thêm eval, đẩy dòng 4–5 lên nhẹ. (ii) Lượt chấm sai do phép-đo-tự-dối giữa
+hai mốc: **0** trên chín vòng của kit, nhưng **2 ca ở crm** ngày 16/10 (DA3b lượt 3 mang sang E10 đã đổi `expected`;
+K7 khoá «thước lệch» oan) — lỗi nằm ở mã kit, phán quyết sai tới thẻ người ký, và chính VA1 của mốc này là bản sửa.
+Đếm hai ca ấy thì **ngưỡng (a) chạm 2/2** và vế (ii) «không tăng» KHÔNG đạt (0 → 2). Vì vậy dòng 4–5 in để đọc, KHÔNG
+dùng để so với 2.31 ở mốc này.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | = | không mục nào chạm đoạn từ `implemented` tới chữ ký |
+| 2 | ↓ ngoài thiết kế | chủ kho thôi dời hàng bằng tay khi bật tự áp (RM2); ý mới giữa đợt vào cửa thay vì đánh thức giám sát (RM3) — cạnh *mù*, reality đọc |
+| 3 | = | không mục nào chạm hạ tầng lượt chấm |
+| 4 | ↑ nhẹ | lượt chấm lại chạy lại eval đổi định nghĩa thay vì mang sang (VA1) |
+| 5 | ↑ nhẹ / lượt chấm lại | cùng lý do dòng 4 |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (17/10).
+**N không tăng so với mốc 2.31.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.31.0 — 15/10/2026
 
 Cửa sổ 2.30.0 → 2.31.0 (14/10 sáng → 15/10 sáng) có **bốn hồ sơ được ký** — tập đối chiếu bằng
