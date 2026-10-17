@@ -17,3 +17,8 @@ Hướng: mọi bên ghi và bên đọc của cùng cửa dùng chung một g�
 ## Ngưỡng mở
 
 Một ý người gửi bị mất hay không được gom thật ở một kho tiêu thụ, hoặc chủ kho gọi tên.
+
+## Đóng
+
+Đóng bởi RM3b — hồ sơ `_acceptance/cua-tin-hieu-goc-moi-worktree/` (chủ kho gọi tên, mở ô 16/10): bên ghi người, bộ
+đọc, thẻ mở phiên giải thư mục nguồn theo thư mục chính qua `gocKhoChinh`; ca kiểm trên kho thử có hai worktree.

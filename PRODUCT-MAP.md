@@ -13,7 +13,7 @@ flowchart TD
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>125 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>38 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>39 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -57,6 +57,7 @@ flowchart TD
 - Lượt chấm lại không tự dối — eval đổi định nghĩa thì chạy lại, và thước của lượt nào so bằng tham số của chính lượt ấy (`cham-lai-khong-tu-doi`)
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
 - Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui (`cua-tin-hieu-giua-chien-dich`)
+- Ý gửi vào cửa tín hiệu từ bất kỳ worktree nào đều nằm ở thư mục chính của kho — mọi bộ đọc ở mọi worktree thấy cùng một tập, và dọn worktree không làm mất ý (`cua-tin-hieu-goc-moi-worktree`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)

@@ -1,0 +1,18 @@
+bộ máy: 66951212
+=== 1. Người gửi ý từ worktree, đúng dòng khối RM-GUI-LENH (--root .)
+đã ghi, xử ở mốc khép — tin-hieu/kho/nguoi-chu-kho-thu-1.json
+thoát 0
+=== 2. Tệp nằm ở đâu
+worktree: nguoi-chu-kho-thu-1.json 
+kho chính: 
+=== 3. Bộ đọc ở thư mục chính: []
+=== 4. Bộ đọc trong worktree: ['nguoi-chu-kho-thu-1']
+=== 5. Thợ ở worktree gửi việc phụ qua đợt (gốc kho của đợt = thư mục chính)
+trả lời đợt: ghi
+kho chính: thu-P1-1.json 
+worktree: nguoi-chu-kho-thu-1.json 
+=== 6. Hai bộ đọc: thư mục chính ['thu-P1-1'] · worktree ['nguoi-chu-kho-thu-1']
+=== 7. Dọn worktree
+fatal: '<tạm>/wt' contains modified or untracked files, use --force to delete it
+dọn --force: xong
+=== 8. Sau khi dọn, thư mục chính còn thấy: ['thu-P1-1']
