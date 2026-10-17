@@ -1,0 +1,139 @@
+schema_version: 1
+feature_slug: ho-so-da-ky-giu-tuoi
+# Ca đo sống ở tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs (ca GT<n> = AC-n) — khoá executors.test.ho_so_da_ky_giu_tuoi
+# chạy TRỌN tệp, mọi eval chung MỘT lệnh và ghim dòng PASS của chính nó: lệnh xanh mà thiếu dòng ghim là ĐỎ.
+# Kho thử git do code sinh trong lượt (gộp mang tiêu đề «Merge pull request #<n>», hồ sơ đã ký do lệnh ký thật dựng,
+# eval canh tệp vật bằng lệnh in tên ca đỏ ghim). «Bản trước vòng» = `git archive 43ed9e2b feature-loop lib scripts
+# skills commands hooks` bung trong lượt — mỗi chiều đỏ là bản ấy trên CÙNG kho thử, mỗi chiều im so bằng nhau với nó.
+# Mọi đường dẫn suy từ vị trí tệp ca. E8 chạy trên bộ hồ sơ thật của các kho có trên máy (tệp riêng, khoá riêng).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, scripts/pre-merge-check.sh, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT1". Kho thử H1–H4 và H6 theo ma trận viết trước; ca tự kiểm số hồ sơ = 5 và cả 5 đã ký
+      ở đỉnh. Lệnh không --write: tập «cũ vì khoảng» = ["H2","H6"], tồn đọng = ["H3","H4"], H1 vắng; BẰNG «cũ ở đỉnh»
+      trừ «cũ ở <từ>» của hai lượt pre-merge-check.sh không --base chạy tay (H6 chưa có ở <từ> tính là tươi). Đối chứng: băm mọi tệp dưới _acceptance/ trước và sau
+      bằng nhau. Chiều đỏ: bản trước vòng không có lệnh → ca ghim «khong co lenh giu tuoi» (exit 127 của node không tính
+      là xanh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, feature-loop/scripts/repin-lane.mjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT2". H2, H5 mỗi hồ sơ đúng một dòng repin mới, cùng run_id; nhật ký làn có
+      đúng MỘT lần chạy mỗi lệnh suite; verified_commit = sha đỉnh; khối human_signoff/human_override không đổi byte;
+      recheck-evidence.cjs thoát 0 trên cả hai. Đối chứng âm trên cùng kho: sửa tay sha một dòng repin → recheck thoát 1
+      với thông điệp ghim của nó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, feature-loop/scripts/repin-lane.mjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT3". H2 có repin mới; H5 không repin mới, verified_commit giữ; H5 đúng một
+      dòng nen-do với run_id, sha, tu, ket_cuc, lenh_do[0].eval = "E1", exit ≠ 0, thong_diep_bam 64 hex, trich chứa tên ca
+      đỏ ghim, evals_hash.E1. Chiều đỏ trong cùng ca: suite chung đỏ → 0 repin mới ở mọi hồ sơ, stderr chứa «suite chung
+      đỏ — không ghim hồ sơ nào». Chiều đỏ bản trước vòng: làn một-làn-N-hồ-sơ hôm nay để H2 không được ghim (ca tự kiểm).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, lib/evidence-core.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT4 — 5/5 ô". Ô chính: ket_cuc do-khoang, quy_ve = [{pr:12, sha_truoc: cha
+      đầu của gộp #12, sha_sau: gộp #12}], bảng chứa «đỏ do PR #12». Ô hai gộp → nhieu-pr, quy_ve có pr 12 và 13. Ô đỏ cùng
+      băm ở <từ> → do-san-truoc-khoang, quy_ve rỗng. Ô eval không paths → quy_ve liệt mọi gộp có mã, ly_do chứa «eval
+      không khai paths». Ô 5 (thêm 18/10): kho thử có thư mục phụ thuộc git bỏ qua — đỏ sẵn cùng thông điệp →
+      do-san-truoc-khoang, không «#12»; thiếu hẳn phụ thuộc ở cây tạm (mã 127, «Cannot find module») → ha-tang có ghi chú «không
+      chạy lại được ở đầu khoảng», không «#12». Chiều đỏ: bản lượt 1 gọi tên #12. Ca tự kiểm số ô = 5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, lib/nhan-canh-gay.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT5 — 4/4 ô". Mỗi ô {mã 127 · mã ≥ 128 · xanh khi chạy lại trên đỉnh}:
+      ket_cuc ha-tang, quy_ve rỗng, tu và sha của dòng sổ = sha đầu khoảng và đỉnh, bảng chứa «không
+      quy được — hạ tầng» và cả hai sha ấy, dòng sổ và bảng KHÔNG chứa «#12» dù gộp #12 chạm
+      paths của E1. Đối chứng dương cùng kho: E1 đỏ thật vì #12 → bảng chứa «#12». Ô 4 (thêm 18/10): dòng nền
+      ket_cuc ha-tang + khoá bật + vòng khác cùng ca cùng thông điệp → repin-lane thoát 1, stderr «nhãn không gắn: dòng nền là đỏ
+      hạ tầng — không làm nền»; repin mang do_san trỏ dòng ấy → pre-merge VIOLATION nêu vế đó, recheck 1. Chiều đỏ: luật lượt 1 gắn nhãn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/repin-lane.mjs, lib/do-san-tren-nen.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT6 — 7/7 ô". Ô khớp (cùng ca, cùng thông điệp): thoát 0, repin có do_san.E1.run_id = run_id nền,
+      evals_exit.E1 ≠ 0, mục Re-pin chứa « · đỏ sẵn trên nền: E1←<run_id>». Sáu ô đỏ {thêm E2 đỏ · E1 đỏ ở ca khác · E1 cùng ca
+      khác thông điệp («expected 3 got 4» → TypeError) · khối E1 đổi · nền chỉ trên nhánh vòng · khoá vắng}: thoát 1, không repin mới, có repin-do, stderr nêu đúng vế hỏng (chuỗi ghim
+      từng ô). Ca phụ: khoá = "co" → thoát 2, stderr chứa «feature_loop.do_san_tren_nen» và «true | false». Chiều đỏ: bản
+      trước vòng ở ô khớp thoát 1, không repin mới.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, scripts/gate-card.js, scripts/product-map.mjs, lib/do-san-tren-nen.cjs, lib/nhan-canh-gay.cjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT7 — 5/5 ô". Ô hợp lệ: pre-merge in «NOTE [H5]: đỏ sẵn trên nền — E1 (nền
+      <run_id>, PR #12)», không dòng VIOLATION nào cho H5; recheck thoát 0; thẻ và bản đồ của H5 chứa «đỏ sẵn trên nền» và
+      không chứa «ĐẠT». Bốn ô giả {run_id không có dòng nền · băm khác · khoá tắt lúc đọc · dòng nền chỉ do nhánh vòng tự thêm, không có ở
+      điểm tách với nhánh chính}: pre-merge có VIOLATION [H5]
+      nêu vế hỏng, recheck thoát 1. Phá thử hàm chung trên bản sao: ép hàm export của lib/do-san-tren-nen.cjs luôn
+      «không đạt» → repin-lane thoát 1, pre-merge có VIOLATION [H5], recheck thoát 1 ở ô hợp lệ; ép luôn «đạt» → cả ba nhận
+      nhãn ở ô băm khác. Mỗi phía ghim thông điệp riêng — đo quan hệ, không đếm dòng nạp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi_cac_kho
+    # GT8 đo 17/10: 58,9 phút (crm 286 hồ sơ ≈55 phút) — vượt trần chờ mặc định 30 phút của lượt chấm.
+    long_running: 80
+    paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, scripts/gate-card.js, scripts/product-map.mjs, feature-loop/scripts/repin-lane.mjs, lib/**, tests/scripts/ho-so-da-ky-giu-tuoi-cac-kho.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT8" và mỗi kho có trên máy một dòng «<kho>: <n> hồ sơ so, 0 khác» với n > 0;
+      kho vắng in «<kho>: không có trên máy — bỏ» (ít nhất acceptance-gate-kit có mặt, nếu không ca FAIL). Trên kho thử
+      AC-6 khoá vắng và false: mã thoát + dòng sổ (bỏ ts, sha, id lượt) bằng bản trước vòng. Chiều đỏ: bản sao bản mới
+      đảo mặc định khoá thành bật → ca nêu kho và dòng khác đầu tiên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [lib/do-san-tren-nen.cjs, feature-loop/scripts/repin-lane.mjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT9". Bản trước vòng trên hồ sơ có nen-do + repin mang do_san: không stack
+      trace ở stderr của bốn công cụ, mã thoát thuộc {0, 1}; pre-merge có VIOLATION mã eval ≠ 0 cho H5, recheck thoát 1;
+      đầu ra bốn công cụ khi có dòng nen-do BẰNG đầu ra khi xoá riêng dòng ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi
+    paths: [feature-loop/scripts/giu-tuoi.mjs, tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs]
+    expected: >
+      exit 0; stdout có dòng bắt đầu "PASS: GT10". Bảng có đúng một dòng mỗi hồ sơ với năm kết cục ghim chữ {«tươi lại» ·
+      «đỏ do PR #12» · «nhiều PR cùng chạm» · «đỏ sẵn trước khoảng» · «không quy được — hạ tầng»}, dòng cuối khớp
+      /^tồn đọng \d+ hồ sơ không ghim · tổng giờ máy /; --json cùng tập kết cục; git rev-parse HEAD và tên nhánh trước =
+      sau; cây bẩn ngoài _acceptance/ → thoát 2, stderr chứa «cây bẩn ngoài _acceptance/».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.ho_so_da_ky_giu_tuoi_bo_cu
+    paths: [feature-loop/scripts/repin-lane.mjs, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, lib/**]
+    expected: >
+      exit 0 — các bộ ca sẵn có của làn ghim lại (repin-lane*.test.mjs) và lưới chống trôi chứng cứ ghim
+      (premerge-repin.test.mjs, stale-by-paths.test.mjs) xanh trên bản mới: chế độ ghim từng hồ sơ không đổi hành vi khi
+      không bật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
