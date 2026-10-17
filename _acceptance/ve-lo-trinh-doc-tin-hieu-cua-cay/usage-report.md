@@ -77,3 +77,43 @@ wall: 3293s
 - **claude-haiku-5-5**: 12 agent · 32 calls · out 10,704 · in 64 · cache_read 630,755 · cache_create 591,447
 - **claude-opus-5-5**: 3 agent · 19 calls · out 978 · in 38 · cache_read 750,676 · cache_create 150,269
 
+### S4 round 2 (thử lại) — wf_47465c39-045 (19 agent, 26,118 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 6 | 8,127 | 12 | 306,866 | 72 |
+| review:conventions | claude-opus-5-5 | 12 | 3,202 | 24 | 614,571 | 91 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,747 | 4 | 2,869 | 566 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 7 | 2,406 | 14 | 210,868 | 710 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,139 | 4 | 2,869 | 507 |
+| triage | claude-sonnet-5-5 | 2 | 1,563 | 4 | 37,343 | 17 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,510 | 4 | 37,937 | 85 |
+| review:measurement | claude-opus-5-5 | 4 | 1,384 | 8 | 140,145 | 29 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 516 | 4 | 37,946 | 213 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 480 | 4 | 37,963 | 7 |
+| machine:node tests/scripts/ve-lo-trinh-doc-tin-h | claude-haiku-5-5 | 2 | 472 | 4 | 37,969 | 21 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 8 | 389 | 16 | 303,696 | 636 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 261 | 4 | 37,993 | 99 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 216 | 4 | 37,938 | 5 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 186 | 4 | 37,937 | 9 |
+| baseline:diffBase | claude-sonnet-5-5 | 2 | 177 | 4 | 37,694 | 200 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 169 | 4 | 37,993 | 88 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 147 | 4 | 33,854 | 7 |
+| review:bugs | claude-opus-5-5 | 5 | 27 | 10 | 176,560 | 39 |
+
+
+wall: 3050s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 177 | 37,694 | 200 | 14:37:54 | 14:41:14 |
+| machine | 12 | 11,491 | 823,978 | 2947 | 14:37:54 | 15:27:01 |
+| review | 3 | 4,613 | 931,276 | 91 | 14:37:54 | 14:39:25 |
+| triage | 1 | 1,563 | 37,343 | 17 | 15:27:03 | 15:27:20 |
+| capture | 1 | 147 | 33,854 | 7 | 15:27:22 | 15:27:29 |
+| synthesize | 1 | 8,127 | 306,866 | 72 | 15:27:32 | 15:28:44 |
+
+- **claude-sonnet-5-5**: 4 agent · 12 calls · out 10,014 · in 24 · cache_read 415,757 · cache_create 198,040
+- **claude-opus-5-5**: 3 agent · 21 calls · out 4,613 · in 42 · cache_read 931,276 · cache_create 185,131
+- **claude-haiku-5-5**: 12 agent · 35 calls · out 11,491 · in 70 · cache_read 823,978 · cache_create 567,069
+

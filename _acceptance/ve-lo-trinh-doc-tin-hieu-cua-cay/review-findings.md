@@ -2,9 +2,25 @@
 
 ## Trong hợp đồng
 
+(không có)
+
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
+
+- **E5 gắn bộ kiểm hồi quy plugins vùng 2 vào AC-4, mà hợp đồng AC-4 không hứa điều đó; chú thích «không đổi phép đo của tiêu chí nào» không đúng**
+  Người dùng thấy gì: Thẻ nghiệm thu của tiêu chí «kho thường vẽ y hệt trước» có thêm một bước kiểm chung cho cả bộ công cụ, nên nếu nơi khác trong kit hỏng thì tiêu chí này có thể báo trượt dù lời hứa của nó vẫn đúng. Người ký có thể đọc nhầm nguyên nhân khi thấy tiêu chí đó đỏ.
+  Căn cứ: Hậu quả nhẹ: chỉ có thể làm người đọc thẻ hiểu nhầm lý do một tiêu chí đỏ, không mất dữ liệu và không ảnh hưởng người dùng cuối; ghi rõ là bước mượn chỗ thì rẻ và đảo được bất cứ lúc nào.
+  file: `_acceptance/ve-lo-trinh-doc-tin-hieu-cua-cay/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **E3 trong evals.yaml chưa cập nhật theo ca đo đã sửa ở lượt 1: thiếu VT-3-do2 và phép ghim số câu của chân --cau**
+  Người dùng thấy gì: Thẻ nghiệm thu cho nhóm bộ đọc tương tác chưa kể hết các phép kiểm mới được thêm, nên người ký đọc thẻ sẽ thấy ít hơn những gì máy thực sự kiểm. Việc kiểm thật vẫn chạy đầy đủ.
+  Căn cứ: Rủi ro rất thấp vì phép kiểm thật vẫn chạy và vẫn đòi xanh; chỉ phần mô tả trên thẻ thiếu vài ý, không ai mất gì và có thể bổ sung sau bất cứ lúc nào.
+  file: `_acceptance/ve-lo-trinh-doc-tin-hieu-cua-cay/evals.yaml`
+  severity: low
+  Đề xuất: wont-fix
 
 - **Tài liệu tham chiếu hứa sai chỗ người còn thấy ý chưa commit: /road-map:xem không hiện tín hiệu nào (r1)**
   Người dùng thấy gì: Tài liệu nói ý chưa commit vẫn xem được bằng lệnh xem lộ trình, nhưng lệnh đó thực tế không hiện ý nào. Chủ kho có thể tưởng ý của mình đang hiện ở đó trong khi nó chỉ hiện ở thẻ khởi động và các lệnh gom tín hiệu.
@@ -34,4 +50,8 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+## Chưa adversarial-verify (refuter chết)
+
+(không có)
+
+⚠ Cụm ngoài vùng phủ: 2/2 lỗi rơi vào file không bộ đo nào phủ (_acceptance/ve-lo-trinh-doc-tin-hieu-cua-cay/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
