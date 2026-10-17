@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4f1a50b0c30acb9132dd712f81a6d596f1d843a8
+verified_commit: 5c372a06d1adc7058a49c22e57887165799eec84
 human_signoff: Manh Phan 2026-10-17
 ---
 
@@ -188,3 +188,7 @@ none — every multi-run eval is uniform
 Round 1: lệnh suite plugins vung:1 đỏ và 13 finding chưa xử lý — verdict REJECT. Returned to implementation.
 Round 2: sửa mục trong hợp đồng (mũi executor của AC-1 chỉ đổi một trường); lượt chấm lại PASS, E1–E8 mang sang từ round 1.
 Round 3: chạy lại E1–E8 và toàn bộ lệnh suite trên commit 4f1a50b0 (S4-r2 PASS); E7b mang sang từ round 1 — verdict PASS.
+
+### Re-pin lần 1 — 2026-10-17, do gộp main 94bd6e66 sau RM3b
+run_id: repin-20261017T002140Z-55141
+sha: 5c372a06d1adc7058a49c22e57887165799eec84 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
