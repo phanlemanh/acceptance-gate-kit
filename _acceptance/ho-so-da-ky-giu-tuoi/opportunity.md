@@ -164,3 +164,5 @@ thật thì đỏ · độ đặc hiệu: chạm thứ không phải vật thì 
 - K-B, K-C, K-D — cửa sổ kế (luật chiều rộng b).
 - Sửa `mocDong` cho `at` chỉ có ngày (K-E) — giới hạn đã khai, ngưỡng: ≥1 hồ sơ chưa ký / làn V / machine-cleared đổi phán quyết.
 - Hạn «đỏ sẵn quá N ngày» — Later.
+- Bất biến «lúc gộp» nằm trong hồ sơ đã ký (ca E18 `ve-sinh-do-san-onehub`, 17/10) — K-A chỉ giúp một phần (nhãn), gốc là
+  luật cho bên viết hồ sơ: hạt giống `docs/plans/2026-10-18-hat-giong-bat-bien-luc-gop-trong-ho-so-da-ky.md` (18/10).
