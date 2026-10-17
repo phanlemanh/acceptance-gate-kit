@@ -16,13 +16,14 @@ evals:
     cmd: config:executors.test.road_map_de_dung
     paths: [scripts/cat-luot.mjs, scripts/lo-trinh.mjs, tests/scripts/road-map-de-dung.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: RD-1", "PASS: RD-1-do", "PASS: RD-1-do2". RD-1: ma trận chín ca viết sẵn (mã chỉ ở mốc ngoài →
-      thoát 1, một dòng `[moc-ngoai-da-bo]` nêu bốn đích + «không ở chỗ nào» cho mã ấy · mã ở mốc ngoài và ở da_bac → thoát 0,
-      bảng phủ «→ không làm trong kho» · da_bac khác đợt → không tính phủ · phu chuỗi → lỗi nêu da_bac · da_bac thiếu ly_do → lỗi · da_bac
-      và một hàng → «ở hai chỗ» · mốc ngoài ngoài đợt → một dòng gom cảnh báo, thoát 0 · hàng dung_tren mốc ngoài →
-      `[cho-van-hanh]` · phat-hanh mang phu → lỗi) mỗi ca đúng mã thoát + dòng ghim; in «9/9 ca»; CO_TEN không có
-      van-hanh-lap-chua-tu-phuc-vu. RD-1-do: bản sao vẫn tính phủ cho mốc ngoài → FAIL ghim «mã tính phủ ở mốc ngoài». RD-1-do2:
-      bản sao không đọc da_bac làm chỗ phủ → FAIL ghim «không làm trong kho không phải chỗ phủ».
+      exit 0; stdout có "PASS: RD-1", "PASS: RD-1-do", "PASS: RD-1-do2". RD-1: ma trận bảy ca viết sẵn (mã chỉ ở mốc ngoài →
+      thoát 1, một dòng `[moc-ngoai-da-bo]` nêu bốn chỗ đến + «không ở hàng hay mục chờ điều kiện nào» cho mã ấy · mã ở mốc
+      ngoài và ở một hàng → thoát 1 chỉ vì `[moc-ngoai-da-bo]`, bảng phủ đặt mã ở hàng · mã chỉ ở da_bac → thoát 1 «không ở
+      hàng hay mục chờ điều kiện nào» · mốc ngoài ngoài đợt → một dòng gom cảnh báo, thoát 0 · hàng dung_tren mốc ngoài →
+      `[cho-van-hanh]` · phat-hanh mang phu → lỗi · đợt chỉ có mốc ngoài → «đợt chưa cắt») mỗi ca đúng mã thoát + dòng ghim;
+      in «7/7 ca»; CO_TEN không có van-hanh-lap-chua-tu-phuc-vu; bảng phủ không có chỗ «mốc ngoài». RD-1-do: bản sao vẫn tính
+      phủ cho mốc ngoài → FAIL ghim «mã tính phủ ở mốc ngoài». RD-1-do2: bản sao không báo mốc ngoài trong đợt → FAIL ghim
+      «mốc ngoài lọt lượt cắt».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -30,13 +31,13 @@ evals:
     cmd: config:executors.test.road_map_de_dung
     paths: [skills/cat-luot/SKILL.md, skills/acceptance/references/lo-trinh-template.json, skills/acceptance/references/pham-vi-template.md, CONTEXT.md, docs/adr/0026-*.md, scripts/cat-luot.mjs, tests/scripts/road-map-de-dung.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: RD-3", "PASS: RD-3-trang", "PASS: RD-3-do". RD-3: khối CAT-LUOT-VAN-HANH chứa đủ bốn đích (ngay
-      của mốc + ly_do ở da_bac · opportunity.md + observed · da_bac · chan_troi + mo_lai_khi) và không chứa «loai: ngoai» như
-      đích; tập tên ở CAT-LUOT-BANG-CO BẰNG CO_TEN; khuôn lộ trình 0 mốc loai ngoai, ≥ 1 da_bac có dot + phu + ly_do; khối
-      CAT-LUOT-RANG chạy NGUYÊN VĂN (AG = gốc kit) trên khuôn + bản phạm vi mẫu → thoát 0, 0 «lỗi:», 0 «cảnh báo:», ≥ 1 dòng
-      «→ không làm trong kho»; RD-3-trang: trang vẽ từ khuôn có tiêu đề «Không làm trong kho» và mỗi ly_do của da_bac là chữ
-      nhìn thấy; CONTEXT.md mục «Mốc ngoài» có chữ «đã bỏ» và trỏ ADR 0026; tệp ADR 0026 có câu «mất chỗ chung xem ngày của
-      người». RD-3-do: bản sao khuôn giữ mốc V1 loai ngoai → FAIL ghim «khuôn còn mốc ngoài: V1».
+      exit 0; stdout có "PASS: RD-3", "PASS: RD-3-do". RD-3: khối CAT-LUOT-VAN-HANH chứa đủ bốn chỗ đến (ngay của mốc phát
+      triển · opportunity.md + observed · «Ra khỏi kho» ở mô tả PR · chan_troi + mo_lai_khi) và không chứa «loai: ngoai» như
+      đích; bước 1 có câu chỉ chép mã việc phát triển; tập tên ở CAT-LUOT-BANG-CO BẰNG CO_TEN; khuôn lộ trình 0 mốc loai
+      ngoai; bản phạm vi mẫu không mã nào mà khuôn lộ trình không đặt ở hàng hay chờ điều kiện; khối CAT-LUOT-RANG chạy NGUYÊN
+      VĂN (AG = gốc kit) trên khuôn + bản phạm vi mẫu → thoát 0, 0 «lỗi:», 0 «cảnh báo:»; CONTEXT.md mục «Mốc ngoài» có chữ
+      «đã bỏ» và trỏ ADR 0026; ADR 0026 có hai câu đánh đổi «mất chỗ chung xem ngày của người» và «răng không bắt được việc
+      vận hành bị quên». RD-3-do: bản sao khuôn giữ mốc V1 loai ngoai → FAIL ghim «khuôn còn mốc ngoài: V1».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -44,15 +45,16 @@ evals:
     inputs:
       - skills/cat-luot/SKILL.md
       - skills/acceptance/references/lo-trinh-template.json
-      - _acceptance/road-map-de-dung/mau/pham-vi-crm.md
+      - _acceptance/road-map-de-dung/mau/dau-vao-crm.md
       - _acceptance/road-map-de-dung/mau/dap-an.json
     question: >
-      Chỉ dùng bốn tệp trong inputs. `dap-an.json` là cách cắt ĐÚNG bản phạm vi mẫu `pham-vi-crm.md` (dựng từ việc của người
-      thật trên lộ trình crm) theo luật mới «bỏ mốc ngoài». Câu hỏi không phải đáp án có đúng không, mà SKILL cắt lượt có DẪN
-      một phiên cắt tới đáp án ấy không. Với TỪNG mã của bản phạm vi: nêu chỗ của mã trong đáp án (hàng · chờ điều kiện · đã
-      bác, kèm ngay + vi_sao của mốc nhận hạn · ngưỡng trong ô cơ hội · mo_lai_khi · tu_phuc_vu nếu có) và trích bước hoặc
-      khối của SKILL buộc phiên cắt đặt mã ấy đúng chỗ đó. Mã FAIL khi SKILL im lặng, nước đôi (hai chỗ đều hợp luật), hay
-      dẫn tới một mốc `loai: ngoai`. PASS khi mọi mã có trích dẫn quyết được chỗ của nó.
+      Chỉ dùng bốn tệp trong inputs. `dau-vao-crm.md` là văn bản tự do của đội sản phẩm (dựng từ việc thật trên lộ trình crm);
+      `dap-an.json` là cách xử lý ĐÚNG theo luật 17/10 «bỏ mốc ngoài»: mục nào vào bản phạm vi và đứng ở hàng hay chờ điều
+      kiện, mục nào ra khỏi kho (liệt «Ra khỏi kho» ở mô tả PR, không chép vào bản phạm vi), sự kiện nào thành ngày của mốc
+      phát triển nào, đo giá trị nào vào ô cơ hội của hàng nào. Câu hỏi không phải đáp án có đúng không, mà SKILL cắt lượt có
+      DẪN một phiên cắt tới đáp án ấy không. Với TỪNG mục của đầu vào: nêu cách xử lý trong đáp án và trích bước hoặc khối
+      của SKILL buộc phiên cắt làm đúng như thế. Mục FAIL khi SKILL im lặng, nước đôi (hai cách đều hợp luật), hay dẫn tới
+      một mốc `loai: ngoai`. PASS khi mọi mục có trích dẫn quyết được cách xử lý của nó.
     evidence_required: [run_id, verdict, proposals]
   - id: E5
     criterion: AC-5
@@ -139,11 +141,13 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.test.road_map_de_dung
-    paths: [scripts/cat-luot.mjs, _acceptance/road-map-de-dung/mau/pham-vi-crm.md, _acceptance/road-map-de-dung/mau/dap-an.json, tests/scripts/road-map-de-dung.test.mjs]
+    paths: [scripts/cat-luot.mjs, _acceptance/road-map-de-dung/mau/dau-vao-crm.md, _acceptance/road-map-de-dung/mau/dap-an.json, tests/scripts/road-map-de-dung.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: RD-4-dap-an", "PASS: RD-4-dap-an-do". RD-4-dap-an: răng cắt lượt chạy trên mau/pham-vi-crm.md +
-      mau/dap-an.json → thoát 0, 0 dòng «lỗi:», tập mã của bảng phủ BẰNG tập mã bản phạm vi, in «n/n mã», ≥ 1 mã ở mỗi chỗ
-      (hàng · chờ điều kiện · không làm trong kho). RD-4-dap-an-do: bản sao đáp án đặt một mã ở hai chỗ → FAIL ghim «ở hai chỗ».
+      exit 0; stdout có "PASS: RD-4-dap-an", "PASS: RD-4-dap-an-do". RD-4-dap-an: bản phạm vi và lộ trình dựng từ
+      mau/dap-an.json, răng cắt lượt → thoát 0, 0 dòng «lỗi:»; tập mục của dau-vao-crm.md BẰNG hợp rời của (mã bản phạm vi)
+      và (danh sách ra_khoi_kho của đáp án), không mục nào ở cả hai, in «n/n mục»; ≥ 1 mục ở mỗi nơi (hàng · chờ điều kiện ·
+      ra khỏi kho) và ≥ 1 mốc nhận hạn. RD-4-dap-an-do: bản sao đáp án bỏ một mục vận hành khỏi ra_khoi_kho → FAIL ghim
+      «mục đầu vào không có chỗ».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-7

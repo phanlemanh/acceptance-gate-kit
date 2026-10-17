@@ -29,7 +29,7 @@ sửa trang của mình; trang trong crm là việc của crm, ghi một dòng �
 
 | Phần | Loại | Vì sao loại ấy |
 |---|---|---|
-| A. Bỏ mốc ngoài (thu về đúng cách cắt lượt — chủ kho 17/10) | **TRỪ** | Gỡ một chỗ của bảng phủ; chỗ thay là khối `da_bac` sẵn có, không khoá mới. Cờ vàng đọc-cũ là nghĩa vụ của luật «đổi schema phải có đường đọc-cũ», không phải tính năng mới. Chữ tiêu đề mục trên trang là Hỏi-2. |
+| A. Bỏ mốc ngoài (thu về đúng cách cắt lượt — chủ kho 17/10) | **TRỪ** | Gỡ một chỗ của bảng phủ, không chỗ thay: việc vận hành ra khỏi kho. Không đường đọc riêng cho mốc ngoài cũ — cắt lại bằng skill mới. |
 | B. Trang đọc được trong một phút + một mô hình hiển thị chung | **Sửa lỗi** | Trang hứa «đọc một phút» (hồ sơ `trang-lo-trinh-doc-mot-phut`); khối Mốc in mã trần là trang không giữ lời hứa. Trang crm và trang kit trình cùng dữ liệu theo hai luật — người thấy hai lộ trình (chủ kho 17/10). Khối dữ liệu thêm năm khoá trong cùng phiên bản (luật 16/10), có đường đọc-cũ. |
 | C. Luật chỉ việc phát triển trên mọi lần đọc | **Sửa lỗi** | Luật chủ kho 11/10 đã chốt; răng chỉ chạy một đường nên lời khai «lộ trình chỉ chứa việc phát triển» sai trên tệp thật. |
 | D. Ngày dự kiến nối tiếp theo làn | **Sửa lỗi** | Ngày dự kiến hôm nay sai khi đọc chung (hạt giống 17/10). |
@@ -40,42 +40,32 @@ sửa trang của mình; trang trong crm là việc của crm, ghi một dòng �
 ### 4.1 A — bỏ mốc ngoài
 
 **Luật mới (thay vế «vận hành → mốc ngoài» của S3b, chủ kho 17/10 «bỏ mốc ngoài»).** Việc của người không thành mục nào trên
-lộ trình. Bốn đích, theo việc ấy là gì:
+lộ trình. Bốn chỗ đến, theo việc ấy là gì:
 
-1. **Sự kiện của người tạo HẠN** (ngày công bố, ngày dùng thật, mùa báo cáo) → `ngay` của chính mốc phát triển bị ràng buộc. Mã
-   của bản phạm vi nói sự kiện ấy → `da_bac`, `ly_do` nêu sự kiện và tên mốc nhận hạn (không thêm khoá mới trên mốc — sổ, thay
-   dòng `vi_sao` sau phản biện).
+1. **Sự kiện của người tạo HẠN** (ngày công bố, ngày dùng thật, mùa báo cáo) → `ngay` của chính mốc phát triển bị ràng buộc.
 2. **Đo giá trị** (phiên nghiệm thu, đọc số sau N ngày) → ngưỡng + ngày đọc trong `opportunity.md` của hàng; kết quả ghi bằng
-   `/acceptance-gate:observed` (`da-cham-boi-thuc-te`, ADR 0020). Mã → hàng ấy (`phu`).
-3. **Vận hành thuần** (gửi danh sách, đào tạo, gom góp ý) → ra khỏi kho (lịch của chủ kho, kênh điều phối). Mã → `da_bac` mang
-   `dot` + `phu` + `ly_do` «vận hành — ra khỏi kho».
+   `/acceptance-gate:observed` (`da-cham-boi-thuc-te`, ADR 0020).
+3. **Vận hành thuần** (gửi danh sách, đào tạo, gom góp ý) → ra khỏi kho: phiên cắt KHÔNG chép nó vào bản phạm vi; liệt dưới
+   dòng «Ra khỏi kho» ở mô tả PR cắt lượt để người gộp PR thấy (chủ kho chọn ở Cổng Phạm vi 17/10 — thay lối cất vào `da_bac`).
 4. **Hàng cần KẾT QUẢ của một việc vận hành** → `chan_troi` (Chờ điều kiện) + `mo_lai_khi` nêu việc ấy.
 
-Luật dữ liệu giả (S3b luật 4) và luật «vận hành lặp lại → tự phục vụ» (S3b luật 5) GIỮ — chúng là về hàng, không về mốc. Luật 5
-đổi đích: vận hành lặp lại vẫn đề xuất hàng tự phục vụ; bản thân việc lặp ra khỏi kho như đích 3.
+Luật dữ liệu giả (S3b luật 4) giữ. Vận hành lặp lại: việc tự phục vụ là mã phát triển (hàng hoặc Chờ điều kiện); bản thân việc
+lặp ra khỏi kho như chỗ 3.
 
-**Bảng phủ** giữ «mọi mã ở đúng một chỗ», ba chỗ: hàng · chờ điều kiện · **không làm trong kho** (mục `da_bac` cùng `dot`, mang
-`phu`). Bỏ hẳn chỗ thứ ba thì mã vận hành của bản phạm vi không có chỗ nào và răng đỏ oan; thêm khoá mới (`ra_khoi_kho`) là
-CỘNG. **Câu hỏi cho chủ kho (Hỏi-2):** trên trang, tiêu đề mục `da_bac` đổi «Đã bác» → «Không làm trong kho», mỗi mục kèm `ly_do`
-— để việc vận hành của đội không đọc thành «bị bác». Máy soạn theo khuyến nghị này.
+**Bảng phủ** còn hai chỗ — hàng · Chờ điều kiện — «mọi mã PHÁT TRIỂN ở đúng một chỗ». **Răng cắt lượt:** mốc `loai: ngoai` của
+đợt đang cắt → `lỗi: … [moc-ngoai-da-bo]` nêu bốn chỗ đến; mốc ngoài ngoài đợt → một dòng gom cảnh báo; `[cho-van-hanh]` giữ;
+`[van-hanh-lap-chua-tu-phuc-vu]` và luật `ai`/`lap`/`tu_phuc_vu` của mốc ngoài gỡ. **Giới hạn khai:** răng không bắt được một
+việc vận hành bị phiên cắt quên (danh sách «Ra khỏi kho» là lời khai) — chỗ dạy đúng là SKILL, giám khảo AC-4 chấm chỗ đó.
 
-**Răng cắt lượt** (`scripts/cat-luot.mjs`):
-- Mốc `loai: ngoai` của đợt đang cắt → `lỗi: mốc <nhãn> [moc-ngoai-da-bo]: …` kèm bốn đích ở trên (một câu mỗi đích). Mã nó
-  mang KHÔNG tính phủ — nên mã chỉ ở mốc ấy báo «không ở chỗ nào».
-- Mốc ngoài ngoài đợt → một dòng gom `cảnh báo: [moc-ngoai-da-bo] <k> mốc ngoài đợt …` (khuôn gom S3b), mã thoát không đổi.
-- `[cho-van-hanh]` (hàng đứng trên mốc ngoài) giữ cho tệp cũ; `[van-hanh-lap-chua-tu-phuc-vu]` gỡ (mốc ngoài không còn là chỗ hợp
-  lệ để nhắc). Các luật kiểm `ai`/`lap`/`tu_phuc_vu` của mốc ngoài gỡ cùng.
+**Lộ trình đã có (cắt trước luật 17/10) là đồ cũ** — chủ kho 17/10: «đáng lẽ phải cắt lộ trình bằng chính skill và luật mới là
+xong». Kit KHÔNG dựng đường đọc riêng cho mốc ngoài cũ: chúng hiện như mọi mốc (chỉ khi có việc gắn, AC-11 — 18/18 mốc ngoài crm
+không gắn việc nên tự không hiện) và mang cờ của bộ đọc chung (AC-8). Cắt lại là việc của kho: crm khi nhận mốc, lộ trình kit do
+điều phối.
 
-**Trang, khối dữ liệu, bản xem chữ — không luật riêng cho mốc ngoài (chủ kho chọn ở Cổng Phạm vi 17/10, «Đồng ý» thu A về
-đúng cách cắt lượt).** Mốc ngoài còn trong tệp được đối xử như mọi mốc: hiện khi có việc gắn (mô hình hiển thị chung, AC-11) —
-đo 17/10: 17/17 mốc ngoài OKR crm và 1/1 Kho tài liệu không gắn việc nên tự không hiện; chỉ một mốc ngoài gắn việc, ở lộ trình
-kit, vòng này dọn luôn. Lời nhắc dọn là cờ `moc-ngoai-da-bo` của bộ đọc chung (phần C, AC-8): một dòng gom nêu tên từng mốc và
-bốn chỗ đến. Đó cũng là đường đọc-cũ — tệp cũ đọc được, mã thoát không đổi.
-
-**SKILL + khuôn + từ điển + ADR:** khối `CAT-LUOT-VAN-HANH` viết lại theo bốn đích; khuôn `lo-trinh-template.json` bỏ mốc V1
-(mã C1 của bản phạm vi mẫu vào `da_bac` với `ly_do` «vận hành — ra khỏi kho»); bảng cờ SKILL bỏ
-`van-hanh-lap-chua-tu-phuc-vu`, thêm `moc-ngoai-da-bo`; CONTEXT.md mục «Mốc ngoài» thành mục đã bỏ (giữ để đọc tệp cũ, `_Avoid_`
-ghi việc mới); ADR 0026 một đoạn.
+**SKILL + khuôn + từ điển + ADR:** khối `CAT-LUOT-VAN-HANH` viết lại theo bốn chỗ đến; bước 1 dặn chỉ chép mã việc phát triển;
+khuôn `lo-trinh-template.json` bỏ mốc V1; bản phạm vi mẫu bỏ mã vận hành `C1`; bảng cờ SKILL bỏ `van-hanh-lap-chua-tu-phuc-vu`,
+thêm `moc-ngoai-da-bo`; CONTEXT.md mục «Mốc ngoài» thành mục đã bỏ; ADR 0026 một đoạn, hai đánh đổi: mất chỗ chung xem ngày của
+người · răng không bắt được việc vận hành bị quên.
 
 ### 4.2 B — tên trước mã
 

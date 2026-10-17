@@ -3,11 +3,11 @@
  "will_do": [
   {
    "id": "AC-1",
-   "p": "Sẽ báo lỗi khi một lượt cắt còn đặt việc của người vào mốc ngoài, chỉ rõ bốn chỗ đúng để chuyển nó tới; việc vận hành và sự kiện tạo hạn được xếp vào mục «Không làm trong kho»."
+   "p": "Sẽ báo lỗi khi một lượt cắt còn tạo mốc cho việc của người, chỉ rõ bốn chỗ đúng: ngày của mốc phát triển, ô cơ hội của việc, «Ra khỏi kho» ở mô tả PR, hay «Chờ điều kiện»; bảng phủ chỉ còn việc phát triển."
   },
   {
    "id": "AC-3",
-   "p": "Sẽ dạy lại cách cắt lượt theo bốn chỗ đến mới, sửa khuôn mẫu, từ điển và ghi một quyết định kiến trúc nêu rõ cái giá: mất chỗ chung xem ngày của người."
+   "p": "Sẽ dạy lại cách cắt lượt theo luật 17/10 (chỉ chép việc phát triển vào bản phạm vi), sửa khuôn mẫu, từ điển và ghi quyết định kiến trúc nêu hai cái giá: mất chỗ chung xem ngày của người, và bộ kiểm không bắt được việc vận hành bị quên."
   },
   {
    "id": "AC-5",
@@ -93,11 +93,11 @@
  "gap_probe_plain": [
   {
    "i": 0,
-   "p": "Bản nháp từng thêm một trường mới «vì sao» trên mốc mà lại xếp phần này là bớt đi — đã bỏ trường ấy, lý do của hạn ghi ở mục «Không làm trong kho» sẵn có."
+   "p": "Bản nháp từng thêm một trường mới «vì sao» trên mốc mà lại xếp phần này là bớt đi — đã bỏ trường ấy."
   },
   {
    "i": 1,
-   "p": "Đặt việc của đội vào mục tên «Đã bác» có thể làm đội hiểu là bị từ chối — đây là chữ người đọc thấy nên chuyển thành câu Hỏi-2 cho anh."
+   "p": "Đặt việc của đội vào mục «Đã bác» có thể làm đội hiểu là bị từ chối — anh đã chọn: việc vận hành không vào bản phạm vi, ghi «Ra khỏi kho» ở mô tả PR."
   },
   {
    "i": 2,
