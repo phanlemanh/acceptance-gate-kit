@@ -72,7 +72,9 @@ export function khoaTinHieu(cfgText) {
 
 // ── Cửa của một kho ─────────────────────────────────────────────────────────────────────────────────────────────
 // null = kho không khai cửa (hoặc không đọc được cấu hình) → bên gọi giữ hành vi cũ, từng byte.
-export function docCua(gocKho) {
+// `gocNguon` (tuỳ chọn): gốc giải thư mục nguồn khi khác gốc đọc cấu hình — lệnh người chạy trong worktree đọc cấu
+// hình của nhánh mà ghi vào thư mục chính (hồ sơ cua-tin-hieu-goc-moi-worktree). Vắng → như cũ.
+export function docCua(gocKho, { gocNguon } = {}) {
   if (!gocKho) return null;
   let t;
   try {
@@ -82,7 +84,8 @@ export function docCua(gocKho) {
   }
   const k = khoaTinHieu(t);
   if (!k) return null;
-  return { goc: gocKho, nguon: path.resolve(gocKho, k.nguon[0]) };
+  const g = gocNguon ?? gocKho;
+  return { goc: g, nguon: path.resolve(g, k.nguon[0]) };
 }
 
 export const thanTep = ({ phien, loai, hang, noi_dung, luc }) => `${JSON.stringify({ phien, loai, hang, noi_dung, luc }, null, 2)}\n`;

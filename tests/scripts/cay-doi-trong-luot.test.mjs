@@ -257,8 +257,10 @@ if (want('LC4')) {
     // (3) dòng của lần thử TRƯỚC: lượt mới (ts khác) chạy sau
     await luotCham(h1.d, { ...h1.a, invokedAt: '2099-01-01T00:00:00Z' });
     if (cg(h1.d, 'PASS').trangThai === 'cay-doi') sai.push('(3) dong cua lan thu truoc van ra cay-doi');
-    // (4) dòng mồ côi: luot_ts không khớp tally nào
-    const h4 = await hoSoCayDoi({ tiem: d => { A(d, 'src/a.js'); commit(d, ['src/a.js']); const a = docArgs(d); a.invokedAt = '2001-01-01T00:00:00Z'; writeFileSync(ARGS(d), JSON.stringify(a)); } });
+    // (4) dòng mồ côi: luot_ts không khớp tally nào — hình dạng THẬT là lượt chết không kịp ghi
+    // round-tally, tức tệp args MỚI HƠN tally cuối. Bản trước dựng bằng invokedAt CŨ hơn (2001) —
+    // đúng hình dạng lỗi K7 mà hồ sơ cham-lai-khong-tu-doi đóng (thuoc-vat nay dừng có tên ở đó).
+    const h4 = await hoSoCayDoi({ tiem: d => { A(d, 'src/a.js'); commit(d, ['src/a.js']); const a = docArgs(d); a.invokedAt = '2098-01-01T00:00:00Z'; writeFileSync(ARGS(d), JSON.stringify(a)); } });
     if (dongSo(h4.d, 'cay-doi').length !== 1) sai.push('(4) doi chung: khong sinh dong mo coi');
     if (cg(h4.d, 'PASS').trangThai === 'cay-doi') sai.push('(4) dong mo coi ra cay-doi tren the');
     // (5) kèm thước lệch → lech thắng

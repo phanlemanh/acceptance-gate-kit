@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: eefb3deb2c0ff8c16ab14c5d4575c099e340b911
+verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -176,3 +176,7 @@ Round 2: 8 eval AC-1..AC-8 mang sang từ round 1 (delta không chạm paths c�
 ### Re-pin lần 1 — 2026-10-16, do gộp main bd821d8d (#364 RM6b, #367 RM5) sau chữ ký
 run_id: repin-20261016T132503Z-59987
 sha: eefb3deb2c0ff8c16ab14c5d4575c099e340b911 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
+run_id: repin-20261017T024130Z-65967
+sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

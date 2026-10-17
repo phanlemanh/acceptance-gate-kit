@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 77fb89bda18316f9e0d4a6399faaffd9cbfd4724
+verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
 human_signoff: Manh Phan 2026-10-16
 ---
 
@@ -191,3 +191,7 @@ Round 2: E1–E9 và 11 lệnh suite đều xanh trên cây 342e632e; 2 finding 
 ### Re-pin lần 1 — 2026-10-16, do gộp main e584885b (RM4 #362) + giờ máy về dòng dưới câu giao (CI LTT-san)
 run_id: repin-20261015T235317Z-59615
 sha: 77fb89bda18316f9e0d4a6399faaffd9cbfd4724 · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
+run_id: repin-20261017T024130Z-65967
+sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

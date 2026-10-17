@@ -8,6 +8,8 @@
 //
 // stdout JSON: { anchorSha, carriedEvals:[{id,runId,fromRound,verifiedAt,cmd}], carriedFindings:[{…,tepDoi}],
 //               rerun:[id...], reason:{id:"vì sao"} }
+// Mang sang khi ĐỦ: paths không chạm diff-fix · lượt trước xanh · định nghĩa (khối eval + chữ
+// tiêu chí) ở lượt gốc BẰNG hôm nay — đọc lại bằng `git show <sha lượt gốc>` (cham-lai-khong-tu-doi).
 // exit 0 = có kế hoạch carry; exit 3 = KHÔNG carry (dòng round trước thiếu
 // field sha, hoặc sha không thuần nhất — lịch sử cũ, full re-run là mặc định
 // an toàn); exit 2 = usage/file lỗi. Suite commands KHÔNG thuộc phạm vi file
@@ -17,6 +19,7 @@ import path from 'node:path';
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 
 // MỘT bộ đọc dùng chung với `s4-args.mjs` cho CÙNG trường `paths:` của CÙNG
 // `evals.yaml`. Trước 2.11.0 tệp này tự bóc nháy bằng mệnh đề cũ, nên hai bên
@@ -35,15 +38,21 @@ function readers(agRoot) {
   const ung = [agRoot, path.resolve(HERE, '..', '..')].filter(Boolean)
     .map(r => path.resolve(r, 'lib', 'evidence-core.cjs'));
   const req = createRequire(import.meta.url);
-  let core = null; const vet = [];
+  let core = null; let corePath = null; const vet = [];
   for (const c of ung) {
     if (!fs.existsSync(c)) { vet.push(`${c} (không có)`); continue; }
-    try { core = req(c); break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
+    try { core = req(c); corePath = c; break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
   }
   if (!core) die3(`không nạp được lib/evidence-core.cjs — đã thử: ${vet.join(' · ')}; truyền --ag-root <gốc plugin acceptance-gate>`);
   for (const n of ['parseFlowValue', 'machineEvalIdsSkipped', 'evalListsOf'])
     if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} — truyền --ag-root trỏ bản acceptance-gate có hàm ấy`);
-  SHARED = core;
+  // Chữ tiêu chí đọc bằng CÙNG bộ bóc của thẻ và lint (lib/ac-line.cjs, cạnh evidence-core) —
+  // không tự viết bộ thứ hai cho dấu vân tay định nghĩa.
+  const acPath = path.join(path.dirname(corePath), 'ac-line.cjs');
+  let ac = null;
+  try { ac = req(acPath); } catch (e) { die3(`không nạp được ${acPath}: ${String(e.message).split('\n')[0]}`); }
+  if (typeof ac.parseACBlock !== 'function') die3('acceptance-gate quá cũ: lib/ac-line.cjs không có parseACBlock');
+  SHARED = { ...core, parseACBlock: ac.parseACBlock };
   return SHARED;
 }
 function die3(msg) { process.stderr.write(`carry-plan: ${msg}\n`); process.exit(2); }
@@ -134,7 +143,62 @@ function crossLayerACs(contract) {
   return out;
 }
 
-export function plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot }) {
+// ── Dấu vân tay ĐỊNH NGHĨA của một eval (hồ sơ cham-lai-khong-tu-doi) ──────────
+// Mang sang chỉ đúng khi eval lượt này HỎI CÙNG câu với lần nó thật sự chạy. `paths` trả lời
+// «vật đo có đổi không», không trả lời «thước có đổi không»: crm goi-y-mo-ke-hoach (DA3b, 16/10)
+// đổi `expected` của E10 21→22 cùng chữ AC-10 giữa lượt 2 và 3, paths không đổi, E10 mang màu
+// xanh cũ sang và tiêu chí mới không có bằng chứng. Dấu vân tay = KHỐI eval nguyên văn (mọi
+// trường — cmd · expected · executor · expected_exit · criterion · …; khoảng trắng cuối dòng
+// và dòng trống không tính) + chữ tiêu chí nó phục vụ, đọc bằng bộ bóc chung. Khối đổi bất kỳ
+// byte nghĩa nào → không mang: sai về phía chạy lại, không bao giờ về phía mang nhầm.
+export function khoiEval(text, id, R) {
+  const dong = String(text == null ? '' : text).split('\n');
+  let dau = -1; let thut = 0;
+  for (let i = 0; i < dong.length; i += 1) {
+    const m = dong[i].replace(/\t/g, '  ').match(/^(\s*)-\s+id:\s*(\S.*?)\s*$/);
+    if (m && R.parseFlowValue(m[2]).value === id) { dau = i; thut = m[1].length; break; }
+  }
+  if (dau === -1) return null;
+  const than = [dong[dau].trimEnd()];
+  for (let j = dau + 1; j < dong.length; j += 1) {
+    const l = dong[j].replace(/\t/g, '  ');
+    if (!l.trim()) continue;
+    if (l.search(/\S/) <= thut) break;   // mục kế (`- id:`), khoá cấp trên, hay chú thích ngoài khối
+    than.push(l.trimEnd());
+  }
+  return than.join('\n');
+}
+export function chuTieuChi(contractText, acId, R) {
+  if (!acId) return '';
+  return R.parseACBlock(String(contractText || '')).filter(a => a.id === acId).map(a => a.gwt).join(' \u2016 ');
+}
+// Đọc lại định nghĩa ở MỘT sha — cache theo sha, null khi không đọc được (sha không còn,
+// tệp vắng ở sha ấy). Dùng cho CLI; `plan()` nhận hàm này để test thuần không cần git.
+export function boDocDinhNghiaGit(evalsPath, contractPath) {
+  const thuMuc = path.dirname(path.resolve(evalsPath));
+  let goc;
+  try { goc = fs.realpathSync(execFileSync('git', ['-C', thuMuc, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()); }
+  // Không phải kho git → không có lịch sử nào để so: trả null, `plan()` bỏ phép so và CLI nói ra
+  // một dòng. Ca này không có ngoài đời — s4-args đòi git (invokedSha) — chỉ fixture thuần chạm.
+  catch { return null; }
+  const rel = p => { try { return path.relative(goc, fs.realpathSync(p)).split(path.sep).join('/'); } catch { return null; } };
+  const relEvals = rel(evalsPath); const relContract = rel(contractPath);
+  const cache = new Map();
+  const show = (sha, r) => {
+    if (!r || !/^[0-9a-f]{7,64}$/i.test(String(sha || ''))) return null;
+    try { return execFileSync('git', ['-C', goc, 'show', `${sha}:${r}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }); }
+    catch { return null; }
+  };
+  return sha => {
+    if (!cache.has(sha)) {
+      const evalsText = show(sha, relEvals);
+      cache.set(sha, evalsText == null ? null : { evalsText, contractText: show(sha, relContract) || '' });
+    }
+    return cache.get(sha);
+  };
+}
+
+export function plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot, dinhNghiaTai }) {
   const R = readers(agRoot);
   // Ô tự khai `status: not-run` không vào kế hoạch carry: CÙNG hàm với s4-args và làn
   // ghim lại (lib/evidence-core.cjs), không chép luật. null = eval-yaml.cjs vắng → dừng có tên.
@@ -183,10 +247,24 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
     if (hit) { rerun.push(e.id); reason[e.id] = `diff-fix chạm ${hit}`; continue; }
     const fromRound = typeof prev.carried_from_round === 'number' ? prev.carried_from_round : prev.round;
     let verifiedAt = prev.ts;
+    // Lượt GỐC = lượt eval thật sự chạy. Dòng mang sang trỏ về nó bằng carried_from_round + run_id;
+    // so định nghĩa với lượt gốc, không với lượt mang — sổ đời cũ có thể đã mang nhầm một lần
+    // (DA3b: E10 mang ở lượt 3 từ lượt 2), so với lượt mang thì nhầm ấy được hợp thức hoá mãi.
+    // Sổ thiếu dòng lượt gốc (cắt cụt) → so với sha của dòng mang: yếu hơn nhưng không mù.
+    let shaGoc = prev.sha;
     if (typeof prev.carried_from_round === 'number') {
       const origin = evalLines.find(l => l.evalId === e.id && l.round === prev.carried_from_round && l.run_id === prev.run_id);
-      if (origin) verifiedAt = origin.ts;
+      if (origin) { verifiedAt = origin.ts; if (origin.sha) shaGoc = origin.sha; }
     }
+    // <<<DINH-NGHIA-DOI
+    if (typeof dinhNghiaTai === 'function') {
+      const goc = dinhNghiaTai(shaGoc);
+      const khoiGoc = goc ? khoiEval(goc.evalsText, e.id, R) : null;
+      if (khoiGoc == null) { rerun.push(e.id); reason[e.id] = `không đọc được định nghĩa ở lượt gốc r${fromRound}`; continue; }
+      if (khoiGoc !== khoiEval(evalsText, e.id, R)) { rerun.push(e.id); reason[e.id] = `định nghĩa eval đổi so với lượt gốc r${fromRound}`; continue; }
+      if (chuTieuChi(goc.contractText, e.criterion, R) !== chuTieuChi(contractText, e.criterion, R)) { rerun.push(e.id); reason[e.id] = `tiêu chí ${e.criterion} đổi chữ so với lượt gốc r${fromRound}`; continue; }
+    }
+    // DINH-NGHIA-DOI>>>
     carried.push({ id: e.id, runId: prev.run_id, fromRound, verifiedAt, cmd: prev.cmd || e.cmd || '' });
     reason[e.id] = 'paths không chạm diff-fix, round trước xanh';
   }
@@ -243,7 +321,9 @@ if (isMain) {
   const round = parseInt(a.round, 10);
   if (!Number.isInteger(round) || round < 2) { process.stderr.write('carry-plan: --round phải là số nguyên ≥ 2 (round fix)\n'); process.exit(2); }
   const deltaFiles = (a['delta-files'] || '').split(',').map(s => s.trim()).filter(Boolean);
-  const r = plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot: a['ag-root'] });
+  const dinhNghiaTai = boDocDinhNghiaGit(a.evals, a.contract);
+  if (!dinhNghiaTai) process.stderr.write('carry-plan: evals.yaml không nằm trong kho git — không so được định nghĩa eval với lượt gốc (chỉ paths quyết mang sang)\n');
+  const r = plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot: a['ag-root'], dinhNghiaTai });
   if (r.noCarry) {
     // Thông điệp phải nói ĐÚNG phạm vi: chỉ EVAL mất carry. Bản trước nói trống
     // «full re-run», đọc như thể mọi đường carry đều tắt.

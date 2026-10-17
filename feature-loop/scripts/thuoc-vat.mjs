@@ -204,6 +204,53 @@ export function dongThuocLech(tep, { round, ts, sha }) {
   return JSON.stringify(o);
 }
 
+// ── Tệp args của LƯỢT CUỐI (hồ sơ cham-lai-khong-tu-doi) ─────────────────────────────────
+// Ảnh chụp thước/cây là của MỘT lượt; so nó với cây lúc này chỉ có nghĩa khi lượt ấy là lượt
+// vừa chấm. Bản trước luôn đọc `<hồ sơ>/s4-args.json` — crm K7 (16/10) lưu tham số lượt 2–3
+// vào `s4-args-r2.json`/`-r3.json` (25 tệp kiểu ấy ở crm-onehub), nên lượt 2–3 bị so bằng ảnh
+// lượt 1: dòng `thuoc-lech` mang sha lượt 1, dòng `cay-doi` muộn cho lượt 1, thẻ khoá oan.
+// Khoá ghép lượt = `ts` của dòng round-tally cuối = `invokedAt` của tệp args (bộ chấm ghi ts
+// từ đúng trường đó), kèm sha khi cả hai có. Tệp args là của lượt cuối khi KHỚP (cùng ts) hoặc
+// MỚI HƠN (invokedAt sau ts ấy: lượt chết không kịp ghi round-tally — dòng `cay-doi` mồ côi mà
+// s4-args đòi hoàn lại vẫn phải được ghi). Cũ hơn = tệp của một lượt đã qua → không dùng. Luật:
+//   · sổ chưa có round-tally → đường cũ từng byte (`--args` hoặc `<hồ sơ>/s4-args.json`);
+//   · `--args` tường minh mà cũ hơn lượt cuối → dừng có tên (mã 2), không đoán thay người;
+//   · không cờ → trong `<hồ sơ>/s4-args*.json` lấy tệp hợp lệ MỚI NHẤT (cùng giờ thì
+//     `s4-args.json`); hồ sơ có tệp args mà không tệp nào thuộc lượt cuối → dừng có tên;
+//     không có tệp args nào → đường cũ (hồ sơ đời cũ).
+// <<<TEP-ARGS-CUA-LUOT
+const khopLuot = (a, cuoi) => Boolean(a) && a.invokedAt === cuoi.ts
+  && !(typeof cuoi.sha === 'string' && typeof a.generated_sha === 'string' && a.generated_sha !== cuoi.sha);
+const moiHonLuot = (a, cuoi) => Boolean(a) && typeof a.invokedAt === 'string' && a.invokedAt > cuoi.ts;
+// TEP-ARGS-CUA-LUOT>>>
+function chonTepArgs({ root, ws, explicit, dong, die }) {
+  const doc = p => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } };
+  const tallies = dong.filter(o => o.kind === 'round-tally');
+  const cuoi = tallies[tallies.length - 1];
+  const tenLuot = cuoi ? `round ${cuoi.round}, ts ${cuoi.ts}${cuoi.sha ? `, sha ${String(cuoi.sha).slice(0, 12)}` : ''}` : '';
+  const rel = p => path.relative(root, p) || p;
+  if (explicit) {
+    const argsPath = path.resolve(explicit); const argsTep = doc(argsPath);
+    if (cuoi && cuoi.ts && argsTep && !khopLuot(argsTep, cuoi) && !moiHonLuot(argsTep, cuoi))
+      die(`tệp args không thuộc lượt cuối: ${rel(argsPath)} là round ${argsTep.round} (invokedAt ${argsTep.invokedAt}, sha ${String(argsTep.generated_sha || '').slice(0, 12)}) — lượt cuối trong run-log là ${tenLuot}. Truyền --args <tệp args của lượt vừa chấm>; không ghi gì.`);
+    return { argsPath, argsTep };
+  }
+  const macDinh = path.join(ws, 's4-args.json');
+  if (!cuoi || !cuoi.ts) return { argsPath: macDinh, argsTep: doc(macDinh) };
+  let ung = [];
+  try { ung = fs.readdirSync(ws).filter(f => /^s4-args.*\.json$/.test(f)).sort().map(f => path.join(ws, f)); } catch { ung = []; }
+  if (!ung.length) return { argsPath: macDinh, argsTep: null };
+  // Nhiều tệp hợp lệ (crm: `-r2` khớp tally r2, `-r3` mới hơn vì lượt 3 chết) → tệp MỚI NHẤT là
+  // lần gọi cuối; chọn tệp khớp thì dòng cay-doi mồ côi của lượt chết mất. Cùng giờ → `s4-args.json`.
+  const hopLe = ung.map(p => ({ p, a: doc(p) })).filter(x => khopLuot(x.a, cuoi) || moiHonLuot(x.a, cuoi))
+    .sort((x, y) => (x.a.invokedAt !== y.a.invokedAt ? (x.a.invokedAt < y.a.invokedAt ? 1 : -1) : (x.p === macDinh ? -1 : y.p === macDinh ? 1 : 0)));
+  const chon = hopLe[0];
+  if (!chon)
+    die(`không tệp args nào trong hồ sơ thuộc lượt cuối (${tenLuot}) — đã xét ${ung.map(rel).join(', ')}. Truyền --args <tệp args của lượt vừa chấm>; không ghi gì.`);
+  if (chon.p !== macDinh) console.error(`thuoc-vat: dùng ${rel(chon.p)} — tệp args của lượt cuối (${tenLuot})`);
+  return { argsPath: chon.p, argsTep: chon.a };
+}
+
 function docRunLog(p) {
   if (!fs.existsSync(p)) return [];
   return fs.readFileSync(p, 'utf8').split('\n').filter(Boolean)
@@ -316,6 +363,8 @@ if (isMain) {
   catch (e) { die(`lệnh git thất bại: ${String(e.stderr || e.message).split('\n')[0]}`); }
 
   if (flags.write) {
+    // Tệp args PHẢI là của lượt vừa chấm — chọn TRƯỚC khi ghi byte nào (cham-lai-khong-tu-doi).
+    const { argsPath, argsTep } = chonTepArgs({ root, ws, explicit: flags.args, dong: docRunLog(runLogPath), die });
     const rounds = docRunLog(runLogPath).map(l => l.round).filter(n => typeof n === 'number');
     const round = rounds.length ? Math.max(...rounds) : 0;
     let line;
@@ -326,9 +375,6 @@ if (isMain) {
     console.error(`thuoc-vat: da noi dong thuoc-vat vao ${runLogPath} (round ${round})`);
     // Thước chỉ-đọc (AC-3): so ảnh chụp trong tệp args với cây lúc này. Lệch = lượt ấy
     // chấm bằng thước khác thước lúc sinh args → không dùng được; chấm lại lượt mới.
-    const argsPath = flags.args ? path.resolve(flags.args) : path.join(ws, 's4-args.json');
-    let argsTep = null;
-    try { argsTep = JSON.parse(fs.readFileSync(argsPath, 'utf8')); } catch { argsTep = null; }
     const ts = new Date().toISOString().slice(0, 19) + 'Z';
     let maThoat = 0;
     const chup = (argsTep && argsTep.thuocChup) || null;
@@ -339,7 +385,7 @@ if (isMain) {
       catch (e) { die(`không chụp lại được thước: ${String(e.message).split('\n')[0]}`); }
       if (lech.length) {
         let dl;
-        try { dl = dongThuocLech(lech, { round, ts, sha: chup.sha }); }
+        try { dl = dongThuocLech(lech, { round: Number.isInteger(argsTep.round) ? argsTep.round : round, ts, sha: chup.sha }); }
         catch (e) { die(String(e.message)); }
         fs.appendFileSync(runLogPath, dl + '\n');
         console.error('thuoc-vat: thuoc lech trong luot cham — luot nay khong dung duoc, cham lai luot moi');

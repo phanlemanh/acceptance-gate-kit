@@ -14,13 +14,6 @@
       ]
     },
     {
-      "ten": "crm: làn R1 vá xong trên production",
-      "ngay": "2026-10-12",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
-    },
-    {
       "ten": "Phát hành 2.27.0 — đóng gói xong Điều phối – Thợ (DP1–DP4, lõi DP6, DP7), tác tử chấm không cầm bút (A1), bộ đọc khoan dung (R1), máy tự định tuyến Ngoài-n (A3), cùng các hàng gộp sớm L3, G3, X2, S3, S3b, C1; gộp hai mốc dự kiến 18/10 và 25/10; đã phát hành 12/10",
       "ngay": "2026-10-12",
       "loai": "phat-hanh",
@@ -57,13 +50,6 @@
       ]
     },
     {
-      "ten": "crm: công bố OKR quý 4 (chủ kho 13/10 đổi tên — người dùng đã dùng thử từ trước, bỏ ràng buộc «không đổi engine trước mốc này»)",
-      "ngay": "2026-10-14",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
-    },
-    {
       "ten": "crm nhận kit 2.28.0 HÔM NAY (chủ kho duyệt tăng tốc 13/10, Mac Studio giữ): lộ trình nhận → PR nhận kit theo CHANGELOG → #373 chuyển gói dieu-phoi; sau #373 MacBook Pro gộp LT1b (#371) rồi LT2 (#374)",
       "ngay": "2026-10-13",
       "loai": "ngoai",
@@ -71,13 +57,6 @@
       "hang": [
         "P1"
       ]
-    },
-    {
-      "ten": "crm: mở đợt r2 từ gói dieu-phoi bản 2.28.0 (đợt thử thứ nhất của gói — Mac Studio giữ)",
-      "ngay": "2026-10-14",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
     },
     {
       "ten": "OneFlow: đợt thử thứ hai trên gói bản kit mới nhất có kiểm bản cài (2.30.0 trở lên) — đo «chạy được mà không sửa lõi»; chủ kho giao M5 13/10",
@@ -130,7 +109,7 @@
       ]
     },
     {
-      "ten": "Gói road-map hoàn tất theo B′ — ngày tính từ ước 32–40 giờ máy (RM2 8–10 · RM4 5–6 · RM5 6–7 · RM3 6–8 + M5 · RM6 5–6 · cắt bản 1,5–2); chủ kho gọi tên làm luôn 15/10",
+      "ten": "Phát hành 2.32.0 — ĐÃ PHÁT HÀNH 17/10, tag v2.32.0 = f7d95695 (PR #373): gói road-map hoàn tất theo B′ (RM2 tự áp chính sách · RM4 kho mới có sẵn lộ trình · RM5 chặn mở việc ngoài kế hoạch · RM3 + RM3b cửa tín hiệu một gốc · RM6 + RM6b + RM6c giờ máy và ngày dự kiến) + lượt chấm lại không tự dối (VA1); ngày tính từ ước 32–40 giờ máy, chủ kho gọi tên làm luôn 15/10, điểm dừng chủ kho chốt 17/10",
       "ngay": "2026-10-19",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
@@ -140,9 +119,18 @@
         "RM5",
         "RM3",
         "RM6",
+        "RM3b",
         "RM6b",
-        "RM6c"
+        "RM6c",
+        "VA1"
       ]
+    },
+    {
+      "ten": "crm nhận kit 2.32.0 — gói road-map + bản vá chấm lại",
+      "ngay": "2026-10-18",
+      "loai": "ngoai",
+      "ai": "Mac Studio",
+      "hang": []
     }
   ],
   "hang": [
@@ -430,6 +418,7 @@
       "ma": "A3",
       "nhom": "bot-goi-nguoi",
       "hang": "T2",
+      "slug": "ngoai-n-tu-dinh-tuyen",
       "dung_tren": [],
       "cau_giao": "«Hồ sơ T2 xanh đi tiếp không mời ký khi máy đã ghi sổ mọi mục ngoài hợp đồng chính nó đề xuất ghi hạn chế hay bỏ qua — người chỉ thấy mục cần mở việc mới»",
       "vi_sao": "Gốc: crm/_acceptance/okr-mau-xoa-cau-hinh — T2, PASS, 5 mục Ngoài-n đều đề xuất known-limits mà vẫn phải ký Cổng 2. Đợt crm sau-14-10: làn V (xanh-sạch) bắn 0/71 hồ sơ, 59 chỉ vì Ngoài-n chưa định tuyến; người định tuyến trùng đề xuất máy 357/376 (94,9 %). Hợp nhất đề 2 + 3 của hạt giống PR #301; số đo: docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §3. Chủ kho đồng ý mở 11/10; lựa chọn bật theo kho.",
@@ -536,6 +525,7 @@
       "ma": "DP8",
       "nhom": "dieu-phoi",
       "hang": "T2",
+      "slug": "dieu-phoi-on-dinh-r2",
       "dung_tren": [
         "DP7"
       ],
@@ -661,6 +651,22 @@
       "ghi_chu": "Máy MacBook Pro giữ, PHỐI HỢP M5: chạm gói dieu-phoi (vùng M5) — khai trên kit #308 trước Cổng Phạm vi. Trước đây ở chân trời — chủ kho gọi tên làm luôn 15/10. Ước 6–8 giờ máy + thời gian M5."
     },
     {
+      "ma": "RM3b",
+      "ten_ngan": "Cửa tín hiệu một gốc cho mọi worktree",
+      "cau_giao": "Ý gửi vào cửa tín hiệu từ bất kỳ worktree nào đều nằm ở thư mục chính của kho — mọi bộ đọc ở mọi worktree thấy cùng một tập, và dọn worktree không làm mất ý",
+      "vai": "Chủ kho",
+      "tieu_chi": 6,
+      "vi_sao": "Gốc: _acceptance/cua-tin-hieu-giua-chien-dich/ — lỗi tái hiện trên main 66951212 (kịch bản + đầu ra ở _acceptance/cua-tin-hieu-goc-moi-worktree/repro/): /road-map:gui từ worktree ghi vào worktree, thợ qua đợt ghi vào thư mục chính, hai bộ đọc thấy hai tập rời nhau, dọn worktree ép làm mất ý. Chủ kho gõ «mở RM3b» 16/10 ở phiên điều phối.",
+      "hang": "T2",
+      "slug": "cua-tin-hieu-goc-moi-worktree",
+      "dung_tren": [
+        "RM3"
+      ],
+      "bat_khi": "Ở kho có worktree, một ý gửi từ worktree bất kỳ được thấy bởi bộ đọc chạy ở thư mục chính và ở mọi worktree khác, và vẫn còn sau khi worktree gửi nó bị dọn",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Vòng sửa của RM3, mở trước khi cắt gói road-map (gói chỉ cắt sau khi RM3b gộp). Ước 3–4 giờ máy."
+    },
+    {
       "ma": "RM6",
       "ten_ngan": "Lộ trình tính bằng giờ máy và token",
       "cau_giao": "Người nhìn lộ trình thấy mỗi hàng và mỗi mốc ước bằng giờ máy và phần trăm hạn mức tuần; ngày mốc do máy tính từ tổng giờ máy, mốc quá tải có cờ vàng, và mỗi vòng khép ghi giờ máy cùng token thật để ước lần sau sát hơn",
@@ -706,6 +712,19 @@
       "bat_khi": "Sau khi crm nhận bản kit có RM6c, trang Lộ trình trong CRM hiện ngày dự kiến của ít nhất một mốc đang chạy mà không bật hộp cảnh báo «trang có thể thiếu một phần»",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ. Đổi khuôn khối dữ liệu = CỘNG → chủ kho phê ở Cổng Phạm vi; đường đọc-cũ hai chiều (bộ đọc mới đọc trang bản 2; bộ đọc cũ của crm gặp trang mới không vỡ). Cùng tệp scripts/lo-trinh.mjs với RM3/RM5/RM6b → gộp main khi chúng vào. Ước 4–5 giờ máy."
+    },
+    {
+      "ma": "VA1",
+      "ten_ngan": "Chấm lại không tự dối",
+      "cau_giao": "Lượt chấm lại chỉ mang sang một eval khi khối eval và chữ tiêu chí của nó không đổi từ lần nó thật chạy, và dòng thước lệch hay cây đổi luôn so bằng tham số của chính lượt vừa chấm",
+      "vai": "Chủ kho",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/goi-y-mo-ke-hoach/ — DA3b lượt 3: E10 đổi expected 21→22 vẫn mang sang từ lượt 2 (M5 báo 16/10, crm-onehub #375); cùng ngày K7 (Mac Studio): thuoc-vat --write so lượt 2–3 bằng tham số lượt 1, thẻ khoá «thước lệch». Chủ kho quyết 16/10 nới luật (b) cho cửa sổ này — đi cùng bản phát hành gói road-map, không phải tiền lệ.",
+      "hang": "T2",
+      "slug": "cham-lai-khong-tu-doi",
+      "bat_khi": "Sau khi crm nhận bản có VA1, 30 ngày lượt chấm lại không có dòng mang sang nào mà định nghĩa eval đã đổi, và không dòng thước lệch hay cây đổi nào mang sha của lượt khác",
+      "nhom": "lo-trinh",
+      "ghi_chu": "Máy MacBook Pro giữ. Gộp SAU RM3b, trước cắt bản gói road-map. Không chạm scripts/tin-hieu.mjs, gui-tin-hieu.mjs (RM3b). Ước 4–6 giờ máy."
     },
     {
       "ma": "K-A",
