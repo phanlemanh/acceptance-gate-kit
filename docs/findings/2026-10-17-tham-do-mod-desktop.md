@@ -10,7 +10,9 @@ sát `docs/findings/2026-10-17-mods-claude-code-kien-nghi-cho-kit.md` (câu 5 ch
 - `ban-ghi-phien-trich.jsonl`: 20 dòng trích từ bản ghi phiên do app xuất ra (chỉ những dòng có `dp6` hoặc có thao
   tác hàng đợi);
 - mã hai mod: `mod-dp6-tham-do/` và `mod-dp6-goi/`;
-- gói `cau5-plugin-test/` kèm `ket-qua.log`.
+- gói `cau5-plugin-test/` kèm `ket-qua.log`;
+- `cau1b-default/`: lần chạy lại câu 1 ở chế độ `default` (§2.1b), gồm nhật ký đầy đủ `tham-do.jsonl` (53 dòng) và mã
+  mod `mod-dp6-tham-do-0.3.0/`.
 
 ---
 
@@ -19,6 +21,7 @@ sát `docs/findings/2026-10-17-mods-claude-code-kien-nghi-cho-kit.md` (câu 5 ch
 | # | Câu hỏi | Kết quả | Đối chứng |
 |---|---|---|---|
 | 1 | Hộp xin quyền của tác tử Workflow có tới `classic.Notification` / `classic.PermissionRequest` của phiên cha không? | **Không đo được ở chế độ auto: không có hộp nào hiện ra cho người.** Bộ phân loại tự quyết cả hai lần (lần 1 cho phép, lần 2 từ chối). 0 sự kiện `Notification`/`PermissionRequest` trong cả phiên. | **Thiếu đối chứng dương:** cả phiên không có lần nào người được hỏi |
+| 1b | Câu 1, chạy lại ở chế độ `default` (§2.1b) | **Có, cả hai sự kiện tới.** Hộp của tác tử sinh `PermissionRequest` mang `agent_id` của tác tử (3 ms sau khi engine quyết «hỏi»), rồi `Notification` `permission_prompt` 6,0″ sau (chỉ khi hộp còn mở tới lúc ấy), **không mang `agent_id`**. Người bấm Deny thì tác tử dừng hẳn, workflow báo lỗi `AbortError` | **Có đối chứng dương:** hai hộp của vòng chính (một cho phép, một Deny) sinh đúng cặp sự kiện ấy |
 | 2 | `$.ui.open` không do người bấm, trên Desktop: `isPlaced`? `bodyColumns`? | **`isPlaced: true`**, pane đặt kiểu `dock`, **`bodyColumns: 47`** | `ui.panes()` 3″ sau cũng báo `isPlaced: true, isShown: true` |
 | 3 | `$.prompt.submit` sau 60″ có đánh thức phiên Desktop không? | **Có.** Gọi đúng 60,0″ sau mốc; phiên đang bận nên lời gọi xếp hàng, và lượt của mod mở ngay khi phiên rảnh (7″ sau) | Lệnh `sleep 240` dự phòng còn 2′53″ mới hết, nên không phải nó đánh thức |
 | 4 | `$.process.run(['node','-v'])` có chạy trên Desktop không? | **Có:** thoát 0, in `v24.22.0`, mất 16 ms | — |
@@ -93,13 +96,94 @@ tác tử Workflow do bộ phân loại tự quyết, cho phép hay từ chối,
 «0 sự kiện» chưa phân biệt được «hook không nghe» với «không có gì để nghe».
 
 Hệ quả cho DP6: ở chế độ auto, vế «không nuốt hộp xin quyền» không có ca K3b để phủ. Ca chờ hộp quyền khoảng 5 giờ ngày
-08/10 phải đến từ một phiên không ở chế độ auto. Câu hỏi ấy còn mở cho phiên chế độ `default`.
+08/10 phải đến từ một phiên không ở chế độ auto. Câu hỏi ấy đã đo ở chế độ `default`: xem §2.1b.
 
 Hai điều đo được thêm, có ích cho răng T11 của DP4:
 - Mod nhận `tool.check` của tác tử Workflow kèm `agentId`, và quyết định ghi ở đó là `ask`, tức trước khi bộ phân loại
   quyết. Kết quả thật của bộ phân loại chỉ đọc được trong chữ của `tool.call`.
 - Hook `tool.call` vẫn chạy và vẫn thấy lệnh khi bộ phân loại từ chối lời gọi: hai dòng mốc 82–83 được ghi cho hai lệnh
   bị từ chối.
+
+### 2.1b Câu 1, chạy lại ở chế độ `default` (17/10, phiên thứ hai)
+
+**Nơi đo:** app Desktop chạy Claude Code 2.1.295, một phiên worktree khác (`5fe2022d-…`, được phiên đo §2.1 mở ra),
+chuyển từ `auto` sang `default` trước khi đo. Mod `dp6-tham-do` 0.3.0 vẫn là mã §1, chỉ khác ba điểm: đổi mã phiên và
+đường nhật ký, nghe thêm `classic.PermissionDenied`, ghi thêm `permission_mode` và `tool_input` rút gọn ở các sự kiện
+quyền. Mọi hook vẫn trả `next(e)`. Nhật ký `cau1b-default/tham-do.jsonl` dài 53 dòng, đầy đủ, không chọn lọc; các dòng
+từ 41 trở đi là lời gọi đọc và dọn sau khi đo xong. Số đầu dòng dưới đây là số dòng trong tệp ấy.
+
+**Đối chứng dương 1: vòng chính, người cho phép.** Phiên ghi một tệp nháp mới trong worktree. Engine quyết «hỏi»; mod
+nhận `PermissionRequest` sau 6 ms, rồi `Notification` `permission_prompt` sau đúng 6,0″. Người bấm cho phép ở 6,4″.
+
+```
+7:{"luc":"2026-10-17T14:49:15.611Z","su_kien":"tool.check","tool":"Write","agentId":null,"decision":"ask",…}
+8:{"luc":"2026-10-17T14:49:15.617Z","su_kien":"classic.PermissionRequest","tool_name":"Write","agent_id":null,"permission_mode":"default",…}
+9:{"luc":"2026-10-17T14:49:21.617Z","su_kien":"classic.Notification","notification_type":"permission_prompt","message":"Claude needs your permission to use Write","agent_id":null,"permission_mode":null}
+10:{"luc":"2026-10-17T14:49:22.025Z","su_kien":"tool.call","tool":"Write","agentId":null,…,"isError":null,"text":"File created successfully at: …"}
+```
+
+**Đối chứng dương 2: vòng chính, người bấm Deny.** Người bấm Deny ngay ở hộp «cho chạy workflow?», trước khi có tác tử
+nào. Cặp sự kiện vẫn giống hệt: `PermissionRequest`, rồi `Notification` 6,0″ sau. Lời gọi trả lỗi «User rejected».
+
+```
+16:{"luc":"2026-10-17T14:49:37.125Z","su_kien":"classic.PermissionRequest","tool_name":"Workflow","agent_id":null,"permission_mode":"acceptEdits",…}
+17:{"luc":"2026-10-17T14:49:43.124Z","su_kien":"classic.Notification","notification_type":"permission_prompt","message":"Claude needs your permission to use Workflow","agent_id":null,"permission_mode":null}
+18:{"luc":"2026-10-17T14:49:49.114Z","su_kien":"tool.call","tool":"Workflow","agentId":null,…,"isError":true,"text":"User rejected using Workflow"}
+```
+
+Ở dòng 16, `permission_mode` ghi `acceptEdits`, vì ở hộp dòng 8 người đã chọn lối «cho phép mọi lần sửa». Máy phát hiện,
+đưa phiên về `default` (dòng 25) rồi mới chạy phép đo thật. Không có bước này thì lời ghi của tác tử sẽ được tự cho phép,
+và phép đo hỏng.
+
+**Phép đo: tác tử Workflow, người bấm Deny.** Workflow `dp6-cau1b-tac-tu-ghi` có một tác tử, giao ghi một tệp nháp mới
+trong worktree, đúng một lần.
+
+```
+34:{"luc":"2026-10-17T14:53:53.826Z","su_kien":"tool.check","tool":"Write","agentId":"aaa1e5ee51c8a702a","decision":"ask",…}
+35:{"luc":"2026-10-17T14:53:53.829Z","su_kien":"classic.PermissionRequest","tool_name":"Write","agent_id":"aaa1e5ee51c8a702a","permission_mode":"default",…}
+37:{"luc":"2026-10-17T14:53:59.829Z","su_kien":"classic.Notification","notification_type":"permission_prompt","message":"Claude needs your permission to use Write","agent_id":null,"permission_mode":null}
+38:{"luc":"2026-10-17T14:54:17.873Z","su_kien":"tool.call","tool":"Write","agentId":"aaa1e5ee51c8a702a",…,"isError":true,"text":"User rejected writing to file: …/dp6-cau1b-tac-tu.tmp"}
+39:{"luc":"2026-10-17T14:54:17.877Z","su_kien":"agent.list","vi_sao":"tool.call-cua-tac-tu","agentId":"aaa1e5ee51c8a702a","co_agentId_trong_ds":false,"so":0,"ds":[]}
+40:{"luc":"2026-10-17T14:54:17.881Z","su_kien":"turn.complete","agentId":"aaa1e5ee51c8a702a","reason":"aborted","answer":""}
+```
+
+**Đếm:**
+- `grep -c 'classic.PermissionRequest'` ra **7** dòng, `grep -c 'classic.Notification'` ra **4** dòng. Bốn hộp có
+  `Notification` (dòng 9, 17, 32, 37) đều là hộp người trả lời sau hơn 6″, và mỗi `Notification` đến đúng 6,000″ sau
+  `PermissionRequest` cùng hộp. Ba `PermissionRequest` không kèm `Notification` thì giải thích được hết, xem gạch đầu
+  dòng kế.
+- Hộp được trả lời trước mốc 6″ thì **không có `Notification`**. Có hai ca: dòng 42→43, người cho phép một lệnh Bash
+  sau 4,9″; và dòng 45→46, người duyệt thẻ nâng chế độ quyền sau 5,5″. Ca thứ ba, dòng 25→26 (hạ chế độ quyền), xong
+  trong 44 ms: app tự trả lời, không người nào được hỏi, mà `PermissionRequest` **vẫn tới**. Vậy `PermissionRequest`
+  nghĩa là «engine sắp hỏi», không phải «đã có người được hỏi».
+- `classic.PermissionDenied`: 0 dòng, dù người bấm Deny hai lần (dòng 18 và 38). Deny của người không sinh sự kiện này;
+  kết quả từ chối chỉ đọc được trong chữ của `tool.call`.
+- Tệp `dp6-cau1b-tac-tu.tmp` không tồn tại sau đo, nên Deny có hiệu lực. Tệp nháp của đối chứng 1 đã đọc lại rồi xoá.
+
+**Phán quyết câu 1, chế độ `default`:** hộp xin quyền của tác tử Workflow **có tới** phiên cha, qua cả hai sự kiện.
+- `PermissionRequest` mang `agent_id` của tác tử, và là sự kiện duy nhất gán được hộp cho đúng tác tử.
+- `Notification` `permission_prompt` cũng tới, nhưng **không mang `agent_id`**. Chữ của nó giống hệt hộp vòng chính
+  («Claude needs your permission to use Write»), nên chỉ nhìn nó thì không phân biệt được ai đang chờ.
+- Gán hộp cho tác tử phải ghép hai sự kiện: `PermissionRequest` gần nhất trước một `Notification` 6″ (cùng `tool_name`)
+  cho biết ai đang chờ.
+
+Bốn điều đo thêm:
+- **Deny ở hộp của tác tử làm cả tác tử dừng**, chứ không chỉ lời gọi đó: lượt của tác tử kết thúc với
+  `reason: "aborted"` (dòng 40), và workflow báo `AbortError` với 0/1 tác tử xong. Bản ghi của tác tử dừng ở dòng
+  «[Request interrupted by user for tool use]»; tác tử không còn lượt nào để đọc lời từ chối.
+- **`$.agent.list()` vẫn mù với tác tử Workflow**, như §2.6 (dòng 39: 0 tác tử).
+- **`Notification` chỉ tới khi hộp còn mở sau 6,0″** (bốn ca có, hai ca không, đã đếm ở trên). Hook nghe `Notification`
+  vì thế nghe đúng nghĩa «một người đang phải chờ», chứ không nghe mọi hộp.
+- Sau khi phiên về lại `auto` (từ dòng 47), mỗi lời gọi «hỏi» có `tool.check` `ask` mà không có `PermissionRequest`
+  nào (dòng 49–53), khớp với §2.1.
+
+Giới hạn đã khai: phép đo nghe bằng hook `classic.Notification` của mod. Theo khai báo kiểu của 2.1.295, hook này nhận
+đúng sự kiện mà một hook `Notification` trong settings nhận. Phép đo chưa chạy chính `hook-cho-nguoi.mjs` của DP6.
+
+**Hệ quả cho vế «không nuốt hộp xin quyền» của DP6:** ở chế độ `default`, ca K3b (tác tử Workflow chờ hộp quyền,
+khoảng 5 giờ ngày 08/10) **được phủ**: hộp của tác tử sinh `Notification permission_prompt` ở phiên cha, đúng chỗ
+`hook-cho-nguoi.mjs` đang nghe. Nhưng thông báo ấy không nói tác tử nào đang chờ. Muốn gán được cho tác tử thì phải
+nghe thêm `PermissionRequest`, sự kiện mang `agent_id`. Ở chế độ `auto` thì vẫn không có hộp nào để phủ (§2.1).
 
 ### 2.2 Câu 2: pane mở không do người bấm
 
