@@ -2754,7 +2754,9 @@ const W = (rel, s) => { const p = path.join(tmp, rel);
 // Khai ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) để `loTrinh` mang đủ khoá con thật mà soi: một hàng
 // chưa mở gắn mốc đã qua (hangTre có phần tử), ACCEPTANCE_TODAY ghim đồng hồ bên dưới.
 W('_acceptance/config.yaml', 'schema_version: 1\nlo_trinh:\n  tep: docs/lo-trinh.json\n');
-W('docs/lo-trinh.json', JSON.stringify({ schema: 1, ten: 'p99', moc: [{ ten: 'M', ngay: '2026-01-01', hang: ['1'] }], hang: [{ ma: '1', cau_giao: 'c' }] }));
+// Hàng 2 mang ten_ngan, hàng 1 không (hồ sơ road-map-de-dung, AC-5): khối Rà soát có dòng tên ngắn, nên khoá
+// `loTrinh.ds[].raSoatCanh` có giá trị thật để soi.
+W('docs/lo-trinh.json', JSON.stringify({ schema: 1, ten: 'p99', moc: [{ ten: 'M', ngay: '2026-01-01', hang: ['1'] }], hang: [{ ma: '1', cau_giao: 'c' }, { ma: '2', cau_giao: 'd', ten_ngan: 'd' }] }));
 W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
 // w-done mang `veto_state: mo` de mang vetoOpen[] co PHAN TU THAT ma soi — va no
