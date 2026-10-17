@@ -62,6 +62,32 @@ export const BON_CHO_DEN = [
   'việc cần kết quả của việc ấy → Chờ điều kiện, kèm mo_lai_khi',
 ];
 export const CAU_BON_CHO = `chuyển về một trong bốn chỗ: ${BON_CHO_DEN.join(' · ')}`;
+// Nguồn dữ liệu của hàng (trường lượt cắt `du_lieu`, luật dữ liệu giả của cắt lượt) — một nguồn cho răng và bộ đọc chung.
+export const DU_LIEU = ['sinh-gia', 'gia'];
+// Luật «chỉ việc phát triển» trên MỌI lần đọc tệp (hồ sơ road-map-de-dung, AC-8): răng cắt lượt chỉ chạy lúc cắt, sửa tay
+// tệp lộ trình đi vòng nó (crm #465, #466). Toàn tệp, không theo đợt, chỉ cờ — mỗi cờ tối đa MỘT dòng gom mỗi lộ trình,
+// liệt ≤ 8 tên rồi «…». Câu thô mở bằng `cờ <tên>: ` — chữ sau dấu hai chấm là chữ người đọc, trang và bản xem chữ in y nguyên.
+export const CO_PHAT_TRIEN = ['moc-ngoai-da-bo', 'moc-chua-khai-loai', 'dung-tren-moc', 'du-lieu-sai-gia-tri', 'thieu-hang-sinh-gia'];
+const lietTen = ds => { const u = [...new Set(ds)]; return `${u.slice(0, 8).join(', ')}${u.length > 8 ? ', …' : ''}`; };
+const nfcLT = v => chuoi(v).normalize('NFC');
+export function luatChiPhatTrien(data) {
+  const co = []; if (data == null || typeof data !== 'object') return co;
+  const hang = (Array.isArray(data.hang) ? data.hang : []).filter(r => r && typeof r === 'object' && !Array.isArray(r));
+  const moc = (Array.isArray(data.moc) ? data.moc : []).filter(m => m && typeof m === 'object' && !Array.isArray(m));
+  const theoMa = new Map(); for (const r of hang) { const ma = chuoi(r.ma); if (ma && !theoMa.has(ma)) theoMa.set(ma, r); }
+  const ngoai = moc.filter(m => chuoi(m.loai) === 'ngoai').map(tenNganMoc);
+  if (ngoai.length) co.push(`cờ moc-ngoai-da-bo: ${new Set(ngoai).size} mốc là việc của người — không còn là mốc (luật 17/10): ${lietTen(ngoai)}; ${CAU_BON_CHO}`);
+  const khongLoai = moc.filter(m => !chuoi(m.loai)).map(tenNganMoc);
+  if (khongLoai.length) co.push(`cờ moc-chua-khai-loai: ${new Set(khongLoai).size} mốc chưa khai loại: ${lietTen(khongLoai)} — mốc phát triển khai loai (phat-hanh, han, han-cung, su-kien); việc của người không còn là mốc (luật 17/10)`);
+  const laMoc = x => moc.find(m => chuoi(m.ma) === x || nfcLT(m.ten) === nfcLT(x));
+  const cho = []; for (const r of hang) for (const x of (Array.isArray(r.dung_tren) ? r.dung_tren : []).map(chuoi)) { const m = !theoMa.has(x) && laMoc(x); if (m) cho.push(`${chuoi(r.ma) || '?'} → «${tenNganMoc(m)}»`); }
+  if (cho.length) co.push(`cờ dung-tren-moc: ${new Set(cho).size} việc đứng chờ một mốc thay vì một việc: ${lietTen(cho)} — «cần xong trước» chỉ trỏ việc; việc của người không còn là mốc (luật 17/10)`);
+  const saiDL = hang.filter(r => r.du_lieu !== undefined && !DU_LIEU.includes(r.du_lieu)).map(r => `${chuoi(r.ma) || '?'} (${JSON.stringify(r.du_lieu)})`);
+  if (saiDL.length) co.push(`cờ du-lieu-sai-gia-tri: ${new Set(saiDL).size} việc khai du_lieu sai: ${lietTen(saiDL)} — chỉ nhận "sinh-gia" (việc sinh dữ liệu giả có nhãn) hoặc "gia" (việc đo trên dữ liệu giả)`);
+  const thieu = hang.filter(r => r.du_lieu === 'gia' && !(Array.isArray(r.dung_tren) ? r.dung_tren : []).map(chuoi).some(x => (theoMa.get(x) || {}).du_lieu === 'sinh-gia')).map(r => chuoi(r.ma) || '?');
+  if (thieu.length) co.push(`cờ thieu-hang-sinh-gia: ${new Set(thieu).size} việc đo trên dữ liệu giả mà không đứng trực tiếp trên việc sinh dữ liệu giả: ${lietTen(thieu)}`);
+  return co;
+}
 const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
@@ -271,7 +297,8 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
   for (const d of dong) if (d._ma && !theoMa.has(d._ma)) theoMa.set(d._ma, d);
   for (const d of dong) {
     for (const x of (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi)) {
-      if (!theoMa.has(x)) d.coHang.push(`hàng ${d._nhan}: đứng trên mã không có: ${x}`);
+      // Mục trỏ một mốc thuộc cờ gom dung-tren-moc của luatChiPhatTrien — không in thêm «mã không có» cho cùng mục.
+      if (!theoMa.has(x) && !khuon.moc.some(m => chuoi(m.ma) === x || chuoi(m.ten).normalize('NFC') === x.normalize('NFC'))) d.coHang.push(`hàng ${d._nhan}: đứng trên mã không có: ${x}`);
     }
   }
   // Vòng trong dung_tren: không treo, nêu một lần mỗi vòng.
@@ -385,6 +412,7 @@ export const CO_DICH = [
   { ten: 'tu-khai-khong-ho-so', re: /^hàng (.+?): tự khai (.+?) mà không có hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi «${m[2]}» nhưng chưa có hồ sơ ${m[3]}` }) },
   { ten: 'khai-khac', re: /^hàng (.+?): tệp khai khác hồ sơ: khai (.+?)(?: \(([^()]*)\))?, hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi «${m[2]}», thực tế «${m[4]}»` }) },
   { ten: 'hang-khac', re: /^hàng (.+?): hạng tệp (.+?), hồ sơ (.+)$/, ra: m => ({ ma: m[1], chu: `kế hoạch ghi hạng ${m[2]}, thực tế hạng ${m[3]}` }) },
+  ...CO_PHAT_TRIEN.map(ten => ({ ten, re: new RegExp(`^cờ ${ten}: (.+)$`), ra: m => ({ ma: null, chu: m[1] }) })),
   { ten: 'dung-tren-khong-co', re: /^hàng (.+?): đứng trên mã không có: (.+)$/, ra: m => ({ ma: m[1], chu: `cần xong trước ${m[2]} nhưng kế hoạch không có việc ${m[2]}` }) },
   { ten: 'vong', re: /^đứng trên tạo vòng: (.+)$/, ra: m => ({ ma: null, chu: `thứ tự «cần xong trước» tạo vòng: ${m[1]}` }) },
   { ten: 'ho-so-tep', re: /^hồ sơ (.+?) ghi lo_trinh_tep (.+?) — kho không khai tệp đó$/, ra: m => ({ ma: null, chu: `hồ sơ ${m[1]} ghi kế hoạch ${m[2]} — kho không khai kế hoạch đó` }) },
@@ -806,7 +834,9 @@ export function phanTichKho({ root, classify, sections }) {
   const cacTep = khai.tep.map(tep => {
     const { loi, data } = docTep(root, tep);
     if (loi) return { tep, loi, kq: null };
-    return { tep, loi: null, kq: suyTrangThai({ root, khuon: kiemKhuon(data), classify, sections, nhan: nhan.filter(n => !n.tep || n.tep === tep) }) };
+    const kq = suyTrangThai({ root, khuon: kiemKhuon(data), classify, sections, nhan: nhan.filter(n => !n.tep || n.tep === tep) });
+    kq.co.push(...luatChiPhatTrien(data));
+    return { tep, loi: null, kq };
   });
   const docDuoc = cacTep.filter(t => t.kq);
   const dat = (tep, c) => { const t = (tep && docDuoc.find(x => x.tep === tep)) || docDuoc[0]; if (t) t.kq.co.push(c); };
@@ -964,6 +994,7 @@ export function loTrinhThe({ root, classify, sections, today, banDoBat = null, l
     dong.push(`Tin theo lời: ${t.tinTheoLoi.n}/${t.tinTheoLoi.tong} hàng${t.tuKhaiNgoai > 0 ? ` · ${t.tuKhaiNgoai} hàng tự khai ngoài từ vựng — không so được với hồ sơ` : ''}`);
     dong.push(...dongRs(t), ...(t.raSoatCanh || []).map(c => (t.raSoat ? `  ! ${c}` : `Rà soát: ${c}`)), ...dongTu(t));
     if (t.co.length) dong.push(`Lộ trình có ${t.co.length} cờ — xem trang lộ trình`);
+    for (const c of t.co) { const d = dichCo(c); if (CO_PHAT_TRIEN.includes(d.ten)) dong.push(`  ! ${d.chu}`); }
   }
   const trang = path.join(root, TEP_TRANG);
   const trangCo = existsSync(trang);
@@ -1443,6 +1474,7 @@ export function xemBanDo({ root, cacTep, sections, today }) {
     ra.push(dx.length ? `Rà soát: ${dx.length} đề xuất — ${dem('doi-moc')} dời mốc · ${dem('cho-dieu-kien')} chờ điều kiện · ${dem('bac')} bác` : 'Rà soát: không có đề xuất');
     for (const m of dx) ra.push(dongRaSoat(m) + (ghim.has(m.ma) ? ' (ghim — máy không tự áp)' : ''));
     for (const c of rs[i].canh_bao || []) ra.push(`  ! ${c}`);
+    for (const c of kq.co) { const d = dichCo(c); if (CO_PHAT_TRIEN.includes(d.ten)) ra.push(`  ! ${d.chu}`); }
     const a = ap[i];
     if (a.chinh_sach && a.chinh_sach.tu_ap) {
       const c = a.chinh_sach;

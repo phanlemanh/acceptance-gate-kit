@@ -24,7 +24,7 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { kiemKhuon, CAU_BON_CHO } from './lo-trinh.mjs';
+import { kiemKhuon, CAU_BON_CHO, DU_LIEU } from './lo-trinh.mjs';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -159,7 +159,7 @@ const CO_LOI_S3B = new Set(['cho-van-hanh', 'du-lieu-sai-gia-tri', 'thieu-hang-s
 // Gợi ý cỡ chỉ có nghĩa cho đợt đang cắt — hàng ngoài đợt không mang hai cờ này.
 const CO_CHI_TRONG_DOT = new Set(['tren-muc-tieu', 'duoi-muc-tieu']);
 // Nguồn dữ liệu của hàng (trường lượt cắt `du_lieu`): hàng sinh dữ liệu giả có nhãn, hoặc hàng đo trên nó.
-export const DU_LIEU = ['sinh-gia', 'gia'];
+export { DU_LIEU };
 const DL_SINH = 'sinh-gia'; const DL_GIA = 'gia';
 const VAI_NEN = 'nen';
 const chuanCau = s => String(s ?? '').normalize('NFC').replace(/^[\s«“"']+/u, '').toLocaleLowerCase('vi');

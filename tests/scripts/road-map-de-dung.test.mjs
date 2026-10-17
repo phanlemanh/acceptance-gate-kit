@@ -187,5 +187,72 @@ if (want('RD-4-dap-an-do')) {
   } catch (e) { bad('RD-4-dap-an-do', loi(e)); }
 }
 
+// ═══ AC-8: luật «chỉ việc phát triển» trên mọi lần đọc tệp — trang · bản xem chữ · thẻ khởi động ═══
+const napLT = async kit => ({ LT: await import(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href + `?v=${++n}`), PM: await import(pathToFileURL(path.join(kit, 'scripts', 'product-map.mjs')).href + `?v=${n}`) });
+const HOM_NAY = process.env.ACCEPTANCE_TODAY || '2026-10-20';
+const chuTron = h => String(h).replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+// Ba mặt của cùng một kho: dòng «Cần sửa» trên trang, dòng «!» của --xem, dòng «!» của thẻ khởi động.
+async function baMat(kit, r) {
+  const M = await napLT(kit);
+  const html = M.LT.veTrang({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS });
+  const trang = [...html.matchAll(/<ul class="co-ds">([\s\S]*?)<\/ul>/g)].flatMap(u => [...u[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => chuTron(m[1])));
+  const x = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--xem'], { env: { ...process.env, ACCEPTANCE_TODAY: HOM_NAY } });
+  const xem = x.stdout.split('\n').filter(l => l.startsWith('  ! ')).map(l => l.slice(4));
+  const the = (M.LT.loTrinhThe({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS, today: HOM_NAY })?.dong || []).filter(l => l.startsWith('  ! ')).map(l => l.slice(4));
+  return { html, trang, xem, the, xemExit: x.status };
+}
+const CO5 = ['moc-ngoai-da-bo', 'moc-chua-khai-loai', 'dung-tren-moc', 'du-lieu-sai-gia-tri', 'thieu-hang-sinh-gia'];
+const MAU_CO = { 'moc-ngoai-da-bo': /mốc là việc của người — không còn là mốc/, 'moc-chua-khai-loai': /mốc chưa khai loại:/, 'dung-tren-moc': /việc đứng chờ một mốc thay vì một việc:/,
+  'du-lieu-sai-gia-tri': /việc khai du_lieu sai:/, 'thieu-hang-sinh-gia': /việc đo trên dữ liệu giả mà không đứng trực tiếp/ };
+const coCua = ds => CO5.filter(c => ds.some(l => MAU_CO[c].test(l)));
+const H8 = (ma, o = {}) => ({ ma, cau_giao: `«việc ${ma}»`, ...o });
+const SACH = () => ({ schema: 1, hang: [H8('A'), H8('S', { du_lieu: 'sinh-gia' }), H8('G', { du_lieu: 'gia', dung_tren: ['S'] }), H8('B', { dung_tren: ['A'] })],
+  moc: [{ ten: 'Phát hành 1', ngay: '2026-11-01', loai: 'phat-hanh', hang: ['A', 'B'] }] });
+const RD8_GHIM = 'luật chỉ việc phát triển không chạy khi đọc tệp';
+async function rd8(kit) {
+  const sai = [];
+  const lanh = await baMat(kit, kho({ tep: { 'docs/plan/lo-trinh.json': SACH() } }));
+  if (coCua([...lanh.trang, ...lanh.xem, ...lanh.the]).length) sai.push(`đối chứng: tệp sạch vẫn có cờ ${JSON.stringify(coCua([...lanh.trang, ...lanh.xem, ...lanh.the]))}`);
+  // Ma trận viết sẵn: [tên ca, biến đổi tệp sạch, cờ mong, cụm nêu tên phải có].
+  const CA = [['moc-ngoai', d => d.moc.push({ ten: 'Nhân sự gửi danh sách', ngay: '2026-10-25', loai: 'ngoai', ai: 'Nhân sự' }), 'moc-ngoai-da-bo', 'Nhân sự gửi danh sách 25/10'],
+    ['moc-khong-loai', d => d.moc.push({ ten: 'Phiên nghiệm thu', ngay: '2026-11-13', hang: ['A'] }), 'moc-chua-khai-loai', 'Phiên nghiệm thu 13/11'],
+    ['dung-tren-ma-moc', d => { d.moc[0].ma = 'M1'; d.hang[3].dung_tren = ['M1']; }, 'dung-tren-moc', 'B → «Phát hành 1 01/11»'],
+    ['dung-tren-ten-moc', d => { d.hang[3].dung_tren = ['Phát hành 1'.normalize('NFD')]; }, 'dung-tren-moc', 'B → «Phát hành 1 01/11»'],
+    ['du-lieu-sai', d => { d.hang[0].du_lieu = 'that'; }, 'du-lieu-sai-gia-tri', 'A ("that")'],
+    ['gia-khong-tren-sinh', d => { d.hang[2].dung_tren = ['A']; }, 'thieu-hang-sinh-gia', ': G']];
+  for (const [ten, bien, co, cum] of CA) {
+    const d = SACH(); bien(d); const b = await baMat(kit, kho({ tep: { 'docs/plan/lo-trinh.json': d } }));
+    const mat = { trang: b.trang.filter(l => MAU_CO[co].test(l)), xem: b.xem.filter(l => MAU_CO[co].test(l)), the: b.the.filter(l => MAU_CO[co].test(l)) };
+    const ok1 = Object.values(mat).every(v => v.length === 1) && mat.trang[0] === mat.xem[0] && mat.xem[0] === mat.the[0] && mat.trang[0].includes(cum);
+    const khac = coCua([...b.trang, ...b.xem, ...b.the]).filter(c => c !== co);
+    const khongCo = b.trang.filter(l => l.includes('không có việc')).length;
+    if (Object.values(mat).every(v => !v.length)) { sai.push(`${ten}: ${RD8_GHIM} (trang · bản xem · thẻ đều không có dòng [${co}])`); continue; }
+    if (!ok1 || khac.length || b.xemExit !== lanh.xemExit || khongCo) sai.push(`${ten}: trang ${JSON.stringify(mat.trang)} · xem ${JSON.stringify(mat.xem)} · thẻ ${JSON.stringify(mat.the)} (cần một dòng chung chứa «${cum}»), cờ khác ${JSON.stringify(khac)}, exit --xem ${b.xemExit}, dòng «mã không có» ${khongCo}`);
+  }
+  console.log(`    · RD-8 ma trận ${CA.length} ca`);
+  if (CA.length !== 6) sai.push(`ma trận ${CA.length} ca, hợp đồng hứa 6`);
+  return sai;
+}
+if (want('RD-8') && await chayCa('RD-8', rd8)) ok('RD-8', '6/6 ca: mỗi luật một dòng cờ có tên, cùng chữ ở trang · bản xem chữ · thẻ khởi động; mã thoát không đổi; không kèm dòng «mã không có»');
+if (want('RD-8-im')) {
+  try { const b = await baMat(KIT, kho({ tep: { 'docs/plan/lo-trinh.json': SACH() } })); const c = coCua([...b.trang, ...b.xem, ...b.the]);
+    c.length ? bad('RD-8-im', `tệp sạch có cờ ${JSON.stringify(c)}`) : ok('RD-8-im', 'tệp sạch: 0 dòng của năm cờ ở cả ba mặt'); } catch (e) { bad('RD-8-im', loi(e)); }
+}
+async function rd8crm(kit) {
+  const sai = []; const fx = f => JSON.parse(readFileSync(path.join(CRM, f), 'utf8'));
+  const truoc = fx('okr-truoc-466.json'); const M = await napLT(kit);
+  const bon = truoc.moc.filter(m => !String(m.loai ?? '').trim()).map(m => M.LT.tenNganMoc(m));
+  const a = await baMat(kit, kho({ tep: { 'docs/plan/lo-trinh.json': truoc } })); const la = a.trang.find(l => MAU_CO['moc-chua-khai-loai'].test(l)) || '';
+  if (bon.length !== 4 || !la.startsWith(`${bon.length} mốc chưa khai loại: ${bon.join(', ')} —`)) sai.push(`trước #466: cần bốn mốc ${JSON.stringify(bon)}, dòng «${la}»`);
+  for (const [f, k] of [['okr.json', fx('okr.json').moc.filter(m => m.loai === 'ngoai').length], ['kho-tai-lieu.json', fx('kho-tai-lieu.json').moc.filter(m => m.loai === 'ngoai').length]]) {
+    const b = await baMat(kit, kho({ tep: { 'docs/plan/lo-trinh.json': fx(f) } })); const l = b.trang.find(x => MAU_CO['moc-ngoai-da-bo'].test(x)) || '';
+    console.log(`    · RD-8-crm ${f}: ${k} mốc ngoài tính từ tệp`);
+    if (!k || !l.startsWith(`${k} mốc là việc của người`)) sai.push(`${f}: cần «${k} mốc là việc của người», có «${l.slice(0, 80)}»`);
+  }
+  return sai;
+}
+if (want('RD-8-crm') && await chayCa('RD-8-crm', rd8crm)) ok('RD-8-crm', 'crm trước #466: dòng mốc chưa khai loại nêu đúng bốn mốc; onehub b74ec7eae: dòng mốc ngoài nêu đúng 17 (OKR) và 1 (Kho tài liệu) tính từ tệp');
+if (want('RD-8-do')) await chayDo('RD-8-do', rd8, [['scripts/lo-trinh.mjs', '    kq.co.push(...luatChiPhatTrien(data));\n', '']], RD8_GHIM, 'bản sao bộ đọc chung không gọi luật');
+
 console.log(`\nRD Results: ${pass} PASS · ${fail} FAIL`);
 process.exit(fail ? 1 : 0);

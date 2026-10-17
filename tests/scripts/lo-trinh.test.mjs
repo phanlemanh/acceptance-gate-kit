@@ -1609,6 +1609,12 @@ const MA_TRAN_97 = [
   ['khong-object', () => kho({ data: { schema: 1, hang: ['x', H('A')] } }), 'việc thứ 1 không đúng dạng'],
   ['khoi-hang', () => kho({ data: { schema: 1, hang: {} } }), 'danh sách việc phải là một mảng'],
   ['ma-trung', () => kho({ data: { schema: 1, hang: [H('T'), H('T')] } }), 'hai việc cùng mã T — đổi mã một trong hai'],
+  // road-map-de-dung (AC-8): năm cờ luật «chỉ việc phát triển» — câu đích viết tay (bốn chỗ đến rút từ BON_CHO_DEN chỉ ở cờ mốc ngoài).
+  ['moc-ngoai-da-bo', () => kho({ data: { schema: 1, moc: [{ ten: 'Đào tạo bộ phận', ngay: '2026-11-02', loai: 'ngoai' }], hang: [H('A')] } }), `1 mốc là việc của người — không còn là mốc (luật 17/10): Đào tạo bộ phận 02/11; ${LT.CAU_BON_CHO}`],
+  ['moc-chua-khai-loai', () => kho({ data: { schema: 1, moc: [{ ten: 'Phiên nghiệm thu', ngay: '2026-11-13', hang: ['A'] }], hang: [H('A')] } }), '1 mốc chưa khai loại: Phiên nghiệm thu 13/11 — mốc phát triển khai loai (phat-hanh, han, han-cung, su-kien); việc của người không còn là mốc (luật 17/10)'],
+  ['dung-tren-moc', () => kho({ data: { schema: 1, moc: [PP({ ma: 'M1', hang: ['A'] })], hang: [H('A'), H('B', { dung_tren: ['M1'] })] } }), '1 việc đứng chờ một mốc thay vì một việc: B → «P 01/11» — «cần xong trước» chỉ trỏ việc; việc của người không còn là mốc (luật 17/10)'],
+  ['du-lieu-sai-gia-tri', () => kho({ data: { schema: 1, hang: [H('A', { du_lieu: 'that' })] } }), '1 việc khai du_lieu sai: A ("that") — chỉ nhận "sinh-gia" (việc sinh dữ liệu giả có nhãn) hoặc "gia" (việc đo trên dữ liệu giả)'],
+  ['thieu-hang-sinh-gia', () => kho({ data: { schema: 1, hang: [H('A', { du_lieu: 'gia' })] } }), '1 việc đo trên dữ liệu giả mà không đứng trực tiếp trên việc sinh dữ liệu giả: A'],
   ['moc-mang', () => kho({ data: { schema: 1, moc: [{ ten: 'M1', ngay: '2026-11-01', hang: 'A' }], hang: [H('A')] } }), 'mốc M1 — danh sách việc gắn mốc phải là một mảng'],
   ['khoi-tu-vung', () => kho({ data: { schema: 1, tu_vung: [], hang: [H('A')] } }), 'bảng từ trạng thái phải là một object'],
   ['tu-vung-tro', () => kho({ data: { schema: 1, tu_vung: { 'xong rồi': 'Hoàn tất' }, hang: [H('A')] } }), 'từ «xong rồi» trỏ «Hoàn tất» — không phải tên trạng thái'],
