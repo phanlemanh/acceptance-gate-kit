@@ -195,14 +195,18 @@ async function ca3(may) {
   const rIds = rg[1].map(l => (l.match(/^- (\S+) → /) || [])[1]).filter(Boolean).sort();
   if (!bang(rIds, ids)) sai.push(`đối chứng không chạy: --rang ${JSON.stringify(rg)}`);
   const cu = so('--cau', r => { const x = th(may, r, '--cau'); return [x.status, x.stdout.trim().split('\n').pop()]; });
+  // Ghim QUAN HỆ với tập ý (S4 lượt 1, finding trong AC-3): dòng tóm tắt luôn có chữ kể cả khi bộ đọc mất hết ý, nên
+  // «có chữ» không chứng gì — số câu phải bằng số ý của --chua-gom.
+  const soCau = Number(((cu[1] || '').match(/^câu cho người gửi: (\d+) câu/) || [])[1]);
   if (!cu[1]) sai.push(`đối chứng không chạy: --cau ${JSON.stringify(cu)}`);
+  else if (soCau !== ids.length) sai.push(`--cau: ${Number.isNaN(soCau) ? 'không đọc được số câu' : `${soCau} câu`} — cần ${ids.length} (${JSON.stringify(cu[1])})`);
   const the = so('thẻ', r => {
     const x = spawnSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-17' } });
     let j = null; try { j = JSON.parse(x.stdout); } catch { j = null; }
     return (j?.loTrinh?.dong || ['<thẻ không chạy>']).filter(l => l.startsWith('Cửa tín hiệu:') || l.startsWith('! cửa tín hiệu:') || l === '<thẻ không chạy>');
   });
   if (the.length !== 1 || !the[0].startsWith('Cửa tín hiệu: 3 ý')) sai.push(`đối chứng không chạy: thẻ ${JSON.stringify(the)}`);
-  if (ids.length < 3 || dg.length < 3) sai.unshift('bộ đọc tương tác mất ý chưa theo dõi');
+  if (ids.length < 3 || dg.length < 3 || soCau < 3) sai.unshift('bộ đọc tương tác mất ý chưa theo dõi');
   // Trang vẽ ở A: không mang ý nào (giới hạn có tên) — SAU đối chứng dương: bộ máy gốc vẽ ở A thấy đủ ba.
   const g = ve(gocMay(), w.a); const tg = await trangCua(w.a);
   if (g.status !== 0 || !tg.ids || tg.ids.length !== 3) sai.push(`đối chứng không chạy: trang (gốc ${JSON.stringify(tg.ids)})`);
@@ -251,6 +255,8 @@ async function do_(id, tiem, f, ghim, lanhXanh) {
 const BO_CO_CAY = [PM, 'TH.duongDi({ root, classify, sections: SECTIONS, chiTheoDoi: true })', 'TH.duongDi({ root, classify, sections: SECTIONS })'];
 const BO_LOC = [TH, 'if (theoDoi) ds = ds.filter(f => theoDoi.has(f));', ''];
 const DOC_INDEX = [TH, "o = JSON.parse(readFileSync(path.join(dir, f), 'utf8'));", "o = JSON.parse(theoDoi ? execFileSync('git', ['-C', path.resolve(root), 'show', `:${posix(path.join(ng, f))}`], { encoding: 'utf8' }) : readFileSync(path.join(dir, f), 'utf8'));"];
+// Chỉ chân --cau đi đường bộ vẽ (đọc ý đã theo dõi) — ca đo phải đỏ nhờ phép ghim số câu, không nhờ chân khác.
+const CAU_THEO_DOI = [TH, '  const ds = dungDuong({ root, classify, sections });', '  const ds = dungDuong({ root, classify, sections, chiTheoDoi: true });'];
 const MOI_BO_DOC = [TH, '{ loai = napLoai(), chiTheoDoi = false } = {}', '{ loai = napLoai(), chiTheoDoi = true } = {}'];
 const RONG_NGOAI_GIT = [TH, '} catch { return null; } // không phải kho git', '} catch { return new Set(); } // không phải kho git'];
 
@@ -261,6 +267,7 @@ await do_('VT-2-do', [BO_LOC], ca2, 'trang vẽ hiện ý chưa theo dõi', l2);
 await do_('VT-2-do3', [DOC_INDEX], ca2, 'trang vẽ bản tệp ý cũ trong index', l2);
 const l3 = await lanh('VT-3', ca3);
 await do_('VT-3-do', [MOI_BO_DOC], ca3, 'bộ đọc tương tác mất ý chưa theo dõi', l3);
+await do_('VT-3-do2', [CAU_THEO_DOI], ca3, 'bộ đọc tương tác mất ý chưa theo dõi', l3);
 const l4 = await lanh('VT-4', ca4);
 await do_('VT-4-do', [RONG_NGOAI_GIT], ca4, 'thư mục thường mất ý trên trang', l4);
 
