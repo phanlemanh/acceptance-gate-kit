@@ -95,6 +95,10 @@ executors:
     kho_moi_cai_goi_road_map: node tests/scripts/kho-moi-cai-goi-road-map.test.mjs
     kho_moi_cai_goi_road_map_cac_kho: node tests/scripts/kho-moi-cai-goi-road-map-cac-kho.mjs
     kho_cam_ket_co_lo_trinh: node tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs
+    # Hồ sơ cham-lai-khong-tu-doi (hàng VA1): ca CL1…CL8 chung một lệnh (mang sang theo định nghĩa eval · tệp args của
+    # lượt cuối). Bộ cũ: ba tệp ca của các hồ sơ đã ký mà vật chạm (cây đổi · thước chỉ-đọc · ai đã ghi).
+    cham_lai_khong_tu_doi: node tests/scripts/cham-lai-khong-tu-doi.test.mjs
+    cham_lai_khong_tu_doi_bo_cu: "node tests/scripts/cay-doi-trong-luot.test.mjs && node tests/scripts/ntr-thuoc.test.mjs && node tests/scripts/ghi-boi-tac-tu-cham.test.mjs"
     kho_cam_ket_co_lo_trinh_cac_kho: node tests/scripts/kho-cam-ket-co-lo-trinh-cac-kho.mjs
     # AC-4 sau Cổng Bằng chứng lượt 2: chạy chính ca DP2-11 của gói điều phối (chỉ chạy, không sửa tệp ca của vùng M5).
     moc_chien_dich_dp211: "node --test --test-name-pattern=DP2-11 tests/dieu-phoi/mo-dot.test.mjs"
