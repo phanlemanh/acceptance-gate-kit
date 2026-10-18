@@ -33,7 +33,13 @@ chỉ nói điều chỉ nó biết (một câu ý định, một câu trả l�
 | 8 · Chấp nhận | người giao thấy sản phẩm đạt ý định | máy (im lặng sau khi đã nghe) | XONG đưa vào phiên người giao → đóng; MỞ LẠI trong 24 giờ |
 
 GIAO leo đủ chín nấc. HỎI: 0–4 rồi XONG kèm câu trả lời (đóng ngay khi đến phiên người hỏi). BÁO: 0–2. Trên kênh liên máy,
-nấc 2 chỉ thấy ở máy nhận; người gửi thấy từ nấc 4, vì hook dừng ép NHẬN trong lượt kế.
+nấc 2 chỉ thấy ở máy nhận; người gửi thấy từ nấc 4, vì hook dừng ép NHẬN trong lượt kế. Nấc 8 trên kênh do máy người giao
+giữ (cục bộ, không đăng); nghĩa vụ người nhận kết thúc ở nấc 7; MỞ LẠI được đăng lên kênh và kéo vòng về người nhận.
+
+Câu «sẽ giao» là đúng MỘT câu, mở đầu «sẽ giao», có ít nhất ba từ nội dung. Hạn xong là một khoảng phút tính từ lúc NHẬN
+(lời giao ghi khoảng, lời nhận ghi mốc giờ); máy chỉ điền sẵn khi lời giao là trọn một hàng (chip hoặc `--hang`), lấy cận
+trên giờ máy của hàng trong `du-bao.json`, và ngừng đếm khi hồ sơ của hàng chờ cổng người; việc lẻ không có hạn trừ khi ghi
+`--han-xong`. Sau MỞ LẠI: hạn mới = lúc MỞ LẠI + khoảng cũ; mốc so của XONG tự đính là sha của lần XONG bị mở lại.
 
 | Ai | Làm gì | Máy làm gì thay |
 |---|---|---|
@@ -106,7 +112,7 @@ Lời giao in đủ sáu trường lên stdout trước khi ghi. Chip trong đ�
   cwd người nhận (remote `origin`, chuẩn hoá) với kho trong Ranh giới; lệch → từ chối, nêu hai kho và lệnh
   `tin KẸT <mã> "kho lệch"` chép được. Bước so này chỉ có tác dụng trên kênh: trong đợt, danh tính dãy đã chặn kho lệch từ
   trước («không thuộc đợt»). Với HỎI, NHẬN không bắt buộc (trả lời thẳng bằng XONG).
-- **XONG** của GIAO không kèm gì CHỈ KHI cả ba cùng đúng: kho của cwd khớp Ranh giới · cây sạch · HEAD khác `sha` lúc NHẬN.
+- **XONG** của GIAO không kèm gì CHỈ KHI cả ba cùng đúng: kho của cwd khớp Ranh giới · cây sạch · HEAD khác `sha` lúc NHẬN (sau MỞ LẠI: khác sha của lần XONG bị mở lại).
   Khi ấy máy đính `sha` HEAD, nhánh, và PR đang mở của nhánh (qua `gh pr view`, có trần; vắng thì bỏ). Thiếu một điều →
   đòi `--vat "<…>"`, nêu điều thiếu. XONG của HỎI đòi một câu trả lời.
 - **MỞ LẠI** chỉ người giao, kèm một câu vì sao, trong 24 giờ từ lúc chấp nhận; vòng về `mo-lai`, cần XONG mới.
@@ -127,7 +133,7 @@ tác tử con (stdin mang danh tính tác tử con theo khuôn Claude Code) → 
 thoát 0, không in, không tạo tệp (đường của mọi kho không dùng gói hay không dùng `tin`, luật 26/09). Hook chỉ xét vòng mở
 bằng `tin` — yêu cầu cũ `yeu-cau/` không làm hook làm gì.
 
-Phần đưa tin là hàm `duaTin` của `tin.mjs`, gọi BÊN TRONG hai hook đã chạy sẵn ở đúng hai chỗ ấy — `hook-nhip.mjs`
+Phần đưa tin là hàm `duaTin` của `tin.mjs`, nạp ĐỘNG trong khối bắt lỗi BÊN TRONG hai hook đã chạy sẵn ở đúng hai chỗ ấy — `hook-nhip.mjs`
 (`PostToolUse`) và `hook-cho-nguoi.mjs` (`UserPromptSubmit`) — không thêm mục hook nào, vì mỗi mục là một lần khởi động
 tiến trình ở mọi lời gọi công cụ. `hook-nhip` đã có lối `additionalContext` (lời nhắc bàn giao); hai chữ ghép thành một.
 Ba ràng buộc vận hành (điều phối 18/10, mọi phiên có gói trên ba máy crm):

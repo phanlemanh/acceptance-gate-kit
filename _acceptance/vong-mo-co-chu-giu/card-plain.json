@@ -93,23 +93,23 @@
   "gap_probe_plain": [
     {
       "i": 0,
-      "p": "Báo xong tự đính sha có thể đính nhầm một sha không chứa việc (đứng sai chỗ, chưa commit, cây bẩn). Đã sửa: chỉ tự đính khi kho khớp, cây sạch và đã có commit mới từ lúc nhận; thiếu thì đòi một câu mô tả."
+      "p": "Trên kênh liên máy, «chấp nhận» và «mở lại» chưa được định nghĩa, và phép đo cũ còn coi báo xong là đóng. Đã sửa: chấp nhận do máy người giao giữ; người nhận xong việc ở nấc báo xong; mở lại được đăng lên kênh; bộ đếm ngưỡng tính đúng vòng mở lại."
     },
     {
       "i": 1,
-      "p": "Lời hứa «máy so kho thay cho đọc lại» quá mức: trong đợt nó không bao giờ nổ, và ca chip sai kho nằm ngoài phạm vi. Đã sửa câu hỏi cho đúng (chỉ bắt được trên kênh), thêm lối gỡ khi kho lệch, và khai giới hạn."
+      "p": "Sau khi mở lại, gõ báo xong lần nữa mà không sửa gì vẫn được máy gắn lại đúng sản phẩm đã bị từ chối. Đã sửa: sau mở lại, máy đòi commit mới; vòng mở lại có hạn mới."
     },
     {
       "i": 2,
-      "p": "Tác tử con chạy cùng thư mục có thể nhận nhầm tin, phiên chính không bao giờ thấy. Đã sửa: hook bỏ qua tác tử con; phát lại khuôn vào thật của Claude Code để dành, khai giới hạn có ngưỡng."
+      "p": "Hạn xong lấy theo cả hàng cho cả việc lẻ, và đếm cả giờ chờ chữ ký của anh nên sẽ hiện quá hạn giả. Đã sửa: chỉ điền sẵn hạn khi giao trọn một hàng, ngừng đếm khi chờ cổng người, ghim một khuôn cho hạn."
     },
     {
       "i": 3,
-      "p": "Máy điền lời giao từ «hàng kế» sẽ sai khi thợ đang làm dở hàng khác. Đã sửa: lấy hàng đang chạy trước, cho chọn hàng tường minh, và chữ gõ tay luôn thắng chữ máy suy."
+      "p": "Ca «hỏng không lan» chưa thử lỗi nạp mã, và ca «nhanh» dễ chập chờn. Đã sửa: phần tin nạp trong khối bắt lỗi; thử thêm hai kiểu hỏng; đo xen kẽ bản cũ và mới trên kho tạm."
     },
     {
       "i": 4,
-      "p": "Thước của ngưỡng «mọi yêu cầu trỏ về mã» chưa ghim nghĩa từng con số. Đã sửa: mỗi trường một nghĩa, lệnh in thẳng SỐNG / CHẾT / cần đếm tay / vô hiệu."
+      "p": "Câu «sẽ giao» chỉ được kiểm là có mặt, nên «ok» cũng qua. Đã sửa: phải là một câu mở đầu «sẽ giao» có nội dung; câu hỏi cho người đọc luật đã cập nhật theo thang."
     }
   ]
 }
