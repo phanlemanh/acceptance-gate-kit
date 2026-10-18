@@ -1,0 +1,26 @@
+{
+  "ngay_tinh": "2026-10-16",
+  "hang": {
+    "ma": "K-A",
+    "gio_may": [
+      8,
+      12
+    ],
+    "phan_tram": null
+  },
+  "moc": {
+    "ten": "Tinh chỉnh sau hai đợt thử 05/11",
+    "bat_dau": "2026-10-16",
+    "hoan_tat": "2026-10-16",
+    "gio_may": [
+      10.5,
+      15.5
+    ],
+    "gio_cho": 2.245,
+    "gio_cho_do": true,
+    "muc_tieu": "2026-11-05",
+    "hang": [
+      "K-A"
+    ]
+  }
+}

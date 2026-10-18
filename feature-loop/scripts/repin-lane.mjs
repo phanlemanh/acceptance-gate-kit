@@ -12,7 +12,12 @@
 //
 //   node repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...]
 //        [--reason "<lý do 1 dòng>"] [--run-id <id>] [--ag-root <path>]
-//        [--write] [--allow-dirty]
+//        [--write] [--allow-dirty] [--tung-ho-so]
+//
+// --tung-ho-so (hồ sơ ho-so-da-ky-giu-tuoi): suite chung vẫn chạy MỘT lần; suite đỏ → không hồ sơ nào được
+//   ghim (thoát 1, «suite chung đỏ — không ghim hồ sơ nào»); suite xanh → mỗi hồ sơ tự quyết: mọi eval đạt
+//   thì ghim, có eval đỏ thì hồ sơ ấy nhận `repin-do`, hồ sơ khác vẫn ghim; thoát 0. Không cờ → một đỏ là
+//   không ai ghim, như trước.
 //
 // exit 0 = làn xanh (đã ghi run-log + evidence-report nếu --write, rồi tự kiểm
 //          bằng recheck-evidence.cjs) · 1 = làn ĐỎ — KHÔNG ghi gì, khắc phục rồi
@@ -44,12 +49,12 @@ import { chayVanTay, tepGoiTen, coBienShell, bamDauVao, chonNguon, phatHienLech,
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty', 'skip-unchanged', 'tran-phut', 'chay-lai-model']);
+const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty', 'skip-unchanged', 'tran-phut', 'chay-lai-model', 'tung-ho-so']);
 // Đồng hồ trần (AC-2) tính từ lúc làn KHỞI ĐỘNG, không từ suite đầu.
 const tKhoiDong = Date.now();
-const BOOL = new Set(['write', 'allow-dirty', 'skip-unchanged', 'chay-lai-model']);
+const BOOL = new Set(['write', 'allow-dirty', 'skip-unchanged', 'chay-lai-model', 'tung-ho-so']);
 
-function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged] [--tran-phut <phút>] [--chay-lai-model]`); process.exit(3); }
+function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged] [--tran-phut <phút>] [--chay-lai-model] [--tung-ho-so]`); process.exit(3); }
 function die(msg) { console.error(`repin-lane: ${msg}`); process.exit(2); }
 // Thoát SAU khi stdout đã xả (hồ sơ xa-stdout-truoc-khi-thoat): JSON làn đỏ in mọi slug, vượt bộ đệm
 // pipe (65 536 byte trên macOS) từ vài chục slug; process.exit ngay thì phần sau mất im lặng. Lần ghi
@@ -187,6 +192,22 @@ const { DA_THONG_CONG_2 } = mods['lib/workspace-record.cjs'];
 // ── Năm khoá của làn (hồ sơ gia-lan-ghim-lai) — VẮNG = hành vi trước vòng. Giá trị sai → nguồn hỏng (2).
 let khoa;
 try { khoa = docKhoa(configText, core); } catch (e) { die(String((e && e.message) || e)); }
+// ── Nhãn «đỏ sẵn trên nền» (hồ sơ ho-so-da-ky-giu-tuoi): luật MỘT nguồn ở lib/do-san-tren-nen.cjs CỦA BỘ MÁY —
+// cùng tệp checkRepinEvals (bên đọc) nạp cạnh evidence-core.cjs; làn không giữ bản luật thứ hai. Khoá
+// `feature_loop.do_san_tren_nen` vắng/false → làn y như trước vòng. Giá trị sai → nguồn hỏng (2), gọi tên khoá.
+// Bộ máy cũ không có tệp luật: khoá vắng/false thì im (chạy như cũ); khoá khai khác false thì dừng — không
+// được lặng lẽ coi như tắt một khoá chủ kho đã bật.
+const DS_REL = 'lib/do-san-tren-nen.cjs';
+let ds = null;
+if (fs.existsSync(path.join(agRoot, DS_REL))) {
+  try { ds = require_(path.join(agRoot, DS_REL)); } catch (e) { engineStop(`không nạp được ${DS_REL} (root: ${agRoot}): ${String((e && e.message) || e).split('\n')[0]}`); }
+}
+let khoaDoSan = false;
+if (ds) { try { khoaDoSan = ds.docKhoaDoSan(root); } catch (e) { die(String((e && e.message) || e)); } }
+else {
+  const v = (configText.match(/^[ \t]+do_san_tren_nen[ \t]*:[ \t]*([^\s#]+)/m) || [])[1];
+  if (v !== undefined && String(v).replace(/^['"]|['"]$/g, '').toLowerCase() !== 'false') engineStop(`config.yaml khai feature_loop.do_san_tren_nen: ${v} nhưng bộ máy (root: ${agRoot}) thiếu ${DS_REL}`);
+}
 const tranPhut = flags['tran-phut'] !== undefined ? Number(flags['tran-phut']) : khoa.repin_budget_min;
 const hanMs = tranPhut ? tKhoiDong + tranPhut * 60000 : null;
 const conLai = () => (hanMs == null ? null : hanMs - Date.now());
@@ -730,6 +751,64 @@ const reason = flags.reason || 'ghim lại bằng làn eval';
 const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ cmd, exit: suitesExit[i] })), slugs: {} };
 if (cham.length) out.cham_ho_so_da_thong = cham;
 let red = suitesExit.some(x => x !== 0) || cham.length > 0;
+// ── Ghim từng hồ sơ + thông điệp đỏ + nhãn (hồ sơ ho-so-da-ky-giu-tuoi) ─────
+// `redChung` = cái đỏ của CẢ lượt (suite chung, executor chạm hồ sơ đã thông cổng): không hồ sơ nào được ghim
+// ở mọi chế độ. `doSlug` = hồ sơ có eval đỏ KHÔNG được nhãn phủ. Không --tung-ho-so: một hồ sơ đỏ là cả lượt đỏ
+// (như trước); có cờ: chỉ hồ sơ ấy không ghim.
+const tungHoSo = !!flags['tung-ho-so'];
+const suiteDo = suitesExit.some(x => x !== 0);
+const redChung = red;
+// Khuôn mục `lenh_do` mới (eval/suite · thong_diep_bam · trich) + `dinh_nghia`: chỉ khi bật cờ hay khoá — khoá
+// tắt và không cờ thì dòng `repin-do` y từng byte như trước vòng.
+const khuonMoi = tungHoSo || khoaDoSan;
+const lechE = (e) => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0);
+// Nhật ký đọc từ CHÍNH tệp làn đã ghi (ghiNhatKyNeuDo) — bên viết dòng nền và bên viết nhãn băm cùng một vật.
+function nhatKyCua(cmd, envTag) {
+  const rec = results.get(khoaLenh(cmd, envTag));
+  const cuoi = rec ? rec.lan[rec.lan.length - 1] : null;
+  if (!cuoi || cuoi.log == null) return null;
+  let t;
+  try { t = fs.readFileSync(path.join(root, ...cuoi.log.split('/')), 'utf8'); } catch { return null; }
+  // Bỏ bốn dòng khung do CHÍNH làn ghi (ghiNhatKyNeuDo: «# lệnh:», «# mã thoát:», «=== stdout ===», «=== stderr ===»):
+  // băm và trích chỉ trên lời của lệnh — bên chạy lại lệnh ở chỗ khác (lệnh giữ tươi) băm `${out}\n${err}` ra
+  // cùng số mà không phải dựng lại khung này.
+  return t.split('\n').filter(l => !/^# (lệnh|mã thoát): /.test(l) && !/^=== (stdout|stderr) ===$/.test(l)).join('\n');
+}
+const thongDiep = (cmd, envTag) => {
+  const t = ds ? nhatKyCua(cmd, envTag) : null;
+  if (t == null) return {};
+  const ca = rutTenCa(t);
+  return { thong_diep_bam: ds.bamThongDiep(t, ca), trich: ds.trichThongDiep(t, ca) };
+};
+// Mốc đọc dòng nền = điểm tách của HEAD với nhánh chính — CHÍNH hàm bên đọc dùng (ds.diemTachNhanhChinh), không
+// bản chép luật dò nhánh thứ hai.
+// Một eval đỏ có được nhãn không — MỘT luật (ds.kiemDoSan) với bên đọc. → { dat, cau, runId, bam }
+function kiemMot(s, e) {
+  if (e.expected !== 0) return { dat: false, cau: `eval khai mã thoát ${e.expected} — nhãn chỉ áp cho eval mong đợi 0` };
+  if (typeof ds.diemTachNhanhChinh !== 'function') return { dat: false, cau: `bộ máy (root: ${agRoot}) thiếu hàm diemTachNhanhChinh trong ${DS_REL} — dùng bộ máy cùng đời với làn` };
+  const moc = ds.diemTachNhanhChinh(root);
+  if (!moc.sha) return { dat: false, cau: moc.lyDo };
+  const bam = thongDiep(e.cmd, 'full').thong_diep_bam || null;
+  const r = ds.kiemDoSan({ root, slug: s.slug, evalId: e.id, bam, dinhNghia: ds.bamDinhNghia(s.evalsText, e.id), headRef: 'HEAD', baseRef: moc.sha, khoa: true });
+  return r.dat ? { dat: true, runId: r.runId, bam } : { dat: false, cau: ds.cauVeHong(r.veHong) };
+}
+const nhanCua = new Map(); // slug → { do_san: {E: {run_id, thong_diep_bam}} } — chỉ hồ sơ được nhãn phủ trọn
+const doSlug = new Set();
+for (const s of perSlug) {
+  const lechs = s.evals.filter(lechE);
+  if (!lechs.length) continue;
+  if (khoaDoSan && !redChung) {
+    const kq = lechs.map(e => Object.assign({ id: e.id }, kiemMot(s, e)));
+    if (kq.every(x => x.dat)) { nhanCua.set(s.slug, { do_san: Object.fromEntries(kq.map(x => [x.id, { run_id: x.runId, thong_diep_bam: x.bam }])) }); continue; }
+    for (const x of kq) if (!x.dat) console.error(`repin-lane: ${s.slug}/${x.id}: nhãn không gắn: ${x.cau}`);
+  } else if (!khoaDoSan && ds) {
+    // Khoá tắt: chỉ nói ra khi cây CÓ dòng nền cho eval ấy (đọc tệp, không gọi git) — kho không dùng nhãn im như cũ.
+    for (const e of lechs) if (ds.docDongNen(root, s.slug, null).some(l => l.lenh_do.some(x => x && x.eval === e.id))) console.error(`repin-lane: ${s.slug}/${e.id}: nhãn không gắn: ${ds.cauVeHong('khoa-tat')}`);
+  }
+  doSlug.add(s.slug);
+}
+// Không --tung-ho-so: hồ sơ đỏ nào cũng làm cả lượt đỏ (như trước). Có cờ: chỉ cái đỏ chung làm cả lượt đỏ.
+if (!tungHoSo && doSlug.size) red = true;
 const lineObjs = new Map();
 for (const s of perSlug) {
   const evalsExit = {};
@@ -740,7 +819,8 @@ for (const s of perSlug) {
     evalsExit[e.id] = e.exit;
     const datKyVong = e.exit === e.expected;
     const hetHan = e.expected !== 0 && e.exit === 0;   // AC-10: không phạt một cải thiện
-    if (!datKyVong && !hetHan) { red = true; continue; }
+    // Đỏ của eval quyết ở khối nhãn phía trên (doSlug) — một nơi cho cả hai chế độ.
+    if (!datKyVong && !hetHan) continue;
     dat++;
     if (datKyVong && e.expected !== 0) gioiHan.push(`${e.id}=${e.exit}`);
     if (hetHan) hetGioiHan.push(`${e.id} (khai ${e.expected})`);
@@ -765,6 +845,9 @@ for (const s of perSlug) {
     chapChon.length ? { chap_chon: chapChon } : {},
     envCi ? { suites_env: 'ci' } : {},
     dungLaiCua(s),
+    // Nhãn «đỏ sẵn trên nền» — luật hiện diện: không nhãn thì VẮNG HẲN (bên đọc cũ lọc theo `kind`, nên khoá
+    // lạ này với mã eval ≠ 0 vẫn là VIOLATION ở bản kit cũ — đóng kín về phía đỏ).
+    nhanCua.has(s.slug) ? { do_san: nhanCua.get(s.slug).do_san } : {},
   );
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
@@ -788,70 +871,106 @@ for (const s of perSlug) {
   const dl = dungLaiCua(s);
   const veDungLai = dl.evals_carry ? ` · dùng lại theo băm đầu vào (không gọi model): ${Object.entries(dl.evals_carry).map(([id, r]) => `${id}←${r}`).join(', ')}` : '';
   const veLech = dl.carry_lech ? ` · cùng băm mà kết quả khác (carry_lech): ${dl.carry_lech.join(', ')}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veThayBoi}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}${veDungLai}${veLech}\n`;
+  const veDoSan = nhanCua.has(s.slug) ? ` · đỏ sẵn trên nền: ${Object.entries(nhanCua.get(s.slug).do_san).map(([id, d]) => `${id}←${d.run_id}`).join(', ')}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veThayBoi}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}${veDungLai}${veLech}${veDoSan}\n`;
   // `line` giữ CHỖ trong thứ tự khoá cũ (stdout là mặt máy — AC-7 so từng byte); gán sau khi có tổng kết.
   lineObjs.set(s.slug, lineObj);
   out.slugs[s.slug] = Object.assign({ evals_exit: evalsExit, line: null, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) },
-    dl.evals_carry ? { evals_carry: dl.evals_carry } : {});
+    dl.evals_carry ? { evals_carry: dl.evals_carry } : {},
+    nhanCua.has(s.slug) ? { do_san: nhanCua.get(s.slug).do_san } : {},
+    tungHoSo ? { ket_cuc: (redChung || doSlug.has(s.slug)) ? 'do' : 'ghim' } : {});
 }
 // Tổng kết cuối lượt (Đ5, AC-4) — mọi kết cục; đo chi phí sau lệnh cuối nằm trong lời gọi này.
-const tk = tongKet(red ? 'do' : 'xanh');
+// --tung-ho-so với vài hồ sơ đỏ mà suite xanh: kết cục «mot-phan» (lượt thoát 0, không phải mọi hồ sơ được ghim).
+const tk = tongKet(red ? 'do' : (tungHoSo && doSlug.size ? 'mot-phan' : 'xanh'));
 out.tong_ket = tk.obj;
 for (const s of perSlug) {
   out.slugs[s.slug].line = JSON.stringify(Object.assign(lineObjs.get(s.slug), { tong_ket: tk.obj }));
 }
+// Dấu lượt đỏ (hồ sơ lan-ghim-lai-giu-tron-loi-loi, 03/10/2026): bản 2.20 thoát 1 mà KHÔNG ghi
+// gì, nên lượt đỏ không tồn tại trong sổ nào — 02/10 ở crm, 5 lượt đỏ không để vết. Nay với
+// --write, mỗi slug nhận MỘT dòng `repin-do` (KHÔNG phải `repin`: không chống lưng pin nào, bộ
+// đọc 2.20 lọc theo loại nên đọc qua im — đo 03/10). Không --write thì như cũ: không chạm tệp
+// đang theo dõi nào. Pin và evidence-report KHÔNG đổi ở mọi ca.
+// `dsDo`: các hồ sơ nhận dấu — mọi hồ sơ khi cả lượt đỏ, chỉ hồ sơ đỏ khi --tung-ho-so mà suite xanh.
+function ghiDauDo(dsDo) {
+  let soDau = 0;
+  // Mục `lenh_do` thêm (gia-lan-ghim-lai): `lan_thu_lai` + `log_lan_dau` khi lệnh đã chạy lại (Đ4),
+  // `moi_truong: "ci"` khi đỏ ở env giống CI (Đ3). Lệnh không chạy lại, env đầy đủ → y như trước.
+  const mucLenh = (cmd, exit, tag) => {
+    const rec = results.get(khoaLenh(cmd, tag)); const cuoi = rec ? rec.lan[rec.lan.length - 1] : null;
+    const lg = cuoi && cuoi.log != null ? cuoi.log : null;
+    return Object.assign(lg === null ? { cmd, exit, log: null, ly_do: 'khong-ghi-duoc' } : { cmd, exit, log: lg },
+      rec && rec.lan.length > 1 ? { lan_thu_lai: rec.lan.length - 1, log_lan_dau: rec.lan[0].log == null ? null : rec.lan[0].log } : {},
+      tag === 'ci' ? { moi_truong: 'ci' } : {});
+  };
+  const tagSuite = envCi ? 'ci' : 'full';
+  // Khuôn cũ: một `lenh_do` chung cho mọi hồ sơ, gộp theo lệnh — y từng byte như trước vòng.
+  let lenhDoChung = null;
+  if (!khuonMoi) {
+    lenhDoChung = [];
+    const daCo = new Set();
+    const them = (cmd, exit, tag) => { const k = khoaLenh(cmd, tag); if (daCo.has(k)) return; daCo.add(k); lenhDoChung.push(mucLenh(cmd, exit, tag)); };
+    suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i], tagSuite); });
+    for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit, 'full');
+  }
+  // Khuôn mới (hồ sơ ho-so-da-ky-giu-tuoi): `lenh_do` RIÊNG từng hồ sơ — suite đỏ (`suite: <chỉ số>`) + eval đỏ
+  // CỦA hồ sơ ấy (`eval: <id>`), mỗi mục mang `thong_diep_bam` + `trich` khi đọc được nhật ký; `dinh_nghia` =
+  // băm khối eval đỏ trong evals.yaml. Đây là vật lệnh giữ tươi chép vào dòng nền đỏ.
+  const lenhDoMoi = (s) => {
+    const ra = [];
+    const daSuite = new Set();
+    suiteCmds.forEach((c, i) => {
+      if (suitesExit[i] === 0 || daSuite.has(c)) return; daSuite.add(c);
+      ra.push(Object.assign({ suite: i }, mucLenh(c, suitesExit[i], tagSuite), thongDiep(c, tagSuite)));
+    });
+    for (const e of out.slugs[s.slug].lech) ra.push(Object.assign({ eval: e.id }, mucLenh(e.cmd, e.exit, 'full'), thongDiep(e.cmd, 'full')));
+    return ra;
+  };
+  const tai = docTai();
+  for (const s of dsDo) {
+    // Mã lượt dưới `lan_id`, KHÔNG `run_id`: thư viện bằng chứng (loadRunLogIds) nhận MỌI `run_id` trong sổ
+    // làm mã lượt verify hợp lệ — mang `run_id` thì báo cáo trích mã của một lượt ĐỎ qua được recheck
+    // (lượt chấm 3, Ngoài-5, tái hiện 03/10). Đỏ không bao giờ là bằng chứng (AC-8).
+    // Lượt đỏ mang băm + carry_lech (không mang evals_carry: lượt đỏ không bao giờ là nguồn dùng lại).
+    const { evals_hash: bamDo, carry_lech: lechDo } = dungLaiCua(s);
+    const lenhDo = lenhDoChung || lenhDoMoi(s);
+    const evDo = khuonMoi ? lenhDo.filter(m => m.eval !== undefined).map(m => m.eval) : [];
+    const dinhNghia = ds && evDo.length ? { dinh_nghia: Object.fromEntries(evDo.map(id => [id, ds.bamDinhNghia(s.evalsText, id)])) } : {};
+    const dau = JSON.stringify(Object.assign({ ts: iso, kind: 'repin-do', lan_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh },
+      dinhNghia, chapChon.length ? { chap_chon: chapChon } : {}, bamDo ? { evals_hash: bamDo } : {}, lechDo ? { carry_lech: lechDo } : {}, { tong_ket: tk.obj, tai }));
+    const logPath = path.join(s.ws, 'run-log.jsonl');
+    try {
+      const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
+      fs.writeFileSync(logPath, prev + (prev && !prev.endsWith('\n') ? '\n' : '') + dau + '\n');
+      soDau += 1;
+    } catch (e) { console.error(`repin-lane: ${s.slug}: không ghi được dấu lượt đỏ — ${String((e && e.code) || e).split('\n')[0]}`); }
+  }
+  return soDau;
+}
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
-  const lech = (e) => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0);
   const veCham = cham.length
     ? `\nexecutor chạm hồ sơ đã thông Cổng Bằng chứng — ${cham.length} tệp:\n${cham.map(c => `  - ${c.tep} (${c.doi})`).join('\n')}\n`
       + 'Sau cổng, cây _acceptance/<slug>/ là sử liệu chỉ đọc: tạo phẩm của lượt chạy lại đi ra .acceptance-runs/<slug>/ hoặc thư mục tạm (eval-executors.md, mục «Where a run writes its artifacts»); sửa bằng chứng đã thông cổng là một dòng revisit trong decisions.jsonl trước, không phải tác dụng phụ. Trả các tệp trên về bản đã commit, sửa executor ghi chúng, rồi chạy làn MỚI.'
     : '';
-  // Dấu lượt đỏ (hồ sơ lan-ghim-lai-giu-tron-loi-loi, 03/10/2026): bản 2.20 thoát 1 mà KHÔNG ghi
-  // gì, nên lượt đỏ không tồn tại trong sổ nào — 02/10 ở crm, 5 lượt đỏ không để vết. Nay với
-  // --write, mỗi slug nhận MỘT dòng `repin-do` (KHÔNG phải `repin`: không chống lưng pin nào, bộ
-  // đọc 2.20 lọc theo loại nên đọc qua im — đo 03/10). Không --write thì như cũ: không chạm tệp
-  // đang theo dõi nào. Pin và evidence-report KHÔNG đổi ở mọi ca.
-  let soDau = 0;
-  if (flags.write) {
-    const lenhDo = [];
-    const daCo = new Set();
-    // Mục `lenh_do` thêm (gia-lan-ghim-lai): `lan_thu_lai` + `log_lan_dau` khi lệnh đã chạy lại (Đ4),
-    // `moi_truong: "ci"` khi đỏ ở env giống CI (Đ3). Lệnh không chạy lại, env đầy đủ → y như trước.
-    const them = (cmd, exit, tag) => {
-      const k = khoaLenh(cmd, tag); if (daCo.has(k)) return; daCo.add(k);
-      const rec = results.get(k); const cuoi = rec ? rec.lan[rec.lan.length - 1] : null;
-      const lg = cuoi && cuoi.log != null ? cuoi.log : null;
-      lenhDo.push(Object.assign(lg === null ? { cmd, exit, log: null, ly_do: 'khong-ghi-duoc' } : { cmd, exit, log: lg },
-        rec && rec.lan.length > 1 ? { lan_thu_lai: rec.lan.length - 1, log_lan_dau: rec.lan[0].log == null ? null : rec.lan[0].log } : {},
-        tag === 'ci' ? { moi_truong: 'ci' } : {}));
-    };
-    suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i], envCi ? 'ci' : 'full'); });
-    for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit, 'full');
-    const tai = docTai();
-    for (const s of perSlug) {
-      // Mã lượt dưới `lan_id`, KHÔNG `run_id`: thư viện bằng chứng (loadRunLogIds) nhận MỌI `run_id` trong sổ
-      // làm mã lượt verify hợp lệ — mang `run_id` thì báo cáo trích mã của một lượt ĐỎ qua được recheck
-      // (lượt chấm 3, Ngoài-5, tái hiện 03/10). Đỏ không bao giờ là bằng chứng (AC-8).
-      // Lượt đỏ mang băm + carry_lech (không mang evals_carry: lượt đỏ không bao giờ là nguồn dùng lại).
-      const { evals_hash: bamDo, carry_lech: lechDo } = dungLaiCua(s);
-      const dau = JSON.stringify(Object.assign({ ts: iso, kind: 'repin-do', lan_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh },
-        chapChon.length ? { chap_chon: chapChon } : {}, bamDo ? { evals_hash: bamDo } : {}, lechDo ? { carry_lech: lechDo } : {}, { tong_ket: tk.obj, tai }));
-      const logPath = path.join(s.ws, 'run-log.jsonl');
-      try {
-        const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
-        fs.writeFileSync(logPath, prev + (prev && !prev.endsWith('\n') ? '\n' : '') + dau + '\n');
-        soDau += 1;
-      } catch (e) { console.error(`repin-lane: ${s.slug}: không ghi được dấu lượt đỏ — ${String((e && e.code) || e).split('\n')[0]}`); }
-    }
-  }
+  const soDau = flags.write ? ghiDauDo(perSlug) : 0;
+  if (tungHoSo && suiteDo) console.error('repin-lane: suite chung đỏ — không ghim hồ sơ nào');
   const dauDo = flags.write ? `không ghi pin; dấu lượt đỏ ở run-log của ${soDau} hồ sơ` : 'không ghi gì';
-  console.error(`repin-lane: LÀN ĐỎ — ${dauDo} (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
+  console.error(`repin-lane: LÀN ĐỎ — ${dauDo} (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lechE).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
   process.stderr.write(tk.dong + '\n');
   await xaRoiThoat(1);
 }
+// --tung-ho-so, suite xanh: hồ sơ đỏ nhận dấu lượt đỏ, hồ sơ còn lại ghim như thường.
+const ghimDuoc = perSlug.filter(s => !doSlug.has(s.slug));
+if (doSlug.size) {
+  const dsDo = perSlug.filter(s => doSlug.has(s.slug));
+  const soDau = flags.write ? ghiDauDo(dsDo) : 0;
+  for (const s of dsDo) console.error(`repin-lane: ${s.slug}: không ghim — eval đỏ: ${s.evals.filter(lechE).map(e => `${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`).join(', ')}${flags.write ? ' · dấu lượt đỏ ở run-log' : ''}`);
+  if (flags.write && soDau !== dsDo.length) log(`dấu lượt đỏ ghi được ${soDau}/${dsDo.length} hồ sơ`);
+}
 if (flags.write) {
-  for (const s of perSlug) {
+  for (const s of ghimDuoc) {
     const o = out.slugs[s.slug];
     const logPath = path.join(s.ws, 'run-log.jsonl');
     const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
@@ -867,5 +986,5 @@ if (flags.write) {
   }
 }
 process.stdout.write(JSON.stringify(out, null, 2) + '\n');
-log(`LÀN XANH — run_id ${runId}${flags.write ? ' (đã ghi)' : ' (chưa ghi: thêm --write)'}`);
+log(`LÀN XANH — run_id ${runId}${flags.write ? ' (đã ghi)' : ' (chưa ghi: thêm --write)'}${doSlug.size ? ` · ${ghimDuoc.length}/${perSlug.length} hồ sơ ghim, ${doSlug.size} hồ sơ đỏ không ghim` : ''}`);
 process.stderr.write(tk.dong + '\n');

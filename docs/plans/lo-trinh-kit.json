@@ -77,7 +77,9 @@
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
-      "hang": []
+      "hang": [
+        "K-A"
+      ]
     },
     {
       "ten": "Phát hành 2.31.0 — ĐÃ PHÁT HÀNH 15/10, tag v2.31.0 = f0634454 (PR #360): thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1), mốc là chiến dịch (MC1), rà soát lộ trình + gói road-map (RM1); chủ kho duyệt mốc 14/10, MC1 + RM1 chuyển vào mốc 15/10 (kit #308)",
@@ -717,6 +719,24 @@
       "bat_khi": "Sau khi crm nhận bản có VA1, 30 ngày lượt chấm lại không có dòng mang sang nào mà định nghĩa eval đã đổi, và không dòng thước lệch hay cây đổi nào mang sha của lượt khác",
       "nhom": "lo-trinh",
       "ghi_chu": "Máy MacBook Pro giữ. Gộp SAU RM3b, trước cắt bản gói road-map. Không chạm scripts/tin-hieu.mjs, gui-tin-hieu.mjs (RM3b). Ước 4–6 giờ máy."
+    },
+    {
+      "ma": "K-A",
+      "ten_ngan": "Hồ sơ đã ký luôn tươi",
+      "cau_giao": "Bộ hồ sơ đã ký của một kho được ghim lại trên đỉnh nhánh chính theo các lần gộp trong một khoảng; ca đỏ quy về PR gây ra bằng cặp sha trước/sau; ca đã đỏ sẵn trên nền mang nhãn trạng thái «đỏ sẵn trên nền» (cùng ca, cùng thông điệp, run_id của nền) thay vì chặn vòng khác — mặc định tắt, kho không bật thì hành vi không đổi",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/okr-soat-anh-luot-3 — hồ sơ đã ký trên onehub, đỏ sẵn E9/E13 ngày 15/10 khi vòng DH2 chạm vào (DH2 tốn 2,5 h máy ghim lại đỏ + 5,3 h chờ người, rồi đẻ một vòng vệ sinh). Quét pre-merge toàn phần trên onehub 16/10: 242 vi phạm trên 248 hồ sơ đã ký; kit đỏ CI hai lần vì hồ sơ vòng khác (#349, #359). Finding docs/findings/2026-10-16-truy-nguyen-toc-do-m5.md (nhánh docs/truy-nguyen-toc-do-vong) §5 PC, §10 — chủ kho duyệt 16/10.",
+      "hang": "T3",
+      "slug": "ho-so-da-ky-giu-tuoi",
+      "dung_tren": [],
+      "bat_khi": "Trong 14 ngày sau khi crm cài mốc chứa K-A và bật cờ: 0 lượt gọi người ngoài thiết kế trên onehub có nguyên nhân «đỏ sẵn» (hôm nay ≈4 lượt trong 2 ngày), và mỗi ca đỏ của lệnh giữ tươi quy về đúng một PR gây ra",
+      "nhom": "gia-ghim-lai",
+      "gio_may": [
+        8,
+        12
+      ],
+      "ghi_chu": "Vòng meta DUY NHẤT của cửa sổ theo luật chiều rộng (b) — chủ kho gọi tên 16/10, chính sách 17/10 xếp trình Cổng Đáng ngay. Máy MacBook Pro giữ (chủ kho chuyển từ M5 13:58Z 16/10, bàn giao docs/handoff/2026-10-16-ban-giao-k-a-sang-macbook-pro.md); làn nặng xin vé khoá máy; gộp main qua lượt ở khoá #308. Ra ở mốc kit đầu tiên sau khi ký Cổng Bằng chứng — mốc 05/11 là trần, không phải hẹn. K-B, K-C, K-D xếp sau, mở khi một kho cài mốc chứa K-A. Phần crm (lịch đêm, gom bảy mục hồ sơ cũ, dọn tồn đọng) không thuộc hàng này."
     },
     {
       "ma": "GT1",
