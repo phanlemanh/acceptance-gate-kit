@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + scripts/lo-trinh.mjs + scripts/gio-may.mjs + skills/cat-luot/SKILL.md + hai khuôn lộ trình + CONTEXT.md + ADR + ca đo — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [ui, cli]
 design_doc: docs/superpowers/specs/2026-10-17-road-map-de-dung-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-17T13:28:03Z
 ---
@@ -95,3 +95,20 @@ lần crm nhận mốc mang vòng này — số mốc ngoài còn lại trên tr
   (khoá có từ RM1, nay đồ thử LT-09 chạm tới vì dòng tên ngắn của AC-5 nằm ở khối Rà soát).
   Sau gộp VA2 (`ve-lo-trinh-doc-tin-hieu-cua-cay`): ca VT-4 / VT-4-do «kho không có sự cố vẽ giống từng byte bộ máy gốc»
   so trên cùng cây tắt RD1.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
+  - Ngoài-1: Ở phần giờ máy theo mốc của bản xem chữ, các dòng có thể xếp theo ngày chứ không theo thứ tự máy thật sự chạy khi có mốc phụ thuộc ngược ngày. Ngày ghi trên từng dòng vẫn đúng, nên người đọc chỉ thấy thứ tự hơi khác chứ không thấy số sai.
+  - Ngoài-2: Hai phép thử phụ mới thêm vào lượt sửa chạy được và đang đạt, nhưng bộ chấm chưa ghi tên chúng vào danh sách bắt buộc phải có. Nếu sau này ai đó lỡ gỡ chúng đi, bộ chấm vẫn báo xanh dù một phần kiểm tra đã mất.
+  - Ngoài-3: Khi có ba mốc mà mốc gần hạn nhất phụ thuộc vào một mốc xa hạn, trang và bản xem có thể báo «quá tải» sai cho mốc gần hạn nhất và ghi ngày bắt đầu muộn hơn thực tế. Có cách xếp khác kịp hạn, nhưng người xem sẽ tưởng mốc đó không kịp.
+  - Ngoài-4: Phép kiểm trên năm kho thật chưa đối chiếu giá trị của năm trường mới trong dữ liệu hiển thị, nên nếu số việc còn lại hay việc gắn vào mốc bị sai ở kho thật thì phép kiểm này vẫn xanh. Các phép kiểm khác trên kho thử và bản chụp crm vẫn đang canh phần này.
+  - Ngoài-5: Người đọc hồ sơ làm theo chỉ dẫn sẽ chạy nhầm công cụ chụp dữ liệu và không dựng lại được bản chụp của vòng này. Sản phẩm chạy đúng, chỉ có tài liệu hướng dẫn sai tên.
+  - Ngoài-6: Khi lộ trình có một mục phụ thuộc bị để trống, hệ thống cảnh báo nhầm rằng việc đó đứng trên một mốc thật và nuốt mất cảnh báo đúng là mục phụ thuộc không có mã. Người đọc có thể bị chỉ sai chỗ cần sửa.
+  - Ngoài-7: Với trang lộ trình vẽ từ rất sớm, người đọc thấy hai dòng cảnh báo cùng bảo vẽ lại trang, trong khi tài liệu hứa đúng một dòng. Chỉ gây rườm, không làm sai nội dung.
+  - Ngoài-8: Cùng một luật kiểm dữ liệu giả được viết ở hai nơi, nên sau này sửa một nơi mà quên nơi kia thì lúc cắt lượt và lúc đọc có thể báo khác nhau. Hiện chưa có người dùng nào gặp sai lệch cụ thể.
+  - Ngoài-9: Khi một việc được liệt ở nhiều mốc, giờ máy của việc đó bị cộng lại ở mỗi mốc nên ngày dự kiến của các mốc sau bị đẩy muộn hơn thực tế. Người đọc có thể thấy ngày giao dự kiến xa hơn mức cần.
+  - Ngoài-10: Dòng tiêu đề khối Mốc nói một số mốc là chưa gắn việc nào, nhưng thực ra có mốc đã gắn việc mà việc đó đã hiện ở mốc trước. Người đọc hiểu nhầm lý do mốc bị ẩn.
+  - Ngoài-11: Khi một việc nằm ở cả mốc chưa có ngày và mốc có ngày, trang hiện việc đó dưới mốc chưa có ngày, ngược với cách tính giờ máy. Người đọc thấy việc nhóm khác nơi ngày dự kiến tính.
+  - Ngoài-12: Ca kiểm chiều đỏ của luật bỏ mốc ngoài có thể vẫn báo đúng dù lỗi xảy ra ở chỗ khác, nên khó tin hoàn toàn rằng nó bắt đúng chỗ. Người dùng sản phẩm không bị ảnh hưởng trực tiếp.
+  - Ngoài-13: Ca kiểm chiều đỏ của dòng gom mốc đã qua ngày ghim vào tên ô do chính ca tự đặt, nên chưa chứng minh được nó bắt đúng lỗi báo nhầm mốc đã khép. Người dùng không thấy khác biệt nào.
+  - Ngoài-14: Ca kiểm không loại trừ được việc hệ thống báo thêm lỗi sai bên cạnh lỗi mốc ngoài, nên một lỗi báo thừa có thể lọt qua. Người dùng có thể thấy thêm một dòng lỗi không đáng có ở ca hiếm.
+  - Ngoài-15: Chưa có phép đo nào kiểm rằng khi mở một dòng việc thì thấy tên hồ sơ; nếu chỗ này hỏng thì không ai biết qua bộ kiểm. Người dùng có thể mở dòng ra mà không thấy tên hồ sơ.
+  - Ngoài-16: Phép kiểm rằng hướng dẫn cắt lượt không dạy tạo mốc ngoài chỉ bắt hai cách viết cố định, nên nếu sau này ai dạy bằng câu chữ khác thì không bị phát hiện. Hiện hướng dẫn chưa sai.
