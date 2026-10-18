@@ -136,20 +136,19 @@ hợp đồng của một vòng).
 
 **Cắt lượt**:
 Biến một bản phạm vi thành các hàng của lộ trình (theo sáu luật, hai dáng `chuoi` · `lan-va`) cùng các
-mục **chờ điều kiện** và **mốc ngoài**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở
-đúng một hàng, mục chờ điều kiện hoặc mốc ngoài cùng `dot`. Trước sáu luật, việc vận hành được tách khỏi việc
-phát triển (bước 2b). Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`,
-`lo-trinh-chi-viec-phat-trien`.
+mục **chờ điều kiện**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở đúng một hàng hoặc
+mục chờ điều kiện cùng `dot`. Trước khi chép bản phạm vi, việc của người được tách ra (bước 2b): không vào bản phạm vi,
+liệt «Ra khỏi kho» ở mô tả PR (ADR 0026). Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`,
+`lo-trinh-chi-viec-phat-trien`, `road-map-de-dung`.
 _Avoid_: xếp điểm ưu tiên tự động (RICE/WSJF); bảng phủ chép tay; để kit ghi trạng thái vào tệp lộ trình.
 
-**Mốc ngoài**:
-Mục `moc` có `loai: "ngoai"` của lộ trình: việc VẬN HÀNH của người (gửi danh sách, đào tạo, công bố, dùng
-thật, gom góp ý) hay sự kiện của kho khác — thứ máy không giao và không chứng được. Mang `ai` (người làm);
-khi cắt từ bản phạm vi thì mang `dot` + `phu` và là chỗ thứ ba của bảng phủ. Được chờ hàng (`hang` của mốc);
-không hàng nào được đứng chờ nó (cờ `cho-van-hanh`). Vận hành lặp lại khai `lap: true` + `tu_phuc_vu`.
-Hồ sơ `lo-trinh-chi-viec-phat-trien`.
-_Avoid_: ghi việc vận hành thành hàng; hàng phát triển `dung_tren` một việc của người; nhầm với mốc
-phát hành (`loai: phat-hanh`).
+**Mốc ngoài** (đã bỏ — ADR 0026, 17/10):
+Mục `moc` có `loai: "ngoai"` của lộ trình — loại mốc của luật S3b (11/10) cho việc vận hành của người. Luật 17/10 bỏ nó: việc
+của người không thành mục nào trên lộ trình, mà đi về một trong bốn chỗ (ngày của mốc phát triển · ô cơ hội · «Ra khỏi kho» ở
+mô tả PR · Chờ điều kiện). Tên giữ ở đây để đọc lộ trình cắt trước luật: răng cắt lượt báo `moc-ngoai-da-bo`, bộ đọc chung gắn
+cờ cùng tên; cắt lại lộ trình là đường dọn. Hồ sơ `road-map-de-dung` (thay vế mốc ngoài của `lo-trinh-chi-viec-phat-trien`).
+_Avoid_: tạo mốc ngoài mới; ghi việc vận hành thành hàng; hàng phát triển `dung_tren` một việc của người; chép việc vận hành vào
+bản phạm vi.
 
 **Dữ liệu giả có nhãn**:
 Dữ liệu máy SINH từ khuôn dữ liệu thật (không viết tay), mỗi bản ghi mang nhãn, để hàng phát triển dựng

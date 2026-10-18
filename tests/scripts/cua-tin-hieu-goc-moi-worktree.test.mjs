@@ -138,12 +138,9 @@ async function ca2(goc) {
   if (new Set(v).size !== 1) sai.push(v.some(x => x.includes('! cửa tín hiệu')) && !v[0].includes('! cửa tín hiệu') ? 'thẻ worktree báo nguồn chưa có' : `thẻ: ${v.join(' · ')}`);
   const t0 = JSON.parse(v[0]);
   if (t0.length !== 1 || !t0[0].startsWith('Cửa tín hiệu: 4 ý')) sai.push(`đối chứng không chạy: thẻ ${v[0]}`);
-  for (const [n, r] of goc3) {
-    const x = spawnSync(process.execPath, [path.join(goc, 'scripts', 'product-map.mjs'), '--root', r], { encoding: 'utf8' });
-    const trang = existsSync(path.join(r, 'LO-TRINH.html')) ? readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8') : '';
-    const thieu = ids.filter(id => !trang.includes(id));
-    if (x.status !== 0 || thieu.length) sai.push(`bản đồ ${n}: thoát ${x.status}, thiếu ${thieu.join(',')}`);
-  }
+  // Chân «trang lộ trình chứa đủ bốn id ở ba gốc» đã THAY bằng AC-1…AC-3 của hồ sơ ve-lo-trinh-doc-tin-hieu-cua-cay
+  // (vá 2.32.1): trang là vật commit nên chỉ lấy ý đã theo dõi trong cây đang vẽ — ý ngoài git của fixture này không
+  // lên trang ở gốc nào. Ca VT-3 của hồ sơ ấy đo đúng điều đó; hợp đồng đã ký của RM3b không sửa.
   if (sai.some(s => s.startsWith('--chua-gom') || s.startsWith('--duong'))) sai.unshift('bộ đọc ở worktree thấy tập khác thư mục chính');
   return sai;
 }
@@ -276,14 +273,17 @@ const TH = 'scripts/tin-hieu.mjs';
 const NGHI = ['const cua = docCua(root, { gocNguon: gocNguon(root) });', 'const cua = docCua(root, { gocNguon: root });'];
 // Bộ đọc sập: chân --duong, và bộ đọc nguồn chung (docTinHieu) — chiều đỏ của các đối chứng dương.
 const DUONG_SAP = [TH, 'const ds = duongDi({ root, classify: PM.classify, sections: PM.SECTIONS });', "const ds = (() => { throw new Error('đường sập'); })();"];
-const DOC_SAP = [TH, 'const dir = path.resolve(gocNguon(root), ng);', "const dir = (() => { throw new Error('bộ đọc sập'); })();"];
+// Dòng giải thư mục nguồn của bộ đọc (scripts/tin-hieu.mjs). Từ 2.32.1 (hồ sơ ve-lo-trinh-doc-tin-hieu-cua-cay) dòng mang
+// thêm nhánh của bộ vẽ trang (`chiTheoDoi ? root : …`); nhát tiêm vẫn đánh vào đường của bộ đọc tương tác như cũ.
+const DONG_DIR = 'const dir = path.resolve(chiTheoDoi ? root : gocNguon(root), ng);';
+const DOC_SAP = [TH, DONG_DIR, "const dir = (() => { throw new Error('bộ đọc sập'); })();"];
 
 const l1 = await lanh('GW-1', g => ca1(g));
 await do_('GW-1-do', [[GUI, ...NGHI]], g => ca1(g), 'ý người nằm trong worktree', l1);
 // GW-1-do2 (phản biện P1): đếm số thứ tự theo nguồn của GỐC PHIÊN mà ghi vào thư mục chính, cộng bộ ghi không độc quyền.
 await do_('GW-1-do2', [[GUI, 'const thuMucDem = cua.nguon;', "const thuMucDem = path.resolve(root, 'tin-hieu', 'kho');"], ['dieu-phoi/scripts/cua-tin-hieu.mjs', "if (fs.existsSync(tep)) return { ket: soSanh(tep, than), tep };", "if (fs.existsSync(tep)) { fs.writeFileSync(tep, than); return { ket: 'moi', tep }; }"]], g => ca1(g), 'ý bị ghi đè', l1);
 const l2 = await lanh('GW-2', async g => [...await ca2(g), ...ca2Vang(g)]);
-await do_('GW-2-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', 'const dir = path.resolve(root, ng);']], g => ca2(g), 'bộ đọc ở worktree thấy tập khác thư mục chính', l2);
+await do_('GW-2-do', [[TH, DONG_DIR, 'const dir = path.resolve(root, ng);']], g => ca2(g), 'bộ đọc ở worktree thấy tập khác thư mục chính', l2);
 await do_('GW-2-do2', [['scripts/start-scan.mjs', 'existsSync(path.resolve(TH.gocNguon(root), ng))', 'existsSync(path.resolve(root, ng))']], g => ca2Vang(g), 'thẻ worktree báo nguồn chưa có', l2);
 await do_('GW-2-do3', [DUONG_SAP], g => ca2(g), 'đối chứng không chạy: --duong', l2);
 const l3 = await lanh('GW-3', g => ca3(g));
@@ -294,7 +294,7 @@ await do_('GW-4-do', [[TH, '  try { return gocKhoChinh(r); } catch { return r; }
 // GW-4-do2: bộ máy ĐỐI CHỨNG sập ở --duong → phép so byte không được tin ngầm (bộ máy hiện tại lành).
 await do_('GW-4-do2', [DUONG_SAP], g => ca4(KIT, { gocB: g }), 'đối chứng gốc không chạy: --duong', l4);
 const l5 = await lanh('GW-5', g => banSaoKhac(g, ca5));
-await do_('GW-5-do', [[TH, 'const dir = path.resolve(gocNguon(root), ng);', "const dir = path.resolve(execFileSync('git', ['-C', path.resolve(root), 'rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim(), ng);"]], g => banSaoKhac(g, ca5), 'bên ghi và bên đọc dùng hai bộ giải', l5);
+await do_('GW-5-do', [[TH, DONG_DIR, "const dir = path.resolve(execFileSync('git', ['-C', path.resolve(root), 'rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim(), ng);"]], g => banSaoKhac(g, ca5), 'bên ghi và bên đọc dùng hai bộ giải', l5);
 const l6 = await lanh('GW-6', g => ca6(g));
 const l6l = await lanh('GW-6-long', g => ca6Long(g));
 const l6g = await lanh('GW-6-gom', g => ca6Gom(g));

@@ -1,0 +1,82 @@
+schema_version: 1
+feature_slug: ve-lo-trinh-doc-tin-hieu-cua-cay
+# Ca đo ở tests/scripts/ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs (ca VT-<n> = AC-n; đuôi .test.mjs nên cũng chạy trong
+# mảnh mjs) — khoá executors.test.ve_lo_trinh_doc_tin_hieu_cua_cay, mọi eval VT chung MỘT lệnh. Kho thử, worktree và bản
+# tải sạch (git clone --no-hardlinks + checkout sha — hình dạng CI) do code sinh trong lượt; «bộ máy gốc» = git archive
+# <goc-so> (v2.32.0). Mỗi ca đỏ chạy trên BẢN SAO của vật với nhát tiêm khớp ĐÚNG một lần, SAU khi bản lành xanh, và
+# ghim thông điệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.ve_lo_trinh_doc_tin_hieu_cua_cay
+    paths: [scripts/tin-hieu.mjs, scripts/product-map.mjs, scripts/lo-trinh-khoi-tao.mjs, tests/scripts/ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: VT-1", "PASS: VT-1-do". VT-1: kho thử khai lộ trình + cửa tín hiệu, tệp ý theo dõi; thư
+      mục chính ở commit có kho-1 và giữ ý chưa theo dõi nguoi-x-1; worktree --detach sạch ở commit có thêm kho-2, kho-3.
+      Vẽ trong worktree bằng bộ máy hiện tại, commit, tải sạch sha ấy, product-map --check → tập id trên trang đúng
+      {kho-1, kho-2, kho-3}, CI thoát 0 in «LO-TRINH.html khớp tệp ý định và hồ sơ.». Đối chứng trên cùng fixture: bộ máy
+      gốc vẽ trang có nguoi-x-1, CI thoát 1 in «LO-TRINH.html lệch» (thiếu → «fixture không tái hiện sự cố»). Chân khởi
+      tạo: xoá trang trong worktree, kho bật road-map ở .claude/settings.json, lo-trinh-khoi-tao.mjs --write → trang có
+      tập id đúng {kho-1, kho-2, kho-3}. VT-1-do: bản sao bộ vẽ gọi đường đọc của thư mục chính → FAIL ghim «trang vẽ
+      lấy tín hiệu của thư mục chính».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.ve_lo_trinh_doc_tin_hieu_cua_cay
+    paths: [scripts/tin-hieu.mjs, scripts/product-map.mjs, tests/scripts/ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: VT-2", "PASS: VT-2-do", "PASS: VT-2-do3". VT-2: kho thử không worktree;
+      thư mục chính có t-1 (commit), s-1 (git add chưa commit), u-1 (chưa theo dõi), x-1 (commit rồi xoá khỏi đĩa chưa
+      commit), m-1 (commit rồi sửa tiêu đề trên đĩa chưa add) → vẽ thoát 0, tập id trên trang đúng {t-1, s-1, m-1}, trang
+      mang tiêu đề mới của m-1 và không mang tiêu đề cũ; commit mọi thứ trừ u-1 → CI xanh; git add u-1, vẽ lại, commit →
+      tập id {t-1, s-1, m-1, u-1}, CI xanh. Kho thứ hai: mọi tệp ý chưa theo dõi → trang không mang id ý nào, CI xanh.
+      VT-2-do: bản sao bỏ phép lọc theo dõi → FAIL ghim «trang vẽ hiện ý chưa theo dõi». VT-2-do3: bản sao đọc nội dung tệp ý
+      từ index → FAIL ghim «trang vẽ bản tệp ý cũ trong index».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.ve_lo_trinh_doc_tin_hieu_cua_cay
+    paths: [scripts/tin-hieu.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, scripts/gui-tin-hieu.mjs, tests/scripts/ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: VT-3", "PASS: VT-3-do". VT-3: fixture RM3b (tệp ý không theo dõi, worktree A và B, ba ý gửi
+      bằng khối RM-GUI-LENH từ A, B, thư mục chính); --chua-gom, --duong (tập id), --rang (mã thoát + dòng bảng phủ),
+      --cau (mã thoát + dòng tóm tắt), start-scan (các dòng «Cửa tín hiệu:») ở ba gốc bằng nhau, tập id đúng ba, đối
+      chứng dương từng chân (thiếu → «đối chứng không chạy: <chân>»); trang vẽ ở A không chứa id nào trong ba, sau đối
+      chứng dương bộ máy gốc vẽ trang ở A chứa đủ ba id (thiếu → «đối chứng không chạy: trang»). VT-3-do:
+      bản sao bật phép lọc theo dõi cho mọi bộ đọc → FAIL ghim «bộ đọc tương tác mất ý chưa theo dõi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.cua_tin_hieu_goc_moi_worktree
+    paths: [scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/start-scan.mjs, scripts/product-map.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: GW-1", "PASS: GW-2", "PASS: GW-3", "PASS: GW-4", "PASS: GW-5", "PASS: GW-6" và không dòng
+      "FAIL:" — mọi ca của RM3b (bên ghi người, bộ đọc tương tác ở ba gốc, dọn worktree, không đổi byte ở thư mục chính,
+      một bộ giải, gốc không phải git) vẫn xanh; chân product-map của GW-2 đã thay bằng VT-1…VT-3 (chú thích trong tệp ca).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.ve_lo_trinh_doc_tin_hieu_cua_cay
+    paths: [scripts/tin-hieu.mjs, scripts/product-map.mjs, tests/scripts/ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: VT-4", "PASS: VT-4-do". VT-4: ba kho thử — không khai tin_hieu; khai cửa, không worktree,
+      mọi ý đã theo dõi; gốc là thư mục thường không phải git, khai lộ trình + cửa, hai ý — bộ máy hiện tại và bộ máy gốc
+      vẽ PRODUCT-MAP.md và LO-TRINH.html giống từng byte, sau đối chứng dương (gốc thoát 0, trang ca 2 và 3 chứa đủ id;
+      thiếu → «đối chứng gốc không chạy: <ca>»). VT-4-do: bản sao trả rỗng khi gốc không phải git → FAIL ghim «thư mục
+      thường mất ý trên trang».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  # Thêm ở S4 lượt 2 (sổ dòng fix S4-r2): vùng 2 của suite plugins chạy 671 s kể cả khi máy rảnh — quá trần 10 phút mỗi
+  # lệnh của tác tử chấm, nên lượt 2 BLOCKED vì hạ tầng. Eval này mang CHÍNH lệnh của suite với long_running để workflow
+  # chạy nền và chờ (tiền lệ release-2-32-0 E3i); không đổi phép đo của tiêu chí nào.
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins_vung_2
+    long_running: 60
+    expected: "vùng 2 của suite plugins XANH (Results: all plugin tests passed) — không hồi quy ở phần còn lại của kit"
+    evidence_required: [run_id, exit_code, verifier, verified_at]

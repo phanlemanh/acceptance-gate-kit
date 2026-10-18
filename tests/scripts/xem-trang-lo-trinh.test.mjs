@@ -22,7 +22,7 @@ const ok = (id, m = '') => { pass += 1; console.log(`  PASS: ${id}${m ? ` — ${
 const bad = (id, m) => { fail += 1; console.log(`  FAIL: ${id} — ${m}`); };
 const loi = e => (e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : String(e));
 const deq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const CA = ['LTT-san', 'LTT-san-do', 'LTT-san-im', 'LTT-moc', 'LTT-moc-khong-script', 'LTT-hanh-vi', 'LTT-hanh-vi-do', 'LTT-buoc-ke', 'LTT-buoc-ke-do'];
+const CA = ['LTT-san', 'LTT-san-do', 'LTT-san-im', 'LTT-moc', 'LTT-moc-khong-script', 'LTT-hanh-vi', 'LTT-hanh-vi-do', 'LTT-buoc-ke', 'LTT-buoc-ke-do', 'LTT-ten', 'LTT-ten-do'];
 const only = (process.env.LT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => !only.length || only.includes(id);
 
@@ -89,7 +89,9 @@ async function san(P, kit) {
   }
   await P.mo(await ve(bo2210(), KHO['hai-lo-trinh'], 'cu'), { w: 1440, h: 900, sac: 'light' });
   so.cu = (await P.do()).cao;
-  if (!(so.cu > 0) || so.moi * 3 > so.cu) sai.push(`độ dài: trang mới ${so.moi}px, trang 2.21.0 ${so.cu}px (tỉ lệ ${(so.moi / so.cu).toFixed(3)} > 1/3)`);
+  // Trần 0,4 (chủ kho chốt 17/10, hồ sơ road-map-de-dung — thay trần 1/3 của trang-lo-trinh-doc-mot-phut): khối Mốc liệt đủ câu
+  // giao của từng việc chưa giao, nên trang dài hơn có chủ ý; vẫn ngắn hơn trang 2.21.0 khoảng 2,5 lần.
+  if (!(so.cu > 0) || so.moi * 10 > so.cu * 4) sai.push(`độ dài: trang mới ${so.moi}px, trang 2.21.0 ${so.cu}px (tỉ lệ ${(so.moi / so.cu).toFixed(3)} > 0,4)`);
   return { o, sai, so };
 }
 const thuoc = sai => [...new Set(sai.map(s => s.split(':')[0]))].sort();
@@ -186,10 +188,11 @@ if (P) {
       } catch (e) { bad('LTT-san-im', loi(e)); }
     }
     // ── LTT-moc: mốc kế tiếp theo ngày người xem ─────────────────────────────
-    // Mốc xong (việc G đã giao) · Mốc đã qua (việc A chưa giao) · Mốc hôm nay (không gắn) · Mốc tới (việc B).
-    const khoMoc = () => KT.khoMoi(path.join(TMP, 'moc'), { tep: ['docs/plan/moc.json'], hoSo: { g: ['da-ship', 'T2'] }, files: { 'docs/plan/moc.json': { schema: 1, ten: 'Thử mốc',
-      moc: [{ ten: 'Mốc tới', ngay: '2026-10-20', hang: ['B'] }, { ten: 'Mốc đã qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Mốc hôm nay', ngay: '2026-10-03' }, { ten: 'Mốc xong', ngay: '2026-08-15', hang: ['G'] }],
-      hang: [{ ma: 'G', cau_giao: '«việc G»', slug: 'g', hang: 'T2' }, { ma: 'A', cau_giao: '«việc A»' }, { ma: 'B', cau_giao: '«việc B»' }] } } });
+    // Mốc xong (việc G đã giao) · Mốc đã qua (việc A chưa giao) · Mốc hôm nay (việc H) · Mốc tới (việc B). Mốc không gắn việc không
+    // còn hiện (luật hiển thị chung, hồ sơ road-map-de-dung AC-11) — «Mốc hôm nay» mang việc H để ca giữ nguyên lời hứa ngày.
+    const khoMoc = () => KT.khoMoi(path.join(TMP, 'moc'), { tep: ['docs/plan/moc.json'], hoSo: { g: ['da-ship', 'T2'], h: ['da-ship', 'T2'] }, files: { 'docs/plan/moc.json': { schema: 1, ten: 'Thử mốc',
+      moc: [{ ten: 'Mốc tới', ngay: '2026-10-20', hang: ['B'] }, { ten: 'Mốc đã qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Mốc hôm nay', ngay: '2026-10-03', hang: ['H'] }, { ten: 'Mốc xong', ngay: '2026-08-15', hang: ['G'] }],
+      hang: [{ ma: 'G', cau_giao: '«việc G»', slug: 'g', hang: 'T2' }, { ma: 'A', cau_giao: '«việc A»' }, { ma: 'B', cau_giao: '«việc B»' }, { ma: 'H', cau_giao: '«việc H»', slug: 'h', hang: 'T2' }] } } });
     const docMoc = () => P.danhGia(`({ o: document.getElementById('lt1-moc-ke').textContent, li: [...document.querySelectorAll('ol.moc li')].map(l => [l.getAttribute('data-ngay'), (l.querySelector('.con') || {}).textContent, l.querySelector('.ngay').textContent, l.classList.contains('ke-tiep')]) })`);
     if (want('LTT-moc')) {
       try {
@@ -216,6 +219,42 @@ if (P) {
         if (a.o === 'Xem dải mốc bên dưới.' && deq(a.li.map(x => x[2]), ['15/08/2026', '01/09/2026', '03/10/2026', '20/10/2026'])) ok('LTT-moc-khong-script', 'tắt script: ô thẻ «Xem dải mốc bên dưới.», dải mốc vẫn đủ bốn ngày');
         else bad('LTT-moc-khong-script', `ô «${a.o}» ngày ${JSON.stringify(a.li.map(x => x[2]))}`);
       } catch (e) { bad('LTT-moc-khong-script', loi(e)); }
+    }
+    // ── LTT-ten (hồ sơ road-map-de-dung, AC-6): dòng việc trong khối Mốc — vùng chạm, tương phản, không tràn ─
+    const khoTen = () => KT.khoMoi(path.join(TMP, 'ten'), { tep: ['docs/plan/ten.json'], files: { 'docs/plan/ten.json': { schema: 1, ten: 'Thử tên',
+      moc: [{ ten: 'Mốc một — có việc dài', ngay: '2026-11-01', loai: 'phat-hanh', hang: ['A', 'B', 'C'] }, { ten: 'Mốc hai', ngay: '2026-11-08', loai: 'han', hang: ['D', 'G'] }],
+      hang: [{ ma: 'A', slug: 'viec-a', cau_giao: '«Trưởng phòng ban mở trang Lộ trình và thấy mỗi việc, mỗi mốc có ngày dự kiến xong do máy tính — ghi rõ là dự kiến, có cờ khi số đo chưa đủ»' },
+        { ma: 'B-dai-ma-ten-viec', slug: 'viec-b', cau_giao: '«việc B»', trang_thai: 'Đang làm' }, { ma: 'C', cau_giao: '«việc C»', trang_thai: 'Đã giao' }, { ma: 'D', slug: 'viec-d', cau_giao: '«việc D»' }, { ma: 'G', cau_giao: '«việc G chưa có hồ sơ»' }, { ma: 'E', cau_giao: '«việc E không hẹn mốc»' }] } } });
+    const DO_TEN = `(() => {
+      const L = c => { const m = c.match(/\\d+(\\.\\d+)?/g).map(Number); const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(m[0]) + 0.7152 * f(m[1]) + 0.0722 * f(m[2]); };
+      const nen = e => { for (let x = e; x; x = x.parentElement) { const b = getComputedStyle(x).backgroundColor; if (b && !/rgba\\(.*, 0\\)$/.test(b) && b !== 'transparent') return b; } return 'rgb(255,255,255)'; };
+      const tp = e => { const a = L(getComputedStyle(e).color), b = L(nen(e)); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+      const sum = [...document.querySelectorAll('.viec summary')].filter(e => e.getClientRects().length);
+      const chu = [...document.querySelectorAll('.viec .ten, .viec .tt, .viec .ma')].filter(e => e.getClientRects().length);
+      return { n: sum.length, thap: Math.min(...sum.map(e => e.getBoundingClientRect().height)), tpMin: Math.min(...chu.map(tp)), tran: document.documentElement.scrollWidth > innerWidth };
+    })()`;
+    const doTen = async kit => {
+      const f = await ve(kit, khoTen(), 'ten'); const sai = []; let o = 0;
+      for (const [w, h] of [[1280, 900], [375, 812]]) for (const sac of SAC) {
+        await P.mo(f, { w, h, sac, homNay: '2026-10-20' }); const x = await P.danhGia(DO_TEN); o += 1; const oTen = `${w} ${sac}`;
+        if (!(x.n >= 3)) sai.push(`đối chứng: ${oTen} chỉ ${x.n} dòng việc nhìn thấy`);
+        if (!(x.thap >= 44)) sai.push(`vùng chạm < 44px: ${oTen} ${x.thap}px`);
+        if (!(x.tpMin >= 4.5)) sai.push(`tương phản < 4,5: ${oTen} ${x.tpMin.toFixed(2)}`);
+        if (x.tran) sai.push(`tràn ngang: ${oTen}`);
+      }
+      return { o, sai };
+    };
+    let tenLanh = null;
+    if (want('LTT-ten') || want('LTT-ten-do')) {
+      try { tenLanh = await doTen(KIT); if (tenLanh.sai.length) bad('LTT-ten', tenLanh.sai.join(' ; ')); else ok('LTT-ten', `${tenLanh.o}/4 ô (1280 · 375 × sáng · tối): dòng việc của khối Mốc cao ≥ 44px, chữ tên và trạng thái tương phản ≥ 4,5 : 1, không tràn ngang`); } catch (e) { bad('LTT-ten', loi(e)); }
+    }
+    if (want('LTT-ten-do')) {
+      try {
+        if (!tenLanh || tenLanh.sai.length) throw new Error('bản lành chưa xanh — không tin được chiều đỏ');
+        const r = await doTen(banSao([['scripts/lo-trinh.mjs', '.viec summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:400;color:var(--fg);min-height:44px}', '.viec summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-weight:400;color:var(--fg);min-height:0}']]));
+        const g = r.sai.find(m => m.startsWith('vùng chạm < 44px'));
+        if (g) ok('LTT-ten-do', `bản sao bỏ chiều cao tối thiểu của dòng việc: «${g}»`); else bad('LTT-ten-do', `không bắt: ${JSON.stringify(r.sai)}`);
+      } catch (e) { bad('LTT-ten-do', loi(e)); }
     }
     // ── LTT-hanh-vi ──────────────────────────────────────────────────────────
     let hvLanh = null;

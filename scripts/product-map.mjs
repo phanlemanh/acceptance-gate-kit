@@ -377,7 +377,9 @@ export async function veTrangLoTrinh(root) {
       return { loi: 'Kho khai tin_hieu nhưng thiếu scripts/tin-hieu-khoa.cjs — chép theo danh sách chép CI (GUIDE §5.3) hoặc gỡ khối tin_hieu.' };
     if (khoaTinHieu != null && khoaTinHieu(cfg) != null) {
       const TH = await import('./tin-hieu.mjs');
-      tinHieu = TH.duongDi({ root, classify, sections: SECTIONS });
+      // Trang là vật COMMIT: chỉ ý đã theo dõi trong cây đang vẽ (hồ sơ ve-lo-trinh-doc-tin-hieu-cua-cay) — bộ đọc
+      // tương tác của cửa vẫn đọc hộp ý chung ở thư mục chính.
+      tinHieu = TH.duongDi({ root, classify, sections: SECTIONS, chiTheoDoi: true });
     }
     trang = LT.veTrang({ root, classify, sections: SECTIONS, tinHieu });
   }

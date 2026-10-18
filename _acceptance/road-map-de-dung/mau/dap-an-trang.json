@@ -1,0 +1,157 @@
+{
+ "nguon": "tests/scripts/fixtures/lo-trinh/crm-onehub-1017 (crm onehub b74ec7eae)",
+ "cau": [
+  {
+   "lo_trinh": "OKR",
+   "moc": "R2 lên production (tạm — chốt lại bằng số đo sau ba ngày đầu của đợt r2; trước đó 20/11)",
+   "con": 20,
+   "tong": 20,
+   "viec": [
+    {
+     "ten": "Góp ý của Kara được đo trên khoảng 30 ca mẫu dựng theo khuôn OKR quý 4 — cấp OneHub và phòng ban — nằm trong bộ OKR mẫu, không chờ phòng ban công bố",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Tôi hỏi về OKR trên web hoặc Zalo và nhận câu trả lời theo quyền của tôi",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Mọi chỗ AI nói đều mang tên Kara: tab bản ghi, tóm tắt tuần, Soạn OKR, Cài đặt, Tài liệu, Zalo",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Khi Kara đang soạn hoặc người dùng gõ dở trong khung, bấm một liên kết trong khung thì được hỏi trước khi rời, chữ đang gõ không mất",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Sheet mục tiêu hiện lý do căn chỉnh của từng đường nối lên mục tiêu cha",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Cây căn chỉnh hiện lý do của từng đường nối và lọc được các đường «Chưa có lý do»",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Căn chỉnh gắn bằng tay và căn chỉnh Kara đề xuất đều mang lý do",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Màn tác nhân đọc được trên điện thoại, trạng thái tiếng Việt, bộ dựng không treo im lặng",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Thêm bước ở kế hoạch báo đúng: danh sách bộ phận không tải được thì nói lý do; số việc quá hạn đếm theo một ngày; bộ phận không có thật trả cùng một lỗi như mọi chỗ khác",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Màn nào đang tải cũng giữ tiêu đề, lỗi tải ở đâu cũng một hình có nút thử lại, và đầu trang không có nút chính tắt mà không nói vì sao",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Lọc và chuyển kiểu xem ở mọi danh sách trông và chạy như nhau, và gửi đường dẫn cho đồng nghiệp là giữ nguyên bộ lọc",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Cùng một nghĩa — xong, chờ, hỏng, nháp, đang chạy — mang cùng một màu ở OKR, Kara, lịch họp và Tài liệu",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Breadcrumb đọc tiếng Việt với trình đọc màn hình; mô tả kiểu trường ở Cài đặt › Trường không tràn ở khổ 360",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Danh sách liên quan trong ngăn bản ghi không lẫn bản đã lưu trữ, kèm «+n đã lưu trữ» để mở xem",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Lưu trữ một trường thôi hỏi lại và có «Hoàn tác» như mọi chỗ lưu trữ khác",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Ngăn bản ghi và Kanban thoả thuận không vỡ bố cục ở khổ hẹp",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Dải báo «Đã lưu trữ» và vùng khoá chỉ đọc là một mảnh dùng chung trong packages/ui, như docs/vong-doi.md dặn",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Lưu trữ và hoàn tác hàng loạt báo đúng: lỗi máy chủ không hiện thành «bị bỏ qua», hoàn tác khi mọi bản đã về không báo «chưa hoàn tác được», lỗi từng bản ghi có dòng log",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Tôi bấm một việc đã giao trong trang Lộ trình và đọc trong một phút: vì sao làm, đã lên chưa, sẽ đo gì, còn thiếu gì, ai quyết",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Tôi bấm Gửi tín hiệu ở bất kỳ màn nào, kể điều mình gặp, rồi thấy nó đã vào nhóm nào, thành việc nào, đã giao chưa",
+     "trang_thai": "Chưa mở"
+    }
+   ]
+  },
+  {
+   "lo_trinh": "OKR",
+   "moc": "Làn R1 vá xong trên production, trước ngày dùng thật",
+   "con": 8,
+   "tong": 8,
+   "viec": [
+    {
+     "ten": "Khung Mục tiêu gọn: bảng KR có lề, tab không trùng tên, điện thoại đọc được, chip Kara cùng cỡ nhãn, thanh Theo đơn vị không nhảy dòng",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Nhập cả công ty không hỏng ngầm: đặt được tên miền nội bộ, cho phép lại người đang là thành viên không treo",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Hồi ý không bị hộp che, Cập nhật tuần báo đã xong, Toàn cảnh không nói ngược bảng",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Dựng cây và đặt OKR không vấp: mục tiêu thu gọn giữ nguyên, KR từ mẫu báo người phụ trách, khôi phục phòng ban đúng chỗ",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Thành viên thường không nhờ chat sửa trường của cả đội; model bị gỡ thì chat lùi về mặc định và báo quản trị",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Quên mật khẩu giữ logo, đăng xuất lỗi báo tiếng Việt, lỗi cơ sở dữ liệu không đá người về đăng nhập",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Zalo quá tải không bị báo token sai; bot chỉ đúng đường tới trang nhắc",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Kara sập giữa lượt thì không mất lượt soạn; «Thử lại» nói rõ vì sao không chạy",
+     "trang_thai": "Chưa mở"
+    }
+   ]
+  },
+  {
+   "lo_trinh": "OKR",
+   "moc": "R3 lên production — mục tiêu theo giờ máy, trần 18/12",
+   "con": 4,
+   "tong": 4,
+   "viec": [
+    {
+     "ten": "Tôi cập nhật ngay trong Slack hoặc Zalo, và biết sớm KR nào đang trượt",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Bản tin tuần vào kênh Slack của đơn vị; lọc lưu được và tìm OKR trong ô tìm chung",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Lúc đóng kỳ, Trợ lý soạn nháp điều học được; tôi nhận hay sửa",
+     "trang_thai": "Chưa mở"
+    },
+    {
+     "ten": "Trưởng bộ phận đọc một bản tóm tắt gộp từ các phòng ban",
+     "trang_thai": "Chưa mở"
+    }
+   ]
+  }
+ ]
+}

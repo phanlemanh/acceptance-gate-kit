@@ -120,6 +120,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
   } catch (e) { bad(id, loi(e)); }
 };
+
+// Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
+// gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
+// hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const KIT_TAT = () => tatRD1(KIT);
+const chayDoTat = async (id, f, tiem, ghim, moTa) => {
+  try {
+    const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
+    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
+  } catch (e) { bad(id, loi(e)); }
+};
 const daySo = so => so.map(d => `${d.loai} ${d.ma} ${d.ngay}`);
 
 let napN = 0;
@@ -587,8 +600,8 @@ async function ap8(kit) {
   const ghi = trangThaiSach(r); if (ghi) sai.push(`lệnh xem ghi tệp: ${ghi.split('\n').map(l => l.slice(3)).join(', ')}`);
   return sai;
 }
-if (want('AP-8') && await chayCa('AP-8', ap8)) ok('AP-8', 'dòng lệnh rút từ xem.md in đúng khối viết sẵn: đếm · đang dở · kế · rà soát (hàng ghim có hậu tố) · tự áp (báo trước, đã áp kèm lệnh trả lại, chính sách); thoát 0, không ghi tệp');
-if (want('AP-8-do')) await chayDo('AP-8-do', ap8, [['scripts/lo-trinh.mjs', '  return ra;\n}\n\n// Trả lại MỘT lần áp', "  writeFileSync(path.join(root, '_xem.tmp'), 'x');\n  return ra;\n}\n\n// Trả lại MỘT lần áp"]], 'lệnh xem ghi tệp: _xem.tmp', 'bản sao để lệnh xem ghi tệp');
+if (want('AP-8') && await chayCa('AP-8', ap8, KIT_TAT())) ok('AP-8', 'dòng lệnh rút từ xem.md in đúng khối viết sẵn: đếm · đang dở · kế · rà soát (hàng ghim có hậu tố) · tự áp (báo trước, đã áp kèm lệnh trả lại, chính sách); thoát 0, không ghi tệp');
+if (want('AP-8-do')) await chayDoTat('AP-8-do', ap8, [['scripts/lo-trinh.mjs', '  return ra;\n}\n\n// Trả lại MỘT lần áp', "  writeFileSync(path.join(root, '_xem.tmp'), 'x');\n  return ra;\n}\n\n// Trả lại MỘT lần áp"]], 'lệnh xem ghi tệp: _xem.tmp', 'bản sao để lệnh xem ghi tệp');
 if (want('AP-8-khong-bat') && await chayCa('AP-8-khong-bat', async kit => {
   const { r } = kho({ phienBan: [{ ngay: '2026-09-05', data: KHONG_BAT['khong-chinh-sach'] }] });
   const x = chayXem(kit, r, HN1); const sai = [];
@@ -628,7 +641,7 @@ if (want('AP-9') && await chayCa('AP-9', async kit => {
   if (dong.filter(d => d.startsWith('Tự áp:')).length !== 1) sai.push('dòng tổng tự áp không duy nhất');
   if (trangThaiSach(r)) sai.push(`thẻ khởi động ghi tệp: ${trangThaiSach(r)}`);
   return sai;
-})) ok('AP-9', 'thẻ khởi động: đúng một dòng «Tự áp: 2 báo trước (áp từ 21/10/2026) · 1 đã áp 7 ngày qua» + ba dòng chi tiết, ngay sau khối rà soát; không ghi tệp');
+}, KIT_TAT())) ok('AP-9', 'thẻ khởi động: đúng một dòng «Tự áp: 2 báo trước (áp từ 21/10/2026) · 1 đã áp 7 ngày qua» + ba dòng chi tiết, ngay sau khối rà soát; không ghi tệp');
 const KHO_9 = {
   'khong-khai': () => kho({ cfg: null, data: { schema: 1, hang: [H('A')] } }).r,
   'khong-moc': () => kho({ data: { schema: 1, hang: [H('A'), H('B')] } }).r,
@@ -644,8 +657,8 @@ async function ap9byte(kit) {
   }
   return sai;
 }
-if (want('AP-9-byte') && await chayCa('AP-9-byte', ap9byte)) ok('AP-9-byte', 'ba kho không bật, không đề xuất: thẻ khởi động giống từng byte bộ máy gốc');
-if (want('AP-9-do')) await chayDo('AP-9-do', ap9byte, [['scripts/lo-trinh.mjs', '    if (!t.tuAp) return t.nhacChinhSach ?', '    if (!t.tuAp) t.tuAp = { bao_truoc: [], da_ap: [] };\n    if (!t.tuAp) return t.nhacChinhSach ?']], 'thẻ khác bộ máy gốc: khong-moc', 'bản sao in dòng tổng không điều kiện');
+if (want('AP-9-byte') && await chayCa('AP-9-byte', ap9byte, KIT_TAT())) ok('AP-9-byte', 'ba kho không bật, không đề xuất: thẻ khởi động giống từng byte bộ máy gốc');
+if (want('AP-9-do')) await chayDoTat('AP-9-do', ap9byte, [['scripts/lo-trinh.mjs', '    if (!t.tuAp) return t.nhacChinhSach ?', '    if (!t.tuAp) t.tuAp = { bao_truoc: [], da_ap: [] };\n    if (!t.tuAp) return t.nhacChinhSach ?']], 'thẻ khác bộ máy gốc: khong-moc', 'bản sao in dòng tổng không điều kiện');
 if (want('AP-9-nhac') && await chayCa('AP-9-nhac', async kit => {
   const sai = []; const NHAC = '  ! chiến dịch Toi 30/10 chưa khai chính sách tự áp — chỉ cờ';
   const co = kho({ data: { schema: 1, moc: [QUA(['M1']), { ten: 'Toi', ngay: '2026-10-30', loai: 'phat-hanh', hang: [] }], hang: [H('M1')] } }).r;
