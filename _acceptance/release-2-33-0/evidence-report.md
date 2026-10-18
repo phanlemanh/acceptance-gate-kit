@@ -1,18 +1,17 @@
 ---
 schema_version: 2
 feature_slug: release-2-33-0
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
+reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f847b91aaee744f78306926dd96df316ab539434
+verified_commit: 398f924dfba9b1bbac08907df08d719cdb47f5a3
 human_signoff:
 ---
 
 # Evidence Report: release-2-33-0
-
-Round 1. Mọi eval máy đều xanh; còn một mục judgment (E9) chưa người chốt nên verdict dừng ở PENDING-JUDGMENT.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -34,202 +33,197 @@ Round 1. Mọi eval máy đều xanh; còn một mục judgment (E9) chưa ngư�
 | E6 | AC-6 | test | PASS |
 | E7 | AC-7 | script | PASS |
 | E8 | AC-8 | script | PASS |
-| E9 | AC-9 | judgment | UNCERTAIN |
+| E9 | AC-9 | judgment | PASS |
 | E10 | AC-10 | test | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-release-2-33-0-E1-r1
+  run_id: minted-release-2-33-0-E1-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-release-2-33-0-E2-r1
+  run_id: minted-release-2-33-0-E2-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-release-2-33-0-E3-r1
+  run_id: minted-release-2-33-0-E3-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts_bash
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: 839 passed, 0 failed
 
 - eval: E3f
-  run_id: minted-release-2-33-0-E3f-r1
+  run_id: minted-release-2-33-0-E3f-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_1
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
-    Results: 36 passed, 0 failed
+    (lệnh thoát sạch; phần đuôi đã ghi không có dòng tóm tắt Results)
 
 - eval: E3g
-  run_id: minted-release-2-33-0-E3g-r1
+  run_id: minted-release-2-33-0-E3g-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_2
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: 36 passed, 0 failed
 
 - eval: E3h
-  run_id: minted-release-2-33-0-E3h-r1
+  run_id: minted-release-2-33-0-E3h-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_3
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: 35 passed, 0 failed
 
 - eval: E3b
-  run_id: minted-release-2-33-0-E3b-r1
+  run_id: minted-release-2-33-0-E3b-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.hooks
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: 71 passed, 0 failed
 
 - eval: E3c
-  run_id: minted-release-2-33-0-E3c-r1
+  run_id: minted-release-2-33-0-E3c-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_1
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3i
-  run_id: minted-release-2-33-0-E3i-r1
+  run_id: minted-release-2-33-0-E3i-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_2
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3j
-  run_id: minted-release-2-33-0-E3j-r1
+  run_id: minted-release-2-33-0-E3j-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3d
-  run_id: minted-release-2-33-0-E3d-r1
+  run_id: minted-release-2-33-0-E3d-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all workflow tests passed
 
 - eval: E3k
-  run_id: minted-release-2-33-0-E3k-r1
+  run_id: minted-release-2-33-0-E3k-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
-    ok 50 - DP1-01 cai-la-du|ok 51 - DP1-01-do doi-ten-tep|ok 52 - DP1-01-do dao-lenh|ok 53 - DP1-02 chieu-im|ok 54 - DP1-02 ngoai-git|    ok 1 - DP1-02-duong chan-s4|    ok 2 - DP1-02-duong nhip|    ok 3 - DP1-02-duong cho-nguoi|    ok 4 - DP1
+    (lệnh thoát sạch; phần đuôi đã ghi không có dòng tóm tắt DP1 hay dòng pass/fail để trích)
 
 - eval: E3e
-  run_id: minted-release-2-33-0-E3e-r1
+  run_id: minted-release-2-33-0-E3e-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.product_map
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     LO-TRINH.html khớp tệp ý định và hồ sơ.
 
 - eval: E4
-  run_id: minted-release-2-33-0-E4-r1
+  run_id: minted-release-2-33-0-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2330_cua_so
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     XANH: hai tập bằng nhau
 
 - eval: E5
-  run_id: minted-release-2-33-0-E5-r1
+  run_id: minted-release-2-33-0-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2330_dd_giu
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     moc:   "version": "2.7.1", | HEAD:   "version": "2.7.1",
 
 - eval: E6
-  run_id: minted-release-2-33-0-E6-r1
+  run_id: minted-release-2-33-0-E6-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-release-2-33-0-E7-r1
+  run_id: minted-release-2-33-0-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2330_goi_doi
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     hai goi doi: dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json
 
 - eval: E8
-  run_id: minted-release-2-33-0-E8-r1
+  run_id: minted-release-2-33-0-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2330_lop_chep
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     XANH: đúng 7 tệp đổi như ghi chú 2.33.0 kể
 
 - eval: E10
-  run_id: minted-release-2-33-0-E10-r1
+  run_id: minted-release-2-33-0-E10-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kiem_ban_cai_moc
-  verified_at: 2026-10-18T12:28:53Z
+  verified_at: 2026-10-18T13:35:01Z
   output: |
     [kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.32.1 (5bd64bc9) cài đúng tag
 
-### Hội đồng judgment
+### Judge (E9, AC-9)
+
+Hội đồng đề xuất: PASS (ba thấu kính cùng PASS). Ô `human_override` để TRỐNG cho người điền ở Cổng Bằng chứng.
 
 - eval: E9
-  judged_by: judge-subagent (fresh context), ba lăng kính
-  verdict: UNCERTAIN
-  proposal: UNCERTAIN
+  judged_by: judge-panel (fresh context, 3 lens)
+  verdict: PASS
+  rationale: Ba thấu kính đều PASS; lệch con số «năm cờ» (CHANGELOG) và «sáu cờ» (AC-8/AC-10 của hợp đồng road-map-de-dung) được hai thấu kính ghi nhận là không đối chiếu được với mã vì `scripts/lo-trinh.mjs` ngoài Input.
   votes:
-    - domain-correctness: UNCERTAIN — Ba vế (1), (2), (3) khớp với các tệp trong danh sách input. Vế (0) thì hợp đồng ho-so-da-ky-giu-tuoi không nói `fetch-depth: 0` và không có «bảy việc crm chờ K-A», nên không đối chiếu được. Hợp đồng chỉ có AC-7 (lưới đọc dòng nền tại điểm tách với nhánh chính) và Out of scope (vòng dọn hồ sơ tồn đọng là việc của crm). Thiếu căn cứ cho vế (0) nên không thể PASS, và cũng không có câu sai rõ ràng để FAIL.
-    - operational-feasibility: UNCERTAIN — Vế (1), (2) và (3) đúng: ghi chú dặn cắt lại bằng skill mới và nêu không có đường đọc riêng cho mốc ngoài cũ; bảy tệp chép CI khớp khối INIT-CI-COPY-LIST (có do-san-tren-nen.cjs, 7+22=29); năm khoá mô hình hiển thị khớp lo-trinh-du-lieu.md và AC-11 của road-map-de-dung. Vế (0) không kiểm được: hợp đồng ho-so-da-ky-giu-tuoi không nhắc `fetch-depth: 0` và không nhắc con số «bảy việc crm chờ K-A». Hợp đồng còn nói ngưỡng đo chỉ mở sau khi crm cài mốc VÀ bật khoá, trong khi CHANGELOG viết «mở được sau khi crm cài mốc này».
-    - spec-alignment: UNCERTAIN — Ba vế (1), (2), (3) khớp với các tệp trong Input. Vế (0) không chứng được: hợp đồng ho-so-da-ky-giu-tuoi không nhắc `fetch-depth: 0` và không nhắc «bảy việc crm chờ K-A». Điểm tách của nhánh (AC-7) chỉ gợi ý được về `fetch-depth`, còn «bảy» thì không có nguồn nào trong các tệp được phép đọc.
-  rationale: Ba lăng kính cùng UNCERTAIN ở một chỗ — vế (0) của AC-9 (yêu cầu CI `fetch-depth: 0` của kho tiêu thụ và con số bảy việc crm chờ K-A) không có căn cứ trong hợp đồng ho-so-da-ky-giu-tuoi. Các vế (1), (2), (3) khớp.
+    - domain-correctness: PASS — Bốn vế đều khớp nguồn. (0) Mục 2.33.0 nói CI `fetch-depth: 0` khi bật khoá, đúng dòng sổ S4-r1 (d-25) và hàm tìm điểm tách với nhánh chính bằng merge-base trong `lib/do-san-tren-nen.cjs`. Nó nói bảy mục crm chờ K-A, đúng danh sách bảy mục trong opportunity.md, và ngưỡng 14 ngày sau khi cài mốc và bật khoá, đúng contract.md của K-A. (1) Mục dặn cắt lại bằng skill cắt lượt mới, nói lộ trình cũ hiện cờ vàng có tên và không có đường đọc riêng cho mốc ngoài cũ. (2) Bảy tệp đều có trong khối INIT-CI-COPY-LIST, trong đó `lib/do-san-tren-nen.cjs` là tệp mới. Khối ấy có 29 mục nên 29 − 7 = 22, khớp «hai mươi hai tệp còn lại». (3) Năm khoá `ten_hien_thi`, `moc[].hien`/`viec_hien`/`con_lai`, `chua_hen_moc` khớp mục «Mô hình hiển thị chung» của lo-trinh-du-lieu.md và AC-11 của hợp đồng road-map-de-dung. Mục 2.33.0 nói «năm cờ có tên» còn AC-8 và AC-10 của hợp đồng nói «sáu cờ». Tôi chỉ thấy lệch con số này, không đối chiếu được với mã vì `scripts/lo-trinh.mjs` ngoài Input, và AC-9 không hỏi về nó.
+    - operational-feasibility: PASS — Bốn vế đều khớp với tệp trong danh sách input. (0) Mục K-A nói đúng ba điều: `fetch-depth: 0` khi bật khoá khớp dòng S4-r1 d-…-25 trong sổ và hàm `diemTachNhanhChinh` (merge-base) trong `lib/do-san-tren-nen.cjs`; bảy mục crm đứng chờ K-A khớp `opportunity.md`; ngưỡng 14 ngày sau khi cài mốc và bật khoá khớp contract K-A. (1) Có dặn cắt lại bằng skill cắt lượt mới, có nói cờ vàng có tên và không có đường đọc riêng cho mốc ngoài cũ. (2) Bảy tệp đều có trong khối INIT-CI-COPY-LIST (29 mục; 29−7 = 22 khớp «hai mươi hai tệp còn lại»), và `lib/do-san-tren-nen.cjs` là mục mới. (3) Năm khoá `hang[].ten_hien_thi`, `moc[].hien`, `moc[].viec_hien`, `moc[].con_lai`, `chua_hen_moc` khớp `lo-trinh-du-lieu.md` và hợp đồng road-map-de-dung (dòng 42, 80–81).
+    - spec-alignment: PASS — Cả bốn vế khớp. (0) CHANGELOG nói `fetch-depth: 0` khi bật khoá, bảy mục crm chờ K-A và ngưỡng 14 ngày sau khi cài mốc và bật khoá. Ba điều này khớp dòng S4-r1 của sổ K-A (d-25), `opportunity.md`, `contract.md` và hàm `diemTachNhanhChinh` (dùng merge-base) trong `lib/do-san-tren-nen.cjs`. (1) Ghi chú dặn crm cắt lại bằng skill cắt lượt mới, nói lộ trình cũ hiện cờ vàng có tên và không có đường đọc riêng cho mốc ngoài cũ. (2) Bảy tệp khớp các mục trong INIT-CI-COPY-LIST, trong đó `lib/do-san-tren-nen.cjs` là mục mới. Khối có 29 mục, trừ 7 còn 22 nên "hai mươi hai tệp còn lại" đúng. (3) Năm khoá mô hình hiển thị khớp `lo-trinh-du-lieu.md` (các dòng 61, 86, 112–114, 158–167, 232) và AC-11 cùng dòng 80–81 của hợp đồng `road-map-de-dung`. Một điểm không ảnh hưởng phán quyết: tên cờ `dung-tren-moc` trong CHANGELOG và "sáu cờ" ở AC-8 hợp đồng RD1 không đối chiếu được trong các input này.
   required_evidence:
-    - Bản thiết kế docs/superpowers/specs/2026-10-17-ho-so-da-ky-giu-tuoi-design.md hoặc sổ quyết định của hồ sơ ho-so-da-ky-giu-tuoi (nằm ngoài danh sách input của lượt này), nêu rõ (a) lưới đọc dòng nền ở điểm tách và clone nông thì không có điểm tách nên CI cần `fetch-depth: 0`, và (b) danh sách bảy việc crm đang gom chờ K-A. Khi hai ý đó khớp mục 2.33.0 thì vế (0) PASS.
-    - Hoặc thêm vào _acceptance/ho-so-da-ky-giu-tuoi/contract.md (mục Context hay Notes) một dòng nêu yêu cầu `fetch-depth: 0` của CI kho tiêu thụ và con số bảy việc chờ K-A (có thể kèm cột gốc là kênh điều phối crm-onehub#375). Khi đó contract trong input tự đủ căn cứ cho vế (0).
-    - Danh sách bảy việc crm gom chờ K-A: tin trên kênh điều phối crm-onehub#375 hoặc một mục trong `docs/superpowers/specs/2026-10-17-ho-so-da-ky-giu-tuoi-design.md` liệt đúng 7 việc. Có nó thì vế (0) kiểm được con số «bảy».
-    - Một dòng trong `_acceptance/ho-so-da-ky-giu-tuoi/contract.md` (Notes hoặc Đường đo) hoặc trong design doc nói bảy việc ấy mở ngay sau khi cài mốc, không cần bật khoá `feature_loop.do_san_tren_nen`. Có nó thì lời «mở được sau khi crm cài mốc này» khớp; hiện hợp đồng ghi ngưỡng đọc «sau khi crm cài mốc và bật khoá».
-    - Một dòng trong hợp đồng K-A hoặc design doc của nó nói lưới đọc dòng nền ở điểm tách với nhánh chính nên cần lịch sử đầy đủ (CI `fetch-depth: 0`). AC-7 chỉ nói «điểm tách», chưa nêu CI.
-    - Tệp contract.md của ho-so-da-ky-giu-tuoi có thêm một dòng nói crm phải đặt CI `fetch-depth: 0` (hiện chỉ AC-7 nói đọc dòng nền tại điểm tách với nhánh chính, không gọi tên `fetch-depth`).
-    - Một tệp trong Input (đề xuất: mục Notes hoặc Out of scope của ho-so-da-ky-giu-tuoi/contract.md) liệt kê bảy việc crm đang gom chờ K-A, để đếm được là bảy. Mục Out of scope hiện chỉ nói «Lịch đêm… vòng dọn hồ sơ tồn đọng — việc của crm», không liệt kê việc nào.
-  human_override:        # người điền "<tên> <ngày>" + ghi chú tuỳ chọn để chốt
+    - (judge không nêu bằng-chứng-thiếu)
+  human_override:  # chi nguoi ghi
 
 ## Known limits
 
@@ -237,15 +231,15 @@ Round 1. Mọi eval máy đều xanh; còn một mục judgment (E9) chưa ngư�
 
 ## Analyst
 
-Eval không-phân-biệt (xanh trên CẢ HEAD lẫn baseline — chứng minh harness chứ chưa chứng minh feature; hoặc viết lại để assert hành vi mới, hoặc xác nhận là regression-guard có chủ ý):
+Eval không-phân-biệt (xanh trên CẢ HEAD lẫn baseline — chứng minh harness chứ chưa chứng minh tính năng; chiều đỏ của chúng sống trong ca P200 và các ca của suite, nên đây là regression-guard có chủ ý hơn là eval cần viết lại):
 
-- E1, E2, E3j, E6 (cùng một lệnh vùng 3 của suite plugins): xanh trên cả baseline lẫn HEAD. Theo lời eval, chiều đỏ của E1/E2/E6 sống trong các đột biến của chính ca P200, không nằm ở việc lệnh đỏ trên mã cũ; E3j là regression-guard cùng lệnh.
-- E3 (mảnh bash của suite scripts): xanh trên cả hai phía — regression-guard.
+- `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'`: E1, E2, E3j, E6
+- `bash tests/scripts/run-tests.sh --manh bash`: E3
 
 Baseline khong do:
 
 - bash tests/scripts/run-tests.sh --manh mjs:1/3: baseline vuot tran 180 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
-- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 38 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
+- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 48 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
 - bash tests/scripts/run-tests.sh --manh mjs:3/3: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash tests/hooks/run-tests.sh: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40': het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
@@ -261,8 +255,9 @@ Baseline khong do:
 
 ## Variance
 
-none — every multi-run eval is uniform (mọi eval chạy một lượt, xác định; không eval nào có runs lớn hơn 1).
+none — every multi-run eval is uniform (mọi eval chạy một lượt, xác định; không eval nào có pass_rate lẫn).
 
 ## Iterations
 
-Round 1: mọi eval máy xanh; E9 (judgment) UNCERTAIN ở vế (0) vì hợp đồng ho-so-da-ky-giu-tuoi không nêu `fetch-depth: 0` và con số bảy việc crm chờ K-A. Verdict PENDING-JUDGMENT, chờ người chốt E9 ở Cổng Bằng chứng.
+Round 1: lượt chấm đầu ra PENDING-JUDGMENT — hội đồng chưa chốt được E9; ghi chú K-A trong mục 2.33.0 được chỉnh đúng chữ nguồn, E9 được đọc thêm căn cứ K-A; ghi 1 hàng sổ known-limits.
+Round 2: toàn bộ eval máy xanh, hội đồng E9 ba thấu kính cùng PASS; 2 mục ngoài hợp đồng mang từ round 1 (hình dạng danh sách mong đợi viết tay ở E4 và E7) được giữ nguyên, không chấm lại.
