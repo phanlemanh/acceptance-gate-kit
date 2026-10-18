@@ -18,7 +18,10 @@ approved_at:
 Hàng GT1 của lộ trình kit. Chủ kho ký Cổng Đáng 17/10 với dòng «đáng: build · ngưỡng: nhận». Lý do làm: hôm nay chỉ
 cạnh thợ → giám sát trong đợt có máy giữ vòng. Cạnh giám sát → thợ và cạnh máy ↔ máy đóng vòng bằng trí nhớ. Đo 17/10:
 0/44 yêu cầu trên hai kênh liên máy có trả lời trỏ về được tin gốc. Ràng buộc trải nghiệm, chủ kho đặt 18/10: nghi thức
-do máy gánh. Chủ kho không gõ khẩu lệnh nào. Phiên chỉ nói điều chỉ nó biết (một câu ý định, một câu trả lời).
+do máy gánh. Chủ kho không gõ khẩu lệnh nào. Phiên chỉ nói điều chỉ nó biết: một câu ý định khi giao, một câu «sẽ giao»
+khi nhận, một câu trả lời khi được hỏi. Cùng ngày chủ kho chọn thang giao tiếp chín nấc: đã nói · đã tới · đã nghe · đã
+hiểu · đã đáp · đã hứa · đang làm · đã giao · người giao chấp nhận (thiết kế §2.1). GIAO leo đủ chín nấc; HỎI tới nấc
+đáp rồi xong; BÁO dừng ở nấc đã nghe.
 
 Nguồn đầu vào:
 - ô cơ hội: `_acceptance/vong-mo-co-chu-giu/opportunity.md`;
@@ -60,19 +63,25 @@ Thuật ngữ:
   - (d) như (c) nhưng không `--hang`, không `--ket-qua` → thoát 1, nêu «không suy được Kết quả», 0 byte ghi.
   - (e) `tin GIAO P2` không có câu → thoát 1, nêu «thiếu ý định», 0 byte ghi.
   - (f) P1 chạy `tin HỎI G "<câu>"` → mã `P1-<ddmm>-1`, vòng `chan: false`; thêm `--chan` → `chan: true`.
-  - (g) `tin DUYỆT …` → thoát 1, nêu đủ tám khẩu lệnh hợp lệ, 0 byte ghi.
+  - (g) `tin DUYỆT …` → thoát 1, nêu đủ chín khẩu lệnh hợp lệ, 0 byte ghi.
   - (h) cwd là worktree ngoài dãy, không phải giám sát → thoát 1, nêu «không thuộc đợt», 0 byte ghi.
   - (i) thư mục đợt đã có `yeu-cau/P1-7.json` → mã của (f) vẫn có ba khúc, không trùng `P1-7`.
   - (j) ma trận nguồn suy của Kết quả và Ranh giới, mỗi hàng so bằng nhau với giá trị viết trong ca: P2 đang giữa
     `hang-a` (hồ sơ `implemented` trong worktree) và còn `hang-b` phía sau → `hang-a` · P2 chưa vào hàng nào → `hang-b` ·
     P2 hết hàng → thoát 1 «không suy được Kết quả» · `--hang hang-b` khi đang giữa `hang-a` → `hang-b` · `--ket-qua "<câu>"`
     khi máy đã suy được → Kết quả là đúng câu đó.
+  - (k) hạn xong: hàng của P2 có giờ máy ước trong lộ trình → lời giao có dòng `Hạn xong:` bằng cận trên của khoảng giờ
+    máy, tính từ lúc NHẬN (so bằng nhau với giá trị tính trong ca); hàng không có giờ máy → `Hạn xong: chưa có hạn`;
+    `--han-xong 90` → 90 phút.
 
   Đếm chạm (a) = 1, (f) = 1, in ra. Chiều đỏ: bản tiêm luôn lấy hàng kế → hàng «đang giữa hang-a» của (j) đỏ. Chiều đỏ: bản tiêm bỏ dòng `Ranh giới:` khỏi `loiGiaoViec` → hàng (a) đỏ, nêu
   «Ranh giới:».
-- AC-2: Given các vòng mở ở AC-1, When đáp bằng `tin NHẬN|XONG|KẸT|TRẢ|HUỶ` theo ma trận viết sẵn, Then mỗi hàng khớp,
+- AC-2: Given các vòng mở ở AC-1, When đáp bằng `tin NHẬN|XONG|KẸT|TRẢ|HUỶ|MỞ LẠI` theo ma trận viết sẵn, Then mỗi hàng khớp,
   số hàng in ra.
-  - (a) P2 `tin NHẬN G-<ddmm>-1` (0 chạm) → thoát 0. Dòng đầu bằng `NHẬN G-<ddmm>-1 · P2 → G`.
+  - (a) P2 `tin NHẬN G-<ddmm>-1 "sẽ giao <một câu>"` (1 chạm) → thoát 0. Dòng đầu bằng `NHẬN G-<ddmm>-1 · P2 → G`. Thân có
+    `Sẽ giao:` là đúng câu đó và `Hạn xong:` lấy từ lời giao. Sổ của G đặt câu ấy cạnh `Ý định:` của vòng.
+  - (a′) NHẬN một GIAO không kèm câu → thoát 1, nêu «sẽ giao», 0 byte ghi. NHẬN kèm `--xong-luc <giờ>` → `Hạn xong:` là giờ
+    ấy. NHẬN một HỎI không kèm gì → thoát 0.
   - (b) trên kênh: `MBP` giao `M5` với `--kho thu/kho-b`. `M5` NHẬN trong worktree `thu/kho-b` → thoát 0, Ranh giới ghi
     `thu/kho-b` (so bằng nhau). `M5` NHẬN trong `thu/kho-a` → thoát 1, nêu cả hai kho và lệnh `tin KẸT`, 0 byte ghi.
   - (c) P2 commit một thay đổi sau khi NHẬN, cây sạch, rồi `tin XONG G-<ddmm>-1` (0 chạm), kênh giả có PR cho nhánh → thân
@@ -90,15 +99,22 @@ Thuật ngữ:
   - (k) `tin KẸT <mã>` không câu → thoát 1, nêu «cần gì».
   - (l) `tin TRẢ <mã> "<lý do>"` không `--chuyen` → thoát 1, nêu `--chuyen`.
 
-  Mọi hàng thoát 1 đều 0 byte ghi. Đếm chạm (a) = 0, (c) = 0, in ra. Chiều đỏ, mỗi chiều sau khi bản lành xanh:
+  - (m) MỞ LẠI: sau khi XONG của (c) được chấp nhận (AC-7 (j)), `G` chạy `tin MỞ LẠI G-<ddmm>-1 "<vì sao>"` → thoát 0, vòng
+    về `mo-lai`, cần một XONG mới. Không kèm câu → thoát 1, nêu «vì sao». P2 (không phải người giao) gõ → thoát 1, nêu
+    «chỉ người giao». Quá 24 giờ sau lúc chấp nhận (đồng hồ giả) → thoát 1, nêu «quá 24 giờ».
+
+  Mọi hàng thoát 1 đều 0 byte ghi. Đếm chạm (a) = 1, (c) = 0, in ra. Chiều đỏ, mỗi chiều sau khi bản lành xanh:
   - bản tiêm bỏ so kho → hàng (b) đỏ, nêu «(b)». Đối chứng: bản tiêm bỏ kiểm danh tính mà giữ so kho → hàng (b) vẫn xanh,
     tức (b) đo đúng bước so kho;
   - bản tiêm bỏ kiểm «HEAD có commit mới» → hàng «chưa có commit mới» của (e) đỏ;
   - bản tiêm bỏ kiểm người nhận → hàng (g) đỏ.
 - AC-3: Given kho thử với chuỗi tin dựng bằng CHÍNH các lệnh `tin` (không viết tay dòng nào), và đồng hồ giả qua
   `DIEU_PHOI_NOW_MS`, When chạy `tin so --json` và `xem --json`, Then sổ khớp từng mục với bảng viết sẵn trong ca:
-  - trạng thái `chua-den` → `da-den` (sau khi hook AC-7 đưa tin) → `da-nhan` | `ket`;
-  - XONG, TRẢ, HUỶ → không còn trong sổ; BÁO không bao giờ vào sổ; thứ tự theo tuổi, cũ trước;
+  - mỗi mục mang `nac` (0–8) và `trang_thai` theo bảng viết sẵn: `chua-den` (1) → `da-den` (2) → `da-nhan` (5, đã hiểu
+    và đã hứa) | `ket` (6) → `cho-chap-nhan` (7, XONG chưa đến phiên người giao) → `da-chap-nhan` (8, đóng); `mo-lai` về 5;
+  - TRẢ, HUỶ và `da-chap-nhan` → không còn trong sổ mở (còn trong `tin so --tat-ca`); BÁO không bao giờ vào sổ mở; thứ tự
+    theo tuổi, cũ trước;
+  - quá hạn xong: vòng `da-nhan` có `Hạn xong` qua hạn → `qua_han_xong` 1, qua hai lần hạn → 2; vòng không có hạn → 0;
   - mức quá hạn: 0 ở phút 29, 1 ở phút 31, 2 ở phút 61 khi hạn mặc định 30′; GIAO khai `--han 10`: 1 ở phút 11, 2 ở phút
     21; vòng đã NHẬN luôn 0. Bảy hàng in ra;
   - ở phút 61, mục của `xem --json` mang mã và mức 2 bằng mục của `tin so --json`, và `xem` dạng chữ chứa mã ấy;
@@ -106,7 +122,7 @@ Thuật ngữ:
     và `tra-loi/` không đổi một byte (so băm).
 
   Chiều đỏ: bản tiêm cho KẸT đóng vòng → mục `ket` biến mất, ca nêu tên mục. Bản tiêm bỏ nhánh đọc tin trong `xem` → ca
-  `xem` đỏ, nêu mã.
+  `xem` đỏ, nêu mã. Bản tiêm cho XONG đóng vòng ngay khi ghi → mục `cho-chap-nhan` biến mất, ca nêu «chấp nhận một phía».
 - AC-4: Given bộ đọc dòng đầu `docDongDau`, When đọc ma trận văn bản viết sẵn, Then mỗi hàng khớp, số hàng in ra. Ma trận
   gồm hai ca thật ngày 16/10 (chép nguyên văn dòng đầu và thân) và các ca biên:
   - (a) thân có «XONG MBP-1710-1» mà dòng đầu là BÁO → không đóng vòng `MBP-1710-1`;
@@ -161,12 +177,16 @@ Thuật ngữ:
     `3745b3e9`: chênh trung vị ≤ 20 ms, in ra;
   - (i) hỏng không lan: `tin.jsonl` có một dòng hỏng, rồi thư mục đợt không đọc được → hook-nhip vẫn ghi nhịp như bản cũ,
     không `additionalContext` tin. Qua ba lần gọi có đúng MỘT `systemMessage` nêu «không đọc được hộp tin»; sửa tệp → lần
-    gọi kế đưa tin bình thường.
+    gọi kế đưa tin bình thường;
+  - (j) lời đáp cũng là tin: XONG của P2 gửi `G` → hook ở phiên `G` đưa XONG (kèm vật) vào ngữ cảnh đúng một lần; sổ đổi
+    vòng từ `cho-chap-nhan` sang `da-chap-nhan` và ghi lúc chấp nhận; trước lần đưa ấy, vòng vẫn `cho-chap-nhan` dù XONG đã
+    ghi. NHẬN của P2 cũng được đưa về phiên `G` kèm câu «sẽ giao».
 
   Hệ quả nếu thiếu (h), (i): mỗi lời gọi công cụ của mọi phiên có gói trên ba máy crm chậm đi, và một tệp hỏng làm mọi phiên
   bị nhồi lỗi ở mỗi lời gọi.
 
-  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai». Bản tiêm bỏ kiểm tác tử con → hàng (g) đỏ. Bản
+  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai». Bản tiêm chấp nhận khi XONG chưa đến phiên người
+  giao → hàng (j) đỏ, nêu «chấp nhận trước khi nghe». Bản tiêm bỏ kiểm tác tử con → hàng (g) đỏ. Bản
   tiêm thêm 50 ms chờ vào `duaTin` → hàng (h) đỏ, nêu số đo. Bản tiêm bỏ dấu «lỗi đã báo» → hàng (i) đỏ, nêu «3 lần».
 - AC-8: Given như AC-7, When chạy CHÍNH lệnh của khối `Stop` theo ma trận chặn, lối thoát và kho không dùng, Then:
   - (a) cwd P2, có GIAO chưa NHẬN → `decision: "block"`, `reason` chứa mã và lệnh NHẬN chép được;
@@ -199,9 +219,11 @@ Thuật ngữ:
   thiếu Kết quả → ca nêu «thiếu Kết quả».
 - AC-10: Given gói sau vòng, When đọc `dieu-phoi/scripts/mau/LUAT.md` và `dieu-phoi/README.md`, Then:
   - tập khẩu lệnh trong khối `<<<LUAT-TIN … LUAT-TIN>>>` bằng tập `KHAU_LENH` của `tin.mjs` (rút cả hai bên);
-  - khối có bảng «làm gì — máy làm gì thay», luật vòng mở, và hai danh sách «Phải HỎI» / «Không hỏi»;
+  - khối có bảng thang chín nấc (nấc · nghĩa · ai làm · máy giữ bằng gì) với đúng chín hàng rút được, bảng «làm gì — máy
+    làm gì thay», luật vòng mở, và hai danh sách «Phải HỎI» / «Không hỏi»;
   - mọi dòng lệnh `tin …` trong khối và trong README chạy được `--help`, thoát 0;
-  - một phiên thợ mới, chỉ đọc khối này, biết khi nào phải phát NHẬN, khi nào được hỏi, và vòng đóng bằng gì (judgment).
+  - một phiên thợ mới, chỉ đọc khối này, biết khi nào phải phát NHẬN và phải kèm gì, khi nào được hỏi, và vòng đóng bằng gì
+    (judgment).
 
   Chiều đỏ: bản tiêm thêm `DUYỆT` vào khối → ca so tập đỏ, nêu `DUYỆT`.
 
@@ -216,7 +238,8 @@ Chân ngành:
 
 - Trục A · nơi chứa và cạnh: đợt thợ → giám sát (yêu cầu cũ) | đợt thợ → giám sát (`tin`) | đợt giám sát → thợ |
   kênh máy ↔ máy | không đợt, không kênh [thước CE: hạt giống §1.1 bảng ba cạnh — SUY-TỪ-REPO]
-- Trục B · vòng đời: chưa đến | đã đến | đã nhận | kẹt | đóng (XONG, TRẢ, HUỶ) | quá hạn mức 1/2 | không mở (BÁO) |
+- Trục B · vòng đời (thang chín nấc): đã nói | đã tới | đã nghe | đã hiểu + đã đáp + đã hứa (NHẬN kèm câu, hạn) | đang
+  làm / kẹt | đã giao | chấp nhận | mở lại | đóng khác (TRẢ, HUỶ) | quá hạn nhận / quá hạn xong | không mở (BÁO) |
   tin không mã [thước CE: hạt giống §4.1–4.2 + A2A 1.0]
 - Trục C · chỗ máy giữ: lúc gửi (điền) | lúc đến (đưa vào phiên) | lúc đáp (so kho, đính vật) | lúc đọc | lúc kết lượt |
   lúc canh | lúc hiện [thước CE: hạt giống §5 bảng răng — SUY-TỪ-REPO]
@@ -245,8 +268,8 @@ Chân ngành:
   bởi: AC-3, AC-4, AC-5.
 - Thước: CHẾT — một phiên bị khoá vì hook chặn mãi · số từ: sổ `ket_luot_chua_nhan` cộng lời chủ kho · bảo đảm bởi: AC-8.
 - Thước: CHẾT — bộ canh im khi kênh hỏng · số từ: mã thoát của `tin canh` · bảo đảm bởi: AC-6.
-- Thước: chạm mỗi vòng giao việc (một câu giao · 0 nhận · 0 xong) · số từ: ca đếm chạm của AC-1, AC-2 · bảo đảm bởi:
-  AC-1, AC-2.
+- Thước: chạm mỗi vòng giao việc (một câu giao · một câu nhận · 0 xong · 0 chấp nhận) · số từ: ca đếm chạm của AC-1,
+  AC-2 · bảo đảm bởi: AC-1, AC-2.
 
 ## Out of scope
 
@@ -256,7 +279,8 @@ Chân ngành:
   lời câu hỏi ở Cổng Phạm vi. Cạnh điều phối ↔ điều phối trên kênh #375/#308 KHÔNG thuộc mục này — nó được phủ ở AC-5…AC-8.
   Hệ quả: ngưỡng thứ hai đo trọn; ngưỡng thứ nhất chỉ được bảo đảm cho đợt và kênh, nên lần hỏi về chip ngoài đợt được đếm
   riêng.
-- Kiểm thợ hiểu đúng ý định (đọc lại bằng lời của thợ, hạt giống §4.4) — thay bằng máy so kho; giới hạn ở Notes.
+- Máy tự phán câu «sẽ giao» có khớp ý định không — máy chỉ đặt hai câu cạnh nhau cho người giao thấy (hạt giống §5: so
+  khớp đọc lại là phán xét).
 - Đổi `loai` hay `kiemYeuCau` của `yeu-cau`; đổi bộ phát lịch; đổi bảy hành động của `tiep-tuc`.
 - Đường truyền `send_message` của app; `tin` chỉ là nơi chứa có mã.
 - Engine nghiệm thu (`skills/`, `feature-loop/`, `scripts/` gốc); cắt số, gắn tag.
@@ -266,8 +290,10 @@ Chân ngành:
 ## Notes
 
 - Known limits (nhãn trạng thái, không phải việc):
-  - **Hiểu sai ý định lộ muộn hơn** khi bỏ đọc lại bằng lời (kho đúng, việc sai). Ngưỡng: ≥ 1 ca thợ làm lệch ý định mà kho
-    khớp và lời giao đủ trường.
+  - **Khớp «sẽ giao» với ý định là phán xét của người giao**, máy không tự so. Ngưỡng: ≥ 1 ca thợ làm lệch ý định mà câu
+    «sẽ giao» đã khai đúng.
+  - **Chấp nhận bằng im lặng** đóng vòng khi người giao đã thấy XONG mà không đọc kỹ; cửa MỞ LẠI 24 giờ. Ngưỡng: ≥ 1 ca vòng
+    đóng sai mà quá 24 giờ mới phát hiện.
   - **Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.**
   - **Nhận biết tác tử con dựa vào khuôn stdin của Claude Code**, ca kiểm chạy trên khuôn ghi trong ca. Ngưỡng: ≥ 1 ca tin bị
     đưa vào tác tử con.

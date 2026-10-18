@@ -1,17 +1,17 @@
 {
-  "feature_plain": "Mọi yêu cầu giữa các phiên có mã và hạn biên nhận; tin tự đến phiên nhận, phiên không kết được lượt khi còn việc giao chưa nhận, vòng chỉ đóng khi báo xong kèm sản phẩm thật. Người dùng gần như không thêm thao tác: giao việc một câu, nhận và báo xong không kèm gì, chủ kho không gõ gì mới.",
+  "feature_plain": "Mọi yêu cầu giữa các phiên đi theo thang chín nấc: đã nói, đã tới, đã nghe, đã hiểu, đã đáp, đã hứa, đang làm, đã giao, người giao chấp nhận. Người dùng chỉ nói điều chỉ mình biết — giao một câu ý định, nhận một câu «sẽ giao» — máy gánh phần còn lại; chủ kho không gõ gì mới.",
   "will_do": [
     {
       "id": "AC-1",
-      "p": "Sẽ cho giao việc bằng một câu ý định; máy tự điền kết quả, ranh giới, quyền, điểm phải hỏi và nơi báo về từ hàng đang chạy, và từ chối khi không suy được."
+      "p": "Sẽ cho giao việc bằng một câu ý định; máy tự điền kết quả, ranh giới, quyền, điểm phải hỏi, nơi báo về và hạn xong từ hàng đang chạy, và từ chối khi không suy được."
     },
     {
       "id": "AC-2",
-      "p": "Sẽ cho nhận và báo xong không kèm gì; máy tự đính sha, nhánh, PR chỉ khi chắc đó là sản phẩm của việc, không thì đòi một câu mô tả; người ngoài cuộc không đóng được vòng."
+      "p": "Sẽ buộc người nhận nói lại bằng một câu «sẽ giao …» khi nhận việc; báo xong không kèm gì khi máy chắc sản phẩm thuộc việc; người giao mở lại được trong 24 giờ nếu không đạt; người ngoài cuộc không đóng được vòng."
     },
     {
       "id": "AC-3",
-      "p": "Sẽ có sổ vòng mở theo tuổi: chưa đến, đã đến, đã nhận, kẹt; chỉ «xong», «trả lại», «huỷ» mới đóng; vòng quá hạn tự nổi lên bảng trạng thái đợt."
+      "p": "Sẽ có sổ vòng mở cho biết mỗi vòng đang ở nấc nào trong chín nấc; vòng chỉ đóng khi người giao đã thấy lời báo xong; quá hạn nhận và quá hạn xong tự nổi lên bảng đợt."
     },
     {
       "id": "AC-4",
@@ -27,7 +27,7 @@
     },
     {
       "id": "AC-7",
-      "p": "Sẽ đưa tin mới vào phiên nhận đúng một lần ngay ở lượt kế, ghi «đã đến» và tự nhắc khi quá hạn; không có tin thì im và nhanh (đo được), hỏng thì không chặn và chỉ báo một lần; tác tử con không nhận nhầm."
+      "p": "Sẽ đưa tin mới — kể cả lời nhận và lời báo xong — vào phiên người nhận đúng một lần ở lượt kế; im lặng sau khi đã thấy lời báo xong là chấp nhận; không có tin thì im và nhanh, hỏng không lan, tác tử con không nhận nhầm."
     },
     {
       "id": "AC-8",
@@ -39,7 +39,7 @@
     },
     {
       "id": "AC-10",
-      "p": "Sẽ ghi luật giao tiếp vào tệp luật đợt mà mọi phiên thợ đọc, khớp đúng bộ khẩu lệnh của máy."
+      "p": "Sẽ ghi thang chín nấc và luật giao tiếp vào tệp luật đợt mà mọi phiên thợ đọc, khớp đúng bộ khẩu lệnh của máy."
     }
   ],
   "wont_do": [
@@ -57,7 +57,7 @@
     },
     {
       "id": "OOS-4",
-      "p": "Không bắt thợ tự diễn đạt lại việc được giao — thay bằng máy so kho trên kênh; hiểu sai ý định khai thành giới hạn."
+      "p": "Máy không tự phán câu «sẽ giao» có khớp ý định không — chỉ đặt hai câu cạnh nhau để người giao thấy."
     },
     {
       "id": "OOS-5",
