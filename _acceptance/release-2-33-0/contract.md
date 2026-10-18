@@ -57,7 +57,7 @@ crm-onehub#375 · kit #308.
 
 - Đổi dòng mã cổng — mốc phát hành KHÔNG dựng răng mới (GUIDE §7.1).
 - Sửa 16 Known limits của RD1 — vòng sau (giờ máy ba mốc Ngoài-3, cộng giờ trùng Ngoài-9, …).
-- Cắt lại lộ trình kit `docs/plans/lo-trinh-kit.json` (3 mốc ngoài) — PR riêng của điều phối.
+- Cắt lại lộ trình kit `docs/plans/lo-trinh-kit.json` — đã làm ở PR riêng của điều phối (#382, gỡ 3 mốc ngoài; bộ đọc chung nay 0 cờ trên lộ trình kit).
 - Cài 2.33.0 vào crm, vẽ lại `LO-TRINH.html` của crm — việc của máy Mac Studio sau mốc.
 
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
