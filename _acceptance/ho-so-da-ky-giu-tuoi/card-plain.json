@@ -1,36 +1,4 @@
 {
-  "feature_plain": "Sau mỗi đợt gộp vào nhánh chính, máy tự chạy lại bằng chứng của các việc đã ký bị đợt ấy làm cũ, gọi tên đúng PR làm đỏ, và để vòng khác đi tiếp với nhãn «đỏ sẵn trên nền» thay vì dừng gọi anh — kho không bật thì không đổi gì.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ chọn đúng các việc đã ký bị cũ VÌ đợt gộp vừa rồi (kể cả việc mới gộp trong đợt rồi bị gộp sau làm cũ), chỉ đếm và in tên các việc cũ từ trước — dùng chính lưới trước-gộp để chọn, không có luật «cũ» thứ hai."},
-    {"id": "AC-2", "p": "Sẽ ghim lại cùng lúc mọi việc xanh trong một lượt, chạy bộ kiểm chung đúng một lần, không đụng chữ ký người."},
-    {"id": "AC-4", "p": "Sẽ gọi tên PR làm đỏ kèm cặp mã trước/sau; hai PR cùng chạm thì liệt cả hai; đỏ từ trước đợt thì nói «đỏ sẵn trước khoảng»."},
-    {"id": "AC-5", "p": "Sẽ không gọi tên PR nào khi đỏ do máy/hạ tầng (lệnh không có, bị ngắt, chạy lại thì xanh) — ghi «không quy được — hạ tầng» kèm cặp mã của đợt."},
-    {"id": "AC-6", "p": "Sẽ cho vòng khác đi tiếp với nhãn chỉ khi đúng cái đỏ cũ: cùng ca, cùng thông điệp lỗi, cùng định nghĩa phép đo, và đã ghi trên nhánh chính — thêm một đỏ mới hay đổi lỗi là vẫn chặn như hôm nay."},
-    {"id": "AC-7", "p": "Sẽ hiện nhãn «đỏ sẵn trên nền» trên lưới trước-gộp, thẻ và bản đồ, không bao giờ thành ĐẠT; nhãn giả thì lưới vẫn báo vi phạm."},
-    {"id": "AC-8", "p": "Sẽ không đổi một byte nào ở kho chưa bật khoá — đo trên hồ sơ thật của kit, crm và oneflow."},
-    {"id": "AC-10", "p": "Sẽ in một bảng mỗi việc một dòng (kết cục · phút máy) cùng tổng giờ máy, không tự commit, không đổi nhánh, từ chối chạy trên cây bẩn."}
-  ],
-  "wont_do": [
-    {"id": "AC-3", "p": "Sẽ KHÔNG để một việc đỏ kéo việc xanh khác thành cũ, và KHÔNG ghim việc đỏ — việc đỏ chỉ nhận một dòng ghi cái đỏ để vòng sau đối chiếu."},
-    {"id": "AC-9", "p": "Sẽ KHÔNG làm bản kit cũ vỡ hay cho qua: bản cũ gặp nhãn thì báo đỏ như mọi bằng chứng đỏ, và bỏ qua dòng ghi cái đỏ."},
-    {"id": "OOS-1", "p": "Không dựng lịch chạy đêm hay dọn việc tồn đọng của crm — đó là việc của kho, chỉ dùng lệnh này."},
-    {"id": "OOS-2", "p": "Không chia đôi để tìm PR — mỗi bước chia là một lượt ghim lại nữa."},
-    {"id": "OOS-3", "p": "Không gắn nhãn cho bộ kiểm chung (theo Hỏi-2, máy khuyên) — bộ kiểm chung đỏ sẵn vẫn chặn, có giới hạn khai kèm ngưỡng."},
-    {"id": "OOS-4", "p": "Không có hạn «đỏ sẵn quá N ngày», không tự mở PR sửa, không ghim việc tồn đọng — để sau."},
-    {"id": "OOS-5", "p": "Không làm ba việc kit xếp sau (lời mời hiện mức, hạng rủi ro theo diff, nới làn đi tiếp) — cửa sổ kế."}
-  ],
-  "coverage_plain": [
-    {"i": 0, "p": "Mọi trạng thái một việc đã ký có thể rơi vào sau một đợt gộp đều có tiêu chí: tươi, cũ (AC-1), ghim xanh (AC-2), đỏ do một hay nhiều PR, đỏ sẵn (AC-4), hạ tầng (AC-5); riêng phép đo phải người nhìn bị chạm thì để sau."},
-    {"i": 1, "p": "Mọi bên đọc và ghi đều có tiêu chí: lệnh (AC-1..5, 10), vòng khác ghim lại (AC-6), lưới + thẻ + bản đồ (AC-7), bản kit cũ (AC-9), kho chưa bật (AC-8)."},
-    {"i": 2, "p": "Bốn giá trị của khoá bật/tắt đều có ca: vắng và tắt (AC-8), bật (AC-6, AC-7), giá trị sai báo lỗi gọi tên khoá (ca phụ AC-6)."},
-    {"i": 3, "p": "Mọi điều kiện để nhãn được gắn đều có một ô đo riêng: bảy ô của AC-6 và ba ô nhãn giả của AC-7."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Nặng: chỉ so tên ca đỏ thì một lỗi MỚI trong cùng ca sẽ lọt nhờ nhãn. Đã sửa: so cả thông điệp lỗi của từng ca, thêm ô đo «cùng ca khác lỗi», khai sẵn giới hạn còn lại kèm ngưỡng."},
-    {"i": 1, "p": "Nặng: «nhãn không áp cho bộ kiểm chung» bị ghi là máy tự quyết mà căn cứ không đủ. Đã đưa lên thành Hỏi-2 cho anh, khai giới hạn kèm ngưỡng."},
-    {"i": 2, "p": "Vừa: chưa có cách đếm độc lập «máy gọi tên nhầm PR». Đã thêm cách đếm (đối chiếu với PR thật sự sửa xanh) và dòng hạ tầng mang cặp mã để tự kiểm."},
-    {"i": 3, "p": "Vừa: việc mới gộp trong đợt rồi bị gộp sau làm cũ sẽ rơi khỏi lệnh. Đã định nghĩa lại và thêm việc ấy vào phép đo AC-1."},
-    {"i": 4, "p": "Vừa: chứng «bên viết và bên đọc dùng cùng một luật» bằng đếm dòng nạp là đo hình thức. Đã thay bằng phá thử luật chung trên bản sao: ba phía phải cùng đỏ, cùng nhận."}
-  ],
-  "scope_plain": "Vòng này chỉ giao lệnh và nhãn; lịch chạy và dọn tồn đọng là việc của từng kho."
+  "feature_plain": "Sau mỗi đợt gộp vào nhánh chính, máy tự chạy lại bằng chứng của các việc đã ký bị đợt ấy làm cũ, gọi tên đúng PR làm đỏ, và để vòng khác đi tiếp với nhãn «đỏ sẵn trên nền» thay vì dừng lại gọi anh — kho không bật thì không đổi gì.",
+  "scope_plain": "Không dựng lịch chạy đêm, luân phiên máy hay dọn việc tồn đọng của crm — kho tự dùng lệnh này · Không chia đôi để tìm PR gây đỏ, vì mỗi bước chia là thêm một lượt ghim lại · Không gắn nhãn cho bộ kiểm chung của kho: bộ kiểm chung đỏ sẵn vẫn chặn (theo câu Hỏi-2 anh đã chọn), có giới hạn khai kèm ngưỡng · Không có hạn «đỏ sẵn quá N ngày», không tự mở PR sửa, không ghim việc tồn đọng — để sau · Không làm ba việc kit xếp sau (lời mời hiện mức, hạng rủi ro theo thay đổi, nới làn đi tiếp) — cửa sổ kế."
 }
