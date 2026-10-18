@@ -966,7 +966,8 @@ test('GT-07-do nhap-tinh', async () => {
   const p = `${goc}/scripts/tin-dua.mjs`;
   fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('const bam = (s) =>', "throw new Error('nạp hỏng');\nconst bam = (s) =>"));
   const { chayHook } = await import('./tin-kho-thu.mjs');
-  const kn = khoDot({ gocGoi: goc });
+  // Đợt dựng bằng gói lành; chỉ hook chạy từ bản tiêm.
+  const kn = khoDot({ gocGoi: GOI });
   tin(kn.kho, ['GIAO', 'P2', 'việc thử'], { gocGoi: GOI, nowMs: T0 });
   chayHook(goc, 'PostToolUse', { cwd: kn.w2, tool_name: 'Bash', session_id: 's-tinh' }, { nowMs: T0 + PHUT });
   assert.ok(!fs.existsSync(`${kn.dot}/song/s-tinh.json`), 'nhập tĩnh phải làm hook chết trước khi ghi nhịp (chứng tỏ nạp động là cần)');
@@ -1111,4 +1112,61 @@ test('GT-08-do bo-tat', async () => {
   const goc = banSao('hook-tin.mjs', '    if (daTat(goc, ten.worktree)) continue;\n    let kenhTen = null;', '    let kenhTen = null;');
   const { loi } = await kiemDung(goc, { doTreo: false });
   assert.ok(loi.some((l) => l.startsWith('(l) tắt')), `bỏ kiểm dấu tắt ở khối Stop phải làm (l) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+// ---------- AC-9: lời ghi danh chip đủ sáu trường, cùng hàm với tin GIAO ----------
+const SAU_DONG = (text) => text.split('\n').filter((l) => /^(Ý định|Kết quả|Ranh giới|Quyền|Điểm phải hỏi|Báo về|Hạn xong):/u.test(l));
+export async function kiemChip(gocGoi) {
+  const { chayHook } = await import('./tin-kho-thu.mjs');
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 160) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  for (const tuMerge of [null, 'co']) {
+    const k = khoDot({ gocGoi, tuMerge });
+    hoSo(k.w2, 'hang-b', { viSao: 'crm cần đọc lộ trình nhiều kho', gioMay: [2, 3] });
+    chayHook(gocGoi, 'PostToolUse', { cwd: k.kho, tool_name: 'Bash', session_id: 's-gs' });
+    const { keHoachDay } = await nap(gocGoi, 'tiep-tuc.mjs');
+    const p2 = keHoachDay(k.dot, {}).find((x) => x.day === 'P2');
+    const gd = p2?.ghi_danh ?? '';
+    const sau = SAU_DONG(gd);
+    const nhan = sau.map((l) => l.split(':')[0]);
+    while (sau.length < 7) sau.push('');
+    const nhanDung = JSON.stringify(nhan) === JSON.stringify(['Ý định', 'Kết quả', 'Ranh giới', 'Quyền', 'Điểm phải hỏi', 'Báo về', 'Hạn xong']);
+    const ten = tuMerge ? 'tự gộp' : 'không tự gộp';
+    if (!tuMerge) {
+      so('chip mở với sáu nhãn đúng thứ tự', 'mo-chip + sáu nhãn', `${p2?.hanh_dong} ${nhan.join(',')}`, p2?.hanh_dong === 'mo-chip' && nhanDung);
+      const giao = tin(k.kho, ['GIAO', 'P2', 'crm cần đọc lộ trình nhiều kho', '--hang', 'hang-b'], { gocGoi });
+      so('cùng hàm với tin GIAO: bằng từng byte', 'bằng nhau', `${JSON.stringify(SAU_DONG(giao.out)) === JSON.stringify(sau)}`, JSON.stringify(SAU_DONG(giao.out)) === JSON.stringify(sau));
+      so('Ý định = dòng Vì sao của ô', 'crm cần đọc lộ trình nhiều kho', sau[0], sau[0] === 'Ý định: crm cần đọc lộ trình nhiều kho');
+      so('Kết quả nêu hang-b và nhánh chính', 'hang-b + main', sau[1], sau[1].includes('hang-b') && sau[1].includes('main'));
+      so('Ranh giới nêu kho, worktree, vùng', 'thu/kho-a + worktree + src/b/**', sau[2], sau[2].includes('thu/kho-a') && sau[2].includes(k.w2) && sau[2].includes('src/b/**'));
+      so('Báo về mang mã phiên giám sát', 's-gs', sau[5], sau[5].includes('s-gs'));
+      so('Hạn xong từ giờ máy của hàng', '180 phút', sau[6], sau[6] === 'Hạn xong: 180 phút sau khi nhận');
+      so('chuỗi cũ của ghi_danh còn nguyên', 'ghi-danh P2 · LUAT.md · /feature-loop', gd.split('\n')[0], gd.includes(`ghi-danh P2`) && gd.includes('đọc LUAT.md trước S1') && gd.includes('/feature-loop:feature-loop hang-b'));
+    }
+    so(`Quyền theo pha (${ten})`, tuMerge ? 'tự gộp được' : 'không tự gộp', sau[3], sau[3]?.includes(tuMerge ? 'tự gộp được' : 'không tự gộp'));
+  }
+  // Hàng chưa có hồ sơ: chip vẫn mở (đợt dựng tay, worktree chỗ giữ), Ý định chỉ về hồ sơ.
+  const k3 = khoDot({ gocGoi });
+  chayHook(gocGoi, 'PostToolUse', { cwd: k3.kho, tool_name: 'Bash', session_id: 's-gs' });
+  const { keHoachDay } = await nap(gocGoi, 'tiep-tuc.mjs');
+  const p2b = keHoachDay(k3.dot, {}).find((x) => x.day === 'P2');
+  so('hàng chưa có hồ sơ: chip vẫn mở, Ý định trỏ hồ sơ', 'mo-chip · Ý định: đọc hồ sơ hang-b', `${p2b?.hanh_dong} ${SAU_DONG(p2b?.ghi_danh ?? '')[0]}`, p2b?.hanh_dong === 'mo-chip' && SAU_DONG(p2b?.ghi_danh ?? '')[0] === 'Ý định: đọc hồ sơ hang-b');
+  return { loi, hang };
+}
+
+test('GT-09 chip-sau-truong', async () => {
+  const { loi, hang } = await kiemChip(GOI);
+  inMaTran('GT-09', hang);
+  assert.equal(hang.length, 11);
+  assert.deepEqual(loi, []);
+});
+
+test('GT-09-do bo-sau-truong', async () => {
+  const goc = banSao('tiep-tuc.mjs', "'dãy chưa có hàng kế — hỏi giám sát'}\\n${loiGiaoViec(lg.truong)}`,", "'dãy chưa có hàng kế — hỏi giám sát'}`,");
+  const { loi } = await kiemChip(goc);
+  assert.ok(loi.some((l) => l.startsWith('chip mở với sáu nhãn')), `bỏ sáu trường khỏi chip phải đỏ nêu sáu nhãn, nhận: ${loi.join(' | ')}`);
 });

@@ -60,17 +60,19 @@ export function gioMayCua(worktree, slug) {
   return Number.isFinite(gm) ? gm : null;
 }
 
-export function vYDinhTuO(worktree, slug) {
-  try {
-    const o = fs.readFileSync(path.join(worktree, '_acceptance', slug, 'opportunity.md'), 'utf8');
-    const m = /^Vì sao:\s*(.+)$/mu.exec(o);
-    if (m) return m[1].trim();
-  } catch {}
-  try {
-    const c = fs.readFileSync(path.join(worktree, '_acceptance', slug, 'contract.md'), 'utf8');
-    const m = /^feature:\s*(.+)$/mu.exec(c);
-    if (m) return m[1].trim();
-  } catch {}
+export function vYDinhTuO(worktree, slug, gocKho = null) {
+  for (const noi of [worktree, gocKho].filter(Boolean)) {
+    try {
+      const o = fs.readFileSync(path.join(noi, '_acceptance', slug, 'opportunity.md'), 'utf8');
+      const m = /^Vì sao:\s*(.+)$/mu.exec(o);
+      if (m) return m[1].trim();
+    } catch {}
+    try {
+      const c = fs.readFileSync(path.join(noi, '_acceptance', slug, 'contract.md'), 'utf8');
+      const m = /^feature:\s*(.+)$/mu.exec(c);
+      if (m) return m[1].trim();
+    } catch {}
+  }
   return `đọc hồ sơ ${slug}`;
 }
 
@@ -80,20 +82,23 @@ export function suyLoiGiaoDot(thuMuc, hangViec, dich, { yDinh = null, hang = nul
   const day = (hangViec.day ?? []).find((d) => d.id === dich);
   const vai = docVai(thuMuc);
   const worktree = day?.worktree ?? vai?.giam_sat?.worktree ?? null;
+  // Worktree chưa ghi danh (chỗ giữ của gói) → đọc kho và hồ sơ ở gốc kho chính, nơi ô của đợt mở từ gói nằm.
+  const gocKho = path.dirname(path.dirname(thuMuc));
+  const noiDoc = worktree && fs.existsSync(worktree) ? worktree : gocKho;
   const cfg = docJson(path.join(thuMuc, 'dieu-phoi.config.json'), {}) ?? {};
   const h = hang ? (hangViec.hang ?? []).find((x) => x.slug === hang) ?? { slug: hang } : day ? hangCuaDay(thuMuc, hangViec, day) : null;
   const kq = ketQua ?? (h ? `hồ sơ ${h.slug} qua Cổng Bằng chứng · PR vào ${cfg.nhanh_chinh ?? 'nhánh chính'}` : null);
   if (!kq) return { loi: 'không suy được Kết quả — dãy không có hàng đang chạy hay hàng kế; ghi --hang <slug> hoặc --ket-qua "<câu>"' };
-  const kho = worktree ? khoCua(worktree) : null;
+  const kho = khoCua(noiDoc);
   const vung = h?.ranh_gioi?.length ? h.ranh_gioi.join(', ') : 'vùng tệp chưa khai — hỏi giám sát trước khi chạm ngoài hồ sơ';
   const rg = ranhGioi ?? (worktree ? `kho ${kho ?? '?'} · worktree ${worktree} · vùng ${vung}${cfg.bao_ve?.length ? ` · không chạm ${cfg.bao_ve.join(', ')}` : ''}` : null);
   if (!rg) return { loi: 'không suy được Ranh giới — ghi --ranh-gioi "<câu>"' };
   const tuMerge = docPha(thuMuc).tu_merge === true;
-  const gm = hanXongPhut != null ? null : tronHang && h && worktree ? gioMayCua(worktree, h.slug) : null;
+  const gm = hanXongPhut != null ? null : tronHang && h ? gioMayCua(noiDoc, h.slug) ?? gioMayCua(gocKho, h.slug) : null;
   return {
     slug: h?.slug ?? null,
     truong: {
-      y_dinh: yDinh ?? (h && worktree ? vYDinhTuO(worktree, h.slug) : ''),
+      y_dinh: yDinh ?? (h ? vYDinhTuO(noiDoc, h.slug, gocKho) : ''),
       ket_qua: kq,
       ranh_gioi: rg,
       quyen: `${tuMerge ? 'tự gộp được' : 'không tự gộp'}; việc phụ qua yeu-cau viec-phu`,

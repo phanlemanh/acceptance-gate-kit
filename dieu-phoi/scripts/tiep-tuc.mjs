@@ -11,6 +11,7 @@ import { mucDay } from './muc-day.mjs';
 import { docDau } from './dau.mjs';
 import { hangKeTuTiep } from './lich.mjs';
 import { conSong, coThuMucSong, nhipMoiNhatCua } from './song.mjs';
+import { loiGiaoViec, suyLoiGiaoDot } from './tin-giao.mjs';
 import { ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
 
 // Bảy hành động của một dãy — MỘT nguồn cho chẩn đoán, tiep-tuc và thân lệnh người.
@@ -93,6 +94,9 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
   // Lời ghi danh dựng từ MỘT hàm mục dãy (git + thư mục đợt, dùng chung với ban-giao.json), cộng lớp phủ bàn giao.
   const m = mucDay(thuMuc, d, { hangViec, maBanGiao: bgGan?.ma ?? null });
   const slug = m.slug;
+  // Lời giao sáu trường (hồ sơ vong-mo-co-chu-giu, AC-9): MỘT hàm với `tin GIAO`; thiếu Kết quả thì không mở chip.
+  const lg = suyLoiGiaoDot(thuMuc, hangViec, d.id, { hang: slug, tronHang: true });
+  if (lg.loi) return { ...nen, hanh_dong: HANH_DONG.khongHang, ly_do: `lời giao thiếu Kết quả — ${lg.loi}` };
   const phu = mucBg ? ` · bàn giao ${bgGan.ma}: ${mucBg.ban_giao}${mucBg.co_wip ? ' (có commit WIP)' : ''}` : '';
   return {
     ...nen,
@@ -100,7 +104,7 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
     da_ban_giao: phienCu.size > 0,
     muc: m,
     // DP8 (chỗ chọn 2d): chip luôn dựng worktree MỚI, nên mọi lời ghi danh mang lệnh `ghi-danh` của lõi đợt.
-    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · việc đầu tiên, từ worktree của chip: node ${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')} ghi-danh ${d.id} · ${chuaGhiDanh ? 'worktree chưa ghi danh' : `worktree ${d.worktree} · nhánh ${m.nhanh ?? '?'} @ ${(m.dinh ?? '').slice(0, 7)}`}${slug ? ` · hồ sơ ${slug} (${m.trang_thai_ho_so ?? 'chưa có'})` : ''}${phu} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}`,
+    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · việc đầu tiên, từ worktree của chip: node ${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')} ghi-danh ${d.id} · ${chuaGhiDanh ? 'worktree chưa ghi danh' : `worktree ${d.worktree} · nhánh ${m.nhanh ?? '?'} @ ${(m.dinh ?? '').slice(0, 7)}`}${slug ? ` · hồ sơ ${slug} (${m.trang_thai_ho_so ?? 'chưa có'})` : ''}${phu} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}\n${loiGiaoViec(lg.truong)}`,
   };
 }
 
