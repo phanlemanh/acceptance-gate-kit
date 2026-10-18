@@ -1170,3 +1170,54 @@ test('GT-09-do bo-sau-truong', async () => {
   const { loi } = await kiemChip(goc);
   assert.ok(loi.some((l) => l.startsWith('chip mở với sáu nhãn')), `bỏ sáu trường khỏi chip phải đỏ nêu sáu nhãn, nhận: ${loi.join(' | ')}`);
 });
+
+// ---------- AC-10: luật trong LUAT.md và README khớp bộ khẩu lệnh của máy ----------
+export async function kiemLuat(gocGoi) {
+  const { chayNode } = await import('./tin-kho-thu.mjs');
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 160) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  const luat = fs.readFileSync(`${gocGoi}/scripts/mau/LUAT.md`, 'utf8');
+  const khoi = /<!-- <<<LUAT-TIN -->([\s\S]*?)<!-- LUAT-TIN>>> -->/u.exec(luat)?.[1] ?? '';
+  so('có khối LUAT-TIN', 'khối không rỗng', khoi.length, khoi.length > 0);
+  const { KHAU_LENH } = await nap(gocGoi, 'tin.mjs');
+  const dongKl = khoi.split('\n').find((l) => l.startsWith('Khẩu lệnh:')) ?? '';
+  const tapKhoi = [...dongKl.matchAll(/`([^`]+)`/gu)].map((m) => m[1]).sort();
+  so('tập khẩu lệnh của khối = KHAU_LENH', [...KHAU_LENH].sort().join(','), tapKhoi.join(','), JSON.stringify(tapKhoi) === JSON.stringify([...KHAU_LENH].sort()) && KHAU_LENH.length === 9);
+  const nac = khoi.split('\n').filter((l) => /^\| \d · /u.test(l)).map((l) => Number(l[2]));
+  so('bảng thang đúng chín hàng nấc 0–8', '0,1,2,3,4,5,6,7,8', nac.join(','), nac.join(',') === '0,1,2,3,4,5,6,7,8');
+  so('có bảng «làm gì — máy làm gì thay»', '| Khi | Anh gõ | Máy làm thay |', '', khoi.includes('| Khi | Anh gõ | Máy làm thay |'));
+  for (const cau of ['Máy chỉ đọc dòng đầu', 'Vòng đóng khi người giao chấp nhận', '`NHẬN` và `KẸT` không đóng vòng', '`BÁO` không mở vòng', 'quá hạn 30′ máy nhắc một lần', 'Không kết lượt khi còn việc giao cho mình chưa nhận']) {
+    so(`luật vòng mở: «${cau}»`, 'có', '', khoi.includes(cau));
+  }
+  so('hai danh sách Phải HỎI / Không hỏi', 'có cả hai', '', khoi.includes('Phải HỎI') && khoi.includes('Không hỏi:'));
+  const readme = fs.readFileSync(`${gocGoi}/README.md`, 'utf8');
+  const lenh = new Set();
+  for (const nguon of [khoi, readme]) {
+    for (const m of nguon.matchAll(/`tin ([A-Za-zÀ-ỹ]+(?: LẠI)?)[ `]/gu)) lenh.add(m[1]);
+    for (const m of nguon.matchAll(/tin\.mjs"? ([a-zA-ZÀ-ỹ]+(?: LẠI)?)[ `]/gu)) lenh.add(m[1]);
+  }
+  const hong = [];
+  for (const c of lenh) {
+    const r = chayNode([`${gocGoi}/scripts/tin.mjs`, ...c.split(' '), '--help'], { cwd: DAY });
+    if (r.ma !== 0) hong.push(`${c}: ${r.ma} ${r.err.trim()}`);
+  }
+  so(`mọi dòng lệnh tin chạy --help (${lenh.size} lệnh)`, 'thoát 0 cả', hong.join(' | ') || [...lenh].join(','), hong.length === 0 && lenh.size >= 8);
+  return { loi, hang };
+}
+
+test('GT-10 luat-tin', async () => {
+  const { loi, hang } = await kiemLuat(GOI);
+  inMaTran('GT-10', hang);
+  assert.equal(hang.length, 12);
+  assert.deepEqual(loi, []);
+});
+
+test('GT-10-do them-duyet', async () => {
+  const goc = banSao('mau/LUAT.md', 'Khẩu lệnh: `GIAO` · `HỎI`', 'Khẩu lệnh: `DUYỆT` · `GIAO` · `HỎI`');
+  const { loi } = await kiemLuat(goc);
+  assert.ok(loi.some((l) => l.startsWith('tập khẩu lệnh') && l.includes('DUYỆT')), `thêm DUYỆT phải đỏ nêu DUYỆT, nhận: ${loi.join(' | ')}`);
+});
