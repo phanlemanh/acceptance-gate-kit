@@ -59,6 +59,9 @@ người khác ngay trong vòng mình, hoặc gọi người.
 - **Luật xếp lô 17/10** (ba máy đồng ý 12:35–12:39Z): PR đã ký đang ghim lại đi trước mọi PR mới chạm `apps/`
   `packages/`. Đây là **lách tạm** — nó bớt số lần hoá cũ chồng lên nhau bằng cách xếp hàng người, không làm hồ sơ
   tươi; khi K-A tới kho, luật này có thể gỡ.
+- **Ca 18/10 (M5, crm-onehub#375 00:23Z):** làn ghim lại 11 hồ sơ của vòng DA4 đỏ đúng một lệnh nên KHÔNG hồ sơ nào được
+  ghim dù 10 hồ sơ kia xanh — mất ≈90 phút. Đây đúng là phần «ghim từng hồ sơ trong một lượt» của K-A (AC-2, AC-3): suite
+  chung xanh thì hồ sơ xanh được ghim, chỉ hồ sơ đỏ nhận dòng đỏ.
 - Hai lối hoá cũ cùng khuôn đã lộ: eval phán xét thiếu `paths` nên MỌI đổi mã đều làm cũ (E17 `cua-toi-ba-phan` sửa
   trong #459; F31 cùng khuôn) — lệnh giữ tươi chọn theo `paths` nên eval thiếu `paths` là trần trên của giá nó.
 

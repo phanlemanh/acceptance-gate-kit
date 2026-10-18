@@ -20,6 +20,13 @@ tạm bằng sửa E16 (vật của DH2).
   của hồ sơ sẽ ký (nó thuộc lưới trước-gộp hay CI của chính PR), hoặc eval ấy tự khai `status: not-run` sau ký với
   con trỏ thay thế.
 
+## Ca thứ hai (18/10 00:23Z, M5, crm-onehub#375)
+
+`trang-don-vi-mot-bang` E12 lấy gốc so bằng `merge-base(HEAD, origin/onehub)`. Sau khi hồ sơ vào onehub, merge-base bằng
+chính HEAD nên phép đo báo «còn 0 lệnh» — không đo được gì nữa. Cùng lớp: chân lý của eval chỉ đúng ở thời điểm
+trước gộp, nhưng eval sống trong hồ sơ sẽ ký và bị ghim lại sau gộp. Ca này đếm vào ngưỡng dưới (đã có hai ca, cả hai ở
+crm, đều trước khi crm cài mốc chứa K-A).
+
 ## Ngưỡng mở ô
 
 ≥ 1 ca thứ hai (kho bất kỳ) mà một eval của hồ sơ đã ký đỏ ở lần ghim lại chỉ vì nó đo trạng thái của hồ sơ KHÁC lúc
