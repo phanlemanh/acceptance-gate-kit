@@ -97,7 +97,7 @@ evals:
     cmd: config:executors.script.rel2330_cua_so
     expected: >
       Exit 0 và dòng «XANH: hai tập bằng nhau» — tập hồ sơ ĐƯỢC KÝ trong cửa sổ `5bd64bc9..HEAD`, suy từ kho bằng QUAN HỆ
-      (bỏ hồ sơ mốc `release-*`), BẰNG tập kể trong Context (road-map-de-dung [+ ho-so-da-ky-giu-tuoi]). Chiều đỏ trong chính
+      (bỏ hồ sơ mốc `release-*`), BẰNG tập kể trong Context (road-map-de-dung, ho-so-da-ky-giu-tuoi). Chiều đỏ trong chính
       lệnh: slug thừa và slug thiếu đều in tên, thoát 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -132,22 +132,24 @@ evals:
     executor: script
     cmd: config:executors.script.rel2330_lop_chep
     expected: >
-      Exit 0 và dòng «XANH: đúng 3 tệp đổi như ghi chú 2.33.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (28 tệp),
+      Exit 0 và dòng «XANH: đúng 7 tệp đổi như ghi chú 2.33.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (29 tệp),
       rút danh sách mong đợi từ gạch «- **Lớp chép CI:…» của mục «## 2.33.0» trong CHANGELOG.md, và tập tệp đổi byte từ
-      `5bd64bc9` tới HEAD (scripts/cat-luot.mjs, scripts/gio-may.mjs, scripts/lo-trinh.mjs) BẰNG tập ghi chú kể. Chiều đỏ
+      `5bd64bc9` tới HEAD (lo-trinh, gio-may, cat-luot của RD1; product-map, evidence-core, nhan-canh-gay, do-san-tren-nen của
+      K-A) BẰNG tập ghi chú kể. Chiều đỏ
       trong chính lệnh (đo ở release-2-29-0).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-33-0/contract.md, commands/acceptance-init.md, skills/acceptance/references/lo-trinh-du-lieu.md, skills/cat-luot/SKILL.md, _acceptance/road-map-de-dung/contract.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-33-0/contract.md, commands/acceptance-init.md, skills/acceptance/references/lo-trinh-du-lieu.md, skills/cat-luot/SKILL.md, _acceptance/road-map-de-dung/contract.md, _acceptance/ho-so-da-ky-giu-tuoi/contract.md]
     question: >
       Đọc AC-9 của contract release-2-33-0 và mục «## 2.33.0» của CHANGELOG.md (chỉ mục đó), cạnh mã và tài liệu đi kèm.
-      (1) Ghi chú nhận có dặn crm cắt lại lộ trình bằng skill cắt lượt mới, và nói lộ trình cũ còn mốc ngoài hay mốc chưa
-      khai loại sẽ hiện cờ vàng có tên, không có đường đọc riêng cho mốc ngoài cũ không? (2) Lời về lớp chép CI (ba tệp:
-      scripts/cat-luot.mjs, scripts/gio-may.mjs, scripts/lo-trinh.mjs) có khớp nhãn trong khối INIT-CI-COPY-LIST của
+      (0) Mục có nói crm cần CI fetch-depth 0 và bảy việc crm chờ K-A mở được sau khi cài, khớp hợp đồng ho-so-da-ky-giu-tuoi
+      không? (1) Ghi chú nhận có dặn crm cắt lại lộ trình bằng skill cắt lượt mới, và nói lộ trình cũ còn mốc ngoài hay mốc chưa
+      khai loại sẽ hiện cờ vàng có tên, không có đường đọc riêng cho mốc ngoài cũ không? (2) Lời về lớp chép CI (bảy tệp,
+      trong đó lib/do-san-tren-nen.cjs là tệp mới) có khớp nhãn trong khối INIT-CI-COPY-LIST của
       commands/acceptance-init.md không? (3) Lời về năm khoá mô hình hiển thị (ten_hien_thi, moc[].hien/viec_hien/con_lai,
-      chua_hen_moc) có khớp lo-trinh-du-lieu.md và hợp đồng road-map-de-dung không? Trả PASS khi cả ba vế đúng; FAIL nêu
+      chua_hen_moc) có khớp lo-trinh-du-lieu.md và hợp đồng road-map-de-dung không? Trả PASS khi cả bốn vế đúng; FAIL nêu
       đúng vế và câu sai.
     evidence_required: [run_id, verdict, rationale]
   - id: E10

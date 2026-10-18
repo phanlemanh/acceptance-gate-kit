@@ -1,20 +1,18 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.33.0 — road-map dễ dùng (RD1) [+ hồ sơ đã ký luôn tươi (K-A) nếu vào main trước khi cắt]; lộ trình đọc trong một phút, bỏ mốc ngoài, giờ máy theo làn
+feature: Phát hành kit 2.33.0 — road-map dễ dùng (RD1) + hồ sơ đã ký luôn tươi (K-A); lộ trình đọc trong một phút, bỏ mốc ngoài, giờ máy theo làn, lệnh giữ tươi
 slug: release-2-33-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: draft
+status: approved
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-18T12:28:12Z
 ---
 
 # Acceptance Contract: release-2-33-0
-
-> **NHÁP — dựng sẵn 18/10, chưa đặt số, chưa chấm.** Điều phối gom mốc «Phát hành kế sau 2.32.1» = RD1 + K-A; chờ tin
-> «K-A đã vào main» thì gộp main, thêm K-A vào Context + khoá `rel2330_cua_so`, nâng số rồi chấm. Tới 18/10 12:00Z chưa có
-> tin → cắt riêng RD1 (bỏ ngoặc K-A ở mọi chỗ).
 
 ## Context
 
@@ -22,14 +20,14 @@ approved_at:
 (b22c0a329, 18/10) đã cắt lại theo luật 17/10: 0 mốc ngoài, mọi mốc khai `loai`. Mốc lộ trình: «Phát hành kế sau 2.32.1».
 
 **Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ: `road-map-de-dung`
-(RD1, #381 → `84958e5a`) [· `ho-so-da-ky-giu-tuoi` (K-A) nếu vào trước khi cắt]. Không vòng máy thông nào.
+(RD1, #381 → `84958e5a`) · `ho-so-da-ky-giu-tuoi` (K-A, #369 → `9f45073b`). Không vòng máy thông nào. Gộp sau chữ ký của cửa
+sổ: #383 (sửa ca `lo-trinh-du-lieu-ngay`, chủ kho cho) · #382 (lộ trình kit gỡ ba mốc ngoài).
 
-Số là **2.33.0** (minor): RD1 thêm năm khoá vào khối dữ liệu trang (chỉ thêm, bản 2 giữ), năm cờ có tên của bộ đọc chung,
-luật cắt lượt mới (ADR 0026) — bề mặt mới, không gãy đường đọc-cũ. Năm dòng số, bảng dự báo, điều kiện tin cậy, dòng hiệu
-chuẩn và ghi chú nhận cho crm nằm ở mục `2.33.0` của `CHANGELOG.md` (bản nháp: `changelog-nhap.md` của hồ sơ này, chuyển
-vào CHANGELOG lúc cắt) — một nguồn, hồ sơ không chép lại.
+Số là **2.33.0** (minor): K-A thêm luật gate mới (nhãn «đỏ sẵn trên nền» lưới và kiểm lại đọc) và lệnh giữ tươi; RD1 thêm
+năm khoá vào khối dữ liệu trang (chỉ thêm, bản 2 giữ), năm cờ có tên, luật cắt lượt mới (ADR 0026) — không gãy đường đọc-cũ. Năm dòng số, bảng dự báo, điều kiện tin cậy, dòng hiệu
+chuẩn và ghi chú nhận cho crm nằm ở mục `2.33.0` của `CHANGELOG.md` — một nguồn, hồ sơ không chép lại.
 
-Source input: `git log v2.32.1..HEAD` · nếp phát hành `_acceptance/release-2-32-1/` · Notes và Known limits của RD1 ·
+Source input: `git log v2.32.1..HEAD` · nếp phát hành `_acceptance/release-2-32-1/` · Notes và Known limits của RD1, K-A ·
 crm-onehub#375 · kit #308.
 
 ## Criteria
@@ -42,7 +40,7 @@ crm-onehub#375 · kit #308.
 - AC-6: Given mô tả hai plugin, When chạy vùng 3 của suite plugins, Then lệnh thoát 0 — P200 đòi mô tả `acceptance-gate` CÓ mục của đúng số đang phát hành và mục đó của `feature-loop` TỰ khai cặp `acceptance-gate >= <số>`.
 - AC-7: Given mốc `5bd64bc9`, When liệt tệp đổi dưới `dieu-phoi/` và `road-map/` tới HEAD bằng git, Then tập tệp đổi BẰNG đúng hai manifest — hai gói chỉ đổi số, như CHANGELOG mục `2.33.0` kể.
 - AC-8: Given khối INIT-CI-COPY-LIST của `acceptance-init`, gạch «Lớp chép CI» của mục `2.33.0` trong CHANGELOG và mốc `5bd64bc9`, When rút danh sách chép, rút danh sách ghi chú kể, rồi so tệp nào đổi byte tới HEAD, Then tập tệp đổi BẰNG tập ghi chú kể (tệp lệnh của `release-2-29-0`, dùng lại).
-- AC-9: Given mục `2.33.0` của `CHANGELOG.md` cùng vật nó mô tả, When đọc ghi chú nhận cho crm, Then (i) crm được dặn cắt lại lộ trình bằng skill cắt lượt mới và lộ trình cũ còn mốc ngoài/mốc chưa khai loại sẽ hiện cờ vàng có tên, không có đường đọc riêng; (ii) lời về lớp chép CI khớp nhãn trong `commands/acceptance-init.md`; (iii) lời về năm khoá mô hình hiển thị (`ten_hien_thi`, `moc[].hien`/`viec_hien`/`con_lai`, `chua_hen_moc`) khớp `skills/acceptance/references/lo-trinh-du-lieu.md` và hợp đồng `road-map-de-dung`.
+- AC-9: Given mục `2.33.0` của `CHANGELOG.md` cùng vật nó mô tả, When đọc ghi chú nhận cho crm, Then (o) mục nói đúng hai việc của K-A crm phải làm — CI `fetch-depth: 0` và bảy việc crm chờ K-A mở được sau khi cài; (i) crm được dặn cắt lại lộ trình bằng skill cắt lượt mới và lộ trình cũ còn mốc ngoài/mốc chưa khai loại sẽ hiện cờ vàng có tên, không có đường đọc riêng; (ii) lời về lớp chép CI khớp nhãn trong `commands/acceptance-init.md`; (iii) lời về năm khoá mô hình hiển thị (`ten_hien_thi`, `moc[].hien`/`viec_hien`/`con_lai`, `chua_hen_moc`) khớp `skills/acceptance/references/lo-trinh-du-lieu.md` và hợp đồng `road-map-de-dung`.
 - AC-10: Given số trong `.claude-plugin/plugin.json` ở HEAD khác gốc vòng, When chạy khoá `kiem_ban_cai_moc`, Then lệnh chạy TRỌN kiểm bản cài trên HEAD và thoát 0 với «TỔNG KẾT: ĐẠT 8/8 — HEAD (<sha>) cài đúng tag»; đỏ thì KHÔNG cắt mốc.
 
 ## Coverage
@@ -56,8 +54,8 @@ crm-onehub#375 · kit #308.
 ## Out of scope
 
 - Đổi dòng mã cổng — mốc phát hành KHÔNG dựng răng mới (GUIDE §7.1).
-- Sửa 16 Known limits của RD1 — vòng sau (giờ máy ba mốc Ngoài-3, cộng giờ trùng Ngoài-9, …).
 - Cắt lại lộ trình kit `docs/plans/lo-trinh-kit.json` — đã làm ở PR riêng của điều phối (#382, gỡ 3 mốc ngoài; bộ đọc chung nay 0 cờ trên lộ trình kit).
+- Sửa Known limits của RD1 (16) và K-A (10) — vòng sau.
 - Cài 2.33.0 vào crm, vẽ lại `LO-TRINH.html` của crm — việc của máy Mac Studio sau mốc.
 
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.

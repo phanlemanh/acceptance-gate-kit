@@ -31,6 +31,92 @@ PR đã gây ra, gần bốn giờ máy ghim lại. Nay:
 lại cho đầu ra như trước (đo trên bộ hồ sơ thật của các kho có trên máy). Bộ máy cũ đọc hồ sơ có dòng nền đỏ không vỡ
 và chặn pin mang nhãn — hướng an toàn. Lớp CI chép thêm `lib/do-san-tren-nen.cjs` khi nhận mốc. Cách dùng: GUIDE §7.1.
 
+## 2.33.0 — 18/10/2026
+
+Lộ trình đọc được trong một phút, và hồ sơ đã ký luôn tươi. Có **hai hồ sơ được ký** — tập đối chiếu bằng
+`scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `road-map-de-dung` (RD1, #381) và `ho-so-da-ky-giu-tuoi` (K-A, #369). Kho
+chờ nhận: `crm`. Bốn gói `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map` cùng lên `2.33.0` (`acceptance-gate`
+và `feature-loop` đổi vật; `dieu-phoi`, `road-map` chỉ đổi số); `diagram-design` giữ `2.7.1`. Tag `v2.33.0` gắn vào commit
+gộp PR mốc.
+
+**Vì sao 2.33.0** (minor): luật gate mới (nhãn «đỏ sẵn trên nền» mà lưới trước-gộp và kiểm lại bằng chứng đọc), lệnh mới
+(giữ tươi), năm khoá mới của khối dữ liệu trang (chỉ thêm — bản 2 giữ), năm cờ có tên và luật cắt lượt mới (ADR 0026).
+Không gãy đường đọc-cũ.
+
+### Road-map dễ dùng (hồ sơ `road-map-de-dung`, hàng RD1, T2)
+
+- **Bỏ mốc ngoài** (ADR 0026): việc của người không còn là mốc. Skill cắt lượt xếp mỗi mục vào một trong năm loại
+  (phát triển · sự kiện tạo hạn · đo giá trị · vận hành thuần · việc cần kết quả vận hành); việc vận hành ra khỏi kho,
+  liệt dưới «Ra khỏi kho» ở mô tả PR. Skill quyết `han` hay `han-cung`, mã vận hành không vào phạm vi của hàng tự phục vụ.
+- **Luật «chỉ việc phát triển» ở mọi lần đọc tệp** — trang, bản xem chữ, thẻ khởi động: năm cờ có tên
+  (`moc-ngoai-da-bo`, `moc-chua-khai-loai`, `dung-tren-moc`, `du-lieu-sai-gia-tri`, `thieu-hang-sinh-gia`).
+- **Khối Mốc đọc bằng tên:** mỗi việc hiện bằng câu giao đầy đủ, mã đứng sau; mốc chỉ hiện khi có việc; việc thuộc mốc
+  đầu tiên (theo ngày) liệt nó. Trang crm và trang của phiên đọc **một mô hình hiển thị** trong khối dữ liệu: năm khoá
+  `hang[].ten_hien_thi`, `moc[].hien`, `moc[].viec_hien`, `moc[].con_lai`, `chua_hen_moc`.
+- **Rà soát** nhắc mốc đã qua ngày chưa khép (một dòng gom) và việc chưa có tên ngắn (chỉ ở kho đã dùng tên ngắn; không
+  lên trang).
+- **Giờ máy nối tiếp theo làn:** mỗi lộ trình một làn, xếp theo phụ thuộc trước, ngày sau; nhãn «máy chạy 24/24 — chưa
+  đo nhịp ngày». Trần độ dài trang 0,4 so với trang 2.21.0 cùng kho (chủ kho chốt 17/10).
+- **Giới hạn đã khai:** 16 mục ở Notes hợp đồng — đáng nhớ nhất: ba mốc mà mốc gần hạn chờ mốc xa hạn có thể báo «quá
+  tải» sai (Ngoài-3); một việc liệt ở nhiều mốc bị cộng giờ máy nhiều lần (Ngoài-9).
+- **Sau gộp:** main đỏ 4 ca của `lo-trinh-du-lieu-ngay` (nền so chứa RD1) — sửa ở #383, chủ kho cho; bộ ca điều phối
+  không nằm trong bộ ca của lượt chấm, chỉ CI chạy (hạt giống `docs/plans/2026-10-18-hat-giong-bo-ca-dieu-phoi-ngoai-luot-cham.md`).
+
+### Hồ sơ đã ký luôn tươi (hồ sơ `ho-so-da-ky-giu-tuoi`, hàng K-A, T3)
+
+- **Lệnh giữ tươi** (`feature-loop/scripts/giu-tuoi.mjs`): theo khoảng gộp trên nhánh chính, ghim lại hồ sơ đã ký bị
+  chạm, quy mỗi cái đỏ về đúng PR gây ra (hoặc «đỏ sẵn trước khoảng», «hạ tầng»), in tồn đọng và giờ máy.
+- **Nhãn «đỏ sẵn trên nền»:** khoá `feature_loop.do_san_tren_nen` (mặc định **tắt**) — bật thì vòng khác đi tiếp khi
+  cùng cái đỏ đã ghi trên nhánh chính; lưới trước-gộp và kiểm lại bằng chứng đọc nhãn qua `lib/do-san-tren-nen.cjs`.
+- **Khoá vắng:** lưới, thẻ và bản đồ giống từng byte bản trước trên bộ hồ sơ thật của mọi kho có trên máy (AC-8).
+- **Giới hạn đã khai:** 10 mục ở Notes hợp đồng — máy quá tải cắt cả hai bản giống nhau thì phép so có thể xanh dù chưa
+  chạy xong (Ngoài-1, Ngoài-3); một lỗi thật có thể bị xếp nhầm là «hạ tầng» (Ngoài-9).
+
+**Đường đọc-cũ:** khối dữ liệu trang giữ bản 2, năm khoá mới chỉ thêm; bộ đọc gặp trang cũ thiếu khoá thì cờ vàng «khối
+chưa mang mô hình hiển thị — vẽ lại bằng bộ kit mới». Lộ trình cắt trước luật 17/10 hiện cờ vàng có tên; không có đường
+đọc riêng cho mốc ngoài cũ — cắt lại bằng skill mới là hết. Bản trước đọc hồ sơ mang dòng `nen-do`/`do_san` không vỡ
+(AC-9 của K-A).
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.33.0` bảy tệp: `scripts/lo-trinh.mjs`, `scripts/gio-may.mjs`, `scripts/cat-luot.mjs`
+  (RD1); `scripts/product-map.mjs`, `lib/evidence-core.cjs`, `lib/nhan-canh-gay.cjs` và tệp MỚI `lib/do-san-tren-nen.cjs`
+  (K-A). Bảy tệp chép CÙNG MỘT commit; hai mươi hai tệp còn lại giống từng byte `v2.32.1`.
+- **CI của kho cần `fetch-depth: 0`** — lưới đọc dòng nền ở điểm tách của nhánh; clone nông thì không có điểm tách (K-A).
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.33.0` ở MỌI phạm vi**, rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs
+  --may --ref v2.33.0 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.33.0` (KC1) — dòng TỔNG KẾT ghi vào
+hồ sơ `release-2-33-0`.
+
+**crm, theo thứ tự:**
+
+1. **Cài theo thẻ `v2.33.0`** mọi gói crm đang dùng ở mọi bản ghi; kiểm `kiem-ban-cai.mjs --may --ref v2.33.0`. Mở phiên MỚI.
+2. **Lớp chép CI từ thẻ** (`git archive v2.33.0`): bảy tệp ở trên, cùng một commit; CI đặt `fetch-depth: 0`.
+3. **Vẽ lại `LO-TRINH.html`** trong PR nhận. Lộ trình trên `onehub` (b22c0a329, 18/10) đã cắt lại theo luật 17/10: 0 cờ ở
+   OKR và việc dự án; kho tài liệu thêm một dòng Rà soát «9 việc chưa có tên ngắn». Lộ trình nào còn mốc ngoài hay mốc
+   chưa khai loại thì cắt lại bằng skill cắt lượt mới.
+4. **Trang Lộ trình trong sản phẩm** đọc năm khoá mô hình hiển thị thay vì tự lọc, kèm một ca đối chiếu trang với tập hiển
+   thị của khối.
+5. **Bảy việc crm đang gom chờ K-A** mở được sau khi crm cài mốc này.
+
+**Năm dòng số của luật (c)** — hai vòng có lượt chấm trong cửa sổ (giờ VN):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · token S4 | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `road-map-de-dung` (RD1, T2) | 8 g 43 · 3 (lượt 1 REJECT lỗi trong hợp đồng; lượt 2 REJECT chỉ vì sổ giới hạn thiếu hàng; lượt 3 PASS mang sang) | 2 / 4 (3) — ngoài: trần độ dài 0,4 · lời AC-5 · ô «ký hay trả» bỏ trống · cho sửa main đỏ | 1 (lượt 2, P179) | không tách khối — `usage-report.md` chỉ tách theo model | ~47 · ~46 · ~46; ghim lại sau chữ ký 39 + 41 |
+| `ho-so-da-ky-giu-tuoi` (K-A, T3) | 12 g 25 · 3 (lượt 3 PASS) | 3 / ≥ 2 (4) — ngoài: duyệt lại phạm vi sau lượt 1 · dời bản so E8 | chưa đếm (hồ sơ K-A) | không tách khối | xem `run-log.jsonl` của hồ sơ |
+
+**Đọc số:** cả hai vòng vượt trần lượt gọi người vì quyết định giữa vòng (RD1: trần độ dài trang, lời AC sau duyệt; K-A:
+duyệt lại phạm vi) — số đọc được, chưa đủ hai mốc để so. **Điều kiện tin cậy:** (i) `git diff v2.32.1 <cây mốc> --
+feature-loop/workflows/ feature-loop/agents/` — đường verdict; (ii) lượt chấm sai do phép-đo-tự-dối giữa hai mốc: 0.
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 = · 2 ↓ ngoài thiết kế (lộ trình đọc trong một phút, ít hỏi «việc nào
+còn») · 3 ↓ (giữ tươi quy đỏ về PR, bớt lượt bị nền đỏ đốt — khi khoá bật) · 4 = · 5 =.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (18/10).
+**N không tăng so với mốc 2.32.1 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.32.1 — 17/10/2026
 
 Bản vá của 2.32.0 cho sự cố ở kho tiêu thụ đầu tiên nhận nó: `crm-onehub#375` (Mac Studio, 17/10) — nhận 2.32.0 ở PR
