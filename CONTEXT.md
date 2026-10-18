@@ -451,6 +451,11 @@ tham số chấm và lúc lượt chấm xong, có commit mới hoặc tệp đa
 biết lượt ấy không chấm đúng một mốc commit nên không dùng được. Người gỡ: phiên
 chính hoàn lại thay đổi lạ rồi chấm lại cùng vòng. Giá: một lượt chấm, không đếm
 vào trần ba vòng; thử lại một lần vẫn đổi thì thẻ khoá và hỏi người.
+*Đỏ sẵn trên nền* (17/10, hồ sơ `ho-so-da-ky-giu-tuoi`): eval đỏ ở lượt ghim lại của
+một vòng, mà cái đỏ ấy đã được ghi trên nhánh chính bằng một **dòng nền đỏ** — đúng
+eval, đúng ca, đúng thông điệp lỗi, đúng định nghĩa eval. KHÔNG phải ĐẠT (eval vẫn
+mang mã khác 0); nhãn chỉ thôi chặn vòng KHÁC. Người gỡ: PR mà dòng nền quy về. Giá:
+0 lượt gọi người. Chỉ khi kho bật `feature_loop.do_san_tren_nen: true`.
 _Avoid_: **Nhãn** trần (đã dành cho chú thích trong ngoặc của criterion, không đổi
 hành vi máy) · **Dấu** (hậu tố contract) · status, label, cờ.
 
@@ -505,6 +510,15 @@ của executor có trên máy · các lệnh suite chạy một lần tuần t�
 trước-merge như CI · ba bản bộ máy. Đỏ ở đây không phải lỗi của vòng; kết quả vào gói Cổng
 Phạm vi (`duong-nen.md`).
 _Avoid_: "baseline" trần (chữ ấy đã chỉ dòng `kind: baseline` của run-log).
+
+**Dòng nền đỏ**:
+Dòng `kind: "nen-do"` mà lệnh giữ tươi (`giu-tuoi.mjs --write`) ghi vào sổ chạy của một
+hồ sơ đã ký khi eval của nó đỏ sau một khoảng gộp: eval và ca nào đỏ, băm thông điệp lỗi,
+băm định nghĩa eval lúc ấy, kết cục quy về (một PR, nhiều PR, đỏ sẵn trước khoảng, hạ
+tầng). Là vật DUY NHẤT nhãn *đỏ sẵn trên nền* trích — không có dòng nền đỏ trên nhánh
+chính thì không có nhãn.
+_Avoid_: "baseline" trần (chữ ấy đã chỉ dòng `kind: baseline` của run-log) · «dòng đỏ» trần
+(lẫn với kết quả đỏ của **Đường nền hạ tầng** và dòng `repin-do` của lượt ghim lại).
 
 **kind:panel**:
 Dòng biên bản hội đồng trong sổ chạy của máy — ghi mỗi giám khảo bỏ phiếu gì và
