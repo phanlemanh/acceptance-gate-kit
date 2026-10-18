@@ -58,6 +58,7 @@ lo_trinh.tien_do — bốn con số của thanh tiến độ
 lo_trinh.hang — mọi việc của kế hoạch, theo thứ tự tệp
 lo_trinh.moc — các mốc, theo ngày tăng dần
 lo_trinh.da_bac — các việc đã bác
+lo_trinh.chua_hen_moc — mã các việc không thuộc mốc nào hiện (mục «Mô hình hiển thị chung»)
 hang_ke.ma — mã việc
 hang_ke.cau_giao — câu mô tả việc giao
 hang_ke.lenh — dòng lệnh mở việc trong Claude Code, hoặc null khi mã trùng hay chưa có mã
@@ -82,6 +83,7 @@ hang.bat_khi — điều kiện bật kho ghi, hoặc rỗng
 hang.vi_sao — lý do kho ghi, hoặc rỗng
 hang.tom_tat — dải tóm tắt hồ sơ của việc, hoặc null khi việc chưa có hồ sơ
 hang.gio_may — giờ máy ước của việc (mục «Giờ máy và ngày dự kiến»), hoặc null khi trang vẽ không qua phân tích kho
+hang.ten_hien_thi — tên hiển thị của việc: câu giao đầy đủ, vắng thì tên ngắn, tên, mã (mục «Mô hình hiển thị chung»)
 tom_tat.moi_nguoi — tầng mọi người đọc: chín ô theo thứ tự trang hồ sơ in
 tom_tat.chu_kho — tầng chủ kho: bảy con số và mã
 moi_nguoi.da_giao — đã giao gì: câu giao của hợp đồng, đã bỏ một cặp «»
@@ -107,6 +109,9 @@ moc.con_viec — true khi còn việc gắn mốc chưa giao
 moc.gio_may — tổng giờ máy các việc CHƯA giao của mốc, hoặc null khi mốc hết việc mở
 moc.du_kien — ngày dự kiến hoàn tất (dự báo đóng băng lúc mốc bắt đầu), hoặc null khi mốc chưa có dự báo
 moc.qua_tai — chữ cờ «mốc quá tải: dự kiến dd/mm, mục tiêu dd/mm» đúng như trang in, hoặc null
+moc.hien — true khi mốc có ít nhất một việc hiện dưới nó (mục «Mô hình hiển thị chung»)
+moc.viec_hien — mã các việc hiện dưới mốc: việc thuộc mốc ĐẦU TIÊN (theo ngày) liệt nó
+moc.con_lai — số việc trong viec_hien chưa giao
 gio_may.thap — cận dưới khoảng giờ máy ước (số)
 gio_may.cao — cận trên khoảng giờ máy ước (số)
 gio_may.nguon — khai (kho ghi gio_may trên việc) | luat (bảng luật, chưa đủ số đo) | do (đủ 5 vòng đã giao cùng hạng)
@@ -143,6 +148,24 @@ quá tải. Khối mang đúng những chữ ấy kèm số: `hang.gio_may`, `mo
   trăm hạn mức tuần chưa ước được.
 - **Chữ là ĐÚNG chữ trang in.** `gio_may.chu`, `gio_may_moc.chu`, `du_kien.chu`, `qua_tai` hiện thẳng; số `thap`, `cao`,
   `phan_tram_tuan`, `ngay_tinh`, `hoan_tat` để sắp xếp, vẽ thanh, so với hôm nay.
+
+### Mô hình hiển thị chung (cùng phiên bản 2, hồ sơ road-map-de-dung)
+
+Luật hiển thị lộ trình sống MỘT chỗ — khối dữ liệu mang sẵn kết quả, và trang kit, lệnh xem lộ trình (`/road-map:xem`) lẫn
+trang Lộ trình trong sản phẩm của kho CHỈ VẼ từ đó, không tự lọc lại (chủ kho 17/10: «Lộ trình CRM và lộ trình của phiên đọc
+cùng một nguồn; khi Lộ trình CRM đọc đúng thì phiên cũng phải đồng nhất»). Năm khoá, thay đổi CHỈ THÊM nên phiên bản vẫn là 2:
+
+- **Mốc nào hiện:** `moc.hien` — chỉ mốc có việc gắn. Mốc `hien: false` không vẽ (trang kit chỉ đếm chúng ở tiêu đề).
+- **Việc nào dưới mốc nào:** `moc.viec_hien` — một việc chỉ hiện dưới mốc ĐẦU TIÊN liệt nó (mốc sắp theo ngày); mã trong
+  `moc.hang` mà kế hoạch không có thì không vào. `moc.con_lai` đếm việc chưa giao trong đó.
+- **Nhóm chưa hẹn mốc:** `lo_trinh.chua_hen_moc` — mọi việc không ở `viec_hien` của mốc nào.
+- **Tên việc:** `hang.ten_hien_thi` — câu giao đầy đủ (đã bỏ một cặp «» bao trọn câu); vắng thì tên ngắn, rồi tên, rồi mã.
+  Mã là chữ phụ cạnh tên, không thay tên.
+- **Trạng thái bằng chữ:** `hang.trang_thai` như cũ.
+
+Bộ đọc gặp trang vẽ bằng bản kit chưa có năm khoá: `ten_hien_thi`, `hien`, `con_lai` là `null`, `viec_hien` và
+`chua_hen_moc` rỗng, và đúng một cờ vàng «khối chưa mang mô hình hiển thị» — giữ luật lọc riêng của kho tới khi trang được
+vẽ lại.
 
 ### Khoá tuỳ chọn `tin_hieu` (cửa tín hiệu)
 
@@ -206,6 +229,7 @@ Bộ đọc của bản chiếu không bao giờ được làm trang của nó v
 | `phien_ban` lớn hơn bản mình biết | vẫn đọc phần biết; báo một cờ vàng «khuôn mới hơn bộ đọc» |
 | `phien_ban` 1 (trang vẽ bằng khuôn bản 1) | đọc đủ; mọi `hang.tom_tat` là `null`; báo một cờ vàng «khuôn bản 1» |
 | việc không có khoá `gio_may` (trang vẽ bằng kit trước khi khối mang giờ máy) | đọc đủ; mọi `hang.gio_may`, `moc.gio_may`, `moc.du_kien`, `moc.qua_tai` là `null`; báo một cờ vàng «chưa có giờ máy và ngày dự kiến» |
+| lộ trình không có khoá `chua_hen_moc` (trang vẽ bằng kit trước mô hình hiển thị chung) | đọc đủ; `hang.ten_hien_thi`, `moc.hien`, `moc.con_lai` là `null`, `moc.viec_hien` và `chua_hen_moc` rỗng; báo một cờ vàng «khối chưa mang mô hình hiển thị» |
 | thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng); riêng ô của dải (`moi_nguoi.*`, `chu_kho.*`) và ô của giờ máy / dự kiến (`gio_may.*`, `gio_may_moc.*`, `du_kien.*`) là `null`, và nhóm dải vắng là object đủ khoá toàn `null` |
 | khoá lạ | giữ nguyên, bỏ qua |
 

@@ -1,0 +1,18 @@
+{
+  "kho": "crm",
+  "nhanh": "onehub",
+  "sha": "b74ec7eaea9721a3030d0e6a0bfa28506e60deae",
+  "tep": {
+    "okr": "docs/plan/lo-trinh-okr.json",
+    "kho-tai-lieu": "docs/plan/lo-trinh-kho-tai-lieu.json",
+    "viec-du-an": "docs/plan/lo-trinh-viec-du-an.json"
+  },
+  "okr_truoc_466": {
+    "sha": "9dfdf062845daed5298e251d10a33501b1640527",
+    "tep": "docs/plan/lo-trinh-okr.json"
+  },
+  "okr_ra_soat_1017": {
+    "sha": "b1666c3ac471998ad610287064f934ade7849b19",
+    "tep": "docs/plan/lo-trinh-okr.json"
+  }
+}

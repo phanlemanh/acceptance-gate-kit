@@ -1,0 +1,83 @@
+Lộ trình OKR
+  Làn R1 vá xong trên production, trước ngày dùng thật — còn 8/8 việc
+    • Khung Mục tiêu gọn: bảng KR có lề, tab không trùng tên, điện thoại đọc được, chip Kara cùng cỡ nhãn, thanh Theo đơn vị không nhảy dòng — Chưa mở (R1a)
+    • Nhập cả công ty không hỏng ngầm: đặt được tên miền nội bộ, cho phép lại người đang là thành viên không treo — Chưa mở (R1b)
+    • Hồi ý không bị hộp che, Cập nhật tuần báo đã xong, Toàn cảnh không nói ngược bảng — Chưa mở (R1c)
+    • Dựng cây và đặt OKR không vấp: mục tiêu thu gọn giữ nguyên, KR từ mẫu báo người phụ trách, khôi phục phòng ban đúng chỗ — Chưa mở (R1d)
+    • Thành viên thường không nhờ chat sửa trường của cả đội; model bị gỡ thì chat lùi về mặc định và báo quản trị — Chưa mở (R1e)
+    • Quên mật khẩu giữ logo, đăng xuất lỗi báo tiếng Việt, lỗi cơ sở dữ liệu không đá người về đăng nhập — Chưa mở (R1f)
+    • Zalo quá tải không bị báo token sai; bot chỉ đúng đường tới trang nhắc — Chưa mở (R1g)
+    • Kara sập giữa lượt thì không mất lượt soạn; «Thử lại» nói rõ vì sao không chạy — Chưa mở (R1h)
+  Công bố OKR quý 4 — các phòng ban đã dùng thử OKR và Kho tài liệu từ trước — còn 3/4 việc
+    • Các lỗi còn lại sau lượt cập nhật tuần được sửa trước khi cả công ty dùng — Chưa mở (4n)
+    • Tác nhân chạy nền không đăng được dữ liệu đối tác vào kênh Slack có người mang vai chỉ OKR — Chưa mở (S)
+    • Kết nối Slack thiếu quyền đọc email vẫn không để lọt dữ liệu đối tác tới người mang vai «chỉ OKR» — Chưa mở (S2)
+  Vòng tín hiệu khép lần đầu — tín hiệu tự về kho, quản trị thấy mọi tín hiệu, ai cũng có chuông thông báo, hộp gửi tín hiệu sửa xong — còn 4/4 việc
+    • Người gửi tín hiệu hôm nay thì sáng mai thấy trang của mình đã đổi sang Đội sản phẩm đã nhận, mà không ai phải chạy lệnh — Chưa mở (TH1)
+    • Quản trị mở thẻ Tất cả của trang Tín hiệu và thấy ai đã gửi, phòng ban nào, từ màn nào, đang ở đâu, cùng ba con số của ngưỡng sống — Chưa mở (TH4)
+    • Người dùng CRM thấy mọi điều CRM muốn báo ở chuông trên đầu trang, biết số chưa đọc và bấm vào là tới đúng chỗ cần làm — Chưa mở (TB1)
+    • Người gửi tín hiệu đọc rõ hộp gửi và trang Tín hiệu đã gửi ở mọi khổ màn và mọi ngôn ngữ, thấy lỗi báo đúng chỗ, và đóng biên nhận không bị hỏi lại — Chưa mở (TH6)
+  Lộ trình nhiều sản phẩm — bước 1: trang đọc bản chụp — còn 1/1 việc
+    • Trưởng phòng ban mở trang Lộ trình và thấy đúng lộ trình mới nhất của nhánh chính, kèm giờ lấy, mà trang không phải chờ một bản dựng production — Chưa mở (LT1c)
+  OKR · Khu Mục tiêu dễ đi — khung Mục tiêu, trang đơn vị một bảng, Của tôi ba phần — còn 3/3 việc
+    • Tôi bấm Mục tiêu trên thanh bên thì gặp trang tên Mục tiêu, nút Thêm mục tiêu ở góc phải như Thoả thuận, và đổi thẻ không mất đơn vị đang xem — Chưa mở (DH1)
+    • Tôi chọn đơn vị bằng ô tìm kiếm và đọc mục tiêu của nó trong một bảng như Thoả thuận, mở từng mục tiêu ra KR — Chưa mở (DH2)
+    • Trưởng đơn vị mở Của tôi và thấy ngay KR cần cập nhật tuần này, đơn vị mình dẫn và KR mình phụ trách — Chưa mở (DH3)
+  OKR · Sơ đồ căn chỉnh — theo đơn vị và quanh một mục tiêu — còn 2/2 việc
+    • Lãnh đạo mở Toàn cảnh, chuyển sang Sơ đồ và thấy trong một màn đơn vị nào chưa nối lên công ty, đơn vị nào đang trượt — Chưa mở (DH4)
+    • Từ một mục tiêu, tôi bấm Xem quanh mục tiêu và thấy nó góp vào đâu, ai góp vào nó, mục tiêu góp hai chỗ chỉ hiện một lần — Chưa mở (DH5)
+  Lộ trình bước 2 — ngày dự kiến, tên ngành tiếng Việt, tiêu điểm sau xoá — còn 3/3 việc
+    • Trưởng phòng ban mở trang Lộ trình và thấy mỗi việc, mỗi mốc có ngày dự kiến xong do máy tính — ghi rõ là dự kiến, có cờ khi số đo chưa đủ — Chưa mở (LT1e)
+    • Tra cứu thương hiệu Việt Nam hiện tên ngành tiếng Việt từ một bảng, không dịch máy từng lần — Chưa mở (VN1)
+    • Người dùng bàn phím hay trình đọc màn bấm «Giữ lại» hoặc gặp lỗi khi xoá tín hiệu vẫn đứng đúng dòng mình vừa thao tác, không phải dò lại từ đầu trang — Chưa mở (TH6b)
+  R3 lên production — mục tiêu theo giờ máy, trần 18/12 — còn 4/4 việc
+    • Tôi cập nhật ngay trong Slack hoặc Zalo, và biết sớm KR nào đang trượt — Chưa mở (10)
+    • Bản tin tuần vào kênh Slack của đơn vị; lọc lưu được và tìm OKR trong ô tìm chung — Chưa mở (8b)
+    • Lúc đóng kỳ, Trợ lý soạn nháp điều học được; tôi nhận hay sửa — Chưa mở (L)
+    • Trưởng bộ phận đọc một bản tóm tắt gộp từ các phòng ban — Chưa mở (T)
+  R2 lên production (tạm — chốt lại bằng số đo sau ba ngày đầu của đợt r2; trước đó 20/11) — còn 20/20 việc
+    • Góp ý của Kara được đo trên khoảng 30 ca mẫu dựng theo khuôn OKR quý 4 — cấp OneHub và phòng ban — nằm trong bộ OKR mẫu, không chờ phòng ban công bố — Chưa mở (N1)
+    • Tôi hỏi về OKR trên web hoặc Zalo và nhận câu trả lời theo quyền của tôi — Chưa mở (C)
+    • Mọi chỗ AI nói đều mang tên Kara: tab bản ghi, tóm tắt tuần, Soạn OKR, Cài đặt, Tài liệu, Zalo — Chưa mở (K6a)
+    • Khi Kara đang soạn hoặc người dùng gõ dở trong khung, bấm một liên kết trong khung thì được hỏi trước khi rời, chữ đang gõ không mất — Chưa mở (K2f)
+    • Sheet mục tiêu hiện lý do căn chỉnh của từng đường nối lên mục tiêu cha — Chưa mở (L2)
+    • Cây căn chỉnh hiện lý do của từng đường nối và lọc được các đường «Chưa có lý do» — Chưa mở (L3)
+    • Căn chỉnh gắn bằng tay và căn chỉnh Kara đề xuất đều mang lý do — Chưa mở (L4)
+    • Màn tác nhân đọc được trên điện thoại, trạng thái tiếng Việt, bộ dựng không treo im lặng — Chưa mở (E5)
+    • Thêm bước ở kế hoạch báo đúng: danh sách bộ phận không tải được thì nói lý do; số việc quá hạn đếm theo một ngày; bộ phận không có thật trả cùng một lỗi như mọi chỗ khác — Chưa mở (E6b)
+    • Màn nào đang tải cũng giữ tiêu đề, lỗi tải ở đâu cũng một hình có nút thử lại, và đầu trang không có nút chính tắt mà không nói vì sao — Chưa mở (NM1)
+    • Lọc và chuyển kiểu xem ở mọi danh sách trông và chạy như nhau, và gửi đường dẫn cho đồng nghiệp là giữ nguyên bộ lọc — Chưa mở (NM2)
+    • Cùng một nghĩa — xong, chờ, hỏng, nháp, đang chạy — mang cùng một màu ở OKR, Kara, lịch họp và Tài liệu — Chưa mở (NM3)
+    • Breadcrumb đọc tiếng Việt với trình đọc màn hình; mô tả kiểu trường ở Cài đặt › Trường không tràn ở khổ 360 — Chưa mở (NM4)
+    • Danh sách liên quan trong ngăn bản ghi không lẫn bản đã lưu trữ, kèm «+n đã lưu trữ» để mở xem — Chưa mở (V2a)
+    • Lưu trữ một trường thôi hỏi lại và có «Hoàn tác» như mọi chỗ lưu trữ khác — Chưa mở (V2b)
+    • Ngăn bản ghi và Kanban thoả thuận không vỡ bố cục ở khổ hẹp — Chưa mở (V2c)
+    • Dải báo «Đã lưu trữ» và vùng khoá chỉ đọc là một mảnh dùng chung trong packages/ui, như docs/vong-doi.md dặn — Chưa mở (V2e)
+    • Lưu trữ và hoàn tác hàng loạt báo đúng: lỗi máy chủ không hiện thành «bị bỏ qua», hoàn tác khi mọi bản đã về không báo «chưa hoàn tác được», lỗi từng bản ghi có dòng log — Chưa mở (V2f)
+    • Tôi bấm một việc đã giao trong trang Lộ trình và đọc trong một phút: vì sao làm, đã lên chưa, sẽ đo gì, còn thiếu gì, ai quyết — Chưa mở (LT1b)
+    • Tôi bấm Gửi tín hiệu ở bất kỳ màn nào, kể điều mình gặp, rồi thấy nó đã vào nhóm nào, thành việc nào, đã giao chưa — Chưa mở (LT2)
+  Hạn cứng: lượt 7 lên production — còn 1/1 việc
+    • Mang sang đúng khi kỳ đích đổi pha, và đợt rà đặt lịch tương lai đóng được — Chưa mở (7n)
+  K5 Chat và Deal về một khung lên production — còn 1/1 việc
+    • Chat và hỏi đáp deal dùng cùng một khung Kara — Chưa mở (K5)
+Lộ trình Kho tài liệu
+  Kho cho người — còn 1/1 việc
+    • Tôi viết được một trang, gửi chủ trang duyệt, cả công ty đọc được bản đang dùng — Chưa mở (l1)
+  Nội dung vào nhanh — còn 1/1 việc
+    • Tôi tải tệp quy định đang có lên, máy soạn thành trang, tôi sửa và duyệt — Chưa mở (l2)
+  Tìm được — còn 1/1 việc
+    • Tôi gõ ⌘K có dấu hay không dấu là ra trang; thấy trang nào nhắc tới trang này; sáng ra biết có mấy bản chờ tôi duyệt — Chưa mở (l3)
+  Hỏi được — còn 1/1 việc
+    • Tôi hỏi bằng lời thường, trong CRM hay qua Zalo, được trả lời có trích trang và phiên bản; không biết thì nói không biết — Chưa mở (l4)
+  Sửa một đợt — còn 1/1 việc
+    • Danh sách góp ý đã gom được sửa trong một lượt — Chưa mở (l5)
+Lộ trình Việc và Dự án
+  Việc chung chạy được — giao việc, kanban, chép việc cần làm cũ, không lộ việc cha — còn 4/4 việc
+    • Tôi giao một việc gắn với deal hay kế hoạch onboard; người nhận thấy nó trong Việc của tôi và được nhắc buổi sáng — Không suy được (DA1)
+    • Tôi kéo việc giữa các cột Chưa làm, Đang làm, Chờ đánh giá, Xong, và tách một việc to thành việc con — Không suy được (DA2)
+    • Việc cần làm cũ trên dòng thời gian thành Việc; Tác nhân giao việc bằng Việc — Không suy được (DA1b)
+    • viec.bang và viec.con không lộ tiêu đề việc cha khi người xem không có quyền với việc cha — Không suy được (DA2b)
+  Kế hoạch sinh việc + Gantt mức đủ — còn 3/3 việc
+    • Tạo kế hoạch onboard từ khuôn là có sẵn việc cho từng phòng ban; deal thắng thì máy gợi ý mở kế hoạch — Không suy được (DA3)
+    • Deal thắng thì máy gợi ý mở kế hoạch onboard; người phụ trách mở hay bỏ qua ngay trên deal — Không suy được (DA3b)
+    • Tôi gom việc của một đợt triển khai vào một dự án và xem trên sơ đồ Gantt có phụ thuộc và mốc — Không suy được (DA4)
