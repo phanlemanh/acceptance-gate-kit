@@ -95,6 +95,8 @@ lần crm nhận mốc mang vòng này — số mốc ngoài còn lại trên tr
   (khoá có từ RM1, nay đồ thử LT-09 chạm tới vì dòng tên ngắn của AC-5 nằm ở khối Rà soát).
   Sau gộp VA2 (`ve-lo-trinh-doc-tin-hieu-cua-cay`): ca VT-4 / VT-4-do «kho không có sự cố vẽ giống từng byte bộ máy gốc»
   so trên cùng cây tắt RD1.
+  Sau chữ ký (CI của PR #381): ca DP2-11 khong-dot của bộ ca điều phối («không đợt thì thẻ khởi động như bản nhánh chính»)
+  so bên mới trên cùng cây tắt RD1 — bộ ca này không nằm trong các bộ ca của lượt chấm nên chỉ CI thấy.
 - Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
   - Ngoài-1: Ở phần giờ máy theo mốc của bản xem chữ, các dòng có thể xếp theo ngày chứ không theo thứ tự máy thật sự chạy khi có mốc phụ thuộc ngược ngày. Ngày ghi trên từng dòng vẫn đúng, nên người đọc chỉ thấy thứ tự hơi khác chứ không thấy số sai.
   - Ngoài-2: Hai phép thử phụ mới thêm vào lượt sửa chạy được và đang đạt, nhưng bộ chấm chưa ghi tên chúng vào danh sách bắt buộc phải có. Nếu sau này ai đó lỡ gỡ chúng đi, bộ chấm vẫn báo xanh dù một phần kiểm tra đã mất.

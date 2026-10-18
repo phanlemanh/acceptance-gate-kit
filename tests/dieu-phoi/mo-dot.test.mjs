@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -1173,14 +1173,17 @@ test('DP2-11 start-biet-dot', () => {
   assert.ok(j.loTrinh.dong.some((d) => d.startsWith('Hàng kế: A')), 'dòng chữ hàng kế phải còn');
 });
 
-test('DP2-11 khong-dot', () => {
+test('DP2-11 khong-dot', async () => {
   const kho = khoCoLoTrinh();
   goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
   assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
   fs.rmSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
   // Dòng lệnh vẽ mang đường dẫn tuyệt đối của chính cây kit chạy quét — thay gốc bằng một nhãn rồi mới so.
   const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.join(goc, 'scripts')).join('<KIT>/scripts'));
-  const moi = chuan(quetStart(KIT, kho), KIT);
+  // road-map-de-dung (RD1) đổi CÓ CHỦ Ý thẻ khởi động (cờ luật chỉ việc phát triển, dòng `  ! `): bên mới so trên cây tắt đúng
+  // các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời hứa «không đợt thì như cũ» giữ nguyên nghĩa.
+  const { tatRD1 } = await import(pathToFileURL(path.join(KIT, 'tests', 'scripts', 'tat-rd1.mjs')).href);
+  const may = fs.realpathSync(tatRD1(KIT)); const moi = chuan(quetStart(may, kho), may);
   const { dir, mb } = kitTaiMergeBase();
   // Hàng X2 (hồ sơ trang-ho-so-mot-viec) bỏ đúng một cặp «» quanh câu giao ở mọi chỗ in tiêu đề — bên cũ
   // đi qua CHÍNH phép bỏ ngoặc của cây trước khi so; mọi khác biệt còn lại vẫn đỏ.
