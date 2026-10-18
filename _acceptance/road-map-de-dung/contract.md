@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + scripts/lo-trinh.mjs + scripts/gio-may.mjs + skills/cat-luot/SKILL.md + hai khuôn lộ trình + CONTEXT.md + ADR + ca đo — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [ui, cli]
 design_doc: docs/superpowers/specs/2026-10-17-road-map-de-dung-design.md
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-17T13:28:03Z
 ---
