@@ -5,7 +5,7 @@ slug: nhay-don-nhan-doi
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-10-18-nhay-don-nhan-doi-design.md
 approved_by: Phan Le Manh
 approved_at: 2026-10-18
