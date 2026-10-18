@@ -1,0 +1,186 @@
+{
+ "schema": 1,
+ "ghi_chu": "Đáp án viết trước lượt chấm, từ phân loại thật của crm (11/10 và 17/10) theo luật 17/10 «bỏ mốc ngoài».",
+ "pham_vi": {
+  "dot": "crm-mau-1710",
+  "dang": "chuoi",
+  "nguon": "đầu vào mẫu crm cho ca đo AC-4",
+  "ma": [
+   "K1",
+   "K3",
+   "K5",
+   "K7",
+   "K9",
+   "K10",
+   "K13"
+  ]
+ },
+ "lo_trinh": {
+  "schema": 1,
+  "ten": "Đáp án cắt đầu vào mẫu crm-mau-1710 theo luật 17/10 (ca đo AC-4)",
+  "moc": [
+   {
+    "ten": "Ban lãnh đạo đặt OKR năm 2027 — công cụ đặt và công bố OKR phải sẵn",
+    "ngay": "2026-12-07",
+    "loai": "han-cung",
+    "hang": [
+     "R6",
+     "R9"
+    ]
+   }
+  ],
+  "hang": [
+   {
+    "ma": "SG1",
+    "cau_giao": "Máy dev và bản xem trước có một tổ chức mẫu chạy OKR đủ một quý, sinh từ khuôn dữ liệu thật và mang nhãn mẫu",
+    "vai": "nen",
+    "bat_khi": "Dựng lại hai lần ra cùng dữ liệu; mọi bản ghi mang nhãn mẫu",
+    "du_lieu": "sinh-gia",
+    "tieu_chi": 8,
+    "dot": "crm-mau-1710",
+    "phu": []
+   },
+   {
+    "ma": "SG2",
+    "cau_giao": "Bộ 50 câu hỏi mẫu có nhãn, sinh từ khuôn câu hỏi thật của phòng ban, kèm trang và phiên bản phải trích",
+    "vai": "nen",
+    "bat_khi": "Sinh lại ra cùng bộ; mỗi câu mang nhãn mẫu và trỏ một trang có thật trong kho mẫu",
+    "du_lieu": "sinh-gia",
+    "tieu_chi": 8,
+    "dot": "crm-mau-1710",
+    "phu": []
+   },
+   {
+    "ma": "R1",
+    "cau_giao": "Trưởng phòng ban mở trang OKR và thấy KR nào của đơn vị đang trễ, tính trên cập nhật tuần",
+    "vai": "Trưởng phòng ban",
+    "du_lieu": "gia",
+    "dung_tren": [
+     "SG1"
+    ],
+    "tieu_chi": 9,
+    "dot": "crm-mau-1710",
+    "phu": [
+     "K1",
+     "K13"
+    ]
+   },
+   {
+    "ma": "R7",
+    "cau_giao": "Trưởng phòng mở bảng họp tuần sáng hôm sau ngày cập nhật và thấy tóm tắt tuần của phòng, câu nào cũng bấm ra cập nhật gốc",
+    "vai": "Trưởng phòng",
+    "du_lieu": "gia",
+    "dung_tren": [
+     "SG1"
+    ],
+    "tieu_chi": 9,
+    "dot": "crm-mau-1710",
+    "phu": [
+     "K7"
+    ]
+   },
+   {
+    "ma": "R3",
+    "cau_giao": "Người dùng hỏi bằng lời thường về quy định và được trả lời có trích trang và phiên bản",
+    "vai": "Người dùng",
+    "du_lieu": "gia",
+    "dung_tren": [
+     "SG2"
+    ],
+    "tieu_chi": 10,
+    "dot": "crm-mau-1710",
+    "phu": [
+     "K3"
+    ]
+   },
+   {
+    "ma": "R5",
+    "cau_giao": "Chủ trang quy định giao được người phó duyệt, có thang leo khi quá hạn và được nhắc hạn xác minh lại",
+    "vai": "Chủ trang",
+    "tieu_chi": 10,
+    "dot": "crm-mau-1710",
+    "phu": [
+     "K5"
+    ]
+   },
+   {
+    "ma": "R6",
+    "cau_giao": "Ban lãnh đạo đặt OKR quý cấp công ty ngay trong công cụ để phòng ban căn OKR của mình vào",
+    "vai": "Ban lãnh đạo",
+    "tieu_chi": 9,
+    "dot": "crm-mau-1710",
+    "phu": []
+   },
+   {
+    "ma": "R9",
+    "cau_giao": "Phòng ban bấm Công bố trên bộ OKR quý của mình và cả công ty xem được bản đã công bố",
+    "vai": "Phòng ban",
+    "tieu_chi": 8,
+    "dot": "crm-mau-1710",
+    "phu": [
+     "K9"
+    ]
+   }
+  ],
+  "chan_troi": [
+   {
+    "ma": "H1",
+    "dot": "crm-mau-1710",
+    "cau_giao": "Quản trị tự nhập danh sách người và phòng ban từ tệp",
+    "ly_do": "Mới một tổ chức dùng công cụ — giữ ranh giới cấu hình và mã, làm phần phổ quát khi có tổ chức thứ hai",
+    "phu": [],
+    "mo_lai_khi": "Có tổ chức thứ hai thật dùng công cụ"
+   },
+   {
+    "ma": "H2",
+    "dot": "crm-mau-1710",
+    "cau_giao": "Sửa danh sách góp ý gom được trong hai tuần dùng thật",
+    "ly_do": "Phạm vi chỉ biết sau đợt dùng thật",
+    "phu": [
+     "K10"
+    ],
+    "mo_lai_khi": "Đợt dùng thật hai tuần của mọi phòng ban xong và danh sách góp ý đã gom (việc của người, «Ra khỏi kho» K4)"
+   }
+  ]
+ },
+ "ra_khoi_kho": [
+  {
+   "muc": "K2",
+   "loai": "vận hành lặp lại theo tổ chức",
+   "ly_do": "Nhân sự gửi danh sách — việc của người; tự phục vụ chờ tổ chức thứ hai (Chờ điều kiện H1)"
+  },
+  {
+   "muc": "K4",
+   "loai": "vận hành thuần",
+   "ly_do": "Dùng thật và gom góp ý là việc của phòng ban; phần sửa góp ý chờ ở H2"
+  },
+  {
+   "muc": "K6",
+   "loai": "vận hành lặp lại theo kỳ",
+   "ly_do": "Ban lãnh đạo gửi OKR mỗi quý — tự phục vụ là hàng R6"
+  },
+  {
+   "muc": "K8",
+   "loai": "vận hành thuần",
+   "ly_do": "Đào tạo là việc của quản trị chương trình"
+  },
+  {
+   "muc": "K11",
+   "loai": "vận hành thuần (dùng tính năng của R9)",
+   "ly_do": "Trưởng phòng bấm Công bố — người dùng tính năng hàng R9 giao"
+  },
+  {
+   "muc": "K12",
+   "loai": "sự kiện tạo hạn",
+   "ly_do": "Thành ngày 07/12 của mốc hạn cứng gắn R6, R9",
+   "moc_nhan_han": "Ban lãnh đạo đặt OKR năm 2027 — công cụ đặt và công bố OKR phải sẵn"
+  }
+ ],
+ "do_gia_tri": [
+  {
+   "muc": "K13",
+   "hang": "R1",
+   "ghi": "ngưỡng + ngày đọc 13/11 vào opportunity.md của R1; kết quả ghi bằng /acceptance-gate:observed"
+  }
+ ]
+}
