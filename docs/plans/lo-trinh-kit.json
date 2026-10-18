@@ -59,13 +59,6 @@
       ]
     },
     {
-      "ten": "OneFlow: đợt thử thứ hai trên gói bản kit mới nhất có kiểm bản cài (2.30.0 trở lên) — đo «chạy được mà không sửa lõi»; chủ kho giao M5 13/10",
-      "ngay": "2026-10-27",
-      "loai": "ngoai",
-      "ai": "M5",
-      "hang": []
-    },
-    {
       "ten": "Phát hành 2.29.0 — ĐÃ PHÁT HÀNH 13/10 (sớm hơn mốc 14/10), tag v2.29.0 = 6a9c0f9a (PR #340): cỡ vòng ở bước thiết kế (S3c) + trạng thái đợt trong app (DP6b) của M5; bất biến sản phẩm (BB1) + câu trạng thái tín hiệu tiếng sản phẩm (TH-cau) + kiểm bản cài sau phát hành (KC1 — kiểm bản cài trên thẻ ĐẠT 8/8) của MacBook Pro; cộng DP9 (hai thước của gói dieu-phoi thôi nói sai ở kho tiêu thụ, M5 chen trước cắt) và hai sửa đi trong PR mốc",
       "ngay": "2026-10-13",
       "loai": "phat-hanh",
@@ -128,13 +121,6 @@
       "ngay": "2026-10-18",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
-      "hang": []
-    },
-    {
-      "ten": "crm nhận kit 2.32.0 — gói road-map + bản vá chấm lại",
-      "ngay": "2026-10-18",
-      "loai": "ngoai",
-      "ai": "Mac Studio",
       "hang": []
     },
     {
