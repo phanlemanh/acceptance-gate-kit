@@ -95,8 +95,12 @@ lần crm nhận mốc mang vòng này — số mốc ngoài còn lại trên tr
   (khoá có từ RM1, nay đồ thử LT-09 chạm tới vì dòng tên ngắn của AC-5 nằm ở khối Rà soát).
   Sau gộp VA2 (`ve-lo-trinh-doc-tin-hieu-cua-cay`): ca VT-4 / VT-4-do «kho không có sự cố vẽ giống từng byte bộ máy gốc»
   so trên cùng cây tắt RD1.
-  Sau chữ ký (CI của PR #381): ca DP2-11 khong-dot của bộ ca điều phối («không đợt thì thẻ khởi động như bản nhánh chính»)
-  so bên mới trên cùng cây tắt RD1 — bộ ca này không nằm trong các bộ ca của lượt chấm nên chỉ CI thấy.
+  Sau chữ ký (CI của PR #381): đồ thử `khoCoLoTrinh` của bộ ca điều phối (ca DP2-11 khong-dot «không đợt thì thẻ khởi động
+  như bản nhánh chính») khai `loai: han` cho mốc — đồ thử theo khuôn mới; bộ ca này không nằm trong các bộ ca của lượt chấm
+  nên chỉ CI thấy (hạt giống `docs/plans/2026-10-18-hat-giong-bo-ca-dieu-phoi-ngoai-luot-cham.md`).
+- Cân trên mọi kho (đếm 18/10 trên tệp thật): kit (origin/main) — 1 cờ «3 mốc là việc của người» + dòng Rà soát «39 việc
+  chưa có tên ngắn»; crm OKR (origin/onehub b22c0a329) — 0 cờ, 0 dòng; crm kho tài liệu — 0 cờ + dòng Rà soát «9 việc chưa
+  có tên ngắn»; crm việc dự án — 0; oneflow — chưa khai lộ trình, không đổi.
 - Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
   - Ngoài-1: Ở phần giờ máy theo mốc của bản xem chữ, các dòng có thể xếp theo ngày chứ không theo thứ tự máy thật sự chạy khi có mốc phụ thuộc ngược ngày. Ngày ghi trên từng dòng vẫn đúng, nên người đọc chỉ thấy thứ tự hơi khác chứ không thấy số sai.
   - Ngoài-2: Hai phép thử phụ mới thêm vào lượt sửa chạy được và đang đạt, nhưng bộ chấm chưa ghi tên chúng vào danh sách bắt buộc phải có. Nếu sau này ai đó lỡ gỡ chúng đi, bộ chấm vẫn báo xanh dù một phần kiểm tra đã mất.
