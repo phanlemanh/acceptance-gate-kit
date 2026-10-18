@@ -151,3 +151,30 @@ export function tin(cwd, doiSo, { gocGoi = GOI, nowMs = null, gh = null, env = {
   const soKhauLenh = doiSo[0] === 'MỞ' ? 2 : 1;
   return { ...r, cham: Math.max(0, doiSo.length - soKhauLenh - 1) };
 }
+
+// ---------- kho thử cho kênh liên máy: một kho git + lộ trình nhỏ + vai máy ----------
+export const KENH = 'thu/kenh#308';
+export function khoKenh({ gocGoi = GOI, remote = 'https://github.com/thu/kho-a.git', may, gh, loTrinh = true } = {}) {
+  const kho = tam('gt-kenh-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'remote', 'add', 'origin', remote);
+  if (loTrinh) {
+    fs.mkdirSync(path.join(kho, '_acceptance'), { recursive: true });
+    fs.writeFileSync(path.join(kho, '_acceptance', 'config.yaml'), 'schema_version: 1\nlo_trinh:\n  tep: docs/lo-trinh.json\n');
+    ghiJ(path.join(kho, 'docs', 'lo-trinh.json'), { moc: [{ ten: 'mốc thử', hang: [{ ma: 'GT1', slug: 'vong-mo-co-chu-giu', gio_may: [4, 7], ranh_gioi: ['dieu-phoi/**'] }] }] });
+  }
+  git(kho, 'add', '-A');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const r = tin(fs.realpathSync(kho), ['vai', '--kenh', KENH, '--may', may], { gocGoi, gh });
+  assert.equal(r.ma, 0, r.err);
+  return fs.realpathSync(kho);
+}
+export const tepKenhCua = (kho) => path.join(kho, '.acceptance-runs', 'tin', 'kenh-thu-kenh-308.json');
+// Bình luận khởi đầu cho gh giả: n bình luận văn xuôi / khuôn cũ, created_at tăng dần trước mốc t0.
+export function binhLuanSan(n, t0, { tuId = 1 } = {}) {
+  return [...Array(n).keys()].map((i) => {
+    const luc = new Date(t0 - (n - i) * 60_000).toISOString().replace(/\.\d+Z$/u, 'Z');
+    return { id: tuId + i, created_at: luc, updated_at: luc, body: i % 3 === 0 ? `[Mac Studio · Điều phối → MacBook Pro] báo ${i}` : `ghi chú ${i}` };
+  });
+}
+export const docLuot = (gh) => gh.nhatKy().filter((x) => x.lenh === 'doc' && x.doi_so.some((a) => a.includes('/issues/308/comments')));

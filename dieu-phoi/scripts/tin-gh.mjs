@@ -5,7 +5,8 @@ import { spawnSync } from 'node:child_process';
 export const lenhGh = () => process.env.DIEU_PHOI_GH || 'gh';
 
 // Trả {ma, out, err}. ma = 0 khi thành công; khác 0 kèm err có tên khi lỗi, không chạy được, hay quá trần.
-export function goiGh(doiSo, { tranMs = 15_000, cwd = undefined, input = undefined } = {}) {
+export const tranMacDinh = () => Number(process.env.DIEU_PHOI_TIN_TRAN_MS || 15_000);
+export function goiGh(doiSo, { tranMs = tranMacDinh(), cwd = undefined, input = undefined } = {}) {
   const r = spawnSync(lenhGh(), doiSo, { cwd, input, encoding: 'utf8', timeout: tranMs, killSignal: 'SIGKILL', maxBuffer: 64 * 1024 * 1024 });
   if (r.error?.code === 'ENOENT') return { ma: 127, out: '', err: `không chạy được gh (${lenhGh()}): không có lệnh` };
   if (r.error?.code === 'ETIMEDOUT' || r.signal === 'SIGKILL') return { ma: 124, out: r.stdout ?? '', err: `gh quá trần ${tranMs} ms` };

@@ -2,7 +2,7 @@
 // gh giả cho ca GT- (hồ sơ vong-mo-co-chu-giu). Trạng thái ở $GH_GIA_DIR/ca.json:
 //   {comments: [{id, created_at, body}], pr: {<nhánh>: <url>}, loi: bool, treo: bool, next_id}
 // Nhật ký mỗi lời gọi ở $GH_GIA_DIR/nhat-ky.jsonl: {lenh: 'doc'|'ghi'|'khac', so_muc, doi_so}.
-// Bắt chước hình JSON của `gh api …/issues/<số>/comments`: trang 30 bình luận, `since` lọc created_at ≥ since,
+// Bắt chước hình JSON của `gh api …/issues/<số>/comments`: trang 30 bình luận, `since` lọc updated_at ≥ since,
 // `--paginate` đi hết trang (không có cờ thì chỉ trang đầu), `--jq '.[] | …'` in mỗi bình luận một dòng JSON gọn.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -56,6 +56,8 @@ if (doi[0] === 'api') {
     const iF = doi.indexOf('-f');
     const body = doi[iF + 1].replace(/^body=/u, '');
     const now = process.env.DIEU_PHOI_NOW_MS ? Number(process.env.DIEU_PHOI_NOW_MS) : Date.now();
+    // Mã bình luận GitHub luôn tăng: cấp mã lớn hơn mọi mã đang có.
+    ca.next_id = Math.max(ca.next_id, ...ca.comments.map((x) => x.id + 1));
     const c = { id: ca.next_id++, created_at: new Date(now).toISOString().replace(/\.\d+Z$/u, 'Z'), body };
     ca.comments.push(c);
     luu();
@@ -65,7 +67,8 @@ if (doi[0] === 'api') {
   }
   if (mDs) {
     let ds = [...ca.comments].sort((a, b) => a.id - b.id);
-    if (q.get('since')) ds = ds.filter((c) => c.created_at >= q.get('since'));
+    // GitHub lọc `since` theo updated_at, gồm cả mốc (đo trên #308 ngày 18/10).
+    if (q.get('since')) ds = ds.filter((c) => (c.updated_at ?? c.created_at) >= q.get('since'));
     const trang = [];
     for (let i = 0; i < ds.length; i += 30) trang.push(ds.slice(i, i + 30));
     const tra = doi.includes('--paginate') ? trang.flat() : trang[0] ?? [];

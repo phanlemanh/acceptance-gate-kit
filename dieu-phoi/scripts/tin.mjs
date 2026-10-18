@@ -35,7 +35,9 @@ export const SU_DUNG = {
 };
 const CO_BOOL = new Set(['chan', 'json', 'tat-ca', 'help', 'cho']);
 
-export class LoiTin extends Error {}
+export class LoiTin extends Error {
+  name = 'LoiTin';
+}
 const loi = (s) => {
   throw new LoiTin(s);
 };
@@ -289,7 +291,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
     const out = await chay(process.argv.slice(2));
     if (out) process.stdout.write(`${out}\n`);
   } catch (e) {
-    process.stderr.write(`tin: ${e instanceof LoiTin ? e.message : e.stack ?? e.message}\n`);
-    process.exit(e instanceof LoiTin ? 1 : 2);
+    const biet = e instanceof LoiTin || e?.name === 'LoiKenh';
+    process.stderr.write(`${/^canh: /u.test(e?.message ?? '') ? '' : 'tin: '}${biet ? e.message : e.stack ?? e.message}\n`);
+    process.exit(e?.maThoat ?? (biet ? 1 : 2));
   }
 }
