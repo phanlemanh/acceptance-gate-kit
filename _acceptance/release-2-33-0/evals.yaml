@@ -141,11 +141,12 @@ evals:
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-33-0/contract.md, commands/acceptance-init.md, skills/acceptance/references/lo-trinh-du-lieu.md, skills/cat-luot/SKILL.md, _acceptance/road-map-de-dung/contract.md, _acceptance/ho-so-da-ky-giu-tuoi/contract.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-33-0/contract.md, commands/acceptance-init.md, skills/acceptance/references/lo-trinh-du-lieu.md, skills/cat-luot/SKILL.md, _acceptance/road-map-de-dung/contract.md, _acceptance/ho-so-da-ky-giu-tuoi/contract.md, _acceptance/ho-so-da-ky-giu-tuoi/opportunity.md, _acceptance/ho-so-da-ky-giu-tuoi/decisions.jsonl, lib/do-san-tren-nen.cjs]
     question: >
       Đọc AC-9 của contract release-2-33-0 và mục «## 2.33.0» của CHANGELOG.md (chỉ mục đó), cạnh mã và tài liệu đi kèm.
-      (0) Mục có nói crm cần CI fetch-depth 0 và bảy việc crm chờ K-A mở được sau khi cài, khớp hợp đồng ho-so-da-ky-giu-tuoi
-      không? (1) Ghi chú nhận có dặn crm cắt lại lộ trình bằng skill cắt lượt mới, và nói lộ trình cũ còn mốc ngoài hay mốc chưa
+      (0) Mục có nói đúng hai việc của K-A — CI fetch-depth 0 khi bật khoá do_san_tren_nen (khớp dòng sửa S4-r1 trong sổ
+      ho-so-da-ky-giu-tuoi và hàm điểm tách của lib/do-san-tren-nen.cjs), bảy mục crm đứng chờ K-A (khớp opportunity.md của
+      hồ sơ ấy) và ngưỡng đọc sau khi cài mốc và bật khoá (khớp contract.md của hồ sơ ấy) — không? (1) Ghi chú nhận có dặn crm cắt lại lộ trình bằng skill cắt lượt mới, và nói lộ trình cũ còn mốc ngoài hay mốc chưa
       khai loại sẽ hiện cờ vàng có tên, không có đường đọc riêng cho mốc ngoài cũ không? (2) Lời về lớp chép CI (bảy tệp,
       trong đó lib/do-san-tren-nen.cjs là tệp mới) có khớp nhãn trong khối INIT-CI-COPY-LIST của
       commands/acceptance-init.md không? (3) Lời về năm khoá mô hình hiển thị (ten_hien_thi, moc[].hien/viec_hien/con_lai,

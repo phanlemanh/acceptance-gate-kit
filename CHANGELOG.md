@@ -82,7 +82,9 @@ chưa mang mô hình hiển thị — vẽ lại bằng bộ kit mới». Lộ t
 - **Lớp chép CI:** chép lại từ thẻ `v2.33.0` bảy tệp: `scripts/lo-trinh.mjs`, `scripts/gio-may.mjs`, `scripts/cat-luot.mjs`
   (RD1); `scripts/product-map.mjs`, `lib/evidence-core.cjs`, `lib/nhan-canh-gay.cjs` và tệp MỚI `lib/do-san-tren-nen.cjs`
   (K-A). Bảy tệp chép CÙNG MỘT commit; hai mươi hai tệp còn lại giống từng byte `v2.32.1`.
-- **CI của kho cần `fetch-depth: 0`** — lưới đọc dòng nền ở điểm tách của nhánh; clone nông thì không có điểm tách (K-A).
+- **CI của kho cần `fetch-depth: 0` khi bật khoá `feature_loop.do_san_tren_nen`** — lưới tìm dòng nền ở điểm tách với nhánh
+  chính (merge-base); clone nông không tính được điểm tách, nên pin mang nhãn thành VIOLATION — đóng về phía đỏ (sổ K-A,
+  dòng sửa S4-r1). Khoá vắng thì không đổi gì.
 - **Máy dev: cài các gói theo ĐÚNG THẺ `v2.33.0` ở MỌI phạm vi**, rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs
   --may --ref v2.33.0 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`.
 
@@ -92,13 +94,15 @@ hồ sơ `release-2-33-0`.
 **crm, theo thứ tự:**
 
 1. **Cài theo thẻ `v2.33.0`** mọi gói crm đang dùng ở mọi bản ghi; kiểm `kiem-ban-cai.mjs --may --ref v2.33.0`. Mở phiên MỚI.
-2. **Lớp chép CI từ thẻ** (`git archive v2.33.0`): bảy tệp ở trên, cùng một commit; CI đặt `fetch-depth: 0`.
+2. **Lớp chép CI từ thẻ** (`git archive v2.33.0`): bảy tệp ở trên, cùng một commit; bật khoá `do_san_tren_nen` thì CI
+   đặt `fetch-depth: 0`.
 3. **Vẽ lại `LO-TRINH.html`** trong PR nhận. Lộ trình trên `onehub` (b22c0a329, 18/10) đã cắt lại theo luật 17/10: 0 cờ ở
    OKR và việc dự án; kho tài liệu thêm một dòng Rà soát «9 việc chưa có tên ngắn». Lộ trình nào còn mốc ngoài hay mốc
    chưa khai loại thì cắt lại bằng skill cắt lượt mới.
 4. **Trang Lộ trình trong sản phẩm** đọc năm khoá mô hình hiển thị thay vì tự lọc, kèm một ca đối chiếu trang với tập hiển
    thị của khối.
-5. **Bảy việc crm đang gom chờ K-A** mở được sau khi crm cài mốc này.
+5. **Bảy mục crm đang đứng chờ K-A** (hồ sơ cơ hội của K-A) có công cụ ngay khi crm cài mốc này; ngưỡng của K-A đọc
+   sau khi crm cài mốc VÀ bật khoá, 14 ngày (hợp đồng K-A).
 
 **Năm dòng số của luật (c)** — hai vòng có lượt chấm trong cửa sổ (giờ VN):
 
