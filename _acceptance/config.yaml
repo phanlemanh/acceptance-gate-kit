@@ -155,6 +155,11 @@ executors:
     kiem_ban_cai_moc: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
     # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
     bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
+    # Hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): ca GT1…GT10 chung một lệnh; ca GT8 trên bộ hồ sơ thật các kho có trên
+    # máy; bộ cũ = các tệp ca của làn ghim lại và lưới chứng cứ ghim mà vật chạm.
+    ho_so_da_ky_giu_tuoi: node tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs
+    ho_so_da_ky_giu_tuoi_cac_kho: node tests/scripts/ho-so-da-ky-giu-tuoi-cac-kho.mjs
+    ho_so_da_ky_giu_tuoi_bo_cu: "bash -c 'set -e; for f in tests/scripts/repin-lane*.test.mjs tests/scripts/premerge-repin.test.mjs tests/scripts/stale-by-paths.test.mjs; do node \"$f\"; done'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Câu cho người gửi trên dữ liệu thật (hồ sơ cau-tin-hieu-nguoi-gui, E9): bản sao crm ở sha đã ghim + kit 2.27.

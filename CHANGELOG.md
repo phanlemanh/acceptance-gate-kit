@@ -10,6 +10,27 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Giữ bộ hồ sơ đã ký luôn tươi (hồ sơ `ho-so-da-ky-giu-tuoi` · hàng K-A)
+
+Gốc: onehub 17/10 — tám hồ sơ đã ký hoá cũ sau hai lần gộp, cái đỏ lộ ra ở vòng kế tiếp tình cờ chạm vào chứ không tới
+PR đã gây ra, gần bốn giờ máy ghim lại. Nay:
+
+- **Lệnh giữ tươi** `feature-loop/scripts/giu-tuoi.mjs --root . --tu <sha đầu khoảng> [--write] [--json]`: chọn đúng
+  các hồ sơ cũ VÌ một khoảng gộp (chính lưới trước-merge chạy hai lần), ghim lại hồ sơ xanh trong một lượt, quy mỗi
+  hồ sơ đỏ về PR gây ra hoặc nói rõ vì sao không quy được (năm kết cục), in bảng tiếng người. Không commit, không đổi
+  nhánh; hồ sơ cũ từ trước khoảng chỉ được đếm.
+- **Dòng nền đỏ** (`kind: "nen-do"`) trong sổ chạy của hồ sơ đỏ — eval, ca, băm thông điệp lỗi, PR quy về.
+- **Nhãn «đỏ sẵn trên nền»**, kho tự bật bằng `feature_loop.do_san_tren_nen: true`: vòng khác gặp đúng cái đỏ đã ghi
+  trên nhánh chính thì vẫn ghim được; lưới in NOTE, thẻ và bản đồ hiện nhãn — không bao giờ là «ĐẠT». Chỉ cho eval,
+  suite chung đỏ vẫn chặn.
+- **Lượt ghim lại** thêm cờ `--tung-ho-so` (hồ sơ đỏ không kéo hồ sơ xanh đỏ theo) và ghi thông điệp lỗi băm được.
+
+**Ai bị ảnh hưởng:** không ai, cho tới khi kho tự chạy lệnh hay bật khoá — khoá vắng thì lưới, thẻ, bản đồ và lượt ghim
+lại cho đầu ra như trước (đo trên bộ hồ sơ thật của các kho có trên máy). Bộ máy cũ đọc hồ sơ có dòng nền đỏ không vỡ
+và chặn pin mang nhãn — hướng an toàn. Lớp CI chép thêm `lib/do-san-tren-nen.cjs` khi nhận mốc. Cách dùng: GUIDE §7.1.
+
 ## 2.32.1 — 17/10/2026
 
 Bản vá của 2.32.0 cho sự cố ở kho tiêu thụ đầu tiên nhận nó: `crm-onehub#375` (Mac Studio, 17/10) — nhận 2.32.0 ở PR
