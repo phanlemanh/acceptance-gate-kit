@@ -82,3 +82,4 @@ Thước CE: YAML 1.2.2 §7.3.2 (single-quoted style) [NGÀNH: YAML 1.2.2], đ�
 - Kiểm ngoài (không phải AC — vật ở crm): sau khi crm cài mốc mang bản sửa, ghim lại tac-nhan-va; E9 phải `exit 0`.
   Chỉ báo trên crm-onehub#375, không sửa crm.
 - Hạng T3: thêm Gate 1.5 duyệt kế hoạch.
+- Hạt giống cho OOS-1 (S3, sổ d-2): `docs/plans/2026-10-18-hat-giong-parse-evals-khong-boc-nhay.md`.
