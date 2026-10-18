@@ -126,6 +126,13 @@
       ]
     },
     {
+      "ten": "Phát hành 2.32.1 — ĐÃ PHÁT HÀNH 18/10, tag v2.32.1 = 5bd64bc9 (PR #379): bản vá bộ vẽ trang lộ trình chỉ đọc tín hiệu đã commit của cây đang vẽ (VA2 `ve-lo-trinh-doc-tin-hieu-cua-cay`, #378); crm nhận thay 2.32.0 sau chuỗi đêm M5",
+      "ngay": "2026-10-18",
+      "loai": "phat-hanh",
+      "ai": "MacBook Pro",
+      "hang": []
+    },
+    {
       "ten": "crm nhận kit 2.32.0 — gói road-map + bản vá chấm lại",
       "ngay": "2026-10-18",
       "loai": "ngoai",

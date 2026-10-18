@@ -1,0 +1,178 @@
+schema_version: 1
+feature_slug: road-map-de-dung
+# Ca đo sống ở tests/scripts/road-map-de-dung.test.mjs (ca RD-<n> = AC-n; đuôi .test.mjs nên cũng chạy trong mảnh mjs của
+# suite) — khoá riêng executors.test.road_map_de_dung, mọi eval máy chung MỘT lệnh; ca Chrome AC-6 ở
+# tests/scripts/xem-trang-lo-trinh.test.mjs (khoá lo_trinh_trang sẵn có). Kho thử do code sinh trong lượt (thư mục tạm,
+# git init, commit ghim ngày, hôm nay ghim bằng ACCEPTANCE_TODAY = 2026-10-20 mặc định). Bản chụp crm onehub b74ec7eae
+# (và 55811c635^ cho AC-8) do tests/scripts/lo-trinh-chup-crm.mjs sinh vào tests/scripts/fixtures/lo-trinh/crm-onehub-1017/.
+# BỘ MÁY CŨ = git archive v2.32.0 scripts lib skills (trọn thư mục) bung trong lượt. Mỗi ca đỏ chạy CHÍNH hàm đo trên BẢN
+# SAO của vật với nhát tiêm khớp ĐÚNG một lần (ca tự kiểm số lần khớp), SAU khi bản lành xanh trên cùng kho thử, và ghim
+# thông điệp. Ca in đúng một dòng «PASS: RD-…» hoặc «FAIL: RD-… — <vì sao>»; mỗi eval ghim dòng PASS của chính nó — lệnh
+# xanh mà thiếu dòng ghim là ĐỎ. Mọi đường dẫn suy từ vị trí tệp ca.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/cat-luot.mjs, scripts/lo-trinh.mjs, tests/scripts/road-map-de-dung.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: RD-1", "PASS: RD-1-do", "PASS: RD-1-do2". RD-1: ma trận bảy ca viết sẵn (mã chỉ ở mốc ngoài →
+      thoát 1, một dòng `[moc-ngoai-da-bo]` nêu bốn chỗ đến + «không ở hàng hay mục chờ điều kiện nào» cho mã ấy · mã ở mốc
+      ngoài và ở một hàng → thoát 1 chỉ vì `[moc-ngoai-da-bo]`, bảng phủ đặt mã ở hàng · mã chỉ ở da_bac → thoát 1 «không ở
+      hàng hay mục chờ điều kiện nào» · mốc ngoài ngoài đợt → một dòng gom cảnh báo, thoát 0 · hàng dung_tren mốc ngoài →
+      `[cho-van-hanh]` · phat-hanh mang phu → lỗi · đợt chỉ có mốc ngoài → «đợt chưa cắt») mỗi ca đúng mã thoát + dòng ghim;
+      in «7/7 ca»; CO_TEN không có van-hanh-lap-chua-tu-phuc-vu; bảng phủ không có chỗ «mốc ngoài». RD-1-do: bản sao vẫn tính
+      phủ cho mốc ngoài → FAIL ghim «mã tính phủ ở mốc ngoài». RD-1-do2: bản sao không báo mốc ngoài trong đợt → FAIL ghim
+      «mốc ngoài lọt lượt cắt».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [skills/cat-luot/SKILL.md, skills/acceptance/references/lo-trinh-template.json, skills/acceptance/references/pham-vi-template.md, CONTEXT.md, docs/adr/0026-*.md, scripts/cat-luot.mjs, tests/scripts/road-map-de-dung.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: RD-3", "PASS: RD-3-do". RD-3: khối CAT-LUOT-VAN-HANH chứa đủ bốn chỗ đến (ngay của mốc phát
+      triển · opportunity.md + observed · «Ra khỏi kho» ở mô tả PR · chan_troi + mo_lai_khi) và không chứa «loai: ngoai» như
+      đích; bước 1 có câu chỉ chép mã việc phát triển; tập tên ở CAT-LUOT-BANG-CO BẰNG CO_TEN; khuôn lộ trình 0 mốc loai
+      ngoai; bản phạm vi mẫu không mã nào mà khuôn lộ trình không đặt ở hàng hay chờ điều kiện; khối CAT-LUOT-RANG chạy NGUYÊN
+      VĂN (AG = gốc kit) trên khuôn + bản phạm vi mẫu → thoát 0, 0 «lỗi:», 0 «cảnh báo:»; CONTEXT.md mục «Mốc ngoài» có chữ
+      «đã bỏ» và trỏ ADR 0026; ADR 0026 có hai câu đánh đổi «mất chỗ chung xem ngày của người» và «răng không bắt được việc
+      vận hành bị quên». RD-3-do: bản sao khuôn giữ mốc V1 loai ngoai → FAIL ghim «khuôn còn mốc ngoài: V1».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    inputs:
+      - skills/cat-luot/SKILL.md
+      - skills/acceptance/references/lo-trinh-template.json
+      - _acceptance/road-map-de-dung/mau/dau-vao-crm.md
+      - _acceptance/road-map-de-dung/mau/dap-an.json
+    question: >
+      Chỉ dùng bốn tệp trong inputs. `dau-vao-crm.md` là văn bản tự do của đội sản phẩm (dựng từ việc thật trên lộ trình crm);
+      `dap-an.json` là cách xử lý ĐÚNG theo luật 17/10 «bỏ mốc ngoài»: mục nào vào bản phạm vi và đứng ở hàng hay chờ điều
+      kiện, mục nào ra khỏi kho (liệt «Ra khỏi kho» ở mô tả PR, không chép vào bản phạm vi), sự kiện nào thành ngày của mốc
+      phát triển nào, đo giá trị nào vào ô cơ hội của hàng nào. Câu hỏi không phải đáp án có đúng không, mà SKILL cắt lượt có
+      DẪN một phiên cắt tới đáp án ấy không. Với TỪNG mục của đầu vào: nêu cách xử lý trong đáp án và trích bước hoặc khối
+      của SKILL buộc phiên cắt làm đúng như thế. Mục FAIL khi SKILL im lặng, nước đôi (hai cách đều hợp luật), hay dẫn tới
+      một mốc `loai: ngoai`. PASS khi mọi mục có trích dẫn quyết được cách xử lý của nó.
+    evidence_required: [run_id, verdict, proposals]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-5", "PASS: RD-5-kho-thu", "PASS: RD-5-cu-do", "PASS: RD-5-ten-ngan", "PASS: RD-5-ten-ngan-im", "PASS: RD-5-ten-ngan-khong-dung",
+      "PASS: RD-5-do". RD-5: bộ đọc máy rút chữ nhìn thấy khối Mốc trang bản chụp onehub (bỏ thẻ, thuộc tính, nội dung details
+      đóng); mỗi mốc còn việc: «còn k/n việc» đúng số, mỗi việc chưa giao một dòng «<tên> — <trạng thái>» với tên = ten_hien_thi của khối
+      (câu giao đầy đủ bỏ «», vắng thì ten_ngan → ten), trạng thái = chữ ô Trạng thái cùng lần vẽ, mã đứng sau tên; details
+      mở chứa slug khi có; in «<n>/<n> ô so,
+      n tính từ tệp». RD-5-kho-thu: cùng phép đo trên kho thử năm trạng thái. RD-5-cu-do: CHÍNH bộ đọc trên trang bộ máy cũ
+      v2.32.0 cùng bản chụp → FAIL nêu tên ≥ 1 mốc (ca PASS khi bộ đọc báo hỏng — chiều đỏ của thước, sau khi bản mới xanh).
+      RD-5-ten-ngan: Kho tài liệu (dùng tên ngắn 6/17) → đúng một dòng «11 việc chưa có tên ngắn — …» ở khối Rà soát, không lên
+      trang. RD-5-ten-ngan-im: OKR (đủ tên) → 0 dòng. RD-5-ten-ngan-khong-dung: kho chưa từng dùng tên ngắn → 0 dòng. RD-5-do: bản sao in mã trước tên → FAIL ghim «mã đứng trước tên».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh_trang
+    paths: [scripts/lo-trinh.mjs, tests/scripts/xem-trang-lo-trinh.test.mjs, tests/scripts/lo-trinh-do-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LTT-ten", "PASS: LTT-ten-do", "PASS: LTT-san". LTT-ten: Chrome thật, khổ 1280 và 375, sáng và
+      tối — mọi summary dòng việc cao ≥ 44px, tương phản chữ tên và trạng thái ≥ 4,5 : 1, scrollWidth ≤ innerWidth ở 375.
+      LTT-san (sẵn có, trần nới 0,4 — chủ kho 17/10) xanh: trang kho thử ≤ 0,4 trang 2.21.0. LTT-ten-do: bản sao bỏ min-height của summary → FAIL ghim
+      «vùng chạm < 44px».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - _acceptance/road-map-de-dung/mau/trang-moi.txt
+      - _acceptance/road-map-de-dung/mau/cau-hoi-trang.md
+      - _acceptance/road-map-de-dung/mau/dap-an-trang.json
+    question: >
+      Chỉ dùng ba tệp trong inputs. `trang-moi.txt` là chữ nhìn thấy của khối Mốc trên trang lộ trình crm vẽ bằng bản kit mới
+      (máy xuất). Trước tiên, CHỈ đọc `trang-moi.txt` và trả lời ba câu trong `cau-hoi-trang.md` («mốc X còn làm những gì,
+      xong chưa») bằng tên việc và trạng thái; rồi mới mở `dap-an-trang.json` để so. PASS khi cả ba câu trả lời khớp đáp án
+      (đủ việc, đúng trạng thái) và một người không biết mã việc đọc được trong khoảng một phút. FAIL khi phải đoán nghĩa của
+      mã, thiếu việc, hay trạng thái không đọc ra được.
+    evidence_required: [run_id, verdict, proposals]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, scripts/cat-luot.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-8", "PASS: RD-8-im", "PASS: RD-8-crm", "PASS: RD-8-do". RD-8: ma trận sáu ca (mốc loai ngoai — dòng nêu tên mốc + bốn chỗ đến · mốc không loai ·
+      dung_tren trỏ ma mốc · trỏ ten mốc · du_lieu sai giá trị · gia không đứng trên sinh-gia) — mỗi ca đúng một
+      dòng cờ có tên ở trang («Cần sửa»), ở --xem (dòng «!») và ở thẻ khởi động, chữ ba mặt BẰNG nhau; mã thoát không đổi so
+      với tệp sạch; in «6/6 ca». RD-8-im: tệp sạch → 0 dòng của sáu cờ ở cả ba mặt. RD-8-crm: bản chụp 55811c635^ OKR → dòng
+      moc-chua-khai-loai nêu ĐÚNG bốn mốc (đo cây tổ chức · phiên nghiệm thu R1 · đọc số lượt 6 · BLĐ đặt OKR 2027) tính từ
+      tệp; bản chụp b74ec7eae → dòng mốc ngoài nêu đúng 17 mốc OKR và 1 mốc Kho tài liệu tính từ tệp. RD-8-do: bản sao chỉ chạy luật trong lượt cắt (bộ đọc chung không gọi) → FAIL ghim «luật chỉ việc phát triển không
+      chạy khi đọc tệp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-9", "PASS: RD-9-trang", "PASS: RD-9-crm", "PASS: RD-9-do". RD-9: ma trận 3 × 2 × 2 × 3 = 36 ô;
+      đúng các ô «đã qua · không that · (không hàng | mọi hàng đã giao)» (6 ô) vào một dòng gom «6 mốc đã qua ngày, chưa ghi ngày
+      khép: <5 tên dd/mm>, …»; mọi ô khác không mang dòng gom; in «36/36 ô» (bảng kỳ vọng viết sẵn đủ 36 ô). Ô «còn hàng chưa giao»: đầu ra rà soát BẰNG bộ máy cũ v2.32.0 trên cùng ô (vi phân). RD-9-trang: trang vẽ ở hai
+      «hôm nay» cho hai tập mốc qua ngày khác nhau giống từng byte và không chứa «mốc đã qua ngày, chưa ghi ngày khép».
+      RD-9-crm: bản chụp onehub — mỗi mốc đã qua ngày chưa khép rơi vào ĐÚNG một dòng (cờ mốc ngoài AC-8 hoặc gom AC-9), in
+      bảng gán; tập rỗng → FAIL. RD-9-do: bản sao bỏ điều kiện «không that» → FAIL ghim «mốc đã khép vẫn bị báo».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/gio-may.mjs, scripts/lo-trinh.mjs, scripts/cat-luot.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/**, docs/plans/lo-trinh-kit.json]
+    expected: >
+      exit 0; stdout có "PASS: RD-10", "PASS: RD-10-mot-moc", "PASS: RD-10-hai-lo-trinh", "PASS: RD-10-do", "PASS: RD-10-kho".
+      RD-10: M1 (mục tiêu D, 6 giờ máy) và M2 (D+5, độc lập) → bắt đầu M2 == hoàn tất M1; mốc không ngày đứng cuối. RD-10-mot-moc: một mốc → dòng bằng bộ máy cũ v2.32.0 trừ nhãn «(máy chạy 24/24 — chưa đo nhịp ngày)».
+      RD-10-hai-lo-trinh: hai lộ trình cùng kho, mỗi lộ trình một mốc độc lập → cả hai bắt đầu hôm nay. RD-10-do: bản sao giữ
+      batDau = hôm nay → FAIL ghim «M2 không nối sau M1». RD-10-kho: năm kho (kit · crm OKR · crm Kho tài liệu · crm Việc và Dự án
+      · oneflow · kho không lo_trinh) — mọi dòng khác nhau giữa bộ máy mới và cũ (trang, khối dữ liệu, --xem) thuộc tập kỳ vọng
+      tính độc lập từ dữ liệu kho; in kỳ vọng/thực tế từng kho; kho không lo_trinh 0 byte khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/cat-luot.mjs, _acceptance/road-map-de-dung/mau/dau-vao-crm.md, _acceptance/road-map-de-dung/mau/dap-an.json, tests/scripts/road-map-de-dung.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: RD-4-dap-an", "PASS: RD-4-dap-an-do". RD-4-dap-an: bản phạm vi và lộ trình dựng từ
+      mau/dap-an.json, răng cắt lượt → thoát 0, 0 dòng «lỗi:»; tập mục của dau-vao-crm.md BẰNG hợp rời của (mã bản phạm vi)
+      và (danh sách ra_khoi_kho của đáp án), không mục nào ở cả hai, in «n/n mục»; ≥ 1 mục ở mỗi nơi (hàng · chờ điều kiện ·
+      ra khỏi kho) và ≥ 1 mốc nhận hạn. RD-4-dap-an-do: bản sao đáp án bỏ một mục vận hành khỏi ra_khoi_kho → FAIL ghim
+      «mục đầu vào không có chỗ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**, _acceptance/road-map-de-dung/mau/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-7-tuoi", "PASS: RD-7-tuoi-do". RD-7-tuoi: vẽ lại trang từ bản chụp onehub trong lượt, xuất
+      chữ khối Mốc bằng cùng bộ đọc của RD-5, chọn ba mốc còn việc nhiều nhất bằng code, soạn câu hỏi + đáp án — ba tệp BẰNG
+      từng byte mau/trang-moi.txt, mau/cau-hoi-trang.md, mau/dap-an-trang.json đã commit. RD-7-tuoi-do: bản sao trang-moi.txt
+      lệch một byte → FAIL ghim «tệp mẫu cũ: trang-moi.txt».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/road-map-de-dung.test.mjs, tests/scripts/fixtures/lo-trinh/crm-onehub-1017/**]
+    expected: >
+      exit 0; stdout có "PASS: RD-11", "PASS: RD-11-ba-mat", "PASS: RD-11-crm", "PASS: RD-11-doc-cu", "PASS: RD-11-do", "PASS: RD-11-do2".
+      RD-11: kho thử tám mục (mốc M1 gắn A,B · M2 gắn B,C · M3 không gắn · mốc ngoài V gắn D · việc E không mốc · A có
+      ten_ngan · C thiếu · F không câu giao, có ten_ngan) → khối: ten_hien_thi A = câu giao đầy đủ bỏ «», F (không câu giao) = ten_ngan; M1.viec_hien [A,B], M2.viec_hien [C],
+      M3.hien false, V.hien true + V.viec_hien [D] (mốc ngoài như mọi mốc); con_lai đúng; chua_hen_moc [E] — mọi ô so với kỳ vọng viết sẵn. RD-11-ba-mat: tập (mốc
+      hiện, việc chưa giao, tên, trạng thái, số chưa hẹn mốc) rút từ chữ nhìn thấy của trang == rút từ khối == rút từ khối
+      «Mốc» của --xem, in số phần tử. RD-11-crm: cùng phép so trên bản chụp onehub. RD-11-doc-cu: docDuLieu đọc trang bộ máy
+      v2.32.0 → khoá mới rỗng/null + đúng một cờ vàng «khối chưa mang mô hình hiển thị»; bảng khoá tài liệu
+      lo-trinh-du-lieu.md == KHUON_DU_LIEU. RD-11-do: bản sao trang vẽ cả mốc không có việc → FAIL ghim «trang lệch khối».
+      RD-11-do2: bản sao --xem in câu giao thay ten_hien_thi → FAIL ghim «bản xem lệch khối».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>126 việc"]
+  GB --> DG["Đã giao<br/>128 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>41 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -194,6 +194,7 @@ flowchart TD
 - Phát hành kit 2.30.0 — đóng số cho cửa sổ 2.29.0 → 2.30.0 (khoá do dãy giữ tính nhịp khoá · bộ đọc hồ sơ khoan dung · định tuyến mục Ngoài-n theo mã mục), để crm nhận thẳng từ bản đang cài; làn V, không dựng răng (`release-2-30-0`)
 - Phát hành kit 2.31.0 — đóng số cho cửa sổ 2.30.0 → 2.31.0 (bảng Ngoài-n có căn cứ · đường nền không tính tệp của chính vòng · mốc là chiến dịch · rà soát lộ trình và gói road-map), để crm nhận một lần sau 2.30; làn V, không dựng răng (`release-2-31-0`)
 - Phát hành kit 2.32.0 — đóng số cho cửa sổ 2.31.0 → 2.32.0 (gói road-map hoàn tất theo B′ · lượt chấm lại không tự dối), để crm nhận một lần sau 2.31; làn V, không dựng răng (`release-2-32-0`)
+- Phát hành kit 2.32.1 — bản vá của 2.32.0 cho crm-onehub#375 (trang lộ trình vẽ trong worktree khớp CI), để crm nhận 2.32.1 thay cho 2.32.0; làn V, không dựng răng (`release-2-32-1`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)
@@ -201,6 +202,7 @@ flowchart TD
 - Phát hành kit 2.8.0 — đóng số cho vòng «vũ trang /goal lúc gọi tên» (#140), để repo tiêu thụ nhận thẻ Cổng 1 in sẵn dòng /goal và skill feature-loop vũ trang ở mọi lượt người đứng trước đoạn máy, theo mốc có chủ đích (`release-2-8-0`)
 - Phát hành kit 2.9.0 — đóng số cho ba vòng sửa của cửa sổ 2.8→2.9 (PR 146 inputs-tinh-tu-goc-kho · 149 co-qua-timebox-nhom-da-xong · 151 thuoc-khai-mot-dang-do-mot-neo), bộ audit 05/09 + giấy phép MIT, và bộ tài liệu playbook 07/09 — để repo tiêu thụ nhận bộ máy theo mốc có chủ đích (`release-2-9-0`)
 - Repo khai plugin — acceptance-init ghi .claude/settings.json (marketplace + 4 plugin) bằng script hợp nhất JSON, tên plugin lấy từ marketplace.json ship cùng plugin; GUIDE §5.1 từ 5 lệnh còn 1 cho máy sau; diagram-design bắt buộc (`repo-khai-plugin`)
+- Road-map dễ dùng — cắt lượt theo luật 17/10 (không mốc ngoài; việc vận hành ra khỏi kho, không vào bản phạm vi), khối Mốc của trang đọc bằng tên tiếng sản phẩm kèm trạng thái, luật «chỉ việc phát triển» kiểm trên mọi lần đọc tệp, ngày dự kiến nối tiếp theo làn (`road-map-de-dung`)
 - Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng" (`s4-scope-triage`)
 - Siết răng của phép đo câu-về-hình — P90 canh mọi bản chép, răng đọc bảng thông điệp từ P197, chiều đỏ tách-đoạn cho quan hệ cùng-đoạn, ma trận nhãn nở đủ, đối chứng P90 dùng chung (`siet-rang-cau-ve-hinh`)
 - «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ (`start-bang-dieu-khien`)

@@ -487,7 +487,8 @@ function khoCoLoTrinh() {
   ghiJ(path.join(kho, TEP_LT), {
     schema: 1,
     ten: 'Lộ trình thử',
-    moc: [{ ten: 'Mốc một', ngay: '2026-10-25', hang: ['A', 'B'] }],
+    // Mốc phát triển khai `loai` (luật 17/10, hồ sơ road-map-de-dung): đồ thử theo khuôn mới, không mang cờ «mốc chưa khai loại».
+    moc: [{ ten: 'Mốc một', ngay: '2026-10-25', loai: 'han', hang: ['A', 'B'] }],
     hang: [
       { ma: 'A', slug: 'hang-a-tu-lo-trinh', cau_giao: '«Việc A»' },
       { ma: 'B', cau_giao: '«Đóng gói Điều phối – Thợ vào kit để chạy được ở kho thứ hai»' },

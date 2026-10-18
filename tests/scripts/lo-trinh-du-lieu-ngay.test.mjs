@@ -85,10 +85,14 @@ function banNen() {
   const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', KIT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
   if (!chinh) throw new Error('nền so: không tìm được nhánh chính (origin/main | main) để tính merge-base');
   const mb = git(KIT, 'merge-base', 'HEAD', chinh); const head = git(KIT, 'rev-parse', 'HEAD');
-  nenCache = mb === head ? { dir: KIT, sha: mb, trungHead: true } : { dir: bung(mb, 'nen'), sha: mb, trungHead: false };
+  // road-map-de-dung (RD1): bên so là cây TẮT RD1 (KIT_TAT), nên nền chứa RD1 (vòng đã gộp, hay mọi nhánh cắt sau RD1) cũng đi
+  // qua CÙNG phép tắt — so cùng trạng thái. Nền trước RD1 không có khối để tắt thì giữ nguyên. Nhận biết bằng khối RD1 có trong nền.
+  const goc = mb === head ? KIT : bung(mb, 'nen');
+  const coRD1 = readFileSync(path.join(goc, 'scripts', 'lo-trinh.mjs'), 'utf8').includes('export function luatChiPhatTrien(');
+  nenCache = { dir: coRD1 ? tatRD1(goc) : goc, goc, sha: mb, trungHead: mb === head, tatRD1: coRD1 };
   return nenCache;
 }
-const ghiChuNen = () => { const n = banNen(); return n.trungHead ? `nền so trùng HEAD ${n.sha.slice(0, 8)} — vòng đã gộp` : `nền so merge-base ${n.sha.slice(0, 8)}`; };
+const ghiChuNen = () => { const n = banNen(); return (n.trungHead ? `nền so trùng HEAD ${n.sha.slice(0, 8)} — vòng đã gộp` : `nền so merge-base ${n.sha.slice(0, 8)}`) + (n.tatRD1 ? ' · nền tắt RD1 như bên so' : ''); };
 
 let napN = 0;
 const nap = async kit => ({
@@ -160,6 +164,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 120)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 300)}`);
   } catch (e) { bad(id, loi(e)); }
 };
+
+// Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
+// gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
+// hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const KIT_TAT = () => tatRD1(KIT);
+const chayDoTat = async (id, f, tiem, ghim, moTa) => {
+  try {
+    const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
+    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
+  } catch (e) { bad(id, loi(e)); }
+};
 const LT_MJS = 'scripts/lo-trinh.mjs';
 
 // ═══ ND-1 (AC-1): giờ máy từng hàng ═══════════════════════════════════════════════════════════════════════════════════
@@ -198,7 +215,22 @@ const nd1TrangGiu = async kit => {
   const moi = await ve(kit, r);
   return ngoaiKhoi(moi) === ngoaiKhoi(a) ? [] : ['phần trang ngoài khối dữ liệu lệch bộ máy nền'];
 };
-if (want('ND-1-trang-giu')) { if (await chayCa('ND-1-trang-giu', nd1TrangGiu)) ok('ND-1-trang-giu', `phần trang ngoài khối giống từng byte bộ máy nền (${ghiChuNen()})`); }
+if (want('ND-1-trang-giu')) { if (await chayCa('ND-1-trang-giu', nd1TrangGiu, KIT_TAT())) ok('ND-1-trang-giu', `phần trang ngoài khối giống từng byte bộ máy nền (${ghiChuNen()})`); }
+// Chiều đỏ của bước tắt RD1 trên nền (sửa 18/10 khi chính RD1 vào main làm nền chứa RD1): bỏ bước tắt — so cây tắt với nền
+// NGUYÊN — thì ca trang phải ĐỎ đúng thông điệp. Nền trước RD1 không có gì để tắt: ca nói ra và không đếm là đạt.
+if (want('ND-1-nen-tat-do')) {
+  const n = banNen();
+  if (!n.tatRD1) console.log(`  BỎ QUA: ND-1-nen-tat-do — nền ${n.sha.slice(0, 8)} trước RD1, không có bước tắt để phá`);
+  else {
+    const lanh = await nd1TrangGiu(KIT_TAT());
+    if (lanh.length) bad('ND-1-nen-tat-do', `bản lành chưa xanh — không tin được chiều đỏ: ${lanh[0]}`);
+    else {
+      const giu = n.dir; n.dir = n.goc; let s; try { s = await nd1TrangGiu(KIT_TAT()); } finally { n.dir = giu; }
+      if (s.includes('phần trang ngoài khối dữ liệu lệch bộ máy nền')) ok('ND-1-nen-tat-do', `bỏ bước tắt RD1 trên nền ${n.sha.slice(0, 8)}: hàm đo trả «${s[0]}»`);
+      else bad('ND-1-nen-tat-do', `không bắt (cần «phần trang ngoài khối dữ liệu lệch bộ máy nền»): ${JSON.stringify(s)}`);
+    }
+  }
+}
 if (want('ND-1-do')) await chayDo('ND-1-do', nd1, [[LT_MJS, 'chu: gioMayChu(u), co:', 'chu: `${GM.khoangVN(u.khoang)} giờ máy`, co:']], 'chữ giờ máy của khối lệch trang: C', 'bản sao bỏ nhãn nguồn khỏi chữ của khối');
 
 // ═══ ND-2 (AC-2): nguồn số đo và cờ số đo chưa đủ ════════════════════════════════════════════════════════════════════
@@ -331,7 +363,7 @@ const nd6 = trangCu => async kit => {
 };
 const trangGoc = async (kit, r) => ve(banGoc(), r);
 const trangXoaKhoa = async (kit, r) => { const h = await ve(kit, r); return datKhoi(h, boBon(khoi(h))); };
-if (want('ND-6')) { if (await chayCa('ND-6', nd6(trangGoc))) ok('ND-6', `trang bộ máy ${GOC}: bộ đọc mới điền null, đúng một cờ «chưa có giờ máy và ngày dự kiến», khoá khác == bộ đọc gốc`); }
+if (want('ND-6')) { if (await chayCa('ND-6', nd6(trangGoc), KIT_TAT())) ok('ND-6', `trang bộ máy ${GOC}: bộ đọc mới điền null, đúng một cờ «chưa có giờ máy và ngày dự kiến», khoá khác == bộ đọc gốc`); }
 if (want('ND-6-xoa-khoa')) { if (await chayCa('ND-6-xoa-khoa', nd6(trangXoaKhoa))) ok('ND-6-xoa-khoa', 'trang mới xoá bốn khoá: bộ đọc mới điền null + đúng một cờ'); }
 const nd6Moi = async kit => { const M = await nap(kit); const x = M.LT.docDuLieu(await ve(kit, await khoNd4())); return x.duLieu && x.canhBao.length === 0 ? [] : [`trang mới: ${JSON.stringify(x.canhBao)}`]; };
 if (want('ND-6-trang-moi')) { if (await chayCa('ND-6-trang-moi', nd6Moi)) ok('ND-6-trang-moi', 'trang mới: bộ đọc mới 0 cảnh báo'); }
@@ -352,9 +384,9 @@ const nd7 = async kit => {
   if (!deq(a, b)) sai.push(`khoá bản 2 đổi: ${tenLech(timLech(a, b))}`);
   return sai;
 };
-if (want('ND-7')) { if (await chayCa('ND-7', nd7)) ok('ND-7', `bộ đọc gốc (bản crm) đọc trang mới: 0 cảnh báo, phiên bản 2, bỏ bốn khoá mới == trang bộ máy nền (${ghiChuNen()})`); }
-if (want('ND-7-do')) await chayDo('ND-7-do', nd7, [[LT_MJS, 'hang: ganMoc(m), con_viec: conViecMoc(m, kq),', "hang: [...ganMoc(m), 'ZZ'], con_viec: conViecMoc(m, kq),"]], 'khoá bản 2 đổi: moc.hang', 'bản sao thêm phần tử vào danh sách việc của mốc');
-if (want('ND-7-do phien-ban')) await chayDo('ND-7-do phien-ban', nd7, [[LT_MJS, 'export const PHIEN_BAN_DU_LIEU = 2;', 'export const PHIEN_BAN_DU_LIEU = 3;']], 'bộ đọc gốc cảnh báo khuôn mới', 'bản sao tăng phiên bản khuôn');
+if (want('ND-7')) { if (await chayCa('ND-7', nd7, KIT_TAT())) ok('ND-7', `bộ đọc gốc (bản crm) đọc trang mới: 0 cảnh báo, phiên bản 2, bỏ bốn khoá mới == trang bộ máy nền (${ghiChuNen()})`); }
+if (want('ND-7-do')) await chayDoTat('ND-7-do', nd7, [[LT_MJS, 'hang: ganMoc(m), con_viec: conViecMoc(m, kq),', "hang: [...ganMoc(m), 'ZZ'], con_viec: conViecMoc(m, kq),"]], 'khoá bản 2 đổi: moc.hang', 'bản sao thêm phần tử vào danh sách việc của mốc');
+if (want('ND-7-do phien-ban')) await chayDoTat('ND-7-do phien-ban', nd7, [[LT_MJS, 'export const PHIEN_BAN_DU_LIEU = 2;', 'export const PHIEN_BAN_DU_LIEU = 3;']], 'bộ đọc gốc cảnh báo khuôn mới', 'bản sao tăng phiên bản khuôn');
 
 // ═══ ND-8 (AC-8): tài liệu == mã, bộ đọc tự đủ ═══════════════════════════════════════════════════════════════════════
 const TL = kit => path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md');

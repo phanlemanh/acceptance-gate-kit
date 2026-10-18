@@ -31,6 +31,88 @@ PR đã gây ra, gần bốn giờ máy ghim lại. Nay:
 lại cho đầu ra như trước (đo trên bộ hồ sơ thật của các kho có trên máy). Bộ máy cũ đọc hồ sơ có dòng nền đỏ không vỡ
 và chặn pin mang nhãn — hướng an toàn. Lớp CI chép thêm `lib/do-san-tren-nen.cjs` khi nhận mốc. Cách dùng: GUIDE §7.1.
 
+## 2.32.1 — 17/10/2026
+
+Bản vá của 2.32.0 cho sự cố ở kho tiêu thụ đầu tiên nhận nó: `crm-onehub#375` (Mac Studio, 17/10) — nhận 2.32.0 ở PR
+crm #463 thì bước Product map `--check` của CI đỏ «LO-TRINH.html lệch» hai lần. Từ 2.32.0 (RM3b) bộ vẽ trang lộ trình
+lấy ý ở **thư mục chính** của kho, trong khi trang được commit và CI vẽ lại từ cây đang kiểm; ở crm thư mục chính lùi
+nền, thiếu sáu tín hiệu của #452, nên trang vẽ trong worktree khác trang CI. Có **một hồ sơ được ký** — tập đối chiếu
+bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `ve-lo-trinh-doc-tin-hieu-cua-cay` (VA2, #378). Kho chờ nhận: `crm`
+— nhận **2.32.1 thay cho 2.32.0**. Mốc đi **làn V**, không dựng răng mới. Bốn gói `acceptance-gate`, `feature-loop`,
+`dieu-phoi`, `road-map` cùng lên `2.32.1` (chỉ `acceptance-gate` đổi vật; `dieu-phoi`, `road-map` chỉ đổi số);
+`diagram-design` giữ `2.7.1`. Tag `v2.32.1` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.32.1** (patch): sửa hành vi của 2.32.0, không thêm bề mặt mới — không lệnh, không khoá cấu hình, không tệp
+mới trong lớp chép CI.
+
+### Trang lộ trình vẽ trong worktree khớp CI (hồ sơ `ve-lo-trinh-doc-tin-hieu-cua-cay`, hàng VA2, T2)
+
+Gốc: `_acceptance/cua-tin-hieu-goc-moi-worktree/` — Known limit Ngoài-4 của RM3b thành ca thật. Tái hiện ở
+`_acceptance/ve-lo-trinh-doc-tin-hieu-cua-cay/repro/` (2.32.0 đỏ, 2.31.0 xanh).
+
+- **Bộ vẽ trang** (`product-map.mjs`, và bước khởi tạo lộ trình đi qua cùng hàm vẽ) chỉ lấy tệp ý **đã git theo dõi**
+  trong **chính cây đang vẽ**; nội dung đọc từ đĩa của cây ấy (tệp vừa `git add` hay vừa sửa được commit cùng trang).
+  Vẽ trong worktree, thư mục chính hay bản tải sạch đều ra cùng một trang như CI.
+- **Bộ đọc tương tác giữ RM3b:** thẻ khởi động, `tin-hieu.mjs --chua-gom/--duong/--rang/--cau` và skill gom vẫn đọc hộp
+  ý chung ở thư mục chính. Chủ kho duyệt thu hẹp đúng chân bộ vẽ trang trong AC-2 của RM3b.
+- **Không đổi:** kho không khai `tin_hieu`, kho khai mà mọi ý đã commit, và gốc là thư mục ngoài git — trang giống từng
+  byte 2.32.0 (AC-4).
+- **Giới hạn có tên:** ý chưa commit chỉ lên trang khi được commit; kho giữ mọi ý ngoài git thì trang không có khối
+  đường đi tín hiệu. Ý chưa commit xem ở thẻ khởi động và `tin-hieu.mjs --chua-gom` — **KHÔNG** ở `/road-map:xem` (lệnh
+  ấy không hiện tín hiệu; một câu trong `skills/acceptance/references/lo-trinh-du-lieu.md` nói nhầm điều này — Ngoài-3,
+  giữ tới vòng chạm tài liệu kế).
+- **Giới hạn đã khai:** 5 mục ở Notes hợp đồng — đáng nhớ nhất: thư mục không có git riêng nằm trong một kho git khác
+  thì trang không hiện ý nào (Ngoài-5); nguồn khai ngoài kho hay bằng đường tuyệt đối, hoặc git lỗi lạ, thì trang có thể
+  lệch mà không cảnh báo (Ngoài-4).
+- **Hạ tầng lượt chấm:** vùng 2 của suite plugins nay chạy 671 giây kể cả khi máy rảnh — quá trần 10 phút mỗi lệnh của
+  tác tử chấm. Vòng nào chạy suite này cần một eval `long_running` mang chính lệnh ấy (tiền lệ `release-2-32-0` E3i).
+
+**Đường đọc-cũ:** không đổi khuôn tệp nào; khối dữ liệu trang giữ bản 2.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.32.1` hai tệp. Luôn cần: `scripts/product-map.mjs` (VA2 — bộ vẽ bật lọc theo
+  dõi). Kho khai `tin_hieu`: `scripts/tin-hieu.mjs` (VA2). Hai tệp chép CÙNG MỘT commit; hai mươi sáu tệp còn lại giống
+  từng byte `v2.32.0`.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.32.1` ở MỌI phạm vi**, rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs
+  --may --ref v2.32.1 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …` và không còn dòng `VÀNG may:`.
+- **Kho có lộ trình và cửa tín hiệu:** vẽ lại `LO-TRINH.html` trong PR nâng kit — vẽ ở worktree nào cũng được.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.32.1` (KC1) — dòng TỔNG KẾT ghi
+vào hồ sơ `release-2-32-1`.
+
+**crm, theo thứ tự** (nhận 2.32.1 THAY CHO 2.32.0; mọi bước nhận của 2.32.0 vẫn áp):
+
+1. **Khi nào:** máy Mac Studio, SAU khi chuỗi đêm M5 gộp xong (~03:00Z 18/10) — onehub đang giữ; ở quãng lặng: không
+   lượt S4 nào đang chạy, không vòng nào giữa hai cổng.
+2. **PR nhận đang mở với 2.32.0 (crm #463):** đổi sang thẻ `v2.32.1` — làm đủ các bước 2.32.0, chỉ thay số thẻ.
+3. **Cài theo thẻ `v2.32.1`** mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`) ở mọi
+   bản ghi (phạm vi `user`, gốc crm, từng cây phụ có phiên); kiểm `kiem-ban-cai.mjs --may --ref v2.32.1`. Mở phiên MỚI.
+4. **Lớp chép CI từ thẻ** (`git archive v2.32.1`): sáu tệp của 2.32.0 lấy từ thẻ mới — trong đó `scripts/product-map.mjs`
+   và `scripts/tin-hieu.mjs` mang bản vá. Đo lại bằng đường nền sau khi chép.
+5. **Vẽ lại `LO-TRINH.html`** ngay trong worktree của PR nhận — **bỏ lối lách** vẽ trong bản `git clone --no-hardlinks`.
+   Ý gửi bằng `/road-map:gui` mà chưa commit không lên trang (đúng hành vi mới); muốn chúng lên trang thì commit tệp ý.
+6. **Đọc ngưỡng:** bước Product map `--check` của CI xanh ở PR nhận với trang vẽ trong worktree; 14 ngày sau đó (tới
+   31/10) 0 lượt CI crm đỏ «LO-TRINH.html lệch» do tín hiệu, với N = số commit chạm `LO-TRINH.html` (N = 0 → chưa đọc
+   được). Ngưỡng của 2.32.0 (mục crm bước 8) giữ nguyên.
+
+**Năm dòng số của luật (c)** — một vòng có lượt chấm trong cửa sổ (giờ VN; cùng nguồn và khuôn khối token của 2.32.0):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `ve-lo-trinh-doc-tin-hieu-cua-cay` (VA2, T2) | 3 g 36 · 3 (lượt 1 PASS kèm một lỗi phép đo trong hợp đồng; lượt 2 BLOCKED vì hạ tầng, thử lại cùng lượt PASS) | 2 / 0 (3) — Cổng Đáng và Phạm vi ký chung một câu | **1** — vùng 2 suite plugins quá 10 phút (đo riêng 671 s xanh); +1 ca biên: một lượt BLOCKED ngay khâu tham số (0 tác tử, lỗi nhúng tham số của phiên) | 79 573 · 47,1 / 17,3 / 35,6 | 48 · 55 · 51 = 154 |
+
+**Đọc số:** dòng 1 ngắn hơn trung vị 2.32.0 (8 g 46) vì chữ ký không qua đêm; hạ tầng đốt một lượt đúng lớp đã gặp ở
+RM3b và mốc 2.32.0 — nay đo được nguyên nhân là chính độ dài vùng 2, không phải tải song song. **Điều kiện tin cậy:**
+(i) `git diff v2.32.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/` rỗng — đường verdict không đổi;
+(ii) lượt chấm sai do phép-đo-tự-dối giữa hai mốc: 0. Dòng 4–5 đọc được, nhưng một vòng không đủ để so mốc.
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 = · 2 ↓ ngoài thiết kế (crm thôi phải vẽ trong bản tải riêng) · 3 = ·
+4 = · 5 =.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (17/10).
+**N không tăng so với mốc 2.32.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.32.0 — 17/10/2026
 
 Cửa sổ 2.31.0 → 2.32.0 (15/10 chiều → 17/10) là **gói `road-map` hoàn tất theo hướng B′** cộng **lượt chấm lại không

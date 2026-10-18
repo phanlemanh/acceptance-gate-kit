@@ -52,6 +52,9 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Hồ sơ road-map-de-dung (vòng RD1): ca RD-1…RD-11 + RD-tat (bộ nhát tắt tests/scripts/tat-rd1.mjs). Tệp .test.mjs nên cũng
+    # chạy trong mảnh mjs của suite. Bản chụp crm do tests/scripts/chup-crm-onehub.mjs sinh (không cần kho crm lúc chạy).
+    road_map_de_dung: node tests/scripts/road-map-de-dung.test.mjs
     # Hồ sơ dai-tom-tat-doc-dung: ca DT-1..DT-8 (dải tóm tắt hồ sơ). DT-9 cần kho crm trên máy (CRM_ROOT,
     # mặc định ~/dev/crm) nên tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys.
     dai_tom_tat: "node tests/scripts/dai-tom-tat.test.mjs"
@@ -726,6 +729,11 @@ executors:
     rel2320_dd_giu: "bash -c 'c=$(git show f0634454:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet f0634454 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2320_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh f0634454 2.32.0
     rel2320_goi_doi: "bash -c 'd=$(git diff --name-only f0634454 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json dieu-phoi/scripts/cua-tin-hieu.mjs dieu-phoi/scripts/dieu-phoi.mjs dieu-phoi/scripts/mau/LUAT.md dieu-phoi/scripts/phat-lich.mjs dieu-phoi/scripts/yeu-cau.mjs road-map/.claude-plugin/plugin.json road-map/README.md road-map/commands/bo-ghim.md road-map/commands/ghim.md road-map/commands/gui.md road-map/commands/tra-lai.md road-map/commands/xem.md \" ]'"
+    # Mốc 2.32.1 (bản vá VA2): cửa sổ f7d95695 (v2.32.0) → HEAD.
+    rel2321_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh f7d95695 ve-lo-trinh-doc-tin-hieu-cua-cay
+    rel2321_dd_giu: "bash -c 'c=$(git show f7d95695:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet f7d95695 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2321_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh f7d95695 2.32.1
+    rel2321_goi_doi: "bash -c 'd=$(git diff --name-only f7d95695 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
