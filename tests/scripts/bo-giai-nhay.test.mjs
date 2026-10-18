@@ -670,7 +670,10 @@ function bg5() {
   if (bam(tepCa) !== bam(path.join(HERE, 'bo-giai-nhay.test.mjs'))) { do_('BG5', 'tep ca o HEAD KHAC ban dang chay — chieu do se do mot vat khac; commit truoc'); return; }
 
   const chay = (root) => spawnSync(process.execPath, [path.join(root, 'tests', 'scripts', 'bo-giai-nhay.test.mjs')],
-    { encoding: 'utf8', env: { ...process.env, BG_NO_RED: '1' } });
+    // BG_ONLY RỖNG tường minh: bản sao phải chạy TRỌN tệp ca. Thừa hưởng BG_ONLY của tiến trình mẹ (vd
+    // khoá `ndnd_dot_bien` gọi `BG_ONLY=BG8,BG5`) thì bản sao chỉ chạy hai chân tự bỏ qua → «bị tiêm vẫn
+    // xanh» oan (đo ở hồ sơ nhay-don-nhan-doi, S3).
+    { encoding: 'utf8', env: { ...process.env, BG_NO_RED: '1', BG_ONLY: '' } });
 
   // (1) ĐỐI CHỨNG DƯƠNG — bản sao NGUYÊN VẸN phải 0 vế đỏ. Không có nó thì mọi
   //     màu đỏ dưới đây vô nghĩa.
