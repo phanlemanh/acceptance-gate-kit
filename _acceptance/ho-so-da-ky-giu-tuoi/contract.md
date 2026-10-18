@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/ (bảng nhãn, hàm kiểm nhãn) + scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs ∈ t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-17-ho-so-da-ky-giu-tuoi-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-17T22:14:00Z   # duyệt lại phạm vi sau lượt chấm 1: thêm ô đo AC-4, AC-5, AC-7 (lần đầu 2026-10-17T13:29:34Z)
 ---
@@ -81,3 +81,15 @@ Ngưỡng ở ô cơ hội đọc sau khi crm cài mốc và bật khoá, 14 ng�
 
 - CỘNG cần chủ kho phê đích danh ở Cổng Phạm vi (ADR 0018): lệnh mới, loại dòng sổ `nen-do`, nhãn trạng thái mới, khoá
   `feature_loop.do_san_tren_nen`, chế độ ghim từng hồ sơ của làn ghim lại — Hỏi-1 trong sổ quyết định.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
+  - Ngoài-1: Khi máy quá tải đến mức cả hai bản cùng bị ngắt giữa chừng ở chính chỗ nhau, phép so sánh trên các kho thật có thể báo «giống nhau» dù chưa chạy xong lần nào.
+  - Ngoài-3: Khi máy quá tải đến mức cả hai bản cùng bị cắt giống hệt nhau, phép so sánh trên kho thật có thể báo xanh dù lưới chưa từng chạy xong.
+  - Ngoài-4: Nếu sau này một thay đổi làm hỏng đúng luật «đỏ do hạ tầng không bao giờ làm nền», hệ thống vẫn báo đỏ nhưng không chỉ đúng thay đổi gây ra, mà liệt kê mọi thay đổi đã gộp là nghi can.
+  - Ngoài-5: Người đọc ghi chú đầu bộ kiểm có thể dựng lại chiều đỏ trên nhầm bản gốc nên thấy kết quả khác với báo cáo.
+  - Ngoài-8: Một ca đỏ mới nằm ngoài danh sách tên được ghi nhận có thể không bị bộ kiểm bắt nếu chỉ khác ở một kiểu dòng báo hỏng của một trình chạy test.
+  - Ngoài-9: Một lỗi đỏ thật có thể bị xếp nhầm là «hạ tầng» nên không gọi tên thay đổi gây ra, nếu lời lỗi giống một mẫu thiếu tệp phổ biến và đỉnh cũng in đúng dòng đó.
+  - Ngoài-11: Nếu ai đó sửa tay dòng ghim lại và bỏ mã lượt nền, cổng vẫn có thể trao nhãn «đỏ sẵn trên nền» cho một cái đỏ chưa được đối chiếu đúng lượt.
+  - Ngoài-12: Kiểm tra rằng thẻ và bản đồ không ghi «ĐẠT» cho hồ sơ đỏ sẵn thì không bao giờ báo đỏ được, nên nếu sau này bản đồ ghi nhầm kiểu «xanh sạch» thì không ai biết.
+  - Ngoài-15: Nếu ai đổi lệnh đo ở nơi khác với eval khai kiểu tham chiếu, hệ thống vẫn coi phép đo là không đổi và có thể giữ nhãn «đỏ sẵn trên nền» cho một phép đo đã khác.
+  - Ngoài-19: Hai phép kiểm đọc nhãn dùng dòng nền dựng tay chứ không phải dòng do lệnh thật ghi, nên nếu hai bên lệch khuôn thì các phép kiểm này không thấy.
+- Hạt giống mở ở Cổng Bằng chứng 2026-10-18: `docs/plans/2026-10-18-hat-giong-giu-tuoi-kho-nhieu-goi-noi-bo.md` (Ngoài-6) · `docs/plans/2026-10-18-hat-giong-nen-do-xet-theo-tung-eval.md` (Ngoài-7)
