@@ -10,7 +10,8 @@
       "ai": "Owner",
       "hang": [
         "X1",
-        "L2"
+        "L2",
+        "P1"
       ]
     },
     {
@@ -47,15 +48,6 @@
         "X2s",
         "X2s2",
         "DP8"
-      ]
-    },
-    {
-      "ten": "crm nhận kit 2.28.0 HÔM NAY (chủ kho duyệt tăng tốc 13/10, Mac Studio giữ): lộ trình nhận → PR nhận kit theo CHANGELOG → #373 chuyển gói dieu-phoi; sau #373 MacBook Pro gộp LT1b (#371) rồi LT2 (#374)",
-      "ngay": "2026-10-13",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": [
-        "P1"
       ]
     },
     {
