@@ -144,9 +144,9 @@ Thuật ngữ:
   - (g) gh giả `--treo` → thoát 3, nêu «quá trần», thời gian tường dưới 30 giây.
 
   Không hàng nào thoát 0 mà stdout rỗng. Chiều đỏ: bản tiêm nuốt lỗi gh (trả mảng rỗng) → hàng (d) đỏ, nêu «(d)».
-- AC-7: Given kho thử có đợt và kênh giả, When chạy CHÍNH lệnh của mục `hook-tin.mjs` trong khối `PostToolUse` và khối
-  `UserPromptSubmit` của `dieu-phoi/hooks/hooks.json`, với stdin dựng như Claude Code theo ma trận, Then mỗi hàng khớp,
-  số hàng in ra:
+- AC-7: Given kho thử có đợt và kênh giả, When chạy CHÍNH lệnh của khối `PostToolUse` và khối `UserPromptSubmit` của
+  `dieu-phoi/hooks/hooks.json` (hai hook đã có, nay gọi thêm phần đưa tin), với stdin dựng như Claude Code theo ma trận,
+  Then mỗi hàng khớp, số hàng in ra:
   - (a) cwd P2, có `G-<ddmm>-1` chưa đến → stdout JSON có `hookSpecificOutput.additionalContext`, chứa mã, dòng đầu, thân và
     lệnh `tin NHẬN G-<ddmm>-1`. Sổ ghi `da-den`;
   - (b) gọi lần hai cùng tin → không còn `additionalContext` cho tin ấy;
@@ -155,9 +155,19 @@ Thuật ngữ:
   - (e) vòng `G` gửi chạm mức 1, cwd giám sát → nơi chứa có đúng một BÁO «nhắc <mã>»; gọi lại → vẫn một;
   - (f) vòng `MBP` gửi trên kênh chạm mức 1 → ngữ cảnh chứa lệnh `tin nhac <mã>`, nhật ký gh giả có 0 lời gọi ghi;
   - (g) như (a) nhưng stdin mang danh tính tác tử con (khuôn Claude Code ghi trong ca) → stdout rỗng, sổ vẫn `chua-den`;
-    lần gọi kế từ phiên chính mới đưa tin.
+    lần gọi kế từ phiên chính mới đưa tin;
+  - (h) nhanh khi không có tin: đo 30 lần gọi hàm `duaTin` trong tiến trình, trên kho thử có đợt không tin và trên chính
+    kho kit (không đợt). Trung vị ≤ 20 ms ở cả hai, in ra số đo. Thêm 30 lần gọi trọn hook-nhip của bản này và của bản
+    `3745b3e9`: chênh trung vị ≤ 20 ms, in ra;
+  - (i) hỏng không lan: `tin.jsonl` có một dòng hỏng, rồi thư mục đợt không đọc được → hook-nhip vẫn ghi nhịp như bản cũ,
+    không `additionalContext` tin. Qua ba lần gọi có đúng MỘT `systemMessage` nêu «không đọc được hộp tin»; sửa tệp → lần
+    gọi kế đưa tin bình thường.
 
-  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai». Bản tiêm bỏ kiểm tác tử con → hàng (g) đỏ.
+  Hệ quả nếu thiếu (h), (i): mỗi lời gọi công cụ của mọi phiên có gói trên ba máy crm chậm đi, và một tệp hỏng làm mọi phiên
+  bị nhồi lỗi ở mỗi lời gọi.
+
+  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai». Bản tiêm bỏ kiểm tác tử con → hàng (g) đỏ. Bản
+  tiêm thêm 50 ms chờ vào `duaTin` → hàng (h) đỏ, nêu số đo. Bản tiêm bỏ dấu «lỗi đã báo» → hàng (i) đỏ, nêu «3 lần».
 - AC-8: Given như AC-7, When chạy CHÍNH lệnh của khối `Stop` theo ma trận chặn, lối thoát và kho không dùng, Then:
   - (a) cwd P2, có GIAO chưa NHẬN → `decision: "block"`, `reason` chứa mã và lệnh NHẬN chép được;
   - (b) như (a) sau khi P2 đã NHẬN → stdout rỗng;
@@ -172,9 +182,14 @@ Thuật ngữ:
   - (i) đợt có `yeu-cau/P1-7.json` chưa trả lời, không có tin → cwd giám sát không bị chặn;
   - (j) kho git không đợt, không kênh → cả ba khối hook tin thoát 0, stdout và stderr rỗng, băm cây kho và `.acceptance-runs/`
     trước và sau bằng nhau;
-  - (k) mọi mục hook có ở `hooks.json` của `main` 3745b3e9 vẫn có, bằng sâu; mục mới duy nhất là ba mục `hook-tin.mjs`.
+  - (k) mọi khối và mục hook có ở `hooks.json` của `main` 3745b3e9 vẫn có, bằng sâu; thứ mới duy nhất là khối `Stop` gọi
+    `hook-tin.mjs`;
+  - (l) công tắc: `tin tat` ở worktree P2 → với tin chờ ở (a), cả ba chỗ hook (sau lời gọi công cụ, lời nhắc, dừng) cho
+    stdout rỗng; sổ vẫn ghi tin; `xem --json` liệt P2 đang tắt. `tin bat` → lần gọi kế đưa tin và chặn như thường. Hệ quả
+    nếu thiếu: phiên đang gấp chỉ còn cách gỡ gói, tắt luôn mọi hook khác của gói.
 
-  Chiều đỏ: bản tiêm bỏ dấu đã chặn → hàng (f) đỏ, nêu «chặn lần hai». Bản tiêm bỏ trần thời gian → hàng (e) đỏ.
+  Chiều đỏ: bản tiêm bỏ dấu đã chặn → hàng (f) đỏ, nêu «chặn lần hai». Bản tiêm bỏ trần thời gian → hàng (e) đỏ. Bản tiêm
+  bỏ kiểm dấu tắt ở khối Stop → hàng (l) đỏ.
 - AC-9: Given kho thử có đợt, When dựng kế hoạch `tiep-tuc` cho một dãy `mo-chip`, Then:
   - `ghi_danh` chứa phần sáu dòng do `loiGiaoViec` sinh, bằng từng byte với lời giao của `tin GIAO` cùng đầu vào;
   - Ý định là dòng `Vì sao:` của ô cơ hội trong worktree;

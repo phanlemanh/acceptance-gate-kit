@@ -123,16 +123,21 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.dieu_phoi_tin
-    paths: [dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/tin.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin.test.mjs]
+    paths: [dieu-phoi/scripts/hook-nhip.mjs, dieu-phoi/scripts/hook-cho-nguoi.mjs, dieu-phoi/scripts/tin.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin.test.mjs]
     expected: >
-      exit 0; "ok" cho "GT-07 tin-tu-den": lệnh hook rút từ mục hook-tin.mjs của khối PostToolUse và khối UserPromptSubmit
-      trong hooks.json, chạy cả hai; 7 hàng in ra. (a) JSON.parse stdout → hookSpecificOutput.additionalContext chứa mã, dòng
+      exit 0; "ok" cho "GT-07 tin-tu-den": lệnh hook rút từ khối PostToolUse và khối UserPromptSubmit trong hooks.json (hai
+      hook đã có), chạy cả hai; 9 hàng in ra. (a) JSON.parse stdout → hookSpecificOutput.additionalContext chứa mã, dòng
       đầu, thân và "tin NHẬN G-<ddmm>-1"; sổ ghi da-den; (b) lần hai: không additionalContext cho tin ấy; (c) cwd P1 → stdout
       ""; (d) cwd giữ kênh MBP, bản đồng bộ có tin gửi MBP → đưa vào ngữ cảnh, nhật ký gh giả 0 lời gọi trong lượt hook; (e)
       vòng G chạm mức 1 → nơi chứa có đúng 1 BÁO "nhắc <mã>", gọi lại vẫn 1; (f) vòng MBP trên kênh chạm mức 1 → ngữ cảnh chứa
       "tin nhac <mã>", nhật ký gh giả 0 lời gọi ghi; (g) stdin mang danh tính tác tử con (khuôn ghi trong ca) → stdout "", sổ
-      vẫn chua-den, lần gọi kế từ phiên chính mới đưa tin. "ok" cho "GT-07-do dua-lan-hai": bản sao bỏ dấu đã đưa (kiểm bước
-      tiêm áp) → ca nêu "đưa lần hai". "ok" cho "GT-07-do tac-tu-con": bản sao bỏ kiểm tác tử con → ca nêu "(g)".
+      vẫn chua-den, lần gọi kế từ phiên chính mới đưa tin; (h) 30 lần gọi duaTin trong tiến trình, kho thử không tin và kho
+      kit: trung vị ≤ 20 ms ở cả hai (in số); 30 lần gọi trọn hook-nhip bản này và bản `git archive 3745b3e9 dieu-phoi`:
+      chênh trung vị ≤ 20 ms (in số); (i) tin.jsonl có dòng hỏng, rồi thư mục đợt không đọc được: nhịp vẫn ghi đúng như bản
+      cũ, không additionalContext tin, qua 3 lần gọi đúng 1 systemMessage chứa "không đọc được hộp tin"; sửa tệp → lần kế
+      đưa tin. "ok" cho "GT-07-do dua-lan-hai": bản sao bỏ dấu đã đưa (kiểm bước tiêm áp) → ca nêu "đưa lần hai". "ok" cho
+      "GT-07-do tac-tu-con": bản sao bỏ kiểm tác tử con → ca nêu "(g)". "ok" cho "GT-07-do cham": bản sao thêm 50 ms chờ vào
+      duaTin → ca nêu số đo vượt 20 ms. "ok" cho "GT-07-do bao-moi-lan": bản sao bỏ dấu lỗi đã báo → ca nêu "3 lần".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -140,7 +145,7 @@ evals:
     cmd: config:executors.test.dieu_phoi_tin
     paths: [dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin.test.mjs]
     expected: >
-      exit 0; "ok" cho "GT-08 hook-dung": lệnh hook rút từ khối Stop của hooks.json; 11 hàng (a)…(k) in ra. (a) decision ===
+      exit 0; "ok" cho "GT-08 hook-dung": lệnh hook rút từ khối Stop của hooks.json; 12 hàng (a)…(l) in ra. (a) decision ===
       "block", reason chứa mã và "tin NHẬN"; (b) stdout ""; (c) stdout ""; (d) block, reason chứa mã MBP; (e) theo câu trả lời
       câu hỏi kênh lỗi ghi trong decisions.jsonl — khuyến nghị: lần 1 block, reason chứa "không đọc được kênh" và "tin canh",
       lần 2 trong 30′ stdout ""; --treo xong ≤ 6 s (thời gian tường) và kết quả === nhánh --loi; (f) lần 2 cùng tập mã ở (a)
@@ -148,7 +153,9 @@ evals:
       lời gọi ghi; (g) stop_hook_active true → ""; (h) GIAO mới → block, reason chứa mã mới; (i) yeu-cau/P1-7.json chưa trả
       lời, không tin → cwd giám sát ""; (j) kho không đợt không kênh: cả ba lệnh hook tin thoát 0, stdout "" và stderr "",
       băm cây kho + .acceptance-runs/ trước === sau; (k) mọi mục hook trong `git show 3745b3e9:dieu-phoi/hooks/hooks.json`
-      (commit cố định) deepStrictEqual có mặt; mục mới duy nhất là ba mục hook-tin.mjs. "ok" cho "GT-08-do chan-mai": bản sao
+      (commit cố định) deepStrictEqual có mặt, thứ mới duy nhất là khối Stop gọi hook-tin.mjs; (l) `tin tat` ở P2 → ba chỗ
+      hook stdout "" với tin chờ, sổ vẫn ghi, `xem --json` liệt P2 đang tắt; `tin bat` → lần kế đưa tin và chặn như thường.
+      "ok" cho "GT-08-do bo-tat": bản sao bỏ kiểm dấu tắt ở khối Stop → ca nêu "(l)". "ok" cho "GT-08-do chan-mai": bản sao
       bỏ dấu đã chặn (kiểm bước tiêm áp) → ca nêu "chặn lần hai". "ok" cho "GT-08-do bo-tran": bản sao bỏ trần → ca nêu "(e)".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9

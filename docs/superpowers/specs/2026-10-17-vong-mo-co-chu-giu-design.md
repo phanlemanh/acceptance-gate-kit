@@ -99,14 +99,25 @@ GIAO/HỎI mở · «đã đến» (máy ghi) · NHẬN → `da-nhan` · KẸT �
 `chua-den` → `da-den` → `da-nhan` | `ket`. Mức quá hạn biên nhận (chưa NHẬN): 0 trước hạn · 1 qua hạn · 2 qua hai lần hạn;
 hạn mặc định 30′, GIAO khai `--han <phút>`. Mức 2 và cờ `ket_luot_chua_nhan` lên `xem` / `xem --json`.
 
-### 3.7 Hook tin — ba chỗ, một tệp `hook-tin.mjs`
+### 3.7 Hook tin — ba chỗ, một khối hook mới
 
 Ai là mình: dãy của cwd · `G` khi cwd là worktree giám sát · máy giữ kênh khi cwd là worktree đã `tin vai`. Lời gọi đến từ
 tác tử con (stdin mang danh tính tác tử con theo khuôn Claude Code) → hook không làm gì: chỉ phiên chính nhận tin. Không ai →
 thoát 0, không in, không tạo tệp (đường của mọi kho không dùng gói hay không dùng `tin`, luật 26/09). Hook chỉ xét vòng mở
 bằng `tin` — yêu cầu cũ `yeu-cau/` không làm hook làm gì.
 
-1. **Sau lời gọi công cụ và lời nhắc (`PostToolUse`, `UserPromptSubmit`) — tin tự đến:** tin mới gửi mình chưa từng đưa
+Phần đưa tin là hàm `duaTin` của `tin.mjs`, gọi BÊN TRONG hai hook đã chạy sẵn ở đúng hai chỗ ấy — `hook-nhip.mjs`
+(`PostToolUse`) và `hook-cho-nguoi.mjs` (`UserPromptSubmit`) — không thêm mục hook nào, vì mỗi mục là một lần khởi động
+tiến trình ở mọi lời gọi công cụ. `hook-nhip` đã có lối `additionalContext` (lời nhắc bàn giao); hai chữ ghép thành một.
+Ba ràng buộc vận hành (điều phối 18/10, mọi phiên có gói trên ba máy crm):
+- **Im và nhanh khi không có tin:** phần thêm ≤ 20 ms trung vị trên 30 lần gọi; không in gì.
+- **Hỏng không lan:** `duaTin` nằm trong khối bắt lỗi riêng. Nơi chứa hỏng hay không đọc được → không đưa, không chặn,
+  việc cũ của hook (ghi nhịp, nhắc bàn giao) vẫn chạy; báo đúng MỘT lần mỗi worktree (`systemMessage`, dấu ở
+  `.acceptance-runs/tin/loi-da-bao/`), các lần sau im cho tới khi hết lỗi.
+- **Tắt được cho một phiên:** `tin tat` ghi dấu theo worktree ở `.acceptance-runs/tin/tat/`; cả ba chỗ im hẳn cho worktree
+  ấy (sổ vẫn ghi tin gửi tới); `tin bat` bỏ dấu; `xem` hiện dãy đang tắt.
+
+1. **Sau lời gọi công cụ và lời nhắc — tin tự đến:** tin mới gửi mình chưa từng đưa
    → trả `additionalContext` gồm dòng đầu, thân và lệnh đáp chép được, đúng MỘT lần mỗi tin; ghi «đã đến». Trên kênh chỉ
    đọc bản đã đồng bộ, KHÔNG gọi mạng. Vòng mình gửi chạm mức 1 → tự nhắc một lần: trong đợt ghi BÁO «nhắc <mã>»; trên kênh
    đưa vào ngữ cảnh lệnh `tin nhac <mã>` chép được (hook không tự đăng ra ngoài kho).
@@ -117,7 +128,7 @@ bằng `tin` — yêu cầu cũ `yeu-cau/` không làm hook làm gì.
    `stop_hook_active`) → cho qua, ghi `ket-luot-chua-nhan`. Dấu luôn ghi cục bộ (`<thư mục đợt>/tin-chan/<mình>.json`, hoặc
    trạng thái kênh); hook KHÔNG BAO GIỜ ghi lên issue.
 
-`hooks.json`: thêm mục `hook-tin.mjs` vào `PostToolUse`, `UserPromptSubmit` và khối `Stop` mới; mọi mục cũ giữ nguyên.
+`hooks.json`: chỉ thêm khối `Stop` mới gọi `hook-tin.mjs`; mọi khối và mục cũ giữ nguyên từng byte.
 
 ### 3.8 Lời: `scripts/mau/LUAT.md` và `README.md`
 

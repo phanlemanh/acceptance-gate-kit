@@ -27,11 +27,11 @@
     },
     {
       "id": "AC-7",
-      "p": "Sẽ đưa tin mới vào phiên nhận đúng một lần ngay ở lượt kế của nó, ghi «đã đến», và tự nhắc một lần khi quá hạn; tác tử con không nhận nhầm tin."
+      "p": "Sẽ đưa tin mới vào phiên nhận đúng một lần ngay ở lượt kế, ghi «đã đến» và tự nhắc khi quá hạn; không có tin thì im và nhanh (đo được), hỏng thì không chặn và chỉ báo một lần; tác tử con không nhận nhầm."
     },
     {
       "id": "AC-8",
-      "p": "Sẽ chặn phiên kết lượt một lần khi còn việc giao chưa nhận, lần sau cho qua và ghi lên sổ; kho không dùng tính năng này thì không thấy gì khác."
+      "p": "Sẽ chặn phiên kết lượt một lần khi còn việc giao chưa nhận, lần sau cho qua và ghi lên sổ; mỗi phiên tắt được bằng một lệnh; kho không dùng tính năng này thì không thấy gì khác."
     },
     {
       "id": "AC-9",
