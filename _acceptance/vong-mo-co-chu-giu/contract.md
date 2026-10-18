@@ -5,7 +5,7 @@ slug: vong-mo-co-chu-giu
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-17-vong-mo-co-chu-giu-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-18
@@ -323,6 +323,17 @@ Chân ngành:
   - **Danh tính máy trên issue tự khai** (giới hạn của tệp 13/10).
   - **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
   - **Hook chỉ xét vòng mở bằng `tin`.** Yêu cầu cũ `yeu-cau/` hiện trên sổ nhưng không làm hook làm gì (luật 26/09).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-19:
+  - Ngoài-2: Phần mô tả của phép kiểm hook dừng còn ghi 12 hàng trong khi thực tế có 13 — người đọc hồ sơ có thể đếm lệch; phép kiểm vẫn chạy đúng hai chiều.
+  - Ngoài-3: Nếu sau này danh sách trạng thái «đã xong» của bộ xếp lịch đổi, hai phép kiểm lời giao không bị đánh dấu cần chạy lại, nên hàng được chọn khi giao việc có thể đổi mà không ai được báo.
+  - Ngoài-8: Sau khi hộp tin báo hỏng một lần ở một thư mục làm việc, các lần hỏng sau ở đó không báo nữa — tin tự đến có thể ngừng mà người dùng không hay.
+  - Ngoài-10: Mở lại một việc lần hai trước khi kịp chấp nhận lần xong thứ hai, khi đã quá 24 giờ từ lần chấp nhận đầu, bị từ chối dù lần xong thứ hai vừa tới.
+  - Ngoài-11: Bộ kiểm giả lập kênh chia trang nhỏ hơn kênh thật, nên lỗi ở đường đọc nhiều trang có thể không lộ ra trong bộ kiểm — có ca chạy trên kênh thật bù.
+  - Ngoài-12: Bộ kiểm chưa chứng minh việc nhận ra «hồ sơ đang chờ người ký» từ hồ sơ thật — phần ấy hỏng thì đồng hồ hạn có thể vẫn chạy khi lẽ ra phải ngừng.
+  - Ngoài-13: Hai ca kiểm chế độ canh chờ luôn chạy bản thật chứ không chạy bản đang thử tiêm lỗi, nên lỗi ở đường chờ có thể lọt qua bộ kiểm.
+  - Ngoài-14: Hai ca kiểm «mục bị mất» và «chấp nhận một phía» bắt được lỗi nhưng không chắc đúng lý do.
+  - Ngoài-15: Phép so «một cách đọc tin cho cả đợt lẫn kênh» vẫn xanh nếu cả hai cùng đọc ra rỗng.
+- Hạt giống mở ở Cổng Bằng chứng 2026-10-19: `docs/plans/2026-10-19-hat-giong-kenh-ghi-chong-dau-may.md` (Ngoài-4, Ngoài-9) · `docs/plans/2026-10-19-hat-giong-han-go-sai-bi-lo.md` (Ngoài-5) · `docs/plans/2026-10-19-hat-giong-dap-yeu-cau-cu-bi-nuot.md` (Ngoài-7)
 - Thứ tự (điều phối 17/10): S3 chờ M5 trả lời MBP-1710-1 trên #308. S4 và PR đi sau RD1, không chen vào lô của M5.
 - Khoá đo phải thêm vào `_acceptance/config.yaml`. Điều phối cho phép 17/10 (XONG GT1-1710-1): chỉ THÊM khoá mới có tiền
   tố của vòng, kèm một dòng chú thích hồ sơ; không sửa khoá cũ, không đụng `feature_loop.suite_keys`.
