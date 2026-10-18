@@ -1,17 +1,17 @@
 {
-  "feature_plain": "Mọi yêu cầu giữa các phiên (giám sát với thợ, máy với máy) có mã và hạn biên nhận. Phiên không kết được lượt khi còn tin gửi mình chưa nhận, và vòng chỉ đóng khi bên kia báo xong kèm sản phẩm thật.",
+  "feature_plain": "Mọi yêu cầu giữa các phiên có mã và hạn biên nhận; tin tự đến phiên nhận, phiên không kết được lượt khi còn việc giao chưa nhận, vòng chỉ đóng khi báo xong kèm sản phẩm thật. Người dùng gần như không thêm thao tác: giao việc một câu, nhận và báo xong không kèm gì, chủ kho không gõ gì mới.",
   "will_do": [
     {
       "id": "AC-1",
-      "p": "Sẽ cho người gửi một mã tin ngay khi gửi việc hay câu hỏi; lời giao việc thiếu ý định, kết quả hay ranh giới thì bị từ chối, không ghi gì."
+      "p": "Sẽ cho giao việc bằng một câu ý định; máy tự điền kết quả, ranh giới, quyền, điểm phải hỏi và nơi báo về từ hàng đang chạy, và từ chối khi không suy được."
     },
     {
       "id": "AC-2",
-      "p": "Sẽ buộc mọi lời đáp trỏ về đúng mã; nhận việc phải đọc lại ba dòng, báo xong phải mang sản phẩm thật, người ngoài cuộc không đóng được vòng."
+      "p": "Sẽ cho nhận và báo xong không kèm gì; máy tự đính sha, nhánh, PR chỉ khi chắc đó là sản phẩm của việc, không thì đòi một câu mô tả; người ngoài cuộc không đóng được vòng."
     },
     {
       "id": "AC-3",
-      "p": "Sẽ có một sổ vòng mở theo tuổi: chỉ «xong», «trả lại», «huỷ» mới đóng vòng; vòng quá hạn biên nhận tự nổi lên bảng trạng thái đợt."
+      "p": "Sẽ có sổ vòng mở theo tuổi: chưa đến, đã đến, đã nhận, kẹt; chỉ «xong», «trả lại», «huỷ» mới đóng; vòng quá hạn tự nổi lên bảng trạng thái đợt."
     },
     {
       "id": "AC-4",
@@ -19,27 +19,27 @@
     },
     {
       "id": "AC-5",
-      "p": "Sẽ cho ba máy dùng chung luật này trên kênh issue liên máy, đọc tiếp từ chỗ đã đọc chứ không đọc lại cả luồng, kể cả kênh dài hơn một trang."
+      "p": "Sẽ cho ba máy dùng chung luật này trên kênh liên máy, đọc tiếp từ chỗ đã đọc, kể cả kênh dài nhiều trang, và in thẳng phán quyết của ngưỡng 14 ngày."
     },
     {
       "id": "AC-6",
-      "p": "Sẽ có bộ canh kênh biết tự báo khi chính nó hỏng — không còn bộ canh câm 4 giờ như ca #420."
+      "p": "Sẽ có bộ canh kênh tự báo khi chính nó hỏng hay treo — không còn bộ canh câm 4 giờ như ca #420."
     },
     {
       "id": "AC-7",
-      "p": "Sẽ chặn phiên kết lượt khi còn tin gửi nó chưa được nhận, và lời chặn nêu sẵn lệnh nhận để chép."
+      "p": "Sẽ đưa tin mới vào phiên nhận đúng một lần ngay ở lượt kế của nó, ghi «đã đến», và tự nhắc một lần khi quá hạn; tác tử con không nhận nhầm tin."
     },
     {
       "id": "AC-8",
-      "p": "Sẽ không bao giờ khoá phiên: mỗi tập tin chỉ chặn một lần, lần sau cho qua và ghi lên sổ; kho không dùng tính năng này thì không thấy gì khác."
+      "p": "Sẽ chặn phiên kết lượt một lần khi còn việc giao chưa nhận, lần sau cho qua và ghi lên sổ; kho không dùng tính năng này thì không thấy gì khác."
     },
     {
       "id": "AC-9",
-      "p": "Sẽ dựng lời giao việc của chip đủ sáu trường (ý định, kết quả, ranh giới, quyền, điểm phải hỏi, báo về kèm mã phiên); hàng chưa có hồ sơ thì không mở chip."
+      "p": "Sẽ dựng lời giao việc của chip trong đợt đủ sáu trường bằng cùng một khuôn với lệnh giao việc; hàng chưa có hồ sơ thì không mở chip."
     },
     {
       "id": "AC-10",
-      "p": "Sẽ ghi luật giao tiếp vào tệp luật đợt mà mọi phiên thợ đọc trước khi làm, khớp đúng bộ khẩu lệnh của máy."
+      "p": "Sẽ ghi luật giao tiếp vào tệp luật đợt mà mọi phiên thợ đọc, khớp đúng bộ khẩu lệnh của máy."
     }
   ],
   "wont_do": [
@@ -57,7 +57,7 @@
     },
     {
       "id": "OOS-4",
-      "p": "Máy chưa so ba dòng đọc lại có khớp lời giao không — vẫn là việc giám sát đọc."
+      "p": "Không bắt thợ tự diễn đạt lại việc được giao — thay bằng máy so kho trên kênh; hiểu sai ý định khai thành giới hạn."
     },
     {
       "id": "OOS-5",
@@ -93,23 +93,23 @@
   "gap_probe_plain": [
     {
       "i": 0,
-      "p": "Hook chặn ở mọi kho có đợt ngay khi nâng gói; và «khi kênh lỗi thì chỉ cảnh báo» là khẩu vị rủi ro chứ không phải lối duy nhất. Đã sửa: hook chỉ chặn tin gửi bằng lệnh mới, nên kho không dùng thì không đổi gì. Phần còn lại thành câu Hỏi-2 cho anh."
+      "p": "Báo xong tự đính sha có thể đính nhầm một sha không chứa việc (đứng sai chỗ, chưa commit, cây bẩn). Đã sửa: chỉ tự đính khi kho khớp, cây sạch và đã có commit mới từ lúc nhận; thiếu thì đòi một câu mô tả."
     },
     {
       "i": 1,
-      "p": "Kênh thử không có phân trang và không có ca mạng treo, nên kênh thật dài hơn 30 tin sẽ mất tin mới mà phép đo vẫn xanh. Đã sửa: thêm ca 35 tin, đếm độc lập trên kênh #308 thật, và ca mạng treo cho cả hook lẫn bộ canh."
+      "p": "Lời hứa «máy so kho thay cho đọc lại» quá mức: trong đợt nó không bao giờ nổ, và ca chip sai kho nằm ngoài phạm vi. Đã sửa câu hỏi cho đúng (chỉ bắt được trên kênh), thêm lối gỡ khi kho lệch, và khai giới hạn."
     },
     {
       "i": 2,
-      "p": "Phiên giữ kênh chưa có lối thoát, và dấu «đã chặn» có thể bị đăng lên issue. Đã sửa: dấu luôn nằm trên máy, hook không bao giờ ghi lên kênh; thêm ca cho phiên giữ kênh."
+      "p": "Tác tử con chạy cùng thư mục có thể nhận nhầm tin, phiên chính không bao giờ thấy. Đã sửa: hook bỏ qua tác tử con; phát lại khuôn vào thật của Claude Code để dành, khai giới hạn có ngưỡng."
     },
     {
       "i": 3,
-      "p": "Thước «mọi yêu cầu có trả lời trỏ về mã» không thấy yêu cầu viết văn xuôi — đúng kiểu 0/44 hôm 17/10. Đã sửa: đếm ba nhóm trên cửa sổ 14 ngày, kèm danh sách tin không khẩu lệnh để đếm tay; dòng đo vô hiệu khi kênh trống."
+      "p": "Máy điền lời giao từ «hàng kế» sẽ sai khi thợ đang làm dở hàng khác. Đã sửa: lấy hàng đang chạy trước, cho chọn hàng tường minh, và chữ gõ tay luôn thắng chữ máy suy."
     },
     {
       "i": 4,
-      "p": "Lời hứa «quá hạn hiện trên bảng đợt» chưa có phép đo. Đã sửa: thêm vế đo bảng ở phút 61."
+      "p": "Thước của ngưỡng «mọi yêu cầu trỏ về mã» chưa ghim nghĩa từng con số. Đã sửa: mỗi trường một nghĩa, lệnh in thẳng SỐNG / CHẾT / cần đếm tay / vô hiệu."
     }
   ]
 }

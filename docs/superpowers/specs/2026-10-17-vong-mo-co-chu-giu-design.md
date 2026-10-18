@@ -49,8 +49,10 @@ ghi kiểm bằng CHÍNH hàm kiểm của bên đọc rồi mới ghi, nếp `g
 - **Kênh liên máy:** bình luận issue GitHub qua `gh api --paginate` (trang 30), mọi lời gọi `gh` có trần thời gian. Trạng
   thái cục bộ `<gốc kho chính>/.acceptance-runs/tin/kenh-<chủ>-<kho>-<số>.json`: tên máy, worktree giữ kênh, con trỏ, tin
   cuối đã biết, bản đã đồng bộ, dấu «đã đến», dấu «đã chặn». `gh` lấy từ `DIEU_PHOI_GH` nếu có (test thay bằng `gh` giả).
-  `tin so --kenh --tu <ngày>` đếm cửa sổ theo `created_at` thành ba nhóm: có mã · khuôn cũ (kèm số có đích) · bỏ qua (kèm
-  danh sách mã bình luận).
+  `tin so --kenh --tu <ngày>` đếm cửa sổ theo `created_at`, mỗi trường một nghĩa: `vong_da_dong` · `vong_mo_qua_han_2` ·
+  `vong_mo_chua_qua_han` · `khuon_cu_co_dich` · `bo_qua` + `bo_qua_ma` (bình luận không khẩu lệnh, để người đếm tay lọc văn
+  xuôi không phải yêu cầu). Lệnh in thẳng phán quyết của ngưỡng: CHẾT khi `vong_mo_qua_han_2 + khuon_cu_co_dich > 0` · «cần
+  đếm tay <k> bình luận» khi `bo_qua > 0` · SỐNG khi mọi số kia bằng 0 và tổng > 0 · VÔ HIỆU khi tổng bằng 0.
 
 ### 3.3 Mã và dòng đầu
 
@@ -68,22 +70,26 @@ ghi kiểm bằng CHÍNH hàm kiểm của bên đọc rồi mới ghi, nếp `g
 | Trường | Trong đợt (đích là dãy) | Trên kênh (`--hang <mã>`) | Không suy được |
 |---|---|---|---|
 | Ý định | câu người giao; ở chip: dòng `Vì sao:` của ô cơ hội | câu người giao | thiếu câu → từ chối |
-| Kết quả | «hồ sơ <slug> qua Cổng Bằng chứng · PR vào <nhanh_chinh>» từ hàng kế của dãy | như trái, slug từ hàng lộ trình | từ chối «không suy được Kết quả», trừ khi có `--ket-qua` |
-| Ranh giới | kho (remote `origin`), worktree, `hang.ranh_gioi` (vắng → «vùng tệp chưa khai — hỏi giám sát»), không chạm `bao_ve` | kho của người giao, `ranh_gioi` của hàng nếu có | từ chối «không suy được Ranh giới», trừ khi có `--ranh-gioi` |
+| Kết quả | «hồ sơ <slug> qua Cổng Bằng chứng · PR vào <nhanh_chinh>» từ hàng ĐANG CHẠY của dãy (hồ sơ chưa signed-off trong worktree); chưa vào hàng nào → hàng kế; hết hàng → từ chối | như trái, slug từ hàng lộ trình | từ chối «không suy được Kết quả», trừ khi có `--ket-qua` |
+| Ranh giới | kho (remote `origin`), worktree, `hang.ranh_gioi` (vắng → «vùng tệp chưa khai — hỏi giám sát»), không chạm `bao_ve` | kho `--kho <chủ/kho>` (mặc định kho người giao), `ranh_gioi` của hàng nếu có | từ chối «không suy được Ranh giới», trừ khi có `--ranh-gioi` |
 | Quyền | tự gộp theo `pha --tu-merge`; việc phụ qua `yeu-cau viec-phu` | «không tự gộp; việc phụ ghi hạt giống» | — |
 | Điểm phải hỏi | chép §4.5 hạt giống | như trái | — |
 | Báo về | «giám sát <mã phiên trong vai.json> qua tin — NHẬN · XONG» | «<tên máy> trên <kênh>» | — |
 
+`--hang <slug>` chọn hàng tường minh; `--ket-qua`, `--ranh-gioi` ghi đè trường đã suy (cái gõ tay luôn thắng cái suy).
 Lời giao in đủ sáu trường lên stdout trước khi ghi. Chip trong đợt mà hàng không có hồ sơ (không suy được Kết quả) → hành
 động `khong-hang` với `ly_do` «lời giao thiếu Kết quả»; bảy hành động `HANH_DONG` không đổi; mọi chuỗi con mà ca của hồ sơ
 đã ký đọc trong `ghi_danh` vẫn còn.
 
 ### 3.5 Đáp — người đáp không gõ gì máy biết được
 
-- **NHẬN** không kèm gì. Với GIAO, máy so kho của cwd người nhận (remote `origin`, chuẩn hoá) với kho trong Ranh giới; lệch
-  → từ chối, nêu hai kho. Với HỎI, NHẬN không bắt buộc (trả lời thẳng bằng XONG).
-- **XONG** của GIAO không kèm gì: máy đính `sha` HEAD, nhánh, và PR đang mở của nhánh (qua `gh pr view`, có trần; vắng thì
-  bỏ). Kho của cwd lệch Ranh giới → đòi `--vat "<…>"`. XONG của HỎI đòi một câu trả lời.
+- **NHẬN** không kèm gì. Máy ghi `sha` HEAD của người nhận lúc NHẬN (điểm xuất phát của việc). Với GIAO, máy so kho của
+  cwd người nhận (remote `origin`, chuẩn hoá) với kho trong Ranh giới; lệch → từ chối, nêu hai kho và lệnh
+  `tin KẸT <mã> "kho lệch"` chép được. Bước so này chỉ có tác dụng trên kênh: trong đợt, danh tính dãy đã chặn kho lệch từ
+  trước («không thuộc đợt»). Với HỎI, NHẬN không bắt buộc (trả lời thẳng bằng XONG).
+- **XONG** của GIAO không kèm gì CHỈ KHI cả ba cùng đúng: kho của cwd khớp Ranh giới · cây sạch · HEAD khác `sha` lúc NHẬN.
+  Khi ấy máy đính `sha` HEAD, nhánh, và PR đang mở của nhánh (qua `gh pr view`, có trần; vắng thì bỏ). Thiếu một điều →
+  đòi `--vat "<…>"`, nêu điều thiếu. XONG của HỎI đòi một câu trả lời.
 - **KẸT / TRẢ / HUỶ** đòi đúng một câu (cần gì · lý do); TRẢ thêm `--chuyen <ai|không ai>`; HUỶ chỉ người giao.
 - Người đáp NHẬN/XONG/KẸT/TRẢ phải là người nhận. Mã không có → từ chối. Vòng đã đóng → từ chối, nêu lời đóng.
 
@@ -95,7 +101,8 @@ hạn mặc định 30′, GIAO khai `--han <phút>`. Mức 2 và cờ `ket_luot
 
 ### 3.7 Hook tin — ba chỗ, một tệp `hook-tin.mjs`
 
-Ai là mình: dãy của cwd · `G` khi cwd là worktree giám sát · máy giữ kênh khi cwd là worktree đã `tin vai`. Không ai →
+Ai là mình: dãy của cwd · `G` khi cwd là worktree giám sát · máy giữ kênh khi cwd là worktree đã `tin vai`. Lời gọi đến từ
+tác tử con (stdin mang danh tính tác tử con theo khuôn Claude Code) → hook không làm gì: chỉ phiên chính nhận tin. Không ai →
 thoát 0, không in, không tạo tệp (đường của mọi kho không dùng gói hay không dùng `tin`, luật 26/09). Hook chỉ xét vòng mở
 bằng `tin` — yêu cầu cũ `yeu-cau/` không làm hook làm gì.
 
@@ -130,6 +137,9 @@ khi nào phải hỏi / không được hỏi (§4.5 hạt giống). README thê
 - **Hiểu sai ý định (khác với sai kho) lộ muộn hơn** khi bỏ đọc lại bằng lời. Ngưỡng: ≥ 1 ca thợ làm lệch ý định mà kho
   khớp và lời giao đủ trường.
 - **Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.** Đánh thức phiên đã đóng ngoài phạm vi.
+- **Nhận biết tác tử con dựa vào khuôn stdin của Claude Code.** Ca kiểm chạy trên khuôn ghi trong ca, chưa phát lại stdin thật.
+  Ngưỡng: ≥ 1 ca tin bị đưa vào tác tử con (sổ «đã đến» mà phiên chính không thấy).
+- **So kho khi nhận việc chỉ bắt được nhầm kho trên kênh** và chỉ khi người giao khai đúng `--kho`.
 - **Danh tính máy trên issue vẫn tự khai** (tệp 13/10).
 - **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
 - **`send_message` của app không vào sổ** — đó là đường truyền; người gửi dùng `tin` để có mã.

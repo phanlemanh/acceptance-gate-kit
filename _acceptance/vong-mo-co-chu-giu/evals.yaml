@@ -29,8 +29,11 @@ evals:
       (b) G-<ddmm>-2; (c) kênh giả thêm đúng 1 bình luận, dòng đầu === "GIAO MBP-<ddmm>-1 · MBP → M5", Kết quả chứa slug GT1;
       (d) thoát 1, stderr chứa "không suy được Kết quả", băm bằng; (e) "thiếu ý định", băm bằng; (f) mã P1-<ddmm>-1, chan
       false; với --chan, chan true; (g) stderr liệt đủ tám khẩu lệnh, băm bằng; (h) "không thuộc đợt", băm bằng; (i) mã ba
-      khúc, !== "P1-7". Đếm chạm in ra: (a) === 1, (f) === 1. "ok" cho "GT-01-do bo-ranh-gioi": bản sao xoá dòng Ranh giới
-      khỏi loiGiaoViec (kiểm bước tiêm áp) → ca nêu "Ranh giới:".
+      khúc, !== "P1-7"; (j) ma trận nguồn suy 5 hàng: đang giữa hang-a (hồ sơ implemented) → Kết quả/Ranh giới của hang-a;
+      chưa vào hàng → hang-b; hết hàng → thoát 1 "không suy được Kết quả"; --hang hang-b khi đang giữa hang-a → hang-b;
+      --ket-qua "<câu>" → Kết quả === câu đó; mỗi hàng so bằng nhau với giá trị viết trong ca. Đếm chạm in ra: (a) === 1,
+      (f) === 1. "ok" cho "GT-01-do bo-ranh-gioi": bản sao xoá dòng Ranh giới khỏi loiGiaoViec (kiểm bước tiêm áp) → ca nêu
+      "Ranh giới:". "ok" cho "GT-01-do luon-hang-ke": bản sao luôn lấy hàng kế → ca nêu "đang giữa hang-a".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -38,13 +41,17 @@ evals:
     cmd: config:executors.test.dieu_phoi_tin
     paths: [dieu-phoi/scripts/tin.mjs, tests/dieu-phoi/tin.test.mjs]
     expected: >
-      exit 0; "ok" cho "GT-02 dap-khong-kem": 12 hàng (a)…(l) in ra. (a) thoát 0, dòng đầu === "NHẬN G-<ddmm>-1 · P2 → G";
-      (b) trong kho lạ: thoát 1, stderr chứa "thu/kho-a" và "thu/kho-b"; (c) thân chứa sha === `git rev-parse HEAD`, nhánh
-      === `git branch --show-current`, PR === PR của tệp ca; (d) có sha và nhánh, không dòng PR; (e) kho lạ: thoát 1 đòi
-      --vat, có --vat thì thân === câu đó; (f) thiếu câu trả lời → "câu trả lời", có câu → thoát 0; (g) "không phải người
+      exit 0; "ok" cho "GT-02 dap-khong-kem": 12 hàng (a)…(l) in ra (hàng (b) và (e) có hàng con, mỗi hàng con một assert).
+      (a) thoát 0, dòng đầu === "NHẬN G-<ddmm>-1 · P2 → G"; (b) kênh, GIAO --kho thu/kho-b: NHẬN trong kho-b thoát 0, Ranh
+      giới === thu/kho-b; NHẬN trong kho-a thoát 1, stderr chứa "thu/kho-a", "thu/kho-b" và "tin KẸT", băm bằng; (c) sau một
+      commit mới, cây sạch: thân chứa sha === `git rev-parse HEAD` và !== sha lúc NHẬN, nhánh === `git branch --show-current`,
+      PR === PR của tệp ca; (d) có sha và nhánh, không dòng PR; (e) 3 hàng con thoát 1 đòi --vat, stderr chứa đúng "chưa có
+      commit mới" | "cây chưa sạch" | "kho lệch", băm bằng; có --vat thì thoát 0, thân === câu đó; (f) thiếu câu trả lời → "câu trả lời", có câu → thoát 0; (g) "không phải người
       nhận"; (h) "chỉ người giao"; (i) "không có vòng"; (j) "đã đóng bởi XONG"; (k) "cần gì"; (l) "--chuyen". Mọi hàng thoát
       1: băm nơi chứa trước === sau. Đếm chạm in ra: (a) === 0, (c) === 0. "ok" cho "GT-02-do bo-so-kho": bản sao bỏ so kho
-      (kiểm bước tiêm áp) → ca nêu "(b)". "ok" cho "GT-02-do bo-nguoi-nhan": bản sao bỏ kiểm người nhận → ca nêu "(g)".
+      (kiểm bước tiêm áp) → ca nêu "(b)"; đối chứng trong cùng ca: bản sao bỏ kiểm danh tính mà giữ so kho → (b) vẫn xanh.
+      "ok" cho "GT-02-do bo-commit-moi": bản sao bỏ kiểm HEAD có commit mới → ca nêu "chưa có commit mới". "ok" cho
+      "GT-02-do bo-nguoi-nhan": bản sao bỏ kiểm người nhận → ca nêu "(g)".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -92,10 +99,13 @@ evals:
     expected: >
       exit 0; "ok" cho "GT-05 kenh-con-tro": GIAO --kenh → tệp ca thêm đúng 1 bình luận; 35 sẵn → lượt 1 đọc 36, thêm 2 → lượt
       2 đọc 2 (đếm từ nhật ký gh giả, so bằng nhau); con trỏ === id bình luận cuối; vòng MBP mở, M5 NHẬN rồi XONG qua --kenh
-      dưới trạng thái cục bộ thứ hai → vắng khỏi sổ của cả hai; `so --kenh --tu <ngày> --json` → {co_ma, khuon_cu,
-      khuon_cu_co_dich, bo_qua, bo_qua_ma} deepStrictEqual ma trận trong ca, bình luận trước <ngày> không đếm; ma trận văn bản
+      dưới trạng thái cục bộ thứ hai → vắng khỏi sổ của cả hai; ma trận cửa sổ 7 bình luận → `so --kenh --tu <ngày> --json`
+      deepStrictEqual {vong_da_dong: 1, vong_mo_qua_han_2: 1, vong_mo_chua_qua_han: 1, khuon_cu_co_dich: 1, bo_qua: 1,
+      bo_qua_ma: [<mã>]}; dòng phán quyết === chuỗi viết trong ca cho 4 ca (CHẾT · "cần đếm tay 1 bình luận" · SỐNG · VÔ
+      HIỆU); ma trận văn bản
       AC-4 qua nơi chứa đợt và qua kênh giả cho kết quả deepStrictEqual. "ok" cho "GT-05-do bo-con-tro": bản sao bỏ con trỏ
       (kiểm bước tiêm áp) → ca nêu "38 ≠ 2". "ok" cho "GT-05-do bo-phan-trang": bản sao bỏ --paginate → ca nêu "30 ≠ 36".
+      "ok" cho "GT-05-do dem-moi-ma": bản sao đếm mọi bình luận có mã vào vong_mo_qua_han_2 → ca nêu "vòng đã đóng".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -116,12 +126,13 @@ evals:
     paths: [dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/tin.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin.test.mjs]
     expected: >
       exit 0; "ok" cho "GT-07 tin-tu-den": lệnh hook rút từ mục hook-tin.mjs của khối PostToolUse và khối UserPromptSubmit
-      trong hooks.json, chạy cả hai; 6 hàng in ra. (a) JSON.parse stdout → hookSpecificOutput.additionalContext chứa mã, dòng
+      trong hooks.json, chạy cả hai; 7 hàng in ra. (a) JSON.parse stdout → hookSpecificOutput.additionalContext chứa mã, dòng
       đầu, thân và "tin NHẬN G-<ddmm>-1"; sổ ghi da-den; (b) lần hai: không additionalContext cho tin ấy; (c) cwd P1 → stdout
       ""; (d) cwd giữ kênh MBP, bản đồng bộ có tin gửi MBP → đưa vào ngữ cảnh, nhật ký gh giả 0 lời gọi trong lượt hook; (e)
       vòng G chạm mức 1 → nơi chứa có đúng 1 BÁO "nhắc <mã>", gọi lại vẫn 1; (f) vòng MBP trên kênh chạm mức 1 → ngữ cảnh chứa
-      "tin nhac <mã>", nhật ký gh giả 0 lời gọi ghi. "ok" cho "GT-07-do dua-lan-hai": bản sao bỏ dấu đã đưa (kiểm bước tiêm
-      áp) → ca nêu "đưa lần hai".
+      "tin nhac <mã>", nhật ký gh giả 0 lời gọi ghi; (g) stdin mang danh tính tác tử con (khuôn ghi trong ca) → stdout "", sổ
+      vẫn chua-den, lần gọi kế từ phiên chính mới đưa tin. "ok" cho "GT-07-do dua-lan-hai": bản sao bỏ dấu đã đưa (kiểm bước
+      tiêm áp) → ca nêu "đưa lần hai". "ok" cho "GT-07-do tac-tu-con": bản sao bỏ kiểm tác tử con → ca nêu "(g)".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8

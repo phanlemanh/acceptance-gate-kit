@@ -63,17 +63,25 @@ Thuật ngữ:
   - (g) `tin DUYỆT …` → thoát 1, nêu đủ tám khẩu lệnh hợp lệ, 0 byte ghi.
   - (h) cwd là worktree ngoài dãy, không phải giám sát → thoát 1, nêu «không thuộc đợt», 0 byte ghi.
   - (i) thư mục đợt đã có `yeu-cau/P1-7.json` → mã của (f) vẫn có ba khúc, không trùng `P1-7`.
+  - (j) ma trận nguồn suy của Kết quả và Ranh giới, mỗi hàng so bằng nhau với giá trị viết trong ca: P2 đang giữa
+    `hang-a` (hồ sơ `implemented` trong worktree) và còn `hang-b` phía sau → `hang-a` · P2 chưa vào hàng nào → `hang-b` ·
+    P2 hết hàng → thoát 1 «không suy được Kết quả» · `--hang hang-b` khi đang giữa `hang-a` → `hang-b` · `--ket-qua "<câu>"`
+    khi máy đã suy được → Kết quả là đúng câu đó.
 
-  Đếm chạm (a) = 1, (f) = 1, in ra. Chiều đỏ: bản tiêm bỏ dòng `Ranh giới:` khỏi `loiGiaoViec` → hàng (a) đỏ, nêu
+  Đếm chạm (a) = 1, (f) = 1, in ra. Chiều đỏ: bản tiêm luôn lấy hàng kế → hàng «đang giữa hang-a» của (j) đỏ. Chiều đỏ: bản tiêm bỏ dòng `Ranh giới:` khỏi `loiGiaoViec` → hàng (a) đỏ, nêu
   «Ranh giới:».
 - AC-2: Given các vòng mở ở AC-1, When đáp bằng `tin NHẬN|XONG|KẸT|TRẢ|HUỶ` theo ma trận viết sẵn, Then mỗi hàng khớp,
   số hàng in ra.
   - (a) P2 `tin NHẬN G-<ddmm>-1` (0 chạm) → thoát 0. Dòng đầu bằng `NHẬN G-<ddmm>-1 · P2 → G`.
-  - (b) như (a), chạy trong kho lạ (đích đã khai kho `thu/kho-a`) → thoát 1, nêu cả `thu/kho-a` lẫn `thu/kho-b`, 0 byte ghi.
-  - (c) P2 `tin XONG G-<ddmm>-1` (0 chạm), kênh giả có PR cho nhánh → thân chứa sha HEAD 40 ký tự, tên nhánh và đường PR,
-    so bằng nhau với `git rev-parse HEAD`, `git branch --show-current` và PR của tệp ca.
+  - (b) trên kênh: `MBP` giao `M5` với `--kho thu/kho-b`. `M5` NHẬN trong worktree `thu/kho-b` → thoát 0, Ranh giới ghi
+    `thu/kho-b` (so bằng nhau). `M5` NHẬN trong `thu/kho-a` → thoát 1, nêu cả hai kho và lệnh `tin KẸT`, 0 byte ghi.
+  - (c) P2 commit một thay đổi sau khi NHẬN, cây sạch, rồi `tin XONG G-<ddmm>-1` (0 chạm), kênh giả có PR cho nhánh → thân
+    chứa sha HEAD, tên nhánh và đường PR, so bằng nhau với `git rev-parse HEAD`, `git branch --show-current` và PR của tệp ca.
+    Sha ấy khác sha máy ghi lúc NHẬN.
   - (d) như (c), không có PR → thân có sha và nhánh, không có dòng PR, không lỗi.
-  - (e) `XONG` chạy trong kho lạ → thoát 1, đòi `--vat`; thêm `--vat "<…>"` → thoát 0, thân là đúng câu đó.
+  - (e) XONG mà thiếu một trong ba điều kiện → thoát 1, đòi `--vat`, nêu đúng điều thiếu, 0 byte ghi; thêm `--vat "<…>"`
+    → thoát 0, thân là đúng câu đó. Ba hàng: HEAD bằng sha lúc NHẬN («chưa có commit mới») · cây bẩn («cây chưa sạch») ·
+    trên kênh, `M5` gõ XONG từ worktree giữ kênh trong khi việc khai `--kho thu/kho-b` («kho lệch»).
   - (f) `G` `tin XONG P1-<ddmm>-1` không câu trả lời → thoát 1, nêu «câu trả lời»; có câu → thoát 0.
   - (g) P1 (không phải người nhận) `tin XONG G-<ddmm>-2` → thoát 1, nêu «không phải người nhận».
   - (h) P2 `tin HUỶ G-<ddmm>-2 "<lý do>"` → thoát 1, nêu «chỉ người giao».
@@ -82,8 +90,11 @@ Thuật ngữ:
   - (k) `tin KẸT <mã>` không câu → thoát 1, nêu «cần gì».
   - (l) `tin TRẢ <mã> "<lý do>"` không `--chuyen` → thoát 1, nêu `--chuyen`.
 
-  Mọi hàng thoát 1 đều 0 byte ghi. Đếm chạm (a) = 0, (c) = 0, in ra. Chiều đỏ: bản tiêm bỏ so kho → hàng (b) đỏ, nêu «(b)».
-  Bản tiêm bỏ kiểm người nhận → hàng (g) đỏ.
+  Mọi hàng thoát 1 đều 0 byte ghi. Đếm chạm (a) = 0, (c) = 0, in ra. Chiều đỏ, mỗi chiều sau khi bản lành xanh:
+  - bản tiêm bỏ so kho → hàng (b) đỏ, nêu «(b)». Đối chứng: bản tiêm bỏ kiểm danh tính mà giữ so kho → hàng (b) vẫn xanh,
+    tức (b) đo đúng bước so kho;
+  - bản tiêm bỏ kiểm «HEAD có commit mới» → hàng «chưa có commit mới» của (e) đỏ;
+  - bản tiêm bỏ kiểm người nhận → hàng (g) đỏ.
 - AC-3: Given kho thử với chuỗi tin dựng bằng CHÍNH các lệnh `tin` (không viết tay dòng nào), và đồng hồ giả qua
   `DIEU_PHOI_NOW_MS`, When chạy `tin so --json` và `xem --json`, Then sổ khớp từng mục với bảng viết sẵn trong ca:
   - trạng thái `chua-den` → `da-den` (sau khi hook AC-7 đưa tin) → `da-nhan` | `ket`;
@@ -113,11 +124,15 @@ Thuật ngữ:
   - kênh có 35 bình luận sẵn: `tin so --kenh` lần một đọc 36, lần hai (sau khi thêm 2) đọc đúng 2, đếm bằng nhật ký gh
     giả. Con trỏ bằng mã bình luận cuối;
   - vòng do `MBP` mở, `M5` NHẬN rồi XONG bằng `tin … --kenh` → vắng khỏi sổ của cả hai bên;
-  - `tin so --kenh --tu <ngày> --json` cho `{co_ma, khuon_cu, khuon_cu_co_dich, bo_qua, bo_qua_ma}` bằng ma trận viết sẵn;
-    bình luận trước `<ngày>` không được đếm;
+  - `tin so --kenh --tu <ngày> --json` trên ma trận cửa sổ viết sẵn — một vòng có mã đã đóng · một vòng mở quá hạn mức 2 ·
+    một vòng mở chưa quá hạn · một BÁO · một tin khuôn cũ có đích · một bình luận văn xuôi không phải yêu cầu · một bình
+    luận trước `<ngày>` — cho `{vong_da_dong: 1, vong_mo_qua_han_2: 1, vong_mo_chua_qua_han: 1, khuon_cu_co_dich: 1,
+    bo_qua: 1, bo_qua_ma: [<mã>]}` so bằng nhau, và dòng phán quyết bằng chuỗi viết trong ca cho bốn ca: CHẾT · «cần đếm
+    tay 1 bình luận» · SỐNG · VÔ HIỆU (cửa sổ rỗng);
   - ma trận văn bản AC-4 qua nơi chứa đợt và qua kênh giả cho kết quả bằng nhau (một hàm phân loại).
 
-  Chiều đỏ: bản tiêm bỏ con trỏ → lượt hai đọc 38, ca nêu «38 ≠ 2». Bản tiêm bỏ `--paginate` → lượt một đọc 30, ca nêu
+  Chiều đỏ: bản tiêm bỏ con trỏ → lượt hai đọc 38, ca nêu «38 ≠ 2». Bản tiêm đếm mọi bình luận có mã vào
+  `vong_mo_qua_han_2` → ca cửa sổ đỏ, nêu «vòng đã đóng». Bản tiêm bỏ `--paginate` → lượt một đọc 30, ca nêu
   «30 ≠ 36».
 - AC-6: Given kênh giả và trạng thái cục bộ đã có tin cuối, When chạy `tin canh` theo ma trận, Then:
   - (a) tin cuối còn nguyên → thoát 0, in «canh: bắt lại <mã bình luận>»;
@@ -138,9 +153,11 @@ Thuật ngữ:
   - (c) cwd P1 (không phải người nhận) → stdout rỗng;
   - (d) cwd giữ kênh `MBP`, bản đã đồng bộ có tin gửi `MBP` → đưa vào ngữ cảnh. Nhật ký gh giả có 0 lời gọi trong lượt hook;
   - (e) vòng `G` gửi chạm mức 1, cwd giám sát → nơi chứa có đúng một BÁO «nhắc <mã>»; gọi lại → vẫn một;
-  - (f) vòng `MBP` gửi trên kênh chạm mức 1 → ngữ cảnh chứa lệnh `tin nhac <mã>`, nhật ký gh giả có 0 lời gọi ghi.
+  - (f) vòng `MBP` gửi trên kênh chạm mức 1 → ngữ cảnh chứa lệnh `tin nhac <mã>`, nhật ký gh giả có 0 lời gọi ghi;
+  - (g) như (a) nhưng stdin mang danh tính tác tử con (khuôn Claude Code ghi trong ca) → stdout rỗng, sổ vẫn `chua-den`;
+    lần gọi kế từ phiên chính mới đưa tin.
 
-  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai».
+  Chiều đỏ: bản tiêm bỏ dấu «đã đưa» → hàng (b) đỏ, nêu «đưa lần hai». Bản tiêm bỏ kiểm tác tử con → hàng (g) đỏ.
 - AC-8: Given như AC-7, When chạy CHÍNH lệnh của khối `Stop` theo ma trận chặn, lối thoát và kho không dùng, Then:
   - (a) cwd P2, có GIAO chưa NHẬN → `decision: "block"`, `reason` chứa mã và lệnh NHẬN chép được;
   - (b) như (a) sau khi P2 đã NHẬN → stdout rỗng;
@@ -207,9 +224,10 @@ Chân ngành:
   từ: đếm tay tin chủ kho gửi phiên điều phối trong bản ghi phiên crm, cùng cách finding 2026-10-05 §4.4 đã đếm · bảo
   đảm bởi: đã có sẵn: bản ghi phiên của app. Reality đọc.
 - Thước: mọi yêu cầu (GIAO, HỎI) trên kênh liên máy có trả lời trỏ về mã · số từ: `tin so --kenh <kênh> --tu <ngày crm
-  nhận> --json` trên cửa sổ 14 ngày. Lệnh đếm ba nhóm: có mã (vòng còn mở quá hạn mức 2) · khuôn cũ có đích · «bỏ qua»
-  kèm danh sách mã bình luận để người đếm tay xem bình luận nào là yêu cầu viết văn xuôi. SỐNG khi cả ba số bằng 0. Dòng
-  đo vô hiệu khi tổng bình luận trong cửa sổ bằng 0 · bảo đảm bởi: AC-3, AC-4, AC-5.
+  nhận> --json` trên cửa sổ 14 ngày; lệnh in thẳng phán quyết: CHẾT khi `vong_mo_qua_han_2 + khuon_cu_co_dich > 0` · «cần
+  đếm tay <k> bình luận» khi `bo_qua > 0` (người đọc `bo_qua_ma`, đếm bình luận nào là yêu cầu viết văn xuôi; mỗi yêu cầu
+  như vậy tính như một vòng không trỏ mã) · SỐNG khi các số kia bằng 0 và tổng > 0 · VÔ HIỆU khi cửa sổ rỗng · bảo đảm
+  bởi: AC-3, AC-4, AC-5.
 - Thước: CHẾT — một phiên bị khoá vì hook chặn mãi · số từ: sổ `ket_luot_chua_nhan` cộng lời chủ kho · bảo đảm bởi: AC-8.
 - Thước: CHẾT — bộ canh im khi kênh hỏng · số từ: mã thoát của `tin canh` · bảo đảm bởi: AC-6.
 - Thước: chạm mỗi vòng giao việc (một câu giao · 0 nhận · 0 xong) · số từ: ca đếm chạm của AC-1, AC-2 · bảo đảm bởi:
@@ -236,6 +254,9 @@ Chân ngành:
   - **Hiểu sai ý định lộ muộn hơn** khi bỏ đọc lại bằng lời (kho đúng, việc sai). Ngưỡng: ≥ 1 ca thợ làm lệch ý định mà kho
     khớp và lời giao đủ trường.
   - **Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.**
+  - **Nhận biết tác tử con dựa vào khuôn stdin của Claude Code**, ca kiểm chạy trên khuôn ghi trong ca. Ngưỡng: ≥ 1 ca tin bị
+    đưa vào tác tử con.
+  - **So kho khi nhận việc chỉ bắt được nhầm kho trên kênh**, khi người giao khai đúng `--kho`.
   - **Danh tính máy trên issue tự khai** (giới hạn của tệp 13/10).
   - **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
   - **Hook chỉ xét vòng mở bằng `tin`.** Yêu cầu cũ `yeu-cau/` hiện trên sổ nhưng không làm hook làm gì (luật 26/09).
