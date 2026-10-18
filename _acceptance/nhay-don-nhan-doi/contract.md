@@ -5,7 +5,7 @@ slug: nhay-don-nhan-doi
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-18-nhay-don-nhan-doi-design.md
 approved_by: Phan Le Manh
 approved_at: 2026-10-18
@@ -83,3 +83,5 @@ Thước CE: YAML 1.2.2 §7.3.2 (single-quoted style) [NGÀNH: YAML 1.2.2], đ�
   Chỉ báo trên crm-onehub#375, không sửa crm.
 - Hạng T3: thêm Gate 1.5 duyệt kế hoạch.
 - Hạt giống cho OOS-1 (S3, sổ d-2): `docs/plans/2026-10-18-hat-giong-parse-evals-khong-boc-nhay.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
+  - Ngoài-1: một ô đột biến của bộ kiểm tra nháy (ô 10, chân BG10a) chỉ có đối chứng dương khi chạy cùng chân liền kề; chạy tách riêng thì ô đó chưa tự chứng minh — người dùng không bị ảnh hưởng. Hàng `nhay-don-nhan-doi#ngoai-1` ở `docs/research/known-limits-ledger.tsv`.
