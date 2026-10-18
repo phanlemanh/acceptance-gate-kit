@@ -84,3 +84,43 @@ wall: 3249s
 - **claude-opus-5-5**: 3 agent · 52 calls · out 7,530 · in 104 · cache_read 4,464,462 · cache_create 377,813
 - **claude-haiku-5-5**: 14 agent · 62 calls · out 17,346 · in 124 · cache_read 2,286,299 · cache_create 726,354
 
+### S4 round 3 — wf_79855e62-fd1 (19 agent, 27,633 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 6 | 9,755 | 12 | 332,421 | 64 |
+| review:bugs | claude-opus-5-5 | 3 | 2,468 | 6 | 77,636 | 31 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 5 | 2,194 | 10 | 126,628 | 756 |
+| review:conventions | claude-opus-5-5 | 4 | 2,106 | 8 | 125,052 | 41 |
+| triage | claude-sonnet-5-5 | 2 | 2,010 | 4 | 37,880 | 16 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 1,572 | 4 | 5,738 | 407 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,567 | 4 | 38,155 | 13 |
+| machine:node tests/scripts/ho-so-da-ky-giu-tuoi- | claude-haiku-5-5 | 31 | 1,480 | 62 | 1,708,981 | 2995 |
+| review:measurement | claude-opus-5-5 | 5 | 1,331 | 10 | 185,680 | 32 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 536 | 4 | 35,295 | 166 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 513 | 4 | 38,181 | 7 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 422 | 4 | 38,156 | 6 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 421 | 4 | 38,211 | 100 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 366 | 4 | 5,738 | 548 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 241 | 4 | 38,155 | 81 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 173 | 4 | 38,211 | 86 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 171 | 4 | 5,738 | 544 |
+| baseline:diffBase | claude-sonnet-5-5 | 2 | 159 | 4 | 37,328 | 14 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 148 | 4 | 34,072 | 5 |
+
+
+wall: 3085s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 159 | 37,328 | 14 | 02:52:29 | 02:52:43 |
+| machine | 12 | 9,656 | 2,117,187 | 2997 | 02:52:29 | 03:42:26 |
+| review | 3 | 5,905 | 388,368 | 41 | 02:52:29 | 02:53:10 |
+| triage | 1 | 2,010 | 37,880 | 16 | 03:42:27 | 03:42:43 |
+| capture | 1 | 148 | 34,072 | 5 | 03:42:45 | 03:42:50 |
+| synthesize | 1 | 9,755 | 332,421 | 64 | 03:42:51 | 03:43:55 |
+
+- **claude-sonnet-5-5**: 4 agent · 12 calls · out 12,072 · in 24 · cache_read 441,701 · cache_create 220,034
+- **claude-opus-5-5**: 3 agent · 12 calls · out 5,905 · in 24 · cache_read 388,368 · cache_create 149,830
+- **claude-haiku-5-5**: 12 agent · 56 calls · out 9,656 · in 112 · cache_read 2,117,187 · cache_create 616,702
+
