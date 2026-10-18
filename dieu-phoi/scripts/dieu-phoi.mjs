@@ -21,6 +21,11 @@ import { ghiLanDoc } from './han-muc.mjs';
 import { banGiaoXong, batDauBanGiao } from './ban-giao.mjs';
 import { ngucanhTho } from './tho.mjs';
 import { DUONG_BAN_CU, kiemChuyen, LOP_LICH_SU, phanLopChuyen } from './kiem-chuyen.mjs';
+import { docSo } from './tin.mjs';
+import { soMo } from './tin-doc.mjs';
+import { noiChuaDot } from './tin-noi-chua.mjs';
+import { dsTat } from './tin-dua.mjs';
+import { bayGio } from './song.mjs';
 
 export { kiemChuyen, phanLopChuyen };
 
@@ -160,6 +165,28 @@ export function canhBaoHaiBan(gocKho) {
   return `cảnh báo: ${rel} còn hook gọi ${DUONG_BAN_CU} (${suKien.join(', ')}) — gỡ các khối đó, gói dieu-phoi đã gắn hook`;
 }
 
+// Vòng tin cần người nhìn (hồ sơ vong-mo-co-chu-giu, AC-3/AC-8): quá hạn mức 2, kết lượt khi chưa nhận, dãy đang tắt
+// tin. Tính bằng CÙNG hàm `docSo` của lệnh `tin so`. Không có gì → null, và `xem`/`xem --json` không đổi một byte.
+function tinCanNhin(thuMuc, goc, hangViec) {
+  try {
+    const { muc } = docSo({ nc: noiChuaDot(thuMuc), hangViec, loai: 'dot' }, bayGio());
+    const mo = soMo(muc).filter((v) => !v.yeu_cau_cu);
+    const quaHan2 = mo.filter((v) => v.qua_han_nhan === 2 || v.qua_han_xong === 2);
+    const ketLuot = mo.filter((v) => v.ket_luot_chua_nhan).length;
+    const tat = dsTat(goc);
+    const dayTat = (hangViec?.day ?? []).filter((d) => tat.includes(d.worktree)).map((d) => d.id);
+    if (!quaHan2.length && !ketLuot && !dayTat.length) return null;
+    return { qua_han_2: quaHan2, ket_luot_chua_nhan: ketLuot, day_tat: dayTat };
+  } catch {
+    return null;
+  }
+}
+const dongTin = (t) => [
+  ...t.qua_han_2.map((v) => `  tin quá hạn ${v.ma} · ${v.tu} → ${v.den} · nấc ${v.nac} ${v.trang_thai} · mức 2`),
+  ...(t.ket_luot_chua_nhan ? [`  tin: ${t.ket_luot_chua_nhan} vòng kết lượt khi chưa nhận`] : []),
+  ...(t.day_tat.length ? [`  tin tắt ở dãy: ${t.day_tat.join(', ')}`] : []),
+];
+
 // `xem` vẽ từ CÙNG mô hình với bảng đợt (mo-hinh.mjs), kèm nhóm kế hoạch của hàng mang mã lộ trình.
 function xem(cwd) {
   const goc = gocKhoChinh(cwd);
@@ -169,6 +196,8 @@ function xem(cwd) {
   let dong;
   if (!tt) dong = `chưa có nhịp nào · pha ${docPha(thuMuc).pha}`;
   else dong = veXem(moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec: docJson(path.join(thuMuc, 'hang-viec.json'), null) }));
+  const tin = tinCanNhin(thuMuc, goc, docJson(path.join(thuMuc, 'hang-viec.json'), null));
+  if (tin) dong = `${dong}\n${dongTin(tin).join('\n')}`;
   return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
@@ -182,8 +211,10 @@ export function xemJson(cwd) {
   const hangViec = docJson(path.join(thuMuc, 'hang-viec.json'), null);
   const them = { day_cua_cwd: phienCuaCwd(hangViec, cwd), canh_bao: canhBaoHaiBan(goc), mui_gio_phut: -new Date().getTimezoneOffset() };
   const tt = docJson(path.join(thuMuc, 'trang-thai.json'), null);
-  if (!tt) return { dot: hangViec?.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, ''), pha: docPha(thuMuc).pha, chua_co_nhip: true, ...them };
-  return { ...moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec }), ...them };
+  const tin = tinCanNhin(thuMuc, goc, hangViec);
+  const tinKhoa = tin ? { tin } : {};
+  if (!tt) return { dot: hangViec?.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, ''), pha: docPha(thuMuc).pha, chua_co_nhip: true, ...them, ...tinKhoa };
+  return { ...moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec }), ...them, ...tinKhoa };
 }
 
 // Đầu ra `xem --kiem-chuyen` (design doc, chỗ chọn 1d): dòng phải sửa giữ khuôn 2.27; không còn dòng phải sửa thì

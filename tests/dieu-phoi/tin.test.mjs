@@ -163,11 +163,51 @@ export async function kiemGapSo(gocGoi) {
   return { loi, hang };
 }
 
+// AC-3 phần lệnh: `tin so` và `xem` trên kho thử — cùng mục mức 2, yêu cầu cũ chỉ đọc.
+export async function kiemSoXem(gocGoi) {
+  const { CLI_DP, chayNode } = await import('./tin-kho-thu.mjs');
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 160) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  const k = khoDot({ gocGoi });
+  const D = ddmm(T0);
+  ghiJ(`${k.dot}/yeu-cau/P1-7.json`, { phien: 'P1', loai: 'khac', hang: null, noi_dung: {}, luc: new Date(T0).toISOString() });
+  const bamYc = () => `${bamCay(`${k.dot}/yeu-cau`)}|${bamCay(`${k.dot}/tra-loi`)}`;
+  const h0 = bamYc();
+  tin(k.kho, ['GIAO', 'P2', 'việc cần nhận'], { gocGoi, nowMs: T0 });
+  const env = { DIEU_PHOI_NOW_MS: String(T0 + 61 * PHUT) };
+  const so61 = JSON.parse(tin(k.kho, ['so', '--json'], { gocGoi, nowMs: T0 + 61 * PHUT }).out);
+  const mT = so61.find((v) => v.ma === `G-${D}-1`);
+  const xj = JSON.parse(chayNode([CLI_DP(gocGoi), 'xem', '--json'], { cwd: k.kho, env }).out);
+  const mX = xj.tin?.qua_han_2?.find((v) => v.ma === `G-${D}-1`);
+  so('xem --json: mục mức 2 bằng mục tin so', 'deepEqual, qua_han_nhan 2', `${mT?.qua_han_nhan} ${JSON.stringify(mX) === JSON.stringify(mT)}`, mT?.qua_han_nhan === 2 && JSON.stringify(mX) === JSON.stringify(mT));
+  const xc = chayNode([CLI_DP(gocGoi), 'xem'], { cwd: k.kho, env }).out;
+  so('xem chữ chứa mã', `chứa G-${D}-1`, xc, xc.includes(`G-${D}-1`));
+  const cuYc = so61.find((v) => v.ma === 'P1-7');
+  so('yêu cầu cũ chưa trả lời → HỎI P1-7 · P1 → G', 'HỎI P1 → G', `${cuYc?.khau_lenh_mo} ${cuYc?.tu} → ${cuYc?.den}`, cuYc?.khau_lenh_mo === 'HỎI' && cuYc?.tu === 'P1' && cuYc?.den === 'G');
+  ghiJ(`${k.dot}/tra-loi/P1-7.json`, { ket_qua: 'duyet', boi: 'giam-sat', ly_do: 'x', luc: new Date(T0).toISOString() });
+  const h1 = bamYc();
+  const sau = JSON.parse(tin(k.kho, ['so', '--json'], { gocGoi, nowMs: T0 + 62 * PHUT }).out);
+  so('có tra-loi → mục biến mất, tệp yêu cầu không đổi', 'vắng, băm bằng', `${sau.some((v) => v.ma === 'P1-7')} ${bamYc() === h1}`, !sau.some((v) => v.ma === 'P1-7') && bamYc() === h1 && h0 !== '');
+  return { loi, hang };
+}
+
 test('GT-03 so-vong-mo', async () => {
-  const { loi, hang } = await kiemGapSo(GOI);
-  inMaTran('GT-03 gấp sổ', hang);
-  assert.equal(hang.length, 16);
-  assert.deepEqual(loi, []);
+  const r1 = await kiemGapSo(GOI);
+  const r2 = await kiemSoXem(GOI);
+  const hang = [...r1.hang, ...r2.hang];
+  inMaTran('GT-03', hang);
+  assert.equal(hang.length, 20);
+  assert.deepEqual([...r1.loi, ...r2.loi], []);
+});
+
+test('GT-03-do xem-bo-tin', async () => {
+  const goc = banSao('dieu-phoi.mjs', '  if (tin) dong = `${dong}\\n${dongTin(tin).join(\'\\n\')}`;', '');
+  const { loi } = await kiemSoXem(goc);
+  assert.ok(loi.some((l) => l.startsWith('xem chữ chứa mã')), `bỏ nhánh đọc tin trong xem phải đỏ nêu mã, nhận: ${loi.join(' | ')}`);
 });
 
 test('GT-03-do ket-dong-vong', async () => {
@@ -966,6 +1006,9 @@ export async function kiemDung(gocGoi, { doTreo = true } = {}) {
   const f = dung(k.w2, 3);
   const vf = JSON.parse(tin(k.kho, ['so', '--json'], o(3)).out).find((v) => v.ma === ma1);
   so('(f) lần hai cùng tập mã', 'stdout rỗng, ket_luot_chua_nhan true', `${f.out.trim()} ${vf?.ket_luot_chua_nhan}`, f.out.trim() === '' && vf?.ket_luot_chua_nhan === true);
+  const { CLI_DP, chayNode } = await import('./tin-kho-thu.mjs');
+  const xf = JSON.parse(chayNode([CLI_DP(gocGoi), 'xem', '--json'], { cwd: k.kho, env: { DIEU_PHOI_NOW_MS: String(T0 + 3 * PHUT) } }).out);
+  so('(f) xem --json đếm kết lượt khi chưa nhận', '1', xf.tin?.ket_luot_chua_nhan, xf.tin?.ket_luot_chua_nhan === 1);
   // (g) stop_hook_active
   tin(k.kho, ['GIAO', 'P2', 'việc hai cho P2'], o(4));
   const g = dung(k.w2, 4, { stop_hook_active: true });
@@ -988,6 +1031,8 @@ export async function kiemDung(gocGoi, { doTreo = true } = {}) {
   const l2 = chayHook(gocGoi, 'PostToolUse', { cwd: k.w2, tool_name: 'Bash' }, { nowMs: T0 + 9 * PHUT });
   const l3 = chayHook(gocGoi, 'UserPromptSubmit', { cwd: k.w2, prompt: 'x' }, { nowMs: T0 + 9 * PHUT });
   const conSo = JSON.parse(tin(k.kho, ['so', '--json'], o(9)).out).some((v) => v.ma === `G-${D}-4`);
+  const xl = JSON.parse(chayNode([CLI_DP(gocGoi), 'xem', '--json'], { cwd: k.kho, env: { DIEU_PHOI_NOW_MS: String(T0 + 9 * PHUT) } }).out);
+  so('(l) xem --json liệt P2 đang tắt', '[P2]', JSON.stringify(xl.tin?.day_tat), JSON.stringify(xl.tin?.day_tat) === '["P2"]');
   so('(l) tắt: ba chỗ hook im, sổ vẫn ghi', 'stdout rỗng ×3, sổ có G-4', `${tat.ma} [${l1.out.trim()}][${l2.out.trim()}][${l3.out.trim()}] ${conSo}`, tat.ma === 0 && !l1.out.trim() && !l2.out.trim() && !l3.out.trim() && conSo);
   tin(k.w2, ['bat'], o(10));
   const l4 = dung(k.w2, 10);
@@ -1040,7 +1085,7 @@ export async function kiemDung(gocGoi, { doTreo = true } = {}) {
 test('GT-08 hook-dung', async () => {
   const { loi, hang } = await kiemDung(GOI);
   inMaTran('GT-08', hang);
-  assert.equal(hang.length, 15);
+  assert.equal(hang.length, 17);
   assert.deepEqual(loi, []);
 });
 
