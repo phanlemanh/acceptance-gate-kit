@@ -78,6 +78,10 @@ function chuanHoa(text, kitDir) {
   let t = String(text);
   const thay = new Set([kitDir, (() => { try { return realpathSync(kitDir); } catch { return kitDir; } })()]);
   for (const p of [...thay].sort((a, b) => b.length - a.length)) t = t.split(p).join('<kit>');
+  // Bỏ dòng chẩn đoán «write error: Broken pipe» của bash: lưới in danh sách tệp cũ qua ống tới `head`, `head` đóng ống
+  // sớm hay muộn tuỳ lịch máy, nên dòng ấy có hay không là ngẫu nhiên và đoạn mã sinh ra nó giống hệt ở hai bộ máy (S4
+  // lượt 2, 18/10: crm khác đúng một dòng như thế ở bản cũ). Chỉ bỏ đúng khuôn dòng của bash, không bỏ dòng nào khác.
+  t = t.split('\n').filter(l => !/: line \d+: (printf|echo): write error: Broken pipe$/.test(l)).join('\n');
   return t.replace(/\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d(\.\d+)?)?(Z|[+-]\d\d:?\d\d)?/g, '<gio>');
 }
 // → null khi bằng nhau; khác → «dòng <i>: mới «…» · cũ «…»» (dòng khác ĐẦU TIÊN).
@@ -168,6 +172,7 @@ async function soKhoThat(ten) {
   donWt.push([src, w]);
   const slugs = daKy(w);
   const sai = [];
+  let luoiThuLai = 0;
   // Lưới trước-gộp: hai bộ máy song song (lưới chỉ đọc cây).
   const pm = await Promise.all(Object.entries(BO_MAY).map(async ([ban, kit]) => {
     const r = await chay('bash', [path.join(kit, 'scripts', 'pre-merge-check.sh'), w], { cwd: w, timeout: TRAN_LUOI_MS });
@@ -177,7 +182,13 @@ async function soKhoThat(ten) {
   for (const [ban, r] of pm) if (r.hetGio) sai.push(`lưới (${ban}) vượt trần ${TRAN_LUOI_MS / 60000} phút`);
   if (!sai.length) {
     const vm = (b) => chuanHoa(`mã ${pmOf[b].code} ${pmOf[b].sig || ''}\n${pmOf[b].out}\n=== stderr ===\n${pmOf[b].err}`, BO_MAY[b]);
-    const d = dongKhacDau(vm('moi'), vm('cu'));
+    let d = dongKhacDau(vm('moi'), vm('cu'));
+    // Khác ở lượt song song → chạy lại MỘT lần, tuần tự, hai bộ máy liền nhau (cùng nếp với thẻ dưới); còn khác mới tính.
+    if (d) {
+      for (const [ban, kit] of Object.entries(BO_MAY)) pmOf[ban] = await chay('bash', [path.join(kit, 'scripts', 'pre-merge-check.sh'), w], { cwd: w, timeout: TRAN_LUOI_MS });
+      d = dongKhacDau(vm('moi'), vm('cu'));
+      if (!d) luoiThuLai += 1;
+    }
     if (d) sai.push(`lưới trước-gộp ${d}`);
   }
   const phutLuoi = phut(Date.now() - bd);
@@ -217,7 +228,7 @@ async function soKhoThat(ten) {
   if (!slugs.length) sai.push('0 hồ sơ đã ký — không đo được gì (mù, không xanh)');
   if (sai.length) loi.push(`${ten}: ${sai[0]}`);
   dongKq.push(`${ten}: ${slugs.length} hồ sơ so, ${sai.length} khác`);
-  dongKq.push(`    ở ${src} · ${tg} phút (lưới hai bộ máy song song ${phutLuoi}) · ${dau} dấu nhãn nen-do/do_san trên bản sao · ${thuLai} thẻ thử lại tuần tự`);
+  dongKq.push(`    ở ${src} · ${tg} phút (lưới hai bộ máy song song ${phutLuoi}) · ${dau} dấu nhãn nen-do/do_san trên bản sao · ${thuLai} thẻ thử lại tuần tự · lưới thử lại ${luoiThuLai}`);
   spawnSync('git', ['-C', src, 'worktree', 'remove', '--force', w], { stdio: 'ignore' });
   donWt.splice(donWt.findIndex(x => x[1] === w), 1);
 }
