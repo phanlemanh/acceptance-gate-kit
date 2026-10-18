@@ -26,8 +26,7 @@ export async function xuLyDung(dauVao, { nowMs = null } = {}) {
     let kenhTen = null;
     if (ten.loai === 'kenh') {
       const tt = docJson(ten.tep, null) ?? {};
-      const m = /^(.+)-(.+)-(\d+)$/u.exec(ten.kenh);
-      kenhTen = m ? `${m[1]}/${m[2]}#${m[3]}` : ten.kenh;
+      kenhTen = ten.kenhTen;
       const { dongBoAnToan, tachKenh } = await import('./tin-kenh.mjs');
       const tran = Math.min(TRAN_KENH_MS, Number(process.env.DIEU_PHOI_TIN_TRAN_MS || TRAN_KENH_MS));
       const db = dongBoAnToan(dauVao.cwd, tachKenh(kenhTen), tran);

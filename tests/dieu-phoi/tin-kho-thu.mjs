@@ -154,7 +154,7 @@ export function tin(cwd, doiSo, { gocGoi = GOI, nowMs = null, gh = null, env = {
 
 // ---------- kho thử cho kênh liên máy: một kho git + lộ trình nhỏ + vai máy ----------
 export const KENH = 'thu/kenh#308';
-export function khoKenh({ gocGoi = GOI, remote = 'https://github.com/thu/kho-a.git', may, gh, loTrinh = true } = {}) {
+export function khoKenh({ gocGoi = GOI, remote = 'https://github.com/thu/kho-a.git', may, gh, loTrinh = true, kenh = KENH } = {}) {
   const kho = tam('gt-kenh-');
   git(kho, 'init', '-q', '-b', 'main');
   git(kho, 'remote', 'add', 'origin', remote);
@@ -165,7 +165,7 @@ export function khoKenh({ gocGoi = GOI, remote = 'https://github.com/thu/kho-a.g
   }
   git(kho, 'add', '-A');
   git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
-  const r = tin(fs.realpathSync(kho), ['vai', '--kenh', KENH, '--may', may], { gocGoi, gh });
+  const r = tin(fs.realpathSync(kho), ['vai', '--kenh', kenh, '--may', may], { gocGoi, gh });
   assert.equal(r.ma, 0, r.err);
   return fs.realpathSync(kho);
 }

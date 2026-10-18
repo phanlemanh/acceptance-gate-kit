@@ -6,12 +6,14 @@ import path from 'node:path';
 import { docJson } from './dot.mjs';
 import { hangKeTuTiep } from './lich.mjs';
 import { docPha } from './pha.mjs';
+import { DA_THONG } from './phat-lich.mjs';
 import { docVai } from './vai.mjs';
 
 // Chép từ hạt giống docs/plans/2026-10-17-hat-giong-luat-giao-tiep-giua-cac-phien.md §4.5.
 export const DIEM_HOI = 'Phải HỎI (khai chặn): sắp chạm ngoài ranh giới · đổi lời một tiêu chí đã ký · việc khó đảo (gộp, cắt bản, xoá, đẩy lên kho khác) · hai nguồn nói trái nhau · lệnh giai đoạn trái với trạng thái git. Không hỏi: mọi thứ suy được từ ý định cộng luật đã khai cộng chính sách chủ kho.';
 export const NHAN_LOI_GIAO = ['Ý định', 'Kết quả', 'Ranh giới', 'Quyền', 'Điểm phải hỏi', 'Báo về'];
-const TRANG_THAI_XONG = new Set(['signed-off', 'machine-cleared']);
+// Trạng thái «đã xong» của hồ sơ: MỘT nguồn với bộ phát lịch.
+const TRANG_THAI_XONG = new Set(DA_THONG);
 
 // Sáu dòng có nhãn theo đúng thứ tự, rồi dòng hạn xong. Đầu vào giống nhau → đầu ra giống nhau từng byte.
 export function loiGiaoViec({ y_dinh, ket_qua, ranh_gioi, quyen, diem_hoi = DIEM_HOI, bao_ve, han_xong_phut = null }) {
@@ -41,7 +43,7 @@ export function trangThaiHoSoCua(worktree, slug) {
   }
 }
 
-// Hàng của một dãy: hàng ĐANG CHẠY (hồ sơ có hợp đồng chưa signed-off trong worktree) → hàng kế → null.
+// Hàng của một dãy: hàng ĐANG CHẠY (hồ sơ có hợp đồng chưa xong trong worktree) → hàng kế → null.
 export function hangCuaDay(thuMuc, hangViec, day) {
   const cuaDay = (hangViec.hang ?? []).filter((h) => h.day === day.id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
   const dangChay = cuaDay.find((h) => {

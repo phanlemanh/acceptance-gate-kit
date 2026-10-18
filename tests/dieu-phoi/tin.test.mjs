@@ -961,17 +961,22 @@ test('GT-07-do bao-moi-lan', async () => {
 });
 
 test('GT-07-do nhap-tinh', async () => {
-  // Bản tiêm nhập phần tin tĩnh ở đầu hook-nhip; với phần tin ném lúc nạp, hook chết trước khi ghi nhịp.
-  const goc = banSao('hook-nhip.mjs', "import { bayGio, ghiNhipSong } from './song.mjs';", "import { bayGio, ghiNhipSong } from './song.mjs';\nimport './tin-dua.mjs';");
-  const p = `${goc}/scripts/tin-dua.mjs`;
-  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('const bam = (s) =>', "throw new Error('nạp hỏng');\nconst bam = (s) =>"));
+  // Cùng một phần tin ném lúc nạp, cùng kho thử: bản nạp ĐỘNG (gói như giao) vẫn ghi nhịp và báo một lần — đối chứng
+  // dương; bản tiêm nhập TĨNH ở đầu hook-nhip chết trước khi ghi nhịp, stderr mang đúng lỗi nạp. Chứng tỏ nạp động là cần.
   const { chayHook } = await import('./tin-kho-thu.mjs');
-  // Đợt dựng bằng gói lành; chỉ hook chạy từ bản tiêm.
+  const NEM = ['const bam = (s) =>', "throw new Error('nạp hỏng');\nconst bam = (s) =>"];
+  const dong = banSao('tin-dua.mjs', ...NEM);
+  const tinh = banSao('hook-nhip.mjs', "import { bayGio, ghiNhipSong } from './song.mjs';", "import { bayGio, ghiNhipSong } from './song.mjs';\nimport './tin-dua.mjs';");
+  const p = `${tinh}/scripts/tin-dua.mjs`;
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(...NEM));
+  assert.ok(fs.readFileSync(p, 'utf8').includes("throw new Error('nạp hỏng')"), 'bước tiêm lỗi nạp vào bản tĩnh không áp');
   const kn = khoDot({ gocGoi: GOI });
   tin(kn.kho, ['GIAO', 'P2', 'việc thử'], { gocGoi: GOI, nowMs: T0 });
-  chayHook(goc, 'PostToolUse', { cwd: kn.w2, tool_name: 'Bash', session_id: 's-tinh' }, { nowMs: T0 + PHUT });
-  assert.ok(!fs.existsSync(`${kn.dot}/song/s-tinh.json`), 'nhập tĩnh phải làm hook chết trước khi ghi nhịp (chứng tỏ nạp động là cần)');
-  console.log('  nhập tĩnh: nhịp không được ghi — đối chứng cho hàng nạp lỗi của (i)');
+  const a = chayHook(dong, 'PostToolUse', { cwd: kn.w2, tool_name: 'Bash', session_id: 's-dong' }, { nowMs: T0 + PHUT });
+  assert.ok(fs.existsSync(`${kn.dot}/song/s-dong.json`) && (a.sys ?? '').includes('không đọc được hộp tin'), `đối chứng dương: nạp động phải ghi nhịp và báo một lần, nhận ${a.ma} ${a.sys} ${a.err}`);
+  const b = chayHook(tinh, 'PostToolUse', { cwd: kn.w2, tool_name: 'Bash', session_id: 's-tinh' }, { nowMs: T0 + 2 * PHUT });
+  assert.ok(!fs.existsSync(`${kn.dot}/song/s-tinh.json`), 'nhập tĩnh phải làm hook chết trước khi ghi nhịp');
+  assert.ok(b.err.includes('nạp hỏng'), `hook chết vì đúng lỗi nạp, stderr: ${b.err.slice(0, 300)}`);
 });
 
 test('GT-07-do chap-nhan-truoc', async () => {
@@ -1065,6 +1070,18 @@ export async function kiemDung(gocGoi, { doTreo = true } = {}) {
     so('(e) kênh treo: xong ≤ 6 s, cùng nhánh lỗi', 'block «không đọc được kênh», ≤ 6000 ms', `${ms}ms ${et.json?.decision}`, ms <= 6000 && et.json?.decision === 'block' && et.json.reason.includes('không đọc được kênh'));
   }
   void tepKenhCua;
+  // (m) kênh có gạch nối trong tên chủ và kho (như hai kênh thật): hook đọc đúng kho, lời chặn in đúng tên kênh.
+  const KG = 'thu-chu/kho-kenh#308';
+  const gh3 = ghGia({ nextId: 1900 });
+  const mbp3 = khoKenh({ gocGoi, may: 'MBP', gh: gh3.lenh, kenh: KG });
+  const m53 = khoKenh({ gocGoi, may: 'M5', gh: gh3.lenh, loTrinh: false, kenh: KG });
+  const g3 = tin(m53, ['GIAO', 'MBP', 'xin chen một lượt gộp', '--ket-qua', 'một lượt gộp', '--kenh', KG], { gocGoi, nowMs: T0, gh: gh3.lenh });
+  const ma3 = g3.out.split(' ')[1];
+  gh3.xoaNhatKy();
+  const m3 = dung(mbp3, 1, {}, gh3.lenh);
+  const duong = gh3.nhatKy().filter((x) => x.lenh === 'doc').flatMap((x) => x.doi_so).filter((a) => a.includes('/issues/308/comments'));
+  so('(m) kênh có gạch nối: đọc đúng kho, lời chặn in đúng tên', `block nêu ${ma3} + --kenh ${KG}, gh đọc repos/thu-chu/kho-kenh`, `${m3.json?.decision} | ${(m3.json?.reason ?? m3.out).slice(0, 200)} | ${duong[0] ?? '—'}`,
+    m3.json?.decision === 'block' && m3.json.reason.includes(ma3) && m3.json.reason.includes(`--kenh ${KG}`) && !m3.json.reason.includes('không đọc được') && duong.length > 0 && duong.every((a) => a.includes('repos/thu-chu/kho-kenh/issues/308')));
   // (j) kho không đợt, không kênh: ba khối hook tin im, không tạo tệp
   const kj = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'gt-khongdung-')));
   git(kj, 'init', '-q', '-b', 'main');
@@ -1086,8 +1103,14 @@ export async function kiemDung(gocGoi, { doTreo = true } = {}) {
 test('GT-08 hook-dung', async () => {
   const { loi, hang } = await kiemDung(GOI);
   inMaTran('GT-08', hang);
-  assert.equal(hang.length, 17);
+  assert.equal(hang.length, 18);
   assert.deepEqual(loi, []);
+});
+
+test('GT-08-do kenh-gach-noi', async () => {
+  const goc = banSao('tin-kenh.mjs', 'Object.assign(tt, { may: co.may, worktree: wt, ten: k.ten });', 'Object.assign(tt, { may: co.may, worktree: wt });');
+  const { loi } = await kiemDung(goc, { doTreo: false });
+  assert.ok(loi.some((l) => l.startsWith('(m) kênh có gạch nối')), `tách tên kênh từ tên tệp phải làm «kênh có gạch nối» đỏ, nhận: ${loi.join(' | ')}`);
 });
 
 test('GT-08-do chan-mai', async () => {

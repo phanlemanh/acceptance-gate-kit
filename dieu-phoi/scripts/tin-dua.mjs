@@ -54,6 +54,7 @@ export function cacMinh(cwd) {
         tep: p,
         nguon: p,
         kenh: f.replace(/^kenh-/u, '').replace(/\.json$/u, ''),
+        kenhTen: tt.ten ?? kenhTuTenTep(f),
         nc: {
           doc: () => {
             const t = docJson(p, null) ?? {};
@@ -69,6 +70,12 @@ export function cacMinh(cwd) {
     }
   }
   return { goc, ds };
+}
+
+// Đường đọc-cũ: trạng thái kênh ghi trước khi `vai` lưu tên gốc → suy từ tên tệp, chỉ đúng khi chủ và kho không có gạch nối.
+function kenhTuTenTep(f) {
+  const m = /^kenh-([^-]+)-(.+)-(\d+)\.json$/u.exec(f);
+  return m ? `${m[1]}/${m[2]}#${m[3]}` : f;
 }
 
 export const daTat = (goc, worktree) => fs.existsSync(path.join(thuMucTin(goc), 'tat', bam(worktree)));
@@ -132,10 +139,6 @@ export function duaTin(dauVao, { nowMs = null } = {}) {
   let canhBao = null;
   for (const ten of ds) {
     if (daTat(goc, ten.worktree)) continue;
-    if (ten.loai === 'kenh') {
-      const m = /^(.+)-(.+)-(\d+)$/u.exec(ten.kenh);
-      ten.kenhTen = m ? `${m[1]}/${m[2]}#${m[3]}` : ten.kenh;
-    }
     const pDua = path.join(thuMucTin(goc), 'da-dua', `${bam(`${ten.loai}|${ten.minh}|${ten.worktree}`)}.json`);
     const dau = docJson(pDua, null) ?? {};
     // Đường nhanh: nguồn không đổi kích thước và đã kiểm nhắc trong phút vừa qua → không đọc gì.

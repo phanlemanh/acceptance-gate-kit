@@ -26,7 +26,7 @@ export function tachKenh(kenh) {
 
 export const thuMucTin = (cwd) => path.join(gocKhoChinh(cwd), '.acceptance-runs', 'tin');
 export const tepKenh = (cwd, k) => path.join(thuMucTin(cwd), `kenh-${k.chu}-${k.kho}-${k.so}.json`);
-const rong = () => ({ may: null, worktree: null, con_tro: null, tin_cuoi: null, dong: [], may_su: [], chan: null, kenh_loi_chan_luc: null });
+const rong = () => ({ may: null, worktree: null, ten: null, con_tro: null, tin_cuoi: null, dong: [], may_su: [], chan: null, kenh_loi_chan_luc: null });
 export const docTrangThai = (p) => ({ ...rong(), ...(docJson(p, null) ?? {}) });
 
 const DUONG_DS = (k) => `repos/${k.chu}/${k.kho}/issues/${k.so}/comments`;
@@ -163,7 +163,8 @@ export function vai(cwd, co) {
   const p = tepKenh(cwd, k);
   const tt = docTrangThai(p);
   const wt = fs.realpathSync(cwd);
-  Object.assign(tt, { may: co.may, worktree: wt });
+  // Tên kênh gốc ghi vào trạng thái: tên tệp `kenh-<chủ>-<kho>-<số>` không tách ngược được khi chủ hay kho có gạch nối.
+  Object.assign(tt, { may: co.may, worktree: wt, ten: k.ten });
   fs.mkdirSync(path.dirname(p), { recursive: true });
   ghiJsonNguyenTu(p, tt);
   return `vai: máy ${co.may} giữ kênh ${k.ten} ở ${wt}`;
