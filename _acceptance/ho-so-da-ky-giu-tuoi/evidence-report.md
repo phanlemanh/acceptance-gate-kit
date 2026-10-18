@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cadbc6bad538b3240e1b4db520025c3ac234f669
+verified_commit: 1d1a72f5ae6b51f7f78573cd9dfc16356e0541c8
 human_signoff: Manh Phan 2026-10-18
 ---
 
@@ -241,3 +241,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, không 
 Round 1: REJECT — 14 phát hiện, trong đó 1 phát hiện thuộc hợp đồng (AC-6: băm thông điệp đỏ không thấy ca đỏ mới); các ô duyệt thêm đã sửa trước round 2. Returned to implementation.
 Round 2: E8 failed — trên kho crm-onehub phép so cũ/mới còn 1 hồ sơ khác (lưới trước-gộp dòng 2855: phía mới rỗng, phía cũ có lỗi ghi vào ống đã đóng); các eval E1–E7, E9, E10, E11 và mọi lệnh suite đều xanh. Returned to implementation.
 Round 3: PASS — E8 xanh sau khi bộ đo bỏ dòng ống gãy của bash và chạy lại lưới một lần khi hai bản khác nhau; E1–E7, E9, E10, E11 mang sang từ round 2 (delta không chạm paths); mọi lệnh suite xanh.
+
+### Re-pin lần 1 — 2026-10-18, do hoá cũ do gộp main #383 + #382; bản so E8 dời sang 8fe79f1f (chủ kho cho phép)
+run_id: repin-20261018T095211Z-64173
+sha: 1d1a72f5ae6b51f7f78573cd9dfc16356e0541c8 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
