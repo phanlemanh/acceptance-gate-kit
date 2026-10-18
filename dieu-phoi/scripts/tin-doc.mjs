@@ -73,6 +73,8 @@ export function gapSo(dong, { nowMs = Date.now(), choCong = new Set() } = {}) {
         ma: dd.ma, khau_lenh_mo: dd.khau_lenh, tu: dd.tu, den: dd.den, mo_luc: d.luc, trang_thai: 'chua-den',
         han_nhan_phut: soPhut(truongThan(than, 'Hạn nhận')) ?? HAN_NHAN_MAC_DINH_PHUT,
         han_xong_khoang: soPhut(truongThan(than, 'Hạn xong')), y_dinh: truongThan(than, 'Ý định'),
+        chan: truongThan(than, 'Chặn') === 'có', slug: /hồ sơ (\S+)/u.exec(truongThan(than, 'Kết quả') ?? '')?.[1] ?? null,
+        ranh_gioi_kho: /^kho (\S+)/u.exec(truongThan(than, 'Ranh giới') ?? '')?.[1] ?? null,
       });
       continue;
     }
@@ -81,9 +83,9 @@ export function gapSo(dong, { nowMs = Date.now(), choCong = new Set() } = {}) {
     const k = dd.khau_lenh;
     if (k === 'NHẬN') {
       const han = truongThan(than, 'Hạn xong');
-      Object.assign(v, { trang_thai: 'da-nhan', nhan_luc: d.luc, se_giao: truongThan(than, 'Sẽ giao'), han_xong: han && !Number.isNaN(Date.parse(han)) ? han : null });
+      Object.assign(v, { trang_thai: 'da-nhan', nhan_luc: d.luc, se_giao: truongThan(than, 'Sẽ giao'), han_xong: han && !Number.isNaN(Date.parse(han)) ? han : null, sha_nhan: truongThan(than, 'Sha lúc nhận') });
     } else if (k === 'KẸT') v.trang_thai = 'ket';
-    else if (k === 'XONG') Object.assign(v, { trang_thai: 'cho-chap-nhan', xong_luc: d.luc });
+    else if (k === 'XONG') Object.assign(v, { trang_thai: 'cho-chap-nhan', xong_luc: d.luc, sha_xong_cuoi: /^sha (\S+)/u.exec(truongThan(than, 'Vật') ?? '')?.[1] ?? v.sha_xong_cuoi ?? null });
     else if (k === 'TRẢ' || k === 'HUỶ') v.trang_thai = 'dong';
     else if (k === 'MỞ LẠI') {
       const khoang = v.han_xong_khoang;

@@ -73,3 +73,81 @@ export const chayNode = (args, { cwd, env = {}, input = undefined } = {}) => {
   const r = spawnSync(process.execPath, args, { cwd, env: { ...ENV, ...env }, encoding: 'utf8', input });
   return { ma: r.status, out: r.stdout ?? '', err: r.stderr ?? '' };
 };
+
+// ---------- kho thử có đợt (cùng cách dựng khoLienKet của tiep-tuc.test, thêm remote giả và worktree giám sát) ----------
+export const CLI_TIN = (gocGoi = GOI) => path.join(gocGoi, 'scripts', 'tin.mjs');
+export const CLI_DP = (gocGoi = GOI) => path.join(gocGoi, 'scripts', 'dieu-phoi.mjs');
+
+export function khoDot({ gocGoi = GOI, hang = null, remote = 'https://github.com/thu/kho-a.git', tuMerge = null } = {}) {
+  const kho = tam('gt-kho-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'remote', 'add', 'origin', remote);
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const cha = tam('gt-wt-');
+  const w1 = path.join(cha, 'p1');
+  const w2 = path.join(cha, 'p2');
+  const w3 = path.join(cha, 'ngoai');
+  git(kho, 'worktree', 'add', '-q', '-b', 'p1', w1);
+  git(kho, 'worktree', 'add', '-q', '-b', 'p2', w2);
+  git(kho, 'worktree', 'add', '-q', '-b', 'ngoai', w3);
+  const dir = path.join(kho, 'goi', 'dot-thu');
+  ghiJ(path.join(dir, 'dieu-phoi.config.json'), docJ(path.join(gocGoi, 'scripts', 'mau', 'dieu-phoi.config.json')));
+  ghiJ(path.join(dir, 'hang-viec.json'), {
+    dot: '',
+    day: [{ id: 'P1', worktree: fs.realpathSync(w1) }, { id: 'P2', worktree: fs.realpathSync(w2) }],
+    hang: hang ?? [
+      { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 },
+      { ma: 'B', slug: 'hang-b', day: 'P2', uu_tien: 1, ranh_gioi: ['src/b/**', 'tests/b/**'] },
+    ],
+    ngoai_hang_merge: [],
+  });
+  fs.writeFileSync(path.join(dir, 'LUAT-rieng.md'), '# Luật riêng\n');
+  fs.mkdirSync(path.join(kho, '_acceptance'), { recursive: true });
+  fs.writeFileSync(path.join(kho, '_acceptance', 'config.yaml'), 'schema_version: 1\ndieu_phoi:\n  goi_dot: goi/dot-{ten}\n');
+  const mo = chayNode([CLI_DP(gocGoi), 'mo', 'thu', '--phien', 's-gs'], { cwd: kho });
+  assert.equal(mo.ma, 0, mo.err);
+  const pha = ['pha', 'dang-chay', '--boi', 't', '--ly-do', 'thu'];
+  if (tuMerge) pha.push('--tu-merge', tuMerge);
+  const p = chayNode([CLI_DP(gocGoi), ...pha], { cwd: kho });
+  assert.equal(p.ma, 0, p.err);
+  const dot = fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  return { kho: fs.realpathSync(kho), dot, w1: fs.realpathSync(w1), w2: fs.realpathSync(w2), w3: fs.realpathSync(w3) };
+}
+
+// Hồ sơ của một hàng trong worktree, commit để cây sạch. status null → chỉ ô cơ hội (chưa có hợp đồng).
+export function hoSo(worktree, slug, { status = null, viSao = `vì ${slug} đáng làm`, gioMay = null } = {}) {
+  const d = path.join(worktree, '_acceptance', slug);
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(d, 'opportunity.md'), `---\nslug: ${slug}\n---\n\nVì sao: ${viSao}\n`);
+  if (status) fs.writeFileSync(path.join(d, 'contract.md'), `---\nslug: ${slug}\nfeature: ${slug}\nstatus: ${status}\n---\n`);
+  if (gioMay) ghiJ(path.join(d, 'du-bao.json'), { hang: { ma: slug, gio_may: gioMay } });
+  git(worktree, 'add', '-A');
+  git(worktree, 'commit', '-q', '-m', `ho so ${slug}`);
+}
+
+// gh giả trong thư mục tạm: trả {lenh (đặt vào DIEU_PHOI_GH), dir, ca(), dat(sua), nhatKy()}.
+export function ghGia({ comments = [], pr = {}, nextId = 1000 } = {}) {
+  const dir = tam('gt-gh-');
+  ghiJ(path.join(dir, 'ca.json'), { comments, pr, loi: false, treo: false, next_id: nextId });
+  const lenh = path.join(dir, 'gh');
+  fs.writeFileSync(lenh, `#!/bin/sh\nGH_GIA_DIR='${dir}' exec '${process.execPath}' '${path.join(DAY, 'gh-gia.mjs')}' "$@"\n`);
+  fs.chmodSync(lenh, 0o755);
+  return {
+    lenh,
+    dir,
+    ca: () => docJ(path.join(dir, 'ca.json')),
+    dat: (sua) => ghiJ(path.join(dir, 'ca.json'), { ...docJ(path.join(dir, 'ca.json')), ...sua }),
+    nhatKy: () => (fs.existsSync(path.join(dir, 'nhat-ky.jsonl')) ? fs.readFileSync(path.join(dir, 'nhat-ky.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []),
+    xoaNhatKy: () => fs.rmSync(path.join(dir, 'nhat-ky.jsonl'), { force: true }),
+  };
+}
+
+// Chạy lệnh tin thật. Trả {ma, out, err, cham} — cham = số đối số ngoài khẩu lệnh và đích/mã.
+export function tin(cwd, doiSo, { gocGoi = GOI, nowMs = null, gh = null, env = {} } = {}) {
+  const e = { ...env };
+  if (nowMs != null) e.DIEU_PHOI_NOW_MS = String(nowMs);
+  if (gh) e.DIEU_PHOI_GH = gh;
+  const r = chayNode([CLI_TIN(gocGoi), ...doiSo], { cwd, env: e });
+  const soKhauLenh = doiSo[0] === 'MỞ' ? 2 : 1;
+  return { ...r, cham: Math.max(0, doiSo.length - soKhauLenh - 1) };
+}
