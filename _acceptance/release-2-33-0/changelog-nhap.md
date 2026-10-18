@@ -2,7 +2,7 @@
      K-A (ho-so-da-ky-giu-tuoi) vào mốc thì thêm một tiểu mục cho nó và sửa câu «Có một hồ sơ được ký». -->
 ## 2.33.0 — <ngày cắt>
 
-Lộ trình đọc được trong một phút. Có **một hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ
+Lộ trình đọc được trong một phút. Có **<một/hai> hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ
 mốc): `road-map-de-dung` (RD1, #381). Kho chờ nhận: `crm`. Bốn gói `acceptance-gate`, `feature-loop`, `dieu-phoi`,
 `road-map` cùng lên `2.33.0` (chỉ `acceptance-gate` đổi vật; `dieu-phoi`, `road-map` chỉ đổi số); `diagram-design` giữ
 `2.7.1`. Tag `v2.33.0` gắn vào commit gộp PR mốc.
@@ -28,6 +28,12 @@ và luật cắt lượt mới (ADR 0026); không gãy đường đọc-cũ.
   tải» sai (Ngoài-3); một việc liệt ở nhiều mốc bị cộng giờ máy nhiều lần (Ngoài-9).
 - **Hạ tầng lượt chấm:** bộ ca điều phối không nằm trong bộ ca của lượt chấm — chỉ CI chạy (hạt giống
   `docs/plans/2026-10-18-hat-giong-bo-ca-dieu-phoi-ngoai-luot-cham.md`).
+
+### Hồ sơ đã ký luôn tươi (hồ sơ `ho-so-da-ky-giu-tuoi`, hàng K-A — ký Cổng Bằng chứng 18/10, #369)
+
+<!-- Soạn đủ lúc cắt từ hợp đồng + Notes của K-A. Hai điều điều phối đã nêu (18/10): -->
+- **crm cần CI `fetch-depth: 0`**: lưới đọc dòng nền ở điểm tách của nhánh — clone nông thì không có điểm tách.
+- Bảy mục crm đang gom chờ K-A mở được sau khi crm cài mốc này.
 
 **Đường đọc-cũ:** khối dữ liệu giữ bản 2, năm khoá mới chỉ thêm; bộ đọc gặp trang cũ thiếu khoá thì cờ vàng «khối chưa
 mang mô hình hiển thị — vẽ lại bằng bộ kit mới». Lộ trình cắt trước luật 17/10 hiện cờ vàng có tên; không có đường đọc
