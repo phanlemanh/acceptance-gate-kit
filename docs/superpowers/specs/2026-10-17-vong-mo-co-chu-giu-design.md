@@ -1,168 +1,151 @@
 # Vòng mở có chủ giữ — thiết kế (GT1)
 
-**Ngày:** 2026-10-17 · **Hồ sơ:** `_acceptance/vong-mo-co-chu-giu/` · **Hạng:** T2 · **Loại:** CỘNG. Chủ kho ký Cổng
-Đáng 17/10 («đáng: build · ngưỡng: nhận»); ba phần CỘNG (lệnh `tin.mjs` · khối hook dừng · lời ghi danh sáu
-trường) chờ duyệt đích danh ở Cổng Phạm vi (ADR 0018).
+**Ngày:** 2026-10-17, viết lại 18/10 theo bản «nghi thức do máy gánh» · **Hồ sơ:** `_acceptance/vong-mo-co-chu-giu/` ·
+**Hạng:** T2 · **Loại:** CỘNG. Chủ kho ký Cổng Đáng 17/10 («đáng: build · ngưỡng: nhận»). Ba phần CỘNG (lệnh
+`tin.mjs` · hook tin · lời ghi danh sáu trường) chờ duyệt đích danh ở Cổng Phạm vi (ADR 0018).
 **Nguồn:** hạt giống `docs/plans/2026-10-17-hat-giong-luat-giao-tiep-giua-cac-phien.md` (§4 bộ luật, §5 bảng răng, §6
-phạm vi) · hàng `GT1` của `docs/plans/lo-trinh-kit.json` · gói `dieu-phoi/` như ở `main` 43ed9e2b · lưu ý của điều phối
-MacBook Pro 17/10: hook chặn kết lượt phải có lối thoát rõ và chiều đỏ trong bộ kiểm.
+phạm vi) · hàng `GT1` của `docs/plans/lo-trinh-kit.json` · gói `dieu-phoi/` ở `main` 3745b3e9 · lưu ý của điều phối
+MacBook Pro 17/10 (hook chặn có lối thoát rõ, chiều đỏ trong bộ kiểm) · chủ kho 18/10: «Làm thế nào giảm thiểu nghi
+thức cho người dùng mà vẫn đạt được mục đích, tôi muốn trải nghiệm người dùng đơn giản» → «làm».
 
 ## 1. Bài toán trong một đoạn
 
-Mỗi yêu cầu giữa các phiên là một vòng mở. Hôm nay chỉ cạnh thợ → giám sát trong đợt có máy giữ vòng (`yeu-cau` có mã,
-`tra-loi/<mã>.json`). Cạnh giám sát → thợ và cạnh máy ↔ máy đóng vòng bằng trí nhớ. Đo 17/10: 0/44 yêu cầu trên #375 và
-#308 có trả lời trỏ về được tin gốc. Vòng này cho máy giữ bốn thứ: **mã tin**, **sổ vòng mở**, **chặn kết lượt khi còn
-tin chưa nhận**, **khuôn lời giao việc**. Tất cả nằm trong gói `dieu-phoi`, chạy trên hai nơi chứa đã có: thư mục đợt
-và kênh issue liên máy.
+Mỗi yêu cầu giữa các phiên là một vòng mở. Hôm nay chỉ cạnh thợ → giám sát trong đợt có máy giữ vòng. Cạnh giám sát → thợ
+và cạnh máy ↔ máy đóng vòng bằng trí nhớ (17/10: 0/44 yêu cầu trên #375 và #308 có trả lời trỏ về được tin gốc). Vòng
+này cho máy giữ bốn thứ: **mã tin**, **sổ vòng mở**, **tin tự đến và chặn kết lượt khi còn việc chưa nhận**, **lời giao
+việc đủ trường**. Ràng buộc trải nghiệm (chủ kho 18/10): **nghi thức do máy gánh**. Chủ kho không gõ khẩu lệnh nào; phiên
+chỉ nói điều chỉ nó biết (một câu ý định, một câu trả lời), mọi thứ khác máy điền và tự kiểm.
 
-## 2. Hình dạng
+## 2. Trải nghiệm
 
-### 2.1 Một lệnh mới: `dieu-phoi/scripts/tin.mjs`
+| Ai | Làm gì | Máy làm gì thay |
+|---|---|---|
+| Chủ kho | Không gì mới. Thấy vòng quá hạn trên bảng đợt đã có; ký ở các cổng như cũ. | Đưa vòng quá hạn mức 2 lên `xem`. |
+| Người giao | `tin GIAO <đích> "<một câu ý định>" [--hang <mã>]` | Điền năm trường còn lại, in đủ sáu trường, sinh mã. |
+| Người hỏi | `tin HỎI <đích> "<câu hỏi>" [--chan] [--khuyen "<khuyến nghị>"]` | Sinh mã, đánh dấu chặn hay không. |
+| Người nhận | Thấy tin tự hiện trong phiên. Gõ `tin NHẬN <mã>`. | Đưa tin vào ngữ cảnh, ghi «đã đến», so kho với ranh giới. |
+| Người làm xong | `tin XONG <mã>` (câu hỏi thì thêm câu trả lời) | Đính sha, nhánh, PR. |
+| Ca hiếm | `tin KẸT <mã> "<cần gì>"` · `tin TRẢ <mã> "<lý do>" --chuyen <ai>` · `tin HUỶ <mã> "<lý do>"` · `tin BÁO <đích> "<câu>"` | — |
+| Máy | — | Tự nhắc một lần khi quá hạn; tự canh kênh và báo khi chính bộ canh hỏng; chặn kết lượt một lần khi còn việc giao chưa nhận. |
 
-| Lệnh | Làm gì |
-|---|---|
-| `tin gui <GIAO\|HỎI\|BÁO> [--den <địa chỉ>] [trường…] [--kenh <chủ/kho#số>]` | sinh mã, dựng dòng đầu, kiểm trường, ghi. In mã. |
-| `tin tra <mã> <NHẬN\|XONG\|KẸT\|TRẢ\|HUỶ> [trường…]` | đáp một vòng có mã; kiểm người đáp và trường bắt buộc. |
-| `tin so [--cua-toi] [--json] [--kenh …]` | sổ vòng mở theo tuổi, kèm mức quá hạn. |
-| `tin nhac <mã>` | người gửi nhắc MỘT lần khi quá hạn biên nhận; lần hai từ chối. |
-| `tin vai --kenh <chủ/kho#số> --may <tên>` | ghi danh worktree này là người giữ kênh của máy `<tên>`. |
-| `tin canh --kenh … [--cho]` | bộ canh có chiều đỏ: bắt lại tin cuối đã biết rồi mới đọc tiếp; `--cho` chờ tới khi có tin gửi mình. |
+Mọi lệnh một khuôn: `tin <KHẨU LỆNH> <đích hoặc mã> ["một câu"]`. Đếm chạm một vòng giao việc thông thường: một câu ý
+định · một lệnh nhận · một lệnh xong (so với khoảng 7 trường gõ tay ở bản 17/10).
 
-Mọi lệnh ghi qua MỘT hàm kiểm của bên đọc rồi mới ghi, đúng nếp `ghi.mjs`. Sai thì thoát 1, nêu trường sai, không ghi
-byte nào.
+## 3. Hình dạng
 
-### 2.2 Nơi chứa — hai nơi, không thêm hộp thư thứ ba
+### 3.1 Lệnh `dieu-phoi/scripts/tin.mjs`
 
-- **Trong đợt:** `<thư mục đợt>/tin.jsonl`, chỉ thêm dòng (cùng nếp `su-kien.jsonl`). Địa chỉ: mã dãy (`P1`…) hoặc `G`
-  (giám sát). Người gửi suy từ cwd: cwd thuộc dãy → mã dãy; cwd là `vai.json → giam_sat.worktree` → `G`; ngoài cả hai
-  → từ chối «không thuộc đợt».
-  Yêu cầu cũ `yeu-cau/<id>.json` vẫn là HỎI có mã từ thợ tới `G`. `tin so` đọc chúng như vòng mở, và đóng chúng khi có
-  `tra-loi/<id>.json`. Đọc thôi: `yeu-cau.mjs`, `kiemYeuCau` và các tệp đó không đổi một byte (luật 26/09: kho đang
-  dùng `yeu-cau` không đổi gì).
-- **Kênh liên máy:** bình luận issue GitHub, đọc và ghi qua `gh api`. Trạng thái cục bộ nằm ở
-  `<gốc kho chính>/.acceptance-runs/tin/kenh-<chủ>-<kho>-<số>.json`: tên máy, worktree giữ kênh, con trỏ (mã bình luận
-  cuối đã đọc), tin cuối đã biết (mã bình luận, dòng đầu), và bản chép các dòng đã phân loại. Tên máy không vào cấu
-  hình commit, vì mỗi máy một tên. Lệnh `gh` lấy từ `DIEU_PHOI_GH` nếu có, không thì `gh`. Đó là chỗ duy nhất test thay
-  `gh` thật bằng một `gh` giả đọc và ghi tệp ca. Bộ đọc luôn gọi `gh api --paginate` (trang 30 bình luận của GitHub),
-  và mọi lời gọi `gh` có trần thời gian.
-  `tin so --kenh --tu <ngày>` đếm cửa sổ theo `created_at` thành ba nhóm: có mã · khuôn cũ (kèm số có đích) · bỏ qua
-  (kèm danh sách mã bình luận). Đây là thước của ngưỡng thứ hai, đếm cả câu văn xuôi không khẩu lệnh.
+Tám khẩu lệnh (hằng `KHAU_LENH`, một nguồn cho bộ đọc, `LUAT.md` và README): GIAO · HỎI · BÁO mở hoặc không mở vòng;
+NHẬN · XONG · KẸT · TRẢ · HUỶ đáp. Thêm các lệnh phụ: `tin so` (sổ), `tin nhac <mã>` (nhắc tường minh, dùng trên kênh),
+`tin vai --kenh <chủ/kho#số> --may <tên>` (ghi danh worktree giữ kênh, một lần mỗi máy), `tin canh` (bộ canh). Mọi lệnh
+ghi kiểm bằng CHÍNH hàm kiểm của bên đọc rồi mới ghi, nếp `ghi.mjs`; sai thì thoát 1, nêu điều sai, 0 byte ghi.
 
-### 2.3 Mã và dòng đầu
+### 3.2 Nơi chứa — hai nơi, không thêm hộp thư thứ ba
 
-- Mã: `<người gửi>-<ddmm>-<n>`, ví dụ `MBP-1710-3`, `G-1710-1`, `P2-1710-4`. `<n>` = lớn nhất cùng tiền tố và ngày trong
-  nơi chứa, cộng 1. Mã ba khúc không bao giờ trùng mã yêu cầu cũ hai khúc `<dãy>-<số>`.
-- Dòng đầu (máy chỉ đọc dòng này): `<KHẨU LỆNH> <mã> · <từ> → <đến>`. Dòng đáp mang mã của vòng nó đáp. Thân tin từ
-  dòng thứ hai không bao giờ được phân loại.
-- Bộ đọc `docDongDau` chuẩn hoá NFC, nhận đúng tám khẩu lệnh chữ hoa (`HỦY` là bí danh của `HUỶ`). Dòng đầu khuôn cũ
-  `[máy · phiên → máy · phiên] loại` → mục `cu: true`, hiện dưới nhãn «tin không mã — không theo dõi vòng», không mở
-  vòng. Mọi thứ khác → bỏ qua.
+- **Trong đợt:** `<thư mục đợt>/tin.jsonl`, chỉ thêm dòng. Địa chỉ: mã dãy hoặc `G` (giám sát). Người gửi suy từ cwd:
+  thuộc dãy → mã dãy; là `vai.json → giam_sat.worktree` → `G`; ngoài cả hai → từ chối «không thuộc đợt». Yêu cầu cũ
+  `yeu-cau/<id>.json` là HỎI có mã từ thợ tới `G`, sổ đọc chúng và đóng khi có `tra-loi/<id>.json`. `yeu-cau.mjs`,
+  `kiemYeuCau` và các tệp ấy không đổi một byte.
+- **Kênh liên máy:** bình luận issue GitHub qua `gh api --paginate` (trang 30), mọi lời gọi `gh` có trần thời gian. Trạng
+  thái cục bộ `<gốc kho chính>/.acceptance-runs/tin/kenh-<chủ>-<kho>-<số>.json`: tên máy, worktree giữ kênh, con trỏ, tin
+  cuối đã biết, bản đã đồng bộ, dấu «đã đến», dấu «đã chặn». `gh` lấy từ `DIEU_PHOI_GH` nếu có (test thay bằng `gh` giả).
+  `tin so --kenh --tu <ngày>` đếm cửa sổ theo `created_at` thành ba nhóm: có mã · khuôn cũ (kèm số có đích) · bỏ qua (kèm
+  danh sách mã bình luận).
 
-### 2.4 Trường bắt buộc (hạt giống §4.1, §4.3, §4.4)
+### 3.3 Mã và dòng đầu
 
-| Khẩu lệnh | Thiếu thì từ chối |
-|---|---|
-| GIAO | `--y-dinh`, `--ket-qua`, `--ranh-gioi`. `--quyen`, `--diem-hoi`, `--bao-ve` có mặc định; `--han <phút>` mặc định 30. |
-| HỎI | `--chan co\|khong`, `--khuyen <khuyến nghị kèm căn cứ>` |
-| NHẬN một GIAO | `--se-giao`, `--giu-trong`, `--dung-hoi` (ba dòng đọc lại, §4.4) |
-| NHẬN một HỎI | `--tra-luc <khi nào sẽ trả lời>` |
-| XONG một GIAO | `--vat` (sha · PR · kết quả lệnh · tệp) |
-| XONG một HỎI | `--tra-loi` |
-| KẸT | `--can` (cần gì, từ ai, từ giờ nào) |
-| TRẢ | `--ly-do`, `--chuyen` (ai, hoặc «không ai») |
-| HUỶ | `--ly-do`; chỉ người giao được huỷ |
+- Mã `<người gửi>-<ddmm>-<n>` (ví dụ `MBP-1810-3`, `G-1810-1`, `P2-1810-4`); ba khúc nên không trùng mã yêu cầu cũ hai
+  khúc `<dãy>-<số>`.
+- Dòng đầu (máy chỉ đọc dòng này): `<KHẨU LỆNH> <mã> · <từ> → <đến>`. Lời đáp mang mã của vòng nó đáp. Thân từ dòng hai
+  không bao giờ được phân loại.
+- `docDongDau` chuẩn hoá NFC, nhận đúng tám khẩu lệnh chữ hoa (`HỦY` là bí danh của `HUỶ`). Dòng đầu khuôn cũ `[máy ·
+  phiên → máy · phiên] loại` → `cu: true`, nhãn «tin không mã — không theo dõi vòng». Mọi thứ khác → bỏ qua.
 
-Người đáp NHẬN/XONG/KẸT/TRẢ phải là người nhận của vòng. Vòng đã đóng thì mọi lời đáp bị từ chối, nêu lời đóng.
+### 3.4 Máy điền lời giao — MỘT hàm `loiGiaoViec`
 
-### 2.5 Sổ vòng mở
+`tin GIAO` và lời ghi danh của chip trong `tiep-tuc.mjs` cùng gọi `loiGiaoViec`. Máy điền:
 
-`tin so` gấp mọi dòng: GIAO/HỎI mở vòng · NHẬN → «đã nhận» · KẸT → «kẹt» · XONG/TRẢ/HUỶ đóng · BÁO không mở vòng.
-Mức quá hạn biên nhận: 0 khi đã NHẬN hoặc chưa tới hạn · 1 khi qua hạn · 2 khi qua hai lần hạn. Mức 2 lên bề mặt đã có
-(`xem`, `xem --json`), không gửi tin mới cho chủ kho (§4.2.3). Mỗi mục mang thêm cờ `ket_luot_chua_nhan` khi bên nhận
-đã được hook cho kết lượt qua lối thoát (§2.6).
+| Trường | Trong đợt (đích là dãy) | Trên kênh (`--hang <mã>`) | Không suy được |
+|---|---|---|---|
+| Ý định | câu người giao; ở chip: dòng `Vì sao:` của ô cơ hội | câu người giao | thiếu câu → từ chối |
+| Kết quả | «hồ sơ <slug> qua Cổng Bằng chứng · PR vào <nhanh_chinh>» từ hàng kế của dãy | như trái, slug từ hàng lộ trình | từ chối «không suy được Kết quả», trừ khi có `--ket-qua` |
+| Ranh giới | kho (remote `origin`), worktree, `hang.ranh_gioi` (vắng → «vùng tệp chưa khai — hỏi giám sát»), không chạm `bao_ve` | kho của người giao, `ranh_gioi` của hàng nếu có | từ chối «không suy được Ranh giới», trừ khi có `--ranh-gioi` |
+| Quyền | tự gộp theo `pha --tu-merge`; việc phụ qua `yeu-cau viec-phu` | «không tự gộp; việc phụ ghi hạt giống» | — |
+| Điểm phải hỏi | chép §4.5 hạt giống | như trái | — |
+| Báo về | «giám sát <mã phiên trong vai.json> qua tin — NHẬN · XONG» | «<tên máy> trên <kênh>» | — |
 
-### 2.6 Hook dừng — một khối `Stop` trong `dieu-phoi/hooks/hooks.json`
+Lời giao in đủ sáu trường lên stdout trước khi ghi. Chip trong đợt mà hàng không có hồ sơ (không suy được Kết quả) → hành
+động `khong-hang` với `ly_do` «lời giao thiếu Kết quả»; bảy hành động `HANH_DONG` không đổi; mọi chuỗi con mà ca của hồ sơ
+đã ký đọc trong `ghi_danh` vẫn còn.
 
-`hook-tin.mjs` đọc `cwd`, `session_id`, `stop_hook_active` từ stdin.
+### 3.5 Đáp — người đáp không gõ gì máy biết được
 
-1. **Ai là mình:** dãy của cwd · `G` khi cwd là worktree giám sát · máy giữ kênh khi cwd là worktree đã `tin vai`.
-   Không ai → thoát 0, không in, không tạo tệp. Đây là đường của mọi kho không có đợt, không có kênh (luật 26/09).
-2. **Tin chưa NHẬN gửi mình:** vòng mở, đến mình, chưa có NHẬN/KẸT/TRẢ/XONG của mình — CHỈ tính vòng mở bằng `tin`
-   (`tin.jsonl` hoặc kênh). Yêu cầu cũ `yeu-cau/` hiện trên sổ nhưng KHÔNG làm hook chặn: kho không ai dùng `tin` thì
-   hook không bao giờ chặn, tức gói nâng lên không đổi hành vi của đợt đang chạy (luật 26/09: bật theo lựa chọn trước
-   đổi mặc định — ở đây «lựa chọn» là chính việc có người gửi `tin`).
-   Với kênh, hook đồng bộ một lần với trần 5 giây (kể cả khi `gh` treo, hook giết tiến trình con khi hết trần).
-   `gh` lỗi hay quá trần → Hỏi-2 (Cổng Phạm vi). Khuyến nghị: **chặn MỘT lần** với lời «không đọc được kênh … — chạy
-   `tin canh` rồi kết lượt lại». Lần dừng kế trong 30′ thì cho qua. Đây là nhánh lỗi của cùng lối thoát ở bước 4. Lối
-   khác: không chặn, chỉ in một dòng `systemMessage`. Dòng ấy hiện cho người chứ không chắc tới model, nên hình dạng
-   giống bộ canh câm 15/10.
-3. **Chặn:** `{"decision":"block","reason":…}`. Lời chặn nêu từng mã, dòng đầu, và lệnh NHẬN chép được nguyên văn.
-4. **Lối thoát — không bao giờ khoá phiên vĩnh viễn:** mỗi tập mã chặn tối đa MỘT lần. Lần dừng kế mà tập mã chưa
-   nhận không có mã nào mới (hoặc `stop_hook_active` là true) → cho qua. Dấu «đã chặn» và dòng `ket-luot-chua-nhan`
-   (mã, người nhận, lúc) LUÔN ghi ở chỗ cục bộ: `<thư mục đợt>/tin-chan/<mình>.json` trong đợt, trường `chan` của
-   `.acceptance-runs/tin/kenh-….json` với kênh. Hook KHÔNG BAO GIỜ ghi lên issue (không lời gọi `gh` nào ghi). Sổ và
-   `xem` đọc dấu ấy. Tin mới tới sau đó chặn lại một lần nữa.
+- **NHẬN** không kèm gì. Với GIAO, máy so kho của cwd người nhận (remote `origin`, chuẩn hoá) với kho trong Ranh giới; lệch
+  → từ chối, nêu hai kho. Với HỎI, NHẬN không bắt buộc (trả lời thẳng bằng XONG).
+- **XONG** của GIAO không kèm gì: máy đính `sha` HEAD, nhánh, và PR đang mở của nhánh (qua `gh pr view`, có trần; vắng thì
+  bỏ). Kho của cwd lệch Ranh giới → đòi `--vat "<…>"`. XONG của HỎI đòi một câu trả lời.
+- **KẸT / TRẢ / HUỶ** đòi đúng một câu (cần gì · lý do); TRẢ thêm `--chuyen <ai|không ai>`; HUỶ chỉ người giao.
+- Người đáp NHẬN/XONG/KẸT/TRẢ phải là người nhận. Mã không có → từ chối. Vòng đã đóng → từ chối, nêu lời đóng.
 
-### 2.7 Lời giao việc sáu trường — MỘT hàm `loiGiaoViec`
+### 3.6 Sổ vòng mở
 
-`tin gui GIAO` và lời ghi danh của chip trong `tiep-tuc.mjs` cùng gọi `loiGiaoViec({y_dinh, ket_qua, ranh_gioi, quyen,
-diem_hoi, bao_ve})`, trả sáu dòng có nhãn. Ở chip trong đợt, máy điền:
+GIAO/HỎI mở · «đã đến» (máy ghi) · NHẬN → `da-nhan` · KẸT → `ket` · XONG/TRẢ/HUỶ đóng · BÁO không mở. Trạng thái vòng mở:
+`chua-den` → `da-den` → `da-nhan` | `ket`. Mức quá hạn biên nhận (chưa NHẬN): 0 trước hạn · 1 qua hạn · 2 qua hai lần hạn;
+hạn mặc định 30′, GIAO khai `--han <phút>`. Mức 2 và cờ `ket_luot_chua_nhan` lên `xem` / `xem --json`.
 
-- **Ý định:** dòng `Vì sao:` của ô cơ hội `_acceptance/<slug>/opportunity.md` trong worktree; vắng → `feature:` của
-  hợp đồng; vắng → «đọc hồ sơ <slug>».
-- **Kết quả:** «hồ sơ <slug> qua Cổng Bằng chứng · PR vào <nhanh_chinh>».
-- **Ranh giới:** kho, worktree, `hang.ranh_gioi` (vắng → «vùng tệp chưa khai — hỏi giám sát trước khi chạm ngoài hồ
-  sơ»), không chạm `bao_ve`.
-- **Quyền:** tự gộp theo `pha … --tu-merge`; việc phụ đi qua `yeu-cau viec-phu`.
-- **Điểm phải hỏi:** chép §4.5 của hạt giống.
-- **Báo về:** «giám sát <mã phiên trong vai.json> qua `tin.mjs` — NHẬN · KẸT · XONG». Trường này mang mã phiên, không
-  mang tên phiên — vấp 17/10 «báo nhầm về phiên mở chip».
+### 3.7 Hook tin — ba chỗ, một tệp `hook-tin.mjs`
 
-Hàng không có hồ sơ (không suy được Kết quả) → dãy không nhận `mo-chip`; hành động là `khong-hang` với `ly_do` «lời giao
-thiếu Kết quả». Ghi danh vẫn giữ mọi chuỗi con mà ca của hồ sơ đã ký đòi: thư mục đợt, lệnh `ghi-danh`, «đọc LUAT.md
-trước S1», `/feature-loop:feature-loop <slug>`, dòng bàn giao. Bảy hành động của `HANH_DONG` không đổi.
+Ai là mình: dãy của cwd · `G` khi cwd là worktree giám sát · máy giữ kênh khi cwd là worktree đã `tin vai`. Không ai →
+thoát 0, không in, không tạo tệp (đường của mọi kho không dùng gói hay không dùng `tin`, luật 26/09). Hook chỉ xét vòng mở
+bằng `tin` — yêu cầu cũ `yeu-cau/` không làm hook làm gì.
 
-### 2.8 Lời: `scripts/mau/LUAT.md` và `README.md`
+1. **Sau lời gọi công cụ và lời nhắc (`PostToolUse`, `UserPromptSubmit`) — tin tự đến:** tin mới gửi mình chưa từng đưa
+   → trả `additionalContext` gồm dòng đầu, thân và lệnh đáp chép được, đúng MỘT lần mỗi tin; ghi «đã đến». Trên kênh chỉ
+   đọc bản đã đồng bộ, KHÔNG gọi mạng. Vòng mình gửi chạm mức 1 → tự nhắc một lần: trong đợt ghi BÁO «nhắc <mã>»; trên kênh
+   đưa vào ngữ cảnh lệnh `tin nhac <mã>` chép được (hook không tự đăng ra ngoài kho).
+2. **Lúc dừng (`Stop`) — chặn kết lượt:** còn GIAO gửi mình chưa NHẬN (HỎI không chặn) → `{"decision":"block"}`, lời chặn
+   nêu mã và lệnh NHẬN chép được. Với kênh, hook đồng bộ một lần trần 5 giây (giết tiến trình con khi hết trần); đọc không
+   được → Hỏi-1 (khuyến nghị: chặn một lần với lời «không đọc được kênh — chạy `tin canh` rồi kết lượt lại»).
+3. **Lối thoát — không bao giờ khoá phiên:** mỗi tập mã chặn tối đa một lần; lần dừng kế không có mã mới (hoặc
+   `stop_hook_active`) → cho qua, ghi `ket-luot-chua-nhan`. Dấu luôn ghi cục bộ (`<thư mục đợt>/tin-chan/<mình>.json`, hoặc
+   trạng thái kênh); hook KHÔNG BAO GIỜ ghi lên issue.
 
-Khuôn `LUAT.md` thêm mục «Giao tiếp — khẩu lệnh và vòng mở»: tám khẩu lệnh, luật vòng mở §4.2, đọc lại ba dòng §4.4,
-khi nào phải hỏi và khi nào không được hỏi §4.5, lệnh `tin.mjs`. Khối nằm trong marker `<<<LUAT-TIN … LUAT-TIN>>>` để
-test rút đúng khối và so với hằng của `tin.mjs` (một nguồn cho danh sách khẩu lệnh). README thêm mục «Giao tiếp giữa
-các phiên» cùng giới hạn đã khai.
+`hooks.json`: thêm mục `hook-tin.mjs` vào `PostToolUse`, `UserPromptSubmit` và khối `Stop` mới; mọi mục cũ giữ nguyên.
 
-## 3. Lựa chọn đã cân (chi tiết + căn cứ ở `decisions.jsonl`)
+### 3.8 Lời: `scripts/mau/LUAT.md` và `README.md`
 
-- Nơi chứa trong đợt là `tin.jsonl` mới, KHÔNG thêm `loai` cho `yeu-cau`: lời giao cấm chạm `loai`/`kiemYeuCau`.
-  Hạt giống §5 «khuôn yêu cầu cũ chính là GIAO / HỎI có mã» được giữ bằng cách sổ đọc luôn yêu cầu cũ.
-- Tên máy và con trỏ kênh ở trạng thái cục bộ, không ở `_acceptance/config.yaml`: tệp commit thì mọi máy chung một tên.
-- Hook chỉ chặn vòng mở bằng `tin`, không chặn vì yêu cầu cũ: nâng gói không đổi hành vi đợt đang chạy.
-- Kênh lỗi lúc dừng: chặn một lần hay chỉ cảnh báo — Hỏi-2 ở Cổng Phạm vi (khẩu vị rủi ro).
-- Chặn một lần mỗi tập mã: Claude Code sẽ chạy lại hook mỗi lần dừng; chặn mãi thì khoá phiên.
-- Có răng cho sự có mặt của ba dòng đọc lại, nhưng sự khớp với lời giao vẫn là lời (hạt giống §5, ngưỡng giữ nguyên).
-- Phiên ngoài đợt trên cùng máy (chip `start_session` của điều phối, không mở đợt) KHÔNG trong vòng. Đây là câu hỏi
-  Hỏi-1 ở Cổng Phạm vi, vì nó là đánh đổi giá trị.
+Khuôn `LUAT.md` thêm khối `<<<LUAT-TIN … LUAT-TIN>>>`: bảng «làm gì — máy làm gì thay» (§2), tám khẩu lệnh, luật vòng mở,
+khi nào phải hỏi / không được hỏi (§4.5 hạt giống). README thêm mục «Giao tiếp giữa các phiên» cùng giới hạn đã khai.
 
-## 4. Giới hạn đã khai
+## 4. Lựa chọn đã cân (căn cứ từng dòng ở `decisions.jsonl`)
 
-- **So khớp đọc lại với lời giao là phán xét của giám sát.** Ngưỡng dựng răng (hạt giống §5): ≥ 1 ca thợ làm lệch phạm
-  vi mà tin NHẬN đã khai đúng phạm vi.
-- **Danh tính máy trên issue vẫn tự khai** (giới hạn của tệp 13/10, ngưỡng giữ nguyên).
-- **Tin gửi bằng `send_message` của app không vào sổ.** Đó là đường truyền, không phải nơi chứa. Người gửi dùng
-  `tin gui` để có mã, rồi chuyển chữ in ra qua đường truyền nào cũng được.
-- **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Mạng lỗi lúc dừng thì chỉ có lời chặn một lần (hoặc cảnh báo, tuỳ
-  Hỏi-2). Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
+- Năm trường lời giao do máy điền — hạt giống §4.3 đã đặt vậy.
+- Bỏ ba dòng đọc lại, thay bằng máy so kho — lệch hạt giống §4.4, câu hỏi ở Cổng Phạm vi.
+- Xong tự đính vật · tin tự đến · tự nhắc — máy quyết theo luật kit («render, không soạn») và theo gốc bài toán (trí nhớ).
+- Hook chỉ xét vòng mở bằng `tin`; nơi chứa trong đợt là tệp mới; trạng thái kênh cục bộ; hook không ghi lên issue.
+- Phiên ngoài đợt (chip điều phối mở thẳng) không trong vòng — câu hỏi ở Cổng Phạm vi.
 
-## 5. Bảng dự báo năm dòng (luật (c))
+## 5. Giới hạn đã khai
+
+- **Hiểu sai ý định (khác với sai kho) lộ muộn hơn** khi bỏ đọc lại bằng lời. Ngưỡng: ≥ 1 ca thợ làm lệch ý định mà kho
+  khớp và lời giao đủ trường.
+- **Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.** Đánh thức phiên đã đóng ngoài phạm vi.
+- **Danh tính máy trên issue vẫn tự khai** (tệp 13/10).
+- **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
+- **`send_message` của app không vào sổ** — đó là đường truyền; người gửi dùng `tin` để có mã.
+
+## 6. Bảng dự báo năm dòng (luật (c))
 
 | Dòng | Dự báo | Vì sao |
 |---|---|---|
-| Lượt gọi người mỗi vòng | ↓ | bỏ «máy kia có nghe không» và «kiểm tra các phiên» |
-| Làm-xong → quyết-được | ↓ | quá hạn tự nổi trên `xem`; XONG mang vật |
+| Lượt gọi người mỗi vòng | ↓ | bỏ «máy kia nghe chưa», «kiểm tra các phiên»; chủ kho không thêm nghi thức nào |
+| Làm-xong → quyết-được | ↓ | quá hạn tự nổi, tin tự đến, xong mang vật |
 | Vòng bị hạ tầng kit đốt lượt chấm | = | không chạm S4 |
-| Token máy mỗi vòng | ≈ / ↓ | đọc sổ thay cho đọc trọn luồng (≈ 20 nghìn token mỗi lần đọc #375) |
+| Token máy mỗi vòng | ≈ / ↓ | đọc sổ thay đọc luồng; vài dòng ngữ cảnh mỗi tin mới |
 | Phút máy mỗi lượt chấm | = | không chạm S4 |
 
 Điều kiện tin cậy: đường phán quyết S4 không đổi thành phần.
 
-## 6. Đặc tả UX
+## 7. Đặc tả UX
 
-Bỏ, vì vòng không có mặt người nhìn; mặt người là chữ CLI và chữ hook (sổ quyết định, dòng «bỏ đặc-tả-UX»).
+Bỏ (sổ: «bỏ đặc-tả-UX»). Mặt người là chữ CLI và chữ hook; khuôn của nó là bảng §2 và khuôn lệnh §2.
