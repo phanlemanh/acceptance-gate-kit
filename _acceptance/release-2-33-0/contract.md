@@ -5,7 +5,7 @@ slug: release-2-33-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -64,3 +64,5 @@ crm-onehub#375 · kit #308.
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths`.
 - Ghim lại ở mốc: chỉ hồ sơ của cửa sổ, như nếp 2.32.x.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-18:
+  - Ngoài-1: Kiểm tra danh sách hồ sơ được ký trong bản phát hành này đang so với một danh sách gõ tay, không đọc lại phần kể trong hợp đồng. Hôm nay hai danh sách khớp nhau. Nếu sau này ai sửa phần kể mà quên sửa danh sách gõ tay, kiểm tra vẫn báo xanh và có thể che một chỗ lệch.
