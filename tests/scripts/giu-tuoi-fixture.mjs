@@ -9,7 +9,7 @@
 // dấu thì mỗi lượt chạy làm cây khác pin.
 //
 // Nhánh chính tên `main`; gộp PR = commit gộp `Merge pull request #<n> from x/pr-<n>` (hoặc kiểu nén
-// `feat: … (#<n>)`). «Bản trước vòng» = `git archive 8fe79f1f (gốc so sau khi gộp #382, 18/10) feature-loop lib scripts skills commands hooks` bung
+// `feat: … (#<n>)`). «Bản trước vòng» = `git archive 77b3750e (gốc so sau khi gộp VA2 #378) feature-loop lib scripts skills commands hooks` bung
 // vào thư mục tạm — dùng cho chiều đỏ. Mọi đường dẫn suy từ vị trí tệp này.
 //
 // Export: ROOT · LANE · BAN_TRUOC_VONG · BAN_LUOT_1 · mkKhoGiuTuoi(opts) · banTai(sha) · banTruocVong() · banLuot1() ·
@@ -24,7 +24,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.join(HERE, '..', '..');
 export const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 export const RECHECK = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
-export const BAN_TRUOC_VONG = '8fe79f1f41f5c060399f5b09ca2fd49137d9faef';
+export const BAN_TRUOC_VONG = '77b3750ee2a1a799fbc719c97b401e6d3ac146a3';
 
 const tmp = [];
 const thuMuc = (tien) => { const d = mkdtempSync(path.join(tmpdir(), tien)); tmp.push(d); return d; };

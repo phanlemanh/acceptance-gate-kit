@@ -2,7 +2,7 @@
 // thật (luật 26/09: sửa kit phải cân trên MỌI kho). Đo trên bản sao các kho THẬT của máy nên tệp không mang đuôi
 // .test.mjs và không vào feature_loop.suite_keys; khoá chạy: executors.test.ho_so_da_ky_giu_tuoi_cac_kho.
 //
-// Hai vế, mỗi vế so BỘ MÁY BẢN MỚI (cây chứa tệp này) với BẢN TRƯỚC VÒNG (`git archive 8fe79f1f (gốc so sau khi gộp #382, 18/10)`, TRỌN cây — xem
+// Hai vế, mỗi vế so BỘ MÁY BẢN MỚI (cây chứa tệp này) với BẢN TRƯỚC VÒNG (`git archive 77b3750e (gốc so sau khi gộp VA2 #378)`, TRỌN cây — xem
 // bungTron) trên CÙNG một bản sao, khoá `feature_loop.do_san_tren_nen` để như kho đang có (vắng ở mọi kho thật hôm nay):
 //
 // (1) Kho thật — mỗi kho trong {acceptance-gate-kit, crm-onehub, oneflow}. acceptance-gate-kit = CHÍNH kho chứa cây
@@ -64,7 +64,7 @@ function donDep() {
 process.on('exit', () => { try { donDep(); } catch { /* lối thoát cuối */ } });
 
 // ── chuẩn hoá + so ──────────────────────────────────────────────────────────────
-// Hai bộ máy cùng là CÂY TRỌN: bản mới = chính cây này; bản trước vòng = `git archive 8fe79f1f (gốc so sau khi gộp #382, 18/10)` TRỌN cây. Không dùng
+// Hai bộ máy cùng là CÂY TRỌN: bản mới = chính cây này; bản trước vòng = `git archive 77b3750e (gốc so sau khi gộp VA2 #378)` TRỌN cây. Không dùng
 // banTruocVong() của fixture (chỉ sáu thư mục): product-map.mjs nạp scripts/tin-hieu.mjs → dieu-phoi/scripts/, nên bản
 // thiếu thư mục đỏ vì HẠ TẦNG chứ không vì vật (đo 17/10 trên crm: bản đồ «mã 1 · ERR_MODULE_NOT_FOUND» — P150).
 const bungTron = (ref, dich) => {
