@@ -738,6 +738,11 @@ executors:
     rel2321_dd_giu: "bash -c 'c=$(git show f7d95695:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet f7d95695 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2321_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh f7d95695 2.32.1
     rel2321_goi_doi: "bash -c 'd=$(git diff --name-only f7d95695 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json \" ]'"
+    # Mốc 2.33.0 (RD1 + K-A): cửa sổ 5bd64bc9 (v2.32.1) → HEAD.
+    rel2330_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 5bd64bc9 road-map-de-dung ho-so-da-ky-giu-tuoi
+    rel2330_dd_giu: "bash -c 'c=$(git show 5bd64bc9:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 5bd64bc9 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2330_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 5bd64bc9 2.33.0
+    rel2330_goi_doi: "bash -c 'd=$(git diff --name-only 5bd64bc9 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu

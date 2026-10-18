@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>128 việc"]
+  GB --> DG["Đã giao<br/>129 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>42 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -196,6 +196,7 @@ flowchart TD
 - Phát hành kit 2.31.0 — đóng số cho cửa sổ 2.30.0 → 2.31.0 (bảng Ngoài-n có căn cứ · đường nền không tính tệp của chính vòng · mốc là chiến dịch · rà soát lộ trình và gói road-map), để crm nhận một lần sau 2.30; làn V, không dựng răng (`release-2-31-0`)
 - Phát hành kit 2.32.0 — đóng số cho cửa sổ 2.31.0 → 2.32.0 (gói road-map hoàn tất theo B′ · lượt chấm lại không tự dối), để crm nhận một lần sau 2.31; làn V, không dựng răng (`release-2-32-0`)
 - Phát hành kit 2.32.1 — bản vá của 2.32.0 cho crm-onehub#375 (trang lộ trình vẽ trong worktree khớp CI), để crm nhận 2.32.1 thay cho 2.32.0; làn V, không dựng răng (`release-2-32-1`)
+- Phát hành kit 2.33.0 — road-map dễ dùng (RD1) + hồ sơ đã ký luôn tươi (K-A); lộ trình đọc trong một phút, bỏ mốc ngoài, giờ máy theo làn, lệnh giữ tươi (`release-2-33-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)
