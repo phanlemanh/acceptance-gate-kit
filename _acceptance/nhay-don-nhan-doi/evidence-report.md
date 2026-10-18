@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3382a1106451ac66d02b285b24085e17c53e8551
+verified_commit: 272efa0aa1554b36890b3d73758d6b14dd3cd888
 human_signoff: Phan Le Manh 2026-10-18
 ---
 
@@ -174,3 +174,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: all 8 evals passed, verdict PASS.
+
+### Re-pin lần 1 — 2026-10-18, do gộp origin/main (road-map-de-dung + sửa #383) sau chữ ký
+run_id: repin-20261018T094245Z-22760
+sha: 272efa0aa1554b36890b3d73758d6b14dd3cd888 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
