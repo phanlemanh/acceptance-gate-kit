@@ -938,3 +938,132 @@ test('GT-07-do chap-nhan-truoc', async () => {
   const { loi } = await kiemTuDen(goc, { doNhanh: false });
   assert.ok(loi.some((l) => l.startsWith('(j) trước khi đến phiên G')), `chấp nhận trước khi nghe phải làm (j) đỏ, nhận: ${loi.join(' | ')}`);
 });
+
+// ---------- AC-8: hook dừng — chặn một lần, lối thoát, kho không dùng thì im ----------
+export async function kiemDung(gocGoi, { doTreo = true } = {}) {
+  const { chayHook, KENH, khoKenh, tepKenhCua } = await import('./tin-kho-thu.mjs');
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 160) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  const D = ddmm(T0);
+  const o = (p) => ({ gocGoi, nowMs: T0 + p * PHUT });
+  const dung = (cwd, p, them = {}, gh = null) => chayHook(gocGoi, 'Stop', { cwd, ...them }, { nowMs: T0 + p * PHUT, gh });
+  const k = khoDot({ gocGoi });
+  ghiJ(`${k.dot}/yeu-cau/P1-7.json`, { phien: 'P1', loai: 'khac', hang: null, noi_dung: {}, luc: new Date(T0).toISOString() });
+  // (i) chỉ có yêu cầu cũ, chưa có tin → giám sát không bị chặn
+  const i = dung(k.kho, 0);
+  so('(i) yêu cầu cũ không làm chặn', 'stdout rỗng', i.out.trim(), i.ma === 0 && i.out.trim() === '');
+  tin(k.kho, ['GIAO', 'P2', 'việc một cho P2'], o(1));
+  const ma1 = `G-${D}-1`;
+  tin(k.w1, ['HỎI', 'G', 'có giữ tệp không?'], o(1));
+  // (a) chặn
+  const a = dung(k.w2, 2);
+  so('(a) chặn khi còn GIAO chưa nhận', `block, nêu ${ma1} và tin NHẬN`, a.out, a.json?.decision === 'block' && a.json.reason.includes(`GIAO ${ma1} · G → P2`) && a.json.reason.includes(`tin NHẬN ${ma1}`));
+  // (f) lần hai cùng tập → cho qua, sổ ghi kết lượt khi chưa nhận
+  const f = dung(k.w2, 3);
+  const vf = JSON.parse(tin(k.kho, ['so', '--json'], o(3)).out).find((v) => v.ma === ma1);
+  so('(f) lần hai cùng tập mã', 'stdout rỗng, ket_luot_chua_nhan true', `${f.out.trim()} ${vf?.ket_luot_chua_nhan}`, f.out.trim() === '' && vf?.ket_luot_chua_nhan === true);
+  // (g) stop_hook_active
+  tin(k.kho, ['GIAO', 'P2', 'việc hai cho P2'], o(4));
+  const g = dung(k.w2, 4, { stop_hook_active: true });
+  so('(g) stop_hook_active', 'stdout rỗng', g.out.trim(), g.out.trim() === '');
+  // (h) tin mới → chặn lại, nêu mã mới  (mã G-2 đã bị cho qua ở (g) nên gửi G-3)
+  tin(k.kho, ['GIAO', 'P2', 'việc ba cho P2'], o(5));
+  const h = dung(k.w2, 5);
+  so('(h) tin mới chặn lại', `block nêu G-${D}-3`, h.out, h.json?.decision === 'block' && h.json.reason.includes(`G-${D}-3`));
+  // (b) đã nhận hết → không chặn
+  for (const m of [ma1, `G-${D}-2`, `G-${D}-3`]) tin(k.w2, ['NHẬN', m, 'sẽ giao việc được giao đúng hạn'], o(6));
+  const b = dung(k.w2, 7);
+  so('(b) đã nhận hết', 'stdout rỗng', b.out.trim(), b.out.trim() === '');
+  // (c) P1 chỉ có HỎI mình gửi → không chặn
+  const c = dung(k.w1, 7);
+  so('(c) P1 chỉ có HỎI của mình', 'stdout rỗng', c.out.trim(), c.out.trim() === '');
+  // (l) công tắc tắt
+  tin(k.kho, ['GIAO', 'P2', 'việc bốn cho P2'], o(8));
+  const tat = tin(k.w2, ['tat'], o(8));
+  const l1 = dung(k.w2, 9);
+  const l2 = chayHook(gocGoi, 'PostToolUse', { cwd: k.w2, tool_name: 'Bash' }, { nowMs: T0 + 9 * PHUT });
+  const l3 = chayHook(gocGoi, 'UserPromptSubmit', { cwd: k.w2, prompt: 'x' }, { nowMs: T0 + 9 * PHUT });
+  const conSo = JSON.parse(tin(k.kho, ['so', '--json'], o(9)).out).some((v) => v.ma === `G-${D}-4`);
+  so('(l) tắt: ba chỗ hook im, sổ vẫn ghi', 'stdout rỗng ×3, sổ có G-4', `${tat.ma} [${l1.out.trim()}][${l2.out.trim()}][${l3.out.trim()}] ${conSo}`, tat.ma === 0 && !l1.out.trim() && !l2.out.trim() && !l3.out.trim() && conSo);
+  tin(k.w2, ['bat'], o(10));
+  const l4 = dung(k.w2, 10);
+  so('(l) bật lại: chặn như thường', 'block', l4.out, l4.json?.decision === 'block');
+  // (d) (e) (f′) kênh
+  const gh = ghGia({ nextId: 1500 });
+  const mbp = khoKenh({ gocGoi, may: 'MBP', gh: gh.lenh });
+  const m5 = khoKenh({ gocGoi, may: 'M5', gh: gh.lenh, loTrinh: false });
+  const gk = tin(m5, ['GIAO', 'MBP', 'xin chen một lượt gộp', '--ket-qua', 'một lượt gộp', '--kenh', KENH], { gocGoi, nowMs: T0, gh: gh.lenh });
+  const maK = gk.out.split(' ')[1];
+  const d = dung(mbp, 1, {}, gh.lenh);
+  so('(d) kênh: chặn khi còn GIAO gửi MBP', `block nêu ${maK}`, d.out, d.json?.decision === 'block' && d.json.reason.includes(maK) && d.json.reason.includes('--kenh'));
+  gh.xoaNhatKy();
+  const d2 = dung(mbp, 2, {}, gh.lenh);
+  const vk = JSON.parse(tin(mbp, ['so', '--kenh', KENH, '--json'], { gocGoi, nowMs: T0 + 2 * PHUT, gh: gh.lenh }).out).find((v) => v.ma === maK);
+  const ghiK = gh.nhatKy().filter((x) => x.lenh === 'ghi').length;
+  so('(f′) kênh lần hai: cho qua, ghi sổ, 0 lời gọi ghi', 'stdout rỗng · true · 0', `${d2.out.trim()} · ${vk?.ket_luot_chua_nhan} · ${ghiK}`, d2.out.trim() === '' && vk?.ket_luot_chua_nhan === true && ghiK === 0);
+  gh.dat({ loi: true });
+  const e1 = dung(mbp, 3, {}, gh.lenh);
+  const e2 = dung(mbp, 4, {}, gh.lenh);
+  so('(e) kênh lỗi: chặn một lần, lần hai trong 30′ cho qua', 'block «không đọc được kênh» + «tin canh», rồi rỗng', `${e1.json?.decision} | ${e2.out.trim()}`, e1.json?.decision === 'block' && e1.json.reason.includes('không đọc được kênh') && e1.json.reason.includes('tin canh') && e2.out.trim() === '');
+  if (doTreo) {
+    const gh2 = ghGia({ nextId: 1700 });
+    const mbp2 = khoKenh({ gocGoi, may: 'MBP', gh: gh2.lenh });
+    gh2.dat({ treo: true });
+    const t0 = Date.now();
+    const et = dung(mbp2, 1, {}, gh2.lenh);
+    const ms = Date.now() - t0;
+    so('(e) kênh treo: xong ≤ 6 s, cùng nhánh lỗi', 'block «không đọc được kênh», ≤ 6000 ms', `${ms}ms ${et.json?.decision}`, ms <= 6000 && et.json?.decision === 'block' && et.json.reason.includes('không đọc được kênh'));
+  }
+  void tepKenhCua;
+  // (j) kho không đợt, không kênh: ba khối hook tin im, không tạo tệp
+  const kj = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'gt-khongdung-')));
+  git(kj, 'init', '-q', '-b', 'main');
+  const h0 = bamCay(kj);
+  const r1 = chayHook(gocGoi, 'PostToolUse', { cwd: kj, tool_name: 'Bash' });
+  const r2 = chayHook(gocGoi, 'UserPromptSubmit', { cwd: kj, prompt: 'x' });
+  const r3 = chayHook(gocGoi, 'Stop', { cwd: kj });
+  const im = [r1, r2, r3].every((r) => r.ma === 0 && r.out === '' && r.err === '');
+  so('(j) kho không dùng: im, không tạo tệp', 'thoát 0, stdout/stderr rỗng, băm bằng', `${im} ${bamCay(kj) === h0}`, im && bamCay(kj) === h0);
+  // (k) hooks.json: mục cũ giữ nguyên, thứ mới duy nhất là khối Stop gọi hook-tin
+  const cu = JSON.parse(execFileSync('git', ['-C', path.resolve(DAY, '..', '..'), 'show', `${BAN_CU}:dieu-phoi/hooks/hooks.json`], { encoding: 'utf8' }));
+  const moi = docJ(`${gocGoi}/hooks/hooks.json`);
+  const cuGiu = Object.entries(cu.hooks).every(([kk, v]) => JSON.stringify(moi.hooks[kk]) === JSON.stringify(v)) && JSON.stringify(moi.modules) === JSON.stringify(cu.modules);
+  const them = Object.keys(moi.hooks).filter((kk) => !(kk in cu.hooks));
+  so('(k) hooks.json', 'mục cũ bằng sâu, chỉ thêm Stop → hook-tin.mjs', `${cuGiu} ${them.join(',')}`, cuGiu && them.length === 1 && them[0] === 'Stop' && JSON.stringify(moi.hooks.Stop).includes('hook-tin.mjs'));
+  return { loi, hang };
+}
+
+test('GT-08 hook-dung', async () => {
+  const { loi, hang } = await kiemDung(GOI);
+  inMaTran('GT-08', hang);
+  assert.equal(hang.length, 15);
+  assert.deepEqual(loi, []);
+});
+
+test('GT-08-do chan-mai', async () => {
+  const goc = banSao('hook-tin.mjs', 'if (dauVao.stop_hook_active === true || ma.every((x) => daChan.has(x))) {', 'if (dauVao.stop_hook_active === true) {');
+  const { loi } = await kiemDung(goc, { doTreo: false });
+  assert.ok(loi.some((l) => l.startsWith('(f) lần hai')), `chặn mãi phải làm «chặn lần hai» đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-08-do chan-mai-kenh', async () => {
+  const goc = banSao('hook-tin.mjs', '      ghiJsonNguyenTu(ten.tep, { ...(docJson(ten.tep, null) ?? {}), chan: moiDau });', '');
+  const { loi } = await kiemDung(goc, { doTreo: false });
+  assert.ok(loi.some((l) => l.startsWith('(f′) kênh lần hai')), `bỏ dấu ở nhánh kênh phải làm «chặn lần hai kênh» đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-08-do bo-tran', async () => {
+  const goc = banSao('hook-tin.mjs', 'const TRAN_KENH_MS = 5000;', 'const TRAN_KENH_MS = 60000;');
+  const { loi } = await kiemDung(goc);
+  assert.ok(loi.some((l) => l.startsWith('(e) kênh treo')), `bỏ trần phải làm (e) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-08-do bo-tat', async () => {
+  const goc = banSao('hook-tin.mjs', '    if (daTat(goc, ten.worktree)) continue;\n    let kenhTen = null;', '    let kenhTen = null;');
+  const { loi } = await kiemDung(goc, { doTreo: false });
+  assert.ok(loi.some((l) => l.startsWith('(l) tắt')), `bỏ kiểm dấu tắt ở khối Stop phải làm (l) đỏ, nhận: ${loi.join(' | ')}`);
+});
