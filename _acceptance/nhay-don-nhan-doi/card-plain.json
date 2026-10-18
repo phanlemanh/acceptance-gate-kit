@@ -1,0 +1,99 @@
+{
+  "feature_plain": "Lệnh trong cấu hình kho viết bằng nháy đơn có dấu nháy nhân đôi sẽ tới máy chạy đúng như người viết — ghim lại và lượt chấm của crm không còn đỏ oan ở hồ sơ tac-nhan-va.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ đọc đúng chín hình dạng giá trị nháy đơn có dấu nháy nhân đôi (giữa, đầu, cuối, chỉ một dấu, kề chú thích…), khớp từng ô với kết quả của một bộ đọc YAML chuẩn bên ngoài."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ đọc đúng dấu nháy nhân đôi cả trong danh sách viết một dòng lẫn danh sách nhiều dòng."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ giữ nguyên mọi giá trị không phải nháy đơn hợp lệ (nháy kép, chữ trần, nháy đơn lệch) — bản vá không lan ra ngoài."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ chứng minh trên lượt chấm thật: lệnh dạng crm được sinh ra rồi chạy, và lệnh bên trong thật sự chạy với biến đã đặt (để lại dấu vết trên đĩa)."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ chứng minh trên ghim lại thật: đi đúng đường đã gây sự cố ở crm, sổ ghim ghi eval đó thoát 0 và lệnh bên trong để lại dấu vết."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ cho thấy phép đo biết đỏ: trả hàm về bản cũ thì ca đỏ đúng tên; và trong lịch sử nhánh, ca mới đứng trước bản vá và đỏ ở đúng commit đó vì vật, không vì hạ tầng."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ giữ xanh toàn bộ bộ kiểm tra hiện có của kit."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "OOS-1",
+      "p": "Không sửa ở vòng này việc lệnh viết thẳng trong tệp tiêu chí (không qua cấu hình) không được bóc nháy — lớp lỗi khác, hỏng hiện chứ không xanh giả; ghi thành hạt giống."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Không mở rộng luật thoát ký tự của nháy kép (xuống dòng, tab…) — giữ đúng luật hiện có như lời giao việc."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Không chạm bộ bóc nháy riêng của công cụ vá cấu hình — nằm ngoài thư viện lõi, chỉ dùng để chống trùng mục."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Không hỗ trợ giá trị nháy đơn trải nhiều dòng — bộ đọc theo dòng là có chủ đích."
+    },
+    {
+      "id": "OOS-5",
+      "p": "Không sửa hay ghim lại gì ở kho crm — chỉ báo phiên bản mang bản sửa trên luồng điều phối."
+    }
+  ],
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Bảng độ phủ có ba trục; mỗi dòng dưới nói trục đó đã thử những gì và tiêu chí nào đo nó."
+    },
+    {
+      "i": 1,
+      "p": "Mọi đường đọc giá trị sẽ chạy đều được thử: đọc một khoá, đọc danh sách hai kiểu, đọc thẳng, lượt chấm và ghim lại (AC-1, AC-2, AC-4, AC-5)."
+    },
+    {
+      "i": 2,
+      "p": "Bốn kiểu vỏ được thử: nháy đơn đúng (phải đổi) và ba kiểu còn lại (phải giữ nguyên) (AC-1 đọc đúng chín hình dạng, AC-3 không lan)."
+    },
+    {
+      "i": 3,
+      "p": "Mọi vị trí của dấu nháy nhân đôi trong giá trị được thử, kể cả sát chú thích và giá trị rỗng (AC-1)."
+    },
+    {
+      "i": 4,
+      "p": "Thước đo «đủ»: chuẩn YAML 1.2.2 mục nháy đơn, đối chiếu từng ô bằng PyYAML; danh sách nơi gọi rút từ chính mã kho."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Tiêu chí ghim lại chưa nói lệnh phải đi qua cấu hình — đúng đường gây sự cố. Đã sửa: ghi rõ đường đó, thêm kiểm tệp tiêu chí mẫu không chứa dấu nháy nhân đôi, đối chứng nháy kép cùng đường."
+    },
+    {
+      "i": 1,
+      "p": "Kiểm «đỏ trong lịch sử» có thể đỏ vì ca chưa chạy được chứ không vì lỗi thật. Đã sửa: ở commit lịch sử, đối chứng nháy kép phải xanh, ca phải đỏ đúng thông điệp của lỗi, và công cụ dựng mẫu phải có sẵn ở commit đó."
+    },
+    {
+      "i": 2,
+      "p": "Đo phạm vi ảnh hưởng mới quét tệp cấu hình. Đã sửa: quét lại mọi tệp hồ sơ của 16 kho — chỉ có hai khoá crm đang chạy sai; các chỗ khác không đi qua hàm này."
+    },
+    {
+      "i": 3,
+      "p": "Chưa nói bước cắt chú thích (chạy trước) xử lý dấu nháy nhân đôi ra sao. Đã sửa: ghi căn cứ — bước đó vốn đúng, đo trên mã hiện tại; chỉ thiếu bước gỡ."
+    },
+    {
+      "i": 4,
+      "p": "Kiểm ghim lại đọc chữ in ra màn hình thay vì sổ ghim thật. Đã sửa: đọc đúng trường trong sổ ghim mà crm đọc lại."
+    }
+  ]
+}

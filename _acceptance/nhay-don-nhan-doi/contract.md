@@ -64,8 +64,7 @@ Bán kính đo 18/10 trên 16 kho: chỉ crm, đúng hai khoá trên, hôm nay �
 | B. Vỏ | nháy đơn cân · nháy kép · trần · nháy đơn không cân | AC-1, AC-3 |
 | C. Vị trí `''` trong thân | giữa · đầu · cuối · chỉ một · hai cặp liền · kề chú thích · chứa ` #` · thân rỗng | AC-1 |
 
-Thước CE: YAML 1.2.2 §7.3.2 (single-quoted style) [NGÀNH: YAML 1.2.2], đối chiếu bằng PyYAML 6.0.3; danh sách
-bên gọi rút bằng `grep` trên cây [SUY-TỪ-REPO: lib/evidence-core.cjs, feature-loop/scripts/].
+Thước CE: YAML 1.2.2 §7.3.2 (single-quoted style) [NGÀNH: YAML 1.2.2], đối chiếu bằng PyYAML 6.0.3; danh sách bên gọi rút bằng `grep` trên cây [SUY-TỪ-REPO: lib/evidence-core.cjs, feature-loop/scripts/].
 
 ## Out of scope
 
