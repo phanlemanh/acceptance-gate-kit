@@ -85,10 +85,14 @@ function banNen() {
   const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', KIT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
   if (!chinh) throw new Error('nền so: không tìm được nhánh chính (origin/main | main) để tính merge-base');
   const mb = git(KIT, 'merge-base', 'HEAD', chinh); const head = git(KIT, 'rev-parse', 'HEAD');
-  nenCache = mb === head ? { dir: KIT, sha: mb, trungHead: true } : { dir: bung(mb, 'nen'), sha: mb, trungHead: false };
+  // road-map-de-dung (RD1): bên so là cây TẮT RD1 (KIT_TAT), nên nền chứa RD1 (vòng đã gộp, hay mọi nhánh cắt sau RD1) cũng đi
+  // qua CÙNG phép tắt — so cùng trạng thái. Nền trước RD1 không có khối để tắt thì giữ nguyên. Nhận biết bằng khối RD1 có trong nền.
+  const goc = mb === head ? KIT : bung(mb, 'nen');
+  const coRD1 = readFileSync(path.join(goc, 'scripts', 'lo-trinh.mjs'), 'utf8').includes('export function luatChiPhatTrien(');
+  nenCache = { dir: coRD1 ? tatRD1(goc) : goc, goc, sha: mb, trungHead: mb === head, tatRD1: coRD1 };
   return nenCache;
 }
-const ghiChuNen = () => { const n = banNen(); return n.trungHead ? `nền so trùng HEAD ${n.sha.slice(0, 8)} — vòng đã gộp` : `nền so merge-base ${n.sha.slice(0, 8)}`; };
+const ghiChuNen = () => { const n = banNen(); return (n.trungHead ? `nền so trùng HEAD ${n.sha.slice(0, 8)} — vòng đã gộp` : `nền so merge-base ${n.sha.slice(0, 8)}`) + (n.tatRD1 ? ' · nền tắt RD1 như bên so' : ''); };
 
 let napN = 0;
 const nap = async kit => ({
@@ -212,6 +216,21 @@ const nd1TrangGiu = async kit => {
   return ngoaiKhoi(moi) === ngoaiKhoi(a) ? [] : ['phần trang ngoài khối dữ liệu lệch bộ máy nền'];
 };
 if (want('ND-1-trang-giu')) { if (await chayCa('ND-1-trang-giu', nd1TrangGiu, KIT_TAT())) ok('ND-1-trang-giu', `phần trang ngoài khối giống từng byte bộ máy nền (${ghiChuNen()})`); }
+// Chiều đỏ của bước tắt RD1 trên nền (sửa 18/10 khi chính RD1 vào main làm nền chứa RD1): bỏ bước tắt — so cây tắt với nền
+// NGUYÊN — thì ca trang phải ĐỎ đúng thông điệp. Nền trước RD1 không có gì để tắt: ca nói ra và không đếm là đạt.
+if (want('ND-1-nen-tat-do')) {
+  const n = banNen();
+  if (!n.tatRD1) console.log(`  BỎ QUA: ND-1-nen-tat-do — nền ${n.sha.slice(0, 8)} trước RD1, không có bước tắt để phá`);
+  else {
+    const lanh = await nd1TrangGiu(KIT_TAT());
+    if (lanh.length) bad('ND-1-nen-tat-do', `bản lành chưa xanh — không tin được chiều đỏ: ${lanh[0]}`);
+    else {
+      const giu = n.dir; n.dir = n.goc; let s; try { s = await nd1TrangGiu(KIT_TAT()); } finally { n.dir = giu; }
+      if (s.includes('phần trang ngoài khối dữ liệu lệch bộ máy nền')) ok('ND-1-nen-tat-do', `bỏ bước tắt RD1 trên nền ${n.sha.slice(0, 8)}: hàm đo trả «${s[0]}»`);
+      else bad('ND-1-nen-tat-do', `không bắt (cần «phần trang ngoài khối dữ liệu lệch bộ máy nền»): ${JSON.stringify(s)}`);
+    }
+  }
+}
 if (want('ND-1-do')) await chayDo('ND-1-do', nd1, [[LT_MJS, 'chu: gioMayChu(u), co:', 'chu: `${GM.khoangVN(u.khoang)} giờ máy`, co:']], 'chữ giờ máy của khối lệch trang: C', 'bản sao bỏ nhãn nguồn khỏi chữ của khối');
 
 // ═══ ND-2 (AC-2): nguồn số đo và cờ số đo chưa đủ ════════════════════════════════════════════════════════════════════
