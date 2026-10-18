@@ -1,5 +1,5 @@
 {
- "feature_plain": "Cắt lượt không còn tạo mốc cho việc của người; mỗi mốc trên trang đọc bằng tên việc và trạng thái, giống trang crm; sửa tay lộ trình sai luật hiện cờ ngay; ngày dự kiến xếp nối tiếp.",
+ "feature_plain": "Lộ trình đọc được trong một phút: việc hiện bằng câu giao đầy đủ, mốc chỉ hiện khi có việc, việc của người ra khỏi kho, giờ máy nối tiếp theo một làn — trang crm và trang của phiên đọc cùng một mô hình.",
  "will_do": [
   {
    "id": "AC-1",
