@@ -1,6 +1,6 @@
 // GT — hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): lệnh giữ tươi theo khoảng gộp, quy đỏ về PR gây ra, nhãn
 // «đỏ sẵn trên nền». Ca GT<n> = AC-n của hợp đồng; GT0-* là ca đơn vị của luật nhãn dùng chung
-// (lib/do-san-tren-nen.cjs). Kho thử git do code sinh trong lượt; «bản trước vòng» = `git archive 77b3750e (gốc so sau khi gộp VA2 #378)`
+// (lib/do-san-tren-nen.cjs). Kho thử git do code sinh trong lượt; «bản trước vòng» = `git archive 8fe79f1f (gốc so sau khi gộp #382, 18/10)`
 // bung trong lượt. Mọi đường dẫn suy từ vị trí tệp này. Chọn ca: GT_CASES=GT0-bam,GT1 node <tệp>.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, readdirSync, statSync } from 'node:fs';
@@ -16,7 +16,7 @@ const ROOT = path.join(HERE, '..', '..');
 const require = createRequire(import.meta.url);
 const DS = require(path.join(ROOT, 'lib', 'do-san-tren-nen.cjs'));
 const NCG = require(path.join(ROOT, 'lib', 'nhan-canh-gay.cjs'));
-export const BAN_TRUOC_VONG = '77b3750ee2a1a799fbc719c97b401e6d3ac146a3';
+export const BAN_TRUOC_VONG = '8fe79f1f41f5c060399f5b09ca2fd49137d9faef';
 
 const chon = (process.env.GT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 let passed = 0, failed = 0;
