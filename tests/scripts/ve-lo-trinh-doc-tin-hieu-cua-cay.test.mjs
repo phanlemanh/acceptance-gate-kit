@@ -268,8 +268,12 @@ await do_('VT-2-do3', [DOC_INDEX], ca2, 'trang vẽ bản tệp ý cũ trong ind
 const l3 = await lanh('VT-3', ca3);
 await do_('VT-3-do', [MOI_BO_DOC], ca3, 'bộ đọc tương tác mất ý chưa theo dõi', l3);
 await do_('VT-3-do2', [CAU_THEO_DOI], ca3, 'bộ đọc tương tác mất ý chưa theo dõi', l3);
-const l4 = await lanh('VT-4', ca4);
-await do_('VT-4-do', [RONG_NGOAI_GIT], ca4, 'thư mục thường mất ý trên trang', l4);
+// road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang lộ trình (mô hình hiển thị chung): «giống từng byte bộ máy gốc» so trên cây tắt
+// đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lành và đỏ cùng đi qua một phép tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const ca4Tat = may => ca4(tatRD1(may));
+const l4 = await lanh('VT-4', ca4Tat);
+await do_('VT-4-do', [RONG_NGOAI_GIT], ca4Tat, 'thư mục thường mất ý trên trang', l4);
 
 try { rmSync(TMP, { recursive: true, force: true }); } catch { /* dọn tạm không chặn kết quả */ }
 console.log(`\nKết quả: ${pass} PASS · ${fail} FAIL`);

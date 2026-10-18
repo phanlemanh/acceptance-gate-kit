@@ -119,6 +119,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
   } catch (e) { bad(id, loi(e)); }
 };
 
+// Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
+// gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
+// hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
+const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const KIT_TAT = () => tatRD1(KIT);
+const chayDoTat = async (id, f, tiem, ghim, moTa) => {
+  try {
+    const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
+    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
+  } catch (e) { bad(id, loi(e)); }
+};
+
 // ═══ MC-1 (AC-1): cờ việc đang mở ngoài mốc — ma trận viết sẵn ═══════════════════════════════════
 const TT_1 = ['chua', 'can-nhac', 'sap-mo', 'cho-duyet', 'dang-dung', 'da-ship', 'xep-lai', 'da-bac', 'hong'];
 const MONG_1 = ['can-nhac-n', 'sap-mo-n', 'cho-duyet-n', 'dang-dung-n', 'LM'].sort();
@@ -206,8 +219,8 @@ async function mc2byte(kit) {
   }
   return sai;
 }
-if (want('MC-2-byte') && await chayCa('MC-2-byte', mc2byte)) ok('MC-2-byte', `ba kho (0 mốc · không khai · 0 mốc có hồ sơ mở): trang, JSON quét start, ô cơ hội giống từng byte bộ máy ${GOC_VONG} (đối chứng: hai bên thoát 0, tệp khác rỗng, có mã hàng)`);
-if (want('MC-2-byte-do')) await chayDo('MC-2-byte-do', mc2byte, [['scripts/lo-trinh.mjs', "    '', '## Vấn đề & ai gặp', '',", "    '', '## Vấn đề & ai gặp ', '',"]], 'khác bộ máy gốc: opportunity.md', 'bản sao chèn một byte vào ô cơ hội');
+if (want('MC-2-byte') && await chayCa('MC-2-byte', mc2byte, KIT_TAT())) ok('MC-2-byte', `ba kho (0 mốc · không khai · 0 mốc có hồ sơ mở): trang, JSON quét start, ô cơ hội giống từng byte bộ máy ${GOC_VONG} (đối chứng: hai bên thoát 0, tệp khác rỗng, có mã hàng)`);
+if (want('MC-2-byte-do')) await chayDoTat('MC-2-byte-do', mc2byte, [['scripts/lo-trinh.mjs', "    '', '## Vấn đề & ai gặp', '',", "    '', '## Vấn đề & ai gặp ', '',"]], 'khác bộ máy gốc: opportunity.md', 'bản sao chèn một byte vào ô cơ hội');
 
 // ═══ MC-3 (AC-3): hồ sơ đang mở không thuộc việc nào ═══════════════════════════════════════════
 const O_3 = ['can-nhac', 'sap-mo', 'cho-duyet', 'dang-dung', 'da-ship', 'cho-nghiem-thu', 'da-nghiem-thu', 'xep-lai', 'da-bac', 'hong'];
@@ -258,9 +271,9 @@ async function mc4(kit) {
   if (!/`loTrinhChuaKhai`[\s\S]{0,120}nguyên văn/.test(khoi)) sai.push('thân lệnh start (khối START-LO-TRINH) không gọi tên loTrinhChuaKhai kèm «nguyên văn»');
   return sai;
 }
-if (want('MC-4') && await chayCa('MC-4', mc4)) ok('MC-4', 'kho thiếu khoá: loTrinh null + đúng một câu cờ, mọi khoá khác bằng bộ máy gốc; kho có khoá: khoá vắng hẳn, JSON quét bằng bộ máy gốc; thân start gọi tên khoá');
-if (want('MC-4-do')) await chayDo('MC-4-do', mc4, [['scripts/start-scan.mjs', 'cfgRead.err || cfgRead.t == null || tepLoTrinh != null ? null', 'cfgRead.err || cfgRead.t == null ? null']], 'kho có khai lộ trình nhận cờ chưa khai', 'bản sao bộ quét bỏ điều kiện «thiếu khoá»');
-if (want('MC-4-do2')) await chayDo('MC-4-do2', mc4, [['scripts/start-scan.mjs', '  ...(loTrinhChuaKhai ? { loTrinhChuaKhai } : {}),', '  loTrinhChuaKhai,']], 'kho có khai lộ trình nhận cờ chưa khai: null', 'bản sao bộ quét luôn in khoá (kể cả null)');
+if (want('MC-4') && await chayCa('MC-4', mc4, KIT_TAT())) ok('MC-4', 'kho thiếu khoá: loTrinh null + đúng một câu cờ, mọi khoá khác bằng bộ máy gốc; kho có khoá: khoá vắng hẳn, JSON quét bằng bộ máy gốc; thân start gọi tên khoá');
+if (want('MC-4-do')) await chayDoTat('MC-4-do', mc4, [['scripts/start-scan.mjs', 'cfgRead.err || cfgRead.t == null || tepLoTrinh != null ? null', 'cfgRead.err || cfgRead.t == null ? null']], 'kho có khai lộ trình nhận cờ chưa khai', 'bản sao bộ quét bỏ điều kiện «thiếu khoá»');
+if (want('MC-4-do2')) await chayDoTat('MC-4-do2', mc4, [['scripts/start-scan.mjs', '  ...(loTrinhChuaKhai ? { loTrinhChuaKhai } : {}),', '  loTrinhChuaKhai,']], 'kho có khai lộ trình nhận cờ chưa khai: null', 'bản sao bộ quét luôn in khoá (kể cả null)');
 
 // ═══ MC-5 (AC-5): chỉ cảnh báo — --check xanh, thẻ start chỉ tăng số cờ ═════════════════════════
 async function mc5(kit) {
@@ -285,7 +298,7 @@ async function mc5(kit) {
   }
   return sai;
 }
-if (want('MC-5') && await chayCa('MC-5', mc5)) ok('MC-5', 'kho MC-1 (5 cờ) và MC-3 (4 cờ): --check thoát 0 trên trang có cờ; thẻ start chỉ tăng đúng số cờ mới, không dòng nào khác đổi');
+if (want('MC-5') && await chayCa('MC-5', mc5, KIT_TAT())) ok('MC-5', 'kho MC-1 (5 cờ) và MC-3 (4 cờ): --check thoát 0 trên trang có cờ; thẻ start chỉ tăng đúng số cờ mới, không dòng nào khác đổi');
 
 // ═══ MC-6 (AC-6): tenChienDich — ma trận viết sẵn ═══════════════════════════════════════════════
 // Thứ tự trong tệp CÓ CHỦ Ý: m2 (sớm hơn) đứng TRƯỚC m1 — luật «mốc đứng cuối tệp» chọn sai cho B2 (chiều đỏ MC-6-do).

@@ -1,0 +1,115 @@
+{
+ "feature_plain": "Lộ trình đọc được trong một phút: việc hiện bằng câu giao đầy đủ, mốc chỉ hiện khi có việc, việc của người ra khỏi kho, giờ máy nối tiếp theo một làn — trang crm và trang của phiên đọc cùng một mô hình.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ báo lỗi khi một lượt cắt còn tạo mốc cho việc của người, chỉ rõ bốn chỗ đúng: ngày của mốc phát triển, ô cơ hội của việc, «Ra khỏi kho» ở mô tả PR, hay «Chờ điều kiện»; bảng phủ chỉ còn việc phát triển."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ dạy lại cách cắt lượt theo luật 17/10 (chỉ chép việc phát triển vào bản phạm vi), sửa khuôn mẫu, từ điển và ghi quyết định kiến trúc nêu hai cái giá: mất chỗ chung xem ngày của người, và bộ kiểm không bắt được việc vận hành bị quên."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ cho mỗi mốc trên trang hiện «còn bao nhiêu việc», từng việc bằng tên tiếng sản phẩm kèm trạng thái, mã chỉ là chữ phụ; bấm vào thấy câu giao và hồ sơ; kho thiếu tên ngắn thấy một dòng nhắc."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ giữ trang đọc được trên điện thoại và máy tính, sáng lẫn tối: vùng bấm đủ lớn, chữ đủ tương phản, không cuộn ngang, trang không dài ra."
+  },
+  {
+   "id": "AC-8",
+   "p": "Sẽ hiện cờ có tên mỗi lần trang hay bản xem đọc tệp lộ trình, kể cả khi tệp bị sửa tay ngoài lượt cắt: mốc ngoài còn sót (kèm bốn chỗ cần chuyển), mốc không khai loại, việc đứng chờ mốc, dữ liệu giả sai."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ nhắc một dòng khi mốc đã qua ngày mà chưa ghi ngày khép, gom tên các mốc ấy lại — trước đây khối Rà soát im lặng."
+  },
+  {
+   "id": "AC-11",
+   "p": "Sẽ để trang kit, bản xem chữ và trang crm cùng vẽ từ một luật hiển thị trong khối dữ liệu: mốc nào hiện (chỉ mốc có việc), tên từng việc, trạng thái, nhóm chưa hẹn mốc — ba nơi thấy cùng một lộ trình."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "AC-10",
+   "p": "Sẽ KHÔNG còn báo mọi mốc cùng «bắt đầu hôm nay»: mốc trong cùng một lộ trình xếp nối tiếp theo ngày mục tiêu, kho không khai lộ trình không đổi một chữ."
+  },
+  {
+   "id": "OOS-1",
+   "p": "KHÔNG làm ba việc thêm mới (lệnh xem mở trang, đưa Rà soát và Giờ máy lên trang, cài gói lộ trình mặc định) ở vòng này — sang vòng RD2 tuỳ câu Hỏi-1."
+  },
+  {
+   "id": "OOS-2",
+   "p": "KHÔNG sửa trang Lộ trình bên trong sản phẩm crm — crm tự áp nguyên tắc tên trước mã theo ghi chú nhận."
+  },
+  {
+   "id": "OOS-3",
+   "p": "KHÔNG tự chuyển các mốc ngoài của crm — máy chỉ nhắc, crm chuyển khi nhận bản mới."
+  },
+  {
+   "id": "OOS-4",
+   "p": "KHÔNG đo số giờ máy chạy mỗi ngày — chỉ ghi chú rằng ngày dự kiến đang giả định máy chạy suốt ngày."
+  },
+  {
+   "id": "OOS-5",
+   "p": "KHÔNG thêm cổng hay chốt chặn mới khi sửa lộ trình — cờ hiện qua trang mà CI vốn đã bắt vẽ lại."
+  },
+  {
+   "id": "OOS-6",
+   "p": "KHÔNG có luật riêng ẩn mốc ngoài trên trang — anh đã chọn: mốc ngoài hiện như mọi mốc khi có việc gắn, kèm cờ nhắc dọn."
+  }
+ ],
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Mọi loại mục trên lộ trình (mốc phát hành, mốc hạn, mốc sự kiện, mốc ngoài, mốc chưa khai loại, việc có/thiếu tên ngắn, mục không làm trong kho) đều có ca đo — AC-1, AC-5, AC-8, AC-9, AC-11."
+  },
+  {
+   "i": 1,
+   "p": "Mọi chỗ đọc lộ trình (lượt cắt, trang, khối dữ liệu, bản xem chữ, thẻ khởi động, hướng dẫn cắt lượt) đều được đo — AC-1 tới AC-11."
+  },
+  {
+   "i": 2,
+   "p": "Mọi tình trạng tệp gặp thật (sạch, còn mốc ngoài, thiếu tên, sửa tay lách răng, nhiều mốc mở, mốc quá ngày) đều có ca, lấy từ sự cố crm và hai hạt giống 17/10 — AC-5, AC-8, AC-9, AC-10."
+  },
+  {
+   "i": 3,
+   "p": "Bốn kiểu kho (kit, ba lộ trình crm, OneFlow, kho không khai lộ trình) được so bản cũ với bản mới — chỉ được khác đúng chỗ đã khai (AC-10)."
+  },
+  {
+   "i": 4,
+   "p": "Người không biết mã đọc trang trong một phút: đo bằng bộ đọc máy, trình duyệt thật và một giám khảo đọc trang crm thật — AC-5, AC-6, AC-7, AC-11; và thấy cùng một lộ trình ở trang kit, bản xem chữ, trang crm."
+  },
+  {
+   "i": 5,
+   "p": "Để sau: lệnh xem mở trang, đưa Rà soát và Giờ máy lên trang, đề nghị bật gói lộ trình (vòng RD2); đo nhịp giờ máy mỗi ngày; trang trong sản phẩm crm."
+  },
+  {
+   "i": 6,
+   "p": "Không bao giờ: máy tự sửa tệp lộ trình của kho, hay đoán việc vận hành bằng nghĩa câu."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Bản nháp từng thêm một trường mới «vì sao» trên mốc mà lại xếp phần này là bớt đi — đã bỏ trường ấy."
+  },
+  {
+   "i": 1,
+   "p": "Đặt việc của đội vào mục «Đã bác» có thể làm đội hiểu là bị từ chối — anh đã chọn: việc vận hành không vào bản phạm vi, ghi «Ra khỏi kho» ở mô tả PR."
+  },
+  {
+   "i": 2,
+   "p": "Đáp án cho giám khảo viết tay và tệp chữ trang có thể cũ — đã thêm hai ca máy: đáp án phải qua chính bộ kiểm cắt lượt, tệp chữ phải vẽ lại khớp từng byte."
+  },
+  {
+   "i": 3,
+   "p": "Trang là mặt người nhìn mà chưa ghi vì sao không có ảnh quan sát — đã ghi: đo bằng trình duyệt thật và giám khảo đọc trang."
+  },
+  {
+   "i": 4,
+   "p": "Ca mốc quá ngày có thể xanh khi không tìm ra mốc nào — đã sửa: liệt đủ 36 ô kỳ vọng, danh sách rỗng là đỏ, và so với bản cũ ở ô còn việc."
+  }
+ ]
+}

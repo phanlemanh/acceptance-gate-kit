@@ -238,6 +238,12 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   giờ máy, mục tiêu 18/12) «hoàn tất 19/10»; mốc độc lập không xếp nối tiếp theo năng lực máy, ngày dự kiến vô nghĩa khi nhiều mốc.
 - `docs/plans/2026-10-17-hat-giong-hang-lo-trinh-thieu-slug-bao-nham-chua-xong.md` — 17/10 lộ trình kit: A3, DP8 không slug, hồ sơ
   không `opportunity.md` → «Kế · dời mốc» dù đã phát hành; bốn lộ trình 24 hàng không slug, 2 xếp sai (cả hai ở kit).
+- `docs/plans/2026-10-17-hat-giong-road-map-xem-trang-va-cai-goi.md` — 17/10 vòng RD1 phần E: ba việc CỘNG chủ kho gợi ý qua Mac
+  Studio (lệnh xem đưa đường dẫn trang · Rà soát + Giờ máy lên trang · road-map như feature-loop, ngược ADR 0025) tách sang RD2.
+- `docs/plans/2026-10-18-hat-giong-tep-theo-doi-nuot-loi-git.md` — 18/10 mốc 2.32.1 (Ngoài-2, trùng Ngoài-4 của VA2): bộ vẽ trang
+  commit nuốt mọi lỗi git, lặng lẽ đọc cả ý chưa commit; nguồn khai đường tuyệt đối làm mất mọi ý.
+- `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` — 13–18/10 RM2, RM4, TH-cau, RM6c, RD1: P179 đánh trượt
+  một lượt S4 vì sổ giới hạn thiếu hàng cho chính hồ sơ đang chấm (≈ 40′ máy mỗi lần); máy sinh hàng sổ từ hồ sơ.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
