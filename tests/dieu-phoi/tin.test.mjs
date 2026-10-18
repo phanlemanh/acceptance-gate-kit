@@ -556,6 +556,14 @@ export async function kiemKenh(gocGoi) {
   const x = tin(m5, ['XONG', maG, '--kenh', KENH], o(6));
   const v5 = JSON.parse(tin(m5, ['so', '--kenh', KENH, '--tat-ca', '--json'], o(7)).out).find((v) => v.ma === maG);
   so('M5 XONG → sổ M5 nấc 7', 'cho-chap-nhan 7', `${x.ma} ${v5?.trang_thai} ${v5?.nac} ${x.err}`, x.ma === 0 && v5?.trang_thai === 'cho-chap-nhan' && v5?.nac === 7);
+  const { chayHook } = await import('./tin-kho-thu.mjs');
+  const vM1 = JSON.parse(tin(mbp, ['so', '--kenh', KENH, '--tat-ca', '--json'], o(7)).out).find((v) => v.ma === maG);
+  so('MBP: trước khi đến phiên → cho-chap-nhan', 'cho-chap-nhan', vM1?.trang_thai, vM1?.trang_thai === 'cho-chap-nhan');
+  gh.xoaNhatKy();
+  chayHook(gocGoi, 'PostToolUse', { cwd: mbp, tool_name: 'Bash' }, { nowMs: T0 + 7 * PHUT + 30_000, gh: gh.lenh });
+  const goiTrongHook = gh.nhatKy().length;
+  const vM2 = JSON.parse(tin(mbp, ['so', '--kenh', KENH, '--tat-ca', '--json'], o(8)).out).find((v) => v.ma === maG);
+  so('MBP: hook đưa XONG → da-chap-nhan, 0 lời gọi gh trong hook', 'da-chap-nhan · 0', `${vM2?.trang_thai} · ${goiTrongHook}`, vM2?.trang_thai === 'da-chap-nhan' && goiTrongHook === 0);
   gh.xoaNhatKy();
   const ml = tin(mbp, ['MỞ', 'LẠI', maG, 'bộ đọc chưa chạy trên crm', '--kenh', KENH], o(8));
   const ghi2 = gh.nhatKy().filter((x2) => x2.lenh === 'ghi').length;
@@ -605,7 +613,7 @@ export async function kiemKenh(gocGoi) {
 test('GT-05 kenh-con-tro', async () => {
   const { loi, hang } = await kiemKenh(GOI);
   inMaTran('GT-05', hang);
-  assert.equal(hang.length, 14);
+  assert.equal(hang.length, 16);
   assert.deepEqual(loi, []);
 });
 
@@ -711,4 +719,222 @@ test('GT-06-do nuot-loi-gh', async () => {
   const goc = banSao('tin-gh.mjs', "  return { ma: r.status ?? 1, out: r.stdout ?? '', err: (r.stderr ?? '').trim() };", "  return { ma: 0, out: r.status === 0 ? r.stdout ?? '' : '', err: '' };");
   const { loi } = await kiemCanh(goc);
   assert.ok(loi.some((l) => l.startsWith('(d)')), `nuốt lỗi gh phải làm (d) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+// ---------- AC-7: tin tự đến trong hai hook đã có ----------
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import { execFileSync } from 'node:child_process';
+
+const BAN_CU = '3745b3e9';
+function banCuGoi() {
+  const d = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'gt-bancu-')));
+  execFileSync('sh', ['-c', `git -C '${path.resolve(DAY, '..', '..')}' archive ${BAN_CU} dieu-phoi | tar -x -C '${d}'`]);
+  return path.join(d, 'dieu-phoi');
+}
+const trungVi = (a) => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+
+export async function kiemTuDen(gocGoi, { doNhanh = true } = {}) {
+  const { chayHook, KENH, khoKenh, tepKenhCua } = await import('./tin-kho-thu.mjs');
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 160) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  const k = khoDot({ gocGoi });
+  const D = ddmm(T0);
+  const o = (p) => ({ gocGoi, nowMs: T0 + p * PHUT });
+  const hk = (cwd, p, them = {}) => chayHook(gocGoi, 'PostToolUse', { cwd, tool_name: 'Bash', ...them }, { nowMs: T0 + p * PHUT });
+  const soCua = (cwd, p, ma) => JSON.parse(tin(cwd, ['so', '--tat-ca', '--json'], o(p)).out).find((v) => v.ma === ma);
+  tin(k.kho, ['GIAO', 'P2', 'việc một cho P2'], o(0));
+  const ma1 = `G-${D}-1`;
+  // (g) tác tử con trước: không đưa, sổ vẫn chua-den
+  const g = hk(k.w2, 1, { agent_id: 'tac-tu-con-1', agent_type: 'cham-lenh' });
+  so('(g) tác tử con', 'stdout rỗng, sổ chua-den', `${g.out.trim()} ${soCua(k.kho, 1, ma1)?.trang_thai}`, g.out.trim() === '' && soCua(k.kho, 1, ma1)?.trang_thai === 'chua-den');
+  // (a) phiên chính
+  const a = hk(k.w2, 2);
+  so('(a) đưa tin vào ngữ cảnh', `chứa ${ma1}, dòng đầu, thân, lệnh NHẬN`, a.ctx, Boolean(a.ctx) && a.ctx.includes(`GIAO ${ma1} · G → P2`) && a.ctx.includes('Ý định: việc một cho P2') && a.ctx.includes(`tin NHẬN ${ma1}`));
+  so('(a) sổ da-den', 'da-den', soCua(k.kho, 2, ma1)?.trang_thai, soCua(k.kho, 2, ma1)?.trang_thai === 'da-den');
+  const b = hk(k.w2, 3);
+  so('(b) lần hai không đưa lại', `không chứa ${ma1}`, b.ctx ?? '', !(b.ctx ?? '').includes(ma1));
+  const c = hk(k.w1, 3);
+  so('(c) cwd P1', 'stdout rỗng', c.out.trim(), c.out.trim() === '');
+  // UserPromptSubmit cũng đưa tin
+  tin(k.kho, ['GIAO', 'P2', 'việc hai cho P2'], o(4));
+  const up = chayHook(gocGoi, 'UserPromptSubmit', { cwd: k.w2, prompt: 'tiếp' }, { nowMs: T0 + 5 * PHUT });
+  so('(a) lời nhắc cũng đưa tin', `chứa G-${D}-2`, up.ctx, (up.ctx ?? '').includes(`GIAO G-${D}-2`) && up.json?.hookSpecificOutput?.hookEventName === 'UserPromptSubmit');
+  // (e) tự nhắc một lần — vòng G gửi P1, quá hạn nhận ở phút 31
+  tin(k.kho, ['GIAO', 'P1', 'việc cho P1'], o(6));
+  const maP1 = `G-${D}-3`;
+  hk(k.kho, 6 + 31);
+  hk(k.kho, 6 + 32);
+  const baoNhac = fs.readFileSync(`${k.dot}/tin.jsonl`, 'utf8').split('\n').filter((l) => l.includes(`nhắc ${maP1}`)).length;
+  so('(e) tự nhắc một lần trong đợt', '1 BÁO nhắc', baoNhac, baoNhac === 1);
+  // (j) XONG của P2 → chấp nhận khi đến phiên G
+  tin(k.w2, ['NHẬN', ma1, 'sẽ giao bản sửa cho việc một'], o(40));
+  fs.writeFileSync(`${k.w2}/x.txt`, 'x\n');
+  git(k.w2, 'add', '-A');
+  git(k.w2, 'commit', '-qm', 'x');
+  tin(k.w2, ['XONG', ma1], o(41));
+  const truoc = soCua(k.kho, 41, ma1)?.trang_thai;
+  const jg = hk(k.kho, 42);
+  const sau = soCua(k.kho, 42, ma1);
+  so('(j) trước khi đến phiên G', 'cho-chap-nhan', truoc, truoc === 'cho-chap-nhan');
+  so('(j) đến phiên G → chấp nhận', 'ngữ cảnh có XONG + MỞ LẠI, sổ da-chap-nhan', `${sau?.trang_thai} ${(jg.ctx ?? '').slice(0, 80)}`, (jg.ctx ?? '').includes(`XONG ${ma1}`) && (jg.ctx ?? '').includes('MỞ LẠI') && sau?.trang_thai === 'da-chap-nhan' && Boolean(sau?.chap_nhan_luc));
+  so('(j) NHẬN về G kèm câu sẽ giao', 'Sẽ giao: bản sửa cho việc một', jg.ctx ?? '', (jg.ctx ?? '').includes('Sẽ giao: bản sửa cho việc một'));
+  // (k) MỞ LẠI đến phiên P2 đúng một lần
+  tin(k.kho, ['MỞ', 'LẠI', ma1, 'chưa chạy được trên crm'], o(43));
+  const k1 = hk(k.w2, 44);
+  const k2 = hk(k.w2, 45);
+  so('(k) MỞ LẠI đến P2 một lần', 'lần một có, lần hai không', `${(k1.ctx ?? '').includes(`MỞ LẠI ${ma1}`)} ${(k2.ctx ?? '').includes(`MỞ LẠI ${ma1}`)}`, (k1.ctx ?? '').includes(`MỞ LẠI ${ma1}`) && (k1.ctx ?? '').includes('Vì sao: chưa chạy được trên crm') && (k1.ctx ?? '').includes(`tin XONG ${ma1}`) && !(k2.ctx ?? '').includes(`MỞ LẠI ${ma1}`));
+  // (d) (f) kênh: chỉ đọc bản đã đồng bộ, không gọi mạng
+  const gh = ghGia({ nextId: 900 });
+  const mbp = khoKenh({ gocGoi, may: 'MBP', gh: gh.lenh });
+  const m5 = khoKenh({ gocGoi, may: 'M5', gh: gh.lenh, loTrinh: false });
+  tin(m5, ['GIAO', 'MBP', 'xin chen một lượt gộp', '--ket-qua', 'một lượt gộp', '--kenh', KENH], { gocGoi, nowMs: T0, gh: gh.lenh });
+  tin(mbp, ['GIAO', 'M5', 'kiểm bản cài', '--ket-qua', 'bảng kiểm', '--kenh', KENH], { gocGoi, nowMs: T0, gh: gh.lenh });
+  tin(mbp, ['canh', '--kenh', KENH], { gocGoi, nowMs: T0, gh: gh.lenh });
+  gh.xoaNhatKy();
+  const d = chayHook(gocGoi, 'PostToolUse', { cwd: mbp, tool_name: 'Bash' }, { nowMs: T0 + PHUT, gh: gh.lenh });
+  so('(d) kênh: đưa tin gửi MBP, 0 lời gọi gh', 'ngữ cảnh có GIAO M5-…, nhật ký 0', `${(d.ctx ?? '').slice(0, 60)} gh=${gh.nhatKy().length}`, (d.ctx ?? '').includes('· M5 → MBP') && gh.nhatKy().length === 0);
+  const f = chayHook(gocGoi, 'PostToolUse', { cwd: mbp, tool_name: 'Bash' }, { nowMs: T0 + 31 * PHUT, gh: gh.lenh });
+  so('(f) kênh quá hạn: gợi ý tin nhac, 0 lời gọi ghi', 'ngữ cảnh có «tin nhac», ghi 0', `${(f.ctx ?? '').slice(0, 80)} ghi=${gh.nhatKy().filter((x) => x.lenh === 'ghi').length}`, (f.ctx ?? '').includes('tin nhac MBP-') && gh.nhatKy().filter((x) => x.lenh === 'ghi').length === 0);
+  void tepKenhCua;
+  // (i) hỏng không lan — dữ liệu
+  const ki = khoDot({ gocGoi });
+  tin(ki.kho, ['GIAO', 'P2', 'việc thử hỏng'], o(0));
+  fs.appendFileSync(`${ki.dot}/tin.jsonl`, '{dòng hỏng\n');
+  const sys = [];
+  for (let i = 0; i < 3; i++) {
+    const r = chayHook(gocGoi, 'PostToolUse', { cwd: ki.w2, tool_name: 'Bash', session_id: 's-hong' }, { nowMs: T0 + (i + 1) * PHUT });
+    if (r.sys) sys.push(r.sys);
+    if (r.ctx && r.ctx.includes('GIAO')) sys.push('ĐƯA TIN DÙ HỎNG');
+  }
+  const coNhip = fs.existsSync(`${ki.dot}/song/s-hong.json`);
+  so('(i) dòng hỏng', 'nhịp vẫn ghi, đúng 1 cảnh báo «không đọc được hộp tin»', `nhịp=${coNhip} ${sys.join(' | ')}`, coNhip && sys.length === 1 && sys[0].includes('không đọc được hộp tin'));
+  const dongs = fs.readFileSync(`${ki.dot}/tin.jsonl`, 'utf8').split('\n').filter((l) => l && l !== '{dòng hỏng');
+  fs.writeFileSync(`${ki.dot}/tin.jsonl`, `${dongs.join('\n')}\n`);
+  const sua = chayHook(gocGoi, 'PostToolUse', { cwd: ki.w2, tool_name: 'Bash' }, { nowMs: T0 + 5 * PHUT });
+  so('(i) sửa tệp → đưa tin lại', 'có GIAO', sua.ctx ?? '', (sua.ctx ?? '').includes('GIAO'));
+  fs.chmodSync(`${ki.dot}/tin.jsonl`, 0o000);
+  const sys2 = [];
+  for (let i = 0; i < 3; i++) {
+    const r = chayHook(gocGoi, 'PostToolUse', { cwd: ki.w2, tool_name: 'Bash', session_id: 's-khoa' }, { nowMs: T0 + (6 + i) * PHUT });
+    if (r.sys) sys2.push(r.sys);
+  }
+  fs.chmodSync(`${ki.dot}/tin.jsonl`, 0o644);
+  so('(i) hộp tin không đọc được', 'nhịp vẫn ghi, đúng 1 cảnh báo', `nhịp=${fs.existsSync(`${ki.dot}/song/s-khoa.json`)} ${sys2.join(' | ')}`, fs.existsSync(`${ki.dot}/song/s-khoa.json`) && sys2.length === 1 && sys2[0].includes('không đọc được hộp tin'));
+  // (i) hỏng không lan — lúc nạp: bản sao gói có phần tin ném khi nạp, và bản sao thiếu một tệp phần tin nhập.
+  for (const [ten, goc2] of [
+    ['tin-dua ném lúc nạp', banSao('tin-dua.mjs', "const bam = (s) =>", "throw new Error('nạp hỏng');\nconst bam = (s) =>")],
+    ['thiếu tệp tin-doc.mjs', (() => { const g3 = banSao('tin-dua.mjs', "const LOI_BAO = 'không đọc được hộp tin';", "const LOI_BAO = 'không đọc được hộp tin'; "); fs.rmSync(`${g3}/scripts/tin-doc.mjs`); return g3; })()],
+  ]) {
+    const kn2 = khoDot({ gocGoi });
+    tin(kn2.kho, ['GIAO', 'P2', 'việc thử nạp hỏng'], o(0));
+    const s3 = [];
+    let coCtxTin = false;
+    for (let i = 0; i < 3; i++) {
+      const r = chayHook(goc2, 'PostToolUse', { cwd: kn2.w2, tool_name: 'Bash', session_id: `s-nap-${i}` }, { nowMs: T0 + (i + 1) * PHUT });
+      if (r.sys) s3.push(r.sys);
+      if ((r.ctx ?? '').includes('GIAO')) coCtxTin = true;
+    }
+    const nhip = [0, 1, 2].every((i) => fs.existsSync(`${kn2.dot}/song/s-nap-${i}.json`));
+    so(`(i) ${ten}`, 'nhịp vẫn ghi cả ba lần, không đưa tin, đúng 1 cảnh báo', `nhịp=${nhip} ctx=${coCtxTin} ${s3.join(' | ')}`, nhip && !coCtxTin && s3.length === 1 && s3[0].includes('không đọc được hộp tin'));
+  }
+  // (h) nhanh khi không có tin — so trọn hook-nhip với bản cũ, xen kẽ, mỗi lần một tiến trình mới
+  if (doNhanh) {
+    const cu = banCuGoi();
+    const kn = khoDot({ gocGoi });
+    const khongDot = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'gt-khongdot-')));
+    git(khongDot, 'init', '-q', '-b', 'main');
+    for (const cwd of [kn.w2, khongDot]) {
+      const doLuot = () => {
+        const moi = [];
+        const cuMs = [];
+        for (let i = 0; i < 30; i++) {
+          for (const [g2, mang] of [[cu, cuMs], [gocGoi, moi]]) {
+            const t = process.hrtime.bigint();
+            spawnSync(process.execPath, [`${g2}/scripts/hook-nhip.mjs`], { cwd, input: JSON.stringify({ cwd, session_id: 's-do', hook_event_name: 'PostToolUse', tool_name: 'Bash' }), env: { ...process.env, DIEU_PHOI_GH: '/khong/co' } });
+            mang.push(Number(process.hrtime.bigint() - t) / 1e6);
+          }
+        }
+        return { moi: trungVi(moi), cu: trungVi(cuMs) };
+      };
+      let r = doLuot();
+      let chenh = r.moi - r.cu;
+      if (chenh > 20 && chenh <= 30) {
+        const r2 = doLuot();
+        if (r2.moi - r2.cu < chenh) { r = r2; chenh = r2.moi - r2.cu; }
+      }
+      so(`(h) nhanh: ${cwd === khongDot ? 'kho không đợt' : 'đợt không tin'}`, 'chênh trung vị ≤ 20 ms', `mới ${r.moi.toFixed(1)} · cũ ${r.cu.toFixed(1)} · chênh ${chenh.toFixed(1)} ms`, chenh <= 20);
+    }
+    // Hộp tin 5 000 dòng không gửi phiên đo: lần gọi thường (không tin mới) vẫn trong trần.
+    const k5 = khoDot({ gocGoi });
+    let s5 = '';
+    for (let i = 0; i < 5000; i++) s5 += `${JSON.stringify({ text: `BÁO G-0101-${i + 1} · G → P1\nbáo ${i}`, luc: new Date(T0 - 3600_000 + i * 100).toISOString() })}\n`;
+    fs.writeFileSync(`${k5.dot}/tin.jsonl`, s5);
+    const moi5 = [];
+    const cu5 = [];
+    for (let i = 0; i < 30; i++) {
+      for (const [g2, mang] of [[cu, cu5], [gocGoi, moi5]]) {
+        const t = process.hrtime.bigint();
+        spawnSync(process.execPath, [`${g2}/scripts/hook-nhip.mjs`], { cwd: k5.w2, input: JSON.stringify({ cwd: k5.w2, session_id: 's-5k', hook_event_name: 'PostToolUse', tool_name: 'Bash' }) });
+        mang.push(Number(process.hrtime.bigint() - t) / 1e6);
+      }
+    }
+    const c5 = trungVi(moi5) - trungVi(cu5);
+    so('(h) nhanh: hộp tin 5 000 dòng', 'chênh trung vị ≤ 20 ms', `mới ${trungVi(moi5).toFixed(1)} · cũ ${trungVi(cu5).toFixed(1)} · chênh ${c5.toFixed(1)} ms`, c5 <= 20);
+  }
+  return { loi, hang };
+}
+
+test('GT-07 tin-tu-den', async () => {
+  const { loi, hang } = await kiemTuDen(GOI);
+  inMaTran('GT-07', hang);
+  assert.equal(hang.length, 21);
+  assert.deepEqual(loi, []);
+});
+
+test('GT-07-do dua-lan-hai', async () => {
+  const goc = banSao('tin-dua.mjs', 'if (!dd || dd.cu || dd.den !== ten.minh || daDua.has(khoaDong(d))) continue;', 'if (!dd || dd.cu || dd.den !== ten.minh) continue;');
+  const { loi } = await kiemTuDen(goc, { doNhanh: false });
+  assert.ok(loi.some((l) => l.startsWith('(b)') || l.startsWith('(k)')), `bỏ dấu đã đưa phải đỏ «đưa lần hai», nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-07-do tac-tu-con', async () => {
+  const goc = banSao('tin-dua.mjs', "export const laTacTuCon = (dauVao) => typeof dauVao?.agent_id === 'string' && dauVao.agent_id !== '';", 'export const laTacTuCon = () => false;');
+  const { loi } = await kiemTuDen(goc, { doNhanh: false });
+  assert.ok(loi.some((l) => l.startsWith('(g)')), `bỏ kiểm tác tử con phải làm (g) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-07-do cham', async () => {
+  const goc = banSao('hook-nhip.mjs', "  if (!dauVao?.cwd) return { ngu_canh: null, canh_bao: null };", "  { const t = Date.now(); while (Date.now() - t < 50); }\n  if (!dauVao?.cwd) return { ngu_canh: null, canh_bao: null };");
+  const { loi } = await kiemTuDen(goc);
+  assert.ok(loi.some((l) => l.startsWith('(h) nhanh')), `thêm 50 ms phải làm (h) đỏ nêu số đo, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-07-do bao-moi-lan', async () => {
+  const goc = banSao('tin-dua.mjs', '  if (fs.existsSync(p)) return null;\n  fs.mkdirSync(path.dirname(p), { recursive: true });\n  fs.writeFileSync(p, `${JSON.stringify({ worktree, ly_do: lyDo', '  fs.mkdirSync(path.dirname(p), { recursive: true });\n  fs.writeFileSync(p, `${JSON.stringify({ worktree, ly_do: lyDo');
+  const { loi } = await kiemTuDen(goc, { doNhanh: false });
+  assert.ok(loi.some((l) => l.startsWith('(i) dòng hỏng') || l.startsWith('(i) hộp tin không đọc được')), `báo mỗi lần phải làm (i) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-07-do nhap-tinh', async () => {
+  // Bản tiêm nhập phần tin tĩnh ở đầu hook-nhip; với phần tin ném lúc nạp, hook chết trước khi ghi nhịp.
+  const goc = banSao('hook-nhip.mjs', "import { bayGio, ghiNhipSong } from './song.mjs';", "import { bayGio, ghiNhipSong } from './song.mjs';\nimport './tin-dua.mjs';");
+  const p = `${goc}/scripts/tin-dua.mjs`;
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('const bam = (s) =>', "throw new Error('nạp hỏng');\nconst bam = (s) =>"));
+  const { chayHook } = await import('./tin-kho-thu.mjs');
+  const kn = khoDot({ gocGoi: goc });
+  tin(kn.kho, ['GIAO', 'P2', 'việc thử'], { gocGoi: GOI, nowMs: T0 });
+  chayHook(goc, 'PostToolUse', { cwd: kn.w2, tool_name: 'Bash', session_id: 's-tinh' }, { nowMs: T0 + PHUT });
+  assert.ok(!fs.existsSync(`${kn.dot}/song/s-tinh.json`), 'nhập tĩnh phải làm hook chết trước khi ghi nhịp (chứng tỏ nạp động là cần)');
+  console.log('  nhập tĩnh: nhịp không được ghi — đối chứng cho hàng nạp lỗi của (i)');
+});
+
+test('GT-07-do chap-nhan-truoc', async () => {
+  const goc = banSao('tin.mjs', "  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  return text;\n}\n\n// Hồ sơ của vòng", "  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  if (kl === 'XONG') await nc.them({ may: 'chap-nhan', ma, luc: new Date(nowMs + 1).toISOString() });\n  return text;\n}\n\n// Hồ sơ của vòng");
+  const { loi } = await kiemTuDen(goc, { doNhanh: false });
+  assert.ok(loi.some((l) => l.startsWith('(j) trước khi đến phiên G')), `chấp nhận trước khi nghe phải làm (j) đỏ, nhận: ${loi.join(' | ')}`);
 });

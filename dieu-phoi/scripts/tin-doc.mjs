@@ -111,5 +111,17 @@ export function gapSo(dong, { nowMs = Date.now(), choCong = new Set() } = {}) {
   return muc.sort((a, b) => Date.parse(a.mo_luc) - Date.parse(b.mo_luc));
 }
 
+// Mã mới của người gửi: <người gửi>-<ddmm UTC>-<n>, n = lớn nhất cùng tiền tố trong nơi chứa + 1.
+export function maMoi(dong, minh, nowMs) {
+  const d = new Date(nowMs);
+  const tien = `${minh}-${String(d.getUTCDate()).padStart(2, '0')}${String(d.getUTCMonth() + 1).padStart(2, '0')}-`;
+  let max = 0;
+  for (const x of dong) {
+    const dd = x.text ? docDongDau(x.text) : null;
+    if (dd?.ma?.startsWith(tien)) max = Math.max(max, Number(dd.ma.slice(tien.length)) || 0);
+  }
+  return `${tien}${max + 1}`;
+}
+
 // Sổ MỞ: bỏ vòng đã chấp nhận, đã trả, đã huỷ, và yêu cầu cũ đã có trả lời.
 export const soMo = (muc) => muc.filter((v) => v.trang_thai !== 'da-chap-nhan' && v.trang_thai !== 'dong');

@@ -178,3 +178,24 @@ export function binhLuanSan(n, t0, { tuId = 1 } = {}) {
   });
 }
 export const docLuot = (gh) => gh.nhatKy().filter((x) => x.lenh === 'doc' && x.doi_so.some((a) => a.includes('/issues/308/comments')));
+
+// ---------- hook: chạy CHÍNH lệnh rút từ hooks.json (thay ${CLAUDE_PLUGIN_ROOT}) ----------
+export function lenhHook(gocGoi, suKien, chua = null) {
+  const hj = docJ(path.join(gocGoi, 'hooks', 'hooks.json'));
+  const khoi = hj.hooks[suKien] ?? [];
+  for (const m of khoi) for (const h of m.hooks) if (chua == null || h.command.includes(chua)) return h.command.split('${CLAUDE_PLUGIN_ROOT}').join(gocGoi);
+  return null;
+}
+export function chayHook(gocGoi, suKien, dauVao, { nowMs = null, gh = null, chua = null } = {}) {
+  const lenh = lenhHook(gocGoi, suKien, chua);
+  assert.ok(lenh, `hooks.json không có lệnh cho ${suKien}${chua ? ` chứa ${chua}` : ''}`);
+  const env = { ...ENV };
+  if (nowMs != null) env.DIEU_PHOI_NOW_MS = String(nowMs);
+  if (gh) env.DIEU_PHOI_GH = gh;
+  const r = spawnSync('sh', ['-c', lenh], { cwd: dauVao.cwd, env, input: JSON.stringify({ hook_event_name: suKien, session_id: `s-${path.basename(dauVao.cwd)}`, ...dauVao }), encoding: 'utf8' });
+  let json = null;
+  try {
+    json = r.stdout.trim() ? JSON.parse(r.stdout) : null;
+  } catch {}
+  return { ma: r.status, out: r.stdout, err: r.stderr, json, ctx: json?.hookSpecificOutput?.additionalContext ?? null, sys: json?.systemMessage ?? null };
+}

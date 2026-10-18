@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { timThuMucDot } from './dot.mjs';
 import { bayGio } from './song.mjs';
-import { KHAU_LENH, KHAU_LENH_MO, docDongDau, gapSo, soMo, vietDongDau } from './tin-doc.mjs';
+import { KHAU_LENH, KHAU_LENH_MO, docDongDau, gapSo, maMoi, soMo, vietDongDau } from './tin-doc.mjs';
 import { goiGh } from './tin-gh.mjs';
 import { khoCua, loiGiaoViec, suyLoiGiaoDot, trangThaiHoSoCua } from './tin-giao.mjs';
 import { minhTrongDot, noiChuaDot } from './tin-noi-chua.mjs';
@@ -80,18 +80,6 @@ async function noiChuaCua(cwd, co) {
   const { minh, hangViec } = minhTrongDot(thuMuc, cwd);
   if (!minh) loi('cwd không thuộc đợt — chạy từ worktree của một dãy hoặc của giám sát');
   return { nc: noiChuaDot(thuMuc), minh, hangViec, thuMuc, loai: 'dot' };
-}
-
-function maMoi(dong, minh, nowMs) {
-  const d = new Date(nowMs);
-  const ddmm = `${String(d.getUTCDate()).padStart(2, '0')}${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-  const tien = `${minh}-${ddmm}-`;
-  let max = 0;
-  for (const x of dong) {
-    const dd = x.text ? docDongDau(x.text) : null;
-    if (dd?.ma?.startsWith(tien)) max = Math.max(max, Number(dd.ma.slice(tien.length)) || 0);
-  }
-  return `${tien}${max + 1}`;
 }
 
 const CAU_SE_GIAO = /^sẽ giao\s+\S+(?:\s+\S+){2,}$/iu;
