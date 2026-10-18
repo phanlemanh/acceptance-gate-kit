@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ba02501acbf14e03b48383433f10803b3f1a71de
+verified_commit: e19134eedaad12977099a095d4fa98ffd6ad35be
 human_signoff: Manh Phan 2026-10-18
 ---
 
@@ -236,3 +236,7 @@ none — every multi-run eval is uniform
 Round 1: lượt chạy đầu; E6 giữ run_id r1 qua các round sau (carry-forward).
 Round 2: REJECT (P179) theo run-log — một lệnh suite plugin vung:3 đỏ ở lượt đó; 16 dòng ghi sổ known-limits. Returned to implementation.
 Round 3: 12 lệnh suite chạy mới, tất cả xanh; các eval E1, E3, E5, E6, E8-E13 mang carry-forward, hai panel E4 và E7 giữ nguyên từ round 2. Các mục ngoài hợp đồng mang từ round trước nằm ở review-findings.md.
+
+### Re-pin lần 1 — 2026-10-18, do hoá cũ do sửa đồ thử DP2-11 sau chữ ký (CI của #381)
+run_id: repin-20261018T021024Z-45919
+sha: e19134eedaad12977099a095d4fa98ffd6ad35be · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng · ngoài làn máy: E4 (E4 không khai paths), E7 (E7 không khai paths)
