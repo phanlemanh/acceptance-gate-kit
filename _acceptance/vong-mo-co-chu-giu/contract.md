@@ -134,7 +134,7 @@ Thuật ngữ:
   Chiều đỏ: bản tiêm cho KẸT đóng vòng → mục `ket` biến mất, ca nêu tên mục. Bản tiêm bỏ nhánh đọc tin trong `xem` → ca
   `xem` đỏ, nêu mã. Bản tiêm cho XONG đóng vòng ngay khi ghi → mục `cho-chap-nhan` biến mất, ca nêu «chấp nhận một phía».
 - AC-4: Given bộ đọc dòng đầu `docDongDau`, When đọc ma trận văn bản viết sẵn, Then mỗi hàng khớp, số hàng in ra. Ma trận
-  gồm hai ca thật ngày 16/10 (chép nguyên văn dòng đầu và thân) và các ca biên:
+  gồm hai ca thật ngày 16/10 (chép dòng đầu và thân, tên kho tiêu thụ thay bằng `kho-tieu-thu`) và các ca biên:
   - (a) thân có «XONG MBP-1710-1» mà dòng đầu là BÁO → không đóng vòng `MBP-1710-1`;
   - (b) dòng đầu «#453 chưa gọi lượt» → không khẩu lệnh nào;
   - (c) `xong MBP-1710-1` viết thường → không khẩu lệnh nào;
@@ -149,8 +149,9 @@ Thuật ngữ:
   Chiều đỏ: bản tiêm phân loại trên cả thân → hàng (a) đỏ. Bản tiêm chỉ lấy từ đầu của dòng → hàng (h) đỏ.
 - AC-5: Given kênh giả và hai trạng thái cục bộ (máy `MBP`, máy `M5`), When chạy round-trip, Then:
   - `tin GIAO --kenh` đăng đúng một bình luận;
-  - kênh có 35 bình luận sẵn: `tin so --kenh` lần một đọc 36, lần hai (sau khi thêm 2) đọc đúng 2, đếm bằng nhật ký gh
-    giả. Con trỏ bằng mã bình luận cuối;
+  - kênh có 35 bình luận sẵn: `tin so --kenh` lần một đọc 36, lần hai (sau khi thêm 2) xin từ mốc con trỏ: nhật ký gh
+    giả ghi đúng 3 bình luận trả về (2 mới + 1 ở mốc), bản đồng bộ cục bộ nhận đúng 2 bình luận mới, không bình luận nào
+    ghi hai lần. Con trỏ bằng mã bình luận cuối;
   - vòng do `MBP` mở, `M5` NHẬN rồi XONG bằng `tin … --kenh`: sổ của `M5` ghi nấc 7, không còn nghĩa vụ nào; sổ của `MBP` có
     mục `cho-chap-nhan` cho tới khi hook ở worktree giữ kênh của `MBP` đưa XONG vào phiên, rồi mục ấy thành `da-chap-nhan`;
     nhật ký gh giả có 0 lời gọi ghi trong lượt hook. `MBP` gõ `tin MỞ LẠI <mã> "<vì sao>" --kenh` → đúng một bình luận mới,
@@ -233,7 +234,8 @@ Thuật ngữ:
 - AC-9: Given kho thử có đợt, When dựng kế hoạch `tiep-tuc` cho một dãy `mo-chip`, Then:
   - `ghi_danh` chứa phần sáu dòng do `loiGiaoViec` sinh, bằng từng byte với lời giao của `tin GIAO` cùng đầu vào;
   - Ý định là dòng `Vì sao:` của ô cơ hội trong worktree;
-  - hàng không có hồ sơ → hành động `khong-hang`, `ly_do` chứa «thiếu Kết quả», không có `ghi_danh`.
+  - hàng chưa có hồ sơ → chip vẫn mở, dòng Ý định là «đọc hồ sơ <slug>»; dãy không có hàng nào → `khong-hang`, không
+    có `ghi_danh`.
 
   Ca của hồ sơ đã ký đọc `ghi_danh` vẫn xanh trên bản này (DP3, DP4, ON-DINH-R2, SDT). Chiều đỏ: bản tiêm cho chip mở khi
   thiếu Kết quả → ca nêu «thiếu Kết quả».

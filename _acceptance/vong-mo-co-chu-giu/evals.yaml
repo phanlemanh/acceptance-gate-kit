@@ -111,7 +111,7 @@ evals:
     paths: [dieu-phoi/scripts/tin.mjs, tests/dieu-phoi/tin.test.mjs]
     expected: >
       exit 0; "ok" cho "GT-05 kenh-con-tro": GIAO --kenh → tệp ca thêm đúng 1 bình luận; 35 sẵn → lượt 1 đọc 36, thêm 2 → lượt
-      2 đọc 2 (đếm từ nhật ký gh giả, so bằng nhau); con trỏ === id bình luận cuối; vòng MBP mở, M5 NHẬN rồi XONG qua --kenh
+      2 xin bằng since, nhật ký gh giả trả 3 (2 mới + 1 ở mốc), `canh` in "đọc mới 2"; con trỏ === id bình luận cuối; vòng MBP mở, M5 NHẬN rồi XONG qua --kenh
       dưới trạng thái cục bộ thứ hai → sổ M5 nấc 7 không nghĩa vụ; sổ MBP cho-chap-nhan, sau hook ở worktree giữ kênh MBP →
       da-chap-nhan, nhật ký gh giả 0 lời gọi ghi trong lượt hook; MBP MỞ LẠI --kenh → đúng 1 bình luận, sổ M5 sau đồng bộ →
       mo-lai; ma trận cửa sổ 9 bình luận → `so --kenh --tu <ngày> --json` deepStrictEqual {vong_da_dong: 1,
@@ -183,9 +183,11 @@ evals:
     paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/muc-day.mjs, tests/dieu-phoi/tin.test.mjs]
     expected: >
       exit 0; "ok" cho "GT-09 chip-sau-truong": ghi_danh của dãy mo-chip chứa phần sáu dòng === từng byte phần sáu dòng của
-      `tin GIAO` cùng đầu vào (cùng hàm loiGiaoViec); Ý định === dòng "Vì sao:" của opportunity.md trong worktree; hàng không
-      hồ sơ → hanh_dong "khong-hang", ly_do chứa "thiếu Kết quả", không có ghi_danh. "ok" cho "GT-09-do mo-khi-thieu": bản
-      sao cho chip mở khi thiếu Kết quả (kiểm bước tiêm áp) → ca nêu "thiếu Kết quả".
+      `tin GIAO` cùng đầu vào (cùng hàm loiGiaoViec); Ý định === dòng "Vì sao:" của opportunity.md trong worktree; hàng chưa
+      có hồ sơ → hanh_dong "mo-chip", dòng Ý định === "Ý định: đọc hồ sơ hang-b"; dãy không có hàng nào → hanh_dong
+      "khong-hang", ly_do === "khong-co-hang", không có ghi_danh (12 hàng). "ok" cho "GT-09-do bo-sau-truong": bản sao bỏ sáu
+      dòng khỏi ghi_danh → ca nêu "chip mở với sáu nhãn". "ok" cho "GT-09-do bo-chan-het-hang": bản sao bỏ chặn dãy hết hàng
+      (kiểm bước tiêm áp) → hàng "dãy không có hàng nào" đỏ, nêu "thiếu Kết quả".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9b
     criterion: AC-9

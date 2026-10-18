@@ -1155,13 +1155,18 @@ export async function kiemChip(gocGoi) {
   const { keHoachDay } = await nap(gocGoi, 'tiep-tuc.mjs');
   const p2b = keHoachDay(k3.dot, {}).find((x) => x.day === 'P2');
   so('hàng chưa có hồ sơ: chip vẫn mở, Ý định trỏ hồ sơ', 'mo-chip · Ý định: đọc hồ sơ hang-b', `${p2b?.hanh_dong} ${SAU_DONG(p2b?.ghi_danh ?? '')[0]}`, p2b?.hanh_dong === 'mo-chip' && SAU_DONG(p2b?.ghi_danh ?? '')[0] === 'Ý định: đọc hồ sơ hang-b');
+  // Dãy không có hàng nào → không mở chip, không có lời ghi danh.
+  const hv = docJ(path.join(k3.dot, 'hang-viec.json'));
+  ghiJ(path.join(k3.dot, 'hang-viec.json'), { ...hv, hang: (hv.hang ?? []).filter((h) => h.day !== 'P2') });
+  const p2c = keHoachDay(k3.dot, {}).find((x) => x.day === 'P2');
+  so('dãy không có hàng nào: không mở chip', 'khong-hang · khong-co-hang · không ghi_danh', `${p2c?.hanh_dong} ${p2c?.ly_do} ${p2c?.ghi_danh ?? '—'}`, p2c?.hanh_dong === 'khong-hang' && p2c?.ly_do === 'khong-co-hang' && p2c?.ghi_danh == null);
   return { loi, hang };
 }
 
 test('GT-09 chip-sau-truong', async () => {
   const { loi, hang } = await kiemChip(GOI);
   inMaTran('GT-09', hang);
-  assert.equal(hang.length, 11);
+  assert.equal(hang.length, 12);
   assert.deepEqual(loi, []);
 });
 
@@ -1169,6 +1174,12 @@ test('GT-09-do bo-sau-truong', async () => {
   const goc = banSao('tiep-tuc.mjs', "'dãy chưa có hàng kế — hỏi giám sát'}\\n${loiGiaoViec(lg.truong)}`,", "'dãy chưa có hàng kế — hỏi giám sát'}`,");
   const { loi } = await kiemChip(goc);
   assert.ok(loi.some((l) => l.startsWith('chip mở với sáu nhãn')), `bỏ sáu trường khỏi chip phải đỏ nêu sáu nhãn, nhận: ${loi.join(' | ')}`);
+});
+
+test('GT-09-do bo-chan-het-hang', async () => {
+  const goc = banSao('tiep-tuc.mjs', 'if (!ke.hang) return { ...nen, hanh_dong: HANH_DONG.khongHang, ly_do: ke.ly_do };', '');
+  const { loi } = await kiemChip(goc);
+  assert.ok(loi.some((l) => l.startsWith('dãy không có hàng nào') && l.includes('thiếu Kết quả')), `bỏ chặn dãy hết hàng phải đỏ nêu lý do lệch, nhận: ${loi.join(' | ')}`);
 });
 
 // ---------- AC-10: luật trong LUAT.md và README khớp bộ khẩu lệnh của máy ----------
