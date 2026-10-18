@@ -326,7 +326,13 @@ function chotMay(dir) {
     const chongLung = dongRepin.filter(o => o.sha === vc).pop();
     if (chongLung && Array.isArray(chongLung.evals_not_machine_touched)) touched = chongLung.evals_not_machine_touched.filter(id => ngoaiMay.has(id));
   }
-  return { ac_khong: khong.map(x => x.ac), ac_khong_mo: khong.map(x => x.mo), touched };
+  // Nhãn «đỏ sẵn trên nền» (hồ sơ ho-so-da-ky-giu-tuoi): hỏi lib/do-san-tren-nen.cjs#nhanHoSo — cùng hàm bản
+  // đồ hỏi; nó gọi CHÍNH checkRepinEvals của lưới trước-gộp và kiểm lại. Chỉ nhãn đạt mới hiện; tệp luật vắng
+  // (bộ máy chép đời trước) → thẻ như cũ.
+  let doSan = null;
+  try { const ds = require('../lib/do-san-tren-nen.cjs'); if (typeof ds.nhanHoSo === 'function') doSan = ds.nhanHoSo(dir); }
+  catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; }
+  return { ac_khong: khong.map(x => x.ac), ac_khong_mo: khong.map(x => x.mo), touched, ...(doSan ? { do_san: doSan } : {}) };
 }
 // Bullet list VỚI dòng-nối: contract hard-wrap 80 cột nên phần nối của một bullet
 // không mở "- " — lọc theo từng dòng từng vứt nửa sau câu ("AC-6 (sha vào" cụt
@@ -1243,7 +1249,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched, ...(cm.do_san ? { do_san: cm.do_san } : {}) }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1431,6 +1437,10 @@ if (cm.ac_khong.length) flags.push(['finfo', `AC không có chốt máy khi ghim
 // Cờ VÀNG chỉ đọc dòng ghim CHỐNG LƯNG pin hiện tại: hồ sơ đã chứng lại rồi ghim
 // sạch phải tắt cờ, không mang cờ vĩnh viễn.
 if (cm.touched.length) flags.push(['fwarn', `Pin hiện tại: diff đã chạm vật ${esc(cm.touched.join(', '))} đo (ngoài làn máy) mà lượt ghim gần nhất KHÔNG chạy các eval đó — chưa chứng lại.`]);
+// Nhãn «đỏ sẵn trên nền»: eval vẫn ĐỎ ở pin hiện tại — nhãn chỉ nói cái đỏ ấy đã ghi trên nhánh chính trước
+// vòng này. Chữ nhãn rút từ bảng chung NHAN; không bao giờ đọc thành đạt.
+const NHAN_DO_SAN = require('../lib/nhan-canh-gay.cjs').NHAN.DO_SAN;
+if (cm.do_san) flags.push(['fwarn', `${esc(NHAN_DO_SAN)}: ${esc(cm.do_san.note.split(' · ').map(x => x.replace(/^đỏ sẵn trên nền — /, '')).join(' · '))} — eval đang đỏ ở pin hiện tại; cái đỏ đã ghi trên nhánh chính trước vòng này nên không chặn vòng này, nhưng KHÔNG tính là qua.`]);
 // Cụm ngoài vùng phủ: bộ đo đang hụt so với chỗ lỗi thật xuất hiện. Không nêu
 // đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
 if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);
@@ -1454,6 +1464,7 @@ else flags.push(['fwarn', 'Bằng chứng máy CHƯA đủ trường (run_id · 
 P.push(`<div class="lab">Lưu ý trước khi ký</div>${flags.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}`);
 P.push(`<details style="margin-top:14px"><summary style="font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#8a887f;font-weight:600;cursor:pointer">Máy đã lo (liếc qua, không cần làm gì)</summary>`);
 if (machineRows.length === 0) P.push(`<div class="mach" style="margin-top:8px">Không có phép kiểm máy tự động — feature này toàn judgment do người chấm.</div>`);
+else if (allPass && cm.do_san) P.push(`<div class="mach" style="margin-top:8px"><b>${machinePass}/${machineRows.length} phép kiểm máy đạt lúc ký</b> · pin hiện tại: ${esc(cm.do_san.ids.join(', '))} ${esc(NHAN_DO_SAN)}.</div>`);
 else if (allPass) P.push(`<div class="mach" style="margin-top:8px"><b>${machinePass}/${machineRows.length} phép kiểm máy đều đạt</b>${red ? ` · ${red} thật sự mới (chạy code cũ là hỏng → đúng là test feature)` : ''}${green ? ` · ${green} canh hồi quy` : ''}${evComplete ? ' · bằng chứng đủ, không lỗi.' : '.'}</div>`);
 else P.push(`<div class="flag fred" style="margin-top:8px"><b>${machinePass}/${machineRows.length} phép kiểm máy đạt · ${machineRows.length - machinePass} CHƯA đạt</b> — xem lại trước khi ký.</div>`);
 P.push(`</details>`);

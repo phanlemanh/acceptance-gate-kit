@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Sau mỗi đợt gộp vào nhánh chính, máy tự chạy lại bằng chứng của các việc đã ký bị đợt ấy làm cũ, gọi tên đúng PR làm đỏ, và để vòng khác đi tiếp với nhãn «đỏ sẵn trên nền» thay vì dừng lại gọi anh — kho không bật thì không đổi gì.",
+  "scope_plain": "Không dựng lịch chạy đêm, luân phiên máy hay dọn việc tồn đọng của crm — kho tự dùng lệnh này · Không chia đôi để tìm PR gây đỏ, vì mỗi bước chia là thêm một lượt ghim lại · Không gắn nhãn cho bộ kiểm chung của kho: bộ kiểm chung đỏ sẵn vẫn chặn (theo câu Hỏi-2 anh đã chọn), có giới hạn khai kèm ngưỡng · Không có hạn «đỏ sẵn quá N ngày», không tự mở PR sửa, không ghim việc tồn đọng — để sau · Không làm ba việc kit xếp sau (lời mời hiện mức, hạng rủi ro theo thay đổi, nới làn đi tiếp) — cửa sổ kế."
+}
