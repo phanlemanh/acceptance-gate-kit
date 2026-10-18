@@ -5,7 +5,7 @@ slug: vong-mo-co-chu-giu
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-17-vong-mo-co-chu-giu-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-18
