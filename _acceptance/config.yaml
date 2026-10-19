@@ -389,6 +389,16 @@ executors:
     emmd_loi_dan_soan: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan loi-dan-soan
     emmd_dau_cuoi_that: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan dau-cuoi-that
     bo_giai_nhay: "node tests/scripts/bo-giai-nhay.test.mjs"
+    # Hồ sơ nhay-don-nhan-doi: các chân BG10a–e của cùng tệp ca, cộng BG8/BG5 (đột biến đường 10) và răng
+    # lịch sử. Giá trị CỐ Ý viết nháy KÉP: viết nháy đơn có '' thì trên mã cũ `bash -c` bị xẻ và có thể
+    # thoát 0 — xanh giả (đo ở BG10e, sổ d-20261018T011544Z-5).
+    ndnd_ma_tran: "bash -c 'out=$(BG_ONLY=BG10a node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10a; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_danh_sach: "bash -c 'out=$(BG_ONLY=BG10b node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_chieu_im: "bash -c 'out=$(BG_ONLY=BG10c,BG1,BG2,BG3,BG4,BG6,BG7,BG9 node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10c BG1 BG2 BG3 BG4 BG6 BG7 BG9; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_s4_args: "bash -c 'out=$(BG_ONLY=BG10d node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10d; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_lan_ghim: "bash -c 'out=$(BG_ONLY=BG10e node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10e; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_dot_bien: "bash -c 'out=$(BG_ONLY=BG8,BG5 node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG8 BG5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ndnd_lich_su_do: "node _acceptance/nhay-don-nhan-doi/rang/lich-su-do.mjs"
     # Vật của hồ sơ release-2-11-0. Giá trị CỐ Ý là scalar vỏ nháy kép có `\"` bên trong:
     # bộ giải TRƯỚC 2.11.0 trả chuỗi còn dấu chéo ngược nên `--chan` nhận `\"diagram\"`
     # và răng thoát 2 có tên. Tức eval AC-7 không thể xanh trên bản chưa vá — bằng chứng

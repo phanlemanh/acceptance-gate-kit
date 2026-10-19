@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { mkKho } from './gia-lan-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -449,6 +450,112 @@ function bg9() {
   if (!hong) xanh('BG9', 'carry-plan va s4-args dong y ve paths (2 chieu tren cung fixture)');
 }
 
+// ─── BG10a–e — nháy đơn NHÂN ĐÔI (hồ sơ nhay-don-nhan-doi) ──────────────────
+// YAML 1.2.2 §7.3.2: trong vỏ nháy đơn, `''` là MỘT dấu nháy literal. Ca thật đầu tiên: làn ghim lại
+// crm C-2 17/10 (crm-onehub#375) — `tnv_khu_hoi: '… bash -c ''export TNV_LUONG_DIR=…'''` tới shell thành
+// `bash -c ''export …'`, biến không được đặt, tac-nhan-va E9=2. Hằng mong đợi lấy từ PyYAML 6.0.3
+// (`yaml.safe_load`) lúc thiết kế, ghi cứng — nguồn đối chiếu ngoài người vá; không gọi PyYAML lúc chạy
+// (CI không bảo đảm có, sổ d-3). Số khẳng định khai hằng, gõ tay.
+const BG10A_ASSERTS = 9;
+function bg10a() {
+  const ca = [
+    ['giua', "'a''b'", "a'b"],
+    ['dau_than', "'''a'", "'a"],
+    ['cuoi_than', "'a'''", "a'"],
+    ['chi_mot_nhay', "''''", "'"],
+    ['hai_cap_lien', "''''''", "''"],
+    ['crm', `'bash -c ''echo "x y"; echo z'''`, `bash -c 'echo "x y"; echo z'`],
+    ['kem_chu_thich', "'it''s'  # ghi chu", "it's"],
+    ['thang_trong_vo', "'a '' # b'", "a ' # b"],
+    ['rong', "''", null],
+  ];
+  if (ca.length !== BG10A_ASSERTS) { do_('BG10a', `so khang dinh ${ca.length} != BG10A_ASSERTS ${BG10A_ASSERTS} khai truoc`); return; }
+  const cfg = 'bg10a:\n' + ca.map(([k, v]) => `  ${k}: ${v}`).join('\n') + '\n';
+  let hong = 0;
+  for (const [ten, , mong] of ca) {
+    const thay = core.resolveConfigKey(cfg, `bg10a.${ten}`);
+    if (thay !== mong) { do_('BG10a', `[${ten}]: doi ${JSON.stringify(mong)}, thay ${JSON.stringify(thay)}`); hong++; }
+  }
+  if (!hong) xanh('BG10a', `nhay don nhan doi go dung (${BG10A_ASSERTS} o, hang PyYAML)`);
+}
+
+// Danh sách hai dạng + cổng chung gọi thẳng. So BẰNG trọn mảng (JSON), không includes.
+const BG10B_ASSERTS = 3;
+function bg10b() {
+  const cfg = "bg10b:\n  inline: [x, 'a''b', '''']\n  khoi:\n    - 'it''s'\n";
+  const ca = [
+    ['inline', JSON.stringify(core.resolveConfigList(cfg, 'bg10b.inline')), JSON.stringify(['x', "a'b", "'"])],
+    ['khoi', JSON.stringify(core.resolveConfigList(cfg, 'bg10b.khoi')), JSON.stringify(["it's"])],
+    ['parseFlowValue', JSON.stringify(core.parseFlowValue("'a''b'").value), JSON.stringify("a'b")],
+  ];
+  if (ca.length !== BG10B_ASSERTS) { do_('BG10b', `so khang dinh ${ca.length} != BG10B_ASSERTS ${BG10B_ASSERTS} khai truoc`); return; }
+  let hong = 0;
+  for (const [ten, thay, mong] of ca) if (thay !== mong) { do_('BG10b', `[${ten}]: doi ${mong}, thay ${thay}`); hong++; }
+  if (!hong) xanh('BG10b', `danh sach inline + khoi + parseFlowValue go dung (${BG10B_ASSERTS} khang dinh)`);
+}
+
+// Chiều im: ngoài vỏ nháy đơn HỢP LỆ thì không gì đổi — nháy kép giữ luật của nó, chữ trần giữ nguyên,
+// nháy đơn không cân vẫn trả NGUYÊN VĂN (fail-closed như thiết kế cũ, không «sửa giùm»).
+const BG10C_ASSERTS = 3;
+function bg10c() {
+  const ca = [['vo_kep', '"a\'\'b"', "a''b"], ['tran', "a''b", "a''b"], ['khong_can', "'a'b'", "'a'b'"]];
+  if (ca.length !== BG10C_ASSERTS) { do_('BG10c', `so khang dinh ${ca.length} != BG10C_ASSERTS ${BG10C_ASSERTS} khai truoc`); return; }
+  const cfg = 'bg10c:\n' + ca.map(([k, v]) => `  ${k}: ${v}`).join('\n') + '\n';
+  let hong = 0;
+  for (const [ten, , mong] of ca) {
+    const thay = core.resolveConfigKey(cfg, `bg10c.${ten}`);
+    if (thay !== mong) { do_('BG10c', `[${ten}]: doi ${JSON.stringify(mong)}, thay ${JSON.stringify(thay)}`); hong++; }
+  }
+  if (!hong) xanh('BG10c', `ngoai vo nhay don hop le giu nguyen (${BG10C_ASSERTS} o)`);
+}
+
+// Khứ hồi qua bên VIẾT thật (s4-args) rồi bên CHẠY thật (bash). Khẳng định là DẤU VẾT trên đĩa: lệnh
+// trong thật sự chạy với biến đã đặt. Đối chứng nháy kép chạy TRƯỚC, cùng đường — hỏng thì thông điệp
+// hạ tầng riêng, để chiều đỏ trong lịch sử không đọc «ca chưa chạy được» thành «lỗi thật».
+function bg10d() {
+  const vet = mkTmp('bg10d-vet-');
+  const lenh = (ten) => `bash -c 'export BG_VET="${vet}"; printf da-chay > "$BG_VET/${ten}"'`;
+  const chay = (cmdValue) => {
+    const r = chayS4Args(dungKho({ cmdValue, expectedExit: null }));
+    if (r.err) return { err: r.err };
+    const e1 = (r.args.evals || []).find(e => e.id === 'E1');
+    if (!e1 || !e1.cmd) return { err: 'tep args khong co E1.cmd' };
+    const run = spawnSync('bash', ['-c', e1.cmd], { encoding: 'utf8' });
+    return { cmd: e1.cmd, status: run.status };
+  };
+  const doc = (ten) => { const p = path.join(vet, ten); return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null; };
+  const kep = chay(`"${lenh('kep').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+  if (kep.err || doc('kep') !== 'da-chay') { do_('BG10d', `doi chung nhay kep hong (ha tang): ${kep.err || `exit ${kep.status}, cmd=${JSON.stringify(kep.cmd)}`}`); return; }
+  const don = chay(`'${lenh('don').replace(/'/g, "''")}'`);
+  if (don.err) { do_('BG10d', `s4-args khong sinh duoc args cho ca nhay don: ${don.err}`); return; }
+  let hong = 0;
+  if (don.cmd.includes("''")) { do_('BG10d', `cmd trong tep args con '' — bo doc chua go: ${JSON.stringify(don.cmd)}`); hong++; }
+  if (doc('don') !== 'da-chay') { do_('BG10d', `lenh trong khong chay (khong dau vet), exit ${don.status}, cmd=${JSON.stringify(don.cmd)}`); hong++; }
+  else if (don.status !== 0) { do_('BG10d', `co dau vet nhung exit ${don.status}`); hong++; }
+  if (!hong) xanh('BG10d', 'lenh nhay don dang crm qua s4-args chay dung (doi chung nhay kep xanh, dau vet co)');
+}
+
+// Khứ hồi qua CHÍNH repin-lane.mjs, đúng đường gây sự cố: eval `cmd: config:executors.script.rang_e1`,
+// khoá đó mang scalar nháy đơn (khoá fixture `e.yaml`). Đọc BẢN GHI làn (dòng kind:repin, evals_exit) theo
+// trường — thứ crm đọc lại — không đọc chữ in ra màn hình.
+function bg10e() {
+  const ganLan = (yaml) => {
+    const k = mkKho({ evals: [{ id: 'E1', cmd: 'rang_e1', yaml }] });
+    const r = k.lane(['--reason', 'bg10e', '--write']);
+    const pin = (() => { try { return k.docLog().filter(l => l.kind === 'repin').pop() || null; } catch { return null; } })();
+    return { k, r, pin, dau: k.dem('E1.txt') };
+  };
+  const kep = ganLan(`"bash -c 'echo ran >> \\"$GG_DAU/E1.txt\\"'"`);
+  if (kep.r.status !== 0 || kep.dau !== 1) { do_('BG10e', `doi chung nhay kep hong (ha tang): lane exit ${kep.r.status}, dau vet ${kep.dau}: ${String(kep.r.stderr || '').split('\n').filter(Boolean).slice(-2).join(' | ')}`); return; }
+  const don = ganLan(`'bash -c ''echo ran >> "$GG_DAU/E1.txt"'''`);
+  let hong = 0;
+  const evalsTxt = fs.readFileSync(path.join(don.k.ws, 'evals.yaml'), 'utf8');
+  if (evalsTxt.includes("''")) { do_('BG10e', 'evals.yaml cua kho mau chua \'\' — lenh khong di duong config:'); hong++; }
+  if (don.r.status !== 0 || don.dau !== 1) { do_('BG10e', `khong dau vet — lane exit ${don.r.status}, dau vet ${don.dau}: ${String(don.r.stderr || '').split('\n').filter(Boolean).slice(-2).join(' | ')}`); hong++; }
+  else if (!don.pin || !don.pin.evals_exit || don.pin.evals_exit.E1 !== 0) { do_('BG10e', `ban ghi lan sai: dong repin ${JSON.stringify(don.pin && don.pin.evals_exit)}`); hong++; }
+  if (!hong) xanh('BG10e', 'lenh nhay don dang crm qua repin-lane: exit 0, evals_exit.E1 = 0, dau vet co (doi chung nhay kep xanh)');
+}
+
 // ─── BG8 — MỌI ô của ma trận phải PHÂN BIỆT ĐƯỢC ─────────────────────────
 // Hoàn nguyên ĐÚNG MỘT đường về mệnh đề cũ trên bản sao trọn cây, rồi đòi đúng
 // (các) khẳng định của đường đó ĐỎ. Lượt chấm 1 đo được hai ô TRƠ — ô «đường 7
@@ -496,6 +603,10 @@ const DUONG = [
   // lớp «hai bên đọc paths khác nhau» nay không còn chỗ để tiêm; một nguồn do ca MN1 của hồ sơ ấy chứng.
   ['8 carry-plan paths (lib evalListsOf)', CP, "R.evalListsOf(text, ['paths'])", null, null],
   ['9 carry-plan cmd', CP, 'cur.cmd = R.parseFlowValue(f[1]).value', null, null],
+  // Đường 10 (nhay-don-nhan-doi): nhánh nháy đơn của chính cổng chung — hoàn nguyên là bỏ bước gỡ ''.
+  ['10 unquoteScalar vo don', CORE,
+   "if (/^'(?:[^']|'')*'$/.test(s)) return s.slice(1, -1).replace(/''/g, \"'\");",
+   "if (/^'(?:[^']|'')*'$/.test(s)) return s.slice(1, -1);", 'BG10a'],
 ];
 const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3], d[4]]);
 
@@ -503,7 +614,8 @@ const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3
 // mảng thì phép so dưới là hằng-đúng — xoá một dòng `DUONG` làm ma trận co lại
 // LẶNG. Đổi bảng đường thì phải đổi số này cùng lượt, có chủ ý.
 // 7 → 6 (evals-sat-le-doc-du): đường 8 hết chỗ tiêm khi carry-plan đọc paths qua evalListsOf.
-const BG8_MUTANTS = 6;
+// 6 → 7 (nhay-don-nhan-doi): thêm đường 10 — nhánh nháy đơn của unquoteScalar.
+const BG8_MUTANTS = 7;
 function bg8() {
   if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const MUT = MUT_ALL;
@@ -558,7 +670,10 @@ function bg5() {
   if (bam(tepCa) !== bam(path.join(HERE, 'bo-giai-nhay.test.mjs'))) { do_('BG5', 'tep ca o HEAD KHAC ban dang chay — chieu do se do mot vat khac; commit truoc'); return; }
 
   const chay = (root) => spawnSync(process.execPath, [path.join(root, 'tests', 'scripts', 'bo-giai-nhay.test.mjs')],
-    { encoding: 'utf8', env: { ...process.env, BG_NO_RED: '1' } });
+    // BG_ONLY RỖNG tường minh: bản sao phải chạy TRỌN tệp ca. Thừa hưởng BG_ONLY của tiến trình mẹ (vd
+    // khoá `ndnd_dot_bien` gọi `BG_ONLY=BG8,BG5`) thì bản sao chỉ chạy hai chân tự bỏ qua → «bị tiêm vẫn
+    // xanh» oan (đo ở hồ sơ nhay-don-nhan-doi, S3).
+    { encoding: 'utf8', env: { ...process.env, BG_NO_RED: '1', BG_ONLY: '' } });
 
   // (1) ĐỐI CHỨNG DƯƠNG — bản sao NGUYÊN VẸN phải 0 vế đỏ. Không có nó thì mọi
   //     màu đỏ dưới đây vô nghĩa.
@@ -581,7 +696,7 @@ function bg5() {
   const tiem = chay(d);
   const err = String(tiem.stderr || '') + String(tiem.stdout || '');
   if (tiem.status === 0) { do_('BG5', 'ban BI TIEM van XANH — phep do khong phan biet duoc ban va voi ban hong'); return; }
-  const CHAN_DO = ['BG1', 'BG3', 'BG4', 'BG7'];
+  const CHAN_DO = ['BG1', 'BG3', 'BG4', 'BG7', 'BG10a'];
   const thieu = CHAN_DO.filter(n => !err.includes(`DO ${n}:`));
   if (thieu.length) { do_('BG5', `ban bi tiem do nhung KHONG ghim ${thieu.join(', ')} — chan do khong phu het vat`); return; }
   for (const n of CHAN_DO) console.log(`     [chieu do] ${n} -> DO`);
@@ -590,7 +705,7 @@ function bg5() {
 
 // BG_ONLY=<danh sách> chạy đúng các chân được nêu — BG8 dùng nó để chấm từng
 // đột biến bằng một chân rẻ thay vì chạy trọn tệp bảy lần.
-const CHAN = { BG1: bg1, BG2: bg2, BG3: bg3, BG4: bg4, BG6: bg6, BG7: bg7, BG9: bg9, BG8: bg8, BG5: bg5 };
+const CHAN = { BG1: bg1, BG2: bg2, BG3: bg3, BG4: bg4, BG6: bg6, BG7: bg7, BG9: bg9, BG10a: bg10a, BG10b: bg10b, BG10c: bg10c, BG10d: bg10d, BG10e: bg10e, BG8: bg8, BG5: bg5 };
 const chon = String(process.env.BG_ONLY || '').split(',').map(s => s.trim()).filter(Boolean);
 if (chon.length) {
   const la = chon.filter(c => !CHAN[c]);
@@ -602,4 +717,4 @@ if (chon.length) {
 
 // ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
 if (loi.length) { console.error(`bo-giai-nhay: ${loi.length} ve do`); process.exit(1); }
-console.log(`bo-giai-nhay OK (${chon.length ? chon.join('+') : '9 chan'})`);
+console.log(`bo-giai-nhay OK (${chon.length ? chon.join('+') : '14 chan'})`);

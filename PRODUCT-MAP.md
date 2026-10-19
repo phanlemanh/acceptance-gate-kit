@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>129 việc"]
+  GB --> DG["Đã giao<br/>130 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>42 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -162,6 +162,7 @@ flowchart TD
 - hồ sơ đã nghỉ vẫn mang cờ quá hạn trên thẻ khởi động — bên viết khớp lại bên đọc của RT13 (`nghi-van-mang-co-qua-han`) — đã giao — máy thông, cửa veto còn mở
 - Máy tự định tuyến mục Ngoài-n mà chính máy đề xuất known-limits hoặc wont-fix — kho bật bằng một khoá, máy ghi dòng sổ gate2 phân biệt được với người kèm lệnh đảo một dòng, thẻ Cổng 2 hiện chúng là dòng báo, làn V chạy được; kho không bật không đổi byte nào (`ngoai-n-tu-dinh-tuyen`)
 - Nhãn lối ra của hồ sơ máy-đi-trước theo hướng sản phẩm — «đi tiếp hay kéo lại», máy điền sẵn «đi tiếp» ở dòng báo, signoff vẫn nhận chữ cũ (`nhan-lan-v-theo-huong`)
+- Lệnh trong config viết bằng nháy đơn có dấu nháy nhân đôi ('') tới shell đúng như người viết — làn ghim lại và lượt chấm S4 chạy đúng `bash -c '…'` thay vì một lệnh bị xẻ (`nhay-don-nhan-doi`)
 - Sổ luật-đã-chạy — `clean` phải được chứng minh, không phải mặc định (`premerge-rules-ledger`)
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`) — đã chấm bởi thực tế

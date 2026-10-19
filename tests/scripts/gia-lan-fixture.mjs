@@ -13,7 +13,7 @@ export const ROOT = path.join(HERE, '..', '..');
 export const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 
 // opts: { config: dòng YAML thêm dưới feature_loop (thụt 2), suite: thân suite.sh, suiteCmd: lệnh
-//         suite thay `sh suite.sh`, extraSuites: [{key, cmd}], evals: [{id, cmd, body?, sh?, paths?}],
+//         suite thay `sh suite.sh`, extraSuites: [{key, cmd}], evals: [{id, cmd, body?, sh?, yaml?, paths?}],
 //         files: {tên: nội dung}, lane: đường làn khác (bản sao), agRoot: bộ máy khác }
 export function mkKho(opts = {}) {
   const root = mkdtempSync(path.join(tmpdir(), 'gg-kho-'));
@@ -22,17 +22,17 @@ export function mkKho(opts = {}) {
   const ws = path.join(root, '_acceptance', 'feat');
   mkdirSync(ws, { recursive: true });
   const evals = opts.evals || [{ id: 'E1', cmd: 'rang_e1' }];
-  // Nháy KÉP có thoát ký tự: bộ đọc config của kit gỡ \\" và \\\\ trong nháy kép, nhưng KHÔNG gỡ '' trong
-  // nháy đơn — lệnh có nháy đơn viết trong nháy đơn sẽ tới bash sai (đo 06/10: `trap` không bao giờ chạy).
+  // Nháy KÉP có thoát ký tự: bộ đọc config của kit gỡ \\" và \\\\ trong nháy kép. `e.yaml` (hồ sơ nhay-don-nhan-doi):
+  // scalar YAML THÔ làm giá trị khoá executors.script.<e.cmd> — vd nháy đơn có '' — để ca đo được chính bộ đọc.
   const q = (s) => `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   const extra = opts.extraSuites || [];
   const suiteKeys = ['    - executors.test.suite', ...extra.map(x => `    - executors.test.${x.key}`)].join('\n');
   const testExecs = [`    suite: ${q(opts.suiteCmd || 'sh suite.sh')}`, ...extra.map(x => `    ${x.key}: ${q(x.cmd)}`)].join('\n');
-  const scriptExecs = evals.map(e => `    ${e.cmd}: ${q(e.sh || `sh ${e.cmd}.sh`)}`).join('\n');
+  const scriptExecs = evals.map(e => `    ${e.cmd}: ${e.yaml || q(e.sh || `sh ${e.cmd}.sh`)}`).join('\n');
   writeFileSync(path.join(root, '_acceptance', 'config.yaml'),
     `schema_version: 1\nenforcement: strict\nrecheck: strict\ngap_probe: off\nfeature_loop:\n  suite_keys:\n${suiteKeys}\n${opts.config || ''}executors:\n  test:\n${testExecs}\n  script:\n${scriptExecs}\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n`);
   writeFileSync(path.join(root, 'suite.sh'), opts.suite || 'echo ran >> "$GG_DAU/suite.txt"\nexit 0\n');
-  for (const e of evals) if (!e.sh) writeFileSync(path.join(root, `${e.cmd}.sh`), e.body || `echo ran >> "$GG_DAU/${e.id}.txt"\nexit 0\n`);
+  for (const e of evals) if (!e.sh && !e.yaml) writeFileSync(path.join(root, `${e.cmd}.sh`), e.body || `echo ran >> "$GG_DAU/${e.id}.txt"\nexit 0\n`);
   for (const [ten, nd] of Object.entries(opts.files || {})) { const p = path.join(root, ten); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, nd); }
   // `status: implemented`, không phải trạng thái đã ký: làn không đọc trạng thái hợp đồng để quyết gì, còn
   // chuỗi trạng thái ký trong tệp ca làm lưới RT13 kêu (tiền lệ repin-lane-noi-ra, d-20260911T162950Z-14).
