@@ -5,7 +5,7 @@ slug: vong-mo-khong-mat-dau
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-19-vong-mo-khong-mat-dau-design.md
 approved_by:
 approved_at:
@@ -143,3 +143,11 @@ hạt giống. Chân ngành:
     trên kênh thật.
   - **Chen đo trên đồng hồ thật với khe trễ 1500 ms**: ca chứng hai tiến trình thật cùng ghi, không chứng mọi thứ tự
     trong khe.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-20:
+  - Ngoài-1: Phép đo việc đáp yêu cầu kiểu cũ có thể không tự chạy lại khi ai đó chỉ sửa bộ phát lịch — danh sách tệp kích hoạt của nó thiếu tệp ấy.
+  - Ngoài-2: Phép đo lệnh mẫu hạn của luật có thể không tự chạy lại khi ai đó sửa phần đọc sổ, phần giao việc hay bộ dựng kho thử.
+  - Ngoài-3: Phép đo lệnh mẫu đáp yêu cầu kiểu cũ của luật có thể không tự chạy lại khi ai đó sửa phần ghi câu trả lời hay bộ dựng kho thử.
+  - Ngoài-4: Gõ một hạn lớn phi thực tế (hàng trăm tỷ phút) vẫn được nhận; người nhận sau đó không nhận được vòng, hoặc hạn bị đọc thành 30 phút mặc định.
+  - Ngoài-5: Máy tắt đúng lúc đang ghi một dấu máy thì dấu ghi ngay sau đó cũng mất và không có cảnh báo; vòng có thể kẹt ở «chờ chấp nhận».
+  - Ngoài-6: Hồ sơ đo từng nói đã chạy một nhịp thật của bộ phát lịch trong khi bài đo dùng bản giả lập I/O (lượt 3 đã sửa lời cho đúng).
+  - Ngoài-7: Ca đo «bỏ qua dòng dấu ghi dở» chưa chứng rằng dòng hỏng thật sự được tiêm vào tệp dấu.
