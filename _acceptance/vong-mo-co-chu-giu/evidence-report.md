@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 24b5a98a4e1ed8ca52b86153c63a7dc2092d5fe3
+verified_commit: 8e8df02e93230684c5905a8050fba043cf49ae9b
 human_signoff: Manh Phan 2026-10-19
 ---
 
@@ -310,3 +310,7 @@ none — every multi-run eval is uniform
 
 Round 1: REJECT — S4 lượt 1 tìm ra lỗi tên kênh gốc bị tách sai khi chủ hoặc kho có gạch nối (AC-8, hook Stop không đọc được kênh) và ca đỏ nạp tĩnh GT-07-do nhap-tinh thiếu đối chứng dương (AC-7); một lệnh suite plugins (vung:3) không xanh. Returned to implementation.
 Round 2: toàn bộ eval máy và lệnh suite xanh trên commit 24b5a98a; ba lăng kính của E10b cùng PASS. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-19, do gộp main sau mốc 2.33 — chỉ đổi số bản plugin.json
+run_id: repin-20261019T000054Z-28766
+sha: 8e8df02e93230684c5905a8050fba043cf49ae9b · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E10b (E10b không khai paths)
