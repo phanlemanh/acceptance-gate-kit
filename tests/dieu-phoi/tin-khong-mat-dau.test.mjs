@@ -161,7 +161,7 @@ test('GD-02 chan-mot-lan-qua-dong-bo', async () => {
 });
 
 test('GD-02-do dong-bo-ghi-de', async () => {
-  const goc = banSao('tin-kenh.mjs', '  const tt = docTrangThai(p);\n  let moi = 0;', '  const tt = tt0;\n  let moi = 0;');
+  const goc = banSao('tin-kenh.mjs', '  const tl = docTrangThai(p);\n  let moi = 0;', '  const tl = tt;\n  let moi = 0;');
   const { loi } = await kiemChanMotLan(goc);
   assert.ok(loi.some((l) => l.startsWith('lần Stop hai') && l.includes('nhận block')), `đồng bộ ghi lại bản cũ phải làm lần Stop hai chặn, nhận: ${loi.join(' | ')}`);
 });
@@ -187,8 +187,11 @@ export async function kiemDoiTruoc(gocGoi) {
   const maB = g.out.split('\n')[0].split(' ')[1];
   soKenh(gocGoi, m5, gh);
   chayHook(gocGoi, 'PostToolUse', { cwd: m5, tool_name: 'Bash' }, { gh: gh.lenh });
-  const pDau = tepKenhCua(m5).replace(/\.json$/u, '.may.jsonl');
-  if (fs.existsSync(pDau)) fs.appendFileSync(pDau, '{"may":"da-den","ma":');
+  // Dấu thứ hai (kết lượt khi chưa nhận) để tệp dấu có hơn một dòng, rồi một dòng ghi dở ở cuối.
+  chayHook(gocGoi, 'Stop', { cwd: m5, stop_hook_active: true }, { gh: gh.lenh });
+  const dTin = path.dirname(tepKenhCua(m5));
+  const tepDau = fs.readdirSync(dTin).filter((f) => f.startsWith('kenh-') && f.includes('.may.'));
+  for (const f of tepDau) fs.appendFileSync(path.join(dTin, f), '{"may":"da-den","ma":');
   const sv = soKenh(gocGoi, m5, gh);
   const a = sv.find((v) => v.ma === maA);
   const b = sv.find((v) => v.ma === maB);
@@ -271,7 +274,7 @@ test('GD-04 hai-dong-bo-chong', async () => {
 });
 
 test('GD-04-do thay-dong', async () => {
-  const goc = banSao('tin-kenh.mjs', '  const tt = docTrangThai(p);\n  let moi = 0;', '  const tt = { ...docTrangThai(p), dong: [...tt0.dong] };\n  let moi = 0;');
+  const goc = banSao('tin-kenh.mjs', '  const tl = docTrangThai(p);\n  let moi = 0;', '  const tl = { ...docTrangThai(p), dong: [...tt.dong] };\n  let moi = 0;');
   const { loi } = await kiemHaiDongBo(goc);
   assert.ok(loi.some((l) => l.startsWith('id trong sổ')), `thay dong bằng bản của mình phải làm «id trong sổ» đỏ, nhận: ${loi.join(' | ')}`);
 });

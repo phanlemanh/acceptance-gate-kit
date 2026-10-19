@@ -23,9 +23,11 @@ evals:
       X-1910-1 trên M5 có nac === 2, trang_thai === "da-den"; (b) trên MBP trang_thai === "da-chap-nhan" và `tin so --json`
       (sổ mở) không có mã ấy; (c) trên M5 ket_luot_chua_nhan === true. Mỗi hàng kiểm riêng rằng hook đã ghi dấu TRONG khe
       (mốc «bắt đầu đọc» của gh giả < mốc ghi dấu < mốc «trả về», in cả ba mốc; ca chờ mốc «bắt đầu
-      đọc» rồi mới chạy hook, không dựa vào đồng hồ). "ok" cho "GD-01-do ghi-vao-json": bản tiêm cho dấu máy ghi lại vào tệp trạng
-      thái kênh như trước GT2 (kiểm bước tiêm áp) → hàm đo nêu cả ba hàng "(a)", "(b)", "(c)" với thực tế là trạng thái
-      trước dấu (chua-den · cho-chap-nhan · false).
+      đọc» rồi mới chạy hook, không dựa vào đồng hồ). "ok" cho "GD-01-do ban-truoc-gt2": CHÍNH hàm đo chạy trên bản gói ở sha ghim 33c9e64f
+      (trước GT2 — dấu ghi vào tệp trạng thái, đồng bộ ghi lại bản đọc trước khi chờ) → nêu cả ba hàng "(a)", "(b)", "(c)"
+      với thực tế là trạng thái trước dấu ("nấc 1 chua-den" · "cho-chap-nhan" · "· false"). Hai lớp chặn (tệp chỉ-thêm,
+      đồng bộ đọc lại) mỗi lớp một mình đã đủ cho ca này nên ca đỏ đi trên bản trước GT2; lớp đọc lại có ca đỏ riêng ở
+      GD-02-do, lớp tệp chỉ-thêm có ca đỏ riêng ở GD-03-do.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -47,7 +49,8 @@ evals:
     expected: >
       exit 0; "ok" cho "GD-03 tep-kenh-doi-truoc": tệp kênh sinh bằng bản gói ở sha ghim 33c9e64f (git archive trọn
       dieu-phoi) có dấu «đã đến» của vòng A — đối chứng dương: may_su của tệp ấy chứa {may:"da-den"} của vòng A TRƯỚC khi
-      bản mới chạy; git archive thất bại → ca thất bại với thông điệp "không dựng được bản đời trước" (hạ tầng, có tên); bản mới đồng bộ rồi hook ghi «đã đến» cho vòng B. 3 hàng in ra: sổ có vòng A trang_thai ===
+      bản mới chạy; git archive thất bại → ca thất bại với thông điệp "không dựng được bản đời trước" (hạ tầng, có tên); bản mới đồng bộ rồi hook ghi «đã đến» cho vòng B, hook dừng ghi thêm dấu kết lượt (tệp dấu có hơn một
+      dòng) và một dòng ghi dở ở cuối tệp dấu. 3 hàng in ra: sổ có vòng A trang_thai ===
       "da-den" · sổ có vòng B trang_thai === "da-den" · bộ quét kênh của hook (cacMinh) thấy đúng 1 kênh, tên === "thu/kenh#308".
       "ok" cho "GD-03-do bo-doc-cu": bản tiêm chỉ đọc tệp dấu mới (bỏ may_su cũ) → hàm đo nêu "vòng A". "ok" cho
       "GD-03-do quet-nham": bản tiêm đặt tệp dấu mới tên kết bằng ".json" → hàm đo nêu "đúng 1 kênh".
@@ -58,7 +61,7 @@ evals:
     cmd: config:executors.test.dieu_phoi_tin_gd
     paths: [dieu-phoi/scripts/tin-kenh.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
-      exit 0; "ok" cho "GD-04 hai-dong-bo-chong": lần một (canh nền, trễ 1500 ms, thấy bình luận đến id 2) ngủ trong khe;
+      exit 0; "ok" cho "GD-04 hai-dong-bo-chong": lần một (canh nền, trễ 4000 ms — khe phải chứa bốn lệnh, thấy bình luận đến id 2) ngủ trong khe;
       lần hai (không trễ) thấy thêm id 3, 4 và chạy xong; hook ghi dấu chặn và mốc lỗi kênh giữa chừng — cả hai sau mốc
       «bắt đầu đọc» của lần một và trước mốc «trả về» của nó (in mốc). 4 hàng in ra, so
       bằng nhau: id trong sổ === [1,2,3,4] · con_tro === 4 · chan còn nguyên (deepStrictEqual giá trị hook ghi) ·

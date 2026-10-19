@@ -9,7 +9,7 @@ import path from 'node:path';
 import { docJson, ghiJsonNguyenTu, gocKhoChinh, timThuMucDot, trongWorktree } from './dot.mjs';
 import { bayGio } from './song.mjs';
 import { docDongDau, gapSo, maMoi, vietDongDau } from './tin-doc.mjs';
-import { minhTrongDot, noiChuaDot } from './tin-noi-chua.mjs';
+import { docMayKenh, minhTrongDot, noiChuaDot, themMayKenh } from './tin-noi-chua.mjs';
 
 const bam = (s) => crypto.createHash('sha1').update(String(s)).digest('hex').slice(0, 16);
 export const laTacTuCon = (dauVao) => typeof dauVao?.agent_id === 'string' && dauVao.agent_id !== '';
@@ -58,13 +58,9 @@ export function cacMinh(cwd) {
         nc: {
           doc: () => {
             const t = docJson(p, null) ?? {};
-            return { dong: [...(t.dong ?? []), ...(t.may_su ?? [])], hong: 0 };
+            return { dong: [...(t.dong ?? []), ...docMayKenh(p)], hong: 0 };
           },
-          them: (o) => {
-            const t = docJson(p, null) ?? {};
-            t.may_su = [...(t.may_su ?? []), o];
-            ghiJsonNguyenTu(p, t);
-          },
+          them: (o) => themMayKenh(p, o),
         },
       });
     }
