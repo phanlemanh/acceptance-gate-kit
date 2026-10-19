@@ -7,7 +7,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ENV, GOI, KENH, KIT, banSao, chayHook, docJ, donDep, ghGia, git, inMaTran, khoKenh, nap, tam, tepKenhCua, tin } from './tin-kho-thu.mjs';
+import { ENV, GOI, KENH, KIT, bamCay as bamCayThu, banSao, chayHook, docJ, donDep, ghGia, git, inMaTran, khoDot as khoDotThu, khoKenh, nap, tam, tepKenhCua, tin } from './tin-kho-thu.mjs';
 
 after(donDep);
 
@@ -280,3 +280,126 @@ test('GD-04-do thay-dong', async () => {
 });
 
 void git;
+
+// ---------- AC-5, AC-6: hạn chỉ nhận số phút nguyên dương ----------
+// Bản sao gói với nhiều chỗ tiêm trong một tệp; mỗi chỗ phải khớp đúng một lần và đổi được nội dung.
+function banSaoNhieu(tep, cap) {
+  const goc = banSao(tep, cap[0][0], cap[0][1]);
+  const p = path.join(goc, 'scripts', tep);
+  for (const [cu, moi] of cap.slice(1)) {
+    const truoc = fs.readFileSync(p, 'utf8');
+    assert.equal(truoc.split(cu).length - 1, 1, `bước tiêm vào ${tep} phải khớp đúng một chỗ: «${cu.slice(0, 60)}»`);
+    fs.writeFileSync(p, truoc.replace(cu, moi));
+  }
+  return goc;
+}
+
+const CO_HAN = [['GIAO', '--han', 'han'], ['GIAO', '--han-xong', 'han-xong'], ['HỎI', '--han', 'han']];
+// Nơi chứa dựng trong lượt: đợt (G giao cho P2, P1 hỏi G) và kênh (MBP giao/hỏi M5). Trả {ten, gui(kl, co, gt), bam(), soGhi(), doc(ma)}.
+function noiChua(gocGoi, loai) {
+  if (loai === 'dot') {
+    const k = khoDotThu(gocGoi);
+    return {
+      ten: 'đợt',
+      gui: (kl, co, gt) => (kl === 'GIAO' ? tin(k.kho, ['GIAO', 'P2', 'việc có hạn riêng', co, gt], { gocGoi }) : tin(k.w1, ['HỎI', 'G', 'câu hỏi có hạn riêng?', co, gt], { gocGoi })),
+      bam: () => bamCayThu(k.dot),
+      soGhi: () => 0,
+      doc: (ma) => JSON.parse(tin(k.kho, ['so', '--tat-ca', '--json'], { gocGoi }).out).find((v) => v.ma === ma),
+    };
+  }
+  const { gh, mbp } = haiMay(gocGoi);
+  return {
+    ten: 'kênh',
+    gui: (kl, co, gt) => (kl === 'GIAO'
+      ? tin(mbp, ['GIAO', 'M5', 'việc có hạn riêng', '--hang', 'GT1', '--kenh', KENH, '--kho', 'thu/kho-b', co, gt], { gocGoi, gh: gh.lenh })
+      : tin(mbp, ['HỎI', 'M5', 'câu hỏi có hạn riêng?', '--kenh', KENH, co, gt], { gocGoi, gh: gh.lenh })),
+    bam: () => `${bamCayThu(path.dirname(tepKenhCua(mbp)))}|${JSON.stringify(gh.ca().comments)}`,
+    soGhi: () => gh.nhatKy().filter((x) => x.lenh === 'ghi').length,
+    doc: (ma) => soKenh(gocGoi, mbp, gh).find((v) => v.ma === ma),
+  };
+}
+
+export async function kiemHanSai(gocGoi) {
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 200) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  for (const loai of ['dot', 'kenh']) {
+    const nc = noiChua(gocGoi, loai);
+    for (const gt of ['1.5', 'abc', '-5', '0', '', '1e3', ' 30']) {
+      for (const [kl, co, khoa] of CO_HAN) {
+        const h0 = nc.bam();
+        const g0 = nc.soGhi();
+        const r = nc.gui(kl, co, gt);
+        const ky = `tin: --${khoa} phải là số phút nguyên dương, nhận «${gt}»`;
+        const bamBang = nc.bam() === h0;
+        const ghi = nc.soGhi() - g0;
+        so(`${nc.ten} ${kl} ${co} «${gt}»`, `thoát 1 · «${ky}» · băm bằng · 0 lời gọi ghi`, `${r.ma} · «${r.err.trim()}» · băm ${bamBang ? 'bằng' : 'khác'} · ${ghi} lời gọi ghi`, r.ma === 1 && r.err.trim() === ky && bamBang && ghi === 0);
+      }
+    }
+  }
+  return { loi, hang };
+}
+
+test('GD-05 han-sai-bi-tu-choi', async () => {
+  const { loi, hang } = await kiemHanSai(GOI);
+  inMaTran('GD-05', hang);
+  assert.equal(hang.length, 42);
+  assert.deepEqual(loi, []);
+});
+
+test('GD-05-do bo-kiem-han', async () => {
+  const goc = banSao('tin.mjs', "  const hanNhan = phutNguyenDuong(co, 'han', 30);", '  const hanNhan = co.han != null ? Number(co.han) : 30;');
+  const { loi } = await kiemHanSai(goc);
+  assert.ok(loi.some((l) => / --han «/u.test(l)), `bỏ kiểm --han phải làm hàng --han đỏ, nhận: ${loi.slice(0, 3).join(' | ')}`);
+  assert.ok(!loi.some((l) => / --han-xong «/u.test(l)), `đối chứng: hàng --han-xong vẫn xanh, nhận: ${loi.filter((l) => l.includes('--han-xong')).slice(0, 2).join(' | ')}`);
+});
+
+test('GD-05-do kiem-sau-ghi', async () => {
+  const goc = banSaoNhieu('tin.mjs', [
+    ["  const hanNhan = phutNguyenDuong(co, 'han', 30);", '  const hanNhan = co.han != null ? Number(co.han) : 30;'],
+    ["  const hanXong = phutNguyenDuong(co, 'han-xong', null);", "  const hanXong = co['han-xong'] != null ? Number(co['han-xong']) : null;"],
+    ['  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  return text;\n}\n\nasync function dap(', "  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  phutNguyenDuong(co, 'han', 30);\n  phutNguyenDuong(co, 'han-xong', null);\n  return text;\n}\n\nasync function dap("],
+  ]);
+  const { loi } = await kiemHanSai(goc);
+  assert.ok(loi.some((l) => l.startsWith('đợt ') && l.includes('băm khác')), `kiểm sau khi ghi phải làm hàng đợt đỏ ở «băm», nhận: ${loi.slice(0, 2).join(' | ')}`);
+  assert.ok(loi.some((l) => l.startsWith('kênh ') && l.includes('1 lời gọi ghi')), `kiểm sau khi ghi phải làm hàng kênh đỏ ở «lời gọi ghi», nhận: ${loi.filter((l) => l.startsWith('kênh')).slice(0, 2).join(' | ')}`);
+});
+
+export async function kiemHanDung(gocGoi) {
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 200) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  for (const loai of ['dot', 'kenh']) {
+    const nc = noiChua(gocGoi, loai);
+    for (const gt of ['1', '45', '100000']) {
+      for (const [kl, co, khoa] of CO_HAN) {
+        const r = nc.gui(kl, co, gt);
+        const ma = r.out.split('\n')[0].split(' ')[1];
+        const v = r.ma === 0 ? nc.doc(ma) : null;
+        const doc = khoa === 'han' ? v?.han_nhan_phut : v?.han_xong_khoang;
+        so(`${nc.ten} ${kl} ${co} ${gt}`, `thoát 0 · sổ đọc ${gt}`, `${r.ma} ${r.err.trim()} · sổ đọc ${doc}`, r.ma === 0 && doc === Number(gt));
+      }
+    }
+  }
+  return { loi, hang };
+}
+
+test('GD-06 han-dung-khu-hoi', async () => {
+  const { loi, hang } = await kiemHanDung(GOI);
+  inMaTran('GD-06', hang);
+  assert.equal(hang.length, 18);
+  assert.deepEqual(loi, []);
+});
+
+test('GD-06-do lam-tron', async () => {
+  const goc = banSao('tin.mjs', '  return Number(v);\n}', '  return Math.round(Number(v) / 10) * 10;\n}');
+  const { loi } = await kiemHanDung(goc);
+  assert.ok(loi.some((l) => / 1: mong/u.test(l)) && loi.some((l) => / 45: mong/u.test(l)), `làm tròn phải làm hàng 1 và 45 đỏ, nhận: ${loi.slice(0, 3).join(' | ')}`);
+  assert.ok(!loi.some((l) => / 100000: mong/u.test(l)), `đối chứng: hàng 100000 vẫn xanh, nhận: ${loi.join(' | ')}`);
+});
