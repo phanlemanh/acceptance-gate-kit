@@ -77,9 +77,7 @@
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
-      "hang": [
-        "K-A"
-      ]
+      "hang": []
     },
     {
       "ten": "Phát hành 2.31.0 — ĐÃ PHÁT HÀNH 15/10, tag v2.31.0 = f0634454 (PR #360): thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1), mốc là chiến dịch (MC1), rà soát lộ trình + gói road-map (RM1); chủ kho duyệt mốc 14/10, MC1 + RM1 chuyển vào mốc 15/10 (kit #308)",
@@ -118,12 +116,33 @@
       "hang": []
     },
     {
-      "ten": "Phát hành kế sau 2.33.0 (số đặt lúc cắt) — gom các vòng xong trước ngày cắt: giao tiếp giữa các phiên (GT1); road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A) vào khi hàng của chúng lên lộ trình",
+      "ten": "Phát hành 2.33.0 — ĐÃ PHÁT HÀNH 18/10, tag v2.33.0 = 77df595a (PR #385): road-map dễ dùng (RD1) và hồ sơ đã ký luôn tươi (K-A); KC1 ĐẠT 8/8",
+      "ngay": "2026-10-18",
+      "loai": "phat-hanh",
+      "ai": "MacBook Pro",
+      "hang": [
+        "RD1",
+        "K-A"
+      ]
+    },
+    {
+      "ten": "Phát hành kế sau 2.33.0 (số đặt lúc cắt) — giao tiếp giữa các phiên (GT1 đã gộp #387, GT2 vòng mở không mất dấu) và nháy đơn trong config (R3, đã gộp #384)",
       "ngay": "2026-10-22",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
-        "GT1"
+        "GT1",
+        "GT2",
+        "R3"
+      ]
+    },
+    {
+      "ten": "Phát hành sau mốc 22/10 (số đặt lúc cắt) — ngày dự kiến đúng khi mốc phụ thuộc nhau (RD2)",
+      "ngay": "2026-10-29",
+      "loai": "phat-hanh",
+      "ai": "MacBook Pro",
+      "hang": [
+        "RD2"
       ]
     }
   ],
@@ -750,6 +769,69 @@
       "vi_sao": "Gốc: crm-onehub/_acceptance/dieu-phoi-hai-tang/ — ý định của hồ sơ là chủ kho thôi làm nhịp tim (04/10: 20/33 tin), mà cạnh giám sát → thợ và máy ↔ máy vẫn đóng vòng bằng trí nhớ: đo 17/10 trên #375 + #308, 0/44 yêu cầu có trả lời trỏ về mã tin; 15/10 lượt gọi #420 bị sót 4 giờ; 16/10 crm onehub 735c9969 (#453) gộp khi chưa có lượt gọi vì bộ đọc khớp trên thân tin. Chủ kho nêu 17/10; hạt giống docs/plans/2026-10-17-hat-giong-luat-giao-tiep-giua-cac-phien.md.",
       "bat_khi": "Sau khi crm nhận bản có GT1, 14 ngày không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi yêu cầu trên kênh liên máy có trả lời trỏ về mã",
       "ghi_chu": "Máy MacBook Pro giữ (chủ kho giao 17/10 vì hàng M5 tồn nhiều). Chạm dieu-phoi/ là vùng M5: báo M5 trên #308 trước khi mở, không gộp chen giữa lô của M5. Không làm kho git làm hộp thư (hạt giống 13/10). Ước 8–10 giờ máy (×1,3 vì vùng máy khác)."
+    },
+    {
+      "ma": "RD1",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "road-map-de-dung",
+      "ten_ngan": "Road-map dễ dùng",
+      "cau_giao": "Chủ kho đọc lộ trình trong một phút: mỗi mốc kể việc bằng tên ngắn kèm câu giao, không còn mốc ngoài, giờ máy tính theo làn — trang CRM và trang của phiên đọc cùng một nguồn",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/road-map-de-dung/ — chủ kho 17/10: «bỏ mốc ngoài» và «từng mốc đọc các hạng mục bên trong không hiểu». Đã ký Cổng Bằng chứng 18/10 (16 Known limits), gộp #381, phát hành 2.33.0.",
+      "ghi_chu": "Ghi bù 19/10: vòng mở thẳng từ lời chủ kho, chưa từng là hàng trên lộ trình."
+    },
+    {
+      "ma": "R3",
+      "nhom": "doc-khoan-dung",
+      "hang": "T2",
+      "slug": "nhay-don-nhan-doi",
+      "dung_tren": [
+        "R2"
+      ],
+      "ten_ngan": "Nháy đơn trong config",
+      "cau_giao": "Giá trị config YAML nháy đơn chứa hai dấu nháy liền nhau tới shell đúng một dấu nháy — lệnh eval của kho tiêu thụ không còn thoát 2 vì biến không được đặt",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/tac-nhan-va/ — làn ghim đêm C-2 17/10 (repin-20261017T174133Z-76354) đỏ E9=2 vì lệnh bash -c tới shell còn nháy nhân đôi; đo 18/10 trên 16 kho: chỉ crm có ca này, đúng hai khoá tnv_man, tnv_khu_hoi.",
+      "ghi_chu": "Mac Studio viết, ký Cổng Bằng chứng 18/10; MacBook Pro gộp #384 qua khoá #308 ngày 19/10 (399fa89e). crm chép lại lib/evidence-core.cjs khi nhận mốc."
+    },
+    {
+      "ma": "GT2",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "vong-mo-khong-mat-dau",
+      "dung_tren": [
+        "GT1"
+      ],
+      "ten_ngan": "Vòng mở không mất dấu",
+      "cau_giao": "Dấu «đã đến», «chấp nhận», «kết lượt» không mất khi bộ canh nền đồng bộ kênh cùng lúc; hạn gõ sai bị từ chối kèm câu báo; đáp một yêu cầu cũ bằng lệnh mới tới đúng người hỏi và đóng vòng",
+      "vai": "Chủ kho",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/vong-mo-co-chu-giu/ — Ngoài-4, 5, 7, 9 ở Cổng Bằng chứng 19/10, chủ kho chọn «mở hợp đồng mới»; hạt giống docs/plans/2026-10-19-hat-giong-kenh-ghi-chong-dau-may.md, -han-go-sai-bi-lo.md, -dap-yeu-cau-cu-bi-nuot.md.",
+      "bat_khi": "14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi",
+      "gio_may": [
+        5,
+        7
+      ],
+      "ghi_chu": "Chủ kho duyệt khung ba làn 19/10 (phiên Mac Studio): Nhóm 3 · MacBook Pro. Chạm dieu-phoi/ — báo M5 trên #308 trước khi mở. Máy nào đã «tin vai» trên kênh có gạch nối bằng bản trước GT1 phải «tin vai» lại một lần."
+    },
+    {
+      "ma": "RD2",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "ngay-du-kien-khi-moc-phu-thuoc",
+      "dung_tren": [
+        "RD1",
+        "RM6"
+      ],
+      "ten_ngan": "Ngày dự kiến khi mốc phụ thuộc",
+      "cau_giao": "Ngày dự kiến và cờ quá tải trên trang lộ trình đúng khi mốc phụ thuộc nhau hoặc một việc nằm ở nhiều mốc — không báo quá tải sai, không cộng giờ máy hai lần, việc hiện ở đúng mốc mà ngày được tính",
+      "vai": "Chủ kho",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/road-map-de-dung/ — Ngoài-3, 9, 11 ghi Known limits ở Cổng Bằng chứng 18/10; ba lỗi làm sai đúng con số chủ kho dùng để cắt mốc.",
+      "gio_may": [
+        5,
+        7
+      ],
+      "ghi_chu": "Chủ kho 19/10 (phiên Mac Studio): dời sau mốc 22/10 để giữ mốc kit nhỏ."
     }
   ],
   "chan_troi": [
