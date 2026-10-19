@@ -1,0 +1,140 @@
+schema_version: 1
+feature_slug: moi-cong-khong-qua-nut
+# Ca đo của hàng KY1: tệp tests/scripts/moi-cong-khong-qua-nut.test.mjs, tên ca «MQ-<n>», in «PASS: MQ-…» / «FAIL: MQ-…»,
+# thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
+#   executors.test.moi_cong_khong_qua_nut = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
+#   executors.test.p188_moi_cong = ONLY_BLOCK=P188 của tests/plugins/run-tests.sh, giữ dòng P188.
+# Khoá có sẵn, không thêm: executors.test.dieu_phoi_khung (_acceptance/config.yaml, nhóm test — bộ ca khung của gói điều
+# phối). Trước S4, mọi `config:` của tệp này phải giải được (s4-args từ chối khi không).
+# Mọi đầu vào rút từ văn bản thật trong lượt: điều khoản, bảng chỗ chép và khuôn qua marker của
+# skills/acceptance/references/human-facing-language.md; hằng ONE_SHOT_CMD_SIGNOFF và ô «ký hay trả: ___» rút từ nguồn
+# scripts/gate-card.js; luật đợt rút qua hàm ghepLuat thật của dieu-phoi/scripts/goi-dot.mjs. Đường dẫn suy từ vị trí tệp
+# test. Mỗi ca đỏ chạy CHÍNH bộ kiểm trên bản tiêm của văn bản thật (nhát tiêm khớp đúng một lần, kiểm riêng là đã áp), SAU
+# khi bản lành xanh trên cùng đầu vào, và ghim thông điệp của ĐÚNG hàng bị tiêm. Ma trận viết sẵn: số assert = số hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/references/human-facing-language.md, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-1": rút khối GATE-END-TURN-CLAUSE qua marker được đúng một dòng không rỗng, vị trí sau khối
+      GATE-INVITE-CLAUSE; dòng chứa đủ chín cụm `card.html`, `evidence-page.html`, `SendUserFile`, «in đường dẫn trang»,
+      «```text», «chép đúng như thẻ in», `___`, `wrap_up`, «không câu hỏi và không nút». Chiều đỏ "PASS: MQ-1-do": bản tiêm bỏ cụm `SendUserFile` khỏi điều khoản →
+      bộ kiểm trả «điều khoản thiếu: SendUserFile»; bản tiêm dời khối lên trước GATE-INVITE-CLAUSE → «điều khoản đứng trước
+      GATE-INVITE-CLAUSE».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/references/human-facing-language.md, skills/acceptance/SKILL.md, commands/acceptance-card.md, feature-loop/skills/feature-loop/SKILL.md, dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/commands/*.md, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-2": in bảng «đường dẫn · số khai · số đếm», ≥ 7 dòng, gồm skills/acceptance/SKILL.md,
+      commands/acceptance-card.md, feature-loop/skills/feature-loop/SKILL.md và bốn tệp dieu-phoi; mọi dòng số đếm === số khai,
+      mọi bản khớp từng ký tự. Chiều đỏ "PASS: MQ-2-do", 3 hàng: (a) đổi một ký tự trong bản chép ở
+      dieu-phoi/commands/tiep-tuc.md → «dieu-phoi/commands/tiep-tuc.md: bản chép lệch»; (b) sửa số khai của
+      commands/acceptance-card.md thành 2 → «commands/acceptance-card.md: ít-hơn-số-khai (1 < 2)»; (c) chép thêm một bản vào
+      commands/acceptance-card.md → «commands/acceptance-card.md: nhiều-hơn-số-khai (2 > 1)».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/SKILL.md, commands/acceptance-card.md, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-3": in số lần xuất hiện của GATE-INVITE-CLAUSE trong ba tệp engine (tổng 5) và với MỖI lần, điều
+      khoản kết-lượt-cổng bắt đầu trong cùng đoạn (không có dòng trắng chen giữa) ngay sau nó. Chiều đỏ "PASS: MQ-3-do": bản
+      tiêm gỡ bản đi kèm thứ hai ở feature-loop/skills/feature-loop/SKILL.md (và giảm số khai tương ứng để MQ-2 không phải
+      người bắt) → «lời mời cổng không kèm điều khoản kết lượt: feature-loop/skills/feature-loop/SKILL.md».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-4": ma trận bốn hàng in ra «cổng · mục · có điều khoản hay chỗ trỏ»: Cổng Đáng (đoạn chứa `moi: true`
+      → trình thẻ Cổng Đáng của S0), Cổng 1 (mục `## GATE 1`), Cổng 1.5 (mục `## S2`), Cổng Bằng chứng (mục `## GATE 2`) — mỗi
+      mục chứa điều khoản nguyên văn hoặc cụm «điều khoản kết-lượt-cổng»; thêm một hàng: dòng «[5] Đính» chứa
+      `SendUserFile`. Chiều đỏ "PASS: MQ-4-do": bản tiêm gỡ cụm trỏ ở mục `## S2` → «Cổng 1.5: thiếu kết-lượt-cổng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/references/human-facing-language.md, scripts/gate-card.js, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-5": bộ kiểm kết lượt trên khuôn thật trả 0 lỗi; in dòng lệnh rút từ khối ```text, hằng
+      ONE_SHOT_CMD_SIGNOFF rút từ scripts/gate-card.js (`/acceptance-gate:signoff`), ô quyết rút từ scripts/gate-card.js
+      (`ký hay trả: ___`), và các khoá JSON của dòng hộp («recap»). Dòng lệnh mở đầu đúng hằng ấy và chứa đúng ô ấy — một
+      đổi tên lệnh ở gate-card.js làm ca đỏ dù khuôn không đổi. "PASS: MQ-5-gan": bảng luật của bộ kiểm (mã · thông điệp ·
+      cụm) in ra; chiều một — mỗi cụm có trong điều khoản; chiều hai — mỗi dấu cấm rút từ vế «vì app bỏ…» của điều khoản
+      («/», «!», «@», «300») khớp cụm của ít nhất một luật. Chiều đỏ "PASS: MQ-5-gan-do": bản tiêm gỡ «hoặc chứa «@»» khỏi
+      điều khoản → «luật bộ kiểm không có trong điều khoản: nút chứa «@»».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/references/human-facing-language.md, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-6": ma trận bảy hàng in ra «hàng · thông điệp kỳ vọng · thực tế», mỗi hàng là bản tiêm của dòng hộp
+      trong khuôn thật, chạy SAU đối chứng dương của MQ-5 trên cùng khuôn: (1) actions[0].message = dòng lệnh thật →
+      «nút mang dòng lệnh»; (2) actions[0].label = "/ký" → «nút mở đầu «/» hay «!»»; (3) actions[0].message = "!ký" → «nút mở
+      đầu «/» hay «!»»; (4) actions[0].label = "hỏi @chu-kho" → «nút chứa «@»»; (5) actions[0].message dài 301 ký tự →
+      «tin của nút quá 300 ký tự»; (6) thêm khoá ask → «hộp «bước kế» mang câu hỏi ở cổng chờ người»; (7) actions =
+      [{"label":"Xem"}] → «hộp «bước kế» mang nút ở cổng chờ người». Mỗi hàng ghim đúng thông điệp của hàng đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [skills/acceptance/references/human-facing-language.md, scripts/gate-card.js, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-7": ma trận năm hàng in ra, bản tiêm của khuôn thật: (1) `ký hay trả: ký` → «chữ quyết điền sẵn:
+      «ký hay trả: ký»»; (2) `ký hay trả: trả` → «chữ quyết điền sẵn: «ký hay trả: trả»»; (3) `ký hay trả: Ký` → «chữ quyết
+      điền sẵn: «ký hay trả: Ký»»; (4) dòng lệnh dời ra ngoài khối ```text → «dòng lệnh không nằm trong khối text»; (5) khối
+      ```text rỗng → «dòng lệnh không nằm trong khối text».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/commands/*.md, dieu-phoi/scripts/goi-dot.mjs, tests/scripts/moi-cong-khong-qua-nut.test.mjs]
+    expected: >
+      exit 0; "PASS: MQ-8": bốn hàng in ra: mo-dot.md và dong-dot.md — điều khoản nằm giữa marker CHU-QUYET-CUA-NGUOI;
+      tiep-tuc.md — có điều khoản; LUAT.md — điều khoản nằm ngoài khối LUAT-TIN, và chuỗi ghepLuat(LUAT.md, "# Luật riêng\n")
+      của gói chứa nguyên điều khoản. Chiều đỏ "PASS: MQ-8-do": bản tiêm dời điều khoản của mo-dot.md ra ngoài khối →
+      «dieu-phoi/commands/mo-dot.md: điều khoản ngoài khối CHU-QUYET-CUA-NGUOI».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9a
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.p188_moi_cong
+    paths: [skills/acceptance/references/human-facing-language.md, skills/acceptance/SKILL.md, commands/acceptance-card.md, feature-loop/skills/feature-loop/SKILL.md, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; dòng «PASS: P188 round-trip dieu khoan moi-cong» — điều khoản mời cổng cũ vẫn khớp từng ký tự ở mọi chỗ chép,
+      đúng số khai, và luật ranh-giới-câu không đỏ (bản mới đặt ngay sau nó mở đầu bằng chữ hoa).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_khung
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng gộp không có «not ok», có «ok … DP1-07» và «ok … DP2-01», «# fail 0».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.moi_cong_khong_qua_nut
+    paths: [tests/scripts/moi-cong-khong-qua-nut.test.mjs, scripts/gate-card.js]
+    expected: >
+      exit 0; "PASS: MQ-10": ca sinh trong lượt một tệp .jsonl bốn lượt theo khuôn bản ghi Claude Code (dòng type user/assistant,
+      message.content có tool_use name/input), chạy chính tệp ca bằng tiến trình con với `--dem <tệp>` → stdout có
+      «lượt cổng 3 · lượt hỏng 2», lượt 2 liệt kê «nút mang dòng lệnh», «tin của nút quá 300 ký tự», «chữ quyết điền sẵn»;
+      lượt 3 liệt kê «hộp «bước kế» mang câu hỏi ở cổng chờ người» và «hộp «bước kế» mang nút ở cổng chờ người»; lượt 4 (không
+      chạy gate-card.js) không xuất hiện. Đối chứng: tệp chỉ có lượt 1 → «lượt cổng 1 · lượt hỏng 0»; tệp không có lượt cổng
+      nào → «lượt cổng 0 · thước vô hiệu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
