@@ -5,7 +5,7 @@ slug: ui-check-chay-sau-suite
 owner: manh.phan@onemount.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-19-ui-check-chay-sau-suite-design.md
 approved_by:
 approved_at:
@@ -100,3 +100,5 @@ xem sổ quyết định (`bỏ coverage-scan`).
   tới nay), 0 judgment. Sáu ui-check ấy sẽ chạy riêng sau mốc — lượt chấm các hồ sơ đó dài hơn.
 - Lệnh chạy-riêng vẫn có thể chồng một ui-check song song như 2.28–2.33 (sổ, dòng thay d-2): nghiệm là kho khai
   ui-check ấy vào `model_evals`, không đổi mặc định cho mọi kho.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-20:
+  - Ngoài-1: bộ kiểm chưa có ô cho eval loại test trong danh sách chạy riêng, nên nếu sau này ai đó vô tình bỏ loại test khỏi danh sách thì bộ kiểm vẫn báo xanh — hôm nay người dùng không bị ảnh hưởng. Hàng `ui-check-chay-sau-suite#ngoai-1` ở `docs/research/known-limits-ledger.tsv`.
