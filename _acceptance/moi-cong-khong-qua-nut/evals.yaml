@@ -4,7 +4,7 @@ feature_slug: moi-cong-khong-qua-nut
 # thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
 #   executors.test.moi_cong_khong_qua_nut = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
 #   executors.test.p188_moi_cong = ONLY_BLOCK=P188 của tests/plugins/run-tests.sh, giữ dòng P188.
-# Từ lượt 2, E9b dùng khoá thêm executors.test.dieu_phoi_khung_tung_dong (cùng bộ ca khung điều phối, mỗi ca một dòng). Trước S4, mọi `config:` của tệp này phải giải được (s4-args từ chối khi không).
+# Từ lượt 3, E9b dùng khoá thêm executors.test.dieu_phoi_dp107_dp201 (đúng hai ca có tên của AC-9, mỗi ca một dòng). Trước S4, mọi `config:` của tệp này phải giải được (s4-args từ chối khi không).
 # Mọi đầu vào rút từ văn bản thật trong lượt: điều khoản, bảng chỗ chép và khuôn qua marker của
 # skills/acceptance/references/human-facing-language.md; hằng ONE_SHOT_CMD_SIGNOFF và ô «ký hay trả: ___» rút từ nguồn
 # scripts/gate-card.js; luật đợt rút qua hàm ghepLuat thật của dieu-phoi/scripts/goi-dot.mjs. Đường dẫn suy từ vị trí tệp
@@ -119,11 +119,12 @@ evals:
   - id: E9b
     criterion: AC-9
     executor: test
-    cmd: config:executors.test.dieu_phoi_khung_tung_dong
-    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    cmd: config:executors.test.dieu_phoi_dp107_dp201
+    paths: [dieu-phoi/**, tests/dieu-phoi/dong-goi.test.mjs, tests/dieu-phoi/mo-dot.test.mjs]
     expected: >
-      exit 0; không dòng «not ok»; có dòng «ok … - DP1-07» và «ok … - DP2-01»; có «# fail 0». Đầu ra mỗi ca một dòng
-      (khoá đổi ở lượt 2: dòng gộp một hàng của lượt 1 bị cắt nên không đọc được ca nào đỏ).
+      exit 0; mỗi ca một dòng: «ok … - DP1-07 khong-rieng-kho», «ok … - DP1-07-do», «ok … - DP2-01 ba-lenh», «ok … -
+      DP2-01-do khoa-xem», «ok … - DP2-01-do thu-tu»; không dòng «not ok»; «# fail 0»; «# pass» bằng đúng số ca DP1-07/DP2-01
+      của hai tệp. Khoá đổi ở lượt 3 sau khi chủ kho chọn thu phạm vi AC-9 (Known limits của hợp đồng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-10

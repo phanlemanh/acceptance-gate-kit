@@ -62,9 +62,9 @@ Thuật ngữ:
   `commands/tiep-tuc.md`), Then mỗi tệp mang điều khoản nguyên văn; ở `mo-dot.md` và `dong-dot.md` nó nằm TRONG khối
   `CHU-QUYET-CUA-NGUOI`; ở `LUAT.md` nó nằm NGOÀI khối `LUAT-TIN` và còn nguyên trong luật đợt mà lệnh `mo` sinh (rút qua
   hàm ghép luật thật `ghepLuat` của gói, có luật riêng của kho nối sau).
-- AC-9: Given cây đã sửa, When chạy ca P188 (điều khoản mời cổng khớp từng ký tự) và bộ ca khung của gói điều phối (gồm
-  DP1-07 không mang chữ của kho tiêu thụ, DP2-01 khối `CHU-QUYET-CUA-NGUOI`), Then cả hai xanh — điều khoản mới không làm
-  lệch điều khoản cũ.
+- AC-9: Given cây đã sửa, When chạy ca P188 (điều khoản mời cổng khớp từng ký tự) và hai ca có tên của gói điều phối —
+  DP1-07 (gói không mang chữ của kho tiêu thụ) và DP2-01 (khối `CHU-QUYET-CUA-NGUOI` của lệnh mở và đóng đợt) — Then cả
+  ba xanh, kể cả các ca đỏ đi kèm của chúng: điều khoản mới không làm lệch điều khoản cũ và không phá hai ca ấy.
 - AC-10: Given bản ghi phiên (`.jsonl`) do ca sinh trong lượt theo khuôn bản ghi của Claude Code — bốn lượt: một lượt
   trình thẻ (lời gọi Bash chạy `gate-card.js`) kết bằng hộp chỉ có `recap` · một lượt trình thẻ kết bằng hộp có nút mang
   dòng ký mở đầu «/» dài hơn 300 ký tự và chữ «ký» điền sẵn (dựng theo mô tả lỗi gốc, ẩn danh) · một lượt trình thẻ kết
@@ -121,5 +121,9 @@ Studio, gốc ở ô cơ hội].
   - **AC-5…AC-7 đo khuôn do vòng viết, không đo lượt phiên thật**: điều khoản là thứ phiên đọc, khuôn là thứ ca đọc; hai
     thứ được buộc bằng phép so hai chiều ở AC-5, còn hành vi phiên chỉ đo được sau khi ship (Đường đo, AC-10). Lượt hỏng ở
     AC-10 dựng theo MÔ TẢ lỗi gốc, không phải bản ghi gốc (bản ghi nằm ở máy khác, thuộc kho riêng tư).
+  - **AC-9 thu phạm vi (chủ kho chọn «lối 1» ở Cổng Bằng chứng, 19/10)**: lượt chấm của vòng không còn đo «trọn bộ ca khung
+    của gói điều phối xanh» — ca GT-07 (tin tự đến giữa các phiên) đỏ chập chờn 1/2 lần trên cùng cây, ngoài vòng; suite
+    của kho và CI vẫn chạy trọn bộ. Hạt giống: `docs/plans/2026-10-20-hat-giong-gt07-chap-chon.md`. Ngưỡng mở lại: ≥ 1 lần
+    CI nhánh chính đỏ ở một ca điều phối mà vòng này chạm tệp của nó.
   - **Mặt không có hộp «bước kế»** (phiên CLI): điều khoản vẫn đúng — không có hộp thì không có nút; gửi tệp lùi về in
     đường dẫn trang.

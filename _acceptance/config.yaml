@@ -121,6 +121,8 @@ executors:
     # Hồ sơ moi-cong-khong-qua-nut (AC-9, từ lượt 2): bộ ca khung điều phối, mỗi dòng một ca đỏ hoặc dòng ghim — dòng
     # gộp một hàng của dieu_phoi_khung bị cắt ở người chấm nên lượt 1 không thấy ca nào đỏ.
     dieu_phoi_khung_tung_dong: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *not ok|^ *ok [0-9]+ - DP(1-07|2-01)|^# (pass|fail) \"'"
+    # Từ lượt 3 (chủ kho chọn thu phạm vi AC-9): chỉ hai ca có tên DP1-07, DP2-01 và các ca đỏ đi kèm của chúng.
+    dieu_phoi_dp107_dp201: "bash -c 'set -o pipefail; node --test --test-reporter=tap --test-name-pattern=\"DP1-07|DP2-01\" tests/dieu-phoi/dong-goi.test.mjs tests/dieu-phoi/mo-dot.test.mjs 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - |^# (pass|fail) \"'"
     # Mốc 2.25.0: vùng 3 GIỮ các dòng P200 (vế + chiều đỏ) trong bằng chứng — ba mốc 2.22 → 2.24
     # chấm số phiên bản trên dòng mà bộ lọc FAIL|Results của plugins_vung_3 cắt mất (Known
     # limit Ngoài-1 lặp ba lần). Gộp thành MỘT dòng vì workflow lượt chấm chỉ giữ ba dòng cuối
