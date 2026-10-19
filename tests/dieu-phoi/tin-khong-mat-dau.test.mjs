@@ -65,8 +65,9 @@ async function chenTrongKhe(gocGoi, cwd, gh, viec, treMs = TRE_MS) {
   const traVe = Number(fs.readFileSync(path.join(gh.dir, 'moc-doc-tra-ve'), 'utf8'));
   return { canh, moc: { batDau, truoc, sau, traVe }, kq };
 }
-const trongKhe = (m) => m.batDau < m.truoc && m.sau < m.traVe;
-const vietMoc = (m) => `bắt đầu đọc ${m.batDau} < ghi ${m.truoc}…${m.sau} < trả về ${m.traVe}`;
+// Thứ tự nhân quả đã có nhờ choTep (đọc tệp mốc rồi mới lấy `truoc`), nên hai mốc trùng một mili giây là hợp lệ: so ≤.
+const trongKhe = (m) => m.batDau <= m.truoc && m.sau <= m.traVe;
+const vietMoc = (m) => `bắt đầu đọc ${m.batDau} ≤ ghi ${m.truoc}…${m.sau} ≤ trả về ${m.traVe}`;
 
 function soKenh(gocGoi, kho, gh, coMo = false) {
   const r = tin(kho, ['so', '--kenh', KENH, ...(coMo ? [] : ['--tat-ca']), '--json'], { gocGoi, gh: gh.lenh });
@@ -96,29 +97,30 @@ export async function kiemDauMay(gocGoi) {
   // (a) «đã đến» trên M5.
   {
     const { gh, m5, ma } = haiMay(gocGoi);
-    soKenh(gocGoi, m5, gh);
+    const v0 = soKenh(gocGoi, m5, gh).find((x) => x.ma === ma);
     const k = await chenTrongKhe(gocGoi, m5, gh, async () => chayHook(gocGoi, 'PostToolUse', { cwd: m5, tool_name: 'Bash' }, { gh: gh.lenh }));
     const v = soKenh(gocGoi, m5, gh).find((x) => x.ma === ma);
-    so('(a) đã đến sống qua đồng bộ', `canh 0 · trong khe · nấc 2 da-den`, `canh ${k.canh.ma} · ${vietMoc(k.moc)} · nấc ${v?.nac} ${v?.trang_thai}`, k.canh.ma === 0 && trongKhe(k.moc) && v?.nac === 2 && v?.trang_thai === 'da-den');
+    so('(a) đã đến sống qua đồng bộ', `trước khe nấc 1 chua-den · canh 0 · trong khe · nấc 2 da-den`, `trước khe nấc ${v0?.nac} ${v0?.trang_thai} · canh ${k.canh.ma} · ${vietMoc(k.moc)} · nấc ${v?.nac} ${v?.trang_thai}`, v0?.nac === 1 && v0?.trang_thai === 'chua-den' && k.canh.ma === 0 && trongKhe(k.moc) && v?.nac === 2 && v?.trang_thai === 'da-den');
   }
   // (b) «chấp nhận» trên MBP.
   {
     const { gh, mbp, m5, ma } = haiMay(gocGoi);
     const n = tin(m5, ['NHẬN', ma, 'sẽ giao bộ đọc lộ trình nhiều kho', '--kenh', KENH], { gocGoi, gh: gh.lenh });
     const x = tin(m5, ['XONG', ma, '--vat', 'sha thu', '--kenh', KENH], { gocGoi, gh: gh.lenh });
-    soKenh(gocGoi, mbp, gh);
+    const v0 = soKenh(gocGoi, mbp, gh).find((y) => y.ma === ma);
+    const mo0 = soKenh(gocGoi, mbp, gh, true).some((y) => y.ma === ma);
     const k = await chenTrongKhe(gocGoi, mbp, gh, async () => chayHook(gocGoi, 'PostToolUse', { cwd: mbp, tool_name: 'Bash' }, { gh: gh.lenh }));
     const v = soKenh(gocGoi, mbp, gh).find((y) => y.ma === ma);
     const mo = soKenh(gocGoi, mbp, gh, true).some((y) => y.ma === ma);
-    so('(b) chấp nhận sống qua đồng bộ', 'canh 0 · trong khe · da-chap-nhan · vắng sổ mở', `nhận ${n.ma} xong ${x.ma} · canh ${k.canh.ma} · ${vietMoc(k.moc)} · ${v?.trang_thai} · sổ mở ${mo ? 'còn' : 'vắng'}`, n.ma === 0 && x.ma === 0 && k.canh.ma === 0 && trongKhe(k.moc) && v?.trang_thai === 'da-chap-nhan' && !mo);
+    so('(b) chấp nhận sống qua đồng bộ', 'trước khe cho-chap-nhan, còn sổ mở · canh 0 · trong khe · da-chap-nhan · vắng sổ mở', `nhận ${n.ma} xong ${x.ma} · trước khe ${v0?.trang_thai}, sổ mở ${mo0 ? 'còn' : 'vắng'} · canh ${k.canh.ma} · ${vietMoc(k.moc)} · ${v?.trang_thai} · sổ mở ${mo ? 'còn' : 'vắng'}`, n.ma === 0 && x.ma === 0 && v0?.trang_thai === 'cho-chap-nhan' && mo0 && k.canh.ma === 0 && trongKhe(k.moc) && v?.trang_thai === 'da-chap-nhan' && !mo);
   }
   // (c) «kết lượt khi chưa nhận» trên M5 (hook dừng đang ở lượt dừng lặp → ghi dấu, cho qua).
   {
     const { gh, m5, ma } = haiMay(gocGoi);
-    soKenh(gocGoi, m5, gh);
+    const v0 = soKenh(gocGoi, m5, gh).find((x) => x.ma === ma);
     const k = await chenTrongKhe(gocGoi, m5, gh, async () => chayHook(gocGoi, 'Stop', { cwd: m5, stop_hook_active: true }, { gh: gh.lenh }));
     const v = soKenh(gocGoi, m5, gh).find((x) => x.ma === ma);
-    so('(c) kết lượt sống qua đồng bộ', 'canh 0 · trong khe · ket_luot_chua_nhan true', `canh ${k.canh.ma} · ${vietMoc(k.moc)} · ${v?.ket_luot_chua_nhan}`, k.canh.ma === 0 && trongKhe(k.moc) && v?.ket_luot_chua_nhan === true);
+    so('(c) kết lượt sống qua đồng bộ', 'trước khe false · canh 0 · trong khe · ket_luot_chua_nhan true', `trước khe ${v0?.ket_luot_chua_nhan} · canh ${k.canh.ma} · ${vietMoc(k.moc)} · ${v?.ket_luot_chua_nhan}`, v0?.ket_luot_chua_nhan === false && k.canh.ma === 0 && trongKhe(k.moc) && v?.ket_luot_chua_nhan === true);
   }
   return { loi, hang };
 }
@@ -132,8 +134,8 @@ test('GD-01 dau-may-song-qua-dong-bo', async () => {
 
 test('GD-01-do ban-truoc-gt2', async () => {
   const { loi } = await kiemDauMay(gocTruocGT2());
-  for (const [h, thuc] of [['(a)', 'nấc 1 chua-den'], ['(b)', 'cho-chap-nhan'], ['(c)', '· false']]) {
-    assert.ok(loi.some((l) => l.startsWith(h) && l.includes(thuc)), `bản trước GT2 phải làm hàng ${h} đỏ với «${thuc}», nhận: ${loi.join(' | ')}`);
+  for (const [h, thuc] of [['(a)', '· nấc 1 chua-den'], ['(b)', '· cho-chap-nhan · sổ mở còn'], ['(c)', '· false']]) {
+    assert.ok(loi.some((l) => l.startsWith(h) && l.endsWith(thuc)), `bản trước GT2 phải làm hàng ${h} đỏ, thực tế kết bằng «${thuc}», nhận: ${loi.join(' | ')}`);
   }
 });
 
@@ -348,6 +350,15 @@ export async function kiemHanSai(gocGoi) {
         so(`${nc.ten} ${kl} ${co} «${gt}»`, `thoát 1 · «${ky}» · băm bằng · 0 lời gọi ghi`, `${r.ma} · «${r.err.trim()}» · băm ${bamBang ? 'bằng' : 'khác'} · ${ghi} lời gọi ghi`, r.ma === 1 && r.err.trim() === ky && bamBang && ghi === 0);
       }
     }
+    // Đối chứng dương: cùng lệnh với hạn hợp lệ làm băm đổi (và trên kênh gọi ghi đúng một lần) — «băm bằng · 0 lời
+    // gọi ghi» ở trên vì thế đo được thật, không phải vì bộ băm hay nhật ký gh mù.
+    const h0 = nc.bam();
+    const g0 = nc.soGhi();
+    const r = nc.gui('GIAO', '--han', '30');
+    const doi = nc.bam() !== h0;
+    const ghi = nc.soGhi() - g0;
+    const kyGhi = loai === 'kenh' ? 1 : 0;
+    so(`${nc.ten} đối chứng dương --han 30`, `thoát 0 · băm đổi · ${kyGhi} lời gọi ghi`, `${r.ma} ${r.err.trim()} · băm ${doi ? 'đổi' : 'bằng'} · ${ghi} lời gọi ghi`, r.ma === 0 && doi && ghi === kyGhi);
   }
   return { loi, hang };
 }
@@ -355,7 +366,7 @@ export async function kiemHanSai(gocGoi) {
 test('GD-05 han-sai-bi-tu-choi', async () => {
   const { loi, hang } = await kiemHanSai(GOI);
   inMaTran('GD-05', hang);
-  assert.equal(hang.length, 42);
+  assert.equal(hang.length, 44);
   assert.deepEqual(loi, []);
 });
 
@@ -427,8 +438,8 @@ const ioGia = (nowMs) => ({
   },
 });
 // Yêu cầu kiểu cũ của P1, sinh bằng CLI dieu-phoi.mjs thật. Trả id.
-function yeuCauCu(gocGoi, k, loai = 'gia-han') {
-  const r = chayNodeThu([path.join(gocGoi, 'scripts', 'dieu-phoi.mjs'), 'yeu-cau', loai, '--noi-dung', '{"uoc_phut":10}'], { cwd: k.w1 });
+function yeuCauCu(gocGoi, k, loai = 'gia-han', cwd = k.w1) {
+  const r = chayNodeThu([path.join(gocGoi, 'scripts', 'dieu-phoi.mjs'), 'yeu-cau', loai, '--noi-dung', '{"uoc_phut":10}'], { cwd });
   assert.equal(r.ma, 0, r.err);
   return r.out.trim();
 }
@@ -479,10 +490,15 @@ export async function kiemXongCu(gocGoi) {
   const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
   const ky = { ket_qua: 'da-tra-loi', boi: 'giam-sat', ly_do: cau };
   so('(b) hộp người hỏi', JSON.stringify(ky), JSON.stringify(boLuc(tl)), tl != null && isDeepStrictEqual(boLuc(tl), ky));
+  // Đối chứng dương cho (c): một yêu cầu gia hạn khác (của P2, để không chạm hàng (e) của P1) mang tệp trả lời sai khuôn
+  // (ket_qua rỗng) — cùng nhịp phải chuyển nó vào hong/, chứng rằng nhịp có đọc và kiểm tệp trả lời của loại yêu cầu này.
+  const idHong = yeuCauCu(gocGoi, k, 'gia-han', k.w2);
+  fs.writeFileSync(traLoiCua(k, idHong), `${JSON.stringify({ ket_qua: '', boi: 'giam-sat' })}\n`);
   const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
   await taoVong(k.dot, ioGia(Date.now()), () => Date.now())();
   const hong = fs.existsSync(path.join(k.dot, 'tra-loi', 'hong', `${id}.json`));
-  so('(c) bộ phát lịch nhận trả lời', 'không vào hong/, tệp còn ở tra-loi/', `hong ${hong} · tra-loi ${fs.existsSync(traLoiCua(k, id))}`, !hong && fs.existsSync(traLoiCua(k, id)));
+  const hongDoiChung = fs.existsSync(path.join(k.dot, 'tra-loi', 'hong', `${idHong}.json`));
+  so('(c) bộ phát lịch nhận trả lời', 'đối chứng sai khuôn vào hong/ · trả lời của tin không vào hong/, tệp còn ở tra-loi/', `đối chứng hong ${hongDoiChung} · hong ${hong} · tra-loi ${fs.existsSync(traLoiCua(k, id))}`, hongDoiChung && !hong && fs.existsSync(traLoiCua(k, id)));
   const soSau = soMoCua(gocGoi, k);
   so('(d) sổ mở không còn vòng', `trước: thoát 0, có ${id} · sau: thoát 0, không có ${id}`, `trước: ${soTruoc.ma}, ${soTruoc.ds.includes(id) ? 'có' : 'không có'} · sau: ${soSau.ma}, ${soSau.ds.includes(id) ? 'có' : 'không có'}`, soTruoc.ma === 0 && soTruoc.ds.includes(id) && soSau.ma === 0 && !soSau.ds.includes(id));
   const choSau = p1DangChoTraLoi(gocGoi, k);
@@ -534,7 +550,8 @@ export async function kiemTraCu(gocGoi) {
   so('thiếu --chuyen', 'thoát 1 · «--chuyen» · băm bằng', `${thieu.ma} ${thieu.err.trim()} · băm ${bamCayThu(k.dot) === h0 ? 'bằng' : 'khác'}`, thieu.ma === 1 && thieu.err.includes('--chuyen') && bamCayThu(k.dot) === h0);
   const r = tin(k.kho, ['TRẢ', id, 'việc của dãy khác', '--chuyen', 'P2'], { gocGoi });
   const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
-  so('TRẢ ghi tra-lai', 'thoát 0 · tra-lai · ly_do chứa câu và P2', `${r.ma} ${r.err.trim()} · ${tl?.ket_qua} · ${tl?.ly_do}`, r.ma === 0 && tl?.ket_qua === 'tra-lai' && tl.ly_do.includes('việc của dãy khác') && tl.ly_do.includes('P2'));
+  const doiBam = bamCayThu(k.dot) !== h0;
+  so('TRẢ ghi tra-lai', 'thoát 0 · tra-lai · ly_do chứa câu và P2 · băm đổi (đối chứng của «băm bằng» ở trên)', `${r.ma} ${r.err.trim()} · ${tl?.ket_qua} · ${tl?.ly_do} · băm ${doiBam ? 'đổi' : 'bằng'}`, r.ma === 0 && tl?.ket_qua === 'tra-lai' && tl.ly_do.includes('việc của dãy khác') && tl.ly_do.includes('P2') && doiBam);
   const soSau = soMoCua(gocGoi, k);
   so('sổ mở không còn vòng', `trước: thoát 0, có ${id} · sau: thoát 0, không có ${id}`, `trước: ${soTruoc.ma}, ${soTruoc.ds.includes(id) ? 'có' : 'không có'} · sau: ${soSau.ma}, ${soSau.ds.includes(id) ? 'có' : 'không có'}`, soTruoc.ma === 0 && soTruoc.ds.includes(id) && soSau.ma === 0 && !soSau.ds.includes(id));
   return { loi, hang };
@@ -576,10 +593,15 @@ export async function kiemDapCuTuChoi(gocGoi) {
   tuChoi('XONG do P2', k.w2, ['XONG', id, 'tôi trả lời thay'], ['không phải người nhận']);
   tuChoi('TRẢ do P2', k.w2, ['TRẢ', id, 'không phải việc tôi', '--chuyen', 'P1'], ['không phải người nhận']);
   tuChoi('XONG không câu', k.kho, ['XONG', id], ['câu trả lời']);
+  const hTruocXong = bamCayThu(k.dot);
   const xong = tin(k.kho, ['XONG', id, 'đã trả lời lần đầu'], { gocGoi });
   if (xong.ma !== 0) loi.push(`bước dựng: G XONG ${id} phải thoát 0 — ${xong.err.trim()}`);
+  const xongDoiBam = bamCayThu(k.dot) !== hTruocXong;
   tuChoi('XONG trên yêu cầu đã có trả lời', k.kho, ['XONG', id, 'trả lời lần hai'], ['đã đóng']);
   tuChoi('TRẢ trên yêu cầu đã có trả lời', k.kho, ['TRẢ', id, 'đổi ý', '--chuyen', 'P2'], ['đã đóng']);
+  // Đối chứng dương của các hàng «băm bằng»: lần đáp thành công làm băm đổi, và câu trả lời đầu còn nguyên sau hai lần từ chối.
+  const tlDau = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
+  so('đối chứng: lần đáp đầu đổi băm, câu trả lời đầu còn nguyên', 'băm đổi · ly_do «đã trả lời lần đầu»', `băm ${xongDoiBam ? 'đổi' : 'bằng'} · ly_do «${tlDau?.ly_do}»`, xongDoiBam && tlDau?.ly_do === 'đã trả lời lần đầu');
   // Đối chứng: vòng mã mới vẫn đáp được như GT1.
   const h = tin(k.w1, ['HỎI', 'G', 'có cần chen lượt gộp không?'], { gocGoi });
   const maH = h.out.split('\n')[0].split(' ')[1];
@@ -592,7 +614,7 @@ export async function kiemDapCuTuChoi(gocGoi) {
 test('GD-09 dap-cu-bi-tu-choi', async () => {
   const { loi, hang } = await kiemDapCuTuChoi(GOI);
   inMaTran('GD-09', hang);
-  assert.equal(hang.length, 10);
+  assert.equal(hang.length, 11);
   assert.deepEqual(loi, []);
 });
 
@@ -600,7 +622,7 @@ test('GD-09-do nhan-lot', async () => {
   const goc = banSao('tin.mjs', '  if (muc.yeu_cau_cu) return dapYeuCauCu(', '  if (false) return dapYeuCauCu(');
   const { loi } = await kiemDapCuTuChoi(goc);
   assert.ok(loi.some((l) => l.startsWith('NHẬN:')), `đi đường cũ phải làm hàng NHẬN đỏ, nhận: ${loi.join(' | ')}`);
-  assert.ok(!loi.some((l) => l.startsWith('đối chứng')), `đối chứng vòng mã mới vẫn xanh, nhận: ${loi.join(' | ')}`);
+  assert.ok(!loi.some((l) => l.startsWith('đối chứng: vòng mã mới')), `đối chứng vòng mã mới vẫn xanh, nhận: ${loi.join(' | ')}`);
 });
 
 test('GD-09-do tra-bo-danh-tinh', async () => {
@@ -632,22 +654,28 @@ export async function kiemLuatGd(gocGoi) {
   so('đúng 1 dòng bảng nói «số phút nguyên dương»', '1', dongHan.length, dongHan.length === 1);
   const dongCu = bang.filter((l) => l.includes('kiểu cũ') && l.includes('`tin XONG') && l.includes('`tin TRẢ'));
   so('đúng 1 dòng bảng nói yêu cầu kiểu cũ đáp bằng tin XONG/tin TRẢ', '1', dongCu.length, dongCu.length === 1);
-  // Cờ hạn mà dòng luật nêu → chạy với 1.5 trên kho thử, phải đúng câu của AC-5.
   const k = khoDotThu(gocGoi);
-  // Lệnh mẫu của dòng hạn, chạy nguyên văn với <phút> = 1.5: GIAO từ worktree giám sát giao P2, HỎI từ P1 hỏi G.
+  // Lệnh mẫu của dòng hạn, chạy nguyên văn hai lần: <phút> = 45 phải thoát 0 và sổ đọc lại đúng 45 (đối chứng dương —
+  // lệnh mẫu chạy được), rồi <phút> = 1.5 phải bị từ chối đúng câu của AC-5. GIAO từ worktree giám sát giao P2, HỎI từ P1 hỏi G.
   const mauHan = [...(dongHan[0] ?? '').matchAll(/`(tin (?:GIAO|HỎI) [^`]+)`/gu)].map((m) => m[1]);
   const coHan = [];
   const sai = [];
   for (const m of mauHan) {
     const giao = m.startsWith('tin GIAO');
-    const argv = argvMau(m, { '<dãy hoặc G>': giao ? 'P2' : 'G', '<phút>': '1.5' });
-    const c = argv.find((x) => /^--han(-xong)?$/u.test(x));
+    const cwd = giao ? k.kho : k.w1;
+    const argvDung = argvMau(m, { '<dãy hoặc G>': giao ? 'P2' : 'G', '<phút>': '45' });
+    const c = argvDung.find((x) => /^--han(-xong)?$/u.test(x));
     coHan.push(c);
-    const r = tin(giao ? k.kho : k.w1, argv, { gocGoi });
+    const rd = tin(cwd, argvDung, { gocGoi });
+    const maD = rd.out.split('\n')[0].split(' ')[1];
+    const vd = rd.ma === 0 ? JSON.parse(tin(k.kho, ['so', '--tat-ca', '--json'], { gocGoi }).out).find((v) => v.ma === maD) : null;
+    const docD = c === '--han-xong' ? vd?.han_xong_khoang : vd?.han_nhan_phut;
+    if (!(rd.ma === 0 && docD === 45)) sai.push(`«${m}» với 45: ${rd.ma} ${rd.err.trim()} · sổ đọc ${docD}`);
+    const r = tin(cwd, argvMau(m, { '<dãy hoặc G>': giao ? 'P2' : 'G', '<phút>': '1.5' }), { gocGoi });
     const ky = `tin: ${c} phải là số phút nguyên dương, nhận «1.5»`;
-    if (!(r.ma === 1 && r.err.trim() === ky)) sai.push(`«${m}»: ${r.ma} ${r.err.trim()}`);
+    if (!(r.ma === 1 && r.err.trim() === ky)) sai.push(`«${m}» với 1.5: ${r.ma} ${r.err.trim()}`);
   }
-  so('lệnh hạn của dòng luật từ chối 1.5 đúng câu AC-5', '--han,--han-xong · đúng câu', `${[...new Set(coHan)].sort().join(',')} · ${sai.join(' | ') || 'đúng câu'}`, [...new Set(coHan)].sort().join(',') === '--han,--han-xong' && sai.length === 0);
+  so('lệnh hạn của dòng luật: 45 chạy được, 1.5 bị từ chối đúng câu AC-5', '--han,--han-xong · đúng cả hai chiều', `${[...new Set(coHan)].sort().join(',')} · ${sai.join(' | ') || 'đúng cả hai chiều'}`, [...new Set(coHan)].sort().join(',') === '--han,--han-xong' && sai.length === 0);
   // Lệnh mẫu tin XONG của dòng yêu cầu kiểu cũ → chạy trên yêu cầu kiểu cũ thật, phải ghi tra-loi/<id>.json.
   // Hai lệnh mẫu của dòng yêu cầu kiểu cũ, chạy nguyên văn trên hai yêu cầu kiểu cũ thật.
   const chayMau = (re, kyKq) => {
@@ -680,6 +708,12 @@ test('GD-10-do han-mau-hong', async () => {
   const goc = banSao('mau/LUAT.md', '"<một câu ý định>" --han-xong <phút>`', '"<một câu ý định>" --han-xong=<phút>`');
   const { loi } = await kiemLuatGd(goc);
   assert.ok(loi.some((l) => l.startsWith('lệnh hạn của dòng luật')), `lệnh mẫu hạn hỏng phải làm hàng lệnh hạn đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GD-10-do han-mau-thieu-dich', async () => {
+  const goc = banSao('mau/LUAT.md', '`tin HỎI <dãy hoặc G> "<câu hỏi>" --han <phút>`', '`tin HỎI --han <phút>`');
+  const { loi } = await kiemLuatGd(goc);
+  assert.ok(loi.some((l) => l.startsWith('lệnh hạn của dòng luật') && l.includes('với 45')), `lệnh mẫu HỎI thiếu đích phải làm hàng lệnh hạn đỏ ở chiều 45, nhận: ${loi.join(' | ')}`);
 });
 
 test('GD-10-do luat-lech', async () => {
