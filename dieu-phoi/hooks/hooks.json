@@ -50,6 +50,17 @@
         ]
       }
     ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 15,
+            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/scripts/hook-tin.mjs\"; [ -f \"$f\" ] || exit 0; exec node \"$f\""
+          }
+        ]
+      }
+    ],
     "StopFailure": [
       {
         "hooks": [

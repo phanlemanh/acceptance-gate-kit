@@ -77,6 +77,8 @@ const DAU_VAO_MAU = {
   UserPromptSubmit: (cwd) => ({ hook_event_name: 'UserPromptSubmit', session_id: 's', cwd, prompt: 'xin chao' }),
   // DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-10): lưới cuối khi thợ chết vì hạn mức.
   StopFailure: (cwd) => ({ hook_event_name: 'StopFailure', session_id: 's', cwd, error: 'rate_limit' }),
+  // GT1 (hồ sơ vong-mo-co-chu-giu AC-8): hook dừng chặn kết lượt khi còn việc giao chưa nhận.
+  Stop: (cwd) => ({ hook_event_name: 'Stop', session_id: 's', cwd, stop_hook_active: false }),
 };
 
 // ---------- DP1-01: cài là đủ (AC-1, E1) ----------
@@ -86,6 +88,7 @@ const BANG_HOOK = [
   ['Notification', 'idle_prompt|permission_prompt', 'hook-cho-nguoi.mjs'],
   ['UserPromptSubmit', '—', 'hook-cho-nguoi.mjs'],
   ['StopFailure', '—', 'hook-het-han-muc.mjs'],
+  ['Stop', '—', 'hook-tin.mjs'],
 ];
 
 export function kiemCaiDat(gocKit, gocGoi) {
