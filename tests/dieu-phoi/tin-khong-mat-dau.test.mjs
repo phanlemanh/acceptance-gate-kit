@@ -580,3 +580,58 @@ test('GD-09-do tra-bo-danh-tinh', async () => {
   assert.ok(loi.some((l) => l.startsWith('TRẢ do P2')), `bỏ kiểm danh tính nhánh TRẢ phải làm hàng TRẢ do P2 đỏ, nhận: ${loi.join(' | ')}`);
   assert.ok(!loi.some((l) => l.startsWith('XONG do P2')), `đối chứng: XONG do P2 vẫn xanh, nhận: ${loi.join(' | ')}`);
 });
+
+// ---------- AC-10: luật của gói nói đúng hai hành vi mới ----------
+// Lệnh mẫu trong một ô bảng `…` → argv: bỏ «tin», thay <mã> và mọi "<…>" bằng giá trị thử, tách theo nháy kép.
+function argvMau(mau, thay) {
+  let s = mau.replace(/^tin\s+/u, '');
+  for (const [k, v] of Object.entries(thay)) s = s.split(k).join(v);
+  s = s.replace(/"<[^>]*>"/gu, '"câu thử của luật"');
+  return [...s.matchAll(/"([^"]*)"|(\S+)/gu)].map((m) => m[1] ?? m[2]);
+}
+export async function kiemLuatGd(gocGoi) {
+  const loi = [];
+  const hang = [];
+  const so = (ten, ky, thuc, dung) => {
+    hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 200) });
+    if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
+  };
+  const luat = fs.readFileSync(path.join(gocGoi, 'scripts', 'mau', 'LUAT.md'), 'utf8');
+  const khoi = /<!-- <<<LUAT-TIN -->([\s\S]*?)<!-- LUAT-TIN>>> -->/u.exec(luat)?.[1] ?? '';
+  const bang = khoi.split('\n').filter((l) => l.startsWith('| '));
+  const dongHan = bang.filter((l) => l.includes('số phút nguyên dương'));
+  so('đúng 1 dòng bảng nói «số phút nguyên dương»', '1', dongHan.length, dongHan.length === 1);
+  const dongCu = bang.filter((l) => l.includes('kiểu cũ') && l.includes('`tin XONG') && l.includes('`tin TRẢ'));
+  so('đúng 1 dòng bảng nói yêu cầu kiểu cũ đáp bằng tin XONG/tin TRẢ', '1', dongCu.length, dongCu.length === 1);
+  // Cờ hạn mà dòng luật nêu → chạy với 1.5 trên kho thử, phải đúng câu của AC-5.
+  const k = khoDotThu(gocGoi);
+  const coHan = [...new Set([...(dongHan[0] ?? '').matchAll(/--han(?:-xong)?\b/gu)].map((m) => m[0]))].sort();
+  const sai = [];
+  for (const c of coHan) {
+    const r = tin(k.kho, ['GIAO', 'P2', 'việc thử hạn của luật', c, '1.5'], { gocGoi });
+    const ky = `tin: ${c} phải là số phút nguyên dương, nhận «1.5»`;
+    if (!(r.ma === 1 && r.err.trim() === ky)) sai.push(`${c}: ${r.ma} ${r.err.trim()}`);
+  }
+  so('lệnh hạn của dòng luật từ chối 1.5 đúng câu AC-5', '--han,--han-xong · đúng câu', `${coHan.join(',')} · ${sai.join(' | ') || 'đúng câu'}`, coHan.join(',') === '--han,--han-xong' && sai.length === 0);
+  // Lệnh mẫu tin XONG của dòng yêu cầu kiểu cũ → chạy trên yêu cầu kiểu cũ thật, phải ghi tra-loi/<id>.json.
+  const id = yeuCauCu(gocGoi, k);
+  const mau = /`(tin XONG [^`]+)`/u.exec(dongCu[0] ?? '')?.[1] ?? '';
+  const r = mau ? tin(k.kho, argvMau(mau, { '<mã>': id }), { gocGoi }) : { ma: -1, err: 'không có lệnh mẫu' };
+  so('lệnh mẫu tin XONG của dòng luật ghi vào hộp người hỏi', `thoát 0 · tra-loi/${id}.json`, `«${mau}» · ${r.ma} ${r.err.trim()} · ${fs.existsSync(traLoiCua(k, id)) ? 'có tệp' : 'không tệp'}`, r.ma === 0 && fs.existsSync(traLoiCua(k, id)));
+  return { loi, hang };
+}
+
+test('GD-10 luat-noi-dung-hanh-vi', async () => {
+  const { loi, hang } = await kiemLuatGd(GOI);
+  inMaTran('GD-10', hang);
+  assert.equal(hang.length, 4);
+  assert.deepEqual(loi, []);
+});
+
+test('GD-10-do luat-lech', async () => {
+  const luat = fs.readFileSync(path.join(GOI, 'scripts', 'mau', 'LUAT.md'), 'utf8');
+  const dong = luat.split('\n').find((l) => l.startsWith('| ') && l.includes('kiểu cũ')) ?? '«không có dòng kiểu cũ trong gói thật»';
+  const goc = banSao('mau/LUAT.md', `${dong}\n`, '');
+  const { loi } = await kiemLuatGd(goc);
+  assert.ok(loi.some((l) => l.includes('kiểu cũ')), `bỏ dòng yêu cầu kiểu cũ phải làm hàng «kiểu cũ» đỏ, nhận: ${loi.join(' | ')}`);
+});
