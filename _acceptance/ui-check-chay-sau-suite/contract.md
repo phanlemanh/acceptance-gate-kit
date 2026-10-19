@@ -5,7 +5,7 @@ slug: ui-check-chay-sau-suite
 owner: manh.phan@onemount.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-19-ui-check-chay-sau-suite-design.md
 approved_by:
 approved_at:
