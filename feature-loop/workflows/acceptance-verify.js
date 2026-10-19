@@ -25,6 +25,8 @@ export const meta = {
 //                                          // dài hơn trần công cụ: chạy nền, nhật ký đường cố định, chờ bằng lệnh máy sinh
 //   evalsChayRieng: ['E6', ...],       // OPTIONAL (lenh-dai-chay-rieng): id trong feature_loop.model_evals — lệnh của
 //                                      // chúng chạy tuần tự SAU mọi lệnh máy khác. Vắng → thứ tự 2.24.0.
+//                                      // ui-check-chay-sau-suite: id ui-check ở đây chạy SAU nhánh máy (kể cả lệnh
+//                                      // chạy-riêng) và mọi ui-check song song, từng cái một.
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //                                      // thuoc-co-cua AC-9: lệnh có tên trong danh sách này chạy TUẦN TỰ (theo thứ tự
 //                                      // xuất hiện) — kể cả khi trùng lệnh của một eval; lệnh máy khác giữ song song.
@@ -766,6 +768,12 @@ const laChayRieng = c => (byCmd.get(c) || []).some(id => CHAY_RIENG.has(id))
 const cmdTuanTu = distinctCmds.filter(c => SUITE_SET.has(c));
 const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c) && !laChayRieng(c));
 const cmdChayRieng = distinctCmds.filter(c => !SUITE_SET.has(c) && laChayRieng(c));
+// ui-check-chay-sau-suite: ui-check khai trong CHAY_RIENG dựng tiến trình như eval lệnh nặng — crm 15/10: E10 dựng
+// `eve dev` trong lúc `turbo run build --force` của chuỗi suite ghi đè `.eve/compile`, round REJECT. Nó chạy SAU
+// nhánh máy (gồm lệnh chạy-riêng) và mọi ui-check song song, từng cái một. Nhánh máy GIỮ nhịp cũ: không đổi mặc
+// định cho kho chỉ khai lệnh. Không ui nào khai → nhánh ui y hệt 2.33.0.
+const uiSongSong = uiEvals.filter(e => !CHAY_RIENG.has(e.id))
+const uiChayRieng = uiEvals.filter(e => CHAY_RIENG.has(e.id))
 // lenh-dai-chay-rieng AC-2: thời lượng tối đa (phút) của LỆNH = max `longRunning` trên mọi eval trỏ
 // tới nó — một lần chạy phục vụ mọi eval, nên hạn chờ phải đủ cho eval đòi dài nhất.
 const cmdPhut = new Map(distinctCmds.map(cmd => [cmd, Math.max(0, ...machineEvals.filter(e => e.cmd === cmd && Number.isInteger(e.longRunning)).map(e => e.longRunning))]))
@@ -784,6 +792,7 @@ log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEv
   + (carriedPanels.length ? ` — carried ${carriedPanels.length} panel (P3)` : '')
   + (runBaseline ? '' : ' — baseline carried (P2)'))
 if (cmdChayRieng.length) log(`Chay rieng (feature_loop.model_evals): ${cmdChayRieng.length} lenh, tuan tu SAU moi lenh may khac`)
+if (uiChayRieng.length) log(`Chay rieng ui-check (feature_loop.model_evals): ${uiChayRieng.map(e => e.id).join(', ')} — tuan tu SAU nhanh may va moi ui-check song song`)
 if ([...cmdPhut.values()].some(p => p > 0)) log(`Lenh dai (long_running): ${distinctCmds.filter(c => cmdPhut.get(c) > 0).map(c => `${c.slice(0, 40)} ≤${cmdPhut.get(c)} phut`).join(' ; ')} — chay nen, nhat ky .acceptance-runs/${args.slug}/s4-lenh-dai/`)
 
 // Sáu hình dạng lỗi đo-lường (matrix-measure-law — chưng cất từ baseline B4
@@ -1121,6 +1130,7 @@ if (args.dryRun) {
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
     judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
     uiCheckEvals: uiEvals.map(e => e.id),
+    ...(uiChayRieng.length ? { uiChayRieng: uiChayRieng.map(e => e.id) } : {}),
     finders: REVIEWERS_ACTIVE.map(d => d.key),
     vungVat: coVungVat ? vungVat : null,
     ungroundedJudgments: [...ungroundedIds],
@@ -1196,44 +1206,59 @@ const agentCuaLenh = (cmd, __i) => {
 // `evidence/…` rơi vào cwd của tác tử (không phải hồ sơ). Báo cáo mang lại đường tương đối.
 const EVD = `${args.repoRoot}/_acceptance/${args.slug}/evidence`
 
-const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
-  // AC-9: nhánh song song (lệnh eval) và nhánh tuần tự (lệnh suite) chạy ĐỒNG THỜI với nhau;
-  // trong nhánh tuần tự mỗi lệnh (và mỗi lần lặp) chờ lệnh trước xong. Một agent ném lỗi ở
-  // nhánh tuần tự → null như parallel làm — không giết các lệnh suite còn lại.
-  () => Promise.all([
-    parallel(cmdSongSong.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () => agentCuaLenh(cmd, __i)))),
-    (async () => {
-      const out = []
-      for (const cmd of cmdTuanTu) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) out.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
-      return out
-    })(),
-  ]).then(async ([ss, tt]) => {
-    // lenh-dai-chay-rieng AC-6: nhóm chạy-riêng chỉ bắt đầu khi CẢ HAI nhánh trên đã xong, và tuần tự
-    // với nhau — không chồng suite, không chồng eval khác. Cùng agentCuaLenh nên lệnh vừa chạy-riêng
-    // vừa dài (ca crm E6/E7) vẫn nhận khung nền.
-    const rr = []
-    for (const cmd of cmdChayRieng) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) rr.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
-    return [...ss, ...tt, ...rr]
-  }),
+// ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file. MỘT nguồn prompt
+// cho cả ui song song lẫn ui chạy-riêng (ui-check-chay-sau-suite), như agentCuaLenh của nhánh máy.
+const agentCuaUi = e =>
+  agentT(
+    `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} — MOI lenh shell ban chay trong steps phai o dang \`${CD_GUARD(`"${args.repoRoot}"`)} && <lenh>\`: cho dung dat trong CHINH lenh (giu nguyen ve || exit 97), khong tin cwd hien tai (thu muc trung ten o noi khac la moi nhu).\n` +
+    `Eval ${e.id} (criterion ${e.criterion}) — lam DUNG cac steps sau, theo thu tu:\n` +
+    `${(e.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}\n` +
+    `Expected: ${e.expected}\n\n` +
+    `Quy tac:\n` +
+    `- Tu quan dev server: start NEN (background) neu steps yeu cau, doi ready (poll HTTP toi 90s); TAT server truoc khi tra ket qua (chi tat server minh start — port dang co server san thi dung chung va KHONG tat).\n` +
+    `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
+    `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → ${EVD}/${e.id}-step1.png, ${EVD}/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath — Khai screenshotPath bang duong TUYET DOI da luu; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
+    `- observed (BAT BUOC khi co frame): MO TUNG file frame vua luu bang Read (anh doc truc tiep; .html doc noi dung file) roi VIET field observed = thay gi CU THE trong tung frame, doi chieu Expected. KHONG viet observed tu tri nho lenh/steps — phai doc file that. Neu noi dung frame MAU THUAN Expected → assertion do FAIL: exitCode phai khac 0 du lenh exit 0.\n` +
+    `- NETWORK TRUTH (mo rong rail observed tu pixels sang wire): NEU driver la browser tool co duong doc network (read_network_requests / read_console_messages hoac tuong duong) — SAU khi chay xong steps: doc failed requests + console errors, dump tho vao ${EVD}/${e.id}-network.txt (mkdir -p truoc). Luat scoping: FAIL-eligible = fetch/XHR toi origin cua config dev_server.url HOAC prefix trong dev_server.api_base (co the la LIST); third-party (analytics/CDN/tracker) KHONG BAO GIO fail; static asset (.map/favicon/anh/font) ke ca app-origin → chi note. Trong tap FAIL-eligible: connection-error/timeout/status tu 500 tro len → eval FAIL: exitCode phai khac 0 KE CA khi frame dep; loi 4xx → FAIL TRU KHI expected cua eval khai dung status do. Dien field networkObserved bang VOCAB CHU (cam so status/exit): "clean" = CO thay traffic app-scope va tat ca OK — khong thay request app nao thi PHAI ghi "no-app-traffic" (cam ghi clean khi khong co traffic); "third-party-only" = chi third-party fail; "app-fail" = co request FAIL-eligible fail; "unscoped" = config chua khai dev_server.url/api_base; "unscoped-partial" = thay XHR toi origin la ngoai scope da khai (note-only); driver khong doc duoc network (curl+grep, capture-only) → "n-a (driver)"; tool doc network tu loi → "n-a (tool-error: <ly do ngan>)" kem chi tiet trong outputTail. Cac gia tri n-a/unscoped/no-app-traffic KHONG lam eval fail.\n` +
+    `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.\n` +
+    `- ${TOOL_KILL_RULE}`,
+    { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, ...vaiOpt('ui') }
+  ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
 
-  // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
-  () => parallel(uiEvals.map(e => () =>
-    agentT(
-      `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} — MOI lenh shell ban chay trong steps phai o dang \`${CD_GUARD(`"${args.repoRoot}"`)} && <lenh>\`: cho dung dat trong CHINH lenh (giu nguyen ve || exit 97), khong tin cwd hien tai (thu muc trung ten o noi khac la moi nhu).\n` +
-      `Eval ${e.id} (criterion ${e.criterion}) — lam DUNG cac steps sau, theo thu tu:\n` +
-      `${(e.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}\n` +
-      `Expected: ${e.expected}\n\n` +
-      `Quy tac:\n` +
-      `- Tu quan dev server: start NEN (background) neu steps yeu cau, doi ready (poll HTTP toi 90s); TAT server truoc khi tra ket qua (chi tat server minh start — port dang co server san thi dung chung va KHONG tat).\n` +
-      `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
-      `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → ${EVD}/${e.id}-step1.png, ${EVD}/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath — Khai screenshotPath bang duong TUYET DOI da luu; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
-      `- observed (BAT BUOC khi co frame): MO TUNG file frame vua luu bang Read (anh doc truc tiep; .html doc noi dung file) roi VIET field observed = thay gi CU THE trong tung frame, doi chieu Expected. KHONG viet observed tu tri nho lenh/steps — phai doc file that. Neu noi dung frame MAU THUAN Expected → assertion do FAIL: exitCode phai khac 0 du lenh exit 0.\n` +
-      `- NETWORK TRUTH (mo rong rail observed tu pixels sang wire): NEU driver la browser tool co duong doc network (read_network_requests / read_console_messages hoac tuong duong) — SAU khi chay xong steps: doc failed requests + console errors, dump tho vao ${EVD}/${e.id}-network.txt (mkdir -p truoc). Luat scoping: FAIL-eligible = fetch/XHR toi origin cua config dev_server.url HOAC prefix trong dev_server.api_base (co the la LIST); third-party (analytics/CDN/tracker) KHONG BAO GIO fail; static asset (.map/favicon/anh/font) ke ca app-origin → chi note. Trong tap FAIL-eligible: connection-error/timeout/status tu 500 tro len → eval FAIL: exitCode phai khac 0 KE CA khi frame dep; loi 4xx → FAIL TRU KHI expected cua eval khai dung status do. Dien field networkObserved bang VOCAB CHU (cam so status/exit): "clean" = CO thay traffic app-scope va tat ca OK — khong thay request app nao thi PHAI ghi "no-app-traffic" (cam ghi clean khi khong co traffic); "third-party-only" = chi third-party fail; "app-fail" = co request FAIL-eligible fail; "unscoped" = config chua khai dev_server.url/api_base; "unscoped-partial" = thay XHR toi origin la ngoai scope da khai (note-only); driver khong doc duoc network (curl+grep, capture-only) → "n-a (driver)"; tool doc network tu loi → "n-a (tool-error: <ly do ngan>)" kem chi tiet trong outputTail. Cac gia tri n-a/unscoped/no-app-traffic KHONG lam eval fail.\n` +
-      `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.\n` +
-      `- ${TOOL_KILL_RULE}`,
-      { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, ...vaiOpt('ui') }
-    ).then(r => r && { ...r, cmd: `ui-check:${e.id}`, evals: [e.id] })
-  )),
+// AC-9: nhánh song song (lệnh eval) và nhánh tuần tự (lệnh suite) chạy ĐỒNG THỜI với nhau;
+// trong nhánh tuần tự mỗi lệnh (và mỗi lần lặp) chờ lệnh trước xong. Một agent ném lỗi ở
+// nhánh tuần tự → null như parallel làm — không giết các lệnh suite còn lại.
+// ui-check-chay-sau-suite: promise của nhánh máy được NHỚ — nhánh ui chạy-riêng chờ đúng lần chạy này, không
+// chạy lại lệnh nào. Nhánh máy tự nó không đổi.
+let nhanhMayP = null
+const nhanhMay = () => nhanhMayP || (nhanhMayP = Promise.all([
+  parallel(cmdSongSong.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () => agentCuaLenh(cmd, __i)))),
+  (async () => {
+    const out = []
+    for (const cmd of cmdTuanTu) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) out.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
+    return out
+  })(),
+]).then(async ([ss, tt]) => {
+  // lenh-dai-chay-rieng AC-6: nhóm chạy-riêng chỉ bắt đầu khi CẢ HAI nhánh trên đã xong, và tuần tự
+  // với nhau — không chồng suite, không chồng eval khác. Cùng agentCuaLenh nên lệnh vừa chạy-riêng
+  // vừa dài (ca crm E6/E7) vẫn nhận khung nền.
+  const rr = []
+  for (const cmd of cmdChayRieng) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) rr.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
+  return [...ss, ...tt, ...rr]
+}))
+
+const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
+  () => nhanhMay(),
+
+  // ui-check-chay-sau-suite: không ui nào khai → y hệt 2.33.0. Có khai → ui song song chạy ngay; ui chạy-riêng
+  // chờ ui song song VÀ nhánh máy (lỗi bên máy không kéo mất kết quả ui), rồi tuần tự từng cái.
+  () => uiChayRieng.length
+    ? Promise.all([parallel(uiSongSong.map(e => () => agentCuaUi(e))), nhanhMay().catch(() => null)]).then(async ([ss]) => {
+        const ur = []
+        for (const e of uiChayRieng) ur.push(await Promise.resolve().then(() => agentCuaUi(e)).catch(() => null))
+        return [...ss, ...ur]
+      })
+    : parallel(uiEvals.map(e => () => agentCuaUi(e))),
 
   () => parallel(freshJudgmentEvals.flatMap(e =>
     LENSES.map(lens => () =>
