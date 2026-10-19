@@ -1,65 +1,54 @@
-# Review findings — vong-mo-khong-mat-dau (round 1)
-
 ## Trong hợp đồng
 
-- **Shape 3 (asserting a string is present when the promise is a relation): GD-07 (a) checks for "P1", which the request ID already contains**
-  file: tests/dieu-phoi/tin-khong-mat-dau.test.mjs:456
+- **GD-10 hàng lệnh hạn chỉ chạy nhánh từ chối, nên lệnh mẫu hỏng mà thiếu người nhận hay thiếu câu vẫn xanh**
+  file: `tests/dieu-phoi/tin-khong-mat-dau.test.mjs:637`
   severity: medium
-  AC: AC-7
-  source: measurement
-  detail: Row (a) checks `a.ma === 0 && a.out.includes(id) && a.out.includes('P1')`. The ID comes from `dieu-phoi.mjs yeu-cau` run in P1's worktree and is always 'P1-<n>' (a probe run printed 'P1-1'). Any output that contains the ID therefore also contains 'P1', so the second check can never fail on its own. The promise in AC-7 / E7(a) is a relation: the output must name the actual asker, `vào hộp của ${muc.tu}` (tin.mjs dapYeuCauCu). If that line named the wrong person (for example `muc.den` = 'G'), the row would still pass. It should check the full value, e.g. `out.includes(`vào hộp của P1`)`, or compare it to `muc.tu` read back from the record. No mutant targets this row either.
-  rationale: AC-7 hứa stdout nêu đã trả lời vào hộp của đúng P1; hàng đo chỉ kiểm chữ «P1» vốn đã nằm trong mã yêu cầu nên không chứng minh được lời hứa người nhận đúng.
-
-- **Shape 4 (negative assertion with no positive control): GD-07 (d) and GD-08 «sổ mở không còn vòng» turn a crashed `tin so` into a pass**
-  file: tests/dieu-phoi/tin-khong-mat-dau.test.mjs:464
-  severity: medium
-  AC: AC-7
-  source: measurement
-  detail: Line 464 has `const soJ = JSON.parse(tin(k.kho, ['so', '--json'], { gocGoi }).out || '[]')`, then the row asserts `!soJ.some((v) => v.ma === id)`. Line 509/510 (kiemTraCu) repeats the same pattern. Neither checks the exit code of `tin so`. If `tin so --json` crashes or prints nothing, which is plausible since the new legacy-request reply format feeds straight into gapSo, the `|| '[]'` fallback yields an empty book and the row reads «không có id», i.e. green. There is also no positive control showing the same book did contain `id` before XONG/TRẢ. The GD-07-do mutant only proves the row turns red when `tin so` runs correctly; it cannot tell a crash apart from "the loop closed". The fix needs both: check `ma === 0`, and confirm the ID is in the open book before replying.
-  rationale: AC-7 hứa «tin so không còn vòng P1-<n>» (AC-8 cùng ý); hàng đo xanh cả khi lệnh sổ hỏng và không có đối chứng dương nên không chứng được lời hứa.
-
-- **Shape 4 (negative assertion with no positive control): GD-02 «lần Stop hai» passes whenever there is no decision:block, including when the hook crashes**
-  file: tests/dieu-phoi/tin-khong-mat-dau.test.mjs:153
-  severity: medium
-  AC: AC-2
-  source: measurement
-  detail: `const r2 = chayHook(...'Stop'...)` and then `so('lần Stop hai', 'cho qua', ..., r2.json?.decision !== 'block')`. The test never checks `r2.ma` or that stdout is valid or empty in the expected way. If the Stop hook crashes (exit != 0, `json` null) or prints garbage, the row still reads «cho qua» and passes. That is exactly the failure class AC-2 is about: a sync slipping in and leaving the state file in a shape the hook cannot read. Stop one returning block proves the hook ran once, not that it ran correctly the second time. The row should also pin `r2.ma === 0` (and the expected output when the hook lets the turn through).
-  rationale: AC-2 hứa lần Stop thứ hai cho qua sau khi đồng bộ xong; hàng đo xanh cả khi hook sập hoặc in rác nên không chứng được lời hứa này.
-
-- **Shape 3 (asserting a string is present when the promise is a relation): GD-10 only greps the `tin TRẢ` example in the legacy-request row and never runs it**
-  file: tests/dieu-phoi/tin-khong-mat-dau.test.mjs:604
-  severity: low
   AC: AC-10
-  source: measurement
-  detail: Row 2 of kiemLuatGd checks only `l.includes('kiểu cũ') && l.includes('`tin XONG') && l.includes('`tin TRẢ')`. Row 4 extracts the `tin XONG ...` example and runs it on a real legacy request. The TRẢ example in the same row (`tin TRẢ <mã> "<câu vì sao trả>" --chuyen <ai>`) is never extracted or run. AC-10 promises that the rule describes a working behaviour, but this part is only checked as a string. If LUAT.md dropped `--chuyen` from the TRẢ example, `tin` would reject the command (exit 1, as GD-08 «thiếu --chuyen» shows) and GD-10 would stay green. The same applies to the hạn row: only the flag names are extracted, and the test builds its own GIAO command instead of running the rule's example.
-  rationale: AC-10 yêu cầu ca đo rút câu lệnh mẫu của dòng luật rồi chạy nó trên kho thử; ví dụ `tin TRẢ` và ví dụ hạn chỉ được dò chữ, không chạy.
+  source: bugs
+  detail: kiemLuatGd chạy nguyên văn từng lệnh mẫu `tin GIAO|HỎI …` của dòng hạn, nhưng chỉ với <phút> = 1.5, rồi đòi thoát 1 kèm đúng câu của AC-5. Trong tin.mjs, phutNguyenDuong(co,'han'/'han-xong') chạy ở dòng 305-306, TRƯỚC mọi bước kiểm người nhận và câu của GIAO/HỎI. Vì vậy mọi lệnh mẫu còn giữ được cờ hạn đều tạo ra đúng câu từ chối, dù phần còn lại của lệnh không chạy được. Hàng này chỉ có kiểm âm, không có đối chứng dương: chưa lần nào chạy lệnh mẫu với một số phút hợp lệ để xem nó thoát 0 và ghi được lời giao. Tôi đã tạo mutant và chạy qua kiemLuatGd trên bản sao: (1) đổi lệnh mẫu GIAO thành `tin GIAO --han-xong <phút>` (bỏ dãy và câu) thì loi = []; (2) đổi lệnh mẫu HỎI thành `tin HỎI --han <phút>` thì loi = []. Cả hai đều xanh. Như vậy lời hứa của AC-10/E10, «lệnh mẫu trong luật chạy được», chưa được đo cho dòng hạn. Mutant han-mau-hong có đỏ, nhưng chỉ vì nó phá đúng chỗ cờ hạn. Cách sửa: chạy thêm mỗi lệnh mẫu với <phút> hợp lệ (ví dụ 5), đòi thoát 0 và có lời giao hoặc câu hỏi trong sổ, rồi mới tin kết quả đỏ ở 1.5.
+  rationale: AC-10 đòi ca đo rút câu lệnh mẫu của dòng luật rồi chạy nó trên kho thử; ca đo hạn chỉ chạy nhánh từ chối nên lệnh mẫu hỏng vẫn xanh, tức lời hứa «lệnh mẫu chạy được» chưa được đo.
+
+- **trongKhe so sánh mốc bằng dấu < nghiêm ngặt theo mili giây, nên GD-01/02/03 đỏ ngẫu nhiên khi hai mốc trùng nhau**
+  file: `tests/dieu-phoi/tin-khong-mat-dau.test.mjs:68`
+  severity: medium
+  AC: AC-1
+  source: bugs
+  detail: `const trongKhe = (m) => m.batDau < m.truoc && m.sau < m.traVe;`. batDau là Date.now() mà gh-gia.mjs (dòng 84) ghi vào moc-doc-bat-dau. truoc là Date.now() lấy ngay sau khi choTep thấy tệp đó. Hai giá trị này có thể trùng một mili giây, trong khi thứ tự vẫn đúng (tệp được ghi trước khi bên đo đọc). Lần chạy đầy đủ của tôi trên HEAD bf862fe0 cho đúng ca này: `✖ GD-01 dau-may-song-qua-dong-bo … '(a) đã đến sống qua đồng bộ: mong canh 0 · trong khe · nấc 2 da-den, nhận canh 0 · bắt đầu đọc 1792423805536 < ghi 1792423805536…'`, tức tests 28, fail 1. Lần GD-01 khác trong cùng lượt chạy thì xanh. Bộ kiểm vì thế đỏ hay xanh tuỳ đồng hồ chứ không tuỳ mã đang đo, và một lượt chấm S4 có thể bị đốt vì hạ tầng đo. GD-02 (dòng 151) và GD-03 (dòng 271) dùng cùng trongKhe nên cũng dính. Cách sửa: dùng `<=` cho batDau ≤ truoc, vì quan hệ nhân quả đã có sẵn nhờ choTep. Hoặc lấy truoc trước khi bắt đầu chờ tệp thì đổi hướng so sánh, không phụ thuộc độ phân giải đồng hồ.
+  rationale: Hàng (a) của ma trận AC-1 đỏ ngẫu nhiên trên mã lành vì phép so mốc theo mili giây; AC-1 đòi mỗi hàng chứng mốc bắt đầu đọc đứng trước mốc ghi dấu, và phép đo hiện đỏ sai.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Bộ kiểm hạn nhận cả số phút quá lớn mà bên đọc không xử lý được: NHẬN văng RangeError, số rất lớn bị đọc lại thành mặc định**
+- **Phép đo E10 giờ chạy thật đường XONG/TRẢ kiểu cũ, nhưng danh sách tệp kích hoạt chạy lại của nó không mở rộng theo**
+  Người dùng thấy gì: Nếu sau này ai sửa phần ghi câu trả lời hoặc phần dựng kho thử, phép kiểm về lệnh đáp yêu cầu kiểu cũ có thể không chạy lại mà mang kết quả xanh cũ sang. Hôm nay hành vi vẫn đúng, chỉ là về sau có thể một lỗi mới lọt qua mà không ai thấy.
+  Căn cứ: Không ảnh hưởng người dùng ở bản này, chỉ làm lưới bắt lỗi về sau thưa đi; thêm ba đường dẫn là rẻ và làm lúc nào cũng được.
+  file: `_acceptance/vong-mo-khong-mat-dau/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Bộ kiểm hạn nhận cả số phút quá lớn mà bên đọc không xử lý được: NHẬN văng RangeError, số rất lớn bị đọc lại thành mặc định (r1)**
   Người dùng thấy gì: Nếu ai đó gõ một hạn lớn bất thường (hàng trăm tỷ phút), lệnh vẫn báo thành công nhưng người nhận sau đó không nhận được vòng, hoặc hạn bị đọc thành 30 phút mặc định.
   Căn cứ: Chỉ xảy ra khi gõ số phi thực tế nên hiếm với người dùng thật, vòng không mất dữ liệu và người giao có thể giao lại với hạn hợp lý.
   file: `dieu-phoi/scripts/tin.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **A half-written line in the marker log also wipes out the next valid marker, and the loss is never reported**
+- **A half-written line in the marker log also wipes out the next valid marker, and the loss is never reported (r1)**
   Người dùng thấy gì: Nếu máy tắt đúng lúc đang ghi dấu «đã đến» hay «chấp nhận», dấu ghi ngay sau đó cũng mất và không có cảnh báo nào, nên vòng có thể kẹt ở «chờ chấp nhận» mà người dùng không biết vì sao.
   Căn cứ: Cần máy chết đúng giữa lúc ghi nên hiếm, nhưng khi xảy ra thì mất dấu im lặng và đúng loại kẹt mà vòng này muốn chặn; sửa sau rẻ (thêm một kiểm tra trước khi ghi).
   file: `dieu-phoi/scripts/tin-noi-chua.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **E7 (c) says it runs a real `dieu-phoi.mjs chay` tick, but the test calls taoVong with fake I/O**
+- **E7 (c) says it runs a real `dieu-phoi.mjs chay` tick, but the test calls taoVong with fake I/O (r1 · tệp đã đổi)**
   Người dùng thấy gì: Hồ sơ nghiệm thu nói đã chạy một nhịp thật của bộ phát lịch, nhưng thực tế bài đo chạy bản giả lập; người đọc hồ sơ có thể tin đã đo chặt hơn sự thật.
   Căn cứ: Không ảnh hưởng trực tiếp người dùng cuối, chỉ làm hồ sơ nói quá mức đã đo; chỉ cần ghi rõ đây là giới hạn của phép đo.
   file: `_acceptance/vong-mo-khong-mat-dau/evals.yaml`
   severity: low
   Đề xuất: known-limits
 
-- **Shape 4 (injection not proven to apply): GD-03 appends the half-written line without checking that the marks file exists**
+- **Shape 4 (injection not proven to apply): GD-03 appends the half-written line without checking that the marks file exists (r1 · tệp đã đổi)**
   Người dùng thấy gì: Bài đo cho việc đọc bỏ qua dòng dấu ghi dở có thể xanh mà thực ra chưa hề tiêm dòng hỏng, nên khả năng chịu dòng ghi dở chưa được chứng thật.
   Căn cứ: Chỉ là độ tin của một bài đo phụ ngoài lời hứa chính, không làm người dùng mất gì; nếu thiếu chứng thì ghi là giới hạn chưa chứng.
   file: `tests/dieu-phoi/tin-khong-mat-dau.test.mjs`
