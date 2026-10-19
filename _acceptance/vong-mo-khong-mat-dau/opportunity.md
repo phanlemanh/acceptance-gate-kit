@@ -23,6 +23,9 @@ Dấu «đã đến», «chấp nhận», «kết lượt» không mất khi b�
 
 Vì sao: Gốc: acceptance-gate-kit/_acceptance/vong-mo-co-chu-giu/ — Ngoài-4, 5, 7, 9 ở Cổng Bằng chứng 19/10, chủ kho chọn «mở hợp đồng mới»; hạt giống docs/plans/2026-10-19-hat-giong-kenh-ghi-chong-dau-may.md, -han-go-sai-bi-lo.md, -dap-yeu-cau-cu-bi-nuot.md.
 
+Gốc: acceptance-gate-kit/_acceptance/vong-mo-co-chu-giu/ — Ngoài-4, 5, 7, 9 ở Cổng Bằng chứng 19/10 của hồ sơ ấy, chủ kho
+chọn «mở hợp đồng mới»; ba hạt giống ghi ngày 19/10 trích lại tên tệp ở `## Notes` của hợp đồng gốc.
+
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: [đề xuất] đã đạt «14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi» chưa?
