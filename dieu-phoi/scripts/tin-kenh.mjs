@@ -9,6 +9,7 @@ import { bayGio } from './song.mjs';
 import { docDongDau, gapSo, truongThan } from './tin-doc.mjs';
 import { goiGh, tranMacDinh } from './tin-gh.mjs';
 import { khoCua, loiGiaoViec } from './tin-giao.mjs';
+import { docMayKenh, themMayKenh } from './tin-noi-chua.mjs';
 
 const PHUT = 60_000;
 export class LoiKenh extends Error {
@@ -31,33 +32,38 @@ export const docTrangThai = (p) => ({ ...rong(), ...(docJson(p, null) ?? {}) });
 
 const DUONG_DS = (k) => `repos/${k.chu}/${k.kho}/issues/${k.so}/comments`;
 
-// Đọc bình luận mới từ con trỏ. Trả {doc_moi} hoặc {loi}. Không ghi gì khi lỗi.
+// Đọc bình luận mới từ con trỏ. Trả {doc_moi} hoặc {loi}. Không ghi gì khi lỗi. Lời gọi mạng chờ tới trần (15″), nên
+// SAU khi mạng trả, tệp trạng thái được đọc LẠI và chỉ phần của đồng bộ đổi: `dong` hợp theo id, con trỏ và tin cuối
+// theo id lớn nhất; mọi trường khác (dấu chặn, mốc lỗi kênh, vai) giữ đúng bản vừa đọc lại (hồ sơ vong-mo-khong-mat-dau).
 export function dongBo(p, k, { tranMs = tranMacDinh() } = {}) {
   const tt = docTrangThai(p);
   const tuCon = tt.con_tro != null ? tt.dong.find((d) => d.id === tt.con_tro) : null;
   const q = tuCon ? `?per_page=100&since=${encodeURIComponent(tuCon.luc)}` : '?per_page=100';
   const r = goiGh(['api', '--paginate', `${DUONG_DS(k)}${q}`, '--jq', '.[] | {id, created_at, body}'], { tranMs });
   if (r.ma !== 0) return { loi: r.err || `gh thoát ${r.ma}` };
-  let moi = 0;
-  const daCo = new Set(tt.dong.map((d) => d.id));
+  const doc = [];
   for (const l of r.out.split('\n')) {
     if (!l.trim()) continue;
-    let c;
     try {
-      c = JSON.parse(l);
+      doc.push(JSON.parse(l));
     } catch {
       return { loi: `gh trả dòng không phải JSON: ${l.slice(0, 80)}` };
     }
-    if (daCo.has(c.id) || (tt.con_tro != null && c.id <= tt.con_tro)) continue;
-    tt.dong.push({ id: c.id, text: c.body ?? '', luc: c.created_at });
+  }
+  const tl = docTrangThai(p);
+  let moi = 0;
+  const daCo = new Set(tl.dong.map((d) => d.id));
+  for (const c of doc) {
+    if (daCo.has(c.id) || (tl.con_tro != null && c.id <= tl.con_tro)) continue;
+    tl.dong.push({ id: c.id, text: c.body ?? '', luc: c.created_at });
     daCo.add(c.id);
     moi++;
   }
-  tt.dong.sort((a, b) => a.id - b.id);
-  const cuoi = tt.dong[tt.dong.length - 1];
-  if (cuoi) Object.assign(tt, { con_tro: cuoi.id, tin_cuoi: { id: cuoi.id, dong_dau: cuoi.text.split('\n')[0] } });
+  tl.dong.sort((a, b) => a.id - b.id);
+  const cuoi = tl.dong[tl.dong.length - 1];
+  if (cuoi) Object.assign(tl, { con_tro: cuoi.id, tin_cuoi: { id: cuoi.id, dong_dau: cuoi.text.split('\n')[0] } });
   fs.mkdirSync(path.dirname(p), { recursive: true });
-  ghiJsonNguyenTu(p, tt);
+  ghiJsonNguyenTu(p, tl);
   return { doc_moi: moi };
 }
 
@@ -98,13 +104,11 @@ export function noiChuaKenhCua(cwd, kenh) {
       loai: 'kenh',
       doc() {
         const tt = docTrangThai(p);
-        return { dong: [...tt.dong, ...tt.may_su], hong: 0 };
+        return { dong: [...tt.dong, ...docMayKenh(p)], hong: 0 };
       },
       them(o) {
         if (o.may) {
-          const tt = docTrangThai(p);
-          tt.may_su.push(o);
-          ghiJsonNguyenTu(p, tt);
+          themMayKenh(p, o);
           return;
         }
         const r = goiGh(['api', '-X', 'POST', DUONG_DS(k), '-f', `body=${o.text}`]);

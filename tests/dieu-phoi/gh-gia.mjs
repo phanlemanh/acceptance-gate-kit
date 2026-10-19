@@ -2,6 +2,9 @@
 // gh giả cho ca GT- (hồ sơ vong-mo-co-chu-giu). Trạng thái ở $GH_GIA_DIR/ca.json:
 //   {comments: [{id, created_at, body}], pr: {<nhánh>: <url>}, loi: bool, treo: bool, next_id}
 // Nhật ký mỗi lời gọi ở $GH_GIA_DIR/nhat-ky.jsonl: {lenh: 'doc'|'ghi'|'khac', so_muc, doi_so}.
+// Khoá `tre: {ms, lan}` (hồ sơ vong-mo-khong-mat-dau): `lan` lời gọi ĐỌC danh sách bình luận kế tiếp chụp danh sách, ghi
+// mốc $GH_GIA_DIR/moc-doc-bat-dau (ms epoch), ngủ `ms`, ghi mốc moc-doc-tra-ve rồi mới trả — ca chen việc khác vào khe ấy
+// bằng cách chờ mốc đầu, không dựa vào đồng hồ.
 // Bắt chước hình JSON của `gh api …/issues/<số>/comments`: trang 30 bình luận, `since` lọc updated_at ≥ since,
 // `--paginate` đi hết trang (không có cờ thì chỉ trang đầu), `--jq '.[] | …'` in mỗi bình luận một dòng JSON gọn.
 import { execFileSync } from 'node:child_process';
@@ -66,12 +69,22 @@ if (doi[0] === 'api') {
     process.exit(0);
   }
   if (mDs) {
+    const tre = ca.tre && ca.tre.lan > 0 ? ca.tre : null;
+    if (tre) {
+      ca.tre = { ...tre, lan: tre.lan - 1 };
+      luu();
+    }
     let ds = [...ca.comments].sort((a, b) => a.id - b.id);
     // GitHub lọc `since` theo updated_at, gồm cả mốc (đo trên #308 ngày 18/10).
     if (q.get('since')) ds = ds.filter((c) => (c.updated_at ?? c.created_at) >= q.get('since'));
     const trang = [];
     for (let i = 0; i < ds.length; i += 30) trang.push(ds.slice(i, i + 30));
     const tra = doi.includes('--paginate') ? trang.flat() : trang[0] ?? [];
+    if (tre) {
+      fs.writeFileSync(path.join(DIR, 'moc-doc-bat-dau'), String(Date.now()));
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, tre.ms);
+      fs.writeFileSync(path.join(DIR, 'moc-doc-tra-ve'), String(Date.now()));
+    }
     ghiNhatKy('doc', tra.length);
     process.stdout.write(tra.map((c) => `${gon(c)}\n`).join(''));
     process.exit(0);
