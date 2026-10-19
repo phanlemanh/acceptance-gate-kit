@@ -1,0 +1,103 @@
+# Eval cho hồ sơ ui-check-chay-sau-suite.
+#
+# Hai tệp ca, cùng khuôn với hồ sơ lenh-dai-chay-rieng:
+#   tests/workflows/ui-check-chay-sau-suite.test.mjs   — bên ĐỌC: nạp CHÍNH acceptance-verify.js qua harness;
+#     tác tử giả ghi cờ start/end có độ trễ để đo thứ tự; đột biến trên bản sao trong bộ nhớ, mỗi kim khẳng định
+#     khớp ĐÚNG MỘT lần trong nguồn thật trước khi tin màu đỏ. Vi phân với mốc cố định v2.33.0.
+#   tests/scripts/s4-args-ui-check-chay-sau-suite.test.mjs — bên VIẾT: kho git fixture dựng bằng code, chạy CHÍNH
+#     s4-args.mjs; round-trip tệp args thật → workflow thật. Chiều đỏ trên bản sao trọn thư mục feature-loop/.
+# Mọi đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: ui-check-chay-sau-suite
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.usc_ben_viet
+    expected: >-
+      UW1 model_evals [demo/E1 script, demo/E2 ui-check, demo/E3 judgment] + E4 ui-check không khai → evalsChayRieng
+      BẰNG ["E1","E2"] (so JSON trọn mảng). UW2 kho không khai model_evals → khoá evalsChayRieng vắng. UW3 chiều đỏ:
+      bản sao s4-args.mjs với bộ lọc cũ (test/script) → kết luận ca chứa «ui-check vắng khỏi evalsChayRieng»; kim
+      khớp đúng một lần trong nguồn thật.
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.usc_sau_suite
+    expected: >-
+      UC1 ba suite + hai lệnh eval + ui E10 chạy-riêng + ui E11 không khai: chỉ số start của ui:E10 lớn hơn chỉ số end
+      của mọi suite, mọi lệnh eval và ui:E11; start của ui:E11 nhỏ hơn end của suite cuối. UC2 chiều đỏ: bản sao đưa
+      ui chạy-riêng về nhánh song song → kết luận chứa «ui chạy-riêng chồng chuỗi suite».
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.usc_khong_chong
+    expected: >-
+      UC3 lệnh chạy-riêng nang-1 + ui E10, E12 chạy-riêng + ui E11 song song chạy lâu nhất: ba khoảng [start,end]
+      chạy-riêng rời nhau từng cặp; start ui:E10, ui:E12 sau end nang-1 và end ui:E11; start nang-1 TRƯỚC end ui:E11
+      (lệnh chạy-riêng giữ nhịp 2.28). UC4 chiều đỏ: bản sao chạy ui chạy-riêng đồng thời → «hai eval chạy-riêng
+      chồng nhau».
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.usc_ket_qua
+    expected: >-
+      UC5 ba ca cùng args, ui:E10 chạy-riêng trả exit 0 / exit 1 / ném lỗi → verdict PASS / REJECT (failedEvals chứa
+      E10) / BLOCKED (blocked có cmd ui-check:E10). UC6 chiều đỏ: bản sao bỏ kết quả ui chạy-riêng khỏi uiRaw → ca
+      exit 0 ra BLOCKED, kết luận chứa «kết quả ui chạy-riêng rơi». Ở ca exit 1 và ca ném lỗi, suite-a cùng lượt
+      exit 1: failedCommands chứa suite-a (kết quả bên máy còn nguyên) và ui:E11 song song xanh không nằm trong
+      failedEvals/blocked — đo quan hệ, không chỉ sự có mặt của mục E10.
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.usc_dry_run
+    expected: >-
+      UC7 dryRun khai E10: uiChayRieng BẰNG ["E10"], uiCheckEvals liệt đủ mọi ui-check; không khai → khoá uiChayRieng
+      vắng (so bằng `in`, không so falsy).
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.usc_vi_phan
+    expected: >-
+      UC8 ba biến thể args, mỗi biến thể chạy cây và git show v2.33.0:feature-loop/workflows/acceptance-verify.js:
+      (i) không khai (lệnh eval, suite, ui-check, judgment) đường xanh; (ii) như (i) nhưng một suite exit 1 và ui:E11
+      ném lỗi; (iii) chỉ khai một eval script trong evalsChayRieng. Ở cả ba: chuỗi [nhãn, prompt] của mọi lời gọi
+      machine:* và ui:* BẰNG HỆT, JSON {verdict, failedEvals, blocked} BẰNG HỆT, dry-run bằng hệt; kết cục ghim
+      (i) PASS, (ii) không PASS, (iii) PASS. Base trùng byte với cây → đỏ «base trùng cây — vi phân rỗng». UC9 khai E10: prompt ui:E10 bằng hệt base.
+      UC10 chiều đỏ: bản sao coi mọi ui-check là chạy-riêng → «thứ tự lời gọi đổi». Tag v2.33.0 không giải được →
+      đỏ có tên hạ tầng, không xanh.
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.usc_round_trip
+    expected: >-
+      UW4 kho mẫu model_evals [demo/E2] (ui-check) + một suite: tệp args của CHÍNH s4-args.mjs nạp vào CHÍNH
+      acceptance-verify.js (harness) → start của ui:E2 sau end của lệnh suite. UW5 chiều đỏ: args do bản sao s4-args
+      bộ lọc cũ sinh → «ui chạy-riêng chồng chuỗi suite».
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/workflows/acceptance-verify.js", "tests/scripts/s4-args-ui-check-chay-sau-suite.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: ["CHANGELOG.md", "GUIDE.md", "skills/acceptance/references/eval-executors.md"]
+    question: >-
+      Trong CHANGELOG.md, mục «Chưa phát hành» có một mục riêng cho hồ sơ ui-check-chay-sau-suite nói đủ ba điều cho
+      kho nhận kit — đổi gì (eval ui-check có id trong feature_loop.model_evals chạy sau chuỗi suite, tuần tự với eval
+      chạy riêng khác), kho nào bị ảnh hưởng (kho khai ui-check trong model_evals;
+      kho chỉ khai test/script thì không đổi), làm gì khi nhận (không phải migrate; muốn ui-check nào chạy riêng thì
+      liệt nó vào model_evals) — không? Và bảng khoá model_evals trong GUIDE.md cùng đoạn «run alone» của
+      eval-executors.md có nói rõ ui-check thuộc diện chạy riêng, chạy sau cả ui-check song song lẫn lệnh chạy riêng,
+      còn judgment thì không — và đoạn «run alone» không còn câu nào ngụ ý tập «mọi lệnh máy khác» chỉ gồm eval lệnh
+      song song và chuỗi suite khi nói về ui-check?
+    evidence_required: [run_id, verdict, verifier, verified_at]
