@@ -51,6 +51,7 @@ Các bước, đúng thứ tự:
    Báo người đúng một khối: «đợt <tên> chạy lại · k dãy cần bấm chip · việc chờ anh: …» — k = số mục `day:*`
    mang hành động `mo-chip` (chip vừa mở ở bước 4: mục `du`, không mở lại); việc chờ là mục `viec-cho`, cũ nhất
    trước. Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.
+   Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
 
 **Dạng `--nhe`** (mỗi lần phiên giám sát thức): bước 0 (đọc mức dùng: `get_usage` rồi `han-muc`), bước 1 với `--nhe`, bước 2, phần Monitor của bước 3, và
 bước 5 — không dựng lại lịch, nhóm hay chip. Nhờ vậy Monitor hết hạn được giăng lại ngay ở lần thức kế.

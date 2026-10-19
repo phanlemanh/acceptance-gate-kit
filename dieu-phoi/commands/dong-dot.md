@@ -9,6 +9,7 @@ Chạy trong phiên giám sát. CLI: `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-p
 Chữ quyết chỉ nhận từ người gõ: chữ duyệt thẻ đóng đợt, hàng phát sinh nào giữ, lớp phủ ưu tiên nào đưa
 vào lộ trình. Máy CHÉP đúng chữ ấy vào `--ly-do` của lệnh `pha` và vào bản phạm vi; máy không tự sinh
 chữ ấy, không điền sẵn chữ quyết vào dòng mời.
+Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
 <!-- CHU-QUYET-CUA-NGUOI>>> -->
 
 Các bước, đúng thứ tự:
