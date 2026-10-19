@@ -320,7 +320,8 @@ async function main() {
         const loi = [];
         const a = voi(v, DP.tiep, t => tiem(t, clause, clause.replace('bằng chữ thường', 'bằng chữ thương')));
         loi.push(hangDo('MQ-2-do', '(a) lệch một ký tự', kiemChep(a).loi, `${DP.tiep}: bản chép lệch`));
-        const b = voi(v, LAW, t => tiem(t, 'commands/acceptance-card.md 1\n', 'commands/acceptance-card.md 2\n'));
+        const bang = khoi(v[LAW], 'GATE-END-TURN-SITES')[0];
+        const b = voi(v, LAW, t => tiem(t, bang, tiem(bang, 'commands/acceptance-card.md 1\n', 'commands/acceptance-card.md 2\n')));
         loi.push(hangDo('MQ-2-do', '(b) số khai 2', kiemChep(b).loi, 'commands/acceptance-card.md: ít-hơn-số-khai (1 < 2)'));
         const c = voi(v, 'commands/acceptance-card.md', t => `${t}\n${clause}\n`);
         loi.push(hangDo('MQ-2-do', '(c) thêm một bản', kiemChep(c).loi, 'commands/acceptance-card.md: nhiều-hơn-số-khai (2 > 1)'));
