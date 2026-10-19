@@ -10,8 +10,8 @@ Mã này **không** chứa gì riêng của kho. Mọi giá trị riêng nằm t
 claude plugin install dieu-phoi@acceptance-gate-kit --scope project
 ```
 
-Gói gắn năm khối hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2, lưới hết hạn
-mức `StopFailure`) và một mod đọc mức dùng (`hooks/mod/`); kho không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
+Gói gắn sáu khối hook qua `hooks/hooks.json` của chính nó (chặn S4 không khoá, nhịp, chờ người ×2, lưới hết hạn
+mức `StopFailure`, chặn kết lượt khi còn việc giao chưa nhận `Stop`) và một mod đọc mức dùng (`hooks/mod/`); kho không phải sửa `.claude/settings.json`. Kho chưa có đợt nào đang chạy thì mọi hook im: thoát 0, không
 in gì, không tạo tệp. `acceptance-init` KHÔNG tự bật gói này — kho chọn cài.
 
 Đường gói (dùng cho mọi lệnh dưới đây):
@@ -199,6 +199,33 @@ Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằ
 thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
 `hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
 sách chờ người của bảng đợt và được lệnh đếm tính một lần.
+
+## Giao tiếp giữa các phiên (lệnh `tin`)
+
+Hồ sơ `vong-mo-co-chu-giu` (GT1). Mỗi yêu cầu giữa các phiên — giám sát với thợ trong đợt, máy với máy trên kênh issue
+— là một vòng mở có mã, đi theo thang chín nấc: đã nói · đã tới · đã nghe · đã hiểu · đã đáp · đã hứa · đang làm · đã
+giao · người giao chấp nhận. Luật đầy đủ cho phiên thợ nằm ở khối `LUAT-TIN` của `scripts/mau/LUAT.md`.
+
+- Trong đợt: `node <thư mục đợt>/loi/tin.mjs <KHẨU LỆNH> <đích hoặc mã> ["một câu"]`; nơi chứa là `<thư mục đợt>/tin.jsonl`.
+  Yêu cầu cũ `yeu-cau/` hiện trên sổ như câu hỏi có mã; tệp của nó không đổi.
+- Trên kênh liên máy: mỗi máy chạy một lần `node "$GOI/scripts/tin.mjs" vai --kenh <chủ>/<kho>#<số> --may <tên>` từ
+  worktree giữ kênh, rồi thêm `--kenh <chủ>/<kho>#<số>` vào mọi lệnh. Trạng thái nằm ở `.acceptance-runs/tin/` của kho
+  (tên máy không vào cấu hình commit). Bộ canh: `tin canh --kenh … [--cho]` — không bắt lại được tin cuối thì thoát 3.
+- Đo ngưỡng «mọi yêu cầu có trả lời trỏ về mã»: `tin so --kenh … --tu <ngày> --json` in thẳng phán quyết.
+- Hook: phần đưa tin chạy bên trong `hook-nhip` và `hook-cho-nguoi` (không thêm mục hook); khối `Stop` gọi `hook-tin.mjs`.
+  Kho không đợt, không kênh thì cả ba im. `tin tat` / `tin bat` tắt hay bật cho một worktree.
+
+Giới hạn đã khai, kèm ngưỡng mở lại:
+
+- **Khớp câu «sẽ giao» với ý định là phán xét của người giao**; máy chỉ đặt hai câu cạnh nhau. Ngưỡng: ≥ 1 ca thợ làm
+  lệch ý định mà câu «sẽ giao» đã khai đúng.
+- **Chấp nhận bằng im lặng** có thể đóng một vòng người giao chưa đọc kỹ; cửa `MỞ LẠI` 24 giờ. Ngưỡng: ≥ 1 ca phát hiện
+  sai sau 24 giờ.
+- **Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.**
+- **Nhận biết tác tử con dựa vào khuôn stdin của Claude Code** (trường `agent_id`). Ngưỡng: ≥ 1 ca tin bị đưa vào tác tử con.
+- **Hook kênh chỉ thấy tin mới khi đồng bộ được.** Ngưỡng: ≥ 1 ca tin kênh bị sót > 30′ trong khi hook đã báo lỗi kênh.
+- **Danh tính máy trên issue tự khai.**
+- **Phiên thợ mở bằng chip ngoài đợt chưa được phủ** (chủ kho chọn 18/10, Cổng Phạm vi GT1).
 
 ## Chuyển từ bản lõi chép tay trong kho
 

@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ghiJsonNguyenTu, phienCuaCwd, timThuMucDot } from './dot.mjs';
+import { ghiJsonNguyenTu, gocKhoChinh, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 
 const LOAI_CHO = new Set(['idle_prompt', 'permission_prompt']);
@@ -41,12 +41,80 @@ export function xuLyChoNguoi(dauVao, { timDot = timThuMucDot } = {}) {
   return 'ghi';
 }
 
+// Tin tự đến (hồ sơ vong-mo-co-chu-giu): nạp ĐỘNG trong khối bắt lỗi, chạy SAU việc cũ của hook. Lỗi nạp hay lỗi đọc
+// hộp tin không làm chết việc cũ; báo đúng MỘT lần mỗi worktree rồi im cho tới khi hết lỗi.
+async function phanTin(dauVao) {
+  if (!dauVao?.cwd) return { ngu_canh: null, canh_bao: null };
+  // Đường tắt: chưa ai dùng tin ở kho này (không tin.jsonl trong đợt, không trạng thái kênh) → không nạp gì.
+  let ghiNhanh = () => {};
+  try {
+    const goc = gocKhoChinh(dauVao.cwd);
+    let dot = null;
+    try {
+      dot = fs.realpathSync(path.join(goc, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+    } catch {}
+    if (!(dot && fs.existsSync(path.join(dot, 'tin.jsonl'))) && !fs.existsSync(path.join(goc, '.acceptance-runs', 'tin'))) return { ngu_canh: null, canh_bao: null };
+    // Không có gì mới (kích thước hộp tin không đổi) và đã kiểm trong phút vừa qua → không nạp phần tin.
+    const dTin = path.join(goc, '.acceptance-runs', 'tin');
+    const co = (p) => {
+      try {
+        return fs.statSync(p).size;
+      } catch {
+        return -1;
+      }
+    };
+    const chuKy = () => [dot ? co(path.join(dot, 'tin.jsonl')) : -1, ...(fs.existsSync(dTin) ? fs.readdirSync(dTin).filter((f) => f.startsWith('kenh-')).sort().map((f) => co(path.join(dTin, f))) : [])].join(',');
+    const now = process.env.DIEU_PHOI_NOW_MS ? Number(process.env.DIEU_PHOI_NOW_MS) : Date.now();
+    const dauNhanh = path.join(dTin, 'nhanh', Buffer.from(fs.realpathSync(dauVao.cwd)).toString('hex').slice(-40));
+    let truoc = null;
+    try {
+      truoc = JSON.parse(fs.readFileSync(dauNhanh, 'utf8'));
+    } catch {}
+    if (!dauVao.agent_id && truoc && truoc.chu_ky === chuKy() && now - truoc.luc >= 0 && now - truoc.luc < 60_000) return { ngu_canh: null, canh_bao: null };
+    ghiNhanh = () => {
+      fs.mkdirSync(path.dirname(dauNhanh), { recursive: true });
+      fs.writeFileSync(dauNhanh, JSON.stringify({ chu_ky: chuKy(), luc: now }));
+    };
+  } catch {
+    return { ngu_canh: null, canh_bao: null };
+  }
+  try {
+    const { duaTin } = await import('./tin-dua.mjs');
+    const kq = duaTin(dauVao);
+    if (!dauVao.agent_id && !kq.canh_bao) ghiNhanh();
+    return kq;
+  } catch (e) {
+    try {
+      const goc = gocKhoChinh(dauVao.cwd);
+      const coTin = timThuMucDot(dauVao.cwd) || fs.existsSync(path.join(goc, '.acceptance-runs', 'tin'));
+      if (!coTin) return { ngu_canh: null, canh_bao: null };
+      const thucCwd = fs.realpathSync(dauVao.cwd);
+      const dau = path.join(goc, '.acceptance-runs', 'tin', 'loi-da-bao', `nap-${Buffer.from(thucCwd).toString('hex').slice(-32)}`);
+      if (fs.existsSync(dau)) return { ngu_canh: null, canh_bao: null };
+      fs.mkdirSync(path.dirname(dau), { recursive: true });
+      fs.writeFileSync(dau, `${new Date().toISOString()} ${e.code ?? ''} ${e.message}\n`);
+      return { ngu_canh: null, canh_bao: `không đọc được hộp tin (nạp phần tin lỗi: ${e.code ?? e.message}) — tin tự đến tạm dừng; sửa gói rồi gọi lại` };
+    } catch {
+      return { ngu_canh: null, canh_bao: null };
+    }
+  }
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
   let raw = '';
   for await (const manh of process.stdin) raw += manh;
+  let dauVao = null;
   try {
-    xuLyChoNguoi(JSON.parse(raw));
+    dauVao = JSON.parse(raw);
+    xuLyChoNguoi(dauVao);
   } catch {
+  }
+  if (dauVao?.hook_event_name === 'UserPromptSubmit') {
+    const tin = await phanTin(dauVao);
+    const ra = {};
+    if (tin.ngu_canh) ra.hookSpecificOutput = { hookEventName: 'UserPromptSubmit', additionalContext: tin.ngu_canh };
+    if (tin.canh_bao) ra.systemMessage = tin.canh_bao;
+    if (Object.keys(ra).length) process.stdout.write(JSON.stringify(ra));
   }
   process.exit(0);
 }

@@ -1,0 +1,20 @@
+---
+slug: vong-mo-co-chu-giu
+at: 2026-10-18T03:55:00Z
+verdict: findings
+p0: 1
+p1: 3
+p2: 1
+---
+
+## Findings
+
+Lượt 3, trên bản «thang chín nấc» (chủ kho 18/10). Phát hiện của lượt 1 (17/10) và lượt 2 (18/10) đã xử lý, ở trong lịch sử git của tệp này.
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | evals | Trên kênh liên máy, chấp nhận và MỞ LẠI chưa định nghĩa; AC-5 và E5 còn đòi XONG làm vòng vắng khỏi sổ cả hai bên; ma trận cửa sổ thiếu vòng chờ chấp nhận, vòng mở lại, vòng kẹt; AC-4 không có hàng cho khẩu lệnh hai từ MỞ LẠI; AC-2 (j) còn ghim «đã đóng bởi XONG». | Làm đúng thang thì E5 đỏ, tốn một lượt chấm; cho XONG đóng trên kênh để E5 xanh thì cạnh máy ↔ máy lại đóng một phía; bộ đọc chỉ lấy từ đầu thì MỞ LẠI trên #308 rơi vào bỏ qua và ngưỡng 2 đọc SỐNG dù vòng đang mở lại. | Dòng sổ cho chấp nhận trên kênh; viết lại AC-5/E5; ba hàng cửa sổ; hàng MỞ LẠI cho bộ đọc dòng đầu kèm chiều đỏ; sửa AC-2 (j). | fixed: dòng sổ mới — trên kênh chấp nhận do máy người giao giữ cục bộ, nghĩa vụ người nhận kết thúc ở nấc 7, MỞ LẠI đăng lên kênh; AC-5 viết lại (cho-chap-nhan → da-chap-nhan sau hook, 0 lời gọi ghi; MỞ LẠI kéo vòng về M5); ma trận cửa sổ 9 bình luận gồm vòng mở lại và vòng kẹt; AC-4 (h) bốn hàng MỞ LẠI + GT-04-do mot-tu; AC-2 (j) đổi thông điệp. |
+| P1 | design | Mốc so của XONG tự đính không đặt lại sau MỞ LẠI; MỞ LẠI không có hàng đưa tới phiên người nhận; hạn của vòng mở lại chưa nói. | Gõ XONG lại mà không sửa gì vẫn tự đính đúng vật bị từ chối, vòng lại tự chấp nhận — cửa MỞ LẠI vô hiệu; vòng mở lại lên quá hạn ngay. | Dòng sổ thay d-24; hàng XONG sau MỞ LẠI mà HEAD chưa đổi; hàng đưa MỞ LẠI; hàng hạn của vòng mở lại. | fixed: dòng sổ mới thay d-20261018T020034Z-24 — sau MỞ LẠI mốc so là sha lần XONG bị mở lại, hạn mới bằng khoảng cũ tính từ MỞ LẠI; AC-2 (m) thêm hai vế + GT-02-do giu-moc-cu; AC-7 (k) đưa MỞ LẠI vào phiên người nhận; AC-3 hàng vòng mo-lai. |
+| P1 | design | Hạn xong lấy giờ máy của cả hàng cho mọi lời giao, đếm cả giờ chờ cổng người, đơn vị không nhất quán (khoảng hay mốc); lối chết của d-32 tự mâu thuẫn. | Việc lẻ nhận hạn 10 giờ nên trễ không bao giờ nổi; hồ sơ chờ chữ ký qua đêm hiện quá hạn giả — đúng loại nhiễu vòng hứa bỏ; thợ ghi mốc thì E2 đỏ. | Dòng sổ ghim đơn vị, nguồn, việc ngừng đếm; một khuôn cho trường hạn; hàng hồ sơ chờ cổng. | fixed: dòng sổ mới thay d-20261018T033318Z-32 — hạn là khoảng phút tính từ NHẬN, lời nhận ghi mốc; chỉ điền sẵn khi giao trọn một hàng; ngừng đếm khi hồ sơ chờ cổng người; việc lẻ không hạn trừ khi khai. AC-1 (k) bốn hàng một khuôn; AC-3 hàng chờ cổng người. Không đưa thành câu hỏi: chủ kho đã chọn «hứa có hạn», phần sửa chỉ thu mặc định về chỗ có căn cứ. |
+| P1 | evals | Ca hỏng không lan chỉ tiêm lỗi dữ liệu, không tiêm lỗi nạp mã của tin.mjs; ca nhanh đo trong tiến trình sau khi đã nạp, phép so trọn hook dễ chập chờn, và phụ thuộc trạng thái của checkout kit [d-20261017T055445Z-8]. | Bản phát hành thiếu một tệp tin.mjs nhập làm hook-nhip ném ở mọi lời gọi trên ba máy crm mà ca vẫn xanh; phép so lúc đỏ lúc xanh theo tải, đốt lượt chấm vì hạ tầng. | Mutant ném lúc nạp và thiếu tệp nhập; đo bằng tiến trình mới; so xen kẽ có biên độ; kho tạm. | fixed: dòng sổ mới — phần tin nạp động trong khối bắt lỗi; AC-7 (i) bốn hàng (thêm ném lúc nạp, thiếu tệp nhập) + GT-07-do nhap-tinh; AC-7 (h) đo trọn hook xen kẽ cũ/mới, mỗi lần tiến trình mới, trên hai kho tạm, trần 20 ms có vùng đo lại 20–30 ms. |
+| P2 | contract | Câu «sẽ giao» chỉ kiểm có mặt; E10b câu (3) còn hỏi khuôn cũ; Coverage trục E còn ghi người nhận 0; dòng feature còn «chỉ đóng khi có XONG kèm vật, TRẢ hay HUỶ». | «Sẽ giao: ok» được nhận, nấc đã hiểu rỗng mà mọi ca xanh; khối luật viết «XONG đóng vòng» vẫn qua E10b. | Ba hàng hình dạng câu; sửa E10b, Coverage, dòng feature. | fixed: AC-2 (a′) bốn hàng (không câu, ok, chỉ «sẽ giao», hai câu) + GT-02-do chi-co-mat; E10b câu (3) hỏi vòng đóng khi nào và MỞ LẠI; Coverage trục E sửa. rejected: dòng feature — là câu giao của hàng lộ trình đã ký ở Cổng Đáng, giữ nguyên; thang chín nấc nằm ở Context. |

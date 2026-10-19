@@ -1,0 +1,227 @@
+schema_version: 1
+feature_slug: vong-mo-co-chu-giu
+# Ca đo của hàng GT1: tên ca bắt đầu «GT-». Khoá executor thêm ở S3 (điều phối cho 17/10, XONG GT1-1710-1 — chỉ thêm khoá):
+#   executors.test.dieu_phoi_tin = node --test trên tests/dieu-phoi/tin.test.mjs, gộp dòng «ok … GT-», «not ok», dòng
+#     chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (cùng khuôn khoá dieu_phoi_khung). Suite xanh mà thiếu dòng ghim
+#     là ĐỎ.
+#   executors.script.dieu_phoi_tin_kenh_that = node tests/dieu-phoi/tin-kenh-that.mjs — chỉ đọc kênh thật
+#     phanlemanh/acceptance-gate-kit#308 bằng gh thật; KHÔNG vào feature_loop.suite_keys (CI không có gh đăng nhập).
+#     gh vắng hay chưa đăng nhập → thoát 2 «không đọc được ở đây».
+# Kho thử do code sinh trong lượt (git init trong thư mục tạm, remote origin giả, CLI thật của gói `mo` + `pha dang-chay`,
+# worktree thật cho P1, P2 và giám sát; kho lạ thứ hai với remote khác). Mọi tin trong fixture do CHÍNH lệnh `tin` sinh
+# trong cùng lượt; riêng ma trận văn bản AC-4 chép nguyên văn hai ca 16/10 và một tin khuôn cũ có thật từ #308. Kênh giả là
+# chương trình gh giả trỏ bằng DIEU_PHOI_GH, sinh trong lượt, hình JSON theo `gh api …/issues/<số>/comments`, trang 30 kèm
+# header Link. Lệnh hook rút từ hooks.json (không gõ lại), CLAUDE_PLUGIN_ROOT trỏ bản sao gói. Đường dẫn suy từ vị trí tệp
+# test. Mỗi ca đỏ chạy CHÍNH lệnh đo trên bản sao gói bị tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm riêng bước tiêm
+# đã áp, và ghim thông điệp của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số hàng, in ra. Lời hứa đẳng thức thì so
+# bằng nhau, không so bao hàm. «0 byte ghi» = băm cây trước và sau bằng nhau. «chạm» = số đối số ngoài lệnh, khẩu lệnh và
+# đích/mã, đếm trên argv thật mà ca chạy.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, dieu-phoi/scripts/dot.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-01 gui-mot-cau": 9 hàng (a)…(i) in ra «hàng · kỳ vọng · thực tế». (a) mã G-<ddmm>-1, dòng đầu ===
+      "GIAO G-<ddmm>-1 · G → P2"; sáu nhãn theo thứ tự; Ý định === câu đã gõ; Kết quả chứa "hang-b" và nhanh_chinh; Ranh
+      giới chứa "thu/kho-a", worktree P2 và từng mục ranh_gioi; Quyền theo --tu-merge; Báo về chứa vai.json giam_sat.phien;
+      (b) G-<ddmm>-2; (c) kênh giả thêm đúng 1 bình luận, dòng đầu === "GIAO MBP-<ddmm>-1 · MBP → M5", Kết quả chứa slug GT1;
+      (d) thoát 1, stderr chứa "không suy được Kết quả", băm bằng; (e) "thiếu ý định", băm bằng; (f) mã P1-<ddmm>-1, chan
+      false; với --chan, chan true; (g) stderr liệt đủ chín khẩu lệnh, băm bằng; (h) "không thuộc đợt", băm bằng; (i) mã ba
+      khúc, !== "P1-7"; (j) ma trận nguồn suy 5 hàng: đang giữa hang-a (hồ sơ implemented) → Kết quả/Ranh giới của hang-a;
+      chưa vào hàng → hang-b; hết hàng → thoát 1 "không suy được Kết quả"; --hang hang-b khi đang giữa hang-a → hang-b;
+      --ket-qua "<câu>" → Kết quả === câu đó; mỗi hàng so bằng nhau với giá trị viết trong ca; (k) một khuôn hạn: lời giao "Hạn xong:
+      <n> phút sau khi nhận", lời nhận "Hạn xong: <mốc ISO>" === lúc NHẬN + n; 4 hàng: trọn hàng có giờ máy → n === cận trên
+      giờ máy × 60 của du-bao.json; trọn hàng không giờ máy → "chưa có hạn"; việc lẻ → "chưa có hạn"; việc lẻ --han-xong 90 →
+      n === 90.
+      Đếm chạm in ra: (a) === 1,
+      (f) === 1. "ok" cho "GT-01-do bo-ranh-gioi": bản sao xoá dòng Ranh giới khỏi loiGiaoViec (kiểm bước tiêm áp) → ca nêu
+      "Ranh giới:". "ok" cho "GT-01-do luon-hang-ke": bản sao luôn lấy hàng kế → ca nêu "đang giữa hang-a".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-02 dap-khong-kem": 12 hàng (a)…(l) in ra (hàng (b) và (e) có hàng con, mỗi hàng con một assert).
+      (a) NHẬN kèm câu: thoát 0, dòng đầu === "NHẬN G-<ddmm>-1 · P2 → G", thân Sẽ giao === câu đã gõ, Hạn xong === của lời
+      giao, sổ G đặt câu cạnh Ý định; (a′) 4 hàng thoát 1 chứa "sẽ giao", băm bằng: không câu · "ok" · chỉ "sẽ giao" · hai
+      câu; --xong-luc <mốc ISO> → Hạn xong === mốc ấy; NHẬN HỎI không câu → thoát 0; (b) kênh, GIAO --kho thu/kho-b: NHẬN trong kho-b thoát 0, Ranh
+      giới === thu/kho-b; NHẬN trong kho-a thoát 1, stderr chứa "thu/kho-a", "thu/kho-b" và "tin KẸT", băm bằng; (c) sau một
+      commit mới, cây sạch: thân chứa sha === `git rev-parse HEAD` và !== sha lúc NHẬN, nhánh === `git branch --show-current`,
+      PR === PR của tệp ca; (d) có sha và nhánh, không dòng PR; (e) 3 hàng con thoát 1 đòi --vat, stderr chứa đúng "chưa có
+      commit mới" | "cây chưa sạch" | "kho lệch", băm bằng; có --vat thì thoát 0, thân === câu đó; (f) thiếu câu trả lời → "câu trả lời", có câu → thoát 0; (g) "không phải người
+      nhận"; (h) "chỉ người giao"; (i) "không có vòng"; (j) "đã giao" và "MỞ LẠI là của người giao"; (k) "cần gì"; (l) "--chuyen". Mọi hàng thoát
+      1: băm nơi chứa trước === sau; (m) MỞ LẠI: G sau chấp nhận → thoát 0, vòng mo-lai; không câu → "vì sao"; P2 gõ → "chỉ
+      người giao"; quá 24 giờ (đồng hồ giả) → "quá 24 giờ"; sau MỞ LẠI, XONG khi HEAD === sha lần XONG bị mở lại → thoát 1 "chưa có commit
+      mới", commit mới rồi XONG → thoát 0; Hạn xong mới === lúc MỞ LẠI + khoảng hạn cũ; mọi hàng thoát 1 băm bằng. Đếm chạm in ra: (a) === 1, (c) === 0. "ok" cho "GT-02-do bo-so-kho": bản sao bỏ so kho
+      (kiểm bước tiêm áp) → ca nêu "(b)"; đối chứng trong cùng ca: bản sao bỏ kiểm danh tính mà giữ so kho → (b) vẫn xanh.
+      "ok" cho "GT-02-do bo-commit-moi": bản sao bỏ kiểm HEAD có commit mới → ca nêu "chưa có commit mới". "ok" cho
+      "GT-02-do bo-nguoi-nhan": bản sao bỏ kiểm người nhận → ca nêu "(g)". "ok" cho "GT-02-do giu-moc-cu": bản sao không đổi
+      mốc so sau MỞ LẠI → ca nêu "(m)". "ok" cho "GT-02-do chi-co-mat": bản sao chỉ kiểm câu sẽ giao có mặt → ca nêu "ok".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mo-hinh.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-03 so-vong-mo": chuỗi tin dựng bằng lệnh tin trong lượt; `tin so --json` deepStrictEqual bảng
+      mong đợi viết trong ca: mỗi mục có nac và trang_thai — chua-den 1 → da-den 2 → da-nhan 5 | ket 6 → cho-chap-nhan 7 →
+      da-chap-nhan 8 (vắng khỏi sổ mở, có trong --tat-ca); mo-lai về 5; TRẢ/HUỶ vắng; BÁO vắng; cũ trước. Quá hạn xong: vòng
+      da-nhan qua Hạn xong → qua_han_xong 1, qua hai lần → 2, không hạn → 0, hồ sơ chờ cổng người → đồng hồ ngừng (giá trị tính trong ca), vòng mo-lai
+      dùng hạn mới (5 hàng in ra). Ma trận quá
+      hạn với DIEU_PHOI_NOW_MS: 29 → 0, 31 → 1, 61 → 2 (hạn 30); --han 10: 11 → 1, 21 → 2; đã NHẬN → 0; 7 hàng in ra. Ở phút
+      61: mục `xem --json` mang mã và mức 2 deepStrictEqual mục `tin so --json`; stdout `xem` chứa mã. yeu-cau/P1-7.json
+      không tra-loi → mục "HỎI P1-7 · P1 → G"; thêm tra-loi → mục vắng; băm yeu-cau/ và tra-loi/ trước === sau. "ok" cho
+      "GT-03-do ket-dong-vong": bản sao cho KẸT đóng vòng (kiểm bước tiêm áp) → ca nêu mục ket bị mất. "ok" cho "GT-03-do
+      xem-bo-tin": bản sao bỏ nhánh đọc tin trong xem → ca nêu mã. "ok" cho "GT-03-do chap-nhan-mot-phia": bản sao cho XONG
+      đóng vòng ngay khi ghi → ca nêu "chấp nhận một phía".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs, tests/dieu-phoi/fixtures/tin/**]
+    expected: >
+      exit 0; "ok" cho "GT-04 dong-dau": 7 hàng (a)…(g) in ra; (a) vòng MBP-1710-1 vẫn mở sau tin BÁO có "XONG MBP-1710-1"
+      trong thân; (b) null; (c) null; (d) NFD đọc thành "NHẬN"; (e) "HỦY" đọc thành "HUỶ"; (f) cu === true, không vòng;
+      (g) null, không ném; (h) "MỞ LẠI" NFC và NFD → "MỞ LẠI", hai dấu cách → "MỞ LẠI", "MỞ" một mình → null (4 hàng con). Trên kênh giả có k tin khuôn cũ: `tin so` in "tin không mã — không theo dõi vòng: <k>" với k ===
+      số tin khuôn cũ trong tệp ca. "ok" cho "GT-04-do doc-than": bản sao phân loại trên cả thân (kiểm bước tiêm áp) → hàng
+      (a) đỏ, ca nêu "(a)". "ok" cho "GT-04-do mot-tu": bản sao chỉ lấy từ đầu của dòng → ca nêu "(h)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4b
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.dieu_phoi_tin_kenh_that
+    paths: [dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin-kenh-that.mjs]
+    expected: >
+      exit 0; đọc trọn bình luận của phanlemanh/acceptance-gate-kit#308 bằng gh thật vào một trạng thái cục bộ TẠM (không
+      ghi gì lên kênh, không chạm .acceptance-runs/ của kho); in "tong <n> · doc-lap <m> · co-ma <a> · khuon-cu <b> · bo-qua
+      <c>" với n === m, trong đó m đếm ĐỘC LẬP bằng `gh api --paginate repos/phanlemanh/acceptance-gate-kit/issues/308/comments
+      --jq length` cộng dồn (không qua tin.mjs); a + b + c === n; b > 0; n > 30; không ném lỗi trên bình luận nào. gh vắng
+      hoặc chưa đăng nhập → thoát 2, stderr "không đọc được ở đây".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-05 kenh-con-tro": GIAO --kenh → tệp ca thêm đúng 1 bình luận; 35 sẵn → lượt 1 đọc 36, thêm 2 → lượt
+      2 xin bằng since, nhật ký gh giả trả 3 (2 mới + 1 ở mốc), `canh` in "đọc mới 2"; con trỏ === id bình luận cuối; vòng MBP mở, M5 NHẬN rồi XONG qua --kenh
+      dưới trạng thái cục bộ thứ hai → sổ M5 nấc 7 không nghĩa vụ; sổ MBP cho-chap-nhan, sau hook ở worktree giữ kênh MBP →
+      da-chap-nhan, nhật ký gh giả 0 lời gọi ghi trong lượt hook; MBP MỞ LẠI --kenh → đúng 1 bình luận, sổ M5 sau đồng bộ →
+      mo-lai; ma trận cửa sổ 9 bình luận → `so --kenh --tu <ngày> --json` deepStrictEqual {vong_da_dong: 1,
+      vong_mo_qua_han_2: 1, vong_mo_chua_qua_han: 3, khuon_cu_co_dich: 1, bo_qua: 1, bo_qua_ma: [<mã>]}; dòng phán quyết === chuỗi viết trong ca cho 4 ca (CHẾT · "cần đếm tay 1 bình luận" · SỐNG · VÔ
+      HIỆU); ma trận văn bản
+      AC-4 qua nơi chứa đợt và qua kênh giả cho kết quả deepStrictEqual. "ok" cho "GT-05-do bo-con-tro": bản sao bỏ con trỏ
+      (kiểm bước tiêm áp) → ca nêu "38 ≠ 2". "ok" cho "GT-05-do bo-phan-trang": bản sao bỏ --paginate → ca nêu "30 ≠ 36".
+      "ok" cho "GT-05-do dem-moi-ma": bản sao đếm mọi bình luận có mã vào vong_mo_qua_han_2 → ca nêu "vòng đã đóng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-06 canh-chieu-do": 7 hàng in ra. (a) thoát 0, stdout chứa "canh: bắt lại <id>"; (b) thoát 3,
+      stderr bắt đầu "canh: không bắt lại được tin cuối"; (c) thoát 3, "dòng đầu khác"; (d) thoát 3, "gh giả: lỗi tiêm"; (e)
+      --cho thoát 0 sau khi tin gửi MBP thêm ở nhịp 2, stdout === dòng đầu của tin đó; (f) --cho thoát 3 trong ≤ 2 nhịp sau
+      khi gh giả chuyển sang lỗi (đồng hồ giả); (g) --treo → thoát 3, "quá trần", thời gian tường < 30 s. Không hàng nào thoát
+      0 mà stdout rỗng. "ok" cho "GT-06-do nuot-loi-gh": bản sao trả [] khi gh lỗi (kiểm bước tiêm áp) → ca nêu "(d)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/hook-nhip.mjs, dieu-phoi/scripts/hook-cho-nguoi.mjs, dieu-phoi/scripts/tin*.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-07 tin-tu-den": lệnh hook rút từ khối PostToolUse và khối UserPromptSubmit trong hooks.json (hai
+      hook đã có), chạy cả hai; 11 hàng in ra. (a) JSON.parse stdout → hookSpecificOutput.additionalContext chứa mã, dòng
+      đầu, thân và "tin NHẬN G-<ddmm>-1"; sổ ghi da-den; (b) lần hai: không additionalContext cho tin ấy; (c) cwd P1 → stdout
+      ""; (d) cwd giữ kênh MBP, bản đồng bộ có tin gửi MBP → đưa vào ngữ cảnh, nhật ký gh giả 0 lời gọi trong lượt hook; (e)
+      vòng G chạm mức 1 → nơi chứa có đúng 1 BÁO "nhắc <mã>", gọi lại vẫn 1; (f) vòng MBP trên kênh chạm mức 1 → ngữ cảnh chứa
+      "tin nhac <mã>", nhật ký gh giả 0 lời gọi ghi; (g) stdin mang danh tính tác tử con (khuôn ghi trong ca) → stdout "", sổ
+      vẫn chua-den, lần gọi kế từ phiên chính mới đưa tin; (h) hai kho tạm do code sinh (có đợt không tin · không đợt):
+      30 lần trọn hook-nhip bản này và 30 lần bản `git archive 3745b3e9 dieu-phoi`, xen kẽ, mỗi lần một tiến trình mới; chênh
+      trung vị ≤ 20 ms (in hai dãy số); chênh 20–30 ms thì đo lại một lượt, lấy lượt thấp hơn; > 30 ms → đỏ; (i) 4 hàng: dòng
+      hỏng · thư mục đợt không đọc được · tin.mjs ném lúc nạp · thiếu tệp tin.mjs nhập — nhịp và nhắc bàn giao deepStrictEqual
+      bản 3745b3e9, không additionalContext tin, qua 3 lần gọi đúng 1 systemMessage chứa "không đọc được hộp tin"; sửa lại →
+      lần kế đưa tin; (k) MỞ LẠI của G đưa vào phiên P2 đúng 1 lần, kèm câu vì sao và "tin XONG"; (j) XONG của P2 gửi G: trước khi hook phiên G chạy, sổ cho-chap-nhan; hook phiên G đưa XONG kèm vật đúng 1
+      lần, sổ đổi da-chap-nhan kèm lúc chấp nhận; NHẬN của P2 đưa về phiên G kèm câu sẽ giao. "ok" cho "GT-07-do
+      chap-nhan-truoc": bản sao chấp nhận khi XONG chưa đến phiên người giao (kiểm bước tiêm áp) → ca nêu "chấp nhận trước
+      khi nghe". "ok" cho "GT-07-do nhap-tinh": cùng phần tin ném lúc nạp, cùng kho thử — đối chứng dương bản nạp động ghi nhịp và báo
+      "không đọc được hộp tin"; bản sao nhập phần tin tĩnh không ghi nhịp và stderr chứa "nạp hỏng". "ok" cho "GT-07-do dua-lan-hai": bản sao bỏ dấu đã đưa (kiểm bước tiêm áp) → ca nêu "đưa lần hai". "ok" cho
+      "GT-07-do tac-tu-con": bản sao bỏ kiểm tác tử con → ca nêu "(g)". "ok" cho "GT-07-do cham": bản sao thêm 50 ms chờ vào
+      duaTin → ca nêu số đo vượt 20 ms. "ok" cho "GT-07-do bao-moi-lan": bản sao bỏ dấu lỗi đã báo → ca nêu "3 lần".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/tin*.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-08 hook-dung": lệnh hook rút từ khối Stop của hooks.json; 12 hàng (a)…(l) in ra. (a) decision ===
+      "block", reason chứa mã và "tin NHẬN"; (b) stdout ""; (c) stdout ""; (d) block, reason chứa mã MBP; (e) theo câu trả lời
+      câu hỏi kênh lỗi ghi trong decisions.jsonl — khuyến nghị: lần 1 block, reason chứa "không đọc được kênh" và "tin canh",
+      lần 2 trong 30′ stdout ""; --treo xong ≤ 6 s (thời gian tường) và kết quả === nhánh --loi; (f) lần 2 cùng tập mã ở (a)
+      và (d) → stdout "", `tin so --json` mục đó ket_luot_chua_nhan === true, `xem --json` đếm === 1 cho đợt, nhật ký gh giả 0
+      lời gọi ghi; (g) stop_hook_active true → ""; (h) GIAO mới → block, reason chứa mã mới; (i) yeu-cau/P1-7.json chưa trả
+      lời, không tin → cwd giám sát ""; (j) kho không đợt không kênh: cả ba lệnh hook tin thoát 0, stdout "" và stderr "",
+      băm cây kho + .acceptance-runs/ trước === sau; (k) mọi mục hook trong `git show 3745b3e9:dieu-phoi/hooks/hooks.json`
+      (commit cố định) deepStrictEqual có mặt, thứ mới duy nhất là khối Stop gọi hook-tin.mjs; (m) kênh có gạch nối trong tên chủ và kho
+      (`thu-chu/kho-kenh#308`, như hai kênh thật): block nêu mã và "--kenh thu-chu/kho-kenh#308", không "không đọc được",
+      mọi lời gọi đọc của gh giả trỏ "repos/thu-chu/kho-kenh/issues/308"; (l) `tin tat` ở P2 → ba chỗ
+      hook stdout "" với tin chờ, sổ vẫn ghi, `xem --json` liệt P2 đang tắt; `tin bat` → lần kế đưa tin và chặn như thường.
+      "ok" cho "GT-08-do kenh-gach-noi": bản sao không ghi tên kênh gốc khi `vai` (tách ngược từ tên tệp) →
+      ca nêu "(m) kênh có gạch nối". "ok" cho "GT-08-do bo-tat": bản sao bỏ kiểm dấu tắt ở khối Stop → ca nêu "(l)". "ok" cho "GT-08-do chan-mai": bản sao
+      bỏ dấu đã chặn (kiểm bước tiêm áp) → ca nêu "chặn lần hai". "ok" cho "GT-08-do bo-tran": bản sao bỏ trần → ca nêu "(e)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/tin*.mjs, dieu-phoi/scripts/muc-day.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-09 chip-sau-truong": ghi_danh của dãy mo-chip chứa phần sáu dòng === từng byte phần sáu dòng của
+      `tin GIAO` cùng đầu vào (cùng hàm loiGiaoViec); Ý định === dòng "Vì sao:" của opportunity.md trong worktree; hàng chưa
+      có hồ sơ → hanh_dong "mo-chip", dòng Ý định === "Ý định: đọc hồ sơ hang-b"; dãy không có hàng nào → hanh_dong
+      "khong-hang", ly_do === "khong-co-hang", không có ghi_danh (12 hàng). "ok" cho "GT-09-do bo-sau-truong": bản sao bỏ sáu
+      dòng khỏi ghi_danh → ca nêu "chip mở với sáu nhãn". "ok" cho "GT-09-do bo-chan-het-hang": bản sao bỏ chặn dãy hết hàng
+      (kiểm bước tiêm áp) → hàng "dãy không có hàng nào" đỏ, nêu "thiếu Kết quả".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_khung
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/muc-day.mjs, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng gộp không có "not ok"; có "ok" cho mọi ca DP<n>-, SDT- và KH- như khoá đã ghim ở hồ sơ
+      trang-thai-dot-dieu-phoi-tho — ca cũ đọc ghi_danh (DP3, DP4, ON-DINH-R2, SDT) vẫn xanh trên bản này; "# fail 0".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tin
+    paths: [dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/README.md, dieu-phoi/scripts/tin*.mjs, tests/dieu-phoi/tin*.mjs, tests/dieu-phoi/gh-gia.mjs]
+    expected: >
+      exit 0; "ok" cho "GT-10 luat-tin": tập khẩu lệnh rút từ khối <<<LUAT-TIN … LUAT-TIN>>> của LUAT.md === tập KHAU_LENH
+      xuất từ tin.mjs (9 phần tử, so bằng nhau); bảng thang rút được đúng 9 hàng nấc 0–8; khối có bảng «làm gì — máy làm gì
+      thay», câu then chốt của luật vòng mở (vòng đóng khi người giao chấp nhận, hoặc bằng TRẢ, HUỶ; không kết lượt khi còn việc giao chưa nhận) và hai danh sách «Phải HỎI» / «Không hỏi»; mọi dòng
+      lệnh `tin …` trong khối và trong README chạy `--help` thoát 0 (số lệnh in ra). "ok" cho "GT-10-do them-duyet": bản sao
+      thêm DUYỆT vào khối (kiểm bước tiêm áp) → ca nêu "DUYỆT".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10b
+    criterion: AC-10
+    executor: judgment
+    inputs: [dieu-phoi/scripts/mau/LUAT.md]
+    question: >
+      Chỉ đọc khối «Giao tiếp — khẩu lệnh và vòng mở» (giữa marker LUAT-TIN) của tệp này, như một phiên thợ mới chưa từng
+      thấy gói. Người đọc có trả lời được, mà không cần tài liệu nào khác, ba câu: (1) khi một việc được giao tới phiên mình
+      thì phải gõ gì, phải kèm câu gì, và có phải tự điền hạn không; (2) khi nào PHẢI hỏi và khi nào KHÔNG được hỏi; (3) vòng đóng khi
+      nào, người giao làm gì khi sản phẩm không đạt và trong bao lâu, và NHẬN có đóng vòng không? PASS khi cả ba câu trả lời được từ khối, không mâu thuẫn trong khối.
+      FAIL khi một câu không có câu trả lời, hoặc khối tự mâu thuẫn.
+    evidence_required: [run_id, verifier, verified_at, output]
