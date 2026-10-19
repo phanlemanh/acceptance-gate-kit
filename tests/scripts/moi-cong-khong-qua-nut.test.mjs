@@ -41,7 +41,8 @@ export const LUAT = [
 const TB = Object.fromEntries(LUAT.map(l => [l.ma, l.tb]));
 const CUM_BAT_BUOC = ['card.html', 'evidence-page.html', 'SendUserFile', 'in đường dẫn trang', '```text', 'chép đúng như thẻ in', '___', 'wrap_up', 'không câu hỏi và không nút'];
 const LENH_KIT_RE = /^\s*\/(acceptance-gate|feature-loop|dieu-phoi):/;
-const CHU_QUYET_RE = /(ký hay trả|duyệt hay sửa)\s*:\s*(?!___)([^;\n`"]+)/gi;
+// `(?=\S)` ép nuốt hết khoảng trắng trước khi xét `___` — thiếu nó `\s*` lùi một khoảng và « ___» lọt thành chữ quyết.
+const CHU_QUYET_RE = /(ký hay trả|duyệt hay sửa)[ \t]*:[ \t]*(?=\S)(?!___)([^;\n`"]+)/gi;
 
 const khoi = (t, ten) => new RegExp(`<!-- <<<${ten} -->\\n([\\s\\S]*?)\\n?<!-- ${ten}>>> -->`).exec(t ?? '');
 
@@ -336,7 +337,8 @@ async function main() {
         const t = v[FL]; const occ = lanXuatHien(t, clause);
         if (occ.length !== 2) throw new Error(`${FL} có ${occ.length} bản (cần 2)`);
         const go = t.slice(0, occ[1]) + t.slice(occ[1] + clause.length);
-        const w = { ...v, [FL]: go, [LAW]: tiem(v[LAW], `${FL} 2\n`, `${FL} 1\n`) };
+        const bang = khoi(v[LAW], 'GATE-END-TURN-SITES')[0];
+        const w = { ...v, [FL]: go, [LAW]: tiem(v[LAW], bang, tiem(bang, `${FL} 2\n`, `${FL} 1\n`)) };
         const l = hangDo('MQ-3-do', 'gỡ bản đi kèm thứ hai', kiemGhepCap(w).loi, `lời mời cổng không kèm điều khoản kết lượt: ${FL}`);
         const c2 = kiemChep(w).loi;
         if (l) bad('MQ-3-do', l); else if (c2.length) bad('MQ-3-do', `MQ-2 lẽ ra im: ${c2.join(' | ')}`); else ok('MQ-3-do', 'đỏ đúng thông điệp, MQ-2 im');
