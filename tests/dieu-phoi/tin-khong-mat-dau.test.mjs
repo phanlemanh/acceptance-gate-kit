@@ -7,6 +7,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { ENV, GOI, KENH, KIT, bamCay as bamCayThu, banSao, chayHook, chayNode as chayNodeThu, docJ, donDep, ghGia, git, inMaTran, khoDot as khoDotThu, khoKenh, nap, tam, tepKenhCua, tin } from './tin-kho-thu.mjs';
 
 after(donDep);
@@ -455,7 +456,7 @@ export async function kiemXongCu(gocGoi) {
   so('(a) G XONG yêu cầu kiểu cũ', `thoát 0, stdout chứa ${id} và P1`, `${a.ma} ${a.out.trim()} ${a.err.trim()}`, a.ma === 0 && a.out.includes(id) && a.out.includes('P1'));
   const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
   const ky = { ket_qua: 'da-tra-loi', boi: 'giam-sat', ly_do: cau };
-  so('(b) hộp người hỏi', JSON.stringify(ky), JSON.stringify(boLuc(tl)), tl != null && JSON.stringify(boLuc(tl)) === JSON.stringify(ky));
+  so('(b) hộp người hỏi', JSON.stringify(ky), JSON.stringify(boLuc(tl)), tl != null && isDeepStrictEqual(boLuc(tl), ky));
   const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
   await taoVong(k.dot, ioGia(Date.now()), () => Date.now())();
   const hong = fs.existsSync(path.join(k.dot, 'tra-loi', 'hong', `${id}.json`));
@@ -547,7 +548,7 @@ export async function kiemDapCuTuChoi(gocGoi) {
   tuChoi('TRẢ do P2', k.w2, ['TRẢ', id, 'không phải việc tôi', '--chuyen', 'P1'], ['không phải người nhận']);
   tuChoi('XONG không câu', k.kho, ['XONG', id], ['câu trả lời']);
   const xong = tin(k.kho, ['XONG', id, 'đã trả lời lần đầu'], { gocGoi });
-  assert.equal(xong.ma, 0, `bước dựng: G XONG ${id} phải thoát 0 — ${xong.err}`);
+  if (xong.ma !== 0) loi.push(`bước dựng: G XONG ${id} phải thoát 0 — ${xong.err.trim()}`);
   tuChoi('XONG trên yêu cầu đã có trả lời', k.kho, ['XONG', id, 'trả lời lần hai'], ['đã đóng']);
   tuChoi('TRẢ trên yêu cầu đã có trả lời', k.kho, ['TRẢ', id, 'đổi ý', '--chuyen', 'P2'], ['đã đóng']);
   // Đối chứng: vòng mã mới vẫn đáp được như GT1.

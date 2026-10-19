@@ -125,6 +125,31 @@ async function gui(kl, vi, co, ctx, nowMs, { hanNhan, hanXong }) {
   return text;
 }
 
+// Yêu cầu kiểu cũ (`yeu-cau/<dãy>-<số>.json` của đợt): người hỏi chờ ở `tra-loi/<id>.json`, nên XONG và TRẢ ghi câu trả
+// lời vào đúng tệp ấy qua bộ ghi của lệnh trả lời cũ (cùng bộ kiểm của bộ phát lịch); khẩu lệnh khác không có chỗ tới
+// người hỏi nên bị từ chối. Máy không bao giờ tự ghi «duyet» — với yêu cầu gia hạn, «duyet» kéo dài hạn thuê khoá
+// (hồ sơ vong-mo-khong-mat-dau).
+async function dapYeuCauCu(kl, ma, cau, co, minh, muc, cwd) {
+  if (kl !== 'XONG' && kl !== 'TRẢ') loi(`${ma} là yêu cầu kiểu cũ — chỉ đáp được bằng tin XONG ${ma} "<câu trả lời>" hoặc tin TRẢ ${ma} "<câu vì sao trả>" --chuyen <ai>`);
+  if (minh !== muc.den) loi(`${minh} không phải người nhận của ${ma} (người nhận: ${muc.den})`);
+  const { ghiTraLoi } = await import('./ghi.mjs');
+  let traLoi;
+  if (kl === 'XONG') {
+    if (!cau) loi('XONG một câu hỏi phải kèm câu trả lời');
+    traLoi = { ket_qua: co['ket-qua'] ?? 'da-tra-loi', boi: 'giam-sat', ly_do: cau };
+  } else {
+    if (!cau) loi('TRẢ phải kèm lý do');
+    if (!co.chuyen) loi('TRẢ phải kèm --chuyen <ai|không ai>');
+    traLoi = { ket_qua: 'tra-lai', boi: 'giam-sat', ly_do: `${cau} — chuyển: ${co.chuyen}` };
+  }
+  try {
+    ghiTraLoi(cwd, ma, traLoi);
+  } catch (e) {
+    loi(e.message);
+  }
+  return `đã trả lời ${ma} vào hộp của ${muc.tu} (tra-loi/${ma}.json)`;
+}
+
 async function dap(kl, vi, co, ctx, nowMs, cwd) {
   const [, ma, cau] = vi;
   if (!ma) loi(`thiếu mã — ${SU_DUNG[kl]}`);
@@ -133,6 +158,7 @@ async function dap(kl, vi, co, ctx, nowMs, cwd) {
   const muc = gapSo(dong, { nowMs }).find((v) => v.ma === ma);
   if (!muc) loi(`không có vòng ${ma}`);
   if (muc.trang_thai === 'dong') loi(`vòng ${ma} đã đóng (TRẢ hay HUỶ)`);
+  if (muc.yeu_cau_cu) return dapYeuCauCu(kl, ma, cau, co, minh, muc, cwd);
   const daGiao = muc.trang_thai === 'cho-chap-nhan' || muc.trang_thai === 'da-chap-nhan';
   if (daGiao && kl !== 'MỞ LẠI') loi(`vòng ${ma} đã giao, chờ người giao chấp nhận — MỞ LẠI là của người giao`);
   const laGiao = muc.khau_lenh_mo === 'GIAO';

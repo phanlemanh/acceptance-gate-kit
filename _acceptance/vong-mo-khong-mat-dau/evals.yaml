@@ -123,12 +123,12 @@ evals:
     cmd: config:executors.test.dieu_phoi_tin_gd
     paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
-      exit 0; "ok" cho "GD-09 dap-cu-bi-tu-choi": 9 hàng in ra — NHẬN · KẸT · HUỶ (P1 gõ) · MỞ LẠI (G gõ) · XONG do P2 gõ ·
+      exit 0; "ok" cho "GD-09 dap-cu-bi-tu-choi": 10 hàng in ra (9 hàng từ chối + hàng đối chứng) — NHẬN · KẸT · HUỶ (P1 gõ) · MỞ LẠI (G gõ) · XONG do P2 gõ ·
       TRẢ do P2 gõ · XONG không câu · XONG trên yêu cầu đã có trả lời · TRẢ trên yêu cầu đã có trả lời. Bốn hàng đầu: thoát
       1, stderr chứa "P1-<n>", "yêu cầu kiểu cũ", "tin XONG" và "tin TRẢ"; hai hàng do P2: stderr chứa "không phải người
       nhận"; hàng không câu: stderr chứa "câu trả lời"; hai hàng đã trả lời: stderr chứa "đã đóng" và tra-loi/P1-<n>.json
       trước === sau từng byte. Mọi hàng: băm thư mục đợt (gồm tin.jsonl và tra-loi/) trước === sau. Đối
-      chứng cùng ca (hàng 8): P1 `tin HỎI G "<câu>"`, G `tin XONG <mã> "<câu>"` → thoát 0, sổ ghi vòng mã mới cho-chap-nhan.
+      chứng cùng ca (hàng 10): P1 `tin HỎI G "<câu>"`, G `tin XONG <mã> "<câu>"` → thoát 0, sổ ghi vòng mã mới cho-chap-nhan.
       "ok" cho "GD-09-do nhan-lot": bản tiêm cho NHẬN trên yêu cầu kiểu cũ đi đường cũ (ghi tin.jsonl, thoát 0) → hàm đo nêu
       hàng "NHẬN" và không nêu hàng đối chứng. "ok" cho "GD-09-do tra-bo-danh-tinh": bản tiêm bỏ kiểm danh
       tính ở nhánh TRẢ yêu cầu kiểu cũ → hàm đo nêu hàng "TRẢ do P2" và không nêu "XONG do P2".
