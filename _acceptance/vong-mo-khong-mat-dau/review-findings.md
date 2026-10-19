@@ -1,26 +1,28 @@
+# Review findings: vong-mo-khong-mat-dau (round 3)
+
 ## Trong hợp đồng
 
-- **GD-10 hàng lệnh hạn chỉ chạy nhánh từ chối, nên lệnh mẫu hỏng mà thiếu người nhận hay thiếu câu vẫn xanh**
-  file: `tests/dieu-phoi/tin-khong-mat-dau.test.mjs:637`
-  severity: medium
-  AC: AC-10
-  source: bugs
-  detail: kiemLuatGd chạy nguyên văn từng lệnh mẫu `tin GIAO|HỎI …` của dòng hạn, nhưng chỉ với <phút> = 1.5, rồi đòi thoát 1 kèm đúng câu của AC-5. Trong tin.mjs, phutNguyenDuong(co,'han'/'han-xong') chạy ở dòng 305-306, TRƯỚC mọi bước kiểm người nhận và câu của GIAO/HỎI. Vì vậy mọi lệnh mẫu còn giữ được cờ hạn đều tạo ra đúng câu từ chối, dù phần còn lại của lệnh không chạy được. Hàng này chỉ có kiểm âm, không có đối chứng dương: chưa lần nào chạy lệnh mẫu với một số phút hợp lệ để xem nó thoát 0 và ghi được lời giao. Tôi đã tạo mutant và chạy qua kiemLuatGd trên bản sao: (1) đổi lệnh mẫu GIAO thành `tin GIAO --han-xong <phút>` (bỏ dãy và câu) thì loi = []; (2) đổi lệnh mẫu HỎI thành `tin HỎI --han <phút>` thì loi = []. Cả hai đều xanh. Như vậy lời hứa của AC-10/E10, «lệnh mẫu trong luật chạy được», chưa được đo cho dòng hạn. Mutant han-mau-hong có đỏ, nhưng chỉ vì nó phá đúng chỗ cờ hạn. Cách sửa: chạy thêm mỗi lệnh mẫu với <phút> hợp lệ (ví dụ 5), đòi thoát 0 và có lời giao hoặc câu hỏi trong sổ, rồi mới tin kết quả đỏ ở 1.5.
-  rationale: AC-10 đòi ca đo rút câu lệnh mẫu của dòng luật rồi chạy nó trên kho thử; ca đo hạn chỉ chạy nhánh từ chối nên lệnh mẫu hỏng vẫn xanh, tức lời hứa «lệnh mẫu chạy được» chưa được đo.
-
-- **trongKhe so sánh mốc bằng dấu < nghiêm ngặt theo mili giây, nên GD-01/02/03 đỏ ngẫu nhiên khi hai mốc trùng nhau**
-  file: `tests/dieu-phoi/tin-khong-mat-dau.test.mjs:68`
-  severity: medium
-  AC: AC-1
-  source: bugs
-  detail: `const trongKhe = (m) => m.batDau < m.truoc && m.sau < m.traVe;`. batDau là Date.now() mà gh-gia.mjs (dòng 84) ghi vào moc-doc-bat-dau. truoc là Date.now() lấy ngay sau khi choTep thấy tệp đó. Hai giá trị này có thể trùng một mili giây, trong khi thứ tự vẫn đúng (tệp được ghi trước khi bên đo đọc). Lần chạy đầy đủ của tôi trên HEAD bf862fe0 cho đúng ca này: `✖ GD-01 dau-may-song-qua-dong-bo … '(a) đã đến sống qua đồng bộ: mong canh 0 · trong khe · nấc 2 da-den, nhận canh 0 · bắt đầu đọc 1792423805536 < ghi 1792423805536…'`, tức tests 28, fail 1. Lần GD-01 khác trong cùng lượt chạy thì xanh. Bộ kiểm vì thế đỏ hay xanh tuỳ đồng hồ chứ không tuỳ mã đang đo, và một lượt chấm S4 có thể bị đốt vì hạ tầng đo. GD-02 (dòng 151) và GD-03 (dòng 271) dùng cùng trongKhe nên cũng dính. Cách sửa: dùng `<=` cho batDau ≤ truoc, vì quan hệ nhân quả đã có sẵn nhờ choTep. Hoặc lấy truoc trước khi bắt đầu chờ tệp thì đổi hướng so sánh, không phụ thuộc độ phân giải đồng hồ.
-  rationale: Hàng (a) của ma trận AC-1 đỏ ngẫu nhiên trên mã lành vì phép so mốc theo mili giây; AC-1 đòi mỗi hàng chứng mốc bắt đầu đọc đứng trước mốc ghi dấu, và phép đo hiện đỏ sai.
+Không có.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Phép đo E10 giờ chạy thật đường XONG/TRẢ kiểu cũ, nhưng danh sách tệp kích hoạt chạy lại của nó không mở rộng theo**
+- **E7 now names phat-lich.mjs as the measured component in row (c), but its paths list does not include it, so the check can carry a stale green**
+  Người dùng thấy gì: Nếu sau này có người sửa phần bộ canh phát lịch mà không đụng gì khác, phép kiểm việc đáp yêu cầu cũ có thể không chạy lại và vẫn hiện xanh theo kết quả cũ. Hôm nay đáp yêu cầu cũ vẫn chạy đúng; rủi ro chỉ ở các vòng sửa sau.
+  Căn cứ: Hậu quả nhẹ và chỉ xảy ra ở vòng sửa tương lai, không làm mất dữ liệu hay sai việc của người dùng hôm nay; ghi lại giới hạn là đủ, sửa sau vẫn rẻ.
+  file: `_acceptance/vong-mo-khong-mat-dau/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **E10's new positive control (minutes = 45 must succeed and read back from the ledger) runs code that is missing from E10's paths**
+  Người dùng thấy gì: Nếu sau này có người sửa phần đọc sổ hoặc phần giao việc mà không đụng gì khác, phép kiểm hạn gõ đúng có thể không chạy lại và vẫn hiện xanh theo kết quả cũ. Hôm nay hạn đúng vẫn được nhận và đọc lại chính xác.
+  Căn cứ: Hậu quả nhẹ, chỉ làm một phép kiểm có thể không chạy lại ở vòng sửa sau, không ảnh hưởng người dùng hôm nay; ghi giới hạn đã biết rồi sửa ở vòng sau với chi phí thấp.
+  file: `_acceptance/vong-mo-khong-mat-dau/evals.yaml`
+  severity: low
+  Đề xuất: known-limits
+
+- **Phép đo E10 giờ chạy thật đường XONG/TRẢ kiểu cũ, nhưng danh sách tệp kích hoạt chạy lại của nó không mở rộng theo (r2 · tệp đã đổi)**
   Người dùng thấy gì: Nếu sau này ai sửa phần ghi câu trả lời hoặc phần dựng kho thử, phép kiểm về lệnh đáp yêu cầu kiểu cũ có thể không chạy lại mà mang kết quả xanh cũ sang. Hôm nay hành vi vẫn đúng, chỉ là về sau có thể một lỗi mới lọt qua mà không ai thấy.
   Căn cứ: Không ảnh hưởng người dùng ở bản này, chỉ làm lưới bắt lỗi về sau thưa đi; thêm ba đường dẫn là rẻ và làm lúc nào cũng được.
   file: `_acceptance/vong-mo-khong-mat-dau/evals.yaml`
@@ -55,4 +57,4 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 2/2 lỗi rơi vào file không bộ đo nào phủ (_acceptance/vong-mo-khong-mat-dau/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
