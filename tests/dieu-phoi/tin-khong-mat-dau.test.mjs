@@ -362,7 +362,7 @@ test('GD-05-do kiem-sau-ghi', async () => {
   const goc = banSaoNhieu('tin.mjs', [
     ["  const hanNhan = phutNguyenDuong(co, 'han', 30);", '  const hanNhan = co.han != null ? Number(co.han) : 30;'],
     ["  const hanXong = phutNguyenDuong(co, 'han-xong', null);", "  const hanXong = co['han-xong'] != null ? Number(co['han-xong']) : null;"],
-    ['  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  return text;\n}\n\nasync function dap(', "  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  phutNguyenDuong(co, 'han', 30);\n  phutNguyenDuong(co, 'han-xong', null);\n  return text;\n}\n\nasync function dap("],
+    ['den: dich })}\\n${than}`;\n  await nc.them({ text, luc: new Date(nowMs).toISOString() });', "den: dich })}\\n${than}`;\n  await nc.them({ text, luc: new Date(nowMs).toISOString() });\n  phutNguyenDuong(co, 'han', 30);\n  phutNguyenDuong(co, 'han-xong', null);"],
   ]);
   const { loi } = await kiemHanSai(goc);
   assert.ok(loi.some((l) => l.startsWith('đợt ') && l.includes('băm khác')), `kiểm sau khi ghi phải làm hàng đợt đỏ ở «băm», nhận: ${loi.slice(0, 2).join(' | ')}`);
