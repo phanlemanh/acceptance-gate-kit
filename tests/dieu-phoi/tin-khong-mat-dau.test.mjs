@@ -145,12 +145,14 @@ export async function kiemChanMotLan(gocGoi) {
     hang.push({ hang: ten, ky_vong: ky, thuc_te: String(thuc).slice(0, 200) });
     if (!dung) loi.push(`${ten}: mong ${ky}, nhận ${String(thuc).slice(0, 300)}`);
   };
-  const { gh, m5 } = haiMay(gocGoi);
+  const { gh, m5, ma } = haiMay(gocGoi);
   soKenh(gocGoi, m5, gh);
   const k = await chenTrongKhe(gocGoi, m5, gh, async () => chayHook(gocGoi, 'Stop', { cwd: m5 }, { gh: gh.lenh }));
   so('lần Stop một', 'chặn · trong khe', `${k.kq.json?.decision ?? 'cho qua'} · ${vietMoc(k.moc)}`, k.kq.json?.decision === 'block' && trongKhe(k.moc));
   const r2 = chayHook(gocGoi, 'Stop', { cwd: m5 }, { gh: gh.lenh });
-  so('lần Stop hai', 'cho qua', r2.json?.decision ?? 'cho qua', r2.json?.decision !== 'block');
+  // Hook dừng nuốt mọi lỗi và luôn thoát 0, nên «cho qua» chỉ tin được khi kèm dấu nó ghi ở nhánh cho qua.
+  const v = soKenh(gocGoi, m5, gh).find((x) => x.ma === ma);
+  so('lần Stop hai', 'cho qua · thoát 0 · stdout rỗng · ket_luot_chua_nhan true', `${r2.json?.decision ?? 'cho qua'} · thoát ${r2.ma} · stdout ${r2.out.trim() ? 'có chữ' : 'rỗng'} · ket_luot_chua_nhan ${v?.ket_luot_chua_nhan}`, r2.json?.decision !== 'block' && r2.ma === 0 && !r2.out.trim() && v?.ket_luot_chua_nhan === true);
   return { loi, hang };
 }
 
@@ -159,6 +161,12 @@ test('GD-02 chan-mot-lan-qua-dong-bo', async () => {
   inMaTran('GD-02', hang);
   assert.equal(hang.length, 2);
   assert.deepEqual(loi, []);
+});
+
+test('GD-02-do hook-sap', async () => {
+  const goc = banSao('hook-tin.mjs', '      for (const x of ma) if (!daGhi.has(x)) ten.nc.them(', "      throw new Error('hook sập');\n      for (const x of ma) if (!daGhi.has(x)) ten.nc.them(");
+  const { loi } = await kiemChanMotLan(goc);
+  assert.ok(loi.some((l) => l.startsWith('lần Stop hai') && l.endsWith('ket_luot_chua_nhan false')), `hook sập ở nhánh cho qua phải làm lần Stop hai đỏ, nhận: ${loi.join(' | ')}`);
 });
 
 test('GD-02-do dong-bo-ghi-de', async () => {
@@ -441,6 +449,18 @@ function p1DangChoTraLoi(gocGoi, k) {
   return cho;
 }
 
+// Sổ mở của đợt qua `tin so --json` từ worktree giám sát: {ma, ds: [mã]} — mã thoát đi cùng danh sách, không nuốt lỗi.
+function soMoCua(gocGoi, k) {
+  const r = tin(k.kho, ['so', '--json'], { gocGoi });
+  let ds = [];
+  try {
+    ds = JSON.parse(r.out).map((v) => v.ma);
+  } catch {
+    return { ma: r.ma === 0 ? 'stdout không phải JSON' : r.ma, ds };
+  }
+  return { ma: r.ma, ds };
+}
+
 export async function kiemXongCu(gocGoi) {
   const loi = [];
   const hang = [];
@@ -451,9 +471,11 @@ export async function kiemXongCu(gocGoi) {
   const k = khoDotThu(gocGoi);
   const id = yeuCauCu(gocGoi, k);
   const choTruoc = p1DangChoTraLoi(gocGoi, k);
+  const soTruoc = soMoCua(gocGoi, k);
   const cau = 'gia hạn được, khoá còn trống tới tối';
   const a = tin(k.kho, ['XONG', id, cau], { gocGoi });
-  so('(a) G XONG yêu cầu kiểu cũ', `thoát 0, stdout chứa ${id} và P1`, `${a.ma} ${a.out.trim()} ${a.err.trim()}`, a.ma === 0 && a.out.includes(id) && a.out.includes('P1'));
+  const kyA = `đã trả lời ${id} vào hộp của P1`;
+  so('(a) G XONG yêu cầu kiểu cũ', `thoát 0, stdout chứa «${kyA}»`, `${a.ma} ${a.out.trim()} ${a.err.trim()}`, a.ma === 0 && a.out.includes(kyA));
   const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
   const ky = { ket_qua: 'da-tra-loi', boi: 'giam-sat', ly_do: cau };
   so('(b) hộp người hỏi', JSON.stringify(ky), JSON.stringify(boLuc(tl)), tl != null && isDeepStrictEqual(boLuc(tl), ky));
@@ -461,8 +483,8 @@ export async function kiemXongCu(gocGoi) {
   await taoVong(k.dot, ioGia(Date.now()), () => Date.now())();
   const hong = fs.existsSync(path.join(k.dot, 'tra-loi', 'hong', `${id}.json`));
   so('(c) bộ phát lịch nhận trả lời', 'không vào hong/, tệp còn ở tra-loi/', `hong ${hong} · tra-loi ${fs.existsSync(traLoiCua(k, id))}`, !hong && fs.existsSync(traLoiCua(k, id)));
-  const soJ = JSON.parse(tin(k.kho, ['so', '--json'], { gocGoi }).out || '[]');
-  so('(d) sổ mở không còn vòng', `không có ${id}`, soJ.map((v) => v.ma).join(',') || '(rỗng)', !soJ.some((v) => v.ma === id));
+  const soSau = soMoCua(gocGoi, k);
+  so('(d) sổ mở không còn vòng', `trước: thoát 0, có ${id} · sau: thoát 0, không có ${id}`, `trước: ${soTruoc.ma}, ${soTruoc.ds.includes(id) ? 'có' : 'không có'} · sau: ${soSau.ma}, ${soSau.ds.includes(id) ? 'có' : 'không có'}`, soTruoc.ma === 0 && soTruoc.ds.includes(id) && soSau.ma === 0 && !soSau.ds.includes(id));
   const choSau = p1DangChoTraLoi(gocGoi, k);
   so('(e) hook chờ người của P1', 'trước: chờ trả lời · sau: thôi chờ', `trước: ${choTruoc ? 'chờ' : 'không chờ'} · sau: ${choSau ? 'chờ' : 'thôi chờ'}`, choTruoc && !choSau);
   const id2 = yeuCauCu(gocGoi, k);
@@ -485,6 +507,12 @@ test('GD-07-do ghi-tin-jsonl', async () => {
   assert.ok(loi.some((l) => l.startsWith('(b)')) && loi.some((l) => l.startsWith('(d)')), `đi đường cũ phải làm (b) và (d) đỏ, nhận: ${loi.join(' | ')}`);
 });
 
+test('GD-07-do sai-nguoi-hoi', async () => {
+  const goc = banSao('tin.mjs', 'vào hộp của ${muc.tu}', 'vào hộp của ${muc.den}');
+  const { loi } = await kiemXongCu(goc);
+  assert.ok(loi.some((l) => l.startsWith('(a)') && l.includes('vào hộp của G')), `nêu sai người hỏi phải làm (a) đỏ, nhận: ${loi.join(' | ')}`);
+});
+
 test('GD-07-do tu-duyet', async () => {
   const goc = banSao('tin.mjs', "co['ket-qua'] ?? 'da-tra-loi'", "co['ket-qua'] ?? 'duyet'");
   const { loi } = await kiemXongCu(goc);
@@ -500,14 +528,15 @@ export async function kiemTraCu(gocGoi) {
   };
   const k = khoDotThu(gocGoi);
   const id = yeuCauCu(gocGoi, k);
+  const soTruoc = soMoCua(gocGoi, k);
   const h0 = bamCayThu(k.dot);
   const thieu = tin(k.kho, ['TRẢ', id, 'việc của dãy khác'], { gocGoi });
   so('thiếu --chuyen', 'thoát 1 · «--chuyen» · băm bằng', `${thieu.ma} ${thieu.err.trim()} · băm ${bamCayThu(k.dot) === h0 ? 'bằng' : 'khác'}`, thieu.ma === 1 && thieu.err.includes('--chuyen') && bamCayThu(k.dot) === h0);
   const r = tin(k.kho, ['TRẢ', id, 'việc của dãy khác', '--chuyen', 'P2'], { gocGoi });
   const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
   so('TRẢ ghi tra-lai', 'thoát 0 · tra-lai · ly_do chứa câu và P2', `${r.ma} ${r.err.trim()} · ${tl?.ket_qua} · ${tl?.ly_do}`, r.ma === 0 && tl?.ket_qua === 'tra-lai' && tl.ly_do.includes('việc của dãy khác') && tl.ly_do.includes('P2'));
-  const soJ = JSON.parse(tin(k.kho, ['so', '--json'], { gocGoi }).out || '[]');
-  so('sổ mở không còn vòng', `không có ${id}`, soJ.map((v) => v.ma).join(',') || '(rỗng)', !soJ.some((v) => v.ma === id));
+  const soSau = soMoCua(gocGoi, k);
+  so('sổ mở không còn vòng', `trước: thoát 0, có ${id} · sau: thoát 0, không có ${id}`, `trước: ${soTruoc.ma}, ${soTruoc.ds.includes(id) ? 'có' : 'không có'} · sau: ${soSau.ma}, ${soSau.ds.includes(id) ? 'có' : 'không có'}`, soTruoc.ma === 0 && soTruoc.ds.includes(id) && soSau.ma === 0 && !soSau.ds.includes(id));
   return { loi, hang };
 }
 
@@ -605,19 +634,32 @@ export async function kiemLuatGd(gocGoi) {
   so('đúng 1 dòng bảng nói yêu cầu kiểu cũ đáp bằng tin XONG/tin TRẢ', '1', dongCu.length, dongCu.length === 1);
   // Cờ hạn mà dòng luật nêu → chạy với 1.5 trên kho thử, phải đúng câu của AC-5.
   const k = khoDotThu(gocGoi);
-  const coHan = [...new Set([...(dongHan[0] ?? '').matchAll(/--han(?:-xong)?\b/gu)].map((m) => m[0]))].sort();
+  // Lệnh mẫu của dòng hạn, chạy nguyên văn với <phút> = 1.5: GIAO từ worktree giám sát giao P2, HỎI từ P1 hỏi G.
+  const mauHan = [...(dongHan[0] ?? '').matchAll(/`(tin (?:GIAO|HỎI) [^`]+)`/gu)].map((m) => m[1]);
+  const coHan = [];
   const sai = [];
-  for (const c of coHan) {
-    const r = tin(k.kho, ['GIAO', 'P2', 'việc thử hạn của luật', c, '1.5'], { gocGoi });
+  for (const m of mauHan) {
+    const giao = m.startsWith('tin GIAO');
+    const argv = argvMau(m, { '<dãy hoặc G>': giao ? 'P2' : 'G', '<phút>': '1.5' });
+    const c = argv.find((x) => /^--han(-xong)?$/u.test(x));
+    coHan.push(c);
+    const r = tin(giao ? k.kho : k.w1, argv, { gocGoi });
     const ky = `tin: ${c} phải là số phút nguyên dương, nhận «1.5»`;
-    if (!(r.ma === 1 && r.err.trim() === ky)) sai.push(`${c}: ${r.ma} ${r.err.trim()}`);
+    if (!(r.ma === 1 && r.err.trim() === ky)) sai.push(`«${m}»: ${r.ma} ${r.err.trim()}`);
   }
-  so('lệnh hạn của dòng luật từ chối 1.5 đúng câu AC-5', '--han,--han-xong · đúng câu', `${coHan.join(',')} · ${sai.join(' | ') || 'đúng câu'}`, coHan.join(',') === '--han,--han-xong' && sai.length === 0);
+  so('lệnh hạn của dòng luật từ chối 1.5 đúng câu AC-5', '--han,--han-xong · đúng câu', `${[...new Set(coHan)].sort().join(',')} · ${sai.join(' | ') || 'đúng câu'}`, [...new Set(coHan)].sort().join(',') === '--han,--han-xong' && sai.length === 0);
   // Lệnh mẫu tin XONG của dòng yêu cầu kiểu cũ → chạy trên yêu cầu kiểu cũ thật, phải ghi tra-loi/<id>.json.
-  const id = yeuCauCu(gocGoi, k);
-  const mau = /`(tin XONG [^`]+)`/u.exec(dongCu[0] ?? '')?.[1] ?? '';
-  const r = mau ? tin(k.kho, argvMau(mau, { '<mã>': id }), { gocGoi }) : { ma: -1, err: 'không có lệnh mẫu' };
-  so('lệnh mẫu tin XONG của dòng luật ghi vào hộp người hỏi', `thoát 0 · tra-loi/${id}.json`, `«${mau}» · ${r.ma} ${r.err.trim()} · ${fs.existsSync(traLoiCua(k, id)) ? 'có tệp' : 'không tệp'}`, r.ma === 0 && fs.existsSync(traLoiCua(k, id)));
+  // Hai lệnh mẫu của dòng yêu cầu kiểu cũ, chạy nguyên văn trên hai yêu cầu kiểu cũ thật.
+  const chayMau = (re, kyKq) => {
+    const id = yeuCauCu(gocGoi, k);
+    const mau = re.exec(dongCu[0] ?? '')?.[1] ?? '';
+    const r = mau ? tin(k.kho, argvMau(mau, { '<mã>': id, '<ai>': 'P2' }), { gocGoi }) : { ma: -1, err: 'không có lệnh mẫu' };
+    const tl = fs.existsSync(traLoiCua(k, id)) ? docJ(traLoiCua(k, id)) : null;
+    return { ok: r.ma === 0 && tl?.ket_qua === kyKq, chu: `«${mau}» · ${r.ma} ${r.err.trim()} · ${tl ? tl.ket_qua : 'không tệp'}` };
+  };
+  const x = chayMau(/`(tin XONG [^`]+)`/u, 'da-tra-loi');
+  const t = chayMau(/`(tin TRẢ [^`]+)`/u, 'tra-lai');
+  so('lệnh mẫu tin XONG và tin TRẢ của dòng luật ghi vào hộp người hỏi', 'XONG thoát 0 · da-tra-loi | TRẢ thoát 0 · tra-lai', `${x.chu} | ${t.chu}`, x.ok && t.ok);
   return { loi, hang };
 }
 
@@ -626,6 +668,18 @@ test('GD-10 luat-noi-dung-hanh-vi', async () => {
   inMaTran('GD-10', hang);
   assert.equal(hang.length, 4);
   assert.deepEqual(loi, []);
+});
+
+test('GD-10-do tra-thieu-chuyen', async () => {
+  const goc = banSao('mau/LUAT.md', '`tin TRẢ <mã> "<câu vì sao trả>" --chuyen <ai>`', '`tin TRẢ <mã> "<câu vì sao trả>"`');
+  const { loi } = await kiemLuatGd(goc);
+  assert.ok(loi.some((l) => l.startsWith('lệnh mẫu tin XONG và tin TRẢ') && l.includes('--chuyen')), `lệnh mẫu TRẢ thiếu --chuyen phải làm hàng lệnh mẫu đỏ, nhận: ${loi.join(' | ')}`);
+});
+
+test('GD-10-do han-mau-hong', async () => {
+  const goc = banSao('mau/LUAT.md', '"<một câu ý định>" --han-xong <phút>`', '"<một câu ý định>" --han-xong=<phút>`');
+  const { loi } = await kiemLuatGd(goc);
+  assert.ok(loi.some((l) => l.startsWith('lệnh hạn của dòng luật')), `lệnh mẫu hạn hỏng phải làm hàng lệnh hạn đỏ, nhận: ${loi.join(' | ')}`);
 });
 
 test('GD-10-do luat-lech', async () => {

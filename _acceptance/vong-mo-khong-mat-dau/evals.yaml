@@ -36,9 +36,12 @@ evals:
     paths: [dieu-phoi/scripts/tin-kenh.mjs, dieu-phoi/scripts/hook-tin.mjs, dieu-phoi/scripts/tin-noi-chua.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
       exit 0; "ok" cho "GD-02 chan-mot-lan-qua-dong-bo": 2 hàng in ra. Lần Stop một (trong khe đồng bộ) → hook trả quyết
-      định chặn; lần Stop hai (sau khi canh thoát, lời giao vẫn chưa nhận) → hook cho qua (không có quyết định chặn). Lần Stop
+      định chặn; lần Stop hai (sau khi canh thoát, lời giao vẫn chưa nhận) → hook cho qua (không có quyết định chặn), thoát 0,
+      stdout rỗng, VÀ sổ ghi ket_luot_chua_nhan === true (đối chứng dương: hook nuốt mọi lỗi và luôn thoát 0, nên «cho qua»
+      chỉ tin được khi kèm dấu nó ghi ở nhánh cho qua). Lần Stop
       một chứng ba mốc như GD-01 (bắt đầu đọc < ghi dấu chặn < trả về).
-      "ok" cho "GD-02-do dong-bo-ghi-de": bản tiêm cho đồng bộ ghi lại bản đọc từ trước khi chờ mạng (bỏ bước đọc lại,
+      "ok" cho "GD-02-do hook-sap": bản tiêm cho hook ném ở nhánh cho qua →
+      hàm đo nêu "lần Stop hai" kết bằng "ket_luot_chua_nhan false". "ok" cho "GD-02-do dong-bo-ghi-de": bản tiêm cho đồng bộ ghi lại bản đọc từ trước khi chờ mạng (bỏ bước đọc lại,
       kiểm bước tiêm áp) → hàm đo nêu "lần Stop hai" với thực tế là chặn.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -97,13 +100,14 @@ evals:
     paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/tin-noi-chua.mjs, dieu-phoi/scripts/hook-cho-nguoi.mjs, dieu-phoi/scripts/hinh-dang.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
       exit 0; "ok" cho "GD-07 xong-yeu-cau-cu": yêu cầu P1-<n> sinh bằng `dieu-phoi.mjs yeu-cau` thật từ worktree P1. 6 hàng
-      in ra: (a) `tin XONG P1-<n> "<câu>"` từ worktree G thoát 0, stdout chứa "P1-<n>" và "P1"; (b) tra-loi/P1-<n>.json
+      in ra: (a) `tin XONG P1-<n> "<câu>"` từ worktree G thoát 0, stdout chứa đúng "đã trả lời P1-<n> vào hộp của P1"; (b) tra-loi/P1-<n>.json
       deepStrictEqual {ket_qua:"da-tra-loi", boi:"giam-sat", ly_do:<câu>} (bỏ khoá luc); (c) một nhịp `dieu-phoi.mjs chay`
-      thật → tra-loi/hong/ không có P1-<n>.json và tệp còn ở tra-loi/; (d) `tin so --json` không có mã P1-<n>; (e) hook
+      thật → tra-loi/hong/ không có P1-<n>.json và tệp còn ở tra-loi/; (d) `tin so --json` thoát 0 và CÓ P1-<n> trước khi XONG (đối chứng dương), thoát 0 và không còn P1-<n> sau; (e) hook
       chờ người của P1 (lệnh rút từ hooks.json) không trả «cho-tra-loi» cho yêu cầu ấy — đối chứng trước khi XONG cùng
       hook trả «cho-tra-loi»; (f) yêu cầu thứ hai với `--ket-qua duyet` → ket_qua === "duyet"; không cờ → ket_qua !==
       "duyet" (đã ở (b)). "ok" cho "GD-07-do ghi-tin-jsonl": bản tiêm cho XONG yêu cầu kiểu cũ ghi một dòng tin.jsonl như
-      trước GT2 → hàm đo nêu "(b)" và "(d)". "ok" cho "GD-07-do tu-duyet": bản tiêm đặt mặc định ket_qua "duyet" → hàm đo
+      trước GT2 → hàm đo nêu "(b)" và "(d)". "ok" cho "GD-07-do sai-nguoi-hoi": bản tiêm nêu người nhận (G) thay người hỏi → hàm đo nêu "(a)" kèm
+      "vào hộp của G". "ok" cho "GD-07-do tu-duyet": bản tiêm đặt mặc định ket_qua "duyet" → hàm đo
       nêu "(b)".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
@@ -113,7 +117,8 @@ evals:
     paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/ghi.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
       exit 0; "ok" cho "GD-08 tra-yeu-cau-cu": 3 hàng in ra: `tin TRẢ P1-<n> "<lý do>" --chuyen P2` thoát 0 và
-      tra-loi/P1-<n>.json có ket_qua === "tra-lai", ly_do chứa lý do và "P2" · `tin so --json` không có mã · thiếu
+      tra-loi/P1-<n>.json có ket_qua === "tra-lai", ly_do chứa câu ấy và "P2" · `tin so --json` thoát 0, có mã trước TRẢ và
+      không còn mã sau · thiếu
       --chuyen → thoát 1, stderr chứa "--chuyen", băm thư mục đợt trước === sau. "ok" cho "GD-08-do tra-lai-duyet": bản tiêm
       ghi ket_qua "duyet" cho TRẢ → hàm đo nêu "tra-lai".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -149,8 +154,11 @@ evals:
     paths: [dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/scripts/tin.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs]
     expected: >
       exit 0; "ok" cho "GD-10 luat-noi-dung-hanh-vi": rút khối LUAT-TIN từ LUAT.md của gói; 4 hàng in ra: đúng 1 dòng bảng
-      nói «số phút nguyên dương» · đúng 1 dòng bảng nói yêu cầu kiểu cũ đáp bằng `tin XONG`/`tin TRẢ` · lệnh mẫu trong dòng
-      hạn, chạy với giá trị 1.5 trên kho thử, thoát 1 với đúng câu của AC-5 · lệnh mẫu `tin XONG` trong dòng yêu cầu kiểu
-      cũ, chạy trên kho thử có yêu cầu kiểu cũ, ghi tra-loi/<id>.json. "ok" cho "GD-10-do luat-lech": bản sao LUAT.md bỏ
+      nói «số phút nguyên dương» · đúng 1 dòng bảng nói yêu cầu kiểu cũ đáp bằng `tin XONG`/`tin TRẢ` · MỌI lệnh mẫu
+      `tin GIAO|HỎI …` trong dòng hạn, chạy nguyên văn với <phút> = 1.5 trên kho thử, thoát 1 với đúng câu của AC-5, và hai
+      lệnh mẫu phủ cả --han lẫn --han-xong · lệnh mẫu `tin XONG` và `tin TRẢ` trong dòng yêu cầu kiểu cũ, chạy nguyên văn
+      trên hai yêu cầu kiểu cũ thật, ghi tra-loi/<id>.json với ket_qua "da-tra-loi" và "tra-lai". "ok" cho "GD-10-do
+      tra-thieu-chuyen": bản sao LUAT.md bỏ --chuyen khỏi lệnh mẫu TRẢ → hàm đo nêu hàng lệnh mẫu kèm "--chuyen". "ok" cho
+      "GD-10-do han-mau-hong": bản sao LUAT.md viết "--han-xong=<phút>" → hàm đo nêu hàng lệnh hạn. "ok" cho "GD-10-do luat-lech": bản sao LUAT.md bỏ
       dòng yêu cầu kiểu cũ → hàm đo nêu "kiểu cũ".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

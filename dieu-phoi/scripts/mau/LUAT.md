@@ -62,7 +62,7 @@ Khẩu lệnh: `GIAO` · `HỎI` · `BÁO` · `NHẬN` · `XONG` · `KẸT` · `
 |---|---|---|
 | giao việc | `tin GIAO <dãy hoặc G> "<một câu ý định>"` | điền Kết quả, Ranh giới, Quyền, Điểm phải hỏi, Báo về, Hạn xong |
 | hỏi | `tin HỎI <dãy hoặc G> "<câu hỏi>" --chan` (bỏ `--chan` khi không chặn) | sinh mã, đánh dấu chặn |
-| đặt hạn riêng | thêm `--han <phút>` (hạn nhận) hay `--han-xong <phút>` (hạn xong, chỉ khi giao) — số phút nguyên dương | từ chối giá trị khác kèm câu báo, không ghi gì |
+| đặt hạn riêng | `tin GIAO <dãy hoặc G> "<một câu ý định>" --han-xong <phút>` · `tin HỎI <dãy hoặc G> "<câu hỏi>" --han <phút>` (lời giao cũng nhận `--han`) — số phút nguyên dương | từ chối giá trị khác kèm câu báo, không ghi gì |
 | nhận việc | `tin NHẬN <mã> "sẽ giao <một câu bằng lời của mình>"` | đưa câu ấy về người giao, chép hạn xong |
 | xong việc | `tin XONG <mã>` (câu hỏi thì kèm câu trả lời) | đính sha, nhánh, PR; không chắc thì đòi `--vat` |
 | vướng | `tin KẸT <mã> "<cần gì, từ ai>"` | giữ vòng mở, báo người giao |
