@@ -5,10 +5,12 @@ slug: moi-cong-khong-qua-nut
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: draft
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-19-moi-cong-khong-qua-nut-design.md
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-19T15:33:19Z
 ---
 
 ## Context
