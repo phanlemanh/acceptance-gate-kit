@@ -3,10 +3,10 @@ schema_version: 1
 slug: vong-mo-khong-mat-dau
 feature: Dấu «đã đến», «chấp nhận», «kết lượt» không mất khi bộ canh nền đồng bộ kênh cùng lúc; hạn gõ sai bị từ chối kèm câu báo; đáp một yêu cầu cũ bằng lệnh mới tới đúng người hỏi và đóng vòng
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-19T13:19:24Z   # chủ kho gõ «đáng: build · ngưỡng: nhận» ở Cổng Đáng 19/10
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -28,7 +28,7 @@ chọn «mở hợp đồng mới»; ba hạt giống ghi ngày 19/10 trích l�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi» chưa?
-- Kết quả nào là SỐNG: [đề xuất] 14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi» khi hết timebox
-- Timebox: [đề xuất] 2026-10-22 (mốc Phát hành kế sau 2.33.0 (số đặt lúc cắt) — giao tiếp giữa các phiên (GT1 đã gộp #387, GT2 vòng mở không mất dấu) và nháy đơn trong config (R3, đã gộp #384))
+- Câu hỏi phép đo trả lời: đã đạt «14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi» chưa?
+- Kết quả nào là SỐNG: 14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi
+- Kết quả nào là CHẾT: chưa đạt «14 ngày sau khi crm nhận mốc có GT2: không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà không tới người hỏi» khi hết timebox
+- Timebox: 2026-10-22 (mốc Phát hành kế sau 2.33.0 (số đặt lúc cắt) — giao tiếp giữa các phiên (GT1 đã gộp #387, GT2 vòng mở không mất dấu) và nháy đơn trong config (R3, đã gộp #384))
