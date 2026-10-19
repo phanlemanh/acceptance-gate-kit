@@ -57,7 +57,7 @@ Thuật ngữ (cùng nghĩa với hợp đồng GT1, dùng chung bộ dựng `te
   các trường hook đã ghi giữa chừng (dấu chặn, mốc lỗi kênh) còn nguyên.
 - AC-5: Given kho thử có đợt và máy kênh, When gõ hạn sai, Then lệnh thoát 1, stderr nêu đúng cờ và nguyên văn giá trị đã
   gõ («--han phải là số phút nguyên dương, nhận «1.5»»), 0 byte ghi — trên kênh không đăng bình luận nào. Ma trận viết
-  sẵn, số hàng in ra: giá trị `1.5` · `abc` · `-5` · `0` · `` (rỗng) · `1e3` × cờ `GIAO --han` · `GIAO --han-xong` ·
+  sẵn, số hàng in ra: giá trị `1.5` · `abc` · `-5` · `0` · `` (rỗng) · `1e3` · `" 30"` × cờ `GIAO --han` · `GIAO --han-xong` ·
   `HỎI --han` × nơi chứa đợt · kênh.
 - AC-6: Given cùng hai nơi chứa, When gõ hạn đúng `1` · `45` · `100000` cho ba cờ trên, Then thoát 0 và giá trị sổ đọc lại
   (`han_nhan_phut`, `han_xong_khoang`) bằng đúng số đã gõ — bên viết và bên đọc cùng một miền.
@@ -69,8 +69,8 @@ Thuật ngữ (cùng nghĩa với hợp đồng GT1, dùng chung bộ dựng `te
   - `tin so` không còn vòng `P1-<n>`;
   - người hỏi thôi bị coi là đang chờ: hook chờ người của P1 không còn trả «chờ trả lời» cho yêu cầu ấy;
   - với `--ket-qua duyet` thì `ket_qua` bằng `duyet`, không có cờ thì không bao giờ là `duyet`.
-- AC-8: Given như AC-7, When `G` chạy `tin TRẢ P1-<n> "<lý do>" --chuyen P2`, Then `tra-loi/P1-<n>.json` có
-  `ket_qua: "tra-lai"`, `ly_do` chứa lý do và «P2», vòng vắng khỏi sổ mở; thiếu `--chuyen` → thoát 1, 0 byte ghi.
+- AC-8: Given như AC-7, When `G` chạy `tin TRẢ P1-<n> "<câu vì sao trả>" --chuyen P2`, Then `tra-loi/P1-<n>.json` có
+  `ket_qua: "tra-lai"`, `ly_do` chứa câu ấy và «P2», vòng vắng khỏi sổ mở; thiếu `--chuyen` → thoát 1, 0 byte ghi.
 - AC-9: Given như AC-7, When chạy một lệnh đáp không chuyển được, Then thoát 1, stderr nêu `P1-<n>` là yêu cầu kiểu cũ và
   chỉ đúng hai lệnh đáp được (`tin XONG`, `tin TRẢ`), 0 byte ghi (thư mục đợt, `tin.jsonl`, `tra-loi/`). Ma trận:
   `NHẬN` · `KẸT` · `HUỶ` (P1 gõ) · `MỞ LẠI` (G gõ) · `XONG` do P2 gõ (không phải người nhận) · `TRẢ` do P2 gõ · `XONG`

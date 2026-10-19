@@ -71,7 +71,7 @@ evals:
     cmd: config:executors.test.dieu_phoi_tin_gd
     paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-kenh.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
     expected: >
-      exit 0; "ok" cho "GD-05 han-sai-bi-tu-choi": ma trận 6 giá trị × 3 cờ × 2 nơi chứa = 36 hàng in ra. Mỗi hàng: thoát
+      exit 0; "ok" cho "GD-05 han-sai-bi-tu-choi": ma trận 7 giá trị (1.5, abc, -5, 0, rỗng, 1e3, " 30") × 3 cờ × 2 nơi chứa = 42 hàng in ra. Mỗi hàng: thoát
       1; stderr === "tin: --<cờ> phải là số phút nguyên dương, nhận «<giá trị>»" (so bằng nhau, cờ là han hoặc han-xong);
       băm nơi chứa trước === sau; trên kênh, nhật ký gh giả có 0 lời gọi ghi. "ok" cho "GD-05-do bo-kiem-han": bản tiêm bỏ
       kiểm --han (kiểm bước tiêm áp) → hàm đo nêu hàng "--han" mà không nêu hàng "--han-xong". "ok" cho "GD-05-do
