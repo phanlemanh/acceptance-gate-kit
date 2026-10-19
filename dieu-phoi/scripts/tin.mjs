@@ -90,7 +90,16 @@ export function kiemSeGiao(cau) {
   return cauCon.length === 1 && CAU_SE_GIAO.test(cauCon[0]);
 }
 
-async function gui(kl, vi, co, ctx, nowMs) {
+// Hạn (phút) chỉ nhận số nguyên dương viết bằng chữ số — đúng miền bên đọc hiểu (`soPhut` của tin-doc.mjs); sai thì
+// từ chối trước mọi bước ghi hay gọi mạng (hồ sơ vong-mo-khong-mat-dau).
+export function phutNguyenDuong(co, khoa, macDinh) {
+  const v = co[khoa];
+  if (v == null) return macDinh;
+  if (!/^[1-9]\d*$/u.test(v)) loi(`--${khoa} phải là số phút nguyên dương, nhận «${v}»`);
+  return Number(v);
+}
+
+async function gui(kl, vi, co, ctx, nowMs, { hanNhan, hanXong }) {
   const [, dich, cau] = vi;
   if (!dich) loi(`thiếu đích — ${SU_DUNG[kl]}`);
   const { nc, minh, hangViec, thuMuc, loai } = ctx;
@@ -98,15 +107,14 @@ async function gui(kl, vi, co, ctx, nowMs) {
   let than;
   if (kl === 'GIAO') {
     if (!cau) loi(`thiếu ý định — ${SU_DUNG.GIAO}`);
-    const hanXong = co['han-xong'] != null ? Number(co['han-xong']) : null;
     let s;
     if (loai === 'dot') s = suyLoiGiaoDot(thuMuc, hangViec, dich, { yDinh: cau, hang: co.hang ?? null, ketQua: co['ket-qua'] ?? null, ranhGioi: co['ranh-gioi'] ?? null, hanXongPhut: hanXong, tronHang: Boolean(co.hang) });
     else s = await ctx.suyLoiGiao({ yDinh: cau, hang: co.hang ?? null, ketQua: co['ket-qua'] ?? null, ranhGioi: co['ranh-gioi'] ?? null, kho: co.kho ?? null, hanXongPhut: hanXong });
     if (s.loi) loi(s.loi);
-    than = `${loiGiaoViec(s.truong)}\nHạn nhận: ${Number(co.han ?? 30)} phút`;
+    than = `${loiGiaoViec(s.truong)}\nHạn nhận: ${hanNhan} phút`;
   } else if (kl === 'HỎI') {
     if (!cau) loi(`thiếu câu hỏi — ${SU_DUNG['HỎI']}`);
-    than = `Hỏi: ${cau}\nChặn: ${co.chan ? 'có' : 'không'}\nKhuyến nghị: ${co.khuyen ?? '(chưa kèm)'}\nHạn nhận: ${Number(co.han ?? 30)} phút`;
+    than = `Hỏi: ${cau}\nChặn: ${co.chan ? 'có' : 'không'}\nKhuyến nghị: ${co.khuyen ?? '(chưa kèm)'}\nHạn nhận: ${hanNhan} phút`;
   } else {
     than = cau ?? '';
   }
@@ -267,10 +275,13 @@ export async function chay(argv, { cwd = process.cwd(), nowMs = null } = {}) {
     return t.datTat(cwd, lenh === 'tat');
   }
   if (lenh !== 'so' && lenh !== 'nhac' && !KHAU_LENH.includes(lenh)) loi(`khẩu lệnh lạ «${lenh}» — hợp lệ: ${KHAU_LENH.join(', ')}`);
+  // Hạn kiểm trước khi mở nơi chứa: trên kênh, mở nơi chứa đã là một lời gọi mạng.
+  const hanNhan = phutNguyenDuong(co, 'han', 30);
+  const hanXong = phutNguyenDuong(co, 'han-xong', null);
   const ctx = await noiChuaCua(cwd, co);
   if (lenh === 'so') return so(co, ctx, now);
   if (lenh === 'nhac') return nhac(vi, co, ctx, now);
-  if (KHAU_LENH_MO.includes(lenh) || lenh === 'BÁO') return gui(lenh, vi, co, ctx, now);
+  if (KHAU_LENH_MO.includes(lenh) || lenh === 'BÁO') return gui(lenh, vi, co, ctx, now, { hanNhan, hanXong });
   return dap(lenh, vi, co, ctx, now, cwd);
 }
 
