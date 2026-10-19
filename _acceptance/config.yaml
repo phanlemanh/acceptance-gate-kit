@@ -151,6 +151,8 @@ executors:
     dieu_phoi_khung: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT|KH)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ vong-mo-co-chu-giu (GT1): ca GT-01…GT-10 của lệnh tin, gộp dòng «ok … GT-», «not ok», chẩn đoán và tổng kết TAP thành một dòng.
     dieu_phoi_tin: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/tin.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - GT-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ vong-mo-khong-mat-dau (GT2): ca GD-01…GD-10, cùng khuôn gộp một dòng như dieu_phoi_tin.
+    dieu_phoi_tin_gd: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/tin-khong-mat-dau.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - GD-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ kiem-ban-cai-sau-phat-hanh (KC1): trọn bộ ca KB-1…KB-9 (cài cách ly, cần CLI claude — đuôi .ca.mjs
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs

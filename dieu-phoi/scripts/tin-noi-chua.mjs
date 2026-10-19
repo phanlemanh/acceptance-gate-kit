@@ -9,6 +9,34 @@ import { docVai } from './vai.mjs';
 
 export const TEP_TIN = 'tin.jsonl';
 
+// Dấu máy của kênh liên máy (hồ sơ vong-mo-khong-mat-dau, GT2): «đã đến», «chấp nhận», «kết lượt khi chưa nhận» ghi
+// CHỈ-THÊM vào `<tệp kênh>.may.jsonl` cạnh tệp trạng thái — một lần appendFileSync một dòng, như hộp tin của đợt — nên lần
+// đồng bộ ghi lại tệp trạng thái không bao giờ chạm chúng. Đuôi `.jsonl` để bộ quét kênh (`kenh-*.json`) không nhận nhầm.
+// Đọc = dấu đời trước trong `may_su` của tệp trạng thái (đường đọc-cũ, không bắt chuyển) cộng các dòng của tệp chỉ-thêm.
+export const tepMayKenh = (pTrangThai) => pTrangThai.replace(/\.json$/u, '.may.jsonl');
+
+export function docMayKenh(pTrangThai) {
+  const cu = docJson(pTrangThai, null)?.may_su;
+  const ra = Array.isArray(cu) ? [...cu] : [];
+  const p = tepMayKenh(pTrangThai);
+  if (!fs.existsSync(p)) return ra;
+  for (const l of fs.readFileSync(p, 'utf8').split('\n')) {
+    if (!l.trim()) continue;
+    try {
+      const o = JSON.parse(l);
+      if (o && typeof o === 'object' && typeof o.may === 'string') ra.push(o);
+    } catch {
+      // Dòng ghi dở (máy tắt giữa chừng) — bỏ dòng ấy, giữ phần còn lại.
+    }
+  }
+  return ra;
+}
+
+export function themMayKenh(pTrangThai, o) {
+  fs.mkdirSync(path.dirname(pTrangThai), { recursive: true });
+  fs.appendFileSync(tepMayKenh(pTrangThai), `${JSON.stringify(o)}\n`);
+}
+
 export function noiChuaDot(thuMuc) {
   const p = path.join(thuMuc, TEP_TIN);
   return {

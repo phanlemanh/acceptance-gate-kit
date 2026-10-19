@@ -1,0 +1,3 @@
+{
+  "feature_plain": "Lệnh giao tiếp giữa các phiên thôi đánh mất dấu «đã đến», «chấp nhận», «kết lượt» khi kênh đang đồng bộ nền; hạn gõ sai bị từ chối ngay kèm câu báo; và đáp một yêu cầu kiểu cũ bằng lệnh mới thì câu trả lời tới đúng hộp người hỏi."
+}
