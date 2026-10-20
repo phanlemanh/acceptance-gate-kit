@@ -162,6 +162,58 @@ commands/acceptance-card.md 1
 feature-loop/skills/feature-loop/SKILL.md 2
 <!-- GATE-INVITE-SITES>>> -->
 
+## Kết lượt ở cổng — không qua nút
+
+Đề bài gốc: lượt Cổng Bằng chứng ở một kho tiêu thụ, 19/10 (hồ sơ
+`moi-cong-khong-qua-nut`). Phiên thợ kết lượt bằng hộp «bước kế» của app
+desktop và đặt dòng ký vào nút trả lời. App bỏ nút mở đầu «/» hay «!», nút
+chứa «@», cắt tin của nút ở 300 ký tự, và khi nút bị bỏ là nút khuyến nghị thì
+bỏ luôn câu hỏi — chủ kho không thấy lời mời. Nút còn mang «ký hay trả: ký»:
+máy viết sẵn chữ quyết. Điều khoản mời cổng ở trên nói NỘI DUNG lời mời; câu
+dưới đây — **điều khoản kết-lượt-cổng** — nói lời mời đi qua MẶT nào. Đây là
+bản gốc DUY NHẤT; mọi chỗ chép điều khoản mời cổng chép nó ngay sau, và bốn tệp
+lời dặn của gói điều phối chép nguyên văn:
+
+<!-- <<<GATE-END-TURN-CLAUSE -->
+Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
+<!-- GATE-END-TURN-CLAUSE>>> -->
+
+Vì sao không còn nút nào: nút mang dòng lệnh bị app bỏ; nút chữ thường muốn trả
+lời được cổng thì phải mang chữ quyết — máy viết sẵn chữ quyết (ADR 0002). «Chép
+đúng như thẻ in» giữ nguyên những ô thẻ đã điền khuyến nghị (Cổng Phạm vi điền
+sẵn «duyệt» khi không có dòng đỏ — ADR 0022).
+
+Bảng chỗ chép — `<đường dẫn> <số bản phải có>`; ca đo
+`tests/scripts/moi-cong-khong-qua-nut.test.mjs` đếm hai chiều như bảng của điều
+khoản mời cổng:
+
+<!-- <<<GATE-END-TURN-SITES -->
+skills/acceptance/SKILL.md 2
+commands/acceptance-card.md 1
+feature-loop/skills/feature-loop/SKILL.md 2
+dieu-phoi/scripts/mau/LUAT.md 1
+dieu-phoi/commands/mo-dot.md 1
+dieu-phoi/commands/dong-dot.md 1
+dieu-phoi/commands/tiep-tuc.md 1
+<!-- GATE-END-TURN-SITES>>> -->
+
+Khuôn kết lượt — dạng tin cuối lượt ở Cổng Bằng chứng, sau khi đã gửi trang thẻ
+và trang bằng chứng. Ca đo đọc khuôn này: dòng lệnh phải nằm trong khối `text`,
+mở đầu đúng tên lệnh ký thẻ in, mang đúng ô quyết thẻ in; dòng hộp là đầu vào
+của hộp «bước kế», chỉ có tóm tắt.
+
+<!-- <<<GATE-END-TURN-TEMPLATE -->
+Tin cuối lượt (chữ thường):
+
+<một câu hỏi đóng — ngả máy khuyên và vì sao>
+
+```text
+/acceptance-gate:signoff <slug> <các ô thẻ đã điền khuyến nghị>; ký hay trả: ___
+```
+
+Hộp «bước kế»: {"recap":"<điều nay đã đúng · chỗ đang đứng · điều chưa xong hay chưa kiểm>"}
+<!-- GATE-END-TURN-TEMPLATE>>> -->
+
 ## Câu gộp tại cổng — một-lượt-gõ cho lệnh cổng người
 
 Đề bài gốc: sổ vấp 2026-08-10 — thẻ dạy owner một câu «Trả lời mẫu», nhưng
