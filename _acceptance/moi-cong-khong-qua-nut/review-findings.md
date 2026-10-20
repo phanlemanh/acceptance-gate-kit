@@ -1,14 +1,14 @@
-# Review findings: moi-cong-khong-qua-nut (round 2)
+# Review findings: moi-cong-khong-qua-nut (round 3)
 
 ## Trong hợp đồng
 
-Không có finding nào map được vào tiêu chí của hợp đồng.
+(không có finding nào map được vào AC ở round này)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **E9b vẫn đỏ chập chờn vì một ca ngoài vòng (GT-07 tin-tu-den); khoá mới chỉ đổi cách in đầu ra, không gỡ nguyên nhân**
+- **E9b vẫn đỏ chập chờn vì một ca ngoài vòng (GT-07 tin-tu-den); khoá mới chỉ đổi cách in đầu ra, không gỡ nguyên nhân (r2 · tệp đã đổi)**
   Người dùng thấy gì: Bước kiểm điều phối có thể báo đỏ thất thường vì một ca không liên quan đến lời mời ở cổng, nên đôi khi lượt chấm bị từ chối dù phần việc của vòng này đã đúng. Người dùng chỉ cần chạy lại là qua, không mất dữ liệu và không ảnh hưởng gì đến lời mời cổng.
   Căn cứ: Hậu quả nhẹ: chỉ làm lượt chấm đôi khi đỏ giả, chạy lại là hết, không mất hay lộ dữ liệu; nguyên nhân nằm ở phần tin nhắn giữa các phiên mà vòng khác đang lo nên ghi là hạn chế đã biết là đủ.
   file: `_acceptance/config.yaml`
@@ -56,5 +56,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   file: `tests/scripts/moi-cong-khong-qua-nut.test.mjs`
   severity: low
   Đề xuất: wont-fix
+
+## Chưa adversarial-verify (refuter chết)
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
