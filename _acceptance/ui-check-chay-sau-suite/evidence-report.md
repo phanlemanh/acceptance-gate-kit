@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2b5146f2dbce1f7a42fff8165713aa4b8f0ea469
+verified_commit: 23ba868187e2090ffaa41dca81f4ca963b513873
 human_signoff: Phan Le Manh 2026-10-20
 ---
 
@@ -196,3 +196,7 @@ Round 1: E1–E8 đều đạt; không eval nào thất bại. Verdict PASS.
 ### Re-pin lần 1 — 2026-10-20, do hoá cũ do gộp origin/main (#390, b2c058d8) vào nhánh PR #389
 run_id: repin-20261020T002629Z-25217
 sha: 2b5146f2dbce1f7a42fff8165713aa4b8f0ea469 · suites: 11 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
+
+### Re-pin lần 2 — 2026-10-20, do hoá cũ do gộp origin/main (#391, b9090673) vào nhánh PR #389
+run_id: repin-20261020T025702Z-68455
+sha: 23ba868187e2090ffaa41dca81f4ca963b513873 · suites: 11 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
