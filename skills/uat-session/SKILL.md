@@ -117,15 +117,16 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
   > `executors.script` — rồi chạy executor đó trong CI.
 
   Có trong danh sách → chạy
-  `node ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
-  kit chạy `node scripts/product-map.mjs --root .`). Bản đồ vừa có một ô đổi
+  `product-map.mjs --root .` — bản chép của kho `scripts/product-map.mjs` khi có (repo tự host
+  kit cũng vậy), không thì `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs`. Bản đồ vừa có một ô đổi
   chủ; để nó lệch là để người sau đọc một bản đồ nói dối. Làm bằng ĐÚNG khối
   dưới — khối tự lấy gốc gói từ `${CLAUDE_PLUGIN_ROOT}` (kho tự host kit gán
-  `AG=.` trước): khối vẽ lại bản đồ, và trang lộ trình
+  `AG=.` trước), và bản chép của kho thắng bản gói vì CI của kho chạy `--check` bằng
+  bản chép: khối vẽ lại bản đồ, và trang lộ trình
   `LO-TRINH.html` khi kho khai `lo_trinh.tep`, rồi đưa cả hai vào commit chữ ký:
 <!-- <<<MAP-STAGE -->
 ```
-AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && PMAP=scripts/product-map.mjs && { [ -f "$PMAP" ] || PMAP="$AG/scripts/product-map.mjs"; } && node "$PMAP" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
 ```
 <!-- MAP-STAGE>>> -->
 - Bước kế theo verdict — mỗi lối có CHỦ, không lối nào bỏ lửng:
