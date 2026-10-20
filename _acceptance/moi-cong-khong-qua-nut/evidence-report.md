@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 090882fd28926f2fff075ab4e888e1c40bc1bc81
+verified_commit: f455bfe832aedf67b74b3e75d4c89a3c20408ef6
 human_signoff: Manh Phan 2026-10-20
 ---
 
@@ -199,3 +199,7 @@ Round 3: chủ kho chọn «lối 1» — thu AC-9 về P188 + DP1-07 + DP2-01; 
 ### Re-pin lần 1 — 2026-10-20, do gộp origin/main (#390 GT2) vào nhánh sau chữ ký
 run_id: repin-20261020T002011Z-38826
 sha: 090882fd28926f2fff075ab4e888e1c40bc1bc81 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-20, do gộp origin/main b2c058d8 vào nhánh sau ghim lần 1
+run_id: repin-20261020T010854Z-50324
+sha: f455bfe832aedf67b74b3e75d4c89a3c20408ef6 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
