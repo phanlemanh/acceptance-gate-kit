@@ -128,7 +128,7 @@ export function hoSo(worktree, slug, { status = null, viSao = `vì ${slug} đán
 // gh giả trong thư mục tạm: trả {lenh (đặt vào DIEU_PHOI_GH), dir, ca(), dat(sua), nhatKy()}.
 export function ghGia({ comments = [], pr = {}, nextId = 1000 } = {}) {
   const dir = tam('gt-gh-');
-  ghiJ(path.join(dir, 'ca.json'), { comments, pr, loi: false, treo: false, next_id: nextId });
+  ghiJ(path.join(dir, 'ca.json'), { comments, pr, loi: false, treo: false, tre: null, next_id: nextId });
   const lenh = path.join(dir, 'gh');
   fs.writeFileSync(lenh, `#!/bin/sh\nGH_GIA_DIR='${dir}' exec '${process.execPath}' '${path.join(DAY, 'gh-gia.mjs')}' "$@"\n`);
   fs.chmodSync(lenh, 0o755);

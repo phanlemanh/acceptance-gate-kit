@@ -65,10 +65,12 @@ Khẩu lệnh: `GIAO` · `HỎI` · `BÁO` · `NHẬN` · `XONG` · `KẸT` · `
 |---|---|---|
 | giao việc | `tin GIAO <dãy hoặc G> "<một câu ý định>"` | điền Kết quả, Ranh giới, Quyền, Điểm phải hỏi, Báo về, Hạn xong |
 | hỏi | `tin HỎI <dãy hoặc G> "<câu hỏi>" --chan` (bỏ `--chan` khi không chặn) | sinh mã, đánh dấu chặn |
+| đặt hạn riêng | `tin GIAO <dãy hoặc G> "<một câu ý định>" --han-xong <phút>` · `tin HỎI <dãy hoặc G> "<câu hỏi>" --han <phút>` (lời giao cũng nhận `--han`) — số phút nguyên dương | từ chối giá trị khác kèm câu báo, không ghi gì |
 | nhận việc | `tin NHẬN <mã> "sẽ giao <một câu bằng lời của mình>"` | đưa câu ấy về người giao, chép hạn xong |
 | xong việc | `tin XONG <mã>` (câu hỏi thì kèm câu trả lời) | đính sha, nhánh, PR; không chắc thì đòi `--vat` |
 | vướng | `tin KẸT <mã> "<cần gì, từ ai>"` | giữ vòng mở, báo người giao |
 | không phải việc mình | `tin TRẢ <mã> "<lý do>" --chuyen <ai>` | đóng vòng phía mình |
+| đáp yêu cầu kiểu cũ (mã `<dãy>-<số>`, giám sát) | `tin XONG <mã> "<câu trả lời>"` (duyệt thì thêm `--ket-qua duyet`) hay `tin TRẢ <mã> "<câu vì sao trả>" --chuyen <ai>` | ghi câu trả lời vào hộp người hỏi, đóng vòng; khẩu lệnh khác bị từ chối |
 | sản phẩm chưa đạt (người giao) | `tin MỞ LẠI <mã> "<vì sao>"` trong 24 giờ | kéo vòng về người nhận, hạn mới |
 | xem vòng đang mở | `tin so` | sổ theo tuổi, nấc, mức quá hạn |
 | cần im một lúc | `tin tat`, rồi `tin bat` | tắt tin tự đến và chặn kết lượt cho worktree này |

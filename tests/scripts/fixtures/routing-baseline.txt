@@ -206,3 +206,4 @@ ho-so-da-ky-giu-tuoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|N
 release-2-33-0	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 vong-mo-co-chu-giu	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|ký hay trả	bao=cắt/hoãn|Treo
 moi-cong-khong-qua-nut	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+vong-mo-khong-mat-dau	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
