@@ -126,7 +126,7 @@
       ]
     },
     {
-      "ten": "Phát hành 2.33.1 — bản vá: giao tiếp giữa các phiên có mã và hạn (GT1 #387), vòng mở không mất dấu (GT2 #390), nháy đơn trong config (R3 #384), lời mời cổng không qua nút (KY1 #391); chủ kho quyết 19/10 «GT2 xong sẽ cắt bản vá», 20/10 «ưu tiên KY1 để cắt» — cắt 20/10, không chờ 22/10",
+      "ten": "Phát hành 2.33.1 — ĐÃ PHÁT HÀNH 20/10, tag v2.33.1 = 279b1515 (PR #392): bản vá — giao tiếp giữa các phiên có mã và hạn (GT1), vòng mở không mất dấu (GT2), nháy đơn trong config (R3), lời mời cổng không qua nút (KY1); KC1 ĐẠT 8/8",
       "ngay": "2026-10-20",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",

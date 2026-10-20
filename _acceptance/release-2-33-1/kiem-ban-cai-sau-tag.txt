@@ -1,0 +1,12 @@
+# Kiểm bản cài SAU khi gắn thẻ (bước sau-tag của KC1, GUIDE §7.2) — chạy 20/10/2026 trên máy MacBook Pro, gốc kit tại
+# 279b1515 (thẻ v2.33.1): node scripts/kiem-ban-cai.mjs --ref v2.33.1
+[kiem-ban-cai] ref v2.33.1 = 279b1515 · nguồn: git archive · cấu hình cách ly <thư mục tạm>/cau-hinh · kho giả lập <thư mục tạm>/kho
+[kiem-ban-cai] ĐẠT so-phien-ban: acceptance-gate 2.33.1 · feature-loop 2.33.1 · diagram-design 2.7.1 · dieu-phoi 2.33.1 · road-map 2.33.1
+[kiem-ban-cai] ĐẠT khop-tag: 5 gói, 5032 tệp khớp
+[kiem-ban-cai] ĐẠT thu-muc-goi: đủ thư mục cấp một của mọi gói
+[kiem-ban-cai] ĐẠT tac-tu-cham: 3 loại tác tử có định nghĩa: cham-lenh, cham-ui, cham-doc
+[kiem-ban-cai] ĐẠT hook-goi: mọi tệp móc nối trỏ tới đều có
+[kiem-ban-cai] ĐẠT the-cong: thẻ Cổng Phạm vi của hồ sơ kho-thu dựng được
+[kiem-ban-cai] ĐẠT luoi-truoc-gop: kho lành thoát 0 · hồ sơ phạm luật bị chặn (VIOLATION)
+[kiem-ban-cai] ĐẠT dieu-phoi: chẩn đoán đợt chạy được từ bản cài
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.33.1 (279b1515) cài đúng tag
