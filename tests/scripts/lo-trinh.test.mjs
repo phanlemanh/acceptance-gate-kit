@@ -747,6 +747,50 @@ if (want('LT-16-ag')) {
     else bad('LT-16-ag', `lành ${lanh.x.status}, hỏng ${hong.x.status} «${hong.x.stderr.trim().slice(0, 140)}»`);
   } catch (e) { bad('LT-16-ag', loi(e)); }
 }
+// Kho đã chép bộ vẽ vào scripts/ (lớp chép CI) thì bộ vẽ của kho thắng bản gói: CI của kho chạy --check bằng
+// bản chép, nên vẽ lại bằng bản gói khác phiên bản là trang lệch (ca thật: crm-onehub 80464092f, khối dữ liệu
+// LO-TRINH.html thiếu «mốc hiện» khi gói cài 2.32.0 cũ hơn bản chép). Hai bộ vẽ giả ký tên vào PRODUCT-MAP.md,
+// nên phép đo đọc thẳng ai đã vẽ; gói giả đứng thay ${CLAUDE_PLUGIN_ROOT} như harness thay.
+const VE_GIA = ten => `import { writeFileSync } from 'node:fs';\nwriteFileSync('PRODUCT-MAP.md', 've-boi: ${ten}\\n');\n`;
+function lt16Ban(lenh, coBanKho) {
+  const r = kho({ hoSo: { p1: 'dang-dung' }, data: { schema: 1, hang: [H('1', { slug: 'p1' })] } });
+  const goi = path.join(TMP, `goi-gia-${++khoN}`); mkdirSync(path.join(goi, 'scripts'), { recursive: true });
+  writeFileSync(path.join(goi, 'scripts', 'product-map.mjs'), VE_GIA('ban-goi'));
+  if (coBanKho) { mkdirSync(path.join(r, 'scripts'), { recursive: true }); writeFileSync(path.join(r, 'scripts', 'product-map.mjs'), VE_GIA('ban-kho')); }
+  const env = { ...process.env }; delete env.AG; delete env.CLAUDE_PLUGIN_ROOT;
+  const x = spawnSync('bash', ['-c', lenh.split('${CLAUDE_PLUGIN_ROOT}').join(goi)], { cwd: r, encoding: 'utf8', env });
+  const ve = existsSync(path.join(r, 'PRODUCT-MAP.md')) ? readFileSync(path.join(r, 'PRODUCT-MAP.md'), 'utf8').trim() : '';
+  const staged = git(r, 'diff', '--cached', '--name-only').split('\n').includes('PRODUCT-MAP.md');
+  return { x, ve, staged };
+}
+const UU_TIEN_KHO = 'PMAP=scripts/product-map.mjs && { [ -f "$PMAP" ] || PMAP="$AG/scripts/product-map.mjs"; } && node "$PMAP"';
+if (want('LT-16-ban-kho')) {
+  try {
+    const that = khoiMap(readFileSync(path.join(KIT, THAN.signoff[0]), 'utf8'));
+    const lanh = lt16Ban(that, true);
+    if (!(lanh.x.status === 0 && lanh.ve === 've-boi: ban-kho' && lanh.staged)) bad('LT-16-ban-kho', `khối MAP-STAGE vẽ bằng bản của gói dù kho có scripts/product-map.mjs — exit ${lanh.x.status} «${lanh.ve}» staged ${lanh.staged} stderr «${lanh.x.stderr.trim().slice(0, 140)}»`);
+    else {
+      if (that.split(UU_TIEN_KHO).length !== 2) throw new Error(`khối không chứa đúng một «${UU_TIEN_KHO}» để tiêm`);
+      const hong = lt16Ban(that.replace(UU_TIEN_KHO, 'node "$AG/scripts/product-map.mjs"'), true);
+      if (hong.ve === 've-boi: ban-goi') ok('LT-16-ban-kho', 'kho có scripts/product-map.mjs khác gói → khối vẽ bằng bản kho; bản sao khối luôn gọi bản gói → vẽ bằng bản gói');
+      else bad('LT-16-ban-kho', `bản sao khối luôn gọi bản gói mà PRODUCT-MAP.md vẫn «${hong.ve}» — phép đo không phân biệt được hai bộ vẽ`);
+    }
+  } catch (e) { bad('LT-16-ban-kho', loi(e)); }
+}
+if (want('LT-16-ban-goi')) {
+  try {
+    const that = khoiMap(readFileSync(path.join(KIT, THAN.signoff[0]), 'utf8'));
+    const lanh = lt16Ban(that, false);
+    if (!(lanh.x.status === 0 && lanh.ve === 've-boi: ban-goi' && lanh.staged)) bad('LT-16-ban-goi', `khối MAP-STAGE không rơi về bộ vẽ của gói khi kho thiếu scripts/product-map.mjs — exit ${lanh.x.status} «${lanh.ve}» staged ${lanh.staged} stderr «${lanh.x.stderr.trim().slice(0, 140)}»`);
+    else {
+      if (that.split(UU_TIEN_KHO).length !== 2) throw new Error(`khối không chứa đúng một «${UU_TIEN_KHO}» để tiêm`);
+      const hong = lt16Ban(that.replace(UU_TIEN_KHO, 'node scripts/product-map.mjs'), false);
+      const ghim = /Cannot find module .*scripts\/product-map\.mjs/;
+      if (hong.x.status !== 0 && ghim.test(hong.x.stderr)) ok('LT-16-ban-goi', `kho không có bản chép → khối vẽ bằng bản gói; bản sao khối bỏ đường rơi về gói → đỏ «${(hong.x.stderr.match(ghim) || [''])[0].slice(0, 80)}»`);
+      else bad('LT-16-ban-goi', `bản sao khối bỏ đường rơi về gói mà không đỏ đúng lỗi thiếu bộ vẽ — exit ${hong.x.status} «${hong.x.stderr.trim().slice(0, 140)}»`);
+    }
+  } catch (e) { bad('LT-16-ban-goi', loi(e)); }
+}
 if (want('LT-16-khong-khai')) {
   try {
     const { x, staged, c } = lt16(khoiMap(readFileSync(path.join(KIT, THAN.approve[0]), 'utf8')), false);

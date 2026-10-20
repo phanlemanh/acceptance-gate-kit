@@ -209,8 +209,8 @@ Steps:
    > ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root . --check"` vào
    > `executors.script` — rồi chạy executor đó trong CI.
 
-   Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
-   after `human_signoff` is written; the map is machine-generated from records
+   Listed → redraw the map with `product-map.mjs --root .` (the repo's own
+   `scripts/product-map.mjs` when it has one, else the plugin's) after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below. The
    redraw runs in step **7c**, with the `MAP-STAGE` block, AFTER 7a has written
    the human fields — drawn any earlier it shows the record before this gate.
@@ -276,12 +276,14 @@ Steps:
    **7c — commit chữ ký cùng mọi file làn đòi**, MỘT lượt — không tách, không
    đòi người tự gõ git. Repo opted in (step 6) → FIRST run EXACTLY this block — it
    resolves `AG` to this plugin's root, `${CLAUDE_PLUGIN_ROOT}`, by itself (the
-   self-hosting kit sets `AG=.` first). It redraws the map from the fields 7a just
+   self-hosting kit sets `AG=.` first). The repo's own `scripts/product-map.mjs`
+   wins over the plugin's: CI runs `--check` with that copy, so a redraw by a
+   different version leaves the page drifted. It redraws the map from the fields 7a just
    wrote — and the roadmap page `LO-TRINH.html` when the repo declares
    `lo_trinh.tep` — and stages both:
 <!-- <<<MAP-STAGE -->
 ```
-AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && PMAP=scripts/product-map.mjs && { [ -f "$PMAP" ] || PMAP="$AG/scripts/product-map.mjs"; } && node "$PMAP" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
 ```
 <!-- MAP-STAGE>>> -->
 
