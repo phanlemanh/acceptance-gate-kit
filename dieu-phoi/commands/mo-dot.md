@@ -11,6 +11,7 @@ chẩn đoán lại. CLI: `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" <l
 Chữ quyết chỉ nhận từ người gõ: chữ duyệt thẻ khởi tạo, chữ `build` cho từng hàng chờ Cổng Đáng, và
 quyền tự merge. Máy CHÉP đúng chữ người đã gõ vào `decided_by` của ô và vào `--ly-do` của lệnh `pha`;
 máy không bao giờ tự sinh chữ ấy, không điền sẵn chữ quyết vào dòng mời.
+Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
 <!-- CHU-QUYET-CUA-NGUOI>>> -->
 
 Các bước, đúng thứ tự:

@@ -38,6 +38,9 @@ Lỡ gửi không `--chan` mà thật ra đang bị chặn → gửi lại cùng
 phụ, việc mới vẫn lên giám sát như cũ.
 <!-- LUAT-CHAN>>> -->
 
+## Mời người ở cuối lượt
+Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
+
 <!-- <<<LUAT-TIN -->
 ## Giao tiếp — khẩu lệnh và vòng mở
 
