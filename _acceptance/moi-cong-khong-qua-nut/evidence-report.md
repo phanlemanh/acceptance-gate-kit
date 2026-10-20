@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 30148c2dafd4fd736230ad41a625a7c3338f7412
+verified_commit: 090882fd28926f2fff075ab4e888e1c40bc1bc81
 human_signoff: Manh Phan 2026-10-20
 ---
 
@@ -195,3 +195,7 @@ none — every multi-run eval is uniform
 Round 1: AC-1..AC-8, AC-10 dựng thước; lượt chấm 1 trả REJECT — hồ sơ và sổ sửa ghi ở run-log round 1. Returned to implementation.
 Round 2: E9b đỏ chập chờn vì ca GT-07 ngoài vòng (khoá điều phối); dừng-vá, trình lối ra cho chủ kho. Returned to implementation.
 Round 3: chủ kho chọn «lối 1» — thu AC-9 về P188 + DP1-07 + DP2-01; E9a, E9b và toàn bộ lệnh suite xanh, E1–E8 và E10 mang từ round trước. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-20, do gộp origin/main (#390 GT2) vào nhánh sau chữ ký
+run_id: repin-20261020T002011Z-38826
+sha: 090882fd28926f2fff075ab4e888e1c40bc1bc81 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
