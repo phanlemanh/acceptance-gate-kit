@@ -126,14 +126,15 @@
       ]
     },
     {
-      "ten": "Phát hành kế sau 2.33.0 (số đặt lúc cắt) — giao tiếp giữa các phiên (GT1 đã gộp #387, GT2 vòng mở không mất dấu) và nháy đơn trong config (R3, đã gộp #384)",
-      "ngay": "2026-10-22",
+      "ten": "Phát hành 2.33.1 — bản vá: giao tiếp giữa các phiên có mã và hạn (GT1 #387), vòng mở không mất dấu (GT2 #390), nháy đơn trong config (R3 #384), lời mời cổng không qua nút (KY1 #391); chủ kho quyết 19/10 «GT2 xong sẽ cắt bản vá», 20/10 «ưu tiên KY1 để cắt» — cắt 20/10, không chờ 22/10",
+      "ngay": "2026-10-20",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
         "GT1",
         "GT2",
-        "R3"
+        "R3",
+        "KY1"
       ]
     },
     {
@@ -813,6 +814,20 @@
         7
       ],
       "ghi_chu": "Chủ kho duyệt khung ba làn 19/10 (phiên Mac Studio): Nhóm 3 · MacBook Pro. Chạm dieu-phoi/ — báo M5 trên #308 trước khi mở. Máy nào đã «tin vai» trên kênh có gạch nối bằng bản trước GT1 phải «tin vai» lại một lần."
+    },
+    {
+      "ma": "KY1",
+      "nhom": "cong-bang-chung",
+      "hang": "T2",
+      "slug": "moi-cong-khong-qua-nut",
+      "dung_tren": [],
+      "ten_ngan": "Lời mời cổng không qua nút",
+      "cau_giao": "Lời mời ở cổng chờ người kết lượt bằng chữ thường — dòng lệnh trong khối chữ, trang thẻ gửi bằng công cụ gửi tệp, không đặt dòng lệnh hay chữ quyết vào nút của hộp «bước kế»",
+      "vai": "Chủ kho",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ở lượt Cổng Bằng chứng của một kho tiêu thụ, phiên thợ đặt dòng ký vào nút của hộp «bước kế»; app bỏ nút mở đầu «/» hay «!», nút chứa «@», cắt tin của nút ở 300 ký tự, nên người không thấy lời mời. Chủ kho quyết 19/10 «Sửa kit: giao MacBook Pro làm ngay».",
+      "bat_khi": "14 ngày sau khi crm nhận bản vá, 0 lượt cổng hỏng (đếm bằng bộ kiểm kết lượt trên bản ghi phiên; mẫu số bằng 0 thì thước vô hiệu)",
+      "ghi_chu": "Ghi bù 20/10: vòng mở thẳng từ lời chủ kho, chưa từng là hàng trên lộ trình. Ký Cổng Bằng chứng 20/10 (thu AC-9, lối 1), gộp #391, vào bản vá 2.33.1."
     },
     {
       "ma": "RD2",
