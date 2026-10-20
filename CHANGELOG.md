@@ -32,7 +32,85 @@ ui-check thì vẫn luôn chạy song song với chuỗi suite, kể cả khi đ
 - **Giới hạn đã khai:** eval `test`/`script` chạy riêng vẫn có thể chồng lên một ui-check KHÔNG khai, như 2.28–2.33.
   Gặp ca đó thì khai ui-check ấy vào `model_evals`. Kit chọn không đổi mặc định cho mọi kho chỉ vì sự cố của một kho.
 
-### Lệnh đóng cổng vẽ bản đồ bằng bản chép của kho
+## 2.33.1 — 20/10/2026
+
+Bản vá của 2.33.0. Chủ kho quyết 19/10 «GT2 xong sẽ cắt bản vá», rồi 20/10 «ưu tiên KY1 để cắt» — không chờ mốc
+22/10 của lộ trình kit. Có **bốn hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc):
+`vong-mo-co-chu-giu` (GT1, #387), `vong-mo-khong-mat-dau` (GT2, #390), `nhay-don-nhan-doi` (R3, #384),
+`moi-cong-khong-qua-nut` (KY1, #391); thêm một sửa đẩy thẳng lên nhánh chính (`b2c058d8`, 20/10). Kho chờ nhận: `crm`.
+Mốc đi **làn V**, không dựng răng mới. Bốn gói `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map` cùng lên
+`2.33.1` (`acceptance-gate`, `feature-loop`, `dieu-phoi` đổi vật; `road-map` chỉ đổi số); `diagram-design` giữ `2.7.1`.
+Tag `v2.33.1` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.33.1** (patch): số do chủ kho đặt («cắt bản vá»). Khai thẳng: GT1 thêm lệnh `tin` và một khối hook `Stop`
+mới trong gói `dieu-phoi` — theo nếp «minor cho bề mặt mới» thì lẽ ra là 2.34.0. Không gãy đường đọc-cũ: kho không đợt,
+không kênh thì cả ba khối hook tin im (AC-8 (j) của GT1); yêu cầu cũ `yeu-cau/` giữ nguyên khuôn.
+
+### Vòng mở có chủ giữ (hồ sơ `vong-mo-co-chu-giu`, hàng GT1, T2)
+
+Gốc: `crm-onehub/_acceptance/dieu-phoi-hai-tang/`. Mỗi yêu cầu giữa các phiên — giám sát và thợ, máy và máy — có mã và
+hạn biên nhận, chỉ đóng khi có XONG kèm vật, TRẢ hay HUỶ; phiên không kết lượt khi còn tin gửi mình chưa nhận; lời giao
+việc thiếu kết quả hay ranh giới thì không mở chip. Lý do làm: hôm nay chỉ cạnh thợ → giám sát trong đợt có máy giữ vòng.
+Cạnh giám sát → thợ và cạnh máy ↔ máy đóng vòng bằng trí nhớ. Đo 17/10: 0/44 yêu cầu trên hai kênh liên máy có trả lời
+trỏ về được tin gốc.
+
+- **Thang chín nấc:** đã nói · đã tới · đã nghe · đã hiểu · đã đáp · đã hứa · đang làm · đã giao · người giao chấp nhận.
+  GIAO leo đủ chín nấc; HỎI tới nấc đáp rồi xong; BÁO dừng ở nấc đã nghe. Luật đầy đủ cho phiên thợ nằm ở khối
+  `LUAT-TIN` của `dieu-phoi/scripts/mau/LUAT.md`.
+- **Trong đợt:** `node <thư mục đợt>/loi/tin.mjs <KHẨU LỆNH> <đích hoặc mã> ["một câu"]`; nơi chứa là
+  `<thư mục đợt>/tin.jsonl`. Yêu cầu cũ `yeu-cau/` hiện trên sổ như câu hỏi có mã; tệp của nó không đổi.
+- **Trên kênh liên máy:** mỗi máy chạy một lần `node "$GOI/scripts/tin.mjs" vai --kenh <chủ>/<kho>#<số> --may <tên>` từ
+  worktree giữ kênh, rồi thêm `--kenh <chủ>/<kho>#<số>` vào mọi lệnh. Trạng thái nằm ở `.acceptance-runs/tin/` của kho
+  (tên máy không vào cấu hình commit). Bộ canh: `tin canh --kenh … [--cho]` — không bắt lại được tin cuối thì thoát 3.
+- **Hook:** phần đưa tin chạy bên trong `hook-nhip` và `hook-cho-nguoi` (không thêm mục hook); khối `Stop` gọi
+  `hook-tin.mjs`. Kho không đợt, không kênh thì cả ba im. `tin tat` / `tin bat` tắt hay bật cho một worktree.
+- **Giới hạn đã khai:** 8 mục nhãn trạng thái và 9 mục chọn ở Cổng Bằng chứng 19/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «Tin tới phiên đang ngủ chỉ đến ở lượt kế của phiên đó.» và Ngoài-8 «Sau khi hộp tin báo hỏng một lần ở một thư mục
+  làm việc, các lần hỏng sau ở đó không báo nữa — tin tự đến có thể ngừng mà người dùng không hay.»
+
+### Vòng mở không mất dấu (hồ sơ `vong-mo-khong-mat-dau`, hàng GT2, T2)
+
+Gốc: `acceptance-gate-kit/_acceptance/vong-mo-co-chu-giu/` — Ngoài-4, 5, 7, 9 của GT1. Dấu «đã đến», «chấp nhận», «kết
+lượt» không mất khi bộ canh nền đồng bộ kênh cùng lúc; hạn gõ sai bị từ chối kèm câu báo; đáp một yêu cầu cũ bằng lệnh
+mới tới đúng người hỏi và đóng vòng. Ba lỗi đều do lượt chấm 2 của GT1 tìm ra và cả ba làm sai đúng điều GT1 hứa — một
+vòng đã mở thì máy giữ nó tới khi đóng thật:
+
+1. bộ canh nền đồng bộ kênh ghi đè trọn tệp trạng thái bằng bản đọc từ trước khi chờ mạng, nên dấu máy hook ghi trong khe
+   ấy mất và vòng kẹt ở «chờ chấp nhận»;
+2. hạn gõ sai được báo thành công rồi bị bộ đọc lờ đi;
+3. đáp một yêu cầu kiểu cũ bằng `tin` được báo thành công mà câu trả lời không tới người hỏi.
+
+- **Giới hạn đã khai:** 2 mục nhãn trạng thái và 7 mục chọn ở Cổng Bằng chứng 20/10, ở Notes hợp đồng — đáng nhớ nhất:
+  Ngoài-5 «Máy tắt đúng lúc đang ghi một dấu máy thì dấu ghi ngay sau đó cũng mất và không có cảnh báo; vòng có thể kẹt ở
+  «chờ chấp nhận».» và Ngoài-4 «Gõ một hạn lớn phi thực tế (hàng trăm tỷ phút) vẫn được nhận; người nhận sau đó không
+  nhận được vòng, hoặc hạn bị đọc thành 30 phút mặc định.»
+
+### Nháy đơn trong config (hồ sơ `nhay-don-nhan-doi`, hàng R3, T3)
+
+Gốc: `crm-onehub/_acceptance/tac-nhan-va/`. Lệnh trong config viết bằng nháy đơn có dấu nháy nhân đôi (`''`) tới shell
+đúng như người viết — làn ghim lại và lượt chấm S4 chạy đúng `bash -c '…'` thay vì một lệnh bị xẻ. Nghiệm một chỗ:
+nhánh nháy đơn của `unquoteScalar` (cổng duy nhất mọi bộ đọc giá trị thi hành đi qua) gỡ `''`. Bán kính đo 18/10 trên
+16 kho: chỉ crm, đúng hai khoá `tnv_khu_hoi`, `tnv_man`, hôm nay đang chạy sai.
+
+- **Giới hạn đã khai:** 1 mục ở Notes hợp đồng — Ngoài-1 «một ô đột biến của bộ kiểm tra nháy (ô 10, chân BG10a) chỉ
+  có đối chứng dương khi chạy cùng chân liền kề; chạy tách riêng thì ô đó chưa tự chứng minh — người dùng không bị ảnh
+  hưởng.»
+
+### Lời mời cổng không qua nút (hồ sơ `moi-cong-khong-qua-nut`, hàng KY1, T2)
+
+Gốc: `crm-onehub/_acceptance/thanh-ben-khu-dung-chung/`; chủ kho quyết 19/10 «Sửa kit: giao MacBook Pro làm ngay». Lời
+mời ở cổng chờ người kết lượt bằng chữ thường — dòng lệnh trong khối chữ, trang thẻ gửi bằng công cụ gửi tệp, không đặt
+dòng lệnh hay chữ quyết vào nút của hộp «bước kế». Ở lượt Cổng Bằng chứng của một kho tiêu thụ, phiên thợ đặt dòng ký vào
+nút trả lời của hộp «bước kế» của app desktop. App bỏ nút mở đầu «/» hay «!», nút chứa «@», cắt tin của nút ở 300 ký tự,
+và bỏ nút khuyến nghị thì mất luôn câu hỏi — người không thấy lời mời. Nút còn điền sẵn «ký hay trả: ký».
+
+- **Điều khoản kết-lượt-cổng** (khối `GATE-END-TURN-CLAUSE` của `skills/acceptance/references/human-facing-language.md`)
+  chép nguyên văn ở ba tệp engine và bốn tệp lời dặn của gói `dieu-phoi`, theo bảng chỗ chép `GATE-END-TURN-SITES`.
+- **Giới hạn đã khai:** 5 mục nhãn trạng thái và 5 mục chọn ở Cổng Bằng chứng 20/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «**Lời, chưa có răng**: điều khoản dặn phiên, không chặn được một phiên lờ nó.» và Ngoài-1 «lượt chấm hay CI chạy trọn
+  bộ ca khung điều phối có thể đỏ giả vì ca tin GT-07 chập chờn ngoài vòng — chạy lại là qua.»
+
+### Lệnh đóng cổng vẽ bản đồ bằng bản chép của kho (commit `b2c058d8`, không qua vòng)
 
 Gốc: crm-onehub 20/10, nhánh `feat/ngan-ban-ghi-giu-danh-tinh` — commit chữ ký `80464092f` vẽ lại `LO-TRINH.html`
 bằng `product-map.mjs` của gói 2.32.0 đang cài, trong khi kho đã chép một bản mới hơn vào `scripts/`: khối dữ liệu
@@ -44,24 +122,60 @@ của kho khi tệp có, chỉ rơi về bản của gói khi kho không chép �
 **Ai bị ảnh hưởng:** kho đã chép bộ vẽ vào `scripts/` mà bản chép khác bản gói đang cài — nay commit đóng cổng khớp
 CI của kho. Kho không chép: như cũ. Không cần làm gì khi nhận.
 
-### Giữ bộ hồ sơ đã ký luôn tươi (hồ sơ `ho-so-da-ky-giu-tuoi` · hàng K-A)
+**Đường đọc-cũ:** trạng thái kênh ghi trước dòng sửa tên kênh của GT1 (chưa có tên kênh gốc) thì suy từ tên tệp như cũ;
+tệp trạng thái kênh ghi bằng bản trước GT2 được đọc cả dấu cũ lẫn dấu mới, không lệnh nào bắt chuyển tệp (AC-3 của GT2);
+yêu cầu cũ `yeu-cau/` không đổi khuôn. Khối dữ liệu trang giữ bản 2.
 
-Gốc: onehub 17/10 — tám hồ sơ đã ký hoá cũ sau hai lần gộp, cái đỏ lộ ra ở vòng kế tiếp tình cờ chạm vào chứ không tới
-PR đã gây ra, gần bốn giờ máy ghim lại. Nay:
+**Kho tiêu thụ làm gì khi nhận:**
 
-- **Lệnh giữ tươi** `feature-loop/scripts/giu-tuoi.mjs --root . --tu <sha đầu khoảng> [--write] [--json]`: chọn đúng
-  các hồ sơ cũ VÌ một khoảng gộp (chính lưới trước-merge chạy hai lần), ghim lại hồ sơ xanh trong một lượt, quy mỗi
-  hồ sơ đỏ về PR gây ra hoặc nói rõ vì sao không quy được (năm kết cục), in bảng tiếng người. Không commit, không đổi
-  nhánh; hồ sơ cũ từ trước khoảng chỉ được đếm.
-- **Dòng nền đỏ** (`kind: "nen-do"`) trong sổ chạy của hồ sơ đỏ — eval, ca, băm thông điệp lỗi, PR quy về.
-- **Nhãn «đỏ sẵn trên nền»**, kho tự bật bằng `feature_loop.do_san_tren_nen: true`: vòng khác gặp đúng cái đỏ đã ghi
-  trên nhánh chính thì vẫn ghim được; lưới in NOTE, thẻ và bản đồ hiện nhãn — không bao giờ là «ĐẠT». Chỉ cho eval,
-  suite chung đỏ vẫn chặn.
-- **Lượt ghim lại** thêm cờ `--tung-ho-so` (hồ sơ đỏ không kéo hồ sơ xanh đỏ theo) và ghi thông điệp lỗi băm được.
+- **Lớp chép CI:** chép lại từ thẻ `v2.33.1` một tệp: `lib/evidence-core.cjs` (R3 — nhánh nháy đơn gỡ `''`). Hai mươi
+  tám tệp còn lại giống từng byte `v2.33.0`.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.33.1` ở MỌI phạm vi** — kể cả `dieu-phoi` (lệnh `tin`, khối hook `Stop` mới) —
+  rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.33.1 --root <bản clone kit đã git
+  fetch --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+- **Kênh liên máy:** mỗi máy chạy `tin vai` một lần (lệnh ở mục GT1 trên). Máy đã `vai` bằng bản cũ trên kênh có gạch
+  nối phải chạy `tin vai` lại một lần để trạng thái mang tên gốc (sổ GT1, dòng sửa S4-r1 — bản cũ là `tin` trước dòng
+  sửa ấy).
 
-**Ai bị ảnh hưởng:** không ai, cho tới khi kho tự chạy lệnh hay bật khoá — khoá vắng thì lưới, thẻ, bản đồ và lượt ghim
-lại cho đầu ra như trước (đo trên bộ hồ sơ thật của các kho có trên máy). Bộ máy cũ đọc hồ sơ có dòng nền đỏ không vỡ
-và chặn pin mang nhãn — hướng an toàn. Lớp CI chép thêm `lib/do-san-tren-nen.cjs` khi nhận mốc. Cách dùng: GUIDE §7.1.
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.33.1` (KC1) — dòng TỔNG KẾT ghi vào
+hồ sơ `release-2-33-1`.
+
+**crm, theo thứ tự:**
+
+1. **Cài theo thẻ `v2.33.1`** mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`) ở mọi
+   bản ghi; kiểm `kiem-ban-cai.mjs --may --ref v2.33.1`. Mở phiên MỚI.
+2. **Lớp chép CI từ thẻ** (`git archive v2.33.1`): chép lại `lib/evidence-core.cjs`.
+3. **Mỗi máy `tin vai`** trên kênh liên máy — lại một lần nếu đã `vai` bằng bản cũ trên kênh có gạch nối.
+4. **Kiểm ngoài của R3:** sau khi cài, ghim lại `tac-nhan-va`; E9 phải `exit 0`.
+5. **Đọc ngưỡng, 14 ngày sau khi nhận:** GT1 — không lần nào chủ kho phải hỏi «phiên hay máy kia đã nhận chưa», và mọi
+   yêu cầu trên kênh liên máy có trả lời trỏ về mã (`tin so --kenh … --tu <ngày nhận> --json` in thẳng phán quyết) ·
+   GT2 — không vòng nào kẹt ở «chờ chấp nhận» khi người giao đã chấp nhận, và không lời đáp nào bị báo thành công mà
+   không tới người hỏi · KY1 — 0 lượt cổng hỏng, đếm bằng `node tests/scripts/moi-cong-khong-qua-nut.test.mjs --dem
+   <tệp…>` trên bản ghi phiên; mẫu số bằng 0 thì thước VÔ HIỆU, không đọc thành «0 lỗi».
+
+**Năm dòng số của luật (c)** — bốn vòng có lượt chấm trong cửa sổ (giờ VN; cùng nguồn và cách tính của 2.32.1: dòng 1 từ
+commit «implemented» tới commit chữ ký Cổng Bằng chứng, dòng 4–5 từ bảng vai trò của `usage-report.md`):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `vong-mo-co-chu-giu` (GT1, T2) | 16 g 18 · 2 (lượt 1 REJECT: tên kênh có gạch nối bị tách sai, ca đỏ thiếu đối chứng dương, ca RT13 đỏ; lượt 2 PASS) | 3 / 1 (3) — ngoài: duyệt sửa lời AC-4/5/9 giữa S3; thêm 2 nếu đếm hai ràng buộc chủ kho đặt 18/10 giữa lúc trình Cổng Phạm vi | 0 | 97 451 · 33,2 / 25,0 / 41,9 | 52 · 48 = 100; ghim lại sau chữ ký 62 |
+| `vong-mo-khong-mat-dau` (GT2, T2) | 8 g 18 · 3 (lượt 1 REJECT: bốn lỗ thước trong hợp đồng; lượt 2 PASS còn 2 mục trong hợp đồng mức vừa, thước đổi theo lớp; lượt 3 PASS) | 2 / 1 (3) — ngoài: chọn «sửa thước theo lớp rồi chấm lượt 3» sau dừng-vá | 0 | 96 953 · 37,2 / 31,1 / 31,6 | 47 · 47 · 47 = 142 |
+| `nhay-don-nhan-doi` (R3, T3) | 2 g 25 · 1 (PASS) | 2 / 0 (4) — không có Cổng Đáng; Gate 1.5 không thấy dấu ký nào trong hồ sơ | 0 (ca biên: một lệnh đường nền quá trần 180 s, lượt vẫn PASS) | 24 807 · 59,4 / 12,2 / 28,4 | 45; ghim lại sau chữ ký 69 (đỏ) · 69 · 72 · 71 · 78 |
+| `moi-cong-khong-qua-nut` (KY1, T2) | 8 g 39 · 3 (lượt 1 REJECT: chỗ trỏ ở Cổng 1.5 cắt một cụm ca P85b ghim, bản đồ cũ; lượt 2 REJECT: ca GT-07 chập chờn ngoài vòng, dừng-vá; lượt 3 PASS sau khi thu AC-9) | 2 / 1 (3) — ngoài: chọn «lối 1» thu AC-9 sau dừng-vá | **1** (lượt 2, ca GT-07 ngoài vòng — hồ sơ tự xếp «cạnh gãy hạ tầng», dòng phán quyết ghi REJECT) | 79 861 · 49,7 / 12,7 / 37,7 | 47 · 48 · 47 = 143; ghim lại sau chữ ký 44 + 61 |
+
+Gộp bốn hồ sơ: 299 072 out-token, vật 41,1 / tìm-lỗi 22,6 / tổng hợp 36,3 %.
+
+**Đọc số:** cả bốn vòng ở trong trần lượt gọi người nếu không đếm hai ràng buộc của GT1; ba vòng có một lượt ngoài thiết
+kế, đều là chọn lối sau một lượt chấm hỏng (sửa lời AC, dừng-vá). Hạ tầng đốt một lượt của KY1 vì một ca của chính gói
+GT1 chập chờn — cạnh gãy giữa hai vòng chạy song song trên cùng gói. Ghim lại sau chữ ký tốn 44–78 phút mỗi lần, ngang
+một lượt chấm. **Điều kiện tin cậy:** (i) `git diff v2.33.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/`
+rỗng — đường verdict không đổi; (ii) lượt chấm sai do phép-đo-tự-dối giữa hai mốc: 0.
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 = · 2 ↓ ngoài thiết kế (chủ kho thôi hỏi «phiên hay máy kia đã nhận
+chưa» — GT1, GT2; lời mời cổng không mất trong nút — KY1) · 3 = · 4 = · 5 =.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (20/10).
+**N không tăng so với mốc 2.33.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.33.0 — 18/10/2026
 
