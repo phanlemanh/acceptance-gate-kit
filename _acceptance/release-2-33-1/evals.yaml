@@ -138,14 +138,14 @@ evals:
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-33-1/contract.md, _acceptance/vong-mo-co-chu-giu/contract.md, _acceptance/vong-mo-co-chu-giu/decisions.jsonl, _acceptance/vong-mo-khong-mat-dau/contract.md, _acceptance/nhay-don-nhan-doi/contract.md, _acceptance/moi-cong-khong-qua-nut/contract.md, _acceptance/release-2-33-1/nguon-b2c058d8.diff, dieu-phoi/README.md, commands/acceptance-init.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-33-1/contract.md, _acceptance/vong-mo-co-chu-giu/contract.md, _acceptance/vong-mo-co-chu-giu/decisions.jsonl, _acceptance/vong-mo-khong-mat-dau/contract.md, _acceptance/nhay-don-nhan-doi/contract.md, _acceptance/moi-cong-khong-qua-nut/contract.md, _acceptance/release-2-33-1/nguon-b2c058d8.md, dieu-phoi/README.md, commands/acceptance-init.md]
     question: >
       Đọc AC-9 của contract release-2-33-1 và mục «## 2.33.1» của CHANGELOG.md (chỉ mục đó), cạnh đúng nguồn nó chép.
       (0) Ở bốn mục con GT1, GT2, R3, KY1: mỗi câu mô tả vòng (câu giao, lý do làm, các lỗi được sửa, giới hạn trích trong
       ngoặc «») có phải chữ của hợp đồng hồ sơ ấy (dòng feature, Context, Notes) — không tóm tắt, không nói rộng hơn — và số
       giới hạn đã khai (nhãn trạng thái + chọn ở Cổng Bằng chứng) có khớp Notes không? (1) Mục con «Lệnh đóng cổng vẽ bản đồ…»
-      có đúng chữ của phần CHANGELOG mà commit b2c058d8 thêm (tệp nguon-b2c058d8.diff) không? (2) Lời dặn chạy `tin vai` lại
-      có khớp dòng sửa S4-r1 (d-20261018T154540Z-42) trong sổ GT1, và lệnh `tin vai` có khớp dieu-phoi/README.md không?
+      có đúng chữ của phần CHANGELOG mà commit b2c058d8 thêm (tệp nguon-b2c058d8.md) không? (2) Lời dặn mỗi máy `tin vai` lại
+      một lần có khớp dòng sửa S4-r1 (d-20261018T154540Z-42) trong sổ GT1, và lệnh `tin vai` có khớp dieu-phoi/README.md không?
       (3) Lời về lớp chép CI (một tệp lib/evidence-core.cjs) có khớp nhãn trong khối INIT-CI-COPY-LIST của
       commands/acceptance-init.md không? (4) Đoạn «Vì sao 2.33.1» có nói thẳng rằng GT1 thêm lệnh và khối hook mới (bề mặt
       mới) thay vì gọi bản này là chỉ sửa hành vi không? Trả PASS khi cả năm vế đúng; FAIL nêu đúng vế và câu sai.
