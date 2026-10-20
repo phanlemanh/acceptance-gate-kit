@@ -5,7 +5,7 @@ slug: moi-cong-khong-qua-nut
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-19-moi-cong-khong-qua-nut-design.md
 approved_by:
 approved_at:
@@ -127,3 +127,9 @@ Studio, gốc ở ô cơ hội].
     CI nhánh chính đỏ ở một ca điều phối mà vòng này chạm tệp của nó.
   - **Mặt không có hộp «bước kế»** (phiên CLI): điều khoản vẫn đúng — không có hộp thì không có nút; gửi tệp lùi về in
     đường dẫn trang.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-20:
+  - Ngoài-1: lượt chấm hay CI chạy trọn bộ ca khung điều phối có thể đỏ giả vì ca tin GT-07 chập chờn ngoài vòng — chạy lại là qua.
+  - Ngoài-2: lệnh đếm của Đường đo mở lượt mới ở mọi tin chèn giữa lượt, nên có thể đếm thiếu lượt cổng hỏng — số «0 hỏng» có thể thấp hơn thực tế.
+  - Ngoài-3: lệnh đếm coi mọi lệnh có nhắc tên tệp thẻ là một lượt trình thẻ, nên tổng lượt cổng bị thổi lên và vài lượt thường bị tính là hỏng.
+  - Ngoài-4: lệnh đếm chỉ nhận câu hỏi và nút dưới hai tên trường đã biết; một tên trường khác thì lượt hỏng được tính là sạch.
+  - Ngoài-5: lệnh đếm giả định cách app ghi hộp «bước kế»; giả định sai thì báo «0 hỏng» dù không đọc ra hộp nào — đối chiếu một bản ghi thật khi crm nhận bản vá.
