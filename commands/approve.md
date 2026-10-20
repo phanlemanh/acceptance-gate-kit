@@ -137,19 +137,20 @@ Steps:
      > `executors.script` — rồi chạy executor đó trong CI. Thiếu miễn trừ thì
      > chính commit chữ ký này làm bằng chứng stale và chặn merge (ADR 0007).
 
-     Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
-     AFTER the gate fields are written, and include `PRODUCT-MAP.md` in the
+     Listed → redraw the map with `product-map.mjs --root .` (the repo's own
+     `scripts/product-map.mjs` when it has one, else the plugin's) AFTER the gate fields are written, and include `PRODUCT-MAP.md` in the
      commit below. The map is a view over the workshop's records, and a human
      closing a gate is exactly when those records change; CI's `--check` turns
      any drift red. Do both with EXACTLY this block — it resolves `AG` to this
      plugin's root, `${CLAUDE_PLUGIN_ROOT}`, by itself (the self-hosting kit sets
-     `AG=.` first) — after the frontmatter edit above: it redraws the map
+     `AG=.` first), and the repo's own `scripts/product-map.mjs` wins over the
+     plugin's because CI runs `--check` with that copy — after the frontmatter edit above: it redraws the map
      — and the roadmap page `LO-TRINH.html` when the repo declares
      `lo_trinh.tep` — and stages both, so the gate commit never leaves the page
      behind for CI to find stale:
 <!-- <<<MAP-STAGE -->
 ```
-AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && PMAP=scripts/product-map.mjs && { [ -f "$PMAP" ] || PMAP="$AG/scripts/product-map.mjs"; } && node "$PMAP" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
 ```
 <!-- MAP-STAGE>>> -->
    - Offer ONE commit: contract + evals (+ design doc when present) — the
