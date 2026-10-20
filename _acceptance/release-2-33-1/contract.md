@@ -5,7 +5,7 @@ slug: release-2-33-1
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 4 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + hai hạt giống + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -75,3 +75,6 @@ Known limits của GT1, GT2, R3, KY1 · crm-onehub#375 · kit #308.
   (KY2) · `docs/plans/2026-10-20-hat-giong-the-pass-giau-muc-trong-hop-dong.md` (KY3).
 - Mục «Chưa phát hành» của CHANGELOG bỏ: phần sửa `MAP-STAGE` chuyển nguyên văn vào mục 2.33.1; phần K-A sót lại đã phát
   hành ở 2.33.0.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-20:
+  - Ngoài-1: Người cài gói điều phối ở bản 2.33.1 vẫn đọc dòng giới thiệu cũ, nói năm khối hook và không nhắc lệnh «tin» mới — gói chạy đúng, chỉ lời giới thiệu lúc cài nói thiếu.
+  - Ngoài-2: Kiểm tra danh sách hồ sơ được ký trong bản phát hành này đang so với một danh sách gõ tay, không đọc lại phần kể trong hợp đồng. Hôm nay hai danh sách khớp nhau; sau này ai sửa một bên mà quên bên kia thì kiểm tra vẫn báo xanh.
