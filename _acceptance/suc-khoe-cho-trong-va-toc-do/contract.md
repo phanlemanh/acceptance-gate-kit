@@ -5,7 +5,7 @@ slug: suc-khoe-cho-trong-va-toc-do
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-21-suc-khoe-cho-trong-va-toc-do-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-21
@@ -123,3 +123,16 @@ của chủ kho ở `opportunity.md`). Trục dưới tự liệt từ phạm vi
 
 - Hạt giống ngoài vòng: `docs/plans/2026-10-21-hat-giong-hai-khoa-s4.md`.
 - Chạm `dieu-phoi/` là vùng M5: đã báo M5 trên phanlemanh/acceptance-gate-kit#308 (20/10 23:53Z, tức 21/10 giờ Việt Nam) trước khi sửa.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-21:
+  - Ngoài-1: Hiếm khi, nếu thợ nhả khoá đúng lúc bộ phát lịch đang cập nhật, mã thoát hay nhãn dưới tải của lượt có thể mất, và lượt bị máy làm hỏng thành lượt sạch.
+  - Ngoài-2: Ca DP1-07 chưa quét tệp số đo thật đặt cạnh ca lõi, nên lọt tên kho tiêu thụ vào tệp ấy sẽ không bị báo.
+  - Ngoài-3: Không còn ca kiểm giữ lời hứa «số đo áp lực hỏng thì không giảm tải oan».
+  - Ngoài-4: Danh sách các loại lượt nặng viết tay ở hai nơi; thêm loại mới mà quên một nơi thì cấu hình hợp lệ bị từ chối hoặc bị bỏ qua.
+  - Ngoài-5: Kho còn ngưỡng swap hay RSS cũ trong cấu hình đợt không được báo rằng các ngưỡng ấy đã hết tác dụng; các đoạn đọc «cần người» theo RSS thành mã chết.
+  - Ngoài-7: Đơn chờ vì khoá đang bận vẫn hiện lý do «thiếu chỗ» và phát sự kiện thieu-cho, nên người đọc tưởng máy hết bộ nhớ.
+  - Ngoài-8: Lệnh nhả và nhịp cùng đọc-sửa-ghi tệp lượt, nên hiếm khi lý do hạ tầng bị mất và lượt bị đốt lọt vào mẫu sạch.
+  - Ngoài-9: Lượt không đọc được commit khoá luôn quyền thử lại cho mọi lượt dưới tải sau đó cùng phiên, slug, loại mà cũng không đọc được commit.
+  - Ngoài-10: Luật thợ bảo đọc sự kiện thử lại ngay sau khi nhả, nhưng sự kiện chỉ có ở nhịp kế — thợ phải chờ một nhịp.
+  - Ngoài-11: Ca hiệu chuẩn nuôi bằng dòng sổ dựng tay, không đi vòng từ bên ghi thật, nên bên ghi rớt một trường thì ca vẫn xanh.
+  - Ngoài-12: Hàng «xem không hiện Cần anh» của SK-04 không thể đỏ vì màn xem không bao giờ in trường ấy.
+- Ngoài-6 → mở hợp đồng mới: hạt giống `docs/plans/2026-10-21-hat-giong-hai-luot-nang-cung-nhip.md`.
