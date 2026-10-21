@@ -27,7 +27,7 @@ import { noiChuaDot } from './tin-noi-chua.mjs';
 import { dsTat } from './tin-dua.mjs';
 import { bayGio } from './song.mjs';
 import { docCauHinh } from './hinh-dang.mjs';
-import { baoCaoHieuChuan } from './do-lan.mjs';
+import { baoCaoHieuChuan, docSoDo as docSoDoLan } from './do-lan.mjs';
 
 export { kiemChuyen, phanLopChuyen };
 
@@ -332,8 +332,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       xin: () => ghiDon(cwd, { loai: doiSo, uocPhut: typeof co['uoc-phut'] === 'string' ? co['uoc-phut'] : null, moMerge: co['mo-merge'] === true, slug: typeof co.slug === 'string' ? co.slug : null }),
       nha: () => nhaKhoa(cwd, doiSo, { ma: typeof co.ma === 'string' ? co.ma : null, haTang: typeof co['ha-tang'] === 'string' ? co['ha-tang'] : null }),
       'hieu-chuan': () => {
-        const cfg = docCauHinh(thuMucHienTai(cwd));
-        return baoCaoHieuChuan({ kho: cfg.goc_kho ?? null, cfg }).join('\n');
+        const thuMuc = thuMucHienTai(cwd);
+        const cfg = docCauHinh(thuMuc);
+        return baoCaoHieuChuan({ kho: cfg.goc_kho ?? null, cfg, so: docSoDoLan(thuMuc) }).join('\n');
       },
       'yeu-cau': () => {
         const noiDung = typeof co['noi-dung'] === 'string' ? JSON.parse(co['noi-dung']) : {};

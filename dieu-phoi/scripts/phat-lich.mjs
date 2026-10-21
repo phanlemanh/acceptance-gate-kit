@@ -443,7 +443,7 @@ export async function motNhip(thuMuc, io) {
     },
     cfg,
   );
-  const soDo = docSoDo();
+  const soDo = docSoDo(thuMuc);
   const kho = cfg.goc_kho ?? null;
   if (sucKhoe.giamTai && cu.trang_thai !== 'giam-tai') ghiSuKien(thuMuc, { loai: 'giam-tai', ly_do: sucKhoe.lyDo, can_phan: true });
   if (!sucKhoe.giamTai && cu.trang_thai === 'giam-tai') ghiSuKien(thuMuc, { loai: 'het-giam-tai' });

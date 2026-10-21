@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GB, GOI, MAY, banSaoTiem, chuKhoa, docJ, dungDot, hangMoi, inMaTran, nap, soMay, suKien, taoIo, trangThai, xin } from './suc-khoe-chung.mjs';
+import { GB, GOI, MAY, banSaoTiem, chuKhoa, docJ, dungDot, hangMoi, inMaTran, nap, soTai, suKien, taoIo, trangThai, xin } from './suc-khoe-chung.mjs';
 
 const T0 = Date.parse('2026-10-21T03:00:00Z');
 const GIAY = 1000;
@@ -278,12 +278,13 @@ async function doSK07(goi) {
     await khep(k1, dot);
     so.now += 30 * GIAY;
     await nhip(goi, dot, so);
-    const tho = soMay(mayDir);
-    const doc = docSoDo();
+    const tho = soTai(dot);
+    const doc = docSoDo(dot);
+    const may = soTai(mayDir).length;
     const r = doc[0] ?? {};
     const thieu = KHOA_SO.filter((k) => !(k in r));
     const tep = fs.existsSync(path.join(dot, 'do-dang-chay', 's4.json')) ? 'còn' : 'xoá';
-    hang.push(hangMoi(ten, `1 dòng · ${kv} · cấp 20 · nhu cầu 6 · chong false · nguồn chua · đủ khoá · tệp xoá · đọc lại khớp`, `${tho.length} dòng · ${r.ket_thuc} · ma ${r.ma} · ha_tang ${r.ha_tang}${r.ha_tang_ly_do ? ` ${r.ha_tang_ly_do}` : ''} · cấp ${r.trong_luc_cap_gb} · nhu cầu ${r.nhu_cau_gb} · chong ${r.chong} · nguồn ${r.nguon_nhu_cau} · ${thieu.length ? `thiếu ${thieu.join(',')}` : 'đủ khoá'} · tệp ${tep} · đọc lại ${JSON.stringify(doc) === JSON.stringify(tho) ? 'khớp' : 'lệch'}`));
+    hang.push(hangMoi(ten, `1 dòng · ${kv} · cấp 20 · nhu cầu 6 · chong false · nguồn chua · đủ khoá · tệp xoá · đọc lại khớp · máy 0`, `${tho.length} dòng · ${r.ket_thuc} · ma ${r.ma} · ha_tang ${r.ha_tang}${r.ha_tang_ly_do ? ` ${r.ha_tang_ly_do}` : ''} · cấp ${r.trong_luc_cap_gb} · nhu cầu ${r.nhu_cau_gb} · chong ${r.chong} · nguồn ${r.nguon_nhu_cau} · ${thieu.length ? `thiếu ${thieu.join(',')}` : 'đủ khoá'} · tệp ${tep} · đọc lại ${JSON.stringify(doc) === JSON.stringify(tho) ? 'khớp' : 'lệch'} · máy ${may}`));
   }
   {
     const { dot, k1, k2, mayDir } = dungDot(goi);
@@ -297,7 +298,7 @@ async function doSK07(goi) {
     await nha(goi, k2.w, 'duong-nen');
     so.now += 30 * GIAY;
     await nhip(goi, dot, so);
-    const rows = soMay(mayDir);
+    const rows = soTai(dot);
     hang.push(hangMoi('(s4 và duong-nen chồng thời gian)', '2 dòng · chong true,true', `${rows.length} dòng · chong ${rows.map((x) => x.chong).join(',')}`));
   }
   {
@@ -309,20 +310,30 @@ async function doSK07(goi) {
     await nha(goi, k1.w, 's4');
     so.now += 30 * GIAY;
     await nhip(goi, dot, so);
-    hang.push(hangMoi('(khoá có từ trước gói, không có do-dang-chay)', '0 dòng', `${soMay(mayDir).length} dòng`));
+    hang.push(hangMoi('(khoá có từ trước gói, không có do-dang-chay)', '0 dòng', `${soTai(dot).length + soTai(mayDir).length} dòng`));
+  }
+  {
+    const { dot, k1, mayDir } = dungDot(goi, { tuGoi: true });
+    xin(dot, 'P1', 's4', k1.w, 'a');
+    const so = soMoi(MAY_100);
+    await nhip(goi, dot, so);
+    await nha(goi, k1.w, 's4');
+    so.now += 30 * GIAY;
+    await nhip(goi, dot, so);
+    hang.push(hangMoi('(đợt mở từ gói → sổ cấp máy)', 'máy 1 · đợt 0', `máy ${soTai(mayDir).length} · đợt ${soTai(dot).length}`));
   }
   return hang;
 }
 test('SK-07 so-do-lan', async () => {
   const hang = await doSK07(GOI);
-  assert.equal(hang.length, 7);
+  assert.equal(hang.length, 8);
   assert.deepEqual(inMaTran('SK-07', hang), []);
 });
 test('SK-07-do bo-ghi-so', async () => {
   assert.deepEqual(inMaTran('SK-07 (gói lành)', await doSK07(GOI)), [], 'đối chứng dương');
-  const hang = await doSK07(banSaoTiem([['do-lan.mjs', '  ghiDongSo(row);\n', '  void row;\n']]));
+  const hang = await doSK07(banSaoTiem([['do-lan.mjs', '  ghiDongSo(thuMuc, row);\n', '  void row;\n']]));
   const do_ = inMaTran('SK-07 (tiêm)', hang);
-  assert.deepEqual(do_, hang.slice(0, 6).map((h) => h.hang));
+  assert.deepEqual(do_, [...hang.slice(0, 6), hang[7]].map((h) => h.hang));
   for (const h of hang.slice(0, 5)) assert.match(h.thuc_te, /^0 dòng · /);
 });
 
@@ -343,12 +354,12 @@ async function doSK08(goi) {
     hangMoi('(4 dòng sạch + 6 dòng bẩn, cấu hình 3)', '3 · cau-hinh', kq([...sach20().slice(0, 4), ...ban6()], cfg3)),
     hangMoi('(20 dòng kho khác, cấu hình 3)', '3 · cau-hinh', kq(sach20('/kho-khac'), cfg3)),
   ];
-  const { dot, k1, mayDir } = dungDot(goi);
+  const { dot, k1 } = dungDot(goi);
   xin(dot, 'P1', 's4', k1.w, 'a');
   await nhip(goi, dot, soMoi(MAY_100));
   hang.push(hangMoi('(0 dòng, không cấu hình)', 'null · chua · chua_hieu_chuan s4,ghim-lai,duong-nen', `${kq([], { suc_khoe: { ap_luc_muc: 2 } })} · chua_hieu_chuan ${(trangThai(dot).chua_hieu_chuan ?? []).join(',')}`));
-  fs.writeFileSync(path.join(mayDir, 'do-lan.jsonl'), `${sach20().map((x) => JSON.stringify(x)).join('\n')}\nrác{\n`);
-  hang.push(hangMoi('(sổ có một dòng rác)', '20 dòng đọc được', `${docSoDo().length} dòng đọc được`));
+  fs.writeFileSync(path.join(dot, 'do-lan.jsonl'), `${sach20().map((x) => JSON.stringify(x)).join('\n')}\nrác{\n`);
+  hang.push(hangMoi('(sổ có một dòng rác)', '20 dòng đọc được', `${docSoDo(dot).length} dòng đọc được`));
   return hang;
 }
 test('SK-08 nguon-nhu-cau', async () => {
@@ -363,9 +374,9 @@ test('SK-08-do p95-thanh-max', async () => {
   assert.equal(hang[0].thuc_te, '20 · so');
 });
 test('SK-08 lenh-hieu-chuan', () => {
-  const { k1, mayDir } = dungDot(GOI);
+  const { k1, dot: thuMuc } = dungDot(GOI);
   const dot = [...sach20(), dong('/kho-thu', 40, { phien: 'P2', slug: 'b', ket_thuc: 'thu-hoi', ha_tang: true, trong_luc_cap_gb: 9.5, ap_luc_luc_cap: 1 })];
-  fs.writeFileSync(path.join(mayDir, 'do-lan.jsonl'), `${dot.map((x) => JSON.stringify(x)).join('\n')}\n`);
+  fs.writeFileSync(path.join(thuMuc, 'do-lan.jsonl'), `${dot.map((x) => JSON.stringify(x)).join('\n')}\n`);
   const ra = execFileSync(process.execPath, [path.join(GOI, 'scripts', 'dieu-phoi.mjs'), 'hieu-chuan'], { cwd: k1.w, encoding: 'utf8' });
   console.log(ra.replace(/^/gm, '  '));
   const dongRa = ra.trim().split('\n');

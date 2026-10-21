@@ -3,6 +3,7 @@ import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
 import { docJson, ghiJsonNguyenTu, ghiSuKien } from './dot.mjs';
 import { thuMucMay } from './may.mjs';
+import { docPha } from './pha.mjs';
 import { dieuKienDuoiTai, nguongSucKhoe } from './suc-khoe.mjs';
 
 export const LOAI_NANG = ['s4', 'ghim-lai', 'duong-nen'];
@@ -10,17 +11,17 @@ export const TAI_NGUYEN_NANG = ['s4', 'duong-nen'];
 const MA_HA_TANG = [137, 143];
 const TEN_NGUON = { so: 'sổ', 'cau-hinh': 'cấu hình', chua: 'chưa hiệu chuẩn' };
 
-export const tepSoMay = () => path.join(thuMucMay(), 'do-lan.jsonl');
+export const tepSo = (thuMuc) => path.join(docPha(thuMuc).nguon_goi ? thuMucMay() : thuMuc, 'do-lan.jsonl');
 const tepLuot = (thuMuc, tn) => path.join(thuMuc, 'do-dang-chay', `${tn}.json`);
 const tron = (x) => (Number.isFinite(x) ? Math.round(x * 100) / 100 : null);
 const cungKho = (a, b) => (a ?? null) === (b ?? null);
 const nho = (a, b) => (Number.isFinite(a) && Number.isFinite(b) ? Math.min(a, b) : Number.isFinite(a) ? a : b);
 const lon = (a, b) => (Number.isFinite(a) && Number.isFinite(b) ? Math.max(a, b) : Number.isFinite(a) ? a : b);
 
-export function docSoDo() {
+export function docSoDo(thuMuc) {
   let text = '';
   try {
-    text = fs.readFileSync(tepSoMay(), 'utf8');
+    text = fs.readFileSync(tepSo(thuMuc), 'utf8');
   } catch {
     return [];
   }
@@ -37,9 +38,10 @@ export function docSoDo() {
   return ds;
 }
 
-function ghiDongSo(row) {
-  fs.mkdirSync(thuMucMay(), { recursive: true });
-  fs.appendFileSync(tepSoMay(), `${JSON.stringify(row)}\n`);
+function ghiDongSo(thuMuc, row) {
+  const p = tepSo(thuMuc);
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.appendFileSync(p, `${JSON.stringify(row)}\n`);
 }
 
 export function p95(ds) {
@@ -50,7 +52,7 @@ export function p95(ds) {
 
 export const laSach = (r) => !r.duoi_tai && !r.ha_tang && !r.chong;
 
-export function nhuCau({ kho, loai, cfg, so = docSoDo() }) {
+export function nhuCau({ kho, loai, cfg, so }) {
   const n = nguongSucKhoe(cfg);
   const sach = so.filter((r) => cungKho(r.kho, kho) && r.loai === loai && laSach(r) && Number.isFinite(r.nhu_cau_gb)).map((r) => r.nhu_cau_gb);
   if (sach.length >= n.mau_hieu_chuan) return { gb: p95(sach), nguon: 'so' };
@@ -118,7 +120,7 @@ export function khepLuot(thuMuc, tn, { kho, nowMs }) {
   const p = tepLuot(thuMuc, tn);
   const d = docJson(p, null);
   if (!d) return null;
-  const so = docSoDo();
+  const so = docSoDo(thuMuc);
   const ketThuc = d.ket_thuc ?? 'nha';
   const row = {
     kho: kho ?? null,
@@ -141,7 +143,7 @@ export function khepLuot(thuMuc, tn, { kho, nowMs }) {
     ha_tang: ketThuc === 'thu-hoi' || MA_HA_TANG.includes(d.ma) || Boolean(d.ha_tang_ly_do),
     ...(d.ha_tang_ly_do ? { ha_tang_ly_do: d.ha_tang_ly_do } : {}),
   };
-  ghiDongSo(row);
+  ghiDongSo(thuMuc, row);
   fs.rmSync(p, { force: true });
   if (row.duoi_tai) ghiSuKien(thuMuc, { loai: 'luot-duoi-tai', phien: row.phien, slug: row.slug, tai_nguyen: tn, commit: row.commit, ly_do: row.duoi_tai.ly_do, duoc_thu_lai: duocThuLai(row, so) });
   return row;
@@ -158,7 +160,7 @@ export function dongLuotDaXong(thuMuc, dangGiu, { kho, nowMs }) {
   }
 }
 
-export function baoCaoHieuChuan({ kho, cfg, so = docSoDo() }) {
+export function baoCaoHieuChuan({ kho, cfg, so }) {
   const dong = [];
   for (const loai of LOAI_NANG) {
     const sach = so.filter((r) => cungKho(r.kho, kho) && r.loai === loai && laSach(r)).map((r) => r.nhu_cau_gb).filter(Number.isFinite);

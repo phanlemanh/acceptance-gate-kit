@@ -6,7 +6,7 @@ feature_slug: suc-khoe-cho-trong-va-toc-do
 #   executors.test.dieu_phoi_suc_khoe = node --test trên hai tệp ấy, gộp dòng «ok … SK-», «not ok», dòng chẩn đoán «#   …»
 #     và tổng kết TAP thành MỘT dòng (cùng khuôn khoá dieu_phoi_tin_gd của GT2). Suite xanh mà thiếu dòng ghim là ĐỎ.
 # Fixture do code sinh trong lượt: thư mục đợt tạm dựng bằng hàm của tệp test, `io` giả trả văn bản theo ĐÚNG định dạng
-# lệnh macOS; văn bản thật chụp 21/10 sống ở tests/dieu-phoi/fixtures/suc-khoe/mbp-2110.txt (đầu ra nguyên văn của bốn lệnh,
+# lệnh macOS; văn bản thật chụp 21/10 sống ở tests/dieu-phoi/loi/so-do-mbp-2110.txt (đầu ra nguyên văn của bốn lệnh,
 # ghi kèm lệnh đã chạy). Thư mục máy tạm qua DIEU_PHOI_MAY_DIR. Đường dẫn suy từ vị trí tệp test.
 # Mỗi ca «-do» chạy CHÍNH hàm đo trên một bản sao trọn thư mục dieu-phoi/ bị tiêm (cp -R của gói đang kiểm vào thư mục tạm,
 # rồi thay một đoạn mã), SAU khi bản lành xanh trên cùng fixture; ca kiểm riêng rằng bước tiêm đã áp (chuỗi thay có mặt
@@ -111,17 +111,19 @@ evals:
     cmd: config:executors.test.dieu_phoi_suc_khoe
     paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/do-lan.mjs, dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/may.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs]
     expected: >
-      exit 0; "ok" cho "SK-07 so-do-lan": ma trận 7 hàng (năm hàng dưới + hai hàng thêm), mỗi hàng một lượt s4 qua các nhịp thật với chỗ trống 20 → 14 →
+      exit 0; "ok" cho "SK-07 so-do-lan": ma trận 8 hàng (năm hàng dưới + ba hàng thêm), mỗi hàng một lượt s4 qua các nhịp thật với chỗ trống 20 → 14 →
       17 GB — (nhả không cờ) → dòng có ket_thuc "nha", ma null, ha_tang false, trong_luc_cap_gb 20, nhu_cau_gb 6;
       (nhả --ma 137) → ma 137, ha_tang true; (nhả --ma 1) → ha_tang false; (nhả --ha-tang "ENOMEM") → ha_tang true,
-      ha_tang_ly_do "ENOMEM"; (hết hạn thuê, bộ phát lịch thu hồi) → ket_thuc "thu-hoi", ha_tang true. Mỗi hàng: đúng một
-      dòng mới trong <DIEU_PHOI_MAY_DIR>/do-lan.jsonl mang đủ các khoá kho, loai, phien, slug, commit, cap_luc, xong_luc,
+      ha_tang_ly_do "ENOMEM"; (hết hạn thuê, bộ phát lịch thu hồi) → ket_thuc "thu-hoi", ha_tang true. Năm hàng này chạy trong đợt dựng tay, nên sổ nằm ở
+      <thư mục đợt>/do-lan.jsonl và <DIEU_PHOI_MAY_DIR> không có sổ (cùng luật với khoá s4 cấp máy: chỉ đợt mở từ gói chạm
+      thư mục máy). Mỗi hàng: đúng một dòng mới trong sổ ấy mang đủ các khoá kho, loai, phien, slug, commit, cap_luc, xong_luc,
       trong_luc_cap_gb, nguon_nhu_cau ("chua" ở mọi hàng vì sổ trống và cấu hình không đặt), nhu_cau_gb, ap_luc_max, swapin_mb_phut_max, duoi_tai, chong, ket_thuc, ma, ha_tang; do-dang-chay/s4.json
       đã xoá; và bộ đọc của lệnh hieu-chuan đọc lại dòng ấy ra đúng các giá trị trên (round-trip ghi-bằng-nhịp-thật,
       đọc-bằng-bộ-đọc-thật). Thêm hai hàng: (s4 và duong-nen chồng thời gian) → hai dòng, cả hai chong true, còn
-      hàng nhả-không-cờ ở trên có chong false; (khoá có từ trước gói, không có do-dang-chay) → nhả xong không dòng mới, không lỗi.
-      "ok" cho "SK-07-do bo-ghi-so": bản sao tiêm bỏ lời nối dòng sổ → hàm đo nêu đúng sáu hàng đầu (năm hàng mở đầu "0 dòng" và hàng chồng);
-      hàng khoá có từ trước vẫn đạt.
+      hàng nhả-không-cờ ở trên có chong false; (khoá có từ trước gói, không có do-dang-chay) → nhả xong không dòng mới, không lỗi. Hàng thứ tám: (đợt mở từ gói → sổ cấp máy) → một
+      dòng ở <DIEU_PHOI_MAY_DIR>/do-lan.jsonl, không dòng nào trong thư mục đợt.
+      "ok" cho "SK-07-do bo-ghi-so": bản sao tiêm bỏ lời nối dòng sổ → hàm đo nêu đúng bảy hàng (năm hàng mở đầu "0 dòng", hàng chồng, hàng
+      đợt mở từ gói); hàng khoá có từ trước vẫn đạt.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -142,7 +144,7 @@ evals:
     criterion: AC-9
     executor: test
     cmd: config:executors.test.dieu_phoi_suc_khoe
-    paths: [dieu-phoi/scripts/suc-khoe.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/suc-khoe.test.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs, tests/dieu-phoi/fixtures/suc-khoe/mbp-2110.txt]
+    paths: [dieu-phoi/scripts/suc-khoe.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/suc-khoe.test.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs, tests/dieu-phoi/loi/so-do-mbp-2110.txt]
     expected: >
       exit 0; "ok" cho "SK-09 doc-van-ban-that": từ tệp mbp-2110.txt — swap {tongGb 13, dungGb 11879.19/1024}, phần trăm 53,
       RAM 38654705664 byte = 36 GB, cỡ trang 16384, Swapins là số nguyên đúng như tệp; sáu hàng văn bản hỏng (rỗng, "lỗi",
@@ -173,5 +175,5 @@ evals:
     paths: [dieu-phoi/**, tests/dieu-phoi/fixtures/**]
     expected: >
       exit 0; "ok" cho "DP1-07 khong-rieng-kho" và "DP1-07-do" — không chuỗi riêng của kho tiêu thụ nào trong gói hay
-      fixture mới (gồm tests/dieu-phoi/fixtures/suc-khoe/).
+      fixture mới (và tệp số đo thật mới trong tests/dieu-phoi/loi/).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

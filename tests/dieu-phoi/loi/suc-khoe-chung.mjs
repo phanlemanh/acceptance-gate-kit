@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 export const GOI = path.resolve(DAY, '..', '..', '..', 'dieu-phoi');
-export const FIXTURE = path.resolve(DAY, '..', 'fixtures', 'suc-khoe', 'mbp-2110.txt');
+export const FIXTURE = path.join(DAY, 'so-do-mbp-2110.txt');
 export const GB = 1024 ** 3;
 
 export const tam = (tien = 'sk-') => fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), tien)));
@@ -78,7 +78,7 @@ export const khoGit = () => {
 
 // Thư mục đợt tạm dựng bằng mẫu cấu hình của CHÍNH gói đang kiểm; hai dãy là hai kho git tạm có liên kết đợt,
 // để lệnh nhả thật (tìm đợt từ cwd) chạy được.
-export function dungDot(goi, { sucKhoe = null, gocKho = '/kho-thu' } = {}) {
+export function dungDot(goi, { sucKhoe = null, gocKho = '/kho-thu', tuGoi = false } = {}) {
   const dot = tam('sk-dot-');
   const mau = JSON.parse(fs.readFileSync(path.join(goi, 'scripts', 'mau', 'dieu-phoi.config.json'), 'utf8'));
   const cfg = { ...mau, goc_kho: gocKho, ...(sucKhoe ? { suc_khoe: { ...mau.suc_khoe, ...sucKhoe } } : {}) };
@@ -99,6 +99,7 @@ export function dungDot(goi, { sucKhoe = null, gocKho = '/kho-thu' } = {}) {
   };
   fs.writeFileSync(path.join(dot, 'hang-viec.json'), JSON.stringify(hangViec));
   for (const d of ['khoa', 'xin', 'yeu-cau', 'tra-loi', 'cho-nguoi', 'tiep']) fs.mkdirSync(path.join(dot, d));
+  if (tuGoi) fs.writeFileSync(path.join(dot, 'dieu-khien.json'), JSON.stringify({ pha: 'dang-chay', nguon_goi: tam('sk-goi-dot-'), lich_su: [] }));
   const mayDir = tam('sk-may-');
   process.env.DIEU_PHOI_MAY_DIR = mayDir;
   return { dot, k1, k2, mayDir, cfg };
@@ -113,8 +114,9 @@ export const suKien = (dot) => {
 export const docJ = (p) => (fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : null);
 export const chuKhoa = (dot, tn) => docJ(path.join(dot, 'khoa', tn, 'chu.json'));
 export const trangThai = (dot) => docJ(path.join(dot, 'trang-thai.json'));
-export const soMay = (mayDir) => {
-  const p = path.join(mayDir, 'do-lan.jsonl');
+// Sổ đo: đợt mở từ gói ghi ở thư mục máy, đợt dựng tay ghi trong thư mục đợt (cùng luật với khoá s4 cấp máy).
+export const soTai = (thuMuc) => {
+  const p = path.join(thuMuc, 'do-lan.jsonl');
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf8').trim().split('\n').filter(Boolean).map((d) => JSON.parse(d)) : [];
 };
 
