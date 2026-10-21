@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d01b7053703b4cb5af264fb37cf63d0d127fd21
+verified_commit: 89659748e4ade885d10d355563890bc262d4f015
 human_signoff: Manh Phan 2026-10-21
 ---
 
@@ -233,3 +233,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, tất �
 ## Iterations
 
 Round 1: E1–E11 đều đạt, không eval nào hỏng; E6b do hội đồng ba góc nhìn đều chấm đạt, ô human_override để trống cho người. Chuyển sang Cổng Bằng chứng.
+
+### Re-pin lần 1 — 2026-10-21, do tách ca đo số sống macOS khỏi bộ ca lõi (CI DP1-03 đòi 0 ca bỏ qua)
+run_id: repin-20261021T081615Z-70720
+sha: 89659748e4ade885d10d355563890bc262d4f015 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E6b (E6b không khai paths)
