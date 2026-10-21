@@ -113,7 +113,7 @@ evals:
       (nhả --ma 137) → ma 137, ha_tang true; (nhả --ma 1) → ha_tang false; (nhả --ha-tang "ENOMEM") → ha_tang true,
       ha_tang_ly_do "ENOMEM"; (hết hạn thuê, bộ phát lịch thu hồi) → ket_thuc "thu-hoi", ha_tang true. Mỗi hàng: đúng một
       dòng mới trong <DIEU_PHOI_MAY_DIR>/do-lan.jsonl mang đủ các khoá kho, loai, phien, slug, commit, cap_luc, xong_luc,
-      trong_luc_cap_gb, nhu_cau_gb, ap_luc_max, swapin_mb_phut_max, duoi_tai, chong, ket_thuc, ma, ha_tang; do-dang-chay/s4.json
+      trong_luc_cap_gb, nguon_nhu_cau ("chua" ở mọi hàng vì sổ trống và cấu hình không đặt), nhu_cau_gb, ap_luc_max, swapin_mb_phut_max, duoi_tai, chong, ket_thuc, ma, ha_tang; do-dang-chay/s4.json
       đã xoá; và bộ đọc của lệnh hieu-chuan đọc lại dòng ấy ra đúng các giá trị trên (round-trip ghi-bằng-nhịp-thật,
       đọc-bằng-bộ-đọc-thật). Thêm hai hàng: (s4 và duong-nen chồng thời gian) → hai dòng, cả hai chong true, còn
       hàng nhả-không-cờ ở trên có chong false; (khoá có từ trước gói, không có do-dang-chay) → nhả xong không dòng mới, không lỗi.

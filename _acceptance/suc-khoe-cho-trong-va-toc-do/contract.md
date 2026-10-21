@@ -5,10 +5,10 @@ slug: suc-khoe-cho-trong-va-toc-do
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: draft
+status: approved
 design_doc: docs/superpowers/specs/2026-10-21-suc-khoe-cho-trong-va-toc-do-design.md
-approved_by:
-approved_at:
+approved_by: Manh Phan
+approved_at: 2026-10-21
 lo_trinh_ma: SK1
 ---
 
@@ -55,7 +55,7 @@ Số đo dùng trong tiêu chí (một nguồn — finding trên):
   và lần chấm lại vẫn đỏ thì đỏ là của vật (judgment).
 - AC-7: Given một lượt nặng vừa khép — thợ nhả (có hoặc không `--ma <mã>` và `--ha-tang <lý do>`) hoặc bộ phát lịch thu
   hồi vì hết hạn thuê, When nhịp kế chạy, Then sổ đo cấp máy `do-lan.jsonl` có đúng một dòng mới mang kho, loại, phiên,
-  slug, commit lúc cấp, mốc cấp và khép, chỗ trống lúc cấp, nhu cầu (chỗ trống lúc cấp trừ chỗ trống thấp nhất trong lượt), áp lực và tốc
+  slug, commit lúc cấp, mốc cấp và khép, chỗ trống lúc cấp, nguồn nhu cầu lúc cấp (`so`, `cau-hinh`, `chua`), nhu cầu (chỗ trống lúc cấp trừ chỗ trống thấp nhất trong lượt), áp lực và tốc
   độ swapin cao nhất, nhãn dưới tải, cờ `chong` khi có lượt nặng khác giữ khoá ở bất kỳ nhịp nào của lượt, cách khép (`nha` hay `thu-hoi`), mã thoát, và `ha_tang: true` khi thu hồi, mã 137
   hay 143, hoặc có `--ha-tang`; tệp `do-dang-chay` của lượt đã xoá; dòng do chính nhịp thật ghi và được chính bộ đọc của
   lệnh `hieu-chuan` đọc lại đủ trường.
@@ -115,6 +115,8 @@ của chủ kho ở `opportunity.md`). Trục dưới tự liệt từ phạm vi
 - Giảm tải theo áp lực lật nhanh khi áp lực lật (40 lần/34 giờ trên MacBook Pro, finding §3) — giữ nguyên.
 - Đo RSS cây tiến trình của từng làn — nhu cầu đo bằng hụt chỗ trống của máy trong lượt.
 - Mặc định số cho nhu cầu làn và cho ngưỡng tốc độ swapin — chưa có số đo; cấu hình hay sổ đo đặt.
+  Chủ kho chọn ở Cổng Phạm vi (Hỏi-1, 21/10): không số. Ngưỡng mở lại: ≥ 1 lượt bị hạ tầng đốt được cấp lúc chưa
+  biết nhu cầu trong 14 ngày đo (đếm trên `do-lan.jsonl`: dòng `ha_tang: true` có `nguon_nhu_cau: "chua"`).
 - Sửa AC-4 của hồ sơ crm `dieu-phoi-hai-tang` — kho tiêu thụ tự ghi khi nhận mốc.
 
 ## Notes
