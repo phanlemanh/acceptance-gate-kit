@@ -44,12 +44,13 @@ evals:
     paths: [dieu-phoi/scripts/suc-khoe.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/do-lan.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs]
     expected: >
       exit 0; "ok" cho "SK-03 thieu-cho": cấu hình dinh_lan_gb.s4 = 12, he_so_cho 1.5, RAM 36 GB; ma trận 3 hàng —
-      (level 46) đơn s4, ghim-lai, merge cùng chờ → khoá s4 VẮNG, khoá merge và ghim-lai có (ghim-lai chưa biết nhu cầu),
+      (level 46) đơn s4 (phiên P1), ghim-lai (phiên P2), merge cùng chờ → khoá tài nguyên s4 được cấp cho đơn ghim-lai
+      (chu.loai "ghim-lai", vì ghim-lai chưa biết nhu cầu và dùng chung tài nguyên s4) chứ không cho đơn s4, khoá merge có,
       hang_cho của s4 có cho đúng chuỗi "thiếu chỗ: cần 18.0 GB, trống 16.6 GB", trang_thai "dang-chay", và bang.html cùng
       chuỗi của `xem` (veXem(moHinh(tt))) đều chứa đúng chuỗi ấy; (ba nhịp level 46)
-      đếm sự kiện "thieu-cho" === 1 và sự kiện đó có can_phan false; (level 51) → khoá s4 được cấp và chuỗi "thiếu chỗ" vắng ở
-      trang-thai, bang.html và `xem` (đối chứng dương cùng fixture). "ok" cho "SK-03-do bo-xet-cho": bản sao tiêm cho hàm vừa-làn luôn trả vừa → hàm đo nêu đúng hàng
-      "(level 46)" với thực tế "khoá s4 có".
+      đếm sự kiện "thieu-cho" === 1 và sự kiện đó có can_phan false; (level 51, chỉ đơn s4 và merge) → khoá s4 cấp cho đơn s4 và chuỗi "thiếu chỗ" vắng ở
+      trang-thai, bang.html và `xem` (đối chứng dương cùng fixture). "ok" cho "SK-03-do bo-xet-cho": bản sao tiêm cho hàm vừa-làn luôn trả vừa → hàm đo nêu đúng hai hàng
+      "(level 46)" (thực tế mở đầu "khoá s4 cấp cho đơn s4") và "(ba nhịp level 46)" (thực tế "thieu-cho 0").
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -60,7 +61,8 @@ evals:
       exit 0; "ok" cho "SK-04 rss-chi-ghi": ps trả một dòng 19922944 KB "/opt/model/server"; sau nhịp: 0 sự kiện
       "can-nguoi", bang.html không chứa "Cần anh", chuỗi của `xem` (veXem(moHinh(tt))) không chứa "Cần anh" hay "giữ 19.0 GB",
       trang-thai suc_khoe.ghi.rss_lon_nhat === {lenh: "/opt/model/server", gb: 19}. "ok" cho "SK-04-do rss-goi-nguoi": bản
-      sao tiêm lại nhánh canNguoi theo rss_gb 8 → hàm đo nêu "sự kiện can-nguoi" với thực tế 1.
+      sao tiêm lại nhánh canNguoi theo RSS > 8 GB → hàm đo nêu đúng hai hàng "sự kiện can-nguoi" (thực tế 1) và "bảng «Cần
+      anh»"; hàng "xem" và "ghi rss" vẫn đạt.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -108,7 +110,7 @@ evals:
     cmd: config:executors.test.dieu_phoi_suc_khoe
     paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/do-lan.mjs, dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/may.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs]
     expected: >
-      exit 0; "ok" cho "SK-07 so-do-lan": ma trận 5 hàng, mỗi hàng một lượt s4 qua các nhịp thật với chỗ trống 20 → 14 →
+      exit 0; "ok" cho "SK-07 so-do-lan": ma trận 7 hàng (năm hàng dưới + hai hàng thêm), mỗi hàng một lượt s4 qua các nhịp thật với chỗ trống 20 → 14 →
       17 GB — (nhả không cờ) → dòng có ket_thuc "nha", ma null, ha_tang false, trong_luc_cap_gb 20, nhu_cau_gb 6;
       (nhả --ma 137) → ma 137, ha_tang true; (nhả --ma 1) → ha_tang false; (nhả --ha-tang "ENOMEM") → ha_tang true,
       ha_tang_ly_do "ENOMEM"; (hết hạn thuê, bộ phát lịch thu hồi) → ket_thuc "thu-hoi", ha_tang true. Mỗi hàng: đúng một
@@ -117,7 +119,8 @@ evals:
       đã xoá; và bộ đọc của lệnh hieu-chuan đọc lại dòng ấy ra đúng các giá trị trên (round-trip ghi-bằng-nhịp-thật,
       đọc-bằng-bộ-đọc-thật). Thêm hai hàng: (s4 và duong-nen chồng thời gian) → hai dòng, cả hai chong true, còn
       hàng nhả-không-cờ ở trên có chong false; (khoá có từ trước gói, không có do-dang-chay) → nhả xong không dòng mới, không lỗi.
-      "ok" cho "SK-07-do bo-ghi-so": bản sao tiêm bỏ lời nối dòng sổ → hàm đo nêu cả năm hàng với thực tế "0 dòng".
+      "ok" cho "SK-07-do bo-ghi-so": bản sao tiêm bỏ lời nối dòng sổ → hàm đo nêu đúng sáu hàng đầu (năm hàng mở đầu "0 dòng" và hàng chồng);
+      hàng khoá có từ trước vẫn đạt.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -125,25 +128,26 @@ evals:
     cmd: config:executors.test.dieu_phoi_suc_khoe
     paths: [dieu-phoi/scripts/do-lan.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/loi/suc-khoe.test.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs]
     expected: >
-      exit 0; "ok" cho "SK-08 nguon-nhu-cau": ma trận 5 hàng — (20 dòng s4 sạch nhu cầu 1..20 GB, cấu hình 3) → nhu cầu 19,
+      exit 0; "ok" cho "SK-08 nguon-nhu-cau": ma trận 6 hàng — (20 dòng s4 sạch nhu cầu 1..20 GB, cấu hình 3) → nhu cầu 19,
       nguồn "sổ" (p95 = phần tử thứ ⌈0,95·20⌉ = 19 sau khi sắp); (cùng 20 dòng cộng 6 dòng nhu cầu 30 GB — 2 mang nhãn dưới
       tải, 2 ha_tang, 2 chong) → vẫn 19; (4 dòng sạch + 6 dòng bẩn, cấu hình 3) → 3, nguồn "cấu hình"; (0 dòng,
-      không cấu hình) → null, trang-thai chua_hieu_chuan có "s4"; (20 dòng của kho KHÁC, cấu hình 3) → 3. "ok" cho "SK-08
+      không cấu hình) → null, trang-thai chua_hieu_chuan có "s4"; (20 dòng của kho KHÁC, cấu hình 3) → 3; (sổ có một dòng rác) → đọc được 20 dòng. "ok" cho "SK-08
       lenh-hieu-chuan": CLI thật `dieu-phoi.mjs hieu-chuan` trên thư mục đợt + thư mục máy tạm in dòng
-      "s4 · 20 lượt · p95 19.0 GB · nguồn sổ" và một dòng mỗi lượt bị hạ tầng đốt dạng "hạ tầng đốt: <phiên> <slug> ·
-      trống <x> GB · áp lực <n>"; thoát 0. "ok" cho "SK-08-do p95-thanh-max": bản sao tiêm lấy phần tử lớn nhất → hàm đo nêu
-      hàng "(20 dòng s4…)" với thực tế 20.
+      "s4 · 20 lượt · p95 19.0 GB · nguồn sổ" (lượt = lượt sạch), "ghim-lai · 0 lượt · p95 — · nguồn chưa hiệu chuẩn", và đúng
+      một dòng "hạ tầng đốt: P2 b · trống 9.5 GB · áp lực 1" cho dòng sổ thu hồi; thoát 0. "ok" cho "SK-08-do p95-thanh-max": bản sao tiêm lấy phần tử lớn nhất → hàm đo nêu
+      đúng hai hàng "(20 dòng s4 sạch)" và "(20 dòng s4 sạch + 6 dòng bẩn)" với thực tế "20 · so".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
     executor: test
     cmd: config:executors.test.dieu_phoi_suc_khoe
-    paths: [dieu-phoi/scripts/suc-khoe.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/suc-khoe.test.mjs, tests/dieu-phoi/fixtures/suc-khoe/mbp-2110.txt]
+    paths: [dieu-phoi/scripts/suc-khoe.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/suc-khoe.test.mjs, tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs, tests/dieu-phoi/fixtures/suc-khoe/mbp-2110.txt]
     expected: >
       exit 0; "ok" cho "SK-09 doc-van-ban-that": từ tệp mbp-2110.txt — swap {tongGb 13, dungGb 11879.19/1024}, phần trăm 53,
       RAM 38654705664 byte = 36 GB, cỡ trang 16384, Swapins là số nguyên đúng như tệp; sáu hàng văn bản hỏng (rỗng, "lỗi",
-      thiếu "page size", Swapins không số, memsize chữ, level > 100) → đúng trường ấy null, in ra; một nhịp với chỗ trống
-      null và nhu cầu cấu hình 12 → khoá s4 được cấp, không "thieu-cho", không giảm tải. "ok" hoặc "ok … # SKIP" cho "SK-09
+      thiếu "page size", Swapins không số, memsize chữ, level > 100) → đúng trường ấy null, in ra. "ok" cho "SK-09 so-do-hong-khong-chan": một nhịp với
+      chỗ trống null (memorystatus_level đọc ra "lỗi") và nhu cầu cấu hình 12 → khoá s4 được cấp, không "thieu-cho", không
+      giảm tải. "ok" hoặc "ok … # SKIP" cho "SK-09
       so-do-song": trên darwin chạy đúng các lệnh bộ phát lịch chạy (sysctl, vm_stat, ps) qua IO thật, gọi hàm đánh giá với
       cấu hình mẫu; khi áp lực đọc được là 1 → giamTai false; in số đo; trên hệ khác là skip có tên "SK-09 cần macOS".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

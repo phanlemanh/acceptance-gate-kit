@@ -1,0 +1,30 @@
+=== sysctl vm.swapusage
+vm.swapusage: total = 13312.00M  used = 11879.19M  free = 1432.81M  (encrypted)
+=== sysctl -n kern.memorystatus_level
+53
+=== sysctl -n hw.memsize
+38654705664
+=== vm_stat
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                                    47706.
+Pages active:                                 583501.
+Pages inactive:                               593105.
+Pages speculative:                              2145.
+Pages throttled:                                   0.
+Pages wired down:                             330110.
+Pages purgeable:                               13553.
+"Translation faults":                    45281294768.
+Pages copy-on-write:                      4374394824.
+Pages zero filled:                       12949579972.
+Pages reactivated:                         534269196.
+Pages purged:                               54626828.
+File-backed pages:                            322487.
+Anonymous pages:                              856264.
+Pages stored in compressor:                  2710809.
+Pages occupied by compressor:                 744235.
+Decompressions:                            348704182.
+Compressions:                              482327289.
+Pageins:                                   590411599.
+Pageouts:                                     625088.
+Swapins:                                     4108131.
+Swapouts:                                    6739543.
