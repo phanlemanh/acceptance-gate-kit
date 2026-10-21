@@ -27,6 +27,15 @@ Bộ phát lịch chỉ giảm tải khi máy đang nghẹt thật hoặc thiế
 
 Vì sao: Gốc: crm-onehub/_acceptance/dieu-phoi-hai-tang/ — AC-4 khoá «swap dùng > swap_gb → giảm tải». M5 báo crm-onehub#375 20/10 22:42Z: một đợt giảm tải hơn 2 giờ với áp lực bộ nhớ bình thường; điều tra 21/10 tái lập trên MacBook Pro (hàm thật trả giảm tải, áp lực mức 1, trống 46 %), cả hai máy đã nâng tay ngưỡng — docs/findings/2026-10-21-suc-khoe-may-do-sai.md.
 
+## Phạm vi chủ kho giao (21/10)
+
+Lời giao của phiên SK1, cùng lượt với chữ build: «Phạm vi là ba vế thước, kèm hai chiều đo nằm TRONG bộ kiểm: áp lực giả → chặn, ghim đúng thông điệp; số đo kiểu 20/10 → im; đối chứng dương. Vế «hai khoá S4 mỗi máy» là CỘNG: KHÔNG làm.»
+
+Ba vế (theo lời báo M5, chủ kho chuyển nguyên):
+1. cấp làn khi `memorystatus_level × RAM ≥ đỉnh_làn × 1,5` VÀ `pressure_level == 1`, với `đỉnh_làn` = p95 RSS cây tiến trình theo loại làn, mặc định 16 GB;
+2. trong lúc chạy đo tốc độ Δswapins/phút, gắn nhãn lượt «chạy dưới tải» và cho thử lại một lần; `swap dùng` và RSS chỉ ghi, không chặn;
+3. hiệu chuẩn bằng các lượt bị hạ tầng đốt (137/SIGKILL, hết giờ, ENOMEM).
+
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: [đề xuất] đã đạt «14 ngày sau khi crm nhận mốc có SK1: không lần giảm tải nào trên hai máy mà áp lực bộ nhớ ở mức bình thường và còn đủ chỗ cho làn, và không ngưỡng sức khoẻ nào phải chỉnh tay trong thư mục đợt» chưa?
