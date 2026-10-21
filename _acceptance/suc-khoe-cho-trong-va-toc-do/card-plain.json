@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Máy chỉ dừng cấp lượt chấm nặng khi đang nghẹt thật hoặc thiếu chỗ cho lượt đó — không vì vết swap cũ hay một chương trình lớn hợp lệ; lượt chạy lúc máy chật được gắn nhãn và chấm lại một lần thay vì đổ lỗi cho sản phẩm.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cấp lượt chấm bình thường trên cả máy M5 hôm 20/10 lẫn MacBook Pro hôm 21/10 dù swap cũ vượt 8 GB, và vẫn dừng khi áp lực bộ nhớ lên mức cảnh báo."},
+    {"id": "AC-2", "p": "Sẽ dừng mọi lượt nặng (chỉ còn gộp nhánh) khi hệ điều hành báo áp lực bộ nhớ mức cảnh báo trở lên, báo một lần và báo khi hết."},
+    {"id": "AC-3", "p": "Sẽ giữ một lượt nặng chờ khi máy thiếu chỗ cho đúng loại lượt đó, nói rõ cần bao nhiêu và còn bao nhiêu ngay trên bảng đợt, không gọi người, và các loại lượt khác vẫn chạy."},
+    {"id": "AC-5", "p": "Sẽ gắn nhãn «chạy dưới tải» cho lượt nặng khi máy nghẹt liền 2 phút trong lúc nó chạy; một cú nháy 30 giây không gắn nhãn."},
+    {"id": "AC-6", "p": "Sẽ cho lượt mang nhãn được chấm lại một lần trên đúng commit đó, và luật thợ nói rõ đỏ lần hai mới là đỏ của sản phẩm."},
+    {"id": "AC-8", "p": "Sẽ tự hiệu chuẩn chỗ mỗi loại lượt cần từ các lượt sạch đã chạy trên chính máy, và có một lệnh in số hiệu chuẩn cùng các lượt bị máy làm hỏng."},
+    {"id": "AC-9", "p": "Sẽ đọc đúng số đo thật của macOS chụp 21/10, và số đo hỏng không làm máy dừng cấp lượt."},
+    {"id": "AC-10", "p": "Sẽ nhận cấu hình đợt đang chạy của mọi kho như cũ, và báo đúng chỗ sai khi một ngưỡng mới ghi sai."}
+  ],
+  "wont_do": [
+    {"id": "AC-4", "p": "Sẽ KHÔNG gọi chủ kho vì một chương trình giữ nhiều RAM — con số ấy chỉ được ghi lại để xem."},
+    {"id": "AC-7", "p": "Sẽ KHÔNG để một lượt nặng khép mà không để lại một dòng đo: chỗ trống lúc cấp, phần chỗ nó dùng, máy có nghẹt không, khép thế nào và có phải do máy làm hỏng không."},
+    {"id": "OOS-1", "p": "Không mở khoá chấm thứ hai trên mỗi máy — việc thêm sức chứa, ghi thành ý để sau."},
+    {"id": "OOS-2", "p": "Không đổi cách bộ máy chung đếm trần 3 lượt chấm — lượt chấm lại vì nhãn vẫn bị đếm."},
+    {"id": "OOS-3", "p": "Không gây áp lực bộ nhớ thật trên máy dùng chung để thử — chỉ tiêm số."},
+    {"id": "OOS-4", "p": "Không làm dịu việc giảm tải bật tắt nhanh khi áp lực bộ nhớ lật liên tục."},
+    {"id": "OOS-5", "p": "Không đo bộ nhớ riêng của từng lượt — đo phần chỗ trống cả máy bị dùng."},
+    {"id": "OOS-6", "p": "Không đặt số mặc định cho chỗ mỗi lượt cần hay cho ngưỡng tốc độ swap — chờ số đo hoặc kho tự đặt."},
+    {"id": "OOS-7", "p": "Không sửa hồ sơ gốc ở kho crm — kho ấy tự ghi khi nhận bản."}
+  ],
+  "scope_plain": "Bảy điều cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Ba vế đều có tiêu chí: lúc cấp lượt (AC-1 đến AC-3), trong lúc chạy (AC-5, AC-6), hiệu chuẩn (AC-7, AC-8), và phần chỉ-ghi-không-chặn (AC-1, AC-4)."},
+    {"i": 1, "p": "Hai chiều đo chủ kho đòi: chặn kèm câu báo đúng chữ (AC-2, AC-3, AC-10), im trên hai máy đã đo (AC-1, AC-3, AC-5, AC-9), và đối chứng trên cùng dữ liệu (AC-1, AC-3)."},
+    {"i": 2, "p": "Số đo đến từ văn bản thật của macOS (AC-9), số tiêm cho từng ca (AC-1 đến AC-8), và văn bản hỏng (AC-9)."},
+    {"i": 3, "p": "Đợt đang chạy không vỡ khi nhận bản mới: cấu hình cũ (AC-10), bảng đợt (AC-4), lượt đang giữ khoá lúc nâng (AC-7)."},
+    {"i": 4, "p": "Bốn loại lượt — chấm, ghim lại, đường nền, gộp nhánh — đều được xét, gộp nhánh luôn chạy như cũ (AC-2, AC-3)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Máy đã tự bỏ mặc định 16 GB mà M5 đề xuất — nhưng chọn thay bằng gì là chuyện chấp nhận rủi ro, nên đưa lên thành câu hỏi Hỏi-1 cho chủ kho."},
+    {"i": 1, "p": "Lượt chấm lại được tính một lần cho cả vòng thay vì mỗi commit — đã sửa: mỗi commit được chấm lại một lần."},
+    {"i": 2, "p": "Đo chỗ một lượt cần bằng phần hụt cả máy dễ bị thổi phồng khi hai lượt chạy cùng lúc — đã sửa: chỉ tính các lượt sạch, chạy một mình, không bị máy làm hỏng."},
+    {"i": 3, "p": "Thước sau phát hành không thể đỏ và thiếu vế «đủ chỗ» — đã sửa: thêm thước đếm phút chờ thiếu chỗ oan, và nói rõ thước cũ đỏ khi nào."},
+    {"i": 4, "p": "Bảng đợt chưa chắc hiện lý do «thiếu chỗ» — đã sửa: ca đo ghim chữ ấy trên bảng và lệnh xem."}
+  ]
+}

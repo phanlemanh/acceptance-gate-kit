@@ -33,7 +33,8 @@ Số đo dùng trong tiêu chí (một nguồn — finding trên):
   không trong lý do giảm tải; cùng hai bộ số ấy với áp lực mức 2 thì giảm tải (đối chứng trên cùng fixture).
 - AC-2: Given áp lực bộ nhớ tiêm mức 2, rồi mức 4, When nhịp chạy với đơn `s4`, `ghim-lai`, `duong-nen` và `merge` cùng
   chờ, Then trạng thái là `giam-tai` với lý do đúng chuỗi `áp lực bộ nhớ mức <N>`, chỉ `merge` được cấp, và qua ba nhịp
-  liên tiếp chỉ có đúng một sự kiện `giam-tai` mang `can_phan: true`; về mức 1 thì có đúng một sự kiện `het-giam-tai`.
+  liên tiếp chỉ có đúng một sự kiện `giam-tai` mang `can_phan: true`; về mức 1 thì có đúng một sự kiện `het-giam-tai`;
+  và cùng bốn đơn ấy ở áp lực mức 1 ngay từ đầu thì không giảm tải, cả bốn loại được xét cấp (dưới ngưỡng → không xảy ra).
 - AC-3: Given nhu cầu của loại `s4` đã biết là 12 GB với hệ số 1,5 (cần 18 GB), When nhịp chạy với chỗ trống 16,6 GB
   (36 GB × 46 %), Then đơn `s4` không được cấp và ở lại hàng chờ với lý do đúng chuỗi `thiếu chỗ: cần 18.0 GB, trống
   16.6 GB`, trạng thái đợt vẫn là `dang-chay`, đơn `merge` và đơn của loại chưa biết nhu cầu cùng nhịp vẫn được cấp,
