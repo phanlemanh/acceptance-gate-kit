@@ -21,7 +21,7 @@
 - AC liên quan: AC-3, AC-8.
 
 ### vong-doi-mot-luot
-- Loại: luồng sáu bước, một nhánh rẽ ở bước 3.
+- Loại: luồng sáu bước, một nhánh rẽ ở bước 4.
 - Nút: (1) Cấp — áp lực bình thường VÀ trống ≥ nhu cầu × 1,5 (nhu cầu chưa biết → bỏ vế chỗ) · (2) Đo mỗi nhịp 5 giây —
   trống thấp nhất, áp lực cao nhất, tốc độ swapin, có làn nặng khác chồng không · (3) Nhãn «dưới tải» khi áp lực cảnh báo
   liền 2 phút (hoặc tốc độ vượt ngưỡng kho đặt) · (4) Khép — thợ nhả (mã thoát, lý do hạ tầng) hay bộ phát lịch thu hồi ·
