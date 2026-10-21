@@ -22,8 +22,9 @@ evals:
       (mbp, áp lực 1) → trang_thai "dang-chay", khoá s4 cấp cho đơn đang chờ, 0 sự kiện "giam-tai", suc_khoe.ghi.swap
       có "9.7/11.0 GB" hay "12.0/13.0 GB" và lyDo rỗng; (m5, áp lực 2) (mbp, áp lực 2) trên CÙNG fixture → trang_thai
       "giam-tai", lyDo ["áp lực bộ nhớ mức 2"] (đối chứng dương). Cấu hình là mẫu của gói đọc từ đĩa. "ok" cho "SK-01-do
-      luat-swap-cu": bản sao gói tiêm lại dòng so swap đã dùng với 8 GB vào hàm đánh giá → hàm đo nêu đúng hai hàng
-      "(m5, áp lực 1)" và "(mbp, áp lực 1)" với thực tế "giam-tai".
+      luat-swap-cu": bản sao gói tiêm lại dòng so swap đã dùng với 8 GB vào hàm đánh giá → hàm đo nêu đủ bốn hàng:
+      "(m5, áp lực 1)" và "(mbp, áp lực 1)" với thực tế mở đầu "giam-tai · s4 vắng", hai hàng áp lực 2 với lý do
+      "áp lực bộ nhớ mức 2; swap …" (lý do giảm tải chỉ được là áp lực).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2

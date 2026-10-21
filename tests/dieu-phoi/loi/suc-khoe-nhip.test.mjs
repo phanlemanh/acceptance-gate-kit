@@ -49,8 +49,9 @@ test('SK-01 swap-cu-khong-giam-tai', async () => {
 test('SK-01-do luat-swap-cu', async () => {
   assert.deepEqual(inMaTran('SK-01 (gói lành)', await doSK01(GOI)), [], 'đối chứng dương');
   const hang = await doSK01(banSaoTiem([TIEM_SWAP]));
-  assert.deepEqual(inMaTran('SK-01 (tiêm)', hang), ['(m5, áp lực 1)', '(mbp, áp lực 1)']);
-  for (const h of hang.filter((x) => !x.dat)) assert.match(h.thuc_te, /^giam-tai · /);
+  assert.deepEqual(inMaTran('SK-01 (tiêm)', hang), ['(m5, áp lực 1)', '(m5, áp lực 2)', '(mbp, áp lực 1)', '(mbp, áp lực 2)']);
+  for (const h of hang.filter((x) => x.hang.endsWith('áp lực 1)'))) assert.match(h.thuc_te, /^giam-tai · s4 vắng · /);
+  for (const h of hang.filter((x) => x.hang.endsWith('áp lực 2)'))) assert.match(h.thuc_te, /^giam-tai · áp lực bộ nhớ mức 2; swap \d+\.\d\/\d+\.\d GB$/);
 });
 
 // ---------- AC-2: áp lực giảm tải, chỉ merge ----------
@@ -252,7 +253,7 @@ test('SK-06-do bo-commit', async () => {
 // ---------- AC-7: sổ đo cấp máy ----------
 const KHOA_SO = ['kho', 'loai', 'phien', 'slug', 'commit', 'cap_luc', 'xong_luc', 'trong_luc_cap_gb', 'nguon_nhu_cau', 'nhu_cau_gb', 'ap_luc_max', 'swapin_mb_phut_max', 'duoi_tai', 'chong', 'ket_thuc', 'ma', 'ha_tang'];
 async function doSK07(goi) {
-  const { docSo } = await nap(goi, 'do-lan.mjs');
+  const { docSoDo } = await nap(goi, 'do-lan.mjs');
   const hang = [];
   const bien = [
     ['(nhả không cờ)', 'nha · ma null · ha_tang false', (k1) => nha(goi, k1.w, 's4')],
@@ -278,7 +279,7 @@ async function doSK07(goi) {
     so.now += 30 * GIAY;
     await nhip(goi, dot, so);
     const tho = soMay(mayDir);
-    const doc = docSo();
+    const doc = docSoDo();
     const r = doc[0] ?? {};
     const thieu = KHOA_SO.filter((k) => !(k in r));
     const tep = fs.existsSync(path.join(dot, 'do-dang-chay', 's4.json')) ? 'còn' : 'xoá';
@@ -330,7 +331,7 @@ const dong = (kho, nhu, them = {}) => ({ kho, loai: 's4', phien: 'P1', slug: 'a'
 const sach20 = (kho = '/kho-thu') => Array.from({ length: 20 }, (_, i) => dong(kho, i + 1));
 const ban6 = () => [dong('/kho-thu', 30, { duoi_tai: { tu: iso(T0), ly_do: 'x' } }), dong('/kho-thu', 30, { duoi_tai: { tu: iso(T0), ly_do: 'x' } }), dong('/kho-thu', 30, { ha_tang: true }), dong('/kho-thu', 30, { ha_tang: true }), dong('/kho-thu', 30, { chong: true }), dong('/kho-thu', 30, { chong: true })];
 async function doSK08(goi) {
-  const { nhuCau, docSo } = await nap(goi, 'do-lan.mjs');
+  const { nhuCau, docSoDo } = await nap(goi, 'do-lan.mjs');
   const cfg3 = { suc_khoe: { ap_luc_muc: 2, dinh_lan_gb: { s4: 3 } } };
   const kq = (so, cfg) => {
     const n = nhuCau({ kho: '/kho-thu', loai: 's4', cfg, so });
@@ -347,7 +348,7 @@ async function doSK08(goi) {
   await nhip(goi, dot, soMoi(MAY_100));
   hang.push(hangMoi('(0 dòng, không cấu hình)', 'null · chua · chua_hieu_chuan s4,ghim-lai,duong-nen', `${kq([], { suc_khoe: { ap_luc_muc: 2 } })} · chua_hieu_chuan ${(trangThai(dot).chua_hieu_chuan ?? []).join(',')}`));
   fs.writeFileSync(path.join(mayDir, 'do-lan.jsonl'), `${sach20().map((x) => JSON.stringify(x)).join('\n')}\nrác{\n`);
-  hang.push(hangMoi('(sổ có một dòng rác)', '20 dòng đọc được', `${docSo().length} dòng đọc được`));
+  hang.push(hangMoi('(sổ có một dòng rác)', '20 dòng đọc được', `${docSoDo().length} dòng đọc được`));
   return hang;
 }
 test('SK-08 nguon-nhu-cau', async () => {
