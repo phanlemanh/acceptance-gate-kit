@@ -20,13 +20,14 @@ export function xepHang(donXin, hangViec) {
   });
 }
 
-export function capLuot({ donXin, dangGiu, giamTai, hangViec }) {
+export function capLuot({ donXin, dangGiu, giamTai, hangViec, vua = () => ({ duoc: true }) }) {
   const cap = [];
   const ban = new Set(Object.entries(dangGiu).filter(([, chu]) => chu).map(([tn]) => tn));
   for (const don of xepHang(donXin, hangViec)) {
     const tn = TAI_NGUYEN[don.loai];
     if (!tn || ban.has(tn)) continue;
     if (giamTai && tn !== 'merge') continue;
+    if (!vua(don).duoc) continue;
     cap.push({ taiNguyen: tn, don });
     ban.add(tn);
   }

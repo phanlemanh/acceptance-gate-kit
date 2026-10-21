@@ -138,12 +138,13 @@
       ]
     },
     {
-      "ten": "Phát hành sau mốc 22/10 (số đặt lúc cắt) — ngày dự kiến đúng khi mốc phụ thuộc nhau (RD2)",
+      "ten": "Phát hành sau mốc 22/10 (số đặt lúc cắt) — ngày dự kiến đúng khi mốc phụ thuộc nhau (RD2) · thước sức khoẻ máy đo chỗ trống và tốc độ (SK1)",
       "ngay": "2026-10-29",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
-        "RD2"
+        "RD2",
+        "SK1"
       ]
     }
   ],
@@ -814,6 +815,22 @@
         7
       ],
       "ghi_chu": "Chủ kho duyệt khung ba làn 19/10 (phiên Mac Studio): Nhóm 3 · MacBook Pro. Chạm dieu-phoi/ — báo M5 trên #308 trước khi mở. Máy nào đã «tin vai» trên kênh có gạch nối bằng bản trước GT1 phải «tin vai» lại một lần."
+    },
+    {
+      "ma": "SK1",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "suc-khoe-cho-trong-va-toc-do",
+      "ten_ngan": "Thước sức khoẻ đo chỗ trống và tốc độ",
+      "cau_giao": "Bộ phát lịch chỉ giảm tải khi máy đang nghẹt thật hoặc thiếu chỗ cho làn sắp cấp — không vì swap cũ hay một tiến trình lớn hợp lệ; lượt chạy dưới tải được gắn nhãn và thử lại một lần thay vì tính là lỗi vật; ngưỡng hiệu chuẩn từ các lượt bị hạ tầng đốt",
+      "vai": "Chủ kho",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/dieu-phoi-hai-tang/ — AC-4 khoá «swap dùng > swap_gb → giảm tải». M5 báo crm-onehub#375 20/10 22:42Z: một đợt giảm tải hơn 2 giờ với áp lực bộ nhớ bình thường; điều tra 21/10 tái lập trên MacBook Pro (hàm thật trả giảm tải, áp lực mức 1, trống 46 %), cả hai máy đã nâng tay ngưỡng — docs/findings/2026-10-21-suc-khoe-may-do-sai.md.",
+      "bat_khi": "14 ngày sau khi crm nhận mốc có SK1: không lần giảm tải nào trên hai máy mà áp lực bộ nhớ ở mức bình thường và còn đủ chỗ cho làn, và không ngưỡng sức khoẻ nào phải chỉnh tay trong thư mục đợt",
+      "gio_may": [
+        5,
+        7
+      ],
+      "ghi_chu": "Chủ kho 21/10: «Mở phiên điều tra nếu đúng hiện trạng thì đưa vào lộ trình và xử lý» — điều tra 21/10 chứng đúng. Máy MacBook Pro giữ (làn Nhóm 3). Chạm dieu-phoi/ — báo M5 trên #308 trước khi sửa. Vế «hai khoá S4 mỗi máy» là CỘNG, không làm ở đây — hạt giống docs/plans/2026-10-21-hat-giong-hai-khoa-s4.md."
     },
     {
       "ma": "KY1",
