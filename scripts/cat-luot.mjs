@@ -255,15 +255,16 @@ export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
     if (!st || st === 'draft') { bo.chua_chot += 1; continue; }
     const tc = new Set(parseACBlock(c).map(a => a.id)).size;
     if (!tc) { bo.khong_doc_tieu_chi += 1; continue; }
+    const so = doc(path.join(acc, slug, 'decisions.jsonl'));
     if (tu) {
-      const d = ngayChot(c);
+      const d = ngayChot(c, so);
       if (!d) { bo.khong_ngay_chot += 1; continue; }
       if (d < tu) continue;
     }
     let luot = null;
     if (!DA_GIAO.has(st)) bo.chua_giao += 1;
     else { const u = doc(path.join(acc, slug, 'usage-report.md')); const n = u ? (u.match(LUOT_CHAM_RE) || []).length : 0; if (n) luot = n; else bo.khong_luot_cham += 1; }
-    chot.push({ slug, tc, luot, giu: !!CHD.dongGiu(doc(path.join(acc, slug, 'decisions.jsonl')) || '') });
+    chot.push({ slug, tc, luot, giu: !!CHD.dongGiu(so || '') });
   }
   const [dau, cuoi] = k.muc_tieu;
   const trong = (x, a, b) => x.tc >= a && (b == null || x.tc <= b);
@@ -295,8 +296,11 @@ export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
 // ngày/tháng/năm).
 const ngayDau = s => { const m = String(s ?? '').match(/\d{4}-\d{2}-\d{2}/); return m ? m[0] : null; };
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
-// Ngày chốt phạm vi — MỘT bộ đọc cho nhịp và đồng hồ cỡ.
-const ngayChot = c => ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at'));
+// Ngày chốt phạm vi — MỘT bộ đọc cho nhịp và đồng hồ cỡ: ngày sớm nhất giữa frontmatter và dòng seal Cổng 1 của sổ quyết
+// định. Lệnh duyệt Cổng 1 GHI ĐÈ approved_at mỗi lần mở lại cổng (commands/approve.md bước 5), sổ giữ mọi dòng seal — đo
+// 21/10 trên crm: 36/291 hồ sơ đã ký có approved_at muộn hơn lần chốt đầu. Vắng sổ → frontmatter như cũ.
+const sealCong1 = so => { let d = null; for (const l of String(so ?? '').split('\n')) { let o; try { o = JSON.parse(l); } catch { continue; } if (o && o.type === 'seal' && String(o.gate) === '1') { const n = ngayDau(o.at); if (n && (!d || n < d)) d = n; } } return d; };
+const ngayChot = (c, so = null) => [ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at')), sealCong1(so)].filter(Boolean).sort()[0] || null;
 export function nhip(root) {
   const acc = path.join(root, '_acceptance');
   const ngay = { T1: [], T2: [], T3: [] }; let tong = 0; let boQua = 0;
@@ -308,7 +312,7 @@ export function nhip(root) {
     if (!ky) continue;
     tong += 1;
     const hang = chuoi(frontmatterField(c, 'risk_tier'));
-    const dau = ngayChot(c);
+    const dau = ngayChot(c, doc(path.join(acc, s, 'decisions.jsonl')));
     const cuoi = ngayChuKy(ky);
     if (!dau || !cuoi || !(hang in ngay)) { boQua += 1; continue; }
     ngay[hang].push(Math.round((Date.parse(`${cuoi}T00:00:00Z`) - Date.parse(`${dau}T00:00:00Z`)) / 864e5));
