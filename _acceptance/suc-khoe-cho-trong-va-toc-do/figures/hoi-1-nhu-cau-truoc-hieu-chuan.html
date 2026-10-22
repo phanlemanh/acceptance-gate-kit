@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hỏi-1 nhu cầu làn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Geist', system-ui, sans-serif; background: #f5f5f5; color: #2d3142;
+           min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <svg viewBox="0 0 1000 576" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Tiêu đề trong hình (để PNG mang theo) -->
+      <text x="32" y="32" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CỔNG PHẠM VI · SK1 · HỎI-1</text>
+      <text x="32" y="64" fill="#2d3142" font-size="28" font-family="'Instrument Serif', 'Lora', serif">Nhu cầu của loại làn trước khi hiệu chuẩn</text>
+
+      <!-- Mũi tên (vẽ trước hộp) -->
+      <path d="M432 152 V172 Q432 180 424 180 H308 Q300 180 300 188 V204" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <line x1="572" y1="152" x2="572" y2="204" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M712 152 V172 Q712 180 720 180 H836 Q844 180 844 188 V204" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Gốc -->
+      <rect x="292" y="96" width="560" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="292" y="96" width="560" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="572" y="120" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Sổ đo chưa đủ 5 lượt sạch, kho chưa đặt số —</text>
+      <text x="572" y="138" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">cấp lượt nặng theo gì?</text>
+
+      <!-- Nhánh A · máy khuyên -->
+      <rect x="176" y="208" width="248" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="176" y="208" width="248" height="80" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="188" y="220" width="104" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.60)" stroke-width="0.8"/>
+      <text x="240" y="232" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">A · MÁY KHUYÊN</text>
+      <text x="192" y="260" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Không số</text>
+      <text x="192" y="276" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chỉ xét áp lực</text>
+
+      <!-- Nhánh B -->
+      <rect x="448" y="208" width="248" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="448" y="208" width="248" height="80" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="460" y="220" width="24" height="16" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="472" y="232" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">B</text>
+      <text x="464" y="260" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">15 % RAM × 1,5</text>
+
+      <!-- Nhánh C -->
+      <rect x="720" y="208" width="248" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="720" y="208" width="248" height="80" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="732" y="220" width="24" height="16" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="744" y="232" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">C</text>
+      <text x="736" y="260" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">16 GB × 1,5 (M5)</text>
+
+      <!-- Nhãn hàng -->
+      <text x="32" y="328" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">MacBook Pro</text>
+      <text x="32" y="344" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">36 GB · trống 16,6 GB</text>
+      <text x="32" y="400" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Máy M5</text>
+      <text x="32" y="416" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">128 GB · trống 61 GB</text>
+      <text x="32" y="472" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Giá</text>
+
+      <!-- Hàng MacBook Pro -->
+      <rect x="176" y="304" width="248" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="192" y="336" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cấp</text>
+      <rect x="448" y="304" width="248" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="464" y="328" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cấp</text>
+      <text x="464" y="344" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">cần 8,1 GB</text>
+      <rect x="720" y="304" width="248" height="56" rx="6" fill="rgba(45,49,66,0.06)" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="736" y="328" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" letter-spacing="0.04em">CHẶN</text>
+      <text x="736" y="344" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">cần 24 GB</text>
+
+      <!-- Hàng M5 -->
+      <rect x="176" y="376" width="248" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="192" y="408" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cấp</text>
+      <rect x="448" y="376" width="248" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="464" y="408" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cấp</text>
+      <rect x="720" y="376" width="248" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="736" y="408" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cấp</text>
+
+      <!-- Hàng giá -->
+      <rect x="176" y="448" width="248" height="56" rx="6" fill="#ececec" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="192" y="472" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Lượt đầu có thể bị giết,</text>
+      <text x="192" y="488" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">hiện ở sổ đo</text>
+      <rect x="448" y="448" width="248" height="56" rx="6" fill="#ececec" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="464" y="472" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Hằng chưa đo</text>
+      <rect x="720" y="448" width="248" height="56" rx="6" fill="#ececec" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="736" y="472" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Chặn MacBook Pro</text>
+      <text x="736" y="488" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">gần như mọi lúc</text>
+
+      <!-- Chú giải -->
+      <line x1="32" y1="528" x2="968" y2="528" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="552" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="128" y="544" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="160" y="554" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Ngả máy khuyên</text>
+      <rect x="272" y="544" width="24" height="12" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="304" y="554" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối khác</text>
+      <rect x="388" y="544" width="24" height="12" rx="2" fill="rgba(45,49,66,0.06)" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="420" y="554" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chặn</text>
+      <text x="968" y="554" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.08em">AC-3 · AC-8</text>
+    </svg>
+  </div>
+</body>
+</html>

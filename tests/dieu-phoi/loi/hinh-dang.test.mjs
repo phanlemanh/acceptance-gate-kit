@@ -27,7 +27,7 @@ const IO = {
   },
 };
 
-test('kiemCauHinh: ma trận mười sáu ô sai → lỗi nêu đúng trường; mẫu + goc_kho qua', () => {
+test('kiemCauHinh: ma trận mười bốn ô sai → lỗi nêu đúng trường; mẫu + goc_kho qua', () => {
   const giuNhipPhut = NHIP.giuNhipMs / PHUT_MS;
   const o = [
     ['bao_ve chuỗi', (c) => { c.bao_ve = 'packages/db/prisma/**'; }, /^Error: dieu-phoi\.config\.json: bao_ve phải là danh sách chuỗi$/],
@@ -37,12 +37,12 @@ test('kiemCauHinh: ma trận mười sáu ô sai → lỗi nêu đúng trường
     ['nhip_cu_phut chuỗi', (c) => { c.nhip_cu_phut = 'muoi'; }, /^Error: dieu-phoi\.config\.json: nhip_cu_phut phải là số phút$/],
     ['nhip_cu_phut bằng chu kỳ giữ nhịp', (c) => { c.nhip_cu_phut = giuNhipPhut; }, new RegExp(`^Error: dieu-phoi\\.config\\.json: nhip_cu_phut phải lớn hơn chu kỳ giữ nhịp ${giuNhipPhut} phút$`)],
     ['thiếu s4_tran_gom_phut', (c) => { delete c.s4_tran_gom_phut; }, /^Error: dieu-phoi\.config\.json: s4_tran_gom_phut phải là số phút dương$/],
-    ...['swap_gb', 'ap_luc_muc', 'rss_gb'].map((k) => [`thiếu suc_khoe.${k}`, (c) => { delete c.suc_khoe[k]; }, new RegExp(`^Error: dieu-phoi\\.config\\.json: suc_khoe\\.${k} phải là số$`)]),
+    ['thiếu suc_khoe.ap_luc_muc', (c) => { delete c.suc_khoe.ap_luc_muc; }, /^Error: dieu-phoi\.config\.json: suc_khoe\.ap_luc_muc phải là số$/],
     ['nhanh_chinh rỗng', (c) => { c.nhanh_chinh = ''; }, /^Error: dieu-phoi\.config\.json: nhanh_chinh phải là chuỗi không rỗng$/],
     ['goc_kho rỗng', (c) => { c.goc_kho = ''; }, /^Error: dieu-phoi\.config\.json: goc_kho phải là chuỗi không rỗng$/],
     ['khoá lạ', (c) => { c.tick_giayy = 5; }, /^Error: dieu-phoi\.config\.json: khoá lạ tick_giayy$/],
   ];
-  assert.equal(o.length, 16);
+  assert.equal(o.length, 14);
   let daKiem = 0;
   for (const [ten, sua, mong] of o) {
     const c = sao(CFG_BIEN);

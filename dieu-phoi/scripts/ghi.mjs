@@ -8,6 +8,7 @@ import { docJson, ghiJsonNguyenTu, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { ghiNhatKy } from './hang.mjs';
 import { docHangViec, kiemDon, kiemTraLoi, kiemYeuCau } from './hinh-dang.mjs';
 import { docVai, laGiamSat } from './vai.mjs';
+import { ghiKetQuaNha } from './do-lan.mjs';
 
 function canDot(cwd, lenh) {
   const thuMuc = timThuMucDot(cwd);
@@ -48,12 +49,15 @@ export function ghiDon(cwd, { loai, uocPhut = null, moMerge = false, slug = null
   return p;
 }
 
-export function nhaKhoa(cwd, taiNguyen) {
+export function nhaKhoa(cwd, taiNguyen, { ma = null, haTang = null } = {}) {
   const { thuMuc, day } = dayCua(cwd, 'nha');
+  const maSo = ma === null || ma === undefined || ma === '' ? null : Number(ma);
+  if (maSo !== null && !Number.isInteger(maSo)) throw new Error(`nha: --ma ${ma} không phải mã thoát nguyên`);
   const d = path.join(thuMuc, 'khoa', String(taiNguyen));
   if (!fs.existsSync(d)) return `nha: khoá ${taiNguyen} không có — không làm gì`;
   const chu = docJson(path.join(d, 'chu.json'), null);
   if (chu?.phien !== day.id) throw new Error(`nha: khoá ${taiNguyen} không do ${day.id} giữ (${chu?.phien ?? '?'})`);
+  ghiKetQuaNha(thuMuc, String(taiNguyen), { ma: maSo, haTang: typeof haTang === 'string' && haTang !== '' ? haTang : null });
   fs.rmSync(d, { recursive: true, force: true });
   return `nha: đã nhả ${taiNguyen}`;
 }

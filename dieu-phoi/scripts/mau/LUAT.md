@@ -12,7 +12,18 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
 - Xin lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs xin <loại> [--uoc-phut <n>] [--mo-merge]`;
   `loại` ∈ `s4`, `ghim-lai`, `duong-nen`, `merge`. Rồi chờ bằng lệnh nền
   `until jq -e '.phien=="<dãy>"' <thư mục đợt>/khoa/<tài nguyên>/chu.json >/dev/null 2>&1; do sleep 15; done`.
-- Nhả lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs nha <tài nguyên>`.
+- Nhả lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs nha <tài nguyên> [--ma <mã thoát>] [--ha-tang "<lý do>"]`.
+  Lượt bị máy làm hỏng (bị giết, mã 137 hay 143, hết bộ nhớ, hết giờ) thì khai mã hoặc lý do — bộ phát lịch ghi nó vào
+  sổ đo của máy để hiệu chuẩn chỗ trống mỗi loại lượt cần (`dieu-phoi.mjs hieu-chuan` in số hiệu chuẩn).
+- Lượt chạy dưới tải: TRƯỚC khi nhả khoá `s4` hay `duong-nen`, đọc `<thư mục đợt>/do-dang-chay/<tài nguyên>.json`.
+  Trường `duoi_tai` khác `null` nghĩa là máy đã nghẹt liền nhiều phút trong lúc lượt này chạy. Lượt mang nhãn ấy mà
+  đỏ thì:
+  1. nhả kèm lý do hạ tầng: `node <thư mục đợt>/loi/dieu-phoi.mjs nha <tài nguyên> --ha-tang "duoi tai"`;
+  2. đọc sự kiện `luot-duoi-tai` của lượt đó trong `<thư mục đợt>/su-kien.jsonl`: `duoc_thu_lai: true` thì xin lại lượt
+     và chấm lại ĐÚNG commit vừa chấm một lần — không sửa vật trước lần chấm lại; `duoc_thu_lai: false` (commit này đã
+     được chấm lại một lần) thì không chấm lại nữa;
+  3. lần chấm lại vẫn đỏ, hoặc không được thử lại, thì đỏ là của vật — sửa vật như mọi lượt đỏ.
+  Lượt không mang nhãn thì đỏ là của vật như thường lệ.
 - Việc nền dài khi đang giữ khoá: chạy qua lệnh bọc. Chép đúng dòng lệnh bọc mà hook in sẵn khi
   chặn — nó mang đường tuyệt đối tới `giu-nhip.mjs` của bản gói đang cài, ví dụ
   `node <gói dieu-phoi>/scripts/giu-nhip.mjs -- node <đường>/repin-lane.mjs --root . --slug <slug> --write`.
