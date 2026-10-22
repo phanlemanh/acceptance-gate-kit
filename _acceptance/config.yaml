@@ -413,6 +413,13 @@ executors:
     ndnd_lan_ghim: "bash -c 'out=$(BG_ONLY=BG10e node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG10e; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ndnd_dot_bien: "bash -c 'out=$(BG_ONLY=BG8,BG5 node tests/scripts/bo-giai-nhay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in BG8 BG5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ndnd_lich_su_do: "node _acceptance/nhay-don-nhan-doi/rang/lich-su-do.mjs"
+    # Hồ sơ t1-escape-chi-ho-so: ca theo mã AC của tests/scripts/t1-escape-ho-so.test.mjs. Bộ chạy thoát 2 với
+    # mã ca lạ và thoát 1 khi 0 ca PASS — không cần grep lại dòng PASS. AC-6 chỉ chạy khi gọi tên (cần lịch sử git).
+    teh_ma_tran: TEH_CASES=AC-1 node tests/scripts/t1-escape-ho-so.test.mjs
+    teh_note: TEH_CASES=AC-2 node tests/scripts/t1-escape-ho-so.test.mjs
+    teh_hang_pr: TEH_CASES=AC-3 node tests/scripts/t1-escape-ho-so.test.mjs && HP_CASES=AC-3-im node tests/scripts/hang-pr.test.mjs
+    teh_dot_bien: TEH_CASES=AC-4,AC-5 node tests/scripts/t1-escape-ho-so.test.mjs
+    teh_lich_su: TEH_CASES=AC-6 node tests/scripts/t1-escape-ho-so.test.mjs
     # Vật của hồ sơ release-2-11-0. Giá trị CỐ Ý là scalar vỏ nháy kép có `\"` bên trong:
     # bộ giải TRƯỚC 2.11.0 trả chuỗi còn dấu chéo ngược nên `--chan` nhận `\"diagram\"`
     # và răng thoát 2 có tên. Tức eval AC-7 không thể xanh trên bản chưa vá — bằng chứng

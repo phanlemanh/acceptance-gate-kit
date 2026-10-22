@@ -1,0 +1,95 @@
+# Eval cho hồ sơ t1-escape-chi-ho-so.
+#
+# Tệp ca: tests/scripts/t1-escape-ho-so.test.mjs (mới, mảnh mjs của suite scripts). Kho mẫu là kho git THẬT dựng
+# trong lần chạy; gọi CHÍNH scripts/pre-merge-check.sh, đường dẫn suy từ vị trí tệp ca. Ma trận và kỳ vọng VIẾT
+# TRƯỚC (hằng trong tệp ca), không tính từ mã cổng. Tên ca = mã AC; TEH_CASES chọn ca; mã lạ → thoát 2.
+# Chiều đỏ: hai đột biến trên bản sao TRỌN scripts/ + lib/ (AC-4, AC-5) và lịch sử TDD (AC-6).
+schema_version: 1
+feature_slug: t1-escape-chi-ho-so
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.teh_ma_tran
+    expected: >-
+      Ca AC-1 chạy 39 ô (13 hàng phía _acceptance/ của bảng trong hợp đồng × 3 cột t3 · ngoai-t1 · t1), mỗi ô một kho
+      git mẫu. Ô «răng nổ» (hàng 1–7 và 13 × t3, ngoai-t1): có đúng câu cũ «VIOLATION [PR]: T3 paths (t3_paths) changed but
+      the PR carries NO _acceptance/<slug>/ artifacts» (cột t3) hay «VIOLATION [PR]: non-T1 files changed (outside
+      t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts» (cột ngoai-t1) và mã thoát 1. Ô còn lại: không
+      có dòng «VIOLATION [PR]». Số khẳng định = TEH_O = 39. Chiều đỏ trên bản chưa vá: «DO AC-1:» liệt kê 14 ô lọt.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.teh_note
+    expected: >-
+      Ca AC-2 đọc lại đầu ra của 39 ô. Mỗi ô có tập NOTE mong đợi khai trước (hằng NOTE_MONG): 14 ô hàng 2–7 và 13 × t3,
+      ngoai-t1 có dòng mở đầu bằng hằng CAU_NOTE ngay sau danh sách tệp chịu cổng, và tập tệp liệt kê dưới nó BẰNG tập
+      khai trước (so tập); 25 ô còn lại không có dòng mở đầu CAU_NOTE — kể cả hàng 12 cột t3 (diff có _acceptance/config.yaml
+      mà răng không nổ). Số khẳng định = 39.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.teh_hang_pr
+    expected: >-
+      Ca AC-3: bốn PR qua --hang-pr ra đúng (hang, cham_vat) = (ho-so,false) · (ho-so,false) · (ho-so,false) · (T3,true),
+      so theo trường của dòng hang=/cham_vat=. Và HP_CASES=AC-3-im của tests/scripts/hang-pr.test.mjs in PASS.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs", "tests/scripts/hang-pr.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.teh_dot_bien
+    expected: >-
+      Ca AC-4: đối chứng dương trước tiên — bản sao TRỌN scripts/ + lib/ nguyên vẹn chạy ma trận AC-1 → 39/39 đúng (hỏng
+      → «DO AC-4: doi chung ban sao nguyen ven hong (ha tang)»). Rồi bản sao tiêm kim hoàn nguyên dòng phân loại → tập ô
+      sai BẰNG đúng 14 ô viết trước (hàng 2–7 và 13 × t3, ngoai-t1). Kim khớp ≠ 1 lần → «kim khớp n lần».
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.teh_dot_bien
+    expected: >-
+      Ca AC-5, ba bản sao, mỗi bản một kim: (a) gỡ vế contract.md có ở HEAD → tập ô sai BẰNG đúng 6 ô (hàng 4–6 × t3,
+      ngoai-t1); (b) chỉ tính tệp <slug>/contract.md có trong diff và còn ở HEAD → tập ô sai BẰNG đúng 4 ô (hàng 10–11 ×
+      t3, ngoai-t1); (c) lấy tiền tố _acceptance/ từ chính đường tệp thay vì ROOT của cổng → BẰNG đúng 2 ô (hàng 13 ×
+      t3, ngoai-t1). Đối chứng dương dùng chung với AC-4.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.teh_lich_su
+    expected: >-
+      Ca AC-6 (chỉ chạy khi gọi tên — cần lịch sử git đầy đủ): commit đầu tiên mang tests/scripts/t1-escape-ho-so.test.mjs
+      là tổ tiên thật sự của commit đầu tiên trên nhánh đổi scripts/pre-merge-check.sh. Archive scripts/ + lib/ + tệp ca
+      của sha tệp ca, chạy TEH_CASES=AC-1 trên bản đó → thoát 1, thông điệp «DO AC-1:» liệt kê ĐÚNG 14 ô của AC-4 và
+      không ghim hạ tầng nào. Đối chứng dương: archive HEAD cùng ca → thoát 0. Lịch sử bị nén (không thấy commit) →
+      «MU AC-6» thoát 3, không xanh.
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/t1-escape-ho-so.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >-
+      Bộ test scripts trọn (tests/scripts/run-tests.sh — chứa B01–B06, ARM08/ARM08b, TE17, GPM13 và mọi tệp *.test.mjs,
+      kể cả tệp ca mới) thoát 0 trên cây sau sửa; các mảnh còn lại chạy trong suite_keys của lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [CHANGELOG.md, docs/superpowers/specs/2026-10-22-t1-escape-chi-ho-so-design.md, _acceptance/t1-escape-chi-ho-so/contract.md, _acceptance/t1-escape-chi-ho-so/do-anh-huong.md]
+    question: >
+      Đọc AC-8 của contract t1-escape-chi-ho-so và mục con của hồ sơ này trong «## Chưa phát hành» của CHANGELOG.md (chỉ
+      mục con đó). (i) Nó có nói đúng điều đổi như design doc mục «Nghiệm» — tệp hồ sơ là tệp dưới _acceptance/<slug>/
+      có contract.md? (ii) Có kể đủ năm lớp PR nay bị chặn mà trước qua — tệp gốc _acceptance/ (kể cả lồng), thư mục không
+      hợp đồng, hồ sơ chỉ có opportunity.md, PR xoá hồ sơ, hồ sơ fixture nằm ngoài _acceptance/ của cổng — và số có khớp do-anh-huong.md không? (iii) Có nói PR chép lại
+      lớp CI ở kho tiêu thụ từ nay cũng phải kèm hồ sơ, kể cả PR mang chính bản vá? (iv) Có nói kho làm gì khi nhận —
+      chép lại scripts/pre-merge-check.sh? (v) Có hứa điều design doc không làm không — ví dụ nói tệp gốc _acceptance/ nay
+      chịu cổng, hay nói đã đóng hai lỗ của hạt giống? Trả PASS khi (i)–(iv) có và (v) không; FAIL nêu đúng vế và câu sai.
+    evidence_required: [run_id, verdict, rationale]
