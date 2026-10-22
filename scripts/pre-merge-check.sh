@@ -800,17 +800,43 @@ if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 1 ]; then
   echo "NOTE: recheck scope — --recheck-all: the committed-evidence re-check runs on ALL slugs, ignoring the PR diff scope"
 fi
 
+# 0 iff <đường tính từ gốc git> thuộc một hồ sơ mà vòng per-slug của CHÍNH cổng chấm: nằm dưới
+# <ROOT>/_acceptance/<slug>/ (ACC_PREFIX = ROOT tính từ gốc git, rỗng khi ROOT là gốc) và
+# <slug>/contract.md có ở HEAD. Đọc HEAD, không đọc cây làm việc — diff PR cũng là diff đã commit.
+is_dossier_file() {
+  local pre="$ACC_PREFIX" rest slug
+  case "$1" in "${pre}_acceptance/"*/*) ;; *) return 1 ;; esac
+  rest="${1#"${pre}_acceptance/"}"; slug="${rest%%/*}"
+  git -C "$ROOT" cat-file -e "HEAD:${pre}_acceptance/${slug}/contract.md" 2>/dev/null
+}
+
 # ─── Phân loại diff-chịu-cổng (hoist từ khối T1-escape — status-chua-arm-cong) ─
 # Khối T1-escape cuối file cần biết PR có đổi file chịu cổng không (khớp
 # t3_paths, hoặc ngoài t1_skip_globs). Luật «hồ sơ chưa arm cổng» trong vòng
 # per-slug cũng cần đúng ba con số đó, và vòng per-slug chạy TRƯỚC — nên tính
 # một lần ở đây, T1-escape dùng lại (thông điệp và thứ tự output của nó giữ
 # nguyên văn; răng ARM08/ARM08b canh). Chỉ có nghĩa khi DIFF_READY=1.
-DIFF_GATE_TOUCHED=0; DIFF_T3_HITS=""; DIFF_NONT1_HITS=""
+# Hai cờ, MỘT vòng, hai câu hỏi khác nhau (hồ sơ t1-escape-chi-ho-so):
+#   DIFF_ACC_TOUCHED  — PR có tệp bất kỳ dưới _acceptance/ («chỉ đổi giấy tờ cổng?») — chế độ phân hạng PR đọc;
+#   DIFF_GATE_TOUCHED — PR có tệp của một HỒ SƠ cổng chấm được («có hồ sơ bảo lãnh cho code?») — răng
+#                       T1-escape đọc. Tệp gốc _acceptance/ (config.yaml, README.md), thư mục không có
+#                       contract.md, hồ sơ fixture ngoài _acceptance/ của cổng KHÔNG tính: không luật nào
+#                       chấm chúng, nên chúng không bảo lãnh được code (ca onehub-invest 22/10: một dòng
+#                       config.yaml làm răng im). DIFF_ACC_IGNORED giữ các tệp ấy cho dòng NOTE [PR].
+DIFF_GATE_TOUCHED=0; DIFF_ACC_TOUCHED=0; DIFF_ACC_IGNORED=""; DIFF_T3_HITS=""; DIFF_NONT1_HITS=""
 if [ "$DIFF_READY" -eq 1 ]; then
+  ACC_PREFIX="$(git -C "$ROOT" rev-parse --show-prefix 2>/dev/null)"
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    case "$f" in _acceptance/*|*/_acceptance/*) DIFF_GATE_TOUCHED=1; continue ;; esac
+    case "$f" in _acceptance/*|*/_acceptance/*)
+      DIFF_ACC_TOUCHED=1
+      if is_dossier_file "$f"; then
+        DIFF_GATE_TOUCHED=1
+      else
+        DIFF_ACC_IGNORED="${DIFF_ACC_IGNORED}${f}"$'\n'
+      fi
+      continue ;;
+    esac
     if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then
       DIFF_T3_HITS="${DIFF_T3_HITS}${f}"$'\n'
     elif ! match_globs "$f" "$T1_GLOBS"; then
@@ -855,7 +881,7 @@ if [ "${HANG_PR:-0}" = 1 ]; then
       hp_in T3 true phan-loai
     elif [ -n "$DIFF_NONT1_HITS" ]; then
       hp_in T2 true phan-loai
-    elif [ "$DIFF_GATE_TOUCHED" -eq 1 ]; then
+    elif [ "$DIFF_ACC_TOUCHED" -eq 1 ]; then
       hp_in ho-so false phan-loai
     else
       hp_in T1 false phan-loai
@@ -1818,8 +1844,12 @@ fi
 # matching t3_paths — or falling outside t1_skip_globs — require the PR to
 # carry _acceptance/<slug>/ artifacts. (Under the stale-evidence rule every
 # gated PR re-verifies, so its diff always includes gate artifacts.) There is
-# no path→slug mapping, so "carries artifacts" means any _acceptance/ change;
-# the per-slug checks above judge their quality.
+# no path→slug mapping, so "carries artifacts" means the PR changes a file of
+# a dossier the per-slug loop judges — <ROOT>/_acceptance/<slug>/ with a
+# contract.md at HEAD (is_dossier_file). Root files (config.yaml, README.md),
+# directories without a contract and fixture dossiers elsewhere do NOT count:
+# no rule judges them, so they cannot vouch for code (hồ sơ t1-escape-chi-ho-so,
+# ca onehub-invest 22/10). The per-slug checks above judge the dossier's quality.
 if [ "$T1_ESCAPE" -eq 0 ]; then
   t1_escape_not_enforced
 elif [ "$DIFF_READY" -eq 0 ]; then
@@ -1839,6 +1869,10 @@ else
       echo "VIOLATION [PR]: non-T1 files changed (outside t1_skip_globs) but the PR carries NO _acceptance/<slug>/ artifacts — declare T1 honestly (t1_skip_globs) or run the gate. Changed:"
       printf '%s' "$nont1_hits" | head -10 | sed 's/^/    /'
       violations=$((violations+1))
+    fi
+    if [ -n "$t3_hits$nont1_hits" ] && [ -n "$DIFF_ACC_IGNORED" ]; then
+      echo "NOTE [PR]: các tệp dưới _acceptance/ này không phải hồ sơ của cổng (cần _acceptance/<slug>/ có contract.md) — không tính là PR có kèm hồ sơ:"
+      printf '%s' "$DIFF_ACC_IGNORED" | head -10 | sed 's/^/    /'
     fi
   fi
   ledger_mark ran t1-escape
