@@ -1070,8 +1070,16 @@ const UI_OBS_G2_OK = 'Bằng chứng lớp nhìn-thấy:';
 let LNT2 = null; try { LNT2 = require(path.join(__dirname, '..', 'lib', 'lop-nhin-thay.cjs')); } catch (_) {}
 const uo2 = LNT2 ? LNT2.classify(dir) : { applicable: false, reason: 'no-lib' };
 const uiIds = (LNT2 && !uo2.reason) ? LNT2.uiCheckIds(LNT2.parseEvalsText(read(path.join(dir, 'evals.yaml')))) : [];
-const uiPassed = uiIds.filter(i => { const e = evid[i] || {}; return String(e.exit_code || '').trim() === '0' && !!(e.screenshot && e.screenshot.trim()); });
-const uiObserved2 = { applicable: !!uo2.applicable, present: uiPassed.length > 0, declared: uiIds.length, passed: uiPassed.length, descoped: (!uo2.reason && uo2.descoped) || null };
+// Ảnh phải là TỆP có thật dưới evidence/ của hồ sơ (hồ sơ anh-co-that-trong-ho-so) — chuỗi `screenshot:` một mình không
+// đủ: một kho tiêu thụ 22/10 có hồ sơ đã ký được tính «có ảnh» mà không chứa ảnh nào. Cùng bộ xét với trang bằng chứng.
+const anhHoSo = require('./anh-ho-so.cjs');
+const uiKhaiAnh = uiIds.filter(i => { const e = evid[i] || {}; return String(e.exit_code || '').trim() === '0' && !!(e.screenshot && anhHoSo.giaTriSach(e.screenshot)); });
+const uiKhung = Object.fromEntries(uiKhaiAnh.map(i => [i, anhHoSo.khungAnh(dir, i, evid[i].screenshot)]));
+const uiPassed = uiKhaiAnh.filter(i => uiKhung[i].frames.length > 0);
+const uiThieuAnh = uiKhaiAnh.filter(i => !uiKhung[i].frames.length).map(i => ({ id: i, ...uiKhung[i].thieu[0] }));
+const uiObserved2 = { applicable: !!uo2.applicable, present: uiPassed.length > 0, declared: uiIds.length, passed: uiPassed.length, descoped: (!uo2.reason && uo2.descoped) || null, ...(uiThieuAnh.length ? { thieu_anh: uiThieuAnh } : {}) };
+const UI_OBS_G2_THIEU = 'Bằng chứng lớp nhìn-thấy: THIẾU ảnh';
+const thieuAnhChu = () => uiThieuAnh.map(t => `${esc(t.id)} — <code>${esc(t.gia_tri)}</code> (${esc(t.ly_do)})`).join('; ');
 
 const hasOverride = id => { const v = evid[id] && evid[id].human_override; return !!(v && v.trim() && !/^#|^<|^\{\{/.test(v.trim())); };
 
@@ -1429,7 +1437,10 @@ if (thuocVat && thuocVat.hong) flags.push(['fwarn', esc(THUOC_VAT_HONG_FLAG)]);
 { const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
 flags.push(...yamlChuanCo(dir));
 if (uiObserved2.applicable) {
-  if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
+  if (uiObserved2.present) {
+    flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
+    if (uiThieuAnh.length) flags.push(['fwarn', `${UI_OBS_G2_THIEU} — ${thieuAnhChu()}; thẻ không tính các eval này là có ảnh.`]);
+  } else if (uiThieuAnh.length) flags.push(['fwarn', `${UI_OBS_G2_NONE} — thiếu ảnh: ${thieuAnhChu()}; báo cáo khai ảnh mà evidence/ của hồ sơ không có, nên ký nghĩa là ký trên tên ca máy, không phải trên thứ người dùng thấy.`]);
   else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);
   else flags.push(['fwarn', `${UI_OBS_G2_NONE} — ${uiIds.length ? 'eval ui-check ' + esc(uiIds.join(', ')) + ' khai nhưng không đạt (không exit 0 kèm screenshot)' : 'hợp đồng có mặt người nhìn mà không eval ui-check nào'}; ký nghĩa là ký trên tên ca máy, không phải trên thứ người dùng thấy.`]);
 }
