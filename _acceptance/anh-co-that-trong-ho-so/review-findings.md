@@ -1,53 +1,74 @@
-# Review findings: anh-co-that-trong-ho-so (round 1)
+# Review findings: anh-co-that-trong-ho-so (vòng 2)
 
 ## Trong hợp đồng
 
-(không có)
+Không có phát hiện nào map được vào AC.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Trang bằng chứng giờ in nguyên chuỗi `screenshot:` bị loại, làm đỏ ca EP09 có sẵn (giá trị `screenshot:` độc hại phải vắng khỏi trang)**
-  Người dùng thấy gì: Khi một hồ sơ trỏ ảnh tới địa chỉ lạ, trang bằng chứng giờ hiện nguyên đường dẫn đó dưới dạng chữ để người đọc biết ảnh thiếu. Nó không tải gì và không rò dữ liệu, nhưng một kiểm tra cũ vốn đòi đường dẫn đó phải vắng khỏi trang nay báo đỏ.
-  Căn cứ: Không ảnh hưởng người dùng cuối vì chữ chỉ hiển thị, không bị mở ra; chỉ là một kiểm tra cũ cần được người quyết định giữ hay đổi quy tắc, sửa sau rẻ.
-  file: `scripts/evidence-page.js`
-  severity: high
-  Đề xuất: new-contract
-
-- **Card counts an eval as having an image while the evidence page says the card does not count it (and the card shows no warning)**
-  Người dùng thấy gì: Hiếm khi một eval khai sai đường dẫn ảnh nhưng hồ sơ vẫn có ảnh cùng tên theo mã eval: thẻ tính là có ảnh mà không cảnh báo, còn trang bằng chứng lại ghi rằng thẻ không tính. Người đọc thấy hai nơi nói ngược nhau về cùng một mục.
-  Căn cứ: Ảnh vẫn thật sự có trong hồ sơ nên không mất bằng chứng, chỉ lệch lời giải thích ở một ca hiếm; người đọc có thể tự đối chiếu.
-  file: `scripts/gate-card.js`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Measure-repo command exits 0 (match) even when the card fails to read some or all records**
-  Người dùng thấy gì: Lệnh đo trên kho thật có thể báo «khớp» dù không đọc được hồ sơ nào; chỉ một dòng báo lỗi đọc cho thấy điều đó. Người chạy tay có thể tưởng đã đo xong khi thực ra chưa đo gì.
-  Căn cứ: Lệnh này chạy tay, không nằm trong bộ kiểm tự động và có dòng báo lỗi hiện ra, nên rủi ro là hiểu nhầm nhất thời, không mất dữ liệu và sửa sau rẻ.
+- **Lệnh đo kho thật (E9) thoát 0, tức khớp, khi không so được hồ sơ nào**
+  Người dùng thấy gì: Khi chạy phép đo trên kho thật mà không so được hồ sơ nào, lệnh vẫn báo toàn số 0 như thể mọi thứ khớp. Người đọc có thể tưởng kho đã được kiểm và an toàn trong khi thực ra chưa đo được gì.
+  Căn cứ: Chỉ ảnh hưởng người chạy tay phép đo kho (không ảnh hưởng người dùng cuối), nhìn dòng «lỗi đọc» hay «0 hồ sơ» là nhận ra, và chạy lại không mất gì; nên ghi thành giới hạn đã biết.
   file: `tests/scripts/anh-co-that-kho.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **The new rule counts image file names containing #, ? or % as valid, but the page's <img src> cannot load them**
-  Người dùng thấy gì: Nếu tên tệp ảnh có dấu thăng, dấu hỏi hay phần trăm, thẻ tính là có ảnh nhưng trình duyệt không hiện được ảnh trên trang bằng chứng. Người xem thấy khung ảnh hỏng dù tệp có thật.
-  Căn cứ: Tên tệp kiểu này rất hiếm trong hồ sơ do máy đặt tên, ảnh vẫn nằm trong hồ sơ và mở trực tiếp được, nên hậu quả nhẹ.
+- **Bộ xét ảnh mới nhận tên tệp có '#', '?', '%' và đưa thẳng vào src mà không mã hoá URL: thẻ tính có ảnh nhưng trang hiện ảnh vỡ**
+  Người dùng thấy gì: Nếu tên tệp ảnh trong hồ sơ có ký tự lạ như dấu thăng hay dấu hỏi, thẻ vẫn báo «có ảnh» nhưng trang bằng chứng hiện ảnh vỡ. Người ký thấy ô ảnh trống dù thẻ nói đạt.
+  Căn cứ: Hiếm gặp vì tên ảnh do máy đặt theo mẫu, hậu quả nhẹ (chỉ ảnh không hiện, không mất dữ liệu) và người dùng đổi tên tệp là xong.
   file: `scripts/anh-ho-so.cjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 3 (assert chuỗi có mặt thay vì quan hệ): sáu hàng 'đạt' của LNT7 trên thẻ không phân biệt được giá trị screenshot: có được đọc đúng hay không**
-  Người dùng thấy gì: Kiểm tra tự động cho các hàng ảnh hợp lệ có thể vẫn xanh dù bộ đọc đường dẫn bỏ nháy bị hỏng, vì ảnh được tìm thấy qua tên theo mã eval. Lỗi như vậy chỉ bị bắt ở trang bằng chứng chứ không ở thẻ.
-  Căn cứ: Người dùng không bị ảnh hưởng ngay vì kết quả thẻ vẫn đúng, và một kiểm tra khác trên trang đã bắt lỗi này; chỉ là lưới an toàn mỏng hơn.
+- **Mô tả trong evals.yaml lệch với mã: «git archive adab9a82 scripts lib» trong khi mã bung cả skills/**
+  Người dùng thấy gì: Lời mô tả cách dựng bản cũ để so sánh nói thiếu một thư mục so với thực tế. Người đọc hồ sơ có thể hiểu hơi sai cách đo, nhưng kết quả đo không đổi.
+  Căn cứ: Chỉ là lệch một dòng chú thích trong hồ sơ nội bộ, không làm sai kết quả nào của người dùng và sửa lại bất cứ lúc nào chỉ tốn một dòng.
+  file: `_acceptance/anh-co-that-trong-ho-so/evals.yaml`
+  severity: low
+  Đề xuất: wont-fix
+
+- **Trang bằng chứng nói «thẻ không tính eval này là có ảnh» trong khi thẻ VẪN tính nó đạt (screenshot: hỏng + có ảnh evidence/&lt;id&gt;-*.png)**
+  Người dùng thấy gì: Trong trường hợp hồ sơ khai đường ảnh sai nhưng vẫn có ảnh đặt đúng tên trong thư mục bằng chứng, thẻ báo đạt còn trang lại hiện cờ đỏ nói thẻ không tính ảnh. Người ký thấy hai nơi nói ngược nhau về cùng một ảnh.
+  Căn cứ: Ảnh vẫn hiện đúng và chữ ký không bị chặn nên không mất dữ liệu, nhưng cờ đỏ sai có thể làm người ký nghi ngờ thừa; ca này hiếm và đọc kỹ là hiểu.
+  file: `scripts/evidence-page.js`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Lệnh đo kho thoát 0 («khớp») khi không đo được gì: mọi thẻ lỗi, hoặc kho không có hồ sơ ui-check**
+  Người dùng thấy gì: Khi mọi hồ sơ đều không đọc được, hoặc kho không có hồ sơ nào cần so, phép đo vẫn in «khớp» với toàn số 0. Người chạy có thể hiểu nhầm là kho sạch.
+  Căn cứ: Chỉ làm người chạy tay phép đo hiểu nhầm trong chốc lát, dòng «lỗi đọc» in kèm giúp nhận ra, chạy lại không mất gì; nên ghi thành giới hạn đã biết.
+  file: `tests/scripts/anh-co-that-kho.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Bộ đếm độc lập của lệnh đo kho lệch luật thật với tệp evidence/&lt;id&gt;.png: báo lệch khi không có lệch**
+  Người dùng thấy gì: Với một hồ sơ hiếm có ảnh đặt tên không kèm đuôi mô tả, phép đo kho có thể báo «lệch» dù thẻ làm đúng luật. Người chạy đo sẽ thấy báo động giả và phải tự kiểm lại.
+  Căn cứ: Chỉ gây báo động giả cho người chạy phép đo, không ảnh hưởng thẻ hay chữ ký của ai; dạng tên này hiếm và chi phí sửa lớn hơn hậu quả.
+  file: `tests/scripts/anh-co-that-kho.mjs`
+  severity: low
+  Đề xuất: wont-fix
+
+- **Hình dạng 3: chỉ so tập hợp chuỗi có mặt, trong khi lời hứa là quan hệ loại giá trị → nguyên nhân; kỳ vọng từng hàng lại lấy từ chính bảng LY_DO của vật**
+  Người dùng thấy gì: Nếu sau này ai đó đảo nhầm lời giải thích giữa hai loại thiếu ảnh, phép kiểm hiện tại vẫn xanh và người ký sẽ đọc nguyên nhân sai. Hôm nay lời giải thích đang đúng.
+  Căn cứ: Chưa gây hại cho người dùng hôm nay vì nguyên nhân đang in đúng; rủi ro chỉ xảy ra nếu có sửa sai sau này, và nên khai thành giới hạn đo lường thay vì dựng thêm một vòng đo.
   file: `tests/plugins/lop-nhin-thay.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 (âm tính một mình, không đối chứng dương): lệnh đo kho thật thoát 0 'khớp' cả khi không đọc được hồ sơ nào**
-  Người dùng thấy gì: Lệnh đo kho thật có thể in toàn số không và báo khớp khi kho trống hoặc mọi hồ sơ đều lỗi đọc. Người chạy có thể hiểu nhầm là không có hồ sơ nào đổi phán quyết.
-  Căn cứ: Lệnh chỉ chạy tay và chỉ in số, không đổi gì trong hồ sơ nên không gây mất mát; chỉ cần ghi chú để người chạy đọc kèm số hồ sơ đo được.
-  file: `tests/scripts/anh-co-that-kho.mjs`
-  severity: medium
+- **Hình dạng 5: ma trận viết trước thiếu một phần tử của chính bảng luật — dạng `\\máy\…` (UNC) của hàng «đường tuyệt đối»**
+  Người dùng thấy gì: Đường dẫn kiểu ổ mạng của máy khác chưa được phép kiểm tự động bảo vệ; nếu ai làm hỏng cách nhận ra dạng này, bộ kiểm vẫn xanh. Người ký có thể thấy nguyên nhân thiếu ảnh bị ghi sai cho dạng đường này.
+  Căn cứ: Dạng đường mạng này rất hiếm trong hồ sơ thật, hậu quả chỉ là ghi sai nguyên nhân (ảnh vẫn bị báo thiếu), nên chấp nhận và ghi giới hạn.
+  file: `tests/plugins/lop-nhin-thay.test.mjs`
+  severity: low
   Đề xuất: known-limits
+
+- **Hình dạng 4: nhát tiêm (i) và (ii) của LNT9 không ghim thông điệp mà eval E7 hứa («thực tế present true»)**
+  Người dùng thấy gì: Một phép kiểm lỗi cố ý chỉ báo đúng tên hàng bị lật, chưa nói rõ thẻ đã tính ảnh sai ra sao. Người đọc báo lỗi khi phép kiểm đỏ sẽ có ít chi tiết hơn lời hứa.
+  Căn cứ: Phép kiểm vẫn có đối chứng xanh và vẫn đỏ đúng chỗ nên rủi ro bỏ sót thấp, người dùng không bị ảnh hưởng; sửa chỉ để câu chữ khớp hơn nên không đáng mở việc.
+  file: `tests/plugins/lop-nhin-thay.test.mjs`
+  severity: low
+  Đề xuất: wont-fix
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
