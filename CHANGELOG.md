@@ -10,6 +10,40 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Răng T1-escape chỉ nhận hồ sơ cổng chấm được (hồ sơ `t1-escape-chi-ho-so`, T3)
+
+Gốc: onehub-invest 22/10 (bản chép CI 2.32.0) — nhánh sửa `app/src/**` kèm một dòng `_acceptance/config.yaml` ra
+«clean»; cùng nhánh trước commit sửa config thì bị chặn.
+
+**Đổi gì.** Răng T1-escape của `scripts/pre-merge-check.sh` chặn PR đổi tệp chịu cổng (khớp `t3_paths`, hoặc ngoài
+`t1_skip_globs`) mà không kèm hồ sơ. Trước bản này, MỌI tệp dưới `_acceptance/` đều được tính là «PR có kèm hồ sơ».
+Từ bản này chỉ tệp dưới `_acceptance/<slug>/` của chính cổng (thư mục `_acceptance/` ở ROOT mà lệnh kiểm, tính từ gốc
+git) mà `<slug>/contract.md` có ở HEAD mới được tính — đúng các hồ sơ mà vòng kiểm từng hồ sơ thật sự chấm. Khi răng
+nổ, cổng in thêm một dòng `NOTE [PR]:` liệt kê các tệp dưới `_acceptance/` không được tính. Hai câu `VIOLATION [PR]`
+giữ nguyên văn; chế độ `--hang-pr` trả lời như cũ.
+
+**Kho tiêu thụ nào bị ảnh hưởng.** PR nay bị chặn mà trước qua — năm lớp, kèm số đo trên 9 kho từ 01/06/2026
+(`_acceptance/t1-escape-chi-ho-so/do-anh-huong.md`, 30 commit nhánh chính):
+
+- tệp ở gốc `_acceptance/` — `config.yaml`, `README.md`, kể cả bản lồng như `pkg/_acceptance/config.yaml` — 22 commit;
+- thư mục `_acceptance/<slug>/` không có `contract.md` — 3 commit;
+- hồ sơ chỉ có `opportunity.md` (ô ở Cổng Đáng) — 4 commit;
+- PR xoá hồ sơ (`contract.md` không còn ở HEAD) — 0 commit;
+- hồ sơ fixture nằm ngoài `_acceptance/` của cổng, vd `tests/.../_acceptance/<slug>/` — 2 commit.
+
+**PR chép lại lớp CI cũng phải kèm hồ sơ.** Trong 22 commit «tệp gốc» có PR khởi tạo kit, nâng hay chép lại lớp chép CI
+(`scripts/`, `lib/`, workflow CI cùng `_acceptance/config.yaml`). Các tệp đó nằm ngoài T1 ở mọi kho đã đo, nên từ bản
+này PR như vậy phải kèm một hồ sơ — **kể cả chính PR mang bản này vào kho**, vì CI chạy bản chép ở HEAD của PR.
+
+**Kho làm gì khi nhận.** Chép lại `scripts/pre-merge-check.sh` vào lớp chép CI, trong một PR kèm hồ sơ
+`_acceptance/<slug>/` có `contract.md`. Không đổi khoá config nào.
+
+**Không đổi:** PR chỉ sửa `_acceptance/config.yaml` (không chạm tệp chịu cổng) vẫn qua — tệp gốc `_acceptance/` vẫn
+không tự chịu cổng. Hai lỗ cùng họ vẫn mở, ghi ở `docs/plans/2026-10-22-hat-giong-t1-escape-hang-tu-khai.md`: hồ sơ
+tự khai `risk_tier: T1` đi kèm code T3, và PR tự nới `t1_skip_globs` ở chế độ thường.
+
 ## 2.33.1 — 20/10/2026
 
 Bản vá của 2.33.0. Chủ kho quyết 19/10 «GT2 xong sẽ cắt bản vá», rồi 20/10 «ưu tiên KY1 để cắt» — không chờ mốc
