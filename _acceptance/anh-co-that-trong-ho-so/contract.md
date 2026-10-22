@@ -19,8 +19,10 @@ veto_opened_at: 2026-10-22T08:55:52Z
 
 Thẻ Cổng Bằng chứng tính một eval ui-check «đạt — xem frame ở trang bằng chứng» chỉ từ chuỗi `screenshot:` trong báo
 cáo; không bước nào kiểm tệp. Ở một kho tiêu thụ (22/10) hai hồ sơ đã ký được tính «có ảnh» mà không chứa ảnh nào, và
-26/293 đường trỏ ra thư mục lượt chấm hay đường tuyệt đối của máy khác. Ngưỡng mở của hạt giống
-`docs/plans/2026-10-22-hat-giong-the-tin-chuoi-anh-khong-kiem-tep.md` đạt 22/10. Gốc: `_acceptance/lop-bang-chung-nhin-thay/`
+26/293 đường trỏ ra thư mục lượt chấm hay đường tuyệt đối của máy khác. Hai hồ sơ ấy là ca gốc của hạt giống
+`docs/plans/2026-10-22-hat-giong-the-tin-chuoi-anh-khong-kiem-tep.md`, không phải lần gặp thêm. Vòng mở vì chủ kho báo
+22/10, qua phiên giám sát đợt, rằng lỗi gặp thêm ở máy M5 — đúng ngưỡng «≥ 1 lần nữa» của hạt giống. Tên ca M5 (kho, hồ
+sơ, eval) không chép vào đây: ca thuộc một kho riêng tư, kho kit công khai (cùng luật ẩn danh hạt giống đã áp). Gốc: `_acceptance/lop-bang-chung-nhin-thay/`
 (AC-4; ca LNT4(b) đang ghim chỗ hở thành hành vi đúng).
 
 Source input: prompt — phiên giám sát đợt chuyển lời chủ kho 22/10; thiết kế ở `design_doc`.

@@ -13,7 +13,8 @@ bị lọc bỏ thì trang in «ui-check có thể đã downgrade sang judgment�
 
 Số đo ở một kho tiêu thụ 22/10 (ẩn danh, chi tiết ở hạt giống): 26/293 trường `screenshot:` trỏ ra thư mục lượt chấm
 hoặc đường tuyệt đối trên máy khác, 9 mang tên không khớp tệp nào; 2 hồ sơ đã ký được thẻ tính «có ảnh» mà hồ sơ không
-chứa ảnh nào. Ngưỡng mở của hạt giống (≥1 lần nữa) đạt 22/10: chủ kho báo đã gặp thêm ở một máy khác.
+chứa ảnh nào. Hai hồ sơ ấy là ca gốc của hạt giống; vòng mở vì chủ kho báo 22/10 (qua phiên giám sát đợt) rằng lỗi gặp thêm ở máy
+M5 — ngưỡng «≥ 1 lần nữa» của hạt giống. Tên ca M5 thuộc một kho riêng tư nên không chép vào kho công khai.
 
 Hai hình dạng thật, dựng lại trong ca đo (ẩn danh):
 
