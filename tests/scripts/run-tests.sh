@@ -1841,7 +1841,8 @@ echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
 EPR="$T/evp"; de="$EPR/_acceptance/epf"; mkdir -p "$de/evidence"
-: > "$de/evidence/E3-step1.png"; : > "$de/evidence/E3-step2.png"
+# Ảnh phải là tệp > 0 byte (hồ sơ anh-co-that-trong-ho-so: tệp rỗng không được tính là ảnh) — 8 byte chữ ký PNG.
+printf '\211PNG\r\n\032\n' > "$de/evidence/E3-step1.png"; printf '\211PNG\r\n\032\n' > "$de/evidence/E3-step2.png"
 printf -- '---\nfeature: EP demo\nslug: epf\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n' > "$de/contract.md"
 cat > "$de/evidence-report.md" <<'EOF'
 ---
