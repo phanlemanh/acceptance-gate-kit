@@ -110,6 +110,7 @@ evals:
     criterion: AC-9
     executor: script
     cmd: config:executors.script.anh_co_that_kho
+    long_running: 120   # đo 22/10 trên một kho 169 hồ sơ: 91 phút tuần tự; lệnh nay chạy song song
     paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/scripts/anh-co-that-kho.mjs]
     expected: >
       exit 0 (máy chấm khai kho tiêu thụ ở .acceptance-runs/kho-do); stdout có dòng "anh-co-that-kho: ho-so-ui <n> · cu-co-anh <a>
