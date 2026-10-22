@@ -5,10 +5,10 @@ slug: t1-escape-chi-ho-so
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: draft
+status: approved
 design_doc: docs/superpowers/specs/2026-10-22-t1-escape-chi-ho-so-design.md
-approved_by:
-approved_at:
+approved_by: Phan Le Manh
+approved_at: 2026-10-22
 ---
 
 # Acceptance Contract: t1-escape-chi-ho-so
