@@ -5,7 +5,7 @@ slug: anh-co-that-trong-ho-so
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-22-anh-co-that-trong-ho-so-design.md
 approved_by:
 approved_at:
@@ -64,3 +64,10 @@ dựng từ vùng chép của `evidence-report-template.md` với khối rút t�
 - Ca đo: `tests/plugins/lop-nhin-thay.test.mjs` ca LNT7 (AC-1…AC-5), LNT8 (AC-6, AC-8), LNT9 (AC-7) — tự đăng ký vào suite
   plugins qua `--ids`. AC-9: `tests/scripts/anh-co-that-kho.mjs` — vế kho tổng hợp đo bằng ca LNT10 (trong suite);
   vế kho thật chạy tay với `KHO_DO`, không vào suite (vắng → mù), chỉ in số.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-22:
+  - Ngoài-1: Lệnh đo kho thật báo «khớp» (thoát 0) cả khi không so được hồ sơ nào — người chạy tay phải đọc dòng «lỗi đọc» và số hồ sơ.
+  - Ngoài-2: Ảnh có dấu thăng, dấu hỏi hay phần trăm trong tên vẫn được thẻ tính là có ảnh, nhưng trang bằng chứng hiện ảnh vỡ.
+  - Ngoài-4: Hồ sơ khai sai đường ảnh nhưng vẫn có ảnh đúng tên theo mã eval: thẻ tính có ảnh, còn trang lại hiện cờ đỏ nói thẻ không tính.
+  - Ngoài-5: Trùng Ngoài-1 — lệnh đo kho báo «khớp» khi mọi thẻ lỗi hoặc kho không có hồ sơ nào cần so.
+  - Ngoài-7: Một phép kiểm của ma trận so tập chuỗi có mặt thay vì quan hệ giá trị với nguyên nhân, nên một lệch ghép cặp có thể lọt.
+  - Ngoài-8: Ma trận viết trước thiếu dạng đường mạng `\\máy\…` của hàng «đường tuyệt đối».
