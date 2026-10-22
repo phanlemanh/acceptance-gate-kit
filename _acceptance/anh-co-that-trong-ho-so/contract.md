@@ -71,3 +71,4 @@ dựng từ vùng chép của `evidence-report-template.md` với khối rút t�
   - Ngoài-5: Trùng Ngoài-1 — lệnh đo kho báo «khớp» khi mọi thẻ lỗi hoặc kho không có hồ sơ nào cần so.
   - Ngoài-7: Một phép kiểm của ma trận so tập chuỗi có mặt thay vì quan hệ giá trị với nguyên nhân, nên một lệch ghép cặp có thể lọt.
   - Ngoài-8: Ma trận viết trước thiếu dạng đường mạng `\\máy\…` của hàng «đường tuyệt đối».
+- Hạt giống cho Ngoài-4 và Ngoài-1/5 (ghi sau chữ ký 22/10): `docs/plans/2026-10-22-hat-giong-anh-co-that-con-lai.md`.
