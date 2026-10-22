@@ -33,3 +33,9 @@ phiên viết lại báo cáo).
 ## Ngưỡng mở ô
 
 ≥ 1 lần nữa người ký báo đã ký trên thẻ «có ảnh» mà trang bằng chứng không hiện ảnh nào, ở bất kỳ kho nào.
+
+## Trạng thái
+
+22/10: ngưỡng đạt (chủ kho báo lỗi gặp thêm ở máy M5, qua phiên giám sát đợt) → vòng `_acceptance/anh-co-that-trong-ho-so/`
+sửa bên đọc (thẻ + trang), ký Cổng Bằng chứng 22/10. Phần còn lại: bên viết (mục «Chưa đo») và hai chỗ lệch ở
+`docs/plans/2026-10-22-hat-giong-anh-co-that-con-lai.md`.

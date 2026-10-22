@@ -176,7 +176,12 @@ executors:
     ho_so_da_ky_giu_tuoi: node tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs
     ho_so_da_ky_giu_tuoi_cac_kho: node tests/scripts/ho-so-da-ky-giu-tuoi-cac-kho.mjs
     ho_so_da_ky_giu_tuoi_bo_cu: "bash -c 'set -e; for f in tests/scripts/repin-lane*.test.mjs tests/scripts/premerge-repin.test.mjs tests/scripts/stale-by-paths.test.mjs; do node \"$f\"; done'"
+    # Hồ sơ anh-co-that-trong-ho-so: ca LNT7…LNT10 (ảnh chỉ tính khi tệp có thật dưới evidence/ của hồ sơ).
+    anh_co_that: env LNT_CASES=LNT7,LNT8,LNT9,LNT10 node tests/plugins/lop-nhin-thay.test.mjs
   script:
+    # Hồ sơ anh-co-that-trong-ho-so (AC-9, vế kho thật): kho khai ở KHO_DO hoặc .acceptance-runs/kho-do (gitignore);
+    # không khai → thoát 2 (mù). Chỉ in số. Không vào feature_loop.suite_keys.
+    anh_co_that_kho: node tests/scripts/anh-co-that-kho.mjs
     # Hồ sơ vong-mo-co-chu-giu (GT1, E4b): chỉ đọc kênh thật #308 bằng gh thật; KHÔNG vào feature_loop.suite_keys (CI không có gh đăng nhập).
     dieu_phoi_tin_kenh_that: node tests/dieu-phoi/tin-kenh-that.mjs
     coverage_lint: "node scripts/eval-coverage-lint.js ."
