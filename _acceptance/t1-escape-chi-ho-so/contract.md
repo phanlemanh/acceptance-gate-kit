@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Răng T1-escape chỉ nhận hồ sơ thật — tệp ở gốc `_acceptance/` (config.yaml, README.md) và thư mục không có contract.md thôi được tính là «PR có kèm hồ sơ»
+feature: Răng T1-escape chỉ nhận hồ sơ cổng chấm được — tệp ở gốc `_acceptance/` (config.yaml, README.md), thư mục không có contract.md và hồ sơ nằm ngoài `_acceptance/` của cổng thôi được tính là «PR có kèm hồ sơ»
 slug: t1-escape-chi-ho-so
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths

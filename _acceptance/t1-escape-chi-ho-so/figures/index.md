@@ -3,8 +3,8 @@
 | Điểm | Đếm | Hình |
 |---|---|---|
 | Hỏi-1 tệp gốc `_acceptance/` thôi tính là hồ sơ (sổ d-…-7) | hai nhánh rẽ | `cay-phan-loai` |
-| Hỏi-2 chỉ hồ sơ cổng chấm được mới tính (sổ d-…-10) | hai nhánh rẽ | `cay-phan-loai` |
-| Hỏi-3 tệp gốc tự thân không chịu cổng (sổ d-…-9) | hai nhánh rẽ | `cay-phan-loai` |
+| Hỏi-2 chỉ hồ sơ cổng chấm được mới tính (sổ d-…-11) | hai nhánh rẽ | `cay-phan-loai` |
+| Hỏi-3 tệp gốc tự thân không chịu cổng (sổ d-…-12) | hai nhánh rẽ | `cay-phan-loai` |
 | Gap-probe P0 `human-gate1` | trùng Hỏi-1, Hỏi-2 | `cay-phan-loai` |
 
 ## Đề bài `cay-phan-loai`

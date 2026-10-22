@@ -1,0 +1,37 @@
+{
+  "feature_plain": "PR sửa code chịu cổng sẽ không còn lọt CI chỉ vì sửa thêm một dòng cấu hình cổng hay một tệp lặt vặt dưới thư mục nghiệm thu — phải kèm một hồ sơ mà cổng thật sự chấm.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chặn PR sửa code chịu cổng mà thứ duy nhất dưới thư mục nghiệm thu là cấu hình, README, thư mục rỗng hợp đồng, ô cơ hội, hồ sơ bị xoá hay hồ sơ mẫu của bộ kiểm — và vẫn cho qua PR có hồ sơ thật (39 tình huống viết trước)."},
+    {"id": "AC-2", "p": "Sẽ in thêm một dòng giải thích liệt kê đúng các tệp không được tính, để người ở kho tiêu thụ hiểu vì sao sửa cấu hình không còn đủ."},
+    {"id": "AC-3", "p": "Sẽ giữ nguyên câu trả lời của chế độ phân hạng PR (CI của kho dựa vào nó để bỏ job nặng)."},
+    {"id": "AC-4", "p": "Sẽ chứng minh bộ kiểm bắt được lỗi: trả mã về như cũ thì đúng 14 tình huống lọt hôm nay đỏ lại."},
+    {"id": "AC-5", "p": "Sẽ chứng minh từng vế của định nghĩa có tác dụng riêng: gỡ từng vế thì đúng nhóm tình huống của vế đó đỏ."},
+    {"id": "AC-6", "p": "Sẽ để lịch sử nhánh cho thấy bộ kiểm có trước bản vá và đã đỏ trên mã cũ."},
+    {"id": "AC-7", "p": "Sẽ giữ mọi bộ kiểm sẵn có của kit xanh, kể cả hai câu báo lỗi cũ giữ nguyên văn."},
+    {"id": "AC-8", "p": "Sẽ ghi vào nhật ký thay đổi: đổi gì, năm loại PR nay bị chặn kèm số đo, PR chép lại lớp CI cũng phải kèm hồ sơ, và kho làm gì khi nhận."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Sẽ KHÔNG bắt PR chỉ sửa cấu hình cổng phải kèm hồ sơ (Hỏi-3)."},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG mở lối miễn riêng cho PR bảo trì lớp kit ở kho tiêu thụ — chỉ báo trước trong nhật ký thay đổi."},
+    {"id": "OOS-3", "p": "Sẽ KHÔNG chặn hồ sơ tự khai hạng thấp hơn code nó đi kèm — ghi hạt giống."},
+    {"id": "OOS-4", "p": "Sẽ KHÔNG chặn PR tự nới danh sách tệp miễn cổng — cùng hạt giống."},
+    {"id": "OOS-5", "p": "Sẽ KHÔNG đổi luật bằng-chứng-cũ (câu hỏi khác)."},
+    {"id": "OOS-6", "p": "Sẽ KHÔNG cắt số phát hành mới trong việc này — đi hồ sơ mốc riêng."},
+    {"id": "OOS-7", "p": "Sẽ KHÔNG sửa lớp CI ở onehub-invest — phiên bên đó làm sau khi kit phát hành."}
+  ],
+  "scope_plain": "Những thứ dưới đây cố ý để ngoài, mỗi thứ có chỗ ghi lại:",
+  "coverage_plain": [
+    {"i": 1, "p": "Mọi loại tệp dưới thư mục nghiệm thu có thể xuất hiện trong PR — từ không có gì tới hồ sơ thật, kể cả kho đặt cổng trong thư mục con (AC-1, AC-2)."},
+    {"i": 2, "p": "Ba loại code PR có thể đụng: code chịu cổng nặng nhất, code thường, tài liệu được miễn (AC-1)."},
+    {"i": 3, "p": "Hai bên đọc cùng phép phân loại: răng chặn PR và chế độ phân hạng PR (AC-1, AC-3)."},
+    {"i": 4, "p": "Ba thứ người thấy: câu báo lỗi cũ, dòng giải thích mới, nhãn hạng PR (AC-1–AC-3, AC-7)."},
+    {"i": 5, "p": "Bốn cách phá thử để chứng minh bộ kiểm không xanh giả, cộng lịch sử đỏ-trước-xanh-sau (AC-4–AC-6)."},
+    {"i": 6, "p": "Có và không có nhánh gốc để so — trường hợp không có giữ hành vi cũ (AC-1, AC-7)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Máy từng tự quyết cả bốn loại tệp không được tính, trong khi chặn thêm thư mục rỗng hợp đồng hay ô cơ hội là đổi hành vi ở mọi kho. Đã đo 9 kho và tách thành hai câu cho anh (Hỏi-1, Hỏi-2)."},
+    {"i": 1, "p": "Bộ kiểm thiếu trường hợp phổ biến nhất ở kho thật: hồ sơ có sẵn, PR chỉ sửa bằng chứng. Đã thêm, cùng một cách phá thử riêng cho nó."},
+    {"i": 2, "p": "Dòng giải thích mới chỉ được kiểm ở sáu tình huống. Đã kiểm trên đủ 39."},
+    {"i": 3, "p": "Tiêu chí nhật ký thay đổi chỉ đòi nhắc hai loại PR bị chặn. Đã đòi đủ, kèm số đo và cảnh báo về PR chép lại lớp CI."}
+  ]
+}
