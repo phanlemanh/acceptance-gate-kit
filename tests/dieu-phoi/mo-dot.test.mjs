@@ -943,7 +943,15 @@ export async function kiemDem(gocGoi) {
   if (r.ma !== 0) loi.push(`dem thoát ${r.ma}: ${r.err}`);
   const d = JSON.parse(r.out || '{}');
   const ngay = new Date(gio).toISOString().slice(0, 10);
-  const can = { gop_theo_ngay: { [ngay]: 1 }, goi_chu_kho: { tong: 1, theo_hang: { 'hang-a': 1 } } };
+  // Hồ sơ ky-den-gop: io giả không có lịch sử git của nhánh chính → hàng gộp vào `chua_do`, không vào mẫu số ký → gộp.
+  const can = {
+    gop_theo_ngay: { [ngay]: 1 },
+    goi_chu_kho: { tong: 1, theo_hang: { 'hang-a': 1 } },
+    ky_den_gop: { so: 0, trung_vi_phut: null, lon_nhat_phut: null, theo_hang: {}, chua_do: ['hang-a'] },
+    gop_vao_nhanh: { tong: 0, theo_hang: {} },
+    ghim_lai_sau_ky: { tong: 0, theo_hang: {} },
+    gop: {},
+  };
   if (JSON.stringify(d) !== JSON.stringify(can)) loi.push(`dem = ${JSON.stringify(d)}, cần ${JSON.stringify(can)} (loại sự kiện gộp: hang-gop)`);
   return loi;
 }
