@@ -36,10 +36,10 @@ const doCa = (out) => [...out.matchAll(/^✖ ([A-Z]+-\d+) /gm)].map((m) => m[1])
 
 const NHAT = [
   // C — lịch biết tệp
-  ['C chonHangKe bỏ hàm trùng', 'dieu-phoi/scripts/lich.mjs', 'const voi = trung ? trung(h).trung : [];', 'const voi = [];', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-12', 'C-2', 'C-3', 'C-7', 'C-8', 'C-9']],
+  ['C chonHangKe bỏ hàm trùng', 'dieu-phoi/scripts/lich.mjs', 'const voi = trung ? trung(h).trung : [];', 'const voi = [];', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-12', 'C-13', 'C-2', 'C-3', 'C-7', 'C-8', 'C-9']],
   ['C PR của chính dãy tính là xung đột', 'dieu-phoi/scripts/trung-tep.mjs', '    if (nhanh === nhanhMinh) continue;\n', '', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-4', 'C-8']],
-  ['C dò PR nuốt lỗi gh', 'dieu-phoi/scripts/trung-tep.mjs', "loi: `gh pr list lỗi: ${String(e.message ?? e).split('\\n')[0]}`", 'loi: null', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-5', 'C-9']],
-  ['C chạm tệp duyệt khi không dò được nhánh', 'dieu-phoi/scripts/yeu-cau.mjs', 'if (nguCanh.nhanhLoi) return', 'if (false) return', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-6']],
+  ['C dò PR nuốt lỗi gh', 'dieu-phoi/scripts/trung-tep.mjs', "loi: `gh pr list lỗi: ${String(e.message ?? e).split('\\n')[0]}`", 'loi: null', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-13', 'C-5', 'C-9']],
+  ['C chạm tệp duyệt khi không dò được nhánh', 'dieu-phoi/scripts/yeu-cau.mjs', 'if (nguCanh.nhanhLoi) return', 'if (false) return', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-13', 'C-6']],
   ['C đã ký chưa gộp không tính đang dở', 'dieu-phoi/scripts/trung-tep.mjs', "new Set(['dang', 'ky'])", "new Set(['dang'])", 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-2']],
   ['C gh lỗi thì giao mù dù có bản chụp cũ', 'dieu-phoi/scripts/phat-lich.mjs', 'const hongHan = (nm) => nm.loi && nm.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi;', 'const hongHan = () => false;', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-13']],
   ['C đường xét chạm tệp bỏ qua bản chụp cũ (S4-r1)', 'dieu-phoi/scripts/phat-lich.mjs', 'song: () => quaChup(doc()),', 'song: doc,', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-13']],
