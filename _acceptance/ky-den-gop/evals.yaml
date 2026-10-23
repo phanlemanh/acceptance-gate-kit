@@ -43,7 +43,9 @@ evals:
     cmd: config:executors.test.dieu_phoi_ky_den_gop
     paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/trung-tep.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
     expected: >
-      exit 0; "ok" cho "C-9", "C-11". C-11: nhịp 1 gh tốt (PR feat/ngoai sửa phiếu) → P1 nhận z; bản chụp lùi 3′, gh ném
+      exit 0; "ok" cho "C-9", "C-11", "C-13". C-13 (S4-r1): như C-11 nhưng nhịp gh hỏng có yêu cầu cham-tep P2-1 chờ
+      duyệt → P1 vẫn z, nhanh_mo vẫn giữ feat/ngoai, đúng một sự kiện yeu-cau P2-1 can_phan khớp «không dò được nhánh mở
+      (gh pr list lỗi: gh: auth expired — lịch so bằng bản chụp PR cũ 3′». C-11: nhịp 1 gh tốt (PR feat/ngoai sửa phiếu) → P1 nhận z; bản chụp lùi 3′, gh ném
       «auth expired» hai nhịp → P1 vẫn z, đúng một trung-tep-mu khớp «— lịch so bằng bản chụp PR cũ 3′», nhanh_mo vẫn
       giữ feat/ngoai; đối chứng chưa có bản chụp → P1 nhận x. C-9: gh ném lỗi → tiep/P1 hang = x, đúng một sự kiện trung-tep-mu qua hai nhịp; hàng x bỏ
       ranh_gioi → tiep/P1 hang = x và đúng một sự kiện ranh-gioi-vang {hang x}.
@@ -110,7 +112,7 @@ evals:
     cmd: config:executors.test.dieu_phoi_ky_den_gop
     paths: [tests/dieu-phoi/ky-den-gop-mutants.test.mjs, dieu-phoi/scripts/*.mjs, feature-loop/scripts/pr-san-sang.mjs]
     expected: >
-      exit 0; "ok" cho "KDG-M0" (bốn tệp ca trên bản sao lành: thoát 0, «ℹ pass N» với N ≥ 1, «ℹ fail 0») và 22 dòng
-      "ok" «KDG-M <nhát> → đỏ đúng <ca>»; mỗi nhát: chuỗi gốc có trước, vắng sau; tệp ca thoát khác 0; tập ca đỏ BẰNG tập
+      exit 0; "ok" cho "KDG-M0" (bốn tệp ca trên bản sao lành: thoát 0, «ℹ pass N» với N ≥ 1, «ℹ fail 0») và 23 dòng
+      "ok" «KDG-M <nhát> → đỏ đúng <ca>» (22 nhát của AC-10 + nhát S4-r1 «đường xét chạm tệp bỏ qua bản chụp cũ» → C-13); mỗi nhát: chuỗi gốc có trước, vắng sau; tệp ca thoát khác 0; tập ca đỏ BẰNG tập
       nêu tên.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

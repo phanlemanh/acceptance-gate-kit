@@ -160,9 +160,9 @@ function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-cha
 // mỗi nhịp 5″, gọi gh mỗi nhịp là phí. Bản chụp mới (hoặc cũ giữ nguyên) ghi lại ở cuối nhịp cho `hang them` đọc.
 const NHANH_MO_TUOI_MS = PHUT_MS;
 function boNhanhMo(io, cfg, hangViec, chupCu, nowMs) {
-  let nm = null;
   let nhanhDay = null;
-  let moi = false;
+  let daDoc = false;
+  let tuoi = null;
   const layNhanhDay = () => {
     if (nhanhDay) return nhanhDay;
     nhanhDay = new Map();
@@ -177,35 +177,27 @@ function boNhanhMo(io, cfg, hangViec, chupCu, nowMs) {
     }
     return nhanhDay;
   };
-  const song = () => {
-    if (!moi) {
-      nm = docNhanhMo(io, cfg);
-      moi = true;
-    }
-    return nm;
-  };
-  // gh lỗi hẳn (không dò được PR nào) mà có bản chụp đời trước → lịch so bằng bản chụp ấy kèm tuổi trong lời báo,
-  // không giao mù (gap-probe P0: gh hết phiên nhiều giờ thì PR ngoài đợt đang sửa phiếu vẫn còn trong bản chụp). Bản
-  // chụp tốt không bị bản dò hỏng ghi đè.
-  let dungChupCu = false;
-  const gan = () => {
-    if (nm && !dungChupCu) return nm;
-    if (dungChupCu) return docChupNhanhMo(chupCu, nm.loi);
-    if (chupCu && nowMs - Date.parse(chupCu.luc) < NHANH_MO_TUOI_MS) return (nm = docChupNhanhMo(chupCu));
-    const tuoi = song();
-    if (tuoi.loi && tuoi.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi) {
-      dungChupCu = true;
-      const phut = Math.round((nowMs - Date.parse(chupCu.luc)) / PHUT_MS);
-      nm = { ...tuoi, loi: `${tuoi.loi} — lịch so bằng bản chụp PR cũ ${phut}′ (${chupCu.luc})` };
-      return docChupNhanhMo(chupCu, nm.loi);
+  const doc = () => {
+    if (!daDoc) {
+      tuoi = docNhanhMo(io, cfg);
+      daDoc = true;
     }
     return tuoi;
   };
+  // gh lỗi hẳn (không dò được PR nào) mà có bản chụp tốt đời trước → mọi bên đọc (xét chạm tệp lẫn chọn hàng kế) so
+  // bằng bản chụp ấy, lời báo nêu tuổi; bản chụp tốt không bị bản dò hỏng ghi đè (gap-probe P0; S4-r1: nhịp có yêu cầu
+  // chờ từng dò trước ở đường xét chạm tệp rồi trả bản rỗng cho lịch và ghi đè bản chụp tốt).
+  const hongHan = (nm) => nm.loi && nm.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi;
+  const quaChup = (nm) => {
+    if (!hongHan(nm)) return nm;
+    const phut = Math.round((nowMs - Date.parse(chupCu.luc)) / PHUT_MS);
+    return docChupNhanhMo(chupCu, `${nm.loi} — lịch so bằng bản chụp PR cũ ${phut}′ (${chupCu.luc})`);
+  };
   return {
-    song,
-    gan,
+    song: () => quaChup(doc()),
+    gan: () => (!daDoc && chupCu && nowMs - Date.parse(chupCu.luc) < NHANH_MO_TUOI_MS ? docChupNhanhMo(chupCu) : quaChup(doc())),
     nhanhDay: layNhanhDay,
-    chup: () => (moi && !dungChupCu ? { ...chupNhanhMo(nm, new Date(nowMs).toISOString()), nhanh_day: Object.fromEntries(layNhanhDay()) } : chupCu ?? null),
+    chup: () => (daDoc && !hongHan(tuoi) ? { ...chupNhanhMo(tuoi, new Date(nowMs).toISOString()), nhanh_day: Object.fromEntries(layNhanhDay()) } : chupCu ?? null),
   };
 }
 

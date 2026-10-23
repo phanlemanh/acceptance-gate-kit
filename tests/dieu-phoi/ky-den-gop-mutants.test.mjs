@@ -41,7 +41,8 @@ const NHAT = [
   ['C dò PR nuốt lỗi gh', 'dieu-phoi/scripts/trung-tep.mjs', "loi: `gh pr list lỗi: ${String(e.message ?? e).split('\\n')[0]}`", 'loi: null', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-5', 'C-9']],
   ['C chạm tệp duyệt khi không dò được nhánh', 'dieu-phoi/scripts/yeu-cau.mjs', 'if (nguCanh.nhanhLoi) return', 'if (false) return', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-6']],
   ['C đã ký chưa gộp không tính đang dở', 'dieu-phoi/scripts/trung-tep.mjs', "new Set(['dang', 'ky'])", "new Set(['dang'])", 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-2']],
-  ['C gh lỗi thì giao mù dù có bản chụp cũ', 'dieu-phoi/scripts/phat-lich.mjs', 'if (tuoi.loi && tuoi.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi) {', 'if (false) {', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11']],
+  ['C gh lỗi thì giao mù dù có bản chụp cũ', 'dieu-phoi/scripts/phat-lich.mjs', 'const hongHan = (nm) => nm.loi && nm.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi;', 'const hongHan = () => false;', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-11', 'C-13']],
+  ['C đường xét chạm tệp bỏ qua bản chụp cũ (S4-r1)', 'dieu-phoi/scripts/phat-lich.mjs', 'song: () => quaChup(doc()),', 'song: doc,', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-13']],
   ['C themSau dựng vòng chờ nhau', 'dieu-phoi/scripts/khoa-hang-viec.mjs', ' && !choLai(k)', '', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-12']],
   ['C hang them không ghi sau', 'dieu-phoi/scripts/hang.mjs', '  if (sau.length) hangMoi.sau = sau;\n', '', 'tests/dieu-phoi/loi/trung-tep.test.mjs', ['C-10']],
   // I — gộp không chạy lại CI khi không trùng tệp

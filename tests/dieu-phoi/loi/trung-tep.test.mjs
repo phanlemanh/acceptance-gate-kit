@@ -251,3 +251,24 @@ test('C-12 hai hàng kế trùng vùng ở hai dãy cùng nhịp → đúng MỘ
   assert.equal(themSau(k.d, 'x', 'P1', [{ khoa: 'Y' }]).doi, false);
   assert.equal(themSau(k.d, 'x', 'P1', [{ khoa: 'Z' }]).doi, true);
 });
+
+test('C-13 gh hỏng ĐÚNG nhịp có yêu cầu chạm tệp chờ duyệt → lịch vẫn so bằng bản chụp cũ, bản chụp tốt không bị ghi đè, yêu cầu lên giám sát', async () => {
+  let ghHong = false;
+  const { d, io } = dot({ rgY: ['apps/mobile/**'], gh: () => { if (ghHong) throw new Error('gh: auth expired'); return '[{"headRefName":"feat/ngoai"}]'; }, diff: () => `${PHIEU}\n` });
+  await motNhip(d, io);
+  const p = path.join(d, 'trang-thai.json');
+  const tt = JSON.parse(fs.readFileSync(p, 'utf8'));
+  tt.nhanh_mo.luc = new Date(NOW - 3 * 60_000).toISOString();
+  fs.writeFileSync(p, JSON.stringify(tt));
+  ghHong = true;
+  // Yêu cầu chạm tệp chờ duyệt: đường xét chạm tệp dò PR TRƯỚC lịch trong cùng nhịp (ca S4-r1).
+  fs.writeFileSync(path.join(d, 'yeu-cau', 'P2-1.json'), JSON.stringify({ phien: 'P2', loai: 'cham-tep', hang: null, noi_dung: { tep: ['apps/mobile/a.ts'] }, luc: new Date(NOW).toISOString() }));
+  await motNhip(d, io);
+  await motNhip(d, io);
+  assert.equal(tiep(d, 'P1').hang, 'z', 'gh hỏng + yêu cầu chờ: vẫn giữ X theo bản chụp cũ');
+  assert.deepEqual(JSON.parse(fs.readFileSync(p, 'utf8')).nhanh_mo.theo_nhanh['feat/ngoai'], [PHIEU], 'bản chụp tốt không bị bản dò hỏng ghi đè');
+  const yc = suKien(d).filter((s) => s.loai === 'yeu-cau' && s.id === 'P2-1');
+  assert.equal(yc.length, 1);
+  assert.equal(yc[0].can_phan, true);
+  assert.match(yc[0].ly_do, /không dò được nhánh mở \(gh pr list lỗi: gh: auth expired — lịch so bằng bản chụp PR cũ 3′/);
+});
