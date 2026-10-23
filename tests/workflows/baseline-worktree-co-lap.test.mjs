@@ -182,7 +182,8 @@ function kiemBW4(gc = GC) {
   if (co(theCua(mkHoSo(LOG_DU), gc))) loi.push('đủ dấu mà thẻ vẫn có cờ');
   if (co(theCua(mkHoSo(LOG_LUOT_SAU), gc))) loi.push('dòng của lượt cũ vẫn lên thẻ lượt mới');
   const exDu = JSON.parse(theCua(mkHoSo(LOG_DU), gc, ['--extract']));
-  if (exDu.doi_chung !== null) loi.push(`đủ dấu mà --extract doi_chung = ${JSON.stringify(exDu.doi_chung)}`);
+  // Đọc-cũ: hồ sơ không có dòng thì --extract KHÔNG có khoá (byte-giống bản trước — ca LNT8 canh).
+  if ('doi_chung' in exDu) loi.push(`đủ dấu mà --extract có khoá doi_chung = ${JSON.stringify(exDu.doi_chung)}`);
   return loi;
 }
 {
