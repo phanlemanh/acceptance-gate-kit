@@ -864,6 +864,19 @@
         7
       ],
       "ghi_chu": "Chủ kho 19/10 (phiên Mac Studio): dời sau mốc 22/10 để giữ mốc kit nhỏ."
+    },
+    {
+      "ma": "NG1",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "nguon-di-cung-luot-cat",
+      "dung_tren": [],
+      "ten_ngan": "Nguồn đi cùng lượt cắt",
+      "cau_giao": "Mỗi hàng cắt từ một bản phạm vi mở vòng với đúng tài liệu nghiên cứu và thảo luận của lượt cắt — nguồn nằm trong git, ô cơ hội trỏ nó, bước thiết kế chứng đã nạp nó",
+      "vai": "Chủ kho",
+      "tieu_chi": 9,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); chủ kho phát hiện 24/10 lộ trình không mang bối cảnh nghiên cứu tới vòng (đợt okr-hop-tuan-2210, hàng HT3).",
+      "ghi_chu": "Ghi bù 24/10: vòng mở thẳng từ lời chủ kho qua phiên phân tích crm."
     }
   ],
   "chan_troi": [

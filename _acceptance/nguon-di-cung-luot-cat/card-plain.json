@@ -1,0 +1,36 @@
+{
+  "feature_plain": "Mỗi việc trên lộ trình mở ra với đúng tài liệu nghiên cứu và thảo luận của lượt cắt: tài liệu phải nằm trong kho, ô mở việc trỏ tới nó, và bước thiết kế phải chứng đã đọc nó thì mới được mời duyệt phạm vi.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ từ chối một lượt cắt khi nguồn của bản phạm vi là đường link ngoài, đường ngoài kho hay tệp chưa vào kho, hoặc để trống — và nhận khi nguồn là tệp, thư mục đã vào kho."},
+    {"id": "AC-2", "p": "Sẽ sửa mẫu bản phạm vi để nguồn là danh sách đường dẫn tệp, mẫu cũ vẫn đọc ra đủ ba khoá và bảy mã."},
+    {"id": "AC-3", "p": "Sẽ ghi một dòng «Nguồn:» vào ô mở từ hàng: bản phạm vi kèm mã của hàng, rồi từng tệp nghiên cứu; máy đọc lại đúng danh sách ấy."},
+    {"id": "AC-4", "p": "Sẽ giữ nguyên từng chữ ô mở từ hàng không thuộc đợt cắt nào — kho không dùng cắt lượt không thấy gì đổi."},
+    {"id": "AC-5", "p": "Sẽ vẫn mở ô cho ba ca biên: bản phạm vi đời cũ ghi nguồn bằng chữ, đợt không có bản phạm vi, đợt có hai bản phạm vi — dòng «Nguồn:» nói rõ từng ca."},
+    {"id": "AC-6", "p": "Sẽ chặn lời mời duyệt phạm vi khi bước thiết kế chưa ghi đã đọc đủ các tệp nguồn (dòng lệnh duyệt để trống ô quyết, thẻ nói vì sao), và báo khi tài liệu đổi sau lúc đọc."},
+    {"id": "AC-7", "p": "Sẽ giữ nguyên từng chữ thẻ duyệt phạm vi của hồ sơ không có dòng «Nguồn:», và không chặn hồ sơ đã qua cổng."},
+    {"id": "AC-8", "p": "Sẽ có mẫu dòng sổ «đã đọc nguồn» trong hướng dẫn vòng, và dòng điền từ mẫu ấy được thẻ nhận là đã đọc."},
+    {"id": "AC-9", "p": "Sẽ giữ xanh các bài kiểm cũ của lượt cắt, mở ô và sổ thiết kế — mẫu thử ghi nguồn bằng chữ thì sửa mẫu, không nới luật."},
+    {"id": "AC-10", "p": "Sẽ có một lệnh đếm: trong số ô mở từ hàng của đợt cắt, bao nhiêu ô trỏ tài liệu và bao nhiêu hồ sơ đã đọc nó — để đo sau khi phát hành."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG cho bước phản biện độc lập đọc tài liệu nghiên cứu để soi hợp đồng có trái nó không — để hạt giống (Hỏi-1)."},
+    {"id": "OOS-2", "p": "KHÔNG cứu tài liệu cho các việc đã cắt ở crm trong PR này — việc đó đi PR riêng ở crm."},
+    {"id": "OOS-3", "p": "KHÔNG thêm trường mới lên hàng lộ trình, không trỏ theo mục tài liệu, không giới hạn cỡ ảnh và tệp nặng."},
+    {"id": "OOS-4", "p": "KHÔNG cắt số phát hành — phiên phân tích crm cắt bản."}
+  ],
+  "scope_plain": "Bốn việc để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Tài liệu → bản phạm vi: lượt cắt bị từ chối khi nguồn nằm ngoài kho (AC-1), mẫu bản phạm vi theo luật mới (AC-2)."},
+    {"i": 1, "p": "Việc → ô mở việc: ô trỏ tài liệu (AC-3), ô của việc không thuộc đợt nào không đổi (AC-4), ba ca biên (AC-5)."},
+    {"i": 2, "p": "Ô → bước thiết kế: thẻ chặn, báo, cho qua đúng bảy ca kể cả ba ca biên (AC-6), không đổi gì ở hồ sơ không có nguồn (AC-7), mẫu dòng sổ đi trọn một vòng (AC-8)."},
+    {"i": 3, "p": "Đo sau phát hành: lệnh đếm ô trỏ tài liệu và hồ sơ đã đọc (AC-10)."},
+    {"i": 4, "p": "Không làm hỏng cái cũ: các bài kiểm sẵn có vẫn xanh (AC-9)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Bản đầu bỏ phép đo sau phát hành mà ghi như máy tự quyết — đã sửa: giữ phép đo, thêm lệnh đếm (AC-10)."},
+    {"i": 1, "p": "Bản đầu coi lối «trỏ theo mục tài liệu» là đã chết trong khi nó còn sống — đã chuyển thành câu hỏi cho anh (Hỏi-3)."},
+    {"i": 2, "p": "Bản đầu chỉ đo khoá chặn có mặt, không đo thẻ thật sự ngừng mời duyệt — đã thêm vào AC-6: ô quyết để trống và thẻ nói vì sao."},
+    {"i": 3, "p": "Ba ca biên của ô mở việc chưa đi qua thẻ, và chữ nguồn cũ có dấu nháy ngược có thể bị đọc nhầm thành tệp — đã thêm ba hàng vào AC-6."},
+    {"i": 4, "p": "Thiết kế hứa thẻ không đổi một chữ, hợp đồng lại cho thêm một khoá — đã chốt theo thiết kế: so từng chữ toàn bộ."}
+  ]
+}

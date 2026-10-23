@@ -1,0 +1,143 @@
+schema_version: 1
+feature_slug: nguon-di-cung-luot-cat
+# Ca đo của hàng NG1: tệp tests/scripts/nguon-di-cung-luot-cat.test.mjs, tên ca «NL-<n>», in «PASS: NL-…» / «FAIL: NL-…»,
+# thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
+#   executors.test.nguon_di_cung_luot_cat = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
+#   executors.test.can_cu_s1_ca = node tests/scripts/can-cu-s1.ca.mjs.
+# Mọi kho thử do ca dựng trong thư mục tạm của lượt (git init + commit thật); bộ máy chạy bằng đường suy từ vị trí tệp
+# test, không hardcode gốc. Bộ máy «trước vòng» = git archive <merge-base với origin/main> scripts lib skills.
+# Mỗi ca đỏ: bản lành xanh trên cùng kho thử TRƯỚC, rồi bản tiêm (bản sao của vật thật, nhát tiêm khớp đúng một lần, kiểm
+# riêng là đã áp) phải đỏ với thông điệp ghim. Ma trận viết sẵn: số assert = số hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/cat-luot.mjs, scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-1": ma trận năm hàng in ra, mỗi hàng răng phủ thoát 1 và stdout có đúng một dòng lỗi nhắc nguồn:
+      https://claude.ai/artifact/x · /tmp/x.md · ../x.md · tep-chua-add.md → «lỗi: nguồn «<mục>» không phải tệp trong git
+      [nguon-ngoai-git]»; khoá rỗng → «lỗi: bản phạm vi thiếu nguon — ghi đường dẫn tệp nghiên cứu trong git
+      [nguon-trong]». Đối chứng dương trên CÙNG kho: nguon = hai tệp + một thư mục đã vào git → thoát 0, 0 dòng
+      chứa «nguon-». Mutant "PASS: NL-1-mutant": bản tiêm bỏ phép kiểm git ls-files trong scripts/nguon-luot-cat.cjs →
+      hàng tep-chua-add.md thoát 0 (thước bắt được mutant).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [skills/acceptance/references/pham-vi-template.md, scripts/cat-luot.mjs, scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-2": rút khối PHAM-VI-MA của khuôn thật, docPhamVi → nguon tách được ≥ 1 đường, mọi đường tương đối,
+      không mục nào khớp ^[a-z]+://. Chiều đỏ "PASS: NL-2-do": bản tiêm thay dòng nguon của khuôn bằng chữ tự do →
+      «khuôn bản phạm vi: nguon không phải danh sách đường dẫn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2b
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [skills/acceptance/references/pham-vi-template.md, scripts/cat-luot.mjs]
+    expected: >
+      exit 0; dòng "PASS: LT-130" có mặt (khối mẫu PHAM-VI-MA đọc ra đúng ba khoá + mọi mã).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/lo-trinh.mjs, scripts/nguon-luot-cat.cjs, skills/acceptance/references/opportunity-template.md, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-3": ô mở cho hàng dot d1 có đúng 1 dòng mở đầu bằng tiền tố rút từ khối OPP-NGUON-PREFIX, là dòng
+      ngay sau dòng «Mở từ hàng», chứa «(mã A1, A2)», và bộ đọc dòng Nguồn trả đúng mảng [bản phạm vi, tệp, thư-mục/a.md,
+      thư-mục/b.md]. Chiều đỏ "PASS: NL-3-do": bản tiêm đổi tiền tố trong khuôn (bên đọc rút từ khuôn đã tiêm, bên ghi từ
+      khuôn thật) → bộ đọc trả mảng rỗng và ca ghim «round-trip dòng Nguồn hỏng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/lo-trinh.mjs, scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-4": cùng kho thử, cùng ACCEPTANCE_TODAY, hàng không dot — opportunity.md do bộ máy hiện tại mở ===
+      từng byte opportunity.md do bộ máy trước vòng mở (hai kho sao chép từ cùng commit). Mutant "PASS: NL-4-mutant": bản
+      tiêm bỏ điều kiện có dot trong bên ghi → ca đỏ «hàng không dot mà ô có dòng Nguồn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/lo-trinh.mjs, scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-5": ma trận ba hàng in ra, mỗi hàng lệnh mở ô thoát 0 với "moi":true; dòng Nguồn: (a) chứa
+      đường bản phạm vi trong backtick và «ngoài git: «kho thử đời trước»»; (b) chứa «không có bản phạm vi nào của đợt
+      «d9» trong git» và 0 đoạn backtick; (c) chứa đường của cả hai bản phạm vi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/gate-card.js, scripts/nguon-luot-cat.cjs, scripts/lo-trinh.mjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-6": ma trận bảy hàng in ra (hàng · nguon.tep · nguon.chan · cờ · ô quyết của dòng duyệt), mọi ô
+      do lệnh mở ô thật sinh trong kho thử (không viết tay): (1) không dòng nạp → chan true, «chưa nạp nguồn»; (2) thiếu
+      một tệp → true, «chưa nạp: <tệp>»; (3) đủ đúng băm → false, 0 cờ chứa «nguồn»; (4) tệp sửa sau nạp → false, «nguồn
+      đã đổi sau khi nạp: <tệp>»; (5) chữ đời trước có backtick → tep = [bản phạm vi], true; (6) không có bản phạm vi →
+      tep = [], false, «dòng Nguồn không trỏ tệp nào»; (7) hai bản phạm vi → tep 2 phần tử, true. Mọi hàng chan true:
+      one_shot kết bằng «___» và bản chữ của thẻ có «CHƯA vào được Cổng Phạm vi: chưa nạp nguồn»; hàng chan false: không
+      có dòng ấy. Mutant "PASS: NL-6-mutant": (a) phép so băm luôn-khớp → hàng 4 mất cờ; (b) bỏ nguon.chan khỏi điều kiện
+      chặn của thẻ → hàng 1 one_shot điền «duyệt» — cả hai ca bắt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/gate-card.js, scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-7": hồ sơ không dòng Nguồn → stdout gate-card.js --extract của bộ máy hiện tại === TỪNG BYTE stdout
+      của bộ máy trước vòng trên cùng hồ sơ (không bỏ khoá nào trước khi so); hồ sơ status approved có dòng Nguồn, không
+      dòng nạp → nguon.chan false và 0 cờ chứa «nạp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/nguon-luot-cat.cjs, scripts/can-cu-s1.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-8": khuôn DEC-NGUON-NAP rút từ SKILL thật, điền tệp + băm thật, ghép vào DEC-ID-RECIPE rút từ SKILL
+      và chạy bằng bash trong kho thử → decisions.jsonl có 1 dòng; theCong1 của scripts/nguon-luot-cat.cjs trả nap phủ tệp,
+      chan false; can-cu-s1.cjs --slug in «máy đã quyết 1 · đỏ 0»; khối NGUON-NAP-CHAN có chuỗi «nguon.chan». Chiều đỏ
+      "PASS: NL-8-do": bản tiêm đổi tên khoá nguon_nap trong khuôn → thẻ trả chan true «chưa nạp nguồn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.road_map_de_dung
+    paths: [scripts/cat-luot.mjs, scripts/lo-trinh.mjs, tests/scripts/road-map-de-dung.test.mjs]
+    expected: >
+      exit 0; không dòng "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; không dòng "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9c
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.can_cu_s1_ca
+    paths: [scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs]
+    expected: >
+      exit 0; không dòng "FAIL".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.nguon_di_cung_luot_cat
+    paths: [scripts/nguon-luot-cat.cjs, tests/scripts/nguon-di-cung-luot-cat.test.mjs]
+    expected: >
+      exit 0; "PASS: NL-10": lệnh đếm in đúng {"o_tu_hang_co_dot":3,"o_co_dong_nguon":2,"o_tro_tep":2,"ho_so_da_nap":1}
+      trên kho thử bốn hồ sơ do lệnh mở ô sinh; --tu sau ngày mở của một ô thì mẫu số giảm đúng 1. Chiều đỏ
+      "PASS: NL-10-do": bản tiêm bỏ lọc hàng có dot → o_tu_hang_co_dot = 4, ca bắt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
