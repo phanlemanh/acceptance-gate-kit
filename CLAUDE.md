@@ -1,17 +1,29 @@
 # Kit maintainer invariants
 
-- **⭐ NORTH STAR (owner tuyên 09/08, phát biểu lại 12/08):** Kit tồn tại vì một
-  điều duy nhất — **sản phẩm đến tay người dùng nhanh hơn mà vẫn tin được.** Nó
-  làm điều đó bằng cách chia lại đúng việc: **máy làm và tự chứng minh** (bằng
-  chứng không tự dối — màu xanh phải từng chạy chiều đỏ), **người chỉ ra quyết
-  định** tại ít khoảnh khắc thật, trên bằng chứng đọc được trong một phút, với
-  đường đảo rẻ cho mọi thứ còn lại. Người đứng ở **biên** của vòng, không đứng
-  giữa.
+- **⭐ NORTH STAR (owner tuyên 09/08, phát biểu lại 12/08, đổi đích 23/10):** Kit
+  tồn tại vì một điều duy nhất — **sản phẩm đến tay người dùng nhanh hơn mà vẫn
+  tin được.** Nó làm điều đó bằng cách chia lại đúng việc: **máy làm và tự chứng
+  minh** (bằng chứng không tự dối — màu xanh phải từng chạy chiều đỏ), **người
+  chỉ ra quyết định** tại ít khoảnh khắc thật, trên bằng chứng đọc được trong một
+  phút, với đường đảo rẻ cho mọi thứ còn lại. Người đứng ở **biên** của vòng,
+  không đứng giữa.
 
-  **Thước đo của kit:** thời gian từ *làm-xong* đến *quyết-được*, số lần
-  phải gọi người trên mỗi kết quả ship, **và chi phí máy (token · phút) trên
-  mỗi kết quả ship** (owner thêm 14/09 — đo được 83 % token S4 đi vào khối
-  tìm-lỗi mà 3/4 kết quả của nó không chạm phán quyết). **Giờ-kit là chi phí
+  **Đích là GỘP ĐƯỢC, không phải ký được (owner quyết 23/10).** Một kết quả chỉ
+  tính khi vật đã vào **nhánh chính của kho tiêu thụ**; ký Cổng Bằng chứng mà
+  chưa gộp là hàng tồn, không phải kết quả. Vì sao: kit đã tối ưu tốt đoạn
+  làm-xong→ký, còn đoạn ký→gộp không có thước và không có chủ máy, nên chi phí
+  dồn hết về đó — đợt `lo-trinh-tin-hieu` của crm 19–23/10: 39 PR, mở→gộp trung
+  vị 8,3 giờ (p75 14,3), 52 commit ghim lại và 254 lần gộp nhánh chính vào nhánh
+  làm việc trong bốn ngày; ca #550 ký sau 17 phút quyết mà hơn ba giờ sau vẫn
+  chưa gộp.
+
+  **Thước đo của kit:** thời gian từ *làm-xong* đến *gộp-được*, tách hai đoạn
+  *làm-xong→ký* và *ký→gộp*; số lần phải gọi người trên mỗi kết quả GỘP, **và
+  chi phí máy (token · phút) trên mỗi kết quả GỘP** (owner thêm 14/09 — đo được
+  83 % token S4 đi vào khối tìm-lỗi mà 3/4 kết quả của nó không chạm phán quyết;
+  owner đổi mẫu số từ «kết quả ship» sang «kết quả gộp» 23/10). Lượt gọi người
+  và giờ máy SAU chữ ký — ghim lại, gộp nhánh chính, chờ khoá máy, xếp hàng gộp —
+  tính vào chính vòng đó, không phải chi phí ngoài vòng. **Giờ-kit là chi phí
   — giờ người VÀ giờ máy; dòng người đứng trước dòng máy: token giảm mà lượt
   gọi người tăng là thất bại.** Cổng mà câu trả lời hợp lý duy nhất là «ừ»
   là **trạm thu phí, không phải điểm quyết định**.
@@ -119,13 +131,21 @@
     khi có kho chờ nhận — vế này CHƯA CÓ RĂNG (giới hạn khai ở khối «Ô chỉ mở khi có
     NEO NGOÀI»), và đi làn V như tiền lệ 2.5.0/2.7.0.
     (c) **Mỗi mốc phát hành đếm 5 dòng số** vào hồ sơ release (3 → 5, owner
-    quyết 14/09): thời gian làm-xong→quyết-được mỗi vòng · số lần gọi
+    quyết 14/09): thời gian làm-xong→gộp-được mỗi vòng — TÁCH làm-xong→ký /
+    ký→gộp (dòng 1 kéo tới GỘP thay vì thêm dòng thứ sáu, owner quyết đích
+    23/10; vòng đã ký mà chưa gộp lúc cắt mốc KHÔNG vào mẫu số của dòng nào —
+    lượt gọi người và giờ máy nó đã tốn vẫn cộng vào tử số của cửa sổ — và ghi
+    riêng «ký chưa gộp: k») · số lần gọi
     người/vòng — TÁCH trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần ·
     số vòng bị hạ-tầng-kit đốt lượt chấm · **token máy/vòng** — S4 máy đo
     (`wf-usage` → `usage-report.md`), TÁCH ba khối chứng-minh-vật
     (machine+ui+judge+baseline) / tìm-lỗi (review+refute) / tổng hợp; phiên
     chính đếm tay như dòng 1 · **phút máy/lượt chấm** — đường găng S4 và tổng
-    phút S4/vòng. Ba dòng đầu đếm tay, hai dòng sau máy đo. **Điều kiện tin
+    phút S4/vòng. Ba dòng đầu đếm tay, hai dòng sau máy đo. *Giới hạn đã khai
+    của dòng 1:* `loop-health` mới đo nửa làm-xong→ký; nửa ký→gộp đếm tay — giờ
+    commit chữ ký Cổng Bằng chứng (hoặc `machine-cleared`) → giờ PR của vòng gộp
+    vào nhánh chính kho tiêu thụ (`gh pr view --json mergedAt`). Ngưỡng dựng máy
+    đo: ≥1 mốc phải để trống nửa ký→gộp vì đếm tay không ra. **Điều kiện tin
     cậy — ràng buộc, không phải chỉ số:** dòng 4–5 chỉ được cắt khi (i) đường
     verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần,
     hoặc đổi kèm răng CẢ HAI chiều (đỏ và im); (ii) số lượt chấm sai giữa hai

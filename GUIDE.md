@@ -83,8 +83,8 @@ cửa veto mở.
 | # | Mục tiêu | Thước đo |
 |---|---|---|
 | 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 2 | **≤3** lượt gọi người/vòng (T3 trần **4** · mốc phát hành **≤1** · **≤1** chạm/lượt) | Đếm 5 dòng số mỗi mốc phát hành (3 tay + 2 máy, luật (c) từ 14/09) — tách trong-thiết-kế / ngoài-thiết-kế |
-| 5 | **Chi phí máy giảm giữa hai mốc, tin cậy không đổi** — token S4/vòng · phút máy/lượt chấm; dòng người đứng trước dòng máy | Dòng 4–5 của luật (c), máy đo (`wf-usage` → `usage-report.md`); điều kiện tin cậy: đường verdict không đổi thành phần hoặc răng cả hai chiều |
+| 2 | **≤3** lượt gọi người/vòng (T3 trần **4** · mốc phát hành **≤1** · **≤1** chạm/lượt) | Đếm 5 dòng số mỗi mốc phát hành (3 tay + 2 máy, luật (c) từ 14/09) — tách trong-thiết-kế / ngoài-thiết-kế; từ 23/10 vòng tính tới khi **gộp** vào nhánh chính kho tiêu thụ, dòng 1 tách làm-xong→ký / ký→gộp |
+| 5 | **Chi phí máy giảm giữa hai mốc, tin cậy không đổi** — token S4/vòng đã gộp · phút máy/lượt chấm; dòng người đứng trước dòng máy | Dòng 4–5 của luật (c), máy đo (`wf-usage` → `usage-report.md`); điều kiện tin cậy: đường verdict không đổi thành phần hoặc răng cả hai chiều |
 | 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
 | 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 | 6 | **Hiệu chuẩn «đủ»** (ADR 0020) — dòng thứ sáu của hồ sơ mốc: `ĐẠT đã ký → prod đỏ: k / N` | `node scripts/hieu-chuan-moc.mjs --root <kho nhận>`; N = số hồ sơ có dòng quan sát prod; N = 0 → dòng in «vô hiệu», không bao giờ đọc thành «0 sự cố» |
