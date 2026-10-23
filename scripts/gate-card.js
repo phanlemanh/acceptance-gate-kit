@@ -1011,6 +1011,20 @@ const cgNguon = NCG.nguonNhan();
 const cgExpected = (() => { try { const r = evalYamlLib.expectedExits(read(path.join(dir, 'evals.yaml'))); return r.errs.length ? {} : Object.fromEntries(r.byId); } catch (_) { return {}; } })();
 const cg = NCG.canhGay({ runLogText: read(path.join(dir, 'run-log.jsonl')), verdict, expectedExit: cgExpected, nguon: cgNguon });
 const CANH_MO = verdict === 'BLOCKED' && cg.trangThai === 'mo';
+// Đối chứng của lượt cuối không đo (bị từ chối / chết / chạy dở): mọi màu xanh của lượt chưa từng được thấy
+// đỏ trên code cũ. NHÃN ở cổng đã có — cờ, không thêm ô hỏi (K8). Bên viết: dòng `baseline-khong-do` của
+// bộ chấm (acceptance-verify.js); chỉ dòng của LẦN CHẠY CUỐI (cùng round + ts với dòng tổng kết cuối — cùng
+// luật «lượt cuối» với canhGay), nên lượt chấm lại đo trọn thì dòng cũ là sử liệu. Ca BW4 dựng run-log bằng
+// bộ chấm thật rồi đọc bằng thẻ thật — đổi chữ `kind` ở một bên là đỏ.
+const CO_DOI_CHUNG = 'Đối chứng trên code cũ KHÔNG chạy ở lượt chấm này';
+const doiChung = (() => {
+  const dong = NCG.docDong(read(path.join(dir, 'run-log.jsonl')));
+  const tallies = dong.filter(o => o.kind === 'round-tally');
+  const cuoi = tallies[tallies.length - 1];
+  if (!cuoi || typeof cuoi.round !== 'number') return null;
+  const d = [...dong].reverse().find(o => o.kind === 'baseline-khong-do' && o.round === cuoi.round && o.ts === cuoi.ts);
+  return d ? { round: cuoi.round, ly_do: typeof d.ly_do === 'string' ? d.ly_do : '', chua_chay: d.chua_chay === true, so_lenh: Number.isInteger(d.so_lenh) ? d.so_lenh : null } : null;
+})();
 const approvable = cg.trangThai !== 'lech' && cg.trangThai !== 'cay-doi' && (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT' || CANH_MO);
 
 const critText = {}; for (const ac of parseACBlock(contract)) { if (!critText[ac.id]) critText[ac.id] = ac.gwt; }
@@ -1257,7 +1271,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched, ...(cm.do_san ? { do_san: cm.do_san } : {}) }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched, ...(cm.do_san ? { do_san: cm.do_san } : {}) }, thuoc_vat: thuocVat, doi_chung: doiChung, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1319,6 +1333,7 @@ if (MAY_THONG && !scanBroken && scanState != null) P.push(`<div class="flag finf
 if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(chuMDT().viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 // Khối ý định (AC-12): nguyên văn Cổng Đáng, trước mọi thứ khác người đọc để quyết.
 if (yDinh) P.push(`<div class="lab">Ý định (nguyên văn Cổng Đáng)</div><div class="grp gnot">${yDinh.feature ? `<p class="li"><b>${esc(stripMd(yDinh.feature))}</b></p>` : ''}${yDinh.dong.map(l => `<p class="li">${esc(stripMd(l))}</p>`).join('')}${yDinh.cat ? '<p class="li">… xem opportunity.md</p>' : ''}</div>`);
+if (doiChung) P.push(`<div class="flag fwarn">⚠ ${esc(CO_DOI_CHUNG)}${doiChung.so_lenh ? ` (${doiChung.so_lenh} lệnh máy)` : ''} — ${doiChung.chua_chay ? 'lệnh đối chứng chưa chạy dòng nào' : 'làn đối chứng không chạy trọn'}: ${esc(doiChung.ly_do)}. Các eval máy xanh ở lượt này chưa từng được thấy đỏ trên code cũ — chưa biết eval nào thật sự phân biệt được tính năng. Lượt chấm lại sẽ đo lại.</div>`);
 // Chỗ mù (AC-5, AC-7): lượt chấm kẹt CHỈ vì bàn đo / hệ thống chết đã thử lại. Verdict và
 // bảng per-eval KHÔNG đổi — thẻ chỉ mở lối ra, mỗi cạnh gãy có tên · ba lối · giá.
 if (CANH_MO) {
