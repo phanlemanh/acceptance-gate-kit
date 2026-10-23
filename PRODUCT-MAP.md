@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>132 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>133 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>45 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -45,7 +45,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Đoạn ký → gộp có thước và có chủ máy — lịch tránh giao hai việc cùng tệp, PR sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, gộp không chạy lại CI khi PR không trùng tệp với nhánh chính, và lệnh đếm đợt trừ được giờ ký khỏi giờ gộp (`ky-den-gop`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -141,6 +140,7 @@ flowchart TD
 - verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu (required_evidence) chảy từ judge → memo → report → thẻ → round fix; gộp gold-seed O4: acceptance-gold.mjs dẫn xuất gold set + báo cáo G3 từ corpus sẵn có, không file mới (`judge-required-evidence`)
 - Khối tìm-lỗi trả phí theo vật — triage trước refute, finder không soi văn bản hồ sơ, finding có sổ, baseline rời đường găng, thước token/phút cho năm dòng số (`khoi-tim-loi-tra-phi-theo-vat`)
 - Khối "👉 VIỆC CỦA ANH" — thành phần cứng máy-sinh của khuôn trình-người (thẻ cổng + lời-mời-cổng) (`khoi-viec-cua-anh`)
+- Đoạn ký → gộp có thước và có chủ máy — lịch tránh giao hai việc cùng tệp, PR sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, gộp không chạy lại CI khi PR không trùng tệp với nhánh chính, và lệnh đếm đợt trừ được giờ ký khỏi giờ gộp (`ky-den-gop`)
 - Làn ghim lại và bên đọc pin cùng loại eval khai `status: not-run` từ MỘT nguồn — pin nói ra ô nào không đo, và hồ sơ lành thôi bị đọc thành nợ (`lan-doc-status-not-run`)
 - Làn ghim lại giữ trọn lời lỗi, để lại dấu lượt đỏ kèm tải máy, và ghi thời lượng làn (`lan-ghim-lai-giu-tron-loi-loi`) — đã giao — đã nghỉ, giữ sử liệu
 - Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`) — đã giao — đã nghỉ, giữ sử liệu

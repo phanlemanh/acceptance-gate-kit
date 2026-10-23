@@ -5,7 +5,7 @@ slug: ky-den-gop
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-23-ky-den-gop-design.md
 approved_by:
 approved_at:
@@ -78,3 +78,14 @@ Source input: prompt — phiên giám sát kit chuyển lời chủ kho 23/10; t
     khi ấy hàng chờ mãi như mọi `sau` trỏ hàng vắng trước vòng này.
   - So hai glob đều có ký tự đại diện là dư (xem thiết kế): có thể xếp tuần tự hai hàng không thật sự trùng.
 - Bản chụp đợt thật 09/10 (ẩn danh, 9 dãy, 69 hàng đều khai vùng tệp): lịch biết tệp đổi hàng kế ở 4/9 dãy.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-24:
+  - Ngoài-1: Sửa bộ thước sau lượt chấm vẫn cho PR chuyển sẵn sàng; một sửa tài liệu thuần có thể bị từ chối oan.
+  - Ngoài-2: Ở kho chưa đặt lưới kiểm trước khi gộp làm check bắt buộc, PR sẵn sàng sớm có thể bị bấm gộp trước chữ ký; nhánh được đẩy lên máy chủ sớm hơn trước.
+  - Ngoài-3: Khi GitHub từ chối lệnh gộp, lần gộp hỏng không vào số đo và giám sát bị báo là gặp chặn thay vì được hướng dẫn cập nhật nhánh rồi thử lại.
+  - Ngoài-4: Gọi lệnh chuyển PR sẵn sàng khi đang đứng trên nhánh chính mà quên khai nhánh đích thì máy có thể đẩy thẳng lên nhánh chính.
+  - Ngoài-5: Nhánh chính vừa nhận commit mà kiểm tra chưa kịp chạy thì máy coi như không đỏ và gộp nhanh chồng lên.
+  - Ngoài-6: Báo cáo bằng chứng thiếu commit đã chấm thì máy bỏ qua phép kiểm vật có đổi sau lượt chấm không.
+  - Ngoài-7: Máy không đọc được hồ sơ vì lỗi hạ tầng thì thợ vẫn được báo «hồ sơ chưa ký».
+  - Ngoài-8: Số «ghim lại sau ký» có thể ra 0 mà bộ kiểm vẫn xanh nếu khâu ghi dữ liệu sau này hỏng (ca đo tự viết dữ liệu đầu vào).
+  - Ngoài-9: Khâu nối báo lỗi dò nhánh vào bước duyệt chạm tệp chưa được đo qua bộ phát lịch thật.
+  - Ngoài-10: Cảnh báo trùng tệp khi thêm hàng chưa được kiểm với dữ liệu do bộ phát lịch thật ghi ra.

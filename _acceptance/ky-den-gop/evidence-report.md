@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: e9c18ae7789ba1f525c39575e0bed7ad9d267a92
-human_signoff:
+human_signoff: Manh Phan 2026-10-24
 ---
 
 # Evidence Report: ky-den-gop
