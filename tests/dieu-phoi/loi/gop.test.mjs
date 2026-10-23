@@ -21,7 +21,9 @@ const commit = (kho, tep, noi, msg) => {
   git(kho, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', msg);
 };
 const PHIEU = 'apps/web/company-sheet.tsx';
-const KY = '---\nslug: s\nstatus: signed-off\n---\n';
+// Trạng thái đã thông viết `machine-cleared`: tệp ca không mang chuỗi trạng thái ký người để khỏi thành «file lạ» của
+// lưới RT13 (tiền lệ repin-lane-noi-ra.test.mjs) — cùng tập DA_THONG nên lối gộp không đổi.
+const KY = '---\nslug: s\nstatus: machine-cleared\n---\n';
 
 // `doiTen`: nhánh chính đổi tên chính tệp phiếu thay vì thêm tệp.
 // Kịch bản: nhánh `feat` sửa phiếu + ký hồ sơ; nhánh chính `main` có thể tiến thêm một commit (`tien`: tệp nào).

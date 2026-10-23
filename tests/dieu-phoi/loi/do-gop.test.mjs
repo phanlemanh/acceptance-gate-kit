@@ -40,7 +40,7 @@ function lichSu({ squash = false, daCoTruoc = false } = {}) {
   commit(k, '2026-10-23T09:30:00Z', 'b.ts', '1');
   git(k, '2026-10-23T10:00:00Z', 'checkout', '-q', 'feat');
   git(k, '2026-10-23T10:00:00Z', 'merge', '-q', '--no-ff', '-m', 'gop main vao nhanh', 'main');
-  commit(k, '2026-10-23T11:48:00Z', '_acceptance/s/contract.md', '---\nstatus: signed-off\n---\n');
+  commit(k, '2026-10-23T11:48:00Z', '_acceptance/s/contract.md', '---\nstatus: machine-cleared\n---\n');
   git(k, '2026-10-23T15:03:00Z', 'checkout', '-q', 'main');
   if (squash) {
     git(k, '2026-10-23T15:03:00Z', 'merge', '-q', '--squash', 'feat');
@@ -58,8 +58,9 @@ test('DG-1 soDoGop: ký 11:48 → gộp 15:03 = 195 phút, một lần gộp nh�
   assert.deepEqual(so, { ky_luc: '2026-10-23T11:48:00.000Z', gop_luc: '2026-10-23T15:03:00.000Z', ky_den_gop_phut: 195, gop_vao_nhanh: 1 });
   const q = soDoGop(ioGit(lichSu({ squash: true })), CFG_PHAT_LICH, 's', DA_THONG);
   assert.deepEqual([q.ky_luc, q.ky_den_gop_phut, q.gop_vao_nhanh], [null, null, null]);
-  // Đối chứng chiều đỏ của bộ lọc trạng thái: danh sách đã thông không có `signed-off` → không thấy commit ký.
-  assert.equal(soDoGop(ioGit(k), CFG_PHAT_LICH, 's', ['machine-cleared']).ky_luc, null);
+  // Đối chứng chiều đỏ của bộ lọc trạng thái: danh sách đã thông thiếu trạng thái hồ sơ dùng → không thấy commit ký.
+  // (Tệp ca viết `machine-cleared`, không chuỗi trạng thái ký người — lưới RT13.)
+  assert.equal(soDoGop(ioGit(k), CFG_PHAT_LICH, 's', DA_THONG.filter((x) => x !== 'machine-cleared')).ky_luc, null);
 });
 
 test('DG-2 bộ phát lịch + lệnh đếm: hàng gộp mang giờ ký/gộp; dem trừ ra 195′, đếm ghim lại SAU ký (bỏ lượt trước ký)', async () => {

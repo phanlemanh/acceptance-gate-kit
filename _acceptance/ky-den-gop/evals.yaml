@@ -101,7 +101,7 @@ evals:
     expected: >
       exit 0; "ok" cho "DG-1", "DG-2", "DG-3", "DG-4". DG-4: hồ sơ lên nhánh chính 22/10 16:00 trước giờ ký → cùng bốn giá
       trị của DG-1. DG-1: {ky_luc 2026-10-23T11:48:00.000Z, gop_luc 2026-10-23T15:03:00.000Z,
-      ky_den_gop_phut 195, gop_vao_nhanh 1}; squash → ky_luc null; danh sách đã thông thiếu signed-off → ky_luc null.
+      ky_den_gop_phut 195, gop_vao_nhanh 1}; squash → ky_luc null; danh sách đã thông thiếu machine-cleared → ky_luc null.
       DG-2: hang-gop [s, 195, 1]; dem.ky_den_gop.trung_vi_phut 195, ghim_lai_sau_ky.tong 1 (lượt 11:00 trước ký bị bỏ).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
