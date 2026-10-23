@@ -869,7 +869,8 @@ const BOC_NEN = (lenh, ten) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repo
 const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; }; B=$(cat "$L.bat-dau" 2>/dev/null); case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac; HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
 // LENH-DAI>>>
 
-// Lane ĐỐI CHỨNG (baseline:diffBase) chạy MỘT lệnh do kit sinh (hồ sơ baseline-tran-bo-qua-don).
+// Lane ĐỐI CHỨNG (baseline:diffBase) chạy MỘT kịch bản do kit sinh (hồ sơ baseline-tran-bo-qua-don); từ 23/10
+// tác tử ghi kịch bản ra tệp rồi gọi `bash '<tệp>'` — vì sao ở khối LỜI GỌI cuối mục này.
 // Sự cố crm 07/10 (wf_f425c910-a3b): prompt cũ để tác tử TỰ CHẾ cách chạy — nó dựng vòng `while read …
 // bash -c "…$c"`, và lệnh ấy chờ một hộp xin quyền 5 giờ dù phiên ở bypassPermissions (nhật ký app:
 // yêu cầu 22:45:15, owner bấm 03:45:17 giờ máy). Lượt 08:32 cùng ngày: tác tử baseline khác, vòng `eval
@@ -940,6 +941,10 @@ function tepCuaLenh(cmd, cwd0 = '') {
     if (sauChuyenHuong) { sauChuyenHuong = false; continue }
     const t = tk.t
     if (tk.nhay && BL_TACH.test(t)) { if (cwd !== null) ra.push(...tepCuaLenh(t, cwd)); dauDoan = false; continue }
+    // Chuỗi nháy có khoảng trắng mà KHÔNG toán tử (`bash -c 'bash t/moi.sh'`) cũng là một lệnh con: tách
+    // nó để tệp bên trong thành ứng viên — bản trước coi cả chuỗi là MỘT đường dẫn có dấu cách, nên tệp
+    // kiểm mới trong đó không bao giờ bị bỏ qua. Cả chuỗi vẫn đi tiếp như một ứng viên (đường có dấu cách).
+    if (tk.nhay && /\s/.test(t) && cwd !== null) for (const p of tepCuaLenh(t, cwd)) if (!ra.includes(p)) ra.push(p)
     if (dauDoan && t === 'cd') { dauDoan = 'cd'; continue }
     if (dauDoan === 'cd') {
       cwd = (cwd === null || t.startsWith('/') || /[$~*?{]/.test(t)) ? null : noiDuong(cwd, t) || ''
@@ -975,12 +980,25 @@ const LENH_BASELINE = (cmds) => [
   ...cmds.map((c, k) => BL_KHOI(k + 1, c)),
   `else echo "${DAU_BL}_HA_TANG worktree-add"; fi; don; echo "${DAU_BL}_XONG"`,
 ].join('\n')
-// Bộ đọc dấu — MỘT nguồn với bên viết (DAU_BL). Trả { du, haTang, theoCmd: Map(cmd → kết quả) }.
+// LỜI GỌI. Chế độ cô lập worktree của Claude Code đọc CHỮ lệnh và từ chối mọi lệnh nhắc git ở dạng nó không
+// kiểm được là ở yên trong worktree — khối trên có `git -C "$R" worktree add` ra $TMPDIR nên bị từ chối NGUYÊN
+// khối (một kho tiêu thụ 23/10: «too complex to verify that it stays inside the worktree»), lượt chấm chạy
+// tiếp không đối chứng. Đo 23/10 trong một tác tử cô lập: CÙNG nội dung ghi vào tệp trong cây rồi `bash '<tệp>'`
+// thì chạy; `bash '<tệp>' … git …` (đối số mang chữ git) thì bị từ chối. Nên tác tử GHI kịch bản ra tệp riêng
+// của lượt (dưới `.acceptance-runs/`, kịch bản tự bỏ thư mục ấy khỏi git) rồi gọi ĐÚNG một lời gọi trơn.
+// GIỚI HẠN ĐÃ KHAI: bộ canh là của công cụ, không của kit — nó siết thêm (cấm cả `bash <tệp>`) thì làn này rơi
+// về «chưa chạy dòng nào» và thẻ Cổng 2 nói ra (dòng run-log dưới). Ngưỡng mở lại: ≥1 lượt như vậy.
+const BL_TEP = `${BL_DIR}/chay.sh`
+const LOI_GOI_BASELINE = `bash ${sq(BL_TEP)}`
+// Bộ đọc dấu — MỘT nguồn với bên viết (DAU_BL). Trả { du, batDau, haTang, theoCmd: Map(cmd → kết quả) }.
 // `du` = có `__BL_XONG` và không `__BL_HA_TANG`; lệnh vắng dòng dấu → cannotRun có tên.
 function docBaseline(dauRa, cmds) {
   const s = String(dauRa || '')
   const haTang = (s.match(new RegExp(`^${DAU_BL}_HA_TANG (.+)$`, 'm')) || [])[1] || ''
   const du = new RegExp(`^${DAU_BL}_XONG$`, 'm').test(s) && !haTang
+  // Không có dòng bắt đầu = kịch bản CHƯA chạy dòng nào (công cụ từ chối lời gọi, tệp không ghi được) —
+  // khác với chạy dở. Đọc từ dấu, không từ chữ tác tử hay chữ công cụ (đổi theo bản Claude Code).
+  const batDau = new RegExp(`^${DAU_BL}_BAT_DAU \\d+$`, 'm').test(s)
   const theoCmd = new Map()
   const re = new RegExp(`^${DAU_BL} (\\d+) (xong|qua-tran|het-tran-tong|bo-qua)(?: (.*))?$`, 'gm')
   let m
@@ -993,7 +1011,7 @@ function docBaseline(dauRa, cmds) {
     else if (kq === 'het-tran-tong') theoCmd.set(cmd, { cmd, cannotRun: true, tran: true, reason: `het tran tong ${BL_TRAN_TONG_GIAY} giay cua lane baseline truoc khi toi lenh nay — khong chay` })
     else if (kq === 'bo-qua') theoCmd.set(cmd, { cmd, cannotRun: true, boQua: true, reason: `bo qua baseline: tep ${du3} co o cay dang kiem nhung chua co o merge-base ${args.diffBase} — eval moi, chay tren code cu khong phan biet gi` })
   }
-  return { du, haTang, theoCmd }
+  return { du, batDau, haTang, theoCmd }
 }
 // BASELINE-LENH>>>
 
@@ -1160,11 +1178,16 @@ const baselineP = Promise.resolve().then(() => baselineCmds.length === 0
     ? { results: [] }
     : agentT(
         `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho ${baselineCmds.length} lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
-Kit DA SINH SAN toan bo viec: worktree CO LAP tren commit goc (KHONG dung cwd chinh — verifier HEAD dang chay song song o do), noi node_modules/.env, chay tung lenh co TRAN ${BL_TRAN_LENH_GIAY} giay/lenh va TRAN TONG ${BL_TRAN_TONG_GIAY} giay, bo qua lenh tro toi tep chua co o commit goc, don worktree ke ca khi bi dung. Viec cua ban DUY NHAT: MOT lan goi Bash (timeout 600000) voi lenh giua hai dong dau duoi day, chep NGUYEN VAN tung byte (KHONG tach, KHONG viet lai thanh vong lap, KHONG chay tung lenh rieng, KHONG chay lai). Hai dong dau KHONG thuoc lenh.
+Kit DA SINH SAN toan bo viec: worktree CO LAP tren commit goc (KHONG dung cwd chinh — verifier HEAD dang chay song song o do), noi node_modules/.env, chay tung lenh co TRAN ${BL_TRAN_LENH_GIAY} giay/lenh va TRAN TONG ${BL_TRAN_TONG_GIAY} giay, bo qua lenh tro toi tep chua co o commit goc, don worktree ke ca khi bi dung. Viec cua ban DUY NHAT, hai buoc:
+BUOC 1 — dung cong cu ghi tep (Write) ghi tep ${BL_TEP} voi noi dung la kich ban giua hai dong dau duoi day, chep NGUYEN VAN tung byte (KHONG tach, KHONG viet lai thanh vong lap, KHONG sua). Hai dong dau KHONG thuoc kich ban.
 <<<AGK-BASELINE
 ${LENH_BASELINE(baselineCmds)}
 AGK-BASELINE>>>
-Tra ve: dauRa = TOAN BO stdout cua lan goi do NGUYEN VAN (cac dong bat dau bang ${DAU_BL}); results = [] (JS tu doc ma thoat tu dauRa — ban KHONG khai exit). Lenh loi/khong ra gi → van tra dauRa nguyen van (ke ca rong). KHONG goi them lenh nao khac, KHONG doc nhat ky, KHONG sua gi.\n${TOOL_KILL_RULE}`,
+BUOC 2 — MOT lan goi Bash (timeout 600000) voi DUNG lenh giua hai dong dau duoi day, nguyen van: KHONG them doi so, KHONG cd, KHONG ghep lenh khac, KHONG chay kich ban o dang khoi lenh (phien o worktree co lap tu choi moi lenh nhac git o dang no khong kiem duoc).
+<<<AGK-BASELINE-GOI
+${LOI_GOI_BASELINE}
+AGK-BASELINE-GOI>>>
+Tra ve: dauRa = TOAN BO ket qua cua lan goi Bash do NGUYEN VAN (cac dong bat dau bang ${DAU_BL}); results = [] (JS tu doc ma thoat tu dauRa — ban KHONG khai exit). Cong cu tu choi hoac bao loi (o buoc 1 hay buoc 2) → dauRa = NGUYEN VAN chu cong cu tra (ke ca rong) va DUNG: KHONG thu cach chay khac, KHONG tach lenh, KHONG chay lai. KHONG goi them lenh nao khac, KHONG doc nhat ky, KHONG sua gi ngoai tep o buoc 1.\n${TOOL_KILL_RULE}`,
         { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...vaiOpt('baseline') }
       )
 ).catch(() => null)   // BẮT BUỘC: parallel nuốt throw, promise trần thì KHÔNG — một lần reject giết cả lượt
@@ -1725,12 +1748,14 @@ const baselineRaw = await baselineP
 // là BLOCKED HẠ TẦNG CÓ TÊN cho làn đối chứng: mọi lệnh n-a kèm lý do, lượt chấm vẫn đi tiếp tới báo
 // cáo — làn PHỤ không được giữ cả lượt (crm 07/10: 5 giờ, 0 báo cáo).
 let baselineHaTang = ''
+let baselineChuaChay = false
 let baselineKetQua = []
 if (baselineCmds.length > 0) {
   if (!baselineRaw || typeof baselineRaw !== 'object') baselineHaTang = 'tac tu baseline chet hoac bi dung — khong co ket qua'
   else if (typeof baselineRaw.dauRa === 'string') {
     const doc = docBaseline(baselineRaw.dauRa, baselineCmds)
     if (baselineRaw.killedByTool === true) baselineHaTang = 'lenh baseline bi cong cu dung giua chung'
+    else if (!doc.batDau) baselineChuaChay = true, baselineHaTang = `lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban)${baselineRaw.dauRa.trim() ? ` — cong cu tra: «${baselineRaw.dauRa.replace(/\s+/g, ' ').trim().slice(0, 240)}»` : ''}`
     else if (doc.haTang) baselineHaTang = `khong dung duoc worktree tren ${args.diffBase} (${doc.haTang})`
     else if (!doc.du) baselineHaTang = `dau ra thieu dong ${DAU_BL}_XONG — lenh baseline khong chay het (bi dung, cho hop xin quyen, dau ra bi cat, hoac lenh eval vo cu phap shell)`
     baselineKetQua = baselineCmds.map(c => doc.theoCmd.get(c) || { cmd: c, cannotRun: true, reason: 'khong co dong ket qua cho lenh nay trong dau ra baseline' })
@@ -1876,6 +1901,13 @@ if (typeof args.evalsHash === 'string' && args.evalsHash && (!runBaseline || bas
     ...(runBaseline ? {} : { carried_from_round: carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : null }),
   }))
 }
+// Làn đối chứng KHÔNG đo cả lượt → dòng máy-đọc cho thẻ Cổng 2 (scripts/gate-card.js, khối doiChung).
+// Một dòng log và một câu trong báo cáo LLM viết không đủ: người ký không đọc log, và thẻ không đọc văn tự do
+// (một kho tiêu thụ 23/10: lượt mất đối chứng, thẻ không nói gì). `chua_chay` = không có dòng bắt đầu (bị từ chối).
+if (baselineHaTang && runBaseline) runLogLines.push(JSON.stringify({
+  ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'baseline-khong-do',
+  ly_do: baselineHaTang, chua_chay: baselineChuaChay, so_lenh: baselineCmds.length,
+}))
 
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
