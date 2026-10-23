@@ -78,3 +78,38 @@ wall: 2932s
 - **claude-haiku-5-5**: 12 agent · 28 calls · out 14,625 · in 56 · cache_read 464,492 · cache_create 546,513
 - **claude-opus-5-5**: 3 agent · 26 calls · out 2,086 · in 52 · cache_read 1,162,391 · cache_create 177,277
 
+### S4 round 3 — wf_cec76e9f-275 (16 agent, 16,987 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 4 | 7,220 | 8 | 166,871 | 48 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 6 | 2,963 | 12 | 155,676 | 846 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 1,803 | 4 | 36,667 | 315 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,514 | 4 | 36,653 | 90 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 746 | 4 | 33,605 | 159 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 451 | 4 | 36,679 | 9 |
+| review:bugs | claude-opus-5-5 | 7 | 417 | 14 | 248,121 | 54 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 396 | 4 | 36,654 | 8 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 233 | 4 | 36,709 | 114 |
+| review:conventions | claude-opus-5-5 | 7 | 218 | 14 | 237,728 | 40 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 201 | 4 | 3,057 | 513 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 174 | 4 | 36,709 | 93 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 172 | 4 | 6,114 | 552 |
+| review:measurement | claude-opus-5-5 | 3 | 166 | 6 | 74,819 | 14 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 162 | 4 | 36,653 | 12 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 151 | 4 | 32,383 | 7 |
+
+
+wall: 2780s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 11 | 8,815 | 455,176 | 2723 | 16:41:55 | 17:27:18 |
+| review | 3 | 801 | 560,668 | 57 | 16:41:55 | 16:42:51 |
+| capture | 1 | 151 | 32,383 | 7 | 17:27:19 | 17:27:26 |
+| synthesize | 1 | 7,220 | 166,871 | 48 | 17:27:27 | 17:28:15 |
+
+- **claude-sonnet-5-5**: 2 agent · 6 calls · out 7,371 · in 12 · cache_read 199,254 · cache_create 96,297
+- **claude-haiku-5-5**: 11 agent · 26 calls · out 8,815 · in 52 · cache_read 455,176 · cache_create 484,932
+- **claude-opus-5-5**: 3 agent · 17 calls · out 801 · in 34 · cache_read 560,668 · cache_create 129,588
+

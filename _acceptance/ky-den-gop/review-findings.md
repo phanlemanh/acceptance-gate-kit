@@ -1,12 +1,14 @@
-# Review findings: ky-den-gop (round 2)
+# Review findings — ky-den-gop (round 3)
 
 ## Trong hợp đồng
 
-Không có phát hiện trong hợp đồng ở round này.
+(không có finding nào map vào AC ở round này)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
+
+(không có mục mới ở round này; các mục mang từ round trước do máy tự chèn kèm nhãn round)
 
 - **pr-san-sang tự dựng lại luật «vật đổi sau lượt chấm» thay vì dùng bộ phân loại một nguồn phan-loai.mjs (r1)**
   Người dùng thấy gì: Nếu ai đó sửa bộ thước đo sau lượt chấm, PR vẫn được chuyển sang sẵn sàng như thể không có gì đổi. Ngược lại, một chỉnh sửa tài liệu thuần có thể làm máy từ chối chuyển PR một cách oan.
@@ -64,14 +66,14 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): C-6 dựng tay ngữ cảnh `{nhanhLoi, nhanhCua}` cho xetYeuCau, chỗ phat-lich nối hai khoá này không được đo (r1 · tệp đã đổi)**
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): C-6 dựng tay ngữ cảnh `{nhanhLoi, nhanhCua}` cho xetYeuCau, chỗ phat-lich nối hai khoá này không được đo (r1)**
   Người dùng thấy gì: Nếu sau này khâu nối báo lỗi dò nhánh bị gỡ nhầm, máy có thể lại tự duyệt yêu cầu chạm tệp lúc gh lỗi mà bộ kiểm vẫn xanh.
   Căn cứ: Hiện bản dựng nối đúng nên người dùng chưa bị ảnh hưởng; chỉ là thước còn mù một chỗ và bổ sung ca nối sau rẻ.
   file: `tests/dieu-phoi/loi/trung-tep.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): C-10 tự viết trang-thai.json cho `hang them` thay vì lấy bản bộ phát lịch ghi (r1 · tệp đã đổi)**
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): C-10 tự viết trang-thai.json cho `hang them` thay vì lấy bản bộ phát lịch ghi (r1)**
   Người dùng thấy gì: Cảnh báo «trùng tệp với PR mở» khi thêm hàng chưa từng được kiểm với dữ liệu do bộ phát lịch thật ghi ra, nên có thể lặng lẽ không hiện nếu hai bên lệch nhau.
   Căn cứ: Cảnh báo chỉ là gợi ý thêm cho giám sát, không chặn việc nào và không mất dữ liệu; thiếu cảnh báo thì người vẫn tự kiểm được, bổ sung ca sau rẻ.
   file: `tests/dieu-phoi/loi/trung-tep.test.mjs`
