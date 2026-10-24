@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 10b4ca3eca869b6c5128d08e024f7d118b1e0fee
+verified_commit: 7e3569003a929fcb51e3cce87ef59755ebe3ebf9
 human_signoff: Manh Phan 2026-10-24
 ---
 
@@ -218,3 +218,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, xác đ
 ## Iterations
 
 Round 1: E1–E10 và E10b đều xanh, không eval nào hỏng; không có mục nào chờ người chốt ngoài các phát hiện ngoài hợp đồng ghi ở review-findings.md.
+
+### Re-pin lần 1 — 2026-10-24, do gộp origin/main (TT3 #407) để gỡ xung đột trước PR
+run_id: repin-20261024T145033Z-19825
+sha: 7e3569003a929fcb51e3cce87ef59755ebe3ebf9 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
