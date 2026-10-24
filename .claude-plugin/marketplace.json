@@ -32,6 +32,12 @@
       "source": "./road-map",
       "description": "Outer loop of the roadmap: reviews a repo's plan and flags which rows should move milestone, wait for a condition, or be rejected — with machine-readable grounds. Command shell; code lives in acceptance-gate core. Opt-in per repo (--scope project).",
       "tags": ["bat-theo-lua-chon"]
+    },
+    {
+      "name": "tri-thuc",
+      "source": "./tri-thuc",
+      "description": "Knowledge layer after Karpathy's LLM Wiki: a repo-declared knowledge store (immutable raw + wiki pages) that every loop reads. Command shell; code lives in acceptance-gate core. Opt-in per repo (--scope project).",
+      "tags": ["bat-theo-lua-chon"]
     }
   ]
 }

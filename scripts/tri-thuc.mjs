@@ -1,0 +1,176 @@
+#!/usr/bin/env node
+// tri-thuc.mjs — lint và đường trỏ của kho tri thức (tầng tri thức theo LLM Wiki). Hồ sơ kho-tri-thuc-va-lint (TT1),
+// thiết kế docs/superpowers/specs/2026-10-24-kho-tri-thuc-va-lint-design.md. CHỈ ĐỌC: không ghi tệp nào.
+//
+// Khuôn một nguồn: skills/acceptance/references/tri-thuc-template.md (khối TRI-THUC-TRANG, -LOAI, -RAW-DONG, -CON-TRO)
+// rút LÚC CHẠY, suy từ vị trí script. Bản phạm vi đọc bằng docPhamVi của scripts/cat-luot.mjs — không bộ đọc thứ hai.
+//
+//   node scripts/tri-thuc.mjs --root . --kiem [--pham-vi <tệp>]   0 xanh · 1 đỏ · 2 không chạy được · 3 không đọc được ở đây
+//   node scripts/tri-thuc.mjs --root . --con-tro '<ref>'          0 khớp · 1 lệch/không có · 2 sai · 3 không đọc được ở đây
+import { readFileSync, readdirSync, existsSync, statSync, realpathSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const { docTriThuc } = require(path.join(__dirname, 'tri-thuc-khoa.cjs'));
+export const TEP_KHUON = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'tri-thuc-template.md');
+export const CO = {
+  THIEU_NGUON: 'trang-thieu-nguon', NGUON_KHONG_CO: 'nguon-khong-co', RAW_SUA: 'raw-bi-sua',
+  MA_KHONG_TRANG: 'ma-khong-co-trang', KHO_CHUA_DAY: 'kho-rieng-chua-day', RAW_CONG_KHAI: 'raw-trong-kho-cong-khai',
+};
+
+const khoi = (txt, ten) => {
+  const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`\\n([\\s\\S]*?)\\n\`\`\`\\n<!-- ${ten}>>> -->`));
+  if (!m) throw new Error(`khuôn tri thức thiếu khối ${ten}`);
+  return m[1];
+};
+export function napKhuon(tep = TEP_KHUON) {
+  const t = readFileSync(tep, 'utf8');
+  const trang = khoi(t, 'TRI-THUC-TRANG');
+  const khoa = [...trang.matchAll(/^([A-Za-z_]+):/gm)].map(m => m[1]);
+  const [kLoai, kMa, kNguon, kCapNhat] = khoa;
+  return {
+    khoa: { loai: kLoai, ma: kMa, nguon: kNguon, capNhat: kCapNhat },
+    loai: khoi(t, 'TRI-THUC-LOAI').trim().split(/\s+/),
+    rawDong: new RegExp(khoi(t, 'TRI-THUC-RAW-DONG').trim()),
+    conTro: new RegExp(khoi(t, 'TRI-THUC-CON-TRO').trim()),
+  };
+}
+
+const git = (cwd, a) => spawnSync('git', ['-C', cwd, ...a], { encoding: 'utf8' });
+export function bamTep(p) { return execFileSync('git', ['hash-object', '--', p], { encoding: 'utf8' }).trim(); }
+
+// Gốc checkout chính = cha của git-common-dir: giống nhau ở checkout chính và mọi worktree.
+export function gocCheckoutChinh(root) {
+  const r = git(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  if (r.status !== 0) return realpathSync(root);
+  return path.dirname(realpathSync(r.stdout.trim()));
+}
+export function docCauHinh(root) {
+  const p = path.join(root, '_acceptance', 'config.yaml');
+  return docTriThuc(existsSync(p) ? readFileSync(p, 'utf8') : '');
+}
+// → { goc, trongKho, cfg } ; goc tuyệt đối.
+export function giaiGoc(root, cfg) {
+  if (cfg.kho && cfg.kho.duong) return { goc: path.resolve(gocCheckoutChinh(root), cfg.kho.duong), trongKho: false, cfg };
+  return { goc: path.resolve(root, cfg.noi), trongKho: true, cfg };
+}
+export const dongKhongDoc = cfg => `không đọc được ở đây: ${cfg.kho.ten} — ` +
+  (cfg.kho.remote ? `git clone ${cfg.kho.remote} ` : 'khai kho.remote để có lệnh clone; đường cần có: ');
+
+function moiTep(thuMuc) {
+  const ra = [];
+  const di = d => { for (const e of readdirSync(d, { withFileTypes: true })) { if (e.name === '.git') continue; const p = path.join(d, e.name); if (e.isDirectory()) di(p); else ra.push(p); } };
+  if (existsSync(thuMuc)) di(thuMuc);
+  return ra.sort();
+}
+function docFrontmatter(txt) {
+  const dong = String(txt).replace(/\r\n?/g, '\n').split('\n');
+  if (dong[0] !== '---') return null;
+  const het = dong.indexOf('---', 1);
+  if (het < 0) return null;
+  const o = {};
+  for (const l of dong.slice(1, het)) { const m = l.match(/^([A-Za-z_]+):\s*(.*)$/); if (m) o[m[1]] = m[2].trim(); }
+  return o;
+}
+const danhSach = v => { const t = String(v ?? '').trim(); if (!t.startsWith('[') || !t.endsWith(']')) return null; return t.slice(1, -1).split(',').map(x => x.trim()).filter(Boolean); };
+
+export async function kiem({ root, phamVi = null, khuon = napKhuon() }) {
+  const cfg = docCauHinh(root);
+  if (!cfg) return { thoat: 2, loiChay: ['kho chưa khai tri_thuc trong _acceptance/config.yaml'] };
+  if (cfg.loi.length) return { thoat: 2, loiChay: cfg.loi, canhBao: cfg.canhBao };
+  const { goc, trongKho } = giaiGoc(root, cfg);
+  if (!trongKho && !existsSync(goc)) return { thoat: 3, ra: [dongKhongDoc(cfg) + goc], canhBao: cfg.canhBao };
+  const loi = []; const dat = (co, tep, cau) => loi.push(`lỗi: [${co}] ${tep}: ${cau}`);
+  const rel = p => path.relative(goc, p).split(path.sep).join('/');
+  const K = khuon.khoa;
+  // Trang wiki.
+  const trang = moiTep(path.join(goc, 'wiki')).filter(p => p.endsWith('.md'));
+  const maCo = new Set();
+  for (const p of trang) {
+    const fm = docFrontmatter(readFileSync(p, 'utf8'));
+    if (!fm) { dat(CO.THIEU_NGUON, rel(p), 'frontmatter sai khuôn (thiếu dòng --- mở hay đóng)'); continue; }
+    for (const m of danhSach(fm[K.ma]) || []) maCo.add(m);
+    const ng = danhSach(fm[K.nguon]);
+    if (!(K.nguon in fm)) { dat(CO.THIEU_NGUON, rel(p), `thiếu khoá ${K.nguon}`); continue; }
+    if (!ng || !ng.length) { dat(CO.THIEU_NGUON, rel(p), `${K.nguon} rỗng`); continue; }
+    for (const n of ng) if (!existsSync(path.join(goc, n))) dat(CO.NGUON_KHONG_CO, rel(p), `trỏ ${n} — không có dưới gốc tri thức`);
+  }
+  // Raw: mỗi thư mục raw/<x>/ một nguon.md liệt mọi tệp kèm băm.
+  const rawGoc = path.join(goc, 'raw');
+  const thuMucRaw = existsSync(rawGoc) ? readdirSync(rawGoc, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => path.join(rawGoc, e.name)).sort() : [];
+  for (const d of thuMucRaw) {
+    const tepRaw = moiTep(d).filter(p => path.basename(p) !== 'nguon.md' || path.dirname(p) !== d);
+    if (cfg.congKhai && trongKho && tepRaw.length) dat(CO.RAW_CONG_KHAI, rel(d), 'kho công khai không giữ tài liệu thô — chuyển sang kho riêng (khai tri_thuc.kho)');
+    const pN = path.join(d, 'nguon.md');
+    if (!existsSync(pN)) { dat(CO.RAW_SUA, rel(d), 'thiếu nguon.md'); continue; }
+    const khai = new Map();
+    for (const l of readFileSync(pN, 'utf8').split('\n')) { const m = l.match(khuon.rawDong); if (m) khai.set(m[1], m[2]); }
+    for (const p of tepRaw) {
+      const r = path.relative(d, p).split(path.sep).join('/');
+      if (!khai.has(r)) { dat(CO.RAW_SUA, rel(p), 'tệp không có dòng trong nguon.md'); continue; }
+      if (bamTep(p) !== khai.get(r)) dat(CO.RAW_SUA, rel(p), 'băm khác dòng trong nguon.md');
+    }
+    for (const r of khai.keys()) if (!existsSync(path.join(d, r))) dat(CO.RAW_SUA, `${rel(d)}/${r}`, 'nguon.md liệt tệp không có');
+  }
+  // Mã của bản phạm vi phải có trang mang mã.
+  const { docPhamVi } = await import(new URL('./cat-luot.mjs', import.meta.url).href);
+  const cacPv = [];
+  if (phamVi) cacPv.push(phamVi);
+  else {
+    const r = git(root, ['ls-files', '-z', '--', '*.md']);
+    if (r.status === 0) for (const t of r.stdout.split('\0').filter(Boolean)) cacPv.push(t);
+  }
+  for (const t of cacPv) {
+    const p = path.resolve(root, t); if (!existsSync(p)) { if (phamVi) return { thoat: 2, loiChay: [`không có bản phạm vi: ${t}`] }; continue; }
+    const pv = docPhamVi(readFileSync(p, 'utf8'));
+    if (!pv.dot || !pv.ma.length) { if (phamVi) return { thoat: 2, loiChay: [`không đọc ra dot hay mã nào: ${t}`] }; continue; }
+    if (!phamVi && !existsSync(path.join(goc, 'wiki', 'dot', `${pv.dot}.md`))) continue;
+    for (const { ma } of pv.ma) if (!maCo.has(ma)) dat(CO.MA_KHONG_TRANG, t, `mã ${ma} của đợt ${pv.dot} không nằm trong ${K.ma} của trang nào`);
+  }
+  // Kho riêng: commit chưa có ở remote.
+  if (!trongKho) {
+    const u = git(goc, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}']);
+    if (u.status !== 0) dat(CO.KHO_CHUA_DAY, cfg.kho.ten, 'nhánh của kho riêng không theo dõi remote');
+    else { const l = git(goc, ['log', '--oneline', '@{u}..HEAD']); if (l.stdout.trim()) dat(CO.KHO_CHUA_DAY, cfg.kho.ten, `${l.stdout.trim().split('\n').length} commit chưa đẩy lên ${u.stdout.trim()}`); }
+  }
+  const ra = [...loi, `tri thức: ${trang.length} trang, ${thuMucRaw.length} raw, ${loi.length} lỗi`];
+  return { thoat: loi.length ? 1 : 0, ra, canhBao: cfg.canhBao };
+}
+
+export function conTro({ root, ref, khuon = napKhuon() }) {
+  const cfg = docCauHinh(root);
+  if (!cfg) return { thoat: 2, loiChay: ['kho chưa khai tri_thuc trong _acceptance/config.yaml'] };
+  if (cfg.loi.length) return { thoat: 2, loiChay: cfg.loi };
+  const m = String(ref).match(khuon.conTro);
+  if (!m) return { thoat: 2, loiChay: [`đường trỏ sai khuôn: ${ref}`] };
+  const [, tenKho, duong, bam] = m;
+  if (tenKho && (!cfg.kho || cfg.kho.ten !== tenKho)) return { thoat: 1, ra: [`kho không khai: ${tenKho}`] };
+  const { goc, trongKho } = giaiGoc(root, cfg);
+  if (!trongKho && !existsSync(goc)) return { thoat: 3, ra: [dongKhongDoc(cfg) + goc] };
+  const p = path.join(goc, duong);
+  if (!existsSync(p) || !statSync(p).isFile()) return { thoat: 1, ra: [`không có tệp: ${duong}`] };
+  if (bamTep(p) !== bam) return { thoat: 1, ra: [`băm lệch: ${duong}`] };
+  return { thoat: 0, ra: [p] };
+}
+
+const isMain = (() => { try { return realpathSync(process.argv[1]) === realpathSync(__filename); } catch { return false; } })();
+if (isMain) {
+  const a = process.argv.slice(2);
+  const lay = k => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : null; };
+  const root = path.resolve(lay('--root') || '.');
+  let kq;
+  try {
+    if (a.includes('--kiem')) kq = await kiem({ root, phamVi: lay('--pham-vi') });
+    else if (a.includes('--con-tro')) kq = conTro({ root, ref: lay('--con-tro') });
+    else kq = { thoat: 2, loiChay: ['cần --kiem [--pham-vi <tệp>] hoặc --con-tro <ref>'] };
+  } catch (e) { kq = { thoat: 2, loiChay: [e.message] }; }
+  for (const c of kq.canhBao || []) process.stdout.write(`cảnh báo: ${c}\n`);
+  for (const d of kq.ra || []) process.stdout.write(d + '\n');
+  for (const l of kq.loiChay || []) process.stderr.write(`tri-thuc: ${l}\n`);
+  process.exit(kq.thoat);
+}
