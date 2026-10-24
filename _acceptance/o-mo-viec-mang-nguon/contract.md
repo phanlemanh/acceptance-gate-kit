@@ -5,7 +5,7 @@ slug: o-mo-viec-mang-nguon
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-24-o-mo-viec-mang-nguon-design.md
 approved_by:
 approved_at:
@@ -117,3 +117,13 @@ chọn trang, D2 dòng của ô, D1 nguồn của bản phạm vi); mỗi phần
     vi). Ngưỡng mở: ≥ 1 lần phiên cắt phải sửa `nguon` của bản phạm vi cũ chỉ để răng phủ xanh.
   - Hàng lộ trình do phiên cắt (người hoặc tác tử) viết, không có bên ghi bằng mã; ca đo neo khoá đợt và khoá mã vào
     hàng thật của lộ trình kit và vào bên đọc của răng phủ, không vào một bên ghi máy.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-24:
+  - Ngoài-1: Bản cài plugin đồng bộ dở mà thiếu một tệp tri thức thì lệnh mở ô cho hàng có đợt không dừng với thông báo rõ, và bị đọc nhầm là người gõ một mô tả việc.
+  - Ngoài-2: Một câu viết tay mở bằng «Nguồn:» trong ô có thể bị máy coi là dòng nguồn của máy, nên bước sau có thể báo «có nguồn nhưng rỗng» thay vì «không có dòng nguồn».
+  - Ngoài-3: Khi kho tri thức riêng không có trên máy, ô cơ hội được lưu có thể mang đường thư mục cá nhân của người mở ô, sai trên máy khác.
+  - Ngoài-5: Chọn trang hỏng vì lỗi bất ngờ thì ô vẫn mở, chỉ có một dòng chữ nói lỗi trong ô, không cảnh báo nào cho người đang chạy lệnh.
+  - Ngoài-6: Phần kiểm nguồn của bản phạm vi hỏng vì hạ tầng thì lệnh kiểm báo «đỏ» như thể bản phạm vi sai.
+  - Ngoài-7: Bài thử «bên đọc cũ không nạp mô-đun tri thức» chỉ nhìn mã thoát, có thể xanh vì một lỗi khác.
+  - Ngoài-8: Bài thử cho ba tình huống thiếu trang chỉ đếm số đường trỏ còn lại, không so đúng từng đường.
+  - Ngoài-9: Bản phạm vi dùng trong bài thử viết tay, khuôn bản phạm vi đổi dạng thì bài thử vẫn xanh.
+- Hạt giống mở ở Cổng Bằng chứng 2026-10-24 (Ngoài-4, «mở hợp đồng mới»): `docs/plans/2026-10-24-hat-giong-chon-trang-tinh-ma-trang-dot.md`.
