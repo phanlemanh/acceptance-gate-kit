@@ -108,7 +108,8 @@ function banTiem(sua) {
 }
 // Cùng kho, hai bộ máy: chép kho ra hai bản (chưa mở ô), mở ô ở mỗi bản, so từng byte ô và stdout.
 function soHaiMay(kho, ma, slug, may) {
-  const a = thuMuc('ban-a'); const b = thuMuc('ban-b');
+  // Cùng tên thư mục: tên phiên trong stdout của --mo-o lấy theo tên kho.
+  const a = path.join(thuMuc('ban-a'), 'kho'); const b = path.join(thuMuc('ban-b'), 'kho');
   cpSync(kho, a, { recursive: true }); cpSync(kho, b, { recursive: true });
   const ra = moO(a, ma, may); const rb = moO(b, ma, mayCu());
   const oa = existsSync(path.join(a, '_acceptance', slug, 'opportunity.md')) ? docO(a, slug) : Buffer.from('');
