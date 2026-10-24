@@ -7,13 +7,13 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>5 việc"]
+  GD --> B["Sắp mở vòng<br/>4 việc"]
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>133 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>48 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>49 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -38,7 +38,6 @@ flowchart TD
 ## Sắp mở vòng
 
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
-- Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai (`ghi-tri-thuc`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức» (`vong-don-le-tra-tri-thuc`)
@@ -68,6 +67,7 @@ flowchart TD
 - Eval gọi model thật không chạy lại khi đầu vào không đổi — làn ghim lại dùng lại kết quả của lần eval model thật sự chạy gần nhất khi băm năm lớp đầu vào không đổi (hạn 7 ngày, khoá bật theo lựa chọn), nói ra mọi lần dùng lại, và chạy lại khi một byte đầu vào đổi (`eval-goi-model-that-khong-chay`)
 - Eval máy đã ký nghỉ hưu vì một hồ sơ đã ký khác thay nó — con trỏ `superseded_by` cạnh lời khai không-chạy; luật hai vế nhận khi máy chứng được con trỏ ở cây đang kiểm; pin nói ra ô nào thay bởi đâu (`eval-thay-boi-co-chung`)
 - Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào, vùng tệp, danh sách bằng chứng và trường mảng bắt buộc — một bộ đọc danh sách ở lib cho lượt chấm, lượt sửa và bộ đọc vùng tệp; khuôn không đọc được (bí danh YAML, khối chữ, khoá rỗng) lên cờ vàng có tên; kho đang viết thụt 4 đọc ra y hệt (`evals-sat-le-doc-du`)
+- Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai (`ghi-tri-thuc`)
 - Hạ tầng thôi đốt lượt chấm và lượt gọi người — suite scripts chạy dưới trần công cụ, lượt BLOCKED vì hạ tầng thử lại cùng round, khuôn /goal thôi coi BLOCKED là xong, thẻ Cổng 1 của hồ sơ đã khép thôi hỏi (`ha-tang-khong-dot-luot`)
 - Hồ sơ đã ký luôn tươi — lệnh giữ tươi theo khoảng gộp, quy đỏ về PR gây ra, nhãn «đỏ sẵn trên nền» cho vòng khác đi tiếp; mặc định tắt (`ho-so-da-ky-giu-tuoi`)
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)

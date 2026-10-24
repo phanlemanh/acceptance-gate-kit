@@ -26,7 +26,7 @@ export const CO = {
   MA_KHONG_TRANG: 'ma-khong-co-trang', KHO_CHUA_DAY: 'kho-rieng-chua-day', RAW_CONG_KHAI: 'raw-trong-kho-cong-khai',
 };
 
-const khoi = (txt, ten) => {
+export const khoi = (txt, ten) => {
   const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`\\n([\\s\\S]*?)\\n\`\`\`\\n<!-- ${ten}>>> -->`));
   if (!m) throw new Error(`khuôn tri thức thiếu khối ${ten}`);
   return m[1];
