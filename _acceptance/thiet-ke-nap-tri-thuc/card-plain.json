@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Ở kho đã khai tri thức, mỗi vòng phải ghi lại mình đã tra những trang tri thức nào trước khi thiết kế; thiếu dòng ấy thì thẻ duyệt phạm vi không mời người duyệt mà máy tự tra bù.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ không mời duyệt phạm vi khi vòng chưa ghi đã tra tri thức, hoặc bỏ sót trang mà ô việc đã nêu — máy tự tra bù rồi dựng lại thẻ; vòng ghi dòng tra mới thì thẻ theo dòng mới nhất."},
+    {"id": "AC-2", "p": "Sẽ vẫn mời duyệt nhưng gắn cờ vàng khi trang đã tra bị sửa sau đó, mất đi, hoặc ghi sai dạng."},
+    {"id": "AC-3", "p": "Sẽ gắn nhãn «không đọc được ở đây» và vẫn mời duyệt khi máy đang dựng thẻ không có bản kho tri thức riêng."},
+    {"id": "AC-4", "p": "Sẽ tự tải bản kho tri thức riêng về khi kho đã khai địa chỉ và máy có quyền; không tải được thì nói rõ vì sao; không bao giờ tải vào bên trong kho công khai."},
+    {"id": "AC-5", "p": "Sẽ nhận một lựa chọn thiết kế dựa trên trang tri thức (trỏ bằng mã băm) là máy tự quyết được, không biến nó thành câu hỏi cho người khi trang ở máy khác."},
+    {"id": "AC-6", "p": "Sẽ không chép câu chữ nào từ kho tri thức riêng lên thẻ hay sổ công khai — chỉ hiện đường trỏ."},
+    {"id": "AC-8", "p": "Sẽ cho dòng mẫu trong hướng dẫn vòng ghi ra đúng dòng mà thẻ và bộ xếp căn cứ đọc được."},
+    {"id": "AC-9", "p": "Sẽ giữ nguyên mọi ca kiểm đang có của bộ xếp căn cứ, luật sản phẩm, cỡ hợp đồng và tầng tri thức."}
+  ],
+  "wont_do": [
+    {"id": "AC-7", "p": "Sẽ KHÔNG đổi một byte nào trên thẻ của kho chưa khai tri thức; hồ sơ đã qua cổng chỉ mang một cờ vàng đọc-cũ, không bị chặn."},
+    {"id": "OOS-1", "p": "Chưa làm tra trang theo câu mô tả cho vòng mở không từ lộ trình, và chưa đọc sổ quyết định của các hồ sơ trước — để hàng TT5 (vòng đơn lẻ tra tri thức)."},
+    {"id": "OOS-2", "p": "Chưa neo dòng «Nguồn:» của ô việc vào đúng vị trí của nó — giữ cách đọc của hàng TT3."},
+    {"id": "OOS-3", "p": "Không kiểm dòng tra ở bước gộp hay ghim lại — không thêm bước nào sau chữ ký."},
+    {"id": "OOS-4", "p": "Không chứng máy đã hiểu hay chọn đúng trang — chỉ chứng đã chạm đúng bản trang."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Thẻ chặn khi thiếu dòng tra (AC-1), chỉ gắn cờ khi trang đổi (AC-2), gắn nhãn khi không đọc được (AC-3), tự tải kho riêng (AC-4) — mỗi ca có ma trận viết sẵn và chiều đỏ."},
+    {"i": 1, "p": "Lựa chọn dựa trên trang tri thức: bộ xếp nhận đúng bảy ca (AC-5) và thẻ không lộ chữ của kho riêng (AC-6)."},
+    {"i": 2, "p": "Kho chưa dùng tri thức không thấy gì đổi (AC-7), dòng mẫu ghi ra đọc lại được (AC-8), ca cũ vẫn xanh (AC-9)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Hai luật đá nhau khi ô việc nêu trang ở kho riêng mà máy không đọc được — đã sửa: «không đọc được» thắng «thiếu trang», thêm ca kiểm và mũi phá thử."},
+    {"i": 1, "p": "Đây là việc thêm một điều kiện chặn mà sổ chưa khai — đã sửa: thành câu hỏi Hỏi-1 cho anh trên thẻ này."},
+    {"i": 2, "p": "Lựa chọn «hồ sơ cũ không cờ» trích thiếu luật đọc-cũ — đã sửa: hồ sơ cũ mang đúng một cờ vàng, theo luật."},
+    {"i": 3, "p": "Chưa có ca hồ sơ ghi hai dòng tra — đã thêm hai ca và mũi phá thử «lấy dòng đầu»."},
+    {"i": 4, "p": "Lệnh tự tải có thể đặt kho riêng vào trong kho công khai — đã sửa: lệnh từ chối, thêm ca kiểm."}
+  ]
+}
