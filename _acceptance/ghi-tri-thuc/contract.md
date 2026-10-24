@@ -5,7 +5,7 @@ slug: ghi-tri-thuc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-24-ghi-tri-thuc-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-24
@@ -106,3 +106,13 @@ ghi, B2 năm loại nguồn, B3 riêng tư); mỗi phần có ma trận viết s
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-24:
+  - Ngoài-2: Một vài bài thử tự kiểm có thể báo «đã bắt được lỗi» trong khi thực ra bản thử hỏng vì lý do khác.
+  - Ngoài-3: Nếu máy đang có một bản kit cũ chưa có lệnh ghi, lệnh ghi sẽ báo lỗi chung chung thay vì chỉ cho người dùng cách cài bản mới.
+  - Ngoài-4: Nếu phiên bị ngắt đúng lúc đang ghi nguồn thô, lần chạy lại sẽ báo thành công nhưng thư mục nguồn vẫn thiếu tệp mô tả, và bước kiểm tri thức sau đó báo đỏ.
+  - Ngoài-5: Khi làm việc trong thư mục làm việc tạm của một vòng, tiêu đề tệp tri thức đầu tiên mang tên của vòng chứ không phải tên kho thật.
+  - Ngoài-7: Khi đường dẫn trang va vào một tệp đã có sẵn cùng tên, lệnh báo lỗi nhưng để lại một phần nguồn thô đã chép trong thư mục, người dùng phải tự dọn.
+  - Ngoài-8: Nếu tên một tệp nguồn có ký hiệu đô-la đặc biệt, dòng mô tả tệp ấy bị ghi sai và bước kiểm tri thức sau này báo đỏ; vì nguồn thô bất biến nên không sửa lại được.
+  - Ngoài-9: Bài thử hiện chưa phân biệt được việc tên kho gửi đi đúng hay thừa đuôi «.git», nên nếu sau này có lỗi cắt tên, kiểm tra riêng tư có thể hỏi nhầm kho mà bài thử vẫn xanh.
+- Mở hợp đồng mới (Ngoài-1, Ngoài-6) — ghi hạt giống `docs/plans/2026-10-24-hat-giong-ghi-tri-thuc.md`.
