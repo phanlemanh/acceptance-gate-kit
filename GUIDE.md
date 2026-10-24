@@ -1025,7 +1025,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 29 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 32 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1064,6 +1064,9 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
+- `scripts/tri-thuc-khoa.cjs` — bộ đọc MỘT nguồn của ổ cắm tri thức `tri_thuc`; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` cho hàng có `dot` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/tri-thuc-nguon.cjs` — bên ghi và bên đọc dòng «Nguồn:» của ô cơ hội; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/tri-thuc.mjs` — lint tri thức và bộ chọn trang `chonTrang`; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
