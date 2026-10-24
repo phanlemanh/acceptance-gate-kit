@@ -2,7 +2,7 @@
 
 | Điểm | Đếm | Hình |
 |---|---|---|
-| Hỏi-1 — CỘNG: thiếu dòng tra thì thẻ không mời duyệt (khuyên) hay chỉ cờ vàng | hai nhánh rẽ + bốn bước nối tiếp (kho khai? → hồ sơ draft? → có dòng tra? → không đọc được? / thiếu trang ô nêu?) | cần hình: `thẻ-tri-thuc.html` |
+| Hỏi-1 — CỘNG: thiếu dòng tra thì thẻ không mời duyệt (khuyên) hay chỉ cờ vàng | hai nhánh rẽ + bốn bước nối tiếp (kho khai? → hồ sơ draft? → có dòng tra? → không đọc được? / thiếu trang ô nêu?) | cần hình: `the-tri-thuc.html` |
 | d-…-11 — không làm tra theo mô tả (TT5) | dưới ngưỡng: 1 bước | — |
 | d-…-12 — không kiểm ở pre-merge, recheck, ghim lại | dưới ngưỡng: 1 bước | — |
 | d-…-1 — bỏ quét hình thái | dưới ngưỡng: 1 bước | — |
