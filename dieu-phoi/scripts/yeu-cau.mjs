@@ -43,6 +43,8 @@ function xetChamTep(yc, nguCanh, cfg) {
     const nhanh = (nguCanh.nhanhChamTep.get(t) ?? []).filter((b) => b !== nhanhMinh);
     if (nhanh.length > 0) return { ket_qua: 'can_phan', ly_do: `${t} đang được nhánh ${nhanh.join(', ')} sửa` };
   }
+  // Không dò được nhánh mở thì «không nhánh nào chạm» là điều chưa kiểm (hạt giống 10/10 lỗ 1) — giám sát phán.
+  if (nguCanh.nhanhLoi) return { ket_qua: 'can_phan', ly_do: `không dò được nhánh mở (${nguCanh.nhanhLoi}) — chưa kiểm được ai đang sửa ${tep.join(', ')}` };
   return { ket_qua: 'duyet', boi: 'may', ly_do: 'không ai giữ, không nhánh mở nào chạm, không thuộc danh sách bảo vệ' };
 }
 

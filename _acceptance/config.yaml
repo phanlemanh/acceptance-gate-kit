@@ -165,6 +165,9 @@ executors:
     # Hồ sơ suc-khoe-cho-trong-va-toc-do (SK1): hai tệp ca «SK-», gộp dòng ghim «ok … SK-», «not ok», chẩn đoán và tổng
     # kết TAP thành MỘT dòng (cùng khuôn dieu_phoi_tin_gd). Suite xanh mà thiếu dòng ghim là ĐỎ.
     dieu_phoi_suc_khoe: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/loi/suc-khoe.test.mjs\" \"tests/dieu-phoi/loi/suc-khoe-nhip.test.mjs\" \"tests/dieu-phoi/loi/suc-khoe-song.mac.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - SK-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ ky-den-gop: năm tệp ca «C-», «I-», «DG-», «H-», «KDG-M» (lịch biết tệp · gộp không chạy lại CI · đo ký → gộp ·
+    # PR sẵn sàng lúc trình thẻ · chiều đỏ trong bộ kiểm), cùng khuôn một dòng của dieu_phoi_tin_gd. Thiếu dòng ghim là ĐỎ.
+    dieu_phoi_ky_den_gop: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/loi/trung-tep.test.mjs\" \"tests/dieu-phoi/loi/gop.test.mjs\" \"tests/dieu-phoi/loi/do-gop.test.mjs\" \"tests/workflows/pr-san-sang.test.mjs\" \"tests/dieu-phoi/ky-den-gop-mutants.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (C|I|DG|H|KDG)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ kiem-ban-cai-sau-phat-hanh (KC1): trọn bộ ca KB-1…KB-9 (cài cách ly, cần CLI claude — đuôi .ca.mjs
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs

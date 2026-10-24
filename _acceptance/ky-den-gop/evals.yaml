@@ -1,0 +1,118 @@
+schema_version: 1
+feature_slug: ky-den-gop
+# Ca đo sống ở năm tệp (xem Notes của hợp đồng). Khoá executors.test.dieu_phoi_ky_den_gop chạy cả năm bằng node --test,
+# gộp dòng «ok … <mã ca>», «not ok», chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (cùng khuôn dieu_phoi_tin_gd).
+# Suite xanh mà thiếu dòng ghim là ĐỎ. Fixture do code sinh trong lượt: thư mục đợt tạm, kho git thật (origin trần +
+# bản clone, giờ commit đặt bằng GIT_COMMITTER_DATE), gh giả trả JSON `gh pr view` và ghi lời gọi. Đường dẫn suy từ vị
+# trí tệp ca. Chiều đỏ trong bộ kiểm: KDG-M* tiêm vào bản sao trọn thư mục scripts, SAU khi bản sao lành xanh.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/khoa-hang-viec.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
+    expected: >
+      exit 0; "ok" cho "C-2", "C-3", "C-7", "C-12". C-12: hai hàng kế trùng vùng ở P1, P2 cùng nhịp → sau hai nhịp đúng
+      một hàng mang sau, đúng một dãy được giao và không phải hàng mang sau; themSau(x, khoa Y) khi Y.sau có X → doi
+      false; khoa Z → doi true. C-7: sau hai nhịp tiep/P1.json hang = z, hang x mang sau ["Y"], đúng một sự
+      kiện doi-ke-hoach kieu them-sau, LUAT.md có «x chờ Y gộp trước (trùng tệp)»; đối chứng Y khai apps/mobile/** →
+      tiep/P1 hang = x, x không có sau. C-2: Y ở ky cũng chặn; Y ở gop không chặn. C-3: mọi hàng trùng → cho trung-tep.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
+    expected: >
+      exit 0; "ok" cho "C-4", "C-8". C-8: PR feat/ngoai sửa phiếu → tiep/P1 hang = z, x không có sau, đúng một sự kiện
+      trung-tep {hang x, nhanh feat/ngoai, tep [phiếu]}, trang-thai.json nhanh_mo.theo_nhanh['feat/ngoai'] = [phiếu] và
+      nhanh_day.P1 = feat/P1; đối chứng PR feat/P1 → tiep/P1 hang = x. C-4: PR feat/P2 → trùng quy về hàng Y (khoa "Y").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
+    expected: >
+      exit 0; "ok" cho "C-10": hàng moi-phieu mang sau ["Y"]; moi-api không có sau; moi-trong có cảnh báo «moi-trong không
+      khai ranh_gioi»; thêm Z sang P2 → cả hai hàng z mang ranh_gioi ["apps/api/**"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/trung-tep.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
+    expected: >
+      exit 0; "ok" cho "C-9", "C-11", "C-13". C-13 (S4-r1): như C-11 nhưng nhịp gh hỏng có yêu cầu cham-tep P2-1 chờ
+      duyệt → P1 vẫn z, nhanh_mo vẫn giữ feat/ngoai, đúng một sự kiện yeu-cau P2-1 can_phan khớp «không dò được nhánh mở
+      (gh pr list lỗi: gh: auth expired — lịch so bằng bản chụp PR cũ 3′». C-11: nhịp 1 gh tốt (PR feat/ngoai sửa phiếu) → P1 nhận z; bản chụp lùi 3′, gh ném
+      «auth expired» hai nhịp → P1 vẫn z, đúng một trung-tep-mu khớp «— lịch so bằng bản chụp PR cũ 3′», nhanh_mo vẫn
+      giữ feat/ngoai; đối chứng chưa có bản chụp → P1 nhận x. C-9: gh ném lỗi → tiep/P1 hang = x, đúng một sự kiện trung-tep-mu qua hai nhịp; hàng x bỏ
+      ranh_gioi → tiep/P1 hang = x và đúng một sự kiện ranh-gioi-vang {hang x}.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/yeu-cau.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/trung-tep.test.mjs]
+    expected: >
+      exit 0; "ok" cho "C-5", "C-6". C-5: gh ném → loi khớp «gh pr list lỗi: gh: not logged in»; diff nhánh fork ném →
+      loi = «không đọc được tệp của nhánh fork»; gh tốt → loi null. C-6: nhanhLoi → can_phan, lý do khớp «không dò được
+      nhánh mở (gh pr list lỗi: timeout)»; nhanhLoi null → duyet; nhánh feat/P1 của chính phiên chạm tệp → duyet.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/gop.mjs, dieu-phoi/scripts/hinh-dang.mjs, tests/dieu-phoi/loi/gop.test.mjs]
+    expected: >
+      exit 0; "ok" cho "I-1", "I-2", "I-3", "I-6", "I-7". I-6: gh run list trả một lượt failure → cu khớp «CI nhánh chính
+      đỏ ở đỉnh <7 hex> (ci)»; in_progress hay success → khong-trung; gh ném → cu «không đọc được CI nhánh chính»; lời gọi
+      mang --branch main --commit <origin/main>. I-7: nhánh chính git mv phiếu → cu, trung [apps/web/company-sheet.tsx]. I-1: khong-trung, lý do «không tệp nào trùng (2 tệp của PR · 1 tệp vào nhánh
+      chính qua 1 commit)»; tiến bằng phiếu → cu, trung [apps/web/company-sheet.tsx]. I-2: khoá vắng/false → cu «khoá
+      gop_khong_chay_lai_ci tắt»; không tiến → moi-nhat. I-3: sáu hàng (rỗng · IN_PROGRESS · FAILURE · PENDING · nháp ·
+      xung đột) ra đúng lối và lý do; hồ sơ verified → chan nêu «verified».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/gop.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/loi/gop.test.mjs]
+    expected: >
+      exit 0; "ok" cho "I-4", "I-5". I-4: lời gọi merge duy nhất = ["pr","merge","7","--merge","--match-head-commit",<sha>];
+      sự kiện gop {pr 7, hang s, duong khong-trung, da_gop true, sha}; tiến bằng phiếu → 0 lời gọi merge. I-5: khoá của
+      P9 → ném «khoá merge không do P1 giữ (P9)», 0 lời gọi gh; --xet → khong-trung, da_gop false, 0 lời gọi merge;
+      tu_merge false → ném «đợt không cho tự gộp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [feature-loop/scripts/pr-san-sang.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/workflows/pr-san-sang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "H-1" … "H-6". H-1: refs/heads/vong/s trên origin = HEAD; lời gọi gh theo thứ tự [pr view, pr
+      create, pr view, pr ready]; dòng in khớp «PR #12 sẵn sàng (mới mở)». H-3: ba hàng thoát 2 với lý do riêng, origin
+      không có nhánh, 0 lời gọi gh. H-6: dòng lệnh rút từ khối PR-SAN-SANG chạy và thoát 2 «cần verified»; khối đổi tên
+      tệp → node thoát 1 «Cannot find module».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [dieu-phoi/scripts/do-gop.mjs, dieu-phoi/scripts/dem.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/loi/do-gop.test.mjs, tests/dieu-phoi/mo-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DG-1", "DG-2", "DG-3", "DG-4". DG-4: hồ sơ lên nhánh chính 22/10 16:00 trước giờ ký → cùng bốn giá
+      trị của DG-1. DG-1: {ky_luc 2026-10-23T11:48:00.000Z, gop_luc 2026-10-23T15:03:00.000Z,
+      ky_den_gop_phut 195, gop_vao_nhanh 1}; squash → ky_luc null; danh sách đã thông thiếu machine-cleared → ky_luc null.
+      DG-2: hang-gop [s, 195, 1]; dem.ky_den_gop.trung_vi_phut 195, ghim_lai_sau_ky.tong 1 (lượt 11:00 trước ký bị bỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_ky_den_gop
+    paths: [tests/dieu-phoi/ky-den-gop-mutants.test.mjs, dieu-phoi/scripts/*.mjs, feature-loop/scripts/pr-san-sang.mjs]
+    expected: >
+      exit 0; "ok" cho "KDG-M0" (bốn tệp ca trên bản sao lành: thoát 0, «ℹ pass N» với N ≥ 1, «ℹ fail 0») và 23 dòng
+      "ok" «KDG-M <nhát> → đỏ đúng <ca>» (22 nhát của AC-10 + nhát S4-r1 «đường xét chạm tệp bỏ qua bản chụp cũ» → C-13); mỗi nhát: chuỗi gốc có trước, vắng sau; tệp ca thoát khác 0; tập ca đỏ BẰNG tập
+      nêu tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

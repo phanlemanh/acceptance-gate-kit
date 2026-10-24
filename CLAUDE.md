@@ -141,11 +141,12 @@
     (`wf-usage` → `usage-report.md`), TÁCH ba khối chứng-minh-vật
     (machine+ui+judge+baseline) / tìm-lỗi (review+refute) / tổng hợp; phiên
     chính đếm tay như dòng 1 · **phút máy/lượt chấm** — đường găng S4 và tổng
-    phút S4/vòng. Ba dòng đầu đếm tay, hai dòng sau máy đo. *Giới hạn đã khai
-    của dòng 1:* `loop-health` mới đo nửa làm-xong→ký; nửa ký→gộp đếm tay — giờ
-    commit chữ ký Cổng Bằng chứng (hoặc `machine-cleared`) → giờ PR của vòng gộp
-    vào nhánh chính kho tiêu thụ (`gh pr view --json mergedAt`). Ngưỡng dựng máy
-    đo: ≥1 mốc phải để trống nửa ký→gộp vì đếm tay không ra. **Điều kiện tin
+    phút S4/vòng. Ba dòng đầu đếm tay, hai dòng sau máy đo. *Nửa ký→gộp của
+    dòng 1 máy đo* (hồ sơ `ky-den-gop`): `dieu-phoi.mjs dem` in `ky_den_gop` —
+    giờ commit chữ ký Cổng Bằng chứng (hoặc `machine-cleared`) → giờ commit gộp
+    mang chữ ký ấy vào nhánh chính kho tiêu thụ, đọc từ lịch sử nhánh chính
+    (`dieu-phoi/scripts/do-gop.mjs`); vòng gộp squash không tách được giờ ký,
+    nằm ở `chua_do`. `loop-health` vẫn đo nửa làm-xong→ký. **Điều kiện tin
     cậy — ràng buộc, không phải chỉ số:** dòng 4–5 chỉ được cắt khi (i) đường
     verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần,
     hoặc đổi kèm răng CẢ HAI chiều (đỏ và im); (ii) số lượt chấm sai giữa hai
