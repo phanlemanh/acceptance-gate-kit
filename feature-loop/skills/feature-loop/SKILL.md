@@ -250,6 +250,7 @@ CAU_GIAO_HET
 2 → dừng: in nguyên thông điệp (tệp lệch khuôn, đã có hàng, câu rỗng, khoá sai giá trị)
 ```
 <!-- S0-THEM-HANG-THOAT>>> -->
+   **Dòng «Nguồn:» của ô** (hồ sơ o-mo-viec-mang-nguon): kho khai `tri_thuc` và hàng có `dot` → ô do khối `S0-MO-O` mở mang thêm dòng «Nguồn:» ngay sau dòng «Mở từ hàng …»: đường trỏ băm tới trang nền, trang đợt và trang mang mã của hàng (bên ghi và bên đọc `scripts/tri-thuc-nguon.cjs`). Kho không khai, hay hàng không có `dot`, nhận ô như cũ từng byte.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 

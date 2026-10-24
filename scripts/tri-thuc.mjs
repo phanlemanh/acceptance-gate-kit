@@ -7,6 +7,9 @@
 //
 //   node scripts/tri-thuc.mjs --root . --kiem [--pham-vi <tệp>]   0 xanh · 1 đỏ · 2 không chạy được · 3 không đọc được ở đây
 //   node scripts/tri-thuc.mjs --root . --con-tro '<ref>'          0 khớp · 1 lệch/không có · 2 sai · 3 không đọc được ở đây
+//
+// Hồ sơ o-mo-viec-mang-nguon (TT3) thêm hai hàm cho bên gọi khác: `chonTrang` (dòng «Nguồn:» của ô mở từ hàng) và
+// `kiemNguonPhamVi` (răng phủ đòi nguồn của bản phạm vi là trang tri thức có đường trỏ băm).
 import { readFileSync, readdirSync, existsSync, statSync, realpathSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -68,7 +71,7 @@ function moiTep(thuMuc) {
   if (existsSync(thuMuc)) di(thuMuc);
   return ra.sort();
 }
-function docFrontmatter(txt) {
+export function docFrontmatter(txt) {
   const dong = String(txt).replace(/\r\n?/g, '\n').split('\n');
   if (dong[0] !== '---') return null;
   const het = dong.indexOf('---', 1);
@@ -77,7 +80,7 @@ function docFrontmatter(txt) {
   for (const l of dong.slice(1, het)) { const m = l.match(/^([A-Za-z_]+):\s*(.*)$/); if (m) o[m[1]] = m[2].trim(); }
   return o;
 }
-const danhSach = v => { const t = String(v ?? '').trim(); if (!t.startsWith('[') || !t.endsWith(']')) return null; return t.slice(1, -1).split(',').map(x => x.trim()).filter(Boolean); };
+export const danhSach = v => { const t = String(v ?? '').trim(); if (!t.startsWith('[') || !t.endsWith(']')) return null; return t.slice(1, -1).split(',').map(x => x.trim()).filter(Boolean); };
 
 export async function kiem({ root, phamVi = null, khuon = napKhuon() }) {
   const cfg = docCauHinh(root);
@@ -156,6 +159,55 @@ export function conTro({ root, ref, khuon = napKhuon() }) {
   if (!existsSync(p) || !statSync(p).isFile()) return { thoat: 1, ra: [`không có tệp: ${duong}`] };
   if (bamTep(p) !== bam) return { thoat: 1, ra: [`băm lệch: ${duong}`] };
   return { thoat: 0, ra: [p] };
+}
+
+// ── Chọn trang cho một hàng (hồ sơ o-mo-viec-mang-nguon, TT3 — C1) ─────────────────────────────────────────────────────
+// Trang nền (`loai: nen`) theo đường · trang đợt `wiki/dot/<dot>.md` (cùng luật nối đợt của ma-khong-co-trang) · trang có
+// `ma` giao `phu` của hàng, trừ nền và đợt, theo đường. Mỗi trang thành một đường trỏ băm theo khuôn TRI-THUC-CON-TRO.
+// → null (kho không khai) | { loiKhai } | { khongDoc } | { conTro, thieu }
+export function chonTrang({ root, dot, phu = [], cfg = docCauHinh(root), khuon = napKhuon() }) {
+  if (!cfg) return null;
+  if (cfg.loi.length) return { loiKhai: cfg.loi };
+  const { goc, trongKho } = giaiGoc(root, cfg);
+  if (!trongKho && !existsSync(goc)) return { khongDoc: dongKhongDoc(cfg) + goc };
+  const K = khuon.khoa;
+  const tro = p => `${trongKho ? '' : `${cfg.kho.ten}:`}${path.relative(goc, p).split(path.sep).join('/')}#${bamTep(p)}`;
+  const tepDot = path.join(goc, 'wiki', 'dot', `${dot}.md`);
+  const nen = []; const theoMa = []; const coMa = new Set();
+  for (const p of moiTep(path.join(goc, 'wiki')).filter(x => x.endsWith('.md') && x !== tepDot)) {
+    const fm = docFrontmatter(readFileSync(p, 'utf8'));
+    if (!fm) continue;
+    if (fm[K.loai] === 'nen') { nen.push(p); continue; }
+    const ma = (danhSach(fm[K.ma]) || []).filter(m => phu.includes(m));
+    if (ma.length) { theoMa.push(p); for (const m of ma) coMa.add(m); }
+  }
+  const coDot = existsSync(tepDot);
+  const thieu = [...(nen.length ? [] : ['trang nền']), ...(coDot ? [] : [`trang đợt ${dot}`]), ...phu.filter(m => !coMa.has(m)).map(m => `mã ${m}`)];
+  return { conTro: [...nen, ...(coDot ? [tepDot] : []), ...theoMa].map(tro), thieu };
+}
+
+// ── Nguồn của bản phạm vi (hồ sơ o-mo-viec-mang-nguon, TT3 — D1) ──────────────────────────────────────────────────────
+// Khoá `nguon` tách theo dấu phẩy; mỗi mục phải là đường trỏ băm tới trang dưới wiki/, khớp băm, đã vào git của kho chứa
+// nó. Vế hình dạng không cần kho nên đỏ trên mọi máy; kho riêng không có ở máy → vế băm và git thành cảnh báo.
+// → null (kho không khai) | { loi, canhBao }
+export function kiemNguonPhamVi({ root, nguon, khuon = napKhuon() }) {
+  const cfg = docCauHinh(root);
+  if (!cfg) return null;
+  const loi = []; const canhBao = [];
+  if (cfg.loi.length) return { loi: [`khối tri_thuc lỗi: ${cfg.loi.join('; ')}`], canhBao };
+  const muc = String(nguon ?? '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!muc.length) return { loi: ['bản phạm vi thiếu nguon — kho đã khai tri_thuc: ghi đường trỏ băm tới trang tri thức [nguon-khong-phai-trang]'], canhBao };
+  const { goc } = giaiGoc(root, cfg);
+  for (const x of muc) {
+    const m = x.match(khuon.conTro);
+    if (!m) { loi.push(`nguồn «${x}» không phải đường trỏ băm tới trang tri thức [nguon-khong-phai-trang]`); continue; }
+    if (!path.posix.normalize(m[2]).startsWith('wiki/')) { loi.push(`nguồn «${x}»: không phải trang wiki — phải nằm dưới wiki/ [nguon-khong-phai-trang]`); continue; }
+    const r = conTro({ root, ref: x, khuon });
+    if (r.thoat === 3) { canhBao.push(`nguồn «${x}»: ${r.ra[0]}`); continue; }
+    if (r.thoat !== 0) { loi.push(`nguồn «${x}»: ${[...(r.ra || []), ...(r.loiChay || [])][0]} [nguon-lech]`); continue; }
+    if (git(goc, ['ls-files', '--error-unmatch', '--', m[2]]).status !== 0) loi.push(`nguồn «${x}»: tệp chưa vào git của kho tri thức [nguon-chua-vao-kho]`);
+  }
+  return { loi, canhBao };
 }
 
 const isMain = (() => { try { return realpathSync(process.argv[1]) === realpathSync(__filename); } catch { return false; } })();
