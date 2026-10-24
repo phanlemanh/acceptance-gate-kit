@@ -18,11 +18,16 @@ const KHUON = readFileSync(path.join(KIT, 'skills/acceptance/references/tri-thuc
 const PV_THAT = path.join(KIT, 'docs/plans/pham-vi-tri-thuc-2410.md');
 const TAM = realpathSync(mkdtempSync(path.join(tmpdir(), 'kt-tri-thuc-')));
 let soDo = 0;
+const LANH = [];
 const ok = (ca, m) => console.log(`PASS: ${ca} — ${m}`);
 const bad = (ca, m) => { soDo++; console.log(`FAIL: ${ca} — ${m}`); };
 const ca = async (ten, fn) => { try { const r = await fn(); if (r && r.length) bad(ten, r.join(' ; ')); else ok(ten, 'đạt'); } catch (e) { bad(ten, `ném lỗi: ${e.stack || e}`); } };
 
-const khoi = ten => { const m = KHUON.match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`\\n([\\s\\S]*?)\\n\`\`\`\\n<!-- ${ten}>>> -->`)); if (!m) throw new Error(`khuôn thiếu khối ${ten}`); return m[1]; };
+const khoiCua = (txt, ten) => { const m = txt.match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`\\n([\\s\\S]*?)\\n\`\`\`\\n<!-- ${ten}>>> -->`)); if (!m) throw new Error(`khuôn thiếu khối ${ten}`); return m[1]; };
+const khoi = ten => khoiCua(KHUON, ten);
+const BON_KHOI = ['TRI-THUC-TRANG', 'TRI-THUC-RAW', 'TRI-THUC-CON-TRO', 'TRI-THUC-LUAT'];
+const LOAI = khoi('TRI-THUC-LOAI').trim().split(/\s+/);
+const RE_CON_TRO = new RegExp(khoi('TRI-THUC-CON-TRO').trim());
 const g = (cwd, ...a) => execFileSync('git', ['-C', cwd, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const bam = p => execFileSync('git', ['hash-object', '--', p], { encoding: 'utf8' }).trim();
 const ghi = (p, t) => { mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, t); };
@@ -41,22 +46,27 @@ function dungGoc(G, khoiTrang = khoi('TRI-THUC-TRANG')) {
   const dong = f => mau.replace(/`[^`]+`/, '`' + f + '`').replace(/[0-9a-f]{40}/, bam(path.join(G, R, f)));
   ghi(path.join(G, R, 'nguon.md'), `${dau}\n\n${dong('anh/a.txt')}\n${dong('ghi-chu.md')}\n`);
   const n = `[${R}/ghi-chu.md]`;
-  ghi(path.join(G, 'wiki/nen/nen.md'), trangTu(khoiTrang, { loai: 'nen', ma: '[]', nguon: n }));
-  ghi(path.join(G, 'wiki/chu-de/chu-de.md'), trangTu(khoiTrang, { loai: 'chu-de', ma: '[]', nguon: n }));
-  ghi(path.join(G, 'wiki/dot/tri-thuc-2410.md'), trangTu(khoiTrang, { loai: 'dot', ma: `[${PV.ma.join(', ')}]`, nguon: n }));
+  const [lNen, lChuDe, lDot] = LOAI;
+  ghi(path.join(G, 'TRI-THUC.md'), khoi('TRI-THUC-LUAT') + '\n');
+  ghi(path.join(G, 'wiki/nen/nen.md'), trangTu(khoiTrang, { loai: lNen, ma: '[]', nguon: n }));
+  ghi(path.join(G, 'wiki/chu-de/chu-de.md'), trangTu(khoiTrang, { loai: lChuDe, ma: '[]', nguon: n }));
+  ghi(path.join(G, 'wiki/dot/tri-thuc-2410.md'), trangTu(khoiTrang, { loai: lDot, ma: `[${PV.ma.join(', ')}]`, nguon: n }));
 }
 const CFG_NOI = 'tri_thuc:\n  noi: docs/tri-thuc\n';
 const cfgKho = (ten, remote) => `tri_thuc:\n  kho:\n    ten: ${ten}\n    duong: ../${ten}\n    remote: ${remote}\n`;
-function khoTrongKho({ them = '' } = {}) {
+function khoTrongKho({ them = '', ghiLanh = true } = {}) {
   const d = khoGit(thuMuc('kho'));
-  ghi(path.join(d, '_acceptance/config.yaml'), CFG_NOI + them); ghi(path.join(d, 'docs/plans/pham-vi-tri-thuc-2410.md'), PV.txt);
-  dungGoc(path.join(d, 'docs/tri-thuc')); commit(d); return d;
+  ghi(path.join(d, '_acceptance/config.yaml'), CFG_NOI); ghi(path.join(d, 'docs/plans/pham-vi-tri-thuc-2410.md'), PV.txt);
+  dungGoc(path.join(d, 'docs/tri-thuc')); commit(d);
+  if (ghiLanh) LANH.push(lint(d).thoat);
+  if (them) { ghi(path.join(d, '_acceptance/config.yaml'), CFG_NOI + them); commit(d); }
+  return d;
 }
 // Kho tiêu thụ + kho riêng anh em (đã đẩy lên remote trần, nhánh theo dõi).
 function khoCoKhoRieng({ dungRieng = true } = {}) {
   const cha = thuMuc('cap'); const d = khoGit(path.join(cha, 'tieu-thu')); const ten = 'nguon-rieng'; const C = path.join(cha, ten); const B = path.join(cha, `${ten}.git`);
   ghi(path.join(d, '_acceptance/config.yaml'), cfgKho(ten, B)); ghi(path.join(d, 'docs/plans/pham-vi-tri-thuc-2410.md'), PV.txt); commit(d);
-  if (dungRieng) { execFileSync('git', ['init', '-q', '--bare', B]); khoGit(C); dungGoc(C); commit(C); g(C, 'remote', 'add', 'origin', B); g(C, 'push', '-q', '-u', 'origin', 'main'); }
+  if (dungRieng) { execFileSync('git', ['init', '-q', '--bare', B]); khoGit(C); dungGoc(C); commit(C); g(C, 'remote', 'add', 'origin', B); g(C, 'push', '-q', '-u', 'origin', 'main'); LANH.push(lint(d).thoat); }
   return { d, C, B, ten };
 }
 const chay = (bin, cwdRoot, args, cwd = cwdRoot) => { const r = spawnSync('node', [bin, '--root', cwdRoot, ...args], { cwd, encoding: 'utf8' }); return { thoat: r.status, out: r.stdout.trim(), err: r.stderr.trim() }; };
@@ -123,7 +133,16 @@ await ca('KT-2', () => {
 
 // ── KT-3: kho lành dựng từ khuôn → xanh; khuôn tiêm đổi khoá nguon → trang-thieu-nguon mọi trang ──
 await ca('KT-3', () => {
-  const sai = []; const d = khoTrongKho(); const r = lint(d);
+  const sai = [];
+  for (const ten of BON_KHOI) { try { khoi(ten); } catch (e) { sai.push(e.message); } }
+  for (const ten of BON_KHOI) {
+    const bo = KHUON.replace(new RegExp(`<!-- <<<${ten} -->[\\s\\S]*?<!-- ${ten}>>> -->`), '');
+    try { khoiCua(bo, ten); sai.push(`khuôn đã gỡ ${ten} mà vẫn rút được`); } catch (e) { if (e.message !== `khuôn thiếu khối ${ten}`) sai.push(`gỡ ${ten}: thông điệp «${e.message}»`); }
+  }
+  console.log(`  KT-3: rút đủ ${BON_KHOI.length} khối; gỡ từng khối → «khuôn thiếu khối <tên>»`);
+  if (!existsSync(path.join(KIT, 'skills/acceptance/references/tri-thuc-template.md'))) sai.push('khuôn không có');
+  const d = khoTrongKho(); if (readFileSync(path.join(d, 'docs/tri-thuc/TRI-THUC.md'), 'utf8').trim() !== khoi('TRI-THUC-LUAT').trim()) sai.push('TRI-THUC.md không dựng từ khối LUAT');
+  const r = lint(d);
   if (!(r.thoat === 0 && r.out.split('\n').pop() === 'tri thức: 3 trang, 1 raw, 0 lỗi')) sai.push(`lành: ${r.thoat} «${r.out}» «${r.err}»`);
   const M = banSaoMay({ 'skills/acceptance/references/tri-thuc-template.md': ['nguon: [raw/2026-10-24-vi-du/ghi-chu.md]\ncap_nhat', 'nguon_x: [raw/2026-10-24-vi-du/ghi-chu.md]\ncap_nhat'] });
   const m = lint(d, [], path.join(M, 'scripts/tri-thuc.mjs')); const L = dongLoi(m.out);
@@ -161,14 +180,17 @@ const MUTANT = [
   ['if (u.status !== 0) dat(', 'if (false) dat('],
   ['if (cfg.congKhai && trongKho && tepRaw.length)', 'if (false)'],
 ];
-const KHO_HANG = HANG.map(h => h.dung());
+const KHO_HANG = HANG.map(h => { const k = h.dung(); return k; });
 const ketQua = bin => KHO_HANG.map((k, i) => { const r = lint(k.d, k.extra || [], bin); return `${r.thoat}|${dongLoi(r.out).join('/')}`; });
 const MONG = HANG.map(h => `1|${h.mong}`);
 await ca('KT-4', () => {
   const sai = []; const kq = ketQua(BIN);
   console.log(`  KT-4 ma trận: ${HANG.length} hàng`);
   HANG.forEach((h, i) => { console.log(`    ${i + 1}. ${h.ten} → ${kq[i]}`); if (kq[i] !== MONG[i]) sai.push(`${h.ten}: «${kq[i]}» != «${MONG[i]}»`); });
-  const doiChung = khoTrongKho(); const x = lint(doiChung); if (x.thoat !== 0) sai.push(`kho lành đối chứng ${x.thoat}`);
+  if (LANH.length < HANG.length || LANH.some(t => t !== 0)) sai.push(`kho lành trước hàng: ${JSON.stringify(LANH)}`);
+  else console.log(`  KT-4 kho lành trước mỗi hàng thoát 0 (${LANH.length} lần)`);
+  const doiChung = khoTrongKho({ ghiLanh: false }); const x = lint(doiChung); if (x.thoat !== 0) sai.push(`kho lành đối chứng (tự dò) ${x.thoat}`);
+  const xp = lint(doiChung, ['--pham-vi', 'docs/plans/pham-vi-tri-thuc-2410.md']); if (xp.thoat !== 0 || dongLoi(xp.out).length) sai.push(`kho lành đối chứng (--pham-vi) ${xp.thoat} «${xp.out}»`);
   const k2 = khoCoKhoRieng(); const y = lint(k2.d); if (y.thoat !== 0) sai.push(`kho riêng lành đối chứng ${y.thoat} «${y.out}»`);
   const tuDo = lint(KHO_HANG[7].d); if (`${tuDo.thoat}|${dongLoi(tuDo.out).join('/')}` !== MONG[7]) sai.push(`mã không trang, lối tự dò: «${tuDo.out}»`);
   return sai;
@@ -206,6 +228,7 @@ await ca('KT-7', () => {
     [d, `wiki/nen/nen.md#${'1'.repeat(40)}`, 1, 'băm lệch: wiki/nen/nen.md'], [d, `wiki/khong.md#${h}`, 1, 'không có tệp: wiki/khong.md'], [d, 'abc', 2, 'đường trỏ sai khuôn'],
   ];
   console.log(`  KT-7 ma trận: ${H.length} hàng`);
+  for (const [, ref, thoat] of H) if ((thoat !== 2) !== RE_CON_TRO.test(ref)) sai.push(`đường trỏ ${ref} lệch khối TRI-THUC-CON-TRO`);
   for (const [root, ref, thoat, chu] of H) { const r = chay(BIN, root, ['--con-tro', ref]); if (r.thoat !== thoat || !(r.out + r.err).includes(chu)) sai.push(`${ref}: ${r.thoat} «${r.out}${r.err}»`); }
   g(d, 'checkout', '-q', '-b', 'nhanh'); ghi(path.join(d, 'khac.txt'), 'x'); commit(d); g(d, 'checkout', '-q', 'main'); g(d, 'checkout', '-q', '-b', 'dich'); g(d, 'merge', '-q', '--squash', 'nhanh'); commit(d, 'squash');
   const r = chay(BIN, d, ['--con-tro', `wiki/nen/nen.md#${h}`]); if (r.thoat !== 0) sai.push(`sau squash ${r.thoat}`);
