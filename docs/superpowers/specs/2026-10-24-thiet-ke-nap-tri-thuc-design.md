@@ -66,8 +66,8 @@ Chỉ THIẾU chặn. Lệch băm, sai khuôn, không đọc được là cờ (
 không đọc được»; «không đọc được … cờ vàng, không chặn»). Thẻ KHÔNG in danh sách trang đã tra — lời mời chỉ chứa điều
 chỉ người biết.
 
-Khoá chặn đi vào SKILL như cỡ hợp đồng: khối `TRI-THUC-TRA-CHAN` ở S1#5 — `tri_thuc.chan = true → lan_v: khong ·
-moi_nguoi: khong · loi_ra: tra`. Máy tự gỡ trong cùng lượt: tra, ghi dòng, dựng lại thẻ.
+Khoá chặn đi vào SKILL như cỡ hợp đồng: khối `TRI-THUC-TRA-CHAN` ở S1#5 — `tri_thuc.chan = true → moi_nguoi: khong ·
+lan_v: khong · loi_ra: tra`. Máy tự gỡ trong cùng lượt: tra, ghi dòng, dựng lại thẻ.
 
 ### Căn cứ trỏ trang tri thức (C5)
 

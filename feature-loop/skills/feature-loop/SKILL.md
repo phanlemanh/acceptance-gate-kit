@@ -297,7 +297,7 @@ CAU_GIAO_HET
 <!-- DEC-GIU-CO>>> -->
    **Dòng tra tri thức là điều kiện vào Gate 1 như cỡ hợp đồng** (kho khai `tri_thuc`) — máy đọc khoá dưới từ `gate-card.js --extract`:
 <!-- <<<TRI-THUC-TRA-CHAN -->
-   `khi: tri_thuc.chan = true → lan_v: khong · moi_nguoi: khong · loi_ra: tra`
+   `khi: tri_thuc.chan = true → moi_nguoi: khong · lan_v: khong · loi_ra: tra`
 
    Khoá đúng (hồ sơ `draft` thiếu dòng tra, hoặc dòng tra bỏ sót trang mà dòng «Nguồn:» của ô đã nêu) → CHƯA đủ điều kiện vào Gate 1: không đi làn V, không mời người. Máy TỰ gỡ trong cùng lượt: tra trang, ghi dòng tra mới theo khuôn `DEC-TRI-THUC-TRA`, dựng lại thẻ. Trang lệch băm, đường trỏ sai khuôn, kho không đọc được ở máy: thẻ cờ vàng, không chặn.
 <!-- TRI-THUC-TRA-CHAN>>> -->
