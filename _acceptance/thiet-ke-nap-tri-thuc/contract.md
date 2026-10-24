@@ -5,7 +5,7 @@ slug: thiet-ke-nap-tri-thuc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-24-thiet-ke-nap-tri-thuc-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-24T14:04:57Z
@@ -119,3 +119,10 @@ chiều đỏ.
   - Dòng tra chứng máy đã tra và đã chạm trang (băm), không chứng đã hiểu hay đã chọn đúng trang — ngưỡng đang đếm của
     thiết kế đợt §5 (dưới 30 % sau 10 hồ sơ thì mở «tra theo nghĩa»).
   - Kho riêng chỉ kiểm được ở máy có bản của nó; máy không có thì nhãn «không đọc được ở đây», chữ ký vẫn đi.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-25:
+  - Ngoài-1: Ở các lượt chấm lại sau này, vài ca kiểm của vòng (ma trận thẻ, bộ xếp căn cứ, bốn tệp hồi quy) có thể được mang màu xanh cũ sang dù tệp chúng phụ thuộc đã đổi, vì danh sách tệp theo dõi khai thiếu.
+  - Ngoài-2: Thẻ báo chưa vào được Cổng Phạm vi khi thiếu dòng tra, nhưng người gõ thẳng lệnh duyệt vẫn ký được — lệnh ghi chữ ký chưa tự chặn.
+  - Ngoài-4: Cùng lớp Ngoài-1 — hai ca kiểm (hồi quy và bộ xếp căn cứ) khai thiếu tệp phụ thuộc nên lượt sau có thể không chạy lại.
+  - Ngoài-5: Ca kiểm cho trường hợp «không đọc được kho riêng» dùng chuỗi tự viết, chưa rút từ khuôn dòng tra; đổi khuôn mà không đổi ca thì ca vẫn xanh.
+  - Ngoài-7: Ca kiểm chưa chứng minh bộ dò dòng cảnh báo đỏ bắt được dòng ấy; hôm nay dòng đỏ vẫn được kiểm bằng nội dung chữ.
+- Mở hợp đồng mới (Ngoài-3): hạt giống `docs/plans/2026-10-25-hat-giong-tro-kho-rieng-khong-tien-to.md`.

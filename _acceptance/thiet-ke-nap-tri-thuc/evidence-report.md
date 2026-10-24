@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 606238a809f7bcd58a9b77a73c2d8c1f524c3bf3
-human_signoff:
+human_signoff: Manh Phan 2026-10-25
 ---
 
 # Evidence Report: thiet-ke-nap-tri-thuc
