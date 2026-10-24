@@ -5,7 +5,7 @@ slug: kho-tri-thuc-va-lint
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-24-kho-tri-thuc-va-lint-design.md
 approved_by:
 approved_at:
@@ -99,3 +99,22 @@ khai + khuôn, A2 sáu lỗi, A3 đường trỏ); mỗi phần có ma trận vi
   - `kho-rieng-chua-day` đọc nhánh theo dõi của kho riêng ở máy; máy chưa `git fetch` thì có thể báo «chưa đẩy» cho commit
     đã đẩy từ máy khác. Ngưỡng mở: 1 lần lint đỏ giả vì lý do này.
   - Đường nền của vòng chưa chạy: hook khoá máy của đợt crm đang chạy chặn `duong-nen.mjs` (phiên đứng ở thư mục crm).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-24:
+  - Ngoài-1: Bộ kiểm có thể vẫn báo xanh dù một vài hàng lỗi đã không được chạy thử trên kho lành trước đó, nên một hàng thiếu đối chứng có thể lọt mà không ai biết.
+  - Ngoài-3: Nếu ai làm mất một khối trong khuôn tri thức, bài kiểm có thể không chứng minh được công cụ kiểm tra thật sự phát hiện ra.
+  - Ngoài-4: Bộ kiểm in ra dòng nghe như đã chứng minh công cụ phát hiện khi khuôn thiếu một khối, nhưng thực ra chưa chứng minh.
+  - Ngoài-5: Khi khuôn bị hỏng, bộ kiểm có thể dừng đột ngột và không nói rõ ca nào đỏ, các ca sau bị bỏ qua và để lại thư mục tạm.
+  - Ngoài-6: Tệp quy tắc của kho tri thức có thể bị mất hoặc sai nội dung mà công cụ kiểm vẫn báo kho lành.
+  - Ngoài-7: Chưa có bằng chứng là công cụ báo đúng tên khối khi khuôn thiếu khối, và cách đọc đường trỏ chưa được thử bằng cách sửa khuôn.
+  - Ngoài-8: Bộ kiểm đếm tổng số lần chạy thử kho lành chứ không gắn từng lần với từng hàng, và với một hàng thì phép thử lành chạy trên đầu vào hơi khác.
+  - Ngoài-9: Nếu ai đó bỏ nhầm một tệp tài liệu thô ngay ở thư mục gốc của vùng tài liệu thô, kiểm tra vẫn báo xanh, kể cả ở kho công khai.
+  - Ngoài-10: Một trang tri thức có thể ghi nguồn là chính nó hoặc là một tệp ngoài kho tri thức mà kiểm tra vẫn báo xanh.
+  - Ngoài-11: Một trang ghi loại bậy bạ vẫn được kiểm tra cho qua.
+  - Ngoài-12: Ở kho công khai, một tệp thô đặt thẳng trong thư mục tài liệu thô không bị phát hiện và kiểm tra vẫn xanh.
+  - Ngoài-13: Nếu khai sai tên thư mục tri thức trong kho, kiểm tra vẫn báo xanh với 0 trang, trông như một kho trống hợp lệ.
+  - Ngoài-14: Một trang có thể ghi nguồn là cả một thư mục hoặc một tệp nằm ngoài kho tri thức mà kiểm tra vẫn cho qua.
+  - Ngoài-15: Gõ thiếu đường dẫn sau cờ phạm vi thì kiểm tra lặng lẽ chạy một kiểu khác và vẫn báo xanh.
+  - Ngoài-16: Đường trỏ trong bài kiểm được viết tay chứ không sinh từ khuôn.
+  - Ngoài-17: Bài kiểm đo xem bản tiêm lỗi có làm kết quả khác đi hay không, nhưng chưa chứng minh là khác đúng vì lý do mong muốn.
+  - Ngoài-18: Bài kiểm chỉ biết đầu ra của bản tiêm lỗi khác đi, chưa chứng minh nó khác vì nạp nhầm mô-đun tri thức.
+  - Ngoài-19: Một bài kiểm đang đỏ vì trang tổng hợp do máy vẽ chưa được vẽ lại, không phải vì tính năng sai.

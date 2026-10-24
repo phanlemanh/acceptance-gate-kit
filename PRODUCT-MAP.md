@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>133 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>45 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>46 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -49,7 +49,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree (`kho-tri-thuc-va-lint`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -76,6 +75,7 @@ flowchart TD
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
 - Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho (`kho-cam-ket-co-lo-trinh`)
 - Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn (`kho-moi-cai-goi-road-map`)
+- Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree (`kho-tri-thuc-va-lint`)
 - Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng chạm (tác tử chấm, thẻ cổng, lưới trước-gộp, gói dieu-phoi) trước khi phát tới kho thật; bản cài thiếu thư mục gói hay khác tag thì đỏ (`kiem-ban-cai-sau-phat-hanh`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
