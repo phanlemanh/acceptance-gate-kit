@@ -118,6 +118,7 @@ executors:
     moi_cong_khong_qua_nut: node tests/scripts/moi-cong-khong-qua-nut.test.mjs
     # Hồ sơ kho-tri-thuc-va-lint (TT1, đợt tri-thuc-2410): ca KT-1…KT-9 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     kho_tri_thuc_va_lint: node tests/scripts/kho-tri-thuc-va-lint.test.mjs
+    ghi_tri_thuc: node tests/scripts/ghi-tri-thuc.test.mjs
     # Hồ sơ o-mo-viec-mang-nguon (TT3, đợt tri-thuc-2410): ca ON-1…ON-7 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     o_mo_viec_mang_nguon: node tests/scripts/o-mo-viec-mang-nguon.test.mjs
     # Hồ sơ o-mo-viec-mang-nguon (AC-8): ca hồi quy của bộ xếp căn cứ bước thiết kế.

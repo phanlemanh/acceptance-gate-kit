@@ -1,0 +1,26 @@
+{"feature_plain":"Chủ kho ghi nghiên cứu và thảo luận của một phiên vào kho tri thức bằng một lệnh; tài liệu thô không bao giờ nằm ở chỗ công khai.",
+"will_do":[
+{"id":"AC-2","p":"Sẽ nhận đúng năm loại nguồn — trích phiên chat, artifact, issue, tệp chỉ có ở một máy, tệp trong kho — và từ chối nguồn sai hình dạng với câu lỗi gọi tên loại."},
+{"id":"AC-3","p":"Sẽ giữ tài liệu thô bất biến: ghi đè nội dung khác thì từ chối; ghi lại y hệt thì dùng lại, và vẫn commit nếu lần trước chưa commit."},
+{"id":"AC-4","p":"Sẽ viết hoặc bổ sung trang tóm theo đúng khuôn: gộp mã và nguồn không trùng, giữ nguyên thân trang khi không có thân mới."},
+{"id":"AC-5","p":"Sẽ commit đúng các tệp vừa ghi vào kho giữ tri thức, không đẩy lên mạng, và hoàn lại mọi thứ nếu commit hỏng."},
+{"id":"AC-6","p":"Sẽ in đường dẫn ghim cho từng tệp, và lệnh kiểm của TT1 mở được mọi đường dẫn ấy."},
+{"id":"AC-8","p":"Sẽ hỏi GitHub nơi giữ tài liệu thô có riêng tư không trước khi ghi — kể cả kho quên khai «công khai», kể cả địa chỉ dạng SSH — và dừng khi nó công khai."},
+{"id":"AC-9","p":"Sẽ từ chối đối số nguy hiểm (tên hay đường có «..», thiếu tệp) mà không ghi gì; máy chưa có bản kho riêng thì nói «không đọc được ở đây» kèm lệnh clone."},
+{"id":"AC-10","p":"Sẽ có lệnh /tri-thuc:ghi cho người và phiên, chạy đúng dòng lệnh mà bài kiểm chạy, kèm bảng mã thoát."}],
+"wont_do":[
+{"id":"AC-1","p":"Sẽ KHÔNG để bên ghi lệch khuôn bên đọc: tài liệu thô và trang do lệnh ghi viết ra phải qua được lệnh kiểm của TT1 mà không lỗi nào."},
+{"id":"AC-7","p":"Chặn mọi lần ghi tài liệu thô vào kho đã khai công khai mà chưa có kho riêng — cả năm loại nguồn — và hỏi người tạo kho riêng."},
+{"id":"OOS-1","p":"Không tự tạo kho riêng trên GitHub — đó là việc của người."},
+{"id":"OOS-2","p":"Không tự đẩy kho lên mạng — lệnh chỉ commit tại máy; lệnh kiểm nhắc khi còn commit chưa đẩy."},
+{"id":"OOS-3","p":"Không quét trang tóm xem có lộ lời nguyên văn hay dữ liệu nội bộ — giới hạn đã khai, có ngưỡng mở."},
+{"id":"OOS-4","p":"Không làm phần nguồn của bản phạm vi, dòng «Nguồn:» của ô, dòng «đã tra» và vòng đơn lẻ — đó là TT3, TT4, TT5."},
+{"id":"OOS-5","p":"Không làm lệnh xem bản đồ, lệnh hỏi tự do, kiểm theo nghĩa — để chờ điều kiện."}],
+"scope_plain":"Phần cắt khỏi hàng này:",
+"coverage_plain":[{"i":0,"p":"Ghi (B1) phủ bởi AC-1, AC-3–AC-6; năm loại nguồn (B2) bởi AC-2; riêng tư (B3) bởi AC-7, AC-8; đối số an toàn bởi AC-9; lệnh cho người bởi AC-10 — mỗi AC có ma trận viết sẵn và một bản tiêm lỗi phải làm nó đỏ."}],
+"gap_probe_plain":[
+{"i":0,"p":"Khi máy không hỏi được GitHub kho có riêng tư không, bản đầu cho ghi tiếp kèm cảnh báo — lần đẩy sau có thể làm lộ. Đây là khẩu vị rủi ro của anh: thành Hỏi-1, máy khuyên chặn."},
+{"i":1,"p":"Kho công khai mà quên khai «công khai» thì tài liệu thô lọt vào. Đã sửa: luôn hỏi GitHub nơi giữ tài liệu thô, bất kể lời khai."},
+{"i":2,"p":"Bài kiểm chỉ thử địa chỉ dạng https. Đã sửa: thêm bốn dạng còn lại (có SSH) và nhánh dùng địa chỉ mặc định của kho."},
+{"i":3,"p":"Chạy lại sau khi lần trước bị ngắt trước commit thì tri thức nằm ngoài lịch sử. Đã sửa: dùng lại thô vẫn commit khi chưa commit hay trang đổi."},
+{"i":4,"p":"Lời hứa «lỗi thì không đổi tệp nào» chưa được chụp ở mọi ca, chưa có ca commit hỏng. Đã sửa: chụp cả hai kho ở mọi ca lỗi, hoàn lại khi commit hỏng."}]}
