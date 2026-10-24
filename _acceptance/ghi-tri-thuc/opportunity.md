@@ -3,10 +3,10 @@ schema_version: 1
 slug: ghi-tri-thuc
 feature: Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-24T03:05:40Z   # chủ kho gõ «Cổng Đáng TT1–TT5: làm cả năm, ngưỡng và hạn theo đề xuất. Hạn hôm nay 25/10/2026.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -21,11 +21,13 @@ Mốc: chưa gắn — việc này chưa thuộc mốc nào của kế hoạch; 
 
 Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai
 
+Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/
+
 Vì sao: Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức» chưa?
-- Kết quả nào là SỐNG: [đề xuất] 14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức» khi hết timebox
-- Timebox: [đề xuất] 2026-10-31 — bản phát hành kit chung với #400, #401, #402 (chủ kho 24/10: «Tầng tri thức được gom và Kit để cắt cùng phiên bản.»)
+- Câu hỏi phép đo trả lời: đã đạt «14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức» chưa?
+- Kết quả nào là SỐNG: 14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức
+- Kết quả nào là CHẾT: chưa đạt «14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức» khi hết timebox
+- Timebox: 2026-10-25 — chủ kho đặt ở Cổng Đáng 24/10; bản phát hành kit chung với #400, #401, #402
