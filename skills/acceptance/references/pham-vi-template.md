@@ -13,7 +13,9 @@
 >   bản này mang đúng giá trị này ở trường `dot`.
 > - `dang` — `chuoi` (chuỗi tính năng: mỗi hàng đứng trên dữ liệu thật của hàng trước) hoặc `lan-va`
 >   (làn vá: gói lỗi theo màn hay vùng sản phẩm, các hàng chạy song song).
-> - `nguon` — bản phạm vi đến từ đâu: đội sản phẩm, một khảo sát, Core của quét hình thái.
+> - `nguon` — bản phạm vi đến từ đâu: đội sản phẩm, một khảo sát, Core của quét hình thái. Kho khai `tri_thuc`
+>   (khuôn `tri-thuc-template.md`): các đường trỏ băm `<đường>#<băm>` tới trang tri thức dưới `wiki/` đã vào git, cách
+>   nhau dấu phẩy — răng phủ từ chối liên kết, chữ tự do, tệp chưa vào git.
 >
 > Mẫu dưới đây chạy được: bộ đọc của `scripts/cat-luot.mjs` rút khối này trong ca đo và phải đọc ra
 > đúng ba khoá và bảy mã. Bản phạm vi chỉ chứa mã việc PHÁT TRIỂN: việc của người trong lời đội sản phẩm (vd «nhân sự
