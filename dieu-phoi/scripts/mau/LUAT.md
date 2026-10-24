@@ -37,7 +37,13 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
   `tai_nguyen` (`s4`, `duong-nen`, `merge`) bắt buộc khi đang giữ nhiều khoá. Máy duyệt khi phiên đang
   giữ đúng khoá đó và ước trong trần; được duyệt (bởi máy hay giám sát) thì hạn thuê kéo dài đúng số
   phút đó, tính từ hạn còn lại (hạn đã qua thì tính từ lúc áp).
-- Hàng kế: đọc `tiep/<phiên>.json`.
+- Hàng kế: đọc `tiep/<phiên>.json`. `cho: trung-tep` = mọi hàng sẵn sàng của dãy đang trùng tệp với việc dở ở chỗ khác
+  — máy đã ghi phụ thuộc `sau`, chờ nhịp sau; không tự mở hàng.
+- Gộp (khi đợt cho tự gộp): giữ khoá `merge` rồi `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`. Thoát 0 = đã gộp ·
+  4 = gộp nhánh chính vào nhánh và chờ CI theo «Thứ tự gộp» dưới, rồi chạy lại · 1 = chặn, báo giám sát. Khoá
+  `gop_khong_chay_lai_ci` của `dieu-phoi.config.json` (vắng = tắt): bật thì PR không trùng tệp với commit vào nhánh
+  chính từ base của CI được gộp ngay, không chạy lại CI — lưới là CI trên nhánh chính sau gộp; CI ấy đỏ thì báo giám
+  sát ngay.
 - Không tự gọi `spawn_task`: việc phụ đi qua yêu cầu `viec-phu`.
 
 <!-- <<<LUAT-CHAN -->

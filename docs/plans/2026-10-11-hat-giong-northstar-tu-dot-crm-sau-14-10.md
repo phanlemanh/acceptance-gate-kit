@@ -1,6 +1,9 @@
 # Hạt giống — đo một đợt thật theo northstar: người xuất hiện theo từng hàng, thước tự mục, CI chạy theo từng lần đẩy
 
 **Trạng thái 17/10:** đề xuất 1 (đo chi phí từng vòng) đã ship qua RM6 lo-trinh-gio-may; 3 (Ngoài-n tự phân loại) qua A3; 7 (vá đối chứng S4 + mod DP6) qua 2.27–2.28; còn sống: 2, 4, 5, 6, 8.
+**Trạng thái 23/10:** đề xuất 5 dựng ở hồ sơ `_acceptance/ky-den-gop/` (hạng H — bước máy `pr-san-sang` của feature-loop:
+đẩy nhánh, mở nháp nếu chưa có, chuyển sẵn sàng ngay lúc trình thẻ Cổng 2). Nửa «đẩy tự do ở nháp trong lúc làm» không đổi:
+PR chỉ mở ở lúc trình thẻ. Còn sống: 2, 4, 6, 8.
 **Chân VC8 (cơ học, KHÔNG phải neo):** `_acceptance/o-chi-mo-khi-co-neo-ngoai/` trích lại tệp này.
 
 Gốc: đợt Điều phối – Thợ `sau-14-10` của crm (`phanlemanh/crm-onehub`), mở 07/10 20:00, đóng 11/10 06:43 (+07).

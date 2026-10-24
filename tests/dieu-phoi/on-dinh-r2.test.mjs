@@ -735,14 +735,16 @@ test('DP8-08 khoa-bo-roi', () => {
 
 test('DP8-08-do bo-khoa', async () => {
   assert.deepEqual(await kiemTranhChap(), [], 'đối chứng dương: bản lành');
-  const sao = banSao([['scripts/hang.mjs', '  const d = path.join(thuMuc, TEP_KHOA_HANG_VIEC);\n  const het', '  return viec();\n  const d = path.join(thuMuc, TEP_KHOA_HANG_VIEC);\n  const het']]);
+  // Hồ sơ ky-den-gop: khoá ghi dời sang khoa-hang-viec.mjs (hang.mjs xuất lại) — nhát tiêm theo vật tới đó.
+  const sao = banSao([['scripts/khoa-hang-viec.mjs', '  const d = path.join(thuMuc, TEP_KHOA_HANG_VIEC);\n  const het', '  return viec();\n  const d = path.join(thuMuc, TEP_KHOA_HANG_VIEC);\n  const het']]);
   const loi = await kiemTranhChap(sao);
   assert.ok(loi.some((l) => /^P\d mất bản ghi$/.test(l)), `phải nêu dãy mất bản ghi: ${loi.join(' | ')}`);
 });
 
 test('DP8-08-do bo-khoa-hang-them', async () => {
   assert.deepEqual(await kiemTron(), [], 'đối chứng dương: bản lành');
-  const sao = banSao([['scripts/hang.mjs', 'return voiKhoaHangViec(thuMuc, () => themHangTrongKhoa(thuMuc, khoa, day));', 'return themHangTrongKhoa(thuMuc, khoa, day);']]);
+  // Hồ sơ ky-den-gop: themHangTrongKhoa nhận thêm vùng tệp (`ranhGioi`) — chuỗi tiêm theo chữ ký mới.
+  const sao = banSao([['scripts/hang.mjs', 'return voiKhoaHangViec(thuMuc, () => themHangTrongKhoa(thuMuc, khoa, day, ranhGioi));', 'return themHangTrongKhoa(thuMuc, khoa, day, ranhGioi);']]);
   const loi = await kiemTron(sao);
   assert.ok(loi.some((l) => / mất bản ghi$/.test(l)), `phải nêu dãy hoặc hàng mất bản ghi: ${loi.join(' | ')}`);
 });
