@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 606238a809f7bcd58a9b77a73c2d8c1f524c3bf3
+verified_commit: 8d7b40f3997f65a58b66b13b79b99f542bccd914
 human_signoff: Manh Phan 2026-10-25
 ---
 
@@ -211,3 +211,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, determi
 ## Iterations
 
 Round 1: E1–E10 đều xanh, không eval nào hỏng. Baseline không đo được (hạ tầng chặn lệnh baseline). Phát hiện ngoài hợp đồng nằm ở review-findings.md để người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-24, do hoá cũ do gộp origin/main (TT2 #408)
+run_id: repin-20261024T223048Z-38114
+sha: 8d7b40f3997f65a58b66b13b79b99f542bccd914 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
