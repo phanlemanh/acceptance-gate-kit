@@ -7,13 +7,13 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>3 việc"]
+  GD --> B["Sắp mở vòng<br/>6 việc"]
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>131 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>44 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>133 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>47 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -38,8 +38,11 @@ flowchart TD
 ## Sắp mở vòng
 
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
+- Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai (`ghi-tri-thuc`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
+- Bước thiết kế của mọi vòng ở kho đã khai tri thức ghi dòng «đã tra tri thức», và thẻ Cổng Phạm vi không mời duyệt khi thiếu dòng ấy (`thiet-ke-nap-tri-thuc`)
+- Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức» (`vong-don-le-tra-tri-thuc`)
 
 ## Đang làm
 
@@ -71,6 +74,7 @@ flowchart TD
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
 - Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho (`kho-cam-ket-co-lo-trinh`)
 - Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn (`kho-moi-cai-goi-road-map`)
+- Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree (`kho-tri-thuc-va-lint`)
 - Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng chạm (tác tử chấm, thẻ cổng, lưới trước-gộp, gói dieu-phoi) trước khi phát tới kho thật; bản cài thiếu thư mục gói hay khác tag thì đỏ (`kiem-ban-cai-sau-phat-hanh`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
@@ -81,8 +85,10 @@ flowchart TD
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
 - Mỗi vòng thuộc một mốc — lộ trình cắm cờ vàng cho việc đang mở mà chưa thuộc mốc nào, và lúc mở vòng máy in tên phiên cùng nhóm thanh bên của mốc đó (`moc-la-chien-dich`)
 - Lời mời ở cổng chờ người kết lượt bằng chữ thường — dòng lệnh trong khối chữ, trang thẻ gửi bằng công cụ gửi tệp, không đặt dòng lệnh hay chữ quyết vào nút của hộp «bước kế» (`moi-cong-khong-qua-nut`)
+- Ô mở từ một hàng của lượt cắt mang dòng «Nguồn:» trỏ đúng trang tri thức của hàng, và nguồn của bản phạm vi là trang tri thức có đường trỏ băm (`o-mo-viec-mang-nguon`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
 - Chủ kho mở thẻ khởi động và thấy ngay hàng nào của lộ trình cần rà soát — dời mốc, chờ điều kiện hay bác — kèm căn cứ máy đọc, mà máy không sửa tệp lộ trình và không thêm lượt gọi người (`ra-soat-lo-trinh`)
+- Bộ phát lịch chỉ giảm tải khi máy đang nghẹt thật hoặc thiếu chỗ cho làn sắp cấp — không vì swap cũ hay một tiến trình lớn hợp lệ; lượt chạy dưới tải được gắn nhãn và thử lại một lần thay vì tính là lỗi vật; ngưỡng hiệu chuẩn từ các lượt bị hạ tầng đốt (`suc-khoe-cho-trong-va-toc-do`)
 - tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
 - Mỗi việc đã giao có một trang hồ sơ đọc trong một phút — vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không — vẽ từ vật của hồ sơ, và bản chiếu lộ trình nhận cùng dải tóm tắt qua khối dữ liệu bản 2 (`trang-ho-so-mot-viec`)
 - «Trạng thái đợt Điều phối – Thợ hiện ngay trong app, không phải mở trang hay dò nhật ký» (`trang-thai-dot-dieu-phoi-tho`)
@@ -95,6 +101,7 @@ flowchart TD
 
 ## Đã giao
 
+- Thẻ Cổng Bằng chứng và trang bằng chứng chỉ tính một ảnh khi tệp có thật dưới evidence/ của chính hồ sơ; đường ra thư mục lượt chấm, đường tuyệt đối hay tệp không có thì báo thiếu ảnh kèm nguyên nhân (`anh-co-that-trong-ho-so`)
 - Đưa bài học đo lường của tuần 08–14/08 vào engine — bốn lớp lỗi mới có ca đại diện, nguyên tắc lật-allow-list, và một bánh cóc hai chiều buộc bảng lớp lỗi trace về sổ nguồn (`bai-hoc-do-luong-vao-engine`)
 - Thẻ Cổng Bằng chứng in các mục ngoài hợp đồng thành một bảng có cột «Căn cứ» — mỗi mục một hàng (Mục · Người dùng gặp gì · Máy đề xuất · Căn cứ), mục cần người quyết lên đầu; căn cứ do tác tử phân loại viết và đi trọn đường tới thẻ, kể cả mục mang sang lượt sau (`bang-ngoai-n-co-can-cu`)
 - Làn đối chứng S4 (baseline:diffBase) chạy MỘT lệnh do kit sinh — có trần mỗi lệnh và trần tổng, bỏ qua eval trỏ tệp chưa có ở merge-base (ghi lý do vào báo cáo), tự dọn worktree tạm khi bị dừng/hỏng; lane không về trọn là BLOCKED hạ tầng có tên, lượt chấm vẫn ra báo cáo (`baseline-tran-bo-qua-don`)
@@ -138,6 +145,7 @@ flowchart TD
 - verdict judgment không-PASS phải kèm danh sách bằng-chứng-thiếu (required_evidence) chảy từ judge → memo → report → thẻ → round fix; gộp gold-seed O4: acceptance-gold.mjs dẫn xuất gold set + báo cáo G3 từ corpus sẵn có, không file mới (`judge-required-evidence`)
 - Khối tìm-lỗi trả phí theo vật — triage trước refute, finder không soi văn bản hồ sơ, finding có sổ, baseline rời đường găng, thước token/phút cho năm dòng số (`khoi-tim-loi-tra-phi-theo-vat`)
 - Khối "👉 VIỆC CỦA ANH" — thành phần cứng máy-sinh của khuôn trình-người (thẻ cổng + lời-mời-cổng) (`khoi-viec-cua-anh`)
+- Đoạn ký → gộp có thước và có chủ máy — lịch tránh giao hai việc cùng tệp, PR sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, gộp không chạy lại CI khi PR không trùng tệp với nhánh chính, và lệnh đếm đợt trừ được giờ ký khỏi giờ gộp (`ky-den-gop`)
 - Làn ghim lại và bên đọc pin cùng loại eval khai `status: not-run` từ MỘT nguồn — pin nói ra ô nào không đo, và hồ sơ lành thôi bị đọc thành nợ (`lan-doc-status-not-run`)
 - Làn ghim lại giữ trọn lời lỗi, để lại dấu lượt đỏ kèm tải máy, và ghi thời lượng làn (`lan-ghim-lai-giu-tron-loi-loi`) — đã giao — đã nghỉ, giữ sử liệu
 - Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`) — đã giao — đã nghỉ, giữ sử liệu

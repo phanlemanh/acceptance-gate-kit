@@ -31,8 +31,11 @@ nguyên» của tệp `luat` trong JSON — khối này không chép cách ghi; 
 - **S4, ghim lại, đường nền:** xin lượt (`s4`, `ghim-lai`, `duong-nen`) rồi chờ bằng lệnh nền tới khi khoá ghi
   tên dãy; chạy; nhả khi verdict đã ghi. Lời chặn `chan-s4` là CHỜ LƯỢT: không phải BLOCKED, không hỏi người,
   không tung lượt mới, không đếm round.
-- **S5:** `tu_merge: true` → sau khi PR mở, xin lượt `merge`, gộp theo lệ của kho, nhả. `false` hoặc `null` →
-  chỉ mở PR; bấm merge là của người. Rồi chạy lại lệnh nhận biết kèm `--slug <slug vừa xong>` và làm đúng
+- **S5:** `tu_merge: true` → sau khi PR mở, xin lượt `merge`, chạy `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`,
+  nhả. Thoát 0 = đã gộp (CI xanh trên đúng đầu nhánh, và nhánh đã chứa đỉnh nhánh chính hoặc — kho bật
+  `gop_khong_chay_lai_ci` — không tệp nào trùng commit vào nhánh chính từ base của CI); thoát 4 = gộp nhánh chính vào
+  nhánh hoặc chờ CI theo lệ của kho rồi chạy lại; thoát 1 = chặn, báo giám sát. `false` hoặc `null` → chỉ mở PR; bấm
+  merge là của người (`gop <số PR> --xet` in quyết định cho người). Rồi chạy lại lệnh nhận biết kèm `--slug <slug vừa xong>` và làm đúng
   `viec_ke`:
   - `mo-hang` → gọi `/feature-loop:feature-loop <hang_ke.slug>` ngay trong phiên này.
   - `cho-nhip` → chờ một nhịp (lệnh nền khoảng 30 giây) rồi đọc lại; ba lần vẫn vậy → báo giám sát một dòng.
@@ -247,6 +250,7 @@ CAU_GIAO_HET
 2 → dừng: in nguyên thông điệp (tệp lệch khuôn, đã có hàng, câu rỗng, khoá sai giá trị)
 ```
 <!-- S0-THEM-HANG-THOAT>>> -->
+   **Dòng «Nguồn:» của ô** (hồ sơ o-mo-viec-mang-nguon): kho khai `tri_thuc` và hàng có `dot` → ô do khối `S0-MO-O` mở mang thêm dòng «Nguồn:» ngay sau dòng «Mở từ hàng …»: đường trỏ băm tới trang nền, trang đợt và trang mang mã của hàng (bên ghi và bên đọc `scripts/tri-thuc-nguon.cjs`). Kho không khai, hay hàng không có `dot`, nhận ô như cũ từng byte.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 
@@ -475,6 +479,19 @@ Xong mới tới `khong-can-nguoi.mjs --write` (hàng `verified` của bảng tr
 
 ## GATE 2 (human — điểm dừng 2)
 
+<!-- <<<PR-SAN-SANG -->
+**Bước máy TRƯỚC thẻ — PR sẵn sàng lúc trình (hồ sơ ky-den-gop).** Ngay sau khi gói bằng chứng máy viết đã commit và
+trước khi dựng thẻ Cổng Bằng chứng, chạy đúng dòng dưới (`<nhánh chính>` = nhánh PR nhắm tới):
+```
+node "$WORKFLOWS_DIR/../scripts/pr-san-sang.mjs" --root . --slug <slug> --base <nhánh chính>
+```
+Lệnh đẩy nhánh và chuyển PR sang sẵn sàng (mở nháp trước nếu chưa có) để CI chạy trong lúc người đọc thẻ; chữ ký Cổng 2
+sau đó là một commit chỉ đổi tệp hồ sơ. Thoát 0 → gộp dòng nó in vào gói Cổng 2 (phần «máy đã lo»). Thoát 2 (chưa
+verified · verdict không PASS · vật đổi sau lượt chấm) hay 3 (không remote, gh hỏng) → báo ĐÚNG MỘT dòng nguyên văn,
+đi tiếp tới thẻ — đây không phải cổng. `feature_loop.ship_default` khác `pr` thì lệnh chỉ đẩy nhánh. PR sẵn sàng không
+gộp được trước chữ ký: lưới trước-gộp đòi hồ sơ đã ký.
+<!-- PR-SAN-SANG>>> -->
+
 **BƯỚC MẶC ĐỊNH — render thẻ quyết định TRƯỚC:** invoke `/acceptance-gate:acceptance-card <slug>` (tự nhận Cổng 2) — judgment + scope (việc-của-người) lên đầu bằng ngôn ngữ sản phẩm, "máy đã lo" thu gọn, luôn kèm đảo-ngược. Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, kèm ĐÚNG MỘT dòng lệnh máy đã điền sẵn mọi ô có khuyến nghị — người chỉ gõ chữ quyết định hoặc sửa ô mình nghĩ khác, rồi máy nói mình làm gì tiếp; máy không viết sẵn CHỮ QUYẾT của người và không hỏi phút. Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi. Đính kèm gói text đầy đủ để soi sâu: verdict + bảng per-eval (đọc từ `reportPath` = evidence-report.md) + judge panel proposals + review findings (đọc từ `findingsPath` = review-findings.md, gồm cả section "chưa adversarial-verify" nếu có) + cảnh báo reviewIncomplete nếu có + diff summary (`git diff --stat <diffBase>...HEAD`) + tóm tắt usage 1 dòng/model từ usage-report.md (xếp trong phần "máy đã lo"). Thẻ chỉ là lớp trình bày — verdict/hook/evidence vẫn là nguồn-sự-thật. (Lệnh/script `/acceptance-gate:acceptance-card` không có → cài/cập nhật plugin acceptance-gate, hoặc tạm trình gói text.)
 
 **Khối "Ngoài hợp đồng" (việc-của-người, trình TRƯỚC judgment items):** mọi finding `inContract: false` trong `triaged` — lỗi THẬT nhưng ngoài phạm vi đã duyệt ở Gate 1. Mỗi mục trình bằng ngôn ngữ sản phẩm + đúng 3 lựa chọn: (a) **ghi Known limits** — thêm bullet vào `## Notes` của contract, ship như hiện tại; (b) **mở contract mới** — một feature riêng có AC + eval của nó; (c) **nâng phạm vi sửa ngay** — sửa contract (thêm AC) + re-approve Gate 1 rồi S4 round mới. Khuyến nghị mặc định là (a) hoặc (b): (c) đắt và chỉ đúng khi lỗi đủ nặng để chặn ship. `triageFailed: true` → THÊM cảnh báo lên đầu khối (không thay thế — finding đã phân được ngăn vẫn phải hiện): "phân loại phạm vi không trọn — người xem lại danh sách đầy đủ trong review-findings.md". `coverageCluster` khác null → thêm dòng cờ "dừng và quyết: mở rộng hợp đồng hay rút phạm vi" kèm danh sách file.
@@ -498,7 +515,7 @@ giá trị hợp lệ: `pr` · `merge` · `branch` · `ask`
 cũ). Việc BẤM MERGE vẫn là của người — khó-đảo.
 <!-- S5-SHIP-DEFAULT>>> -->
 
-Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (`scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass; repo CHƯA wire nó vào CI → cảnh báo user rõ ràng (gate không enforce trước merge, xem README của kit cách wire).
+PR đã sẵn sàng từ bước PR-SAN-SANG ở Cổng 2 → đẩy commit chữ ký lên đúng PR ấy, không mở PR mới. Chưa có PR: invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (`scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass; repo CHƯA wire nó vào CI → cảnh báo user rõ ràng (gate không enforce trước merge, xem README của kit cách wire).
 
 **Kết S5 — bàn giao sang Vòng TRAO, không kết bằng «xong».** Có `_acceptance/<slug>/opportunity.md` (vòng đi từ Cổng Đáng, có ngưỡng nghiệm thu) → in ĐÚNG MỘT DÒNG: «đã giao sau cờ · bước kế: lái-thử người-lạ (nghi thức của skill `/acceptance-gate:uat-session` §0, khuôn nhật-ký-vấp trong references của plugin acceptance-gate) rồi phiên nghiệm thu — `/acceptance-gate:uat-session <slug>`» — không hỏi, không tự chạy phiên nghiệm thu; lái-thử chạy trong lúc chờ mời người dự nên không kéo dài đường tới quyết định. Không có `opportunity.md` → một dòng «không hồ sơ cơ hội → ship thẳng, không phiên nghiệm thu; vòng đóng». Đường đi KHÔNG lưu ở đâu — suy khi đọc từ có/không hồ sơ cơ hội (cùng luật với thẻ Cổng Phạm vi và bộ đọc hồ sơ xưởng).
 

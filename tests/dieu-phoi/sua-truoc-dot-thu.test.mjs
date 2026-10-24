@@ -406,7 +406,8 @@ test('SDT-04 the-va-tiep', async () => {
 const b1TrenBanSao = (tep, cu, moi) => doHaiBan(async (g) => (await kiemMaTranB1(g)).loi, tep, cu, moi);
 
 test('SDT-04-do khong-bang-quyet', async () => {
-  const loi = await b1TrenBanSao('phat-lich.mjs', 'chonHangKe(hangViec, day.id, tienDo, quyet)', 'chonHangKe(hangViec, day.id, tienDo)');
+  // Hồ sơ ky-den-gop: lời gọi mang thêm hàm trùng tệp (đối số thứ năm) — nhát tiêm chỉ bỏ bảng quyết, giữ hàm ấy.
+  const loi = await b1TrenBanSao('phat-lich.mjs', 'chonHangKe(hangViec, day.id, tienDo, quyet, trung)', 'chonHangKe(hangViec, day.id, tienDo, null, trung)');
   assert.ok(loi.includes('park được giao'), `phải nêu park được giao: ${loi.join(' | ')}`);
 });
 
@@ -424,6 +425,13 @@ function dungDotCu() {
   fs.cpSync(path.join(DAY_TEP, 'fixtures', 'dot-crm-0910'), dot, { recursive: true });
   const tatCa = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? tatCa(path.join(d, e.name)) : [path.join(d, e.name)]));
   const ke = kho.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Hồ sơ ky-den-gop: ca này đo đường đọc-cũ của B1 (không lọc theo quyết), không đo lịch biết tệp. Hàng của bản chụp
+  // khai vùng tệp trùng nhau giữa các dãy (chính lớp lỗi lịch biết tệp sinh ra để chặn) nên lịch đổi hàng kế ở bốn dãy;
+  // bỏ `ranh_gioi` khỏi bản chép để phép so tách được hai luật. Lịch biết tệp có ca riêng ở loi/trung-tep.test.mjs.
+  const pHv = path.join(dot, 'hang-viec.json');
+  const hvCu = JSON.parse(fs.readFileSync(pHv, 'utf8'));
+  for (const h of hvCu.hang) delete h.ranh_gioi;
+  fs.writeFileSync(pHv, JSON.stringify(hvCu, null, 2));
   for (const p of tatCa(dot)) {
     const t = fs.readFileSync(p, 'utf8');
     if (!t.includes('@KHO@')) continue;

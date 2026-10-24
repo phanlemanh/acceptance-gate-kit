@@ -89,14 +89,14 @@ const TEN_NHOM = { 'duoi-muc-tieu': 'dưới mục tiêu', 'muc-tieu': 'mục ti
 const tenHang = r => chuoi(r.ten_ngan) || chuoi(r.ten) || chuoi(r.cau_giao);
 
 // ── Thẻ ──
-// đầu vào: pv (docPhamVi) · data (tệp lộ trình) · kq (kiemPhu) · co (kiemCo) · khoang · dongHo (dongHoCo) · nhip (nhip, chiTiet)
+// đầu vào: pv (docPhamVi) · data (tệp lộ trình) · kq (kiemPhu) · co (kiemCo) · them (lỗi/cảnh báo của phép kiểm khác, vd nguồn bản phạm vi) · khoang · dongHo (dongHoCo) · nhip (nhip, chiTiet)
 //          · cuaDot (RegExp) · ra (docRa) · giu (Map) · tep { pv, lt }
-export function vietThe({ pv, data, kq, co, khoang: k, dongHo, nhip, cuaDot, ra, giu, tep }) {
+export function vietThe({ pv, data, kq, co, them = { loi: [], canhBao: [] }, khoang: k, dongHo, nhip, cuaDot, ra, giu, tep }) {
   const kk = kiemKhuon(data);
   const hang = kk.hang.filter(r => chuoi(r.dot) === pv.dot && r._ma);
   const cho = (Array.isArray(data.chan_troi) ? data.chan_troi : []).filter(c => c && typeof c === 'object' && chuoi(c.dot) === pv.dot);
-  const loi = [...pv.loi, ...kq.loi, ...co.loi];
-  const canh = [...kq.canhBao, ...co.canhBao].map(c => `cảnh báo: ${c}`);
+  const loi = [...pv.loi, ...kq.loi, ...co.loi, ...(them.loi || [])];
+  const canh = [...kq.canhBao, ...co.canhBao, ...(them.canhBao || [])].map(c => `cảnh báo: ${c}`);
   const canhDot = canh.filter(c => cuaDot.test(c)); const canhNgoai = canh.filter(c => !cuaDot.test(c));
   const L = [];
   const p = (...x) => L.push(...x);

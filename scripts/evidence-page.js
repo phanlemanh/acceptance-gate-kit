@@ -111,27 +111,12 @@ const evid = {};
 }
 function dedent(lines) { const nb = lines.filter(l => l.trim()); if (!nb.length) return ''; const min = Math.min.apply(null, nb.map(l => l.match(/^(\s*)/)[1].length)); return lines.map(l => l.slice(min)).join('\n').replace(/\s+$/, ''); }
 
-// Allowlist a screenshot value to a bounded evidence/-relative image filename.
-// Rejects http(s):// / file:// / absolute / .. traversal (a hand-edited report's
-// `screenshot:` must not become a load-on-open beacon or a local-file probe), and
-// normalizes the prefix so it dedups against the readdir glob.
-function safeShot(s) {
-  if (!s) return null;
-  const b = String(s).replace(/^\.\//, '').replace(/^evidence\//, '');
-  return /^[A-Za-z0-9._-]+\.(png|jpe?g|gif|webp)$/i.test(b) && b.indexOf('..') < 0 ? 'evidence/' + b : null;
-}
-// screenshot frames per eval: the screenshot: field + any evidence/<id>-*.png (sorted) → slideshow when >1
-function framesFor(id, shot) {
-  const set = [];
-  const ss = safeShot(shot);
-  if (ss) set.push(ss);
-  try {
-    fs.readdirSync(path.join(dir, 'evidence'))
-      .filter(f => new RegExp('^' + id.replace(/[^\w]/g, '') + '[-_.].*\\.(png|jpe?g|gif|webp)$', 'i').test(f)).sort()
-      .forEach(f => { const rel = 'evidence/' + f; if (set.indexOf(rel) < 0) set.push(rel); });
-  } catch (_) {}
-  return set;
-}
+// Khung ảnh mỗi eval: CÙNG bộ xét với thẻ Cổng Bằng chứng (scripts/anh-ho-so.cjs, hồ sơ anh-co-that-trong-ho-so) —
+// chỉ ảnh là tệp có thật dưới evidence/ của hồ sơ, theo đường tương đối (trang nằm cạnh evidence/). Bộ xét vẫn chặn
+// http(s):// / file:// / tuyệt đối / .. (một `screenshot:` sửa tay không thành đèn hiệu lúc mở trang hay dò tệp máy),
+// và trả kèm các giá trị bị loại để trang nói vì sao thiếu ảnh. >1 khung → trình chiếu.
+const anhHoSo = require(path.join(__dirname, 'anh-ho-so.cjs'));
+const framesFor = (id, shot) => anhHoSo.khungAnh(dir, id, shot);
 
 const analyst = cleanLines(section(report, 'Analyst')).join('\n').trim();
 const variance = cleanLines(section(report, 'Variance')).join('\n').trim();
@@ -257,12 +242,14 @@ for (const r of rows) {
   if (kv.length) P.push(`<div class="kv">${kv.map(x => '<span>' + x + '</span>').join('')}</div>`);
   if (e.rationale) P.push(`<p class="note"><b>Phán đoán:</b> ${esc(e.rationale)}</p>`);
   // screenshots / slideshow
-  const frames = r.exec === 'ui-check' ? framesFor(r.id, e.screenshot) : (e.screenshot ? framesFor(r.id, e.screenshot) : []);
+  const khung = r.exec === 'ui-check' || e.screenshot ? framesFor(r.id, e.screenshot) : { frames: [], thieu: [] };
+  const frames = khung.frames;
+  for (const t of khung.thieu) P.push(`<div class="flag fred">Thiếu ảnh: <code>${esc(t.gia_tri)}</code> — ${esc(t.ly_do)}; thẻ không tính eval này là có ảnh.</div>`);
   if (frames.length === 1) {
     P.push(`<div class="shot"><img src="${esc(frames[0])}" alt="screenshot ${esc(r.id)}" loading="lazy"></div><div class="kv"><span>${esc(frames[0])}</span></div>`);
   } else if (frames.length > 1) {
     P.push(`<div class="shot slide" data-n="${frames.length}">${frames.map((f, i) => `<div class="frame"><img src="${esc(f)}" alt="frame ${i + 1}" loading="lazy"></div>`).join('')}</div><div class="slidebar"><button class="btn" data-toggle>⏸ Tạm dừng</button><span>${frames.length} frame · chạy như GIF</span></div>`);
-  } else if (r.exec === 'ui-check') {
+  } else if (r.exec === 'ui-check' && !khung.thieu.length) {
     P.push(`<div class="flag fred">Không có screenshot — ui-check có thể đã downgrade sang judgment (không có browser).</div>`);
   }
   // output

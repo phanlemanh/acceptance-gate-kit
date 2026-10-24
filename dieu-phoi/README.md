@@ -105,6 +105,21 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
     Đợt đầu tiên của kho tiêu thụ chạy bản này sẽ đọc hai nhãn đó.
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
+- **Lịch biết tệp** (hồ sơ `ky-den-gop`). Hàng chưa bắt đầu chỉ được giao khi vùng tệp nó khai (`ranh_gioi` trong
+  `hang-viec.json`) không trùng tệp của PR đang mở và không trùng `ranh_gioi` của hàng đang dở ở dãy khác (đang làm,
+  đã ký chưa gộp, hay đã được chọn làm hàng kế). Trùng một hàng của đợt → máy tự thêm phụ thuộc `sau` (hàng kia gộp
+  xong mới bắt đầu), một dòng Nhật ký và một sự kiện `doi-ke-hoach` kiểu `them-sau`; dãy nhận hàng kế không trùng.
+  Trùng PR ngoài đợt → hàng được giữ tới khi PR ấy đóng, một sự kiện `trung-tep`. PR của chính dãy không tính là
+  trùng. Hàng giao đi mà không khai vùng tệp → một sự kiện `ranh-gioi-vang`, không chặn. Không dò được PR (gh lỗi,
+  nhánh từ fork) → một sự kiện `trung-tep-mu`, lịch vẫn so phần hàng của đợt. Hai mẫu glob đều có ký tự đại diện thì
+  so phần tĩnh đứng trước ký tự đại diện đầu — dư về phía báo trùng (`a/**/*.ts` và `a/**/*.css` bị coi là trùng).
+  Lệnh `hang them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]` so cùng luật lúc gán hàng, đọc tiến độ và bản chụp PR
+  mà bộ phát lịch để trong `trang-thai.json` (`nhanh_mo`, tươi tới một phút).
+- **Duyệt chạm tệp khi không dò được nhánh mở** → giám sát phán (`can_phan` nêu lỗi), không còn máy duyệt với lý do
+  «không nhánh mở nào chạm». Nhánh của chính phiên xin không tính là nhánh đang sửa tệp ấy.
+- **Đếm ký → gộp.** Mỗi sự kiện `hang-gop` mang giờ commit chữ ký và giờ commit gộp đọc từ nhánh chính, số lần gộp
+  nhánh chính vào nhánh của PR; `dem` in `ky_den_gop` (trung vị, lớn nhất, theo hàng; hàng gộp squash vào
+  `chua_do`), `gop_vao_nhanh`, `ghim_lai_sau_ky` (lượt ghim lại được cấp sau giờ ký) và `gop` (lối của lệnh gộp).
 
 ## Chặn S4 và việc chờ người
 
@@ -196,7 +211,16 @@ thợ (`quyetCua` của `the.mjs`): hàng chưa có chữ build bị bỏ qua (d
 của thợ.
 
 Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
-thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
+thợ đọc là không tự merge.
+
+**Gộp dưới khoá merge** (hồ sơ `ky-den-gop`): thợ giữ khoá `merge` chạy `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`.
+Lệnh gộp bằng `gh pr merge <n> --merge --match-head-commit <sha>` (không bao giờ `--auto`) khi CI xanh trên đúng đầu
+nhánh, hồ sơ trên đầu nhánh đã ký hay đã thông, và (a) nhánh đã chứa đỉnh nhánh chính, hoặc (b) kho bật
+`"gop_khong_chay_lai_ci": true` trong `dieu-phoi.config.json` và tệp PR tự thêm (so với merge-base) không giao tệp của
+các commit vào nhánh chính kể từ merge-base. Chủ kho chấp nhận rủi ro của (b) ngày 23/10/2026: lỗi lọt qua thì CI trên
+nhánh chính sau gộp bắt. Thoát 0 = đã gộp · 4 = trùng tệp, khoá tắt hay CI chưa xanh — gộp nhánh chính vào nhánh, chờ
+CI theo lệ của kho, chạy lại · 1 = chặn (PR nháp, hồ sơ chưa ký, không giữ khoá, đợt không cho tự gộp). `gop <n> --xet
+--slug <s>` chỉ in quyết định, không gộp, không đòi khoá — cho giám sát và người. Mỗi lần chạy ghi một sự kiện `gop`. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
 `hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
 sách chờ người của bảng đợt và được lệnh đếm tính một lần.
 

@@ -6,6 +6,10 @@ Ngoài-3, Ngoài-4, Ngoài-5, owner: mở hợp đồng mới; cộng dòng sổ
 ~26/10, OneFlow ~27/10) vấp đúng lỗ. Gộp theo lớp: cả bốn là hành vi của bản crm `a9e8bc75a` mà hợp đồng
 DP1 cấm sửa (chỉ cho sửa bốn chỗ AC-8, AC-10, AC-11, AC-12).
 
+**Trạng thái 23/10:** lỗ 1 và lỗ 2 đóng ở hồ sơ `_acceptance/ky-den-gop/` (hạng C — lịch biết tệp cần đúng hai chỗ
+này): dò nhánh lỗi → `can_phan` nêu lỗi; `nhanhCua` đọc nhánh của worktree dãy. Ca C-5, C-6 và hai nhát tiêm của
+`tests/dieu-phoi/ky-den-gop-mutants.test.mjs`. Vòng ấy không xét lỗ 3, lỗ 4.
+
 ## Lỗ
 
 1. **Duyệt chạm tệp khi không dò được nhánh mở (Ngoài-3, nặng).** `nhanhMo()` trong

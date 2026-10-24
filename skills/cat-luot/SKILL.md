@@ -21,7 +21,9 @@ Gốc lệnh: `AG` là gốc gói acceptance-gate. Harness đặt `${CLAUDE_PLUG
 ## Bước 1 — có bản phạm vi trong git
 
 Bản phạm vi là MỘT tệp markdown theo khuôn `skills/acceptance/references/pham-vi-template.md` (đọc
-khuôn trước): ba khoá `dot` · `dang` · `nguon`, mỗi dòng `- \`<mã>\` — <mô tả>` một mã.
+khuôn trước): ba khoá `dot` · `dang` · `nguon`, mỗi dòng `- \`<mã>\` — <mô tả>` một mã. Kho khai `tri_thuc`: `nguon`
+là các đường trỏ băm (`<đường>#<git hash-object>`, cách nhau dấu phẩy) tới trang tri thức dưới `wiki/` đã vào git — răng
+phủ từ chối liên kết, chữ tự do và tệp chưa vào git (hồ sơ o-mo-viec-mang-nguon).
 
 - Xếp từng mục theo bước 2b TRƯỚC khi chép: chỉ mục PHÁT TRIỂN thành dòng mã; việc vận hành thuần KHÔNG chép vào bản
   phạm vi — liệt nó dưới dòng «Ra khỏi kho» ở mô tả PR (bước 4).

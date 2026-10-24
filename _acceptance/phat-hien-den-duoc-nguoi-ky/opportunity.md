@@ -30,6 +30,10 @@ Ba ngả cộng lại cho đúng một hệ quả: **người ký tin rằng đ�
 nhất là mục dễ rơi nhất.** Ngả 1 giấu cả gói; ngả 2 giấu một loại; ngả 3 giấu đúng mục được
 viết bằng chữ đầy đủ nhất.
 
+Hạt giống cùng lớp, CHƯA gộp vào ô này (22/10): thẻ báo «có ảnh» mà không kiểm tệp ảnh có thật —
+`docs/plans/2026-10-22-hat-giong-the-tin-chuoi-anh-khong-kiem-tep.md`. Gộp hay không là việc của
+Cổng Đáng khi ô này được gọi tên.
+
 ## Giả định chốt sinh tử
 
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |

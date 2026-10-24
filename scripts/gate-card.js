@@ -1011,6 +1011,20 @@ const cgNguon = NCG.nguonNhan();
 const cgExpected = (() => { try { const r = evalYamlLib.expectedExits(read(path.join(dir, 'evals.yaml'))); return r.errs.length ? {} : Object.fromEntries(r.byId); } catch (_) { return {}; } })();
 const cg = NCG.canhGay({ runLogText: read(path.join(dir, 'run-log.jsonl')), verdict, expectedExit: cgExpected, nguon: cgNguon });
 const CANH_MO = verdict === 'BLOCKED' && cg.trangThai === 'mo';
+// Đối chứng của lượt cuối không đo (bị từ chối / chết / chạy dở): mọi màu xanh của lượt chưa từng được thấy
+// đỏ trên code cũ. NHÃN ở cổng đã có — cờ, không thêm ô hỏi (K8). Bên viết: dòng `baseline-khong-do` của
+// bộ chấm (acceptance-verify.js); chỉ dòng của LẦN CHẠY CUỐI (cùng round + ts với dòng tổng kết cuối — cùng
+// luật «lượt cuối» với canhGay), nên lượt chấm lại đo trọn thì dòng cũ là sử liệu. Ca BW4 dựng run-log bằng
+// bộ chấm thật rồi đọc bằng thẻ thật — đổi chữ `kind` ở một bên là đỏ.
+const CO_DOI_CHUNG = 'Đối chứng trên code cũ KHÔNG chạy ở lượt chấm này';
+const doiChung = (() => {
+  const dong = NCG.docDong(read(path.join(dir, 'run-log.jsonl')));
+  const tallies = dong.filter(o => o.kind === 'round-tally');
+  const cuoi = tallies[tallies.length - 1];
+  if (!cuoi || typeof cuoi.round !== 'number') return null;
+  const d = [...dong].reverse().find(o => o.kind === 'baseline-khong-do' && o.round === cuoi.round && o.ts === cuoi.ts);
+  return d ? { round: cuoi.round, ly_do: typeof d.ly_do === 'string' ? d.ly_do : '', chua_chay: d.chua_chay === true, so_lenh: Number.isInteger(d.so_lenh) ? d.so_lenh : null } : null;
+})();
 const approvable = cg.trangThai !== 'lech' && cg.trangThai !== 'cay-doi' && (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT' || CANH_MO);
 
 const critText = {}; for (const ac of parseACBlock(contract)) { if (!critText[ac.id]) critText[ac.id] = ac.gwt; }
@@ -1070,8 +1084,16 @@ const UI_OBS_G2_OK = 'Bằng chứng lớp nhìn-thấy:';
 let LNT2 = null; try { LNT2 = require(path.join(__dirname, '..', 'lib', 'lop-nhin-thay.cjs')); } catch (_) {}
 const uo2 = LNT2 ? LNT2.classify(dir) : { applicable: false, reason: 'no-lib' };
 const uiIds = (LNT2 && !uo2.reason) ? LNT2.uiCheckIds(LNT2.parseEvalsText(read(path.join(dir, 'evals.yaml')))) : [];
-const uiPassed = uiIds.filter(i => { const e = evid[i] || {}; return String(e.exit_code || '').trim() === '0' && !!(e.screenshot && e.screenshot.trim()); });
-const uiObserved2 = { applicable: !!uo2.applicable, present: uiPassed.length > 0, declared: uiIds.length, passed: uiPassed.length, descoped: (!uo2.reason && uo2.descoped) || null };
+// Ảnh phải là TỆP có thật dưới evidence/ của hồ sơ (hồ sơ anh-co-that-trong-ho-so) — chuỗi `screenshot:` một mình không
+// đủ: một kho tiêu thụ 22/10 có hồ sơ đã ký được tính «có ảnh» mà không chứa ảnh nào. Cùng bộ xét với trang bằng chứng.
+const anhHoSo = require('./anh-ho-so.cjs');
+const uiKhaiAnh = uiIds.filter(i => { const e = evid[i] || {}; return String(e.exit_code || '').trim() === '0' && !!(e.screenshot && anhHoSo.giaTriSach(e.screenshot)); });
+const uiKhung = Object.fromEntries(uiKhaiAnh.map(i => [i, anhHoSo.khungAnh(dir, i, evid[i].screenshot)]));
+const uiPassed = uiKhaiAnh.filter(i => uiKhung[i].frames.length > 0);
+const uiThieuAnh = uiKhaiAnh.filter(i => !uiKhung[i].frames.length).map(i => ({ id: i, ...uiKhung[i].thieu[0] }));
+const uiObserved2 = { applicable: !!uo2.applicable, present: uiPassed.length > 0, declared: uiIds.length, passed: uiPassed.length, descoped: (!uo2.reason && uo2.descoped) || null, ...(uiThieuAnh.length ? { thieu_anh: uiThieuAnh } : {}) };
+const UI_OBS_G2_THIEU = 'Bằng chứng lớp nhìn-thấy: THIẾU ảnh';
+const thieuAnhChu = () => uiThieuAnh.map(t => `${esc(t.id)} — <code>${esc(t.gia_tri)}</code> (${esc(t.ly_do)})`).join('; ');
 
 const hasOverride = id => { const v = evid[id] && evid[id].human_override; return !!(v && v.trim() && !/^#|^<|^\{\{/.test(v.trim())); };
 
@@ -1249,7 +1271,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched, ...(cm.do_san ? { do_san: cm.do_san } : {}) }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty, dinh_tuyen_may: dinhTuyenMay }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched, ...(cm.do_san ? { do_san: cm.do_san } : {}) }, thuoc_vat: thuocVat, ...(doiChung ? { doi_chung: doiChung } : {}), canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1311,6 +1333,7 @@ if (MAY_THONG && !scanBroken && scanState != null) P.push(`<div class="flag finf
 if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(chuMDT().viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
 // Khối ý định (AC-12): nguyên văn Cổng Đáng, trước mọi thứ khác người đọc để quyết.
 if (yDinh) P.push(`<div class="lab">Ý định (nguyên văn Cổng Đáng)</div><div class="grp gnot">${yDinh.feature ? `<p class="li"><b>${esc(stripMd(yDinh.feature))}</b></p>` : ''}${yDinh.dong.map(l => `<p class="li">${esc(stripMd(l))}</p>`).join('')}${yDinh.cat ? '<p class="li">… xem opportunity.md</p>' : ''}</div>`);
+if (doiChung) P.push(`<div class="flag fwarn">⚠ ${esc(CO_DOI_CHUNG)}${doiChung.so_lenh ? ` (${doiChung.so_lenh} lệnh máy)` : ''} — ${doiChung.chua_chay ? 'lệnh đối chứng chưa chạy dòng nào' : 'làn đối chứng không chạy trọn'}: ${esc(doiChung.ly_do)}. Các eval máy xanh ở lượt này chưa từng được thấy đỏ trên code cũ — chưa biết eval nào thật sự phân biệt được tính năng. Lượt chấm lại sẽ đo lại.</div>`);
 // Chỗ mù (AC-5, AC-7): lượt chấm kẹt CHỈ vì bàn đo / hệ thống chết đã thử lại. Verdict và
 // bảng per-eval KHÔNG đổi — thẻ chỉ mở lối ra, mỗi cạnh gãy có tên · ba lối · giá.
 if (CANH_MO) {
@@ -1429,7 +1452,10 @@ if (thuocVat && thuocVat.hong) flags.push(['fwarn', esc(THUOC_VAT_HONG_FLAG)]);
 { const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
 flags.push(...yamlChuanCo(dir));
 if (uiObserved2.applicable) {
-  if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
+  if (uiObserved2.present) {
+    flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
+    if (uiThieuAnh.length) flags.push(['fwarn', `${UI_OBS_G2_THIEU} — ${thieuAnhChu()}; thẻ không tính các eval này là có ảnh.`]);
+  } else if (uiThieuAnh.length) flags.push(['fwarn', `${UI_OBS_G2_NONE} — thiếu ảnh: ${thieuAnhChu()}; báo cáo khai ảnh mà evidence/ của hồ sơ không có, nên ký nghĩa là ký trên tên ca máy, không phải trên thứ người dùng thấy.`]);
   else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);
   else flags.push(['fwarn', `${UI_OBS_G2_NONE} — ${uiIds.length ? 'eval ui-check ' + esc(uiIds.join(', ')) + ' khai nhưng không đạt (không exit 0 kèm screenshot)' : 'hợp đồng có mặt người nhìn mà không eval ui-check nào'}; ký nghĩa là ký trên tên ca máy, không phải trên thứ người dùng thấy.`]);
 }

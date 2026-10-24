@@ -15,9 +15,13 @@ import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
 import { bangQuyet } from './the.mjs';
 import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
-import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc-khoe.mjs';
+import { danhGiaSucKhoe, docApLuc, docLoad, docMucTrong, docRamGb, docRssLonNhat, docSwap, docVmStat, tocDoSwapinMbPhut, vuaLan } from './suc-khoe.mjs';
+import { batDauLuot, capNhatLuot, danhDauThuHoi, docSoDo, dongLuotDaXong, LOAI_NANG, nhuCau, TAI_NGUYEN_NANG } from './do-lan.mjs';
 import { xetYeuCau } from './yeu-cau.mjs';
 import { chuyenVaoCua, docCua } from './cua-tin-hieu.mjs';
+import { chupNhanhMo, docChupNhanhMo, docNhanhMo, tepTheoNhanh, xetTrungTep } from './trung-tep.mjs';
+import { themSau } from './khoa-hang-viec.mjs';
+import { soDoGop } from './do-gop.mjs';
 
 export const CAC_TAI_NGUYEN = ['s4', 'duong-nen', 'merge'];
 // Thư mục mã của CHÍNH bộ phát lịch đang chạy (bình thường là `<thư mục đợt>/loi/`, do `chay` chép).
@@ -66,6 +70,7 @@ function xuLyKhoa(thuMuc, cfg, nowMs) {
       ghiSuKien(thuMuc, { loai: 'gia-han', tai_nguyen: tn, phien: chu.phien, han_moi: kq.hanMoi });
       dangGiu[tn] = { ...chu, han_thue_den: kq.hanMoi };
     } else if (kq.hanhDong === 'thu-hoi') {
+      danhDauThuHoi(thuMuc, tn);
       fs.rmSync(d, { recursive: true, force: true });
       ghiSuKien(thuMuc, { loai: 'thu-hoi', tai_nguyen: tn, phien: chu.phien, ly_do: 'hết hạn thuê, nhịp cũ', can_phan: true });
     } else {
@@ -100,9 +105,23 @@ export const choPhepTheoPha = (pha, taiNguyen) => pha === 'dang-chay' || (pha ==
 // `may` = {ap, cho}: đợt mở từ gói (ap) xét thêm khoá s4 cấp máy trước khi cấp s4; không giữ được thì
 // đơn ở lại hàng chờ và `cho` ghi kho đang giữ.
 // `choDatLai` (DP4): một cửa sổ hạn mức chạm ngưỡng mà sắp đặt lại → không cấp lượt mới nào tới khi đặt lại.
-function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-chay', may = { ap: false, cho: null }, choDatLai = null) {
+const commitCua = (io, worktree) => {
+  try {
+    return io?.chay('git', ['-C', worktree, 'rev-parse', 'HEAD']).trim() || null;
+  } catch {
+    return null;
+  }
+};
+
+function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-chay', may = { ap: false, cho: null }, choDatLai = null, sk = null, io = null, so = []) {
   const donXin = docThuMucJson(thuMuc, 'xin', kiemDon);
-  for (const { taiNguyen, don } of capLuot({ donXin, dangGiu, giamTai, hangViec })) {
+  const nhuCauLoai = new Map();
+  const nhuCauCua = (loai) => {
+    if (!nhuCauLoai.has(loai)) nhuCauLoai.set(loai, LOAI_NANG.includes(loai) ? nhuCau({ kho: cfg.goc_kho ?? null, loai, cfg, so }) : { gb: null, nguon: 'chua' });
+    return nhuCauLoai.get(loai);
+  };
+  const vua = (don) => (sk ? vuaLan(don.loai, sk, nhuCauCua(don.loai), cfg) : { duoc: true, ly_do: null });
+  for (const { taiNguyen, don } of capLuot({ donXin, dangGiu, giamTai, hangViec, vua })) {
     if (!choPhepTheoPha(pha, taiNguyen)) continue;
     if (choDatLai) continue;
     if (taiNguyen === 's4' && may.ap) {
@@ -129,33 +148,60 @@ function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-cha
       han_thue_den: new Date(nowMs + cfg.han_thue_phut[don.loai] * PHUT_MS).toISOString(),
     };
     ghiJsonNguyenTu(path.join(d, 'chu.json'), chu);
+    if (sk && TAI_NGUYEN_NANG.includes(taiNguyen)) batDauLuot(thuMuc, taiNguyen, chu, { sk, nguon: nhuCauCua(don.loai).nguon, commit: commitCua(io, chu.worktree), nowMs });
     fs.rmSync(don._tep, { force: true });
-    ghiSuKien(thuMuc, { loai: 'cap', tai_nguyen: taiNguyen, phien: don.phien, slug: don.slug });
+    ghiSuKien(thuMuc, { loai: 'cap', tai_nguyen: taiNguyen, phien: don.phien, slug: don.slug, don: don.loai });
   }
-  return docThuMucJson(thuMuc, 'xin', kiemDon).map(({ phien, loai, luc }) => ({ phien, loai, luc }));
+  return docThuMucJson(thuMuc, 'xin', kiemDon).map(({ phien, loai, luc }) => ({ phien, loai, luc, cho: vua({ loai }).ly_do }));
 }
 
-function nhanhMo(io, cfg) {
-  const ketQua = new Map();
-  let ds = [];
-  try {
-    ds = JSON.parse(io.chay('gh', ['pr', 'list', '--state', 'open', '--json', 'headRefName']) || '[]');
-  } catch {
-    return ketQua;
-  }
-  for (const { headRefName } of ds) {
-    let tep = '';
-    try {
-      tep = io.chay('git', ['diff', '--name-only', `origin/${cfg.nhanh_chinh}...origin/${headRefName}`]);
-    } catch {
-      continue;
+// PR đang mở + nhánh của từng dãy, dò lười và nhiều nhất một lần mỗi nhịp (hồ sơ ky-den-gop, hạng C). `song()` dò lại
+// (xét chạm tệp cần số tươi); `gan()` dùng bản chụp trong trang-thai.json khi còn dưới một phút — chọn hàng kế chạy
+// mỗi nhịp 5″, gọi gh mỗi nhịp là phí. Bản chụp mới (hoặc cũ giữ nguyên) ghi lại ở cuối nhịp cho `hang them` đọc.
+const NHANH_MO_TUOI_MS = PHUT_MS;
+function boNhanhMo(io, cfg, hangViec, chupCu, nowMs) {
+  let nhanhDay = null;
+  let daDoc = false;
+  let tuoi = null;
+  const layNhanhDay = () => {
+    if (nhanhDay) return nhanhDay;
+    nhanhDay = new Map();
+    for (const d of hangViec.day) {
+      let n = null;
+      try {
+        n = io.chay('git', ['-C', d.worktree, 'rev-parse', '--abbrev-ref', 'HEAD']).trim() || null;
+      } catch {
+        n = null;
+      }
+      nhanhDay.set(d.id, n === 'HEAD' ? null : n);
     }
-    for (const t of tep.split('\n').filter(Boolean)) ketQua.set(t, [...(ketQua.get(t) ?? []), headRefName]);
-  }
-  return ketQua;
+    return nhanhDay;
+  };
+  const doc = () => {
+    if (!daDoc) {
+      tuoi = docNhanhMo(io, cfg);
+      daDoc = true;
+    }
+    return tuoi;
+  };
+  // gh lỗi hẳn (không dò được PR nào) mà có bản chụp tốt đời trước → mọi bên đọc (xét chạm tệp lẫn chọn hàng kế) so
+  // bằng bản chụp ấy, lời báo nêu tuổi; bản chụp tốt không bị bản dò hỏng ghi đè (gap-probe P0; S4-r1: nhịp có yêu cầu
+  // chờ từng dò trước ở đường xét chạm tệp rồi trả bản rỗng cho lịch và ghi đè bản chụp tốt).
+  const hongHan = (nm) => nm.loi && nm.theoNhanh.size === 0 && chupCu?.theo_nhanh && !chupCu.loi;
+  const quaChup = (nm) => {
+    if (!hongHan(nm)) return nm;
+    const phut = Math.round((nowMs - Date.parse(chupCu.luc)) / PHUT_MS);
+    return docChupNhanhMo(chupCu, `${nm.loi} — lịch so bằng bản chụp PR cũ ${phut}′ (${chupCu.luc})`);
+  };
+  return {
+    song: () => quaChup(doc()),
+    gan: () => (!daDoc && chupCu && nowMs - Date.parse(chupCu.luc) < NHANH_MO_TUOI_MS ? docChupNhanhMo(chupCu) : quaChup(doc())),
+    nhanhDay: layNhanhDay,
+    chup: () => (daDoc && !hongHan(tuoi) ? { ...chupNhanhMo(tuoi, new Date(nowMs).toISOString()), nhanh_day: Object.fromEntries(layNhanhDay()) } : chupCu ?? null),
+  };
 }
 
-function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs) {
+function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs, bo) {
   const tatCa = docThuMucJson(thuMuc, 'yeu-cau', kiemYeuCau);
   const daBao = new Set(trangThaiCu.da_bao ?? []);
   const choXet = tatCa.filter((y) => !fs.existsSync(path.join(thuMuc, 'tra-loi', `${y._ten}.json`)) && !daBao.has(y._ten));
@@ -164,8 +210,9 @@ function xuLyYeuCau(thuMuc, cfg, hangViec, io, trangThaiCu, nowMs) {
   let nguCanh = {
     hangViec,
     ranhGioiThem: docJson(pThem, {}),
-    nhanhChamTep: nhanhMo(io, cfg),
-    nhanhCua: () => null,
+    nhanhChamTep: tepTheoNhanh(bo.song().theoNhanh),
+    nhanhLoi: bo.song().loi,
+    nhanhCua: (phien) => bo.nhanhDay().get(phien) ?? null,
     khoaCua: (phien) => CAC_TAI_NGUYEN.filter((tn) => docJson(path.join(thuMuc, 'khoa', tn, 'chu.json'))?.phien === phien),
     yeuCauGanDay: tatCa.filter((y) => nowMs - Date.parse(y.luc) < MOT_NGAY_MS).map((y) => ({ ...y, id: y._ten })),
     cua: docCua(cfg.goc_kho),
@@ -309,7 +356,8 @@ function tienDoCua(hangViec, cfg, io) {
 // Sự kiện cho lệnh đếm (T14): một `hang-gop` khi một hàng lần đầu sang gộp, một `cho-nguoi` khi một tệp
 // chờ người mới xuất hiện. Sổ đánh dấu nằm trong trang-thai.json; đợt nâng từ bộ phát lịch cũ (đã có
 // trang-thai mà chưa có sổ) nạp im lặng những gì đang có, để lần nâng không đếm vống.
-function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day) {
+// Hồ sơ ky-den-gop: `hang-gop` mang thêm số đo ký → gộp đọc từ nhánh chính (`soDoGop`) — lệnh đếm trừ hai giờ đó.
+function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day, io = null, cfg = null) {
   const nangCap = cu.nhip_cuoi !== undefined;
   const gopCu = new Set(cu.gop_da_bao ?? []);
   const gopIm = nangCap && cu.gop_da_bao === undefined;
@@ -317,7 +365,7 @@ function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day) {
   for (const h of hangViec.hang) {
     if (tienDo.get(h.slug) !== 'gop' || gopCu.has(h.slug)) continue;
     gopMoi.push(h.slug);
-    if (!gopIm) ghiSuKien(thuMuc, { loai: 'hang-gop', hang: h.slug, ma: h.ma ?? null, phien: h.day });
+    if (!gopIm) ghiSuKien(thuMuc, { loai: 'hang-gop', hang: h.slug, ma: h.ma ?? null, phien: h.day, ...(io && cfg ? soDoGop(io, cfg, h.slug, DA_THONG) : {}) });
   }
   const choCu = new Set(cu.cho_nguoi_da_bao ?? []);
   const choIm = nangCap && cu.cho_nguoi_da_bao === undefined;
@@ -383,20 +431,54 @@ function baoKhoaKhongNhip(thuMuc, cu, nowMs) {
 // `gocKho` (B1): quyết của từng hàng đọc lại mỗi nhịp — ô của hàng chờ nhận chữ build SAU `mo` (bước 4 của mo-dot).
 // Chỉ đợt mở từ gói truyền `gocKho`: ở đó thẻ khởi tạo đã hỏi build cho từng hàng. Đợt dựng tay và đợt cũ (khuôn
 // 07/10: mọi hàng mang mã, không ô nào) giữ lối cũ — Cổng Đáng của chúng ở S0 của thợ (khối TRONG-DOT).
-function capNhatHangKe(thuMuc, hangViec, tienDo, gocKho = null) {
+// Lịch biết tệp (hồ sơ ky-den-gop, hạng C): `bo` (boNhanhMo) cho tệp PR đang mở và nhánh mỗi dãy. Hàng bỏ qua vì
+// trùng một hàng của đợt → ghi `sau` (themSau, một sự kiện `doi-ke-hoach`); trùng PR ngoài đợt → giữ hàng, một sự
+// kiện `trung-tep` mỗi cặp hàng–nhánh; hàng giao đi mà không khai vùng tệp → một sự kiện `ranh-gioi-vang` mỗi hàng;
+// không dò được PR → một sự kiện `trung-tep-mu` mỗi lỗi, lịch vẫn so phần hàng của đợt. Sổ đánh dấu ở trang-thai.json.
+function capNhatHangKe(thuMuc, hangViec, tienDo, gocKho = null, bo = null, cu = {}) {
   const ketQua = [];
   const quyet = gocKho ? bangQuyet(gocKho, hangViec) : null;
+  const keCua = new Map();
+  for (const d of hangViec.day) {
+    const t = docJson(path.join(thuMuc, 'tiep', `${d.id}.json`), null);
+    if (t?.hang) keCua.set(d.id, t.hang);
+  }
+  const daBao = { trung_pr_da_bao: new Set(cu.trung_pr_da_bao ?? []), ranh_gioi_vang_da_bao: new Set(cu.ranh_gioi_vang_da_bao ?? []), trung_mu_da_bao: new Set(cu.trung_mu_da_bao ?? []) };
+  const baoMot = (so, khoa, suKien) => {
+    if (daBao[so].has(khoa)) return;
+    daBao[so].add(khoa);
+    ghiSuKien(thuMuc, suKien);
+  };
+  const trung = bo
+    ? (h) => {
+        const nm = bo.gan();
+        if (nm.loi) baoMot('trung_mu_da_bao', nm.loi.split(' — ')[0], { loai: 'trung-tep-mu', ly_do: nm.loi, can_phan: false });
+        return xetTrungTep(h, { hangViec, tienDo, keCua, nhanhMo: nm, nhanhCuaDay: bo.nhanhDay() });
+      }
+    : null;
   for (const day of hangViec.day) {
-    const ke = chonHangKe(hangViec, day.id, tienDo, quyet);
+    const ke = chonHangKe(hangViec, day.id, tienDo, quyet, trung);
+    if (ke.hang) keCua.set(day.id, ke.hang);
+    else keCua.delete(day.id);
+    for (const b of ke.trung ?? []) {
+      const voiHang = b.voi.filter((t) => t.voi === 'hang');
+      if (voiHang.length && themSau(thuMuc, b.hang, day.id, voiHang).doi) {
+        const h = hangViec.hang.find((x) => x.slug === b.hang && x.day === day.id);
+        if (h) h.sau = [...new Set([...(h.sau ?? []), ...voiHang.map((t) => t.khoa)])];
+      }
+      for (const t of b.voi.filter((x) => x.voi === 'pr')) baoMot('trung_pr_da_bao', `${b.hang}|${t.nhanh}`, { loai: 'trung-tep', hang: b.hang, phien: day.id, voi: 'pr', nhanh: t.nhanh, tep: t.tep.slice(0, 20) });
+    }
+    const chon = ke.moi ? hangViec.hang.find((x) => x.slug === ke.hang && x.day === day.id) : null;
+    if (bo && chon && !(chon.ranh_gioi ?? []).length) baoMot('ranh_gioi_vang_da_bao', chon.slug, { loai: 'ranh-gioi-vang', hang: chon.slug, phien: day.id, ly_do: 'hàng không khai ranh_gioi — lịch không so được tệp', can_phan: false });
     const p = path.join(thuMuc, 'tiep', `${day.id}.json`);
-    const cu = docJson(p, null);
-    if (JSON.stringify(cu?.ke ?? null) !== JSON.stringify(ke)) {
+    const cuTiep = docJson(p, null);
+    if (JSON.stringify(cuTiep?.ke ?? null) !== JSON.stringify(ke)) {
       ghiJsonNguyenTu(p, { phien: day.id, ...ke, ke });
       ghiSuKien(thuMuc, { loai: 'hang-ke', phien: day.id, ...ke });
     }
     ketQua.push({ id: day.id, link: day.link, hang: ke.hang, tien_do: ke.hang ? tienDo.get(ke.hang) : ke.xong ? 'xong' : 'cho', cho: ke.cho ?? null });
   }
-  return ketQua;
+  return { day: ketQua, so: Object.fromEntries(Object.entries(daBao).map(([k, v]) => [k, [...v]])) };
 }
 
 export async function motNhip(thuMuc, io) {
@@ -406,21 +488,36 @@ export async function motNhip(thuMuc, io) {
   const pTrangThai = path.join(thuMuc, 'trang-thai.json');
   const cu = docJson(pTrangThai, {});
 
+  const doc = (cmd, args) => {
+    try {
+      return io.chay(cmd, args);
+    } catch {
+      return '';
+    }
+  };
+  const mauSwapin = { luc: nowMs, ...docVmStat(doc('vm_stat', [])) };
   const sucKhoe = danhGiaSucKhoe(
     {
       swap: docSwap(io.chay('sysctl', ['vm.swapusage'])),
       apLuc: docApLuc(io.chay('sysctl', ['-n', 'kern.memorystatus_vm_pressure_level'])),
       load: docLoad(io.chay('sysctl', ['-n', 'vm.loadavg'])),
       rssLonNhat: docRssLonNhat(io.chay('ps', ['-axo', 'rss=,comm='])),
+      mucTrong: docMucTrong(doc('sysctl', ['-n', 'kern.memorystatus_level'])),
+      ramGb: docRamGb(doc('sysctl', ['-n', 'hw.memsize'])),
+      tocDo: tocDoSwapinMbPhut(cu.mau_swapin ?? null, mauSwapin),
     },
     cfg,
   );
+  const soDo = docSoDo(thuMuc);
+  const kho = cfg.goc_kho ?? null;
   if (sucKhoe.giamTai && cu.trang_thai !== 'giam-tai') ghiSuKien(thuMuc, { loai: 'giam-tai', ly_do: sucKhoe.lyDo, can_phan: true });
   if (!sucKhoe.giamTai && cu.trang_thai === 'giam-tai') ghiSuKien(thuMuc, { loai: 'het-giam-tai' });
   if (sucKhoe.canNguoi && cu.can_nguoi !== sucKhoe.canNguoi) ghiSuKien(thuMuc, { loai: 'can-nguoi', tin: sucKhoe.canNguoi, dich: 'owner', can_phan: true });
 
-  const daBao = apGiaHan(thuMuc, nowMs, xuLyYeuCau(thuMuc, cfg, hangViec, io, cu, nowMs));
+  const bo = boNhanhMo(io, cfg, hangViec, cu.nhanh_mo ?? null, nowMs);
+  const daBao = apGiaHan(thuMuc, nowMs, xuLyYeuCau(thuMuc, cfg, hangViec, io, cu, nowMs, bo));
   const dangGiu = xuLyKhoa(thuMuc, cfg, nowMs);
+  dongLuotDaXong(thuMuc, dangGiu, { kho, nowMs });
   const dk = docPha(thuMuc);
   // DP4: xét hạn mức TRƯỚC khi cấp — chạm ngưỡng có thể đưa đợt vào bàn giao hay chờ đặt lại ngay nhịp này.
   const hm = xetHanMucNhip(thuMuc, { cfg, cu, nowMs, pha: dk.pha });
@@ -429,9 +526,17 @@ export async function motNhip(thuMuc, io) {
   if (pha === 'dang-ban-giao') pha = buocBanGiao(thuMuc, { nowMs }).pha;
   const may = { ap: Boolean(dk.nguon_goi), cho: null };
   if (may.ap && !dangGiu.s4) nhaMay(thuMuc);
-  const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may, hm.cho_dat_lai);
+  const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may, hm.cho_dat_lai, sucKhoe, io, soDo);
+  const giuNang = TAI_NGUYEN_NANG.filter((tn) => fs.existsSync(path.join(thuMuc, 'khoa', tn, 'chu.json')));
+  for (const tn of giuNang) capNhatLuot(thuMuc, tn, { sk: sucKhoe, nowMs, cfg, chong: giuNang.length > 1 });
+  const thieuChoCu = new Set(cu.thieu_cho_da_bao ?? []);
+  const thieuCho = hangCho.filter((h) => h.cho).map((h) => ({ ...h, khoa: `${h.phien}-${h.loai}` }));
+  for (const h of thieuCho) {
+    if (!thieuChoCu.has(h.khoa)) ghiSuKien(thuMuc, { loai: 'thieu-cho', phien: h.phien, don: h.loai, ly_do: h.cho, can_phan: false });
+  }
+  const chuaHieuChuan = LOAI_NANG.filter((loai) => nhuCau({ kho, loai, cfg, so: soDo }).nguon === 'chua');
   const tienDo = tienDoCua(hangViec, cfg, io);
-  const day = capNhatHangKe(thuMuc, hangViec, tienDo, dk.nguon_goi ? cfg.goc_kho : null);
+  const { day, so: soTrung } = capNhatHangKe(thuMuc, hangViec, tienDo, dk.nguon_goi ? cfg.goc_kho : null, bo, cu);
   const lienKetCua = new Map(hangViec.day.map((d) => [d.id, d.link]));
   const choNguoi = [
     ...docThuMucJson(thuMuc, 'cho-nguoi').map(({ phien, loai, tin, luc }) => ({ phien, loai, tin, luc, link: lienKetCua.get(phien) })),
@@ -442,7 +547,7 @@ export async function motNhip(thuMuc, io) {
     return chu ? [{ tai_nguyen: tn, phien: chu.phien, han_thue_den: chu.han_thue_den }] : [];
   });
 
-  const dem = suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day);
+  const dem = suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day, io, cfg);
   const khoaKhongNhip = baoKhoaKhongNhip(thuMuc, cu, nowMs);
   const tt = {
     dot: hangViec.dot,
@@ -451,6 +556,9 @@ export async function motNhip(thuMuc, io) {
     nhip_cuoi: new Date(nowMs).toISOString(),
     suc_khoe: sucKhoe,
     can_nguoi: sucKhoe.canNguoi,
+    mau_swapin: mauSwapin,
+    thieu_cho_da_bao: thieuCho.map((h) => h.khoa),
+    chua_hieu_chuan: chuaHieuChuan,
     day,
     khoa,
     hang_cho: hangCho,
@@ -458,6 +566,8 @@ export async function motNhip(thuMuc, io) {
     da_bao: daBao,
     cho_may: may.cho,
     ...dem,
+    ...soTrung,
+    nhanh_mo: bo.chup(),
     khoa_khong_nhip_da_bao: khoaKhongNhip,
     ...(hm.trang_thai ? { han_muc: hm.trang_thai, han_muc_da_bao: hm.da_bao } : {}),
     ...(hm.cho_dat_lai ? { cho_dat_lai: hm.cho_dat_lai } : {}),
