@@ -146,6 +146,19 @@
         "RD2",
         "SK1"
       ]
+    },
+    {
+      "ten": "Phát hành kế (số đặt lúc cắt) — tầng tri thức TT1–TT5 cùng #400, #401, #402; chủ kho 24/10: «Tầng tri thức được gom và Kit để cắt cùng phiên bản.», hạn 25/10 đặt ở Cổng Đáng",
+      "ngay": "2026-10-25",
+      "loai": "phat-hanh",
+      "ai": "MacBook Pro",
+      "hang": [
+        "TT1",
+        "TT2",
+        "TT3",
+        "TT4",
+        "TT5"
+      ]
     }
   ],
   "hang": [
