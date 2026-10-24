@@ -116,6 +116,8 @@ executors:
     xuat_du_qua_pipe: "node tests/scripts/xuat-du-qua-pipe.test.mjs"
     # Hồ sơ moi-cong-khong-qua-nut (KY1): ca MQ-1…MQ-10 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     moi_cong_khong_qua_nut: node tests/scripts/moi-cong-khong-qua-nut.test.mjs
+    # Hồ sơ kho-tri-thuc-va-lint (TT1, đợt tri-thuc-2410): ca KT-1…KT-9 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
+    kho_tri_thuc_va_lint: node tests/scripts/kho-tri-thuc-va-lint.test.mjs
     # Hồ sơ moi-cong-khong-qua-nut (AC-9): ca P188 (điều khoản mời cổng khớp từng ký tự) chạy riêng một khối.
     p188_moi_cong: "bash -c 'set -o pipefail; ONLY_BLOCK=P188 bash tests/plugins/run-tests.sh | grep -F P188'"
     # Hồ sơ moi-cong-khong-qua-nut (AC-9, từ lượt 2): bộ ca khung điều phối, mỗi dòng một ca đỏ hoặc dòng ghim — dòng
