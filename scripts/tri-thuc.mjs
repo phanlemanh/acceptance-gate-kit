@@ -47,23 +47,13 @@ export function napKhuon(tep = TEP_KHUON) {
 const git = (cwd, a) => spawnSync('git', ['-C', cwd, ...a], { encoding: 'utf8' });
 export function bamTep(p) { return execFileSync('git', ['hash-object', '--', p], { encoding: 'utf8' }).trim(); }
 
-// Gốc checkout chính = cha của git-common-dir: giống nhau ở checkout chính và mọi worktree.
-export function gocCheckoutChinh(root) {
-  const r = git(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
-  if (r.status !== 0) return realpathSync(root);
-  return path.dirname(realpathSync(r.stdout.trim()));
-}
 export function docCauHinh(root) {
   const p = path.join(root, '_acceptance', 'config.yaml');
   return docTriThuc(existsSync(p) ? readFileSync(p, 'utf8') : '');
 }
-// → { goc, trongKho, cfg } ; goc tuyệt đối.
-export function giaiGoc(root, cfg) {
-  if (cfg.kho && cfg.kho.duong) return { goc: path.resolve(gocCheckoutChinh(root), cfg.kho.duong), trongKho: false, cfg };
-  return { goc: path.resolve(root, cfg.noi), trongKho: true, cfg };
-}
-export const dongKhongDoc = cfg => `không đọc được ở đây: ${cfg.kho.ten} — ` +
-  (cfg.kho.remote ? `git clone ${cfg.kho.remote} ` : 'khai kho.remote để có lệnh clone; đường cần có: ');
+// Luật giải đường kho riêng theo checkout chính sống ở tri-thuc-khoa.cjs (hồ sơ thiet-ke-nap-tri-thuc): thẻ và bộ xếp căn
+// cứ là CJS, không nạp được tệp này (await cấp cao) — một bản luật cho cả hai phía.
+export const { gocCheckoutChinh, giaiGoc, dongKhongDoc } = require(path.join(__dirname, 'tri-thuc-khoa.cjs'));
 
 function moiTep(thuMuc) {
   const ra = [];

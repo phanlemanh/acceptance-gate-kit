@@ -124,7 +124,8 @@ await ca('KT-2', () => {
   const ref = `nguon-rieng:wiki/nen/nen.md#${bam(path.join(C, 'wiki/nen/nen.md'))}`;
   const c1 = chay(BIN, d, ['--con-tro', ref]); const c2 = chay(BIN, wt, ['--con-tro', ref]);
   if (c1.thoat !== 0 || c1.out !== path.join(C, 'wiki/nen/nen.md') || c2.out !== c1.out) sai.push(`con-tro ${c1.out} / ${c2.out}`);
-  const M = banSaoMay({ 'scripts/tri-thuc.mjs': ['return path.dirname(realpathSync(r.stdout.trim()));', 'return realpathSync(root);'] });
+  // Luật giải đường sống ở tri-thuc-khoa.cjs từ hồ sơ thiet-ke-nap-tri-thuc; tri-thuc.mjs nhập lại từ đó.
+  const M = banSaoMay({ 'scripts/tri-thuc-khoa.cjs': ['return path.dirname(realpathSync(r.stdout.trim()));', 'return realpathSync(root);'] });
   const m = lint(wt, [], path.join(M, 'scripts/tri-thuc.mjs'));
   if (m.out === b.out && m.thoat === b.thoat) sai.push('mutant giải theo worktree không bị bắt');
   else console.log('  KT-2-mutant: gốc tri thức lệch giữa checkout chính và worktree (mutant ra ' + m.thoat + ')');
