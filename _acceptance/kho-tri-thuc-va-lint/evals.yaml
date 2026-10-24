@@ -1,0 +1,126 @@
+schema_version: 1
+feature_slug: kho-tri-thuc-va-lint
+# Ca đo của hàng TT1: tệp tests/scripts/kho-tri-thuc-va-lint.test.mjs, tên ca «KT-<n>», in «PASS: KT-…» / «FAIL: KT-…»,
+# thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
+#   executors.test.kho_tri_thuc_va_lint = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
+# Ca P200 dùng khoá sẵn có executors.test.p200_cat_so (ONLY_BLOCK=P200).
+# Mọi kho thử dựng trong thư mục tạm của lượt (git init + commit thật; remote trần bằng git init --bare); trang, raw và
+# nguon.md SINH từ bốn khối marker rút từ khuôn tri-thuc-template.md thật, không viết tay. Đường dẫn suy từ vị trí tệp
+# test. Mỗi ca đỏ: kho lành xanh TRƯỚC trên cùng đầu vào, rồi bản tiêm (bản sao, nhát tiêm khớp đúng một lần, kiểm riêng
+# là đã áp) đỏ với thông điệp ghim. Ma trận viết sẵn, số assert = số hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc-khoa.cjs, scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-1": ma trận chín hàng in ra (khối · kết quả bộ đọc), khớp đúng từng hàng của AC-1; bốn hàng lỗi:
+      lint thoát 2 và stderr chứa đúng câu «khối tri_thuc thiếu noi hoặc kho.duong» / «cong_khai phải là true hoặc false»
+      / «kho thiếu duong» / «kho thiếu ten»; hàng khoá lạ: thoát khác 2, có dòng «cảnh báo: khoá lạ trong tri_thuc: <khoá>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc-khoa.cjs, scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-2": gốc tri thức giải từ checkout chính === giải từ worktree lồng sâu (.claude/worktrees/x) ===
+      realpath(cha của git-common-dir)/../<tên> (giá trị ghim, in ra); lint và --con-tro cho cùng mã thoát và stdout ở hai chỗ. Mutant "PASS: KT-2-mutant": bản tiêm giải theo gốc
+      worktree → ca đỏ «gốc tri thức lệch giữa checkout chính và worktree».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [skills/acceptance/references/tri-thuc-template.md, scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-3": bốn khối rút được (thiếu khối nào thì ca đỏ nêu tên khối); kho lành dựng từ khối → lint thoát 0,
+      stdout «tri thức: 3 trang, 1 raw, 0 lỗi». Chiều đỏ "PASS: KT-3-do": khuôn tiêm đổi tên khoá `nguon` thành `nguon_x`
+      trong TRI-THUC-TRANG (bên đọc rút từ khuôn tiêm) → lint thoát 1, mọi dòng lỗi đều là «lỗi: [trang-thieu-nguon] <trang>»,
+      số dòng = số trang.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-4": ma trận mười một hàng in ra (hàng · vế · mã thoát · dòng lỗi); mỗi hàng thoát 1, đúng MỘT dòng
+      «lỗi: [<mã>] <tệp ghim của hàng>: …» theo bảng vế của AC-4; kho lành trước mỗi hàng thoát 0; hàng ma-khong-co-trang chạy
+      hai lối (--pham-vi và tự dò) trên bản sao bản phạm vi thật tri-thuc-2410.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-5": mười một mutant (bản sao scripts/tri-thuc.mjs, mỗi bản gỡ một vế kiểm, nhát gỡ khớp đúng một
+      lần) chạy trên ma trận AC-4: hàng của vế bị gỡ mất dòng ấy, mười hàng kia giữ nguyên; bảng 11×11 in ra.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-6": kho khai `kho` mà thư mục không có → lint và --con-tro thoát 3, stdout chứa «không đọc được ở đây:
+      <tên kho>» và dòng «git clone <remote> <đường tuyệt đối>», 0 dòng bắt đầu «lỗi:». Đối chứng: tạo thư mục kho riêng
+      lành → cùng lệnh thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [skills/acceptance/references/tri-thuc-template.md, scripts/tri-thuc.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-7": ma trận năm đường trỏ in ra, mã thoát 0 · 0 · 1 · 1 · 2 với thông điệp «băm lệch: <tệp>» ·
+      «không có tệp: <tệp>» · «đường trỏ sai khuôn»; sau commit chỗ khác và gộp squash sang nhánh khác, đường trỏ hàng 1 vẫn
+      thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [scripts/tri-thuc.mjs, scripts/product-map.mjs, scripts/lo-trinh.mjs, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-8": kho thử không khối → lint thoát 2, stderr đúng một dòng «kho chưa khai tri_thuc trong
+      _acceptance/config.yaml»; trên bản sao kho kit đã xoá scripts/tri-thuc.mjs và scripts/tri-thuc-khoa.cjs, stdout và mã
+      thoát của product-map.mjs --check và lo-trinh.mjs --hang TT1 giống từng byte bản sao đủ tệp. Mutant "PASS: KT-8-mutant":
+      chèn require('./tri-thuc.mjs') vào product-map.mjs của bản sao → ca đỏ «bên đọc cũ nạp mô-đun tri thức».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.p200_cat_so
+    paths: [tri-thuc/**, .claude-plugin/marketplace.json, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; có dòng «tri-thuc cung so: <số>» và «PASS: P200»; chiều đỏ của P200 có thêm hàng «tri-thuc lech so» (tiêm số
+      0.0.1 vào tri-thuc/.claude-plugin/plugin.json → ca đỏ đúng thông điệp ấy).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.kho_tri_thuc_va_lint
+    paths: [tri-thuc/**, tests/scripts/kho-tri-thuc-va-lint.test.mjs]
+    expected: >
+      exit 0; "PASS: KT-9": tri-thuc/commands/kiem.md không chứa «disable-model-invocation»; khối TT-KIEM-LENH rút được và
+      dòng lệnh trong nó (sau khi thay $AG bằng gốc kit) đúng là lệnh ca KT-3 chạy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; không dòng "FAIL:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10b
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [.claude-plugin/marketplace.json, tri-thuc/**, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; dòng "Results:" không có FAIL — trọn suite plugins xanh với gói thứ sáu trong marketplace.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
