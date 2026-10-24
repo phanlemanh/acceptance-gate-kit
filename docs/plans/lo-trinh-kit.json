@@ -864,6 +864,113 @@
         7
       ],
       "ghi_chu": "Chủ kho 19/10 (phiên Mac Studio): dời sau mốc 22/10 để giữ mốc kit nhỏ."
+    },
+    {
+      "nhom": "tri-thuc",
+      "hang": "T2",
+      "dot": "tri-thuc-2410",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.",
+      "ghi_chu": "Chủ kho 24/10: đồng ý LLM Wiki, đổi ở tầng kit vì kit, crm, invest cùng cắt lượt; tri thức phục vụ mọi vòng. Vật liệu có sẵn: nhánh vong/nguon-di-cung-luot-cat (hồ sơ NG1, dừng trước Cổng Phạm vi).",
+      "ma": "TT1",
+      "slug": "kho-tri-thuc-va-lint",
+      "dung_tren": [],
+      "ten_ngan": "Kho tri thức và lint",
+      "vai": "nen",
+      "phu": [
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "tieu_chi": 10,
+      "cau_giao": "Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree",
+      "bat_khi": "Trên kho thử dựng trong lượt chạy, mỗi lỗi trong sáu lỗi tiêm riêng làm lint đỏ với thông điệp ghim của đúng lỗi ấy, và kho lành cho lint xanh"
+    },
+    {
+      "nhom": "tri-thuc",
+      "hang": "T2",
+      "dot": "tri-thuc-2410",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.",
+      "ghi_chu": "Chủ kho 24/10: đồng ý LLM Wiki, đổi ở tầng kit vì kit, crm, invest cùng cắt lượt; tri thức phục vụ mọi vòng. Vật liệu có sẵn: nhánh vong/nguon-di-cung-luot-cat (hồ sơ NG1, dừng trước Cổng Phạm vi).",
+      "ma": "TT2",
+      "slug": "ghi-tri-thuc",
+      "dung_tren": [
+        "TT1"
+      ],
+      "ten_ngan": "Ghi tri thức",
+      "vai": "Chủ kho",
+      "phu": [
+        "B1",
+        "B2",
+        "B3"
+      ],
+      "tieu_chi": 10,
+      "cau_giao": "Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai",
+      "bat_khi": "14 ngày sau khi một kho nhận bản có TT2: 0 tệp raw trong thư mục tri thức của kho công khai, và mọi bản phạm vi mới của kho ấy trỏ trang tri thức"
+    },
+    {
+      "nhom": "tri-thuc",
+      "hang": "T2",
+      "dot": "tri-thuc-2410",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.",
+      "ghi_chu": "Chủ kho 24/10: đồng ý LLM Wiki, đổi ở tầng kit vì kit, crm, invest cùng cắt lượt; tri thức phục vụ mọi vòng. Vật liệu có sẵn: nhánh vong/nguon-di-cung-luot-cat (hồ sơ NG1, dừng trước Cổng Phạm vi).",
+      "ma": "TT3",
+      "slug": "o-mo-viec-mang-nguon",
+      "dung_tren": [
+        "TT1"
+      ],
+      "ten_ngan": "Ô mở việc mang nguồn",
+      "vai": "nen",
+      "phu": [
+        "C1",
+        "D1",
+        "D2"
+      ],
+      "tieu_chi": 9,
+      "cau_giao": "Ô mở từ một hàng của lượt cắt mang dòng «Nguồn:» trỏ đúng trang tri thức của hàng, và nguồn của bản phạm vi là trang tri thức có đường trỏ băm",
+      "bat_khi": "Trên kho thử, ô mở từ hàng có đợt mang đúng trang nền, trang đợt và trang có mã của hàng; ô của hàng không thuộc đợt nào giống từng byte bản mở bằng bộ máy trước vòng"
+    },
+    {
+      "nhom": "tri-thuc",
+      "hang": "T2",
+      "dot": "tri-thuc-2410",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.",
+      "ghi_chu": "Chủ kho 24/10: đồng ý LLM Wiki, đổi ở tầng kit vì kit, crm, invest cùng cắt lượt; tri thức phục vụ mọi vòng. Vật liệu có sẵn: nhánh vong/nguon-di-cung-luot-cat (hồ sơ NG1, dừng trước Cổng Phạm vi).",
+      "ma": "TT4",
+      "slug": "thiet-ke-nap-tri-thuc",
+      "dung_tren": [
+        "TT3"
+      ],
+      "ten_ngan": "Bước thiết kế nạp tri thức",
+      "vai": "nen",
+      "phu": [
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "tieu_chi": 10,
+      "cau_giao": "Bước thiết kế của mọi vòng ở kho đã khai tri thức ghi dòng «đã tra tri thức», và thẻ Cổng Phạm vi không mời duyệt khi thiếu dòng ấy",
+      "bat_khi": "Ma trận ô của thẻ: thiếu dòng thì ô quyết để trống và có cờ, đủ dòng đúng băm thì không cờ, máy không đọc được kho tri thức thì nhãn «không đọc được ở đây» và không chặn; hồ sơ không khai tri thức cho thẻ giống từng byte"
+    },
+    {
+      "nhom": "tri-thuc",
+      "hang": "T2",
+      "dot": "tri-thuc-2410",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu (artifact ngoài git); onehub-invest/_acceptance/lo-trinh-2310/ — lượt cắt chung 23/10, bối cảnh dựng tay ở BOI-CANH.md mà ô không trỏ tới. Thiết kế: docs/findings/2026-10-24-tang-tri-thuc-llm-wiki.md.",
+      "ghi_chu": "Chủ kho 24/10: đồng ý LLM Wiki, đổi ở tầng kit vì kit, crm, invest cùng cắt lượt; tri thức phục vụ mọi vòng. Vật liệu có sẵn: nhánh vong/nguon-di-cung-luot-cat (hồ sơ NG1, dừng trước Cổng Phạm vi).",
+      "ma": "TT5",
+      "slug": "vong-don-le-tra-tri-thuc",
+      "dung_tren": [
+        "TT4"
+      ],
+      "ten_ngan": "Vòng đơn lẻ tra tri thức",
+      "vai": "nen",
+      "phu": [
+        "C2",
+        "E1"
+      ],
+      "tieu_chi": 8,
+      "cau_giao": "Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức»",
+      "bat_khi": "Sau 10 hồ sơ có dòng «đã tra tri thức» ở các kho đã khai, ≥ 30 % có ít nhất một dòng căn cứ ở bước thiết kế trỏ trang tri thức hay sổ hồ sơ trước (đếm bằng can-cu-s1.cjs --dem)"
     }
   ],
   "chan_troi": [
@@ -974,6 +1081,66 @@
       "cau_giao": "Tầng chủ kho của dải tóm tắt hiện danh sách tiêu chí kèm kết cục và danh sách câu giới hạn",
       "ly_do": "LT1b đề nghị 12/10; vòng dai-tom-tat-doc-dung để ngoài (đổi khuôn khối) — hạt giống docs/plans/2026-10-12-hat-giong-dai-tom-tat-sau-x2s.md.",
       "mo_lai_khi": "Sau 2.28 và LT1b lên crm"
+    },
+    {
+      "ma": "TT-C1",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Hỏi tự do trên tri thức (/tri-thuc:hoi), câu trả lời đáng giữ đề xuất thành trang",
+      "ly_do": "Bước thiết kế đã tra theo mã và theo mô tả; hỏi tự do là tiện ích thêm, không mối nối nào đang đứt vì thiếu nó",
+      "phu": [
+        "F1"
+      ],
+      "mo_lai_khi": "Một kho có từ năm đợt trở lên trong tri thức và chủ kho gọi tên"
+    },
+    {
+      "ma": "TT-C2",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Lint nghĩa: trang trái nhau, trang cũ, hợp đồng trái nghiên cứu",
+      "ly_do": "Cần mô hình; răng nghĩa cộng token mỗi vòng",
+      "phu": [
+        "F2"
+      ],
+      "mo_lai_khi": "Một vòng có dòng «đã tra tri thức» mà Cổng Bằng chứng ghi «làm trái nghiên cứu»"
+    },
+    {
+      "ma": "TT-C3",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Tra theo nghĩa thay cho tìm chữ",
+      "ly_do": "Tìm chữ đủ ở cỡ dưới khoảng 100 nguồn mỗi kho",
+      "phu": [
+        "F3"
+      ],
+      "mo_lai_khi": "Ngưỡng của TT5 không đạt: sau 10 hồ sơ, dưới 30 % có căn cứ trỏ trang tri thức"
+    },
+    {
+      "ma": "TT-C4",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Bản đồ tri thức cho người xem (/tri-thuc:xem)",
+      "ly_do": "Phản biện 24/10: điều ước, không mối nối nào cần",
+      "phu": [
+        "F4"
+      ],
+      "mo_lai_khi": "Chủ kho phải mở thư mục tri thức bằng tay để tìm trang ≥ 3 lần trong một tuần"
+    },
+    {
+      "ma": "TT-C5",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Tri thức của chính kit",
+      "ly_do": "Meta — luật chiều rộng (b) của kit",
+      "phu": [
+        "F5"
+      ],
+      "mo_lai_khi": "Một mốc phát hành có TT1–TT4 được một kho tiêu thụ nhận"
+    },
+    {
+      "ma": "TT-C6",
+      "dot": "tri-thuc-2410",
+      "cau_giao": "Răng quét trang tóm ở kho công khai tìm lời nguyên văn và dữ liệu nội bộ",
+      "ly_do": "«Bản tóm đã làm sạch» hiện là lời; chưa có ca lộ",
+      "phu": [
+        "F6"
+      ],
+      "mo_lai_khi": "Một lần chủ kho phải gỡ nội dung khỏi kho công khai vì trang tóm"
     }
   ],
   "da_bac": [
