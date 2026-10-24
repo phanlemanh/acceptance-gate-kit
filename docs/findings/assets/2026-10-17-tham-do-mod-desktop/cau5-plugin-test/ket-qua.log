@@ -1,0 +1,12 @@
+CAU5 run text = "cau5: hook trả lời thay lệnh markdown" duoiDuocGoi = 0
+CAU5 doi chung text = "DUOI:cau5:lenh-khac"
+
+hooks/cau5.test.ts:
+(fail) liệt kê: lệnh markdown của gói có trong $.command.list() [1.18ms]
+  TypeError: $.command.list is not a function. (In '$.command.list()', '$.command.list' is undefined)
+(pass) chạy: hook trả lời, bên dưới (đứng thay engine) không được gọi [23.77ms]
+(pass) đối chứng: tên khác đi xuống bên dưới (hook không nuốt mọi lệnh) [10.30ms]
+
+ 2 pass
+ 1 fail
+Ran 3 tests across 1 file. [0.25s]
