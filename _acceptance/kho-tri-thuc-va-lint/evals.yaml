@@ -3,7 +3,7 @@ feature_slug: kho-tri-thuc-va-lint
 # Ca đo của hàng TT1: tệp tests/scripts/kho-tri-thuc-va-lint.test.mjs, tên ca «KT-<n>», in «PASS: KT-…» / «FAIL: KT-…»,
 # thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
 #   executors.test.kho_tri_thuc_va_lint = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
-# Ca P200 dùng khoá sẵn có executors.test.p200_cat_so (ONLY_BLOCK=P200).
+# Ca P200 dùng khoá sẵn có executors.script.p200_cat_so (ONLY_BLOCK=P200).
 # Mọi kho thử dựng trong thư mục tạm của lượt (git init + commit thật; remote trần bằng git init --bare); trang, raw và
 # nguon.md SINH từ bốn khối marker rút từ khuôn tri-thuc-template.md thật, không viết tay. Đường dẫn suy từ vị trí tệp
 # test. Mỗi ca đỏ: kho lành xanh TRƯỚC trên cùng đầu vào, rồi bản tiêm (bản sao, nhát tiêm khớp đúng một lần, kiểm riêng
@@ -92,8 +92,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
-    executor: test
-    cmd: config:executors.test.p200_cat_so
+    executor: script
+    cmd: config:executors.script.p200_cat_so
     paths: [tri-thuc/**, .claude-plugin/marketplace.json, tests/plugins/run-tests.sh]
     expected: >
       exit 0; có dòng «tri-thuc cung so: <số>» và «PASS: P200»; chiều đỏ của P200 có thêm hàng «tri-thuc lech so» (tiêm số
