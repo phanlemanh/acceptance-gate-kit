@@ -5,7 +5,7 @@ slug: release-2-34-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + một hạt giống + ghi chú nhận + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: draft
+status: approved
 approved_by:
 approved_at:
 veto_state: mo
@@ -25,7 +25,7 @@ veto_opened_at: 2026-10-25T03:31:42Z
 **Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ:
 `suc-khoe-cho-trong-va-toc-do` (SK1, #395 → `144cfd0f`) · `anh-co-that-trong-ho-so` (#399 → `31af70d9`) · `ky-den-gop`
 (#402 → `a88bc773`) · `kho-tri-thuc-va-lint` (TT1, #406 → `6a51d4c2`) · `o-mo-viec-mang-nguon` (TT3, #407 → `378e262c`) ·
-`ghi-tri-thuc` (TT2, #408 → `3065fa57`) · `thiet-ke-nap-tri-thuc` (TT4, #409 → `396c08f8`) <!-- TT5 --> . Ngoài vòng:
+`ghi-tri-thuc` (TT2, #408 → `3065fa57`) · `thiet-ke-nap-tri-thuc` (TT4, #409 → `396c08f8`) · `vong-don-le-tra-tri-thuc` (TT5, #411 → `fe3a597c`). Ngoài vòng:
 #400 (North Star gộp-được) · #401 (làn đối chứng trong worktree cô lập) · #404, #405 (cắt đợt `tri-thuc-2410`, năm ô qua
 Cổng Đáng) · #393 (dòng KC1 của 2.33.1) · #394, #397 (hạt giống).
 
@@ -36,7 +36,7 @@ chú nhận cho crm nằm ở mục `2.34.0` của `CHANGELOG.md` — một ngu�
 2.9.0 → 2.34.0) ở `docs/handoff/2026-10-25-nhan-2-34-0-tu-2-9-0.md`.
 
 Source input: `git log v2.33.1..HEAD` · nếp phát hành `_acceptance/release-2-33-1/`, `_acceptance/release-2-33-0/` · Notes
-và Known limits của bảy (tám khi TT5 gộp) hồ sơ · `CLAUDE.md` luật (c) sau #400.
+và Known limits của tám hồ sơ · `CLAUDE.md` luật (c) sau #400.
 
 ## Criteria
 
@@ -63,7 +63,7 @@ và Known limits của bảy (tám khi TT5 gộp) hồ sơ · `CLAUDE.md` luật
 
 - Đổi dòng mã cổng — mốc phát hành KHÔNG dựng răng mới (GUIDE §7.1).
 - Sửa thước ký → gộp của `dieu-phoi/scripts/do-gop.mjs` (mù khi PR có commit sau chữ ký) — chỉ ghi hạt giống trong PR này.
-- Sửa Known limits của SK1 (11), ảnh-có-thật (6), ky-den-gop (13), TT1 (20), TT3 (11), TT2 (7), TT4 (7) — vòng sau.
+- Sửa Known limits của SK1 (11), ảnh-có-thật (6), ky-den-gop (13), TT1 (20), TT3 (11), TT2 (7), TT4 (7), TT5 (6) — vòng sau.
 - Cài 2.34.0 vào crm và invest, khai `tri_thuc`, bật `gop_khong_chay_lai_ci` — việc của kho nhận sau mốc.
 
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.

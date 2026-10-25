@@ -14,10 +14,10 @@
 
 Mốc mang **tầng tri thức theo LLM Wiki** (đợt `tri-thuc-2410`, TT1–TT5) và phần kit của gói «cắt 80 % thời gian ký →
 gộp» chủ kho chốt 23/10 (C, H, I và phần đo của A). Chủ kho 23/10 đổi North Star kit sang «gộp được» (#400) rồi quyết
-gom hai đợt vào CÙNG một bản phát hành, để các kho tiêu thụ nhận trong ngày 25/10. Có **bảy hồ sơ được ký** — tập đối
+gom hai đợt vào CÙNG một bản phát hành, để các kho tiêu thụ nhận trong ngày 25/10. Có **tám hồ sơ được ký** — tập đối
 chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `suc-khoe-cho-trong-va-toc-do` (SK1, #395),
 `anh-co-that-trong-ho-so` (#399), `ky-den-gop` (#402), `kho-tri-thuc-va-lint` (TT1, #406), `o-mo-viec-mang-nguon`
-(TT3, #407), `ghi-tri-thuc` (TT2, #408), `thiet-ke-nap-tri-thuc` (TT4, #409) <!-- TT5: thêm `vong-don-le-tra-tri-thuc` khi gộp -->.
+(TT3, #407), `ghi-tri-thuc` (TT2, #408), `thiet-ke-nap-tri-thuc` (TT4, #409), `vong-don-le-tra-tri-thuc` (TT5, #411).
 Ngoài vòng: #400 (North Star đổi đích sang gộp-được, luật (c) dòng 1 kéo tới gộp) · #401 (làn đối chứng của lượt chấm
 chạy được trong worktree cô lập) · #404, #405 (cắt đợt `tri-thuc-2410`, năm ô qua Cổng Đáng) · #394, #397 (hạt giống).
 Kho chờ nhận: `crm`, `invest`. Mốc đi **làn V**, không dựng răng mới. Năm gói `acceptance-gate`, `feature-loop`,
@@ -129,7 +129,19 @@ của hàng; vòng này đưa nó tới bước thiết kế và làm thẻ Cổ
   «Thẻ báo chưa vào được Cổng Phạm vi khi thiếu dòng tra, nhưng người gõ thẳng lệnh duyệt vẫn ký được — lệnh ghi chữ ký
   chưa tự chặn.»
 
-<!-- TT5: mục «### … (hồ sơ `vong-don-le-tra-tri-thuc`, hàng TT5, T2)» chép từ hợp đồng khi TT5 gộp. -->
+### Vòng đơn lẻ tra tri thức (hồ sơ `vong-don-le-tra-tri-thuc`, hàng TT5, T2)
+
+Hàng TT5 của `docs/plans/lo-trinh-kit.json` (đợt `tri-thuc-2410`). Vòng mở từ một câu mô tả tra được trang tri thức liên
+quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức». TT4 dựng dòng «đã tra tri thức» và
+thẻ chặn khi thiếu; vòng này cho vòng đơn lẻ một lệnh tra theo câu mô tả, cho mọi vòng phần tra sổ quyết định của hồ sơ
+trước, ghi cả hai vào cùng dòng tra, và đưa ngưỡng của ô vào lệnh đếm.
+
+- **Lệnh tra** = `node scripts/tri-thuc.mjs --root <kho> --tra [--slug <hồ sơ>] [--json]`, câu mô tả qua stdin; dòng
+  tra thêm khoá `so` (mảng đường trỏ sổ `<hồ sơ>#<mã dòng>`). **Lệnh đếm** = `can-cu-s1.cjs --root <kho> --dem [--json]`.
+- **Giới hạn đã khai:** 2 mục nhãn trạng thái và 4 mục chọn ở Cổng Bằng chứng 25/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «Tìm chữ theo cặp âm tiết: câu mô tả dùng từ khác trang thì trang không hiện» và Ngoài-2 «Nếu sau này danh sách tệp
+  chép cho kho tiêu thụ thiếu một tệp mà lệnh tra cần, lệnh tra âm thầm làm việc kém đi mà không bài kiểm nào báo đỏ —
+  phép đo hiện chỉ đếm dòng trong danh sách.»
 
 ### Ngoài vòng
 
@@ -144,7 +156,7 @@ của hàng; vòng này đưa nó tới bước thiết kế và làm thẻ Cổ
 Gốc: crm-onehub PR #565 (nhận kit từ `main` 396c08f8, 25/10). Hai lỗ: danh sách chép thiếu khuôn
 `tri-thuc-template.md` mà lint tri thức và dòng «Nguồn:» đọc lúc chạy (kho khai `tri_thuc` vỡ `ENOENT`); và răng phủ
 `cat-luot.mjs --pham-vi` nạp bộ đọc khoá tri thức vô điều kiện, nên kho khai `tin_hieu` mà không khai `tri_thuc` — chép
-đúng nhãn — vỡ `Cannot find module`. Nay danh sách chép có khuôn (33 mục); răng phủ chỉ nạp bộ đọc khi có tệp, và kho
+đúng nhãn — vỡ `Cannot find module`. Nay danh sách chép có khuôn (cùng ba tệp TT5 thêm: 36 mục); răng phủ chỉ nạp bộ đọc khi có tệp, và kho
 có dòng `tri_thuc:` mà thiếu tệp thì dừng thoát 2 nêu tệp thiếu. Ca CT0–CT4 (`tests/scripts/chep-tri-thuc-du.test.mjs`)
 dựng kho tiêu thụ từ danh sách chép thật; ca commit trước bản sửa và đỏ trên 396c08f8.
 
@@ -163,10 +175,12 @@ cảnh báo, không chặn; đợt không có khoá `gop_khong_chay_lai_ci` → 
 **Kho tiêu thụ làm gì khi nhận:**
 
 - **Lớp chép CI:** chép lại từ thẻ `v2.34.0` bốn tệp `scripts/lo-trinh.mjs`, `scripts/cat-luot.mjs`,
-  `dieu-phoi/scripts/cau-hinh.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`; thêm bốn tệp mới `scripts/tri-thuc.mjs`,
-  `scripts/tri-thuc-khoa.cjs`, `scripts/tri-thuc-nguon.cjs`, `skills/acceptance/references/tri-thuc-template.md` CHỈ khi
-  kho khai `tri_thuc` (nhãn `[only-if-declared: tri_thuc]` trong danh sách chép). Các tệp còn lại giống từng byte
-  `v2.33.1`.
+  `dieu-phoi/scripts/cau-hinh.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`; thêm sáu tệp CHỈ khi kho khai `tri_thuc` (nhãn
+  `[only-if-declared: tri_thuc]` trong danh sách chép): `scripts/tri-thuc.mjs`, `scripts/tri-thuc-khoa.cjs`,
+  `scripts/tri-thuc-nguon.cjs`, `scripts/tri-thuc-tra.cjs`, `scripts/can-cu-s1.cjs`,
+  `skills/acceptance/references/tri-thuc-template.md`. Các tệp còn lại giống từng byte `v2.33.1`.
+- **Tệp vào danh sách chép mà không đổi byte** (TT5, chỉ khi khai `tri_thuc`): `scripts/luat-san-pham.cjs` — lối
+  `--tra` nạp nó qua `can-cu-s1.cjs`; kho chưa chép thì chép thêm.
 - **Máy dev: cài các gói theo ĐÚNG THẺ `v2.34.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, và gói mới `tri-thuc`
   (`--scope project`) ở kho khai `tri_thuc` — rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may
   --ref v2.34.0 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
@@ -178,7 +192,7 @@ hồ sơ `release-2-34-0`.
 
 1. **Cài theo thẻ `v2.34.0`** mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`), thêm
    `tri-thuc` nếu khai `tri_thuc`; kiểm `kiem-ban-cai.mjs --may --ref v2.34.0`. Mở phiên MỚI.
-2. **Lớp chép CI từ thẻ** (`git archive v2.34.0`): bốn tệp chép lại + bốn tệp tri thức nếu khai `tri_thuc` (gạch trên).
+2. **Lớp chép CI từ thẻ** (`git archive v2.34.0`): bốn tệp chép lại + bảy tệp tri thức nếu khai `tri_thuc` (hai gạch trên).
    Bản chép từ `main` 396c08f8 (trước thẻ) thiếu khuôn tri thức trong danh sách — chép lại từ thẻ.
 3. **Khai `tri_thuc`** trong `_acceptance/config.yaml` nếu dùng kho tri thức riêng: `kho.ten`, `kho.duong` (tương đối
    gốc checkout chính), `kho.remote`, và `cong_khai: true` (kho crm công khai). Thư mục tri thức trong kho vào
@@ -193,7 +207,7 @@ hồ sơ `release-2-34-0`.
 
 **invest** (đang ở 2.9.0, nhảy thẳng): danh sách việc riêng ở `docs/handoff/2026-10-25-nhan-2-34-0-tu-2-9-0.md`.
 
-**Năm dòng số của luật (c)** — bảy vòng có lượt chấm trong cửa sổ (giờ VN). Dòng 1 lần đầu kéo tới GỘP (#400):
+**Năm dòng số của luật (c)** — tám vòng có lượt chấm trong cửa sổ (giờ VN). Dòng 1 lần đầu kéo tới GỘP (#400):
 làm-xong = commit đưa hợp đồng sang `implemented` trên nhánh chính · ký = commit đầu đưa `status:` sang `signed-off` ·
 gộp = commit đầu trên lối cha-đầu của nhánh chính có commit ký là tổ tiên (cách đọc của `dieu-phoi/scripts/do-gop.mjs`).
 Dòng 2 đếm từ sổ quyết định và commit cổng (không từ bản ghi phiên). Dòng 4–5 từ bảng vai trò của `usage-report.md`.
@@ -207,16 +221,17 @@ Dòng 2 đếm từ sổ quyết định và commit cổng (không từ bản gh
 | `o-mo-viec-mang-nguon` (TT3, T2) | 2 g 12 · 1 g 09 · 2 (lượt 1 REJECT: LT-18, CE2; lượt 2 PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V | 0 | 137 223 · 39,3 / 40,8 / 19,9 | 49 · 44 |
 | `ghi-tri-thuc` (TT2, T2) | 1 g 19 · 7 g 33 · 1 (PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1), Bằng chứng | 0 | 79 821 · 33,1 / 45,5 / 21,4 | 50; ghim lại sau chữ ký 57 |
 | `thiet-ke-nap-tri-thuc` (TT4, T2) | 4 g 00 · 1 g 33 · 1 (PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1, CỘNG), Bằng chứng | 0 | 79 505 · 31,2 / 49,9 / 18,9 | 44; ghim lại sau chữ ký 44 |
-<!-- TT5: thêm một hàng khi gộp. -->
+| `vong-don-le-tra-tri-thuc` (TT5, T2) | 4 g 25 · 0 g 57 · 3 (lượt 1 REJECT: mảnh suite mjs 3/3 đỏ; lượt 2 REJECT: ca XD-6 chập chờn dưới tải; lượt 3 PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1, CỘNG), Bằng chứng | **1** (lượt 2: ca chập chờn dưới tải) | 153 624 · 38,0 / 38,2 / 23,8 | 61 · 50 · 48 = 159 |
 
-«Đáng chung» = một lượt Cổng Đáng cho cả năm ô TT1–TT5 (#405, 24/10). Gộp bảy hồ sơ: 606 904 out-token, vật 38,4 /
-tìm-lỗi 32,7 / tổng hợp 28,8 %. Trung vị bảy vòng: làm-xong → ký **4 g 00**, ký → gộp **2 g 53**. Ký chưa gộp: 0.
+«Đáng chung» = một lượt Cổng Đáng cho cả năm ô TT1–TT5 (#405, 24/10). Gộp tám hồ sơ: 760 528 out-token, vật 38,3 /
+tìm-lỗi 33,8 / tổng hợp 27,8 %. Trung vị tám vòng: làm-xong → ký **4 g 12**, ký → gộp **2 g 13**. Ký chưa gộp: 0.
 
-**Đọc số:** ký → gộp đã ngắn hơn làm-xong → ký ở bốn vòng tri thức gộp nối nhau trong một ngày (1 g 09 – 1 g 33) trừ TT2
+**Đọc số:** ký → gộp đã ngắn hơn làm-xong → ký ở năm vòng tri thức gộp nối nhau (0 g 57 – 1 g 33) trừ TT2
 (7 g 33: chờ TT3 gộp trước rồi ghim lại 57 phút). Ba vòng ký → gộp trên 6 giờ: `anh-co-that-trong-ho-so` và TT2 ký
-buổi tối, gộp sáng hôm sau; SK1 ký 13:58, gộp 20:03 cùng ngày. Hai lượt bị hạ tầng đốt cùng một nguyên nhân: sổ
-known-limits thiếu hàng cho đề xuất của lượt trước (P179) — lặp ở hai vòng liên tiếp (`ky-den-gop`, TT1). Ghim lại sau chữ ký tốn 39–57 phút mỗi lần, ngang một lượt chấm.
-**Thước ký → gộp của kit mù ở 4/7 vòng:** `dieu-phoi/scripts/do-gop.mjs` trả rỗng khi PR còn commit sau chữ ký (ghim lại,
+buổi tối, gộp sáng hôm sau; SK1 ký 13:58, gộp 20:03 cùng ngày. Ba lượt bị hạ tầng đốt: hai cùng một nguyên nhân —
+sổ known-limits thiếu hàng cho đề xuất của lượt trước (P179), lặp ở hai vòng liên tiếp (`ky-den-gop`, TT1) — và một
+ca chập chờn dưới tải (TT5, XD-6). Ghim lại sau chữ ký tốn 39–57 phút mỗi lần, ngang một lượt chấm.
+**Thước ký → gộp của kit mù ở 4/8 vòng:** `dieu-phoi/scripts/do-gop.mjs` trả rỗng khi PR còn commit sau chữ ký (ghim lại,
 hạt giống, gộp nhánh chính) — ghép `--first-parent` với `--ancestry-path` trên git 2.37 không đi qua cha thứ hai; bảng trên
 đọc bốn vòng ấy bằng tay theo đúng định nghĩa của tệp. Hạt giống:
 `docs/plans/2026-10-25-hat-giong-do-gop-mu-khi-co-commit-sau-ky.md`. **Điều kiện tin cậy:** (i) `git diff v2.33.1

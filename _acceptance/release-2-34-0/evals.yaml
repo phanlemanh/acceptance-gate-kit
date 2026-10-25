@@ -98,7 +98,7 @@ evals:
     expected: >
       Exit 0 và dòng «XANH: hai tập bằng nhau» — tập hồ sơ ĐƯỢC KÝ trong cửa sổ `279b1515..HEAD`, suy từ kho bằng QUAN HỆ
       (bỏ hồ sơ mốc `release-*`), BẰNG tập kể trong Context (suc-khoe-cho-trong-va-toc-do, anh-co-that-trong-ho-so,
-      ky-den-gop, kho-tri-thuc-va-lint, o-mo-viec-mang-nguon, ghi-tri-thuc, thiet-ke-nap-tri-thuc). Chiều đỏ trong chính lệnh: slug thừa và slug thiếu đều in tên, thoát 1.
+      ky-den-gop, kho-tri-thuc-va-lint, o-mo-viec-mang-nguon, ghi-tri-thuc, thiet-ke-nap-tri-thuc, vong-don-le-tra-tri-thuc). Chiều đỏ trong chính lệnh: slug thừa và slug thiếu đều in tên, thoát 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -131,17 +131,17 @@ evals:
     executor: script
     cmd: config:executors.script.rel2340_lop_chep
     expected: >
-      Exit 0 và dòng «XANH: đúng 8 tệp đổi như ghi chú 2.34.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (33 tệp),
+      Exit 0 và dòng «XANH: đúng 10 tệp đổi như ghi chú 2.34.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (36 tệp),
       rút danh sách mong đợi từ gạch «- **Lớp chép CI:…» của mục «## 2.34.0» trong CHANGELOG.md, và tập tệp đổi byte từ
-      `279b1515` tới HEAD (lo-trinh.mjs, cat-luot.mjs, hai tệp dieu-phoi, bốn tệp tri thức mới) BẰNG tập ghi chú kể. Chiều đỏ trong chính lệnh (đo ở release-2-29-0).
+      `279b1515` tới HEAD (lo-trinh.mjs, cat-luot.mjs, hai tệp dieu-phoi, sáu tệp tri thức) BẰNG tập ghi chú kể. Chiều đỏ trong chính lệnh (đo ở release-2-29-0).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-34-0/contract.md, _acceptance/suc-khoe-cho-trong-va-toc-do/contract.md, _acceptance/anh-co-that-trong-ho-so/contract.md, _acceptance/ky-den-gop/contract.md, _acceptance/kho-tri-thuc-va-lint/contract.md, _acceptance/o-mo-viec-mang-nguon/contract.md, _acceptance/ghi-tri-thuc/contract.md, _acceptance/thiet-ke-nap-tri-thuc/contract.md, dieu-phoi/README.md, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/tri-thuc-template.md, commands/acceptance-init.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-34-0/contract.md, _acceptance/suc-khoe-cho-trong-va-toc-do/contract.md, _acceptance/anh-co-that-trong-ho-so/contract.md, _acceptance/ky-den-gop/contract.md, _acceptance/kho-tri-thuc-va-lint/contract.md, _acceptance/o-mo-viec-mang-nguon/contract.md, _acceptance/ghi-tri-thuc/contract.md, _acceptance/thiet-ke-nap-tri-thuc/contract.md, _acceptance/vong-don-le-tra-tri-thuc/contract.md, dieu-phoi/README.md, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/tri-thuc-template.md, commands/acceptance-init.md]
     question: >
       Đọc AC-9 của contract release-2-34-0 và mục «## 2.34.0» của CHANGELOG.md (chỉ mục đó), cạnh đúng nguồn nó chép.
-      (0) Ở bảy mục con của bảy hồ sơ: mỗi câu mô tả vòng (câu giao, lý do làm, giới hạn trích trong ngoặc «») có phải chữ
+      (0) Ở tám mục con của tám hồ sơ: mỗi câu mô tả vòng (câu giao, lý do làm, giới hạn trích trong ngoặc «») có phải chữ
       của hợp đồng hồ sơ ấy (dòng feature, Context, Notes) — không tóm tắt, không nói rộng hơn — và số giới hạn đã khai
       (nhãn trạng thái + chọn ở Cổng Bằng chứng) có khớp Notes không? (1) Lời về lịch biết tệp, lệnh gộp `gop`, khoá
       `gop_khong_chay_lai_ci` và các khoá của `dem` có khớp dieu-phoi/README.md, và lời về PR sẵn sàng lúc trình thẻ có khớp

@@ -796,7 +796,7 @@ executors:
     rel2331_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 77df595a 2.33.1
     rel2331_goi_doi: "bash -c 'd=$(git diff --name-only 77df595a HEAD -- road-map | tr \"\\n\" \" \"); echo \"road-map doi: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.34.0 (tầng tri thức TT1–TT5 + ký → gộp + SK1 + ảnh có thật): cửa sổ 279b1515 (v2.33.1) → HEAD.
-    rel2340_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 279b1515 suc-khoe-cho-trong-va-toc-do anh-co-that-trong-ho-so ky-den-gop kho-tri-thuc-va-lint o-mo-viec-mang-nguon ghi-tri-thuc thiet-ke-nap-tri-thuc
+    rel2340_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 279b1515 suc-khoe-cho-trong-va-toc-do anh-co-that-trong-ho-so ky-den-gop kho-tri-thuc-va-lint o-mo-viec-mang-nguon ghi-tri-thuc thiet-ke-nap-tri-thuc vong-don-le-tra-tri-thuc
     rel2340_dd_giu: "bash -c 'c=$(git show 279b1515:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 279b1515 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2340_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 279b1515 2.34.0
     rel2340_goi_doi: "bash -c 'd=$(git diff --name-only 279b1515 HEAD -- road-map | tr \"\\n\" \" \"); echo \"road-map doi: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json \" ]'"
