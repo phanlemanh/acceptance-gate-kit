@@ -1,0 +1,128 @@
+schema_version: 1
+feature_slug: vong-don-le-tra-tri-thuc
+# Ca đo của hàng TT5: tệp tests/scripts/vong-don-le-tra-tri-thuc.test.mjs, tên ca «TD-<n>», in «PASS: TD-…» / «FAIL: TD-…»,
+# thoát 1 khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá):
+#   executors.test.vong_don_le_tra_tri_thuc = node trên tệp ca ấy (đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite).
+#   executors.test.vong_don_le_hoi_quy = bash chạy lần lượt năm tệp ca hồi quy của E9, dừng ở tệp đỏ đầu tiên.
+# Mọi kho thử dựng trong thư mục tạm của lượt (git init + commit thật); trang tri thức SINH từ khối TRI-THUC-TRANG rút từ
+# khuôn tri-thuc-template.md thật; dòng sổ của hồ sơ khác ghi bằng khối lệnh DEC-ID-RECIPE rút từ SKILL thật; băm tính bằng
+# git hash-object lúc chạy. «Bộ máy trước vòng» = git archive 396c08f8 scripts lib skills feature-loop. Bản tiêm là bản sao
+# trọn thư mục scripts lib skills feature-loop của cây với nhát tiêm khớp đúng một lần (kiểm riêng là đã áp). Đường dẫn suy
+# từ vị trí tệp test. Mỗi ca đỏ chạy đối chứng xanh TRƯỚC trên cùng đầu vào; ma trận viết sẵn, số hàng in ra.
+# paths khai rộng (mọi tệp máy của tầng tri thức + tệp ca) — bài học Ngoài-1/Ngoài-4 của TT4: paths hẹp làm lượt sau mang
+# màu xanh cũ sang khi tệp phụ thuộc đã đổi.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, scripts/tri-thuc-khoa.cjs, scripts/tri-thuc-nguon.cjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-1": in bảng bốn trang (trang · khớp ở đâu · có trong trang ra); trang ra = nền + ba trang khớp, giống
+      nhau qua hai lần chạy, mỗi đường trỏ cho --con-tro thoát 0, trang không khớp vắng; câu không khớp → chỉ nền; kho không
+      nền + câu không khớp → trang [], thoát 0, văn bản có «đã tra, không có trang liên quan». "PASS: TD-1-mutant": bản tiêm
+      bỏ quét tiêu đề mục → trang khớp-ở-mục vắng, ca in đúng câu «bỏ quét tiêu đề mục mà trang vẫn ra». Thiếu một vế →
+      «FAIL: TD-1» nêu đúng vế lệch.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-2": sổ ghi bằng DEC-ID-RECIPE thật; so = đúng năm đường trỏ (gate1, S1, dòng thay, dòng có nháy,
+      dòng không đoạn sạch), gate1 trước S1 cùng điểm; không dòng bị thay, không dòng không khớp, không dòng của hồ sơ đang
+      chạy; mỗi đường trỏ <hồ sơ>#<mã> có dòng mang mã ấy trong sổ hồ sơ ấy; stderr đúng một dòng cảnh báo nêu số 1 dòng
+      hỏng; in số khối can_cu ≥ 2, mọi can_cu.trich nằm nguyên văn trong chữ thô của tệp sổ, không chứa « " » hay « \ »;
+      dòng không đoạn sạch không có can_cu.
+      "PASS: TD-2-mutant": bản tiêm bỏ loại hồ sơ đang chạy → dòng của hồ sơ đang chạy xuất hiện, ca in đúng câu «không loại
+      hồ sơ đang chạy mà sổ vẫn sạch».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, scripts/tri-thuc-khoa.cjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-3": kho riêng vắng → thoát 0, trang [], khong_doc mở bằng «không đọc được ở đây:» chứa tên kho, so
+      đủ dòng khớp; đối chứng: cùng kho có kho riêng ở máy → không khong_doc; kho không khai → thoát 2, dòng có «chưa khai
+      tri_thuc»; stdin rỗng → thoát 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/tri-thuc.mjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-4": khối TRI-THUC-TRA-MO-TA rút từ SKILL thật, chạy bằng bash với câu độc; tệp canh không tồn tại sau
+      lệnh (đối chứng dương: cùng câu đưa vào một chuỗi bash -c không nháy thì tệp canh CÓ được tạo — chứng câu thật sự độc);
+      tra của đối tượng dòng tra bằng câu nguyên văn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/tri-thuc-tra.cjs, scripts/gate-card.js, scripts/tri-thuc-nguon.cjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-5": ma trận năm hàng in ra (hàng · chan · ô quyết · số cờ tri thức); chan true · true · false · false
+      · false; hàng 1–2 ô quyết «___» và HTML có dòng «CHƯA vào được Cổng Phạm vi: chưa tra sổ quyết định của hồ sơ trước»;
+      hàng 5 đúng một cờ vàng «dòng sổ hồ sơ trước không có: <đường trỏ>»; hàng 3–4 không cờ tri thức; hồ sơ approved thiếu
+      so → chan false, không cờ «sổ». "PASS: TD-5-mutant": bản tiêm bỏ chặn khi thiếu so → hàng 1 chan false, ca in đúng câu
+      «bỏ chặn thiếu so mà thẻ vẫn chặn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, scripts/gate-card.js, scripts/can-cu-s1.cjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-6": khối TRI-THUC-TRA-MO-TA và DEC-TRI-THUC-TRA rút từ SKILL thật; dòng tra ghi bằng DEC-ID-RECIPE
+      qua bash; thẻ --extract tri_thuc.chan false, HTML 0 cờ tri thức; dòng căn cứ dựng từ khối can_cu lệnh in → bộ xếp
+      --base <commit kho thử> lớp da-quyet; hồ sơ mở từ hàng (ô do lo-trinh.mjs --mo-o sinh, «Nguồn:» trỏ trang không
+      khớp câu giao) chạy khối kèm --slug → trang chứa mọi đường trỏ «Nguồn:», thẻ chan false. "PASS: TD-6-mutant": bản tiêm
+      đổi tên khoá "so" trong khối DEC-TRI-THUC-TRA → thẻ chan true, ca in đúng câu «đổi tên khoá so mà thẻ vẫn nhận».
+      "PASS: TD-6-mutant-nguon": bản tiêm bỏ đọc dòng «Nguồn:» ở lệnh tra → hồ sơ mở từ hàng chan true, ca in đúng câu «bỏ
+      đọc Nguồn mà thẻ vẫn nhận».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/can-cu-s1.cjs, scripts/tri-thuc-tra.cjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-7": dòng tra và hai dòng căn cứ trỏ dựng từ đầu ra --json của lệnh tra trên kho thử, ghi qua
+      DEC-ID-RECIPE bằng bash; năm hàng in (hồ sơ · dong_tra · can_cu_tri_thuc) đúng ma trận AC-7, hồ sơ trỏ sổ chính mình đếm
+      0; văn bản và JSON cùng số; dòng cuối đúng «đường đo tri thức: 2/4 hồ sơ có dòng tra có căn cứ trỏ trang hay sổ trước».
+      "PASS: TD-7-mutant": bản tiêm đếm cả sổ của chính hồ sơ → 3/4, ca in đúng câu «đếm sổ của chính hồ sơ mà số vẫn 2/4».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/tri-thuc-tra.cjs, scripts/tri-thuc-khoa.cjs, scripts/can-cu-s1.cjs, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-8": ba hàng in (kho · đường trỏ · lớp · mã); kho riêng + không tiền tố + trich → do
+      tri-thuc-kem-trich; chỉ noi + không tiền tố + trich → da-quyet; kho riêng + tiền tố + trich → do tri-thuc-kem-trich.
+      "PASS: TD-8-mutant": bản tiêm trả luật về «chỉ khi có tiền tố» → hàng 1 da-quyet, ca in đúng câu «luật theo tiền tố mà
+      đường trỏ không tiền tố vẫn đỏ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.vong_don_le_tra_tri_thuc
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs, scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, scripts/tri-thuc-khoa.cjs, scripts/tri-thuc-nguon.cjs, lib/**, tests/scripts/vong-don-le-tra-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: TD-9": năm hồ sơ × năm đầu ra (HTML, --extract, can-cu-s1 --json, --dem văn bản, --dem --json) — in số
+      byte cây và bộ máy trước vòng, bằng nhau từng byte. "PASS: TD-9-mutant": đối chứng xanh trước trên cùng kho; bản tiêm
+      luôn thêm khoá dong_tra vào hàng của lệnh đếm → --dem --json lệch byte, ca in đúng câu «luôn thêm khoá mà lệnh đếm vẫn
+      im».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.vong_don_le_hoi_quy
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs, scripts/tri-thuc.mjs, scripts/tri-thuc-tra.cjs, scripts/tri-thuc-khoa.cjs, scripts/tri-thuc-nguon.cjs, scripts/tri-thuc-ghi.mjs, scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/tri-thuc-template.md, tests/scripts/kho-tri-thuc-va-lint.test.mjs, tests/scripts/o-mo-viec-mang-nguon.test.mjs, tests/scripts/thiet-ke-nap-tri-thuc.test.mjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; kho-tri-thuc-va-lint.test.mjs, o-mo-viec-mang-nguon.test.mjs, thiet-ke-nap-tri-thuc.test.mjs, can-cu-s1.ca.mjs,
+      ghi-tri-thuc.test.mjs đều thoát 0, không dòng FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

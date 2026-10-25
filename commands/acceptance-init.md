@@ -197,6 +197,9 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/scripts/tri-thuc-khoa.cjs` → `scripts/` (the ONE reader of the knowledge socket `tri_thuc`; lo-trinh.mjs `require`s it lazily on the `--mo-o` path only for a row that has `dot` — the map step never loads it) [only-if-declared: tri_thuc]
    - `${CLAUDE_PLUGIN_ROOT}/scripts/tri-thuc-nguon.cjs` → `scripts/` (writer and reader of the opportunity's «Nguồn:» line; lo-trinh.mjs `require`s it lazily on the `--mo-o` path only when the repo declares `tri_thuc` — the map step never loads it) [only-if-declared: tri_thuc]
    - `${CLAUDE_PLUGIN_ROOT}/scripts/tri-thuc.mjs` → `scripts/` (knowledge lint and page picker `chonTrang`; lo-trinh.mjs imports it lazily on the `--mo-o` path only when the repo declares `tri_thuc` — the map step never loads it) [only-if-declared: tri_thuc]
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/tri-thuc-tra.cjs` → `scripts/` (the knowledge-lookup line reader and the prior-ledger lookup `traSo` that tri-thuc.mjs `require`s on its `--tra` path only — the map step never loads it) [only-if-declared: tri_thuc]
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/can-cu-s1.cjs` → `scripts/` (the ONE quote-length floor `TRICH_MIN` that tri-thuc-tra.cjs `require`s lazily when it builds a ready-made basis from a prior ledger line — the map step never loads it) [only-if-declared: tri_thuc]
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/luat-san-pham.cjs` → `scripts/` (product-rule reader can-cu-s1.cjs `require`s leniently at load — only on the same `--tra` path) [only-if-declared: tri_thuc]
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.
