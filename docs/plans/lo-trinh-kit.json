@@ -77,7 +77,13 @@
       "ngay": "2026-11-05",
       "loai": "phat-hanh",
       "ai": "Owner",
-      "hang": []
+      "hang": [
+        "TC1",
+        "TC2",
+        "TC3",
+        "TC4",
+        "TC5"
+      ]
     },
     {
       "ten": "Phát hành 2.31.0 — ĐÃ PHÁT HÀNH 15/10, tag v2.31.0 = f0634454 (PR #360): thẻ Cổng 2 in mục Ngoài-n thành bảng có căn cứ (BN1), đường nền không tính tệp của chính vòng (NV1), mốc là chiến dịch (MC1), rà soát lộ trình + gói road-map (RM1); chủ kho duyệt mốc 14/10, MC1 + RM1 chuyển vào mốc 15/10 (kit #308)",
@@ -985,6 +991,94 @@
       "tieu_chi": 8,
       "cau_giao": "Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức»",
       "bat_khi": "Sau 10 hồ sơ có dòng «đã tra tri thức» ở các kho đã khai, ≥ 30 % có ít nhất một dòng căn cứ ở bước thiết kế trỏ trang tri thức hay sổ hồ sơ trước (đếm bằng can-cu-s1.cjs --dem)"
+    },
+    {
+      "ma": "TC1",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "danh-thuc-doc-nhip-dung-ma",
+      "ten_ngan": "Đánh thức đọc nhịp đúng mã phiên",
+      "cau_giao": "Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi, nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên thay cho báo chủ kho",
+      "vai": "nen",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310 cắt ở hồ sơ này chạy thành đợt Điều phối – Thợ dieu-phoi-dot0-cam-mau (năm dãy, khoảng 30 PR gộp 25–26/10), đợt thật thứ hai của gói; lịch 30′ gần như lần nào cũng trả bao-chu-kho «giám sát không có nhịp sống» khi giám sát đang làm việc. Đợt thử thứ nhất (crm 19–20/10) vấp cùng lỗ — hạt giống docs/plans/2026-10-20-hat-giong-nam-loi-kit-tu-dot-lo-trinh-tin-hieu.md mục 1, kit #403; hạt giống docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md mục 2.",
+      "bat_khi": "Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy",
+      "dot": "tinh-chinh-2610",
+      "phu": [
+        "M2"
+      ],
+      "ghi_chu": "Vùng M5 (dieu-phoi/). Vai cũ một mã đọc khoan dung + cờ vàng (luật đường đọc-cũ). Lối nhắn giám sát vẫn dùng mã app."
+    },
+    {
+      "ma": "TC2",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "lenh-dot-ghi-dung-hang",
+      "ten_ngan": "Lệnh của đợt ghi đúng hàng",
+      "cau_giao": "Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json",
+      "vai": "nen",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310 cắt ở hồ sơ này chạy thành đợt Điều phối – Thợ dieu-phoi-dot0-cam-mau (năm dãy, khoảng 30 PR gộp 25–26/10), đợt thật thứ hai của gói; khoá khoa/s4/chu.json ghi slug của hàng kế (ghi.mjs slugKeCua đọc tiep/), hang them F12 thêm hàng slug f12 và cắt slug dài còn sáu từ, và không có lệnh ngược của nghi — giám sát sửa tay hang-viec.json trong khoá. Hạt giống docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md mục 3, 5, 6.",
+      "bat_khi": "Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì",
+      "dot": "tinh-chinh-2610",
+      "phu": [
+        "M3",
+        "M6",
+        "M5a"
+      ],
+      "ghi_chu": "Vùng M5 (dieu-phoi/). 10 tiêu chí (trên mục tiêu một chút ở trần): ba lỗ cùng một kết quả «lệnh ghi đúng hàng», tách ra thì hai hàng dưới mục tiêu cùng nhóm. Nửa uu-tien của mục 5 là CỘNG — ở chan_troi TC-C1."
+    },
+    {
+      "ma": "TC3",
+      "nhom": "gia-ghim-lai",
+      "hang": "T2",
+      "slug": "tep-sinh-khong-chan-gop",
+      "ten_ngan": "Tệp sinh không chặn lần gộp",
+      "cau_giao": "Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt",
+      "vai": "nen",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310 cắt ở hồ sơ này chạy thành đợt Điều phối – Thợ dieu-phoi-dot0-cam-mau (năm dãy, khoảng 30 PR gộp 25–26/10), đợt thật thứ hai của gói; gần như mỗi lần gộp xung đột ở hai tệp sinh, hồ sơ phải ghim lại liên tục. Kho thứ hai sau crm 16/10 (crm-onehub/_acceptance/ke-hoach-sinh-viec, PR #432 gộp lại ba lần trong một giờ) — đủ ngưỡng hạt giống docs/plans/2026-10-16-hat-giong-tep-sinh-xung-dot-moi-lan-goi.md; hạt giống docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md mục 1.",
+      "bat_khi": "Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh",
+      "dot": "tinh-chinh-2610",
+      "phu": [
+        "M1"
+      ],
+      "ghi_chu": "Thứ tự nghiệm theo luật 26/09: bộ đọc khoan dung (merge driver + sinh lại) bật theo lựa chọn, không đổi mặc định của kho nào trước khi đo trên hai kho. Trực tiếp vào đoạn ký → gộp của North Star."
+    },
+    {
+      "ma": "TC4",
+      "nhom": "phat-hanh",
+      "hang": "T2",
+      "slug": "kiem-ban-cai-loi-sua-chay-duoc",
+      "ten_ngan": "Kiểm bản cài nói lối sửa chạy được",
+      "cau_giao": "Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được",
+      "vai": "nen",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/nang-kit-2-34-0/ — lần nhận 2.34.0 của kho (25/10); cài từ chợ ra đỉnh main đã quá thẻ cùng số (v2.34.0..main lệch ba tệp không chạy) nên --may ĐỎ; bản clone chợ không có thẻ nên «ref không có»; lời khuyên «cài lại ở project <worktree>» không chạy được vì lệnh từ cây phụ chỉ nâng bản ghi gốc. Lần nhận kit thứ hai vấp lớp cây phụ — đủ ngưỡng hạt giống docs/plans/2026-10-17-hat-giong-cap-nhat-plugin-cay-phu-nham-ban-ghi-goc.md; hạt giống docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md mục 7, 8.",
+      "bat_khi": "Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng",
+      "dot": "tinh-chinh-2610",
+      "phu": [
+        "M7",
+        "M8"
+      ],
+      "ghi_chu": "Lệnh vẫn chỉ đọc, lối sửa chỉ in ra. Nghiệm đúng tầng cho M7 (commit sau thẻ không chạm gốc gói, hay chợ trỏ ref thẻ) chọn ở bước thiết kế của vòng."
+    },
+    {
+      "ma": "TC5",
+      "nhom": "duong-nen",
+      "hang": "T2",
+      "slug": "cong-cu-xet-tep-ton-tai",
+      "ten_ngan": "Chân công cụ xét tệp tồn tại",
+      "cau_giao": "Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng",
+      "vai": "nen",
+      "tieu_chi": 5,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/nang-kit-2-34-0/ — lần nhận 2.34.0 của kho (25/10); chân cong_cu đỏ THIẾU ở mọi dãy vì command -v chạy lên executors.design.ui_check — khuôn kit là một đường tệp .js không có quyền chạy; tái hiện trên kit main 45e9f2cf. Kit #403 mục 2; hạt giống docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md mục 4.",
+      "bat_khi": "Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ",
+      "dot": "tinh-chinh-2610",
+      "phu": [
+        "M4"
+      ],
+      "ghi_chu": "Dưới mục tiêu (5) và không có hàng cùng nhóm dưới mục tiêu để gộp: giữ riêng vì khác gói (feature-loop) — vòng nhỏ, có thể đi làn V nếu Cổng Đáng chốt chính sách."
     }
   ],
   "chan_troi": [
@@ -1155,6 +1249,26 @@
         "F6"
       ],
       "mo_lai_khi": "Một lần chủ kho phải gỡ nội dung khỏi kho công khai vì trang tóm"
+    },
+    {
+      "ma": "TC-C1",
+      "dot": "tinh-chinh-2610",
+      "cau_giao": "Lệnh đặt uu_tien tuyệt đối cho một hàng của đợt",
+      "ly_do": "CỘNG (lệnh con mới, không phải chiều ngược của lệnh có sẵn) — cần chủ kho phê đích danh; thứ tự tuyệt đối đã làm được bằng chuỗi hang day-len --truoc",
+      "phu": [
+        "M5b"
+      ],
+      "mo_lai_khi": "Chủ kho phê ở Cổng Phạm vi của vòng TC2, hoặc một đợt phải sửa tay uu_tien trong hang-viec.json lần nữa"
+    },
+    {
+      "ma": "TC-C2",
+      "dot": "tinh-chinh-2610",
+      "cau_giao": "Hook chan-s4 không chặn heredoc mà thân chỉ là dữ liệu",
+      "ly_do": "Giới hạn đã khai (hồ sơ dieu-phoi-lop-mod); khuôn thay thế ở docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md; đếm chặn nhầm 3/10",
+      "phu": [
+        "M9"
+      ],
+      "mo_lai_khi": "Đo lại bản ghi thấy > 10 lời gọi heredoc chặn nhầm, hoặc một lượt S4 thật lọt khoá (nghiệm «S4 tự xưng»)"
     }
   ],
   "da_bac": [
