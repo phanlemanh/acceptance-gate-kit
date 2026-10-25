@@ -93,7 +93,7 @@ function hoSo(kho, slug, { status = 'draft', so = '', n = 3 } = {}) {
 let soDong = 0;
 const dongSo = o => JSON.stringify({ id: `d-20261024T000000Z-${++soDong}`, type: 'approach', stage: 'S1', at: '2026-10-24T00:00:00Z', decision: 'd', why: 'w', cost_if_wrong: 'c', ...o }) + '\n';
 const MOT_LOI = { nguon: 'mot-loi', kho_dao: false, loi_chet: 'Kho đã khai tri_thuc — bỏ tra là phạm luật nạp.' };
-const dongTra = (trang, them = {}) => dongSo({ can_cu: MOT_LOI, tri_thuc_tra: { tra: 'X', trang, ...them } });
+const dongTra = (trang, them = {}) => dongSo({ can_cu: MOT_LOI, tri_thuc_tra: { tra: 'X', trang, so: [], ...them } });
 
 const ENV = { ...process.env, ACCEPTANCE_TODAY: NGAY };
 const chay = (bin, args, cwd) => { const r = spawnSync('node', [bin, ...args], { encoding: 'utf8', env: ENV, cwd, maxBuffer: 1 << 26 }); return { thoat: r.status, out: r.stdout || '', err: r.stderr || '' }; };
@@ -164,7 +164,7 @@ function ghiTra(kho, slug, trang, { skill = readFileSync(SKILL_TEP, 'utf8'), the
   const k = khoiDong(skill, 'DEC-TRI-THUC-TRA');
   if (!k.includes('"<đường trỏ băm>"')) throw new Error('khối DEC-TRI-THUC-TRA thiếu ô "<đường trỏ băm>"');
   const giua = k.split('<ISO>').join('2026-10-24T00:00:00Z').split('<mã hàng hoặc câu tra>').join('X')
-    .split('"<đường trỏ băm>"').join(trang.map(x => JSON.stringify(x)).join(',')) + them;
+    .split('"<đường trỏ băm>"').join(trang.map(x => JSON.stringify(x)).join(',')).split('"<đường trỏ sổ>"').join('') + them;
   return chayCongThuc(kho, slug, giua, skill);
 }
 function ghiCanCuTriThuc(kho, slug, ref, { skill = readFileSync(SKILL_TEP, 'utf8') } = {}) {
