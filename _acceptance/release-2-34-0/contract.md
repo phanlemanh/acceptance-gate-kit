@@ -5,7 +5,7 @@ slug: release-2-34-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + một hạt giống + ghi chú nhận + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -80,3 +80,9 @@ và Known limits của tám hồ sơ · `CLAUDE.md` luật (c) sau #400.
 - Sửa trong PR mốc, không qua vòng (crm #565, 25/10): lớp chép CI của tầng tri thức thêm khuôn `tri-thuc-template.md`
   (33 mục) và răng phủ `cat-luot.mjs --pham-vi` chỉ nạp bộ đọc khoá tri thức khi có tệp — ca CT0–CT4
   `tests/scripts/chep-tri-thuc-du.test.mjs` commit trước bản sửa; sổ d-20261025T041903Z-8, -9.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-25:
+  - Ngoài-2: Kho chỉ bật tầng tri thức mà không bật tầng tín hiệu không chạy được bước kiểm tra tri thức vì thiếu một tệp; hai kho đang chờ nhận khai cả hai.
+  - Ngoài-3: Phép thử xác nhận kho nhận bản chép chạy được dùng thêm một tệp mà kho thật có thể không có, nên màu xanh của nó có thể đẹp hơn thực tế.
+  - Ngoài-4: Ba ca thử xác nhận bản chép đủ đều xanh nhờ một tệp mà kho nhận không chắc có; lệnh cắt lượt chạy từ bản chép có thể vỡ mà phép thử không báo trước.
+  - Ngoài-5: Phép thử của bước kiểm tra tri thức chỉ xác nhận không có lỗi thiếu tệp, chưa xác nhận bước đó chạy xong và báo kết quả đúng.
+- Mở hợp đồng mới (Ngoài-1): hạt giống `docs/plans/2026-10-25-hat-giong-chep-thieu-khuon-o-co-hoi.md`.
