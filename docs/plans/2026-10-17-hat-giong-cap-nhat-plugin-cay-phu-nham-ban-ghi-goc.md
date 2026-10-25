@@ -41,3 +41,6 @@ không đổi. Mất: không có; lệnh vẫn chỉ đọc, lối sửa chỉ i
 ## Ngưỡng mở thành ô
 
 Owner gọi tên ở mốc 05/11, hoặc lần nhận kit kế tiếp ở bất kỳ kho nào lại phải chép tay sổ cài.
+
+**Lần vấp thứ hai (25/10) — ngưỡng ĐỦ.** onehub-invest nhận 2.34.0: bản ghi theo worktree vẫn 2.33.1 sau khi nâng, và lời
+khuyên «cài lại ở project <worktree>» mà `kiem-ban-cai` in ra không chạy được từ chính worktree. Xem `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` mục 8.
