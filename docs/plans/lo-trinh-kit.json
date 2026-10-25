@@ -147,7 +147,7 @@
       ]
     },
     {
-      "ten": "Phát hành 2.34.0 — tầng tri thức TT1–TT5 cùng #400, #401, #402 (ký → gộp có chủ máy) và SK1 (thước sức khoẻ máy); chủ kho 24/10: «Tầng tri thức được gom và Kit để cắt cùng phiên bản.»; kho chờ nhận crm, invest",
+      "ten": "Phát hành 2.34.0 — ĐÃ PHÁT HÀNH 25/10, tag v2.34.0 = 0e095648 (PR #410): tầng tri thức TT1–TT5, ký → gộp có chủ máy (#402), thước sức khoẻ máy (SK1), ảnh có thật; gói mới tri-thuc; KC1 ĐẠT 8/8",
       "ngay": "2026-10-25",
       "ly_do": "Dời 25/10 → 26/10 theo nhịp đo 24/10 (phiên TT3), rồi về lại 25/10: chủ kho 25/10 đặt mục tiêu các kho tiêu thụ nhận bản trong ngày; TT1–TT4 đã gộp, TT5 vào khi gộp. SK1 (#395) đã gộp 21/10 nên đi cùng mốc này thay vì chờ RD2.",
       "loai": "phat-hanh",
