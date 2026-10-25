@@ -139,6 +139,15 @@ của hàng; vòng này đưa nó tới bước thiết kế và làm thẻ Cổ
   baseline ghi kịch bản ra tệp của lượt rồi gọi đúng một lời gọi `bash '<tệp>'`; công cụ từ chối thì làn rơi về «chưa
   chạy dòng nào» và thẻ Cổng Bằng chứng nói ra.
 
+### Lớp chép CI của tầng tri thức đủ cho kho tiêu thụ (sửa trong PR mốc, không qua vòng)
+
+Gốc: crm-onehub PR #565 (nhận kit từ `main` 396c08f8, 25/10). Hai lỗ: danh sách chép thiếu khuôn
+`tri-thuc-template.md` mà lint tri thức và dòng «Nguồn:» đọc lúc chạy (kho khai `tri_thuc` vỡ `ENOENT`); và răng phủ
+`cat-luot.mjs --pham-vi` nạp bộ đọc khoá tri thức vô điều kiện, nên kho khai `tin_hieu` mà không khai `tri_thuc` — chép
+đúng nhãn — vỡ `Cannot find module`. Nay danh sách chép có khuôn (33 mục); răng phủ chỉ nạp bộ đọc khi có tệp, và kho
+có dòng `tri_thuc:` mà thiếu tệp thì dừng thoát 2 nêu tệp thiếu. Ca CT0–CT4 (`tests/scripts/chep-tri-thuc-du.test.mjs`)
+dựng kho tiêu thụ từ danh sách chép thật; ca commit trước bản sửa và đỏ trên 396c08f8.
+
 **Ai bị ảnh hưởng:**
 
 - Kho dùng `feature-loop` với `ship_default: pr`: PR chuyển sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, trước chữ ký.
@@ -154,9 +163,10 @@ cảnh báo, không chặn; đợt không có khoá `gop_khong_chay_lai_ci` → 
 **Kho tiêu thụ làm gì khi nhận:**
 
 - **Lớp chép CI:** chép lại từ thẻ `v2.34.0` bốn tệp `scripts/lo-trinh.mjs`, `scripts/cat-luot.mjs`,
-  `dieu-phoi/scripts/cau-hinh.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`; thêm ba tệp mới `scripts/tri-thuc.mjs`,
-  `scripts/tri-thuc-khoa.cjs`, `scripts/tri-thuc-nguon.cjs` CHỈ khi kho khai `tri_thuc` (nhãn
-  `[only-if-declared: tri_thuc]` trong danh sách chép). Các tệp còn lại giống từng byte `v2.33.1`.
+  `dieu-phoi/scripts/cau-hinh.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`; thêm bốn tệp mới `scripts/tri-thuc.mjs`,
+  `scripts/tri-thuc-khoa.cjs`, `scripts/tri-thuc-nguon.cjs`, `skills/acceptance/references/tri-thuc-template.md` CHỈ khi
+  kho khai `tri_thuc` (nhãn `[only-if-declared: tri_thuc]` trong danh sách chép). Các tệp còn lại giống từng byte
+  `v2.33.1`.
 - **Máy dev: cài các gói theo ĐÚNG THẺ `v2.34.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, và gói mới `tri-thuc`
   (`--scope project`) ở kho khai `tri_thuc` — rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may
   --ref v2.34.0 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
@@ -168,7 +178,8 @@ hồ sơ `release-2-34-0`.
 
 1. **Cài theo thẻ `v2.34.0`** mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`), thêm
    `tri-thuc` nếu khai `tri_thuc`; kiểm `kiem-ban-cai.mjs --may --ref v2.34.0`. Mở phiên MỚI.
-2. **Lớp chép CI từ thẻ** (`git archive v2.34.0`): bốn tệp chép lại + ba tệp tri thức nếu khai `tri_thuc` (gạch trên).
+2. **Lớp chép CI từ thẻ** (`git archive v2.34.0`): bốn tệp chép lại + bốn tệp tri thức nếu khai `tri_thuc` (gạch trên).
+   Bản chép từ `main` 396c08f8 (trước thẻ) thiếu khuôn tri thức trong danh sách — chép lại từ thẻ.
 3. **Khai `tri_thuc`** trong `_acceptance/config.yaml` nếu dùng kho tri thức riêng: `kho.ten`, `kho.duong` (tương đối
    gốc checkout chính), `kho.remote`, và `cong_khai: true` (kho crm công khai). Thư mục tri thức trong kho vào
    `risk_tiers.t1_skip_globs`. Chạy `/tri-thuc:kiem` — xanh trước khi mở ô từ hàng có đợt.

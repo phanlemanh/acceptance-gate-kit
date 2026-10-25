@@ -77,3 +77,6 @@ và Known limits của bảy (tám khi TT5 gộp) hồ sơ · `CLAUDE.md` luật
 - Năm dòng số lần đầu đo dòng 1 tới GỘP (#400). Bốn vòng (SK1, ảnh-có-thật, TT2, TT4) đọc ký → gộp bằng tay vì
   `do-gop.mjs` trả rỗng — cùng định nghĩa của tệp, ghi ở «Đọc số» của CHANGELOG.
 - `kho-tri-thuc-va-lint/usage-report.md` không ghi lượt chấm 1; token của TT1 là lượt 2–3.
+- Sửa trong PR mốc, không qua vòng (crm #565, 25/10): lớp chép CI của tầng tri thức thêm khuôn `tri-thuc-template.md`
+  (33 mục) và răng phủ `cat-luot.mjs --pham-vi` chỉ nạp bộ đọc khoá tri thức khi có tệp — ca CT0–CT4
+  `tests/scripts/chep-tri-thuc-du.test.mjs` commit trước bản sửa; sổ d-20261025T041903Z-8, -9.

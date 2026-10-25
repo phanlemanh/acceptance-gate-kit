@@ -131,9 +131,9 @@ evals:
     executor: script
     cmd: config:executors.script.rel2340_lop_chep
     expected: >
-      Exit 0 và dòng «XANH: đúng 7 tệp đổi như ghi chú 2.34.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (32 tệp),
+      Exit 0 và dòng «XANH: đúng 8 tệp đổi như ghi chú 2.34.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (33 tệp),
       rút danh sách mong đợi từ gạch «- **Lớp chép CI:…» của mục «## 2.34.0» trong CHANGELOG.md, và tập tệp đổi byte từ
-      `279b1515` tới HEAD (lo-trinh.mjs, cat-luot.mjs, hai tệp dieu-phoi, ba tệp tri thức mới) BẰNG tập ghi chú kể. Chiều đỏ trong chính lệnh (đo ở release-2-29-0).
+      `279b1515` tới HEAD (lo-trinh.mjs, cat-luot.mjs, hai tệp dieu-phoi, bốn tệp tri thức mới) BẰNG tập ghi chú kể. Chiều đỏ trong chính lệnh (đo ở release-2-29-0).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
