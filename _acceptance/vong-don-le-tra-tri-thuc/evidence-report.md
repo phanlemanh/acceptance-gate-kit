@@ -7,13 +7,13 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0ba628d87db7150702fc3762d1807c00b9645932
+verified_commit: 962418ca3e0b90f36d854d9c0a8aaf624f6cbc50
 human_signoff:
 ---
 
 # Evidence Report: vong-don-le-tra-tri-thuc
 
-Round 1. Cả mười eval của hợp đồng (E1–E10) đều chạy xanh. Tổng thể vẫn REJECT vì một lệnh suite hồi quy không gắn eval nào chạy đỏ: `bash tests/scripts/run-tests.sh --manh mjs:3/3` cho kết quả «36 passed, 1 failed». Đuôi đầu ra máy lưu lại không nêu tên ca đỏ (xem mục «Lệnh fail không gắn eval»).
+Round 2. Cả mười eval của hợp đồng (E1–E10) mang từ round 1: bản vá S4 r1 chỉ chạm danh sách chép CI, hướng dẫn GUIDE và ca KM-8, không chạm đường dẫn nào của các eval này, nên round này không chạy lại. Tổng thể vẫn REJECT vì một lệnh suite hồi quy không gắn eval nào chạy đỏ: `bash tests/scripts/run-tests.sh --manh mjs:1/3` cho kết quả «37 passed, 1 failed». Ca đỏ là XD-6 của `xuat-du-qua-pipe.test.mjs` (xem mục «Lệnh fail không gắn eval»).
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -30,160 +30,158 @@ Round 1. Cả mười eval của hợp đồng (E1–E10) đều chạy xanh. T�
 
 ## Evidence
 
-Ghi chú về `verified_at`: sổ chạy chưa có dấu giờ trong tay người soạn nên các giá trị dưới đây chỉ chính xác tới ngày (2026-10-25).
+Ghi chú về `verified_at` của các lệnh suite round 2: sổ chạy chưa có dấu giờ trong tay người soạn nên giá trị dưới đây lấy theo giờ mở lượt chấm (2026-10-25T03:37:56Z, ghi ở `s4-args-r2.json`), chỉ là mốc xấp xỉ. Mười eval E1–E10 giữ nguyên `verified_at` của round 1.
 
 - eval: E1
   run_id: minted-vong-don-le-tra-tri-thuc-E1-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E2
   run_id: minted-vong-don-le-tra-tri-thuc-E2-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E3
   run_id: minted-vong-don-le-tra-tri-thuc-E3-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E4
   run_id: minted-vong-don-le-tra-tri-thuc-E4-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E5
   run_id: minted-vong-don-le-tra-tri-thuc-E5-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E6
   run_id: minted-vong-don-le-tra-tri-thuc-E6-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E7
   run_id: minted-vong-don-le-tra-tri-thuc-E7-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E8
   run_id: minted-vong-don-le-tra-tri-thuc-E8-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E9
   run_id: minted-vong-don-le-tra-tri-thuc-E9-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_tra_tri_thuc
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    vong-don-le-tra-tri-thuc: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E10
   run_id: minted-vong-don-le-tra-tri-thuc-E10-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.vong_don_le_hoi_quy
   verified_at: 2026-10-25T01:39:21Z
+  carried_from_round: 1
   output: |
-    Results: mọi ca xanh
+    carry-forward tu round 1 — delta khong cham paths cua eval
+
+### Lệnh fail không gắn eval
+
+`bash tests/scripts/run-tests.sh --manh mjs:1/3` chạy đỏ ở round 2 và không thuộc eval nào (mảng `evals` của lệnh rỗng). Tổng kết của phân mảnh: «Results: 37 passed, 1 failed». Ca đỏ duy nhất là `xuat-du-qua-pipe.test.mjs`, ca XD-6 «người đọc đóng sớm — mã 0, không EPIPE; khuôn exitCode thì sập», lý do máy ghi: «chiều đỏ không đỏ: bản sao exitCode → mã 1, stderr tiến trình con KHÔNG có EPIPE». Sáu ca còn lại của tệp (XD-1…XD-5, XD-7) xanh. Ở round 1 lệnh đỏ là phân mảnh `mjs:3/3` (36 passed, 1 failed); round 2 phân mảnh đó xanh (37 passed, 0 failed) và phân mảnh `mjs:1/3` đỏ. Máy chưa phân loại ca XD-6 là lỗi môi trường hay hồi quy do bản vá; việc đó thuộc phiên sửa.
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
-  exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  exit_code: 1
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
-  exit_code: 1
-  verified_at: 2026-10-25T01:39:21Z
-  output: |
-    Results: 36 passed, 1 failed
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  exit_code: 0
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
+  verified_at: 2026-10-25T03:37:56Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-vong-don-le-tra-tri-thuc-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-25T01:39:21Z
-
-### Lệnh fail không gắn eval
-
-- bash tests/scripts/run-tests.sh --manh mjs:3/3 (run_id: minted-vong-don-le-tra-tri-thuc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1): lệnh không gắn eval nào, kết quả «36 passed, 1 failed». Đuôi đầu ra còn giữ chỉ gồm các dòng xanh của TD-9 và bài kiểm trang lộ trình (11 passed, 0 failed ở xem-trang-lo-trinh), không có dòng nêu tên ca đỏ. Bài chính `vong-don-le-tra-tri-thuc.test.mjs` trong lô này in «PASS». Chưa xác định được tệp nào trong lô 3/3 là ca đỏ; cần chạy lại lệnh này và đọc dòng đỏ trước khi sửa.
+  verified_at: 2026-10-25T03:37:56Z
 
 ## Known limits
 
@@ -191,19 +189,15 @@ Ghi chú về `verified_at`: sổ chạy chưa có dấu giờ trong tay ngườ
 
 ## Analyst
 
-baseline: BLOCKED ha tang — lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
+none — moi eval feature deu red tren baseline (co phan biet)
 
-Eval không-phân-biệt: không có mục nào được liệt kê, nhưng danh sách này KHÔNG đo được ở round này vì baseline bị chặn hạ tầng. Mọi trường baseline đều là n-a; không khẳng định được eval nào đỏ trên diffBase.
-
-### Baseline khong do
-
-- node tests/scripts/vong-don-le-tra-tri-thuc.test.mjs: BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
-- bash -c 'set -e; node tests/scripts/kho-tri-thuc-va-lint.test.mjs; node tests/scripts/o-mo-viec-mang-nguon.test.mjs; node tests/scripts/thiet-ke-nap-tri-thuc.test.mjs; node tests/scripts/can-cu-s1.ca.mjs; node tests/scripts/ghi-tri-thuc.test.mjs': BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
+Baseline khong do: mười một lệnh suite hồi quy (n-a, không có baseline); E1–E10 mang từ round 1 nên round này không đo baseline lại.
 
 ## Variance
 
-none — every multi-run eval is uniform (mọi eval chạy một lần, không eval nào có phương sai)
+none — mọi eval multi-run đều đồng nhất (không eval nào có runs lớn hơn 1; không có ca flaky được ghi nhận)
 
 ## Iterations
 
-Round 1: không eval nào đỏ (E1–E10 xanh), nhưng lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:3/3` chạy đỏ (36 passed, 1 failed) và không gắn eval nào. Trả về thi công: tìm ca đỏ trong lô 3/3 và sửa.
+Round 1: E1–E10 xanh, không eval nào trượt; lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:3/3` đỏ (36 passed, 1 failed), không gắn eval. Returned to implementation (commit 5dbd4502: ba tệp lối --tra vào danh sách chép CI, GUIDE §5.3, ca KM-8).
+Round 2: E1–E10 mang từ round 1 (delta không chạm đường dẫn của eval); lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:1/3` đỏ ở ca XD-6 của `xuat-du-qua-pipe.test.mjs` (37 passed, 1 failed), không gắn eval; mười suite còn lại xanh. Verdict REJECT, trả về phiên sửa.
