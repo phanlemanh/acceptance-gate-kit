@@ -1,21 +1,21 @@
-# Review findings: vong-don-le-tra-tri-thuc (round 2)
+# Review findings: vong-don-le-tra-tri-thuc (round 3)
 
 ## Trong hợp đồng
 
-Không có finding nào map được vào AC của hợp đồng ở round này.
+Không có finding.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **luat-san-pham.cjs is tagged as needed only with tri_thuc, but the product-map step needs it whenever a repo has PRODUCT-INVARIANTS.md**
+- **luat-san-pham.cjs is tagged as needed only with tri_thuc, but the product-map step needs it whenever a repo has PRODUCT-INVARIANTS.md (r2)**
   Người dùng thấy gì: Một kho dùng luật sản phẩm nhưng không khai kho tri thức, nếu làm theo danh sách chép và bỏ qua tệp luật này, sẽ thấy bản đồ sản phẩm âm thầm đẩy mọi hồ sơ máy đã duyệt trở lại thành «cần người». Không có báo lỗi nào, người dùng chỉ thấy việc duyệt tay tăng lên không rõ lý do.
   Căn cứ: Hậu quả nhẹ đến vừa: không mất dữ liệu, chỉ thêm việc duyệt tay, và người dùng tự gỡ được bằng cách chép thêm tệp đó; sửa là đổi một dòng nhãn nên rẻ nhưng nằm ngoài hợp đồng hiện tại.
   file: `commands/acceptance-init.md`
   severity: medium
   Đề xuất: new-contract
 
-- **Hình dạng 1 (đo CHỈ DẪN thay vì ĐẦU RA): bản vá S4 r1 «ba tệp lối --tra vào danh sách chép CI» chỉ được đo bằng việc đếm dòng chữ trong acceptance-init.md, không có lần chạy --tra nào trên một lớp chép theo danh sách**
+- **Hình dạng 1 (đo CHỈ DẪN thay vì ĐẦU RA): bản vá S4 r1 «ba tệp lối --tra vào danh sách chép CI» chỉ được đo bằng việc đếm dòng chữ trong acceptance-init.md, không có lần chạy --tra nào trên một lớp chép theo danh sách (r2)**
   Người dùng thấy gì: Nếu sau này ai đó bỏ sót một tệp trong danh sách chép cho kho tiêu thụ, lệnh tra tri thức sẽ âm thầm làm việc kém đi mà không bài kiểm nào báo đỏ. Người dùng sẽ thấy tra ra ít căn cứ hơn mà không biết vì sao.
   Căn cứ: Chưa có hậu quả thực tế hôm nay vì danh sách hiện đủ tệp, không mất dữ liệu, và thêm bài kiểm sau này rẻ nên chỉ cần ghi nhận là hạn chế đã biết.
   file: `tests/scripts/kho-moi-cai-goi-road-map.test.mjs`
@@ -57,4 +57,6 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/2 lỗi rơi vào file không bộ đo nào phủ (commands/acceptance-init.md, tests/scripts/kho-moi-cai-goi-road-map.test.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+## Chưa adversarial-verify (refuter chết)
+
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

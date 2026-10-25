@@ -5,7 +5,7 @@ slug: vong-don-le-tra-tri-thuc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-10-25-vong-don-le-tra-tri-thuc-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-25T01:36:47Z
