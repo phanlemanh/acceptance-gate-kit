@@ -138,19 +138,18 @@
       ]
     },
     {
-      "ten": "Phát hành sau mốc 22/10 (số đặt lúc cắt) — ngày dự kiến đúng khi mốc phụ thuộc nhau (RD2) · thước sức khoẻ máy đo chỗ trống và tốc độ (SK1)",
+      "ten": "Phát hành sau mốc 22/10 (số đặt lúc cắt) — ngày dự kiến đúng khi mốc phụ thuộc nhau (RD2)",
       "ngay": "2026-10-29",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
-        "RD2",
-        "SK1"
+        "RD2"
       ]
     },
     {
-      "ten": "Phát hành kế (số đặt lúc cắt) — tầng tri thức TT1–TT5 cùng #400, #401, #402; chủ kho 24/10: «Tầng tri thức được gom và Kit để cắt cùng phiên bản.», hạn 25/10 đặt ở Cổng Đáng",
-      "ngay": "2026-10-26",
-      "ly_do": "Dời 25/10 → 26/10 theo nhịp đo 24/10 (phiên TT3): TT1 mất khoảng 6 giờ từ Cổng Đáng tới gộp #406, ba lượt chấm; TT3 → TT4 → TT5 nối tiếp nhau (TT4 đứng trên TT3, TT5 đứng trên TT4), TT2 chạy song song — ba nhịp liền nhau cộng chờ ký và gộp qua đêm không kịp 25/10.",
+      "ten": "Phát hành 2.34.0 — tầng tri thức TT1–TT5 cùng #400, #401, #402 (ký → gộp có chủ máy) và SK1 (thước sức khoẻ máy); chủ kho 24/10: «Tầng tri thức được gom và Kit để cắt cùng phiên bản.»; kho chờ nhận crm, invest",
+      "ngay": "2026-10-25",
+      "ly_do": "Dời 25/10 → 26/10 theo nhịp đo 24/10 (phiên TT3), rồi về lại 25/10: chủ kho 25/10 đặt mục tiêu các kho tiêu thụ nhận bản trong ngày; TT1–TT4 đã gộp, TT5 vào khi gộp. SK1 (#395) đã gộp 21/10 nên đi cùng mốc này thay vì chờ RD2.",
       "loai": "phat-hanh",
       "ai": "MacBook Pro",
       "hang": [
@@ -158,7 +157,8 @@
         "TT2",
         "TT3",
         "TT4",
-        "TT5"
+        "TT5",
+        "SK1"
       ]
     }
   ],
