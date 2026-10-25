@@ -1,0 +1,12 @@
+# Kiểm bản cài SAU khi gắn thẻ (bước sau-tag của KC1, GUIDE §7.2) — chạy 25/10/2026, gốc kit tại
+# 0e095648 (thẻ v2.34.0): node scripts/kiem-ban-cai.mjs --ref v2.34.0
+[kiem-ban-cai] ref v2.34.0 = 0e095648 · nguồn: git archive · cấu hình cách ly <thư mục tạm>/cau-hinh · kho giả lập <thư mục tạm>/kho
+[kiem-ban-cai] ĐẠT so-phien-ban: acceptance-gate 2.34.0 · feature-loop 2.34.0 · diagram-design 2.7.1 · dieu-phoi 2.34.0 · road-map 2.34.0 · tri-thuc 2.34.0
+[kiem-ban-cai] ĐẠT khop-tag: 6 gói, 5235 tệp khớp
+[kiem-ban-cai] ĐẠT thu-muc-goi: đủ thư mục cấp một của mọi gói
+[kiem-ban-cai] ĐẠT tac-tu-cham: 3 loại tác tử có định nghĩa: cham-lenh, cham-ui, cham-doc
+[kiem-ban-cai] ĐẠT hook-goi: mọi tệp móc nối trỏ tới đều có
+[kiem-ban-cai] ĐẠT the-cong: thẻ Cổng Phạm vi của hồ sơ kho-thu dựng được
+[kiem-ban-cai] ĐẠT luoi-truoc-gop: kho lành thoát 0 · hồ sơ phạm luật bị chặn (VIOLATION)
+[kiem-ban-cai] ĐẠT dieu-phoi: chẩn đoán đợt chạy được từ bản cài
+[kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.34.0 (0e095648) cài đúng tag
