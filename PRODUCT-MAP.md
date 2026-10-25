@@ -10,7 +10,7 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>4 việc"]
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>133 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>49 việc"] --> GG{"Cổng Giá trị"}
@@ -41,6 +41,10 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức» (`vong-don-le-tra-tri-thuc`)
+
+## Chờ duyệt phạm vi
+
+- Phát hành kit 2.34.0 — tầng tri thức theo LLM Wiki (TT1–TT5), ký → gộp có chủ máy (lịch biết tệp, PR sẵn sàng lúc trình thẻ, gộp không chạy lại CI, đo ký → gộp), sức khoẻ máy đo chỗ trống và tốc độ (SK1), ảnh có thật trong hồ sơ; gói mới tri-thuc (`release-2-34-0`)
 
 ## Đang làm
 
