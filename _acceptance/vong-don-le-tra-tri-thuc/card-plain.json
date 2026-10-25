@@ -1,34 +1,100 @@
 {
-  "feature_plain": "Vòng mở từ một câu mô tả (hay từ một hàng lộ trình) tự tìm ra trang tri thức liên quan và các quyết định chủ kho đã chốt ở những vòng trước, rồi ghi lại đã đọc những gì.",
+  "feature_plain": "Vòng mở từ một câu mô tả (hay từ một hàng lộ trình) tự tìm trang tri thức liên quan và các quyết định chủ kho đã chốt ở những vòng trước, ghi lại đã đọc gì; lượt chấm 3 thông, mười eval xanh.",
   "will_do": [
-    {"id": "AC-1", "p": "Sẽ tìm trang tri thức theo chữ của câu mô tả — ở tiêu đề, phần đầu trang và tiêu đề mục — luôn kèm trang nền; không có trang nào thì nói rõ «đã tra, không có trang liên quan»."},
-    {"id": "AC-2", "p": "Sẽ tìm trong sổ quyết định của mọi hồ sơ khác những dòng khớp câu mô tả, lời chủ kho ở cổng đứng trước, bỏ dòng đã bị thay, và dựng sẵn căn cứ trích được."},
-    {"id": "AC-3", "p": "Sẽ vẫn tra được sổ khi máy không có bản kho tri thức riêng, kèm nhãn «không đọc được ở đây»; kho chưa khai tri thức thì báo rõ, không chạy."},
-    {"id": "AC-4", "p": "Sẽ nhận câu mô tả có ký tự lệnh (dấu nháy, backtick, $(…)) mà không chạy chúng, và ghi lại câu đúng nguyên văn."},
-    {"id": "AC-5", "p": "Sẽ không mời duyệt khi dòng «đã tra tri thức» chưa ghi phần sổ quyết định đã đọc (máy tự tra và ghi lại); dòng sổ trỏ tới không có thì chỉ cờ vàng — đây là câu Hỏi-1."},
-    {"id": "AC-6", "p": "Sẽ chạy đúng lệnh in trong hướng dẫn của vòng, ghi sổ bằng đúng khuôn, và thẻ lẫn bộ xếp căn cứ đều nhận — kể cả vòng mở từ hàng có dòng «Nguồn:»."},
-    {"id": "AC-7", "p": "Sẽ đếm được thước của ô: bao nhiêu hồ sơ có dòng tra mà có căn cứ trỏ trang tri thức hay quyết định của hồ sơ trước."},
-    {"id": "AC-8", "p": "Sẽ chặn căn cứ chở câu trích từ kho tri thức riêng sang sổ công khai, kể cả khi đường trỏ không ghi tên kho riêng."}
+    {
+      "id": "AC-1",
+      "p": "Sẽ tìm trang tri thức theo chữ của câu mô tả — ở tiêu đề, phần đầu trang và tiêu đề mục — luôn kèm trang nền; không có trang nào thì nói rõ «đã tra, không có trang liên quan»."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ tìm trong sổ quyết định của mọi hồ sơ khác những dòng khớp câu mô tả, lời chủ kho ở cổng đứng trước, bỏ dòng đã bị thay, và dựng sẵn căn cứ trích được."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ vẫn tra được sổ khi máy không có bản kho tri thức riêng, kèm nhãn «không đọc được ở đây»; kho chưa khai tri thức thì báo rõ, không chạy."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ nhận câu mô tả có ký tự lệnh (dấu nháy, backtick, $(…)) mà không chạy chúng, và ghi lại câu đúng nguyên văn."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ không mời duyệt khi dòng «đã tra tri thức» chưa ghi phần sổ quyết định đã đọc (máy tự tra và ghi lại); dòng sổ trỏ tới không có thì chỉ cờ vàng — đây là câu Hỏi-1."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ chạy đúng lệnh in trong hướng dẫn của vòng, ghi sổ bằng đúng khuôn, và thẻ lẫn bộ xếp căn cứ đều nhận — kể cả vòng mở từ hàng có dòng «Nguồn:»."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ đếm được thước của ô: bao nhiêu hồ sơ có dòng tra mà có căn cứ trỏ trang tri thức hay quyết định của hồ sơ trước."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ chặn căn cứ chở câu trích từ kho tri thức riêng sang sổ công khai, kể cả khi đường trỏ không ghi tên kho riêng."
+    }
   ],
   "wont_do": [
-    {"id": "AC-9", "p": "Sẽ KHÔNG đổi một byte nào của thẻ, bộ xếp căn cứ hay lệnh đếm ở kho chưa khai tri thức; các bộ kiểm của tầng tri thức trước vẫn xanh."},
-    {"id": "OOS-1", "p": "KHÔNG tra theo nghĩa — chỉ tìm chữ; ngưỡng của ô sẽ cho biết khi nào cần."},
-    {"id": "OOS-2", "p": "KHÔNG tra sổ ở kho chưa khai tri thức — muốn dùng thì khai."},
-    {"id": "OOS-3", "p": "KHÔNG đọc thân trang khi tìm — chỉ tiêu đề, phần đầu trang, tiêu đề mục."},
-    {"id": "OOS-4", "p": "KHÔNG kiểm dòng tra ở bước kiểm trước khi gộp hay lúc ghim lại."},
-    {"id": "OOS-5", "p": "KHÔNG chứng máy đã hiểu hay chọn đúng trang, đúng dòng sổ."}
+    {
+      "id": "AC-9",
+      "p": "Sẽ KHÔNG đổi một byte nào của thẻ, bộ xếp căn cứ hay lệnh đếm ở kho chưa khai tri thức; các bộ kiểm của tầng tri thức trước vẫn xanh."
+    },
+    {
+      "id": "OOS-1",
+      "p": "KHÔNG tra theo nghĩa — chỉ tìm chữ; ngưỡng của ô sẽ cho biết khi nào cần."
+    },
+    {
+      "id": "OOS-2",
+      "p": "KHÔNG tra sổ ở kho chưa khai tri thức — muốn dùng thì khai."
+    },
+    {
+      "id": "OOS-3",
+      "p": "KHÔNG đọc thân trang khi tìm — chỉ tiêu đề, phần đầu trang, tiêu đề mục."
+    },
+    {
+      "id": "OOS-4",
+      "p": "KHÔNG kiểm dòng tra ở bước kiểm trước khi gộp hay lúc ghim lại."
+    },
+    {
+      "id": "OOS-5",
+      "p": "KHÔNG chứng máy đã hiểu hay chọn đúng trang, đúng dòng sổ."
+    }
   ],
   "scope_plain": "Năm thứ cố ý để ngoài vòng này:",
   "coverage_plain": [
-    {"i": 0, "p": "Tra theo câu mô tả: AC-1 (tìm trang), AC-3 (không đọc được, chưa khai), AC-4 (câu có ký tự lệnh) — mỗi cái có ca đỏ khi bỏ một chỗ tìm."},
-    {"i": 1, "p": "Tra quyết định của hồ sơ trước: AC-2 — đủ khi đúng năm dòng khớp, lời người đứng trước, không lẫn hồ sơ đang chạy."},
-    {"i": 2, "p": "Ghi và kiểm: AC-5, AC-6 (thẻ nhận dòng tra), AC-7 (thước của ô), AC-8 (hạt giống kho riêng), AC-9 (kho chưa khai không đổi)."}
+    {
+      "i": 0,
+      "p": "Tra theo câu mô tả: AC-1 (tìm trang), AC-3 (không đọc được, chưa khai), AC-4 (câu có ký tự lệnh) — mỗi cái có ca đỏ khi bỏ một chỗ tìm."
+    },
+    {
+      "i": 1,
+      "p": "Tra quyết định của hồ sơ trước: AC-2 — đủ khi đúng năm dòng khớp, lời người đứng trước, không lẫn hồ sơ đang chạy."
+    },
+    {
+      "i": 2,
+      "p": "Ghi và kiểm: AC-5, AC-6 (thẻ nhận dòng tra), AC-7 (thước của ô), AC-8 (hạt giống kho riêng), AC-9 (kho chưa khai không đổi)."
+    }
   ],
   "gap_probe_plain": [
-    {"i": 0, "p": "Chặn khi chưa tra sổ là một luật chặn mới gửi tới mọi kho đã khai tri thức — chủ kho phải phê đích danh; đã đưa thành câu Hỏi-1 thay vì máy tự quyết."},
-    {"i": 1, "p": "Chưa có tiêu chí đo vòng mở từ hàng nhận đủ trang của dòng «Nguồn:» — đã thêm vào AC-6, kèm ca đỏ khi bỏ đọc dòng ấy."},
-    {"i": 2, "p": "Phép so «kho chưa khai không đổi» thiếu bản JSON của lệnh đếm — đã thêm, ca đỏ nhắm đúng bản ấy."},
-    {"i": 3, "p": "Ca đếm thước dùng dòng sổ viết tay thay vì dòng do lệnh tra in ra — đã đổi sang ghi từ đầu ra thật của lệnh tra."},
-    {"i": 4, "p": "Chưa có dòng sổ chứa dấu nháy để thử câu trích — đã thêm, và đòi ít nhất hai căn cứ được dựng."}
+    {
+      "i": 0,
+      "p": "Chặn khi chưa tra sổ là một luật chặn mới gửi tới mọi kho đã khai tri thức — chủ kho phải phê đích danh; đã đưa thành câu Hỏi-1 thay vì máy tự quyết."
+    },
+    {
+      "i": 1,
+      "p": "Chưa có tiêu chí đo vòng mở từ hàng nhận đủ trang của dòng «Nguồn:» — đã thêm vào AC-6, kèm ca đỏ khi bỏ đọc dòng ấy."
+    },
+    {
+      "i": 2,
+      "p": "Phép so «kho chưa khai không đổi» thiếu bản JSON của lệnh đếm — đã thêm, ca đỏ nhắm đúng bản ấy."
+    },
+    {
+      "i": 3,
+      "p": "Ca đếm thước dùng dòng sổ viết tay thay vì dòng do lệnh tra in ra — đã đổi sang ghi từ đầu ra thật của lệnh tra."
+    },
+    {
+      "i": 4,
+      "p": "Chưa có dòng sổ chứa dấu nháy để thử câu trích — đã thêm, và đòi ít nhất hai căn cứ được dựng."
+    }
   ]
 }
