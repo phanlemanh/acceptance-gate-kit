@@ -1,0 +1,30 @@
+{
+  "feature_plain": "Kho nào muốn thì bật một cờ để bộ chấm thiết kế báo ĐỎ khi được giao chấm một tệp nó không đọc được (tệp nguồn .tsx/.jsx/.vue), thay vì báo xanh như hôm nay; kho không bật thì không gì đổi.",
+  "will_do": [
+    {"id": "AC-2", "p": "Sẽ vẫn báo đỏ «có lỗi chặn» (không đổi thành «không đo được») khi bộ chấm thật sự thấy một lỗi trong tệp nguồn, ví dụ ảnh rỗng."},
+    {"id": "AC-3", "p": "Sẽ giữ nguyên kết quả trên trang HTML đã dựng dù có bật cờ hay không — trang sạch vẫn xanh, trang có lỗi vẫn đỏ; kể cả giới hạn đã biết: chế độ nhanh không thấy màu chữ nhạt."},
+    {"id": "AC-4", "p": "Sẽ báo đỏ «không đo được» ở chế độ dựng trang khi đích là tệp nguồn, và quyết điều đó trước khi nạp bộ dựng trang — kho chưa cài bộ dựng nhận đúng lý do «đích sai» thay vì «thiếu công cụ»."},
+    {"id": "AC-5", "p": "Sẽ để mọi kho chưa bật cờ thấy y hệt hôm nay: mười ô của bộ ca vòng trước vẫn cho cùng mã thoát như bản gốc."},
+    {"id": "AC-6", "p": "Sẽ nhận cờ ở bất kỳ vị trí nào trong lệnh, kể cả dạng lệnh crm đang dùng, và ghi rõ mã thoát thật khi lệnh nằm trong vòng lặp của kho (vòng nuốt mã 5 thành 1)."},
+    {"id": "AC-7", "p": "Sẽ tự chứng phép đo không nói dối: năm bản phá cố ý của bộ chấm đều làm bộ ca đỏ đúng ô."}
+  ],
+  "wont_do": [
+    {"id": "AC-1", "p": "Sẽ KHÔNG còn báo xanh khi bật cờ mà đích là tệp nguồn không có lỗi thấy được — báo «không đo được» và thoát mã 5."},
+    {"id": "AC-8", "p": "Sẽ KHÔNG đổi bất kỳ ô nào khác khi bật cờ: trên trọn 12 loại tệp × 2 chế độ, cờ chỉ đổi đúng các ô «không đo được»."},
+    {"id": "OOS-1", "p": "KHÔNG đổi mặc định — nếu đổi, 57 eval của crm và 23 lệnh của artifact-platform đỏ cùng lúc; chỉ mở lại khi có hồ sơ ký trên phép chấm này mà sản phẩm thật lỗi đúng tiêu chí đó, hoặc anh gọi tên."},
+    {"id": "OOS-2", "p": "KHÔNG gắn cờ vàng cho chế độ dựng trang khi KHÔNG bật cờ — cần cài bộ dựng trang vào bộ kiểm chung, là một khoản thêm anh phải phê riêng."},
+    {"id": "OOS-3", "p": "KHÔNG làm chế độ nhanh thấy màu chữ trên HTML — giới hạn của bộ dò mượn ngoài; tài liệu nói rõ và một ô kiểm ghim nó."},
+    {"id": "OOS-4", "p": "KHÔNG sửa lệnh của crm hay artifact-platform — mỗi kho tự thêm cờ khi muốn chặn cứng."}
+  ],
+  "scope_plain": "Bốn việc cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Đã phủ mọi tổ hợp: có/không bật cờ × chế độ nhanh/dựng trang × trang HTML/tệp nguồn × bộ chấm thấy/không thấy lỗi (AC-1 tới AC-4, AC-8), cộng cách gõ lệnh (AC-6) và độ nhạy của chính phép đo (AC-7); ô duy nhất cố ý không đo: chế độ dựng trang với bộ dựng THẬT khi không bật cờ."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Thêm cờ và mã thoát mới là thêm một bộ phận cho kit — luật đòi anh phê, nhưng sổ lại ghi máy tự quyết; mã 5 thành giao ước ngay khi một kho dựa vào nó. Đã xử: chuyển thành câu hỏi Hỏi-1 cho anh, và ghi rõ giá đổi mã sau khi có kho dựa vào."},
+    {"i": 1, "p": "Căn cứ bỏ qua lối rẻ nhất: kho tự đọc cờ «không đo được» trong lệnh của mình. Đã xử: lối đó sống được, nên đưa vào Hỏi-1 làm lựa chọn B kèm giá của nó."},
+    {"i": 2, "p": "Phép đo «quyết trước khi nạp bộ dựng trang» chỉ chạy khi bộ dựng vắng, nên không bắt được bản cài đặt kiểm sai thứ tự ở kho có bộ dựng (đúng ca artifact-platform). Đã xử: thêm bộ dựng giả để lại dấu khi bị nạp, cùng một bản phá cố ý dời phép quyết ra sau."},
+    {"i": 3, "p": "Lời hứa «cờ chỉ đổi ô không đo được» chưa được đo trên trọn bảng. Đã xử: thêm tiêu chí AC-8 chạy 12 loại tệp × 2 chế độ, và một bản phá cố ý phân biệt hoa/thường đuôi tệp."},
+    {"i": 4, "p": "Dự báo «crm thấy mã 5» sai: vòng lặp của crm gộp mọi mã lỗi thành 1. Đã xử: ô kiểm chạy đúng vòng lặp ấy (ra 1; viết kiểu giữ mã thì ra 5), và ghi chú hợp đồng sửa theo."}
+  ]
+}
