@@ -3,10 +3,10 @@ schema_version: 1
 slug: kiem-ban-cai-loi-sua-chay-duoc
 feature: Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-25T23:37:10Z   # chủ kho gõ «Cổng Đáng TC1–TC5: build (build · park · kill), ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -27,7 +27,7 @@ Vì sao: Gốc: onehub-invest/_acceptance/nang-kit-2-34-0/ — lần nhận 2.34
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng» khi hết timebox
-- Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)
+- Câu hỏi phép đo trả lời: đã đạt «Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng» chưa?
+- Kết quả nào là SỐNG: Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng
+- Kết quả nào là CHẾT: chưa đạt «Sổ cài và bộ đệm dựng bằng code: lệch chỉ ở docs/, _acceptance/, LO-TRINH.html → VÀNG có tên, không ĐỎ; lệch một tệp scripts/ → ĐỎ (đối chứng); clone không thẻ → in lệnh fetch thẻ; bản ghi cây phụ lệch → in lệnh sửa, áp lệnh rồi chạy lại → ĐẠT; bản ghi trỏ thư mục đã xoá → khối riêng» khi hết timebox
+- Timebox: 2026-11-05 — mốc «Tinh chỉnh sau hai đợt thử»; chủ kho chốt ở Cổng Đáng 26/10

@@ -3,10 +3,10 @@ schema_version: 1
 slug: lenh-dot-ghi-dung-hang
 feature: Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-25T23:37:10Z   # chủ kho gõ «Cổng Đáng TC1–TC5: build (build · park · kill), ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -27,7 +27,7 @@ Vì sao: Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì» khi hết timebox
-- Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)
+- Câu hỏi phép đo trả lời: đã đạt «Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì» chưa?
+- Kết quả nào là SỐNG: Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì
+- Kết quả nào là CHẾT: chưa đạt «Ba ma trận viết trước, mỗi ô có đối chứng: dãy có hàng A đã ký trong worktree và tiep trỏ B → đơn mang A, chỉ B có hồ sơ đang làm → đơn mang B; lộ trình có hàng F12 slug bảy từ → hang them F12 thêm đúng slug và ma, câu tự do → slug suy như cũ; nghi rồi chay-lai → dãy nhận hàng kế lại, chạy lại lần hai không đổi gì» khi hết timebox
+- Timebox: 2026-11-05 — mốc «Tinh chỉnh sau hai đợt thử»; chủ kho chốt ở Cổng Đáng 26/10

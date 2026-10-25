@@ -3,10 +3,10 @@ schema_version: 1
 slug: danh-thuc-doc-nhip-dung-ma
 feature: Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi, nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên thay cho báo chủ kho
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-25T23:37:10Z   # chủ kho gõ «Cổng Đáng TC1–TC5: build (build · park · kill), ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -27,7 +27,7 @@ Vì sao: Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy» khi hết timebox
-- Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)
+- Câu hỏi phép đo trả lời: đã đạt «Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy» chưa?
+- Kết quả nào là SỐNG: Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy
+- Kết quả nào là CHẾT: chưa đạt «Ca dựng đợt có vai mang mã app và song/ mang mã CLI cùng worktree: chẩn đoán trả du, đánh thức không trả bao-chu-kho; đối chứng không tệp nhịp nào cùng worktree vẫn trả thieu và bao-chu-kho; 14 ngày sau khi một kho chạy đợt nhận bản có TC1, không lần bao-chu-kho nào mà giám sát đang chạy» khi hết timebox
+- Timebox: 2026-11-05 — mốc «Tinh chỉnh sau hai đợt thử»; chủ kho chốt ở Cổng Đáng 26/10

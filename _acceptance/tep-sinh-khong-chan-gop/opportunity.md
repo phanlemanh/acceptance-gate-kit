@@ -3,10 +3,10 @@ schema_version: 1
 slug: tep-sinh-khong-chan-gop
 feature: Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-25T23:37:10Z   # chủ kho gõ «Cổng Đáng TC1–TC5: build (build · park · kill), ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -27,7 +27,7 @@ Vì sao: Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt cam-mau-2310
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh» khi hết timebox
-- Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)
+- Câu hỏi phép đo trả lời: đã đạt «Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh» chưa?
+- Kết quả nào là SỐNG: Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh
+- Kết quả nào là CHẾT: chưa đạt «Ca dựng hai nhánh sửa hai nguồn khác nhau của cùng tệp sinh ở kho đã bật: git merge không dừng ở tệp sinh; quên sinh lại thì --check đỏ đúng tệp; kho không bật thì xung đột như cũ (đối chứng). Hai tuần sau khi một kho bật, không lần gộp lại nào vì tệp sinh» khi hết timebox
+- Timebox: 2026-11-05 — mốc «Tinh chỉnh sau hai đợt thử»; chủ kho chốt ở Cổng Đáng 26/10

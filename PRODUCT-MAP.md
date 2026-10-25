@@ -6,8 +6,8 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>15 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>3 việc"]
+  A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
+  GD --> B["Sắp mở vòng<br/>8 việc"]
   GD --> XL["Xếp lại sau<br/>23 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
@@ -26,25 +26,25 @@ flowchart TD
 
 - Bốn mục cho cửa sổ 2.13 — re-pin theo diff · routing-baseline không đỏ vì hồ sơ mới · dòng 1 đo tới lên-main + ship chạy nền · chiến dịch ghim lại 41 hồ sơ stale (`ba-cho-cat-sau-chu-ky-cua-so-2-13`)
 - Chốt chặn trước-merge chấm MỌI hồ sơ đã arm cổng, kể cả hồ sơ PR không chạm — một vòng dở làm kẹt mọi PR khác của kho (`cong-chan-theo-ho-so-khong-theo-diff`)
-- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
-- Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi, nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên thay cho báo chủ kho (`danh-thuc-doc-nhip-dung-ma`)
-- Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được (`kiem-ban-cai-loi-sua-chay-duoc`)
-- Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
 - Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng (`nha-tai-lieu-router`)
 - Ô nuốt luật — đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu (`o-nuot-luat`)
 - Phát hiện của làn rà soát đến được người ký — thẻ Cổng 2 và luật xanh-sạch đọc cùng một nguồn, và đọc được đúng chữ in trên nút (`phat-hien-den-duoc-nguoi-ky`)
 - Phép kiểm xanh-sạch đo theo vùng có cấu trúc, không quét trọn file (`phep-kiem-sach-do-theo-vung`)
 - Chạy lưới trước-merge đúng như CI — trên cây đã gộp nhánh chính, có base — TRƯỚC khi mở PR, để CI không là nơi đầu tiên phát hiện (`premerge-nhu-ci-truoc-khi-mo-pr`)
 - Răng của hồ sơ mốc phát hành neo theo lúc hồ sơ ra đời, không theo số phiên bản ở cây — để hồ sơ mốc đã ký không đỏ giả ở mốc kế (`rang-moc-neo-theo-ho-so`)
-- Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt (`tep-sinh-khong-chan-gop`)
 - Phát hiện rà soát KHÔNG lật verdict — verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ; phát hiện lên thẻ kèm bán kính, người quyết (`thuoc-khong-lat-verdict`)
 - Ý định có nhà riêng — cửa vào và cửa ra không cần người ngồi phiên; tách viết ý định khỏi ký; Cổng Đáng có lệnh ký; ngưỡng UAT thành băng sau phát hành; ba số cho nguyên tố 1 (`y-dinh-co-nha-rieng`)
 
 ## Sắp mở vòng
 
+- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
+- Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi, nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên thay cho báo chủ kho (`danh-thuc-doc-nhip-dung-ma`)
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
+- Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được (`kiem-ban-cai-loi-sua-chay-duoc`)
+- Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
+- Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt (`tep-sinh-khong-chan-gop`)
 
 ## Đang làm
 

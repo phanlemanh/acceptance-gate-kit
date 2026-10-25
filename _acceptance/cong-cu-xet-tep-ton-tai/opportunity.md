@@ -3,10 +3,10 @@ schema_version: 1
 slug: cong-cu-xet-tep-ton-tai
 feature: Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-25T23:37:10Z   # chủ kho gõ «Cổng Đáng TC1–TC5: build (build · park · kill), ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -27,7 +27,7 @@ Vì sao: Gốc: onehub-invest/_acceptance/nang-kit-2-34-0/ — lần nhận 2.34
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ» khi hết timebox
-- Timebox: [đề xuất] 2026-11-05 (mốc Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo)
+- Câu hỏi phép đo trả lời: đã đạt «Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ» chưa?
+- Kết quả nào là SỐNG: Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ
+- Kết quả nào là CHẾT: chưa đạt «Khoá trỏ tệp .js có thật không quyền chạy → xanh; khoá trỏ tệp vắng → đỏ ghim đúng tên; khong-co-lenh | head vẫn đỏ (ca NEN-TD2); khoá dạng ${CLAUDE_PLUGIN_ROOT} giữ dòng bỏ qua như cũ» khi hết timebox
+- Timebox: 2026-11-05 — mốc «Tinh chỉnh sau hai đợt thử»; chủ kho chốt ở Cổng Đáng 26/10
