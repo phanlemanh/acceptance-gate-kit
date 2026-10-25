@@ -5,7 +5,7 @@ slug: vong-don-le-tra-tri-thuc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-25-vong-don-le-tra-tri-thuc-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-25T01:36:47Z
@@ -120,3 +120,10 @@ khuôn · đếm · hạt giống · chiều im), mỗi ca có chiều đỏ.
   - Tìm chữ theo cặp âm tiết: câu mô tả dùng từ khác trang thì trang không hiện — đúng điều ngưỡng của ô đo (dưới 30 %
     sau 10 hồ sơ thì mở tra theo nghĩa).
   - Dòng tra chứng máy đã chạy lệnh tra và đã chạm trang, dòng sổ; không chứng đã đọc kỹ hay đã dùng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-25:
+  - Ngoài-2: Nếu sau này danh sách tệp chép cho kho tiêu thụ thiếu một tệp mà lệnh tra cần, lệnh tra âm thầm làm việc kém đi mà không bài kiểm nào báo đỏ — phép đo hiện chỉ đếm dòng trong danh sách.
+  - Ngoài-4: Căn cứ ghi tay đường tới sổ hồ sơ trước theo kiểu lạ (có «./» ở đầu) vẫn được nhận nhưng không được tính vào con số đo tri thức, nên con số có thể thấp hơn thực tế.
+  - Ngoài-6: Bài kiểm chưa chứng riêng luật «căn cứ trỏ sổ của chính hồ sơ thì đếm 0»; hành vi hôm nay đúng nhờ một chốt khác, luật ấy bị phá sau này thì bài kiểm có thể vẫn xanh.
+  - Ngoài-7: Bài kiểm «lời người ở cổng xếp trước» đúng sẵn nhờ thứ tự tên hồ sơ, chưa chứng riêng luật xếp lời người trước.
+- Mở hợp đồng mới (Ngoài-1): hạt giống `docs/plans/2026-10-25-hat-giong-nhan-luat-san-pham-danh-sach-chep.md`.
+- Mở hợp đồng mới (Ngoài-3, Ngoài-5): hạt giống `docs/plans/2026-10-25-hat-giong-tri-thuc-khai-sai-lam-sap-the.md`.
