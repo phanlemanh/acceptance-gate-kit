@@ -14,11 +14,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
 import { caNghi } from './hai-moi-truong.mjs';
+import { caDoiThanLichSu, docTai, goiTai } from './ca-doi-than.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
 const GOI = path.join(KIT, 'dieu-phoi');
 export const SHA_MOC = '45e9f2cf13d104aa4b1a2321a0026c4b739f8914';
+// Sha lượt chấm 3 của chính hồ sơ này (run-log) — mốc cuối CỐ ĐỊNH của TC1-06 và TC1-09 (hồ sơ trao-vai-va-do-sau-gop):
+// hai ca so lịch sử giữa hai sha, không đọc cây làm việc, nên không đỏ giả khi main trôi sau gộp.
+export const SHA_TC1_CHAM = 'e208665fba6bbf3069b2d079c64448b8010ac180';
 const APP = 'local_gs';
 const CLI_ID = 'c-gs';
 const PHUT = 60_000;
@@ -361,15 +365,18 @@ async function dauRaDocCu(gocGoi, doiHang = null) {
   return ra;
 }
 const lechNhau = (x, y) => x.flatMap(([ten, v], i) => (y[i]?.[1] === v ? [] : [ten]));
-test('TC1-06 doc-cu-tung-byte', async () => {
-  const moi = await dauRaDocCu(GOI);
+test('TC1-06 doc-cu-tung-byte', async (t) => {
+  const goiCham = goiTai(KIT, SHA_TC1_CHAM);
+  if (!goiCham) return t.skip(`sha chấm TC1 ${SHA_TC1_CHAM.slice(0, 12)} không có trong lịch sử`);
+  canDon.push(path.dirname(goiCham));
+  const moi = await dauRaDocCu(goiCham);
   const cu = await dauRaDocCu(goiMoc());
-  console.log(`  số đầu ra so: ${moi.length}`);
+  console.log(`  số đầu ra so: ${moi.length} (gói tại ${SHA_TC1_CHAM.slice(0, 12)} so với ${SHA_MOC.slice(0, 12)})`);
   assert.equal(moi.length, 8);
   assert.deepEqual(lechNhau(moi, cu), []);
   // Đối chứng dương của phép so: đổi một hàng ở một bên → lệch đúng hàng ấy.
-  const doi = await dauRaDocCu(GOI, { d: ['d', 'bao-chu-kho', 5, 50, 'yeu-cau'] });
-  assert.deepEqual(lechNhau(doi, cu).filter((t) => t.startsWith('danh-thuc')), ['danh-thuc d']);
+  const doi = await dauRaDocCu(goiCham, { d: ['d', 'bao-chu-kho', 5, 50, 'yeu-cau'] });
+  assert.deepEqual(lechNhau(doi, cu).filter((x) => x.startsWith('danh-thuc')), ['danh-thuc d']);
 });
 
 // ---------- TC1-07: dòng vàng vai mã app đời trước (AC-7, E7) ----------
@@ -439,39 +446,10 @@ test('TC1-08-do bo-mot-buoc', () => {
 });
 
 // ---------- TC1-09: ca đã có đổi thân phải có tên trong sổ (AC-9, E9) ----------
-// Khối của một ca = từ dòng sau khi ca trước khép tới dòng `});` khép ca này (dữ liệu dựng ngay trên một ca thuộc ca ấy).
-// Phần trước ca đầu là «(đầu <tệp>)».
-export function khoiCa(text, tep) {
-  const ra = new Map();
-  if (text == null) return ra;
-  const dong = text.split('\n');
-  let dau = 0;
-  for (let i = 0; i < dong.length; i++) {
-    const m = /^test\((['"`])(.+?)\1/.exec(dong[i]);
-    if (!m) continue;
-    if (!ra.size && dau === 0 && i > 0) {
-      ra.set(`(đầu ${tep})`, dong.slice(0, i).join('\n'));
-      dau = i;
-    }
-    let j = i;
-    while (j < dong.length && !/^\}\);\s*$/.test(dong[j])) j++;
-    ra.set(m[2], dong.slice(dau, j + 1).join('\n'));
-    dau = j + 1;
-    i = j;
-  }
-  return ra;
-}
-export function caDoiThan(goc, tu, docMoi = (f) => fs.readFileSync(path.join(goc, f), 'utf8')) {
-  const cu = git(goc, 'ls-tree', '-r', '--name-only', tu, '--', 'tests/dieu-phoi').split('\n').filter((f) => f.endsWith('.test.mjs'));
-  const ra = [];
-  for (const f of cu) {
-    const truoc = khoiCa(git(goc, 'show', `${tu}:${f}`), path.basename(f));
-    const sau = khoiCa(fs.existsSync(path.join(goc, f)) ? docMoi(f) : null, path.basename(f));
-    for (const [ten, than] of truoc) if (sau.get(ten) !== than) ra.push(ten);
-  }
-  return ra.sort();
-}
-const caKhaiTrongSo = () => fs.readFileSync(path.join(KIT, '_acceptance', 'danh-thuc-doc-nhip-dung-ma', 'decisions.jsonl'), 'utf8').split('\n').filter(Boolean).flatMap((d) => {
+// Hai đầu cố định (SHA_MOC → SHA_TC1_CHAM), sổ đọc tại SHA_TC1_CHAM — bộ đọc chung ca-doi-than.mjs (hồ sơ
+// trao-vai-va-do-sau-gop). Không đọc cây làm việc: vòng sau đổi thân ca DP3 không làm ca này đỏ.
+const SO_TC1 = '_acceptance/danh-thuc-doc-nhip-dung-ma/decisions.jsonl';
+export const caKhaiTrongSo = (soText) => (soText ?? '').split('\n').filter(Boolean).flatMap((d) => {
   try {
     const o = JSON.parse(d);
     return o.type === 'fix' && Array.isArray(o.ca_doi_than) ? o.ca_doi_than : [];
@@ -479,18 +457,19 @@ const caKhaiTrongSo = () => fs.readFileSync(path.join(KIT, '_acceptance', 'danh-
     return [];
   }
 }).sort();
-test('TC1-09 than-ca-doi', () => {
-  const ds = caDoiThan(KIT, SHA_MOC);
-  console.log(`  ca đổi thân so với ${SHA_MOC.slice(0, 12)}: ${ds.join(' · ') || '(không)'}`);
-  assert.deepEqual(ds, caKhaiTrongSo());
-  // Đối chứng dương: tiêm một khoảng trắng vào thân một ca DP3 trong bản đọc → hàm kiểm nêu đúng tên ca ấy.
+test('TC1-09 than-ca-doi', (t) => {
+  const kq = caDoiThanLichSu(KIT, SHA_MOC, SHA_TC1_CHAM);
+  if (kq.boQua) return t.skip(kq.boQua);
+  console.log(`  ca đổi thân ${SHA_MOC.slice(0, 12)}..${SHA_TC1_CHAM.slice(0, 12)}: ${kq.ds.join(' · ') || '(không)'}`);
+  assert.deepEqual(kq.ds, caKhaiTrongSo(docTai(KIT, SHA_TC1_CHAM, SO_TC1)));
+  // Đối chứng dương: tiêm một khoảng trắng vào thân ca DP3-02 30-giay ở bản đọc tại mốc cuối → hàm nêu đúng tên ca ấy.
   const f = 'tests/dieu-phoi/tiep-tuc.test.mjs';
-  const tiem = (p) => {
-    const s = fs.readFileSync(path.join(KIT, p), 'utf8');
-    return p === f ? s.replace("test('DP3-02 30-giay', () => {\n", "test('DP3-02 30-giay', () => {\n \n") : s;
+  const tiem = (sha, p) => {
+    const v = docTai(KIT, sha, p);
+    return sha === SHA_TC1_CHAM && p === f ? v.replace("test('DP3-02 30-giay', () => {\n", "test('DP3-02 30-giay', () => {\n \n") : v;
   };
-  assert.notEqual(tiem(f), fs.readFileSync(path.join(KIT, f), 'utf8'), 'bước tiêm không áp được');
-  assert.deepEqual(caDoiThan(KIT, SHA_MOC, tiem).filter((t) => !ds.includes(t)), ['DP3-02 30-giay']);
+  assert.notEqual(tiem(SHA_TC1_CHAM, f), docTai(KIT, SHA_TC1_CHAM, f), 'bước tiêm không áp được');
+  assert.deepEqual(caDoiThanLichSu(KIT, SHA_MOC, SHA_TC1_CHAM, { doc: tiem }).ds.filter((x) => !kq.ds.includes(x)), ['DP3-02 30-giay']);
 });
 
 // ---------- TC1-09 hai-moi-truong-so: phép so của script hai môi trường (AC-9, E9b) ----------
