@@ -26,7 +26,6 @@ thứ đó, một lần nâng upstream có thể đổi phán quyết dưới ch
 | Kho | `https://github.com/jangtrinh/design-os` (công khai) |
 | Commit | `a7ad5f1e650321ac325734e9199f266c9b990212` — đỉnh `main` ngày 2026-10-22 |
 | Phiên bản gói trong `package.json` | `0.6.1` (chuỗi chưa nâng; xem dưới) |
-| Giấy phép | PolyForm Shield 1.0.0 (từ commit `cb6ae7b`, 2026-10-20) |
 
 **Vì sao không ghim gói npm `ease-design@0.6.1`.** Gói 0.6.1 dựng từ `cb6ae7b` (trường `gitHead` của
 registry), mà `ui reuse-plan check` chỉ vào upstream ở `13b4454` (#349, 2026-10-22) — sau bản phát
@@ -37,11 +36,6 @@ giống hệt nhau.
 **Bản sao `~/dev/designos` trên máy không phải bản ghim.** Đo 2026-10-26: `src/` của nó khớp
 `13b4454` trừ hai tệp đã sửa tay (`src/commands/onboard.ts`, `src/core/ds-diff-format.ts`), và
 `knowledge/` lệch. Bộ đo không bao giờ đọc nó; nguồn duy nhất là commit trên.
-
-**Giấy phép là điều kiện của bước 2, không phải của bước 1.** Bước 1 không phân phối mã upstream (chỉ
-lấy về cache lúc chạy). Bước 2 chép mã vào kit — tức là phân phối dưới PolyForm Shield, giấy phép
-cấm dùng để cung cấp sản phẩm cạnh tranh với phần mềm gốc. Đó là quyết định khó đảo của chủ kit; bộ
-đo này không trả lời được nó.
 
 ## 3. Năm lệnh v1
 
@@ -174,7 +168,6 @@ CI chạy job `design-floor` trong `.github/workflows/gate.yml`. Chi phí: 0 tok
     "commit": "a7ad5f1e650321ac325734e9199f266c9b990212",
     "ngay_commit": "2026-10-22",
     "phien_ban_goi": "0.6.1",
-    "giay_phep": "PolyForm-Shield-1.0.0",
     "lay_ve": ["/src/", "/knowledge/", "/schemas/", "/package.json", "/package-lock.json", "/LICENSE", "/a11y/package.json", "/recall/package.json"]
   },
   "ma_thoat": { "PASS": 0, "FAIL": 2, "THIEU_TEP": 3, "SAI_CU_PHAP": 4, "NOT_MEASURABLE": 5 },

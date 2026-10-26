@@ -49,7 +49,6 @@ nó là vật máy giữ (khối máy + xfail chặt), không phải lời dặn
 |---|---|---|---|---|
 | 1 | Lấy đúng commit upstream về CI đủ rẻ để chạy mỗi PR | Bộ đo chỉ chạy tay → lại văn xuôi | sparse + depth 1 + `npm ci --omit=dev --workspaces=false`, đo thời gian lạnh | Đã thử: 14 s trọn bộ trên node 22, cache lạnh |
 | 2 | Upstream nhận bốn nhóm sửa đổi (A–D) dưới dạng bật-theo-cờ | Kit phải giữ bản vá cục bộ → sổ LOCAL-PATCHES phình | Mở PR nhóm A (nhỏ nhất, chặn S4) và đo phản hồi | Chưa thử — PR chưa mở |
-| 3 | PolyForm Shield 1.0.0 cho phép kit phân phối mã vendored | Bước 2 không được chép mã vào kit | Owner đọc giấy phép (khó đảo, không phải việc máy) | Chưa quyết — điều kiện của bước 2 |
 
 ## Ngưỡng chết / ngưỡng UAT
 
@@ -70,7 +69,7 @@ Không dựng prototype riêng; số đo ở trên lấy từ chính bộ đo.
 
 | Món vật liệu | Nguồn | Phân loại | Kế thừa? | Người ký |
 |---|---|---|---|---|
-| Mã chấm Design OS @ `a7ad5f1` | github.com/jangtrinh/design-os (PolyForm Shield 1.0.0) | vật | bước 2, sau quyết định giấy phép | — |
+| Mã chấm Design OS @ `a7ad5f1` | github.com/jangtrinh/design-os | vật | bước 2 | — |
 | Bộ mã thoát 0/2/3/4/5 | `scripts/design-gate.mjs` của kit | luật | có — một bảng mã cho hai cổng thiết kế | — |
 | Hình dạng tệp khai + băm từng tệp + một lệnh kiểm CI | ô `lop-vendored-tu-xung` (decided, chưa dựng) | triết-lý/logic | có — `upstream.lock.json` là ca thứ hai của cùng hình dạng | — |
 | Đo chéo kit ↔ Design OS 26/10 | phiên design-floor 26/10 | số đo | có, làm nền vấn đề | — |
