@@ -25,7 +25,19 @@ component source (`.tsx`, `.jsx`, `.vue`, no extension…) and it keeps its exit
 code but answers `verdict: "KHONG-DO-DUOC"` with `do_duoc: false` and one stderr
 line instead of `PASS` — style objects, classNames and computed props are
 invisible there, so a green on such a target is not a pass. Capture the running
-page (`--html`) and gate that file instead.
+page (`--html`) and gate that file instead. To make that answer red, add
+`--require-measured`: a non-HTML target then exits **5** (`require_measured:
+true` in the JSON), in static and dom mode alike — dom decides by extension
+before loading jsdom. A blocking finding static can see still exits 2; HTML
+targets do not change. One flag on `executors.design.gate` opts in every eval
+that references it; an eval that must stay on a component file declares
+`expected_exit: 5` so its pin says so out loud.
+
+Static never computes color or contrast — not even on rendered HTML: a
+`<p style="color:#eee;background:#fff">` page passes static and fails `--mode
+dom` with `low-contrast`. A color red direction needs dom (jsdom, with the
+page's CSS reachable) or this Tier B check, not static — run the red side once
+before trusting the green.
 
 ## eval shape
 

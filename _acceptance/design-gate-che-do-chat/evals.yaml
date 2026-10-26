@@ -1,0 +1,88 @@
+schema_version: 1
+feature_slug: design-gate-che-do-chat
+# Ca đo sống ở tests/scripts/design-gate-che-do-chat.test.mjs (DG-CC1…DG-CC7, đích do ca SINH trong lượt hoặc chép từ
+# tests/design-eval/fixtures) — mỗi eval chốt một ca; E5 dùng lại bộ ca của hồ sơ nen-dieu-kien-va-static-khong-do-duoc.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.dgc_chat_khong_html
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC1 " — bốn ô static có cờ (tsx-sach · jsx-sach · vue-sach · khong-duoi)
+      mỗi ô mã 5, JSON verdict KHONG-DO-DUOC · exit_code 5 · do_duoc false · require_measured true, stderr đúng
+      một dòng bắt đầu "design-gate: static không đo được tệp này (<đuôi>)" chứa "--require-measured: thoát 5".
+      Đối chứng cùng fixture: cùng bốn ô KHÔNG cờ cho mã 0 — thiếu đối chứng thì ca FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.dgc_chat_loi_thay
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC2 " — ô tsx-anh-rong static có cờ: mã 2, verdict REJECT, blocking chứa
+      broken-image, do_duoc false.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.dgc_chat_html_y_cu
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC3 " — năm ô HTML (html-sach · HOA.HTML · html-anh-rong · html-p1 với
+      --fail-on P0,P1 · html-chu-nhat) chạy có cờ và không cờ: mã + verdict hai lượt bằng nhau và bằng bảng
+      mong đợi 0/PASS · 0/PASS · 2/REJECT · 2/REJECT · 0/PASS; JSON không khoá do_duoc/require_measured;
+      stderr không dòng «không đo được». Đối chứng đỏ nằm trong chính bảng: html-anh-rong và html-p1 phải 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.dgc_chat_dom
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC4 " — tsx-dom-chat (dom · có cờ · --jsdom thư mục không tồn tại): mã 5,
+      mode dom, verdict KHONG-DO-DUOC, do_duoc false, stderr đúng một dòng "design-gate: dom không đo được tệp
+      này (.tsx)…"; đối chứng html-dom-chat cùng lệnh: mã 3 BLOCKED, và tsx-dom KHÔNG cờ cùng lệnh: mã 3.
+      Thứ tự: --jsdom trỏ jsdom GIẢ do ca sinh → tsx-dom-jsdom-gia mã 5 và tệp lính canh KHÔNG có; đối chứng
+      html-dom-jsdom-gia → lính canh CÓ (thiếu thì ca FAIL «đối chứng hỏng»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ndk_static_khong_do
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-KDD1 ", "PASS: DG-KDD2 ", "PASS: DG-KDD3 " — vắng cờ, mã thoát mười ô bằng
+      bản gốc 0c1fd9ff; đột biến của bộ ca cũ vẫn tiêm được (chuỗi tiêm còn khớp đúng một lần).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.dgc_chat_vi_tri_co
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC6 " — ba cách gọi (cờ trước đích · cờ sau đích · `--target <đích> --mode
+      static --require-measured`) đều mã 5 và JSON target bằng đường đích; vòng lặp do ca sinh: `|| exit 1`
+      → 1, `|| exit $?` → 5, không cờ → 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.dgc_chat_dot_bien
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC7 " — bản lành xanh trên ma trận trước (đối chứng dương); đột biến (a)
+      nhánh chặt thoát 0 → lỗi nêu "tsx-sach"; (b) gỡ nhánh dom quyết-trước-jsdom → "tsx-dom-chat"; (c) nhánh
+      chặt áp cả HTML → "html-sach"; (d) quyết sau khi nạp jsdom → "tsx-dom-jsdom-gia: jsdom đã bị nạp"; (e)
+      vị từ đuôi riêng phân biệt hoa thường → "HOA.HTML@dom". Chuỗi tiêm khớp đúng một lần, không thì FAIL có tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.dgc_chat_quan_he
+    paths: [scripts/design-gate.mjs, tests/scripts/design-gate-che-do-chat.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DG-CC8 " — 12 đích × {static, dom}: có cờ → 5 khi và chỉ khi ô không đo được
+      (định nghĩa viết độc lập trong ca), ô khác mã + verdict bằng lượt không cờ. Chiều đỏ: đột biến (e) của
+      E7 làm chính quan hệ này nêu "HOA.HTML@dom".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
