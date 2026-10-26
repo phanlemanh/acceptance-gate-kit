@@ -2,7 +2,7 @@
 
 Chủ kho gọi tên 26/10: cắt hàng vào mốc «Tinh chỉnh sau hai đợt thử» (05/11) cho các lỗi kit đã đủ ngưỡng; gói
 `dieu-phoi` trước (đánh thức, khoá s4, `hang them`, `hang chay-lai`), rồi tệp sinh xung đột; mở vòng feature-loop đầu
-tiên. Nguồn từng mã — gốc trong mã, tái hiện, cách né, đề xuất kèm chiều đỏ — là hạt giống dưới; số `M<n>` trùng số mục
+tiên. Mã `B1`–`B3` thêm 26/10 sau Cổng Bằng chứng TC1 (hạt giống `docs/plans/2026-10-26-hat-giong-tc1b-sau-danh-thuc.md`). Nguồn từng mã — gốc trong mã, tái hiện, cách né, đề xuất kèm chiều đỏ — là hạt giống dưới; số `M<n>` trùng số mục
 của hạt giống. Mục 10 của hạt giống (ghi chú nhận ghi sai bản) đã sửa ở PR mang hạt giống nên không có mã ở đây. Mục 5
 tách hai: nửa `chay-lai` là TRỪ (chiều ngược của lệnh `nghi` đã có), nửa `uu-tien` là CỘNG và chờ chủ kho phê.
 
@@ -24,5 +24,8 @@ nguon: docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest
 - `M7` — kiem-ban-cai tách lệch chỉ-tệp-không-chạy sau thẻ khỏi lệch mã, và chỉ lệnh fetch thẻ khi bản clone thiếu thẻ
 - `M8` — kiem-ban-cai in lối sửa chạy được cho bản ghi cây phụ lệch số, tách bản ghi mồ côi
 - `M9` — hook chan-s4 không chặn heredoc mà thân chỉ là dữ liệu
+- `B1` — lệnh vai --giam-sat trao vai không gắn mã CLI của phiên trao vào giám sát mới (Cổng Bằng chứng TC1, Ngoài-5/8)
+- `B2` — lời dặn chẩn đoán lại của tiep-tuc khớp hành vi chẩn đoán khi nhận mã CLI (Cổng Bằng chứng TC1, Ngoài-1)
+- `B3` — hai phép đo TC1-06 và TC1-09 không đỏ giả cho vòng sau khi TC1 đã gộp (Cổng Bằng chứng TC1, Ngoài-6/7)
 ```
 <!-- PHAM-VI-MA>>> -->
