@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e208665fba6bbf3069b2d079c64448b8010ac180
+verified_commit: 34a8e97654508ecc6a92e70972bc8dc8752dd19e
 human_signoff: manh 2026-10-26 — ký; Ngoài-1, 5, 6, 7, 8 mở hợp đồng mới (gom thành TC1b); Ngoài-2, 3, 4, 9, 10 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -194,3 +194,7 @@ none — every multi-run eval is uniform
 Round 1: REJECT — E9b chập chờn ca cũ dưới tải; AC-8 đo chuỗi thay vì quan hệ theo từng dòng. Returned to implementation.
 Round 2: REJECT chỉ vì suite (P179 sổ known-limits thiếu hàng; LT-99-mau ENOTEMPTY); các eval của hợp đồng đều xanh. Returned to implementation: thêm 7 hàng sổ known-limits, dọn thư mục tạm có thử lại.
 Round 3: PASS — 10 eval mang từ round 2 (delta không chạm paths), 11 lệnh suite xanh ở sha e208665fba6bbf3069b2d079c64448b8010ac180.
+
+### Re-pin lần 1 — 2026-10-26, do ghim lại sau gộp origin/main (#413 design-gate)
+run_id: repin-20261026T084701Z-71465
+sha: 34a8e97654508ecc6a92e70972bc8dc8752dd19e · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
