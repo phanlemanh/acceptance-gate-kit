@@ -13,6 +13,7 @@ Các bước, đúng thứ tự:
 
 0. **Đọc mức dùng.** Gọi `get_usage` (công cụ phiên của app), rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" han-muc --nguon get-usage --phien <mã phiên này> --doc '<kết quả get_usage>'`.
+   `--phien` là mã app `local_…` như bước 1 — lần đọc mức dùng gắn với đúng mã mà bước 1 nhận vai.
    Kho không có đợt thì lệnh in `khong-co-dot` — đi tiếp bước 1 (bước 1 sẽ dừng).
 1. **CLI tiếp tục.** Lấy mã phiên này bằng công cụ phiên của app, rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" tiep-tuc --phien <mã phiên này> --json $ARGUMENTS`.
@@ -52,7 +53,8 @@ Các bước, đúng thứ tự:
    - `cho-nguoi`: không mở chip; đưa vào «việc chờ anh» ở bước 5.
    - `chua-biet`: không mở chip; nói người kiểm thanh bên xem dãy còn phiên không (đợt chưa có nhịp sống).
    - `khong-hang`: không mở chip; nói một dòng «dãy <id>: <ly_do>» (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng).
-5. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet --phien <mã phiên này>`.
+5. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet --phien <mã phiên này>`
+   (mã app `local_…` như bước 1; mã CLI cũng nhận).
    Báo người đúng một khối: «đợt <tên> chạy lại · k dãy cần bấm chip · việc chờ anh: …» — k = số mục `day:*`
    mang hành động `mo-chip` (chip vừa mở ở bước 4: mục `du`, không mở lại); việc chờ là mục `viec-cho`, cũ nhất
    trước. Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.

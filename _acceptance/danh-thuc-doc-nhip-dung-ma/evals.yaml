@@ -111,9 +111,12 @@ evals:
     cmd: config:executors.test.dieu_phoi_tc1
     paths: [dieu-phoi/commands/tiep-tuc.md, dieu-phoi/commands/ban-giao.md, dieu-phoi/commands/mo-dot.md, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
     expected: >
-      exit 0; "ok" cho "TC1-08 loi-dan": hàm kiểm đọc ba tệp lệnh, mỗi dòng có «--phien» trong khối lệnh của phiên giám
-      sát thì đoạn quanh nó có «mã app» và «local_» và câu máy tự ghi mã CLI; in «số tệp: 3». "ok" cho "TC1-08-do
-      ban-cu": ba tệp ở sha ghim (rút bằng git show) → hàm kiểm nêu đúng ba tên tệp.
+      exit 0; "ok" cho "TC1-08 loi-dan": quan hệ theo TỪNG dòng — mỗi dòng mang `--phien <mã phiên này>` của ba tệp lệnh
+      nằm trong một bước đánh số mà chính bước ấy nói «mã app `local_…`», và mỗi tệp có câu «máy tự ghi mã CLI»; ma trận viết
+      trước 6 dòng, in «số dòng --phien <mã phiên này>: 6». "ok" cho "TC1-08-do ban-cu": ba tệp ở sha ghim (git show) → 6
+      dòng đều đỏ «bước có --phien không nói mã app» và ba tệp thiếu câu. "ok" cho "TC1-08-do bo-mot-buoc": đối chứng dương
+      xanh; bỏ câu mã app khỏi bước 5 của tiep-tuc.md (kiểm bước tiêm áp) → đúng một lỗi «tiep-tuc.md:<dòng>: bước có --phien
+      không nói mã app».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -132,7 +135,9 @@ evals:
     paths: [tests/dieu-phoi/**, dieu-phoi/**]
     expected: >
       exit 0; script chạy suite tests/dieu-phoi/**/*.test.mjs hai lần — môi trường đã xoá CLAUDE_CODE_HOST_SESSION_ID và
-      CLAUDE_CODE_SESSION_ID, rồi môi trường cha mang hai biến giả local_x / y — in hai dòng «<lần>: <n> ok · 0 not ok»
-      với cùng n > 0 và dòng cuối «hai-moi-truong: XANH — cùng tập dòng ok». Một ca chỉ xanh ở một môi trường, hay một
-      dòng not ok, hay không đọc được dòng ok nào → dòng «LỖI …» gọi tên và «hai-moi-truong: ĐỎ», exit 1.
+      CLAUDE_CODE_SESSION_ID, rồi môi trường cha mang hai biến giả local_x / y — in hai dòng «<lần>: <n> ok · <k> not ok»;
+      mỗi ca lệch hay đỏ được chạy lại ĐÚNG MỘT lần ở cả hai môi trường: xanh cả hai → dòng «CHẬP CHỜN <ca>», còn lệch hay
+      còn đỏ → «LỖI <ca>: …»; dòng cuối «hai-moi-truong: XANH — cùng tập dòng ok» khi không còn LỖI. "ok" cho "TC1-09
+      hai-moi-truong-so" (khoá dieu_phoi_tc1): phép so caNghi trên tập tổng hợp — cùng tập → rỗng (đối chứng dương); xanh
+      một bên đỏ bên kia, chỉ có một bên, đỏ cả hai → mỗi ca nghi đúng tên.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -13,6 +13,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
+import { caNghi } from './hai-moi-truong.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -389,16 +390,52 @@ test('TC1-07 vang-ma-app', async () => {
 });
 
 // ---------- TC1-08: lời dặn ba lệnh (AC-8, E8) ----------
+// Quan hệ theo TỪNG dòng: mỗi dòng mang `--phien <mã phiên này>` nằm trong một bước đánh số (dòng mở bằng «<số>. ») và
+// chính bước ấy phải nói «mã app `local_…`»; mỗi tệp còn phải có câu «máy tự ghi mã CLI». `<mã phiên ngắn>` (phiên lịch
+// 30′, chỉ đọc hạn mức) không thuộc lời hứa.
 const LENH = ['tiep-tuc.md', 'ban-giao.md', 'mo-dot.md'];
-export const thieuLoiDan = (vanBan) => Object.entries(vanBan).filter(([, s]) => !(s.includes('mã app `local_…`') && s.includes('máy tự ghi mã CLI'))).map(([t]) => t);
+const DAU_BUOC = /^\d+\. /;
+export function thieuLoiDan(vanBan) {
+  const loi = [];
+  let soDong = 0;
+  for (const [ten, s] of Object.entries(vanBan)) {
+    const dong = s.split('\n');
+    if (!s.includes('máy tự ghi mã CLI')) loi.push(`${ten}: thiếu câu «máy tự ghi mã CLI»`);
+    dong.forEach((d, i) => {
+      if (!d.includes('--phien <mã phiên này>')) return;
+      soDong++;
+      let dau = i;
+      while (dau > 0 && !DAU_BUOC.test(dong[dau])) dau--;
+      let cuoi = i + 1;
+      while (cuoi < dong.length && !DAU_BUOC.test(dong[cuoi]) && !/^#{1,6} /.test(dong[cuoi])) cuoi++;
+      if (!dong.slice(dau, cuoi).join('\n').includes('mã app `local_…`')) loi.push(`${ten}:${i + 1}: bước có --phien không nói mã app`);
+    });
+  }
+  return { loi, soDong };
+}
+const vanBanHienTai = () => Object.fromEntries(LENH.map((t) => [t, fs.readFileSync(path.join(GOI, 'commands', t), 'utf8')]));
 test('TC1-08 loi-dan', () => {
-  const vb = Object.fromEntries(LENH.map((t) => [t, fs.readFileSync(path.join(GOI, 'commands', t), 'utf8')]));
-  console.log(`  số tệp: ${Object.keys(vb).length}`);
-  assert.deepEqual(thieuLoiDan(vb), []);
+  const { loi, soDong } = thieuLoiDan(vanBanHienTai());
+  console.log(`  số dòng --phien <mã phiên này>: ${soDong}`);
+  assert.equal(soDong, 6, 'ma trận viết trước: 6 dòng (tiep-tuc 15, 18, 56 · ban-giao 14, 29 · mo-dot 26 — số dòng đổi theo tệp, số đếm thì không)');
+  assert.deepEqual(loi, []);
 });
 test('TC1-08-do ban-cu', () => {
   const vb = Object.fromEntries(LENH.map((t) => [t, git(KIT, 'show', `${SHA_MOC}:dieu-phoi/commands/${t}`)]));
-  assert.deepEqual(thieuLoiDan(vb), LENH);
+  const { loi, soDong } = thieuLoiDan(vb);
+  assert.equal(soDong, 6);
+  assert.deepEqual(loi.filter((l) => l.includes('thiếu câu')), LENH.map((t) => `${t}: thiếu câu «máy tự ghi mã CLI»`));
+  assert.equal(loi.filter((l) => l.includes('không nói mã app')).length, 6, `mọi dòng --phien ở bản cũ phải đỏ: ${loi.join(' | ')}`);
+});
+test('TC1-08-do bo-mot-buoc', () => {
+  const vb = vanBanHienTai();
+  assert.deepEqual(thieuLoiDan(vb).loi, [], 'đối chứng dương');
+  const cu = '   (mã app `local_…` như bước 1; mã CLI cũng nhận).\n';
+  assert.ok(vb['tiep-tuc.md'].includes(cu), 'bước tiêm không áp được');
+  vb['tiep-tuc.md'] = vb['tiep-tuc.md'].replace(cu, '');
+  const { loi } = thieuLoiDan(vb);
+  assert.equal(loi.length, 1);
+  assert.match(loi[0], /^tiep-tuc\.md:\d+: bước có --phien không nói mã app$/);
 });
 
 // ---------- TC1-09: ca đã có đổi thân phải có tên trong sổ (AC-9, E9) ----------
@@ -455,3 +492,13 @@ test('TC1-09 than-ca-doi', () => {
   assert.notEqual(tiem(f), fs.readFileSync(path.join(KIT, f), 'utf8'), 'bước tiêm không áp được');
   assert.deepEqual(caDoiThan(KIT, SHA_MOC, tiem).filter((t) => !ds.includes(t)), ['DP3-02 30-giay']);
 });
+
+// ---------- TC1-09 hai-moi-truong-so: phép so của script hai môi trường (AC-9, E9b) ----------
+test('TC1-09 hai-moi-truong-so', () => {
+  const lan = (ok, hong = []) => ({ ok: new Set(ok), hong: new Set(hong) });
+  assert.deepEqual(caNghi(lan(['A', 'B']), lan(['A', 'B'])), [], 'đối chứng dương: cùng tập, không đỏ → không nghi');
+  assert.deepEqual(caNghi(lan(['A', 'B']), lan(['A'], ['B'])), ['B'], 'xanh một bên, đỏ bên kia → nghi đúng ca');
+  assert.deepEqual(caNghi(lan(['A']), lan(['A', 'C'])), ['C'], 'chỉ có ở một bên → nghi');
+  assert.deepEqual(caNghi(lan(['A'], ['D']), lan(['A'], ['D'])), ['D'], 'đỏ cả hai → vẫn nghi (không lọt vì «cùng tập»)');
+});
+
