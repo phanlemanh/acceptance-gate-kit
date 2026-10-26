@@ -90,3 +90,42 @@ nên sửa nó không bớt lượt nào.
 - Bộ đếm và lệnh tái lập: `round-tally` trong `_acceptance/*/run-log.jsonl` của crm, lọc theo hồ sơ có
   `executor: ui-check` trong `evals.yaml`, tách lượt cuối khỏi lượt phụ, rồi so `evalId` có `exit_code` ≠ 0
   với executor khai trong `evals.yaml`.
+
+## 6. Hai nhóm lớn hơn — triage sau khi chủ kho xếp lại (26/10)
+
+Cùng cửa sổ, cùng cách đếm «lượt đốt RIÊNG». Bản từng ca nằm ngoài kho kit, như §2.
+
+**87 lượt có lệnh suite của kho đỏ — 35 lượt đốt riêng, ≥ 8 lượt gọi chủ kho đi kèm.**
+
+| Lớp | Lượt | Đốt riêng |
+|---|---|---|
+| Vật của vòng làm suite đỏ (hành vi sai 15 · vỡ bài gác quy ước 13) | 28 | 12 |
+| Lint / kiểu / định dạng / rác | 25 | 9 |
+| Test của chính vòng viết sai | 3 | 1 |
+| Chập chờn / tải (kho 17 · kit 2) | 19 | 9 |
+| Đỏ sẵn / do nhánh chính | 7 | 4 |
+| Không đủ chứng | 5 | 0 |
+
+22 lượt đốt riêng là đỏ tất định do chính vòng gây, bắt được bằng cách chạy `suite_keys` tại chỗ trước khi gửi S4.
+Kit không có bước ấy. Hạt giống: `docs/plans/2026-10-26-hat-giong-chay-suite-truoc-luot-cham.md`.
+
+**69 lượt PASS/PENDING-JUDGMENT không phải lượt cuối:**
+
+| Lớp | Lượt | Gọi người |
+|---|---|---|
+| Thực chất REJECT: eval xanh nhưng có phát hiện trong hợp đồng / lượt chưa đạt thật | 33 | 4 |
+| Nâng mục ngoài hợp đồng để sửa ngay | 14 | 12 |
+| Cây trôi sau gộp nhánh chính (5 sau chữ ký · 2 trước) | 7 | 6 |
+| Người ở Cổng Bằng chứng yêu cầu sửa/thêm | 5 | 5 |
+| Phát hiện muộn / hồ sơ trượt khuôn | 5 | 4 |
+| Hợp đồng đổi sau khi đạt | 3 | 3 |
+| Chờ người phán rồi chấm lại | 2 | 2 |
+
+Nhãn PASS ở dòng `round-tally` là kết quả của eval, không phải của cả lượt: một nửa nhóm này là vòng sửa bình
+thường. Đoạn ký→gộp tốn 7 lượt và 6 lượt gọi người. Khoảng 8 lượt gọi khác chỉ có một câu trả lời hợp lý («ừ»),
+tức là trạm thu phí. Kit tránh chắc được 3 lượt bằng cơ chế đã có (làn ghim lại thay S4 khi chỉ chạy lại suite ·
+phát hiện trong hợp đồng tự REJECT · lưới nhãn cross-layer trước khi ký).
+
+**Kết luận của §6:** chỗ tốn lớn nhất mà kit gỡ được rẻ không nằm ở bộ chấm giao diện (≈ 5 lượt) mà ở việc gửi
+lượt chấm khi suite của kho còn đỏ vì chính vòng (22 lượt), cộng chập chờn không được chạy lại trong S4 (8) và đỏ
+sẵn không được so với merge-base (4).

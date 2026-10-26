@@ -18,6 +18,7 @@ Gốc: crm/_acceptance/luu-tru-truong-khong-hoi — E10 đo vật thay thế, ch
 Gốc: crm/_acceptance/the-gop-y-okr — một kịch bản phục vụ E1/E11/E13; tác tử E1 tính khẳng định của E13 vào E1; lượt 1 REJECT riêng
 Gốc: crm/_acceptance/ly-do-tu-choi-nop-theo-locale — E9 xanh trên hai ảnh «trước/sau tải lại» trùng từng byte; chỉ làn tìm-lỗi bắt
 Số đo: `docs/findings/2026-10-26-bo-cham-giao-dien-dem-lai.md` (đếm lại 32 ca nhóm E tại nguồn, crm `6adaf11e0`).
+Hạt giống sinh sau khi xếp lại: `docs/plans/2026-10-26-hat-giong-chay-suite-truoc-luot-cham.md` (nhóm suite đỏ, 22 lượt đốt riêng gỡ được).
 Đề nghị mở: phiên phân tích Design OS 26/10, theo câu chủ kho «sửa bộ chấm trước, ghép Design OS để sau».
 
 ## Vấn đề & ai gặp
