@@ -30,7 +30,7 @@ Máy đo 26/10, tự điền — chủ kho phủ quyết được:
 
 | # | Bước | Vật ra | Ai quyết | Xong khi | Phụ thuộc |
 |---|---|---|---|---|---|
-| 1 | Bật tầng tri thức | khối `tri_thuc` trong `_acceptance/config.yaml` + kho riêng `acceptance-gate-kit-tri-thuc` | **chủ kho** (Hỏi-1: tạo kho riêng, dùng lượt meta) · máy làm phần còn lại | `/tri-thuc:kiem` 0 lỗi trên kho kit, và đỏ đúng lỗi khi cài một raw vào bản sao công khai | — |
+| 1 | Bật tầng tri thức | khối `tri_thuc` trong `_acceptance/config.yaml` + kho riêng `acceptance-gate-kit-tri-thuc` | **chủ kho** (Hỏi-1: tạo kho riêng, dùng lượt meta) · máy làm phần còn lại | `/tri-thuc:kiem` 0 lỗi trên kho kit, và đỏ đúng lỗi khi kho riêng có commit chưa đẩy | — |
 | 2 | Ghi design-floor vào tri thức | `wiki/chu-de/design-floor.md` + raw bất biến ở kho riêng | máy | trang + raw đã đẩy, `/tri-thuc:kiem` 0 lỗi, có đường trỏ băm | 1; nguồn trong kho đọc trên `main` sau khi #421 gộp |
 | 3 | Cổng thiết kế của kit trả KHÔNG-ĐO-ĐƯỢC | vòng feature-loop T2 sửa `lib/design-detect.mjs` | máy (phán quyết sai = sai hợp đồng) · người ở cổng đã có | 5/5 P0 sai của đo chéo thành KHÔNG-ĐO-ĐƯỢC có lý do; ca tương phản thật vẫn REJECT | — |
 | 4 | Vendor + vá cục bộ + móc bốn điểm | vòng feature-loop: bản vendored khớp băm + sổ LOCAL-PATCHES (A–D) + móc S0/S1/cuối S3/S4 | chủ kho ở các cổng đã có của vòng (CỘNG một plugin mới) | bộ đo bước 1 chạy trên bản vendored, tám XFAIL xanh nhờ bản vá; mỗi điểm móc có đột biến đỏ; không ghi gì sau S4 | #421 gộp |
@@ -64,8 +64,12 @@ Bước 3 không phụ thuộc gì — chạy được ngay, song song với 1�
 — Hỏi-1. Máy: khối khai, `TRI-THUC.md`, chạy lint.
 
 **Xong khi.** `/tri-thuc:kiem` trên kho kit báo 0 lỗi; `tri-thuc-tra.cjs --root . --clone` đọc được kho riêng từ một
-worktree; **chiều đỏ:** trên bản sao bỏ đi của kho kit, cài một `raw/<ngày>-thu/nguon.md` vào cây công khai → lint đỏ
-đúng lỗi `raw-trong-kho-cong-khai`; một commit ở kho riêng chưa đẩy → đỏ đúng `kho-rieng-chua-day`.
+worktree; **chiều đỏ** (trên bản sao bỏ đi, sau đối chứng xanh): một commit ở kho riêng chưa đẩy → đỏ đúng
+`kho-rieng-chua-day`; máy chưa có kho riêng → thoát 3 «không đọc được ở đây» kèm lệnh clone. Khi gốc tri thức là kho
+riêng, cây công khai của kit không chứa thư mục tri thức nào — raw không có đường vào nó.
+
+**Đã làm 26/10:** kho riêng tạo và đẩy (`TRI-THUC.md`); khối khai ở nhánh `chore/bat-tri-thuc-kit`; lint 0 lỗi, hai ca
+đỏ đỏ đúng lỗi.
 
 **North Star.** Không ghi sau S4: thay đổi cấu hình nằm ngoài mọi vòng; tra tri thức ở S1 chỉ đọc. · Lượt người: một
 câu một chạm (Hỏi-1), không thêm cổng — bước 0c của S1 và cờ ở thẻ Cổng Phạm vi đã có. · **Chi phí máy:** từ khi bật, MỌI
@@ -245,7 +249,7 @@ người: tiêu chí 3. · Chi phí: tiêu chí 2. · Chiều đỏ: vòng cài 
 
 | Bước | Không ghi sau S4 | Không thêm lượt / không câu chỉ-«ừ» | Chi phí máy mỗi kết quả gộp | Chiều đỏ |
 |---|---|---|---|---|
-| 1 | ngoài vòng; S1 chỉ đọc | Hỏi-1, một chạm | tra 0 token; đọc trang có trần (nền + ≤2) | raw cài vào bản sao công khai |
+| 1 | ngoài vòng; S1 chỉ đọc | Hỏi-1, một chạm | tra 0 token; đọc trang có trần (nền + ≤2) | commit chưa đẩy · kho vắng |
 | 2 | ngoài vòng | 0 | một lượt ghi | raw sửa một byte |
 | 3 | sửa ở kit | cổng thiết kế của vòng | 0 token | ba đột biến + đối chứng |
 | 4 | bản vá A; autofix + sinh lại ở S3; răng `ui gate` | dòng thẻ là thông tin; chỉ M3 hỏi | 0 token kiểm; trần định tuyến | tám XFAIL + đột biến mỗi điểm móc |
@@ -257,5 +261,7 @@ người: tiêu chí 3. · Chi phí: tiêu chí 2. · Chiều đỏ: vòng cài 
 | # | Câu hỏi | Khuyến nghị và căn cứ | Trả lời một chạm |
 |---|---|---|---|
 | Hỏi-1 | Tạo kho riêng `phanlemanh/acceptance-gate-kit-tri-thuc` và bật tầng tri thức của kit, dùng lượt meta của cửa sổ sau 2.34.0 cho `TT-C5`? | **Có.** Kho kit công khai nên raw không được nằm trong nó; tiền lệ `onehub-invest-tri-thuc` đã chạy; điều kiện mở lại của `TT-C5` đã tới | `Hỏi-1 có` / `Hỏi-1 không` |
+
+**Đã trả lời:** Hỏi-1 — có (chủ kho, 26/10).
 
 Phủ quyết được (máy đã tự điền): thí điểm ở **onehub-invest** thay cho `one-invest` (§0).
