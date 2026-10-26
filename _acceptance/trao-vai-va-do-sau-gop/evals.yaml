@@ -1,0 +1,98 @@
+schema_version: 1
+feature_slug: trao-vai-va-do-sau-gop
+# Ca đo của vòng: tên ca mở bằng «TC1b-», ở tests/dieu-phoi/trao-vai.test.mjs, cộng ca TC1-06/TC1-09 (thân đổi, khai ở
+# sổ). Khoá executor: executors.test.dieu_phoi_tc1b — node --test trên tests/dieu-phoi/**, gộp dòng «ok … TC1b?-»,
+# «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng. Kho thử, đợt (`mo` thật), hook (lệnh rút từ hooks.json) và CLI chạy
+# thật; mọi tiến trình con chạy với môi trường đã xoá CLAUDE_CODE_HOST_SESSION_ID/CLAUDE_CODE_SESSION_ID rồi mới thêm biến
+# của ca. Kho git tạm của AC-5/AC-7 do code dựng trong lượt. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao bị tiêm, sau khi
+# bản lành xanh trên cùng fixture, kiểm bước tiêm đã áp, ghim thông điệp. Đường dẫn suy từ vị trí tệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1b-01 trao-vai": vai sau `vai --giam-sat local_x --phien local_a` (CLAUDE_CODE_SESSION_ID=c-a)
+      mang phien "local_x", không khoá phien_cli; đánh thức (nhịp tươi chỉ của c-a, việc chờ, thức 50′) trả bao-chu-kho.
+      "ok" cho "TC1b-01-do bo-null": đối chứng dương xanh; bản sao dieu-phoi.mjs lệnh vai không truyền phienCli: null
+      (kiểm bước tiêm áp) → hàm kiểm nêu "giám sát mới mang mã CLI của phiên trao" và "đánh thức nhan-giam-sat".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1b-02 tu-nhan-lai": `vai --giam-sat local_a --phien local_a` với CLAUDE_CODE_SESSION_ID=c-a → vai
+      giữ phien_cli "c-a"; cùng lệnh với môi trường đã xoá hai biến → vai VẪN giữ phien_cli "c-a".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [dieu-phoi/scripts/chan-doan.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1b-03 giam-sat-ba-ma": ma trận ba hàng viết sẵn (local_gs → du · c-gs → thieu, câu chứa «mã CLI của
+      giám sát hiện tại» và «local_gs» · la → thieu, câu «giám sát hiện tại là local_gs»), in «số hàng: 3». "ok" cho
+      "TC1b-03-do bo-nhanh-cli": bản sao chan-doan.mjs bỏ nhánh mã CLI (kiểm bước tiêm áp) → hàm kiểm nêu "mã CLI bị mời
+      nhận vai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/trao-vai.test.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1b-04 buoc-5": bước 5 của tiep-tuc.md (khối từ dòng «5. » tới bước kế) không chứa «mã CLI cũng
+      nhận» và chứa «mã app `local_…`»; đối chứng: bản tệp ở đỉnh TC1 8df32d1c (git show) chứa cụm ấy → hàm kiểm nêu
+      "bước 5 còn mời mã CLI". "ok" cho "TC1-08 loi-dan" (không đổi).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-09 than-ca-doi": khoảng so cố định 45e9f2cf…..e208665f… (sha chấm TC1), đọc qua git show, sổ đọc
+      tại e208665f → tập BẰNG ["(đầu tiep-tuc.test.mjs)", "DP3-09 ma-tran"] và bằng khoá ca_doi_than của sổ. "ok" cho
+      "TC1b-05 khong-doc-cay": worktree tạm ở HEAD (git worktree add trong thư mục tạm) đổi thân DP3-02 30-giay và sổ TC1 →
+      hàm vẫn trả đúng tập trên; bản sao hàm đọc cây làm việc ở mốc cuối (kiểm bước tiêm áp) → tập chứa "DP3-02 30-giay".
+      "ok" cho "TC1b-05 sha-vang": gọi với sha không có trong kho → trả {boQua: "sha chấm TC1 không có trong lịch sử"}.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1b-06 tach-khoi": văn bản dựng sẵn (ca một dòng A trước ca B; ba ca sinh trong vòng lặp thụt lề)
+      → khoá đủ A, B và ba ca vòng lặp, thân A không chứa «test('B'»; bộ tách cũ cột 0 chép trong ca → kết quả khác, hàm so
+      nêu ca bị nuốt hoặc lọt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/trao-vai.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-06 doc-cu-tung-byte": bản «mới» là gói rút bằng git archive tại e208665f, so với gói tại 45e9f2cf →
+      8/8 khớp. "ok" cho "TC1b-07 khong-doc-cay": worktree tạm ở HEAD đổi một câu viec của chan-doan.mjs → hàm chọn bản so
+      vẫn trả archive tại e208665f, phép so khớp; bản sao chọn cây làm việc (kiểm bước tiêm áp) → lệch ở «chan-doan».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1_hai_moi_truong
+    paths: [tests/dieu-phoi/**, dieu-phoi/**]
+    expected: >
+      exit 0; «hai-moi-truong: XANH — cùng tập dòng ok», không dòng LỖI.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8b
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1b
+    paths: [tests/dieu-phoi/**, dieu-phoi/**]
+    expected: >
+      exit 0; tổng kết TAP «# fail 0» của suite tests/dieu-phoi/**/*.test.mjs; mọi dòng «ok … TC1b-» và «ok … TC1-» có mặt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
