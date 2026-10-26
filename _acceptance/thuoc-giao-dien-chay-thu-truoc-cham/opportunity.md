@@ -3,10 +3,10 @@ schema_version: 1
 slug: thuoc-giao-dien-chay-thu-truoc-cham
 feature: Thước giao diện tự chứng hai chiều trước lượt chấm — kịch bản đo của eval giao diện được máy chạy thử (đối chứng xanh + chiều đỏ) ở ranh giới làm-xong→chấm; ảnh trùng byte hoặc cao đúng bằng khung nhìn ra cờ vàng; kịch bản dùng chung chỉ tính khẳng định của eval mình
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:                   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: park               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-26T04:22:13Z   # owner gõ «park» một chạm trong phiên 26/10, máy ghi hộ
 prototype:
   base_commit:
   disposition:
@@ -72,9 +72,9 @@ Không dựng prototype. Phép đo trên lịch sử thật thay cho nó (findin
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = park** Căn cứ: chủ kho gõ «park» 26/10 sau khi đọc số đo ở trên — kit chỉ sửa được ≈ 5 lượt chấm + 1 lượt gọi người trong 7 tuần trên một kho, mở vòng tốn thêm 2 lượt gọi và chiếm suất vòng meta duy nhất của cửa sổ; lỗ độ tin chưa làm sai chữ ký nào.
 - **disposition = …** Căn cứ: không có prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** không áp — vòng không mở. Ngưỡng `[đề xuất]` ở trên giữ làm khung cho lần mở lại; mở lại theo khuôn đếm dưới.
 
 **Khuyến nghị của máy: `park`.** Căn cứ: giả định 1 đã thử và sai. Phần kit sửa được là ≈ 5 lượt chấm + 1 lượt
 gọi chủ kho trong 7 tuần, trên một kho. Mở vòng tốn thêm 2 lượt gọi chủ kho (Phạm vi · Bằng chứng, ngoài lượt
