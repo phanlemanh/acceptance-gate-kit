@@ -47,6 +47,23 @@ jobs:
       - name: bản đồ sản phẩm khớp hồ sơ xưởng
         run: node scripts/product-map.mjs --root . --check
 
+  # design-floor bước 1 — hợp đồng nhập cho mã Design OS sẽ vendor (design-floor/HOP-DONG-NHAP.md).
+  # Job riêng vì nó cần mạng: lấy ĐÚNG commit upstream đã ghim (sparse, depth 1) + deps runtime của nó,
+  # dựng `ui` bằng esbuild rồi chấm. 0 token. Giới hạn đã khai là xfail CHẶT: đỏ đúng chữ ký thì xanh,
+  # upstream sửa xong mà giới hạn còn khai thì ĐỎ (XPASS) — gỡ giới hạn ở khối máy của hợp đồng.
+  design-floor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: esbuild ghim của bộ đo
+        run: npm ci --prefix tests/design-floor --no-audit --no-fund
+      - name: rào đóng kín + bộ đo hợp đồng + chiều đỏ
+        run: bash tests/design-floor/run-tests.sh
+
   gate:
     runs-on: ubuntu-latest
     steps:

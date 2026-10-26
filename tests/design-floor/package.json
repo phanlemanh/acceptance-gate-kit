@@ -1,0 +1,12 @@
+{
+  "name": "design-floor-hop-dong",
+  "private": true,
+  "type": "module",
+  "description": "Kit-owned import contract suite + module-closure fence for the Design OS (ease-design) code design-floor will vendor. esbuild only reads upstream TypeScript (metafile + test build); nothing here ships.",
+  "scripts": {
+    "test": "bash run-tests.sh"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}
