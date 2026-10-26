@@ -9,6 +9,8 @@ status: draft
 design_doc: _acceptance/danh-thuc-doc-nhip-dung-ma/design.md
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-26T02:12:08Z
 ---
 
 # Acceptance Contract: danh-thuc-doc-nhip-dung-ma
