@@ -8,7 +8,7 @@
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>3 việc"]
-  GD --> XL["Xếp lại sau<br/>23 việc"]
+  GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
@@ -257,6 +257,7 @@ flowchart TD
 - Eval gọi máy chủ qua mạng có thể đo NHẦM CÂY mà vẫn xanh — kit chưa có lưới nào nhìn thấy; đề xuất một lời khai cấp eval (tree_pin) kèm cờ vàng và dòng đếm trên thẻ (`eval-khai-chot-cay`)
 - evals.yaml khai chiều đỏ mà tệp ca không có mũi tiêm nào — lời khai không có vật (`evals-khai-chieu-do-khong-co-vat`)
 - Bộ đọc frontmatter cắt phần sau « (`frontmatter-thang-mot-ky-hieu`)
+- Giá làn ghim lại, Vòng B — tệp test chỉ làm cũ hồ sơ gọi tên nó (Đ1) · dùng lại kết quả eval theo băm đầu vào cho mọi eval (Đ2) (`gia-lan-ghim-lai-vong-b`)
 - Nghi thức hình áp cho MỌI cổng dừng-chờ-người — không riêng Cổng Phạm vi; mở nguồn kê sang vật của vòng nghiệm thu và điểm dừng-vá (`hinh-o-moi-cong-dung-cho-nguoi`)
 - Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng (`khuon-rang-dung-chung`)
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
