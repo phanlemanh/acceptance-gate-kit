@@ -5,7 +5,7 @@ slug: trao-vai-va-do-sau-gop
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: approved
+status: implemented
 design_doc: _acceptance/trao-vai-va-do-sau-gop/design.md
 approved_by: manh
 approved_at: 2026-10-26
