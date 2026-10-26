@@ -985,6 +985,107 @@
       "tieu_chi": 8,
       "cau_giao": "Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức»",
       "bat_khi": "Sau 10 hồ sơ có dòng «đã tra tri thức» ở các kho đã khai, ≥ 30 % có ít nhất một dòng căn cứ ở bước thiết kế trỏ trang tri thức hay sổ hồ sơ trước (đếm bằng can-cu-s1.cjs --dem)"
+    },
+    {
+      "nhom": "design-floor",
+      "hang": "T2",
+      "dot": "design-floor-2710",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/design-gate-che-do-chat/ — cổng thiết kế đã có trạng thái KHÔNG-ĐO-ĐƯỢC cho đích không phải HTML, nhưng đo chéo 26/10 thấy P0 tương phản sai 5/8 lần và lặng lẽ REJECT 3/5 tệp vì ba nguyên nhân. Trang acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626.",
+      "ghi_chu": "Sửa ở tầng dùng chung lib/design-detect.mjs (đường dom); Impeccable vendored giữ nguyên từng byte. Đếm trước ở crm, onehub-invest, artifact-platform các REJECT dom đúng ba nguyên nhân. Dùng một phần hạt giống docs/plans/2026-10-25-hat-giong-design-gate-dom-mu-tailwind-v4.md. Kế hoạch: docs/plans/2026-10-26-ke-hoach-design-floor-tiep.md bước 3.",
+      "ma": "FL1",
+      "slug": "design-gate-khong-do-duoc-ba-nguyen-nhan",
+      "ten_ngan": "Cổng thiết kế không chặn oan",
+      "vai": "nen",
+      "phu": [
+        "K1"
+      ],
+      "tieu_chi": 8,
+      "cau_giao": "Cổng thiết kế của kit trả KHÔNG-ĐO-ĐƯỢC kèm lý do, không REJECT, khi CSS không đọc được, khi nền khai ở tổ tiên bị bỏ qua, hay khi chữ gradient cắt theo chữ",
+      "bat_khi": "Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca"
+    },
+    {
+      "nhom": "design-floor",
+      "hang": "T3",
+      "dot": "design-floor-2710",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — hợp đồng nhập, tệp khoá 124 tệp và bộ đo bước 1 đã gộp; DF-07/DF-08 đỏ vì lệnh chấm ghi sổ sự kiện. Trang acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626.",
+      "ghi_chu": "CỘNG: một plugin mới — chủ kho phê ở Cổng Phạm vi. Cách giao bản chạy được (bundle dựng tất định so băm, hay nguồn dựng lúc chạy) chọn ở bước thiết kế. chuanBiNguon trong tests/design-floor/lib/upstream.mjs trỏ sang bản vendored. Bản vá A làm DF-07 xanh nhưng không mở đường cho ui gate ở S4 (mục chờ FL-C1).",
+      "ma": "FL2",
+      "slug": "design-floor-vendor-va-ban-va-a",
+      "ten_ngan": "Vendor lõi gọn + bản vá A",
+      "vai": "nen",
+      "phu": [
+        "V1",
+        "VA"
+      ],
+      "tieu_chi": 9,
+      "cau_giao": "Bản lõi gọn Design OS nằm trong kit khớp từng băm của tệp khoá, có sổ LOCAL-PATCHES, và với bản vá A không lệnh v1 nào ghi tệp ngoài đích",
+      "bat_khi": "CI so băm 124 tệp với tệp khoá và đỏ khi một tệp lệch; DF-07, DF-08 và 16 cặp memory của FN-02 xanh trên bản vendored và giới hạn tương ứng đã gỡ khỏi khối máy; sửa một byte của tệp vendored ngoài sổ vá thì CI đỏ đúng tệp"
+    },
+    {
+      "nhom": "design-floor",
+      "hang": "T2",
+      "dot": "design-floor-2710",
+      "dung_tren": [
+        "FL2"
+      ],
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — DF-01, DF-03, DF-04, DF-05, DF-06 và phần figma của FN-02 còn đỏ có chủ đích trên bản ghim. Trang acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626.",
+      "ghi_chu": "Sửa đổi giữ thành bản vá cục bộ, không gửi PR upstream (chủ kho 26/10). Trường pr_upstream của khối máy đổi thành con trỏ tới dòng LOCAL-PATCHES; luật «mỗi giới hạn phải mang PR» sửa theo cùng vòng.",
+      "ma": "FL3",
+      "slug": "design-floor-ban-va-b-c-d",
+      "ten_ngan": "Bản vá B, C, D",
+      "vai": "nen",
+      "phu": [
+        "VB",
+        "VC",
+        "VD"
+      ],
+      "tieu_chi": 9,
+      "cau_giao": "Bốn lệnh chấm vendored trả mã thoát ba trạng thái theo hợp đồng nhập, không tự dò design system, và không kéo module Figma vào đóng kín",
+      "bat_khi": "Năm phép đo DF-01, DF-03, DF-04, DF-05, DF-06 và bốn cặp figma của FN-02 xanh trên bản vendored, giới hạn đã gỡ; khối máy hết giới hạn nào; mỗi bản vá có một dòng sổ và bỏ nó thì đúng phép đo của nó đỏ lại"
+    },
+    {
+      "nhom": "design-floor",
+      "hang": "T2",
+      "dot": "design-floor-2710",
+      "dung_tren": [
+        "FL3"
+      ],
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — phạm vi v1 chốt 26/10: flow lint ở Cổng 1 và định tuyến chỉ mục tri thức thiết kế. Trang acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626.",
+      "ghi_chu": "Dòng design-floor trên thẻ Cổng 1 là thông tin, không phải câu hỏi. Trần định tuyến: chỉ mục + tối đa 2 tệp, đếm token ở usage-report.",
+      "ma": "FL4",
+      "slug": "design-floor-moc-s0-s1",
+      "ten_ngan": "Móc S0 và S1",
+      "vai": "nen",
+      "phu": [
+        "GN0",
+        "GN1"
+      ],
+      "tieu_chi": 9,
+      "cau_giao": "Vòng feature-loop ở kho có giao diện ghi bậc M0–M3 của kho ở S0, và ở S1 nạp đúng chỉ mục cộng tối đa hai tệp tri thức thiết kế, kiểm kế hoạch dùng lại và flow lint thành dòng thông tin trên thẻ Cổng 1",
+      "bat_khi": "Bốn kho fixture M0, M1, M2, M3 ra đúng bậc; ở M0 design-floor không in dòng nào; một vòng mẫu nạp không quá ba tệp tri thức thiết kế; thẻ Cổng 1 không có dòng design-floor nào là câu hỏi; mỗi điểm móc có một đột biến đỏ đúng ca"
+    },
+    {
+      "nhom": "design-floor",
+      "hang": "T2",
+      "dot": "design-floor-2710",
+      "dung_tren": [
+        "FL4",
+        "FL1"
+      ],
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — ADR 0007: không ghi gì sau S4; kit không chấm sự tuân thủ design system ở đâu cả (lib/p-tiers.json thả ba luật). Trang acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626.",
+      "ghi_chu": "Đo thí điểm (DO1) là đo giá trị nên đi theo hàng này (cắt lượt bước 2b, luật 3): Cổng Đáng của hàng ghi vào opportunity.md năm tiêu chí chết — làm-xong→ký và ký→gộp từng đoạn không tăng so với mười vòng giao diện trước khi nhận bản; chi phí máy mỗi kết quả gộp được báo; không thêm lượt gọi người; tỉ lệ chặn sai không tệ hơn cổng của kit (đã có FL1); ít nhất một lỗi thật kit bỏ sót trong ≥10 vòng giao diện. Thí điểm ở onehub-invest; người ghi số bằng /acceptance-gate:observed. Chặn theo bậc: M1 chỉ luật đã phân xử, M2 cảnh báo, M3 mọi kiểm.",
+      "ma": "FL5",
+      "slug": "design-floor-moc-s3-s4",
+      "ten_ngan": "Móc cuối S3 và S4",
+      "vai": "nen",
+      "phu": [
+        "GN3",
+        "GN4",
+        "DO1"
+      ],
+      "tieu_chi": 10,
+      "cau_giao": "Vòng feature-loop chạy autofix và sinh lại tệp dẫn xuất ở cuối S3, chấm tuân thủ design system ở S4 bằng độ phủ token và hex thô, và không ghi tệp nào sau commit S4",
+      "bat_khi": "Một vòng mẫu trên kho fixture chạy trọn S0→S5 và pre-merge-check không thấy tệp nào đổi sau commit S4; S4 đỏ đúng tệp có hex thô và im với tệp chỉ dùng token; chèn ui gate vào chỗ móc S4 khi khối máy còn giới hạn DF-07 thì ca răng đỏ đúng thông điệp"
     }
   ],
   "chan_troi": [
@@ -1155,6 +1256,16 @@
         "F6"
       ],
       "mo_lai_khi": "Một lần chủ kho phải gỡ nội dung khỏi kho công khai vì trang tóm"
+    },
+    {
+      "ma": "FL-C1",
+      "dot": "design-floor-2710",
+      "cau_giao": "Chấm ui gate của Design OS ở S4",
+      "ly_do": "Lệnh gate ghi sổ sự kiện khi chấm (DF-07); ghi sau S4 làm hồ sơ cũ và chặn gộp (ADR 0007). Bản vá A ở FL2 sửa phép đo nhưng chưa có vòng thật nào chứng.",
+      "phu": [
+        "CG1"
+      ],
+      "mo_lai_khi": "DF-07 xanh trên bản vendored và một vòng thật ở kho tiêu thụ chứng không tệp nào đổi sau commit S4"
     }
   ],
   "da_bac": [

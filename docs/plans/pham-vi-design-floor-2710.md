@@ -11,7 +11,7 @@ Nhóm K là cổng thiết kế của kit; V là vendor và bốn bản vá cụ
 ```
 dot: design-floor-2710
 dang: chuoi
-nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#b3df93f1543451bbb30b98cd83706b82cd6988e7
+nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#a289cb0a4a802d52c101ecc8583c316ae476c626
 
 - `K1` — cổng thiết kế của kit trả KHÔNG-ĐO-ĐƯỢC thay vì REJECT khi CSS không đọc được, nền khai bị bỏ qua, hay chữ gradient cắt theo chữ
 - `V1` — bản lõi gọn vendored khớp băm tệp khoá, bộ đo của bước 1 chạy trên bản vendored, kiểm trong CI
