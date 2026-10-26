@@ -437,7 +437,7 @@ test('TC1-08-do ban-cu', () => {
 test('TC1-08-do bo-mot-buoc', () => {
   const vb = vanBanHienTai();
   assert.deepEqual(thieuLoiDan(vb).loi, [], 'đối chứng dương');
-  const cu = '   (mã app `local_…` như bước 1; mã CLI cũng nhận).\n';
+  const cu = '   (mã app `local_…` như bước 1).\n';
   assert.ok(vb['tiep-tuc.md'].includes(cu), 'bước tiêm không áp được');
   vb['tiep-tuc.md'] = vb['tiep-tuc.md'].replace(cu, '');
   const { loi } = thieuLoiDan(vb);
