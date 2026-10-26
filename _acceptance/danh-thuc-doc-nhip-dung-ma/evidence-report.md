@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: e208665fba6bbf3069b2d079c64448b8010ac180
-human_signoff:
+human_signoff: manh 2026-10-26 — ký; Ngoài-1, 5, 6, 7, 8 mở hợp đồng mới (gom thành TC1b); Ngoài-2, 3, 4, 9, 10 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: danh-thuc-doc-nhip-dung-ma

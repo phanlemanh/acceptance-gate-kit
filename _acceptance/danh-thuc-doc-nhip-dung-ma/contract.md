@@ -5,7 +5,7 @@ slug: danh-thuc-doc-nhip-dung-ma
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/danh-thuc-doc-nhip-dung-ma/design.md
 approved_by:
 approved_at:
@@ -66,3 +66,10 @@ Quét hình thái preset test-matrix — bản đủ ở design doc §4. Bốn t
 - `CHANGELOG.md`, số phiên bản, cắt mốc — việc của chiến dịch phát hành.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-26:
+  - Ngoài-2: Bộ so hai môi trường có thể nhận một ca thỉnh thoảng đỏ là chập chờn mà chưa ca nào thử xem nó có nhận nhầm một ca đỏ thật.
+  - Ngoài-3: Một ca hỏng ổn định khi chạy cả bộ nhưng xanh khi chạy riêng bị bộ so hai môi trường báo xanh; bước chạy trọn bộ riêng vẫn bắt nó.
+  - Ngoài-4: Ca đo phép so của bộ hai môi trường dùng dữ liệu viết tay, chưa chạy qua bộ đọc đầu ra thật của lần chạy.
+  - Ngoài-9: Bộ tìm ca đổi thân chỉ nhận ca viết ở đầu dòng, nên ca một dòng hay ca sinh trong vòng lặp có thể bị đọc sai hay lọt.
+  - Ngoài-10: Ma trận ba hàng «không ghi mã CLI» chỉ chạy qua lệnh mở đợt, chưa qua lệnh tiếp tục.
