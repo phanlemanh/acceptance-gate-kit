@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/design-gate.mjs + test + tài liệu design-ui-check — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-25-design-gate-che-do-chat-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-26T04:21:28Z
 ---
 
 # Acceptance Contract: design-gate-che-do-chat
