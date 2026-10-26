@@ -1035,3 +1035,12 @@ feature_loop:
 # hẹn với owner 08/10). Khối chan_troi trong tệp là trường tự do, trang không hiện.
 lo_trinh:
   tep: docs/plans/lo-trinh-kit.json
+# Tầng tri thức của chính kit (mục chờ điều kiện TT-C5/F5; chủ kho bật 26/10 — kế hoạch
+# docs/plans/2026-10-26-ke-hoach-design-floor-tiep.md, bước 1). Kho này CÔNG KHAI nên gốc tri thức là kho riêng
+# đi kèm; `duong` tương đối gốc checkout chính (cha của git-common-dir), không theo worktree.
+tri_thuc:
+  cong_khai: true
+  kho:
+    ten: acceptance-gate-kit-tri-thuc
+    duong: ../acceptance-gate-kit-tri-thuc
+    remote: https://github.com/phanlemanh/acceptance-gate-kit-tri-thuc.git
