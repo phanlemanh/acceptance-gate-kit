@@ -110,3 +110,16 @@ export function goiTai(goc, sha, thuMuc = 'dieu-phoi') {
   execFileSync('sh', ['-c', `git -C "${goc}" archive ${sha} ${thuMuc} | tar -x -C "${d}"`], { env: ENV });
   return path.join(d, thuMuc);
 }
+
+// Khoá `ca_doi_than` của các dòng sổ `fix`, đọc tại một sha cố định (không đọc cây làm việc). Sha vắng → null.
+export function caKhaiTai(goc, sha, duongSo) {
+  if (!coSha(goc, sha)) return null;
+  return (docTai(goc, sha, duongSo) ?? '').split('\n').filter(Boolean).flatMap((d) => {
+    try {
+      const o = JSON.parse(d);
+      return o.type === 'fix' && Array.isArray(o.ca_doi_than) ? o.ca_doi_than : [];
+    } catch {
+      return [];
+    }
+  }).sort();
+}

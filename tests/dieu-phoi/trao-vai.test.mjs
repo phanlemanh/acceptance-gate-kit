@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { caDoiThanLichSu, goiTai, khoiCa, khoiCaCu } from './ca-doi-than.mjs';
+import { caDoiThanLichSu, caKhaiTai, coSha, goiTai, khoiCa, khoiCaCu } from './ca-doi-than.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -20,6 +20,8 @@ const SHA_TC1_CHAM = 'e208665fba6bbf3069b2d079c64448b8010ac180';
 const SHA_TC1_DINH = '8df32d1c1f90c7a8323e1fa1c5546b28e3626f92';
 const PHUT = 60_000;
 const BIEN = ['CLAUDE_CODE_HOST_SESSION_ID', 'CLAUDE_CODE_SESSION_ID'];
+const SO_TC1 = '_acceptance/danh-thuc-doc-nhip-dung-ma/decisions.jsonl';
+const vang = (sha) => `sha ${sha.slice(0, 12)} không có trong lịch sử (clone nông hay gộp squash/rebase)`;
 
 const canDon = [];
 after(() => {
@@ -151,8 +153,9 @@ export function buoc5MoiMaCli(vanBan) {
   const buoc = dong.slice(i, j).join('\n');
   return [...(buoc.includes('mã CLI cũng nhận') ? ['bước 5 còn mời mã CLI'] : []), ...(buoc.includes('mã app `local_…`') ? [] : ['bước 5 thiếu mã app'])];
 }
-test('TC1b-04 buoc-5', () => {
+test('TC1b-04 buoc-5', (t) => {
   assert.deepEqual(buoc5MoiMaCli(fs.readFileSync(path.join(GOI, 'commands', 'tiep-tuc.md'), 'utf8')), []);
+  if (!coSha(KIT, SHA_TC1_DINH)) return t.skip(`đối chứng: ${vang(SHA_TC1_DINH)}`);
   assert.deepEqual(buoc5MoiMaCli(git(KIT, 'show', `${SHA_TC1_DINH}:dieu-phoi/commands/tiep-tuc.md`)), ['bước 5 còn mời mã CLI'], 'đối chứng: bản ở đỉnh TC1');
 });
 
@@ -170,7 +173,8 @@ function worktreeTroi() {
   };
   sua('tests/dieu-phoi/tiep-tuc.test.mjs', "test('DP3-02 30-giay', () => {\n", "test('DP3-02 30-giay', () => {\n \n");
   fs.appendFileSync(path.join(w, '_acceptance/danh-thuc-doc-nhip-dung-ma/decisions.jsonl'), '{"type":"fix","ca_doi_than":["X"]}\n');
-  sua('dieu-phoi/scripts/chan-doan.mjs', "'gọi với --phien để kiểm hook của phiên này'", "'(đổi trên cây làm việc)'");
+  // Câu này có trong đầu ra `chan-doan --phien <mã có nhịp>` (mục hook-phien `du`) — tức nằm trong phép so đọc-cũ.
+  sua('dieu-phoi/scripts/chan-doan.mjs', "'hook của gói đã bắn trong phiên này'", "'(đổi trên cây làm việc)'");
   return w;
 }
 const MODULE = path.join(DAY, 'ca-doi-than.mjs');
@@ -182,25 +186,43 @@ async function saoModule(cu, moi) {
   fs.writeFileSync(p, s.split(cu).join(moi));
   return import(pathToFileURL(p).href);
 }
-test('TC1b-05 khong-doc-cay', async () => {
+test('TC1b-05 khong-doc-cay', async (t) => {
+  if (!coSha(KIT, SHA_TC1_CHAM)) return t.skip(vang(SHA_TC1_CHAM));
   const w = worktreeTroi();
   const kq = caDoiThanLichSu(w, SHA_MOC, SHA_TC1_CHAM);
+  // Quan hệ: tập đổi thân BẰNG khoá ca_doi_than của sổ TC1 đọc tại sha chấm — trên cây mà cả thân ca lẫn sổ đều trôi.
+  assert.deepEqual(kq.ds, caKhaiTai(w, SHA_TC1_CHAM, SO_TC1));
   assert.deepEqual(kq.ds, ['(đầu tiep-tuc.test.mjs)', 'DP3-09 ma-tran']);
   const m = await saoModule('    const moi = tach(doc(den, f), path.basename(f));', "    const moi = tach(fs.readFileSync(path.join(goc, f), 'utf8'), path.basename(f));");
   assert.ok(m.caDoiThanLichSu(w, SHA_MOC, SHA_TC1_CHAM).ds.includes('DP3-02 30-giay'), 'bản đọc cây làm việc phải lộ ca đổi trên cây');
+  const m2 = await saoModule('  return (docTai(goc, sha, duongSo) ?? \'\')', "  return (fs.readFileSync(path.join(goc, duongSo), 'utf8') ?? '')");
+  assert.ok(m2.caKhaiTai(w, SHA_TC1_CHAM, SO_TC1).includes('X'), 'bản đọc sổ trên cây làm việc phải lộ dòng sổ tiêm');
 });
 test('TC1b-05 sha-vang', () => {
   assert.deepEqual(caDoiThanLichSu(KIT, SHA_MOC, '0000000000000000000000000000000000000001'), { boQua: 'sha 000000000000 không có trong lịch sử' });
 });
-test('TC1b-07 khong-doc-cay', async () => {
+// Đầu ra chẩn đoán đọc-cũ (vai một mã c-gs, nhịp c-gs không ma_app) chạy bằng gói `g`, đường tạm thay bằng nhãn.
+function chanDoanDocCu(g) {
+  const { kho } = khoDot({ gocGoi: g, maVai: 'c-gs' });
+  hookNhip('c-gs', { cwd: kho, nowMs: Date.now(), gocGoi: g });
+  const out = chayCli(kho, ['chan-doan', '--json', '--chi-tiet', '--phien', 'c-gs'], { gocGoi: g }).out;
+  return out.split(kho).join('<KHO>').split(g).join('<GOI>').replace(/[0-9a-f]{40}/g, '<SHA>').replace(/@ [0-9a-f]{7}\b/g, '@ <SHA7>').replace(/"luc":"[^"]*"/g, '"luc":"<LUC>"').replace(/tc1b-wt-[A-Za-z0-9]+/g, 'tc1b-wt-<T>');
+}
+test('TC1b-07 khong-doc-cay', async (t) => {
+  if (!coSha(KIT, SHA_TC1_CHAM)) return t.skip(vang(SHA_TC1_CHAM));
   const w = worktreeTroi();
-  const g = goiTai(w, SHA_TC1_CHAM);
-  canDon.push(path.dirname(g));
-  assert.ok(!fs.readFileSync(path.join(g, 'scripts', 'chan-doan.mjs'), 'utf8').includes('(đổi trên cây làm việc)'), 'gói so phải là bản tại sha chấm');
+  const gKit = goiTai(KIT, SHA_TC1_CHAM);
+  const gTroi = goiTai(w, SHA_TC1_CHAM);
+  canDon.push(path.dirname(gKit), path.dirname(gTroi));
+  const goc = chanDoanDocCu(gKit);
+  assert.ok(goc.includes('hook của gói đã bắn trong phiên này'), 'đối chứng: câu bị trôi phải nằm trong đầu ra được so');
+  assert.equal(chanDoanDocCu(gTroi), goc, 'gói tại sha chấm rút từ cây đã trôi phải cho đúng đầu ra cũ');
   const m = await saoModule("  execFileSync('sh', ['-c', `git -C \"${goc}\" archive ${sha} ${thuMuc} | tar -x -C \"${d}\"`], { env: ENV });", "  fs.cpSync(path.join(goc, thuMuc), path.join(d, thuMuc), { recursive: true });");
-  const g2 = m.goiTai(w, SHA_TC1_CHAM);
-  canDon.push(path.dirname(g2));
-  assert.ok(fs.readFileSync(path.join(g2, 'scripts', 'chan-doan.mjs'), 'utf8').includes('(đổi trên cây làm việc)'), 'bản chép cây làm việc phải lộ câu đổi');
+  const gChep = m.goiTai(w, SHA_TC1_CHAM);
+  canDon.push(path.dirname(gChep));
+  const lech = chanDoanDocCu(gChep);
+  assert.notEqual(lech, goc, 'bản chép cây làm việc phải làm đầu ra chẩn đoán lệch');
+  assert.ok(lech.includes('(đổi trên cây làm việc)'));
 });
 
 // ---------- TC1b-06: bộ tách khối (AC-6) ----------

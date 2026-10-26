@@ -54,11 +54,12 @@ evals:
     cmd: config:executors.test.dieu_phoi_tc1b
     paths: [tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/trao-vai.test.mjs]
     expected: >
-      exit 0; "ok" cho "TC1-09 than-ca-doi": khoảng so cố định 45e9f2cf…..e208665f… (sha chấm TC1), đọc qua git show, sổ đọc
-      tại e208665f → tập BẰNG ["(đầu tiep-tuc.test.mjs)", "DP3-09 ma-tran"] và bằng khoá ca_doi_than của sổ. "ok" cho
-      "TC1b-05 khong-doc-cay": worktree tạm ở HEAD (git worktree add trong thư mục tạm) đổi thân DP3-02 30-giay và sổ TC1 →
-      hàm vẫn trả đúng tập trên; bản sao hàm đọc cây làm việc ở mốc cuối (kiểm bước tiêm áp) → tập chứa "DP3-02 30-giay".
-      "ok" cho "TC1b-05 sha-vang": gọi với sha không có trong kho → trả {boQua: "sha chấm TC1 không có trong lịch sử"}.
+      exit 0; "ok" cho "TC1-09 than-ca-doi": khoảng so cố định 45e9f2cf…..e208665f…, sổ đọc tại e208665f bằng caKhaiTai →
+      tập BẰNG ["(đầu tiep-tuc.test.mjs)", "DP3-09 ma-tran"]. "ok" cho "TC1b-05 khong-doc-cay": worktree tạm ở HEAD đổi thân
+      DP3-02 30-giay và nối dòng sổ {"type":"fix","ca_doi_than":["X"]} vào sổ TC1 → caDoiThanLichSu BẰNG caKhaiTai(sổ tại
+      sha chấm) BẰNG tập trên; bản sao đọc thân ở cây làm việc → tập chứa "DP3-02 30-giay"; bản sao đọc sổ ở cây làm việc →
+      khoá chứa "X". "ok" cho "TC1b-05 sha-vang": sha vắng → {boQua: "sha … không có trong lịch sử"}. sha chấm vắng khỏi kho
+      → TC1b-05 khong-doc-cay bỏ qua có tên, không đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -77,9 +78,11 @@ evals:
     cmd: config:executors.test.dieu_phoi_tc1b
     paths: [tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/trao-vai.test.mjs]
     expected: >
-      exit 0; "ok" cho "TC1-06 doc-cu-tung-byte": bản «mới» là gói rút bằng git archive tại e208665f, so với gói tại 45e9f2cf →
-      8/8 khớp. "ok" cho "TC1b-07 khong-doc-cay": worktree tạm ở HEAD đổi một câu viec của chan-doan.mjs → hàm chọn bản so
-      vẫn trả archive tại e208665f, phép so khớp; bản sao chọn cây làm việc (kiểm bước tiêm áp) → lệch ở «chan-doan».
+      exit 0; "ok" cho "TC1-06 doc-cu-tung-byte" (gói tại e208665f so với 45e9f2cf, 8/8). "ok" cho "TC1b-07 khong-doc-cay":
+      worktree tạm ở HEAD đổi câu «hook của gói đã bắn trong phiên này» của chan-doan.mjs (đối chứng: câu ấy có trong đầu ra
+      `chan-doan --json --chi-tiet --phien c-gs` được so); đầu ra chẩn đoán đọc-cũ chạy bằng gói rút tại sha chấm từ cây
+      trôi BẰNG đầu ra bằng gói rút từ KIT; bản sao goiTai chép cây làm việc → đầu ra lệch và chứa «(đổi trên cây làm
+      việc)». sha chấm vắng → bỏ qua có tên.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8

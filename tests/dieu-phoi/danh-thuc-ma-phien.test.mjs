@@ -14,7 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
 import { caNghi } from './hai-moi-truong.mjs';
-import { caDoiThanLichSu, docTai, goiTai } from './ca-doi-than.mjs';
+import { caDoiThanLichSu, caKhaiTai, docTai, goiTai } from './ca-doi-than.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -449,19 +449,11 @@ test('TC1-08-do bo-mot-buoc', () => {
 // Hai đầu cố định (SHA_MOC → SHA_TC1_CHAM), sổ đọc tại SHA_TC1_CHAM — bộ đọc chung ca-doi-than.mjs (hồ sơ
 // trao-vai-va-do-sau-gop). Không đọc cây làm việc: vòng sau đổi thân ca DP3 không làm ca này đỏ.
 const SO_TC1 = '_acceptance/danh-thuc-doc-nhip-dung-ma/decisions.jsonl';
-export const caKhaiTrongSo = (soText) => (soText ?? '').split('\n').filter(Boolean).flatMap((d) => {
-  try {
-    const o = JSON.parse(d);
-    return o.type === 'fix' && Array.isArray(o.ca_doi_than) ? o.ca_doi_than : [];
-  } catch {
-    return [];
-  }
-}).sort();
 test('TC1-09 than-ca-doi', (t) => {
   const kq = caDoiThanLichSu(KIT, SHA_MOC, SHA_TC1_CHAM);
   if (kq.boQua) return t.skip(kq.boQua);
   console.log(`  ca đổi thân ${SHA_MOC.slice(0, 12)}..${SHA_TC1_CHAM.slice(0, 12)}: ${kq.ds.join(' · ') || '(không)'}`);
-  assert.deepEqual(kq.ds, caKhaiTrongSo(docTai(KIT, SHA_TC1_CHAM, SO_TC1)));
+  assert.deepEqual(kq.ds, caKhaiTai(KIT, SHA_TC1_CHAM, SO_TC1));
   // Đối chứng dương: tiêm một khoảng trắng vào thân ca DP3-02 30-giay ở bản đọc tại mốc cuối → hàm nêu đúng tên ca ấy.
   const f = 'tests/dieu-phoi/tiep-tuc.test.mjs';
   const tiem = (sha, p) => {
