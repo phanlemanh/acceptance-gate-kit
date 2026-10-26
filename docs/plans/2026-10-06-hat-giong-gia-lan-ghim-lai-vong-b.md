@@ -35,3 +35,11 @@ ghim lại có diff toàn tệp test. Đ2 lớn theo số đếm (1 726/2 912 l�
 hoá cũ chỉ vì tệp test nó không gọi tên; (b) Đ2 — phút eval thực chạy chiếm ≥ 50 % `wall_s` của
 làn, hoặc «chi phí đo» trong tổng kết của Vòng A cho thấy eval model thật chạy lại với đầu vào
 không đổi ≥ 5 lần/tuần. Đếm: dòng `repin` và khoá `tong_ket` trong `_acceptance/*/run-log.jsonl` của crm.
+
+## Đếm 26/10 — Cổng Đáng `park`
+
+Mac Studio đề nghị mở (crm-onehub#375); máy MacBook Pro đếm lại trên `origin/onehub` `485bdc710`, 12–26/10:
+(a) Đ1 trần 6/232 làn = 2,6 % (< 10 % — điều kiện mở ở trên bỏ Đ1); (b) eval model chạy 5 lần/7 ngày, số lần
+đầu vào không đổi chưa đọc được vì crm chưa khai `feature_loop.model_carry_cmd` (cơ chế G3 đã có từ 2.27.0);
+phần eval trong `wall_s` không đọc được. Chủ kho gõ «park» 26/10. Số đo, hai khuôn đếm để mở lại:
+`_acceptance/gia-lan-ghim-lai-vong-b/opportunity.md`.
