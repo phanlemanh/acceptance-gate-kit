@@ -10,6 +10,28 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+### design-gate có chế độ chặt tuỳ chọn `--require-measured` (hồ sơ `design-gate-che-do-chat`, T2)
+
+Gốc: crm 25/10, vòng VK10 `che-do-soan-bo-okr` — static trên `.tsx` trả `KHONG-DO-DUOC` mà thoát 0, nên
+`for … || exit 1` xanh rỗng và chiều đỏ không bao giờ đỏ. Ngưỡng mở lại đã khai ở hồ sơ
+`nen-dieu-kien-va-static-khong-do-duoc` («≥1 kho xin chế độ chặt») tới.
+
+- **Cờ mới, bật theo lựa chọn:** `design-gate.mjs <đích> … --require-measured` — đích không phải HTML (`.tsx`,
+  `.jsx`, `.vue`, không đuôi…) thoát **5** thay vì 0, JSON thêm `require_measured: true`, dòng stderr đổi đuôi thành
+  `--require-measured: thoát 5`. Áp ở cả `--mode static` lẫn `--mode dom`; dom quyết bằng đuôi TRƯỚC khi nạp
+  jsdom (kho không có jsdom nhận 5, không phải 3). Lỗi chặn static thấy được trên `.tsx` vẫn `REJECT` mã 2.
+  Đích HTML không đổi dù có cờ.
+- **Vắng cờ: không đổi một mã thoát nào** — mười ô của bộ ca cũ vẫn bằng bản gốc. Không kho nào đổi màu khi nhận bản.
+- **Giới hạn gọi tên:** static không tính màu hay độ tương phản, kể cả trên HTML đã dựng (chữ `#eee` trên nền
+  trắng: static PASS, dom REJECT `low-contrast`). Chiều đỏ về màu cần `--mode dom` hoặc ui-check Tier B.
+- **Ai bị ảnh hưởng:** crm có 61 khoá `*_san_thiet_ke` (static trên `.tsx`, 57 eval đang chạy + 4 ô `not-run`);
+  artifact-platform có 23 khoá dom trên `.tsx`. Cả hai xanh rỗng như hôm nay cho tới khi tự thêm cờ.
+- **Làm gì khi update:** không chép lại tệp nào. Muốn chặn cứng: thêm `--require-measured` vào lệnh design-gate
+  của kho (một chỗ nếu eval đi qua `config:executors.design.gate`) — eval đang chấm tệp nguồn sẽ đỏ ở lượt ghim
+  kế; đổi chúng sang chấm HTML đã dựng bằng dom, hoặc khai `expected_exit: 5`. Vòng `… || exit 1` gộp mã 5
+  thành 1; muốn pin thấy 5 thì dùng `|| exit $?`. Bản kit cũ bỏ lặng cờ lạ — thêm cờ khi chưa nhận bản này thì vẫn
+  xanh rỗng; chạy một lần trên một `.tsx` và thấy mã khác 0 trước khi tin.
+
 ## 2.34.0 — 25/10/2026
 
 Mốc mang **tầng tri thức theo LLM Wiki** (đợt `tri-thuc-2410`, TT1–TT5) và phần kit của gói «cắt 80 % thời gian ký →
