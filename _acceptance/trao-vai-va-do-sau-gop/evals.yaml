@@ -67,7 +67,8 @@ evals:
     paths: [tests/dieu-phoi/ca-doi-than.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/trao-vai.test.mjs]
     expected: >
       exit 0; "ok" cho "TC1b-06 tach-khoi": văn bản dựng sẵn (ca một dòng A trước ca B; ba ca sinh trong vòng lặp thụt lề)
-      → khoá đủ A, B và ba ca vòng lặp, thân A không chứa «test('B'»; bộ tách cũ cột 0 chép trong ca → kết quả khác, hàm so
+      → khoá đủ A, B, khối vòng lặp «${n}» (tên ca sinh trong vòng lặp là chuỗi mẫu, một khoá cho cả khối) và D; thân A không
+      chứa «test('B'»; bộ tách cũ cột 0 chép trong ca → kết quả khác, hàm so
       nêu ca bị nuốt hoặc lọt.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7

@@ -78,6 +78,9 @@ export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = f
   const giamSat = vai?.giam_sat?.phien ?? null;
   if (!phien) them('giam-sat', 'khong-ap', 'gọi với --phien để biết phiên này có phải giám sát');
   else if (giamSat === phien) them('giam-sat', 'du', phien);
+  // `--phien` là mã CLI của giám sát (TC1b): nói đúng tên, không mời nhận vai — nhận vai bằng mã CLI làm đánh thức nhắn
+  // không tới.
+  else if (phien === vai?.giam_sat?.phien_cli) them('giam-sat', 'thieu', `đây là mã CLI của giám sát hiện tại — gọi lại bằng mã app ${giamSat}; đừng nhận vai bằng mã CLI`);
   else them('giam-sat', 'thieu', `giám sát hiện tại là ${giamSat ?? '(chưa ai)'} — chạy /dieu-phoi:tiep-tuc để nhận vai`);
   // TC1: nhịp của phiên đọc bằng `nhipCuaPhien` — `--phien` mang mã app hay mã CLI đều nối được tệp nhịp.
   const phienCli = phien && giamSat === phien ? vai?.giam_sat?.phien_cli ?? null : null;

@@ -369,7 +369,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         const thuMuc = thuMucHienTai(cwd);
         kiemGiamSat(thuMuc, co.phien, 'vai');
         if (typeof co['giam-sat'] !== 'string') throw new Error('dùng: vai --giam-sat <mã phiên> [--phien <mã phiên gọi>]');
-        const kq = nhanVaiGiamSat(thuMuc, { phien: co['giam-sat'], worktree: cwd });
+        // Trao vai cho phiên KHÁC: mã CLI trong môi trường là của phiên gọi, không phải của giám sát mới (TC1b) — giám sát
+        // mới tự ghi mã CLI ở lần tiep-tuc đầu. Tự nhận lại thì giữ mặc định môi trường.
+        const kq = nhanVaiGiamSat(thuMuc, { phien: co['giam-sat'], worktree: cwd, phienCli: co['giam-sat'] === co.phien ? undefined : null });
         return kq.doi ? `vai: giám sát → ${co['giam-sat']}` : `vai: ${co['giam-sat']} đã là giám sát`;
       },
       'ban-giao': () => {
