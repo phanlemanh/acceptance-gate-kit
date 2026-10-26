@@ -3,10 +3,10 @@ schema_version: 1
 slug: gia-lan-ghim-lai-vong-b
 feature: Giá làn ghim lại, Vòng B — tệp test chỉ làm cũ hồ sơ gọi tên nó (Đ1) · dùng lại kết quả eval theo băm đầu vào cho mọi eval (Đ2)
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: park               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-26T03:36:22Z   # owner gõ «park» một chạm trong phiên 26/10, máy ghi hộ
 prototype:
   base_commit:
   disposition:
@@ -71,9 +71,9 @@ Không dựng prototype. Ba phép đo trên lịch sử thật thay cho nó (b�
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = park** Căn cứ: chủ kho gõ «park» 26/10 sau khi đọc số đo ở trên — Đ1 dưới vạch 10 % (2,6 % số làn); dùng lại cho eval gọi model đã có trong kit, chờ crm bật khoá; dùng lại cho eval thường chưa có số đọc được.
 - **disposition = …** Căn cứ: không có prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** không áp — vòng không mở. Ngưỡng `[đề xuất]` ở trên giữ làm khung cho lần mở lại; mở lại theo hai khuôn đếm dưới.
 
 **Khuyến nghị của máy: `park`.** Căn cứ: Đ1 dưới chính vạch chủ kho đặt (2,6 % < 10 %); phần Đ2 có
 số đếm sống (eval model) đã có trong kit và chỉ chờ crm bật khoá; phần Đ2 còn lại (eval thường) chưa
