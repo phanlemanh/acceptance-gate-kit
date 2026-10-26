@@ -16,6 +16,8 @@ Các bước, đúng thứ tự:
    Kho không có đợt thì lệnh in `khong-co-dot` — đi tiếp bước 1 (bước 1 sẽ dừng).
 1. **CLI tiếp tục.** Lấy mã phiên này bằng công cụ phiên của app, rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" tiep-tuc --phien <mã phiên này> --json $ARGUMENTS`.
+   Mã phiên này là mã app `local_…` mà công cụ phiên của app trả — đánh thức nhắn giám sát bằng mã ấy; máy tự ghi mã CLI
+   của phiên (biến `CLAUDE_CODE_SESSION_ID`) vào vai để đọc nhịp. Ngoài app (không có công cụ phiên) dùng mã CLI.
    CLI nhận vai giám sát (dạng `--nhe` chỉ ghi lúc thức), chạy lại bộ phát lịch nếu đã chết, và trả
    `ke_hoach` cho từng dãy. Thoát 1 «không có đợt» → nói một dòng và DỪNG.
 2. **Phiên đã thôi vai.** Kết quả có `thoi_vai: true` → dừng Monitor đang giăng của phiên này, không ghi gì
@@ -26,6 +28,9 @@ Các bước, đúng thứ tự:
      cửa sổ <cua_so>, đặt lại lúc <dat_lai> — chờ đặt lại, hoặc đổi tài khoản khác rồi gõ lại /dieu-phoi:tiep-tuc».
      Không chuyển gì thêm; đi tiếp bước 3.
    - `ban_giao` với `trang_thai: da-tiep-tuc`: đợt đã rời bàn giao về pha trước; nói một dòng kèm mã bàn giao.
+   Kết quả có `hook_thieu: true` (cả dạng `--nhe`): phiên này mở trước khi cài hay nâng gói nên hook của gói không nạp —
+   đánh thức không thấy nhịp của nó. Nói nguyên `hook_thieu_cau` một dòng cho chủ kho rồi đi tiếp; việc đúng là mở phiên
+   giám sát mới và gõ lại `/dieu-phoi:tiep-tuc`.
 3. **Việc của app — chỉ tạo cái còn thiếu.** Giăng Monitor (timeout 30′):
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Lịch 30′ của đợt
    chưa có thì tạo theo khuôn dưới (cùng khuôn với bước 6 của `/dieu-phoi:mo-dot`).

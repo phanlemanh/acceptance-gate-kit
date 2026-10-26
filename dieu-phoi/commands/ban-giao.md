@@ -12,6 +12,8 @@ Các bước, đúng thứ tự:
 
 1. **CLI bàn giao.** Lấy mã phiên này bằng công cụ phiên của app, rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" ban-giao --ly-do "$ARGUMENTS" --phien <mã phiên này> --json`.
+   Mã phiên này là mã app `local_…` mà công cụ phiên của app trả — đánh thức nhắn giám sát bằng mã ấy; máy tự ghi mã CLI
+   của phiên (biến `CLAUDE_CODE_SESSION_ID`) vào vai để đọc nhịp. Ngoài app (không có công cụ phiên) dùng mã CLI.
    Đợt sang «đang bàn giao»: bộ phát lịch ngừng cấp lượt mới, kể cả đơn đã nằm trong hàng chờ. Thoát 1 → nói
    nguyên lý do một dòng và DỪNG. Đợt đã đang bàn giao thì lệnh chỉ cập nhật hồ sơ bàn giao (chạy lại được).
 2. **Nhắn từng phiên thợ** trong `can_nhan` (tin liên phiên, cùng tài khoản): «bàn giao: dừng ở ranh giới gần nhất,
