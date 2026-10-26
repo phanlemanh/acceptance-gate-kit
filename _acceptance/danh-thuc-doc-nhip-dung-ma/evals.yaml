@@ -121,10 +121,18 @@ evals:
     cmd: config:executors.test.dieu_phoi_tc1
     paths: [tests/dieu-phoi/**, dieu-phoi/**]
     expected: >
-      exit 0; dòng tổng kết TAP của suite tests/dieu-phoi/**/*.test.mjs có «# fail 0»; "ok" cho "TC1-09 hai-moi-truong":
-      chạy suite hai lần trong tiến trình con — môi trường đã xoá hai biến, và môi trường cha mang
-      CLAUDE_CODE_HOST_SESSION_ID=local_x, CLAUDE_CODE_SESSION_ID=y giả — tập tên dòng TAP «ok» của hai lần so bằng nhau.
-      "ok" cho "TC1-09 than-ca-doi": tập ca test(...) đã có ở sha ghim mà thân đổi BẰNG đúng tập tên rút từ các dòng sổ
-      `fix` của hồ sơ có khoá ca_doi_than; đối chứng dương: tiêm một khoảng trắng vào thân một ca DP3 trong bản sao →
-      hàm kiểm nêu tên ca ấy.
+      exit 0; dòng tổng kết TAP của suite tests/dieu-phoi/**/*.test.mjs có «# fail 0»; "ok" cho "TC1-09 than-ca-doi":
+      tập ca test(...) đã có ở sha ghim mà thân đổi BẰNG đúng tập tên rút từ khoá ca_doi_than của các dòng sổ `fix` của
+      hồ sơ; đối chứng dương: tiêm một khoảng trắng vào thân ca DP3-02 30-giay trong bản đọc → hàm kiểm nêu đúng tên ca ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1_hai_moi_truong
+    paths: [tests/dieu-phoi/**, dieu-phoi/**]
+    expected: >
+      exit 0; script chạy suite tests/dieu-phoi/**/*.test.mjs hai lần — môi trường đã xoá CLAUDE_CODE_HOST_SESSION_ID và
+      CLAUDE_CODE_SESSION_ID, rồi môi trường cha mang hai biến giả local_x / y — in hai dòng «<lần>: <n> ok · 0 not ok»
+      với cùng n > 0 và dòng cuối «hai-moi-truong: XANH — cùng tập dòng ok». Một ca chỉ xanh ở một môi trường, hay một
+      dòng not ok, hay không đọc được dòng ok nào → dòng «LỖI …» gọi tên và «hai-moi-truong: ĐỎ», exit 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
