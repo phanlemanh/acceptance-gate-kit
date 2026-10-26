@@ -6,8 +6,8 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>11 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>7 việc"]
+  A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
+  GD --> B["Sắp mở vòng<br/>8 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
@@ -33,7 +33,6 @@ flowchart TD
 - Chạy lưới trước-merge đúng như CI — trên cây đã gộp nhánh chính, có base — TRƯỚC khi mở PR, để CI không là nơi đầu tiên phát hiện (`premerge-nhu-ci-truoc-khi-mo-pr`)
 - Răng của hồ sơ mốc phát hành neo theo lúc hồ sơ ra đời, không theo số phiên bản ở cây — để hồ sơ mốc đã ký không đỏ giả ở mốc kế (`rang-moc-neo-theo-ho-so`)
 - Phát hiện rà soát KHÔNG lật verdict — verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ; phát hiện lên thẻ kèm bán kính, người quyết (`thuoc-khong-lat-verdict`)
-- Trao vai giám sát bằng lệnh vai không gắn mã CLI của phiên trao vào giám sát mới, lời dặn chẩn đoán lại khớp hành vi khi nhận mã CLI, và hai phép đo của TC1 thôi đỏ giả cho vòng sau khi TC1 đã gộp (`trao-vai-va-do-sau-gop`)
 - Ý định có nhà riêng — cửa vào và cửa ra không cần người ngồi phiên; tách viết ý định khỏi ký; Cổng Đáng có lệnh ký; ngưỡng UAT thành băng sau phát hành; ba số cho nguyên tố 1 (`y-dinh-co-nha-rieng`)
 
 ## Sắp mở vòng
@@ -45,6 +44,7 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt (`tep-sinh-khong-chan-gop`)
+- Trao vai giám sát bằng lệnh vai không gắn mã CLI của phiên trao vào giám sát mới, lời dặn chẩn đoán lại khớp hành vi khi nhận mã CLI, và hai phép đo của TC1 thôi đỏ giả cho vòng sau khi TC1 đã gộp (`trao-vai-va-do-sau-gop`)
 
 ## Đang làm
 
