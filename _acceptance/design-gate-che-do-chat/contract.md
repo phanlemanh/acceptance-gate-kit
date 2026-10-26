@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/design-gate.mjs + test + tài liệu design-ui-check — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-25-design-gate-che-do-chat-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-26T04:21:28Z
 ---
@@ -88,3 +88,8 @@ dom · không-HTML khi CÓ jsdom thật (Out of scope 2).
   nền rgba so như nền đặc — ngoài vòng, ghi ở hạt giống `docs/plans/2026-10-25-hat-giong-design-gate-dom-mu-tailwind-v4.md`.
 - 26/10: chủ kho dừng vòng ở Cổng Phạm vi, ghi thành hạt giống và chuyển MacBook Pro — trạng thái và đường tiếp tục ở
   `docs/plans/2026-10-26-hat-giong-design-gate-che-do-chat.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-26:
+  - Ngoài-1: Bật chế độ chặt mà tệp nguồn có lỗi chặn thấy được thì vẫn bị chặn đúng, nhưng dòng giải thích ghi nhầm «mã 5» trong khi mã thật là 2.
+  - Ngoài-2: Gõ sai tên chế độ kèm cờ chặt thì nhận «không đo được» thay vì báo gọi sai lệnh; tên chế độ lạ hiện trong thông báo.
+  - Ngoài-3: Ở chế độ dựng trang có cờ, tệp thành phần đã xoá hay gõ sai đường vẫn nhận «không đo được» — kho ghim mã 5 ở chế độ này phải tự kiểm đường dẫn, kẻo xanh rỗng khi tệp mất.
+  - Ngoài-4: Cùng lỗi Ngoài-1 (làn tìm-lỗi thứ hai báo lại).
