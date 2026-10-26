@@ -173,6 +173,8 @@ executors:
     dieu_phoi_tc1: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - TC1-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ danh-thuc-doc-nhip-dung-ma (AC-9, E9b): suite tests/dieu-phoi hai lần — môi trường sạch và mang hai biến mã phiên giả.
     dieu_phoi_tc1_hai_moi_truong: node tests/dieu-phoi/hai-moi-truong.mjs
+    # Hồ sơ trao-vai-va-do-sau-gop (hàng TC1b): như khoá `dieu_phoi_tc1` nhưng ghim «ok … TC1b?-».
+    dieu_phoi_tc1b: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - TC1b?-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-sua-truoc-dot-thu: như `dieu_phoi_dp3` nhưng ghim «ok … SDT-» cùng mọi «ok … DP<n>-».
     dieu_phoi_sdt: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ trang-thai-dot-dieu-phoi-tho (DP6b): như `dieu_phoi_sdt` nhưng ghim cả «ok … KH-» (xem --json, khung.mjs).
