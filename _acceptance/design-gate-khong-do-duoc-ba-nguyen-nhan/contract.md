@@ -91,9 +91,10 @@ AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × 
 - AC-10: Given nhánh nền tổ tiên chỉ đọc style jsdom đã tính (không đọc lại chữ của luật CSS) — {thân trang chỉ có dải màu
   tối · gốc trang chỉ có dải màu tối} và {trang sáng có khối `@media (prefers-color-scheme: dark)` nền tối · khối `@media
   print` nền đen · lớp phủ `hsla(0, 0%, 0%, 0.04)` · nền `var(--sang)` khai trên thẻ thắng luật `var(--toi)` · tiêu đề
-  chỉ tô dải màu trong `@media print`} · {nền `color-mix(…)`} — When chạy cổng dom, Then hai trang dải màu tối
+  chỉ tô dải màu trong `@media print`} · {nền thân trang `background: var(--tron)` với `--tron: color-mix(…)`} — When chạy cổng dom, Then hai trang dải màu tối
   KHÔNG-ĐO-ĐƯỢC mã nguyên nhân nen-to-tien-bi-bo; năm trang sau REJECT với phát hiện đo được «text #cccccc on #ffffff»;
-  trang color-mix ra đúng phán quyết và mã thoát của bản gốc, không phát hiện nào bị gắn không đo được; và vi phân trên ba
+  trang color-mix — mà bản gốc báo tương phản trên nền trắng (đối chứng dương) — ra đúng phán quyết và mã thoát của bản
+  gốc, không phát hiện nào bị gắn không đo được; và vi phân trên ba
   kho không có đích dom nào thoát 2 «không có đích dom nào», không thoát 0. (Trả lại ở Cổng Bằng chứng lượt 2: đổi khuôn
   nhánh nền — chỉ đọc style tính ra.)
 

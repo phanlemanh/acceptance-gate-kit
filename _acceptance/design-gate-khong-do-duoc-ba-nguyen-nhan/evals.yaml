@@ -145,7 +145,8 @@ evals:
       exit 0; stdout có "PASS: KD10-nen-chi-gradient ", "PASS: KD10-html-chi-gradient " — bản gốc REJECT, bản mới
       KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD10-media-toi ", "PASS: KD10-media-in ", "PASS: KD10-hsla-phu ",
       "PASS: KD10-inline-thang ", "PASS: KD10-gradient-media " — REJECT mã 2 với phát hiện đo được "1.6:1 (need 4.5:1) —
-      text #cccccc on #ffffff" trong blocking; "PASS: KD10-mau-la " — phán quyết và mã thoát bằng bản gốc, không phát hiện
-      nào do_duoc false; "PASS: KD10-vi-phan-rong " — ba kho giả không đích nào: vi phân thoát 2 kèm "không có đích dom
+      text #cccccc on #ffffff" trong blocking; "PASS: KD10-mau-la " — bản gốc có phát hiện tương phản "… on #ffffff" (đối
+      chứng dương: trang thật sự tới nhánh nền), bản mới phán quyết và mã thoát bằng bản gốc, không phát hiện nào do_duoc
+      false; ca đỏ «cần bản gốc» khi lượt không dựng bản gốc; "PASS: KD10-vi-phan-rong " — ba kho giả không đích nào: vi phân thoát 2 kèm "không có đích dom
       nào". Chiều đỏ trong lịch sử: commit bộ ca KD10 đứng trước commit đổi khuôn, đỏ trên bản lượt 2.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
