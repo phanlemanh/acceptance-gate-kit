@@ -35,8 +35,8 @@ evals:
     cmd: config:executors.script.kdd_nen
     paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
     expected: >
-      exit 0; stdout có "PASS: KD3-nen-bien ", "PASS: KD3-nen-gradient " — bản gốc REJECT, bản mới KHONG-DO-DUOC ly_do
-      {nen-to-tien-bi-bo}; "PASS: KD3-doi-chung-gop " (body background: #111, chữ #333) và "PASS: KD3-doi-chung-bien-trang "
+      exit 0; stdout có "PASS: KD3-nen-bien " — bản gốc REJECT, bản mới KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo};
+      "PASS: KD3-nen-gradient " — dạng gộp dải màu + màu dự phòng (jsdom bỏ hẳn) vẫn REJECT: giới hạn đã khai; "PASS: KD3-doi-chung-gop " (body background: #111, chữ #333) và "PASS: KD3-doi-chung-bien-trang "
       (background-color: var(--paper)=#fff, chữ #bbb) — bản mới REJECT mã 2, phát hiện tương phản nằm trong blocking.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
@@ -135,4 +135,17 @@ evals:
       KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD9-vi-phan-do-duoc " — ba kho giả, jsdom thật: thoát 0 kèm "vi phân:
       3 đích · đổi 0"; "PASS: KD9-vi-phan-mu " — cùng ba kho giả, VI_PHAN_JSDOM trỏ thư mục rỗng: thoát 2 kèm "không đo
       được ở đây: <n> đích". Chiều đỏ trong lịch sử: commit bộ ca KD9 đứng trước commit sửa vật, đỏ 6 ca trên bản lượt 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.kdd_nen_tinh_ra
+    paths: [lib/design-detect.mjs, tests/design-eval/vi-phan-kho.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD10-nen-chi-gradient ", "PASS: KD10-html-chi-gradient " — bản gốc REJECT, bản mới
+      KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD10-media-toi ", "PASS: KD10-media-in ", "PASS: KD10-hsla-phu ",
+      "PASS: KD10-inline-thang ", "PASS: KD10-gradient-media " — REJECT mã 2 với phát hiện đo được "1.6:1 (need 4.5:1) —
+      text #cccccc on #ffffff" trong blocking; "PASS: KD10-mau-la " — phán quyết và mã thoát bằng bản gốc, không phát hiện
+      nào do_duoc false; "PASS: KD10-vi-phan-rong " — ba kho giả không đích nào: vi phân thoát 2 kèm "không có đích dom
+      nào". Chiều đỏ trong lịch sử: commit bộ ca KD10 đứng trước commit đổi khuôn, đỏ trên bản lượt 2.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -942,6 +942,7 @@ executors:
     kdd_dot_bien: bash tests/design-eval/kdd.sh KD7
     kdd_hoi_quy: bash tests/design-eval/kdd.sh --hoi-quy
     kdd_nen_mau: bash tests/design-eval/kdd.sh KD9
+    kdd_nen_tinh_ra: bash tests/design-eval/kdd.sh KD10
     # Vi phân bản gốc ↔ bản mới trên đích dom của các kho tiêu thụ trên máy (KHO_GOC hoặc ~/dev). Chỉ in số. Không vào suite_keys.
     kdd_vi_phan_kho: node tests/design-eval/vi-phan-kho.mjs
     # Chỉ khi Hỏi-1 (job CI design-eval) được duyệt ở Cổng Phạm vi.

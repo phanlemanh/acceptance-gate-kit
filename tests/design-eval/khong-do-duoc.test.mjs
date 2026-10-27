@@ -157,7 +157,9 @@ const CA = [
 
   // AC-3 — nền khai ở tổ tiên bị bỏ
   caKhongDo('KD3-nen-bien', 'nen-bien', { [D.nen]: [NEN] }, [D.nen]),
-  caKhongDo('KD3-nen-gradient', 'nen-gradient', { [D.nen]: [NEN] }, [D.nen]),
+  // Giới hạn đã khai (đổi khuôn ở Cổng Bằng chứng lượt 2): jsdom bỏ hẳn dạng gộp «dải màu, màu dự phòng» nên nhánh nền
+  // không thấy nó — trang vẫn REJECT như trước vòng.
+  caChan('KD3-nen-gradient', 'nen-gradient', [D.nen]),
   caChan('KD3-doi-chung-gop', 'doi-chung-gop', [D.toiTrenToi]),
   caChan('KD3-doi-chung-bien-trang', 'doi-chung-bien-trang', [D.bienTrang]),
 
@@ -178,6 +180,20 @@ const CA = [
   // AC-9 — nền trắng viết bằng hsl/oklch hay kèm lớp ảnh vẫn đo được (REJECT); nền tối cùng cách viết vẫn không đo được
   ...['hsl-trang', 'hsl-trang-gop', 'van-trang', 'anh', 'oklch-trang'].map((t) => caChan(`KD9-${t}`, t, [D.bienTrang])),
   ...['hsl-toi', 'van-toi', 'oklch-toi'].map((t) => caKhongDo(`KD9-${t}`, t, { [D.nen]: [NEN] }, [D.nen])),
+
+  // AC-10 — nhánh nền đọc style tính ra: dải màu tối ở thân/gốc trang → không đo được; khối @media không áp, lớp phủ gần
+  // trong suốt, nền nội dòng thắng luật, chữ dải màu chỉ khi in, màu bộ đọc không hiểu → giữ phán quyết đo được (REJECT)
+  ...['nen-chi-gradient', 'html-chi-gradient'].map((t) => caKhongDo(`KD10-${t}`, t, { [D.nen]: [NEN] }, [D.nen])),
+  ...['media-toi', 'media-in', 'hsla-phu', 'inline-thang'].map((t) => caChan(`KD10-${t}`, t, ['1.6:1 (need 4.5:1) — text #cccccc on #ffffff'])),
+  caChan('KD10-gradient-media', 'gradient-media', ['1.6:1 (need 4.5:1) — text #cccccc on #ffffff']),
+  // Màu bộ đọc không hiểu (color-mix): nhánh nền không gắn nhãn — phán quyết và mã thoát bằng bản gốc, không phát hiện nào do_duoc false.
+  { id: 'KD10-mau-la', dot: true, moi: async (c) => {
+    const cu = await chayCong(c.goc || c.root, c.trang['mau-la']);
+    const moi = await chayCong(c.root, c.trang['mau-la']);
+    if (!cu.j || !moi.j) return 'không đọc được JSON của cổng';
+    if (moi.j.verdict !== cu.j.verdict || moi.ma !== cu.ma) return `phán quyết ${moi.j.verdict}/${moi.ma} khác bản gốc ${cu.j.verdict}/${cu.ma}`;
+    return (moi.j.findings || []).some((f) => f.do_duoc === false) ? 'có phát hiện bị gắn không đo được' : null;
+  } },
 
   // AC-6 — hợp đồng mã thoát, JSON, stderr
   { id: 'KD6-bang', moi: async (c) => {
@@ -210,7 +226,7 @@ const CA = [
 // AC-7 — ba đột biến: mỗi cái gỡ đúng một dòng có nhãn của lớp lọc; tập ca đỏ BẰNG tập viết trước.
 const DOT_BIEN = {
   css: ['KD2-layer-tep', 'KD2-layer-style', 'KD2-link-vang', 'KD2-layer-khong-ghim', 'KD1-jang', 'KD5-css-p0-khac'],
-  nen: ['KD3-nen-bien', 'KD3-nen-gradient', 'KD1-jang', 'KD9-hsl-toi', 'KD9-van-toi', 'KD9-oklch-toi'],
+  nen: ['KD3-nen-bien', 'KD1-jang', 'KD9-hsl-toi', 'KD9-van-toi', 'KD9-oklch-toi', 'KD10-nen-chi-gradient', 'KD10-html-chi-gradient'],
   gradient: ['KD4-clip', 'KD4-webkit-clip', 'KD4-fill', 'KD4-con', 'KD1-f01', 'KD1-f01-that', 'KD1-hyper-gloss', 'KD5-gradient-va-that'],
 };
 const nhanDotBien = (nhanh) => `// nhánh: ${nhanh}`;
@@ -321,6 +337,13 @@ CA.push(
   } },
 );
 
+CA.push({ id: 'KD10-vi-phan-rong', moi: async (c) => {
+  const goc = path.join(c.tam, 'kho-rong');
+  for (const ten of ['crm', 'artifact-platform', 'onehub-invest']) fs.mkdirSync(path.join(goc, ten, '_acceptance'), { recursive: true });
+  const r = chayLenh(process.execPath, [VI_PHAN], { env: { ...process.env, KHO_GOC: goc } });
+  return r.ma === 2 && /không có đích dom nào/.test(r.ra) ? null : `ba kho không có đích nào mà vi phân thoát ${r.ma}, mong 2 kèm «không có đích dom nào» — ${r.ra.trim().split('\n').pop()}`;
+} });
+
 // ── chạy ───────────────────────────────────────────────────────────────────
 const argCa = process.argv.includes('--ca') ? process.argv[process.argv.indexOf('--ca') + 1] : '';
 const loc = argCa ? argCa.split(',').map((s) => s.trim()).filter(Boolean) : null;
@@ -330,7 +353,7 @@ if (!chon.length) { console.log(`KD: --ca «${argCa}» khớp 0 ca`); process.ex
 const tam = fs.mkdtempSync(path.join(os.tmpdir(), 'kdd-'));
 const trang = sinhTrang(path.join(tam, 'trang'));
 let goc = null;
-const canGoc = chon.some((ca) => ca.goc || ca.id === 'KD1-goc');
+const canGoc = chon.some((ca) => ca.goc || ca.id === 'KD1-goc' || ca.id === 'KD10-mau-la');
 if (canGoc) {
   goc = path.join(tam, 'goc');
   fs.mkdirSync(goc);

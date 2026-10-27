@@ -136,6 +136,17 @@ h2{font-size:16px;color:#fafafa}
     ['van-toi', ':root{--bg:#0b0b0b}body{background:var(--bg) url(grain.png)}p{color:#eeeeee}'],
     ['oklch-toi', 'body{background:oklch(0.15 0 0)}p{color:#eeeeee}'],
   ].map(([ten, css]) => [ten, { html: dau(ten, `<style>${css}</style>`) + '<body><main><p>Chữ thử trên nền thân trang.</p></main></body></html>' }])),
+  // — AC-10: nhánh nền chỉ đọc style tính ra — cascade, @media và độ trong suốt theo đúng trình duyệt —
+  ...Object.fromEntries([
+    ['nen-chi-gradient', 'body{background:linear-gradient(#000000,#111111)}p{color:#eeeeee}', '<p>Chữ sáng trên thân trang chỉ có dải màu tối.</p>'],
+    ['html-chi-gradient', 'html{background:linear-gradient(#000000,#111111)}p{color:#eeeeee}', '<p>Chữ sáng, dải màu tối khai ở gốc trang.</p>'],
+    ['media-toi', 'p{color:#cccccc}@media (prefers-color-scheme: dark){body{background:#111111}}', '<p>Trang sáng có khối giao diện tối.</p>'],
+    ['media-in', 'p{color:#cccccc}@media print{body{background:#000000}}', '<p>Trang sáng có khối in.</p>'],
+    ['hsla-phu', '.the{background-color:hsla(0, 0%, 0%, 0.04)}p{color:#cccccc}', '<div class="the"><p>Lớp phủ gần trong suốt.</p></div>'],
+    ['inline-thang', ':root{--sang:#ffffff;--toi:#111111}.the{background:var(--toi)}p{color:#cccccc}', '<div class="the" style="background: var(--sang)"><p>Nền khai trên thẻ thắng luật.</p></div>'],
+    ['gradient-media', 'h1{color:#cccccc;font-size:16px}@media print{h1{background:linear-gradient(90deg,#7c3aed,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}}', '<h1>Tiêu đề chỉ tô dải màu khi in.</h1>'],
+    ['mau-la', 'body{background-color:color-mix(in srgb, #000000 90%, #ffffff)}p{color:#bbbbbb}', '<p>Nền viết bằng hàm màu bộ đọc không hiểu.</p>'],
+  ].map(([ten, css, than]) => [ten, { html: dau(ten, `<style>${css}</style>`) + `<body><main>${than}</main></body></html>` }])),
 };
 
 // Ghi mọi trang (mỗi trang một thư mục con, kèm tệp CSS của nó) và trả về { tên: đường tuyệt đối tới trang }.

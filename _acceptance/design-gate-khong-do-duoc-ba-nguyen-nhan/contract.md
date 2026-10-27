@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/design-detect.mjs nằm dưới t3_paths (lib/**); hàng FL1 ước T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-gate-khong-do-duoc-ba-nguyen-nhan-design.md
-status: verified
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:04Z
 ---
@@ -35,10 +35,11 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
   nhưng nền KHÔNG ghim nội dòng, When chạy cổng dom, Then mỗi trang KHÔNG-ĐO-ĐƯỢC với đúng mã nguyên nhân css-khong-ap-duoc (kết
   cục của trang thứ tư theo Hỏi-2 ở Cổng Phạm vi); và trang có `@layer` mà không có phát hiện tương phản nào vẫn PASS ở bản
   mới y như bản gốc.
-- AC-3: Given nền tối khai ở body mà jsdom không đọc được, ở hai dạng {`background: var(--bg)` · `background:
-  radial-gradient(…), #111`}, When chạy cổng dom, Then KHÔNG-ĐO-ĐƯỢC với đúng mã nguyên nhân nen-to-tien-bi-bo; đối chứng cùng
-  khuôn trang: nền tối đọc được (`background: #111` dạng gộp, chữ #333) và nền trắng khai bằng biến (`background-color:
-  var(--paper)` = #fff, chữ #bbb) đều REJECT với phát hiện đo được.
+- AC-3: Given nền tối khai ở body mà jsdom không đọc được ở dạng `background: var(--bg)`, When chạy cổng dom, Then
+  KHÔNG-ĐO-ĐƯỢC với đúng mã nguyên nhân nen-to-tien-bi-bo; đối chứng cùng khuôn trang: nền tối đọc được (`background: #111`
+  dạng gộp, chữ #333) và nền trắng khai bằng biến (`background-color: var(--paper)` = #fff, chữ #bbb) đều REJECT với phát
+  hiện đo được; dạng gộp `background: radial-gradient(…), #111` (jsdom bỏ hẳn) vẫn REJECT như trước vòng — giới hạn đã
+  khai (đổi khuôn ở Cổng Bằng chứng lượt 2).
 - AC-4: Given chữ gradient ở ba dạng {`background-clip: text` + `color: transparent` · chỉ `-webkit-background-clip:
   text` · `-webkit-text-fill-color: transparent` trên nền gradient}, When chạy cổng dom, Then KHÔNG-ĐO-ĐƯỢC với đúng mã nguyên nhân
   chu-gradient, kể cả khi chữ nằm trong một phần tử con của phần tử cắt theo chữ.
@@ -56,7 +57,7 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
 - AC-7: Given ba đột biến trên bản sao trọn `lib/` + `vendor/` + `scripts/`, mỗi đột biến gỡ đúng một dòng có nhãn của
   một nhánh, When chạy CHÍNH phép đo của AC-1…AC-5 trên bản sao, Then bản lành chạy trước xanh trọn; với mỗi đột biến, tập
   ca đỏ BẰNG tập viết trước — gỡ nhánh CSS: {layer-tep · layer-style · link-vang · layer-khong-ghim · jang · css-p0-khac}; gỡ nhánh nền:
-  {nen-bien · nen-gradient · jang · hsl-toi · van-toi · oklch-toi}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss ·
+  {nen-bien · jang · hsl-toi · van-toi · oklch-toi · nen-chi-gradient · html-chi-gradient}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss ·
   gradient-va-that} — và
   mọi ca ngoài tập xanh trên chính bản đột biến (bản đột biến còn nạp và chạy được); dòng đột biến không khớp đúng một lần
   → đỏ «DOT_BIEN_LECH».
@@ -83,8 +84,18 @@ Thêm trục ghim nội dòng {màu và nền ghim · chỉ màu ghim} trên tra
 AC-1 (tái lập ba trang × gốc/mới) · AC-2 (css × ba dạng + chỉ màu ghim + trang không phát hiện) · AC-3 (nền × hai dạng + hai đối chứng) ·
 AC-4 (gradient × ba dạng + con) · AC-5 (không nguyên nhân × REJECT, cùng trang với gradient, P0 khác trên trang css, css × màu và nền ghim) ·
 AC-6 (kết cục × cờ) · AC-7 (đột biến × ba nhánh) · AC-8 (hồi quy + vi phân ba kho + vendored) ·
+AC-10 (nhánh nền × {dải màu ở thân/gốc · @media không áp · lớp phủ trong suốt · nội dòng thắng luật · màu lạ}; vi phân × 0 đích) ·
 AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × {trắng · tối}; vi phân × {đo được · không đo được}).
 Ô vắng có chủ đích: `gray-on-color` dưới ba nguyên nhân; trang không phát hiện × css → PASS là ô đã chọn (sổ d-…-3).
+
+- AC-10: Given nhánh nền tổ tiên chỉ đọc style jsdom đã tính (không đọc lại chữ của luật CSS) — {thân trang chỉ có dải màu
+  tối · gốc trang chỉ có dải màu tối} và {trang sáng có khối `@media (prefers-color-scheme: dark)` nền tối · khối `@media
+  print` nền đen · lớp phủ `hsla(0, 0%, 0%, 0.04)` · nền `var(--sang)` khai trên thẻ thắng luật `var(--toi)` · tiêu đề
+  chỉ tô dải màu trong `@media print`} · {nền `color-mix(…)`} — When chạy cổng dom, Then hai trang dải màu tối
+  KHÔNG-ĐO-ĐƯỢC mã nguyên nhân nen-to-tien-bi-bo; năm trang sau REJECT với phát hiện đo được «text #cccccc on #ffffff»;
+  trang color-mix ra đúng phán quyết và mã thoát của bản gốc, không phát hiện nào bị gắn không đo được; và vi phân trên ba
+  kho không có đích dom nào thoát 2 «không có đích dom nào», không thoát 0. (Trả lại ở Cổng Bằng chứng lượt 2: đổi khuôn
+  nhánh nền — chỉ đọc style tính ra.)
 
 ## Đường đo
 
@@ -105,6 +116,12 @@ AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × 
 - Sửa bộ dò vendored để đo đúng màu thay vì nói không đo được.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-27:
+  - Ngoài-2 (lượt 1): lời mô tả bản gốc trong evals.yaml nói «merge-base» trong khi phép đo ghim một mã commit cố định.
+  - Ngoài-3 (lượt 1): chú thích của khoá CI trong cấu hình còn viết như thể việc thêm job chưa được quyết.
+  - Trang có nền thân viết gộp «dải màu, màu dự phòng» (`background: radial-gradient(…), #111`) vẫn bị chặn như trước
+    vòng: jsdom bỏ hẳn khai báo này nên nhánh nền không thấy nó.
 
 - Đếm trước khi sửa (27/10): 37 eval dom ở ba kho, 0 đang REJECT vì ba nguyên nhân; 2 REJECT sai lịch sử ở crm (đã né), 1
   REJECT đúng ở artifact-platform (phải giữ). Không kho nào dựa vào các REJECT sai để chặn thật.

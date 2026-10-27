@@ -39,8 +39,8 @@ if node -e "import('jsdom').then(()=>process.exit(0)).catch(()=>process.exit(1))
   node "$HERE/../../scripts/design-gate.mjs" "$HERE/fixtures/f03-low-contrast.html" --mode dom --jsdom "$HERE" >/dev/null 2>&1
   check T05 2 $?
 
-  echo "T07 KHONG-DO-DUOC for the three unmeasurable causes, real contrast still REJECT (KD1–KD7, KD9)"
-  node "$HERE/khong-do-duoc.test.mjs" --ca KD0,KD1,KD2,KD3,KD4,KD5,KD6,KD7,KD9 | grep -E '^(FAIL|KD:)'
+  echo "T07 KHONG-DO-DUOC for the three unmeasurable causes, real contrast still REJECT (KD1–KD7, KD9, KD10)"
+  node "$HERE/khong-do-duoc.test.mjs" --ca KD0,KD1,KD2,KD3,KD4,KD5,KD6,KD7,KD9,KD10 | grep -E '^(FAIL|KD:)'
   check T07 0 "${PIPESTATUS[0]}"
 elif [ "${DESIGN_EVAL_CAN_DOM:-}" = "1" ]; then
   echo "  FAIL: B-DOM tests — jsdom vắng mà DESIGN_EVAL_CAN_DOM=1 (npm ci --prefix tests/design-eval)"
