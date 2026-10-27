@@ -48,3 +48,7 @@ vì merge driver chỉ chạy khi có xung đột. Mất: một dòng `.gitattri
 ## Ngưỡng mở thành ô
 
 Owner gọi tên, hoặc ≥ 2 kho tiêu thụ ghi được ≥ 3 lần gộp lại vì tệp sinh trong một ngày.
+
+**Lần vấp thứ hai (26/10) — ngưỡng ĐỦ.** onehub-invest, đợt `dieu-phoi-dot0-cam-mau` 25–26/10: gần như mỗi lần gộp
+xung đột ở hai tệp sinh, hồ sơ phải ghim lại liên tục (số của giám sát đợt). Kho thứ hai → điều kiện «≥ 2 kho tiêu thụ»
+đã có. Xem `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` mục 1.

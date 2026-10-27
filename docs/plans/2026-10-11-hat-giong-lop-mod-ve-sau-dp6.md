@@ -287,3 +287,6 @@ Nguồn: `_acceptance/dieu-phoi-lop-mod/decisions.jsonl` dòng 30 (người ký 
 - **Ngoài-34 — `can_phan` gắn cho mọi sự kiện `cho-nguoi`.** Yêu cầu `can-nguoi` của DP7 vừa tạo việc chờ người
   vừa mang `can_phan`, nên giám sát thức hai lần cho một yêu cầu. Ngưỡng: đợt thử có ≥ 1 lần giám sát báo trùng
   một việc chờ người.
+
+**Đếm chặn nhầm heredoc (26/10): 3/10.** Thêm một lần thật ở onehub-invest (25/10, dieu-phoi 2.33.1): heredoc ghi ghi
+chú nhắc tên script đường nền bị chặn. Xem `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` mục 9.

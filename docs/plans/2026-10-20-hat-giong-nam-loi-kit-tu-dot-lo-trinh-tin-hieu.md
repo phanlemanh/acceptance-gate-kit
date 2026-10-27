@@ -180,3 +180,7 @@ lệ ở crm vẫn > 50 % — tức khai tay không đủ và câu hỏi (a)/(b)
 
 **Người hưởng:** giám sát và thợ của mọi đợt Điều phối – Thợ (mục 1–3: bớt lượt gọi giám sát/chủ kho sinh từ hạ tầng),
 người vận hành giữ tươi (mục 4), mọi kho bật `stale_scope: paths` (mục 5: số «cũ» đọc được thành hành động).
+
+**Đợt thử thứ hai (onehub-invest `dieu-phoi-dot0-cam-mau`, 23–26/10) vấp lại mục 1 — ngưỡng ĐỦ cho mục 1–4.** Đánh thức
+báo «giám sát không có nhịp sống» gần như mỗi lần lịch 30′ chạy; thêm một gốc thứ hai: phiên giám sát mở trước khi cài
+hay nâng gói thì hook không nạp (kit #403). Xem `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` mục 2.
