@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/design-detect.mjs nằm dưới t3_paths (lib/**); hàng FL1 ước T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-gate-khong-do-duoc-ba-nguyen-nhan-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:04Z
 ---
