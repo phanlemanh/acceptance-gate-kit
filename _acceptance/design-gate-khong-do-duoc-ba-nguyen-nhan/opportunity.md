@@ -3,10 +3,10 @@ schema_version: 1
 slug: design-gate-khong-do-duoc-ba-nguyen-nhan
 feature: Cổng thiết kế của kit trả KHÔNG-ĐO-ĐƯỢC kèm lý do, không REJECT, khi CSS không đọc được, khi nền khai ở tổ tiên bị bỏ qua, hay khi chữ gradient cắt theo chữ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-27T03:56:31Z   # chủ kho gõ «Duyệt, Đồng ý» ở thẻ khởi tạo đợt design-floor-2710 (phiên giám sát), máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
