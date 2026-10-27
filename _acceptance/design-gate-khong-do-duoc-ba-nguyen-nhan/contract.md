@@ -118,8 +118,6 @@ AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × 
 ## Notes
 
 - Known limits — chọn ở Cổng Bằng chứng 2026-10-27:
-  - Ngoài-2 (lượt 1): lời mô tả bản gốc trong evals.yaml nói «merge-base» trong khi phép đo ghim một mã commit cố định.
-  - Ngoài-3 (lượt 1): chú thích của khoá CI trong cấu hình còn viết như thể việc thêm job chưa được quyết.
   - Trang có nền thân viết gộp «dải màu, màu dự phòng» (`background: radial-gradient(…), #111`) vẫn bị chặn như trước
     vòng: jsdom bỏ hẳn khai báo này nên nhánh nền không thấy nó.
 

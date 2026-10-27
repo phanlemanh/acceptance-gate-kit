@@ -40,7 +40,7 @@ code instead of blocking on it, and answers `KHONG-DO-DUOC` (exit 0, **5** under
 stylesheet did not apply (`@layer`, an unparseable or missing local CSS file),
 unless the element pins both its colour and background inline;
 `nen-to-tien-bi-bo` — an ancestor declares a background jsdom cannot read
-(`background: var(--bg)`, a gradient shorthand), so the white fallback is not
+(`background: var(--bg)`, a gradient on `<body>`), so the white fallback is not
 the real page; `chu-gradient` — the text is painted by a clipped gradient. A
 measured blocking finding on the same page still REJECTs. To keep dom measuring
 a Tailwind v4 page, save it with computed colours inline (crm does) or check

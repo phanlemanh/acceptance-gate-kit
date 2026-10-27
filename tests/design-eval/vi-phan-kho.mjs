@@ -107,5 +107,6 @@ for (const ten of KHO) {
 }
 fs.rmSync(tam, { recursive: true, force: true });
 console.log(`vi phân: ${tongDich} đích · đổi ${tongDoi}`);
+if (!tongDich) { console.log('không có đích dom nào ở ba kho — vi phân không đo gì, không phải «đổi 0»'); process.exit(2); }
 if (tongMu) { console.log(`không đo được ở đây: ${tongMu} đích — cổng không ra phán quyết ở một trong hai bản (jsdom, sập, hết giờ)`); process.exit(2); }
 process.exit(tongDoi ? 1 : 0);
