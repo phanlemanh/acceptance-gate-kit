@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 76350afb0b73fcc54e0715d032717b71439fbf1b
-human_signoff:
+human_signoff: Manh Phan 2026-10-27
 ---
 
 # Evidence Report: design-gate-khong-do-duoc-ba-nguyen-nhan

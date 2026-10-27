@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/design-detect.mjs nằm dưới t3_paths (lib/**); hàng FL1 ước T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-gate-khong-do-duoc-ba-nguyen-nhan-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:04Z
 ---
@@ -119,12 +119,19 @@ AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × 
 ## Notes
 
 - Known limits — chọn ở Cổng Bằng chứng 2026-10-27:
-  - Trang có nền thân viết gộp «dải màu, màu dự phòng» (`background: radial-gradient(…), #111`) vẫn bị chặn như trước
+  - Ngoài-3: Ca đối chứng «màu nền bộ đọc không hiểu» (KD10-mau-la) chỉ chứng bản mới giữ phán quyết của bản gốc; nó không tự chứng nhánh nền đọc ra đúng màu lạ.
+  - Ngoài-6: Chạy riêng một phần bộ ca có thể làm một phép so với bản gốc rỗng; chạy trọn bộ thì đủ.
+  - Ngoài-9: Thân trang chỉ có dải màu mà các điểm màu viết bằng hàm màu lạ (color-mix…) bị gọi là «nền bị bỏ»: chữ nhạt thật thành không đo được (thoát 0, mã 5 dưới chế độ chặt).
+  - Ngoài-10: Khi chạy riêng nhóm ca đột biến, một nửa phép kiểm của KD10-mau-la rỗng mà vẫn báo đạt.
+  - Ngoài-11: Cùng giới hạn với Ngoài-10 (báo trùng).
+  - AC-3: trang có nền thân viết gộp «dải màu, màu dự phòng» (`background: radial-gradient(…), #111`) vẫn bị chặn như trước
     vòng: jsdom bỏ hẳn khai báo này nên nhánh nền không thấy nó.
 
 - Đếm trước khi sửa (27/10): 37 eval dom ở ba kho, 0 đang REJECT vì ba nguyên nhân; 2 REJECT sai lịch sử ở crm (đã né), 1
   REJECT đúng ở artifact-platform (phải giữ). Không kho nào dựa vào các REJECT sai để chặn thật.
 - Hàng FL1 ước T2; vật chạm `lib/` nên vòng chạy T3 (Gate 1.5 duyệt kế hoạch).
+- Ngoài-5, Ngoài-8 (chữ dải màu hay nền tối trong `@supports` / `@media (min-width…)` bị chặn như trước vòng): mở hợp
+  đồng mới → hạt giống `docs/plans/2026-10-27-hat-giong-design-gate-khoi-dieu-kien.md`.
 - Hỏi-1 (sổ d-20261027T035956Z-7): thêm job CI design-eval. Hỏi-2 (sổ d-20261027T040658Z-14): phần tử không ghim màu nội
   dòng trên trang CSS không áp được thành KHÔNG-ĐO-ĐƯỢC. Cả hai đổi kết cục một ca — AC-2 trang thứ tư theo Hỏi-2; E8c tồn
   tại khi Hỏi-1 «có».
