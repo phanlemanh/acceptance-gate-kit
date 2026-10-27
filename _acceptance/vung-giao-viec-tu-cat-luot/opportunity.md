@@ -42,7 +42,7 @@ Lịch biết tệp chỉ xét lúc giao hàng, khi hàng chưa có kế hoạch
 - Câu hỏi phép đo trả lời: [đề xuất] ở một đợt có ≥ 2 hàng cùng sửa một màn, lịch có tự xếp chúng nối tiếp mà không ai khai vùng tay không, và số lần ghim lại giảm bao nhiêu?
 - Kết quả nào là SỐNG: [đề xuất] phát lại đợt vỏ khu Mục tiêu: cặp VK6–VK8 bị xếp `sau`; ở đợt thật kế tiếp có chồng vùng: lần ghim / PR gộp ≤ 0,5 (đo 25–27/10: 1,36), 0 câu hỏi ngoài cổng vì thước gãy do hàng khác; 0 lượt gọi người thêm
 - Kết quả nào là CHẾT: [đề xuất] glob suy ra rộng tới mức mọi hàng trùng mọi hàng; kho không khai vùng đổi quyết định lịch; phải thêm một cổng người
-- Timebox: …
+- Timebox: [đề xuất] phần phát lại chốt ở Cổng Bằng chứng của vòng này; phần đợt thật — 14 ngày sau khi crm cài bản mang vòng (mốc phát hành kế tiếp, dự kiến 31/10), quá hạn mà chưa có đợt chồng vùng thì đọc lại ô
 
 ## Kết quả prototype
 
