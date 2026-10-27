@@ -145,7 +145,7 @@ h2{font-size:16px;color:#fafafa}
     ['hsla-phu', '.the{background-color:hsla(0, 0%, 0%, 0.04)}p{color:#cccccc}', '<div class="the"><p>Lớp phủ gần trong suốt.</p></div>'],
     ['inline-thang', ':root{--sang:#ffffff;--toi:#111111}.the{background:var(--toi)}p{color:#cccccc}', '<div class="the" style="background: var(--sang)"><p>Nền khai trên thẻ thắng luật.</p></div>'],
     ['gradient-media', 'h1{color:#cccccc;font-size:16px}@media print{h1{background:linear-gradient(90deg,#7c3aed,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}}', '<h1>Tiêu đề chỉ tô dải màu khi in.</h1>'],
-    ['mau-la', 'body{background-color:color-mix(in srgb, #000000 90%, #ffffff)}p{color:#bbbbbb}', '<p>Nền viết bằng hàm màu bộ đọc không hiểu.</p>'],
+    ['mau-la', ':root{--tron:color-mix(in srgb, #000000 90%, #ffffff)}body{background:var(--tron)}p{color:#bbbbbb}', '<p>Nền viết bằng hàm màu bộ đọc không hiểu.</p>'],
   ].map(([ten, css, than]) => [ten, { html: dau(ten, `<style>${css}</style>`) + `<body><main>${than}</main></body></html>` }])),
 };
 
