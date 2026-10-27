@@ -1,30 +1,3 @@
 {
-  "feature_plain": "Đưa bộ chấm thiết kế của Design OS vào kit dưới dạng một bản đã ghim, kiểm được từng byte, và sửa nó để chấm xong không để lại tệp nào trong dự án.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ kiểm mỗi tệp mã chép vào kit đúng bản đã ghim; sửa lén một byte ở tệp nào thì CI đỏ và gọi đúng tên tệp đó."},
-    {"id": "AC-2", "p": "Sẽ ghi mỗi chỗ kit sửa mã bên ngoài thành một dòng sổ (tệp, dấu vân tay trước và sau, vì sao, phép đo nó làm xanh), và gỡ ngược được về đúng bản gốc."},
-    {"id": "AC-3", "p": "Sẽ giao một tệp chạy được duy nhất; CI dựng lại nó ở một thư mục khác và đòi giống từng byte."},
-    {"id": "AC-4", "p": "Sẽ chạy toàn bộ bộ đo mà không lấy mã qua mạng — CI chấm đúng thứ đang nằm trong kit."},
-    {"id": "AC-5", "p": "Sẽ làm lệnh chấm và lệnh tự sửa không ghi sổ sự kiện nào ngoài tệp đích; bỏ bản sửa này đi thì hai phép đo đỏ lại."},
-    {"id": "AC-6", "p": "Sẽ giữ năm chỗ còn sai của bản ghim đỏ đúng như trước, chờ các bản sửa của hàng FL3."},
-    {"id": "AC-8", "p": "Sẽ cho tệp chạy được chỉ nhận đúng năm lệnh đã hợp đồng; lệnh khác bị từ chối kèm danh sách năm lệnh."},
-    {"id": "AC-9", "p": "Sẽ có một lệnh dựng lại toàn bộ từ bản ghim gốc và xác nhận khớp với thứ đã commit."}
-  ],
-  "wont_do": [
-    {"id": "AC-7", "p": "Chặn mọi chỗ sai đã khai mà không chỉ ra bản sửa cục bộ nào sẽ gỡ nó — không còn chờ PR gửi lên nguồn ngoài."},
-    {"id": "OOS-1", "p": "KHÔNG sửa năm chỗ sai còn lại (mã thoát ba trạng thái, tự dò design system, module Figma) — để hàng FL3."},
-    {"id": "OOS-2", "p": "KHÔNG móc bộ chấm vào các bước của vòng; lệnh chấm cổng chưa vào bước chấm."},
-    {"id": "OOS-3", "p": "KHÔNG đăng ký plugin trong chợ — đi cùng điểm móc đầu tiên ở FL4."},
-    {"id": "OOS-4", "p": "KHÔNG chép tệp danh sách persona: lệnh chấm cổng với tuỳ chọn persona sẽ báo lỗi rõ ràng."}
-  ],
-  "coverage_plain": [
-    {"i": 0, "p": "Không quét thêm không gian tiêu chí: phạm vi đã chốt bởi điều kiện hoàn thành của hàng FL2 và bảng bản sửa trong kế hoạch."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Lựa chọn «dấu vân tay sau khi sửa chỉ nằm ở sổ, không ở tệp khoá» lệch câu chữ kế hoạch mà chưa khai — đã ghi lại căn cứ (luật một nguồn) và khai lệch trong tài liệu thiết kế."},
-    {"i": 1, "p": "Phép đo bản sửa A chỉ thấy chữ «XFAIL» chứ chưa so đúng danh sách bốn chỗ còn lại — đã đổi thành so bằng nhau và thêm đột biến cài lại một chỗ cũ."},
-    {"i": 2, "p": "Phép đo tệp chạy được chưa thử dựng ở thư mục khác — đã thêm lần dựng thứ hai ở thư mục tạm."},
-    {"i": 3, "p": "Lời hứa «không lấy mã qua mạng» chưa được thử trên đúng đường bộ đo đi — đã thêm đối chứng trên đường ấy và đòi CI đặt biến chặn mạng."},
-    {"i": 4, "p": "Thiếu ba đột biến (xoá một tệp, thiếu trường sổ, thiếu lý do của chỗ sai) — đã thêm; ngưỡng 124 tệp ở ô được nối sang 126 bằng một dòng sổ."}
-  ]
+  "feature_plain": "Bộ chấm thiết kế của Design OS nay nằm trong kit dưới dạng bản đã ghim, kiểm được từng byte, giao đi bằng một tệp chạy được, và chấm xong không còn ghi tệp nào vào dự án."
 }
