@@ -57,13 +57,11 @@ feature-loop» của kế hoạch, bước 4.
 
 ## Đường đo
 
-| Ngưỡng của ô cơ hội | Thước | AC |
-|---|---|---|
-| Bốn kho fixture M0–M3 ra đúng bậc | ca BAC-M0…M3 | AC-1, AC-2 |
-| Ở M0 design-floor không in dòng nào | stdout rỗng của lệnh bậc và lệnh S1, băm cây không đổi | AC-1, AC-8 |
-| Một vòng mẫu nạp không quá ba tệp tri thức | chỉ mục + ≤2 tệp, trên chỉ mục do mã sinh và chỉ mục thật | AC-3, AC-10 |
-| Thẻ Cổng 1 không có dòng design-floor nào là câu hỏi | `routing.hoi` không đổi | AC-7 |
-| Mỗi điểm móc có một đột biến đỏ đúng ca | đột biến S0, S1, thẻ, khối SKILL | AC-1, AC-3, AC-5, AC-7, AC-8, AC-9 |
+- Bốn kho fixture M0–M3 ra đúng bậc — số từ ca BAC-M0…M3 của lệnh bậc · AC-1, AC-2.
+- Ở M0 design-floor không in dòng nào — số từ stdout rỗng của lệnh bậc và lệnh S1, băm cây không đổi · AC-1, AC-8.
+- Một vòng mẫu nạp không quá ba tệp tri thức — số từ design-floor.json (chỉ mục + ≤2 tệp) trên chỉ mục do mã sinh và chỉ mục thật · AC-3, AC-10.
+- Thẻ Cổng 1 không có dòng design-floor nào là câu hỏi — số từ routing.hoi của thẻ không đổi · AC-7.
+- Mỗi điểm móc có một đột biến đỏ đúng ca — số từ các ca đột biến S0, S1, thẻ, khối SKILL · AC-1, AC-3, AC-5, AC-7, AC-8, AC-9.
 
 ## Out of scope
 
