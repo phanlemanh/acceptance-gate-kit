@@ -83,9 +83,9 @@ evals:
     expected: >
       exit 0; stdout có "PASS: KD7-lanh " (bản sao lành, trọn ca KD1…KD5 xanh) rồi với mỗi đột biến một dòng "PASS: KD7-bo-<nhánh> "
       chỉ khi tập ca đỏ BẰNG tập viết trước trong tệp ca và mọi ca khác xanh trên chính bản đột biến: bo-css đỏ đúng
-      {KD2-layer-tep, KD2-layer-style, KD2-link-vang, KD2-layer-khong-ghim, KD1-jang}; bo-nen đỏ đúng {KD3-nen-bien,
+      {KD2-layer-tep, KD2-layer-style, KD2-link-vang, KD2-layer-khong-ghim, KD1-jang, KD5-css-p0-khac}; bo-nen đỏ đúng {KD3-nen-bien,
       KD3-nen-gradient, KD1-jang}; bo-gradient đỏ đúng {KD4-clip, KD4-webkit-clip, KD4-fill, KD4-con, KD1-f01, KD1-f01-that,
-      KD1-hyper-gloss}. Lệch tập in "LECH_TAP <nhánh>: thừa […] thiếu […]" và FAIL; dòng đột biến không khớp đúng một lần in
+      KD1-hyper-gloss, KD5-gradient-va-that}. Lệch tập in "LECH_TAP <nhánh>: thừa […] thiếu […]" và FAIL; dòng đột biến không khớp đúng một lần in
       "DOT_BIEN_LECH <nhánh>" và FAIL.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8

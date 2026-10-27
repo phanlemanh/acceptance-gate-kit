@@ -205,9 +205,9 @@ const CA = [
 
 // AC-7 — ba đột biến: mỗi cái gỡ đúng một dòng có nhãn của lớp lọc; tập ca đỏ BẰNG tập viết trước.
 const DOT_BIEN = {
-  css: ['KD2-layer-tep', 'KD2-layer-style', 'KD2-link-vang', 'KD2-layer-khong-ghim', 'KD1-jang'],
+  css: ['KD2-layer-tep', 'KD2-layer-style', 'KD2-link-vang', 'KD2-layer-khong-ghim', 'KD1-jang', 'KD5-css-p0-khac'],
   nen: ['KD3-nen-bien', 'KD3-nen-gradient', 'KD1-jang'],
-  gradient: ['KD4-clip', 'KD4-webkit-clip', 'KD4-fill', 'KD4-con', 'KD1-f01', 'KD1-f01-that', 'KD1-hyper-gloss'],
+  gradient: ['KD4-clip', 'KD4-webkit-clip', 'KD4-fill', 'KD4-con', 'KD1-f01', 'KD1-f01-that', 'KD1-hyper-gloss', 'KD5-gradient-va-that'],
 };
 const nhanDotBien = (nhanh) => `// nhánh: ${nhanh}`;
 

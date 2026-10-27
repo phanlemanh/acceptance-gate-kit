@@ -55,8 +55,9 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
   `do_duoc`.
 - AC-7: Given ba đột biến trên bản sao trọn `lib/` + `vendor/` + `scripts/`, mỗi đột biến gỡ đúng một dòng có nhãn của
   một nhánh, When chạy CHÍNH phép đo của AC-1…AC-5 trên bản sao, Then bản lành chạy trước xanh trọn; với mỗi đột biến, tập
-  ca đỏ BẰNG tập viết trước — gỡ nhánh CSS: {layer-tep · layer-style · link-vang · layer-khong-ghim · jang}; gỡ nhánh nền:
-  {nen-bien · nen-gradient · jang}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss} — và
+  ca đỏ BẰNG tập viết trước — gỡ nhánh CSS: {layer-tep · layer-style · link-vang · layer-khong-ghim · jang · css-p0-khac}; gỡ nhánh nền:
+  {nen-bien · nen-gradient · jang}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss ·
+  gradient-va-that} — và
   mọi ca ngoài tập xanh trên chính bản đột biến (bản đột biến còn nạp và chạy được); dòng đột biến không khớp đúng một lần
   → đỏ «DOT_BIEN_LECH».
 - AC-8: Given bộ ca design-eval đầy đủ (T01–T06 + ca KD), bản Impeccable vendored và các đích chế độ dom của ba kho tiêu
