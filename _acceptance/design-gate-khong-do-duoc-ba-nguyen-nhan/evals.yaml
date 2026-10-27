@@ -57,8 +57,9 @@ evals:
     expected: >
       exit 0; stdout có "PASS: KD5-css-doc-duoc ", "PASS: KD5-nen-doc-duoc ", "PASS: KD5-gradient-va-that " — REJECT mã 2,
       blocking chứa low-contrast với chi tiết ghim ("text #aaaaaa on #ffffff" · "text #333333 on #111111" · "text #999999
-      on #ffffff"), ở trang thứ ba phát hiện của tiêu đề có do_duoc false ly_do {chu-gradient}; "PASS: KD5-css-anh-hong "
-      — trang CSS không áp được có <img src=""> REJECT với broken-image trong blocking; "PASS: KD5-layer-ghim " — trang có
+      on #ffffff"), ở trang thứ ba phát hiện của tiêu đề có do_duoc false ly_do {chu-gradient}; "PASS: KD5-css-p0-khac "
+      — trang CSS không áp được có chữ #8a8a8a trên nền #1d4ed8: REJECT với gray-on-color trong blocking, phát hiện tương
+      phản của chính đoạn ấy do_duoc false ly_do {css-khong-ap-duoc}; "PASS: KD5-layer-ghim " — trang có
       @layer mà đoạn ghim nội dòng color #aaaaaa và background-color #ffffff: REJECT, chi tiết "text #aaaaaa on #ffffff"
       trong blocking; "PASS: KD5-f03 " — f03 REJECT hai phát hiện tương phản đo được.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

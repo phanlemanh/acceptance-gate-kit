@@ -45,8 +45,8 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
 - AC-5: Given ba trang đối chứng tương phản thật trên CSS đọc được {chữ #aaaaaa trên nền trắng khai ở tệp CSS cục bộ
   không `@layer` · chữ #333333 trên body nền #111111 · trang có tiêu đề gradient VÀ đoạn chữ #999999 trên nền trắng}, When
   chạy cổng dom, Then cả ba REJECT mã 2 với phát hiện tương phản đo được trong `blocking`; ở trang thứ ba phát hiện của tiêu
-  đề nằm trong danh sách với `do_duoc: false` (FAIL > KHÔNG-ĐO-ĐƯỢC); trang CSS không áp được có ảnh hỏng vẫn REJECT vì
-  `broken-image`; trang có `@layer` mà chữ #aaaaaa và nền #ffffff của đoạn đều ghim nội dòng vẫn REJECT với phát hiện đo
+  đề nằm trong danh sách với `do_duoc: false` (FAIL > KHÔNG-ĐO-ĐƯỢC); trang CSS không áp được có chữ xám trên nền màu vẫn
+  REJECT vì `gray-on-color` (P0 khác tương phản — chế độ dom không có luật ảnh hỏng); trang có `@layer` mà chữ #aaaaaa và nền #ffffff của đoạn đều ghim nội dòng vẫn REJECT với phát hiện đo
   được; fixture f03 vẫn REJECT hai phát hiện đo được.
 - AC-6: Given ba kết cục {KHÔNG-ĐO-ĐƯỢC · REJECT · PASS}, When chạy `design-gate.mjs` có và không có `--require-measured`,
   Then mã thoát lần lượt {0 · 2 · 0} không cờ và {5 · 2 · 0} có cờ; JSON KHÔNG-ĐO-ĐƯỢC có `verdict: "KHONG-DO-DUOC"`,
