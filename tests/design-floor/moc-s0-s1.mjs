@@ -110,6 +110,13 @@ const CA = {
   'BAC-M1': (kit) => kiemBac(kit, M.M1(), 'M1'),
   'BAC-M2': (kit) => kiemBac(kit, M.M2(), 'M2'),
   'BAC-M3': (kit) => kiemBac(kit, M.M3(), 'M3'),
+  // Lượt chấm 1 (S4-r1): dòng chú thích sát lề trong khối design làm bộ đọc riêng ra M0 — bộ đọc chung của kit đọc đúng.
+  'BAC-CHU-THICH': (kit) => {
+    const R = M.M1();
+    writeFileSync(join(R, '_acceptance', 'config.yaml'), 'design:\n# các mặt giao diện\n  surface_globs: ["web/**"]\n');
+    const r = kiemBac(kit, R, 'M1');
+    return r ? r.replace('BAC-M1', 'BAC-CHU-THICH') : null;
+  },
   'BAC-HONG': (kit) => {
     const ca = [
       ['niem_phong thiếu tokens', M.M3({ tokens: null }), 'M1', 'design_floor.tokens chưa khai', M.M3()],
@@ -341,7 +348,7 @@ function kiemSkill(kit, skillPath, khoiTen, tepLenh, doiSo) {
 // ── nhãn: chiều xanh + đột biến ─────────────────────────────────────────────────────────────────────
 const SKILL = join(KIT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
 const NHAN = {
-  BAC: { xanh: ['BAC-M0', 'BAC-M1', 'BAC-M2', 'BAC-M3'], dot: [['BAC-DOT', () => kitDotBien('design-floor-bac.mjs', ['} else if (niemPhong) {', '} else if (false) {']), 'BAC-M3', 'BAC-M3: ra M2, mong M3']] },
+  BAC: { xanh: ['BAC-M0', 'BAC-M1', 'BAC-M2', 'BAC-M3', 'BAC-CHU-THICH'], dot: [['BAC-DOT', () => kitDotBien('design-floor-bac.mjs', ['} else if (niemPhong) {', '} else if (false) {']), 'BAC-M3', 'BAC-M3: ra M2, mong M3']] },
   'BAC-HONG': { xanh: ['BAC-HONG'], dot: [] },
   TT: { xanh: ['TT-CHON', 'TT-KHONG'], dot: [['TT-DOT', () => kitDotBien('design-floor-s1.mjs', ['const TRAN_TEP = 2;', 'const TRAN_TEP = 5;']), 'TT-CHON', 'TT-CHON: 5 tệp, trần 2']] },
   'TT-LECH': { xanh: ['TT-LECH', 'TT-LECH-CHI-MUC', 'TT-VANG'], dot: [] },

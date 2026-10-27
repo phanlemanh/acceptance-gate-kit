@@ -16,57 +16,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const { pathGlobToRe } = require('../lib/evidence-core.cjs');
-
-const boChuThich = (v) => v.replace(/\s+#.*$/, '').trim();
-const boNhay = (v) => v.replace(/^(['"])(.*)\1$/, '$2');
-
-// Khối cấp một `<khoa>:` của config — các dòng thụt sau nó tới khoá cấp một kế.
-function khoi(cfg, khoa) {
-  const dong = cfg.split('\n');
-  const i = dong.findIndex((l) => new RegExp(`^${khoa}:\\s*(#.*)?$`).test(l));
-  if (i < 0) return null;
-  const ra = [];
-  for (const l of dong.slice(i + 1)) {
-    if (/^\S/.test(l)) break;
-    ra.push(l);
-  }
-  return ra;
-}
-
-// Giá trị vô hướng của khoá cấp hai trong khối.
-function voHuong(dongKhoi, khoa) {
-  for (const l of dongKhoi || []) {
-    const m = l.match(new RegExp(`^ {2}${khoa}:\\s*(.*)$`));
-    if (m) return boNhay(boChuThich(m[1])) || null;
-  }
-  return null;
-}
-
-// Danh sách của khoá cấp hai: dạng dòng `[a, b]` hoặc khối `- a`.
-function danhSach(dongKhoi, khoa) {
-  const ds = dongKhoi || [];
-  const i = ds.findIndex((l) => new RegExp(`^ {2}${khoa}:`).test(l));
-  if (i < 0) return null;
-  const sau = boChuThich(ds[i].replace(new RegExp(`^ {2}${khoa}:`), ''));
-  if (sau.startsWith('[')) return sau.replace(/^\[|\]$/g, '').split(',').map((x) => boNhay(x.trim())).filter(Boolean);
-  const ra = [];
-  for (const l of ds.slice(i + 1)) {
-    const m = l.match(/^\s{4,}-\s*(.+)$/);
-    if (!m) break;
-    ra.push(boNhay(boChuThich(m[1])));
-  }
-  return ra;
-}
+// MỘT bộ đọc config.yaml của kit (lib/evidence-core.cjs) — cùng bộ mà lưới tier-mismatch S4 và gate-card dùng, để hai
+// bên không thể đọc design.surface_globs khác nhau (dòng chú thích sát lề, thụt lề lạ…).
+const { pathGlobToRe, resolveConfigKey, resolveConfigList } = require('../lib/evidence-core.cjs');
 
 export function docBac(root) {
   const p = path.join(root, '_acceptance', 'config.yaml');
   const cfg = existsSync(p) ? readFileSync(p, 'utf8') : '';
-  const df = khoi(cfg, 'design_floor');
-  const tokens = voHuong(df, 'tokens');
-  const registry = voHuong(df, 'registry');
-  const niemPhong = voHuong(df, 'niem_phong');
-  const globs = danhSach(khoi(cfg, 'design'), 'surface_globs') || [];
+  const tokens = resolveConfigKey(cfg, 'design_floor.tokens');
+  const registry = resolveConfigKey(cfg, 'design_floor.registry');
+  const niemPhong = resolveConfigKey(cfg, 'design_floor.niem_phong');
+  const globs = resolveConfigList(cfg, 'design.surface_globs').filter(Boolean);
   const coTep = (rel) => !!rel && existsSync(path.resolve(root, rel));
 
   let dsTep = [];
