@@ -175,6 +175,10 @@ const CA = [
   caChan('KD5-layer-ghim', 'layer-ghim', [D.nhat]),
   caChan('KD5-f03', () => F03, ['1.8:1 (need 4.5:1) — text #b9b4ad on #f4f1ea', '2.5:1 (need 4.5:1) — text #9fb6e8 on #2563eb']),
 
+  // AC-9 — nền trắng viết bằng hsl/oklch hay kèm lớp ảnh vẫn đo được (REJECT); nền tối cùng cách viết vẫn không đo được
+  ...['hsl-trang', 'hsl-trang-gop', 'van-trang', 'anh', 'oklch-trang'].map((t) => caChan(`KD9-${t}`, t, [D.bienTrang])),
+  ...['hsl-toi', 'van-toi', 'oklch-toi'].map((t) => caKhongDo(`KD9-${t}`, t, { [D.nen]: [NEN] }, [D.nen])),
+
   // AC-6 — hợp đồng mã thoát, JSON, stderr
   { id: 'KD6-bang', moi: async (c) => {
     const bang = [['f01', 0, 5], ['jang', 0, 5], ['css-doc-duoc', 2, 2], ['khong-phat-hien', 0, 0]];
@@ -206,7 +210,7 @@ const CA = [
 // AC-7 — ba đột biến: mỗi cái gỡ đúng một dòng có nhãn của lớp lọc; tập ca đỏ BẰNG tập viết trước.
 const DOT_BIEN = {
   css: ['KD2-layer-tep', 'KD2-layer-style', 'KD2-link-vang', 'KD2-layer-khong-ghim', 'KD1-jang', 'KD5-css-p0-khac'],
-  nen: ['KD3-nen-bien', 'KD3-nen-gradient', 'KD1-jang'],
+  nen: ['KD3-nen-bien', 'KD3-nen-gradient', 'KD1-jang', 'KD9-hsl-toi', 'KD9-van-toi', 'KD9-oklch-toi'],
   gradient: ['KD4-clip', 'KD4-webkit-clip', 'KD4-fill', 'KD4-con', 'KD1-f01', 'KD1-f01-that', 'KD1-hyper-gloss', 'KD5-gradient-va-that'],
 };
 const nhanDotBien = (nhanh) => `// nhánh: ${nhanh}`;
@@ -293,6 +297,27 @@ CA.push(
     const hong = lenhJobCi(yml.replace(can[can.length - 1], can[can.length - 1].replace('run-tests.sh', 'run-test.sh')));
     if (hong && tapBang(hong, can)) return 'KD8-ci-do: bản gate.yml bị đổi một ký tự mà phép so vẫn khớp';
     return null;
+  } },
+);
+
+// AC-9 — vi phân ba kho phải tự đỏ khi cổng không đo được ở một đích (đối chứng dương: cùng kho giả, jsdom thật → xanh).
+function khoGia(goc) {
+  for (const ten of ['crm', 'artifact-platform', 'onehub-invest']) {
+    W(goc, `${ten}/_acceptance/ho-so/evidence/trang.html`, '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>t</title></head><body><main><p>Trang giả để vi phân.</p></main></body></html>');
+  }
+  return goc;
+}
+function W(goc, rel, s) { const p = path.join(goc, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); return p; }
+const VI_PHAN = path.join(HERE, 'vi-phan-kho.mjs');
+CA.push(
+  { id: 'KD9-vi-phan-do-duoc', moi: async (c) => {
+    const r = chayLenh(process.execPath, [VI_PHAN], { env: { ...process.env, KHO_GOC: khoGia(path.join(c.tam, 'kho-xanh')) } });
+    return r.ma === 0 && /vi phân: 3 đích · đổi 0/.test(r.ra) ? null : `kho giả, jsdom thật: mã ${r.ma}, mong 0 kèm «vi phân: 3 đích · đổi 0» — ${r.ra.trim().split('\n').pop()}`;
+  } },
+  { id: 'KD9-vi-phan-mu', moi: async (c) => {
+    const rong = path.join(c.tam, 'khong-jsdom'); fs.mkdirSync(rong, { recursive: true });
+    const r = chayLenh(process.execPath, [VI_PHAN], { env: { ...process.env, KHO_GOC: khoGia(path.join(c.tam, 'kho-mu')), VI_PHAN_JSDOM: rong } });
+    return r.ma === 2 && /không đo được ở đây: \d+ đích/.test(r.ra) ? null : `cổng không chạy được mà vi phân thoát ${r.ma}, mong 2 kèm «không đo được ở đây: <n> đích» — ${r.ra.trim().split('\n').pop()}`;
   } },
 );
 

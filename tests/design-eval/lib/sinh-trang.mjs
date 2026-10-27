@@ -125,6 +125,17 @@ h2{font-size:16px;color:#fafafa}
     html: dau('layer-ghim', '<link rel="stylesheet" href="./tw.css">')
       + '<body><main><p style="color:#aaaaaa;background-color:#ffffff">Chữ và nền đều ghim nội dòng.</p></main></body></html>',
   },
+  // — AC-9: màu nền viết bằng cú pháp khác hex/rgb, hoặc kèm lớp ảnh — trắng phải đo được, tối thì không —
+  ...Object.fromEntries([
+    ['hsl-trang', ':root{--background:0 0% 100%}body{background-color:hsl(var(--background))}p{color:#bbbbbb}'],
+    ['hsl-trang-gop', ':root{--background:0 0% 100%}body{background:hsl(var(--background))}p{color:#bbbbbb}'],
+    ['van-trang', ':root{--bg:#fff}body{background:var(--bg) url(grain.png)}p{color:#bbbbbb}'],
+    ['anh', 'body{background-image:url(noise.png)}p{color:#bbbbbb}'],
+    ['oklch-trang', 'body{background-color:oklch(1 0 0)}p{color:#bbbbbb}'],
+    ['hsl-toi', ':root{--background:0 0% 4%}body{background-color:hsl(var(--background))}p{color:#eeeeee}'],
+    ['van-toi', ':root{--bg:#0b0b0b}body{background:var(--bg) url(grain.png)}p{color:#eeeeee}'],
+    ['oklch-toi', 'body{background:oklch(0.15 0 0)}p{color:#eeeeee}'],
+  ].map(([ten, css]) => [ten, { html: dau(ten, `<style>${css}</style>`) + '<body><main><p>Chữ thử trên nền thân trang.</p></main></body></html>' }])),
 };
 
 // Ghi mọi trang (mỗi trang một thư mục con, kèm tệp CSS của nó) và trả về { tên: đường tuyệt đối tới trang }.

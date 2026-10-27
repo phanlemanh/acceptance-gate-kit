@@ -123,3 +123,16 @@ evals:
       nguồn trong kdd.sh, so bằng nhau); đổi một ký tự ở bản sao gate.yml → "FAIL: KD8-ci-do" phải đỏ (chiều đỏ trong ca).
       Lượt CI thật đọc ở PR.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.kdd_nen_mau
+    paths: [lib/design-detect.mjs, tests/design-eval/vi-phan-kho.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD9-hsl-trang ", "PASS: KD9-hsl-trang-gop ", "PASS: KD9-van-trang ", "PASS: KD9-anh ",
+      "PASS: KD9-oklch-trang " — REJECT mã 2, blocking chứa low-contrast với phát hiện đo được "1.9:1 (need 4.5:1) — text
+      #bbbbbb on #ffffff"; "PASS: KD9-hsl-toi ", "PASS: KD9-van-toi ", "PASS: KD9-oklch-toi " — bản gốc REJECT, bản mới
+      KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD9-vi-phan-do-duoc " — ba kho giả, jsdom thật: thoát 0 kèm "vi phân:
+      3 đích · đổi 0"; "PASS: KD9-vi-phan-mu " — cùng ba kho giả, VI_PHAN_JSDOM trỏ thư mục rỗng: thoát 2 kèm "không đo
+      được ở đây: <n> đích". Chiều đỏ trong lịch sử: commit bộ ca KD9 đứng trước commit sửa vật, đỏ 6 ca trên bản lượt 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

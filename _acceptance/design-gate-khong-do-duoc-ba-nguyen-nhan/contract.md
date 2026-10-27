@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # lib/design-detect.mjs nằm dưới t3_paths (lib/**); hàng FL1 ước T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-gate-khong-do-duoc-ba-nguyen-nhan-design.md
-status: verified
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:04Z
 ---
@@ -56,7 +56,7 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
 - AC-7: Given ba đột biến trên bản sao trọn `lib/` + `vendor/` + `scripts/`, mỗi đột biến gỡ đúng một dòng có nhãn của
   một nhánh, When chạy CHÍNH phép đo của AC-1…AC-5 trên bản sao, Then bản lành chạy trước xanh trọn; với mỗi đột biến, tập
   ca đỏ BẰNG tập viết trước — gỡ nhánh CSS: {layer-tep · layer-style · link-vang · layer-khong-ghim · jang · css-p0-khac}; gỡ nhánh nền:
-  {nen-bien · nen-gradient · jang}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss ·
+  {nen-bien · nen-gradient · jang · hsl-toi · van-toi · oklch-toi}; gỡ nhánh gradient: {clip · webkit-clip · fill · con · f01 · f01-that · hyper-gloss ·
   gradient-va-that} — và
   mọi ca ngoài tập xanh trên chính bản đột biến (bản đột biến còn nạp và chạy được); dòng đột biến không khớp đúng một lần
   → đỏ «DOT_BIEN_LECH».
@@ -67,6 +67,14 @@ nhánh chính. Mọi trang trong các ca do mã SINH trong lượt.
   nêu tên), số đích đổi phán quyết bằng 0 (đếm 27/10), in số theo kho và theo mã nguyên nhân kèm sha đầu của kho, không in đường
   dẫn hay nội dung của kho; nếu Hỏi-1 được duyệt, lệnh của job CI design-eval bằng đúng lệnh ca hồi quy chạy.
 
+- AC-9: Given nền thân trang viết bằng cú pháp khác hex/rgb hoặc kèm lớp ảnh — {trắng: `hsl(var(--background))` dạng
+  riêng và dạng gộp · `var(--bg) url(grain.png)` · chỉ `background-image: url(…)` · `oklch(1 0 0)`} và {tối: cùng ba cách
+  viết hsl · vân · oklch}, chữ nhạt (#bbbbbb trên trắng, #eeeeee trên tối) — When chạy cổng dom, Then năm trang nền trắng
+  REJECT mã 2 với phát hiện đo được «text #bbbbbb on #ffffff», ba trang nền tối KHÔNG-ĐO-ĐƯỢC đúng mã nguyên nhân
+  nen-to-tien-bi-bo; và vi phân ba kho trên ba kho giả do ca sinh: jsdom thật → thoát 0 «đổi 0», cổng không chạy được ở
+  các đích (jsdom vắng) → thoát 2 «không đo được ở đây: <n> đích», không thoát 0. (Nâng phạm vi ở Cổng Bằng chứng
+  27/10 — Ngoài-1, 4, 5, 6, 7 của lượt chấm 1.)
+
 ## Coverage
 
 Trục (kê tay — sổ «bỏ coverage-scan»): nguyên nhân {css · nền · gradient · không nguyên nhân} × dạng khai {theo AC-2,
@@ -74,7 +82,8 @@ AC-3, AC-4} × kết cục {KHÔNG-ĐO-ĐƯỢC · REJECT đo được · PASS} 
 Thêm trục ghim nội dòng {màu và nền ghim · chỉ màu ghim} trên trang css.
 AC-1 (tái lập ba trang × gốc/mới) · AC-2 (css × ba dạng + chỉ màu ghim + trang không phát hiện) · AC-3 (nền × hai dạng + hai đối chứng) ·
 AC-4 (gradient × ba dạng + con) · AC-5 (không nguyên nhân × REJECT, cùng trang với gradient, P0 khác trên trang css, css × màu và nền ghim) ·
-AC-6 (kết cục × cờ) · AC-7 (đột biến × ba nhánh) · AC-8 (hồi quy + vi phân ba kho + vendored).
+AC-6 (kết cục × cờ) · AC-7 (đột biến × ba nhánh) · AC-8 (hồi quy + vi phân ba kho + vendored) ·
+AC-9 (cú pháp màu nền {hsl · oklch · gộp kèm ảnh · chỉ ảnh} × {trắng · tối}; vi phân × {đo được · không đo được}).
 Ô vắng có chủ đích: `gray-on-color` dưới ba nguyên nhân; trang không phát hiện × css → PASS là ô đã chọn (sổ d-…-3).
 
 ## Đường đo
