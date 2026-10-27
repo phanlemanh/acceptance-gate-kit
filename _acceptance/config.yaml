@@ -1044,3 +1044,7 @@ tri_thuc:
     ten: acceptance-gate-kit-tri-thuc
     duong: ../acceptance-gate-kit-tri-thuc
     remote: https://github.com/phanlemanh/acceptance-gate-kit-tri-thuc.git
+
+# Gói đợt của gói dieu-phoi (dieu-phoi/README.md): `{ten}` thay bằng tên đợt khi mở bằng /dieu-phoi:mo-dot.
+dieu_phoi:
+  goi_dot: docs/plans/dot-{ten}
