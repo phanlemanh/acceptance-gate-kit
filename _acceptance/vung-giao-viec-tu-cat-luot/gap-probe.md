@@ -1,6 +1,6 @@
 ---
 slug: vung-giao-viec-tu-cat-luot
-at: 2026-10-27T23:18:00Z
+at: 2026-10-27T22:58:00Z
 verdict: findings
 p0: 1
 p1: 2
