@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # hàng FL2 khai T3: CỘNG một thành phần mới (mã bên thứ ba + bản gói) mà FL4/FL5 sẽ móc vào vòng
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-floor-vendor-va-ban-va-a-design.md
-status: approved
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:11Z
 ---
