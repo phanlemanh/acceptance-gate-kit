@@ -41,7 +41,7 @@ function dispatch(args: string[]): number | Promise<number> {
     if (unknown !== null) {
       const msg = unknownFlagMessage(unknown);
       const label = parsed.subcommand !== undefined ? `${parsed.command} ${parsed.subcommand}` : parsed.command!;
-      const res = parsed.json ? errJson(label, "UNKNOWN_FLAG", msg) : { exitCode: 1, stderr: `ui: ${msg}\n` };
+      const res = parsed.json ? errJson(label, "UNKNOWN_FLAG", msg) : { exitCode: 4, stderr: `ui: ${msg}\n` };
       if (res.stdout !== undefined) stdout.write(res.stdout);
       if (res.stderr !== undefined) stderr.write(res.stderr);
       return res.exitCode;
@@ -54,7 +54,7 @@ function dispatch(args: string[]): number | Promise<number> {
   };
   const internalError = (e: unknown): number => {
     stderr.write(`ui: internal error: ${e instanceof Error ? e.message : String(e)}\n`);
-    return 2;
+    return 1;
   };
   let result: CommandResult | Promise<CommandResult>;
   try {

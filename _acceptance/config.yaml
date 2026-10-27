@@ -943,6 +943,15 @@ executors:
     df_luat_gioi_han: bash tests/design-floor/eval.sh luat-gioi-han
     df_vo: bash tests/design-floor/eval.sh vo
     df_dong_bo: bash tests/design-floor/eval.sh dong-bo
+    # Hồ sơ design-floor-ban-va-b-c-d (FL3): bản vá B, C, D — cùng nếp chiều xanh + đột biến cùng nhãn.
+    df_b_df01: bash tests/design-floor/eval.sh b-df01
+    df_b_df04: bash tests/design-floor/eval.sh b-df04
+    df_b_df05: bash tests/design-floor/eval.sh b-df05
+    df_b_df06: bash tests/design-floor/eval.sh b-df06
+    df_c: bash tests/design-floor/eval.sh c
+    df_d: bash tests/design-floor/eval.sh d
+    df_bo_ban_va: bash tests/design-floor/eval.sh bo-ban-va
+    df_chuoi_so_va: bash tests/design-floor/eval.sh chuoi-so-va
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

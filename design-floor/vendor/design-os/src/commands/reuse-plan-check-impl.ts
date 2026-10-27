@@ -6,7 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { ParsedArgs } from "../core/cli-args.js";
-import { errJson, errText, okJsonWithExit } from "../core/output.js";
+import { errJson, errText, exitForCode, okJsonWithExit } from "../core/output.js";
 import type { CommandResult } from "../core/output.js";
 import { registryFileForDir } from "../core/design-system.js";
 import { loadRegistry } from "../core/registry-store.js";
@@ -20,10 +20,10 @@ import { renderReusePlanText } from "../core/reuse-plan-render.js";
 
 const CMD = "reuse-plan check";
 
-/** A command that could not run at all — exit 2, distinct from "ran and found problems" (1). */
+/** A command that could not run at all — exit by error class (design-floor bản vá B: missing/unreadable input 3), distinct from "ran and found problems" (2). */
 function cannotRun(json: boolean, code: string, message: string): CommandResult {
   const res = json ? errJson(CMD, code, message) : errText(`ui: ${message}\n`);
-  return { ...res, exitCode: 2 };
+  return { ...res, exitCode: exitForCode(code) };
 }
 
 /** Token tree for rung-6 paths, or the reason it is unavailable. Read lazily, once. */
@@ -58,6 +58,10 @@ export function runReusePlanCheck(parsed: ParsedArgs): CommandResult {
   for (const [name, v] of Object.entries(flags)) {
     if (v === true) return usage(`--${name} requires a value`);
   }
+  // design-floor (bản vá C): inputs are explicit — absent --file or --tokens is a usage error (exit 4), never read
+  // from <cwd>/design/.
+  if (typeof flags.file !== "string") return usage("ui reuse-plan check requires --file <registry> (design-floor: no registry auto-discovery)");
+  if (typeof flags.tokens !== "string") return usage("ui reuse-plan check requires --tokens <file> (design-floor: no design-system auto-discovery)");
   const designDir = join(typeof flags.dir === "string" ? resolve(flags.dir) : process.cwd(), "design");
   const tokensPath = typeof flags.tokens === "string" ? resolve(flags.tokens) : join(designDir, "design.tokens.json");
 
@@ -91,7 +95,7 @@ export function runReusePlanCheck(parsed: ParsedArgs): CommandResult {
 
   const index = buildNameIndex(entries, patternFileStems(designDir));
   const result = checkReusePlan(parseReusePlan(text), { names: index, tokens: tokenLoader(tokensPath) });
-  const exitCode = result.findings.length > 0 ? 1 : 0;
+  const exitCode = result.findings.length > 0 ? 2 : 0;
   if (json) {
     return okJsonWithExit(CMD, {
       file, registry: reg.path, registrySize: index.size, tokens: tokensPath, ok: exitCode === 0,

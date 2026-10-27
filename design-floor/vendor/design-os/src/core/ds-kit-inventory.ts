@@ -1,5 +1,5 @@
 import { validateSourceAuthoredComponentRecord, type ComponentRecord } from './registry-store.js';
-import { buildTokensTree, inferDtcgType, pathOf, pickBaseMode, sanitizeSeg, type DsVariable } from './figma-ds-tokens.js';
+import { buildTokensTree, inferDtcgType, pathOf, pickBaseMode, sanitizeSeg, type DsVariable } from './dtcg-token-tree.js';
 import { canonicalHash } from './ds-manifest.js';
 import { KitError, type KitFinding, type KitSpec } from './ds-kit-types.js';
 import { array, object, readKitJson, string, strings } from './ds-kit-parse.js';

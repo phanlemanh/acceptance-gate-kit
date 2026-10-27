@@ -220,6 +220,12 @@ export const gateCommand = {
       const msg = "ui gate requires <file.html>";
       return useJson ? errJson(CMD, "BAD_ARG", msg) : errText(`ui: ${msg}\n`);
     }
+    // design-floor (bản vá C): inputs are explicit — absent --tokens is a usage error (exit 4), never a walk up the
+    // parent folders looking for a design system.
+    if (typeof parsed.flags["tokens"] !== "string") {
+      const msg = "ui gate requires --tokens <file> (design-floor: no design-system auto-discovery)";
+      return useJson ? errJson(CMD, "BAD_ARG", msg) : errText(`ui: ${msg}\n`);
+    }
     let html: string;
     try {
       html = readFileSync(file, "utf8");
@@ -228,6 +234,12 @@ export const gateCommand = {
       const code = isNotFound ? "FILE_NOT_FOUND" : "READ_ERROR";
       const msg = isNotFound ? `file not found: '${file}'` : `cannot read '${file}': ${e instanceof Error ? e.message : String(e)}`;
       return useJson ? errJson(CMD, code, msg) : errText(`ui: ${msg}\n`);
+    }
+    // design-floor (bản vá B): a non-HTML target (e.g. a .tsx layout) is not rendered HTML — "no error seen" would
+    // not mean "clean", so it is NOT MEASURABLE (exit 5), never a pass.
+    if (!/\.html?$/i.test(file)) {
+      const msg = `'${file}' is not an .html/.htm file — the gate reads rendered HTML only`;
+      return useJson ? okJsonWithExit(CMD, { file, measurable: false, reason: msg }, 5) : { exitCode: 5, stderr: `ui: ${msg}\n` };
     }
     // A1: judge the union of inline + LOCAL linked CSS exactly as if inlined;
     // an unreadable linked stylesheet is an error finding, never silence —
@@ -348,7 +360,8 @@ export const gateCommand = {
     if (familyPolicy !== undefined) result = applyGatePolicy(result, familyPolicy);
     result.errorCount += loaded.errors.length + (tokensUnreadable ? 1 : 0);
     const pass = result.pass && loaded.errors.length === 0 && !tokenCoverageFails && !tokensUnreadable;
-    const exitCode = pass ? 0 : 1;
+    // design-floor (bản vá B): FAIL 2 > NOT MEASURABLE 5 (a check that could not be computed, no error) > PASS 0.
+    const exitCode = !pass ? 2 : result.partial.length > 0 ? 5 : 0;
 
     const lines: string[] = [`gate: ${file} — ${result.errorCount} error(s), ${result.warningCount} warning(s)${pass ? " — PASS" : ""}`];
     for (const e of loaded.errors) lines.push(`  ✗ [${e.checkId}]: ${e.message}`);

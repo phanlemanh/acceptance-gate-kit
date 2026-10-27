@@ -10,7 +10,7 @@ status: approved
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-10-27T09:45:00Z
+veto_opened_at: 2026-10-27T08:45:03Z
 ---
 
 # Acceptance Contract: design-floor-ban-va-b-c-d

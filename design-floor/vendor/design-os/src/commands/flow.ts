@@ -72,7 +72,7 @@ function runLint(parsed: ParsedArgs): CommandResult {
   }
 
   const r = lintFlow(flow);
-  const exitCode = r.errorCount > 0 ? 1 : 0;
+  const exitCode = r.errorCount > 0 ? 2 : 0;
   if (useJson) return okJsonWithExit(sub, { file, ...r }, exitCode);
   const lines = r.findings.length === 0
     ? [`flow lint: ${file} — 0 findings; the IA is well-formed.`]
