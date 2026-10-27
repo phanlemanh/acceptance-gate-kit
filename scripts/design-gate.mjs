@@ -39,6 +39,13 @@
 // nen-dieu-kien-va-static-khong-do-duoc; crm-onehub#375: 262/265 static runs on
 // .tsx were PASS.)
 //
+// DOM on an HTML target can also answer KHONG-DO-DUOC (record design-gate-khong-do-duoc-ba-nguyen-nhan): a
+// low-contrast finding jsdom could not measure — a stylesheet that did not apply (@layer, unparseable or
+// missing local CSS), a dark background declared on an ancestor that jsdom could not read, or text painted
+// by a clipped gradient — carries `do_duoc: false` + `ly_do: [<code>]` instead of blocking. FAIL wins: a
+// measured blocking finding on the same page still REJECTs. Same exit contract: 0, or 5 under
+// --require-measured; JSON adds `khong_do_duoc` (how many) and one stderr line names the codes.
+//
 // --require-measured is the opt-in strict mode (record design-gate-che-do-chat):
 // a non-HTML target exits 5 instead of 0, in static AND dom mode. Dom decides by
 // extension before loading jsdom, so a repo without jsdom gets 5 (wrong target),
@@ -130,6 +137,14 @@ let verdict = result.verdict;
 if (args.mode === 'static' && khongDoDuoc) {
   if (verdict === 'PASS') verdict = 'KHONG-DO-DUOC';
   khongDo = baoKhongDo('static');
+} else if (result.mode === 'dom' && verdict === 'KHONG-DO-DUOC') {
+  // Dom measured nothing blocking but some contrast findings could not be measured (lib/design-detect.mjs).
+  const n = result.unmeasured.length;
+  const ma = [...new Set(result.unmeasured.flatMap((f) => f.ly_do))];
+  const ly = `dom không đo được ${n} phát hiện tương phản (${ma.join(', ')}) — `
+    + (args.requireMeasured ? `--require-measured: thoát ${MA_KHONG_DO}` : 'xanh ở đây không phải đạt');
+  process.stderr.write(`design-gate: ${ly}: ${args.target}\n`);
+  khongDo = { do_duoc: false, ly_do_khong_do_duoc: ly, khong_do_duoc: n, ...(args.requireMeasured ? { require_measured: true } : {}) };
 }
 const exitCode = verdict === 'KHONG-DO-DUOC' && args.requireMeasured ? MA_KHONG_DO : result.exitCode;
 
