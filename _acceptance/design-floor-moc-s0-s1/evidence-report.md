@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: be24550bdf1b1f471b7d947d89ff0dc163c97370
-human_signoff:
+human_signoff: Manh Phan 2026-10-28
 ---
 
 # Evidence Report: design-floor-moc-s0-s1

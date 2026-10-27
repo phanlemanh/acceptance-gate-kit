@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/** + feature-loop/skills/** + tests/** — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-floor-moc-s0-s1-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-27
 ---
@@ -77,6 +77,27 @@ feature-loop» của kế hoạch, bước 4.
 - Hai lối của Hỏi-2 đổi AC thế này: lối tải lúc chạy giữ nguyên AC-3, AC-4, AC-10 như viết; lối đưa tri thức vào kit đổi
   AC-4 vế «không có bản ghim» thành «thiếu tệp vendored», AC-10 thành phép khớp băm trên cây kit (không cần mạng), và AC-8
   không đổi (bộ đệm và bản vendored đều ngoài hồ sơ).
+- Ngoài-1, Ngoài-3, Ngoài-16, Ngoài-17, Ngoài-18 (chọn ở Cổng Bằng chứng 2026-10-28: mở hợp đồng mới): ghi thành hạt
+  giống `docs/plans/2026-10-28-hat-giong-fl4-bac-tat-im-lang-va-the-m0.md`.
+- Ngoài-7, Ngoài-22, Ngoài-23, Ngoài-25 (chọn ở Cổng Bằng chứng 2026-10-28: chấp nhận, không sửa): bộ kiểm kém chặt hơn
+  lời khai ở ca khai báo hỏng, ca số lỗi luồng và bảng dịch mã của kiểm kế hoạch dùng lại; hành vi người dùng không đổi.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-28:
+  - Ngoài-2: Bộ kiểm design-floor chạy trên máy mất mạng mà không đặt cờ không-mạng thì báo đỏ thay vì bỏ qua ca tải tri thức thật.
+  - Ngoài-4: Ca khối Sàn thiết kế trên thẻ dùng tệp kết quả viết tay, chưa lấy từ lệnh S1, nên bên ghi và bên in lệch nhau sau này có thể không bị bắt.
+  - Ngoài-5: Dòng chi phí tri thức trong báo cáo dùng máy chỉ được kiểm có mặt, chưa so số token với tệp kết quả.
+  - Ngoài-6: Ca hồ sơ không có luồng hay kế hoạch dùng lại chỉ kiểm vắng dòng, nên vẫn xanh khi lệnh S1 hỏng.
+  - Ngoài-8: Phép so cây của lệnh S1 chỉ duyệt một chiều nên tệp hồ sơ bị xoá không bị bắt.
+  - Ngoài-9: Ca dòng chú thích sát lề trong cấu hình chưa có chiều đỏ trong bộ kiểm.
+  - Ngoài-10: Chú thích trong lệnh bậc nói quá rằng mọi nơi đọc khai báo giao diện đều dùng chung một bộ đọc.
+  - Ngoài-11: Các cách viết khai báo lạ khác (chú thích sát lề trong khối thứ hai, thụt lề không đều) chưa có ca riêng.
+  - Ngoài-12: Tệp kết quả Sàn thiết kế hỏng thì thẻ Cổng Phạm vi bỏ khối im lặng, không bật cờ vàng.
+  - Ngoài-13: Như Ngoài-6, do làn chấm lượt 1 báo.
+  - Ngoài-14: Bảng mã thoát và đường bản gói trong lệnh S1 ghi cứng, chưa rút từ khối máy của hợp đồng nhập.
+  - Ngoài-15: Ca tri thức bị sửa lén bắt bằng kiểm của bộ kiểm, chưa chứng lệnh S1 thật kiểm băm.
+  - Ngoài-19: Như Ngoài-4, do làn chấm lượt 1 báo.
+  - Ngoài-20: Như Ngoài-5, do làn chấm lượt 1 báo.
+  - Ngoài-21: Như Ngoài-8, do làn chấm lượt 1 báo.
+  - Ngoài-24: Như Ngoài-6, do làn chấm lượt 1 báo.
 
 Known limits (khai từ thiết kế):
 - Kho có giao diện mà chưa khai `design.surface_globs` đọc ra M0 — bậc đi theo khai báo, không theo dò đuôi tệp.
