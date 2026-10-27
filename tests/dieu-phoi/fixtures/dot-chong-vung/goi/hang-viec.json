@@ -1,0 +1,120 @@
+{
+  "dot": "phat-lai",
+  "day": [
+    {
+      "id": "V1",
+      "worktree": "/CHUA-CO-WORKTREE/V1",
+      "link": ""
+    },
+    {
+      "id": "V2",
+      "worktree": "/CHUA-CO-WORKTREE/V2",
+      "link": ""
+    },
+    {
+      "id": "V3",
+      "worktree": "/CHUA-CO-WORKTREE/V3",
+      "link": ""
+    }
+  ],
+  "hang": [
+    {
+      "ma": "H1",
+      "tep": "lo-trinh.json",
+      "slug": "hang-1",
+      "day": "V1",
+      "uu_tien": 0
+    },
+    {
+      "ma": "H2",
+      "tep": "lo-trinh.json",
+      "slug": "hang-2",
+      "day": "V1",
+      "uu_tien": 1
+    },
+    {
+      "ma": "H3",
+      "tep": "lo-trinh.json",
+      "slug": "hang-3",
+      "day": "V1",
+      "uu_tien": 2
+    },
+    {
+      "ma": "H4",
+      "tep": "lo-trinh.json",
+      "slug": "hang-4",
+      "day": "V1",
+      "uu_tien": 3
+    },
+    {
+      "ma": "H5",
+      "tep": "lo-trinh.json",
+      "slug": "hang-5",
+      "day": "V1",
+      "uu_tien": 4
+    },
+    {
+      "ma": "H6",
+      "tep": "lo-trinh.json",
+      "slug": "hang-6",
+      "day": "V2",
+      "uu_tien": 5
+    },
+    {
+      "ma": "H7",
+      "tep": "lo-trinh.json",
+      "slug": "hang-7",
+      "day": "V2",
+      "uu_tien": 6
+    },
+    {
+      "ma": "H8",
+      "tep": "lo-trinh.json",
+      "slug": "hang-8",
+      "day": "V2",
+      "uu_tien": 7
+    },
+    {
+      "ma": "H9",
+      "tep": "lo-trinh.json",
+      "slug": "hang-9",
+      "day": "V2",
+      "uu_tien": 8
+    },
+    {
+      "ma": "H10",
+      "tep": "lo-trinh.json",
+      "slug": "hang-10",
+      "day": "V3",
+      "uu_tien": 9
+    },
+    {
+      "ma": "H11",
+      "tep": "lo-trinh.json",
+      "slug": "hang-11",
+      "day": "V3",
+      "uu_tien": 10
+    },
+    {
+      "ma": "H12",
+      "tep": "lo-trinh.json",
+      "slug": "hang-12",
+      "day": "V3",
+      "uu_tien": 11
+    },
+    {
+      "ma": "H13",
+      "tep": "lo-trinh.json",
+      "slug": "hang-13",
+      "day": "V3",
+      "uu_tien": 12
+    },
+    {
+      "ma": "H14",
+      "tep": "lo-trinh.json",
+      "slug": "hang-14",
+      "day": "V3",
+      "uu_tien": 13
+    }
+  ]
+}

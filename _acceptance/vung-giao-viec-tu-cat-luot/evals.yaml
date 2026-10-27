@@ -1,0 +1,164 @@
+schema_version: 1
+feature_slug: vung-giao-viec-tu-cat-luot
+# Ca đo sống ở hai tệp: tests/scripts/cat-luot-vung.test.mjs (in «PASS: CV-…»/«FAIL: CV-…», thoát khác 0 khi có FAIL)
+# và tests/dieu-phoi/loi/vung-giao-viec.test.mjs (node --test; khoá executors.test.vung_giao_viec gộp dòng «ok … VG-»,
+# «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng). Suite xanh mà thiếu dòng ghim là ĐỎ. Fixture do code sinh trong
+# lượt (thư mục đợt tạm, worktree tạm, lộ trình tạm), trừ bản phát lại ẩn danh dưới tests/dieu-phoi/fixtures/ — đầu vào
+# như lượt cắt viết, đi qua răng phủ thật và bộ đọc gói thật trước khi chạy lịch. Đường dẫn suy từ vị trí tệp ca.
+# Chiều đỏ trong bộ kiểm: ca «-do» tiêm vào BẢN SAO (trọn thư mục dieu-phoi, hoặc tệp răng) SAU khi bản sao lành xanh,
+# và ghim thông điệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.cat_luot_vung
+    paths: [scripts/cat-luot.mjs, skills/acceptance/references/lo-trinh-template.json, skills/cat-luot/SKILL.md, tests/scripts/cat-luot-vung.test.mjs]
+    expected: >
+      exit 0; có dòng «PASS: CV-1» và «PASS: CV-1-do». CV-1: mọi hàng của khuôn lộ trình mang `vung` là mảng chuỗi khác
+      rỗng; khối CAT-LUOT-VUNG của SKILL có mặt và nêu khoá `vung`; chạy răng phủ (kiemCo) trên khuôn với dot của hàng
+      mẫu → 0 dòng lỗi hay cảnh báo mang cờ vung-*. CHIỀU ĐỎ (CV-1-do): bản sao khuôn bỏ `vung` ở một hàng mẫu → răng
+      cho đúng một cảnh báo «[chua-khai-vung]» nêu mã hàng ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, skills/acceptance/references/lo-trinh-template.json, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-1". VG-1: gói tạm khai nguon_hang trỏ các hàng mẫu của khuôn lộ trình (chép khuôn vào kho tạm),
+      hàng thi công không ranh_gioi → docGoi trả mỗi hàng ranh_gioi đúng bằng `vung` của hàng khuôn cùng mã. Đối chứng
+      trong ca: bản sao khuôn bỏ `vung` → ranh_gioi vắng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-1
+    executor: judgment
+    inputs: [skills/cat-luot/SKILL.md, docs/superpowers/specs/2026-10-28-vung-giao-viec-tu-cat-luot-design.md]
+    question: >
+      Đọc khối CAT-LUOT-VUNG và đoạn bước 3 của SKILL cắt lượt. Một phiên cắt lượt chưa từng thấy design doc có đủ chỉ dẫn
+      để ghi `vung` cho MỖI hàng ở CẢ hai dáng (chuoi và lan-va) theo màn của câu giao, biết khi nào một hàng giữ cả khu
+      (sửa khung chung) và khi nào chỉ một màn, và biết không ghi thư mục hồ sơ `_acceptance/` không? Trả PASS khi cả bốn
+      điều có trong SKILL bằng lời rõ; FAIL nêu điều thiếu.
+    expected: PASS
+    evidence_required: [run_id, verdict, judges, rationale]
+  - id: E4
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.cat_luot_vung
+    paths: [scripts/cat-luot.mjs, tests/scripts/cat-luot-vung.test.mjs]
+    expected: >
+      exit 0; có «PASS: CV-2» và «PASS: CV-2-do». CV-2: ma trận viết trước 9 hàng trong đợt × cờ mong đợi — `["**"]` →
+      lỗi vung-qua-rong · `["*.tsx"]` → lỗi vung-qua-rong · `["**/khu/**"]` → lỗi vung-qua-rong · `"app/x/**"` (chuỗi,
+      không mảng) → lỗi vung-sai-kieu · `[]` → lỗi vung-sai-kieu · vắng → cảnh báo chua-khai-vung ·
+      `["_acceptance/x/**"]` → cảnh báo vung-chi-ho-so · `["app/khu/**"]` → không cờ vùng · `["app/khu/man-a/**",
+      "README.md"]` → không cờ vùng; ba hàng mảng trộn: `["app/x/**", "**"]` → lỗi vung-qua-rong nêu «**» ·
+      `["_acceptance/x/**", "app/y/**"]` → không cờ vùng · `["app/x/**", ""]` → lỗi vung-sai-kieu; cùng mười hai hàng ở
+      đợt KHÁC → 0 dòng mang cờ vung-*. Mã thoát răng: 1 khi có lỗi vùng trong đợt, 0 khi chỉ cảnh báo. CHIỀU ĐỎ:
+      CV-2-do bản sao răng mà phép thử thư mục tĩnh luôn đúng → hàng `["**"]` không còn cờ, ca in «CV-2-do: ** lot»;
+      CV-2-do2 bản sao răng chỉ xét phần tử đầu của vung → hàng `["app/x/**", "**"]` không còn cờ, ca in «CV-2-do2:
+      tron lot».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.cat_luot_vung
+    paths: [scripts/cat-luot.mjs, dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/glob.mjs, tests/scripts/cat-luot-vung.test.mjs]
+    expected: >
+      exit 0; có «PASS: CV-3», «PASS: CV-3-do», «PASS: CV-4», «PASS: CV-4-do». CV-3: ba hàng `app/khu/**`,
+      `app/khu/a/**`, `app/khu/b/x.tsx` (mọi cặp chồng) → đúng một lỗi «[vung-trung-moi-hang]» nêu ba mã; đổi hàng thứ ba
+      thành `app/khac/**` → không lỗi ấy; hai hàng chồng nhau (dưới ba) → không lỗi ấy. CV-4: ma trận ≥ 12 cặp glob (tệp
+      × thư mục, thư mục lồng, anh em `a/**` × `ab/**`, `*.tsx` cùng cấp × thư mục con, hai mẫu đại diện cùng tiền tố) →
+      phép so trong khối VUNG-GIAO-CHEP của răng trả ĐÚNG như `mauGiao` của dieu-phoi/scripts/trung-tep.mjs ở mọi cặp;
+      khối chép mang `khop` và `mauGiao` nguyên văn thân hàm. CHIỀU ĐỎ: CV-3-do bản sao răng bỏ kiểm quan hệ → ca in
+      «CV-3-do: moi cap chong lot»; CV-4-do bản sao khối chép đổi `startsWith` thành `===` → ca in «CV-4-do: lech <cặp>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-4". VG-4 trên CÙNG một gói tạm ba hàng nguồn: A (lộ trình có vung, thi công không ranh_gioi)
+      → ranh_gioi = vung của A; B (lộ trình có vung, thi công khai tay `["tay/**"]`) → ranh_gioi = ["tay/**"]; C (lộ
+      trình không vung, thi công không ranh_gioi) → không có khoá ranh_gioi. docHangLoTrinh trả `vung` cho A, B và không
+      cho C. CHIỀU ĐỎ (VG-4-do): bản sao trọn thư mục dieu-phoi, goi-dot bỏ dòng chép → A không còn ranh_gioi, ca ghim
+      «VG-4-do: A khong nhan vung».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-5". VG-5: đợt tạm có cấu hình nguon_hang trỏ lộ trình tạm có hàng M (vung `["app/m/**"]`)
+      chưa có trong hang-viec; trang-thai cho hàng Y ở dãy khác đang làm với ranh_gioi `["app/m/a.tsx"]` → `hang them M
+      --day P1` cho hàng mới ranh_gioi ["app/m/**"] và sau ["Y"]; cùng lệnh kèm --ranh-gioi app/khac/** → ranh_gioi
+      ["app/khac/**"] và không sau; mã không có trong lộ trình → hàng không ranh_gioi và cảnh báo «không khai ranh_gioi»
+      như cũ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, scripts/cat-luot.mjs, tests/dieu-phoi/fixtures/dot-chong-vung/**, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-6". VG-6: lộ trình phát lại qua răng phủ (kiemCo) → 0 lỗi vùng; gói phát lại qua docGoi →
+      mười bốn hàng, mỗi hàng ranh_gioi = vung; dựng thư mục đợt tạm, chạy motNhip theo kịch bản tiến độ của bản phát lại
+      (hàng đầu mỗi dãy bắt đầu; hàng xong theo thứ tự gộp ghi trong kịch bản) → khi dãy của hàng dáng VK8 tới lượt hàng
+      ấy, hàng dáng VK6 còn đang làm và hàng dáng VK8 mang `sau` chứa mã hàng dáng VK6 kèm một sự kiện doi-ke-hoach
+      them-sau. Đối chứng cùng kịch bản, gói không vùng (bỏ `vung` khỏi lộ trình) → hàng dáng VK8 không có `sau`. Cặp
+      chồng của bản phát lại so BẰNG danh sách 25 cặp viết trước trong ca (H2-H3 … H11-H12) và k = 25 ≤ trần 45 (một nửa
+      91 cặp; mức 78/91 của paths đã bị loại); ca in «VG-6 cặp chồng: 25/91». VG-6-an-danh: MỌI chuỗi trong
+      tests/dieu-phoi/fixtures/dot-chong-vung/ khớp khuôn tổng hợp đã khai (mã H<số>, P<số>, slug hang-<số>, dãy V<số>,
+      đoạn đường thuộc {app, api, ui, tro-ly, khu, khu-chu, man-<chữ>, **, khu-*.ts}, câu «Người dùng mở màn của hàng
+      <số>», cùng các giá trị khuôn cố định của gói) — bản lành 0 khớp lạ. CHIỀU ĐỎ: VG-6-do bản sao bản phát lại đổi
+      mọi vùng thành app/khu/** → ca in «VG-6-do: cap chong 91/91 vuot tran 45»; VG-6-an-danh-do bản sao tiêm một slug
+      ngoài khuôn → đúng một khớp lạ nêu tệp và chuỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp107_dp201
+    paths: [tests/dieu-phoi/fixtures/**, dieu-phoi/**]
+    expected: >
+      exit 0; "ok" cho "DP1-07 khong-rieng-kho" và "DP1-07-do" — quét dieu-phoi/ và tests/dieu-phoi/fixtures/ (gồm bản phát
+      lại) không gặp chuỗi riêng nào của kho tiêu thụ; bản sao tiêm một dòng mang chuỗi cấm → đúng một khớp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/trung-tep.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-7". VG-7: rút dòng lệnh khai vùng từ khối TRONG-DOT-VUNG của SKILL vòng lặp (marker), thay ô
+      bằng slug x và vùng app/b/**, chạy bằng `node dieu-phoi.mjs` với cwd là worktree của dãy P1 → hàng x có ranh_gioi
+      [vùng cũ…, "app/b/**"] (vùng cũ còn nguyên, thứ tự giữ), LUAT.md thêm đúng một dòng Nhật ký nêu x và app/b/**;
+      nhịp kế của motNhip: hàng z chưa bắt đầu ở P2 khai app/b/c.tsx mang `sau` ["X"]; hàng z2 đã được chọn làm hàng kế
+      của P2 (có tiep/P2.json, chưa có hợp đồng) khai app/b/d.tsx → nhịp kế mang `sau` ["X"] và tiep/P2.json thôi trỏ
+      z2; đối chứng z2 khai app/khac/** → vẫn là hàng kế, không `sau`. Chạy lại cùng lệnh → không đổi gì.
+      Glob «**» hay «*.ts» → thoát khác 0, thông điệp nêu «không có thư mục tĩnh», hang-viec.json và LUAT.md giữ nguyên
+      từng byte.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/trung-tep.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    expected: >
+      exit 0; "ok" cho "VG-8". VG-8: hàng y ở P2 đang làm (trang-thai tien_do dang) với ranh_gioi app/b/c.tsx; khai vùng
+      app/b/** cho x → đúng một sự kiện trung-tep {luc: "cong-pham-vi", hang: x, voi: hang, khoa: Y, can_phan: false},
+      kết quả lệnh có một cảnh báo nêu y; hàng y và x không có `sau`; thư mục khoa/ và xin/ không đổi. Đối chứng: y khai
+      app/khac/** → 0 sự kiện trung-tep; y ở `ky` → vẫn một sự kiện.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.vung_giao_viec
+    paths: [dieu-phoi/**, tests/dieu-phoi/loi/vung-giao-viec.test.mjs, _acceptance/vung-giao-viec-tu-cat-luot/goc-so]
+    expected: >
+      exit 0; "ok" cho "VG-9" và "VG-9-do". VG-9: bản gốc = `git archive <sha trong goc-so> dieu-phoi` (trọn thư mục) ra
+      thư mục tạm; cùng một thư mục đợt không vùng (ba dãy, hàng chỉ ranh_gioi _acceptance/<slug>/** hoặc không khai, lộ
+      trình không vung, có PR mở giả) chép làm hai bản, chạy năm nhịp motNhip bằng bản gốc và bản mới → tiep/*.json,
+      hang-viec.json, LUAT.md, su-kien.jsonl (bỏ khoá giờ) y nhau; docGoi của gói ấy y nhau. Ca gác: thư mục tạm của bản gốc
+      có trung-tep.mjs và lich.mjs (không rỗng). CHIỀU ĐỎ (VG-9-do): bản sao bản mới mà goi-dot chép vùng cả khi lộ trình
+      không vung (gán ranh_gioi ["app/**"]) → so thấy lệch, ca ghim «VG-9-do: lech hang-viec».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

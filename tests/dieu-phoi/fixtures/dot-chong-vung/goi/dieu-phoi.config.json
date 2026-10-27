@@ -1,0 +1,33 @@
+{
+  "nhanh_chinh": "main",
+  "han_thue_phut": {
+    "s4": 90,
+    "ghim-lai": 40,
+    "duong-nen": 40,
+    "merge": 120
+  },
+  "nhip_cu_phut": 10,
+  "suc_khoe": {
+    "swap_gb": 8,
+    "ap_luc_muc": 2,
+    "rss_gb": 8
+  },
+  "bao_ve": [],
+  "s4_tran_gom_phut": 60,
+  "nguon_hang": [
+    "lo-trinh.json:H1",
+    "lo-trinh.json:H2",
+    "lo-trinh.json:H3",
+    "lo-trinh.json:H4",
+    "lo-trinh.json:H5",
+    "lo-trinh.json:H6",
+    "lo-trinh.json:H7",
+    "lo-trinh.json:H8",
+    "lo-trinh.json:H9",
+    "lo-trinh.json:H10",
+    "lo-trinh.json:H11",
+    "lo-trinh.json:H12",
+    "lo-trinh.json:H13",
+    "lo-trinh.json:H14"
+  ]
+}
