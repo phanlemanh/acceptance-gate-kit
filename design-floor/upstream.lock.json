@@ -1172,5 +1172,344 @@
         "autofix"
       ]
     }
-  ]
+  ],
+  "tri_thuc": {
+    "chi_muc": {
+      "path": "knowledge/index.json",
+      "sha256": "c18a983c46eadff5780295cb4e8fcea9b76c09ffb0e236fdf01165f62517e5ff",
+      "byte": 21239
+    },
+    "tep": [
+      {
+        "id": "accessibility",
+        "path": "knowledge/accessibility.md",
+        "sha256": "fb63a888f2a133f2db50cf7d53d08ed172b5f4d8a4b9af3d291d95875aca03f9",
+        "byte": 7188
+      },
+      {
+        "id": "apple-swiftui-craft",
+        "path": "knowledge/apple-swiftui-craft.md",
+        "sha256": "b585f3829d49c3697a2228dac94ac75b1e9e7724d609cd7053e99bdb71181a6e",
+        "byte": 7645
+      },
+      {
+        "id": "asset-production-orchestration",
+        "path": "knowledge/asset-production-orchestration.md",
+        "sha256": "d80c99310ad89584c9d2df0105da4522414d8fc834a70c4bbdd7589aae29814e",
+        "byte": 7682
+      },
+      {
+        "id": "authoring-standard",
+        "path": "knowledge/authoring-standard.md",
+        "sha256": "1370acc7aaa8458188ba8d486a4ea0d4db92f039b5464e28ed43b60c99b63dd9",
+        "byte": 10696
+      },
+      {
+        "id": "build-loop",
+        "path": "knowledge/build-loop.md",
+        "sha256": "b62456ad19b667bc3098d644a16d8ddf5db81a0ba7d94bfde59672517240a672",
+        "byte": 10165
+      },
+      {
+        "id": "canvas-effect-direction",
+        "path": "knowledge/canvas-effect-direction.md",
+        "sha256": "5fc5ac55bec3c17b22e5f877853b422c5f411ccdc2d9503f78fdcbcfe952aaa9",
+        "byte": 16026
+      },
+      {
+        "id": "chart-craft",
+        "path": "knowledge/chart-craft.md",
+        "sha256": "9953fea300fe2de40fd80edb72b6dc9f20fd996acebdb0b835344e5859da9d0c",
+        "byte": 10118
+      },
+      {
+        "id": "color-science",
+        "path": "knowledge/color-science.md",
+        "sha256": "72097a0906f18fece5311aa7ab74dc1c8fcc847e0c4de3166c1ca9c218f6f5a3",
+        "byte": 12918
+      },
+      {
+        "id": "component-catalog",
+        "path": "knowledge/component-catalog.md",
+        "sha256": "d12885750360ef3f87298acbe1275cdb9df69899078beb368cbb1e5f80b9674e",
+        "byte": 9231
+      },
+      {
+        "id": "content-design",
+        "path": "knowledge/content-design.md",
+        "sha256": "218ae76678601680eb85d3405dbf02ca58ff727afd28fba72cd9ee42f94177b8",
+        "byte": 5254
+      },
+      {
+        "id": "delivery-assets",
+        "path": "knowledge/delivery-assets.md",
+        "sha256": "22ffe9a70846059f991e0eddb6dd8f21aa4ba1042df299663bcd875982acecf7",
+        "byte": 6601
+      },
+      {
+        "id": "design-agents",
+        "path": "knowledge/design-agents.md",
+        "sha256": "8b22550eb7d5ae19f71f6c6cc36c92a4c59844fdf77b6f9fb63c96ef1e17840a",
+        "byte": 6713
+      },
+      {
+        "id": "design-reuse-ladder",
+        "path": "knowledge/design-reuse-ladder.md",
+        "sha256": "e074bf6f349db8a5f3385dd4aea7ec8e9b7d4ccd654aeee317df167c470713fd",
+        "byte": 10304
+      },
+      {
+        "id": "design-review",
+        "path": "knowledge/design-review.md",
+        "sha256": "656b84ee4139bdd9a4a10b73c17b2eb847a8fce5d5079ac2ae70b97875bfb734",
+        "byte": 3361
+      },
+      {
+        "id": "design-soul",
+        "path": "knowledge/design-soul.md",
+        "sha256": "2b4b2bd64eeec32ac0ee3afdf5fe5a54ba6081f8fe579e81d7c6926b410121a0",
+        "byte": 9010
+      },
+      {
+        "id": "design-tells",
+        "path": "knowledge/design-tells.md",
+        "sha256": "9def6556228a2ef1d8989c66d1d596aa288a709b81de969f2463b535363c0841",
+        "byte": 7614
+      },
+      {
+        "id": "designmd-format",
+        "path": "knowledge/designmd-format.md",
+        "sha256": "65c6740eac98bcc3d09d27a7dc1800fc9783c2f2b2b8edca565a4c31c06396df",
+        "byte": 10778
+      },
+      {
+        "id": "diagram-craft",
+        "path": "knowledge/diagram-craft.md",
+        "sha256": "9d5ca2ac14d0d1f81da23480c9c827dc6a66a2cebee7a4ae50ccda0a9da90d47",
+        "byte": 13978
+      },
+      {
+        "id": "diagram-icons",
+        "path": "knowledge/diagram-icons.md",
+        "sha256": "3524fb8c49ab3907123d5999c9a0ad173b159de40228360d073f17dee216e6ea",
+        "byte": 105623
+      },
+      {
+        "id": "ds-guidelines",
+        "path": "knowledge/ds-guidelines.md",
+        "sha256": "5c439e03ea59aeef63d1717b9d74bc0f0f7fe0a0be2762bfdb53c30d7211730e",
+        "byte": 15964
+      },
+      {
+        "id": "ds-kit-onboarding",
+        "path": "knowledge/ds-kit-onboarding.md",
+        "sha256": "fc17f5a5dbdbcfda30fef53bb1d605f7a4e89768f38c28f6d00b14bfce61cb46",
+        "byte": 15275
+      },
+      {
+        "id": "figma-agent-hand",
+        "path": "knowledge/figma-agent-hand.md",
+        "sha256": "1eb9a7e48568c6fc4c5282f3703e849b8ef42c78d5e09b294172402d17021012",
+        "byte": 17123
+      },
+      {
+        "id": "figma-ds-onboarding",
+        "path": "knowledge/figma-ds-onboarding.md",
+        "sha256": "269e0f18f0e2eaf998eb82a6e452d4bdd1bd7995c27b05f1ee3638c7164542e4",
+        "byte": 11381
+      },
+      {
+        "id": "flow-craft",
+        "path": "knowledge/flow-craft.md",
+        "sha256": "4dec64e7851e3d08b7a1f9c5d2a14100cd5c5affebabeeebc0ab3229b14d9f1f",
+        "byte": 4005
+      },
+      {
+        "id": "generation-craft-defaults",
+        "path": "knowledge/generation-craft-defaults.md",
+        "sha256": "37eca779157c5b370077a4e6a2c7c03bc8fa2bd5e61a4cb6901db9f4a4affdfa",
+        "byte": 9803
+      },
+      {
+        "id": "gflow-hand",
+        "path": "knowledge/gflow-hand.md",
+        "sha256": "39dfcfaf6af44896b1b27665a7e89c7a35d29b4857e003216d83957a5bec9726",
+        "byte": 8620
+      },
+      {
+        "id": "gsap-motion-direction",
+        "path": "knowledge/gsap-motion-direction.md",
+        "sha256": "180f4751396e1ad96563f86584c1e82fd6f21989477d184019c37c14d2aa845c",
+        "byte": 9289
+      },
+      {
+        "id": "librarian-loop",
+        "path": "knowledge/librarian-loop.md",
+        "sha256": "d4f86497073509b886333a8c0164e31aafd99007a054632c4a4d706a0dadae92",
+        "byte": 7608
+      },
+      {
+        "id": "mode-constraints",
+        "path": "knowledge/mode-constraints.md",
+        "sha256": "0907f69774ce3865bb239f67838bfaee12983c0265b71264282ff627dbed3b46",
+        "byte": 18334
+      },
+      {
+        "id": "motion-craft",
+        "path": "knowledge/motion-craft.md",
+        "sha256": "05f68a530a72c5b8b2c234602c8ef5dff0299ff487d158c4ca051f0fc1d7fbeb",
+        "byte": 20735
+      },
+      {
+        "id": "native-ios-craft",
+        "path": "knowledge/native-ios-craft.md",
+        "sha256": "c662a8053d3024a022257a3a0a4c76e3469498adb8b3d7f56f70cb037a69c5f0",
+        "byte": 4782
+      },
+      {
+        "id": "native-ipados-craft",
+        "path": "knowledge/native-ipados-craft.md",
+        "sha256": "ffc2aec9f44a5c91cd4d9aea37efdba6f00f90873cf10369b10b69844e9ebf1f",
+        "byte": 4679
+      },
+      {
+        "id": "native-macos-craft",
+        "path": "knowledge/native-macos-craft.md",
+        "sha256": "4ef2b2a4dcbb12c7fd28f2dbb91da406870281cc959605f1b80bfb40584f22e9",
+        "byte": 5577
+      },
+      {
+        "id": "need-routing",
+        "path": "knowledge/need-routing.md",
+        "sha256": "7a90f188774e330bdf2876e740e7d874dedc04c12bceebdddfa7d5716c9bba7b",
+        "byte": 13689
+      },
+      {
+        "id": "page-structures",
+        "path": "knowledge/page-structures.md",
+        "sha256": "0463e8ed6eccf3ee80bc4047973c74456624580101afbd0e2b296f6f8f835254",
+        "byte": 10417
+      },
+      {
+        "id": "pattern-cards",
+        "path": "knowledge/pattern-cards.md",
+        "sha256": "8c8aaf557708ea97f27024026960f142f70813c3c966bca288b04399e42ae178",
+        "byte": 2480
+      },
+      {
+        "id": "persona-index",
+        "path": "knowledge/persona-index.md",
+        "sha256": "a5e4bb22450ef9d574e674a9b507ce4be21ee9d04119da86ac2dc2d07626be01",
+        "byte": 14404
+      },
+      {
+        "id": "personas/families",
+        "path": "knowledge/personas/families.json",
+        "sha256": "af8becf52711edcd495cd7c39658b59d88e762ef028217ab7d24d11805612d88",
+        "byte": 45795
+      },
+      {
+        "id": "personas/personas",
+        "path": "knowledge/personas/personas.json",
+        "sha256": "f3cb82d8a4eb18b657ce8b8a4f638ca0f2c4eb46aaf47956455a8f17957dcdcd",
+        "byte": 30940
+      },
+      {
+        "id": "prompt-modes",
+        "path": "knowledge/prompt-modes.md",
+        "sha256": "182dcccbd67aa1cb1e3b3ba771424e81336a98dc903b7143f53cabfb515231da",
+        "byte": 14089
+      },
+      {
+        "id": "prompt-plan-orchestration",
+        "path": "knowledge/prompt-plan-orchestration.md",
+        "sha256": "c2562e7344638334cc52aa9eb5ebf6ba41665272284a419d5167dbd56d5a09b5",
+        "byte": 9342
+      },
+      {
+        "id": "qualified-delivery",
+        "path": "knowledge/qualified-delivery.md",
+        "sha256": "783eaf9692f5e7eb99b0e3a1c73daaf5d36ae0b57d3b6c4f99941cfa75148f0e",
+        "byte": 3945
+      },
+      {
+        "id": "recall-mind",
+        "path": "knowledge/recall-mind.md",
+        "sha256": "44734fb774fa05f03d4c1fdbc034058c277e556799a6e8bac0acef205ecbd61d",
+        "byte": 8375
+      },
+      {
+        "id": "scroll-cinema-direction",
+        "path": "knowledge/scroll-cinema-direction.md",
+        "sha256": "5bd34c0a5dba3ff9990a8498c5f8d84b21404bd94c16287fc3b00dfa143aa227",
+        "byte": 14295
+      },
+      {
+        "id": "shader-gradient-direction",
+        "path": "knowledge/shader-gradient-direction.md",
+        "sha256": "ec7a0cb75606b8735c3b0851df7fd2030da817ff219710016e7eeaf36a1083f6",
+        "byte": 15252
+      },
+      {
+        "id": "signature-devices",
+        "path": "knowledge/signature-devices.md",
+        "sha256": "e6630e853a01b5891ce8b6e37663af6ab4d2c352f92a7f231c5b48c4886d8b8f",
+        "byte": 10935
+      },
+      {
+        "id": "taste-rubric",
+        "path": "knowledge/taste-rubric.md",
+        "sha256": "da781189d09782894327bbf95531a3bda28c8fff597747ad6ddbf093a152c154",
+        "byte": 29547
+      },
+      {
+        "id": "token-taxonomy",
+        "path": "knowledge/token-taxonomy.md",
+        "sha256": "15f1b03b58b8d1940ea96c0dd9b4af328c670014572de61ce3c86f3fb9d09baa",
+        "byte": 16708
+      },
+      {
+        "id": "user-evidence",
+        "path": "knowledge/user-evidence.md",
+        "sha256": "05e89764dfd3ea5455c657d1cdf45a82cba845a37d1178a31b5fbfcba73e4c6e",
+        "byte": 7074
+      },
+      {
+        "id": "ux-psychology",
+        "path": "knowledge/ux-psychology.md",
+        "sha256": "a4822152c8c5917e158ad2ceebf298ec1abfbe11c49e6b33ef24866b66f76a1e",
+        "byte": 40206
+      },
+      {
+        "id": "verification-honesty",
+        "path": "knowledge/verification-honesty.md",
+        "sha256": "c4b90956110bf4bb14d08caea7af660125abda2dc8f0138df9c193f7a2164dd2",
+        "byte": 7501
+      },
+      {
+        "id": "versioning-semver",
+        "path": "knowledge/versioning-semver.md",
+        "sha256": "39b4328b3578f8b745a75b658b9333ec1b81b762ad540445f0d8842745ff1c68",
+        "byte": 4272
+      },
+      {
+        "id": "visual-regression",
+        "path": "knowledge/visual-regression.md",
+        "sha256": "4cfbac91d4c0a143161d3a71f48e31551f6943faf5cd7b29484ec1d768b79c8b",
+        "byte": 4176
+      },
+      {
+        "id": "web-technique-craft",
+        "path": "knowledge/web-technique-craft.md",
+        "sha256": "6f2a767f62b8cefb848637056f934cd4792f342229a3669260234f2a7fbcefa8",
+        "byte": 4553
+      },
+      {
+        "id": "world-class-learning-loop",
+        "path": "knowledge/world-class-learning-loop.md",
+        "sha256": "51529d1fe1e47d6d5255404482892ffae2be07dcbff0fad554dc3f5f4e327f5f",
+        "byte": 7940
+      }
+    ]
+  }
 }
