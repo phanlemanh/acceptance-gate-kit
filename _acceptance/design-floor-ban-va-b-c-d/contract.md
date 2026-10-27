@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # design-floor/** + tests/design-floor/** — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-floor-ban-va-b-c-d-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
