@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 8869c782b3794df4b5e1227d5d1cba6fd8e03f84
-human_signoff:
+human_signoff: Manh Phan 2026-10-27
 ---
 
 # Evidence Report: design-floor-vendor-va-ban-va-a

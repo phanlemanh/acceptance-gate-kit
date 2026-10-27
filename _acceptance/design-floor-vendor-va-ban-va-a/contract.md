@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # hàng FL2 khai T3: CỘNG một thành phần mới (mã bên thứ ba + bản gói) mà FL4/FL5 sẽ móc vào vòng
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-floor-vendor-va-ban-va-a-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-27T05:32:11Z
 ---
@@ -85,3 +85,12 @@ Known limits (khai từ thiết kế):
   `knowledge/personas/families.json` không vendor. argv của khối máy không truyền `--family`.
 - Tám module `memory-*` (1 561 dòng) được chép nhưng không vào bản gói sau bản vá A — giữ để FN-01 dựng lại bản
   trước-vá ngoại tuyến (sổ `d-20261027T035402Z-9`).
+- Ngoài-1 (chọn ở Cổng Bằng chứng 2026-10-27: mở hợp đồng mới): ghi thành hạt giống `docs/plans/2026-10-27-hat-giong-fl2-ngoai-1.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-27:
+  - Ngoài-2: Ghi chú của sổ vá (dòng D) và mục Out of scope vẫn nói còn bốn cặp figma và dòng A nói 16 cặp, trong khi số thật là ba và mười bảy; người làm FL3 đối chiếu theo số đo, không theo ghi chú.
+  - Ngoài-3: Khi hai bản vá đã áp cùng sửa một tệp, phép kiểm bản vendored báo đỏ giả và bỏ qua kiểm bản vá trước — chưa xảy ra vì mới có bản vá A; sửa cùng bản vá thứ hai ở FL3.
+  - Ngoài-4: Phép kiểm «lệnh chấm không ghi tệp» có thể xanh cả khi một lệnh chết ngay từ đầu; mọi lượt đo hiện các lệnh đều chạy.
+  - Ngoài-5: Trùng Ngoài-2 — ghi chú lệch số bốn/ba cặp figma và 16/17 cặp gỡ.
+  - Ngoài-6: Thiếu công cụ dựng thì phép đối chiếu với bản ghim báo «lệch» thay vì «không chạy được».
+  - Ngoài-7: Trùng Ngoài-4 — phép kiểm không ghi tệp thiếu đối chứng «lệnh đã chạy thật».
+  - Ngoài-8: Bước kiểm cấu hình CI chỉ xem biến chặn mạng có mặt, không đo nó có hiệu lực.
