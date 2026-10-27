@@ -3,10 +3,10 @@ schema_version: 1
 slug: vung-giao-viec-tu-cat-luot
 feature: Vùng giao việc đi từ cắt lượt — mỗi hàng mang vùng mã dự kiến từ lúc cắt, để lịch biết tệp thấy được hai hàng cùng sửa một màn và tự xếp nối tiếp
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-27T22:42:51Z   # chủ kho gõ «Cổng Đáng vung-giao-viec-tu-cat-luot: build, ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -39,10 +39,10 @@ Lịch biết tệp chỉ xét lúc giao hàng, khi hàng chưa có kế hoạch
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] ở một đợt có ≥ 2 hàng cùng sửa một màn, lịch có tự xếp chúng nối tiếp mà không ai khai vùng tay không, và số lần ghim lại giảm bao nhiêu?
-- Kết quả nào là SỐNG: [đề xuất] phát lại đợt vỏ khu Mục tiêu: cặp VK6–VK8 bị xếp `sau`; ở đợt thật kế tiếp có chồng vùng: lần ghim / PR gộp ≤ 0,5 (đo 25–27/10: 1,36), 0 câu hỏi ngoài cổng vì thước gãy do hàng khác; 0 lượt gọi người thêm
-- Kết quả nào là CHẾT: [đề xuất] glob suy ra rộng tới mức mọi hàng trùng mọi hàng; kho không khai vùng đổi quyết định lịch; phải thêm một cổng người
-- Timebox: [đề xuất] phần phát lại chốt ở Cổng Bằng chứng của vòng này; phần đợt thật — 14 ngày sau khi crm cài bản mang vòng (mốc phát hành kế tiếp, dự kiến 31/10), quá hạn mà chưa có đợt chồng vùng thì đọc lại ô
+- Câu hỏi phép đo trả lời: ở một đợt có ≥ 2 hàng cùng sửa một màn, lịch có tự xếp chúng nối tiếp mà không ai khai vùng tay không, và số lần ghim lại giảm bao nhiêu?
+- Kết quả nào là SỐNG: phát lại đợt vỏ khu Mục tiêu: cặp VK6–VK8 bị xếp `sau`; ở đợt thật kế tiếp có chồng vùng: lần ghim / PR gộp ≤ 0,5 (đo 25–27/10: 1,36), 0 câu hỏi ngoài cổng vì thước gãy do hàng khác; 0 lượt gọi người thêm
+- Kết quả nào là CHẾT: glob suy ra rộng tới mức mọi hàng trùng mọi hàng; kho không khai vùng đổi quyết định lịch; phải thêm một cổng người
+- Timebox: phần phát lại chốt ở Cổng Bằng chứng của vòng này; phần đợt thật — 14 ngày sau khi crm cài bản mang vòng (mốc phát hành kế tiếp, dự kiến 31/10), quá hạn mà chưa có đợt chồng vùng thì đọc lại ô
 
 ## Kết quả prototype
 
@@ -58,9 +58,9 @@ Chưa dựng.
 
 ## Cổng 0
 
-- **decision = …**
-- **disposition = …**
-- **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
+- **decision = build** — Manh Phan, 27/10/2026 22:42Z
+- **disposition = …** (chưa dựng prototype)
+- **Ngưỡng UAT chốt cùng lúc ký:** ba bullet ngưỡng và timebox ở trên, đã gỡ tiền tố «[đề xuất]» theo lời chủ kho «ngưỡng và hạn theo đề xuất».
 
 ## Notes
 
