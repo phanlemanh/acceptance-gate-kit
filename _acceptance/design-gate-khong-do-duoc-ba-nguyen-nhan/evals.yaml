@@ -108,7 +108,8 @@ evals:
     expected: >
       exit 0; đủ ba kho crm · artifact-platform · onehub-invest dưới KHO_GOC hoặc ~/dev (thiếu kho nào → thoát 2 in
       "không đọc được ở đây: <tên>"); mỗi kho một dòng "kho <tên> @<sha 8>: <n> đích dom · đổi phán quyết <k> · lý do mới
-      {css-khong-ap-duoc: a, nen-to-tien-bi-bo: b, chu-gradient: c}"; dòng tổng "vi phân: <N> đích · đổi 0"; tổng đổi khác 0
+      {css-khong-ap-duoc: a, nen-to-tien-bi-bo: b, chu-gradient: c} · tương phản ở bản gốc t" (t = số phát hiện
+      tương phản bản gốc thấy — bộ đếm cho biết phép vi phân có gì để đổi); dòng tổng "vi phân: <N> đích · đổi 0"; tổng đổi khác 0
       → thoát 1. Không in đường dẫn hay nội dung tệp của kho.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8c

@@ -33,6 +33,19 @@ targets do not change. One flag on `executors.design.gate` opts in every eval
 that references it; an eval that must stay on a component file declares
 `expected_exit: 5` so its pin says so out loud.
 
+Dom computes contrast from jsdom's colours, and three page shapes make those
+colours wrong. The gate then marks the contrast finding `do_duoc: false` with a
+code instead of blocking on it, and answers `KHONG-DO-DUOC` (exit 0, **5** under
+`--require-measured`) when nothing measured blocks: `css-khong-ap-duoc` — a
+stylesheet did not apply (`@layer`, an unparseable or missing local CSS file),
+unless the element pins both its colour and background inline;
+`nen-to-tien-bi-bo` — an ancestor declares a background jsdom cannot read
+(`background: var(--bg)`, a gradient shorthand), so the white fallback is not
+the real page; `chu-gradient` — the text is painted by a clipped gradient. A
+measured blocking finding on the same page still REJECTs. To keep dom measuring
+a Tailwind v4 page, save it with computed colours inline (crm does) or check
+contrast in this Tier B pass.
+
 Static never computes color or contrast — not even on rendered HTML: a
 `<p style="color:#eee;background:#fff">` page passes static and fails `--mode
 dom` with `low-contrast`. A color red direction needs dom (jsdom, with the

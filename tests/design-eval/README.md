@@ -13,8 +13,10 @@ Validates and calibrates the acceptance gate's **design** executor
 
 ```bash
 cd tests/design-eval
-npm install          # scoped jsdom — enables DOM mode (optional but recommended)
-bash run-tests.sh    # T01-T03 always; T04-T05 only when jsdom is installed
+npm ci               # scoped jsdom, pinned 24.1.3 by package-lock.json — enables DOM mode
+bash run-tests.sh    # T01-T03, T06 always; T04, T05, T07 only when jsdom is installed
+                     # (DESIGN_EVAL_CAN_DOM=1 makes a missing jsdom a FAIL — CI job design-eval sets it)
+bash kdd.sh KD1      # one KD case group of khong-do-duoc.test.mjs (unmeasurable dom contrast, FL1)
 node score.mjs       # calibration: writes report-data.json + prints the table
 ```
 
