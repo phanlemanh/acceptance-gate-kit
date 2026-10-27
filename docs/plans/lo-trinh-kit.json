@@ -166,6 +166,16 @@
         "TT5",
         "SK1"
       ]
+    },
+    {
+      "ten": "Phát hành 2.x kế tiếp — design-floor-2710 (số đặt lúc cắt): plugin design-floor chấm giao diện trong vòng S0–S5; mỗi hàng FL vào mốc khi hợp đồng của nó đã duyệt",
+      "ngay": "2026-10-31",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "FL1",
+        "FL2"
+      ]
     }
   ],
   "hang": [
