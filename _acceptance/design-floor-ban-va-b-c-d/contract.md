@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # design-floor/** + tests/design-floor/** — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-27-design-floor-ban-va-b-c-d-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -69,6 +69,15 @@ FL3 và bảng bản vá ở bước 4 của kế hoạch.
 - AC-1…AC-6 của hồ sơ này THAY THẾ vế «còn đỏ có chủ đích (XFAIL)» của AC-5 (FN-02 ba cặp figma) và AC-6 (DF-01, DF-03,
   DF-04, DF-05, DF-06) của `design-floor-vendor-va-ban-va-a` — hợp đồng đã ký ấy KHÔNG sửa; ca đo `khoi-may-ban-va-a.mjs`
   của nó đổi theo đúng lời hứa của bản vá A (không cặp `memory-*`, không giới hạn DF-07/DF-08).
+
+- Ngoài-2, Ngoài-6, Ngoài-7, Ngoài-8 (chọn ở Cổng Bằng chứng 2026-10-27: mở hợp đồng mới): ghi thành hạt giống `docs/plans/2026-10-27-hat-giong-fl3-xanh-gia-reuse-plan-va-gate.md`.
+- Ngoài-5 (chọn ở Cổng Bằng chứng 2026-10-27: chấp nhận, không sửa): chú thích trong mã bản vendored lệch sau bản vá B, C; hành vi không đổi.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-27:
+  - Ngoài-1: Trang không phải HTML mà còn thiếu tệp token hay giá trị sai thì báo «không đo được» thay vì «thiếu đầu vào» — không có xanh giả, chỉ sai nhãn lý do.
+  - Ngoài-3: Với trang không đo được, dòng chữ và trường kết quả vẫn ghi «PASS» dù mã thoát là không-đo-được; máy gác cổng đọc mã thoát nên không bị lừa.
+  - Ngoài-4: Bản chép trung tính của mô-đun token chưa có phép đo giữ nó giống bản gốc; khi đổi bản ghim, bản sửa ở tệp gốc có thể không vào lõi chấm.
+  - Ngoài-9: Đối chứng mới của DF-02 so trọn đầu ra, mà đầu ra chứa chính đường tệp token, nên luôn «khác» — chưa chứng mồi thật sự đổi kết quả.
+  - Ngoài-10: Phép kiểm sổ vá sạch chưa có chiều đỏ riêng, và mô tả E7 hứa một ca đỏ mà lệnh của nó không chạy.
 
 Known limits (khai từ thiết kế):
 - Chế độ chữ (không `--json`): thiếu tệp và thiếu đầu vào bắt buộc trả 1 (errText không mang mã lỗi); cờ lạ trả 4 (vỏ của
