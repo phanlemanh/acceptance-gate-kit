@@ -59,7 +59,7 @@ cách chấm, không đổi làn ghim, kho không khai vùng giữ y hành vi hi
 
 ## Notes
 
-Ca đo: `tests/scripts/cat-luot-vung.test.mjs` (CV-…, AC-1 đến AC-3) và `tests/dieu-phoi/loi/vung-giao-viec.test.mjs`
+Ca đo: `tests/scripts/cat-luot-vung.test.mjs` (CV-…, AC-1 đến AC-3) và `tests/dieu-phoi/vung-giao-viec.test.mjs`
 (VG-…, AC-1 phần gói, AC-4 đến AC-9). Bản phát lại ẩn danh (`tests/dieu-phoi/fixtures/dot-chong-vung/`: lộ trình
 mang `vung` + gói đợt không `ranh_gioi`) giữ hình của đợt thật — ba dãy, mười bốn hàng, thứ tự giao — với mã, slug và
 đường đổi tên; nó là ĐẦU VÀO như một lượt cắt viết, không phải khuôn bên đọc: ca đưa nó qua răng phủ thật và bộ đọc gói

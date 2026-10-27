@@ -9,9 +9,9 @@ Thi công tuần tự trong phiên chính (các task chạm chung `trung-tep.mjs
 **Files:**
 - Modify: `dieu-phoi/scripts/trung-tep.mjs` — thêm `coThuMucTinh(glob)` (đoạn tĩnh trước ký tự đại diện đầu có `/`, hay
   glob không ký tự đại diện) và `gopVung(cu, moi)` (hợp, giữ thứ tự, bỏ trùng).
-- Test: `tests/dieu-phoi/loi/vung-giao-viec.test.mjs` (khung tệp, ca dùng chung).
+- Test: `tests/dieu-phoi/vung-giao-viec.test.mjs` (khung tệp, ca dùng chung).
 
-verify: `node --test tests/dieu-phoi/loi/vung-giao-viec.test.mjs` · phục vụ E10, E11 · independent: false
+verify: `node --test tests/dieu-phoi/vung-giao-viec.test.mjs` · phục vụ E10, E11 · independent: false
 
 ## Task 2 — răng phủ cắt lượt (CV-1…CV-4)
 
@@ -32,7 +32,7 @@ verify: `node tests/scripts/cat-luot-vung.test.mjs` · phục vụ E1, E3, E4, E
 - Modify: `dieu-phoi/scripts/nguon-hang.mjs` — `docHangLoTrinh` trả thêm `vung` khi hàng lộ trình có mảng chuỗi khác rỗng.
 - Modify: `dieu-phoi/scripts/goi-dot.mjs` — `apNguonHang`: hàng thi công không `ranh_gioi` nhận `ranh_gioi = vung`.
 
-verify: `node --test tests/dieu-phoi/loi/vung-giao-viec.test.mjs` · phục vụ E2, E6 · independent: false
+verify: `node --test tests/dieu-phoi/vung-giao-viec.test.mjs` · phục vụ E2, E6 · independent: false
 
 ## Task 4 — `hang them` lấy vùng lộ trình (VG-5)
 
@@ -58,7 +58,7 @@ verify: như trên · phục vụ E10, E11 · independent: false
 ## Task 6 — phát lại và vi phân (VG-6, VG-9)
 
 **Files:**
-- Test: `tests/dieu-phoi/loi/vung-giao-viec.test.mjs` — VG-6 (bản phát lại qua răng + docGoi + motNhip theo kịch bản)
+- Test: `tests/dieu-phoi/vung-giao-viec.test.mjs` — VG-6 (bản phát lại qua răng + docGoi + motNhip theo kịch bản)
   và VG-9 (git archive bản gốc `goc-so`, năm nhịp, so bốn đầu ra + docGoi; VG-9-do).
 - Fixture: `tests/dieu-phoi/fixtures/dot-chong-vung/` (đã dựng ở bước thiết kế).
 

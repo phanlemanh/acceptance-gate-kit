@@ -1,7 +1,7 @@
 schema_version: 1
 feature_slug: vung-giao-viec-tu-cat-luot
 # Ca đo sống ở hai tệp: tests/scripts/cat-luot-vung.test.mjs (in «PASS: CV-…»/«FAIL: CV-…», thoát khác 0 khi có FAIL)
-# và tests/dieu-phoi/loi/vung-giao-viec.test.mjs (node --test; khoá executors.test.vung_giao_viec gộp dòng «ok … VG-»,
+# và tests/dieu-phoi/vung-giao-viec.test.mjs (node --test; khoá executors.test.vung_giao_viec gộp dòng «ok … VG-»,
 # «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng). Suite xanh mà thiếu dòng ghim là ĐỎ. Fixture do code sinh trong
 # lượt (thư mục đợt tạm, worktree tạm, lộ trình tạm), trừ bản phát lại ẩn danh dưới tests/dieu-phoi/fixtures/ — đầu vào
 # như lượt cắt viết, đi qua răng phủ thật và bộ đọc gói thật trước khi chạy lịch. Đường dẫn suy từ vị trí tệp ca.
@@ -23,7 +23,7 @@ evals:
     criterion: AC-1
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, skills/acceptance/references/lo-trinh-template.json, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, skills/acceptance/references/lo-trinh-template.json, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-1". VG-1: gói tạm khai nguon_hang trỏ các hàng mẫu của khuôn lộ trình (chép khuôn vào kho tạm),
       hàng thi công không ranh_gioi → docGoi trả mỗi hàng ranh_gioi đúng bằng `vung` của hàng khuôn cùng mã. Đối chứng
@@ -75,7 +75,7 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-4". VG-4 trên CÙNG một gói tạm ba hàng nguồn: A (lộ trình có vung, thi công không ranh_gioi)
       → ranh_gioi = vung của A; B (lộ trình có vung, thi công khai tay `["tay/**"]`) → ranh_gioi = ["tay/**"]; C (lộ
@@ -87,7 +87,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-5". VG-5: đợt tạm có cấu hình nguon_hang trỏ lộ trình tạm có hàng M (vung `["app/m/**"]`)
       chưa có trong hang-viec; trang-thai cho hàng Y ở dãy khác đang làm với ranh_gioi `["app/m/a.tsx"]` → `hang them M
@@ -99,7 +99,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, scripts/cat-luot.mjs, tests/dieu-phoi/fixtures/dot-chong-vung/**, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/trung-tep.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, scripts/cat-luot.mjs, tests/dieu-phoi/fixtures/dot-chong-vung/**, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-6". VG-6: lộ trình phát lại qua răng phủ (kiemCo) → 0 lỗi vùng; gói phát lại qua docGoi →
       mười bốn hàng, mỗi hàng ranh_gioi = vung; dựng thư mục đợt tạm, chạy motNhip theo kịch bản tiến độ của bản phát lại
@@ -127,7 +127,7 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/trung-tep.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/trung-tep.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-7". VG-7: rút dòng lệnh khai vùng từ khối TRONG-DOT-VUNG của SKILL vòng lặp (marker), thay ô
       bằng slug x và vùng app/b/**, chạy bằng `node dieu-phoi.mjs` với cwd là worktree của dãy P1 → hàng x có ranh_gioi
@@ -142,7 +142,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/trung-tep.mjs, tests/dieu-phoi/loi/vung-giao-viec.test.mjs]
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/trung-tep.mjs, tests/dieu-phoi/vung-giao-viec.test.mjs]
     expected: >
       exit 0; "ok" cho "VG-8". VG-8: hàng y ở P2 đang làm (trang-thai tien_do dang) với ranh_gioi app/b/c.tsx; khai vùng
       app/b/** cho x → đúng một sự kiện trung-tep {luc: "cong-pham-vi", hang: x, voi: hang, khoa: Y, can_phan: false},
@@ -153,7 +153,7 @@ evals:
     criterion: AC-9
     executor: test
     cmd: config:executors.test.vung_giao_viec
-    paths: [dieu-phoi/**, tests/dieu-phoi/loi/vung-giao-viec.test.mjs, _acceptance/vung-giao-viec-tu-cat-luot/goc-so]
+    paths: [dieu-phoi/**, tests/dieu-phoi/vung-giao-viec.test.mjs, _acceptance/vung-giao-viec-tu-cat-luot/goc-so]
     expected: >
       exit 0; "ok" cho "VG-9" và "VG-9-do". VG-9: bản gốc = `git archive <sha trong goc-so> dieu-phoi` (trọn thư mục) ra
       thư mục tạm; cùng một thư mục đợt không vùng (ba dãy, hàng chỉ ranh_gioi _acceptance/<slug>/** hoặc không khai, lộ

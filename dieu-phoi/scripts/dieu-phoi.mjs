@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, phienCuaCwd, TEN_LIEN_KET, timThuMucDot } from './dot.mjs';
 import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
-import { choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, themHang } from './hang.mjs';
+import { choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, khaiVung, themHang } from './hang.mjs';
 import { theDong, theKhoiTao } from './the.mjs';
 import { nhaMay } from './may.mjs';
 import { demDot } from './dem.mjs';
@@ -310,8 +310,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
           'day-len': () => dayLen(thuMuc, doiTuong, co.truoc),
           them: () => themHang(thuMuc, doiTuong, co.day, { ranhGioi: typeof co['ranh-gioi'] === 'string' ? co['ranh-gioi'].split(',').map((x) => x.trim()).filter(Boolean) : null }),
           nghi: () => choNghi(thuMuc, doiTuong),
+          vung: () => khaiVung(thuMuc, doiTuong, typeof co.vung === 'string' ? co.vung.split(',') : []),
         }[doiSo];
-        if (!kq) throw new Error('dùng: hang <day-len <mã> --truoc <mã>|them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]|nghi <P>>');
+        if (!kq) throw new Error('dùng: hang <day-len <mã> --truoc <mã>|them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]|nghi <P>|vung <mã|slug> --vung <glob,glob>>');
         const ra = kq();
         for (const c of ra.canhBao ?? []) process.stderr.write(`${c}\n`);
         return ra.doi ? `hang ${doiSo}: đã đổi${ra.sau?.length ? ` — chờ ${ra.sau.join(', ')} gộp trước (trùng tệp)` : ''}` : `hang ${doiSo}: không đổi gì`;

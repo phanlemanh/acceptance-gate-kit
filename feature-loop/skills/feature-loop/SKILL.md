@@ -28,6 +28,13 @@ nguyên» của tệp `luat` trong JSON — khối này không chép cách ghi; 
   `luat`; mỗi câu xin duyệt thiết kế thành một dòng sổ `approach` (Cổng Phạm vi vẫn theo luật làn V); không in
   khối GOAL-TEMPLATE. Câu chỉ người biết → gửi yêu cầu `can-nguoi` (câu hỏi + khuyến nghị) TRƯỚC khi hỏi bằng
   chữ, để bảng đợt thấy và đếm.
+- **Cổng Phạm vi, hàng có vùng** (`ranh_gioi` của hàng trong `hang-viec.json` có glob ngoài `_acceptance/`): trước khi
+  trình thẻ, khai thêm thư mục mã mà thiết kế chạm — mỗi màn một thư mục, không glob trần (`**`, `*.tsx`). Lệnh gộp vào
+  vùng cũ; hàng đang làm ở dãy khác mà chồng thì lệnh in một dòng báo — không phải câu hỏi, đi tiếp. Hàng không có
+  vùng: bỏ bước này.
+  <!-- <<<TRONG-DOT-VUNG -->
+  `node <thư mục đợt>/loi/dieu-phoi.mjs hang vung <slug> --vung '<glob,glob>'`
+  <!-- TRONG-DOT-VUNG>>> -->
 - **S4, ghim lại, đường nền:** xin lượt (`s4`, `ghim-lai`, `duong-nen`) rồi chờ bằng lệnh nền tới khi khoá ghi
   tên dãy; chạy; nhả khi verdict đã ghi. Lời chặn `chan-s4` là CHỜ LƯỢT: không phải BLOCKED, không hỏi người,
   không tung lượt mới, không đếm round.
