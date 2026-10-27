@@ -26,10 +26,10 @@ Vì sao: Gốc: acceptance-gate-kit/_acceptance/design-gate-che-do-chat/ — c�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca» khi hết timebox
-- Timebox: [đề xuất] hết 29/10/2026 — ước ~4 giờ máy (một lượt chấm S4 + đường nền), ~3 % hạn mức tuần.
+- Câu hỏi phép đo trả lời: đã đạt «Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca» chưa?
+- Kết quả nào là SỐNG: Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca
+- Kết quả nào là CHẾT: chưa đạt «Năm P0 sai của đo chéo 26/10, tái lập bằng fixture do mã sinh, đều ra KHÔNG-ĐO-ĐƯỢC đúng lý do; ba ca tương phản thật trên CSS đọc được vẫn REJECT; ba đột biến gỡ từng nhánh đỏ đúng ca» khi hết timebox
+- Timebox: hết 29/10/2026 — ước ~4 giờ máy (một lượt chấm S4 + đường nền), ~3 % hạn mức tuần.
 
 ## Đếm trước khi sửa (máy, 27/10)
 
