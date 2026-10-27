@@ -1,0 +1,87 @@
+{
+ "dot": "design-floor-2710",
+ "day": [
+  {
+   "id": "D1",
+   "worktree": "/CHUA-CO-WORKTREE/D1",
+   "link": ""
+  },
+  {
+   "id": "D2",
+   "worktree": "/CHUA-CO-WORKTREE/D2",
+   "link": ""
+  }
+ ],
+ "hang": [
+  {
+   "ma": "FL1",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "design-gate-khong-do-duoc-ba-nguyen-nhan",
+   "day": "D1",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "_acceptance/design-gate-khong-do-duoc-ba-nguyen-nhan/**"
+   ],
+   "moc": "2026-10-31"
+  },
+  {
+   "ma": "FL2",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "design-floor-vendor-va-ban-va-a",
+   "day": "D2",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "_acceptance/design-floor-vendor-va-ban-va-a/**"
+   ],
+   "moc": "2026-10-31"
+  },
+  {
+   "ma": "FL3",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "design-floor-ban-va-b-c-d",
+   "day": "D2",
+   "uu_tien": 1,
+   "s4": "local",
+   "ranh_gioi": [
+    "_acceptance/design-floor-ban-va-b-c-d/**"
+   ],
+   "moc": "2026-10-31",
+   "sau": [
+    "FL2"
+   ]
+  },
+  {
+   "ma": "FL4",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "design-floor-moc-s0-s1",
+   "day": "D2",
+   "uu_tien": 2,
+   "s4": "local",
+   "ranh_gioi": [
+    "_acceptance/design-floor-moc-s0-s1/**"
+   ],
+   "moc": "2026-10-31",
+   "sau": [
+    "FL3"
+   ]
+  },
+  {
+   "ma": "FL5",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "design-floor-moc-s3-s4",
+   "day": "D2",
+   "uu_tien": 3,
+   "s4": "local",
+   "ranh_gioi": [
+    "_acceptance/design-floor-moc-s3-s4/**"
+   ],
+   "moc": "2026-10-31",
+   "sau": [
+    "FL4",
+    "FL1"
+   ]
+  }
+ ]
+}
