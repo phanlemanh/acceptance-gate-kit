@@ -67,6 +67,25 @@ jobs:
       - name: sổ vá + rào đóng kín + bản gói + bộ đo hợp đồng + chiều đỏ
         run: bash tests/design-floor/run-tests.sh
 
+  # Cổng thiết kế chế độ dom (hồ sơ design-gate-khong-do-duoc-ba-nguyen-nhan, FL1): bộ ca design-eval cần jsdom, nên
+  # trước job này mọi ca dom chỉ chạy trên máy người. jsdom ghim bằng package-lock của thư mục ca; DESIGN_EVAL_CAN_DOM=1
+  # biến «thiếu jsdom» thành FAIL thay vì SKIP. fetch-depth: 0 — ca KD1-goc dựng bản cổng gốc bằng git archive một sha
+  # cũ. Hai lệnh run là NGUYÊN VĂN `bash tests/design-eval/kdd.sh --lenh-ci`; ca KD8-ci so hai bên.
+  design-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: jsdom ghim của bộ ca design-eval
+        run: npm ci --prefix tests/design-eval --no-audit --no-fund
+      - name: design-eval (static + dom, ca KD đòi chạy)
+        run: DESIGN_EVAL_CAN_DOM=1 bash tests/design-eval/run-tests.sh
+
   gate:
     runs-on: ubuntu-latest
     steps:
