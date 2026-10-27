@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# design-floor bước 1: rào đóng kín + bộ đo hợp đồng nhập + chiều đỏ của chính hai bộ đó.
-# Nguồn sự thật: design-floor/HOP-DONG-NHAP.md (khối máy). Cần mạng ở lượt đầu để lấy bản
-# upstream đã ghim về cache ($DESIGN_FLOOR_CACHE, mặc định $TMPDIR/design-floor-upstream/<commit>).
+# design-floor: sổ vá + rào đóng kín + bản gói (rao-dong) · bộ đo hợp đồng nhập trên bản gói (hop-dong) ·
+# chiều đỏ của chính các bộ đó (tu-thu). Nguồn sự thật: khối máy của design-floor/HOP-DONG-NHAP.md và
+# design-floor/LOCAL-PATCHES.md. Chạy NGOẠI TUYẾN trên bản vendored trong kit; CI đặt DESIGN_FLOOR_KHONG_MANG=1.
+# Đường duy nhất chạm mạng là tests/design-floor/dong-bo.mjs (đổi ghim, đổi bản vá).
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -d "$HERE/node_modules/esbuild" ] || { echo "design-floor: thiếu esbuild — chạy: npm ci --prefix tests/design-floor" >&2; exit 2; }
