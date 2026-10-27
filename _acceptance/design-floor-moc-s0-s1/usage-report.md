@@ -98,3 +98,40 @@ wall: 2820s
 - **claude-opus-5-5**: 3 agent · 27 calls · out 13,957 · in 54 · cache_read 1,185,739 · cache_create 176,437
 - **claude-haiku-5-5**: 21 agent · 46 calls · out 28,548 · in 92 · cache_read 821,464 · cache_create 901,142
 
+### S4 round 3 — wf_69f35ed3-46e (17 agent, 65,168 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-opus-5-5 | 23 | 11,548 | 46 | 1,941,833 | 161 |
+| review:conventions | claude-opus-5-5 | 15 | 11,141 | 30 | 1,004,473 | 131 |
+| synthesize:report | claude-sonnet-5-5 | 5 | 10,710 | 10 | 265,254 | 74 |
+| review:measurement | claude-opus-5-5 | 7 | 10,125 | 14 | 365,239 | 109 |
+| triage | claude-sonnet-5-5 | 2 | 4,708 | 4 | 40,801 | 35 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 6 | 3,408 | 12 | 165,621 | 869 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,210 | 4 | 3,034 | 339 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 2,047 | 4 | 38,380 | 87 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,888 | 4 | 38,380 | 13 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 1,744 | 4 | 35,355 | 144 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 1,161 | 4 | 38,436 | 101 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 988 | 4 | 38,406 | 7 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 887 | 4 | 3,034 | 409 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 854 | 4 | 38,436 | 70 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 697 | 4 | 3,034 | 524 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 692 | 4 | 38,381 | 5 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 360 | 4 | 34,133 | 10 |
+
+
+wall: 2719s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 11 | 16,576 | 440,497 | 2594 | 18:06:46 | 18:50:00 |
+| review | 3 | 32,814 | 3,311,545 | 162 | 18:06:46 | 18:09:28 |
+| triage | 1 | 4,708 | 40,801 | 35 | 18:50:02 | 18:50:37 |
+| capture | 1 | 360 | 34,133 | 10 | 18:50:39 | 18:50:49 |
+| synthesize | 1 | 10,710 | 265,254 | 74 | 18:50:51 | 18:52:05 |
+
+- **claude-opus-5-5**: 3 agent · 45 calls · out 32,814 · in 90 · cache_read 3,311,545 · cache_create 287,442
+- **claude-sonnet-5-5**: 3 agent · 9 calls · out 15,778 · in 18 · cache_read 340,188 · cache_create 158,807
+- **claude-haiku-5-5**: 11 agent · 26 calls · out 16,576 · in 52 · cache_read 440,497 · cache_create 548,570
+
