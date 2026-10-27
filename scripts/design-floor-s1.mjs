@@ -17,7 +17,7 @@
 //   node scripts/design-floor-s1.mjs --root . --slug <slug> [--json]   0 chạy xong (mọi bậc) · 2 gọi sai / không có hồ sơ
 // Biến môi trường (bộ đo): DESIGN_FLOOR_TRI_THUC (thư mục có knowledge/ dùng thay bộ đệm), DESIGN_FLOOR_KHOA (tệp khoá),
 // DESIGN_FLOOR_UI (bản gói), DESIGN_FLOOR_CACHE (bộ đệm của bộ đo bước 1), DESIGN_FLOOR_KHONG_MANG=1 (cấm tải).
-import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -216,4 +216,5 @@ function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = main(process.argv.slice(2));
+// So bằng đường thật: /var và /private/var trên macOS, hay một liên kết tới tệp, vẫn là chính lệnh này.
+if (process.argv[1] && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) process.exitCode = main(process.argv.slice(2));

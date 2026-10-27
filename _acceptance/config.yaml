@@ -952,6 +952,16 @@ executors:
     df_d: bash tests/design-floor/eval.sh d
     df_bo_ban_va: bash tests/design-floor/eval.sh bo-ban-va
     df_chuoi_so_va: bash tests/design-floor/eval.sh chuoi-so-va
+    df4_bac: bash tests/design-floor/eval.sh df4-bac
+    df4_bac_hong: bash tests/design-floor/eval.sh df4-bac-hong
+    df4_tri_thuc: bash tests/design-floor/eval.sh df4-tri-thuc
+    df4_tri_thuc_lech: bash tests/design-floor/eval.sh df4-tri-thuc-lech
+    df4_reuse_plan: bash tests/design-floor/eval.sh df4-reuse-plan
+    df4_flow_lint: bash tests/design-floor/eval.sh df4-flow-lint
+    df4_the: bash tests/design-floor/eval.sh df4-the
+    df4_chi_ghi: bash tests/design-floor/eval.sh df4-chi-ghi
+    df4_noi_day: bash tests/design-floor/eval.sh df4-noi-day
+    df4_tri_thuc_that: bash tests/design-floor/eval.sh df4-tri-thuc-that
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

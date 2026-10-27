@@ -59,6 +59,9 @@ jobs:
       DESIGN_FLOOR_KHONG_MANG: 1
     steps:
       - uses: actions/checkout@v7
+        # fetch-depth: 0 — ca THE-M0 của moc-s0-s1.mjs dựng thẻ bằng scripts/ của điểm rẽ khỏi nhánh chính (git archive).
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: '22'

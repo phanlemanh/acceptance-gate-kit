@@ -9,7 +9,7 @@
 //   M0  còn lại — không in gì
 //
 //   node scripts/design-floor-bac.mjs --root . [--json]   0 đọc được (kể cả M0) · 2 gọi sai
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -125,4 +125,5 @@ function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = main(process.argv.slice(2));
+// So bằng đường thật: /var và /private/var trên macOS, hay một liên kết tới tệp, vẫn là chính lệnh này.
+if (process.argv[1] && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) process.exitCode = main(process.argv.slice(2));
