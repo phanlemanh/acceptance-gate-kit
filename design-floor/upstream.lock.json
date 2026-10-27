@@ -65,11 +65,17 @@
         "node:os",
         "node:path"
       ]
+    },
+    "vo": {
+      "entry": "design-floor/vo/ui.ts",
+      "tep": 2,
+      "dong": 1542,
+      "ngoai": []
     }
   },
   "hop": {
-    "tep": 124,
-    "dong": 18474
+    "tep": 126,
+    "dong": 20016
   },
   "tep": [
     {
@@ -173,6 +179,14 @@
       ]
     },
     {
+      "path": "src/core/cli-args.ts",
+      "sha256": "80ffcd213fb879d432de1e975c02291eb2d50c469eb1a9423af6a9792d718fe8",
+      "dong": 170,
+      "lenh": [
+        "vo"
+      ]
+    },
+    {
       "path": "src/core/color-convert.ts",
       "sha256": "da6193c33e70582a7b1ee224092ef8471112b51f854f0c3be462164c3d4bd034",
       "dong": 173,
@@ -186,6 +200,14 @@
       "dong": 167,
       "lenh": [
         "gate"
+      ]
+    },
+    {
+      "path": "src/core/command-signatures.ts",
+      "sha256": "5fb023360295ab47cf0d4c7e16298d62620956d0e4cc431ceae56d2957661ce3",
+      "dong": 1372,
+      "lenh": [
+        "vo"
       ]
     },
     {

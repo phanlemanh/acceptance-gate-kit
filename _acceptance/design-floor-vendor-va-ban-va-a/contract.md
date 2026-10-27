@@ -43,8 +43,9 @@ kho 26/10): mọi sửa đổi là bản vá cục bộ, ghi sổ.
   lấy mạng); `layUpstream` dưới biến ném lỗi nêu «KHONG_MANG». Job CI `design-floor` đặt
   `DESIGN_FLOOR_KHONG_MANG: 1` và chạy đúng lệnh này.
 - AC-5: Given bản gói có bản vá A, When chạy `hop-dong.mjs` và `rao-dong.mjs`, Then DF-07 và DF-08 PASS; khối máy:
-  `gioi_han` không có DF-07, DF-08; `vi_pham` của FN-02 BẰNG đúng tập bốn cặp `<lệnh> src/core/figma-ds-tokens.ts`
-  (gate · token-coverage · reuse-plan check · autofix), không cặp nào chứa `memory-` — 16 cặp đã gỡ cùng commit;
+  `gioi_han` không có DF-07, DF-08; `vi_pham` của FN-02 BẰNG đúng tập ba cặp `<lệnh> src/core/figma-ds-tokens.ts`
+  (gate · token-coverage · reuse-plan check — autofix chỉ kéo module Figma qua đường ghi sự kiện nên rời cùng bản
+  vá A), không cặp nào chứa `memory-` — 17 cặp đã gỡ cùng commit (sổ S3, giám sát đồng ý 27/10);
   FN-02 XFAIL. Chiều đỏ trên bản sao khối máy: thêm lại một cặp memory vào `vi_pham` → FN-02 FAIL «đã khai mà
   KHÔNG còn». Chiều đỏ: bỏ bản vá A khỏi bản sao rồi dựng lại bản gói → DF-07 và DF-08 FAIL nêu
   `memory.events`.
@@ -57,7 +58,8 @@ kho 26/10): mọi sửa đổi là bản vá cục bộ, ghi sổ.
   trong sổ → FAIL «con trỏ chết»; `ban_va` trỏ dòng A (`da-ap`) → FAIL «bản vá đã áp».
 - AC-8: Given vỏ `design-floor/vo/ui.ts`, When gọi bản gói, Then đúng năm lệnh của khối máy chạy; một lệnh khác
   (vd. `ui init`) thoát 4 kèm danh sách năm lệnh; tệp khoá có 126 tệp với `lenh.vo` = `cli-args.ts` +
-  `command-signatures.ts`; FN-04 PASS với trần GIỮ NGUYÊN 124 tệp · 18 500 dòng, đo trên đóng kín giao đi.
+  `command-signatures.ts`; FN-04 PASS với trần 124 tệp · 18 900 dòng (nâng từ 18 500 trong cùng PR theo §7 hợp đồng nhập — sổ
+  S3, giám sát đồng ý 27/10), đo trên đóng kín giao đi (117 tệp · 18 825 dòng).
   Chiều đỏ: trần hạ dưới số đo → FN-04 FAIL.
 - AC-9: Given bản ghim `a7ad5f1` lấy qua mạng, When chạy `node tests/design-floor/dong-bo.mjs --kiem`, Then nó
   dựng lại trong thư mục tạm — chép tệp khoá, áp các bản vá `da-ap`, dựng bản gói — và so khớp từng byte với

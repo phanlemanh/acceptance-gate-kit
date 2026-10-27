@@ -56,8 +56,8 @@ evals:
     paths: [design-floor/**, tests/design-floor/**]
     expected: >
       exit 0; stdout có "PASS: DF-07", "PASS: DF-08", "XFAIL: FN-02", "tu-thu: XANH" và dòng kiểm khối máy
-      "khoi-may: FN-02 vi_pham = 4 cặp figma, 0 memory; gioi_han không có DF-07, DF-08" (bước node của executor so
-      TẬP bằng nhau với bốn cặp mong đợi viết độc lập trong lệnh, đỏ nếu khác); ca tu-thu nhãn BAN-VA-A — thêm lại
+      "khoi-may: FN-02 vi_pham = 3 cặp figma, 0 memory; gioi_han không có DF-07, DF-08" (bước node của executor so
+      TẬP bằng nhau với ba cặp mong đợi viết độc lập trong khoi-may-ban-va-a.mjs, đỏ nếu khác); ca tu-thu nhãn BAN-VA-A — thêm lại
       cặp "gate src/core/memory-store.ts" vào vi_pham → thoát 1 kèm "FAIL: FN-02" và "đã khai mà KHÔNG còn";
       bản sao bỏ bản vá A (đảo tệp diff) rồi dựng lại bản gói → hop-dong --chi DF-07,DF-08 thoát 1 kèm
       "FAIL: DF-07", "FAIL: DF-08" và "memory.events".
