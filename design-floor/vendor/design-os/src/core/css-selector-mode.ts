@@ -11,7 +11,7 @@
  * Base is mandatory: a token whose only declaration sits under a theme selector has
  * no base value and must not be promoted (D2) — that decision lives in css-token-ingest.ts.
  */
-import { sanitizeSeg } from "./figma-ds-tokens.js";
+import { sanitizeSeg } from "./dtcg-token-tree.js";
 
 export type ModeMapping = { kind: "base" } | { kind: "modes"; names: string[] } | { kind: "unmapped" };
 

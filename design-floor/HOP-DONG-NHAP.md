@@ -71,7 +71,7 @@ giống hệt nhau.
 | 5 | KHÔNG-ĐO-ĐƯỢC | không có lỗi thấy được, nhưng ít nhất một phép kiểm không tính được |
 
 Bộ mã mượn đúng từ `scripts/design-gate.mjs` (0 PASS · 2 REJECT · 3 BLOCKED · 4 sai cú pháp · 5
-KHÔNG-ĐO-ĐƯỢC), để một kho có MỘT bảng mã cho cả hai cổng thiết kế. Mã khác 0/2/3/4/5 là lỗi nội bộ,
+KHÔNG-ĐO-ĐƯỢC), để một kho có MỘT bảng mã cho cả hai cổng thiết kế (bản vendored dùng mã 1 cho lỗi nội bộ). Mã khác 0/2/3/4/5 là lỗi nội bộ,
 không bao giờ được đọc như một phán quyết.
 
 **Thứ tự ưu tiên:** FAIL > KHÔNG-ĐO-ĐƯỢC > PASS — lỗi thấy được không bị nuốt thành «không đo được».
@@ -131,8 +131,8 @@ lượt chạy; mỗi phép đo một hộp cát gồm dự án, một `design/`
 
 | ID | Đòi gì | Đối chứng (chứng phép đo đỏ được) |
 |---|---|---|
-| DF-01 | `.eyebrow{color:#888}` trên nền không khai → gate thoát 5 | cùng trang, nền trắng khai rõ → gate ra `low-contrast` 3,54:1 |
-| DF-02 | DS mồi ở thư mục cha không đổi stdout/mã thoát của lời gọi theo hợp đồng (bốn lệnh chấm) | không `--tokens`, gate dò ra đúng mồi (`origin: auto`); đột biến TT-10 bỏ `--tokens` khỏi argv thì DF-02 đỏ |
+| DF-01 | `.eyebrow{color:#888}` trên nền không khai → gate thoát 5 | cùng trang, nền trắng khai rõ → gate ra `low-contrast` 3,54:1 và thoát 2 (FAIL thắng 5) |
+| DF-02 | DS mồi ở thư mục cha không đổi stdout/mã thoát của lời gọi theo hợp đồng (bốn lệnh chấm) | trỏ `--tokens` tường minh vào token của mồi thì kết quả gate KHÁC (mồi có nội dung đổi được kết quả); đột biến argv trỏ vào mồi thì DF-02 đỏ |
 | DF-03 | thiếu `--tokens` hoặc `--file` → thoát 4 | (ca đỏ của chính nó: hôm nay tự dò) |
 | DF-04 | thiếu tệp · đối số lạ · có lỗi → 3 / 4 / 2 ở bốn lệnh chấm | ca «có lỗi» phải thật sự có lỗi trong JSON |
 | DF-05 | `.tsx` → gate và token-coverage thoát 5, không bao giờ 0 | cùng nội dung đuôi `.html` → gate PASS |
@@ -142,8 +142,10 @@ lượt chạy; mỗi phép đo một hộp cát gồm dự án, một `design/`
 | DF-09 | không lệnh nào (kể cả `autofix --write`) chạm đường mạng | bộ chặn bắt `fetch`, `net`, `dns` của một tiến trình thử |
 | FN-01…04 · VA-01 · BG-01 | §7 | `tests/design-floor/tu-thu.mjs`: đối chứng dương trên một bản sao bố cục kit, rồi đột biến trên bản sao hợp đồng, tệp khoá, sổ vá, bản vendored, tệp diff và bản gói — mỗi đột biến phải thoát đúng mã kèm đúng thông điệp |
 
-Trên bản gói giao đi, DF-07 và DF-08 XANH nhờ bản vá A (sổ LOCAL-PATCHES); bỏ bản vá A khỏi một bản sao rồi
-dựng lại thì hai phép đo đỏ lại (đột biến nhãn BAN-VA-A).
+Trên bản gói giao đi mọi phép đo XANH nhờ bốn bản vá của sổ LOCAL-PATCHES: A (DF-07, DF-08, 17 cặp của FN-02), B
+(DF-01, DF-04, DF-05, DF-06), C (DF-03), D (3 cặp figma của FN-02); khối máy không còn giới hạn nào. Bỏ một bản vá khỏi
+một bản sao rồi dựng lại thì đúng tập phép đo của nó đỏ lại (đột biến nhãn BO-VA của `tu-thu.mjs`; bỏ B làm DF-03 đỏ theo
+vì C trả mã 4 qua bảng mã của B). Chế độ chữ (không `--json`) chưa theo bảng: thiếu tệp và thiếu đầu vào bắt buộc trả 1.
 
 **Giới hạn đã khai là xfail CHẶT.** Một phép đo có trong `gioi_han` mà đỏ đúng chữ ký thì XFAIL (CI
 xanh); đỏ sai chữ ký thì FAIL (đỏ vì lý do khác — phân loại lại); XANH thì cũng FAIL (XPASS: bản vá đã
@@ -171,8 +173,8 @@ token; đo trên máy dev 2026-10-27: rào ~2 s, bộ đo ~3 s, chiều đỏ ~2
   sau commit S4.
 - **Không thêm lượt gọi người** — hợp đồng nhập không thêm cổng, không thêm dòng thẻ.
 - **Chi phí máy mỗi kết quả gộp** — 0 token; ~1 phút CI mỗi PR chạm kit.
-- **Mọi phép kiểm có chiều đỏ** — đối chứng trong từng phép đo + đột biến của `tu-thu.mjs`; năm phép đo hành
-  vi và FN-02 còn ĐỎ thật (XFAIL, chờ bản vá B, C, D), nên chiều đỏ của chúng chạy trên chính bản gói.
+- **Mọi phép kiểm có chiều đỏ** — đối chứng trong từng phép đo + đột biến của `tu-thu.mjs`; chín phép đo hành vi
+  và FN-02 từng ĐỎ thật trên bản ghim, và đột biến bỏ-từng-bản-vá dựng lại đúng màu đỏ ấy trên bản sao.
 
 ## 11. Khối máy
 
@@ -324,48 +326,7 @@ token; đo trên máy dev 2026-10-27: rào ~2 s, bộ đo ~3 s, chiều đỏ ~2
       "dong": 18900
     }
   },
-  "gioi_han": [
-    {
-      "id": "DF-01",
-      "chu_ky_do": "^gate thoát 0 \\(muốn 5\\) · pass=true · partial=1$",
-      "can_upstream": "src/core/gate.ts:165 `pass = errorCount === 0` bỏ qua `partial`: một phép kiểm NOT COMPUTABLE mà không có lỗi phải là KHÔNG-ĐO-ĐƯỢC (thoát 5), không phải pass",
-      "ban_va": "B"
-    },
-    {
-      "id": "DF-03",
-      "chu_ky_do": "^gate -tokens=1 · token-coverage -tokens=1 · reuse-plan check -tokens=1 · reuse-plan check -file=2 \\(muốn 4\\)$",
-      "can_upstream": "một cách tắt tự dò (cờ hoặc biến môi trường): vắng --tokens hôm nay đi ngược tới 5 cấp tìm design/ds.manifest.json (src/core/design-system.ts discoverDesignSystem), vắng --file đọc <cwd>/design/component-registry.json; kit ghi cờ đó vào argv/moi_truong của khối máy",
-      "ban_va": "C"
-    },
-    {
-      "id": "DF-04",
-      "chu_ky_do": "^gate 1/1/1 · token-coverage 1/1/1 · reuse-plan check 2/1/1 · flow lint 1/1/1 \\(muốn 3/4/2\\)$",
-      "can_upstream": "mã thoát theo lớp (FAIL 2 · thiếu tệp 3 · sai cú pháp 4 · KHÔNG-ĐO-ĐƯỢC 5), có thể bật bằng cờ; lỗi nội bộ rời khỏi mã 2 (src/core/output.ts:116 — hôm nay reuse-plan check thiếu tệp ra 2 = lỗi nội bộ, trùng mã FAIL)",
-      "ban_va": "B"
-    },
-    {
-      "id": "DF-05",
-      "chu_ky_do": "^gate \\.tsx thoát 0 · token-coverage \\.tsx thoát 0 \\(muốn 5\\)$",
-      "can_upstream": "lệnh đọc HTML trả KHÔNG-ĐO-ĐƯỢC cho đích không phải .html/.htm thay vì đọc JSX như HTML (một layout .tsx có <html lang><title> hôm nay PASS)",
-      "ban_va": "B"
-    },
-    {
-      "id": "DF-06",
-      "chu_ky_do": "^token-coverage trang không CSS thoát 0 \\(muốn 5\\) · coverage=1$",
-      "can_upstream": "token-coverage: 0 khai báo được chấm ở mọi nhóm → KHÔNG-ĐO-ĐƯỢC, không phải coverage 1 («a category with nothing to fail on reports coverage 1»)",
-      "ban_va": "B"
-    },
-    {
-      "id": "FN-02",
-      "vi_pham": [
-        "gate src/core/figma-ds-tokens.ts",
-        "reuse-plan check src/core/figma-ds-tokens.ts",
-        "token-coverage src/core/figma-ds-tokens.ts"
-      ],
-      "can_upstream": "(D) dời sanitizeSeg/buildTokensTree ra module trung tính → figma-ds-tokens.ts rời token-coverage, reuse-plan, gate (nó là phép biến đổi thuần, không mạng, nhưng kéo tên miền Figma vào lõi chấm); autofix và tám module memory-* đã rời nhờ bản vá A — autofix chỉ kéo figma-ds-tokens.ts qua đường ghi sự kiện",
-      "ban_va": "D"
-    }
-  ]
+  "gioi_han": []
 }
 ```
 <!-- DESIGN-FLOOR-HOP-DONG>>> -->

@@ -1,0 +1,95 @@
+schema_version: 1
+feature_slug: design-floor-ban-va-b-c-d
+# Ca đo sống ở tests/design-floor/ (rao-dong.mjs · hop-dong.mjs · tu-thu.mjs). Mỗi eval gọi một lệnh con của
+# tests/design-floor/eval.sh: chiều xanh trên cây thật rồi đột biến cùng nhãn của tu-thu.mjs trên bản sao do mã sinh,
+# mỗi đột biến đòi đúng mã thoát kèm thông điệp ghim.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.df_b_df01
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-01" (gate thoát 5 trên trang nền không khai; đối chứng cùng lượt: trang nền trắng ra
+      low-contrast và thoát 2 — thiếu thì DF-01 FAIL «đối chứng hỏng») và "hop-dong: XANH".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.df_b_df04
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-04" và dòng đo "gate 3/4/2 · token-coverage 3/4/2 · reuse-plan check 3/4/2 · flow lint 3/4/2"
+      (ca «có lỗi» phải có lỗi thật trong JSON — không thì FAIL «đối chứng hỏng»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.df_b_df05
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-05" và dòng đo "gate .tsx thoát 5 · token-coverage .tsx thoát 5" (đối chứng: cùng nội dung
+      .html → gate thoát 0, không thì FAIL «đối chứng hỏng»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.df_b_df06
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-06" và dòng đo "token-coverage trang không CSS thoát 5" (đối chứng: trang hex thô → thấy
+      giá trị thô) — đối chứng hỏng là FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.df_c
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-03" kèm dòng đo "gate -tokens=4 · token-coverage -tokens=4 · reuse-plan check -tokens=4 ·
+      reuse-plan check -file=4", "PASS: DF-02" và "tu-thu: XANH"; ca tu-thu nhãn C — gỡ riêng vế đòi --file khỏi bản vendored
+      của bản sao rồi dựng lại → thoát 1 kèm "FAIL: DF-03" và "reuse-plan check -file"; argv gate trỏ --tokens vào token của
+      mồi → thoát 1 kèm "FAIL: DF-02" và "kết quả đổi theo mồi: gate"; đối chứng DF-02 mới (mồi trỏ tường minh đổi kết quả)
+      hỏng → FAIL «đối chứng hỏng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.df_d
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: FN-02" kèm dòng đo "0 cặp lệnh·module cấm", "PASS: FN-04" và "rao-dong: XANH"; ca tu-thu nhãn VO —
+      `ui gate fixme.html --bogus-flag` không --json → thoát 4 (vỏ, chế độ chữ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.df_luat_gioi_han
+    paths: [design-floor/HOP-DONG-NHAP.md, design-floor/LOCAL-PATCHES.md, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "tu-thu: XANH" (mọi ca nhãn LUAT), "HOP-DONG-NHAP.md: không còn pr_upstream" và dòng kiểm sổ
+      "so-va: gioi_han 0 · da-ap A,B,C,D · cho-va 0 · đủ trường" (bước node của executor so tập viết độc lập, đỏ nếu khác);
+      ca tu-thu nhãn VA-01 xoá lam_xanh của dòng C → thoát 1 kèm "dòng C thiếu lam_xanh". Đột biến luật giới hạn dựng dòng cho-va
+      bằng cách nhân bản dòng A thật của sổ rồi đổi trạng thái.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.df_bo_ban_va
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "tu-thu: XANH"; ca tu-thu nhãn BO-VA — mỗi ca dựng bản gói bằng CÙNG đường mã và in một dòng
+      "bo-<X>: FAIL {…} · PASS {…}" rồi so BẰNG tập viết độc lập trong tu-thu: đối chứng dương bản áp đủ → FAIL {} ;
+      bỏ A → FAIL {DF-07,DF-08,FN-02}; bỏ B → FAIL {DF-01,DF-03,DF-04,DF-05,DF-06}; bỏ C → FAIL {DF-03}; bỏ D → FAIL {FN-02};
+      tập lệch → ca FAIL nêu phần thừa/thiếu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.df_chuoi_so_va
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: VA-01", "PASS: FN-01", "PASS: BG-01", "dong-bo: khớp" và "tu-thu: XANH"; ca tu-thu nhãn VA-01 —
+      sau của bản vá A cho gate.ts sai → thoát 1 kèm "FAIL: VA-01" và "truoc của bản vá B"; truoc của dtcg-token-tree.ts khác
+      null → thoát 1 kèm "FAIL: VA-01" và "src/core/dtcg-token-tree.ts".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

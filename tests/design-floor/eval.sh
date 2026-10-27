@@ -24,8 +24,19 @@ case "${1:-}" in
     node "$HERE/tu-thu.mjs" --chi LUAT || exit 1
     md="$(cat design-floor/HOP-DONG-NHAP.md)"
     case "$md" in *pr_upstream*) echo 'HOP-DONG-NHAP.md còn pr_upstream'; exit 1 ;; esac
-    case "$md" in *'"ban_va"'*) echo 'HOP-DONG-NHAP.md: không còn pr_upstream, giới hạn mang ban_va' ;; *) echo 'HOP-DONG-NHAP.md thiếu ban_va'; exit 1 ;; esac ;;
+    case "$md" in *'"ban_va"'*|*'"gioi_han": []'*) echo 'HOP-DONG-NHAP.md: không còn pr_upstream, giới hạn mang ban_va' ;; *) echo 'HOP-DONG-NHAP.md thiếu ban_va'; exit 1 ;; esac
+    node "$HERE/so-va.mjs" ;;
   vo) node "$HERE/rao-dong.mjs" --chi FN-04 && node "$HERE/tu-thu.mjs" --chi VO ;;
   dong-bo) node "$HERE/dong-bo.mjs" --kiem && node "$HERE/tu-thu.mjs" --chi DONG-BO ;;
-  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo" >&2; exit 2 ;;
+  # Hồ sơ design-floor-ban-va-b-c-d (FL3).
+  b-df01) node "$HERE/hop-dong.mjs" --chi DF-01 ;;
+  b-df04) node "$HERE/hop-dong.mjs" --chi DF-04 ;;
+  b-df05) node "$HERE/hop-dong.mjs" --chi DF-05 ;;
+  b-df06) node "$HERE/hop-dong.mjs" --chi DF-06 ;;
+  c) node "$HERE/hop-dong.mjs" --chi DF-02,DF-03 && node "$HERE/tu-thu.mjs" --chi C ;;
+  d) node "$HERE/rao-dong.mjs" --chi FN-02,FN-04 ;;
+  bo-ban-va) node "$HERE/tu-thu.mjs" --chi BO-VA ;;
+  chuoi-so-va)
+    node "$HERE/rao-dong.mjs" --chi VA-01,FN-01,BG-01 && node "$HERE/dong-bo.mjs" --kiem && node "$HERE/tu-thu.mjs" --chi VA-01 ;;
+  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo b-df01 b-df04 b-df05 b-df06 c d bo-ban-va chuoi-so-va" >&2; exit 2 ;;
 esac

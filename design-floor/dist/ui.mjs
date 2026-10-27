@@ -1005,13 +1005,29 @@ function parseArgs(args) {
 function errText(message) {
   return { exitCode: 1, stderr: message };
 }
+var EXIT_BY_CODE = {
+  FILE_NOT_FOUND: 3,
+  READ_ERROR: 3,
+  TOKENS_NOT_FOUND: 3,
+  TOKENS_NOT_READABLE: 3,
+  REGISTRY_NOT_FOUND: 3,
+  BAD_JSON: 3,
+  BAD_REGISTRY: 3,
+  BAD_FLOW: 3,
+  BAD_ARG: 4,
+  UNKNOWN_FLAG: 4,
+  FAMILY_NOT_FOUND: 4
+};
+function exitForCode(code4) {
+  return EXIT_BY_CODE[code4] ?? 1;
+}
 function errJson(command, code4, message) {
   const envelope = {
     ok: false,
     command,
     error: { code: code4, message }
   };
-  return { exitCode: 1, stdout: JSON.stringify(envelope, null, 2) + "\n" };
+  return { exitCode: exitForCode(code4), stdout: JSON.stringify(envelope, null, 2) + "\n" };
 }
 function okJson(command, data) {
   const envelope = { ok: true, command, data };
@@ -18837,7 +18853,7 @@ function loadRegistry(path) {
   return { version: obj2["version"], components };
 }
 
-// design-floor/vendor/design-os/src/core/figma-ds-tokens.ts
+// design-floor/vendor/design-os/src/core/dtcg-token-tree.ts
 function sanitizeSeg(s) {
   const out = s.toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
   return out.length > 0 ? out : "x";
@@ -19177,11 +19193,6 @@ function scoreCssSources(sources, resolved) {
 }
 
 // design-floor/vendor/design-os/src/core/token-coverage-io.ts
-function resolveProjectTokensPath(startDir) {
-  const ds = tryDiscoverDesignSystem(startDir);
-  if (ds !== void 0 && existsSync3(ds.tokens)) return ds.tokens;
-  return resolveBrandTokensPath(startDir);
-}
 function resolveBrandTokensPath(startDir) {
   let cur = resolve4(startDir);
   for (let level = 0; level < 5; level++) {
@@ -19219,7 +19230,7 @@ function autoScoreTokenCoverage(htmlPath, html, startDir) {
 
 // design-floor/vendor/design-os/src/commands/token-coverage.ts
 import { existsSync as existsSync4, readFileSync as readFileSync7 } from "node:fs";
-import { dirname as dirname5, resolve as resolve5 } from "node:path";
+import { resolve as resolve5 } from "node:path";
 var CMD = "token-coverage";
 var DEFAULT_TOKEN_COVERAGE_FLOOR = 0.8;
 var TOKEN_COVERAGE_HELP = `ui token-coverage \u2014 does the page style with the project's own tokens?
@@ -19292,6 +19303,11 @@ var tokenCoverageCommand = {
         isNotFound ? `file not found: '${file}'` : `cannot read '${file}': ${e instanceof Error ? e.message : String(e)}`
       );
     }
+    if (!/\.html?$/i.test(file)) {
+      const msg = `'${file}' is not an .html/.htm file \u2014 token-coverage reads rendered HTML only`;
+      return useJson ? okJsonWithExit(CMD, { file, measurable: false, reason: msg }, 5) : { exitCode: 5, stderr: `ui: ${msg}
+` };
+    }
     const floorFlag = parsed.flags["floor"];
     let floor = DEFAULT_TOKEN_COVERAGE_FLOOR;
     if (typeof floorFlag === "string") {
@@ -19300,7 +19316,8 @@ var tokenCoverageCommand = {
       floor = n;
     }
     const tokensFlag = parsed.flags["tokens"];
-    const tokensPath = typeof tokensFlag === "string" ? resolve5(tokensFlag) : resolveProjectTokensPath(dirname5(resolve5(file)));
+    if (typeof tokensFlag !== "string") return err("BAD_ARG", "ui token-coverage requires --tokens <file> (design-floor: no design-system auto-discovery)");
+    const tokensPath = resolve5(tokensFlag);
     if (tokensPath === void 0 || !existsSync4(tokensPath)) {
       return err("TOKENS_NOT_FOUND", "no token file given or auto-detected \u2014 pass --tokens or run 'ui ds init'");
     }
@@ -19311,7 +19328,7 @@ var tokenCoverageCommand = {
     } catch (e) {
       return err("BAD_JSON", `bad token file '${tokensPath}': ${e instanceof Error ? e.message : String(e)}`);
     }
-    const exitCode = result.overall.coverage >= floor && linkErrors.length === 0 ? 0 : 1;
+    const exitCode = linkErrors.length > 0 || result.overall.coverage < floor ? 2 : result.declarationCount === 0 ? 5 : 0;
     if (useJson) return okJsonWithExit(CMD, { file, floor, ...result, linkedCssErrors: linkErrors }, exitCode);
     let report = formatReport(file, floor, result);
     if (linkErrors.length > 0) {
@@ -19483,6 +19500,11 @@ var gateCommand = {
       return useJson ? errJson(CMD2, "BAD_ARG", msg) : errText(`ui: ${msg}
 `);
     }
+    if (typeof parsed.flags["tokens"] !== "string") {
+      const msg = "ui gate requires --tokens <file> (design-floor: no design-system auto-discovery)";
+      return useJson ? errJson(CMD2, "BAD_ARG", msg) : errText(`ui: ${msg}
+`);
+    }
     let html;
     try {
       html = readFileSync8(file, "utf8");
@@ -19492,6 +19514,11 @@ var gateCommand = {
       const msg = isNotFound ? `file not found: '${file}'` : `cannot read '${file}': ${e instanceof Error ? e.message : String(e)}`;
       return useJson ? errJson(CMD2, code4, msg) : errText(`ui: ${msg}
 `);
+    }
+    if (!/\.html?$/i.test(file)) {
+      const msg = `'${file}' is not an .html/.htm file \u2014 the gate reads rendered HTML only`;
+      return useJson ? okJsonWithExit(CMD2, { file, measurable: false, reason: msg }, 5) : { exitCode: 5, stderr: `ui: ${msg}
+` };
     }
     const loaded = inlineLinkedCss(file, html);
     html = loaded.html;
@@ -19593,7 +19620,7 @@ var gateCommand = {
     if (familyPolicy !== void 0) result = applyGatePolicy(result, familyPolicy);
     result.errorCount += loaded.errors.length + (tokensUnreadable ? 1 : 0);
     const pass = result.pass && loaded.errors.length === 0 && !tokenCoverageFails && !tokensUnreadable;
-    const exitCode = pass ? 0 : 1;
+    const exitCode = !pass ? 2 : result.partial.length > 0 ? 5 : 0;
     const lines = [`gate: ${file} \u2014 ${result.errorCount} error(s), ${result.warningCount} warning(s)${pass ? " \u2014 PASS" : ""}`];
     for (const e of loaded.errors) lines.push(`  \u2717 [${e.checkId}]: ${e.message}`);
     if (tokensUnreadable) {
@@ -20141,7 +20168,7 @@ var CMD3 = "reuse-plan check";
 function cannotRun(json, code4, message) {
   const res = json ? errJson(CMD3, code4, message) : errText(`ui: ${message}
 `);
-  return { ...res, exitCode: 2 };
+  return { ...res, exitCode: exitForCode(code4) };
 }
 function tokenLoader(path) {
   let cached;
@@ -20171,6 +20198,8 @@ function runReusePlanCheck(parsed) {
   for (const [name50, v] of Object.entries(flags)) {
     if (v === true) return usage(`--${name50} requires a value`);
   }
+  if (typeof flags.file !== "string") return usage("ui reuse-plan check requires --file <registry> (design-floor: no registry auto-discovery)");
+  if (typeof flags.tokens !== "string") return usage("ui reuse-plan check requires --tokens <file> (design-floor: no design-system auto-discovery)");
   const designDir = join2(typeof flags.dir === "string" ? resolve7(flags.dir) : process.cwd(), "design");
   const tokensPath = typeof flags.tokens === "string" ? resolve7(flags.tokens) : join2(designDir, "design.tokens.json");
   let text;
@@ -20200,7 +20229,7 @@ function runReusePlanCheck(parsed) {
   if (entries.some((c) => typeof c.name !== "string")) return cannotRun(json, "BAD_REGISTRY", `registry '${reg.path}' has a component without a string name`);
   const index = buildNameIndex(entries, patternFileStems(designDir));
   const result = checkReusePlan(parseReusePlan(text), { names: index, tokens: tokenLoader(tokensPath) });
-  const exitCode = result.findings.length > 0 ? 1 : 0;
+  const exitCode = result.findings.length > 0 ? 2 : 0;
   if (json) {
     return okJsonWithExit(CMD3, {
       file,
@@ -20532,7 +20561,7 @@ function runLint(parsed) {
 `);
   }
   const r = lintFlow(flow);
-  const exitCode = r.errorCount > 0 ? 1 : 0;
+  const exitCode = r.errorCount > 0 ? 2 : 0;
   if (useJson) return okJsonWithExit(sub, { file, ...r }, exitCode);
   const lines = r.findings.length === 0 ? [`flow lint: ${file} \u2014 0 findings; the IA is well-formed.`] : [
     `flow lint: ${file} \u2014 ${r.errorCount} error(s), ${r.warningCount} warning(s)`,
@@ -20687,7 +20716,7 @@ function dispatch(args) {
     if (unknown !== null) {
       const msg = unknownFlagMessage(unknown);
       const label = parsed.subcommand !== void 0 ? `${parsed.command} ${parsed.subcommand}` : parsed.command;
-      const res = parsed.json ? errJson(label, "UNKNOWN_FLAG", msg) : { exitCode: 1, stderr: `ui: ${msg}
+      const res = parsed.json ? errJson(label, "UNKNOWN_FLAG", msg) : { exitCode: 4, stderr: `ui: ${msg}
 ` };
       if (res.stdout !== void 0) stdout.write(res.stdout);
       if (res.stderr !== void 0) stderr.write(res.stderr);
@@ -20702,7 +20731,7 @@ function dispatch(args) {
   const internalError = (e) => {
     stderr.write(`ui: internal error: ${e instanceof Error ? e.message : String(e)}
 `);
-    return 2;
+    return 1;
   };
   let result;
   try {

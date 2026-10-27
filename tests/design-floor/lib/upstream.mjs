@@ -169,9 +169,10 @@ export function apVa(dir, tepVa, { nguoc = false } = {}) {
   });
 }
 
-// Đường của tệp mà một tệp diff chạm, đọc từ dòng `+++ b/<đường>`.
+// Đường của tệp mà một tệp diff chạm, đọc từ dòng `--- a/<đường>` và `+++ b/<đường>` — tệp bản vá tạo chỉ có vế
+// `+++` (vế kia là /dev/null), tệp bản vá xoá chỉ có vế `---`.
 export function tepCuaVa(tepVa) {
-  return [...readFileSync(tepVa, 'utf8').matchAll(/^\+\+\+ b\/(\S+)/gm)].map((m) => m[1]).sort();
+  return [...new Set([...readFileSync(tepVa, 'utf8').matchAll(/^(?:---|\+\+\+) [ab]\/(\S+)/gm)].map((m) => m[1]))].sort();
 }
 
 export function duongTuongDoi(p) {

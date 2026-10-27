@@ -78,10 +78,10 @@ function hopCat({ design = false, moi = false } = {}) {
 }
 
 // Lời gọi rút từ argv mẫu của hợp đồng: {dich} {tokens} {registry}; `bo` gỡ cặp cờ+giá trị.
-function goi(R, lenh, { dich, bo = [], them = [], ghi = false } = {}) {
+function goi(R, lenh, { dich, tokens = 'tokens.json', bo = [], them = [], ghi = false } = {}) {
   const l = hd.lenh[lenh];
   const mau = ghi ? l.argv_ghi : l.argv;
-  const gia = { dich, tokens: 'tokens.json', registry: 'reg.json' };
+  const gia = { dich, tokens, registry: 'reg.json' };
   const argv = [];
   for (let i = 0; i < mau.length; i++) {
     const m = /^\{(\w+)\}$/.exec(mau[i + 1] || '');
@@ -136,22 +136,27 @@ const PHEP_DO = [
     const dc = goi(R, 'gate', { dich: 'eyebrow-nen.html' });
     const thay = Object.values(dc.d.families || {}).flatMap((f) => f.findings).some((f) => f.checkId === 'low-contrast');
     if (!thay) return { hong: `nền khai rõ mà gate không ra low-contrast (thoát ${dc.ec})` };
+    // FAIL thắng KHÔNG-ĐO-ĐƯỢC: trang có lỗi thật phải thoát mã FAIL, không bị nuốt thành 5.
+    if (dc.ec !== MA.FAIL) return { hong: `trang có low-contrast mà gate thoát ${dc.ec} (muốn ${MA.FAIL}) — lỗi thấy được không ra FAIL` };
     const r = goi(R, 'gate', { dich: 'eyebrow.html' });
     return { do: r.ec !== MA.NOT_MEASURABLE, chi_tiet: `gate thoát ${r.ec} (muốn ${MA.NOT_MEASURABLE}) · pass=${r.d.pass} · partial=${(r.d.partial || []).length}` };
   }],
   ['DF-02', 'design system mồi ở thư mục cha không đổi kết quả của lời gọi theo hợp đồng', () => {
     const A = hopCat({ design: true });
     const B = hopCat({ moi: true });
-    const dc = goi(B, 'gate', { dich: 'eyebrow-nen.html', bo: ['tokens'] });
-    const src = dc.d.tokenCoverageSource || {};
-    if (src.origin !== 'auto' || !String(src.path).includes('outer/design')) return { hong: `mồi không dò được (origin=${src.origin}) — phép đo không thể đỏ` };
     const lech = [];
     for (const k of CHAM) {
       const a = goi(A, k, { dich: SACH[k] });
       const b = goi(B, k, { dich: SACH[k] });
       if (a.ec !== b.ec || a.out !== b.out) lech.push(`${k} (${a.ec}→${b.ec})`);
     }
-    return { do: lech.length > 0, chi_tiet: `kết quả đổi theo mồi: ${lech.join(', ')}` };
+    if (lech.length) return { do: true, chi_tiet: `kết quả đổi theo mồi: ${lech.join(', ')}` };
+    // «Giống hệt» chỉ đáng tin khi mồi CÓ nội dung đổi được kết quả: trỏ --tokens TƯỜNG MINH vào token của mồi thì
+    // kết quả gate phải KHÁC. (Đường «gate không --tokens tự dò ra mồi» đã chết từ bản vá C — vắng --tokens là mã 4.)
+    const thuong = goi(B, 'gate', { dich: 'eyebrow-nen.html' });
+    const moi = goi(B, 'gate', { dich: 'eyebrow-nen.html', tokens: '../design/design.tokens.json' });
+    if (thuong.out === moi.out) return { hong: 'trỏ --tokens tường minh vào token của mồi mà kết quả gate không đổi — phép so «giống hệt» không phân biệt được' };
+    return { do: false };
   }],
   ['DF-03', 'thiếu --tokens/--file là sai cú pháp, không tự dò', () => {
     const R = hopCat({ moi: true });
@@ -159,7 +164,7 @@ const PHEP_DO = [
     for (const k of CO_TOKENS) ra.push([`${k} -tokens`, goi(R, k, { dich: SACH[k], bo: ['tokens'] }).ec]);
     for (const k of CHAM.filter((x) => hd.lenh[x].argv.includes('{registry}'))) ra.push([`${k} -file`, goi(R, k, { dich: SACH[k], bo: ['registry'] }).ec]);
     const sai = ra.filter(([, ec]) => ec !== MA.SAI_CU_PHAP);
-    return { do: sai.length > 0, chi_tiet: `${sai.map(([t, ec]) => `${t}=${ec}`).join(' · ')} (muốn ${MA.SAI_CU_PHAP})` };
+    return { do: sai.length > 0, chi_tiet: `${ra.map(([t, ec]) => `${t}=${ec}`).join(' · ')} (muốn ${MA.SAI_CU_PHAP})` };
   }],
   ['DF-04', 'thiếu tệp · sai đối số · có lỗi → ba mã thoát riêng', () => {
     const R = hopCat();
@@ -235,7 +240,7 @@ for (const [id, ten, chay] of PHEP_DO) {
   if (ds.chi && !ds.chi.has(id)) continue;
   let kq;
   try { kq = chay(); } catch (e) { kq = { hong: `ném lỗi: ${e.message}` }; }
-  ok = inKetQua(id, ten, phanXu(hd, id, kq, SO), kq.do ? kq.chi_tiet : '') && ok;
+  ok = inKetQua(id, ten, phanXu(hd, id, kq, SO), kq.do || !/:\s*$/.test(kq.chi_tiet || '') ? kq.chi_tiet : '') && ok;
 }
 rmSync(TMP, { recursive: true, force: true });
 console.log(ok ? 'hop-dong: XANH (gồm giới hạn đã khai)' : 'hop-dong: ĐỎ');
