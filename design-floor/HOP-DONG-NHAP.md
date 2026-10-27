@@ -5,11 +5,12 @@ chép một dòng nào vào kit: năm lệnh, đầu vào, phán quyết và mã
 đóng kín. Khối máy ở cuối tệp là bên viết; bộ đo `tests/design-floor/` là bên đọc duy nhất. Văn xuôi
 giải thích, khối máy quyết — hai chỗ lệch nhau thì khối máy đúng và văn xuôi phải sửa.
 
-Bước 1 **chưa vendor gì**: bộ đo lấy bản upstream đã ghim về cache (sparse, depth 1, ~2 s), dựng
-`ui` từ nguồn và chấm nó. Bước 2 (vendor + móc vào vòng) đổi đúng một hàm — `chuanBiNguon` trong
-`tests/design-floor/lib/upstream.mjs` — sang bản vendored; mọi phép đo ở đây giữ nguyên.
+Từ bước 2 mã đã **vendor** vào kit: `design-floor/vendor/design-os/` là bản ghim cộng đúng các bản vá cục bộ
+ghi ở sổ `design-floor/LOCAL-PATCHES.md`; vỏ `design-floor/vo/ui.ts` của kit đăng ký năm lệnh; bản gói
+`design-floor/dist/ui.mjs` là vật giao đi. Bộ đo chạy ngoại tuyến trên bản vendored và chấm chính bản gói;
+`tests/design-floor/dong-bo.mjs` là đường duy nhất lấy bản ghim qua mạng (đổi ghim, đổi bản vá).
 
-Hồ sơ: `_acceptance/design-floor-hop-dong-nhap/`.
+Hồ sơ: `_acceptance/design-floor-hop-dong-nhap/` (bước 1) · `_acceptance/design-floor-vendor-va-ban-va-a/` (bước 2a: vendor + bản vá A).
 
 ## 1. Vì sao kit cần hợp đồng này
 
@@ -101,15 +102,23 @@ ngược từ đích, không có cờ tắt.
 ## 7. Rào đóng kín
 
 Đóng kín của một lệnh = mọi tệp `src/` mà esbuild kéo theo từ module lệnh đó (metafile; import chỉ-kiểu
-bị bỏ như lúc chạy). Rào giữ bốn luật trên **hợp** đóng kín của năm lệnh:
+bị bỏ như lúc chạy). FN-02…04 đo trên **hợp** đóng kín GIAO ĐI — vỏ + năm lệnh trên bản vendored đã vá:
 
-- **FN-01** — `design-floor/upstream.lock.json` (sinh bằng `rao-dong.mjs --write`) khớp phép đo lại: ghim,
-  danh sách tệp, băm sha256 từng tệp, số dòng, lệnh nào kéo tệp nào. Tệp khoá là **danh sách chép** của
-  bước 2: đúng các tệp đó vào kit, mỗi tệp kèm băm.
+- **FN-01** — `design-floor/upstream.lock.json` (sinh bằng `rao-dong.mjs --write` trên bản ghim) khớp phép đo
+  lại trên bản vendored ĐÃ ĐẢO mọi bản vá: ghim, danh sách tệp, băm sha256 upstream từng tệp, số dòng, lệnh
+  nào kéo tệp nào. Tệp khoá là **danh sách chép**: năm lệnh + phần vỏ kéo thêm (`lenh.vo` — `cli-args.ts`,
+  `command-signatures.ts`), 126 tệp, mỗi tệp kèm băm.
+- **VA-01** — bản vendored bằng tệp khoá + sổ vá: tệp ngoài sổ mang đúng băm tệp khoá; tệp vá mang băm `sau`
+  của dòng sổ đã áp. Một byte lệch ở đâu thì đỏ đúng tệp đó.
+- **BG-01** — bản gói dựng lại từ vỏ + bản vendored (esbuild và gói npm ghim ở `tests/design-floor`) bằng
+  từng byte tệp đã commit, ở chỗ checkout hiện tại lẫn ở một đường khác.
 - **FN-02** — không tệp nào khớp danh sách cấm (`memory-*`, `figma-*`, `src/adapters/`, `init*`).
 - **FN-03** — không import mạng của node, không token gọi mạng trong mã đã bỏ chú thích.
 - **FN-04** — hợp đóng kín không vượt trần. Đổi ghim mà đóng kín phình là một quyết định phải nhìn
   thấy: nâng trần ở khối máy, trong cùng PR đổi ghim.
+  Bước 2a nâng trần dòng 18 500 → 18 900 (hồ sơ design-floor-vendor-va-ban-va-a, giám sát đồng ý 27/10): đóng
+  kín giao đi 117 tệp · 18 825 dòng — phần vượt là vỏ của kit kéo `cli-args.ts` + `command-signatures.ts`
+  (1 542 dòng); ghim không đổi.
 
 Hình dạng này cố ý trùng ô `lop-vendored-tu-xung` (tệp khai phiên bản kèm băm từng tệp · một danh sách
 chép · một lệnh kiểm trong CI): khi ô đó dựng định dạng tệp khai cho kit→kho, `upstream.lock.json` là
@@ -131,12 +140,17 @@ lượt chạy; mỗi phép đo một hộp cát gồm dự án, một `design/`
 | DF-07 | danh sách thư mục + băm của cả hộp cát giống hệt sau mỗi lệnh v1 (autofix không `--write`) | phép chụp thấy một tệp cài vào |
 | DF-08 | `autofix --write` chỉ đổi tệp đích | đích phải thật sự được sửa |
 | DF-09 | không lệnh nào (kể cả `autofix --write`) chạm đường mạng | bộ chặn bắt `fetch`, `net`, `dns` của một tiến trình thử |
-| FN-01…04 | §7 | `tests/design-floor/tu-thu.mjs`: hai đối chứng dương + mười hai đột biến trên bản sao hợp đồng/tệp khoá, mỗi đột biến phải thoát 1 kèm đúng thông điệp |
+| FN-01…04 · VA-01 · BG-01 | §7 | `tests/design-floor/tu-thu.mjs`: đối chứng dương trên một bản sao bố cục kit, rồi đột biến trên bản sao hợp đồng, tệp khoá, sổ vá, bản vendored, tệp diff và bản gói — mỗi đột biến phải thoát đúng mã kèm đúng thông điệp |
+
+Trên bản gói giao đi, DF-07 và DF-08 XANH nhờ bản vá A (sổ LOCAL-PATCHES); bỏ bản vá A khỏi một bản sao rồi
+dựng lại thì hai phép đo đỏ lại (đột biến nhãn BAN-VA-A).
 
 **Giới hạn đã khai là xfail CHẶT.** Một phép đo có trong `gioi_han` mà đỏ đúng chữ ký thì XFAIL (CI
-xanh); đỏ sai chữ ký thì FAIL (đỏ vì lý do khác — phân loại lại); XANH thì cũng FAIL (XPASS: upstream
-đã sửa, gỡ giới hạn để phép đo canh lại). Mỗi giới hạn phải mang sửa đổi upstream nó chờ và PR của
-sửa đổi đó; thiếu một trong hai là FAIL.
+xanh); đỏ sai chữ ký thì FAIL (đỏ vì lý do khác — phân loại lại); XANH thì cũng FAIL (XPASS: bản vá đã
+sửa, gỡ giới hạn để phép đo canh lại). **Mỗi giới hạn phải có đường ra:** `can_upstream` (sửa đổi nó chờ)
+và `ban_va` — mã một dòng `cho-va` của sổ `design-floor/LOCAL-PATCHES.md`. Kit không gửi PR upstream (chủ
+kho 26/10), nên đường ra là một bản vá cục bộ có tên. Thiếu một trong hai, `ban_va` trỏ mã không có trong
+sổ, hay trỏ một bản vá đã áp (bản vá đã áp mà giới hạn còn sống = bản vá không giữ lời) đều là FAIL.
 
 ## 9. Chạy
 
@@ -144,18 +158,21 @@ sửa đổi đó; thiếu một trong hai là FAIL.
 npm ci --prefix tests/design-floor && bash tests/design-floor/run-tests.sh
 ```
 
-Cache upstream mặc định ở `$TMPDIR/design-floor-upstream/<commit>` (đổi bằng `DESIGN_FLOOR_CACHE`).
-CI chạy job `design-floor` trong `.github/workflows/gate.yml`. Chi phí: 0 token; đo trên máy dev
-2026-10-26: rào ~1 s, bộ đo ~3 s, chiều đỏ ~10 s sau khi cache có; CI thêm lấy nguồn + `npm ci`.
+Chạy ngoại tuyến trên bản vendored; CI đặt `DESIGN_FLOOR_KHONG_MANG=1` để chứng điều đó (job `design-floor`
+trong `.github/workflows/gate.yml`). Đổi ghim hay đổi bản vá: sửa tệp khoá (`rao-dong.mjs --write`, lấy bản
+ghim về `$TMPDIR/design-floor-upstream/<commit>`, đổi bằng `DESIGN_FLOOR_CACHE`) hoặc tệp diff + dòng sổ, rồi
+`node tests/design-floor/dong-bo.mjs --write`; `--kiem` dựng lại trong thư mục tạm và so từng byte. Chi phí: 0
+token; đo trên máy dev 2026-10-27: rào ~2 s, bộ đo ~3 s, chiều đỏ ~20 s; CI thêm `npm ci`.
 
 ## 10. Phép thử North Star
 
-- **Không ghi gì sau S4** — chính là §6 + DF-07/DF-08; hôm nay đỏ ở gate và autofix, nên design-floor
-  không được móc `ui gate` vào S4 trước khi DF-07 XANH (hoặc kit gọi nó trong một bản sao bỏ đi).
-- **Không thêm lượt gọi người** — bước 1 không thêm cổng, không thêm dòng thẻ.
+- **Không ghi gì sau S4** — chính là §6 + DF-07/DF-08, XANH trên bản gói nhờ bản vá A. `ui gate` vẫn chưa
+  móc vào S4: đó là mục chờ FL-C1 của lộ trình, mở khi một vòng thật ở kho tiêu thụ chứng không tệp nào đổi
+  sau commit S4.
+- **Không thêm lượt gọi người** — hợp đồng nhập không thêm cổng, không thêm dòng thẻ.
 - **Chi phí máy mỗi kết quả gộp** — 0 token; ~1 phút CI mỗi PR chạm kit.
-- **Mọi phép kiểm có chiều đỏ** — đối chứng trong từng phép đo + mười hai đột biến của `tu-thu.mjs`;
-  bảy phép đo hành vi và FN-02 hôm nay ĐỎ thật (XFAIL), nên chiều đỏ của chúng đã chạy trên upstream.
+- **Mọi phép kiểm có chiều đỏ** — đối chứng trong từng phép đo + đột biến của `tu-thu.mjs`; năm phép đo hành
+  vi và FN-02 còn ĐỎ thật (XFAIL, chờ bản vá B, C, D), nên chiều đỏ của chúng chạy trên chính bản gói.
 
 ## 11. Khối máy
 
@@ -168,97 +185,185 @@ CI chạy job `design-floor` trong `.github/workflows/gate.yml`. Chi phí: 0 tok
     "commit": "a7ad5f1e650321ac325734e9199f266c9b990212",
     "ngay_commit": "2026-10-22",
     "phien_ban_goi": "0.6.1",
-    "lay_ve": ["/src/", "/knowledge/", "/schemas/", "/package.json", "/package-lock.json", "/LICENSE", "/a11y/package.json", "/recall/package.json"]
+    "lay_ve": [
+      "/src/",
+      "/knowledge/",
+      "/schemas/",
+      "/package.json",
+      "/package-lock.json",
+      "/LICENSE",
+      "/a11y/package.json",
+      "/recall/package.json"
+    ]
   },
-  "ma_thoat": { "PASS": 0, "FAIL": 2, "THIEU_TEP": 3, "SAI_CU_PHAP": 4, "NOT_MEASURABLE": 5 },
+  "vendor": {
+    "goc": "design-floor/vendor/design-os",
+    "vo": "design-floor/vo/ui.ts",
+    "ban_goi": "design-floor/dist/ui.mjs",
+    "so_va": "design-floor/LOCAL-PATCHES.md"
+  },
+  "ma_thoat": {
+    "PASS": 0,
+    "FAIL": 2,
+    "THIEU_TEP": 3,
+    "SAI_CU_PHAP": 4,
+    "NOT_MEASURABLE": 5
+  },
   "moi_truong": {},
   "lenh": {
-    "gate": { "entry": "src/commands/gate.ts", "vai": "cham", "argv": ["gate", "{dich}", "--tokens", "{tokens}", "--json"] },
-    "token-coverage": { "entry": "src/commands/token-coverage.ts", "vai": "cham", "argv": ["token-coverage", "{dich}", "--tokens", "{tokens}", "--json"] },
-    "reuse-plan check": { "entry": "src/commands/reuse-plan.ts", "vai": "cham", "argv": ["reuse-plan", "check", "{dich}", "--file", "{registry}", "--tokens", "{tokens}", "--json"] },
-    "flow lint": { "entry": "src/commands/flow.ts", "vai": "cham", "argv": ["flow", "lint", "{dich}", "--json"] },
-    "autofix": { "entry": "src/commands/autofix.ts", "vai": "dung", "buoc": "S3", "argv": ["autofix", "{dich}", "--json"], "argv_ghi": ["autofix", "{dich}", "--write", "--json"] }
+    "gate": {
+      "entry": "src/commands/gate.ts",
+      "vai": "cham",
+      "argv": [
+        "gate",
+        "{dich}",
+        "--tokens",
+        "{tokens}",
+        "--json"
+      ]
+    },
+    "token-coverage": {
+      "entry": "src/commands/token-coverage.ts",
+      "vai": "cham",
+      "argv": [
+        "token-coverage",
+        "{dich}",
+        "--tokens",
+        "{tokens}",
+        "--json"
+      ]
+    },
+    "reuse-plan check": {
+      "entry": "src/commands/reuse-plan.ts",
+      "vai": "cham",
+      "argv": [
+        "reuse-plan",
+        "check",
+        "{dich}",
+        "--file",
+        "{registry}",
+        "--tokens",
+        "{tokens}",
+        "--json"
+      ]
+    },
+    "flow lint": {
+      "entry": "src/commands/flow.ts",
+      "vai": "cham",
+      "argv": [
+        "flow",
+        "lint",
+        "{dich}",
+        "--json"
+      ]
+    },
+    "autofix": {
+      "entry": "src/commands/autofix.ts",
+      "vai": "dung",
+      "buoc": "S3",
+      "argv": [
+        "autofix",
+        "{dich}",
+        "--json"
+      ],
+      "argv_ghi": [
+        "autofix",
+        "{dich}",
+        "--write",
+        "--json"
+      ]
+    }
   },
   "rao": {
     "cam": [
-      { "ten": "memory-*", "re": "(^|/)memory-[^/]*\\.ts$" },
-      { "ten": "figma-*", "re": "(^|/)figma-[^/]*\\.ts$" },
-      { "ten": "adapters/", "re": "^src/adapters/" },
-      { "ten": "init", "re": "(^|/)init[^/]*\\.ts$" }
+      {
+        "ten": "memory-*",
+        "re": "(^|/)memory-[^/]*\\.ts$"
+      },
+      {
+        "ten": "figma-*",
+        "re": "(^|/)figma-[^/]*\\.ts$"
+      },
+      {
+        "ten": "adapters/",
+        "re": "^src/adapters/"
+      },
+      {
+        "ten": "init",
+        "re": "(^|/)init[^/]*\\.ts$"
+      }
     ],
-    "cam_mang": ["node:http", "node:https", "node:http2", "node:net", "node:tls", "node:dns", "node:dgram", "http", "https", "http2", "net", "tls", "dns", "dgram", "undici", "ws", "node-fetch", "axios"],
-    "cam_token_mang": ["(^|[^\\w.$])fetch\\s*\\(", "\\bnew\\s+WebSocket\\b", "\\bXMLHttpRequest\\b", "\\bEventSource\\b"],
-    "tran": { "tep": 124, "dong": 18500 }
+    "cam_mang": [
+      "node:http",
+      "node:https",
+      "node:http2",
+      "node:net",
+      "node:tls",
+      "node:dns",
+      "node:dgram",
+      "http",
+      "https",
+      "http2",
+      "net",
+      "tls",
+      "dns",
+      "dgram",
+      "undici",
+      "ws",
+      "node-fetch",
+      "axios"
+    ],
+    "cam_token_mang": [
+      "(^|[^\\w.$])fetch\\s*\\(",
+      "\\bnew\\s+WebSocket\\b",
+      "\\bXMLHttpRequest\\b",
+      "\\bEventSource\\b"
+    ],
+    "tran": {
+      "tep": 124,
+      "dong": 18900
+    }
   },
   "gioi_han": [
     {
       "id": "DF-01",
       "chu_ky_do": "^gate thoát 0 \\(muốn 5\\) · pass=true · partial=1$",
       "can_upstream": "src/core/gate.ts:165 `pass = errorCount === 0` bỏ qua `partial`: một phép kiểm NOT COMPUTABLE mà không có lỗi phải là KHÔNG-ĐO-ĐƯỢC (thoát 5), không phải pass",
-      "pr_upstream": "chưa mở — nhóm B «mã thoát ba trạng thái»"
+      "ban_va": "B"
     },
     {
       "id": "DF-03",
       "chu_ky_do": "^gate -tokens=1 · token-coverage -tokens=1 · reuse-plan check -tokens=1 · reuse-plan check -file=2 \\(muốn 4\\)$",
       "can_upstream": "một cách tắt tự dò (cờ hoặc biến môi trường): vắng --tokens hôm nay đi ngược tới 5 cấp tìm design/ds.manifest.json (src/core/design-system.ts discoverDesignSystem), vắng --file đọc <cwd>/design/component-registry.json; kit ghi cờ đó vào argv/moi_truong của khối máy",
-      "pr_upstream": "chưa mở — nhóm C «đầu vào tường minh»"
+      "ban_va": "C"
     },
     {
       "id": "DF-04",
       "chu_ky_do": "^gate 1/1/1 · token-coverage 1/1/1 · reuse-plan check 2/1/1 · flow lint 1/1/1 \\(muốn 3/4/2\\)$",
       "can_upstream": "mã thoát theo lớp (FAIL 2 · thiếu tệp 3 · sai cú pháp 4 · KHÔNG-ĐO-ĐƯỢC 5), có thể bật bằng cờ; lỗi nội bộ rời khỏi mã 2 (src/core/output.ts:116 — hôm nay reuse-plan check thiếu tệp ra 2 = lỗi nội bộ, trùng mã FAIL)",
-      "pr_upstream": "chưa mở — nhóm B «mã thoát ba trạng thái»"
+      "ban_va": "B"
     },
     {
       "id": "DF-05",
       "chu_ky_do": "^gate \\.tsx thoát 0 · token-coverage \\.tsx thoát 0 \\(muốn 5\\)$",
       "can_upstream": "lệnh đọc HTML trả KHÔNG-ĐO-ĐƯỢC cho đích không phải .html/.htm thay vì đọc JSX như HTML (một layout .tsx có <html lang><title> hôm nay PASS)",
-      "pr_upstream": "chưa mở — nhóm B «mã thoát ba trạng thái»"
+      "ban_va": "B"
     },
     {
       "id": "DF-06",
       "chu_ky_do": "^token-coverage trang không CSS thoát 0 \\(muốn 5\\) · coverage=1$",
       "can_upstream": "token-coverage: 0 khai báo được chấm ở mọi nhóm → KHÔNG-ĐO-ĐƯỢC, không phải coverage 1 («a category with nothing to fail on reports coverage 1»)",
-      "pr_upstream": "chưa mở — nhóm B «mã thoát ba trạng thái»"
-    },
-    {
-      "id": "DF-07",
-      "chu_ky_do": "^gate: \\+outer/design/memory\\.events\\.count\\.json \\+outer/design/memory\\.events\\.jsonl$",
-      "can_upstream": "tắt được đường nhiên liệu cho lượt chấm (src/core/memory-autorecord.ts withOutcome, gọi ở src/commands/gate.ts:18/387): hôm nay mỗi lượt gate nối sự kiện vào design/ gần nhất đi ngược từ đích — kể cả design/ của thư mục cha",
-      "pr_upstream": "chưa mở — nhóm A «bộ chấm không bút»"
-    },
-    {
-      "id": "DF-08",
-      "chu_ky_do": "^ngoài đích: \\+outer/design/memory\\.events\\.count\\.json \\+outer/design/memory\\.events\\.jsonl$",
-      "can_upstream": "cùng sửa đổi với DF-07 cho src/commands/autofix.ts:15/137",
-      "pr_upstream": "chưa mở — nhóm A «bộ chấm không bút»"
+      "ban_va": "B"
     },
     {
       "id": "FN-02",
       "vi_pham": [
-        "autofix src/core/figma-ds-tokens.ts",
-        "autofix src/core/memory-autorecord.ts",
-        "autofix src/core/memory-error.ts",
-        "autofix src/core/memory-events.ts",
-        "autofix src/core/memory-graph-cache.ts",
-        "autofix src/core/memory-graph.ts",
-        "autofix src/core/memory-lesson-evidence.ts",
-        "autofix src/core/memory-lessons.ts",
-        "autofix src/core/memory-store.ts",
         "gate src/core/figma-ds-tokens.ts",
-        "gate src/core/memory-autorecord.ts",
-        "gate src/core/memory-error.ts",
-        "gate src/core/memory-events.ts",
-        "gate src/core/memory-graph-cache.ts",
-        "gate src/core/memory-graph.ts",
-        "gate src/core/memory-lesson-evidence.ts",
-        "gate src/core/memory-lessons.ts",
-        "gate src/core/memory-store.ts",
         "reuse-plan check src/core/figma-ds-tokens.ts",
         "token-coverage src/core/figma-ds-tokens.ts"
       ],
-      "can_upstream": "(A) dời withOutcome khỏi module lệnh gate/autofix lên vỏ CLI → tám module memory-* rời đóng kín; (D) dời sanitizeSeg/buildTokensTree ra module trung tính → figma-ds-tokens.ts rời token-coverage, reuse-plan, gate, autofix (nó là phép biến đổi thuần, không mạng, nhưng kéo tên miền Figma vào lõi chấm)",
-      "pr_upstream": "chưa mở — nhóm A + nhóm D"
+      "can_upstream": "(D) dời sanitizeSeg/buildTokensTree ra module trung tính → figma-ds-tokens.ts rời token-coverage, reuse-plan, gate (nó là phép biến đổi thuần, không mạng, nhưng kéo tên miền Figma vào lõi chấm); autofix và tám module memory-* đã rời nhờ bản vá A — autofix chỉ kéo figma-ds-tokens.ts qua đường ghi sự kiện",
+      "ban_va": "D"
     }
   ]
 }

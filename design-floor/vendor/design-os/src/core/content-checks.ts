@@ -1,0 +1,174 @@
+/**
+ * Per-rule static content/UX-writing checks (see content-lint.ts). Only rules with a
+ * genuinely LOW/MED false-positive rate on UI microcopy — which is short, imperative and
+ * fragmentary, so prose linters (write-good / proselint / Flesch–Kincaid) misfire and are
+ * deliberately NOT included. Voice/tone *fit* stays a model judgment (curator, not here).
+ * Pure functions of the HTML string.
+ */
+import { lineAt } from "./a11y-lint.js";
+import { checkDumbPunctuation } from "./content-checks-punctuation.js";
+import type { FloorFindingBase } from "./finding-schema.js";
+// Re-exported so the public `ease-design/lint` surface (which does
+// `export * from "./core/content-checks.js"`) carries every content check.
+export { checkDumbPunctuation } from "./content-checks-punctuation.js";
+
+export type ContentSeverity = "error" | "warning";
+/** Content findings speak the shared FloorFinding schema (finding-schema.ts). */
+export type ContentFinding = FloorFindingBase;
+
+/** Visible text: strip tags, decode a few entities, collapse whitespace. */
+function textOf(html: string): string {
+  return html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+// ── lorem-ipsum (error) ──
+export function checkLoremIpsum(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  for (const m of html.matchAll(/lorem ipsum|dolor sit amet/gi)) {
+    out.push({ checkId: "lorem-ipsum", severity: "error", message: "placeholder Lorem-ipsum text shipped as copy", line: lineAt(html, m.index) });
+  }
+  return out;
+}
+
+// ── placeholder-copy (error) ── (TODO deliberately excluded — legit in to-do UIs)
+const PLACEHOLDER = /\b(insert (?:text|copy) here|your (?:text|title|name) here|sample text|placeholder text|xxxx+|asdf|lorem)\b/gi;
+export function checkPlaceholderCopy(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  for (const m of html.matchAll(PLACEHOLDER)) {
+    out.push({ checkId: "placeholder-copy", severity: "error", message: `unfinished placeholder copy: "${m[0]}"`, line: lineAt(html, m.index) });
+  }
+  return out;
+}
+
+// ── placeholder-name (error) — persona/company filler shipped as copy ──
+const PLACEHOLDER_NAME = /\b(jane doe|john doe|john smith|acme(?:\s+(?:corp|inc|co))?)\b/gi;
+export function checkPlaceholderName(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  // Scans raw HTML (not just visible text): a placeholder name in an attribute —
+  // e.g. placeholder="Jane Doe" on a demo form — is still a shipped tell, so it counts.
+  for (const m of html.matchAll(PLACEHOLDER_NAME)) {
+    out.push({ checkId: "placeholder-name", severity: "error", message: `placeholder persona/company name "${m[0]}" shipped as copy — use a plausible name or the user's real content`, line: lineAt(html, m.index) });
+  }
+  return out;
+}
+
+// ── click-here-link (warning) — WCAG 2.4.4 / F84 ──
+const VAGUE_LINK = new Set(["click here", "here", "read more", "more", "link", "this", "learn more"]);
+export function checkClickHereLink(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  for (const m of html.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)) {
+    const t = textOf(m[1] ?? "").toLowerCase();
+    if (VAGUE_LINK.has(t)) {
+      out.push({ checkId: "click-here-link", severity: "warning", message: `non-descriptive link text "${t}" — a screen-reader link list needs the destination, not "${t}"`, line: lineAt(html, m.index) });
+    }
+  }
+  return out;
+}
+
+// ── error-code-alone (warning) — NN/g: never expose a bare code ──
+const CODE_ONLY = /^(error\s*\d+|[a-z][a-z0-9]*_error|(?:4|5)\d\d)$/i;
+export function checkErrorCodeAlone(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  for (const m of html.matchAll(/<[^>]*\b(?:role\s*=\s*("|')?alert\1?|class\s*=\s*("|')?[^"'>]*\berror\b[^"'>]*\2?)[^>]*>([\s\S]*?)<\//gi)) {
+    const t = textOf(m[3] ?? "");
+    if (t !== "" && CODE_ONLY.test(t)) {
+      out.push({ checkId: "error-code-alone", severity: "warning", message: `error region shows only a code ("${t}") — say what happened and how to recover`, line: lineAt(html, m.index) });
+    }
+  }
+  return out;
+}
+
+// ── exclamation-overload (warning) ──
+export function checkExclamationOverload(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  const text = html.replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ");
+  for (const m of text.matchAll(/!!+|! [^<]{0,60}?!/g)) {
+    out.push({ checkId: "exclamation-overload", severity: "warning", message: "multiple exclamation marks — one is plenty; enthusiasm has a budget", line: lineAt(html, m.index) });
+  }
+  return out;
+}
+
+// ── insensitive-terms (warning) — ONLY the safe infra swaps ──
+const INSENSITIVE: [RegExp, string][] = [
+  [/\bwhitelist(ed|ing)?\b/gi, "allowlist"],
+  [/\bblacklist(ed|ing)?\b/gi, "denylist"],
+  [/\bmaster\/slave\b|\bslave\b/gi, "primary/replica"],
+];
+export function checkInsensitiveTerms(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  const text = html.replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ");
+  for (const [re, pref] of INSENSITIVE) {
+    for (const m of text.matchAll(re)) {
+      out.push({ checkId: "insensitive-terms", severity: "warning", message: `prefer "${pref}" over "${m[0]}"`, line: lineAt(text, m.index) });
+    }
+  }
+  return out;
+}
+
+// ── plural-s-hack (warning) — non-ICU pluralization ──
+export function checkPluralSHack(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  const text = textOf(html);
+  for (const m of text.matchAll(/\b[a-z]{2,}\(s\)/gi)) {
+    out.push({ checkId: "plural-s-hack", severity: "warning", message: `"${m[0]}" is a plural hack — use a real plural (ICU MessageFormat) for i18n`, line: 1 });
+  }
+  return out;
+}
+
+// ── text-in-image (warning) ──
+export function checkTextInImage(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  for (const m of html.matchAll(/<img\b[^>]*>/gi)) {
+    const tag = m[0];
+    const alt = /\balt\s*=\s*"([^"]*)"/i.exec(tag)?.[1] ?? "";
+    const src = /\bsrc\s*=\s*"([^"]*)"/i.exec(tag)?.[1] ?? "";
+    const looksHeadline = /(banner|hero|cta|headline|title|promo)/i.test(src);
+    if (looksHeadline && alt.trim().split(/\s+/).length >= 4) {
+      out.push({ checkId: "text-in-image", severity: "warning", message: "headline text baked into an image (untranslatable, unselectable) — render it as HTML text", line: lineAt(html, m.index) });
+    }
+  }
+  return out;
+}
+
+// ── all-caps-shout (warning) — TEXT-CONTENT caps (taste-lint owns CSS-transform caps) ──
+export function checkAllCapsShout(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  const text = html.replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]*>/g, " ");
+  for (const m of text.matchAll(/\b(?:[A-Z]{4,}\s+){2,}[A-Z]{4,}\b/g)) {
+    out.push({ checkId: "all-caps-shout", severity: "warning", message: `"${m[0].slice(0, 40)}…" is written in all caps — reserve caps for short labels, not sentences`, line: lineAt(text, m.index) });
+  }
+  return out;
+}
+
+// ── bare-confirm-button (warning) — labels start with a verb, repeat the consequence ──
+/** A bare acknowledgement standing in for a real label: OK / Okay / Yes / No (± trailing . or !). */
+const BARE_CONFIRM = /^(?:ok(?:ay)?|yes|no)[.!]?$/i;
+export function checkBareConfirmButton(html: string): ContentFinding[] {
+  const out: ContentFinding[] = [];
+  const flag = (label: string, idx: number): void => {
+    out.push({ checkId: "bare-confirm-button", severity: "warning",
+      message: `bare "${label}" button — start the label with a verb and repeat the consequence ("Save draft", "Delete project"), never a bare acknowledgement`, line: lineAt(html, idx) });
+  };
+  for (const m of html.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/gi)) {
+    const t = textOf(m[1] ?? "");
+    if (BARE_CONFIRM.test(t)) flag(t, m.index);
+  }
+  for (const m of html.matchAll(/<input\b[^>]*\btype\s*=\s*["']?(?:submit|button)\b[^>]*>/gi)) {
+    const vm = /\bvalue\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(m[0]);
+    const v = (vm?.[1] ?? vm?.[2] ?? vm?.[3] ?? "").trim();
+    if (BARE_CONFIRM.test(v)) flag(v, m.index);
+  }
+  return out;
+}
+
+/**
+ * The canonical content-check set — the single source of truth every consumer
+ * composes from (the `ui content-lint` command and the figma-agent panel gate).
+ * Adding a check here makes both consumers pick it up automatically (L4 lesson:
+ * fix mirror drift at the shared layer, not at each copy site).
+ */
+export const allContentChecks = [
+  checkLoremIpsum, checkPlaceholderCopy, checkPlaceholderName, checkClickHereLink, checkErrorCodeAlone,
+  checkAllCapsShout, checkExclamationOverload, checkInsensitiveTerms, checkPluralSHack, checkTextInImage,
+  checkBareConfirmButton, checkDumbPunctuation,
+] as const;

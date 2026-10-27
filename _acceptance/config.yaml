@@ -931,6 +931,18 @@ executors:
     chd_ac6: CHD_CASES=AC-6,AC-6-do-khoi,AC-6-do-lop node tests/scripts/co-hop-dong.test.mjs
     chd_ac7: CHD_CASES=AC-7,AC-7-do,AC-7-do-ngay-ky node tests/scripts/co-hop-dong.test.mjs
     chd_ac8: CHD_CASES=AC-8,AC-8-do node tests/scripts/co-hop-dong.test.mjs
+    # Hồ sơ design-floor-vendor-va-ban-va-a (FL2): mỗi lệnh chạy chiều xanh trên cây thật rồi đột biến cùng nhãn của
+    # tests/design-floor/tu-thu.mjs. Cần `npm ci --prefix tests/design-floor`. df_dong_bo lấy bản ghim upstream (mạng
+    # hay cache) — không vào feature_loop.suite_keys; CI chạy bộ đo ngoại tuyến ở job design-floor.
+    df_va01: bash tests/design-floor/eval.sh va01
+    df_fn01: bash tests/design-floor/eval.sh fn01
+    df_bg01: bash tests/design-floor/eval.sh bg01
+    df_ngoai_tuyen: bash tests/design-floor/eval.sh ngoai-tuyen
+    df_ban_va_a: bash tests/design-floor/eval.sh ban-va-a
+    df_xfail_con: bash tests/design-floor/eval.sh xfail-con
+    df_luat_gioi_han: bash tests/design-floor/eval.sh luat-gioi-han
+    df_vo: bash tests/design-floor/eval.sh vo
+    df_dong_bo: bash tests/design-floor/eval.sh dong-bo
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

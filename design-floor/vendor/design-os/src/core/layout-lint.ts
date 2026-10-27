@@ -1,0 +1,124 @@
+/**
+ * Static HTML layout linter — pure string/regex heuristics, zero deps.
+ *
+ * Runs every registered check against an HTML string and returns a structured result.
+ * All checks are documented as heuristic approximations (no DOM parser, no
+ * browser, no rendering). See layout-checks.ts for individual check logic.
+ *
+ * Severity model:
+ *   error   — structurally broken document (exit 1 per D4 policy)
+ *   warning — layout smell; document may still render (exit 0)
+ *
+ * Findings are ordered: all errors first, then warnings, each group in
+ * check-table order.
+ */
+import {
+  checkMissingDoctype,
+  checkMissingHtmlRoot,
+  checkMissingBody,
+  checkUnclosedStructuralTags,
+  checkFixedWidthOverflow,
+  checkViewportUnitOnBody,
+  checkNestedScrollContainer,
+  checkAbsoluteWithoutRelative,
+  checkImgNoDimensions,
+  checkEmptyFlexGrid,
+} from "./layout-checks.js";
+import { checkCss100vwWidth, checkRootOverflowXHidden, checkDvhOver100vh } from "./layout-checks-viewport.js";
+import { checkAvoidableScreenshotCrop } from "./layout-checks-delivery.js";
+import { checkClickableNoPointer, checkFontDisplayMissing } from "./layout-checks-craft.js";
+import {
+  checkTapSpacingCramped,
+  checkInputFontBelow16,
+  checkEdgeBarNoSafeArea,
+} from "./layout-checks-mobile.js";
+import { checkStickyHoverUnguarded } from "./layout-checks-hover.js";
+import { stripCommentsPreservingOffsets } from "./taste-checks-shared.js";
+import { isRedirectStub } from "./redirect-stub.js";
+import type { FloorFindingBase } from "./finding-schema.js";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type LayoutSeverity = "error" | "warning";
+
+/** Layout findings speak the shared FloorFinding schema (finding-schema.ts). */
+export type LayoutFinding = FloorFindingBase;
+
+export interface LayoutLintResult {
+  findings: LayoutFinding[];
+  errorCount: number;
+  warningCount: number;
+}
+
+// ─── Check pipeline ───────────────────────────────────────────────────────────
+
+/**
+ * Checks that produce `error` findings — run first so errors sort before
+ * warnings in the output. Order matches the check table in phase-02.
+ */
+const ERROR_CHECKS = [
+  checkMissingHtmlRoot,
+  checkMissingBody,
+  checkUnclosedStructuralTags,
+] as const;
+
+/**
+ * Checks that produce `warning` findings — run after errors.
+ * missing-doctype is a warning; it comes first in table order.
+ */
+const WARNING_CHECKS = [
+  checkMissingDoctype,
+  checkFixedWidthOverflow,
+  checkViewportUnitOnBody,
+  checkCss100vwWidth,
+  checkRootOverflowXHidden,
+  checkDvhOver100vh,
+  checkNestedScrollContainer,
+  checkAbsoluteWithoutRelative,
+  checkImgNoDimensions,
+  checkEmptyFlexGrid,
+  checkAvoidableScreenshotCrop,
+  // Web craft lints (spec 003 P2): functional affordance/loading bugs, not layout structure.
+  checkClickableNoPointer,
+  checkFontDisplayMissing,
+  // Mobile machine floor (spec 003 P3): responsive-web mobile-reliability warnings.
+  checkTapSpacingCramped,
+  checkInputFontBelow16,
+  checkEdgeBarNoSafeArea,
+  // Touch-hover floor: raw :hover outside @media (hover: hover) sticks on touch.
+  checkStickyHoverUnguarded,
+] as const;
+
+// ─── Orchestrator ─────────────────────────────────────────────────────────────
+
+/** Run every registered check and return findings sorted errors-first, then warnings. */
+export function lintLayout(html: string): LayoutLintResult {
+  // L4 dogfood: a redirect stub intentionally has no <html>/<body>, so every structural
+  // check below is noise on it — short-circuit before running any of the other checks.
+  if (isRedirectStub(html)) {
+    return { findings: [], errorCount: 0, warningCount: 0 };
+  }
+
+  // Strip HTML comments once. All checks receive the comment-free string so
+  // commented-out markup never triggers false positives. Offsets are preserved
+  // (spaces replace comment bodies) so line-number reporting stays accurate.
+  const stripped = stripCommentsPreservingOffsets(html);
+
+  const errors: LayoutFinding[] = [];
+  const warnings: LayoutFinding[] = [];
+
+  for (const check of ERROR_CHECKS) {
+    errors.push(...check(stripped));
+  }
+  for (const check of WARNING_CHECKS) {
+    warnings.push(...check(stripped));
+  }
+
+  const findings = [...errors, ...warnings];
+
+  return {
+    findings,
+    errorCount: errors.length,
+    warningCount: warnings.length,
+  };
+}

@@ -1,22 +1,21 @@
 #!/usr/bin/env node
-// Bộ đo hành vi của hợp đồng nhập design-floor (design-floor/HOP-DONG-NHAP.md), chạy trên `ui`
-// dựng từ ĐÚNG bản upstream đã ghim. Mỗi phép đo có đối chứng: đối chứng hỏng là FAIL bất kể
+// Bộ đo hành vi của hợp đồng nhập design-floor (design-floor/HOP-DONG-NHAP.md), chạy trên BẢN GÓI giao
+// đi (design-floor/dist/ui.mjs = vỏ của kit + bản vendored đã vá) — thước gắn vào đúng vật kho tiêu thụ nhận. Mỗi phép đo có đối chứng: đối chứng hỏng là FAIL bất kể
 // giới hạn đã khai, vì khi đó phép đo không phân biệt được «bắt đúng» với «chưa chạy».
 // Fixture do mã sinh trong chính lượt chạy, mỗi phép đo một hộp cát:
 //   <hộp>/home          HOME của lượt chạy (bắt ghi vào ~/.ease-design)
 //   <hộp>/outer/design/ thư mục design/ ở THƯ MỤC CHA — hình dạng kho tiêu thụ đặt DS ở design/
 //   <hộp>/outer/proj/   cwd; mọi đích và --tokens nằm ở đây, truyền bằng đường tương đối
 //
-// Dùng: node tests/design-floor/hop-dong.mjs [--hop-dong <md>] [--chi DF-01,DF-07]
-// Thoát 0 khi mọi phép đo PASS/XFAIL; 1 khi có FAIL/XPASS; 2 khi không dựng được `ui`.
+// Dùng: node tests/design-floor/hop-dong.mjs [--hop-dong <md>] [--goc <gốc kit>] [--ui <bản gói>] [--chi DF-01,DF-07]
+// Thoát 0 khi mọi phép đo PASS/XFAIL; 1 khi có FAIL/XPASS; 2 khi thiếu bản gói.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { docDoiSo, docHopDong, inKetQua, phanXu } from './lib/hop-dong.mjs';
-import { chuanBiNguon, dungCli } from './lib/upstream.mjs';
+import { docDoiSo, docHopDong, inKetQua, phanXu, soVaTai } from './lib/hop-dong.mjs';
 
 const ds = docDoiSo(process.argv.slice(2));
 const hd = docHopDong(ds.hopDong);
@@ -25,13 +24,12 @@ const CHAN_MANG = pathToFileURL(new URL('./lib/chan-mang.mjs', import.meta.url).
 const TMP = mkdtempSync(join(tmpdir(), 'design-floor-df-'));
 const NET_LOG = join(TMP, 'net.log');
 
-let CLI;
-try {
-  CLI = dungCli(chuanBiNguon(hd));
-} catch (e) {
-  console.error(`hop-dong: KHÔNG dựng được ui từ bản ghim — ${e.message}`);
+const CLI = ds.ui || join(ds.goc, hd.vendor.ban_goi);
+if (!existsSync(CLI)) {
+  console.error(`hop-dong: thiếu bản gói ${CLI} — chạy: node tests/design-floor/dong-bo.mjs --write`);
   process.exit(2);
 }
+const SO = soVaTai(hd, ds.goc);
 
 // ── Fixture (mã sinh) ────────────────────────────────────────────────────────
 const HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">';
@@ -231,13 +229,13 @@ const PHEP_DO = [
   }],
 ];
 
-console.log(`hop-dong: ui dựng từ ${hd.nguon.repo} @ ${hd.nguon.commit.slice(0, 7)}`);
+console.log(`hop-dong: ui = ${ds.ui ? CLI : hd.vendor.ban_goi} (bản vendored ${hd.nguon.repo} @ ${hd.nguon.commit.slice(0, 7)} + bản vá ${SO.ban_va.filter((d) => d.trang_thai === 'da-ap').map((d) => d.id).join(', ') || '(không)'})`);
 let ok = true;
 for (const [id, ten, chay] of PHEP_DO) {
   if (ds.chi && !ds.chi.has(id)) continue;
   let kq;
   try { kq = chay(); } catch (e) { kq = { hong: `ném lỗi: ${e.message}` }; }
-  ok = inKetQua(id, ten, phanXu(hd, id, kq), kq.chi_tiet) && ok;
+  ok = inKetQua(id, ten, phanXu(hd, id, kq, SO), kq.do ? kq.chi_tiet : '') && ok;
 }
 rmSync(TMP, { recursive: true, force: true });
 console.log(ok ? 'hop-dong: XANH (gồm giới hạn đã khai)' : 'hop-dong: ĐỎ');

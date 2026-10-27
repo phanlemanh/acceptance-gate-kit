@@ -1,0 +1,211 @@
+/**
+ * Design-memory graph compiler — the rebuildable index over the event ledger.
+ *
+ * `compileGraph(events, nowIso)` is a pure transform (ledger = truth, graph =
+ * view). Recency is a half-life decay: a contributing event adds
+ * `0.5^(ageDays / halfLifeDays)` to the relevant weight (a 30-day-old event
+ * counts half a fresh one), with raw counts kept alongside. All maps are emitted
+ * key-sorted and all arrays weight-desc-then-key, so identical events + `--now`
+ * always produce byte-identical JSON.
+ */
+import type { MemoryEvent } from "./memory-events.js";
+import { compileLessons, type LessonEntry } from "./memory-lessons.js";
+import { applyRecurrence } from "./insight-recurrence.js";
+
+const HALF_LIFE_DAYS = 30;
+const MS_PER_DAY = 86_400_000;
+
+export interface PersonaStat { generated: number; pickWeight: number; rawPicks: number; lastAt: string }
+export interface AxisStat { failWeight: number; fixes: string[] }
+export interface VibeStat { word: string; weight: number; count: number; axis: string }
+export interface TokenStat { changes: number; lastReason?: string }
+export interface DesignStat { medium: string[]; picked: boolean; lastFingerprint?: string }
+export interface InsightEntry {
+  id: string;
+  t: string;
+  text: string;
+  refs: string[];
+  /** How many insight events share this text (after normalisation). ExpeL recurrence. */
+  seen: number;
+  /** Recurrences beyond the first statement: max(0, upEvents - 1). */
+  upvotes: number;
+  /** Cluster events carrying data.vote === "down" (a lesson a later outcome refuted). */
+  downvotes: number;
+  /** The most recent t in the cluster. */
+  lastSeenAt: string;
+}
+
+export interface MemoryGraph {
+  v: 2;
+  sourceHash?: string;
+  lessons: LessonEntry[];
+  compiledAt: string;
+  eventCount: number;
+  halfLifeDays: number;
+  personas: Record<string, PersonaStat>;
+  axes: Record<string, AxisStat>;
+  vibes: VibeStat[];
+  tokens: Record<string, TokenStat>;
+  designs: Record<string, DesignStat>;
+  insights: InsightEntry[];
+}
+
+/** Round to 4 decimals so summed float weights serialise to stable, clean bytes. */
+function r4(x: number): number {
+  return Math.round(x * 1e4) / 1e4;
+}
+
+function str(v: unknown): string | undefined {
+  return typeof v === "string" ? v : undefined;
+}
+
+/** Emit a record with keys inserted in sorted order (deterministic bytes). */
+function sortedRecord<T>(map: Map<string, T>): Record<string, T> {
+  const out: Record<string, T> = {};
+  for (const k of [...map.keys()].sort()) out[k] = map.get(k) as T;
+  return out;
+}
+
+export function compileGraph(events: MemoryEvent[], nowIso: string): MemoryGraph {
+  const nowMs = Date.parse(nowIso);
+  const decay = (t: string): number => Math.pow(0.5, (nowMs - Date.parse(t)) / MS_PER_DAY / HALF_LIFE_DAYS);
+
+  const personas = new Map<string, PersonaStat>();
+  const axes = new Map<string, { failWeight: number; fixes: Set<string> }>();
+  const vibes = new Map<string, { word: string; weight: number; count: number; axis: string }>();
+  const tokens = new Map<string, TokenStat>();
+  const designs = new Map<string, { medium: Set<string>; picked: boolean; lastFingerprint?: string }>();
+  const insights: InsightEntry[] = [];
+  const insightVotes: ("up" | "down")[] = [];
+
+  // designId → persona, so a user_pick (which cites a designId) attributes to a persona.
+  const designPersona = new Map<string, string>();
+
+  const bumpDesign = (id: string | undefined, medium: string | undefined, fp: string | undefined): void => {
+    if (id === undefined) return;
+    const d = designs.get(id) ?? { medium: new Set<string>(), picked: false };
+    if (medium !== undefined) d.medium.add(medium);
+    if (fp !== undefined) d.lastFingerprint = fp; // events are chronological → last wins
+    designs.set(id, d);
+  };
+
+  for (const e of events) {
+    const data = e.data;
+    const fp = e.artifact?.fingerprint;
+    switch (e.type) {
+      case "variant_generated": {
+        const persona = str(data["persona"]);
+        if (persona !== undefined) {
+          const p = personas.get(persona) ?? { generated: 0, pickWeight: 0, rawPicks: 0, lastAt: e.t };
+          p.generated += 1;
+          p.lastAt = e.t;
+          personas.set(persona, p);
+          if (e.designId !== undefined) designPersona.set(e.designId, persona);
+        }
+        bumpDesign(e.designId, e.medium, fp);
+        break;
+      }
+      case "rendition_created":
+        bumpDesign(e.designId, e.medium, fp);
+        break;
+      case "user_pick": {
+        const chosen = str(data["chosen"]);
+        if (chosen !== undefined) {
+          const d = designs.get(chosen) ?? { medium: new Set<string>(), picked: false };
+          d.picked = true;
+          designs.set(chosen, d);
+          const persona = designPersona.get(chosen);
+          if (persona !== undefined) {
+            const p = personas.get(persona) ?? { generated: 0, pickWeight: 0, rawPicks: 0, lastAt: e.t };
+            p.rawPicks += 1;
+            p.pickWeight = r4(p.pickWeight + decay(e.t));
+            p.lastAt = e.t;
+            personas.set(persona, p);
+          }
+        }
+        break;
+      }
+      case "taste_verdict": {
+        const pass = data["pass"];
+        const axis = str(data["lowestAxis"]);
+        if (pass === false && axis !== undefined) {
+          const a = axes.get(axis) ?? { failWeight: 0, fixes: new Set<string>() };
+          a.failWeight = r4(a.failWeight + decay(e.t));
+          axes.set(axis, a);
+        }
+        bumpDesign(e.designId, e.medium, fp);
+        break;
+      }
+      case "vibe_edit": {
+        const word = str(data["word"]);
+        const axis = str(data["axis"]) ?? "";
+        if (word !== undefined) {
+          const key = `${word}\u0000${axis}`;
+          const v = vibes.get(key) ?? { word, weight: 0, count: 0, axis };
+          v.weight = r4(v.weight + decay(e.t));
+          v.count += 1;
+          vibes.set(key, v);
+          if (axis !== "") {
+            const a = axes.get(axis) ?? { failWeight: 0, fixes: new Set<string>() };
+            a.fixes.add(word); // the word that addressed this axis
+            axes.set(axis, a);
+          }
+        }
+        break;
+      }
+      case "token_change": {
+        const path = str(data["path"]);
+        if (path !== undefined) {
+          const tk = tokens.get(path) ?? { changes: 0 };
+          tk.changes += 1;
+          const reason = str(data["reason"]);
+          if (reason !== undefined) tk.lastReason = reason;
+          tokens.set(path, tk);
+        }
+        break;
+      }
+      case "insight": {
+        const text = str(data["text"]) ?? "";
+        insights.push({
+          id: e.id, t: e.t, text, refs: e.refs ?? [],
+          seen: 0, upvotes: 0, downvotes: 0, lastSeenAt: e.t,   // filled by the post-pass
+        });
+        insightVotes.push(data["vote"] === "down" ? "down" : "up");
+        break;
+      }
+      // component_registered / harvested / duel_result / manual_edit: recorded in the
+      // ledger for provenance + query, but contribute no graph aggregate in v1.
+      default:
+        break;
+    }
+  }
+
+  const axesOut = new Map<string, AxisStat>();
+  for (const [k, v] of axes) axesOut.set(k, { failWeight: v.failWeight, fixes: [...v.fixes].sort() });
+
+  const designsOut = new Map<string, DesignStat>();
+  for (const [k, v] of designs) {
+    const d: DesignStat = { medium: [...v.medium].sort(), picked: v.picked };
+    if (v.lastFingerprint !== undefined) d.lastFingerprint = v.lastFingerprint;
+    designsOut.set(k, d);
+  }
+
+  const vibesOut = [...vibes.values()].sort((a, b) => b.weight - a.weight || a.word.localeCompare(b.word));
+
+  applyRecurrence(insights, insightVotes);
+  insights.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+
+  return {
+    v: 2,
+    lessons: compileLessons(events),
+    compiledAt: nowIso,
+    eventCount: events.length,
+    halfLifeDays: HALF_LIFE_DAYS,
+    personas: sortedRecord(personas),
+    axes: sortedRecord(axesOut),
+    vibes: vibesOut,
+    tokens: sortedRecord(tokens),
+    designs: sortedRecord(designsOut),
+    insights,
+  };
+}
