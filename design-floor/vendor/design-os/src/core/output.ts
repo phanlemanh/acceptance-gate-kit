@@ -54,6 +54,19 @@ export function errText(message: string): CommandResult {
 }
 
 /** Build a user-error CommandResult (exit 1) — JSON envelope mode. */
+/**
+ * design-floor (bản vá cục bộ B của kit): mã thoát theo lớp của hợp đồng nhập — thiếu hay không đọc được
+ * một tệp đầu vào 3 · sai cú pháp 4. Mã lỗi khác rơi về 1 = lỗi nội bộ (ngoài bộ 0/2/3/4/5).
+ */
+const EXIT_BY_CODE: Record<string, number> = {
+  FILE_NOT_FOUND: 3, READ_ERROR: 3, TOKENS_NOT_FOUND: 3, TOKENS_NOT_READABLE: 3, REGISTRY_NOT_FOUND: 3,
+  BAD_JSON: 3, BAD_REGISTRY: 3, BAD_FLOW: 3,
+  BAD_ARG: 4, UNKNOWN_FLAG: 4, FAMILY_NOT_FOUND: 4,
+};
+export function exitForCode(code: string): number {
+  return EXIT_BY_CODE[code] ?? 1;
+}
+
 export function errJson(
   command: string,
   code: string,
@@ -64,7 +77,7 @@ export function errJson(
     command,
     error: { code, message },
   };
-  return { exitCode: 1, stdout: JSON.stringify(envelope, null, 2) + "\n" };
+  return { exitCode: exitForCode(code), stdout: JSON.stringify(envelope, null, 2) + "\n" };
 }
 
 /**
@@ -85,7 +98,7 @@ export function errJsonWithData(
     data,
     error: { code, message },
   };
-  return { exitCode: 1, stdout: JSON.stringify(envelope, null, 2) + "\n" };
+  return { exitCode: exitForCode(code), stdout: JSON.stringify(envelope, null, 2) + "\n" };
 }
 
 /** Build a success CommandResult — JSON envelope mode. Exit code is always 0. */
@@ -113,9 +126,9 @@ export function internalErr(message: string, useJson: boolean, command: string):
       command,
       error: { code: "INTERNAL", message },
     };
-    return { exitCode: 2, stdout: JSON.stringify(envelope, null, 2) + "\n" };
+    return { exitCode: 1, stdout: JSON.stringify(envelope, null, 2) + "\n" };
   }
-  return { exitCode: 2, stderr: `ui: internal error: ${message}\n` };
+  return { exitCode: 1, stderr: `ui: internal error: ${message}\n` };
 }
 
 /**

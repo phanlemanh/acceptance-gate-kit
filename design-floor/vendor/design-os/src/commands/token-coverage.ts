@@ -95,6 +95,12 @@ export const tokenCoverageCommand = {
       );
     }
 
+    // design-floor (bản vá B): a non-HTML target is NOT MEASURABLE (exit 5), never a pass.
+    if (!/\.html?$/i.test(file)) {
+      const msg = `'${file}' is not an .html/.htm file — token-coverage reads rendered HTML only`;
+      return useJson ? okJsonWithExit(CMD, { file, measurable: false, reason: msg }, 5) : { exitCode: 5, stderr: `ui: ${msg}\n` };
+    }
+
     const floorFlag = parsed.flags["floor"];
     let floor = DEFAULT_TOKEN_COVERAGE_FLOOR;
     if (typeof floorFlag === "string") {
@@ -104,7 +110,9 @@ export const tokenCoverageCommand = {
     }
 
     const tokensFlag = parsed.flags["tokens"];
-    const tokensPath = typeof tokensFlag === "string" ? resolve(tokensFlag) : resolveProjectTokensPath(dirname(resolve(file)));
+    // design-floor (bản vá C): inputs are explicit — absent --tokens is a usage error (exit 4), never auto-detected.
+    if (typeof tokensFlag !== "string") return err("BAD_ARG", "ui token-coverage requires --tokens <file> (design-floor: no design-system auto-discovery)");
+    const tokensPath = resolve(tokensFlag);
     if (tokensPath === undefined || !existsSync(tokensPath)) {
       return err("TOKENS_NOT_FOUND", "no token file given or auto-detected — pass --tokens or run 'ui ds init'");
     }
@@ -120,7 +128,8 @@ export const tokenCoverageCommand = {
     } catch (e) {
       return err("BAD_JSON", `bad token file '${tokensPath}': ${e instanceof Error ? e.message : String(e)}`);
     }
-    const exitCode = result.overall.coverage >= floor && linkErrors.length === 0 ? 0 : 1;
+    // design-floor (bản vá B): FAIL 2 > NOT MEASURABLE 5 (no declaration was scored) > PASS 0.
+    const exitCode = linkErrors.length > 0 || result.overall.coverage < floor ? 2 : result.declarationCount === 0 ? 5 : 0;
 
     if (useJson) return okJsonWithExit(CMD, { file, floor, ...result, linkedCssErrors: linkErrors }, exitCode);
     let report = formatReport(file, floor, result);

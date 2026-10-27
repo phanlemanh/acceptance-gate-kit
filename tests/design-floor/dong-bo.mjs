@@ -31,9 +31,11 @@ function dung(up, goc, khoa, so) {
   const dong = structuredClone(so.ban_va);
   for (const d of dong.filter((x) => x.trang_thai === 'da-ap')) {
     const tepVa = join(GOC, d.tep_va);
-    const truoc = Object.fromEntries(tepCuaVa(tepVa).map((p) => [p, bam(join(vendor, p))]));
+    // Băm null = tệp chưa có (bản vá tạo nó) hoặc không còn (bản vá xoá nó).
+    const bamHoacNull = (p) => (existsSync(join(vendor, p)) ? bam(join(vendor, p)) : null);
+    const truoc = Object.fromEntries(tepCuaVa(tepVa).map((p) => [p, bamHoacNull(p)]));
     apVa(vendor, tepVa);
-    d.tep = Object.keys(truoc).sort().map((p) => ({ path: p, truoc: truoc[p], sau: bam(join(vendor, p)) }));
+    d.tep = Object.keys(truoc).sort().map((p) => ({ path: p, truoc: truoc[p], sau: bamHoacNull(p) }));
   }
   return { dong, banGoi: dungBanGoi(hd, goc) };
 }

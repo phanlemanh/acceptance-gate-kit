@@ -52,11 +52,13 @@ function liet(dir) {
   return readdirSync(dir, { recursive: true }).filter((f) => statSync(join(dir, f)).isFile()).map((f) => f.split('\\').join('/')).sort();
 }
 
-// VA-01 — bản vendored là lời tự xưng; nó chỉ đáng tin khi từng byte khớp tệp khoá hoặc một dòng sổ đã áp.
+// VA-01 — bản vendored là lời tự xưng; nó chỉ đáng tin khi từng byte khớp tệp khoá cộng chuỗi bản vá đã áp của sổ.
+// Sổ đọc theo CHUỖI từng tệp, theo thứ tự khối máy: truoc của bản vá đầu = băm tệp khoá (null khi bản vá tạo tệp),
+// truoc của bản sau = sau của bản trước, sau cuối = băm tệp vendored (null khi bản vá xoá tệp).
 if (muon('VA-01')) {
   const lech = [];
   const BAT_BUOC = ['id', 'trang_thai', 'ten', 'vi_sao', 'lam_xanh'];
-  const vaTheoTep = new Map();
+  const chuoi = new Map();
   for (const d of so.ban_va) {
     const can = d.trang_thai === 'da-ap' ? [...BAT_BUOC, 'tep_va', 'tep'] : BAT_BUOC;
     for (const k of can) if (d[k] === undefined || d[k] === '' || (Array.isArray(d[k]) && !d[k].length)) lech.push(`dòng ${d.id ?? '?'} thiếu ${k}`);
@@ -67,27 +69,36 @@ if (muon('VA-01')) {
     const chamDiff = tepCuaVa(tepVa);
     const chamSo = (d.tep || []).map((t) => t.path).sort();
     if (JSON.stringify(chamDiff) !== JSON.stringify(chamSo)) lech.push(`dòng ${d.id}: tệp trong sổ (${chamSo.join(', ')}) ≠ tệp diff chạm (${chamDiff.join(', ')})`);
-    for (const t of d.tep || []) vaTheoTep.set(t.path, { d, t });
+    for (const t of d.tep || []) {
+      if (!chuoi.has(t.path)) chuoi.set(t.path, []);
+      chuoi.get(t.path).push({ d, t });
+    }
   }
   const khoaTep = new Map(khoaCu.tep.map((t) => [t.path, t.sha256]));
   const thuc = liet(vendor);
   const thucSet = new Set(thuc);
-  for (const f of thuc) if (!khoaTep.has(f)) lech.push(`+${f} (tệp lạ, ngoài tệp khoá)`);
-  for (const f of khoaTep.keys()) if (!thucSet.has(f)) lech.push(`-${f} (thiếu, có trong tệp khoá)`);
-  for (const f of thuc) {
-    if (!khoaTep.has(f)) continue;
-    const h = bam(join(vendor, f));
-    const va = vaTheoTep.get(f);
-    if (va) {
-      if (va.t.truoc !== khoaTep.get(f)) lech.push(`~${f} (truoc của bản vá ${va.d.id} ≠ băm tệp khoá)`);
-      if (h !== va.t.sau) lech.push(`~${f} (băm ≠ sau của bản vá ${va.d.id})`);
-    } else if (h !== khoaTep.get(f)) lech.push(`~${f} (băm lệch tệp khoá, ngoài sổ vá)`);
+  for (const f of thuc) if (!khoaTep.has(f) && !chuoi.has(f)) lech.push(`+${f} (tệp lạ, ngoài tệp khoá và sổ vá)`);
+  for (const f of khoaTep.keys()) if (!thucSet.has(f) && !chuoi.has(f)) lech.push(`-${f} (thiếu, có trong tệp khoá)`);
+  for (const f of new Set([...khoaTep.keys(), ...chuoi.keys()])) {
+    const co = thucSet.has(f) ? bam(join(vendor, f)) : null;
+    const cac = chuoi.get(f);
+    if (!cac) {
+      if (co !== null && co !== khoaTep.get(f)) lech.push(`~${f} (băm lệch tệp khoá, ngoài sổ vá)`);
+      continue;
+    }
+    let hienTai = khoaTep.get(f) ?? null;
+    let truocDo = khoaTep.has(f) ? 'băm tệp khoá' : 'null (tệp chưa có trong tệp khoá)';
+    for (const { d, t } of cac) {
+      if ((t.truoc ?? null) !== hienTai) lech.push(`~${f} (truoc của bản vá ${d.id} ≠ ${truocDo})`);
+      hienTai = t.sau ?? null;
+      truocDo = `sau của bản vá ${d.id}`;
+    }
+    if (co !== hienTai) lech.push(`~${f} (băm ≠ sau của bản vá ${cac[cac.length - 1].d.id})`);
   }
-  for (const f of vaTheoTep.keys()) if (!khoaTep.has(f)) lech.push(`bản vá ${vaTheoTep.get(f).d.id} chạm ${f} ngoài tệp khoá`);
   const kq = lech.length ? { do: true, chi_tiet: `bản vendored lệch: ${lech.join(', ')}` } : { do: false };
-  const nVa = daAp.reduce((n, d) => n + (d.tep || []).length, 0);
+  const nVa = new Set([...chuoi.keys()]).size;
   ok = inKetQua('VA-01', 'bản vendored khớp tệp khoá + sổ vá', phanXu(hd, 'VA-01', kq, so),
-    kq.do ? '' : `${thuc.length} tệp = tệp khoá · ${daAp.length} bản vá đã áp (${daAp.map((d) => d.id).join(', ')}) chạm ${nVa} tệp`) && ok;
+    kq.do ? '' : `${thuc.length} tệp = tệp khoá + chuỗi ${daAp.length} bản vá đã áp (${daAp.map((d) => d.id).join(', ')}) chạm ${nVa} tệp`) && ok;
 }
 
 // FN-01 — tệp khoá chỉ đáng tin khi đảo các bản vá ra đúng nó, và đo lại đóng kín cho đúng từng byte.
@@ -118,7 +129,7 @@ if (muon('FN-02') || muon('FN-03') || muon('FN-04')) {
     const vp = [];
     for (const [ten, l] of Object.entries(lenh)) for (const f of l.dong_kin) if (luat.some((c) => c.re.test(f))) vp.push(`${ten} ${f}`);
     const kq = vp.length ? { do: true, danh_sach: vp, chi_tiet: `${vp.length} module cấm: ${vp.join(', ')}` } : { do: false };
-    ok = inKetQua('FN-02', `không module cấm (${hd.rao.cam.map((c) => c.ten).join(', ')})`, phanXu(hd, 'FN-02', kq, so), vp.length ? `${vp.length} cặp lệnh·module` : '') && ok;
+    ok = inKetQua('FN-02', `không module cấm (${hd.rao.cam.map((c) => c.ten).join(', ')})`, phanXu(hd, 'FN-02', kq, so), `${vp.length} cặp lệnh·module cấm`) && ok;
   }
 
   // FN-03 — mạng: import ngoài khớp danh sách, hoặc token gọi mạng trong mã đã bỏ chú thích.
