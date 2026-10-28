@@ -7,6 +7,8 @@
 //   M2  design_floor.tokens VÀ design_floor.registry cùng khai, cả hai tệp có thật
 //   M1  design.surface_globs khớp ít nhất một tệp git theo dõi
 //   M0  còn lại — không in gì
+// M1–M3 mà kho chưa nối executors.design.floor (lệnh S4 của hồ sơ design-floor-moc-s3-s4) → thêm một dòng stderr nói S4
+// chưa chấm tuân thủ design system; stdout giữ đúng một dòng bậc.
 //
 //   node scripts/design-floor-bac.mjs --root . [--json]   0 đọc được (kể cả M0) · 2 gọi sai
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
@@ -27,6 +29,7 @@ export function docBac(root) {
   const registry = resolveConfigKey(cfg, 'design_floor.registry');
   const niemPhong = resolveConfigKey(cfg, 'design_floor.niem_phong');
   const globs = resolveConfigList(cfg, 'design.surface_globs').filter(Boolean);
+  const floor = resolveConfigKey(cfg, 'executors.design.floor');
   const coTep = (rel) => !!rel && existsSync(path.resolve(root, rel));
 
   let dsTep = [];
@@ -39,7 +42,7 @@ export function docBac(root) {
   }
   const res = globs.map(pathGlobToRe);
   const khop = dsTep.filter((f) => res.some((r) => r.test(f)));
-  const ra = { bac: 'M0', ly_do: '', tokens, registry, niem_phong: niemPhong };
+  const ra = { bac: 'M0', ly_do: '', tokens, registry, niem_phong: niemPhong, floor };
 
   if (!globs.length) ra.ly_do = 'chưa khai design.surface_globs';
   else if (!khop.length) ra.ly_do = `design.surface_globs không khớp tệp nào (${globs.join(', ')})`;
@@ -81,7 +84,10 @@ function main(argv) {
   }
   const r = docBac(path.resolve(root));
   if (json) process.stdout.write(`${JSON.stringify(r)}\n`);
-  else if (r.bac !== 'M0') process.stdout.write(`design-floor: bậc ${r.bac} — ${r.ly_do}\n`);
+  else if (r.bac !== 'M0') {
+    process.stdout.write(`design-floor: bậc ${r.bac} — ${r.ly_do}\n`);
+    if (!r.floor) process.stderr.write('design-floor: S4 chưa chấm tuân thủ design system — chưa khai executors.design.floor\n');
+  }
   return 0;
 }
 

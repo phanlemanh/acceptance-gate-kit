@@ -978,6 +978,16 @@ executors:
     df4_chi_ghi: bash tests/design-floor/eval.sh df4-chi-ghi
     df4_noi_day: bash tests/design-floor/eval.sh df4-noi-day
     df4_tri_thuc_that: bash tests/design-floor/eval.sh df4-tri-thuc-that
+    df5_s3_autofix: bash tests/design-floor/eval.sh df5-s3-autofix
+    df5_s3_sinh_lai: bash tests/design-floor/eval.sh df5-s3-sinh-lai
+    df5_s3_cay_ban: bash tests/design-floor/eval.sh df5-s3-cay-ban
+    df5_s4_hex: bash tests/design-floor/eval.sh df5-s4-hex
+    df5_s4_token_coverage: bash tests/design-floor/eval.sh df5-s4-token-coverage
+    df5_s4_bac: bash tests/design-floor/eval.sh df5-s4-bac
+    df5_s4_chi_doc: bash tests/design-floor/eval.sh df5-s4-chi-doc
+    df5_gate_df07: bash tests/design-floor/eval.sh df5-gate-df07
+    df5_vong_mau: bash tests/design-floor/eval.sh df5-vong-mau
+    df5_noi_day: bash tests/design-floor/eval.sh df5-noi-day
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

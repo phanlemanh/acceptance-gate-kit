@@ -915,11 +915,22 @@ executors:
   design:
     static: "node scripts/design-scan.js --slug {slug}"   # lệnh THẬT của repo bạn
     gate:   "node scripts/design-gate.mjs --slug {slug}"
+    floor:  "node <acceptance-gate>/scripts/design-floor-s4.mjs --root ."   # tuân thủ design system ở S4 (design-floor)
 design:
   surface_globs:                    # để S4 bắt "diff chạm surface mà lane không có design eval"
     - "src/app/**"
     - "src/components/**"
+design_floor:                       # bậc design-floor của kho (M2 = khai tokens + registry)
+  tokens: "design/tokens.json"
+  registry: "design/component-registry.json"
+  sinh_lai:                         # lệnh sinh lại tệp dẫn xuất, chạy cuối S3 sau autofix — commit trước S4
+    - "npm run tokens:build"
 ```
+
+`floor` chỉ đọc: hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex
+thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai). `<acceptance-gate>` là đường bản kit đang cài — ghim lại theo
+mỗi bản phát hành như `product_map`. Cuối S3, khối `DESIGN-FLOOR-S3` của feature-loop autofix và chạy `sinh_lai` rồi
+commit, nên S4 không bao giờ ghi tệp.
 
 Thiếu khối này thì làn design tắt: feature chạm UI vẫn chạy được, chỉ mất eval
 design và kit sẽ cảnh báo một dòng ở Cổng 1 (không chặn).
