@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/** + feature-loop/skills/** + tests/** + GUIDE — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-28-design-floor-moc-s3-s4-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-28
 ---
@@ -92,6 +92,16 @@ kế hoạch, bước 4.
 
 - Luật đã phân xử ở v1: hex thô (một luật). Danh sách nằm ở hợp đồng này, không ở văn xuôi.
 - Hỏi-1 (CỘNG): không phê → bỏ AC-1, AC-2, AC-3, AC-10 vế khối S3; còn S4 chỉ đọc, răng và vòng mẫu (S3 rỗng).
+
+- Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-5 (chọn ở Cổng Bằng chứng 2026-10-28: mở hợp đồng mới): ghi thành hạt
+  giống `docs/plans/2026-10-28-hat-giong-fl5-s3-s4-ben-tren-kho-that.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-28:
+  - Ngoài-6: Ca «S4 không ghi gì» chưa có đối chứng dương chứng lệnh S4 đã chạy thật.
+  - Ngoài-7: Răng chặn bộ chấm tổng đọc chữ của khối SKILL và mã lệnh S4, không quan sát lời gọi thật.
+  - Ngoài-8: Ca mã lạ của lệnh ui chỉ thử mã 1; mã lạ khác hay lệnh chết chưa có ca riêng.
+  - Ngoài-9: Vế «kho đã nối thì không in dòng nhắc» là khẳng định âm tính đứng một mình.
+  - Ngoài-10: Ca autofix chỉ kiểm thẻ viewport có mặt, chưa kiểm lỗi id trùng đã được sửa.
+  - Ngoài-11: Ca đích bẩn chỉ so băm một tệp, chưa so cả cây.
 
 Known limits (khai từ thiết kế):
 - Hex thô = `#` theo sau đúng 3, 4, 6 hay 8 chữ số hex, không đứng sau `&` (mã thực thể HTML như `&#039;`) hay chữ/số, và
