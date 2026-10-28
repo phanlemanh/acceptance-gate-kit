@@ -5,7 +5,7 @@ slug: khung-dot-dinh-vi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, ui]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-28-khung-dot-dinh-vi-design.md
 approved_by:
 approved_at:
@@ -70,3 +70,13 @@ Ca đo: `tests/dieu-phoi/khung-dinh-vi.test.mjs` (KD-…) — kho thử do code 
 Giới hạn khai: việc giám sát GỌI `hoi` khi hỏi trong chat là chỉ dẫn, không có máy giữ. Ngưỡng mở vòng hook: ≥1 lần
 trên đợt thật chủ kho thấy dải báo thiếu một câu giám sát đã hỏi. Giới hạn kế thừa từ hồ sơ
 `trang-thai-dot-dieu-phoi-tho`: chưa ai nhìn thấy pane trên app desktop; `plugin test` dựng cây phần tử, không chụp hình.
+
+- Ngoài-2 (chọn ở Cổng Bằng chứng 2026-10-28: mở hợp đồng mới): ghi thành hạt giống
+  `docs/plans/2026-10-28-hat-giong-mo-dot-ghi-muc-tieu-qua-bo-ghi.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-28:
+  - Ngoài-1: Khoảng nửa tên việc trên khung có thể mang thêm dấu « ở đầu, lệch chữ với trang lộ trình.
+  - Ngoài-3: Ca đỏ «pane vẽ lại chữ xem» ghim thông điệp quá chung, có thể đỏ vì lỗi khác cùng ca.
+  - Ngoài-4: Ca nhóm tiến độ dùng dữ liệu viết tay đúng khuôn bên đọc, chưa đi vòng từ bên ghi số hàng đã gộp.
+  - Ngoài-5: Đường tra tên việc qua nguồn hàng khai trong cấu hình đợt chưa được đo trọn tới khung.
+  - Ngoài-6: Phần khung của ca tên việc trên lộ trình thật chỉ có khẳng định âm tính, chưa đếm dòng việc mang tên.
+  - Ngoài-7: Trùng Ngoài-3 — ca đỏ ấy ghim thông điệp bằng phép HOẶC quá rộng.
