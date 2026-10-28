@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: vung-giao-viec-tu-cat-luot
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 500ade2425071695ec127d324154776a6de5a25a
+verified_commit: d50ef8c3323cac9d3ff35c3fbf7e7ec4ac851c8e
 human_signoff:
 ---
 
 # Evidence Report: vung-giao-viec-tu-cat-luot
 
-Round 1. Mười một eval máy đều xanh và E3 (judgment) được đề xuất PASS, nhưng ba lệnh suite hồi quy không gắn eval nào đỏ (xem «Lệnh suite» và «Iterations»), nên phán quyết tổng là REJECT. `failed_evals` để trống vì không eval nào của hợp đồng đỏ.
+Round 2. Mười một eval máy chạy lại đều xanh, mười hai lệnh suite hồi quy đều xanh, E9 mang từ round 1 (delta không chạm paths của nó), và E3 (judgment) được ba góc nhìn đề xuất PASS. Phán quyết tổng PASS; E3 để `human_override` trống cho người quyết ở Cổng 2.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -33,68 +33,68 @@ Round 1. Mười một eval máy đều xanh và E3 (judgment) được đề xu
 ## Evidence
 
 - eval: E1
-  run_id: minted-vung-giao-viec-tu-cat-luot-E1-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E1-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.cat_luot_vung
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
-    CV Results: 10 passed, 0 failed
+    CV Results: 12 passed, 0 failed
 
 - eval: E2
-  run_id: minted-vung-giao-viec-tu-cat-luot-E2-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E2-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     #   VG-6 cặp chồng: 25/91
     ok 1 - VG-1 khuon-qua-goi: mỗi hàng mẫu của khuôn thành ranh_gioi đúng bằng vung; đối chứng khuôn bỏ vung → không ranh_gioi
     ok 2 - VG-4 chep-vung: A nhận vung, B giữ vùng tay, C kh…
 
 - eval: E4
-  run_id: minted-vung-giao-viec-tu-cat-luot-E4-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.cat_luot_vung
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
-    CV Results: 10 passed, 0 failed
+    CV Results: 12 passed, 0 failed
 
 - eval: E5
-  run_id: minted-vung-giao-viec-tu-cat-luot-E5-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.cat_luot_vung
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
-    CV Results: 10 passed, 0 failed
+    CV Results: 12 passed, 0 failed
 
 - eval: E6
-  run_id: minted-vung-giao-viec-tu-cat-luot-E6-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     ok 2 - VG-4 chep-vung: A nhận vung, B giữ vùng tay, C kh…
     (cùng lệnh với E2; phần cuối đầu ra bị cắt ở dòng này)
 
 - eval: E7
-  run_id: minted-vung-giao-viec-tu-cat-luot-E7-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     (cùng lệnh với E2; phần đầu ra giữ lại chỉ tới dòng «ok 2 - VG-4 chep-vung»)
 
 - eval: E8
-  run_id: minted-vung-giao-viec-tu-cat-luot-E8-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     #   VG-6 cặp chồng: 25/91
 
@@ -104,33 +104,34 @@ Round 1. Mười một eval máy đều xanh và E3 (judgment) được đề xu
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_dp107_dp201
   verified_at: 2026-10-27T23:37:23Z
+  carried_from_round: 1
   output: |
-    # fail 0
+    carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E10
-  run_id: minted-vung-giao-viec-tu-cat-luot-E10-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E10-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     (cùng lệnh với E2; phần đầu ra giữ lại chỉ tới dòng «ok 2 - VG-4 chep-vung»)
 
 - eval: E11
-  run_id: minted-vung-giao-viec-tu-cat-luot-E11-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E11-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     (cùng lệnh với E2; phần đầu ra giữ lại chỉ tới dòng «ok 2 - VG-4 chep-vung»)
 
 - eval: E12
-  run_id: minted-vung-giao-viec-tu-cat-luot-E12-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-E12-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.vung_giao_viec
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
   output: |
     (cùng lệnh với E2; phần đầu ra giữ lại chỉ tới dòng «ok 2 - VG-4 chep-vung»)
 
@@ -143,9 +144,9 @@ Panel đề xuất cho E3 (AC-1), human_override để trống cho người quy�
   verdict: PASS
   rationale: Khối CAT-LUOT-VUNG trong skills/cat-luot/SKILL.md nói đủ bốn điều bằng lời rõ; ba góc nhìn đều đồng thuận PASS.
   votes:
-    - domain-correctness: PASS — Khối CAT-LUOT-VUNG trong skills/cat-luot/SKILL.md nói rõ cả bốn điều. Luật 1 bắt mọi hàng, "cả dáng `chuoi` lẫn `lan-va`", ghi `vung` là thư mục mã của MÀN mà câu giao nói tới. Luật 2 tách hai ca: sửa khung chung (bố cục, thanh bên, điều hướng, tham số đường dẫn) thì giữ cả khu `<khu>/**`, còn chỉ sửa một màn thì giữ thư mục màn ấy. Luật 4 cấm ghi thư mục hồ sơ `_acceptance/…` và nêu lý do, còn luật 5 nói phải làm gì khi không biết thư mục màn. Đoạn bước 3 nhắc lại `vung` ở danh sách trường của lượt cắt và giải thích bên đọc là lịch của gói `dieu-phoi`.
-    - operational-feasibility: PASS — Khối CAT-LUOT-VUNG nói cả bốn điều bằng lời rõ. Luật 1 đòi MỌI hàng của cả hai dáng `chuoi` và `lan-va` ghi `vung` là thư mục mã của MÀN mà câu giao nói tới. Luật 2 phân biệt hàng sửa khung chung (bố cục, thanh bên, điều hướng, tham số đường dẫn) giữ cả khu `<khu>/**` với hàng chỉ sửa một màn giữ thư mục màn đó. Luật 4 cấm ghi thư mục hồ sơ `_acceptance/…` và nêu lý do, và luật 5 chỉ cách xử lý khi không biết thư mục mã.
-    - spec-alignment: PASS — Khối CAT-LUOT-VUNG trong SKILL.md đủ bốn điều bằng lời rõ. Luật 1 bắt mọi hàng ở cả `chuoi` lẫn `lan-va` ghi `vung` theo thư mục mã của màn câu giao nói tới. Luật 2 phân biệt hàng sửa khung chung (tệp đứng thẳng trong thư mục khu, giữ cả `<khu>/**`) với hàng chỉ sửa một màn (giữ thư mục màn). Luật 4 cấm ghi thư mục hồ sơ `_acceptance/…` và nêu lý do. Đoạn bước 3 nhắc lại `vung` là trường bắt buộc của khuôn hàng và nói rõ bên đọc là gói đợt `dieu-phoi`.
+    - domain-correctness: PASS — Khối CAT-LUOT-VUNG của SKILL nêu đủ cả bốn điều. Luật 1 bắt mỗi hàng, cả `chuoi` lẫn `lan-va`, ghi `vung` là thư mục mã của MÀN mà câu giao nói tới. Luật 2 phân biệt hàng sửa khung chung (bố cục, thanh bên, điều hướng, tham số đường dẫn) giữ cả khu `<khu>/**` với hàng chỉ sửa một màn giữ thư mục màn ấy. Luật 4 cấm ghi `_acceptance/…`, và luật 5 nói phải làm gì khi không biết thư mục. Đoạn bước 3 về hai dáng cắt và bảng cờ (`vung-chi-ho-so`, `chua-khai-vung`) củng cố các điều này, nên một phiên chưa đọc design doc vẫn làm theo được.
+    - operational-feasibility: PASS — Khối CAT-LUOT-VUNG luật 1 bắt mọi hàng ghi `vung` "cả dáng `chuoi` lẫn `lan-va`", lấy theo thư mục mã của màn mà câu giao nói tới. Luật 2 tách rõ hàng sửa khung chung (bố cục, thanh bên, điều hướng, tham số đường dẫn) giữ cả khu `<khu>/**` với hàng chỉ sửa một màn giữ thư mục màn ấy. Luật 4 cấm ghi `_acceptance/…` và nêu lý do. Luật 5 cho cách xử lý khi không biết thư mục mã, nên một phiên chưa từng thấy design doc vẫn đủ chỉ dẫn.
+    - spec-alignment: PASS — Khối CAT-LUOT-VUNG trong skills/cat-luot/SKILL.md nói rõ cả bốn điều. Mục 1: mỗi hàng ở cả dáng chuoi lẫn lan-va ghi vung theo thư mục mã của MÀN mà câu giao nói tới. Mục 2: hàng sửa khung chung của khu giữ cả khu `<khu>/**`, hàng chỉ sửa một màn giữ thư mục màn ấy. Mục 4: không ghi thư mục hồ sơ `_acceptance/…`, kèm lý do. Đoạn bước 3 xung quanh khối cũng nhắc lại vung trong danh sách trường của mỗi hàng.
   required_evidence:
     - (judge không nêu bằng-chứng-thiếu)
   human_override:  # chi nguoi ghi
@@ -153,65 +154,61 @@ Panel đề xuất cho E3 (AC-1), human_override để trống cho người quy�
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
-  exit_code: 1
-  verified_at: 2026-10-27T23:37:23Z
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
+  exit_code: 0
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
-  exit_code: 1
-  verified_at: 2026-10-27T23:37:23Z
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  exit_code: 0
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
-  exit_code: 1
-  verified_at: 2026-10-27T23:37:23Z
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
+  exit_code: 0
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-vung-giao-viec-tu-cat-luot-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-27T23:37:23Z
+  verified_at: 2026-10-28T00:57:56Z
 
-Ba lệnh suite không gắn eval và đỏ (đây là lý do của phán quyết REJECT):
-
-- `bash tests/scripts/run-tests.sh --manh mjs:2/3` — tổng kết «Results: 38 passed, 1 failed». Phần đầu ra giữ lại không nêu tên ca hỏng (các ca nhìn thấy đều PASS), nên nguyên nhân chưa xác định được từ bằng chứng này.
-- `bash tests/scripts/run-tests.sh --manh mjs:3/3` — tổng kết «Results: 37 passed, 1 failed». Cũng không nêu tên ca hỏng trong phần đầu ra giữ lại.
-- `bash tests/plugins/run-tests.sh --manh vung:3` — ca RT13 đỏ: «file lạ chứa "signed-off": tests/dieu-phoi/vung-giao-viec.test.mjs — thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH» (hồ sơ ra-co-ten-lam-va-trao), tổng kết «Results: 1 failed».
+Tổng kết các lệnh suite round 2: `--manh bash` 841 passed, 0 failed · `--manh mjs:1/3` 39 passed, 0 failed · `--manh mjs:2/3` 39 passed, 0 failed · `--manh mjs:3/3` 38 passed, 0 failed · hooks 71 passed, 0 failed · plugins vung:1, vung:2, vung:3 đều «all plugin tests passed» · workflows «all workflow tests passed» · bản đồ sản phẩm «LO-TRINH.html khớp tệp ý định và hồ sơ» · kiểm bản cài chỉ-lượt-mốc không có dòng lỗi.
 
 ## Known limits
 
@@ -225,9 +222,8 @@ Baseline khong do:
 
 - node tests/scripts/cat-luot-vung.test.mjs: BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
 - bash -c 'set -o pipefail; node --test --test-reporter=tap "tests/dieu-phoi/vung-giao-viec.test.mjs" 2>&1 | grep -E "^ *(not )?ok [0-9]+ - VG-|^ *not ok|^#   |^# (pass|fail|skipped|todo) " | paste -sd"|" -': BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
-- bash -c 'set -o pipefail; node --test --test-reporter=tap --test-name-pattern="DP1-07|DP2-01" tests/dieu-phoi/dong-goi.test.mjs tests/dieu-phoi/mo-dot.test.mjs 2>&1 | grep -E "^ *(not )?ok [0-9]+ - |^# (pass|fail) "': BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
 
-Eval không-phân-biệt: none được xác định — nhưng baseline BLOCKED nên danh sách này KHÔNG đo được ở round này; đừng đọc thành «mọi eval đều phân biệt».
+Eval không-phân-biệt: none được xác định — nhưng baseline BLOCKED nên danh sách này KHÔNG đo được ở round này; đừng đọc thành «mọi eval đều phân biệt». E9 mang từ round 1 nên không chạy baseline round này.
 
 ## Variance
 
@@ -236,3 +232,5 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, không 
 ## Iterations
 
 Round 1: không eval nào của hợp đồng đỏ; ba lệnh suite không gắn eval đỏ (`--manh mjs:2/3` một ca hỏng, `--manh mjs:3/3` một ca hỏng, `plugins --manh vung:3` ca RT13 vì tệp tests/dieu-phoi/vung-giao-viec.test.mjs chứa chữ «signed-off» mà chưa khai gạch). Trả về bước thi công.
+
+Round 2: sau các commit sửa của vòng (cờ vùng chỉ bật khi lộ trình đã dùng vung; ca VG bỏ chuỗi «signed-off»; tám dòng sổ known-limits), mười một eval máy và mười hai lệnh suite đều xanh; E9 mang từ round 1 vì delta không chạm paths của nó; E3 đề xuất PASS, chờ người ở Cổng 2.
