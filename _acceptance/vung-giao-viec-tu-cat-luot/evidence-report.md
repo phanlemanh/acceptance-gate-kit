@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 72040afa6014648d4e334de51d0c77f7c254a133
+verified_commit: 7f65d9bb9151e23602de1020f157ab9073b70d91
 human_signoff: Manh Phan 2026-10-28
 ---
 
@@ -238,3 +238,7 @@ Round 2: sau các commit sửa của vòng (cờ vùng chỉ bật khi lộ trì
 ### Re-pin lần 1 — 2026-10-28, do hoá cũ do gộp nhánh chính sau lượt chấm
 run_id: repin-20261028T035121Z-69053
 sha: 72040afa6014648d4e334de51d0c77f7c254a133 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths)
+
+### Re-pin lần 2 — 2026-10-28, do hoá cũ do gộp nhánh chính (#438) sau chữ ký
+run_id: repin-20261028T052457Z-84055
+sha: 7f65d9bb9151e23602de1020f157ab9073b70d91 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths)
