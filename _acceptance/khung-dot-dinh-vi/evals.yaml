@@ -72,7 +72,7 @@ evals:
       `xem --json --khung` thật trên các kho thử, cộng mọi giá trị trạng thái rút từ bảng nguồn của gói (khoá của
       bảng tiến độ trong khung.mjs, pha, trạng thái đợt, loại chờ) — trừ hai từ cũng là chữ Việt «xong», «cho» (danh
       sách loại trừ đóng, in ra) — cộng «khoá s4:»; quét khung trên kho thử phủ mọi giá trị tiến độ và một đợt chưa
-      khai mục tiêu (cờ vàng) → 0 chữ cấm theo ranh giới từ. Đối chứng dương: chuỗi tiêm «gop_da_bao» và «dang-chay» vào
+      khai mục tiêu (cờ vàng) → 0 chữ cấm theo ranh giới từ. Đối chứng dương: chuỗi tiêm «hang_cho» và «dang-chay» vào
       khung → quét bắt cả hai. CHIỀU ĐỎ: KD-5-do bản sao chuKhung trả chuXem → ca in «KD-5-do: khung in chữ xem»;
       KD-5-do2 bản sao bỏ bảng tiến độ → ca in «KD-5-do2: khung in chữ máy: dang».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -93,12 +93,13 @@ evals:
     cmd: config:executors.test.khung_dinh_vi
     paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/khung.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
     expected: >
-      exit 0; "ok" cho "KD-6" và "KD-6-do". KD-6: kho thử có lộ trình tạm (do code sinh) mang hàng K2 `ten_ngan`, K3 chỉ
-      `ten`, K4 chỉ `cau_giao` dài; hàng thi công mang `tep`+`ma`, một hàng không `ma` → dòng việc mang lần lượt
-      «<ten_ngan> (K2)», «<ten> (K3)», «<sáu từ đầu>… (K4)», «<slug> (chưa có tên trong lộ trình)»; quét mọi dòng «là
+      exit 0; "ok" cho "KD-6" và "KD-6-do". KD-6: kho thử có lộ trình tạm (do code sinh) mang hàng K3c `ten_ngan`, V2d chỉ
+      `ten`, E6 chỉ `cau_giao` dài; hàng thi công mang `tep`+`ma`, hàng t581 bỏ `ma`, F10 có mã mà không tệp → dòng
+      việc mang lần lượt «Vỏ khu Mục tiêu (K3c)», «Sổ quyết định đợt (V2d)», «<sáu từ đầu>… (E6)», «t581 (chưa có tên
+      trong lộ trình)», «F10 (chưa có tên trong lộ trình)»; dòng CẦN ANH của P1 mang tên việc; quét mọi dòng «là
       gì» và dòng việc: không dòng nào phần tên chỉ là mã trần (mẫu viết trước). Đối chứng: cùng kho không lộ trình →
       mọi dòng mang cờ «chưa có tên trong lộ trình», vẫn không dòng nào chỉ có mã. CHIỀU ĐỎ (KD-6-do): bản sao bỏ tra
-      tên và bỏ cờ → ca in «KD-6-do: là gì chỉ có mã: K2». Round-trip trên bên viết thật: KD-6b chép
+      tên và bỏ cờ → ca in «KD-6-do: là gì chỉ có mã: K3c». Round-trip trên bên viết thật: KD-6b chép
       docs/plans/lo-trinh-kit.json (tệp lộ trình do các lượt cắt và phiên thật viết) vào kho thử, gói nguon_hang trỏ
       mọi hàng mang mã, rồi `xem --json --khung` + chuKhung → mọi dòng việc mang tên, không dòng nào chỉ có mã; ca in
       «KD-6b: hàng có mã có ten_ngan k/N» (số ghi vào cột Trạng thái giả định #2 của ô).
@@ -135,7 +136,7 @@ evals:
     expected: >
       exit 0; "ok" cho "KD-9" và "KD-9-do". KD-9: (a) stdout `xem --json` của bản cũ 4918210d trên kho thử → chuKhung
       HEAD vẽ đủ năm khối, không ném, dòng mục tiêu mang «⚠ chưa khai mục tiêu», dòng việc mang cờ chưa có tên; (b)
-      trạng thái bỏ gop_da_bao → «xong —/9 ⚠»; (c) hang-viec.json khai muc_tieu chuỗi → dòng 1 chứa đúng chuỗi ấy và
+      trạng thái bỏ gop_da_bao → «xong —/<số hàng của fixture> ⚠»; (c) hang-viec.json khai muc_tieu chuỗi → dòng 1 chứa đúng chuỗi ấy và
       kiemHangViec nhận; (d) muc_tieu là số → kiemHangViec ném thông điệp chứa «muc_tieu». CHIỀU ĐỎ (KD-9-do): bản sao bỏ
       cờ mục tiêu → ca in «KD-9-do: thiếu cờ mục tiêu».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

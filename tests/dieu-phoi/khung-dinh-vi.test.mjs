@@ -410,8 +410,8 @@ async function kiemKhung(gocGoi) {
   const cam = await chuCam(gocGoi, [kq, JSON.parse(chayCli(gocGoi, khoLoTrinhKit().kho, ['xem', '--json', '--khung']).out || '{}')]);
   for (const w of timChuCam(khung, cam)) loi.push(`khung in chữ máy: ${w}`);
   // Đối chứng dương: quét bắt chuỗi tiêm.
-  const tiem = timChuCam(`${khung}\nx gop_da_bao y dang-chay`, cam);
-  if (!(tiem.includes('gop_da_bao') && tiem.includes('dang-chay'))) loi.push(`đối chứng: quét không bắt chuỗi tiêm (${tiem.join(',')})`);
+  const tiem = timChuCam(`${khung}\nx hang_cho y dang-chay`, cam);
+  if (!(tiem.includes('hang_cho') && tiem.includes('dang-chay'))) loi.push(`đối chứng: quét không bắt chuỗi tiêm (${tiem.join(',')})`);
   console.log(`  KD-5 chữ cấm sinh: ${cam.length} · loại trừ: ${LOAI_TRU.join(', ')}`);
   return loi;
 }
