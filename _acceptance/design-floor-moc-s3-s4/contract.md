@@ -6,7 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/** + feature-loop/skills/** + tests/** + GUIDE — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-28-design-floor-moc-s3-s4-design.md
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-28
 ---
 
 # Acceptance Contract: design-floor-moc-s3-s4
