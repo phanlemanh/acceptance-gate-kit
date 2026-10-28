@@ -3,10 +3,10 @@ schema_version: 1
 slug: khung-dot-dinh-vi
 feature: Khung đợt mở bằng định vị và đếm đủ mọi câu đang chờ chủ kho — chủ kho ngủ dậy hay đổi máy đọc một khung là biết đợt đang ở đâu và đang chờ mình điều gì
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: build
+decided_by: Manh Phan
+decided_at: 2026-10-28T07:35:02Z   # chủ kho gõ «Cổng Đáng khung-dot-dinh-vi: build, ngưỡng và hạn theo đề xuất.»
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -44,9 +44,9 @@ do chữ của pane chưa bao giờ được đọc như chữ cho người.
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: chủ kho mở khung đợt sau một đêm hay sau khi đổi máy có biết ngay đợt đang ở đâu và đang chờ mình điều gì ở phiên nào, mà không phải hỏi phiên giám sát không?
-- Kết quả nào là SỐNG: [đề xuất] phát lại ca 28/10 bằng fixture: khung báo «CẦN ANH: 1» kèm câu của giám sát và tên phiên; mọi việc trên khung của fixture đợt crm mang tên từ lộ trình hoặc cờ vàng «chưa có tên», 0 dòng «là gì» chỉ có mã; ở đợt thật đầu tiên chạy bản mang vòng: 0 lần dải báo «cần anh 0» khi sổ còn câu treo, và 0 lần chủ kho hỏi giám sát «còn chờ anh gì»
-- Kết quả nào là CHẾT: [đề xuất] Monitor của giám sát thức vì câu của chính nó; dòng `xem` đổi một byte ở kho không có câu treo; phải thêm một cổng người hay một lượt gọi người
-- Timebox: [đề xuất] phần phát lại chốt ở Cổng Bằng chứng của vòng này; phần đợt thật — 14 ngày sau khi crm cài mốc mang vòng (mốc phát hành kế, dự kiến 31/10), quá hạn mà chưa có đợt nào thì đọc lại ô
+- Kết quả nào là SỐNG: phát lại ca 28/10 bằng fixture: khung báo «CẦN ANH: 1» kèm câu của giám sát và tên phiên; mọi việc trên khung của fixture đợt crm mang tên từ lộ trình hoặc cờ vàng «chưa có tên», 0 dòng «là gì» chỉ có mã; ở đợt thật đầu tiên chạy bản mang vòng: 0 lần dải báo «cần anh 0» khi sổ còn câu treo, và 0 lần chủ kho hỏi giám sát «còn chờ anh gì»
+- Kết quả nào là CHẾT: Monitor của giám sát thức vì câu của chính nó; dòng `xem` đổi một byte ở kho không có câu treo; phải thêm một cổng người hay một lượt gọi người
+- Timebox: phần phát lại chốt ở Cổng Bằng chứng của vòng này; phần đợt thật — 14 ngày sau khi crm cài mốc mang vòng (mốc phát hành kế, dự kiến 31/10), quá hạn mà chưa có đợt nào thì đọc lại ô
 
 ## Kết quả prototype
 
@@ -62,7 +62,8 @@ Chưa dựng.
 
 ## Cổng 0
 
-- **decision = …** (chưa ký)
+- **decision = build** — Manh Phan, 28/10/2026 07:35Z
+- **Ngưỡng UAT chốt cùng lúc ký:** ba bullet ngưỡng và timebox ở trên, đã gỡ tiền tố «[đề xuất]» theo lời chủ kho «ngưỡng và hạn theo đề xuất».
 - **disposition = …** (chưa dựng prototype)
 
 ## Notes
