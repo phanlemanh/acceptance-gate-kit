@@ -5,10 +5,12 @@ slug: khung-dot-dinh-vi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, ui]
-status: draft
+status: approved
 design_doc: docs/superpowers/specs/2026-10-28-khung-dot-dinh-vi-design.md
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-28T07:46:53Z
 ---
 
 # Acceptance Contract: khung-dot-dinh-vi
