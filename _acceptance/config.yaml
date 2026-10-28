@@ -187,6 +187,9 @@ executors:
     # VG-… (gói đợt, thêm hàng, phát lại, khai vùng ở Cổng Phạm vi, vi phân bản gốc — node --test, CI chạy cùng tests/dieu-phoi).
     cat_luot_vung: node tests/scripts/cat-luot-vung.test.mjs
     vung_giao_viec: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/vung-giao-viec.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - VG-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ khung-dot-dinh-vi (ADR 0027 bước a–b): câu giám sát chờ chủ kho + khung định vị; gộp dòng «ok … KD-»,
+    # «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng.
+    khung_dinh_vi: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/khung-dinh-vi.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - KD-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ kiem-ban-cai-sau-phat-hanh (KC1): trọn bộ ca KB-1…KB-9 (cài cách ly, cần CLI claude — đuôi .ca.mjs
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs

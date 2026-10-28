@@ -12,7 +12,9 @@ import { nhaMay } from './may.mjs';
 import { demDot } from './dem.mjs';
 import { datPha, docPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { moHinh, veXem } from './mo-hinh.mjs';
-import { docNhomKeHoach } from './nguon-hang.mjs';
+import { docNhomKeHoach, docTenViec } from './nguon-hang.mjs';
+import { dongHoi, ghiHoi, hoiMo } from './hoi.mjs';
+import { chuKhung } from './khung.mjs';
 import { ghiVai, nhanVaiGiamSat } from './vai.mjs';
 import { ghiDon, ghiNhatKyCli, ghiTraLoi, ghiYeuCau, kiemGiamSat, nhaKhoa } from './ghi.mjs';
 import { tiepTuc } from './tiep-tuc.mjs';
@@ -207,7 +209,7 @@ function xem(cwd) {
 // `xem --json` (DP6b, hồ sơ trang-thai-dot-dieu-phoi-tho): MỘT dòng JSON cho khung của lớp mod — cùng mô hình `xem`
 // vẽ, cộng dãy của cwd (cùng hàm hai hook dùng), dòng cảnh báo hai bản, và độ lệch múi giờ của máy (mod chạy trong
 // môi trường không Node nên không tự biết giờ địa phương). Không đợt → {"dot":null}. `xem` không cờ không đổi.
-export function xemJson(cwd) {
+export function xemJson(cwd, { khung = false } = {}) {
   const thuMuc = timThuMucDot(cwd);
   if (!thuMuc) return { dot: null };
   const goc = gocKhoChinh(cwd);
@@ -216,8 +218,31 @@ export function xemJson(cwd) {
   const tt = docJson(path.join(thuMuc, 'trang-thai.json'), null);
   const tin = tinCanNhin(thuMuc, goc, hangViec);
   const tinKhoa = tin ? { tin } : {};
-  if (!tt) return { dot: hangViec?.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, ''), pha: docPha(thuMuc).pha, chua_co_nhip: true, ...them, ...tinKhoa };
-  return { ...moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec }), ...them, ...tinKhoa };
+  // Câu giám sát đang chờ chủ kho (hồ sơ khung-dot-dinh-vi): khoá chỉ có mặt khi có câu mở, như khoá `tin` — kho không
+  // có câu nào nhận `xem --json` không đổi một byte.
+  const hoi = hoiMo(thuMuc);
+  const hoiKhoa = { ...(hoi.length ? { hoi_chu_kho: hoi } : {}) };
+  // Dữ liệu riêng của khung định vị chỉ đi qua cờ `--khung` (mod gọi): `xem --json` giữ khuôn cũ cho máy đọc.
+  const khungKhoa = khung ? duLieuKhung(goc, thuMuc, hangViec, tt) : null;
+  if (!tt) return { dot: hangViec?.dot || path.basename(thuMuc).replace(/^dieu-phoi-/, ''), pha: docPha(thuMuc).pha, chua_co_nhip: true, ...them, ...tinKhoa, ...hoiKhoa, ...(khungKhoa?.dinh ?? {}) };
+  const m = moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec });
+  if (khungKhoa) m.day = m.day.map((d) => ({ ...d, ...(khungKhoa.ten.get(d.hang) ? { ten: khungKhoa.ten.get(d.hang) } : {}), ...(khungKhoa.nghi.has(d.id) ? { nghi: true } : {}) }));
+  return { ...m, ...them, ...tinKhoa, ...hoiKhoa, ...(khungKhoa?.dinh ?? {}) };
+}
+
+// Mục tiêu đợt, số hàng, số hàng đã gộp, tên việc từ lộ trình, dãy nghỉ — chỉ những gì có thật; thiếu thì khung tự cờ vàng.
+function duLieuKhung(goc, thuMuc, hangViec, tt) {
+  let nguon = [];
+  try {
+    nguon = docCauHinh(thuMuc).nguon_hang ?? [];
+  } catch {}
+  const dinh = {
+    ...(typeof hangViec?.muc_tieu === 'string' && hangViec.muc_tieu.trim() ? { muc_tieu: hangViec.muc_tieu.trim() } : {}),
+    ...(Array.isArray(hangViec?.hang) ? { so_hang: hangViec.hang.length } : {}),
+    ...(Array.isArray(tt?.gop_da_bao) ? { da_gop: tt.gop_da_bao.length } : {}),
+    bay_gio: bayGio(),
+  };
+  return { dinh, ten: hangViec ? docTenViec(goc, hangViec, nguon) : new Map(), nghi: new Set((hangViec?.day ?? []).filter((d) => d.nghi).map((d) => d.id)) };
 }
 
 // Đầu ra `xem --kiem-chuyen` (design doc, chỗ chọn 1d): dòng phải sửa giữ khuôn 2.27; không còn dòng phải sửa thì
@@ -252,6 +277,35 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
   const { vi, co } = tachDoiSo(process.argv.slice(2));
   const [lenh, doiSo] = vi;
   const cwd = process.cwd();
+  // Khung định vị cho người (hồ sơ khung-dot-dinh-vi): `xem --khung` in khung, `xem --json --khung` in dữ liệu của nó.
+  if (lenh === 'xem' && co.khung) {
+    try {
+      const kq = xemJson(cwd, { khung: true });
+      process.stdout.write(`${co.json ? JSON.stringify(kq) : chuKhung(kq, { bayGio: bayGio() })}\n`);
+    } catch (e) {
+      process.stderr.write(`dieu-phoi: ${e.message}\n`);
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+  // Câu phiên giám sát chờ chủ kho: thoát 0 đã ghi · 2 câu rỗng hay mã không mở (không ghi byte nào) · 1 không có đợt.
+  if (lenh === 'hoi' || lenh === 'hoi-xong') {
+    try {
+      const thuMuc = thuMucHienTai(cwd);
+      const phien = typeof co.phien === 'string' ? co.phien : null;
+      if (lenh === 'hoi') {
+        const cau = co.cau === '-' ? fs.readFileSync(0, 'utf8') : typeof co.cau === 'string' ? co.cau : '';
+        process.stdout.write(`hoi: ${ghiHoi(thuMuc, { cau, phien })}\n`);
+      } else {
+        if (typeof doiSo !== 'string') throw Object.assign(new Error('dùng: hoi-xong <mã câu> [--phien <mã>]'), { ma: 2 });
+        process.stdout.write(`hoi-xong: ${dongHoi(thuMuc, doiSo, { phien })}\n`);
+      }
+    } catch (e) {
+      process.stderr.write(`dieu-phoi: ${e.message}\n`);
+      process.exit(e.ma ?? 1);
+    }
+    process.exit(0);
+  }
   if (lenh === 'xem' && co.json) {
     try {
       process.stdout.write(`${JSON.stringify(xemJson(cwd))}\n`);
@@ -395,7 +449,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|xem --json|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|gop <số PR> [--slug <s>] [--xet]|nha <tài nguyên> [--ma <mã thoát>] [--ha-tang <lý do>]|hieu-chuan|yeu-cau <loại> [--chan] [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|xem --json [--khung]|xem --khung|hoi --cau <câu|-> [--phien <id>]|hoi-xong <mã> [--phien <id>]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|gop <số PR> [--slug <s>] [--xet]|nha <tài nguyên> [--ma <mã thoát>] [--ha-tang <lý do>]|hieu-chuan|yeu-cau <loại> [--chan] [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

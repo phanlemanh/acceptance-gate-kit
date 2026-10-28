@@ -81,6 +81,40 @@ export function timHangLoTrinh(gocKho, nguon, ma) {
   return ung.length === 1 ? ung[0] : null;
 }
 
+// Tên việc cho khung định vị (hồ sơ khung-dot-dinh-vi): Map<slug, tên> của các hàng thi công mang mã. Tệp tra: `tep` của
+// hàng, không có thì các tệp mà nguồn hàng của đợt trỏ tới (mã phải có ở đúng một tệp). Tên: `ten_ngan` → `ten` → sáu từ
+// đầu của câu giao kèm «…» (cùng luật tên ngắn của bộ đọc lộ trình kit). Tệp vắng/hỏng → hàng ấy không có tên, không lỗi.
+export function docTenViec(gocKho, hangViec, nguon = []) {
+  const daDoc = new Map();
+  const doc = (tep) => {
+    if (!daDoc.has(tep)) {
+      try {
+        daDoc.set(tep, JSON.parse(fs.readFileSync(path.resolve(gocKho, tep), 'utf8')));
+      } catch {
+        daDoc.set(tep, null);
+      }
+    }
+    return daDoc.get(tep);
+  };
+  const chuoi = (s) => (typeof s === 'string' ? s.trim() : '');
+  const tenNgan = (r) => {
+    const n = chuoi(r.ten_ngan) || chuoi(r.ten);
+    if (n) return n;
+    const tu = chuoi(r.cau_giao).split(/\s+/).filter(Boolean);
+    return tu.length > 6 ? `${tu.slice(0, 6).join(' ')}…` : tu.join(' ');
+  };
+  const tepNguon = [...new Set((nguon ?? []).map((m) => tachNguon(m).tep).filter(Boolean))];
+  const ra = new Map();
+  for (const h of hangViec?.hang ?? []) {
+    if (!h?.ma || !h.slug) continue;
+    const ung = (h.tep ? [h.tep] : tepNguon).map((tep) => (Array.isArray(doc(tep)?.hang) ? doc(tep).hang : []).find((r) => r && r.ma === h.ma)).filter(Boolean);
+    if (ung.length !== 1) continue;
+    const ten = tenNgan(ung[0]);
+    if (ten) ra.set(h.slug, ten);
+  }
+  return ra;
+}
+
 // <<<DOC-DU-LIEU-CHEP — bản chép NGUYÊN VĂN `docDuLieu` của scripts/lo-trinh.mjs (kit). Hàm tự đủ; ca
 // DP2-08 round-trip so đầu ra với bản gốc trên cùng trang.
 export function docDuLieu(html) {
