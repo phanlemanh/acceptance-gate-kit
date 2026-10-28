@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tri thức thiết kế lấy từ đâu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-rule:    rgba(45,49,66,0.12);
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+    .sub { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .caption {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--color-soft);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Cổng Phạm vi · Hỏi-2 · design-floor-moc-s0-s1</p>
+    <h1>Tri thức thiết kế lấy từ đâu</h1>
+    <p class="sub">Cả hai lối đều cho phiên làm việc ở bước S1 đọc chỉ mục và tối đa hai tệp tri thức. Khác nhau ở chỗ tri thức nằm đâu và kho trả giá gì. Máy khuyên lối A.</p>
+
+    <svg viewBox="0 0 1184 624" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Arrows (behind nodes) ===== -->
+      <!-- Gốc → câu hỏi -->
+      <line x1="216" y1="308" x2="256" y2="308" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- Câu hỏi → lối A (máy khuyên) -->
+      <path d="M328 256 V184 Q328 176 336 176 H448" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <!-- Câu hỏi → lối B -->
+      <path d="M328 360 V432 Q328 440 336 440 H448" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- A1 → A2 → A3 -->
+      <line x1="648" y1="176" x2="704" y2="176" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <line x1="904" y1="176" x2="960" y2="176" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <!-- A1 không tải được → lối phụ -->
+      <path d="M548 140 V76 Q548 68 556 68 H704" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <!-- A2 lệch băm → lối phụ -->
+      <line x1="804" y1="140" x2="804" y2="100" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <!-- B1 → B2 → B3 -->
+      <line x1="648" y1="440" x2="704" y2="440" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="904" y1="440" x2="960" y2="440" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- ===== Arrow labels (masked, gap above line) ===== -->
+      <rect x="340" y="152" width="100" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="390" y="161" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">A · MÁY KHUYÊN</text>
+
+      <rect x="340" y="416" width="100" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="390" y="425" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">B · ĐƯA VÀO KIT</text>
+
+      <rect x="584" y="48" width="92" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="630" y="57" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG TẢI ĐƯỢC</text>
+
+      <rect x="812" y="112" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="816" y="121" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">LỆCH BĂM</text>
+
+      <rect x="916" y="152" width="32" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="932" y="161" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHỚP</text>
+
+      <rect x="916" y="416" width="32" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="932" y="425" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHỚP</text>
+
+      <!-- ===== Nodes ===== -->
+      <!-- Gốc -->
+      <rect x="24" y="276" width="192" height="64" rx="32" fill="#f5f5f5"/>
+      <rect x="24" y="276" width="192" height="64" rx="32" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="120" y="304" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bước S1 cần chỉ mục</text>
+      <text x="120" y="320" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">+ ≤2 tệp tri thức thiết kế</text>
+
+      <!-- Câu hỏi -->
+      <polygon points="328,256 400,308 328,360 256,308" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="328" y="304" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tri thức</text>
+      <text x="328" y="318" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">lấy từ đâu?</text>
+
+      <!-- Lối phụ: không đọc được -->
+      <rect x="704" y="36" width="296" height="64" rx="32" fill="#f5f5f5"/>
+      <rect x="704" y="36" width="296" height="64" rx="32" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="852" y="60" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ghi «không đọc được ở đây» + lý do</text>
+      <text x="852" y="76" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">vòng đi tiếp, không trỏ tệp nào</text>
+      <text x="852" y="90" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-4</text>
+
+      <!-- A1 -->
+      <rect x="448" y="140" width="200" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="448" y="140" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="548" y="168" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tải bản ghim lúc chạy</text>
+      <text x="548" y="184" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">vào bộ đệm ngoài kho</text>
+      <text x="548" y="200" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-10</text>
+
+      <!-- A2 -->
+      <rect x="704" y="140" width="200" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="704" y="140" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="804" y="168" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Kiểm băm theo tệp khoá</text>
+      <text x="804" y="184" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">kit chỉ giữ băm, không giữ nội dung</text>
+      <text x="804" y="200" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-4 · AC-10</text>
+
+      <!-- A3 (focal) -->
+      <rect x="960" y="140" width="200" height="72" rx="36" fill="#f5f5f5"/>
+      <rect x="960" y="140" width="200" height="72" rx="36" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="1060" y="168" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Phiên đọc chỉ mục</text>
+      <text x="1060" y="184" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">+ ≤2 tệp</text>
+      <text x="1060" y="200" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-3</text>
+
+      <!-- B1 -->
+      <rect x="448" y="404" width="200" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="448" y="404" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="548" y="432" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đưa chỉ mục + ~150 tệp</text>
+      <text x="548" y="448" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">tri thức vào kit như mã</text>
+      <text x="548" y="464" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nội dung nằm trong kho kit</text>
+
+      <!-- B2 -->
+      <rect x="704" y="404" width="200" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="704" y="404" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="804" y="432" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Kiểm băm trên cây kit</text>
+      <text x="804" y="448" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">không cần mạng</text>
+      <text x="804" y="464" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-4 · AC-10 viết lại</text>
+
+      <!-- B3 -->
+      <rect x="960" y="404" width="200" height="72" rx="36" fill="#f5f5f5"/>
+      <rect x="960" y="404" width="200" height="72" rx="36" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1060" y="432" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Phiên đọc chỉ mục</text>
+      <text x="1060" y="448" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">+ ≤2 tệp</text>
+      <text x="1060" y="464" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-3</text>
+
+      <!-- ===== Annotation: giá của lối B ===== -->
+      <path d="M548 476 V512" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="548" cy="476" r="2" fill="#2d3142"/>
+      <text x="448" y="532" fill="#2d3142" font-size="16" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Giá: thêm nội dung bên thứ ba vào kho công khai — khó rút lại sau khi đẩy.</text>
+
+      <!-- ===== Legend ===== -->
+      <line x1="24" y1="564" x2="1160" y2="564" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="24" y="580" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="24" y="596" width="24" height="12" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="56" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm đầu / kết quả</text>
+
+      <rect x="200" y="596" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="232" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước</text>
+
+      <polygon points="300,602 312,596 324,602 312,608" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="332" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Câu hỏi cho người</text>
+
+      <line x1="456" y1="602" x2="484" y2="602" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <text x="492" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối máy khuyên</text>
+
+      <line x1="616" y1="602" x2="644" y2="602" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <text x="652" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối hỏng — vòng vẫn đi tiếp</text>
+
+      <text x="840" y="606" fill="#2d3142" font-size="12" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Giá</text>
+      <text x="868" y="606" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">cái kho phải trả nếu chọn lối</text>
+    </svg>
+
+    <p class="caption">Chú thích: bản ghim a7ad5f1 · bộ đệm $TMPDIR/design-floor-upstream/&lt;commit&gt; · tệp khoá design-floor/upstream.lock.json, khối tri_thuc · chỉ mục knowledge/index.json</p>
+  </div>
+</body>
+</html>

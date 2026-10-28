@@ -10,6 +10,22 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+### Cổng thiết kế chế độ dom thôi chặn oan khi không đọc được màu (hồ sơ `design-gate-khong-do-duoc-ba-nguyen-nhan`, hàng FL1, T3)
+
+Gốc: đo chéo 26/10 — P0 tương phản của cổng dom sai 5 trên 8 lần và chặn oan 3 trên 5 tệp.
+
+- **Phát hiện tương phản không đo được thành `KHONG-DO-DUOC` kèm mã nguyên nhân**, không còn là P0 chặn:
+  `css-khong-ap-duoc` (tệp CSS không áp được — `@layer` dưới jsdom, CSS cục bộ hỏng hay vắng — trừ phần tử ghim cả
+  màu chữ lẫn nền ở style nội dòng) · `nen-to-tien-bi-bo` (nền khai ở tổ tiên mà jsdom không đọc được, như
+  `background: var(--bg)`) · `chu-gradient` (chữ cắt theo nền gradient). Phát hiện mang `do_duoc: false` + `ly_do`,
+  không vào `blocking`, không tính vào `p0_count`; JSON thêm `khong_do_duoc` và một dòng stderr nêu mã.
+- **FAIL > KHONG-DO-DUOC > PASS:** tương phản đo được trên cùng trang vẫn `REJECT` 2. Mã thoát giữ nguyên: 0, và 5
+  dưới `--require-measured`. Trang CSS hỏng mà không có phát hiện tương phản vẫn `PASS` như cũ.
+- **Bộ dò Impeccable vendored không đổi byte nào.** Job CI mới `design-eval` cài jsdom ghim 24.1.3 và chạy cả ca dom.
+- **Ai bị ảnh hưởng:** đo 27/10 trên crm, artifact-platform, onehub-invest — 164 đích dom, 0 phán quyết đổi. Kho đọc
+  `p0_count` như tổng mọi P0 sẽ không còn thấy phát hiện không đo được trong số ấy.
+- **Làm gì khi update:** không gì. Kho muốn «không đo được» thành đỏ thì bật `--require-measured` (mã 5).
+
 ### design-gate có chế độ chặt tuỳ chọn `--require-measured` (hồ sơ `design-gate-che-do-chat`, T2)
 
 Gốc: crm 25/10, vòng VK10 `che-do-soan-bo-okr` — static trên `.tsx` trả `KHONG-DO-DUOC` mà thoát 0, nên

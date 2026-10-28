@@ -935,6 +935,22 @@ executors:
     chd_ac6: CHD_CASES=AC-6,AC-6-do-khoi,AC-6-do-lop node tests/scripts/co-hop-dong.test.mjs
     chd_ac7: CHD_CASES=AC-7,AC-7-do,AC-7-do-ngay-ky node tests/scripts/co-hop-dong.test.mjs
     chd_ac8: CHD_CASES=AC-8,AC-8-do node tests/scripts/co-hop-dong.test.mjs
+    # Hồ sơ design-gate-khong-do-duoc-ba-nguyen-nhan (FL1): ca KD1…KD7 ở tests/design-eval/khong-do-duoc.test.mjs (tên ca
+    # mở đầu bằng mã AC). kdd.sh cài jsdom ghim (npm ci) khi thiếu rồi chạy đúng nhóm ca; nhóm khớp 0 ca thì đỏ.
+    kdd_tai_lap: bash tests/design-eval/kdd.sh KD1
+    kdd_css: bash tests/design-eval/kdd.sh KD2
+    kdd_nen: bash tests/design-eval/kdd.sh KD3
+    kdd_gradient: bash tests/design-eval/kdd.sh KD4
+    kdd_doi_chung: bash tests/design-eval/kdd.sh KD5
+    kdd_ma_thoat: bash tests/design-eval/kdd.sh KD6
+    kdd_dot_bien: bash tests/design-eval/kdd.sh KD7
+    kdd_hoi_quy: bash tests/design-eval/kdd.sh --hoi-quy
+    kdd_nen_mau: bash tests/design-eval/kdd.sh KD9
+    kdd_nen_tinh_ra: bash tests/design-eval/kdd.sh KD10
+    # Vi phân bản gốc ↔ bản mới trên đích dom của các kho tiêu thụ trên máy (KHO_GOC hoặc ~/dev). Chỉ in số. Không vào suite_keys.
+    kdd_vi_phan_kho: node tests/design-eval/vi-phan-kho.mjs
+    # Chỉ khi Hỏi-1 (job CI design-eval) được duyệt ở Cổng Phạm vi.
+    kdd_ci: bash tests/design-eval/kdd.sh KD8-ci
     # Hồ sơ design-floor-vendor-va-ban-va-a (FL2): mỗi lệnh chạy chiều xanh trên cây thật rồi đột biến cùng nhãn của
     # tests/design-floor/tu-thu.mjs. Cần `npm ci --prefix tests/design-floor`. df_dong_bo lấy bản ghim upstream (mạng
     # hay cache) — không vào feature_loop.suite_keys; CI chạy bộ đo ngoại tuyến ở job design-floor.
@@ -956,6 +972,16 @@ executors:
     df_d: bash tests/design-floor/eval.sh d
     df_bo_ban_va: bash tests/design-floor/eval.sh bo-ban-va
     df_chuoi_so_va: bash tests/design-floor/eval.sh chuoi-so-va
+    df4_bac: bash tests/design-floor/eval.sh df4-bac
+    df4_bac_hong: bash tests/design-floor/eval.sh df4-bac-hong
+    df4_tri_thuc: bash tests/design-floor/eval.sh df4-tri-thuc
+    df4_tri_thuc_lech: bash tests/design-floor/eval.sh df4-tri-thuc-lech
+    df4_reuse_plan: bash tests/design-floor/eval.sh df4-reuse-plan
+    df4_flow_lint: bash tests/design-floor/eval.sh df4-flow-lint
+    df4_the: bash tests/design-floor/eval.sh df4-the
+    df4_chi_ghi: bash tests/design-floor/eval.sh df4-chi-ghi
+    df4_noi_day: bash tests/design-floor/eval.sh df4-noi-day
+    df4_tri_thuc_that: bash tests/design-floor/eval.sh df4-tri-thuc-that
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
