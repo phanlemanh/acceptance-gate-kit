@@ -5,7 +5,7 @@ slug: vung-giao-viec-tu-cat-luot
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-28-vung-giao-viec-tu-cat-luot-design.md
 approved_by: Manh Phan
 approved_at: 2026-10-27T23:05:57Z
@@ -64,3 +64,18 @@ Ca đo: `tests/scripts/cat-luot-vung.test.mjs` (CV-…, AC-1 đến AC-3) và `t
 mang `vung` + gói đợt không `ranh_gioi`) giữ hình của đợt thật — ba dãy, mười bốn hàng, thứ tự giao — với mã, slug và
 đường đổi tên; nó là ĐẦU VÀO như một lượt cắt viết, không phải khuôn bên đọc: ca đưa nó qua răng phủ thật và bộ đọc gói
 thật trước khi chạy lịch. Thư mục nằm dưới `tests/dieu-phoi/fixtures/` nên lưới không-riêng-kho (DP1-07) quét nó.
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-28:
+  - Ngoài-1: Cổng «cờ vùng chỉ bật khi lộ trình đã dùng vùng» chưa có ca cho đợt mới quên khai vùng trong một lộ trình đã dùng vùng; hôm nay chạy đúng, nhưng thu hẹp cổng thì không ca nào đỏ.
+  - Ngoài-2: Luật «vùng quá rộng» có hai bản — ở bước cắt lượt và ở lệnh khai vùng — chưa có ca giữ hai bản giống nhau.
+  - Ngoài-3: Lộ trình sửa tay ghi vùng quá rộng (`**`, `*.tsx`) vẫn được gói đợt chép thành vùng của hàng, làm cả đợt chạy nối tiếp mà không cảnh báo; bước cắt lượt chặn ca ấy.
+  - Ngoài-4: README của gói chưa liệt lệnh khai vùng trong danh sách các bên ghi dưới khoá chung (lệnh thật có giữ khoá).
+  - Ngoài-7: Cùng giới hạn với Ngoài-3.
+  - Ngoài-8: Ca VG-8 đếm cảnh báo nêu hàng y bằng mẫu chữ lỏng, khớp cả chữ «chạy» của đuôi cảnh báo.
+  - Ngoài-9: Ca CV-2 kiểm câu lỗi nêu glob `**` bằng phép chứa chuỗi, glob hợp lệ của cùng hàng cũng thoả.
+  - Ngoài-10: Ca VG-8 tự dựng bảng trạng thái đợt theo khuôn bên đọc thay vì để bộ phát lịch sinh.
+  - Ngoài-11: Cùng giới hạn với Ngoài-2.
+
+Hạt giống ghi ở Cổng Bằng chứng (lối «mở hợp đồng mới», 28/10):
+`docs/plans/2026-10-28-hat-giong-su-kien-cong-pham-vi-mat-gio.md` (Ngoài-5) ·
+`docs/plans/2026-10-28-hat-giong-hang-them-lay-tron-hang-lo-trinh.md` (Ngoài-6).
