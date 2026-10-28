@@ -6,14 +6,14 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>11 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>9 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>135 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>55 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>56 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -33,7 +33,6 @@ flowchart TD
 - Chạy lưới trước-merge đúng như CI — trên cây đã gộp nhánh chính, có base — TRƯỚC khi mở PR, để CI không là nơi đầu tiên phát hiện (`premerge-nhu-ci-truoc-khi-mo-pr`)
 - Răng của hồ sơ mốc phát hành neo theo lúc hồ sơ ra đời, không theo số phiên bản ở cây — để hồ sơ mốc đã ký không đỏ giả ở mốc kế (`rang-moc-neo-theo-ho-so`)
 - Phát hiện rà soát KHÔNG lật verdict — verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ; phát hiện lên thẻ kèm bán kính, người quyết (`thuoc-khong-lat-verdict`)
-- Vùng giao việc đi từ cắt lượt — mỗi hàng mang vùng mã dự kiến từ lúc cắt, để lịch biết tệp thấy được hai hàng cùng sửa một màn và tự xếp nối tiếp (`vung-giao-viec-tu-cat-luot`)
 - Ý định có nhà riêng — cửa vào và cửa ra không cần người ngồi phiên; tách viết ý định khỏi ký; Cổng Đáng có lệnh ký; ngưỡng UAT thành băng sau phát hành; ba số cho nguyên tố 1 (`y-dinh-co-nha-rieng`)
 
 ## Sắp mở vòng
@@ -110,6 +109,7 @@ flowchart TD
 - Dấu «đã đến», «chấp nhận», «kết lượt» không mất khi bộ canh nền đồng bộ kênh cùng lúc; hạn gõ sai bị từ chối kèm câu báo; đáp một yêu cầu cũ bằng lệnh mới tới đúng người hỏi và đóng vòng (`vong-mo-khong-mat-dau`)
 - Vòng mở thẳng bằng Feature Loop cũng bị đo cỡ — hợp đồng từ 13 tiêu chí không vào được Cổng Phạm vi khi chưa tách hoặc chưa có dòng sổ giữ có tên, 11–12 tiêu chí lên thẻ thành cờ vàng; khoảng đọc từ chính khối CAT-LUOT-CO của lượt cắt, năm chỗ dạy «5–15» nói cùng chính sách (`vong-mo-thang-bang-feature-loop`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
+- Vùng giao việc đi từ cắt lượt — mỗi hàng mang vùng mã dự kiến từ lúc cắt, gói đợt chép sang vùng tệp của đợt, phiên thợ khai thêm ở Cổng Phạm vi, để lịch biết tệp tự xếp nối tiếp hai hàng cùng sửa một màn (`vung-giao-viec-tu-cat-luot`)
 
 ## Đã giao
 

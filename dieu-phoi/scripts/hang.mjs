@@ -4,11 +4,11 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { docJson, ghiJsonNguyenTu, gocKhoChinh, timThuMucDot } from './dot.mjs';
+import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
-import { suySlug } from './nguon-hang.mjs';
+import { suySlug, timHangLoTrinh } from './nguon-hang.mjs';
 import { HANH_DONG, keHoachDay, THU_MUC_CHO_GHI_DANH } from './tiep-tuc.mjs';
-import { docChupNhanhMo, xetTrungTep } from './trung-tep.mjs';
+import { coThuMucTinh, docChupNhanhMo, xetTrungTep } from './trung-tep.mjs';
 import { ghiNhatKy, luu, TEP_KHOA_HANG_VIEC, treThu, voiKhoaHangViec } from './khoa-hang-viec.mjs';
 
 export { ghiNhatKy, TEP_KHOA_HANG_VIEC, voiKhoaHangViec };
@@ -63,6 +63,14 @@ function trungLucThem(thuMuc, hv, hangMoi) {
   return xetTrungTep(hangMoi, { hangViec: hv, tienDo, keCua, nhanhMo: docChupNhanhMo(tt.nhanh_mo), nhanhCuaDay: new Map(Object.entries(tt.nhanh_mo?.nhanh_day ?? {})) });
 }
 
+// Mã của một hàng lộ trình mà đợt chưa có (hồ sơ vung-giao-viec-tu-cat-luot): vùng mã dự kiến của hàng ấy làm vùng tệp.
+// Đợt không khai nguồn hàng, hay mã không có ở đúng một tệp lộ trình → null, như trước.
+function vungLoTrinh(thuMuc, khoa) {
+  const cfg = docJson(path.join(thuMuc, 'dieu-phoi.config.json'), {}) ?? {};
+  if (!Array.isArray(cfg.nguon_hang) || typeof cfg.goc_kho !== 'string') return null;
+  return timHangLoTrinh(cfg.goc_kho, cfg.nguon_hang, khoa)?.vung ?? null;
+}
+
 function themHangTrongKhoa(thuMuc, khoa, day, ranhGioi) {
   const hv = docHangViec(thuMuc);
   treThu();
@@ -71,7 +79,7 @@ function themHangTrongKhoa(thuMuc, khoa, day, ranhGioi) {
   const slug = goc?.slug ?? suySlug(khoa);
   if (!slug) throw new Error(`hang: không suy được slug từ «${khoa}»`);
   if (hv.hang.some((h) => h.day === day && (h.slug === slug || h.ma === khoa))) return { doi: false };
-  const rg = ranhGioi ?? goc?.ranh_gioi ?? null;
+  const rg = ranhGioi ?? goc?.ranh_gioi ?? (goc ? null : vungLoTrinh(thuMuc, khoa));
   const hangMoi = { slug, day, ...(rg?.length ? { ranh_gioi: rg } : {}) };
   const { vang, trung } = trungLucThem(thuMuc, hv, hangMoi);
   const sau = [...new Set(trung.filter((t) => t.voi === 'hang').map((t) => t.khoa))];
@@ -82,6 +90,40 @@ function themHangTrongKhoa(thuMuc, khoa, day, ranhGioi) {
   if (vang) canhBao.push(`hang them: ${slug} không khai ranh_gioi — lịch không so được tệp; thêm --ranh-gioi <glob,glob> để máy xếp tránh trùng`);
   for (const t of trung.filter((x) => x.voi === 'pr')) canhBao.push(`hang them: ${slug} trùng tệp PR mở ${t.nhanh} (${t.tep.slice(0, 3).join(', ')}) — bộ phát lịch giữ hàng tới khi PR ấy đóng`);
   return { doi: true, slug, sau, canhBao };
+}
+
+// Khai vùng ở Cổng Phạm vi (hồ sơ vung-giao-viec-tu-cat-luot): phiên thợ GỘP thư mục mã mà thiết kế chạm vào vùng tệp của
+// hàng (vùng cũ giữ nguyên — thà báo trùng thừa còn hơn lọt). Glob không có thư mục tĩnh bị từ chối trước khi ghi byte nào.
+// Hàng chưa bắt đầu ở dãy khác do bộ phát lịch so lại ở nhịp kế (có thể nhận `sau`); hàng đang làm hay đã ký ở dãy khác mà
+// chồng vùng mới thì chỉ BÁO — một sự kiện `trung-tep` (luc cong-pham-vi) mỗi hàng, không ghi `sau`, không đụng khoá.
+export function khaiVung(thuMuc, khoa, vung) {
+  can(khoa, 'mã hoặc slug của hàng');
+  const ds = (Array.isArray(vung) ? vung : []).map((g) => String(g).trim()).filter(Boolean);
+  if (!ds.length) throw new Error('hang vung: thiếu --vung <glob,glob>');
+  const rong = ds.filter((g) => !coThuMucTinh(g));
+  if (rong.length) throw new Error(`hang vung: ${rong.map((g) => `«${g}»`).join(', ')} không có thư mục tĩnh trước ký tự đại diện — chồng mọi hàng; ghi thư mục mã của màn`);
+  return voiKhoaHangViec(thuMuc, () => khaiVungTrongKhoa(thuMuc, khoa, ds));
+}
+
+function khaiVungTrongKhoa(thuMuc, khoa, ds) {
+  const hv = docHangViec(thuMuc);
+  treThu();
+  const h = timHang(hv, khoa);
+  if (!h) throw new Error(`hang vung: không có hàng ${khoa}`);
+  const cu = h.ranh_gioi ?? [];
+  const moi = ds.filter((g) => !cu.includes(g));
+  if (!moi.length) return { doi: false, canhBao: [] };
+  h.ranh_gioi = [...cu, ...moi];
+  luu(thuMuc, hv, `${h.slug} khai thêm vùng ở Cổng Phạm vi: ${moi.join(', ')}`, { kieu: 'vung', hang: h.slug, day: h.day, them: moi });
+  const tt = docJson(path.join(thuMuc, 'trang-thai.json'), {}) ?? {};
+  const tienDo = new Map((tt.day ?? []).filter((d) => d.hang && ['dang', 'ky'].includes(d.tien_do)).map((d) => [d.hang, d.tien_do]));
+  const { trung } = xetTrungTep(h, { hangViec: hv, tienDo });
+  const canhBao = [];
+  for (const t of trung.filter((x) => x.voi === 'hang')) {
+    ghiSuKien(thuMuc, { loai: 'trung-tep', luc: 'cong-pham-vi', hang: h.slug, phien: h.day, voi: 'hang', khoa: t.khoa, voi_hang: t.hang, mau: t.mau, can_phan: false });
+    canhBao.push(`hang vung: ${h.slug} chồng vùng với ${t.hang} (${t.day}, ${tienDo.get(t.hang) === 'ky' ? 'đã ký' : 'đang làm'}) — ${t.mau.join(' × ')}; chỉ báo, hai hàng vẫn chạy`);
+  }
+  return { doi: true, them: moi, canhBao };
 }
 
 export function choNghi(thuMuc, day) {

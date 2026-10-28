@@ -141,9 +141,24 @@ Hai dáng cắt, theo `dang` của bản phạm vi:
 Mỗi hàng ghi theo khuôn `skills/acceptance/references/lo-trinh-template.json`: `ma`, `cau_giao`,
 `vi_sao`, `hang`, `dung_tren`, `bat_khi`, cộng năm trường của lượt cắt: `dot` (đúng `dot` của bản phạm
 vi), `phu` (danh sách mã bản phạm vi mà hàng gánh), `vai` (dáng câu giao), `tieu_chi` (cỡ dự kiến) và
-`du_lieu` (bước 2b luật 5, chỉ khi hàng sinh hay dùng dữ liệu giả). Mốc không gánh mã của bản phạm vi.
-Các trường này chỉ lượt cắt ghi và răng đọc — agent mở vòng làm từ hợp đồng, phép đo và kế hoạch của
-vòng, không đọc trường nào cho riêng nó từ lộ trình; đừng thêm trường cho agent. Mã chưa cắt được vào khối `chan_troi` cấp tệp:
+`du_lieu` (bước 2b luật 5, chỉ khi hàng sinh hay dùng dữ liệu giả), và `vung` — vùng mã dự kiến theo khối dưới.
+Mốc không gánh mã của bản phạm vi. Các trường này chỉ lượt cắt ghi và răng đọc — agent mở vòng làm từ hợp đồng,
+phép đo và kế hoạch của vòng, không đọc trường nào cho riêng nó từ lộ trình; đừng thêm trường cho agent. Riêng
+`vung` còn một bên đọc: gói đợt `dieu-phoi` chép nó sang vùng tệp (`ranh_gioi`) của hàng để lịch biết tệp xếp hai
+hàng chồng vùng nối tiếp nhau.
+
+<!-- <<<CAT-LUOT-VUNG -->
+```
+1. Mỗi hàng — cả dáng `chuoi` lẫn `lan-va` — ghi `vung`: mảng glob tương đối gốc kho, là thư mục mã của MÀN mà câu giao nói tới (một màn, một thư mục; hàng chạm hai màn ghi hai thư mục).
+2. Hàng sửa KHUNG CHUNG của một khu — bố cục, thanh bên, điều hướng, tham số đường dẫn: tệp đứng thẳng trong thư mục khu — giữ cả khu `<khu>/**`; hàng chỉ sửa một màn giữ thư mục màn ấy. Hàng đổi khung là hàng làm gãy thước của mọi màn trong khu.
+3. Hàng chạm phần chung ngoài khu (thành phần giao diện dùng chung, máy chủ, văn bản giao diện) ghi thêm đúng thư mục hay tệp ấy — không ghi cả gốc ứng dụng.
+4. Không ghi thư mục hồ sơ `_acceptance/…`: mỗi hàng một tên, chồng ở đó không bao giờ có nghĩa. Không ghi glob không có thư mục tĩnh (`**`, `*.tsx`): nó chồng mọi hàng.
+5. Không biết thư mục mã của màn → đọc cây mã của kho trước khi ghi; vẫn không biết thì để trống — răng nhắc, lịch không so được hàng ấy, không bịa.
+```
+<!-- CAT-LUOT-VUNG>>> -->
+
+Lịch biết tệp đọc vùng lúc GIAO hàng: hai hàng ở hai dãy chồng vùng thì hàng giao sau chờ hàng kia gộp xong. Vùng là
+dự đoán; phiên làm hàng khai thêm vùng mã thật lúc trình Cổng Phạm vi (khối TRONG-DOT của vòng lặp). Mã chưa cắt được vào khối `chan_troi` cấp tệp:
 `{ "ma", "dot", "cau_giao", "ly_do", "phu", "mo_lai_khi" }`. Không ghi `trang_thai`, `pr`, `buoc_ke` —
 máy suy và vẽ chúng.
 
@@ -185,6 +200,11 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 | `thieu-hang-sinh-gia` | `du_lieu: gia` mà không đứng trực tiếp trên hàng `sinh-gia` | lỗi |
 | `moc-ngoai-da-bo` | mốc `loai: ngoai` — trong đợt: lỗi nêu bốn chỗ đến; ngoài đợt: một dòng gom | lỗi |
 | `gan-moc-dang-chay` | gắn vào mốc phát hành đang chạy (ngày ≥ hôm nay, mốc đã có hàng ngoài đợt) — đổi đích chiến dịch giữa chừng | cảnh báo |
+| `chua-khai-vung` | hàng trong đợt thiếu `vung`, khi lộ trình đã có hàng khai `vung` (lộ trình chưa dùng vùng: răng không xét vùng) | cảnh báo |
+| `vung-sai-kieu` | `vung` không phải mảng chuỗi khác rỗng | lỗi |
+| `vung-qua-rong` | một glob của `vung` không có thư mục tĩnh trước ký tự đại diện đầu (`**`, `*.tsx`) | lỗi |
+| `vung-chi-ho-so` | `vung` chỉ trỏ thư mục hồ sơ `_acceptance/…` | cảnh báo |
+| `vung-trung-moi-hang` | từ ba hàng của đợt khai vùng mà MỌI cặp đều chồng — lịch sẽ xếp cả đợt thành một hàng dọc (dòng mở bằng `đợt <tên>`) | lỗi |
 <!-- CAT-LUOT-BANG-CO>>> -->
 
    Dòng `cảnh báo:` có hai loại; dòng `cua-dot` của khối dưới nhận ra loại thứ nhất:
