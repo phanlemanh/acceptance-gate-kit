@@ -117,7 +117,7 @@ const ioGia = (nowMs, gop = []) => ({
     if (cmd === 'gh') return '[]';
     if (cmd === 'git' && args[0] === 'show') {
       const s = gop.find((x) => String(args[1]).includes(`_acceptance/${x}/contract.md`));
-      if (s) return '---\nstatus: signed-off\n---\n';
+      if (s) return '---\nstatus: machine-cleared\n---\n';
       throw new Error('khong co');
     }
     return '';
