@@ -5,7 +5,7 @@ slug: release-2-35-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + ghi chú nhận + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
@@ -84,3 +84,9 @@ limits của tám hồ sơ · GUIDE §5.2 (khối `executors.design` + `design_f
 - Hai bộ ca của nền thiết kế (`tests/design-floor`, `tests/design-eval`) cần cài phụ thuộc ghim và chạy ở job CI riêng
   (`design-floor`, `design-eval`) trên PR mốc — không vào `feature_loop.suite_keys`, nên không vào lượt chấm.
 - Đường nền DO1 đo ở invest trên nhánh chính đã lấy về 29/10; ẩn danh trước commit (kho kit công khai).
+- Lượt chấm 1 dừng giữa chừng, không có báo cáo: bản đồ sản phẩm chưa vẽ lại sau khi hồ sơ mốc sang `implemented` (lỗi
+  của chính PR mốc); lượt 2 chấm trên đỉnh đã vẽ lại, không mang kết quả lượt 1 (sổ d-20261028T211500Z-10).
+- Chỗ cắt cho cửa sổ kế (luật (c); chủ kho 29/10 «Chọn (c)», phiên điều phối chuyển): vòng meta duy nhất sau khi một kho
+  tiêu thụ nhận 2.35.0 là ADR 0027 bước (c) — khối định vị trên mọi lời mời cổng. Hai hạt giống chạm ngưỡng chờ cửa sổ
+  sau: sổ known-limits thiếu hàng (P179, lặp lần thứ ba qua hai cửa sổ) và thước ký → gộp mù khi có commit sau chữ ký
+  (`docs/plans/2026-10-25-hat-giong-do-gop-mu-khi-co-commit-sau-ky.md`).
