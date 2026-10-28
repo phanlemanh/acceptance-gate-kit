@@ -1,0 +1,153 @@
+schema_version: 1
+feature_slug: khung-dot-dinh-vi
+# Ca đo sống ở tests/dieu-phoi/khung-dinh-vi.test.mjs (node --test; khoá executors.test.khung_dinh_vi gộp dòng
+# «ok … KD-», «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng). Suite xanh mà thiếu dòng ghim là ĐỎ. Kho thử do code
+# sinh trong lượt: kho git tạm + đợt chép từ fixture dot-crm-0910, lộ trình tạm; câu giám sát ghi bằng CLI thật. Đường
+# dẫn suy từ vị trí tệp ca. Chiều đỏ trong bộ kiểm: ca «-do» tiêm vào BẢN SAO trọn thư mục dieu-phoi SAU khi bản lành
+# xanh trên cùng fixture, kiểm bước tiêm đã áp, và ghim thông điệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/hoi.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-1" và "KD-1-do". KD-1: `hoi --cau "<câu>"` và `hoi --cau -` (câu từ stdin chứa nháy đơn, $ và
+      backtick) mỗi lệnh thêm đúng một dòng `hoi-chu-kho` vào su-kien.jsonl, mang id in ra stdout, câu nguyên văn, phiên,
+      `can_phan:false`; chạy chính lệnh lọc của Monitor (`grep --line-buffered '"can_phan":true'`, rút nguyên văn từ
+      dieu-phoi/README.md) trên sổ → 0 dòng; đối chứng dương: thêm một dòng `cho-nguoi` của bộ phát lịch thật → lọt
+      đúng 1; `hoi --cau ""` → thoát 2, sổ không đổi byte. CHIỀU ĐỎ (KD-1-do): bản sao ghi `can_phan:true` cho câu giám
+      sát → ca in «KD-1-do: Monitor lọt câu giám sát».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/hoi.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-2" và "KD-2-do". KD-2 ma trận 4 hàng: đóng câu mở → thoát 0, một dòng `hoi-chu-kho-xong` cùng
+      id, `hoiMo` không còn câu ấy, câu kia còn · đóng lần hai → thoát 2, stderr nêu id, sổ không đổi byte · id chưa từng
+      có → thoát 2 nêu id, sổ không đổi · hai câu cùng giây → hai id khác nhau. CHIỀU ĐỎ (KD-2-do): bản sao bỏ kiểm id
+      mở → ca in «KD-2-do: đóng mã lạ không bị từ chối».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/hoi.mjs, dieu-phoi/scripts/khung.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-3" và "KD-3-do". KD-3 round-trip trên stdout THẬT của `xem --json` ở kho thử: một câu giám
+      sát treo → dải đúng nguyên văn «Đợt sau-14-10 · dang-chay · S4: P5 → 07:47 · chờ lượt 8 · cần anh 1» (chuỗi viết
+      tay) và khung có dòng «CẦN ANH: 1» kèm câu và «ở phiên giám sát»; thêm một tệp chờ người của thợ (hook thật) và
+      lời báo sức khoẻ → dải «cần anh 3», khung «CẦN ANH: 3»; đóng câu → dải «cần anh 2». Số của dải bằng số của khung
+      ở mọi hàng. Tuổi câu: câu ghi bằng CLI với DIEU_PHOI_NOW_MS lùi 3 giờ so với bayGio của khung → dòng mục của nó
+      kết bằng «— 3 giờ trước». CHIỀU ĐỎ: KD-3-do bản sao mà hàm đếm bỏ câu giám sát → ca in «KD-3-do: cần anh 0 khi sổ
+      còn 1 câu treo»; KD-3-do2 bản sao bỏ vế giờ của mục → ca in «KD-3-do2: câu treo không có tuổi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/khung.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/scripts/hoi.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-4" và "KD-4-do". KD-4: bản gói ở commit cố định 4918210d (git archive trọn thư mục dieu-phoi)
+      và bản HEAD chạy trên cùng năm kho thử không câu giám sát — có nhịp · chưa có nhịp · không đợt · có cảnh báo ·
+      có nhịp KÈM lộ trình thật của kit (docs/plans/lo-trinh-kit.json chép vào kho thử), gói nguon_hang, hàng mang
+      tep+ma, muc_tieu và gop_da_bao —
+      `xem` và `xem --json` cùng mã thoát, stdout và stderr bằng nhau từng byte; veDai của hai bản trên stdout `xem
+      --json` bằng nhau. Đối chứng trong ca: thêm một câu treo → `xem --json` HEAD khác bản cũ; trên
+      kho thứ năm `xem --json --khung` HEAD có tên việc (khung có ít nhất một dòng việc mang tên lộ trình). CHIỀU ĐỎ:
+      KD-4-do bản sao luôn thêm khoá câu giám sát rỗng → ca in «KD-4-do: xem --json đổi byte khi không có câu»;
+      KD-4-do2 bản sao đưa tên việc vào `xem --json` không cờ → ca in «KD-4-do2: xem --json đổi byte: ten».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/khung.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-5" và "KD-5-do". KD-5 trên stdout THẬT `xem --json` của kho thử: dòng 1 mở đầu «Đợt sau-14-10
+      — », dòng 2 mở đầu «Tiến độ: xong », dòng 3 mở đầu «CẦN ANH: », có dòng «Việc:» rồi mỗi dãy của fixture một dòng mở
+      đầu «  <id> · »; `xem --khung` in đúng chuKhung. Chữ cấm do CODE SINH trong lượt: mọi tên khoá (đệ quy) của object
+      `xem --json --khung` thật trên các kho thử, cộng mọi giá trị trạng thái rút từ bảng nguồn của gói (khoá của
+      bảng tiến độ trong khung.mjs, pha, trạng thái đợt, loại chờ) — trừ hai từ cũng là chữ Việt «xong», «cho» (danh
+      sách loại trừ đóng, in ra) — cộng «khoá s4:»; quét khung trên kho thử phủ mọi giá trị tiến độ và một đợt chưa
+      khai mục tiêu (cờ vàng) → 0 chữ cấm theo ranh giới từ. Đối chứng dương: chuỗi tiêm «gop_da_bao» và «dang-chay» vào
+      khung → quét bắt cả hai. CHIỀU ĐỎ: KD-5-do bản sao chuKhung trả chuXem → ca in «KD-5-do: khung in chữ xem»;
+      KD-5-do2 bản sao bỏ bảng tiến độ → ca in «KD-5-do2: khung in chữ máy: dang».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.dieu_phoi_khung_mod
+    paths: [dieu-phoi/hooks/mod/khung.ts, dieu-phoi/scripts/khung.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/mod/khung.test.ts, tests/dieu-phoi/kiem-khung.mjs]
+    expected: >
+      exit 0; có «PASS: KH-07 pane» với ca «pane dung chu khung»: pane «Đợt» do `claude plugin test` dựng trên bản sao
+      gói có các dòng Text đúng bằng chuKhung(stdout THẬT `xem --json --khung`) tách dòng; mod gọi `xem --json --khung`
+      (KH-06 argv); KH-05, KH-06, KH-08, KH-09 vẫn PASS
+      (lệnh /dieu-phoi:xem vẫn trả chữ xem). CHIỀU ĐỎ có sẵn của kiem-khung (KH-0x-do) vẫn đỏ đúng thông điệp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/khung.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-6" và "KD-6-do". KD-6: kho thử có lộ trình tạm (do code sinh) mang hàng K2 `ten_ngan`, K3 chỉ
+      `ten`, K4 chỉ `cau_giao` dài; hàng thi công mang `tep`+`ma`, một hàng không `ma` → dòng việc mang lần lượt
+      «<ten_ngan> (K2)», «<ten> (K3)», «<sáu từ đầu>… (K4)», «<slug> (chưa có tên trong lộ trình)»; quét mọi dòng «là
+      gì» và dòng việc: không dòng nào phần tên chỉ là mã trần (mẫu viết trước). Đối chứng: cùng kho không lộ trình →
+      mọi dòng mang cờ «chưa có tên trong lộ trình», vẫn không dòng nào chỉ có mã. CHIỀU ĐỎ (KD-6-do): bản sao bỏ tra
+      tên và bỏ cờ → ca in «KD-6-do: là gì chỉ có mã: K2». Round-trip trên bên viết thật: KD-6b chép
+      docs/plans/lo-trinh-kit.json (tệp lộ trình do các lượt cắt và phiên thật viết) vào kho thử, gói nguon_hang trỏ
+      mọi hàng mang mã, rồi `xem --json --khung` + chuKhung → mọi dòng việc mang tên, không dòng nào chỉ có mã; ca in
+      «KD-6b: hàng có mã có ten_ngan k/N» (số ghi vào cột Trạng thái giả định #2 của ô).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/khung.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-7" và "KD-7-do". KD-7 ma trận viết trước 8 hàng (bayGio − mốc, múi): 20 giây → «vừa xong» · 5
+      phút → «5 phút trước» · 3 giờ → «3 giờ trước» · 30 giờ → «hôm qua HH:MM» địa phương · 4 ngày → «DD/MM HH:MM» địa
+      phương · hạn khoá tương lai → «tới HH:MM» ở múi +420, 0, −300 (ba giờ khác nhau viết tay); khung trên fixture
+      không khớp /\d{4}-\d{2}-\d{2}T/, /\.\d{3}Z/, /\dZ\b/. CHIỀU ĐỎ (KD-7-do): bản sao in mốc bằng toISOString → ca in
+      «KD-7-do: khung in giờ ISO».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/khung.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-8" và "KD-8-do". KD-8 ma trận viết trước 8 dãy × nhóm mong đợi: giữ khoá s4 (kể cả đang chờ
+      người) → đang chấm · có tệp chờ người → chờ · chờ lượt → chờ · tien_do ky → chờ · tien_do cho → chờ · không hàng →
+      rảnh · tien_do dang → đang làm · nghỉ → không vào nhóm nào; dòng tiến độ «xong 2/9 · đang làm 1 · đang chấm 1 · chờ
+      4 · rảnh 1» (viết tay) với gop_da_bao 2 phần tử và 9 hàng; tổng nhóm = 7 dãy không nghỉ. CHIỀU ĐỎ (KD-8-do): bản sao
+      xếp «chờ» trước «đang chấm» → ca in «KD-8-do: dãy giữ s4 không vào đang chấm».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.khung_dinh_vi
+    paths: [dieu-phoi/scripts/khung.mjs, dieu-phoi/scripts/hinh-dang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/khung-dinh-vi.test.mjs]
+    expected: >
+      exit 0; "ok" cho "KD-9" và "KD-9-do". KD-9: (a) stdout `xem --json` của bản cũ 4918210d trên kho thử → chuKhung
+      HEAD vẽ đủ năm khối, không ném, dòng mục tiêu mang «⚠ chưa khai mục tiêu», dòng việc mang cờ chưa có tên; (b)
+      trạng thái bỏ gop_da_bao → «xong —/9 ⚠»; (c) hang-viec.json khai muc_tieu chuỗi → dòng 1 chứa đúng chuỗi ấy và
+      kiemHangViec nhận; (d) muc_tieu là số → kiemHangViec ném thông điệp chứa «muc_tieu». CHIỀU ĐỎ (KD-9-do): bản sao bỏ
+      cờ mục tiêu → ca in «KD-9-do: thiếu cờ mục tiêu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: judgment
+    inputs: [dieu-phoi/commands/tiep-tuc.md, dieu-phoi/commands/mo-dot.md, dieu-phoi/README.md]
+    question: >
+      Đọc ba tệp chỉ dẫn của gói điều phối. Một phiên giám sát mới nhận vai, chưa từng thấy thiết kế, có đủ chỉ dẫn rõ
+      bằng lời để: (1) ghi mỗi câu nó hỏi chủ kho trong chat bằng lệnh `hoi` TRƯỚC khi kết lượt, kể cả câu có nháy hay
+      ký tự đặc biệt; (2) đóng câu bằng `hoi-xong <mã>` khi chủ kho đã trả lời; (3) không ghi câu của chính mình bằng sự
+      kiện mang `can_phan:true`; (4) khai mục tiêu đợt (`muc_tieu`) khi mở đợt; và README có nói giới hạn «ghi câu là chỉ
+      dẫn, không có máy giữ» kèm ngưỡng mở lại không? Trả PASS khi đủ cả năm điều; FAIL nêu điều thiếu.
+    expected: PASS
+    evidence_required: [run_id, verdict, judges, rationale]
