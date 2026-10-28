@@ -49,5 +49,16 @@ case "${1:-}" in
   df4-chi-ghi) node "$HERE/moc-s0-s1.mjs" --chi GHI ;;
   df4-noi-day) node "$HERE/moc-s0-s1.mjs" --chi SKILL ;;
   df4-tri-thuc-that) node "$HERE/moc-s0-s1.mjs" --chi TT-THAT ;;
-  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo b-df01 b-df04 b-df05 b-df06 c d bo-ban-va chuoi-so-va df4-bac df4-bac-hong df4-tri-thuc df4-tri-thuc-lech df4-reuse-plan df4-flow-lint df4-the df4-chi-ghi df4-noi-day df4-tri-thuc-that" >&2; exit 2 ;;
+  # Hồ sơ design-floor-moc-s3-s4 (FL5): mỗi lệnh chạy chiều xanh và đột biến cùng nhãn của moc-s3-s4.mjs.
+  df5-s3-autofix) node "$HERE/moc-s3-s4.mjs" --chi S3-AUTOFIX ;;
+  df5-s3-sinh-lai) node "$HERE/moc-s3-s4.mjs" --chi S3-SINH-LAI ;;
+  df5-s3-cay-ban) node "$HERE/moc-s3-s4.mjs" --chi S3-VIEC-DO ;;
+  df5-s4-hex) node "$HERE/moc-s3-s4.mjs" --chi S4-HEX ;;
+  df5-s4-token-coverage) node "$HERE/moc-s3-s4.mjs" --chi S4-TC ;;
+  df5-s4-bac) node "$HERE/moc-s3-s4.mjs" --chi S4-BAC ;;
+  df5-s4-chi-doc) node "$HERE/moc-s3-s4.mjs" --chi S4-CHI-DOC ;;
+  df5-gate-df07) node "$HERE/moc-s3-s4.mjs" --chi GATE ;;
+  df5-vong-mau) node "$HERE/moc-s3-s4.mjs" --chi VONG-MAU ;;
+  df5-noi-day) node "$HERE/moc-s3-s4.mjs" --chi SKILL-S3,BAC-FLOOR ;;
+  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo b-df01 b-df04 b-df05 b-df06 c d bo-ban-va chuoi-so-va df4-bac df4-bac-hong df4-tri-thuc df4-tri-thuc-lech df4-reuse-plan df4-flow-lint df4-the df4-chi-ghi df4-noi-day df4-tri-thuc-that df5-s3-autofix df5-s3-sinh-lai df5-s3-cay-ban df5-s4-hex df5-s4-token-coverage df5-s4-bac df5-s4-chi-doc df5-gate-df07 df5-vong-mau df5-noi-day" >&2; exit 2 ;;
 esac

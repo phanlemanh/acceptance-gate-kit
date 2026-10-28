@@ -13,7 +13,7 @@ flowchart TD
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>135 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>55 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>56 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -69,6 +69,7 @@ flowchart TD
 - Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)
 - design-floor bước 2b — bản vá cục bộ B, C, D cho lõi Design OS vendored — mã thoát ba trạng thái, đầu vào tường minh, không module Figma trong đóng kín; khối máy hết giới hạn (`design-floor-ban-va-b-c-d`)
 - design-floor bước 2c — móc S0 (đọc bậc M0–M3 của kho) và S1 (định tuyến tri thức thiết kế có trần, kiểm kế hoạch dùng lại, flow lint) thành dòng thông tin trên thẻ Cổng Phạm vi (`design-floor-moc-s0-s1`)
+- design-floor bước 2d — móc cuối S3 (autofix và sinh lại tệp dẫn xuất, commit trước S4) và S4 (chấm tuân thủ design system bằng hex thô và độ phủ token, chặn theo bậc), răng ui gate và vòng mẫu không ghi sau S4 (`design-floor-moc-s3-s4`)
 - design-floor bước 2a — lõi gọn Design OS vendored vào kit khớp từng băm của tệp khoá, sổ LOCAL-PATCHES, bản gói dựng tất định, và bản vá A làm mọi lệnh chấm không ghi tệp (`design-floor-vendor-va-ban-va-a`)
 - cổng thiết kế chế độ dom trả KHÔNG-ĐO-ĐƯỢC kèm mã nguyên nhân, không REJECT, khi CSS không áp được, khi nền khai ở tổ tiên bị bỏ qua, hay khi chữ gradient cắt theo chữ (`design-gate-khong-do-duoc-ba-nguyen-nhan`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)

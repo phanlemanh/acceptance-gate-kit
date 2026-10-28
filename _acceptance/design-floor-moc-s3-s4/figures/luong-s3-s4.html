@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luồng S3 → S4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-rule:    rgba(45,49,66,0.12);
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1440px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1100px; display: block; }
+    .caption {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--color-soft);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Cổng Phạm vi · design-floor-moc-s3-s4</p>
+    <h1>Luồng S3 → S4</h1>
+
+    <svg viewBox="0 0 1432 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Arrows (behind nodes) ===== -->
+      <line x1="176" y1="148" x2="216" y2="148" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="368" y1="148" x2="408" y2="148" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="560" y1="148" x2="600" y2="148" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="752" y1="148" x2="848" y2="148" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="1048" y1="148" x2="1088" y2="148" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- S4 → dải bậc -->
+      <line x1="948" y1="184" x2="948" y2="268" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- ===== Ranh «sang implemented» ===== -->
+      <line x1="800" y1="100" x2="800" y2="212" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="800" y="88" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">sang implemented</text>
+
+      <!-- ===== Nhãn Hỏi-1 trên hai nút (autofix, commit) ===== -->
+      <path d="M292 108 V84 H676 V108" fill="none" stroke="#eb6c36" stroke-width="1" stroke-opacity="0.6"/>
+      <rect x="352" y="56" width="264" height="20" rx="2" fill="#f5f5f5"/>
+      <text x="484" y="70" fill="#ba4513" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Hỏi-1: chỗ duy nhất design-floor ghi tệp kho</text>
+
+      <!-- ===== Nodes ===== -->
+      <!-- N1: Cuối S3: chụp cây (điểm đầu) -->
+      <rect x="24" y="112" width="152" height="72" rx="36" fill="#f5f5f5"/>
+      <rect x="24" y="112" width="152" height="72" rx="36" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="100" y="152" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cuối S3: chụp cây</text>
+
+      <!-- N2: autofix (focal) -->
+      <rect x="216" y="112" width="152" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="216" y="112" width="152" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="292" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">autofix trang HTML</text>
+      <text x="292" y="160" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">vòng đổi</text>
+
+      <!-- N3: sinh lại -->
+      <rect x="408" y="112" width="152" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="408" y="112" width="152" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="484" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">chạy lệnh sinh lại</text>
+      <text x="484" y="160" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">kho khai</text>
+
+      <!-- N4: commit (focal) -->
+      <rect x="600" y="112" width="152" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="600" y="112" width="152" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="676" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">một commit S3</text>
+      <text x="676" y="160" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">(chỉ tệp máy đổi)</text>
+
+      <!-- N5: S4 chỉ đọc -->
+      <rect x="848" y="112" width="200" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="848" y="112" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="948" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">S4 chỉ đọc:</text>
+      <text x="948" y="160" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">hex thô + độ phủ token</text>
+
+      <!-- N6: pre-merge (điểm cuối) -->
+      <rect x="1088" y="112" width="200" height="72" rx="36" fill="#f5f5f5"/>
+      <rect x="1088" y="112" width="200" height="72" rx="36" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1188" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">pre-merge: không tệp</text>
+      <text x="1188" y="160" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">nào đổi sau S4</text>
+
+      <!-- ===== Dải bậc dưới hộp S4 — Hỏi-2 ===== -->
+      <text x="848" y="260" fill="#4f5d75" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Hỏi-2</text>
+
+      <!-- M0 -->
+      <rect x="848" y="272" width="136" height="64" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="860" y="292" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">M0</text>
+      <text x="860" y="312" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">im</text>
+
+      <!-- M1 -->
+      <rect x="992" y="272" width="136" height="64" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1004" y="292" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">M1</text>
+      <text x="1004" y="312" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">hex thô chặn</text>
+
+      <!-- M2 -->
+      <rect x="1136" y="272" width="136" height="64" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1148" y="292" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">M2</text>
+      <text x="1148" y="312" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">hex thô chặn,</text>
+      <text x="1148" y="326" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">độ phủ token cảnh báo</text>
+
+      <!-- M3 -->
+      <rect x="1280" y="272" width="136" height="64" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1292" y="292" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">M3</text>
+      <text x="1292" y="312" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">cả hai chặn</text>
+
+      <!-- Ghi chú nhỏ -->
+      <text x="848" y="372" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">không đo được → không bao giờ chặn</text>
+    </svg>
+
+    <p class="caption">AC liên quan: AC-1, AC-2, AC-3, AC-6, AC-7, AC-9</p>
+  </div>
+</body>
+</html>

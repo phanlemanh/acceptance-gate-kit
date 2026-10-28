@@ -193,6 +193,13 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1 — chỉ để nói ch
 
 **Nghi thức S1-D (cuối S1, MỌI feature chạm UI — trigger là surface web-UI của feature, KHÔNG phụ thuộc CT1 hay `executors.design.*`):** feature chạm UI → chạy skill `design-pass` (plugin acceptance-gate ≥ 1.26.0, in-harness) TRƯỚC Gate 1 — Gate 1 duyệt UI trên BẢN BẤM ĐƯỢC, không duyệt UI bằng chữ. Bỏ bước này PHẢI là entry `descope` CÓ TÊN trong ledger (AUTO-DRAFT: decision bắt đầu đúng chuỗi `"bỏ design-pass — <lý do 1 dòng>"`, impact "Gate 1 duyệt UI bằng chữ — mất khoảnh khắc visual trước duyệt"); không có đường bỏ im lặng. Chọn chạy = entry `type:"approach"` như mọi quyết định lane. Nấc phản ứng theo thang bốn nấc của nghi thức — Mặc định là KHÔNG ĐỒNG BỘ: máy dựng bản mẫu, tự chụp ma trận trạng thái × khổ, gửi gói rồi đi làm việc khác; nac-3 (ngồi cùng) chỉ mở khi có người gọi tên nó. Kết phiên S1-D phải đủ 4 mục: ma trận capture + findings + nấc ngữ cảnh đã khai + nấc phản ứng đã khai (khoá `reaction:`; thiếu → thẻ cờ vàng đường đọc-cũ, KHÔNG chặn, không bắt migrate) (khoá `context:` trong `design-pass.md` — thẻ Cổng 1 render nấc; `standalone` thiếu cảnh ngữ-cảnh sẽ cờ vàng). Khi resume vào workspace có `design-pass.md`, đọc khoá `context:`; thiếu (sổ phiên đời trước trục ngữ cảnh) → thẻ cờ vàng đường đọc-cũ, KHÔNG chặn, không bắt migrate.
 
+**Sàn thiết kế ở S4 (hồ sơ design-floor-moc-s3-s4).** Kho M1–M3 chấm tuân thủ design system bằng lệnh chỉ đọc dưới — hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai; không đo được không bao giờ chặn). Kho nối nó bằng tay thành `executors.design.floor` (GUIDE «Wire executors.design»); hồ sơ chạm giao diện khai một eval `script` với `cmd: config:executors.design.floor`. Kho chưa nối → lệnh bậc ở S0 in một dòng nói S4 chưa chấm tuân thủ design system.
+<!-- <<<DESIGN-FLOOR-S4 -->
+```
+node "<acceptance-gate>/scripts/design-floor-s4.mjs" --root .
+```
+<!-- DESIGN-FLOOR-S4>>> -->
+
 **Lưới S4 tier-mismatch (chạy ở bước chuẩn-bị-args S4):** config có `design.surface_globs` → chạy `git diff --name-only <diffBase>`; có file khớp glob mà `evals.yaml` KHÔNG có eval design nào (static/fidelity) → DỪNG, báo user: "diff chạm surface (`<path>` → `<glob>`) nhưng lane hiện tại không có design eval — nâng lane (thêm static evals) hoặc xác nhận + ghi entry `descope`". Key vắng → bỏ qua lưới, ghi chú 1 dòng vào gói Gate 2.
 
 🎨 Resume guard: khi resume vào feature chạm UI mà `status` ≥ `approved` nhưng workspace KHÔNG có `design-pass.md` → báo user + đề nghị chạy skill `design-pass`, KHÔNG chặn (workspace cũ đi đường đọc-cũ).
@@ -392,6 +399,12 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
    `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop). Ngay khi Workflow trả về: chạy usage report (xem "Đo model/token per run").
+2b. **Sàn thiết kế cuối S3 (hồ sơ design-floor-moc-s3-s4).** Mọi task xong + verify per-task pass, TRƯỚC khi hợp đồng sang `implemented`: chạy đúng khối dưới, thay `<slug>` (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`). Kho M0 → không in, không ghi. M1–M3 → autofix các trang HTML mà vòng đổi, chạy lệnh sinh lại kho khai ở `design_floor.sinh_lai`, rồi MỘT commit chỉ gồm tệp chính lệnh làm đổi — việc dở chưa commit giữ nguyên. Thoát 2 (một trang cần sửa đang có thay đổi chưa commit) → commit hay hoàn lại trang ấy rồi chạy lại; thoát 1 → đọc dòng lỗi (autofix hay lệnh sinh lại), sửa rồi chạy lại. Không bước nào sau đây được ghi tệp của vòng.
+<!-- <<<DESIGN-FLOOR-S3 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-s3.mjs) && node "$AG/scripts/design-floor-s3.mjs" --root . --slug '<slug>'
+```
+<!-- DESIGN-FLOOR-S3>>> -->
 3. Kết thúc S3 (mọi task xong + verify per-task pass): set contract `status: implemented`, rồi **dispatch Workflow S4 NGAY trong cùng lượt**. KHÔNG tự chạy evals trong main loop — nhưng cũng KHÔNG dừng chờ người ở ranh giới này: doer ≠ grader được thoả bởi agent TƯƠI của Workflow S4, không phải bởi một lượt hỏi người.
 
 ## S4 — VERIFY (một Workflow run)
