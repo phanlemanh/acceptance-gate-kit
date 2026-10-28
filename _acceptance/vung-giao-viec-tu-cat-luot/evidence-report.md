@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d50ef8c3323cac9d3ff35c3fbf7e7ec4ac851c8e
+verified_commit: 72040afa6014648d4e334de51d0c77f7c254a133
 human_signoff: Manh Phan 2026-10-28
 ---
 
@@ -234,3 +234,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, không 
 Round 1: không eval nào của hợp đồng đỏ; ba lệnh suite không gắn eval đỏ (`--manh mjs:2/3` một ca hỏng, `--manh mjs:3/3` một ca hỏng, `plugins --manh vung:3` ca RT13 vì tệp tests/dieu-phoi/vung-giao-viec.test.mjs chứa chữ «signed-off» mà chưa khai gạch). Trả về bước thi công.
 
 Round 2: sau các commit sửa của vòng (cờ vùng chỉ bật khi lộ trình đã dùng vung; ca VG bỏ chuỗi «signed-off»; tám dòng sổ known-limits), mười một eval máy và mười hai lệnh suite đều xanh; E9 mang từ round 1 vì delta không chạm paths của nó; E3 đề xuất PASS, chờ người ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-28, do hoá cũ do gộp nhánh chính sau lượt chấm
+run_id: repin-20261028T035121Z-69053
+sha: 72040afa6014648d4e334de51d0c77f7c254a133 · suites: 11 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E3 (E3 không khai paths)
