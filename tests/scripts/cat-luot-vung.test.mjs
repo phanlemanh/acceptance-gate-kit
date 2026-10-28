@@ -118,6 +118,18 @@ if (want('CV-2') && await chay('CV-2', () => cv2())) ok('CV-2', `ma trận ${MA_
 if (want('CV-2-do')) await chayDo('CV-2-do', cv2, [['scripts/cat-luot.mjs', /export const coThuMucTinh = g => [^\n]*/, 'export const coThuMucTinh = g => true;']], 'R1 ["**"]', 'bản sao răng: phép thử thư mục tĩnh luôn đúng — CV-2-do: ** lot');
 if (want('CV-2-do2')) await chayDo('CV-2-do2', cv2, [['scripts/cat-luot.mjs', 'const rong = r.vung.filter(g => !coThuMucTinh(g));', 'const rong = r.vung.slice(0, 1).filter(g => !coThuMucTinh(g));']], 'R10 ["app/x/**","**"]', 'bản sao răng chỉ xét phần tử đầu — CV-2-do2: tron lot');
 
+// Chiều im: lộ trình chưa hàng nào khai `vung` (kho chưa dùng vùng, lộ trình cắt trước vòng) → răng không thêm dòng nào.
+async function cv2Im(goc = KIT) {
+  const C = await nap(goc);
+  const k = C.napKhoang(path.join(goc, 'skills', 'cat-luot', 'SKILL.md'));
+  const hang = hangMT('d').map(({ vung, ...r }) => r);
+  const { loi: l, canhBao } = C.kiemCo({ dot: 'd' }, { schema: 1, hang }, k);
+  const v = dongVung([...l, ...canhBao]);
+  return v.length ? [`CV-2-im: lo trinh khong vung ma co ${v.length} dong vung — ${v[0]}`] : [];
+}
+if (want('CV-2-im') && await chay('CV-2-im', () => cv2Im())) ok('CV-2-im', 'lộ trình chưa hàng nào khai vung → 0 dòng cờ vùng');
+if (want('CV-2-im-do')) await chayDo('CV-2-im-do', cv2Im, [['scripts/cat-luot.mjs', 'const dungVung = hang.some(({ r }) => r.vung !== undefined);', 'const dungVung = true;']], 'CV-2-im: lo trinh khong vung', 'bản sao răng bật cờ vùng vô điều kiện');
+
 // Mã thoát của lệnh răng: 1 khi có lỗi vùng trong đợt, 0 khi chỉ cảnh báo vùng.
 function khoThu(hang) {
   const d = mkdtempSync(path.join(TMP, 'kho-'));

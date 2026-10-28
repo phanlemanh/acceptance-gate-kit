@@ -200,7 +200,7 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 | `thieu-hang-sinh-gia` | `du_lieu: gia` mà không đứng trực tiếp trên hàng `sinh-gia` | lỗi |
 | `moc-ngoai-da-bo` | mốc `loai: ngoai` — trong đợt: lỗi nêu bốn chỗ đến; ngoài đợt: một dòng gom | lỗi |
 | `gan-moc-dang-chay` | gắn vào mốc phát hành đang chạy (ngày ≥ hôm nay, mốc đã có hàng ngoài đợt) — đổi đích chiến dịch giữa chừng | cảnh báo |
-| `chua-khai-vung` | hàng trong đợt thiếu `vung` | cảnh báo |
+| `chua-khai-vung` | hàng trong đợt thiếu `vung`, khi lộ trình đã có hàng khai `vung` (lộ trình chưa dùng vùng: răng không xét vùng) | cảnh báo |
 | `vung-sai-kieu` | `vung` không phải mảng chuỗi khác rỗng | lỗi |
 | `vung-qua-rong` | một glob của `vung` không có thư mục tĩnh trước ký tự đại diện đầu (`**`, `*.tsx`) | lỗi |
 | `vung-chi-ho-so` | `vung` chỉ trỏ thư mục hồ sơ `_acceptance/…` | cảnh báo |

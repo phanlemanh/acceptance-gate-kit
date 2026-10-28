@@ -64,7 +64,7 @@ function dotTam(hangViec, { cfg = {}, gh = () => '[]', diff = () => '' } = {}) {
       if (cmd === 'git' && args[0] === 'diff') return diff(args);
       if (cmd === 'git' && args[0] === 'show') {
         const slug = /_acceptance\/([^/]+)\/contract\.md$/.exec(args[1])?.[1];
-        if (slug && gop.has(slug)) return '---\nstatus: signed-off\n---\n';
+        if (slug && gop.has(slug)) return '---\nstatus: machine-cleared\n---\n';
         throw new Error('not found');
       }
       return '';
@@ -287,7 +287,7 @@ function dotCoKho({ z2 = ['app/b/d.tsx'], y = null } = {}) {
   fs.symlinkSync(t.d, path.join(k, '.acceptance-runs', 'dieu-phoi-hien-tai'));
   t.batDau('P1', 'x');
   if (y) {
-    t.batDau('P2', 'y', y.status === 'ky' ? 'signed-off' : 'implemented');
+    t.batDau('P2', 'y', y.status === 'ky' ? 'machine-cleared' : 'implemented');
     ghiJ(path.join(t.d, 'trang-thai.json'), { day: [{ id: 'P1', hang: 'x', tien_do: 'dang' }, { id: 'P2', hang: 'y', tien_do: y.status }] });
   }
   return t;

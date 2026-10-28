@@ -230,8 +230,8 @@ function coCuaHang(r, k) {
   else if (!chuanCau(r.cau_giao).startsWith(chuanCau(vai))) ra.push(['vai-khong-mo-cau', `câu giao không mở bằng vai «${vai}»`]);
   return ra;
 }
-// Cờ vùng của một hàng TRONG ĐỢT (hồ sơ vung-giao-viec-tu-cat-luot) — hàng ngoài đợt không mang cờ vùng nào, để lộ trình cắt
-// trước trường `vung` in y như cũ. Trả [cờ, câu, mức] — mức 'loi' hay 'vang'.
+// Cờ vùng của một hàng TRONG ĐỢT (hồ sơ vung-giao-viec-tu-cat-luot), chỉ khi lộ trình đã dùng `vung` — hàng ngoài đợt không mang
+// cờ vùng nào, để lộ trình cắt trước trường `vung` in y như cũ. Trả [cờ, câu, mức] — mức 'loi' hay 'vang'.
 function coVungHang(r) {
   if (r.vung === undefined) return [['chua-khai-vung', 'chưa ghi vung (vùng mã dự kiến theo màn) — lịch biết tệp sẽ không thấy hàng này chồng với hàng nào', 'vang']];
   if (!Array.isArray(r.vung) || !r.vung.length || r.vung.some(g => typeof g !== 'string' || !g.trim())) return [['vung-sai-kieu', `vung ${JSON.stringify(r.vung)} phải là mảng glob (chuỗi khác rỗng, tương đối gốc kho)`, 'loi']];
@@ -258,6 +258,9 @@ export function kiemCo(pv, data, k, homNay = null) {
     else if (r.du_lieu === DL_GIA && !coHangSinh(dt)) ra.push(['thieu-hang-sinh-gia', 'đo trên dữ liệu giả (du_lieu: gia) mà không đứng trực tiếp trên hàng sinh dữ liệu giả nào (du_lieu: sinh-gia)']);
     return ra;
   };
+  // Cờ vùng chỉ bật khi lộ trình đã dùng `vung` ở ít nhất một hàng: kho chưa dùng vùng nhận răng y như trước (lộ trình đời
+  // trước, cắt không vùng — ca LT-168, ON-6-im của hai hồ sơ đã ký).
+  const dungVung = hang.some(({ r }) => r.vung !== undefined);
   // Gộp: hàng cùng đợt, cùng nhom (khác rỗng), cùng dưới mục tiêu, tổng không quá cho phép.
   const duoi = trongDot.filter(({ r }) => laTieuChi(r.tieu_chi) && r.tieu_chi < k.muc_tieu[0]);
   for (const { r, nhan } of trongDot) {
@@ -269,7 +272,7 @@ export function kiemCo(pv, data, k, homNay = null) {
       }
       (CO_LOI.has(co) || CO_LOI_S3B.has(co) ? loi : canhBao).push(`hàng ${nhan} [${co}]: ${cau}${them}`);
     }
-    for (const [co, cau, muc] of coVungHang(r)) (muc === 'loi' ? loi : canhBao).push(`hàng ${nhan} [${co}]: ${cau}`);
+    if (dungVung) for (const [co, cau, muc] of coVungHang(r)) (muc === 'loi' ? loi : canhBao).push(`hàng ${nhan} [${co}]: ${cau}`);
   }
   // Mọi cặp chồng: từ ba hàng khai vùng hợp lệ mà cặp nào cũng chồng thì lịch sẽ xếp cả đợt thành một hàng dọc.
   const coVung = trongDot.filter(({ r }) => !coVungHang(r).some(([, , muc]) => muc === 'loi') && Array.isArray(r.vung) && r.vung.length);
