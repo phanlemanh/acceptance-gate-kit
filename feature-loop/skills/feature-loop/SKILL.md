@@ -262,6 +262,12 @@ CAU_GIAO_HET
 <!-- S0-THEM-HANG-THOAT>>> -->
    **Dòng «Nguồn:» của ô** (hồ sơ o-mo-viec-mang-nguon): kho khai `tri_thuc` và hàng có `dot` → ô do khối `S0-MO-O` mở mang thêm dòng «Nguồn:» ngay sau dòng «Mở từ hàng …»: đường trỏ băm tới trang nền, trang đợt và trang mang mã của hàng (bên ghi và bên đọc `scripts/tri-thuc-nguon.cjs`). Kho không khai, hay hàng không có `dot`, nhận ô như cũ từng byte.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
+4b. **Bậc design-floor của kho (hồ sơ design-floor-moc-s0-s1).** Chạy đúng khối dưới (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`) và nói lại nguyên văn dòng nó in. Kho M0 (không khai `design.surface_globs`, hay khai mà không khớp tệp nào) → lệnh không in gì: không nhắc design-floor, đi tiếp. Dòng in là thông tin, không phải câu hỏi; lệnh không ghi tệp nào; máy không tự nâng bậc hay ghi `design_floor.niem_phong` (M3 chỉ người ghi).
+<!-- <<<DESIGN-FLOOR-S0 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-bac.mjs) && node "$AG/scripts/design-floor-bac.mjs" --root .
+```
+<!-- DESIGN-FLOOR-S0>>> -->
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 
 ## S1 — DESIGN (sinh 3 artifact CÙNG LÚC)
@@ -276,6 +282,12 @@ AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gat
 CAU_TRA_HET
 ```
 <!-- TRI-THUC-TRA-MO-TA>>> -->
+0d. **Sàn thiết kế ở S1 (hồ sơ design-floor-moc-s0-s1).** Sau khi hồ sơ có `contract.md` (hay ít nhất ô cơ hội), chạy đúng khối dưới, thay `<slug>` (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`). Kho M0 → không in, không ghi. M1–M3 → lệnh ghi `_acceptance/<slug>/design-floor.json` và một dòng vào `usage-report.md` của hồ sơ, rồi in các dòng: bậc kho · tri thức thiết kế (chỉ mục + tối đa hai tệp, kèm token) · kế hoạch dùng lại (khi hồ sơ có `reuse-plan.md`) · luồng (khi hồ sơ có `flow.json`). Đọc ĐÚNG các tệp tri thức dòng ấy trỏ (đường tương đối thư mục `tri_thuc.goc` của `design-floor.json`) trước khi chọn phương án — không mở tệp tri thức nào khác. Viết `reuse-plan.md` hay `flow.json` rồi thì chạy lại khối để dòng thẻ mới. Dòng «không đọc được ở đây» không chặn vòng. Thẻ Cổng Phạm vi in các dòng thành khối «Sàn thiết kế» — thông tin, không câu hỏi.
+<!-- <<<DESIGN-FLOOR-S1 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-s1.mjs) && node "$AG/scripts/design-floor-s1.mjs" --root . --slug '<slug>'
+```
+<!-- DESIGN-FLOOR-S1>>> -->
 1. **Nghĩ bằng brainstorming, KHÔNG hỏi-đáp với người** (ngoài đợt; trong đợt theo khối TRONG-DOT). Invoke `superpowers:brainstorming` để dựng phương án, nhưng câu brainstorm lẽ ra hỏi người thì máy tự trả lời từ ô cơ hội đã ký, câu giao của hàng lộ trình, luật kho (CLAUDE.md · AGENTS.md · CONTEXT.md · ADR) và vật đã có. Mỗi lựa chọn như vậy xếp theo **nguồn căn cứ** rồi thành MỘT dòng sổ S1 mang khoá `can_cu` (khuôn `DEC-CAN-CU-SLOT`, mục «Sổ quyết định»):
    - **mục tiêu + quy tắc đã khai** — trỏ được MỘT tệp có từ trước vòng (không phải vật của chính vòng; ô cơ hội đã ký thì được) và câu trích nguyên văn QUYẾT được lựa chọn → máy quyết;
    - **chỉ một lối ra sống** — các lối khác chết vì một ràng buộc nêu được → máy quyết, ghi lối khác chết vì sao;

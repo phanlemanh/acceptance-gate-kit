@@ -2,6 +2,7 @@
 // vá): đóng kín của năm lệnh + phần VỎ kéo thêm, băm và số dòng từng tệp. Một hàm cho ba bên gọi —
 // rao-dong.mjs --write (ghi), FN-01 (so với tệp khoá) và FN-02…04 (đóng kín giao đi) — để bên viết và bên
 // đọc của tệp khoá không thể trôi khỏi nhau.
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { GOC_KIT } from './hop-dong.mjs';
 import { bam, dongKin, dongKinVo, soDong } from './upstream.mjs';
@@ -28,6 +29,7 @@ export async function doKhoa(hd, goc, gocKit = GOC_KIT) {
   const ngoaiVo = [...new Set(rieng.flatMap((f) => vo.ngoaiTheoTep[f] || []))].sort();
   lenh.vo = { entry: hd.vendor.vo, tep: rieng.length, dong: dongVo, ngoai: ngoaiVo, dong_kin: rieng };
   const ds = [...tep.values()].sort((a, b) => a.path.localeCompare(b.path));
+  const triThuc = khoiTriThuc(goc);
   return {
     khoa: {
       schema: 1,
@@ -36,9 +38,24 @@ export async function doKhoa(hd, goc, gocKit = GOC_KIT) {
       lenh: Object.fromEntries(Object.entries(lenh).map(([k, v]) => [k, { entry: v.entry, tep: v.tep, dong: v.dong, ngoai: v.ngoai }])),
       hop: { tep: ds.length, dong: ds.reduce((n, t) => n + t.dong, 0) },
       tep: ds,
+      ...(triThuc ? { tri_thuc: triThuc } : {}),
     },
     lenh,
   };
+}
+
+// Khối tri thức (FL4): chỉ mục `knowledge/index.json` của bản ghim và mọi tệp nó trỏ — băm + byte. Lệnh S1 của vòng
+// (scripts/design-floor-s1.mjs) chỉ tin tệp tri thức khớp khối này. Gốc không có chỉ mục (bản vendored chỉ mang mã)
+// → không có khối; soKhoa chỉ so khối khi cả hai bên có.
+export function khoiTriThuc(goc) {
+  const cm = join(goc, 'knowledge', 'index.json');
+  if (!existsSync(cm)) return null;
+  const idx = JSON.parse(readFileSync(cm, 'utf8'));
+  const tep = (idx.entries || []).map((e) => {
+    const p = join(goc, e.path);
+    return { id: e.id, path: e.path, sha256: existsSync(p) ? bam(p) : null, byte: existsSync(p) ? statSync(p).size : null };
+  }).sort((a, b) => a.path.localeCompare(b.path));
+  return { chi_muc: { path: 'knowledge/index.json', sha256: bam(cm), byte: statSync(cm).size }, tep };
 }
 
 // So một tệp khoá đã ghi với một phép đo lại — danh sách lệch dạng «+tệp», «-tệp», «~tệp (băm|lệnh)».
@@ -55,5 +72,6 @@ export function soKhoa(cu, moi) {
   }
   for (const p of cuTep.keys()) lech.push(`-${p}`);
   if (JSON.stringify(cu.lenh) !== JSON.stringify(moi.lenh) && !lech.length) lech.push('tóm tắt lệnh lệch');
+  if (cu.tri_thuc && moi.tri_thuc && JSON.stringify(cu.tri_thuc) !== JSON.stringify(moi.tri_thuc)) lech.push('khối tri_thuc lệch');
   return lech;
 }
