@@ -1,0 +1,152 @@
+schema_version: 1
+feature_slug: design-gate-khong-do-duoc-ba-nguyen-nhan
+# Ca đo sống ở tests/design-eval/khong-do-duoc.test.mjs (KD1…KD7); trang do tests/design-eval/lib/sinh-trang.mjs SINH
+# trong lượt vào thư mục tạm. «Bản gốc» = git archive <merge-base với nhánh chính> lib vendor scripts (trọn thư mục).
+# Mỗi ca in «PASS: <mã ca> …» hay «FAIL: <mã ca> …»; nhóm ca khớp 0 ca thì thoát 2.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.kdd_tai_lap
+    paths: [lib/design-detect.mjs, scripts/design-gate.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD1-goc " — bản gốc trên ba trang sinh (f01 · hyper-gloss · jang) REJECT mã 2 và ra đúng
+      năm chi tiết tương phản ghim nguyên văn ("3.7:1 (need 4.5:1) — text #000000 on #7c3aed" · "1.1:1 (need 4.5:1) — text
+      #f9f9f9 on #ffffff" · "1.0:1 (need 3:1) — text #ffffff on #ffffff" · "1.0:1 (need 4.5:1) — text #fafafa on #ffffff" ·
+      "1.0:1 (need 4.5:1) — text #ffffff on #ffffff"); "PASS: KD1-f01 ", "PASS: KD1-hyper-gloss ", "PASS: KD1-jang "
+      — bản mới mỗi trang verdict KHONG-DO-DUOC mã 0, đúng các chi tiết ấy mang do_duoc false, ly_do bằng tập
+      {chu-gradient} · {chu-gradient} · {css-khong-ap-duoc, nen-to-tien-bi-bo}, blocking rỗng; "PASS: KD1-f01-that " — tệp fixtures/f01-gradient-cream.html KHONG-DO-DUOC
+      chu-gradient. Chiều đỏ nằm trong chính ca: KD1-goc là bản gốc phải đỏ (REJECT) trên cùng trang.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.kdd_css
+    paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD2-layer-tep ", "PASS: KD2-layer-style ", "PASS: KD2-link-vang ", "PASS: KD2-layer-khong-ghim "
+      — mỗi trang bản gốc REJECT (đối chứng dương của phát hiện sai) và bản mới KHONG-DO-DUOC với ly_do đúng
+      {css-khong-ap-duoc} (KD2-layer-khong-ghim: chữ #aaaaaa nội dòng, nền không ghim — kết cục theo Hỏi-2); "PASS: KD2-khong-phat-hien "
+      — trang có @layer mà không chữ nhạt: bản gốc và bản mới đều PASS mã 0, JSON không có do_duoc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.kdd_nen
+    paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD3-nen-bien " — bản gốc REJECT, bản mới KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo};
+      "PASS: KD3-nen-gradient " — dạng gộp dải màu + màu dự phòng (jsdom bỏ hẳn) vẫn REJECT: giới hạn đã khai; "PASS: KD3-doi-chung-gop " (body background: #111, chữ #333) và "PASS: KD3-doi-chung-bien-trang "
+      (background-color: var(--paper)=#fff, chữ #bbb) — bản mới REJECT mã 2, phát hiện tương phản nằm trong blocking.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.kdd_gradient
+    paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD4-clip ", "PASS: KD4-webkit-clip ", "PASS: KD4-fill ", "PASS: KD4-con " — bản gốc REJECT
+      (mỗi trang ≥1 phát hiện tương phản), bản mới KHONG-DO-DUOC với ly_do đúng {chu-gradient}; KD4-con là chữ trong một
+      span con của phần tử cắt theo chữ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.kdd_doi_chung
+    paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs, tests/design-eval/fixtures/f03-low-contrast.html]
+    expected: >
+      exit 0; stdout có "PASS: KD5-css-doc-duoc ", "PASS: KD5-nen-doc-duoc ", "PASS: KD5-gradient-va-that " — REJECT mã 2,
+      blocking chứa low-contrast với chi tiết ghim ("text #aaaaaa on #ffffff" · "text #333333 on #111111" · "text #999999
+      on #ffffff"), ở trang thứ ba phát hiện của tiêu đề có do_duoc false ly_do {chu-gradient}; "PASS: KD5-css-p0-khac "
+      — trang CSS không áp được có chữ #8a8a8a trên nền #1d4ed8: REJECT với gray-on-color trong blocking, phát hiện tương
+      phản của chính đoạn ấy do_duoc false ly_do {css-khong-ap-duoc}; "PASS: KD5-layer-ghim " — trang có
+      @layer mà đoạn ghim nội dòng color #aaaaaa và background-color #ffffff: REJECT, chi tiết "text #aaaaaa on #ffffff"
+      trong blocking; "PASS: KD5-f03 " — f03 REJECT hai phát hiện tương phản đo được.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.kdd_ma_thoat
+    paths: [lib/design-detect.mjs, scripts/design-gate.mjs, tests/design-eval/khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD6-bang " — ma trận {KHONG-DO-DUOC · REJECT · PASS} × {không cờ · --require-measured} cho
+      mã {0,5 · 2,2 · 0,0}; JSON KHONG-DO-DUOC có do_duoc false, ly_do_khong_do_duoc chứa mọi mã lý do của các phát hiện,
+      khong_do_duoc bằng số phát hiện do_duoc false, p0_count không đếm chúng, blocking không chứa chúng; stderr đúng một
+      dòng bắt đầu "design-gate: dom không đo được"; JSON REJECT và PASS không có khoá do_duoc. Đối chứng đỏ trong bảng:
+      ô REJECT phải 2 ở cả hai cờ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.kdd_dot_bien
+    paths: [lib/design-detect.mjs, tests/design-eval/khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD7-lanh " (bản sao lành, trọn ca KD1…KD5 xanh) rồi với mỗi đột biến một dòng "PASS: KD7-bo-<nhánh> "
+      chỉ khi tập ca đỏ BẰNG tập viết trước trong tệp ca và mọi ca khác xanh trên chính bản đột biến: bo-css đỏ đúng
+      {KD2-layer-tep, KD2-layer-style, KD2-link-vang, KD2-layer-khong-ghim, KD1-jang, KD5-css-p0-khac}; bo-nen đỏ đúng {KD3-nen-bien,
+      KD3-nen-gradient, KD1-jang}; bo-gradient đỏ đúng {KD4-clip, KD4-webkit-clip, KD4-fill, KD4-con, KD1-f01, KD1-f01-that,
+      KD1-hyper-gloss, KD5-gradient-va-that}. Lệch tập in "LECH_TAP <nhánh>: thừa […] thiếu […]" và FAIL; dòng đột biến không khớp đúng một lần in
+      "DOT_BIEN_LECH <nhánh>" và FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.kdd_hoi_quy
+    paths: [lib/design-detect.mjs, scripts/design-gate.mjs, vendor/impeccable/**, tests/design-eval/**]
+    expected: >
+      exit 0; stdout có "PASS: KD0-jsdom " (jsdom nạp từ tests/design-eval là 24.1.3; lệch thì "JSDOM_LECH" và FAIL);
+      "PASS: KD8-design-eval " — DESIGN_EVAL_CAN_DOM=1 bash tests/design-eval/run-tests.sh thoát 0 với "0 skipped";
+      "PASS: KD8-thieu-jsdom " — cùng lệnh trên bản sao tests/design-eval không có node_modules thoát khác 0 và in "FAIL"
+      cho ca dom bị bỏ qua (đối chứng: lệnh không cờ trên cùng bản sao thoát 0 và in "SKIP"); "PASS: KD8-vendor " — git
+      diff --quiet <merge-base> -- vendor/impeccable thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8b
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.kdd_vi_phan_kho
+    paths: [lib/design-detect.mjs, tests/design-eval/vi-phan-kho.mjs]
+    expected: >
+      exit 0; đủ ba kho crm · artifact-platform · onehub-invest dưới KHO_GOC hoặc ~/dev (thiếu kho nào → thoát 2 in
+      "không đọc được ở đây: <tên>"); mỗi kho một dòng "kho <tên> @<sha 8>: <n> đích dom · đổi phán quyết <k> · lý do mới
+      {css-khong-ap-duoc: a, nen-to-tien-bi-bo: b, chu-gradient: c} · tương phản ở bản gốc t" (t = số phát hiện
+      tương phản bản gốc thấy — bộ đếm cho biết phép vi phân có gì để đổi); dòng tổng "vi phân: <N> đích · đổi 0"; tổng đổi khác 0
+      → thoát 1. Không in đường dẫn hay nội dung tệp của kho.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8c
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.kdd_ci
+    paths: [.github/workflows/gate.yml, tests/design-eval/kdd.sh]
+    expected: >
+      Chỉ tồn tại khi Hỏi-1 được duyệt (gỡ cả eval lẫn khoá nếu người chọn không thêm job). exit 0; stdout có "PASS: KD8-ci "
+      — job design-eval của gate.yml có đúng hai bước run bằng NGUYÊN VĂN hai lệnh mà ca KD8-design-eval chạy (rút từ một
+      nguồn trong kdd.sh, so bằng nhau); đổi một ký tự ở bản sao gate.yml → "FAIL: KD8-ci-do" phải đỏ (chiều đỏ trong ca).
+      Lượt CI thật đọc ở PR.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.kdd_nen_mau
+    paths: [lib/design-detect.mjs, tests/design-eval/vi-phan-kho.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD9-hsl-trang ", "PASS: KD9-hsl-trang-gop ", "PASS: KD9-van-trang ", "PASS: KD9-anh ",
+      "PASS: KD9-oklch-trang " — REJECT mã 2, blocking chứa low-contrast với phát hiện đo được "1.9:1 (need 4.5:1) — text
+      #bbbbbb on #ffffff"; "PASS: KD9-hsl-toi ", "PASS: KD9-van-toi ", "PASS: KD9-oklch-toi " — bản gốc REJECT, bản mới
+      KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD9-vi-phan-do-duoc " — ba kho giả, jsdom thật: thoát 0 kèm "vi phân:
+      3 đích · đổi 0"; "PASS: KD9-vi-phan-mu " — cùng ba kho giả, VI_PHAN_JSDOM trỏ thư mục rỗng: thoát 2 kèm "không đo
+      được ở đây: <n> đích". Chiều đỏ trong lịch sử: commit bộ ca KD9 đứng trước commit sửa vật, đỏ 6 ca trên bản lượt 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.kdd_nen_tinh_ra
+    paths: [lib/design-detect.mjs, tests/design-eval/vi-phan-kho.mjs, tests/design-eval/khong-do-duoc.test.mjs, tests/design-eval/lib/sinh-trang.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KD10-nen-chi-gradient ", "PASS: KD10-html-chi-gradient " — bản gốc REJECT, bản mới
+      KHONG-DO-DUOC ly_do {nen-to-tien-bi-bo}; "PASS: KD10-media-toi ", "PASS: KD10-media-in ", "PASS: KD10-hsla-phu ",
+      "PASS: KD10-inline-thang ", "PASS: KD10-gradient-media " — REJECT mã 2 với phát hiện đo được "1.6:1 (need 4.5:1) —
+      text #cccccc on #ffffff" trong blocking; "PASS: KD10-mau-la " — bản gốc có phát hiện tương phản "… on #ffffff" (đối
+      chứng dương: trang thật sự tới nhánh nền), bản mới phán quyết và mã thoát bằng bản gốc, không phát hiện nào do_duoc
+      false; ca đỏ «cần bản gốc» khi lượt không dựng bản gốc; "PASS: KD10-vi-phan-rong " — ba kho giả không đích nào: vi phân thoát 2 kèm "không có đích dom
+      nào". Chiều đỏ trong lịch sử: commit bộ ca KD10 đứng trước commit đổi khuôn, đỏ trên bản lượt 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

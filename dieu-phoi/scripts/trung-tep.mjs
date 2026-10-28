@@ -21,6 +21,10 @@ export function mauGiao(a, b) {
   return pa.startsWith(pb) || pb.startsWith(pa);
 }
 
+// Glob đủ hẹp để làm vùng (hồ sơ vung-giao-viec-tu-cat-luot): không ký tự đại diện (một tệp), hoặc đoạn tĩnh trước ký tự
+// đại diện đầu có ít nhất một thư mục. `**`, `*.tsx`, `**/x/**` chồng mọi hàng — cùng luật với răng của skill cắt lượt.
+export const coThuMucTinh = (g) => !coDaiDien(g) || tienToTinh(g).includes('/');
+
 export const ranhGioiGiao = (rgA, rgB) => rgA.flatMap((a) => rgB.filter((b) => mauGiao(a, b)).map((b) => [a, b]));
 
 export const KHOA_HANG = (h) => h.ma ?? h.slug;

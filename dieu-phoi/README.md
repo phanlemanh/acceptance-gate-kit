@@ -115,6 +115,15 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   so phần tĩnh đứng trước ký tự đại diện đầu — dư về phía báo trùng (`a/**/*.ts` và `a/**/*.css` bị coi là trùng).
   Lệnh `hang them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]` so cùng luật lúc gán hàng, đọc tiến độ và bản chụp PR
   mà bộ phát lịch để trong `trang-thai.json` (`nhanh_mo`, tươi tới một phút).
+- **Vùng đi từ cắt lượt** (hồ sơ `vung-giao-viec-tu-cat-luot`). Hàng lộ trình mang `vung` — vùng mã dự kiến theo màn,
+  do lượt cắt ghi (skill `cat-luot`). Gói khai `nguon_hang` thì hàng thi công không khai `ranh_gioi` nhận `ranh_gioi` =
+  `vung` của hàng lộ trình; hàng khai tay giữ nguyên. `hang them <mã>` với mã của một hàng lộ trình mà đợt chưa có
+  cũng nhận vùng ấy (`--ranh-gioi` thắng). Lúc trình Cổng Phạm vi, phiên thợ của hàng có vùng chạy
+  `hang vung <mã|slug> --vung <glob,glob>`: lệnh GỘP thư mục mã của thiết kế vào `ranh_gioi` (một dòng Nhật ký, một sự
+  kiện `doi-ke-hoach` kiểu `vung`), từ chối glob không có thư mục tĩnh (`**`, `*.tsx`) mà không ghi gì; hàng chưa bắt
+  đầu ở dãy khác được lịch so lại ở nhịp kế; hàng đang làm hay đã ký ở dãy khác mà chồng → một sự kiện `trung-tep`
+  mang `luc: cong-pham-vi` (`can_phan: false`) và một dòng cảnh báo — chỉ báo, không ghi `sau`, không đụng khoá. Lộ
+  trình không có `vung` và không ai gọi `hang vung` → lịch y như trước.
 - **Duyệt chạm tệp khi không dò được nhánh mở** → giám sát phán (`can_phan` nêu lỗi), không còn máy duyệt với lý do
   «không nhánh mở nào chạm». Nhánh của chính phiên xin không tính là nhánh đang sửa tệp ấy.
 - **Đếm ký → gộp.** Mỗi sự kiện `hang-gop` mang giờ commit chữ ký và giờ commit gộp đọc từ nhánh chính, số lần gộp

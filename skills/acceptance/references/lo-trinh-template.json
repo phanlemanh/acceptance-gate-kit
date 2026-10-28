@@ -29,6 +29,9 @@
       "phu": [
         "A1",
         "A2"
+      ],
+      "vung": [
+        "app/trang-x/**"
       ]
     },
     {
@@ -46,6 +49,9 @@
       "dot": "mau-1",
       "phu": [
         "A3"
+      ],
+      "vung": [
+        "api/duyet/**"
       ]
     },
     {
@@ -55,6 +61,9 @@
       "tieu_chi": 8,
       "dung_tren": [
         "2"
+      ],
+      "vung": [
+        "app/quan-tri/**"
       ]
     },
     {
@@ -74,6 +83,9 @@
       "dot": "mau-1",
       "phu": [
         "C2"
+      ],
+      "vung": [
+        "scripts/to-chuc-mau/**"
       ]
     },
     {
@@ -93,6 +105,9 @@
       "dot": "mau-1",
       "phu": [
         "C3"
+      ],
+      "vung": [
+        "app/trang-x/kr-tre/**"
       ]
     }
   ],

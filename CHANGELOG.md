@@ -10,6 +10,280 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+### Cổng thiết kế chế độ dom thôi chặn oan khi không đọc được màu (hồ sơ `design-gate-khong-do-duoc-ba-nguyen-nhan`, hàng FL1, T3)
+
+Gốc: đo chéo 26/10 — P0 tương phản của cổng dom sai 5 trên 8 lần và chặn oan 3 trên 5 tệp.
+
+- **Phát hiện tương phản không đo được thành `KHONG-DO-DUOC` kèm mã nguyên nhân**, không còn là P0 chặn:
+  `css-khong-ap-duoc` (tệp CSS không áp được — `@layer` dưới jsdom, CSS cục bộ hỏng hay vắng — trừ phần tử ghim cả
+  màu chữ lẫn nền ở style nội dòng) · `nen-to-tien-bi-bo` (nền khai ở tổ tiên mà jsdom không đọc được, như
+  `background: var(--bg)`) · `chu-gradient` (chữ cắt theo nền gradient). Phát hiện mang `do_duoc: false` + `ly_do`,
+  không vào `blocking`, không tính vào `p0_count`; JSON thêm `khong_do_duoc` và một dòng stderr nêu mã.
+- **FAIL > KHONG-DO-DUOC > PASS:** tương phản đo được trên cùng trang vẫn `REJECT` 2. Mã thoát giữ nguyên: 0, và 5
+  dưới `--require-measured`. Trang CSS hỏng mà không có phát hiện tương phản vẫn `PASS` như cũ.
+- **Bộ dò Impeccable vendored không đổi byte nào.** Job CI mới `design-eval` cài jsdom ghim 24.1.3 và chạy cả ca dom.
+- **Ai bị ảnh hưởng:** đo 27/10 trên crm, artifact-platform, onehub-invest — 164 đích dom, 0 phán quyết đổi. Kho đọc
+  `p0_count` như tổng mọi P0 sẽ không còn thấy phát hiện không đo được trong số ấy.
+- **Làm gì khi update:** không gì. Kho muốn «không đo được» thành đỏ thì bật `--require-measured` (mã 5).
+
+### design-gate có chế độ chặt tuỳ chọn `--require-measured` (hồ sơ `design-gate-che-do-chat`, T2)
+
+Gốc: crm 25/10, vòng VK10 `che-do-soan-bo-okr` — static trên `.tsx` trả `KHONG-DO-DUOC` mà thoát 0, nên
+`for … || exit 1` xanh rỗng và chiều đỏ không bao giờ đỏ. Ngưỡng mở lại đã khai ở hồ sơ
+`nen-dieu-kien-va-static-khong-do-duoc` («≥1 kho xin chế độ chặt») tới.
+
+- **Cờ mới, bật theo lựa chọn:** `design-gate.mjs <đích> … --require-measured` — đích không phải HTML (`.tsx`,
+  `.jsx`, `.vue`, không đuôi…) thoát **5** thay vì 0, JSON thêm `require_measured: true`, dòng stderr đổi đuôi thành
+  `--require-measured: thoát 5`. Áp ở cả `--mode static` lẫn `--mode dom`; dom quyết bằng đuôi TRƯỚC khi nạp
+  jsdom (kho không có jsdom nhận 5, không phải 3). Lỗi chặn static thấy được trên `.tsx` vẫn `REJECT` mã 2.
+  Đích HTML không đổi dù có cờ.
+- **Vắng cờ: không đổi một mã thoát nào** — mười ô của bộ ca cũ vẫn bằng bản gốc. Không kho nào đổi màu khi nhận bản.
+- **Giới hạn gọi tên:** static không tính màu hay độ tương phản, kể cả trên HTML đã dựng (chữ `#eee` trên nền
+  trắng: static PASS, dom REJECT `low-contrast`). Chiều đỏ về màu cần `--mode dom` hoặc ui-check Tier B.
+- **Ai bị ảnh hưởng:** crm có 61 khoá `*_san_thiet_ke` (static trên `.tsx`, 57 eval đang chạy + 4 ô `not-run`);
+  artifact-platform có 23 khoá dom trên `.tsx`. Cả hai xanh rỗng như hôm nay cho tới khi tự thêm cờ.
+- **Làm gì khi update:** không chép lại tệp nào. Muốn chặn cứng: thêm `--require-measured` vào lệnh design-gate
+  của kho (một chỗ nếu eval đi qua `config:executors.design.gate`) — eval đang chấm tệp nguồn sẽ đỏ ở lượt ghim
+  kế; đổi chúng sang chấm HTML đã dựng bằng dom, hoặc khai `expected_exit: 5`. Vòng `… || exit 1` gộp mã 5
+  thành 1; muốn pin thấy 5 thì dùng `|| exit $?`. Bản kit cũ bỏ lặng cờ lạ — thêm cờ khi chưa nhận bản này thì vẫn
+  xanh rỗng; chạy một lần trên một `.tsx` và thấy mã khác 0 trước khi tin.
+
+## 2.34.0 — 25/10/2026
+
+Mốc mang **tầng tri thức theo LLM Wiki** (đợt `tri-thuc-2410`, TT1–TT5) và phần kit của gói «cắt 80 % thời gian ký →
+gộp» chủ kho chốt 23/10 (C, H, I và phần đo của A). Chủ kho 23/10 đổi North Star kit sang «gộp được» (#400) rồi quyết
+gom hai đợt vào CÙNG một bản phát hành, để các kho tiêu thụ nhận trong ngày 25/10. Có **tám hồ sơ được ký** — tập đối
+chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `suc-khoe-cho-trong-va-toc-do` (SK1, #395),
+`anh-co-that-trong-ho-so` (#399), `ky-den-gop` (#402), `kho-tri-thuc-va-lint` (TT1, #406), `o-mo-viec-mang-nguon`
+(TT3, #407), `ghi-tri-thuc` (TT2, #408), `thiet-ke-nap-tri-thuc` (TT4, #409), `vong-don-le-tra-tri-thuc` (TT5, #411).
+Ngoài vòng: #400 (North Star đổi đích sang gộp-được, luật (c) dòng 1 kéo tới gộp) · #401 (làn đối chứng của lượt chấm
+chạy được trong worktree cô lập) · #404, #405 (cắt đợt `tri-thuc-2410`, năm ô qua Cổng Đáng) · #394, #397 (hạt giống).
+Kho chờ nhận: `crm`, `invest`. Mốc đi **làn V**, không dựng răng mới. Năm gói `acceptance-gate`, `feature-loop`,
+`dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.34.0` (`acceptance-gate`, `feature-loop`, `dieu-phoi` đổi vật;
+`tri-thuc` là gói mới; `road-map` chỉ đổi số); `diagram-design` giữ `2.7.1`. Tag `v2.34.0` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.34.0** (minor): bề mặt mới, không gãy đường đọc-cũ — gói mới `tri-thuc` (`/tri-thuc:kiem`, `/tri-thuc:ghi`),
+khối cấu hình mới `tri_thuc`, lệnh `gop` của gói `dieu-phoi` và khoá `gop_khong_chay_lai_ci`. Kho không khai `tri_thuc`
+thì ô, thẻ và bước thiết kế như cũ; đợt không bật khoá gộp thì lệnh gộp chỉ gộp khi nhánh đã chứa đỉnh nhánh chính.
+Hai đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị ảnh hưởng» dưới: PR chuyển sẵn sàng lúc trình thẻ Cổng Bằng
+chứng (ky-den-gop, hạng H) và ngưỡng swap / RSS của cấu hình đợt hết tác dụng (SK1).
+
+### Sức khoẻ máy đo chỗ trống và tốc độ (hồ sơ `suc-khoe-cho-trong-va-toc-do`, hàng SK1, T2)
+
+Gốc: crm-onehub/_acceptance/dieu-phoi-hai-tang/. Bộ phát lịch chỉ giảm tải khi máy đang nghẹt thật hoặc thiếu chỗ cho
+làn sắp cấp — không vì swap cũ hay một tiến trình lớn hợp lệ; lượt chạy dưới tải được gắn nhãn và thử lại một lần thay
+vì tính là lỗi vật; ngưỡng hiệu chuẩn từ các lượt bị hạ tầng đốt. Lý do làm: trên macOS swap đã dùng giảm vài chục MB
+mỗi giờ khi máy rảnh, nên một máy từng nghẹt đứng ở giảm tải nhiều giờ khi áp lực đã về bình thường (M5 20/10: hơn 2
+giờ; MacBook Pro 21/10: hàm thật trả giảm tải với áp lực mức 1, trống 46 %).
+
+- **Cấu hình đợt:** `suc_khoe` của bản mẫu `dieu-phoi.config.json` còn `{ "ap_luc_muc": 2 }`; `swap_gb`, `rss_gb` không
+  còn tác dụng.
+- **Giới hạn đã khai:** 11 mục chọn ở Cổng Bằng chứng 21/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-5 «Kho còn ngưỡng
+  swap hay RSS cũ trong cấu hình đợt không được báo rằng các ngưỡng ấy đã hết tác dụng; các đoạn đọc «cần người» theo
+  RSS thành mã chết.» và Ngoài-7 «Đơn chờ vì khoá đang bận vẫn hiện lý do «thiếu chỗ» và phát sự kiện thieu-cho, nên
+  người đọc tưởng máy hết bộ nhớ.»
+
+### Ảnh có thật trong hồ sơ (hồ sơ `anh-co-that-trong-ho-so`, T2)
+
+Gốc: `_acceptance/lop-bang-chung-nhin-thay/`. Thẻ Cổng Bằng chứng và trang bằng chứng chỉ tính một ảnh khi tệp có thật
+dưới evidence/ của chính hồ sơ; đường ra thư mục lượt chấm, đường tuyệt đối hay tệp không có thì báo thiếu ảnh kèm
+nguyên nhân. Lý do làm: thẻ tính một eval ui-check «đạt — xem frame ở trang bằng chứng» chỉ từ chuỗi `screenshot:`
+trong báo cáo; không bước nào kiểm tệp. Ở một kho tiêu thụ (22/10) hai hồ sơ đã ký được tính «có ảnh» mà không chứa
+ảnh nào, và 26/293 đường trỏ ra thư mục lượt chấm hay đường tuyệt đối của máy khác.
+
+- **Giới hạn đã khai:** 6 mục chọn ở Cổng Bằng chứng 22/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-1 «Lệnh đo kho thật
+  báo «khớp» (thoát 0) cả khi không so được hồ sơ nào — người chạy tay phải đọc dòng «lỗi đọc» và số hồ sơ.»
+
+### Ký → gộp có chủ máy (hồ sơ `ky-den-gop`, T2)
+
+Gốc: `_acceptance/dieu-phoi-dong-goi-loi/` (Ngoài-3, Ngoài-4). Đoạn ký → gộp có thước và có chủ máy — lịch tránh giao
+hai việc cùng tệp, PR sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, gộp không chạy lại CI khi PR không trùng tệp với
+nhánh chính, và lệnh đếm đợt trừ được giờ ký khỏi giờ gộp. Lý do làm: đợt 19–23/10 của một kho tiêu thụ — 39 PR, mở →
+gộp trung vị 8,3 giờ; 52 commit ghim lại; 254 lần gộp nhánh chính vào nhánh. Quyết định chủ kho 23/10/2026 cho hạng I,
+nguyên văn: «Chấp nhận rủi ro mục I: PR không trùng tệp với PR vừa gộp thì gộp ngay, không chạy lại CI; lỗi lọt qua
+thì CI trên nhánh chính bắt.»
+
+- **Lịch biết tệp (C):** hàng chưa bắt đầu chỉ được giao khi vùng tệp nó khai (`ranh_gioi` trong `hang-viec.json`) không
+  trùng tệp của PR đang mở và không trùng `ranh_gioi` của hàng đang dở ở dãy khác; trùng một hàng của đợt → máy tự thêm
+  phụ thuộc `sau`. Hàng không khai vùng tệp → sự kiện `ranh-gioi-vang`, không chặn.
+- **PR sẵn sàng lúc trình thẻ (H):** ngay sau khi gói bằng chứng máy viết đã commit, `feature-loop/scripts/pr-san-sang.mjs`
+  đẩy nhánh và chuyển PR sang sẵn sàng để CI chạy trong lúc người đọc thẻ; `feature_loop.ship_default` khác `pr` thì
+  lệnh chỉ đẩy nhánh.
+- **Gộp dưới khoá merge (I):** `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>` gộp bằng `--match-head-commit`
+  (không bao giờ `--auto`) khi CI xanh trên đúng đầu nhánh và hồ sơ trên đầu nhánh đã ký, và (a) nhánh đã chứa đỉnh
+  nhánh chính, hoặc (b) kho bật `"gop_khong_chay_lai_ci": true` trong `dieu-phoi.config.json` và tệp PR không giao tệp
+  của các commit vào nhánh chính kể từ merge-base.
+- **Đếm ký → gộp:** `dem` in `ky_den_gop` (trung vị, lớn nhất, theo hàng), `gop_vao_nhanh`, `ghim_lai_sau_ky`.
+- **Giới hạn đã khai:** 3 mục nhãn trạng thái (gap-probe 23/10) và 10 mục chọn ở Cổng Bằng chứng 24/10, ở Notes hợp
+  đồng — đáng nhớ nhất: «Kho chưa đặt lưới trước-gộp làm check bắt buộc: PR sẵn sàng từ lúc trình thẻ, người bấm gộp được
+  trước chữ ký.» và Ngoài-4 «Gọi lệnh chuyển PR sẵn sàng khi đang đứng trên nhánh chính mà quên khai nhánh đích thì máy
+  có thể đẩy thẳng lên nhánh chính.»
+
+### Kho tri thức và lint (hồ sơ `kho-tri-thuc-va-lint`, hàng TT1, T2)
+
+Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/. Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo
+khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree.
+
+- **Khai một lần** trong `_acceptance/config.yaml` (khuôn `skills/acceptance/references/tri-thuc-template.md`):
+  `tri_thuc: { noi: <thư mục>, cong_khai: <true|false>, kho: { ten, duong, remote } }` — `kho` tuỳ chọn; có nó thì gốc
+  tri thức là kho riêng, đường giải theo checkout chính, không theo worktree.
+- **Gói mới `tri-thuc`:** `/tri-thuc:kiem` (sáu lỗi cấu trúc, chỉ đọc). Mã ở lõi `acceptance-gate`.
+- **Giới hạn đã khai:** 2 mục nhãn trạng thái và 18 mục chọn ở Cổng Bằng chứng 24/10, ở Notes hợp đồng — đáng nhớ nhất:
+  Ngoài-12 «Ở kho công khai, một tệp thô đặt thẳng trong thư mục tài liệu thô không bị phát hiện và kiểm tra vẫn xanh.»
+  và Ngoài-13 «Nếu khai sai tên thư mục tri thức trong kho, kiểm tra vẫn báo xanh với 0 trang, trông như một kho trống
+  hợp lệ.»
+
+### Ô mở việc mang nguồn (hồ sơ `o-mo-viec-mang-nguon`, hàng TT3, T2)
+
+Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/ — ô VK1 không trỏ bản phạm vi hay báo cáo nghiên cứu. Ô mở từ
+một hàng của lượt cắt mang dòng «Nguồn:» trỏ đúng trang tri thức của hàng, và nguồn của bản phạm vi là trang tri thức
+có đường trỏ băm.
+
+- **Giới hạn đã khai:** 3 mục nhãn trạng thái và 8 mục chọn ở Cổng Bằng chứng 24/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «Răng phủ không có đường đọc-cũ cho bản phạm vi cắt TRƯỚC khi kho khai `tri_thuc`: chạy lại răng phủ trên bản ấy thì
+  `nguon` chữ tự do đỏ, phiên cắt phải đổi sang đường trỏ băm.» và Ngoài-3 «Khi kho tri thức riêng không có trên máy, ô
+  cơ hội được lưu có thể mang đường thư mục cá nhân của người mở ô, sai trên máy khác.»
+
+### Ghi tri thức (hồ sơ `ghi-tri-thuc`, hàng TT2, T2)
+
+Gốc: crm-onehub/_acceptance/thanh-ben-khu-dung-chung/. Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức
+bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai.
+
+- **Lệnh:** `/tri-thuc:ghi` (mã `scripts/tri-thuc-ghi.mjs`) — tài liệu thô bất biến, trang tóm, commit tại máy.
+- **Giới hạn đã khai:** 7 mục chọn ở Cổng Bằng chứng 24/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-3 «Nếu máy đang có
+  một bản kit cũ chưa có lệnh ghi, lệnh ghi sẽ báo lỗi chung chung thay vì chỉ cho người dùng cách cài bản mới.» và
+  Ngoài-4 «Nếu phiên bị ngắt đúng lúc đang ghi nguồn thô, lần chạy lại sẽ báo thành công nhưng thư mục nguồn vẫn thiếu
+  tệp mô tả, và bước kiểm tri thức sau đó báo đỏ.»
+
+### Thiết kế nạp tri thức (hồ sơ `thiet-ke-nap-tri-thuc`, hàng TT4, T2)
+
+Hàng TT4 của `docs/plans/lo-trinh-kit.json` (đợt `tri-thuc-2410`). Bước thiết kế của mọi vòng ở kho đã khai tri thức ghi
+dòng «đã tra tri thức», và thẻ Cổng Phạm vi không mời duyệt khi thiếu dòng ấy. TT3 đưa đường trỏ trang tri thức tới ô
+của hàng; vòng này đưa nó tới bước thiết kế và làm thẻ Cổng Phạm vi chứng điều đó.
+
+- **Dòng tra** = dòng sổ `stage: "S1"` mang khoá `tri_thuc_tra` theo khối `DEC-TRI-THUC-TRA` của SKILL feature-loop.
+- **Giới hạn đã khai:** 2 mục nhãn trạng thái và 5 mục chọn ở Cổng Bằng chứng 25/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «Kho riêng chỉ kiểm được ở máy có bản của nó; máy không có thì nhãn «không đọc được ở đây», chữ ký vẫn đi.» và Ngoài-2
+  «Thẻ báo chưa vào được Cổng Phạm vi khi thiếu dòng tra, nhưng người gõ thẳng lệnh duyệt vẫn ký được — lệnh ghi chữ ký
+  chưa tự chặn.»
+
+### Vòng đơn lẻ tra tri thức (hồ sơ `vong-don-le-tra-tri-thuc`, hàng TT5, T2)
+
+Hàng TT5 của `docs/plans/lo-trinh-kit.json` (đợt `tri-thuc-2410`). Vòng mở từ một câu mô tả tra được trang tri thức liên
+quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức». TT4 dựng dòng «đã tra tri thức» và
+thẻ chặn khi thiếu; vòng này cho vòng đơn lẻ một lệnh tra theo câu mô tả, cho mọi vòng phần tra sổ quyết định của hồ sơ
+trước, ghi cả hai vào cùng dòng tra, và đưa ngưỡng của ô vào lệnh đếm.
+
+- **Lệnh tra** = `node scripts/tri-thuc.mjs --root <kho> --tra [--slug <hồ sơ>] [--json]`, câu mô tả qua stdin; dòng
+  tra thêm khoá `so` (mảng đường trỏ sổ `<hồ sơ>#<mã dòng>`). **Lệnh đếm** = `can-cu-s1.cjs --root <kho> --dem [--json]`.
+- **Giới hạn đã khai:** 2 mục nhãn trạng thái và 4 mục chọn ở Cổng Bằng chứng 25/10, ở Notes hợp đồng — đáng nhớ nhất:
+  «Tìm chữ theo cặp âm tiết: câu mô tả dùng từ khác trang thì trang không hiện» và Ngoài-2 «Nếu sau này danh sách tệp
+  chép cho kho tiêu thụ thiếu một tệp mà lệnh tra cần, lệnh tra âm thầm làm việc kém đi mà không bài kiểm nào báo đỏ —
+  phép đo hiện chỉ đếm dòng trong danh sách.»
+
+### Ngoài vòng
+
+- **North Star đổi đích sang gộp-được** (#400, `CLAUDE.md`): một kết quả chỉ tính khi vật đã vào nhánh chính của kho
+  tiêu thụ; luật (c) dòng 1 đo làm-xong → gộp-được, tách làm-xong → ký / ký → gộp.
+- **Làn đối chứng chạy được trong worktree cô lập** (#401, `feature-loop/workflows/acceptance-verify.js`): tác tử
+  baseline ghi kịch bản ra tệp của lượt rồi gọi đúng một lời gọi `bash '<tệp>'`; công cụ từ chối thì làn rơi về «chưa
+  chạy dòng nào» và thẻ Cổng Bằng chứng nói ra.
+
+### Lớp chép CI của tầng tri thức đủ cho kho tiêu thụ (sửa trong PR mốc, không qua vòng)
+
+Gốc: crm-onehub PR #565 (nhận kit từ `main` 396c08f8, 25/10). Hai lỗ: danh sách chép thiếu khuôn
+`tri-thuc-template.md` mà lint tri thức và dòng «Nguồn:» đọc lúc chạy (kho khai `tri_thuc` vỡ `ENOENT`); và răng phủ
+`cat-luot.mjs --pham-vi` nạp bộ đọc khoá tri thức vô điều kiện, nên kho khai `tin_hieu` mà không khai `tri_thuc` — chép
+đúng nhãn — vỡ `Cannot find module`. Nay danh sách chép có khuôn (cùng ba tệp TT5 thêm: 36 mục); răng phủ chỉ nạp bộ đọc khi có tệp, và kho
+có dòng `tri_thuc:` mà thiếu tệp thì dừng thoát 2 nêu tệp thiếu. Ca CT0–CT4 (`tests/scripts/chep-tri-thuc-du.test.mjs`)
+dựng kho tiêu thụ từ danh sách chép thật; ca commit trước bản sửa và đỏ trên 396c08f8.
+
+**Ai bị ảnh hưởng:**
+
+- Kho dùng `feature-loop` với `ship_default: pr`: PR chuyển sẵn sàng ngay lúc trình thẻ Cổng Bằng chứng, trước chữ ký.
+  Kho chưa đặt lưới trước-gộp (`scripts/pre-merge-check.sh`) làm check bắt buộc thì người bấm gộp được trước chữ ký.
+- Kho có đợt Điều phối: ngưỡng `swap_gb`, `rss_gb` trong `suc_khoe` không còn tác dụng và không được báo (Ngoài-5 của
+  SK1) — gỡ đi cho khỏi hiểu lầm. Lệnh gộp mới `gop` chỉ gộp không chạy lại CI khi kho bật khoá.
+- Kho không khai `tri_thuc`: không đổi gì ở ô, thẻ, bước thiết kế.
+
+**Đường đọc-cũ:** ô cơ hội không có dòng «Nguồn:» vẫn mở và đọc như cũ; ô từ bản phạm vi chữ tự do vẫn mở, mang cờ;
+sổ quyết định không có dòng tra ở kho không khai tri thức → thẻ không chặn; hàng lộ trình không khai `ranh_gioi` →
+cảnh báo, không chặn; đợt không có khoá `gop_khong_chay_lai_ci` → lệnh gộp đòi nhánh chứa đỉnh nhánh chính.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.34.0` bốn tệp `scripts/lo-trinh.mjs`, `scripts/cat-luot.mjs`,
+  `dieu-phoi/scripts/cau-hinh.mjs`, `dieu-phoi/scripts/hinh-dang.mjs`; thêm sáu tệp CHỈ khi kho khai `tri_thuc` (nhãn
+  `[only-if-declared: tri_thuc]` trong danh sách chép): `scripts/tri-thuc.mjs`, `scripts/tri-thuc-khoa.cjs`,
+  `scripts/tri-thuc-nguon.cjs`, `scripts/tri-thuc-tra.cjs`, `scripts/can-cu-s1.cjs`,
+  `skills/acceptance/references/tri-thuc-template.md`. Các tệp còn lại giống từng byte `v2.33.1`.
+- **Tệp vào danh sách chép mà không đổi byte** (TT5, chỉ khi khai `tri_thuc`): `scripts/luat-san-pham.cjs` — lối
+  `--tra` nạp nó qua `can-cu-s1.cjs`; kho chưa chép thì chép thêm.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.34.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, và gói mới `tri-thuc`
+  (`--scope project`) ở kho khai `tri_thuc` — rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may
+  --ref v2.34.0 --root <bản clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.34.0` (KC1) — dòng TỔNG KẾT ghi vào
+hồ sơ `release-2-34-0`.
+
+**crm, theo thứ tự** (đang ở 2.33.1):
+
+1. **Cài theo thẻ `v2.34.0`** mọi gói crm đang dùng (`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`), thêm
+   `tri-thuc` nếu khai `tri_thuc`; kiểm `kiem-ban-cai.mjs --may --ref v2.34.0`. Mở phiên MỚI.
+2. **Lớp chép CI từ thẻ** (`git archive v2.34.0`): bốn tệp chép lại + bảy tệp tri thức nếu khai `tri_thuc` (hai gạch trên).
+   Bản chép từ `main` 396c08f8 (trước thẻ) thiếu khuôn tri thức trong danh sách — chép lại từ thẻ.
+3. **Khai `tri_thuc`** trong `_acceptance/config.yaml` nếu dùng kho tri thức riêng: `kho.ten`, `kho.duong` (tương đối
+   gốc checkout chính), `kho.remote`, và `cong_khai: true` (kho crm công khai). Thư mục tri thức trong kho vào
+   `risk_tiers.t1_skip_globs`. Chạy `/tri-thuc:kiem` — xanh trước khi mở ô từ hàng có đợt.
+4. **Cấu hình đợt Điều phối:** thêm `"gop_khong_chay_lai_ci": true` vào `dieu-phoi.config.json` của gói đợt (rủi ro
+   chủ kho đã chấp nhận 23/10); gỡ `swap_gb`, `rss_gb` khỏi `suc_khoe`; khai `ranh_gioi` cho hàng của `hang-viec.json`
+   (hàng không khai chỉ cảnh báo). Thợ gộp bằng `node <thư mục đợt>/loi/dieu-phoi.mjs gop <PR>`.
+5. **Lưới trước-gộp làm check bắt buộc** trên nhánh chính, nếu chưa có — PR giờ sẵn sàng từ lúc trình thẻ.
+6. **Đọc ngưỡng, 14 ngày sau khi nhận:** ký → gộp đọc bằng `dieu-phoi.mjs dem --json` (`ky_den_gop` trung vị phút,
+   `gop_vao_nhanh.tong`, `ghim_lai_sau_ky.tong`) — đích của gói «cắt 80 %»: phiên mở → gộp từ ~9,5–10 giờ xuống ~2 giờ.
+   Giới hạn của thước: xem «Đọc số» dưới — `ky_den_gop` hôm nay mù với hàng có commit sau chữ ký.
+
+**invest** (đang ở 2.9.0, nhảy thẳng): danh sách việc riêng ở `docs/handoff/2026-10-25-nhan-2-34-0-tu-2-9-0.md`.
+
+**Năm dòng số của luật (c)** — tám vòng có lượt chấm trong cửa sổ (giờ VN). Dòng 1 lần đầu kéo tới GỘP (#400):
+làm-xong = commit đưa hợp đồng sang `implemented` trên nhánh chính · ký = commit đầu đưa `status:` sang `signed-off` ·
+gộp = commit đầu trên lối cha-đầu của nhánh chính có commit ký là tổ tiên (cách đọc của `dieu-phoi/scripts/do-gop.mjs`).
+Dòng 2 đếm từ sổ quyết định và commit cổng (không từ bản ghi phiên). Dòng 4–5 từ bảng vai trò của `usage-report.md`.
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `suc-khoe-cho-trong-va-toc-do` (SK1, T2) | 4 g 23 · 6 g 05 · 1 (PASS) | 3 / 0 (3) — Đáng, Phạm vi (Hỏi-1), Bằng chứng | 0 | 48 106 · 33,7 / 23,4 / 42,9 | 45; ghim lại sau chữ ký 39 |
+| `anh-co-that-trong-ho-so` (T2) | 4 g 33 · 7 g 08 · 2 (lượt 1 REJECT: hai suite đỏ; lượt 2 PASS) | 1 / 0 (3) — mở từ hạt giống, không Cổng Đáng; Phạm vi làn V | 0 | 71 868 · 38,3 / 17,6 / 44,2 | 119 · 48 |
+| `ky-den-gop` (T2) | 12 g 53 · 2 g 53 · 3 (lượt 1 REJECT: lỗi AC-4; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 1 / 0 (3) — phạm vi chốt trong gói «cắt 80 %»; Phạm vi làn V | **1** (lượt 2: sổ known-limits thiếu hàng, P179) | 86 984 · 41,7 / 17,0 / 41,4 | 50 · 49 · 46 = 145 |
+| `kho-tri-thuc-va-lint` (TT1, T2) | 3 g 42 · 1 g 18 · 3 (lượt 1 REJECT: bản đồ cũ + 3 mục trong hợp đồng; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V | **1** (lượt 2, P179) | 103 397 (lượt 2–3; báo cáo không ghi lượt 1) · 46,4 / 27,2 / 26,4 | — · 47 · 51 |
+| `o-mo-viec-mang-nguon` (TT3, T2) | 2 g 12 · 1 g 09 · 2 (lượt 1 REJECT: LT-18, CE2; lượt 2 PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V | 0 | 137 223 · 39,3 / 40,8 / 19,9 | 49 · 44 |
+| `ghi-tri-thuc` (TT2, T2) | 1 g 19 · 7 g 33 · 1 (PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1), Bằng chứng | 0 | 79 821 · 33,1 / 45,5 / 21,4 | 50; ghim lại sau chữ ký 57 |
+| `thiet-ke-nap-tri-thuc` (TT4, T2) | 4 g 00 · 1 g 33 · 1 (PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1, CỘNG), Bằng chứng | 0 | 79 505 · 31,2 / 49,9 / 18,9 | 44; ghim lại sau chữ ký 44 |
+| `vong-don-le-tra-tri-thuc` (TT5, T2) | 4 g 25 · 0 g 57 · 3 (lượt 1 REJECT: mảnh suite mjs 3/3 đỏ; lượt 2 REJECT: ca XD-6 chập chờn dưới tải; lượt 3 PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1, CỘNG), Bằng chứng | **1** (lượt 2: ca chập chờn dưới tải) | 153 624 · 38,0 / 38,2 / 23,8 | 61 · 50 · 48 = 159 |
+
+«Đáng chung» = một lượt Cổng Đáng cho cả năm ô TT1–TT5 (#405, 24/10). Gộp tám hồ sơ: 760 528 out-token, vật 38,3 /
+tìm-lỗi 33,8 / tổng hợp 27,8 %. Trung vị tám vòng: làm-xong → ký **4 g 12**, ký → gộp **2 g 13**. Ký chưa gộp: 0.
+
+**Đọc số:** ký → gộp đã ngắn hơn làm-xong → ký ở năm vòng tri thức gộp nối nhau (0 g 57 – 1 g 33) trừ TT2
+(7 g 33: chờ TT3 gộp trước rồi ghim lại 57 phút). Ba vòng ký → gộp trên 6 giờ: `anh-co-that-trong-ho-so` và TT2 ký
+buổi tối, gộp sáng hôm sau; SK1 ký 13:58, gộp 20:03 cùng ngày. Ba lượt bị hạ tầng đốt: hai cùng một nguyên nhân —
+sổ known-limits thiếu hàng cho đề xuất của lượt trước (P179), lặp ở hai vòng liên tiếp (`ky-den-gop`, TT1) — và một
+ca chập chờn dưới tải (TT5, XD-6). Ghim lại sau chữ ký tốn 39–57 phút mỗi lần, ngang một lượt chấm.
+**Thước ký → gộp của kit mù ở 4/8 vòng:** `dieu-phoi/scripts/do-gop.mjs` trả rỗng khi PR còn commit sau chữ ký (ghim lại,
+hạt giống, gộp nhánh chính) — ghép `--first-parent` với `--ancestry-path` trên git 2.37 không đi qua cha thứ hai; bảng trên
+đọc bốn vòng ấy bằng tay theo đúng định nghĩa của tệp. Hạt giống:
+`docs/plans/2026-10-25-hat-giong-do-gop-mu-khi-co-commit-sau-ky.md`. **Điều kiện tin cậy:** (i) `git diff v2.33.1
+<cây mốc> -- feature-loop/workflows/ feature-loop/agents/` chỉ chạm làn đối chứng (khối chứng-minh-vật) của
+`acceptance-verify.js` — đường verdict finder → refute → REJECT không đổi thành phần; (ii) lượt chấm sai do
+phép-đo-tự-dối giữa hai mốc: 0.
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 ↓ ký → gộp (lịch biết tệp, PR sẵn sàng lúc trình thẻ, gộp không chạy lại
+CI — ky-den-gop) · 2 = · 3 ↓ (lượt dưới tải thử lại thay vì tính lỗi vật — SK1; làn đối chứng không chết trong worktree
+cô lập — #401) · 4 = · 5 =.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (25/10).
+**N không tăng so với mốc 2.33.1 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.33.1 — 20/10/2026
 
 Bản vá của 2.33.0. Chủ kho quyết 19/10 «GT2 xong sẽ cắt bản vá», rồi 20/10 «ưu tiên KY1 để cắt» — không chờ mốc

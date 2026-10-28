@@ -70,6 +70,22 @@ Dòng tệp của `nguon.md` (biểu thức bên đọc dùng):
 ```
 <!-- TRI-THUC-RAW-DONG>>> -->
 
+## Năm loại nguồn — bên ghi `/tri-thuc:ghi`
+
+Giá trị `loai` của `nguon.md`, mỗi dòng một loại kèm luật hình dạng bên ghi kiểm trước khi ghi: `goc-khong-rong` (gốc
+không rỗng) · `goc-https` (gốc mở đầu `https://`) · `goc-url-hoac-issue` (URL `https://` hay `<chủ>/<kho>#<số>`) ·
+`tep-ngoai-kho` (mọi tệp nằm ngoài kho tiêu thụ) · `tep-trong-kho` (mọi tệp được git theo dõi trong kho tiêu thụ).
+
+<!-- <<<TRI-THUC-NGUON -->
+```
+phien goc-khong-rong
+artifact goc-https
+issue goc-url-hoac-issue
+tep-may tep-ngoai-kho
+tep-kho tep-trong-kho
+```
+<!-- TRI-THUC-NGUON>>> -->
+
 ## Đường trỏ ghim
 
 Ghim theo băm nội dung, không theo sha commit (sha mất sau gộp squash; sha chưa đẩy thì máy khác không thấy). Có tiền tố

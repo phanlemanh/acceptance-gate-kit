@@ -35,7 +35,7 @@ export function timGoi(gocKho, ten, coGoi = null) {
 }
 
 // Gói khai `nguon_hang` (§14 chỗ nối 1): hàng của đợt là các hàng thi công của gói mang mã có trong nguồn,
-// slug điền từ lộ trình; hàng nguồn không có phần thi công trong gói thì bỏ kèm cảnh báo. Đọc lộ trình
+// slug (và vùng tệp, khi hàng thi công chưa khai) điền từ lộ trình; hàng nguồn không có phần thi công trong gói thì bỏ kèm cảnh báo. Đọc lộ trình
 // lỗi → giữ hàng khai tay (có slug) và nói ra đúng một dòng.
 function apNguonHang(hangViec, nguon, gocKho) {
   const canhBao = [];
@@ -51,7 +51,8 @@ function apNguonHang(hangViec, nguon, gocKho) {
   const hang = [];
   for (const h of hangViec.hang ?? []) {
     const ung = h?.ma ? (theoMa.get(h.ma) ?? []).filter((r) => h.tep === undefined || r.tep === h.tep) : [];
-    if (ung.length === 1) hang.push({ ...h, slug: ung[0].slug, tep: ung[0].tep });
+    // Hàng thi công không khai vùng tệp nhận vùng mã dự kiến của hàng lộ trình (hồ sơ vung-giao-viec-tu-cat-luot); khai tay thắng.
+    if (ung.length === 1) hang.push({ ...h, slug: ung[0].slug, tep: ung[0].tep, ...(h.ranh_gioi === undefined && ung[0].vung ? { ranh_gioi: ung[0].vung } : {}) });
     else if (ung.length > 1) {
       moHo.add(h.ma);
       canhBao.push(`mo: hàng ${h.ma} có ở ${ung.map((r) => r.tep).join(', ')} — khai \`tep\` cho hàng thi công; bỏ qua`);

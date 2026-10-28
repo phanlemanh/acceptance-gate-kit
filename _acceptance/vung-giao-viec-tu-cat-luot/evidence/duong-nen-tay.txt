@@ -1,0 +1,29 @@
+# Đường nền chạy tay — bộ ca mới trên mã trước vòng (f615a492), worktree tách rời, 2026-10-28T01:53Z
+# Lane đường nền của lượt chấm 2 không chạy (tác tử thiếu công cụ ghi tệp). Ca hành vi phải đỏ; ca chiều im, vi phân, ẩn danh xanh cả hai bản.
+  FAIL: CV-1 — SKILL thiếu khối CAT-LUOT-VUNG · hàng khuôn 1: vung không phải mảng chuỗi khác
+  FAIL: CV-1-do — mong đúng một cảnh báo chua-khai-vung nêu hàng 1 — ["SKILL thiếu khối CAT-L
+  FAIL: CV-2 — R1 ["**"]: mong ["lỗi:vung-qua-rong"], được [] · R2 ["*.tsx"]: mong ["lỗi:vung-qua-r
+  FAIL: CV-2-do — bản sao lành không xanh: R1 ["**"]: mong ["lỗi:vung-qua-rong"], được [] · R2 ["
+  FAIL: CV-2-do2 — bản sao lành không xanh: R1 ["**"]: mong ["lỗi:vung-qua-rong"], được [] · R2 [
+  PASS: CV-2-im — lộ trình chưa hàng nào khai vung → 0 dòng cờ vùng
+  FAIL: CV-2-im-do — Error: nhát tiêm khớp 0 lần ở scripts/cat-luot.mjs (cần 1) |     at tiem (fil
+  FAIL: CV-2-thoat — có lỗi vùng: exit 0 «bảng phủ đợt d (chuoi): 2 mã
+  FAIL: CV-3 — ba hàng mọi cặp chồng: mong một lỗi nêu A, B, C — được []
+  FAIL: CV-3-do — bản sao lành không xanh: ba hàng mọi cặp chồng: mong một lỗi nêu A, B, C �
+  FAIL: CV-4 — TypeError: C.mauGiao is not a function |     at cv4 (file:///private/tmp/claude-501/-Users-ma
+  FAIL: CV-4-do — TypeError: C.mauGiao is not a function |     at cv4 (file:///private/tmp/claude-501/-Users
+CV Results: 1 passed, 11 failed
+not ok 1 - VG-1 khuon-qua-goi: mỗi hàng mẫu của khuôn thành ranh_gioi đúng bằng vung; đối ch�
+not ok 2 - VG-4 chep-vung: A nhận vung, B giữ vùng tay, C không vung không ranh_gioi
+not ok 3 - VG-4-do bo-dong-chep
+not ok 4 - VG-5 them-theo-ma: M nhận vung lộ trình và sau Y; --ranh-gioi thắng; mã ngoài lộ trình
+not ok 5 - VG-6 phat-lai: lộ trình qua răng không lỗi vùng; gói đọc ra vùng; hàng dáng VK8 (H5)
+ok 6 - VG-6-do vung-cap-khu
+ok 7 - VG-6-an-danh: mọi chuỗi của bản phát lại khớp khuôn tên tổng hợp
+ok 8 - VG-6-an-danh-do
+not ok 9 - VG-7 khai-vung: lệnh rút từ SKILL gộp vùng, một dòng Nhật ký; hàng chưa mở và h�
+not ok 10 - VG-8 bao-dang-do: hàng đang làm/đã ký ở P2 chồng vùng mới → đúng một sự kiệ
+ok 11 - VG-9 vi-phan: thư mục đợt không vùng qua năm nhịp — bản gốc và bản mới cho cùng
+not ok 12 - VG-9-do chep-vung-ca-khi-khong-vung
+# pass 4
+# fail 8

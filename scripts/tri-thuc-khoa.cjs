@@ -1,5 +1,8 @@
 // tri-thuc-khoa.cjs — MỘT hàm đọc khối `tri_thuc` của _acceptance/config.yaml cho mọi bên đọc tầng tri thức. Tách riêng
 // theo nếp lo-trinh-khoa.cjs: bên đọc biết khối vắng mà không nạp scripts/tri-thuc.mjs. Hồ sơ kho-tri-thuc-va-lint (TT1).
+const { spawnSync } = require('node:child_process');
+const { realpathSync } = require('node:fs');
+const path = require('node:path');
 const KHOA = 'tri_thuc';
 const KHOA_BIET = ['noi', 'cong_khai', 'kho'];
 const KHOA_KHO = ['ten', 'duong', 'remote'];
@@ -54,4 +57,19 @@ function docTriThuc(cfgText) {
   return ra;
 }
 
-module.exports = { KHOA, docTriThuc, khoiTriThuc };
+// Gốc checkout chính = cha của git-common-dir: giống nhau ở checkout chính và mọi worktree. Ba hàm dưới dời từ
+// tri-thuc.mjs (hồ sơ thiet-ke-nap-tri-thuc) để bên đọc CJS dùng chung một luật giải đường kho riêng.
+function gocCheckoutChinh(root) {
+  const r = spawnSync('git', ['-C', root, 'rev-parse', '--path-format=absolute', '--git-common-dir'], { encoding: 'utf8' });
+  if (r.status !== 0) return realpathSync(root);
+  return path.dirname(realpathSync(r.stdout.trim()));
+}
+// → { goc, trongKho, cfg } ; goc tuyệt đối.
+function giaiGoc(root, cfg) {
+  if (cfg.kho && cfg.kho.duong) return { goc: path.resolve(gocCheckoutChinh(root), cfg.kho.duong), trongKho: false, cfg };
+  return { goc: path.resolve(root, cfg.noi), trongKho: true, cfg };
+}
+const dongKhongDoc = cfg => `không đọc được ở đây: ${cfg.kho.ten} — ` +
+  (cfg.kho.remote ? `git clone ${cfg.kho.remote} ` : 'khai kho.remote để có lệnh clone; đường cần có: ');
+
+module.exports = { KHOA, docTriThuc, khoiTriThuc, gocCheckoutChinh, giaiGoc, dongKhongDoc };
