@@ -25,7 +25,9 @@ Các bước, đúng thứ tự:
    đợt dựng tay thay.
 2. **Mở.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" mo $ARGUMENTS --phien <mã phiên này>`.
    Mỗi dòng cảnh báo `mo:` in ra (ví dụ không đọc được tệp lộ trình) → nói lại nguyên văn. Chẩn đoán lại
-   (không cần `--mo` nữa).
+   (không cần `--mo` nữa). `hang-viec.json` của đợt chưa có khoá `muc_tieu` → thêm một câu mục tiêu đợt bằng
+   tiếng sản phẩm (chuỗi; lấy từ gói đợt hay câu chủ kho giao đợt) — dòng đầu của khung đợt đọc nó, vắng thì
+   khung hiện cờ vàng «chưa khai mục tiêu đợt».
 3. **Thẻ khởi tạo.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" the khoi-tao --json`. Trình
    bằng tiếng sản phẩm: bảng dãy và hàng; mục máy đi tiếp có cửa phản đối (ưu tiên khi tranh chấp, làn V);
    mục cảnh báo (hàng có ô đã quyết khác `build` — không vào đợt). Thẻ có `han_muc` → in một dòng thông tin

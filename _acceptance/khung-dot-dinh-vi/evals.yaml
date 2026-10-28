@@ -85,7 +85,7 @@ evals:
       exit 0; có «PASS: KH-07 pane» với ca «pane dung chu khung»: pane «Đợt» do `claude plugin test` dựng trên bản sao
       gói có các dòng Text đúng bằng chuKhung(stdout THẬT `xem --json --khung`) tách dòng; mod gọi `xem --json --khung`
       (KH-06 argv); KH-05, KH-06, KH-08, KH-09 vẫn PASS
-      (lệnh /dieu-phoi:xem vẫn trả chữ xem). CHIỀU ĐỎ có sẵn của kiem-khung (KH-0x-do) vẫn đỏ đúng thông điệp.
+      (lệnh /dieu-phoi:xem vẫn trả chữ xem). CHIỀU ĐỎ: KH-07-do pane-chu-xem — bản sao mod vẽ lại chữ xem → ca «pane dung chu khung» fail với thông điệp toEqual; các KH-0x-do có sẵn vẫn đỏ đúng thông điệp.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-6

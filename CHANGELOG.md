@@ -10,6 +10,27 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+### Khung đợt định vị và bộ đếm «cần anh» đếm đủ (hồ sơ `khung-dot-dinh-vi`, ADR 0027 bước a–b, T2)
+
+Gốc: 28/10 — phiên giám sát của một kho tiêu thụ chờ chủ kho xác nhận một chẩn đoán trong chat mà dải đợt vẫn báo
+«cần anh 0»; pane «Đợt» in chữ gỡ lỗi của lệnh `xem` (khe máy, chữ không dấu, giờ UTC có mili-giây, mã trần).
+
+- **Câu giám sát hỏi chủ kho vào sổ của đợt.** Lệnh mới `dieu-phoi.mjs hoi --cau "<câu>"` (hay `--cau -` đọc stdin)
+  ghi sự kiện `hoi-chu-kho` mang `can_phan:false` — Monitor của giám sát không thức vì câu của chính nó;
+  `hoi-xong <mã>` đóng câu. Câu rỗng, mã không mở → thoát 2, không ghi gì.
+- **«Cần anh» đếm mọi nguồn bằng một hàm** (`canAnh` ở `khung.mjs`): tệp chờ người và yêu cầu `can-nguoi` của thợ,
+  lời báo sức khoẻ máy, câu giám sát đang mở. Dải và khung dùng cùng hàm nên hai số không lệch.
+- **Pane «Đợt» vẽ khung định vị** (`chuKhung`): mục tiêu đợt · tiến độ «xong / đang làm / đang chấm / chờ / rảnh» ·
+  «CẦN ANH: n» kèm là gì, ở phiên nào, bao lâu · mỗi dãy một dòng việc mang tên ngắn từ tệp lộ trình, mã trong
+  ngoặc · giờ địa phương tương đối. CLI thêm `xem --khung` (in khung) và `xem --json --khung` (dữ liệu của nó, mod gọi).
+- **Không đổi:** dòng `xem`, `xem --json` (khi không có câu giám sát mở — có câu thì thêm khoá `hoi_chu_kho`), dải
+  của kho không có câu nào, lệnh `/dieu-phoi:xem`, bảng đợt.
+- **Ai bị ảnh hưởng:** kho dùng gói điều phối. Kho có giám sát đặt câu trong chat sẽ thấy «cần anh» lớn hơn hôm nay.
+- **Làm gì khi update:** khai `muc_tieu` (chuỗi) trong `hang-viec.json` của gói đợt để khung có dòng mục tiêu;
+  vắng thì khung hiện cờ vàng. Tên việc tra qua `tep` + `ma` của hàng thi công hoặc `nguon_hang` của gói.
+- **Giới hạn đã khai:** giám sát GỌI `hoi` là chỉ dẫn, không có máy giữ — ngưỡng mở vòng hook: ≥1 lần trên đợt thật
+  dải báo thiếu một câu giám sát đã hỏi.
+
 ### Cổng thiết kế chế độ dom thôi chặn oan khi không đọc được màu (hồ sơ `design-gate-khong-do-duoc-ba-nguyen-nhan`, hàng FL1, T3)
 
 Gốc: đo chéo 26/10 — P0 tương phản của cổng dom sai 5 trên 8 lần và chặn oan 3 trên 5 tệp.

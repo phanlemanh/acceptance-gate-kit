@@ -240,6 +240,7 @@ function duLieuKhung(goc, thuMuc, hangViec, tt) {
     ...(typeof hangViec?.muc_tieu === 'string' && hangViec.muc_tieu.trim() ? { muc_tieu: hangViec.muc_tieu.trim() } : {}),
     ...(Array.isArray(hangViec?.hang) ? { so_hang: hangViec.hang.length } : {}),
     ...(Array.isArray(tt?.gop_da_bao) ? { da_gop: tt.gop_da_bao.length } : {}),
+    bay_gio: bayGio(),
   };
   return { dinh, ten: hangViec ? docTenViec(goc, hangViec, nguon) : new Map(), nghi: new Set((hangViec?.day ?? []).filter((d) => d.nghi).map((d) => d.id)) };
 }

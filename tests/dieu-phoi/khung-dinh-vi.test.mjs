@@ -420,7 +420,7 @@ test('KD-5 khung-dinh-vi', async () => {
 });
 test('KD-5-do khung-in-chu-xem', async () => {
   assert.deepEqual(await kiemKhung(GOI), [], 'đối chứng dương: gói lành phải xanh');
-  const sao = banSao(['khung.mjs', 'export function chuKhung(kq, { bayGio = Date.now() } = {}) {\n', "export { chuXem as __x } from './mo-hinh.mjs';\nimport { chuXem as __y } from './mo-hinh.mjs';\nexport function chuKhung(kq, { bayGio = Date.now() } = {}) {\n  if (kq && kq.dot) return __y(kq);\n"]);
+  const sao = banSao(['khung.mjs', 'export function chuKhung(kq, { bayGio = Number.isFinite(kq?.bay_gio) ? kq.bay_gio : Date.now() } = {}) {\n', "import { chuXem as __y } from './mo-hinh.mjs';\nexport function chuKhung(kq, { bayGio = Date.now() } = {}) {\n  if (kq && kq.dot) return __y(kq);\n"]);
   const loi = await kiemKhung(sao);
   assert.ok(loi.includes('khung in chữ xem'), `KD-5-do: ${loi.join(' | ')}`);
   console.log('  KD-5-do: khung in chữ xem');

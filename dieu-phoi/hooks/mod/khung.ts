@@ -1,11 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { On } from 'claude-code'
 import type { KhungDot } from '../../types'
-import { DONG_LOI, chuKy, veDai } from '../../scripts/khung.mjs'
+import { DONG_LOI, chuKhung, chuKy, veDai } from '../../scripts/khung.mjs'
 import { chuXem } from '../../scripts/mo-hinh.mjs'
 
 // Phần mod khung trạng thái đợt (DP6b, hồ sơ trang-thai-dot-dieu-phoi-tho, thiết kế §2.3). CHỈ ĐỌC: gọi
-// `dieu-phoi.mjs xem --json` theo nhịp, vẽ dải trên ô nhập và pane, trả lời /dieu-phoi:xem không qua model. Không
+// `dieu-phoi.mjs xem --json --khung` theo nhịp, vẽ dải trên ô nhập và pane (khung định vị — hồ sơ khung-dot-dinh-vi),
+// trả lời /dieu-phoi:xem bằng chữ `xem` không qua model. Không
 // ghi tệp, không nghe sự kiện cổng nào (bảng MOD-SU-KIEN). Hook lệnh cố ý KHÔNG có .catch: CLI lỗi thì hook ném,
 // engine bỏ qua nó và chạy lệnh markdown commands/xem.md như cũ — đường lùi là chính lệnh cũ.
 const PANE = 'dieu-phoi-dot'
@@ -14,7 +15,7 @@ const khung = atom({ plugin: 'dieu-phoi', key: 'khung' } as const, null as Khung
 async function docDot($: any): Promise<NonNullable<KhungDot>> {
   const luc = await $.clock.now()
   try {
-    const r = await $.process.run(['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'xem', '--json'], { cwd: await $.session.cwd(), timeoutMs: 10000 })
+    const r = await $.process.run(['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'xem', '--json', '--khung'], { cwd: await $.session.cwd(), timeoutMs: 10000 })
     if (r.exitCode !== 0) return { kq: null, loi: String(r.stderr).trim().split('\n')[0] || `thoát ${r.exitCode}`, luc }
     return { kq: JSON.parse(String(r.stdout)), loi: null, luc }
   } catch (err: any) {
@@ -54,7 +55,7 @@ export const dangKyKhung = (on: On) => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
     const k = await read($, khung)
-    const dong: string[] = !k ? ['đang đọc đợt…'] : k.loi ? [DONG_LOI, k.loi] : chuXem(k.kq).split('\n')
+    const dong: string[] = !k ? ['đang đọc đợt…'] : k.loi ? [DONG_LOI, k.loi] : chuKhung(k.kq).split('\n')
     return h(Box, { flexDirection: 'column' }, ...dong.map((d) => h(Text, {}, d)))
   })
 

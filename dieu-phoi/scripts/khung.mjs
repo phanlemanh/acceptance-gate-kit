@@ -117,8 +117,9 @@ function trangThaiDay(d, kq, gio) {
   return phan.join(' · ');
 }
 
-// Khung định vị cho người: mục tiêu đợt · tiến độ · CẦN ANH · việc từng dãy · lúc cập nhật. `bayGio` là ms.
-export function chuKhung(kq, { bayGio = Date.now() } = {}) {
+// Khung định vị cho người: mục tiêu đợt · tiến độ · CẦN ANH · việc từng dãy · lúc cập nhật. `bayGio` là ms; vắng thì
+// lấy giờ CLI ghi lúc đọc (`bay_gio` của `xem --json --khung`) — giờ máy của môi trường mod không đáng tin.
+export function chuKhung(kq, { bayGio = Number.isFinite(kq?.bay_gio) ? kq.bay_gio : Date.now() } = {}) {
   if (!kq || kq.dot === null) return 'không có đợt nào đang chạy';
   if (kq.loi) return `${DONG_LOI}\n${kq.loi}`;
   const lech = kq.mui_gio_phut;

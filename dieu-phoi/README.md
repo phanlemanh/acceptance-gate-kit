@@ -80,6 +80,15 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 - Khoá hợp lệ của tệp trả lời: `ket_qua`, `boi`, `ly_do`, `luc`, `voi`, `tai_nguyen`, `uoc_phut`.
 - Không dùng `/loop` làm nhịp: phiên giám sát thức dậy nhờ Monitor ở bước 4 và task lịch 30′ ở bước 5 của
   phần mở đợt, cộng tin của owner.
+- **Câu giám sát hỏi chủ kho** (hồ sơ `khung-dot-dinh-vi`, ADR 0027 bước a). Mỗi câu phiên giám sát hỏi chủ kho
+  trong chat và chờ trả lời → `node "$GOI/scripts/dieu-phoi.mjs" hoi --cau - <<'CAU_HET' … CAU_HET` (hay
+  `--cau "<câu>"`) TRƯỚC khi kết lượt; lệnh in `hoi: <mã>`. Chủ kho trả lời → `hoi-xong <mã>`. Sự kiện mang kiểu
+  `hoi-chu-kho` / `hoi-chu-kho-xong` và `can_phan:false`, nên Monitor của giám sát không thức vì câu của chính nó —
+  không ghi câu của chính mình bằng sự kiện mang `can_phan:true`. Câu rỗng hay mã không mở → thoát 2, không ghi gì.
+  `xem --json` liệt câu đang mở ở khoá `hoi_chu_kho` — khoá chỉ có khi có câu mở. Không tự đóng câu khi có tin vào
+  phiên giám sát (lịch 30′ và tin liên phiên cũng vào đó): quên `hoi-xong` thì khung báo dư kèm tuổi câu.
+  - Giới hạn đã khai: giám sát GỌI `hoi` là chỉ dẫn ở `/dieu-phoi:tiep-tuc`, không có máy giữ. Ngưỡng mở vòng hook
+    tự ghi: ≥1 lần trên đợt thật dải báo thiếu một câu giám sát đã hỏi.
 - Mỗi sự kiện `can_phan`: đọc dòng sự kiện. Với yêu cầu, ghi `tra-loi/<id>.json` gồm
   `{ket_qua, boi:"giam-sat", ly_do, luc}` và một dòng Nhật ký. Với `dich:"owner"`: gom lại, push tối
   đa 1 lần mỗi 30′.
@@ -88,9 +97,17 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   múi giờ. Kho không có đợt thì in `{"dot":null}`.
 - **Khung trạng thái đợt trong app** (phần mod `hooks/mod/khung.ts`, hồ sơ `trang-thai-dot-dieu-phoi-tho`). Ở mọi
   phiên trong kho có đợt, trên ô nhập có một dải một dòng:
-  `Đợt <tên> · <pha> · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`.
+  `Đợt <tên> · <pha> · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`. «Cần anh» đếm MỌI việc đang chờ chủ
+  kho bằng một hàm (`canAnh`): tệp chờ người và yêu cầu `can-nguoi` của thợ, lời báo sức khoẻ máy, câu giám sát
+  đang mở.
   - Ở phiên thợ, dải thêm dãy của phiên đó. Khi giảm tải, dải mở đầu `GIẢM TẢI`.
-  - Nút `xem` trên dải mở pane «Đợt» với đúng nội dung `xem` in ra.
+  - Nút `xem` trên dải mở pane «Đợt» với **khung định vị** (hồ sơ `khung-dot-dinh-vi`): dòng đầu là mục tiêu đợt
+    (khoá `muc_tieu` của `hang-viec.json`; vắng → cờ vàng) · tiến độ «xong <đã gộp>/<số hàng> · đang làm · đang
+    chấm · chờ · rảnh» · «CẦN ANH: n» kèm từng việc — là gì, ở phiên nào, bao lâu · mỗi dãy một dòng việc mang tên
+    ngắn từ tệp lộ trình (`ten_ngan`, rồi `ten`, rồi sáu từ đầu câu giao) và mã trong ngoặc — hàng không tra được
+    tên mang cờ «chưa có tên trong lộ trình» · giờ địa phương tương đối. Tên tra qua `tep` + `ma` của hàng thi
+    công, không có `tep` thì qua `nguon_hang` của gói. Mod đọc `xem --json --khung`; `xem --khung` in cùng khung ra
+    terminal. Dòng `xem`, `xem --json` và lệnh `/dieu-phoi:xem` giữ chữ cho máy đọc như cũ.
   - Dải làm mới mỗi 20″ khi có đợt và mỗi 120″ khi không; kho không có đợt thì không có dải.
   - `/dieu-phoi:xem` trả lời ngay, không tốn lượt model. Khi mod không chạy hoặc CLI lỗi, lệnh markdown cũ trả lời
     qua model như trước.

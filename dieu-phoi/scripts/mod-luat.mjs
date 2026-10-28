@@ -89,10 +89,12 @@ export function kiemKhungMod(gocGoi, { suKienValidate = null } = {}) {
 // «Mod chỉ vẽ» (DP6b, hồ sơ trang-thai-dot-dieu-phoi-tho AC-9) — nửa CHỈ ĐỌC của chính sách, đọc từ báo cáo
 // `claude plugin validate --strict --json`: không lời gọi ghi/gửi nào trên `$` (dòng «calls:» của module), đúng một
 // hook cổng là lệnh xem của gói và hook đó KHÔNG có .catch (hook hỏng thì engine bỏ qua nó, lệnh markdown chạy như
-// cũ), và mọi argv viết thẳng của `$.process.run` trong phần khung kết thúc bằng `xem --json`.
+// cũ), và mọi argv viết thẳng của `$.process.run` trong phần khung kết thúc bằng một dạng CHỈ ĐỌC của `xem`:
+// `xem --json`, hay `xem --json --khung` (hồ sơ khung-dot-dinh-vi).
 export const GOI_CAM = ['$.fs.write', '$.fs.remove', '$.store.set', '$.session.send', '$.session.append', '$.prompt.submit', '$.tool.', '$.command.run'];
 export const CONG_DUOC_PHEP = ['command.run{command=dieu-phoi:xem}'];
 export const TEP_KHUNG = 'khung.ts';
+export const DUOI_DOC = ["'xem','--json'", "'xem','--json','--khung'"];
 export function kiemChiVe(gocGoi, { notes = [], gatingHooks = [] } = {}) {
   const loi = [];
   const dong = notes.find((n) => n.startsWith(`${MODULE_MOD} calls:`));
@@ -109,7 +111,7 @@ export function kiemChiVe(gocGoi, { notes = [], gatingHooks = [] } = {}) {
   }
   for (const m of nguon.matchAll(/\$\.process\.run\(\s*\[([^\]]*)\]/g)) {
     const argv = m[1].split(',').map((x) => x.trim()).filter(Boolean);
-    if (argv.slice(-2).join(',') !== "'xem','--json'") loi.push(`${TEP_KHUNG}: argv process.run không kết thúc 'xem','--json': [${argv.join(', ')}]`);
+    if (!DUOI_DOC.some((d) => argv.slice(-d.split(',').length).join(',') === d)) loi.push(`${TEP_KHUNG}: argv process.run không kết thúc bằng dạng chỉ đọc của xem (${DUOI_DOC.join(' | ')}): [${argv.join(', ')}]`);
   }
   return loi;
 }

@@ -38,7 +38,7 @@ do chữ của pane chưa bao giờ được đọc như chữ cho người.
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |
 |---|---|---|---|---|
 | 1 | Câu chờ chủ kho của giám sát ghi được vào sổ chung bằng một kiểu riêng mà Monitor của giám sát (lọc `"can_phan":true`) không thức | giám sát tự đánh thức bằng câu của chính nó, mỗi câu một lượt thừa | chạy đúng lệnh lọc của Monitor trên dòng sự kiện máy sinh; đếm dòng lọt | Chưa thử |
-| 2 | Tên việc đọc được từ tệp lộ trình qua `tep` + `ma` của hàng thi công (khoá `ten_ngan`) cho phần lớn hàng của một đợt thật | khung vẫn in mã trần, cờ vàng khắp nơi | đếm trên fixture đợt crm và lộ trình kit: hàng có mã → có `ten_ngan` | Chưa thử |
+| 2 | Tên việc đọc được từ tệp lộ trình qua `tep` + `ma` của hàng thi công (khoá `ten_ngan`) cho phần lớn hàng của một đợt thật | khung vẫn in mã trần, cờ vàng khắp nơi | đếm trên fixture đợt crm và lộ trình kit: hàng có mã → có `ten_ngan` | Đã thử 28/10 (ca KD-6b, lộ trình kit): 34/73 hàng có `ten_ngan`, 73/73 có tên hiển thị (phần còn lại lấy sáu từ đầu của câu giao). Fixture đợt crm không mang tệp lộ trình — chưa đo được ở kho tiêu thụ |
 | 3 | Kho không có giám sát đặt câu trong chat thì dải và dòng `xem` y như 2.34.0 | đổi mặc định — mọi kho trả giá (luật 26/09) | ca vi phân: cùng thư mục đợt không sự kiện mới, bản cũ vs bản mới cho cùng chữ | Chưa thử |
 
 ## Ngưỡng chết / ngưỡng UAT
