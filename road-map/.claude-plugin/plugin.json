@@ -1,6 +1,6 @@
 {
   "name": "road-map",
-  "version": "2.34.0",
+  "version": "2.35.0",
   "description": "Vòng ngoài của lộ trình: rà soát kế hoạch của kho — hàng nào nên dời mốc, chờ điều kiện hay bác, kèm căn cứ máy đọc; ghim, bỏ ghim, trả lại một lần máy tự áp; gửi một ý vào cửa tín hiệu. Vỏ lệnh; mã ở lõi acceptance-gate. Cài theo kho (--scope project). Đi cùng acceptance-gate cùng số phiên bản.",
   "author": {
     "name": "Manh Phan"

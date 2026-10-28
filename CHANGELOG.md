@@ -10,10 +10,161 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.35.0 — 29/10/2026
+
+Mốc mang **nền thiết kế** (đợt `design-floor-2710`, FL1–FL5): lõi gọn Design OS vendored vào kit, nối vào vòng ở S0,
+S1, cuối S3 và S4, chặn theo bậc M0–M3 của kho; cùng cờ chặt tuỳ chọn của design-gate, vùng giao việc đi từ cắt lượt
+(đề bài #430 «toàn đợi ghim») và khung đợt định vị (ADR 0027 bước a–b). Chủ kho 28/10: «Chốt danh sách gom cho bản
+2.35.0: FL1–FL5, vùng giao việc, vòng bộ đếm «cần anh» + khung đợt định vị, và TC1 (#419) nếu kịp ký. Cắt bản khi vòng
+khung đợt gộp.» TC1 chưa ký nên không vào. Có **tám hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4
+của hồ sơ mốc): `design-gate-che-do-chat` (#413), `design-floor-vendor-va-ban-va-a` (FL2, #427),
+`design-floor-ban-va-b-c-d` (FL3, #429), `design-floor-moc-s0-s1` (FL4, #433), `design-gate-khong-do-duoc-ba-nguyen-nhan`
+(FL1, #434), `design-floor-moc-s3-s4` (FL5, #438), `vung-giao-viec-tu-cat-luot` (#436), `khung-dot-dinh-vi` (#440). Ngoài
+vòng: #435 (ADR 0027) · #439 (báo cáo đóng đợt) · #421 (hợp đồng nhập của design-floor) · #422, #424, #425, #426, #428,
+#431, #437 (kế hoạch, cắt lượt, mốc của đợt) · #432 (đề bài vùng giao việc) · #416 (Cổng Đáng một ô) · #414, #420 (hạt
+giống, ghi chép) · #423 (bật tầng tri thức của chính kit) · #412 (dòng KC1 của 2.34.0). Kho chờ nhận: `invest` trước
+(thí điểm nền thiết kế ở bậc M1), `crm` sau. Mốc đi **làn V**, không dựng răng mới. Năm gói `acceptance-gate`,
+`feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.35.0` (`acceptance-gate`, `feature-loop`, `dieu-phoi` đổi
+vật; `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.35.0` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.35.0** (minor): bề mặt mới, không gãy đường đọc-cũ — lệnh `design-floor-*` và khoá `executors.design.floor`,
+khối cấu hình `design_floor`, cờ `--require-measured` của design-gate, lệnh `hoi` / `hoi-xong` và `xem --khung` của gói
+`dieu-phoi`, khoá `muc_tieu` của gói đợt, khoá `vung` của hàng lộ trình. Kho không khai `design.surface_globs` là M0 và
+không thấy gì đổi; vắng cờ thì design-gate giữ mọi mã thoát. Ba đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị
+ảnh hưởng» dưới: kho đã khai `design.surface_globs` thành M1 và thấy dòng bậc ở S0; «cần anh» lớn hơn ở kho có câu
+giám sát; `p0_count` của chế độ dom không còn đếm phát hiện không đo được.
+
+### Lõi Design OS vendored và bản vá A (hồ sơ `design-floor-vendor-va-ban-va-a`, hàng FL2, T3)
+
+Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — bước 1 giao hợp đồng nhập, tệp khoá và bộ đo lấy mã
+upstream qua mạng; DF-07/DF-08 đỏ vì `ui gate` và `ui autofix --write` ghi sổ sự kiện vào `design/` gần nhất. Vòng này
+đưa mã vào kit. Không gửi PR upstream (chủ kho 26/10): mọi sửa đổi là bản vá cục bộ, ghi sổ.
+
+- **Vật:** lõi gọn Design OS vendored vào kit khớp từng băm của tệp khoá, sổ LOCAL-PATCHES, bản gói dựng tất định, và
+  bản vá A làm mọi lệnh chấm không ghi tệp (`design-floor/`). Job CI `design-floor` chấm bản vendored, không lấy mã
+  upstream qua mạng.
+- **Giới hạn đã khai:** 2 mục khai từ thiết kế và 7 mục chọn ở Cổng Bằng chứng 27/10, ở Notes hợp đồng — đáng nhớ
+  nhất: «`ui gate --family <slug>` và tệp token mang trường `persona` trả `FAMILY_NOT_FOUND` trên bản gói, vì
+  `knowledge/personas/families.json` không vendor.» và Ngoài-4 «Phép kiểm «lệnh chấm không ghi tệp» có thể xanh cả khi
+  một lệnh chết ngay từ đầu; mọi lượt đo hiện các lệnh đều chạy.»
+
+### Bản vá B, C, D cho lõi vendored (hồ sơ `design-floor-ban-va-b-c-d`, hàng FL3, T2)
+
+Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — DF-01, DF-03, DF-04, DF-05, DF-06 và phần figma của
+FN-02 còn đỏ có chủ đích trên bản gói sau FL2 (#427, bản vá A). Hàng FL3 đóng chúng bằng ba bản vá cục bộ ghi sổ
+LOCAL-PATCHES; không gửi PR upstream (chủ kho 26/10).
+
+- **Vật:** mã thoát ba trạng thái, đầu vào tường minh, không module Figma trong đóng kín; khối máy hết giới hạn.
+- **Giới hạn đã khai:** 1 mục khai từ thiết kế và 5 mục chọn ở Cổng Bằng chứng 27/10, ở Notes hợp đồng — đáng nhớ
+  nhất: Ngoài-3 «Với trang không đo được, dòng chữ và trường kết quả vẫn ghi «PASS» dù mã thoát là không-đo-được; máy
+  gác cổng đọc mã thoát nên không bị lừa.»
+
+### Móc S0 và S1 của nền thiết kế (hồ sơ `design-floor-moc-s0-s1`, hàng FL4, T2)
+
+Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — phạm vi v1 chốt 26/10: flow lint ở Cổng 1 và định
+tuyến chỉ mục tri thức thiết kế. Bản gói `design-floor/dist/ui.mjs` đã đúng hợp đồng nhập sau FL3 (#429) nhưng chưa
+bước nào của vòng gọi nó.
+
+- **Bậc của kho** (`scripts/design-floor-bac.mjs`, chỉ đọc), xét từ cao xuống, khai báo hỏng không nâng bậc: **M3**
+  `design_floor.niem_phong` khác rỗng trên nền M2 (người ghi — lệnh không có đường ghi) · **M2** `design_floor.tokens` VÀ
+  `design_floor.registry` cùng khai, cả hai tệp có thật · **M1** `design.surface_globs` khớp ít nhất một tệp git theo
+  dõi · **M0** còn lại — không in gì. M1–M3 mà kho chưa nối `executors.design.floor` → thêm một dòng stderr nói S4
+  chưa chấm tuân thủ design system.
+- **S0** nói lại nguyên văn dòng bậc (khối `DESIGN-FLOOR-S0` của SKILL feature-loop); máy không tự nâng bậc hay ghi
+  `design_floor.niem_phong`. **S1** ghi `_acceptance/<slug>/design-floor.json` và một dòng vào `usage-report.md`, in bậc
+  kho · tri thức thiết kế (chỉ mục + tối đa hai tệp, kèm token) · kế hoạch dùng lại · luồng; thẻ Cổng Phạm vi in thành
+  khối «Sàn thiết kế» — thông tin, không câu hỏi (khối `DESIGN-FLOOR-S1`).
+- **Giới hạn đã khai:** 2 mục khai từ thiết kế và 16 mục chọn ở Cổng Bằng chứng 28/10, ở Notes hợp đồng — đáng nhớ
+  nhất: «Kho có giao diện mà chưa khai `design.surface_globs` đọc ra M0 — bậc đi theo khai báo, không theo dò đuôi
+  tệp.» và Ngoài-12 «Tệp kết quả Sàn thiết kế hỏng thì thẻ Cổng Phạm vi bỏ khối im lặng, không bật cờ vàng.»
+
+### Móc cuối S3 và S4 của nền thiết kế (hồ sơ `design-floor-moc-s3-s4`, hàng FL5, T2)
+
+Gốc: acceptance-gate-kit/_acceptance/design-floor-hop-dong-nhap/ — bước 4 của kế hoạch design-floor: cuối S3 autofix
+và sinh lại, S4 tuân thủ design system, không ghi gì sau S4. FL4 (#433) đã có bậc M0–M3 và khối «Sàn thiết kế»; FL1
+(#434) đã có trạng thái KHÔNG-ĐO-ĐƯỢC ở cổng thiết kế.
+
+- **Cuối S3** (`scripts/design-floor-s3.mjs`, khối `DESIGN-FLOOR-S3`), trước khi hợp đồng sang `implemented`: M1–M3
+  autofix các trang HTML mà vòng đổi, chạy các lệnh `design_floor.sinh_lai`, rồi MỘT commit chỉ gồm tệp chính lệnh làm
+  đổi — việc dở chưa commit giữ nguyên. M0 → không in, không ghi.
+- **S4** (`scripts/design-floor-s4.mjs --root .`, chỉ đọc): kho nối thành `executors.design.floor`; hồ sơ chạm giao diện
+  khai một eval `script` với `cmd: config:executors.design.floor`. Chặn theo bậc: M1 hex thô · M2 hex thô, độ phủ token
+  chỉ cảnh báo · M3 cả hai; không đo được không bao giờ chặn. Thoát 0 không chặn · 2 chặn · 1 lệnh ui lỗi.
+- **Giới hạn đã khai:** 2 mục khai từ thiết kế và 6 mục chọn ở Cổng Bằng chứng 28/10, ở Notes hợp đồng — đáng nhớ
+  nhất: «Độ phủ token chỉ đo được trang `.html`; kho giao diện `.tsx` chỉ có kiểm hex thô ở S4.» và «Bắt theo mẫu ký
+  tự, không hiểu ngữ cảnh: chuỗi `#abc` trong chữ hiển thị hay mã neo trang (`href="#abc"`) cũng bị bắt.»
+
+### Cổng thiết kế chế độ dom thôi chặn oan khi không đọc được màu (hồ sơ `design-gate-khong-do-duoc-ba-nguyen-nhan`, hàng FL1, T3)
+
+Gốc: `_acceptance/design-gate-che-do-chat/` (trạng thái KHÔNG-ĐO-ĐƯỢC + mã 5 dưới `--require-measured`) và hạt giống
+`docs/plans/2026-10-25-hat-giong-design-gate-dom-mu-tailwind-v4.md`. Đo chéo 26/10: P0 tương phản của cổng thiết kế chế
+độ dom sai 5 trên 8 lần và chặn oan 3 trên 5 tệp.
+
+- **Phát hiện tương phản không đo được thành `KHONG-DO-DUOC` kèm mã nguyên nhân**, không còn là P0 chặn:
+  `css-khong-ap-duoc` (tệp CSS không áp được — `@layer` dưới jsdom, CSS cục bộ hỏng hay vắng — trừ phần tử ghim cả
+  màu chữ lẫn nền ở style nội dòng) · `nen-to-tien-bi-bo` (nền khai ở tổ tiên mà jsdom không đọc được, như
+  `background: var(--bg)`) · `chu-gradient` (chữ cắt theo nền gradient). Phát hiện mang `do_duoc: false` + `ly_do`,
+  không vào `blocking`, không tính vào `p0_count`; JSON thêm `khong_do_duoc` và một dòng stderr nêu mã.
+- **FAIL > KHONG-DO-DUOC > PASS:** tương phản đo được trên cùng trang vẫn `REJECT` 2. Mã thoát giữ nguyên: 0, và 5
+  dưới `--require-measured`. Trang CSS hỏng mà không có phát hiện tương phản vẫn `PASS` như cũ.
+- **Bộ dò Impeccable vendored không đổi byte nào.** Job CI mới `design-eval` cài jsdom ghim 24.1.3 và chạy cả ca dom.
+- **Ai bị ảnh hưởng:** đo 27/10 trên crm, artifact-platform, onehub-invest — 164 đích dom, 0 phán quyết đổi. Kho đọc
+  `p0_count` như tổng mọi P0 sẽ không còn thấy phát hiện không đo được trong số ấy.
+- **Làm gì khi update:** không gì. Kho muốn «không đo được» thành đỏ thì bật `--require-measured` (mã 5).
+- **Giới hạn đã khai:** 6 mục chọn ở Cổng Bằng chứng 27/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-9 «Thân trang chỉ
+  có dải màu mà các điểm màu viết bằng hàm màu lạ (color-mix…) bị gọi là «nền bị bỏ»: chữ nhạt thật thành không đo
+  được (thoát 0, mã 5 dưới chế độ chặt).»
+
+### design-gate có chế độ chặt tuỳ chọn `--require-measured` (hồ sơ `design-gate-che-do-chat`, T2)
+
+Gốc: crm 25/10, vòng VK10 `che-do-soan-bo-okr` (kit 2.33.1) — `design-gate.mjs --target <.tsx> --mode static` trả
+`KHONG-DO-DUOC`, `do_duoc:false` mà mã thoát 0, nên eval gọi nó trong `for … || exit 1` xanh rỗng và chiều đỏ không bao
+giờ đỏ; chủ kho crm xin sửa. Đây là ngưỡng mở lại đã khai ở hồ sơ `_acceptance/nen-dieu-kien-va-static-khong-do-duoc/`
+(«≥1 kho xin chế độ chặt»).
+
+- **Cờ mới, bật theo lựa chọn:** `design-gate.mjs <đích> … --require-measured` — đích không phải HTML (`.tsx`,
+  `.jsx`, `.vue`, không đuôi…) thoát **5** thay vì 0, JSON thêm `require_measured: true`, dòng stderr đổi đuôi thành
+  `--require-measured: thoát 5`. Áp ở cả `--mode static` lẫn `--mode dom`; dom quyết bằng đuôi TRƯỚC khi nạp
+  jsdom (kho không có jsdom nhận 5, không phải 3). Lỗi chặn static thấy được trên `.tsx` vẫn `REJECT` mã 2.
+  Đích HTML không đổi dù có cờ.
+- **Vắng cờ: không đổi một mã thoát nào** — mười ô của bộ ca cũ vẫn bằng bản gốc. Không kho nào đổi màu khi nhận bản.
+- **Giới hạn gọi tên:** static không tính màu hay độ tương phản, kể cả trên HTML đã dựng (chữ `#eee` trên nền
+  trắng: static PASS, dom REJECT `low-contrast`). Chiều đỏ về màu cần `--mode dom` hoặc ui-check Tier B.
+- **Giới hạn đã khai:** 4 mục chọn ở Cổng Bằng chứng 26/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-3 «Ở chế độ dựng
+  trang có cờ, tệp thành phần đã xoá hay gõ sai đường vẫn nhận «không đo được» — kho ghim mã 5 ở chế độ này phải tự
+  kiểm đường dẫn, kẻo xanh rỗng khi tệp mất.»
+- **Ai bị ảnh hưởng:** crm có 61 khoá `*_san_thiet_ke` (static trên `.tsx`, 57 eval đang chạy + 4 ô `not-run`);
+  artifact-platform có 23 khoá dom trên `.tsx`. Cả hai xanh rỗng như hôm nay cho tới khi tự thêm cờ.
+- **Làm gì khi update:** không chép lại tệp nào. Muốn chặn cứng: thêm `--require-measured` vào lệnh design-gate
+  của kho (một chỗ nếu eval đi qua `config:executors.design.gate`) — eval đang chấm tệp nguồn sẽ đỏ ở lượt ghim
+  kế; đổi chúng sang chấm HTML đã dựng bằng dom, hoặc khai `expected_exit: 5`. Vòng `… || exit 1` gộp mã 5
+  thành 1; muốn pin thấy 5 thì dùng `|| exit $?`. Bản kit cũ bỏ lặng cờ lạ — thêm cờ khi chưa nhận bản này thì vẫn
+  xanh rỗng; chạy một lần trên một `.tsx` và thấy mã khác 0 trước khi tin.
+
+### Vùng giao việc đi từ cắt lượt (hồ sơ `vung-giao-viec-tu-cat-luot`, T2)
+
+Gốc: đề bài phanlemanh/acceptance-gate-kit#430: đợt «vỏ khu Mục tiêu» của một kho tiêu thụ (25–27/10) «toàn đợi ghim» —
+19 lần ghim, 21,2 giờ khoá máy, 6/17 lượt ghim đỏ vì thước của hàng khác gãy, 0 lượt chắc chắn vì lỗi sản phẩm. Lịch
+biết tệp (2.34.0) có chạy nhưng 22/22 hàng chỉ khai thư mục hồ sơ của chính mình, nên 0 lần tự xếp `sau`. Vòng chỉ cho
+lịch một cảm biến đúng: không đổi cách chấm, không đổi làn ghim, kho không khai vùng giữ y hành vi hiện nay.
+
+- **Cắt lượt ghi vùng:** mỗi hàng của đợt mang `vung` — mảng glob tương đối gốc kho, theo màn của câu giao. Răng phủ:
+  `vung-qua-rong`, `vung-sai-kieu`, `vung-trung-moi-hang` là lỗi; `chua-khai-vung`, `vung-chi-ho-so` là cảnh báo.
+- **Gói đợt chép vùng:** gói khai `nguon_hang` thì hàng thi công không khai `ranh_gioi` nhận `ranh_gioi` = `vung` của
+  hàng lộ trình; hàng khai tay giữ nguyên. `hang them <mã>` cũng nhận vùng ấy (`--ranh-gioi` thắng).
+- **Phiên thợ khai thêm ở Cổng Phạm vi:** `hang vung <mã|slug> --vung <glob,glob>` GỘP vào `ranh_gioi`, từ chối glob
+  không có thư mục tĩnh mà không ghi gì; hàng đang làm hay đã ký ở dãy khác mà chồng → sự kiện `trung-tep` mang
+  `luc: cong-pham-vi` và một dòng cảnh báo — chỉ báo, không ghi `sau`, không đụng khoá.
+- **Giới hạn đã khai:** 9 mục chọn ở Cổng Bằng chứng 28/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-3 «Lộ trình sửa
+  tay ghi vùng quá rộng (`**`, `*.tsx`) vẫn được gói đợt chép thành vùng của hàng, làm cả đợt chạy nối tiếp mà không
+  cảnh báo; bước cắt lượt chặn ca ấy.»
+
 ### Khung đợt định vị và bộ đếm «cần anh» đếm đủ (hồ sơ `khung-dot-dinh-vi`, ADR 0027 bước a–b, T2)
 
-Gốc: 28/10 — phiên giám sát của một kho tiêu thụ chờ chủ kho xác nhận một chẩn đoán trong chat mà dải đợt vẫn báo
-«cần anh 0»; pane «Đợt» in chữ gỡ lỗi của lệnh `xem` (khe máy, chữ không dấu, giờ UTC có mili-giây, mã trần).
+ADR 0027 bước (a) và (b), mở sau khi vòng `vung-giao-viec-tu-cat-luot` gộp (4918210d, 28/10). Ô cơ hội neo `Gốc:` vào
+hồ sơ `trang-thai-dot-dieu-phoi-tho` — hồ sơ đã dựng dải và pane đang hỏng. Hai lỗ: (a) câu phiên giám sát hỏi chủ kho
+trong chat không vào sổ nào, nên dải báo «cần anh 0» khi chủ kho đang có việc; (b) pane «Đợt» in chữ gỡ lỗi của lệnh
+`xem` — không mục tiêu, không tiến độ, mã trần, giờ UTC có mili-giây.
 
 - **Câu giám sát hỏi chủ kho vào sổ của đợt.** Lệnh mới `dieu-phoi.mjs hoi --cau "<câu>"` (hay `--cau -` đọc stdin)
   ghi sự kiện `hoi-chu-kho` mang `can_phan:false` — Monitor của giám sát không thức vì câu của chính nó;
@@ -28,46 +179,103 @@ Gốc: 28/10 — phiên giám sát của một kho tiêu thụ chờ chủ kho x
 - **Ai bị ảnh hưởng:** kho dùng gói điều phối. Kho có giám sát đặt câu trong chat sẽ thấy «cần anh» lớn hơn hôm nay.
 - **Làm gì khi update:** khai `muc_tieu` (chuỗi) trong `hang-viec.json` của gói đợt để khung có dòng mục tiêu;
   vắng thì khung hiện cờ vàng. Tên việc tra qua `tep` + `ma` của hàng thi công hoặc `nguon_hang` của gói.
-- **Giới hạn đã khai:** giám sát GỌI `hoi` là chỉ dẫn, không có máy giữ — ngưỡng mở vòng hook: ≥1 lần trên đợt thật
-  dải báo thiếu một câu giám sát đã hỏi.
+- **Giới hạn đã khai:** 2 mục khai từ thiết kế (một kế thừa từ hồ sơ `trang-thai-dot-dieu-phoi-tho`) và 6 mục chọn ở
+  Cổng Bằng chứng 28/10, ở Notes hợp đồng — đáng nhớ nhất: giám sát GỌI `hoi` là chỉ dẫn, không có máy giữ — ngưỡng
+  mở vòng hook: ≥1 lần trên đợt thật dải báo thiếu một câu giám sát đã hỏi; và Ngoài-1 «Khoảng nửa tên việc trên khung
+  có thể mang thêm dấu « ở đầu, lệch chữ với trang lộ trình.»
 
-### Cổng thiết kế chế độ dom thôi chặn oan khi không đọc được màu (hồ sơ `design-gate-khong-do-duoc-ba-nguyen-nhan`, hàng FL1, T3)
+### Ngoài vòng
 
-Gốc: đo chéo 26/10 — P0 tương phản của cổng dom sai 5 trên 8 lần và chặn oan 3 trên 5 tệp.
+- **ADR 0027 — bốn chân của một quyết định của người** (#435): mỗi chỗ người quyết được dựng bằng bốn chân theo thứ tự
+  phụ thuộc; bước (a)–(b) dựng ở `khung-dot-dinh-vi`, bước (c)–(f) đi sau mốc kế tiếp được một kho tiêu thụ nhận.
+- **Báo cáo đóng đợt `design-floor-2710`** (#439).
 
-- **Phát hiện tương phản không đo được thành `KHONG-DO-DUOC` kèm mã nguyên nhân**, không còn là P0 chặn:
-  `css-khong-ap-duoc` (tệp CSS không áp được — `@layer` dưới jsdom, CSS cục bộ hỏng hay vắng — trừ phần tử ghim cả
-  màu chữ lẫn nền ở style nội dòng) · `nen-to-tien-bi-bo` (nền khai ở tổ tiên mà jsdom không đọc được, như
-  `background: var(--bg)`) · `chu-gradient` (chữ cắt theo nền gradient). Phát hiện mang `do_duoc: false` + `ly_do`,
-  không vào `blocking`, không tính vào `p0_count`; JSON thêm `khong_do_duoc` và một dòng stderr nêu mã.
-- **FAIL > KHONG-DO-DUOC > PASS:** tương phản đo được trên cùng trang vẫn `REJECT` 2. Mã thoát giữ nguyên: 0, và 5
-  dưới `--require-measured`. Trang CSS hỏng mà không có phát hiện tương phản vẫn `PASS` như cũ.
-- **Bộ dò Impeccable vendored không đổi byte nào.** Job CI mới `design-eval` cài jsdom ghim 24.1.3 và chạy cả ca dom.
-- **Ai bị ảnh hưởng:** đo 27/10 trên crm, artifact-platform, onehub-invest — 164 đích dom, 0 phán quyết đổi. Kho đọc
-  `p0_count` như tổng mọi P0 sẽ không còn thấy phát hiện không đo được trong số ấy.
-- **Làm gì khi update:** không gì. Kho muốn «không đo được» thành đỏ thì bật `--require-measured` (mã 5).
+**Ai bị ảnh hưởng:**
 
-### design-gate có chế độ chặt tuỳ chọn `--require-measured` (hồ sơ `design-gate-che-do-chat`, T2)
+- Kho đã khai `design.surface_globs` khớp tệp: thành **M1**; S0 in một dòng bậc, kèm một dòng nói S4 chưa chấm tuân thủ
+  design system tới khi nối `executors.design.floor`; cuối S3 có thể có một commit máy (autofix trang HTML, lệnh sinh
+  lại). Kho không khai: M0, không đổi gì.
+- Kho đọc `p0_count` của chế độ dom như tổng mọi P0: phát hiện tương phản không đo được không còn trong số ấy (FL1).
+- Kho có đợt Điều phối mà giám sát đặt câu cho chủ kho trong chat: «cần anh» lớn hơn hôm nay; pane «Đợt» vẽ khung.
+- Kho dùng cắt lượt với lộ trình: hàng mới mang `vung`; lộ trình đã dùng `vung` mà hàng thiếu thì cảnh báo.
 
-Gốc: crm 25/10, vòng VK10 `che-do-soan-bo-okr` — static trên `.tsx` trả `KHONG-DO-DUOC` mà thoát 0, nên
-`for … || exit 1` xanh rỗng và chiều đỏ không bao giờ đỏ. Ngưỡng mở lại đã khai ở hồ sơ
-`nen-dieu-kien-va-static-khong-do-duoc` («≥1 kho xin chế độ chặt») tới.
+**Đường đọc-cũ:** kho không khai `design.surface_globs` → M0, không dòng nào; vắng `--require-measured` → mọi mã thoát
+như cũ; lộ trình không có `vung` và không ai gọi `hang vung` → lịch y như trước; gói đợt vắng `muc_tieu` → khung hiện cờ
+vàng; dòng `xem` và `xem --json` không đổi khi không có câu giám sát mở.
 
-- **Cờ mới, bật theo lựa chọn:** `design-gate.mjs <đích> … --require-measured` — đích không phải HTML (`.tsx`,
-  `.jsx`, `.vue`, không đuôi…) thoát **5** thay vì 0, JSON thêm `require_measured: true`, dòng stderr đổi đuôi thành
-  `--require-measured: thoát 5`. Áp ở cả `--mode static` lẫn `--mode dom`; dom quyết bằng đuôi TRƯỚC khi nạp
-  jsdom (kho không có jsdom nhận 5, không phải 3). Lỗi chặn static thấy được trên `.tsx` vẫn `REJECT` mã 2.
-  Đích HTML không đổi dù có cờ.
-- **Vắng cờ: không đổi một mã thoát nào** — mười ô của bộ ca cũ vẫn bằng bản gốc. Không kho nào đổi màu khi nhận bản.
-- **Giới hạn gọi tên:** static không tính màu hay độ tương phản, kể cả trên HTML đã dựng (chữ `#eee` trên nền
-  trắng: static PASS, dom REJECT `low-contrast`). Chiều đỏ về màu cần `--mode dom` hoặc ui-check Tier B.
-- **Ai bị ảnh hưởng:** crm có 61 khoá `*_san_thiet_ke` (static trên `.tsx`, 57 eval đang chạy + 4 ô `not-run`);
-  artifact-platform có 23 khoá dom trên `.tsx`. Cả hai xanh rỗng như hôm nay cho tới khi tự thêm cờ.
-- **Làm gì khi update:** không chép lại tệp nào. Muốn chặn cứng: thêm `--require-measured` vào lệnh design-gate
-  của kho (một chỗ nếu eval đi qua `config:executors.design.gate`) — eval đang chấm tệp nguồn sẽ đỏ ở lượt ghim
-  kế; đổi chúng sang chấm HTML đã dựng bằng dom, hoặc khai `expected_exit: 5`. Vòng `… || exit 1` gộp mã 5
-  thành 1; muốn pin thấy 5 thì dùng `|| exit $?`. Bản kit cũ bỏ lặng cờ lạ — thêm cờ khi chưa nhận bản này thì vẫn
-  xanh rỗng; chạy một lần trên một `.tsx` và thấy mã khác 0 trước khi tin.
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.35.0` hai tệp `scripts/cat-luot.mjs` và `dieu-phoi/scripts/hinh-dang.mjs` CHỈ khi
+  kho khai `tin_hieu` (nhãn `[only-if-declared: tin_hieu]`). Các tệp còn lại giống từng byte `v2.34.0`. Nền thiết kế
+  chạy từ bản kit cài (`<acceptance-gate>/scripts/design-floor-*.mjs`, `design-floor/dist/ui.mjs`), không vào danh sách
+  chép.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.35.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, `tri-thuc` nếu dùng — rồi kiểm
+  `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.35.0 --root <bản clone kit đã git fetch
+  --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+- **Lệnh trỏ bộ đệm có số** (`…/acceptance-gate/2.34.0/scripts/…`) trong `_acceptance/config.yaml` phải đổi số — hay
+  tốt hơn, đổi sang đường không số (GUIDE §5.3).
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.35.0` (KC1) — dòng TỔNG KẾT ghi vào
+hồ sơ `release-2-35-0`.
+
+**invest** (đang ở 2.34.0, thí điểm nền thiết kế ở bậc M1): danh sách việc và đường nền DO1 ở
+`docs/handoff/2026-10-29-nhan-2-35-0-invest-thi-diem-design-floor.md`.
+
+**crm, theo thứ tự** (đang ở 2.34.0, nhận sau invest):
+
+1. **Cài theo thẻ `v2.35.0`** mọi gói crm đang dùng; kiểm `kiem-ban-cai.mjs --may --ref v2.35.0`. Mở phiên MỚI.
+2. **Lớp chép CI từ thẻ** (`git archive v2.35.0`): hai tệp ở gạch trên (crm khai `tin_hieu`).
+3. **Vùng giao việc:** đợt kế cắt lượt bằng skill `cat-luot` bản mới để hàng mang `vung`; gói đợt khai `nguon_hang` thì
+   `ranh_gioi` tự đến. Ngưỡng 2 của hồ sơ vùng giao việc (lần ghim / PR gộp ≤ 0,5 trên một đợt có chồng vùng) đếm trong
+   14 ngày sau khi nhận.
+4. **Khung đợt:** khai `muc_tieu` trong `hang-viec.json` của gói đợt.
+5. **design-gate chặt:** muốn chặn cứng thì thêm `--require-measured` (mục `design-gate` trên) — 61 khoá `*_san_thiet_ke`
+   xanh rỗng tới khi thêm cờ.
+6. **Nền thiết kế:** chờ kết quả thí điểm ở invest trước khi khai `executors.design.floor`.
+
+**Năm dòng số của luật (c)** — tám vòng có lượt chấm trong cửa sổ (giờ VN). Cùng định nghĩa mốc 2.34.0: làm-xong =
+commit đưa hợp đồng sang `implemented` · ký = commit đầu đưa `status:` sang `signed-off` · gộp = commit đầu trên lối
+cha-đầu của nhánh chính có commit ký là tổ tiên. Dòng 2 đếm từ sổ quyết định và commit cổng. Dòng 4–5 từ bảng vai trò
+của `usage-report.md`.
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `design-gate-che-do-chat` (T2) | 3 g 04 · 0 g 59 · 1 (PASS) | 2 / 0 (3) — Phạm vi, Bằng chứng; mở không qua Cổng Đáng | 0 | 62 213 · 51,7 / 26,7 / 21,6 | 46 |
+| `design-floor-vendor-va-ban-va-a` (FL2, T3) | 1 g 36 † · 0 g 58 · 1 (PASS) | 2 + Đáng chung / 0 (4) — Phạm vi (Hỏi-1, CỘNG), Bằng chứng | 0 | 99 169 · 41,8 / 43,1 / 15,1 | 49 |
+| `design-floor-ban-va-b-c-d` (FL3, T2) | 3 g 25 · 0 g 58 · 1 (PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V; Bằng chứng | **1** (lượt 1 đứt giữa chừng: phiên mất đăng nhập, 25/39 tác tử lỗi; nối lại cùng lượt) | 156 025 (chỉ phần nối lại) · 32,5 / 56,2 / 11,4 | 90 (phần nối lại) |
+| `design-floor-moc-s0-s1` (FL4, T2) | 6 g 47 · 2 g 23 · 3 (lượt 1: một lỗi trong hợp đồng — bộ đọc cấu hình riêng, vật sửa; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1 CỘNG, Hỏi-2), Bằng chứng | **1** (lượt 2, P179) | 240 319 · 37,1 / 42,6 / 20,3 | 49 · 47 · 45 = 141; ghim lại sau chữ ký 48 |
+| `design-gate-khong-do-duoc-ba-nguyen-nhan` (FL1, T3) | 8 g 28 · 7 g 25 · 4 (lượt 1 PASS → Cổng Bằng chứng trả lại sửa năm mục; lượt 2 PASS → trả lại đổi khuôn nhánh nền; lượt 3 REJECT: ca đối chứng không thể đỏ, chạm trần lượt; lượt 4 PASS) | 3 + Đáng chung / **3** (4) — trong: Phạm vi (Hỏi-1, Hỏi-2), Gate 1.5, Bằng chứng; ngoài: Bằng chứng trả lại ×2, lối ra ở trần lượt ×1 | 0 | 355 663 · 43,7 / 37,4 / 19,0 | 52 · 48 · 51 · 53 = 204 |
+| `design-floor-moc-s3-s4` (FL5, T2) | 1 g 04 · 0 g 59 · 1 (PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1 CỘNG, Hỏi-2), Bằng chứng | 0 | 93 783 · 41,6 / 39,8 / 18,6 | 53 |
+| `vung-giao-viec-tu-cat-luot` (T2) | 4 g 27 · 3 g 20 · 2 (lượt 1 REJECT: hai mảnh suite mjs đỏ vì vật; lượt 2 PASS) | 3 / 0 (3) — Đáng, Phạm vi (Hỏi-1, CỘNG), Bằng chứng | 0 | 149 906 · 41,6 / 35,3 / 23,1 | 51 · 51 = 102; ghim lại sau chữ ký 49 + 45 |
+| `khung-dot-dinh-vi` (T2) | 3 g 09 · 9 g 15 · 2 (lượt 1 REJECT: 11/11 tiêu chí đạt, bốn bộ ca của kho đỏ — bản đồ lệch, KT-8, P179, RT13; lượt 2 PASS) | 2 / 0 (3) — Đáng, Bằng chứng; Phạm vi làn V | **1** (lượt 1: cả bốn cái đỏ là nghi thức kho, không đổi mã vật) | 149 948 · 49,5 / 30,2 / 20,3 | 51 · 65 = 116 |
+
+† FL2 không có commit đưa hợp đồng sang `implemented` (đi thẳng `approved` → `verified`); làm-xong đọc ở commit vật
+cuối. «Đáng chung» = một lượt Cổng Đáng cho FL1–FL5 ở thẻ khởi tạo đợt `design-floor-2710` (27/10). Gộp tám hồ sơ:
+1 307 026 out-token, vật 41,6 / tìm-lỗi 39,6 / tổng hợp 18,8 %; 801 phút S4. Trung vị tám vòng: làm-xong → ký **3 g 17**,
+ký → gộp **1 g 41**. Ký chưa gộp: 0. Gọi người: 17 trong thiết kế + 3 ngoài (đều ở FL1) + 1 Đáng chung = 21 cho 8 kết
+quả gộp.
+
+**Đọc số:** ký → gộp ≤ 1 giờ ở bốn vòng gộp ngay sau ký (che-do-chat, FL2, FL3, FL5). Bốn vòng trên 2 giờ: FL1 (ký 22:55,
+gộp sáng hôm sau) và khung đợt (ký 18:16, gộp 03:30 khi chủ kho gõ «Gộp và cắt bản») chờ người bấm gộp; FL4 và vùng
+giao việc ghim lại sau chữ ký (48′; 49′ + 45′ — ba lần, 142 phút máy, ngang ba lượt chấm). **Ba lượt gọi người ngoài thiết
+kế đều ở FL1** — Cổng Bằng chứng trả lại hai lần sau PASS để sửa trong vòng, rồi một lối ra ở trần lượt; đây là chỗ cắt
+cho cửa sổ kế (nếu tính trả lại là trong thiết kế thì FL1 = 5 + Đáng chung / 1, vẫn vượt trần T3 4). Ba lượt bị hạ tầng
+đốt: P179 (sổ known-limits thiếu hàng cho đề xuất của lượt trước) lặp lần thứ ba qua hai cửa sổ — FL4 lượt 2 và một
+trong bốn cái đỏ của khung đợt lượt 1; một lượt đứt vì phiên mất đăng nhập (FL3). **Làn đối chứng code cũ không đo ở
+14/15 lượt** (tác tử baseline không có công cụ ghi tệp) — không lượt nào đổi phán quyết vì nó, nhưng chiều đỏ đối chứng
+của cả cửa sổ chỉ dựa vào các ca đỏ trong bộ ca. **Thước ký → gộp của kit vẫn mù ở 5/8 vòng** (`do-gop.mjs` trả rỗng
+khi PR có commit sau chữ ký — hạt giống `docs/plans/2026-10-25-hat-giong-do-gop-mu-khi-co-commit-sau-ky.md` chưa làm);
+bảng đọc năm vòng ấy bằng tay theo đúng định nghĩa của tệp. **Điều kiện tin cậy:** (i) `git diff v2.34.0 <cây mốc> --
+feature-loop/workflows/ feature-loop/agents/` rỗng — đường verdict finder → refute → REJECT không đổi thành phần; (ii)
+lượt chấm sai do phép-đo-tự-dối giữa hai mốc: 0.
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 ↓ ký → gộp ở kho có đợt (vùng giao việc: lịch xếp nối tiếp hai hàng cùng
+sửa một màn thay vì ghim lại sau ký) · 2 = (khung đợt chỉ làm câu đang chờ hiện ra; khối định vị trên lời mời cổng —
+bước (c) của ADR 0027 — chưa vào) · 3 ↓ (FL1: cổng dom thôi chặn oan khi không đọc được màu) · 4 ↑ nhẹ ở kho M1–M3
+(một eval `executors.design.floor` mỗi hồ sơ chạm giao diện) · 5 =.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (29/10).
+**N không tăng so với mốc 2.34.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.34.0 — 25/10/2026
 
