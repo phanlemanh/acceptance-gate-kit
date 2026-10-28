@@ -1,36 +1,3 @@
 {
-  "feature_plain": "Khi một đợt có hai việc cùng sửa một màn, máy tự xếp việc sau chờ việc trước gộp xong — nhờ mỗi việc mang sẵn vùng mã từ lúc cắt lượt — thay vì để hai việc ký song song rồi làm gãy thước đo của nhau.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ cho mỗi việc trên lộ trình một vùng mã theo màn ngay lúc cắt lượt; việc sửa khung chung của một khu giữ cả khu."},
-    {"id": "AC-3", "p": "Sẽ chặn lượt cắt khi từ ba việc trở lên mà việc nào cũng chồng vùng với mọi việc khác — đợt sẽ thành một hàng dọc."},
-    {"id": "AC-5", "p": "Sẽ cho việc giám sát thêm giữa đợt (bằng mã trên lộ trình) mang theo vùng của nó và được xếp tránh chồng như mọi việc."},
-    {"id": "AC-7", "p": "Sẽ cho phiên làm việc khai thêm vùng mã thật lúc trình Cổng Phạm vi; việc chưa mở ở dãy khác mà chồng sẽ tự chờ."},
-    {"id": "AC-8", "p": "Sẽ báo một dòng khi hai việc đang chạy chồng vùng mới khai — chỉ báo, không dừng việc nào, không đụng lượt chấm."},
-    {"id": "AC-9", "p": "Sẽ giữ y hành vi hiện nay cho kho chưa khai vùng — ca so bản cũ với bản mới qua nhiều nhịp."}
-  ],
-  "wont_do": [
-    {"id": "AC-2", "p": "Chặn vùng rộng vô nghĩa (như «mọi tệp») ngay lúc cắt; thiếu vùng chỉ nhắc, không chặn."},
-    {"id": "AC-4", "p": "Gói đợt chép vùng từ lộ trình chỉ khi việc chưa khai tay — vùng người đã khai tay không bị đè."},
-    {"id": "AC-6", "p": "Chứng trên bản phát lại ẩn danh của đợt vỏ khu Mục tiêu: việc kiểu VK8 tự chờ việc kiểu VK6; bản phát lại chỉ mang tên tổng hợp."},
-    {"id": "OOS-1", "p": "Không đổi cách chấm, lượt chấm hay làn ghim lại."},
-    {"id": "OOS-2", "p": "Không lấy vùng từ danh sách tệp của bộ kiểm hay của kế hoạch — đo thấy chồng gần hết các cặp."},
-    {"id": "OOS-3", "p": "Không đặt trần số việc mở cùng vùng hay giới hạn «ký chưa gộp»."},
-    {"id": "OOS-4", "p": "Không đo vùng đoán lúc cắt đúng bao nhiêu trong vòng này — đọc ở đợt thật kế tiếp."},
-    {"id": "OOS-5", "p": "Không sửa lộ trình hay gói đợt nào của kho tiêu thụ."}
-  ],
-  "coverage_plain": [
-    {"i": 0, "p": "Mỗi chặng vùng đi qua có một tiêu chí: cắt lượt (AC-1), răng canh (AC-2, AC-3), gói đợt chép (AC-4), thêm việc giữa đợt (AC-5), lịch lúc giao (AC-6), xét lại ở Cổng Phạm vi (AC-7, AC-8)."},
-    {"i": 1, "p": "Bốn cách khai vùng đều có thước: từ lộ trình, khai tay, không khai, chỉ thư mục hồ sơ (AC-2, AC-4, AC-5, AC-9)."},
-    {"i": 2, "p": "Bốn mức rộng: một màn, cả khu, không thư mục, mọi cặp chồng (AC-2, AC-3, AC-6)."},
-    {"i": 3, "p": "Năm tiến độ của việc kia: chưa mở, đã chọn làm việc kế, đang làm, đã ký chưa gộp, đã gộp (AC-6, AC-7, AC-8)."},
-    {"i": 4, "p": "Ba chiều: bắt được chồng, im khi không chồng, báo mà không chặn."},
-    {"i": 5, "p": "Để sau: thẻ «thước sẽ gãy», khai «thay thế» một phía, nhịp giao theo sức khoá (năm hạt giống 27/10)."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Phần xét lại ở Cổng Phạm vi thêm một lệnh, một bước cho phiên làm việc và một loại báo mới mà lời phê chưa gọi tên — đã chuyển thành câu hỏi Hỏi-1 cho anh."},
-    {"i": 1, "p": "Thước «vùng không rộng quá» trước đây nhận cả mức chồng gần hết — nay so đúng danh sách 25/91 cặp viết trước, trần một nửa, kèm ca đỏ."},
-    {"i": 2, "p": "Bản phát lại trước đây chỉ được soi bằng danh sách chữ cấm — nay đổi hết sang tên tổng hợp và kiểm bằng danh sách cho phép."},
-    {"i": 3, "p": "Ca kiểm vùng rộng thiếu trường hợp vùng trộn (một phần tốt, một phần rộng) — đã thêm ba ca và một ca đỏ."},
-    {"i": 4, "p": "Việc đã được chọn làm việc kế mà chưa mở chưa có thước khi vùng mới khai — đã thêm vào ca xét lại."}
-  ]
+  "feature_plain": "Khi một đợt có hai việc cùng sửa một màn, máy tự xếp việc sau chờ việc trước gộp xong — nhờ mỗi việc mang sẵn vùng mã từ lúc cắt lượt — thay vì để hai việc ký song song rồi làm gãy thước đo của nhau."
 }
