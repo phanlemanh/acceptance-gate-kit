@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: be24550bdf1b1f471b7d947d89ff0dc163c97370
+verified_commit: 3410d97956bf3eae836fed9d85395804818fd620
 human_signoff: Manh Phan 2026-10-28
 ---
 
@@ -204,3 +204,7 @@ none — every multi-run eval is uniform
 Round 1: một lỗi trong hợp đồng (lệnh bậc dùng bộ đọc cấu hình riêng, dòng chú thích sát lề làm kho rơi về M0). Returned to implementation.
 Round 2: sửa bằng bộ đọc chung của kit, thêm ca BAC-CHU-THICH; E1–E10 đạt; 14 hàng sổ known-limits ghi sổ.
 Round 3: E1–E10 mang sang từ round 2 (delta không chạm paths của eval), 11 lệnh suite chạy lại đều xanh; 8 mục ngoài hợp đồng mới ghi ở review-findings.md để người quyết ở Cổng 2. Mốc giờ của các lệnh suite round 3 ghi ở mức ngày; mốc giờ chính xác nằm ở dòng round 3 của run-log.jsonl.
+
+### Re-pin lần 1 — 2026-10-28, do hoá cũ do gộp nhánh chính có FL1 (#434) sau chữ ký
+run_id: repin-20261027T232431Z-32716
+sha: 3410d97956bf3eae836fed9d85395804818fd620 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
