@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/kiem-ban-cai.mjs + tests/scripts + một khoá _acceptance/config.yaml — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: _acceptance/kiem-ban-cai-loi-sua-chay-duoc/design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
