@@ -39,6 +39,14 @@ export function trangThaiHopDong(text) {
   return text.match(/^status:\s*(\S+)/m)?.[1] ?? null;
 }
 
+// «Đã gộp» đọc từ bản hợp đồng trên nhánh chính — một nguồn cho bộ phát lịch và đơn xin lượt (hồ sơ lenh-dot-ghi-dung-hang).
+// Hồ sơ T1 không qua cổng nào nên giữ `draft` mãi; có mặt trên nhánh chính là đã gộp (kit #308 c5). `text` null → chưa gộp.
+export function daGopTrenNhanhChinh(text) {
+  if (typeof text !== 'string') return false;
+  if (DA_THONG.includes(trangThaiHopDong(text))) return true;
+  return text.match(/^risk_tier:\s*(\S+)/m)?.[1] === 'T1';
+}
+
 const tuoiPhut = (p, nowMs) => {
   try {
     return (nowMs - fs.statSync(p).mtimeMs) / PHUT_MS;
@@ -337,11 +345,11 @@ function tienDoCua(hangViec, cfg, io) {
   for (const h of hangViec.hang) {
     let trenNhanhChinh = null;
     try {
-      trenNhanhChinh = trangThaiHopDong(io.chay('git', ['show', `origin/${cfg.nhanh_chinh}:_acceptance/${h.slug}/contract.md`]));
+      trenNhanhChinh = io.chay('git', ['show', `origin/${cfg.nhanh_chinh}:_acceptance/${h.slug}/contract.md`]);
     } catch {
       trenNhanhChinh = null;
     }
-    if (DA_THONG.includes(trenNhanhChinh)) {
+    if (daGopTrenNhanhChinh(trenNhanhChinh)) {
       td.set(h.slug, 'gop');
       continue;
     }

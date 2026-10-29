@@ -63,24 +63,29 @@ function trungLucThem(thuMuc, hv, hangMoi) {
   return xetTrungTep(hangMoi, { hangViec: hv, tienDo, keCua, nhanhMo: docChupNhanhMo(tt.nhanh_mo), nhanhCuaDay: new Map(Object.entries(tt.nhanh_mo?.nhanh_day ?? {})) });
 }
 
-// Mã của một hàng lộ trình mà đợt chưa có (hồ sơ vung-giao-viec-tu-cat-luot): vùng mã dự kiến của hàng ấy làm vùng tệp.
-// Đợt không khai nguồn hàng, hay mã không có ở đúng một tệp lộ trình → null, như trước.
-function vungLoTrinh(thuMuc, khoa) {
+// Mã hay slug của một hàng lộ trình mà đợt chưa có: hàng thêm mang slug và mã của lộ trình (hồ sơ lenh-dot-ghi-dung-hang),
+// vùng mã dự kiến của hàng ấy làm vùng tệp (hồ sơ vung-giao-viec-tu-cat-luot). Đợt không khai nguồn hàng, hay khoá không
+// khớp ở đúng một tệp lộ trình → null, như trước.
+function hangLoTrinh(thuMuc, khoa) {
   const cfg = docJson(path.join(thuMuc, 'dieu-phoi.config.json'), {}) ?? {};
   if (!Array.isArray(cfg.nguon_hang) || typeof cfg.goc_kho !== 'string') return null;
-  return timHangLoTrinh(cfg.goc_kho, cfg.nguon_hang, khoa)?.vung ?? null;
+  return timHangLoTrinh(cfg.goc_kho, cfg.nguon_hang, khoa);
 }
+
+// Đối số đã có dạng slug thì giữ nguyên — `suySlug` là luật suy từ CÂU GIAO (sáu từ đầu), không phải luật nhận một slug.
+const LA_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 function themHangTrongKhoa(thuMuc, khoa, day, ranhGioi) {
   const hv = docHangViec(thuMuc);
   treThu();
   if (!hv.day.some((d) => d.id === day)) throw new Error(`hang: không có dãy ${day}`);
   const goc = timHang(hv, khoa);
-  const slug = goc?.slug ?? suySlug(khoa);
+  const lt = goc ? null : hangLoTrinh(thuMuc, khoa);
+  const slug = goc?.slug ?? lt?.slug ?? (LA_SLUG.test(khoa) ? khoa : suySlug(khoa));
   if (!slug) throw new Error(`hang: không suy được slug từ «${khoa}»`);
-  if (hv.hang.some((h) => h.day === day && (h.slug === slug || h.ma === khoa))) return { doi: false };
-  const rg = ranhGioi ?? goc?.ranh_gioi ?? (goc ? null : vungLoTrinh(thuMuc, khoa));
-  const hangMoi = { slug, day, ...(rg?.length ? { ranh_gioi: rg } : {}) };
+  if (hv.hang.some((h) => h.day === day && (h.slug === slug || h.ma === khoa || (lt?.ma !== undefined && h.ma === lt.ma)))) return { doi: false };
+  const rg = ranhGioi ?? goc?.ranh_gioi ?? lt?.vung ?? null;
+  const hangMoi = { ...(typeof lt?.ma === 'string' ? { ma: lt.ma } : {}), slug, day, ...(rg?.length ? { ranh_gioi: rg } : {}) };
   const { vang, trung } = trungLucThem(thuMuc, hv, hangMoi);
   const sau = [...new Set(trung.filter((t) => t.voi === 'hang').map((t) => t.khoa))];
   if (sau.length) hangMoi.sau = sau;
@@ -139,6 +144,24 @@ function choNghiTrongKhoa(thuMuc, day) {
   if (d.nghi === true) return { doi: false };
   d.nghi = true;
   luu(thuMuc, hv, `cho ${day} nghỉ`, { kieu: 'nghi', day });
+  return { doi: true };
+}
+
+// Ngược của `nghi` (hồ sơ lenh-dot-ghi-dung-hang), cùng khuôn: gỡ hẳn khoá — tệp sau `chay-lai` giống từng byte tệp trước
+// `nghi` — một dòng Nhật ký, một sự kiện; dãy chưa nghỉ thì không làm gì. Nhịp kế của bộ phát lịch giao lại hàng kế.
+export function choChayLai(thuMuc, day) {
+  can(day, 'dãy cần cho chạy lại');
+  return voiKhoaHangViec(thuMuc, () => choChayLaiTrongKhoa(thuMuc, day));
+}
+
+function choChayLaiTrongKhoa(thuMuc, day) {
+  const hv = docHangViec(thuMuc);
+  treThu();
+  const d = hv.day.find((x) => x.id === day);
+  if (!d) throw new Error(`hang: không có dãy ${day}`);
+  if (d.nghi !== true) return { doi: false };
+  delete d.nghi;
+  luu(thuMuc, hv, `cho ${day} chạy lại`, { kieu: 'chay-lai', day });
   return { doi: true };
 }
 

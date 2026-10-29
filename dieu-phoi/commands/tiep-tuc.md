@@ -49,7 +49,7 @@ Các bước, đúng thứ tự:
      còn trong nhóm «Đợt <tên>» ở thanh bên → nhắn phiên đó «tiếp tục» thay vì mở chip.
    - `nhan-giang-lai`: nhắn phiên của dãy «tiếp tục: giăng lại lệnh chờ» — lệnh nền chờ khoá chết theo app.
    - `khong`: không làm gì.
-   - `worktree-mat`: báo người — dựng lại worktree hay cho dãy nghỉ (`hang nghi`) là quyết định của người.
+   - `worktree-mat`: báo người — dựng lại worktree hay cho dãy nghỉ (`hang nghi`; lệnh ngược `hang chay-lai <dãy>`) là quyết định của người.
    - `cho-nguoi`: không mở chip; đưa vào «việc chờ anh» ở bước 5.
    - `chua-biet`: không mở chip; nói người kiểm thanh bên xem dãy còn phiên không (đợt chưa có nhịp sống).
    - `khong-hang`: không mở chip; nói một dòng «dãy <id>: <ly_do>» (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng).
