@@ -39,7 +39,9 @@ async function veMau() {
   const PM = await import(pathToFileURL(path.join(MAY, 'scripts', 'product-map.mjs')).href);
   const g = mkdtempSync(path.join(tmpdir(), 'lo-trinh-mau-trang-'));
   try { return LT.veTrang({ root: KT.dungKho('hai-lo-trinh', g), classify: PM.classify, sections: PM.SECTIONS }); }
-  finally { rmSync(g, { recursive: true, force: true }); }
+  // Dọn thử lại: tiến trình git con có thể còn ghi vào kho thử lúc dọn (ENOTEMPTY dưới tải, lượt chấm 1–2 của
+  // danh-thuc-doc-nhip-dung-ma).
+  finally { rmSync(g, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }); }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

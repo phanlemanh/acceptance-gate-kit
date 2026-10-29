@@ -13,9 +13,12 @@ Các bước, đúng thứ tự:
 
 0. **Đọc mức dùng.** Gọi `get_usage` (công cụ phiên của app), rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" han-muc --nguon get-usage --phien <mã phiên này> --doc '<kết quả get_usage>'`.
+   `--phien` là mã app `local_…` như bước 1 — lần đọc mức dùng gắn với đúng mã mà bước 1 nhận vai.
    Kho không có đợt thì lệnh in `khong-co-dot` — đi tiếp bước 1 (bước 1 sẽ dừng).
 1. **CLI tiếp tục.** Lấy mã phiên này bằng công cụ phiên của app, rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" tiep-tuc --phien <mã phiên này> --json $ARGUMENTS`.
+   Mã phiên này là mã app `local_…` mà công cụ phiên của app trả — đánh thức nhắn giám sát bằng mã ấy; máy tự ghi mã CLI
+   của phiên (biến `CLAUDE_CODE_SESSION_ID`) vào vai để đọc nhịp. Ngoài app (không có công cụ phiên) dùng mã CLI.
    CLI nhận vai giám sát (dạng `--nhe` chỉ ghi lúc thức), chạy lại bộ phát lịch nếu đã chết, và trả
    `ke_hoach` cho từng dãy. Thoát 1 «không có đợt» → nói một dòng và DỪNG.
 2. **Phiên đã thôi vai.** Kết quả có `thoi_vai: true` → dừng Monitor đang giăng của phiên này, không ghi gì
@@ -26,6 +29,9 @@ Các bước, đúng thứ tự:
      cửa sổ <cua_so>, đặt lại lúc <dat_lai> — chờ đặt lại, hoặc đổi tài khoản khác rồi gõ lại /dieu-phoi:tiep-tuc».
      Không chuyển gì thêm; đi tiếp bước 3.
    - `ban_giao` với `trang_thai: da-tiep-tuc`: đợt đã rời bàn giao về pha trước; nói một dòng kèm mã bàn giao.
+   Kết quả có `hook_thieu: true` (cả dạng `--nhe`): phiên này mở trước khi cài hay nâng gói nên hook của gói không nạp —
+   đánh thức không thấy nhịp của nó. Nói nguyên `hook_thieu_cau` một dòng cho chủ kho rồi đi tiếp; việc đúng là mở phiên
+   giám sát mới và gõ lại `/dieu-phoi:tiep-tuc`.
 3. **Việc của app — chỉ tạo cái còn thiếu.** Giăng Monitor (timeout 30′):
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Lịch 30′ của đợt
    chưa có thì tạo theo khuôn dưới (cùng khuôn với bước 6 của `/dieu-phoi:mo-dot`).
@@ -47,7 +53,8 @@ Các bước, đúng thứ tự:
    - `cho-nguoi`: không mở chip; đưa vào «việc chờ anh» ở bước 5.
    - `chua-biet`: không mở chip; nói người kiểm thanh bên xem dãy còn phiên không (đợt chưa có nhịp sống).
    - `khong-hang`: không mở chip; nói một dòng «dãy <id>: <ly_do>» (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng).
-5. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet --phien <mã phiên này>`.
+5. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet --phien <mã phiên này>`
+   (mã app `local_…` như bước 1; mã CLI cũng nhận).
    Báo người đúng một khối: «đợt <tên> chạy lại · k dãy cần bấm chip · việc chờ anh: …» — k = số mục `day:*`
    mang hành động `mo-chip` (chip vừa mở ở bước 4: mục `du`, không mở lại); việc chờ là mục `viec-cho`, cũ nhất
    trước. Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.
@@ -55,7 +62,7 @@ Các bước, đúng thứ tự:
 
 6. **Câu hỏi chủ kho trong chat.** Mỗi câu phiên này hỏi chủ kho rồi chờ trả lời (xác nhận một chẩn đoán, chọn
    một lối) phải vào sổ của đợt TRƯỚC khi kết lượt, để khung đợt đếm nó vào «cần anh». Câu đi trong heredoc CÓ
-   NHÁY nên nháy, `$` và backtick được ghi nguyên văn; lệnh in `hoi: <mã>`:
+   NHÁY nên nháy, `$` và backtick được ghi nguyên văn; `--phien` là mã app `local_…` như bước 1; lệnh in `hoi: <mã>`:
    ```
    node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" hoi --phien <mã phiên này> --cau - <<'CAU_HET'
    <câu hỏi>

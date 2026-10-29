@@ -24,6 +24,8 @@ Các bước, đúng thứ tự:
    khoá `dieu_phoi.goi_dot` vào `_acceptance/config.yaml` của kho (hoặc gọi lại với `--goi`); không mở
    đợt dựng tay thay.
 2. **Mở.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" mo $ARGUMENTS --phien <mã phiên này>`.
+   Mã phiên này là mã app `local_…` mà công cụ phiên của app trả — đánh thức nhắn giám sát bằng mã ấy; máy tự ghi mã CLI
+   của phiên (biến `CLAUDE_CODE_SESSION_ID`) vào vai để đọc nhịp. Ngoài app (không có công cụ phiên) dùng mã CLI.
    Mỗi dòng cảnh báo `mo:` in ra (ví dụ không đọc được tệp lộ trình) → nói lại nguyên văn. Chẩn đoán lại
    (không cần `--mo` nữa). `hang-viec.json` của đợt chưa có khoá `muc_tieu` → thêm một câu mục tiêu đợt bằng
    tiếng sản phẩm (chuỗi; lấy từ gói đợt hay câu chủ kho giao đợt) — dòng đầu của khung đợt đọc nó, vắng thì

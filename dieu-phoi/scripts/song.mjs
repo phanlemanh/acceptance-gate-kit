@@ -15,7 +15,7 @@ export const GHI_LAI_MS = 30 * GIAY_MS;
 // Đồng hồ: tham số trước; hook là tiến trình con nên ca đo truyền giờ giả qua biến riêng của gói.
 export const bayGio = (nowMs = null) => nowMs ?? (process.env.DIEU_PHOI_NOW_MS ? Number(process.env.DIEU_PHOI_NOW_MS) : Date.now());
 
-const laMaPhien = (s) => typeof s === 'string' && /^[\w.-]+$/.test(s) && !/^\.+$/.test(s);
+export const laMaPhien = (s) => typeof s === 'string' && /^[\w.-]+$/.test(s) && !/^\.+$/.test(s);
 
 function gocWorktree(cwd) {
   try {
@@ -38,7 +38,9 @@ function docMot(p) {
   }
 }
 
-export function ghiNhipSong(thuMuc, { phien, cwd, hangViec = null, nowMs = null }) {
+// `ma_app` (TC1): hạ tầng tự khai mã phiên của app — app desktop đặt `CLAUDE_CODE_HOST_SESSION_ID` cho tiến trình CLI và
+// mọi tiến trình con (hook) — để bên đọc nối được vai giữ mã app với tệp nhịp mang mã CLI. Ngoài app: không có khoá.
+export function ghiNhipSong(thuMuc, { phien, cwd, hangViec = null, nowMs = null, maApp = process.env.CLAUDE_CODE_HOST_SESSION_ID }) {
   if (!laMaPhien(phien)) return 'bo-qua';
   const now = bayGio(nowMs);
   const p = path.join(thuMuc, TEP_SONG_DIR, `${phien}.json`);
@@ -47,7 +49,7 @@ export function ghiNhipSong(thuMuc, { phien, cwd, hangViec = null, nowMs = null 
     const tuoi = now - Date.parse(cu.luc);
     if (tuoi >= 0 && tuoi < GHI_LAI_MS) return 'bo-qua';
   }
-  ghiJsonNguyenTu(p, { phien, day: hangViec ? phienCuaCwd(hangViec, cwd) : null, worktree: gocWorktree(cwd), luc: new Date(now).toISOString() });
+  ghiJsonNguyenTu(p, { phien, day: hangViec ? phienCuaCwd(hangViec, cwd) : null, worktree: gocWorktree(cwd), luc: new Date(now).toISOString(), ...(laMaPhien(maApp) ? { ma_app: maApp } : {}) });
   return 'ghi';
 }
 
@@ -70,6 +72,22 @@ export function nhipMoiNhatCua(thuMuc, worktree, { boQua = new Set(), denLuc = n
   let moi = null;
   const bo = (n) => boQua.has(n.phien) && (denLuc == null || Date.parse(n.luc) <= denLuc);
   for (const n of docNhipSong(thuMuc)) if (n.worktree === worktree && !bo(n) && (!moi || Date.parse(n.luc) > Date.parse(moi.luc))) moi = n;
+  return moi;
+}
+
+// Nhịp mới nhất của MỘT phiên (TC1) — bên đọc duy nhất cho đánh thức và chẩn đoán: tệp `song/<phien>.json`, tệp
+// `song/<phienCli>.json` (mã CLI vai đã ghi) và mọi tệp nhịp tự khai `ma_app === phien`. Vai một mã và tệp đời trước
+// (không `ma_app`) đọc như cũ: chỉ còn nguồn thứ nhất. Không thấy gì → null.
+export function nhipCuaPhien(thuMuc, { phien, phienCli = null } = {}) {
+  if (!laMaPhien(phien)) return null;
+  let moi = null;
+  const xet = (n) => {
+    if (n && (!moi || Date.parse(n.luc) > Date.parse(moi.luc))) moi = n;
+  };
+  const d = path.join(thuMuc, TEP_SONG_DIR);
+  xet(docMot(path.join(d, `${phien}.json`)));
+  if (laMaPhien(phienCli)) xet(docMot(path.join(d, `${phienCli}.json`)));
+  for (const n of docNhipSong(thuMuc)) if (n.ma_app === phien) xet(n);
   return moi;
 }
 
