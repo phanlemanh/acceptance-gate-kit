@@ -1,0 +1,85 @@
+{
+ "dot": "tinh-chinh-2610",
+ "day": [
+  {
+   "id": "D1",
+   "worktree": "/CHUA-CO-WORKTREE/D1",
+   "link": ""
+  },
+  {
+   "id": "D2",
+   "worktree": "/CHUA-CO-WORKTREE/D2",
+   "link": ""
+  },
+  {
+   "id": "D3",
+   "worktree": "/CHUA-CO-WORKTREE/D3",
+   "link": ""
+  },
+  {
+   "id": "D4",
+   "worktree": "/CHUA-CO-WORKTREE/D4",
+   "link": ""
+  }
+ ],
+ "hang": [
+  {
+   "ma": "TC2",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "lenh-dot-ghi-dung-hang",
+   "day": "D1",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "dieu-phoi/**",
+    "tests/dieu-phoi/**",
+    "_acceptance/lenh-dot-ghi-dung-hang/**"
+   ],
+   "moc": "2026-11-05"
+  },
+  {
+   "ma": "TC3",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "tep-sinh-khong-chan-gop",
+   "day": "D2",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "dieu-phoi/**",
+    "scripts/product-map.mjs",
+    "scripts/lo-trinh.mjs",
+    ".gitattributes",
+    "_acceptance/tep-sinh-khong-chan-gop/**"
+   ],
+   "moc": "2026-11-05"
+  },
+  {
+   "ma": "TC4",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "kiem-ban-cai-loi-sua-chay-duoc",
+   "day": "D3",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "scripts/kiem-ban-cai.mjs",
+    "tests/scripts/kiem-ban-cai*",
+    "_acceptance/kiem-ban-cai-loi-sua-chay-duoc/**"
+   ],
+   "moc": "2026-11-05"
+  },
+  {
+   "ma": "TC5",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "cong-cu-xet-tep-ton-tai",
+   "day": "D4",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "feature-loop/scripts/duong-nen.mjs",
+    "tests/scripts/duong-nen*",
+    "_acceptance/cong-cu-xet-tep-ton-tai/**"
+   ],
+   "moc": "2026-11-05"
+  }
+ ]
+}
