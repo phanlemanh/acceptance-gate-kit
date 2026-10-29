@@ -3,16 +3,17 @@ schema_version: 2
 feature_slug: lenh-dot-ghi-dung-hang
 verdict: REJECT
 failed_evals: []
+reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1dd95c017e2be496de651b5692469ee11e70c17d
+verified_commit: 3508fc1f391f2d4fd463b163a5102765bbe035f8
 human_signoff:
 ---
 
 # Evidence Report: lenh-dot-ghi-dung-hang
 
-Vòng 1. Mười eval của hợp đồng (E1–E10) đều xanh trên cùng một lệnh. Verdict REJECT đến từ hai lệnh suite hồi quy không gắn eval nào là `tests/plugins/run-tests.sh --manh vung:2` và `--manh vung:3`. Cả hai đỏ, nên `failed_evals` để rỗng. Chi tiết ở mục «Lệnh suite (hồi quy)».
+Round 2. Mười eval hợp đồng (E1–E10) đều xanh. Verdict REJECT vì một lệnh suite hồi quy không gắn eval nào đỏ: `tests/plugins/run-tests.sh --manh vung:3` (ca P179 [MBC] E6, sổ known-limits). `failed_evals` để rỗng vì lệnh đỏ không thuộc eval nào; chi tiết ở mục «Lệnh suite (hồi quy)» và `## Analyst`.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -29,161 +30,164 @@ Vòng 1. Mười eval của hợp đồng (E1–E10) đều xanh trên cùng m�
 
 ## Evidence
 
-Cả mười eval dùng chung một lệnh máy: `bash -c 'set -o pipefail; node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs" 2>&1 | grep -E "^ *(not )?ok [0-9]+ - (TC2-|TC1-09 )|^ *not ok|^#   |^# (pass|fail|skipped|todo) " | paste -sd"|" -'`. Lệnh chạy 1 lần và thoát 0. Phần output chép dưới đây là đuôi mà bước capture giữ lại. Nó bị cắt cuối, không phải toàn bộ đầu ra.
+Mười eval E1–E10 chạy chung MỘT lệnh (`node --test` trên `tests/dieu-phoi/**/*.test.mjs`, lọc TAP bằng grep dưới pipefail). Máy chỉ giữ đuôi đầu ra của lệnh chung, nên các dòng «ok … - TC2-0x» riêng từng eval nằm trong phần bị cắt khỏi đuôi lưu; lệnh thoát 0 dưới pipefail nghĩa là bộ lọc có khớp dòng. `verified_at` ở đây chỉ có độ phân giải ngày; giờ chạy thật nằm ở `run-log.jsonl`.
 
 - eval: E1
-  run_id: minted-lenh-dot-ghi-dung-hang-E1-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E1-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (lệnh chung E1–E10, đuôi đầu ra máy lưu)
+    #   số hàng: 3
+    #   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat
+    #   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
 
 - eval: E2
-  run_id: minted-lenh-dot-ghi-dung-hang-E2-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E2-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E3
-  run_id: minted-lenh-dot-ghi-dung-hang-E3-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E3-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E4
-  run_id: minted-lenh-dot-ghi-dung-hang-E4-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E5
-  run_id: minted-lenh-dot-ghi-dung-hang-E5-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E6
-  run_id: minted-lenh-dot-ghi-dung-hang-E6-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E7
-  run_id: minted-lenh-dot-ghi-dung-hang-E7-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E8
-  run_id: minted-lenh-dot-ghi-dung-hang-E8-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E9
-  run_id: minted-lenh-dot-ghi-dung-hang-E9-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E9-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 - eval: E10
-  run_id: minted-lenh-dot-ghi-dung-hang-E10-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-E10-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi_tc2
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
   output: |
-    #   số hàng: 3|#   chi-phien-cli · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-giam-sat|#   chi-ma-app · số hàng: 7 · a=khong b=nhan-giam-sat c=khong d=bao-chu-kho e=khong f=khong g=nhan-gi
+    (cùng lệnh với E1 — xem đuôi đầu ra ở khối E1)
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
-  exit_code: 1
-  verified_at: 2026-10-29T12:12:04Z
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  exit_code: 0
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 1
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r1
+  run_id: minted-lenh-dot-ghi-dung-hang-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
   exit_code: 0
-  verified_at: 2026-10-29T12:12:04Z
+  verified_at: 2026-10-29T14:36:50Z
 
-Lệnh suite đỏ không gắn eval nào (hai lệnh, lý do verdict REJECT). Đuôi đầu ra là phần bước capture giữ lại.
+Lệnh đỏ không gắn eval (nguyên nhân của verdict REJECT): `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'`, danh sách eval gắn kèm rỗng. Đuôi đầu ra máy bắt được:
 
-- `--manh vung:2`: một ca đỏ, `P161 strip-md giu duong dan + ma tran toan phan`. Tổng kết «Results: 1 failed».
-- `--manh vung:3`: một ca đỏ, `ca ra co ten — RT13 (ho so ra-co-ten-lam-va-trao)`. RT13 báo hai tệp lạ chứa «signed-off»: `dieu-phoi/README.md` và `tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs`. Cách gỡ do chính ca nêu: thêm ca, hoặc khai gạch có lý do trong khối BO-DOC-KHAI-GACH. Tổng kết «Results: 1 failed».
-
-Vòng này chưa chứng minh hai ca đỏ ấy do vật của vòng gây ra hay có sẵn từ trước, vì baseline không đo được. Một ca đỏ như vậy vẫn chặn vòng cho tới khi người sửa hoặc khai gạch.
+    FAIL: P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=
+    MUTANT-6 bi bat: doc_manifest() FAIL-LOUD ghim 'site thieu so ban: feature-loop/skills/feature-loop/SKILL.md'
+    Results: 4 passed, 0 failed (ntr-observed)
+    Results: 1 failed
 
 ## Known limits
 
@@ -193,18 +197,21 @@ Vòng này chưa chứng minh hai ca đỏ ấy do vật của vòng gây ra hay
 
 baseline: BLOCKED ha tang — lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
 
-Eval không-phân-biệt (xanh cả mã cũ lẫn mã mới): none — không eval nào được xác định là xanh-cả-hai-phía. Baseline không đo được ở round này nên không khẳng định được chiều đỏ trên mã cũ. Mọi field baseline là n-a.
+Mọi eval E1–E10 ghi `baseline: n-a`; danh sách eval không-phân-biệt dưới đây KHÔNG đo được ở round này.
 
-Không có eval judgment nào, nên không có hội đồng chấm.
-
-### Baseline khong do
+Baseline khong do:
 
 - bash -c 'set -o pipefail; node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs" 2>&1 | grep -E "^ *(not )?ok [0-9]+ - (TC2-|TC1-09 )|^ *not ok|^#   |^# (pass|fail|skipped|todo) " | paste -sd"|" -': BLOCKED ha tang baseline: lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban) — cong cu tra: «<\tool_use_error>Error: No such tool available: Write. Write is not among the tools available here. Continue with the tools you have.<\/tool_use_error>»
 
+Eval không-phân-biệt: none — không eval nào được xác định là xanh trên cả hai phía; vì baseline không đo được nên chiều «đỏ trên baseline» của E1–E10 chưa được chứng minh bằng round này (chiều đỏ của từng eval nằm ở các ca «-do» mà chính eval chạy: bản lành xanh, bản tiêm đỏ đúng một mục).
+
+Lệnh suite đỏ không gắn eval: `tests/plugins/run-tests.sh --manh vung:3`, ca P179 [MBC] E6 (sổ known-limits). Ca này so quan hệ «>=» giữa số dòng của `docs/research/known-limits-ledger.tsv` và số mục «Đề xuất: known-limits» đếm trong mọi `_acceptance/*/review-findings.md`. Chẩn đoán từ đọc cây, CHƯA đọc thông điệp lỗi đầy đủ (đuôi lưu bị cắt ở «quan he >=»): sổ có 1145 dòng dữ liệu so với 1148 mục corpus lúc đọc, tức sổ thiếu dòng cho các mục known-limits mới (kể cả của vòng này). Số chính xác cần chạy lại ca; hướng sửa: thêm hàng sổ cho các mục known-limits của vòng.
+
 ## Variance
 
-none — mọi eval chạy một lần, tất định, đồng đều.
+none — mọi eval chạy một lần và xác định (runs: 1); không eval nào có pass_rate lẫn lộn.
 
 ## Iterations
 
 Round 1: không eval hợp đồng nào đỏ (E1–E10 xanh). Hai lệnh suite hồi quy `tests/plugins/run-tests.sh --manh vung:2` (ca P161) và `--manh vung:3` (ca RT13) đỏ nên verdict REJECT. Trả về cho khâu thực hiện. Mốc `verified_at` trong báo cáo này chỉ có độ phân giải ngày. Giờ chạy thật nằm ở `run-log.jsonl`.
+Round 2: E1–E10 vẫn xanh; vung:1 và vung:2 nay xanh (P161 và RT13 đã vá ở 3508fc1f). vung:3 vẫn đỏ nhưng ở ca khác: P179 [MBC] E6 (sổ known-limits thiếu dòng so với corpus review-findings.md, chẩn đoán từ đọc cây). Baseline không đo được (hạ tầng chặn). Trả về cho khâu thực hiện: thêm hàng sổ cho các mục known-limits rồi chạy lại vung:3.
