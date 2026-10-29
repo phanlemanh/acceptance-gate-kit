@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c7912f5207c5b79dcf5115dae798d3d70288544d
-human_signoff:
+human_signoff: Manh Phan 2026-10-29 — ký; Ngoài-1…9, 12…17 ghi Known limits; Ngoài-10, 11 chấp nhận, không sửa; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: kiem-ban-cai-loi-sua-chay-duoc

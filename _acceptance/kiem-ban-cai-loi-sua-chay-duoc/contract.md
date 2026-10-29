@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/kiem-ban-cai.mjs + tests/scripts + một khoá _acceptance/config.yaml — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: _acceptance/kiem-ban-cai-loi-sua-chay-duoc/design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -122,3 +122,19 @@ Chân ngành: [NGÀNH: brew doctor] — mỗi cảnh báo kèm lệnh sửa ch�
   Không cần CLI `claude` — chế độ `--may` không gọi nó — nên tệp mang đuôi `.test.mjs` và chạy trong mảnh mjs của CI.
 - Cỡ vòng: 10 tiêu chí.
 - Bảng dự báo năm dòng: design §4.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-29:
+  - Ngoài-1: Khi một gói đã bị gỡ hay đổi tên khỏi chợ, lệnh kiểm vẫn khuyên nâng bản ghi gốc của cây phụ rồi chạy lại — việc không làm được — và không nói thẳng gói không còn trong chợ.
+  - Ngoài-2: Một dòng xanh của bộ ca chỉ so danh sách ba mẫu với bản chép của chính nó nên luôn xanh.
+  - Ngoài-3: Nới danh sách tệp không chạy sang các thư mục mã không có tệp mẫu trong bộ thử (lib/, hooks/, commands/, dieu-phoi/) không làm ca nào đỏ.
+  - Ngoài-4: Chưa có ca nào đo tài liệu bên trong gói con (nguồn gói không ở gốc kho) được tính là tệp không chạy đúng cách.
+  - Ngoài-5: Ca tiêm lỗi có thể báo đã bắt được lỗi khi bản tiêm sập, vì không ghim thông điệp và không xác nhận bản tiêm đã chạy.
+  - Ngoài-6: Bộ ca kiểm bản cài còn một chỗ dọn thư mục tạm chưa có thử lại, nên thỉnh thoảng có thể đỏ oan.
+  - Ngoài-7: Lệnh kiểm có thể báo lỗi ngay sau khi đã in ĐẠT nếu bước dọn thư mục cấu hình tạm của nó gặp trục trặc; bản cài vẫn nguyên.
+  - Ngoài-8: Ca kiểm sao lưu trước khi sửa sổ cài có thể báo bắt được lỗi trong khi bản thử hỏng và chưa từng chạy.
+  - Ngoài-9: Ca chứng minh bộ lọc tệp không chạy bị nới sẽ bị bắt có thể xanh vì một lý do khác (lệnh hỏng).
+  - Ngoài-12: Các ca bản sao tiêm lỗi chấp nhận mọi kiểu thất bại là đã bắt được lỗi.
+  - Ngoài-13: Lời hứa «hằng bị nới rộng phải làm ca đỏ» được tuyên cho cả lớp mà chỉ có ba ca điểm.
+  - Ngoài-14: Ca «cây phụ không vào danh sách cài lại» chỉ kiểm âm tính; đổi chữ nhắc cài lại thì ca xanh vô nghĩa.
+  - Ngoài-15: Đường tính từ gốc kho khi nguồn gói khác gốc kho chưa có ca nào.
+  - Ngoài-16: Cảnh báo vàng có thể gọi tên tệp ở vế khác vế mong đợi mà bộ ca vẫn xanh.
+  - Ngoài-17: Sổ cài và bản ghi cây phụ trong bộ thử là bản tự dựng, không đi qua công cụ ghi sổ thật.
