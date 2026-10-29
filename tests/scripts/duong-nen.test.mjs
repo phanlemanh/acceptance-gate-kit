@@ -2,7 +2,8 @@
 // hồ sơ thuoc-co-cua AC-6 (E8: NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8) và AC-7
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
 // AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
-// hồ sơ nen-cong-cu-gan-bang-lenh-con AC-1…AC-5 (NEN-LC1…NEN-LC3 — lệnh chỉ-gán mang lệnh con).
+// hồ sơ nen-cong-cu-gan-bang-lenh-con AC-1…AC-5 (NEN-LC1…NEN-LC3 — lệnh chỉ-gán mang lệnh con);
+// hồ sơ cong-cu-xet-tep-ton-tai AC-1…AC-5 (NEN-TT1…NEN-TT5 — từ đầu là đường tệp thì xét tệp có tồn tại).
 // NEN-DK1…NEN-DK6: tệp CÓ ĐIỀU KIỆN của danh sách chép (thẻ `[only-if-declared: <khoá>]`) — hồ sơ
 // nen-dieu-kien-va-static-khong-do-duoc AC-1…AC-5 (crm-onehub#375: crm không khai tin_hieu nên không
 // chép ba tệp tin_hieu, đường nền đỏ engine ở mọi dãy).
@@ -16,7 +17,7 @@
 // Mọi lần chạy truyền `--cache-root` trỏ vào cache DO CA DỰNG — không ca nào đọc plugin
 // cache thật của máy; không ca nào ghi vào `_acceptance/` của kho kit.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync, chmodSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync, chmodSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -1130,6 +1131,183 @@ Object.assign(KIEM_TV, {
   }
   if (loi.length) bad('NEN-TV6 dot bien', loi.join(' | '));
   else ok('NEN-TV6 ban lanh xanh; bon dot bien (luon sai · luon dung · bo ve HEAD · bo «]») deu do dung ten tep/ho so');
+}
+
+// ── NEN-TT* — từ đầu là ĐƯỜNG TỆP thì xét tệp có tồn tại, không xét quyền chạy ───────
+// Hồ sơ cong-cu-xet-tep-ton-tai. Khuôn của `executors.design.ui_check` là một đường tệp .js
+// không có quyền chạy; `command -v` trên nó thoát 1 nên chân công cụ đỏ «THIEU» dù tệp có
+// trên đĩa. Hai lượt trên fixture lành của NEN0: «có» (mọi khoá trỏ tệp có thật — chân phải
+// XANH, mã 0) và «vắng» (tập bullet so BẰNG NHAU với tập viết trước). Mỗi lượt có khoá đối
+// chứng bỏ-tra; đường nền chạy từ một cwd KHÁC gốc kho, PATH thêm một thư mục tạm.
+const TT_DOI_CHUNG = 'cong-cu: bo qua executors.script.tt_doi_chung — tu dau «${X_KHONG_CO:-git}» dung cu phap shell, khong phai ten chuong trinh';
+const TT_KHUON = '${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js';
+const DONG_TT_KHUON = `cong-cu: bo qua executors.script.tt_khuon — tu dau «${TT_KHUON}» dung cu phap shell, khong phai ten chuong trinh`;
+// Ngoài mọi kho: tệp tuyệt đối không quyền chạy (đúng hình dạng sự cố), thư mục PATH, cwd người gọi.
+const ttNgoai = tamDir('duong-nen-tt-ngoai-');
+mkdirSync(path.join(ttNgoai, 'scripts'));
+const TT_TUYET_DOI = path.join(ttNgoai, 'scripts', 'design-scan.js');
+writeFileSync(TT_TUYET_DOI, '// tay cam bo kiem giao dien\n');
+chmodSync(TT_TUYET_DOI, 0o644);
+const TT_VANG = path.join(ttNgoai, 'khong-co', 'design-scan.js');
+const ttBin = tamDir('duong-nen-tt-bin-');
+writeFileSync(path.join(ttBin, 'cong-cu-tt-path.mjs'), '#!/bin/sh\nexit 0\n');
+chmodSync(path.join(ttBin, 'cong-cu-tt-path.mjs'), 0o755);
+const ttCwd = tamDir('duong-nen-tt-cwd-');
+const TT_ENV = { PATH: `${ttBin}${path.delimiter}${process.env.PATH}` };
+const TT_CO_SAN = ['tools/kiem-giao-dien.js', 'kiem-goc.js', 'kiem-goc.mjs', 'kiem-goc.cjs'];
+
+const TT_CO = {
+  design: { ui_check: TT_TUYET_DOI },
+  script: {
+    tt_tuong_doi_co: 'tools/kiem-giao-dien.js --x',
+    tt_tran_js: 'kiem-goc.js',
+    tt_tran_mjs: 'kiem-goc.mjs',
+    tt_tran_cjs: 'kiem-goc.cjs',
+    tt_tran_path: 'cong-cu-tt-path.mjs --x',
+    tt_khuon: TT_KHUON,
+  },
+};
+const TT_KHOA_CO = ['executors.design.ui_check', ...['tt_tuong_doi_co', 'tt_tran_js', 'tt_tran_mjs', 'tt_tran_cjs', 'tt_tran_path'].map(k => `executors.script.${k}`)];
+const TT_VANG_KHOA = {
+  script: {
+    tt_tuyet_doi_vang: TT_VANG,
+    tt_tuong_doi_vang: 'tools/vang.mjs',
+    tt_thu_muc: 'tools/',
+    tt_tran_vang: 'khong-co-tt-vang.mjs',
+    tt_ten_vang: 'khong-co-that-tt --x',
+  },
+};
+const MONG_VANG = {
+  tt_tuyet_doi_vang: `nen cong-cu: THIEU ${TT_VANG} (khoa executors.script.tt_tuyet_doi_vang)`,
+  tt_tuong_doi_vang: 'nen cong-cu: THIEU tools/vang.mjs (khoa executors.script.tt_tuong_doi_vang)',
+  tt_thu_muc: 'nen cong-cu: THIEU tools/ (khoa executors.script.tt_thu_muc)',
+  tt_tran_vang: 'nen cong-cu: THIEU khong-co-tt-vang.mjs (khoa executors.script.tt_tran_vang)',
+};
+const MONG_TEN = 'nen cong-cu: THIEU khong-co-that-tt (khoa executors.script.tt_ten_vang)';
+
+/**
+ * chayTT(nhom, { script }) — fixture lành của NEN0 thêm các nhóm executor đã cho ({ nhóm: { khoá: lệnh } })
+ * cùng khoá đối chứng `script.tt_doi_chung`, và bốn tệp TT_CO_SAN ở nhánh gốc. Round-trip TRƯỚC khi
+ * chạy: mọi khoá phải được `resolveConfigKey` đọc lại đúng lệnh; lệch → { lech } và ca tự đỏ.
+ */
+function chayTT(nhom, o = {}) {
+  const tat = { ...nhom, script: { ...(nhom.script || {}), tt_doi_chung: DOI_CHUNG } };
+  const khoi = Object.entries(tat).map(([n, ks]) => `  ${n}:\n${Object.entries(ks).map(([k, v]) => `    ${k}: ${JSON.stringify(v)}\n`).join('')}`).join('');
+  const config = CONFIG_LANH.replace('feature_loop:\n', `${khoi}feature_loop:\n`);
+  const lech = Object.entries(tat).flatMap(([n, ks]) => Object.entries(ks)
+    .filter(([k, v]) => resolveConfigKey(config, `executors.${n}.${k}`) !== v).map(([k]) => `${n}.${k}`));
+  if (lech.length) return { lech };
+  const r = chayNen(dungKho({ config, coSan: TT_CO_SAN }), { cache: CACHE, script: o.script, cwd: ttCwd, env: TT_ENV });
+  const dc = boQuaKhoa(r.stderr, 'executors.script.tt_doi_chung');
+  return { lech, r, doiChung: dc.length === 1 && dc[0] === TT_DOI_CHUNG ? null : JSON.stringify(dc) };
+}
+const tienDeTT = x => (x.lech.length ? `fixture khong round-trip: ${x.lech.join(',')}`
+  : x.doiChung ? `doi chung: khong thay dung 1 dong bo-tra nguyen van cho tt_doi_chung ${x.doiChung}` : null);
+// Mỗi hàm trả null khi đạt, chuỗi lý do khi không — dùng lại ở NEN-TT5 trên bản sao.
+const KIEM_TT = {
+  co: (x) => {
+    const e = tienDeTT(x); if (e) return e;
+    const b = bulletCongCuMoi(x.r.tep);
+    if (b.length) return `luot «co» van co bullet cong-cu ${JSON.stringify(b)}`;
+    const roi = TT_KHOA_CO.filter(k => boQuaKhoa(x.r.stderr, k).length);
+    if (roi.length) return `khoa roi vao nhanh bo-tra: ${roi.join(',')}`;
+    if (x.r.code !== 0 || fm(x.r.tep, 'cong_cu') !== 'xanh') return `luot «co» phai ma 0 va chan cong_cu xanh — ${tomTat(x.r)}`;
+    return null;
+  },
+  vang: (x) => {
+    const e = tienDeTT(x); if (e) return e;
+    const b = bulletCongCuMoi(x.r.tep);
+    const sai = Object.entries(MONG_VANG).filter(([k, can]) =>
+      JSON.stringify(b.filter(l => l.endsWith(`(khoa executors.script.${k})`))) !== JSON.stringify([can])).map(([k]) => k);
+    if (sai.length) return `khoa khong co dung mot bullet ghim: ${sai.join(',')} — ${JSON.stringify(b)}`;
+    if (x.r.code !== 1 || fm(x.r.tep, 'cong_cu') !== 'do') return `luot «vang» phai ma 1 va chan cong_cu do — ${tomTat(x.r)}`;
+    return null;
+  },
+};
+
+const xCo = chayTT(TT_CO);
+const xVang = chayTT(TT_VANG_KHOA);
+
+// ── NEN-TT1 — lượt «có»: tệp có thật, không quyền chạy → chân XANH, mã 0 ──────────
+{
+  const che = statSync(TT_TUYET_DOI).mode & 0o111;
+  const cv = spawnSync('bash', ['-c', 'command -v "$1"', '_', TT_TUYET_DOI], { stdio: 'ignore' }).status;
+  const e = KIEM_TT.co(xCo);
+  if (che !== 0) bad('NEN-TT1 tien de: tep tuyet doi co quyen chay — ca khong do dung su co', che.toString(8));
+  else if (cv === 0) bad('NEN-TT1 tien de: command -v tren tep tuyet doi thoat 0 — luat cu cung xanh, ca khong phan biet', String(cv));
+  else if (e) bad('NEN-TT1', e);
+  else ok('NEN-TT1 luot «co» (ui_check tuyet doi, tuong doi, ten tran .js/.mjs/.cjs o goc kho, .mjs tren PATH) — ma 0, cong_cu xanh, 0 bullet, 0 dong bo-tra (doi chung: dung 1 dong; command -v tren tep tuyet doi thoat khac 0)');
+}
+
+// ── NEN-TT2 — lượt «vắng»: đường không trỏ tệp thường → ĐỎ, mỗi khoá đúng một bullet ──
+{
+  const e = KIEM_TT.vang(xVang);
+  if (e) bad('NEN-TT2', e);
+  else ok('NEN-TT2 luot «vang» — ma 1, cong_cu do, tuyet doi vang / tuong doi vang / thu muc / ten tran .mjs vang moi khoa dung mot bullet ghim');
+}
+
+// ── NEN-TT3 — tên chương trình trần vắng VẪN đỏ; tập bullet so BẰNG NHAU ──────────
+{
+  const MONG = [...Object.values(MONG_VANG), MONG_TEN].sort();
+  const b = xVang.r ? bulletCongCuMoi(xVang.r.tep).sort() : [];
+  if (Object.keys(TT_VANG_KHOA.script).length !== 5 || MONG.length !== 5) bad('NEN-TT3 ma tran khai sai kich thuoc (can 5 khoa, 5 bullet)', `${Object.keys(TT_VANG_KHOA.script).length}/${MONG.length}`);
+  else if (tienDeTT(xVang)) bad('NEN-TT3', tienDeTT(xVang));
+  else if (!b.includes(MONG_TEN)) bad('NEN-TT3 ten chuong trinh tran vang khong con do', JSON.stringify(b));
+  else if (JSON.stringify(b) !== JSON.stringify(MONG)) bad('NEN-TT3 tap bullet cong-cu khac tap mong doi', JSON.stringify(b));
+  else ok(`NEN-TT3 ten tran vang van do «${MONG_TEN}»; tap bullet bang dung 5 dong viet truoc`);
+}
+
+// ── NEN-TT4 — khoá ở khuôn kit `${CLAUDE_PLUGIN_ROOT}/…` giữ đúng một dòng bỏ-tra ─────
+{
+  const dong = xCo.r ? boQuaKhoa(xCo.r.stderr, 'executors.script.tt_khuon') : null;
+  const b = xCo.r ? bulletCongCuMoi(xCo.r.tep).filter(l => l.endsWith('(khoa executors.script.tt_khuon)')) : [];
+  if (tienDeTT(xCo)) bad('NEN-TT4', tienDeTT(xCo));
+  else if (b.length) bad('NEN-TT4 khoa khuon kit sinh bullet', JSON.stringify(b));
+  else if (JSON.stringify(dong) !== JSON.stringify([DONG_TT_KHUON])) bad('NEN-TT4 khoa khuon kit khong co dung 1 dong bo-tra nguyen van', JSON.stringify(dong));
+  else ok('NEN-TT4 khoa ${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js — 0 bullet, dung 1 dong bo-tra nguyen van');
+}
+
+// ── NEN-TT5 — ba đột biến ở khối CONG-CU-DUONG-TEP, mỗi đột biến làm ca đỏ có tên ──────
+// Bản sao chưa tiêm chạy cả hai lượt trước: nếu nó không cho đúng kết quả NEN-TT1/TT2 thì «đỏ» của
+// bản tiêm không phân biệt được với bản chép hỏng.
+{
+  const loi = [];
+  try {
+    const d = tamDir('duong-nen-tt-mut-');
+    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+    const f = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const goc = readFileSync(f, 'utf8');
+    const MO = '// <<<CONG-CU-DUONG-TEP\n', DONG = '// CONG-CU-DUONG-TEP>>>\n';
+    const nMo = goc.split(MO).length - 1, nDong = goc.split(DONG).length - 1;
+    if (nMo !== 1 || nDong !== 1) throw new Error(`marker CONG-CU-DUONG-TEP khop ${nMo}/${nDong} lan (can dung 1/1)`);
+    const i = goc.indexOf(MO) + MO.length, j = goc.indexOf(DONG);
+    const khoi = goc.slice(i, j);
+    for (const [ten, e] of [['co', KIEM_TT.co(chayTT(TT_CO, { script: f }))], ['vang', KIEM_TT.vang(chayTT(TT_VANG_KHOA, { script: f }))]]) {
+      if (e) loi.push(`ban chep hong — luot «${ten}» chua tiem khong dat: ${e}`);
+    }
+    const DOT = [
+      ['a', "const laDuongTep = (tu) => tu.includes('/') || DUOI_KICH_BAN.test(tu);", 'const laDuongTep = () => false;', TT_CO,
+        b => b.includes(`nen cong-cu: THIEU ${TT_TUYET_DOI} (khoa executors.design.ui_check)`)],
+      ['b', 'const coTep = (tu) =>', 'const coTep = () => true; const coTepGoc = (tu) =>', TT_VANG_KHOA,
+        b => !b.some(l => l.endsWith('(khoa executors.script.tt_tuyet_doi_vang)'))],
+      ['c', 'const DUOI_KICH_BAN = /\\.[cm]?js$/;', 'const DUOI_KICH_BAN = /\\.cjs$/;', TT_CO,
+        b => b.includes('nen cong-cu: THIEU kiem-goc.js (khoa executors.script.tt_tran_js)')],
+    ];
+    if (!loi.length) for (const [ten, tim, thay, luot, dung] of DOT) {
+      const n = khoi.split(tim).length - 1;
+      if (n !== 1) { loi.push(`(${ten}) cho tiem khop ${n} lan trong khoi marker (can 1)`); continue; }
+      const moi = goc.slice(0, i) + khoi.replace(tim, thay) + goc.slice(j);
+      if (moi === goc) { loi.push(`(${ten}) ban tiem trung ban goc`); continue; }
+      writeFileSync(f, moi);
+      const x = chayTT(luot, { script: f });
+      writeFileSync(f, goc);
+      const b = x.r ? bulletCongCuMoi(x.r.tep) : [];
+      if (!x.r) loi.push(`(${ten}) khong chay duoc: ${x.lech.join(',')}`);
+      else if (!dung(b)) loi.push(`(${ten}) dot bien ma ca khong do: ${JSON.stringify(b)}`);
+    }
+  } catch (e) { loi.push(String(e.message || e)); }
+  if (loi.length) bad('NEN-TT5 dot bien', loi.join(' | '));
+  else ok('NEN-TT5 ban chep chua tiem dat TT1/TT2; ba dot bien (khong gi la duong tep · moi tep deu co · chi nhan .cjs) deu do dung khoa');
 }
 
 donDep();
