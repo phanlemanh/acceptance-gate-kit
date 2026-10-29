@@ -64,8 +64,8 @@ Thuật ngữ:
   1 với «không có dãy P9» và không đổi byte nào của thư mục đợt, lần hai «không đổi gì»; và lời dùng của `hang` khi gọi
   sai liệt `chay-lai <P>`.
 - AC-7: (Hỏi-1) Given dãy P1 có hàng T (hợp đồng `risk_tier: T1` · `status: draft` kèm chú thích `#`, cùng bản ở worktree
-  và nhánh chính) và hàng U kế, When một nhịp bộ phát lịch thật, Then `tiep/P1.json` trỏ U; đối chứng cùng fixture: T
-  chỉ có ở worktree → `tiep` trỏ T; hàng T2 `draft` có trên nhánh chính → vẫn là hàng đang làm. Chiều đỏ: bản sao bỏ vế
+  và nhánh chính) và hàng U kế, When một nhịp bộ phát lịch thật, Then `tiep/P1.json` trỏ U; đối chứng cùng fixture, lịch
+  KHÔNG coi T là xong: T chỉ có ở worktree → `tiep` trỏ T; hàng T2 `draft` có trên nhánh chính → vẫn là hàng đang làm. Chiều đỏ: bản sao bỏ vế
   T1 → hàm kiểm nêu «hồ sơ T1 đã gộp vẫn là hàng đang làm».
 - AC-8: Given ma trận đường đọc-cũ viết sẵn (đơn có `--slug`; đơn không cờ khi dãy không có hồ sơ chấm được; `hang them`
   hàng đã có trong `hang-viec.json`; `nghi` một dãy; một nhịp lịch không hồ sơ T1), When chạy trên bản gói ở sha ghim và

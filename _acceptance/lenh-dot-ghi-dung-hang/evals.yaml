@@ -103,7 +103,7 @@ evals:
     expected: >
       exit 0; "ok" cho "TC2-07 t1-da-gop": dãy P1 hàng T (uu_tien 1) và U (uu_tien 2); hợp đồng T mang "risk_tier: T1      #
       chú thích" và "status: draft      # chú thích" ở worktree và trên origin/main → một nhịp motNhip thật với io git
-      thật trên kho thử → tiep/P1.json hang "hang-u". Ma trận đối chứng ba hàng cùng fixture: T chỉ ở worktree → tiep
+      thật trên kho thử → tiep/P1.json hang "hang-u". Ma trận đối chứng ba hàng cùng fixture, lịch KHÔNG coi T là xong: T chỉ ở worktree → tiep
       "hang-t"; hợp đồng T đổi risk_tier T2 có trên origin/main → tiep "hang-t"; in «số hàng: 3». "ok" cho "TC2-07-do
       bo-ve-t1": bản lành xanh; bản sao gói bỏ vế T1 khỏi daGopTrenNhanhChinh (kiểm nhát tiêm khớp một lần) → hàm kiểm nêu
       "hồ sơ T1 đã gộp vẫn là hàng đang làm".
