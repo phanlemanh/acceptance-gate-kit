@@ -1,0 +1,5 @@
+{
+  "feature_plain": "Khi người nhận kit kiểm bản cài trên máy thật, lệnh kiểm phân biệt lệch mã với lệch chỉ ở tài liệu, chỉ đúng lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lệnh sửa chạy được (kèm sao lưu).",
+  "decisions": [],
+  "analyst_plain": ""
+}

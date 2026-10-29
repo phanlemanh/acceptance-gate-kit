@@ -205,6 +205,20 @@ async function chayTron() {
         [!!k.dongMuc('ĐẠT', 'thu-muc-goi'), 'thu-muc-goi đỏ khi chỉ lệch nội dung (lẫn lớp)'],
       ]);
     }
+    // ---- KB-13 (hồ sơ kiem-ban-cai-loi-sua-chay-duoc, design L3): kho giả lập GIỮ NGHIÊM — lệch chỉ ở một tệp
+    // docs/ vẫn ĐỎ khop-tag. Chế độ --may khoan dung cùng hình lệch thành VÀNG (ca KL-1 của tệp ca kia).
+    if (canDoiChung('KB-13')) {
+      const tepDocs = gitOk(ROOT, ['ls-tree', '-r', '--name-only', 'HEAD', '--', 'docs']).split('\n').filter(Boolean)[0];
+      if (!tepDocs) fail('KB-13', 'HEAD không có tệp nào dưới docs/ để tiêm');
+      else {
+        const k = chayKiem(['--ref', 'HEAD', '--nguon-cai', saoChep(d => fs.appendFileSync(path.join(d, tepDocs), '\nlech tai lieu sau the\n'))]);
+        const dK = k.dongMuc('ĐỎ', 'khop-tag') || '';
+        kiem('KB-13', [
+          [k.ma === 1, `mong thoát 1 (${tomTat(k)})`],
+          [dK.includes('bản cài khác tag') && dK.includes(`acceptance-gate:${tepDocs}`), `dòng ĐỎ khop-tag «${dK}»`],
+        ]);
+      }
+    }
     if (canDoiChung('KB-4 thua')) {
       const k = chayKiem(['--ref', 'HEAD', '--nguon-cai', saoChep(d => fs.writeFileSync(path.join(d, 'tep-thua-ngoai-cay.txt'), 'rác\n'))]);
       const dV = k.dongMuc('VÀNG', 'khop-tag') || '';
@@ -434,7 +448,11 @@ async function chayTron() {
       kiem('KB-9 khong-do', [[n.ket === 'chay-tron', `kho không có nhánh chính mà hàm trả «${n.ket}»`]]);
     }
   } finally {
-    fs.rmSync(tam, { recursive: true, force: true });
+    // Dọn rác, không phải phép đo: CLI claude mà KB-7 gọi trên cấu hình giả trong `tam` có thể còn ghi vài tệp sau khi
+    // thoát, nên xoá một lần gặp ENOTEMPTY (lượt chấm 1 của hồ sơ kiem-ban-cai-loi-sua-chay-duoc). Thử lại; vẫn hỏng thì
+    // nói ra một dòng, không lật kết quả các ca đã in.
+    try { fs.rmSync(tam, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); }
+    catch (e) { console.log(`CẢNH BÁO: KB — không dọn được thư mục tạm ${tam}: ${e.code || e.message}`); }
   }
 }
 
