@@ -30,6 +30,29 @@ export const MUC = ['so-phien-ban', 'khop-tag', 'thu-muc-goi', 'tac-tu-cham', 'h
 const CONG_CU_BUT = ['Edit', 'Write', 'NotebookEdit', 'MultiEdit'];
 const SLUG_KHO = 'kho-thu';
 
+// Ba mẫu «tệp không chạy» của chế độ --may (hồ sơ kiem-ban-cai-loi-sua-chay-duoc, design L2): đường tính TỪ GỐC KHO kit.
+// Không mã chạy nào của kit đọc chúng từ gốc gói (đo 29/10), nên bộ đệm lệch thẻ CHỈ ở đây — commit sau thẻ cùng số
+// ghi kết quả kiểm, vẽ lại lộ trình — là lệch tài liệu, không phải cài sai mã: VÀNG có tên, bản ghi vẫn ĐẠT.
+export const KHONG_CHAY = ['docs/', '_acceptance/', 'LO-TRINH.html'];
+export const laKhongChay = (rel) => KHONG_CHAY.some(m => m.endsWith('/') ? rel.startsWith(m) : rel === m);
+const tuGocKho = (nguon, rel) => (nguon === '.' ? rel : `${nguon}/${rel}`);
+
+// Đóng nháy cho vỏ POSIX (bash, zsh): lệnh in ra phải chạy được khi đường có dấu cách hay nháy đơn.
+export const nhay = (s) => (/^[\w@%+=:,./-]+$/.test(String(s)) ? String(s) : `'${String(s).replace(/'/g, `'\\''`)}'`);
+
+// Lệnh sửa và lệnh dọn chỉ được IN — lệnh kiểm không ghi gì. Cả hai chép sổ nguyên byte sang tệp sao lưu TRƯỚC khi
+// ghi; chép tệp sao lưu đè lại sổ là đường đảo. Mã không chứa nháy đơn, đối số đi riêng (đường sổ · JSON).
+const SUA_JS = 'const fs=require("fs");const[f,j]=process.argv.slice(1);const p=JSON.parse(j);const s=fs.readFileSync(f,"utf8");const nl=s.endsWith("\\n")?"\\n":"";const d=JSON.parse(s);'
+  + 'const m=((d.plugins||{})[p.id]||[]).filter(b=>b.scope===p.scope&&b.projectPath===p.projectPath);'
+  + 'if(m.length!==1){console.error("không sửa: "+m.length+" bản ghi khớp "+p.id+" ở "+p.projectPath);process.exit(1)}'
+  + 'const bak=f+".bak-"+Date.now();fs.copyFileSync(f,bak);Object.assign(m[0],p.dat);fs.writeFileSync(f,JSON.stringify(d,null,2)+nl);'
+  + 'console.log("đã sửa "+p.id+" ở "+p.projectPath+" · sao lưu "+bak)';
+const DON_JS = 'const fs=require("fs");const[f,j]=process.argv.slice(1);const x=JSON.parse(j);const s=fs.readFileSync(f,"utf8");const nl=s.endsWith("\\n")?"\\n":"";const d=JSON.parse(s);'
+  + 'const b=f+".bak-"+Date.now();fs.copyFileSync(f,b);let n=0;'
+  + 'for(const r of x){const ds=(d.plugins||{})[r.id];if(!Array.isArray(ds))continue;const con=ds.filter(e=>!(e.scope===r.scope&&e.projectPath===r.projectPath));n+=ds.length-con.length;if(con.length)d.plugins[r.id]=con;else delete d.plugins[r.id]}'
+  + 'fs.writeFileSync(f,JSON.stringify(d,null,2)+nl);console.log("đã dọn "+n+" bản ghi · sao lưu "+b)';
+const BON_TRUONG = ['installPath', 'version', 'gitCommitSha', 'lastUpdated'];
+
 export class KhongChay extends Error {}
 
 const git = (root, args, buffer = false) =>
@@ -209,8 +232,14 @@ function docArgs(argv) {
 function giaiRef(root, ref) {
   if (git(root, ['rev-parse', '--git-dir']).status !== 0) throw new KhongChay(`${root} không phải kho git của kit — truyền --root <bản checkout kit có tag>`);
   const r = git(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
-  if (r.status !== 0) throw new KhongChay(`ref không có: ${ref}`);
-  return r.stdout.trim();
+  if (r.status === 0) return r.stdout.trim();
+  // Bản clone của chợ dựng không có thẻ (đo 25/10): nói lệnh lấy thẻ chạy được, không đoán remote có thẻ hay không.
+  // Ref dạng sha hay biểu thức ref thì không có thẻ nào để lấy — giữ câu cũ.
+  if (/^[0-9a-f]{7,40}$/i.test(ref) || /[~^:@{}\s]/.test(ref)) throw new KhongChay(`ref không có: ${ref}`);
+  const ds = (git(root, ['remote']).stdout || '').split('\n').filter(Boolean);
+  const remote = ds.includes('origin') ? 'origin' : ds[0];
+  if (!remote) throw new KhongChay(`ref không có: ${ref} — ${root} không có remote để lấy thẻ; trỏ --root vào bản checkout kit có thẻ`);
+  throw new KhongChay(`ref không có: ${ref} — bản clone ${root} không có thẻ này; nếu thẻ có ở remote, lấy thẻ rồi chạy lại: git -C ${nhay(root)} fetch --tags ${nhay(remote)}`);
 }
 
 function cheDoGiaLap(a, sha, mf, out) {
@@ -324,50 +353,117 @@ function docSoCai(cfg) {
   return Object.entries(j.plugins).flatMap(([id, ds]) => (Array.isArray(ds) ? ds : []).map(b => ({ id, ...b })));
 }
 
+const thucTai = (p) => { try { return fs.realpathSync(p); } catch { return path.resolve(p); } };
+
+// Bản ghi phạm vi dự án ở một worktree LIÊN KẾT (git-common-dir khác git-dir) → thư mục gốc (cha của common-dir).
+// Nhận bằng git, không bằng đường: `git worktree add` đặt cây phụ ở bất kỳ đâu (design L5).
+function gocCuaCayPhu(p) {
+  const r = spawnSync('git', ['-C', p, 'rev-parse', '--path-format=absolute', '--git-dir', '--git-common-dir'], { encoding: 'utf8', timeout: HAN_MS });
+  if (r.status !== 0) return null;
+  const [gd, cd] = r.stdout.trim().split('\n');
+  if (!gd || !cd || gd === cd || path.basename(cd) !== '.git') return null;
+  return thucTai(path.dirname(cd));
+}
+
 function cheDoMay(a, sha, mf, out) {
   const cfg = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+  const tepSo = path.join(cfg, 'plugins', 'installed_plugins.json');
   out(`${TIEN_TO} máy: cấu hình ${cfg} · ref ${a.ref} = ${sha.slice(0, 8)} · chợ ${mf.cho}`);
-  const banGhi = docSoCai(cfg).filter(p => String(p.id).endsWith(`@${mf.cho}`));
-  if (!banGhi.length) {
+  const tatCa = docSoCai(cfg).filter(p => String(p.id).endsWith(`@${mf.cho}`));
+  if (!tatCa.length) {
     out(`${TIEN_TO} ĐỎ may: không có bản ghi nào của ${mf.cho}`);
     out(`${TIEN_TO} TỔNG KẾT: ĐỎ — máy không có bản cài nào của ${mf.cho}`);
     return 1;
   }
+  // Bản ghi trỏ thư mục đã xoá đi khối riêng, không vào đếm nào (design L8).
+  const moCoi = tatCa.filter(b => b.projectPath && !fs.existsSync(b.projectPath));
+  const banGhi = tatCa.filter(b => !moCoi.includes(b));
   // Gom theo thư mục cài: nhiều bản ghi (mỗi cây phụ một bản ghi) dùng chung một bộ đệm — băm một lần,
-  // in một dòng kèm số bản ghi; dòng ĐỎ kể nơi cần cài lại.
-  const cay = {}, nhom = new Map(), lechSo = new Map();
-  let dat = 0, do_ = 0, khacSo = 0;
+  // in một dòng kèm số bản ghi.
+  const cay = {}, nhom = new Map(), lechSo = [];
   for (const b of banGhi) {
     const ten = String(b.id).split('@')[0];
     const g = mf.goi.find(x => x.ten === ten);
-    if (!g || b.version !== g.so) {
-      const k = `${b.id}|${b.version}`;
-      lechSo.set(k, { id: b.id, so: b.version, ref: g ? g.so : null, n: (lechSo.get(k)?.n || 0) + 1 });
-      khacSo++; continue;
-    }
+    if (!g || b.version !== g.so) { lechSo.push({ b, g }); continue; }
     const k = b.installPath || '(trống)';
-    if (!nhom.has(k)) nhom.set(k, { b, ten, g, noi: [] });
-    nhom.get(k).noi.push(`${b.scope || '-'} ${b.projectPath || '-'}`);
+    if (!nhom.has(k)) nhom.set(k, { b, ten, g, ds: [] });
+    nhom.get(k).ds.push(b);
   }
-  for (const [ip, { b, ten, g, noi }] of nhom) {
-    const nhan = `${b.id} ${b.version} (${ip}) · ${noi.length} bản ghi`;
-    if (!b.installPath || !fs.existsSync(b.installPath)) { out(`${TIEN_TO} ĐỎ may: ${nhan}: bản cài không có trên đĩa — ${moTa(noi, 3)}`); do_ += noi.length; continue; }
-    cay[ten] ||= cayCuaRef(a.root, sha, g.nguon);
-    const s = soBanCai(b.installPath, cay[ten]);
-    const thieuDir = thuMucCapMotThieu(b.installPath, cay[ten]).map(d => `${ten}/${d}`);
+  for (const n of nhom.values()) {
+    if (!n.b.installPath || !fs.existsSync(n.b.installPath)) { n.vang = false; n.ok = false; continue; }
+    cay[n.ten] ||= cayCuaRef(a.root, sha, n.g.nguon);
+    const s = soBanCai(n.b.installPath, cay[n.ten]);
+    const khong = (rel) => laKhongChay(tuGocKho(n.g.nguon, rel));
     const sai = [...s.thieu, ...s.lech];
-    const thua = s.thua.length ? ` · thừa ${s.thua.length} (${moTa(s.thua, 3)})` : '';
-    if (thieuDir.length || sai.length) {
+    n.saiMa = sai.filter(r => !khong(r));
+    n.saiKhong = sai.filter(khong);
+    const dir = thuMucCapMotThieu(n.b.installPath, cay[n.ten]);
+    n.thieuDir = dir.filter(d => !khong(`${d}/`)).map(d => `${n.ten}/${d}`);
+    n.thieuDirKhong = dir.filter(d => khong(`${d}/`)).map(d => `${n.ten}/${d}`);
+    n.thua = s.thua;
+    n.coDia = true;
+    n.ok = !n.saiMa.length && !n.thieuDir.length;
+  }
+  const datCua = (b) => { const n = nhom.get(b.installPath || '(trống)'); return !!n && n.ok && n.ds.includes(b); };
+
+  // Cây phụ không khớp: lệch số, hoặc cùng số mà bộ đệm lệch. Gốc có bản ghi ĐẠT của cùng gói → in lệnh sửa chép bốn
+  // trường; gốc có bản ghi chưa khớp → nói nâng gốc trước; gốc không có bản ghi → không phải việc của khối này (L5).
+  const cayPhu = new Map();
+  const ungVien = [...lechSo.map(x => x.b), ...[...nhom.values()].filter(n => !n.ok).flatMap(n => n.ds)];
+  for (const b of ungVien) {
+    if (!b.projectPath) continue;
+    const gp = gocCuaCayPhu(b.projectPath);
+    if (!gp) continue;
+    const gocDs = banGhi.filter(x => x !== b && x.id === b.id && x.projectPath && thucTai(x.projectPath) === gp);
+    if (!gocDs.length) continue;
+    cayPhu.set(b, { gp, gb: gocDs.find(datCua) || null, gocDuong: gocDs[0].projectPath });
+  }
+
+  let dat = 0, do_ = 0, khongChay = 0;
+  for (const [ip, n] of nhom) {
+    const { b, ds } = n;
+    const nhan = `${b.id} ${b.version} (${ip}) · ${ds.length} bản ghi`;
+    const noi = ds.filter(x => !cayPhu.has(x)).map(x => `${x.scope || '-'} ${x.projectPath || '-'}`);
+    const caiLai = noi.length ? ` — cài lại ở: ${moTa(noi, 5)}` : ' — bản ghi cây phụ: xem dòng cay-phu';
+    if (!n.coDia) { out(`${TIEN_TO} ĐỎ may: ${nhan}: bản cài không có trên đĩa${noi.length ? ` — ${moTa(noi, 3)}` : ''}`); do_ += ds.length; continue; }
+    const thua = n.thua.length ? ` · thừa ${n.thua.length} (${moTa(n.thua, 3)})` : '';
+    const khongCa = [...n.thieuDirKhong.map(d => `${d}/`), ...n.saiKhong];
+    if (!n.ok) {
       const ve = [];
-      if (thieuDir.length) ve.push(`THIẾU thư mục gói: ${thieuDir.join(', ')}`);
-      if (sai.length) ve.push(`khác tag: ${sai.length} tệp (${moTa(sai, 3)})`);
-      out(`${TIEN_TO} ĐỎ may: ${nhan}: ${ve.join(' · ')}${thua} — cài lại ở: ${moTa(noi, 5)}`); do_ += noi.length;
-    } else { out(`${TIEN_TO} ĐẠT may: ${nhan}: khớp ${a.ref}${thua}`); dat += noi.length; }
+      if (n.thieuDir.length) ve.push(`THIẾU thư mục gói: ${n.thieuDir.join(', ')}`);
+      if (n.saiMa.length) ve.push(`khác tag: ${n.saiMa.length} tệp (${moTa(n.saiMa, 3)})`);
+      if (khongCa.length) ve.push(`tệp không chạy lệch: ${khongCa.length} (${moTa(khongCa, 5)})`);
+      out(`${TIEN_TO} ĐỎ may: ${nhan}: ${ve.join(' · ')}${thua}${caiLai}`); do_ += ds.length;
+    } else if (khongCa.length) {
+      out(`${TIEN_TO} VÀNG may: ${nhan}: lệch chỉ ở tệp không chạy (${KHONG_CHAY.join(', ')}): ${khongCa.length} tệp (${moTa(khongCa, 5)})${thua} — mã khớp ${a.ref}`);
+      dat += ds.length; khongChay += ds.length;
+    } else { out(`${TIEN_TO} ĐẠT may: ${nhan}: khớp ${a.ref}${thua}`); dat += ds.length; }
   }
-  for (const v of lechSo.values()) {
+  for (const [b, { gb, gocDuong }] of cayPhu) {
+    const dau = `${TIEN_TO} VÀNG cay-phu: ${b.id} ${b.version} ở ${b.projectPath} (cây phụ của ${gocDuong})`;
+    if (!gb) { out(`${dau} — bản ghi gốc chưa khớp ${a.ref}: nâng bản ghi gốc trước rồi chạy lại`); continue; }
+    const tai = { id: b.id, scope: b.scope, projectPath: b.projectPath, dat: Object.fromEntries(BON_TRUONG.map(k => [k, gb[k]])) };
+    out(`${dau} — chép bốn trường của bản ghi gốc khớp ${a.ref}; lệnh sửa: node -e ${nhay(SUA_JS)} ${nhay(tepSo)} ${nhay(JSON.stringify(tai))}`);
+  }
+  const lechCon = new Map();
+  for (const { b, g } of lechSo) {
+    if (cayPhu.has(b)) continue;
+    const k = `${b.id}|${b.version}`;
+    lechCon.set(k, { id: b.id, so: b.version, ref: g ? g.so : null, n: (lechCon.get(k)?.n || 0) + 1 });
+  }
+  let khacSo = 0;
+  for (const v of lechCon.values()) {
     out(`${TIEN_TO} VÀNG may: ${v.id} khác số ${v.so}${v.ref ? ` (ref ${v.ref})` : ' (gói không có trong chợ tại ref)'} · ${v.n} bản ghi — chưa nâng`);
+    khacSo += v.n;
   }
-  const duoi = khacSo ? ` · ${khacSo} bản ghi khác số (VÀNG)` : '';
+  if (moCoi.length) {
+    const tai = moCoi.map(b => ({ id: b.id, scope: b.scope, projectPath: b.projectPath }));
+    out(`${TIEN_TO} VÀNG mo-coi: ${moCoi.length} bản ghi trỏ thư mục đã xoá — ${moTa([...new Set(moCoi.map(b => b.projectPath))], 5)} · bỏ qua được; ổ chưa gắn cũng trông như đã xoá, lệnh dọn sao lưu sổ trước; lệnh dọn: node -e ${nhay(DON_JS)} ${nhay(tepSo)} ${nhay(JSON.stringify(tai))}`);
+  }
+  const duoi = (khongChay ? ` · ${khongChay} bản ghi lệch chỉ ở tệp không chạy (VÀNG)` : '')
+    + (cayPhu.size ? ` · ${cayPhu.size} bản ghi cây phụ (VÀNG cay-phu)` : '')
+    + (khacSo ? ` · ${khacSo} bản ghi khác số (VÀNG)` : '')
+    + (moCoi.length ? ` · ${moCoi.length} bản ghi mồ côi (VÀNG mo-coi)` : '');
   // Không bản ghi nào mang số của ref = bản mới chưa tới máy này; «0 đỏ» ở đây là xanh rỗng, không phải khớp.
   if (dat + do_ === 0) {
     out(`${TIEN_TO} TỔNG KẾT: ĐỎ — không bản ghi nào mang số của ${a.ref} (${sha.slice(0, 8)}) — bản mới chưa tới máy này${duoi}`);

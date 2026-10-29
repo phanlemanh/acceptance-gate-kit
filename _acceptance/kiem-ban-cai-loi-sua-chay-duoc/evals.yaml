@@ -1,0 +1,111 @@
+schema_version: 1
+feature_slug: kiem-ban-cai-loi-sua-chay-duoc
+# Ca đo sống ở tests/scripts/kiem-ban-cai-loi-sua.test.mjs (ca KL-<n> = AC-n): kho kit thu nhỏ (chợ + plugin.json chép
+# từ HEAD của kit, tệp mẫu mỗi vùng, thẻ thật), bộ đệm = git archive của thẻ, kho tiêu thụ giả có worktree liên kết thật,
+# sổ cài khuôn version 2 — tất cả do mã sinh trong chính lượt chạy, đường suy từ vị trí tệp ca. Mỗi ca đỏ chạy SAU đối
+# chứng dương của cùng fixture và ghim thông điệp; lệnh sửa / dọn / lấy thẻ được ÁP bằng vỏ thật rồi chạy lại lệnh kiểm.
+# Mỗi eval E1–E9 dùng chung một lệnh (s4-args khử trùng); E10 là trọn bộ ca KB đời trước (cần CLI claude).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-1" — kho kit thu nhỏ có một commit sau thẻ (sửa docs/, xoá và thêm dưới _acceptance/, sửa
+      LO-TRINH.html), bộ đệm = git archive của commit ấy, gitCommitSha khác sha thẻ: thoát 0, không dòng ĐỎ, đúng một dòng
+      "VÀNG may:" chứa «lệch chỉ ở tệp không chạy» và cả bốn tên tệp, TỔNG KẾT «ĐẠT»; đối chứng bộ đệm = archive của thẻ chạy
+      trước, thoát 0, không có «lệch chỉ ở tệp không chạy». Chiều đỏ là KL-2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-2" — thêm một tệp scripts/ lệch: thoát 1, «khác tag: 1 tệp» kèm tên tệp scripts/, danh sách
+      khác tag không kể bốn tệp không chạy, bốn tệp ấy có tên ở vế riêng; chỉ tệp scripts/ lệch: thoát 1, không vế «tệp không
+      chạy»; "PASS: KL-2b" — scripts/docs/x.mjs, skills/a/docs/b.md, feature-loop/LO-TRINH.html lệch → mỗi ca thoát 1 với tên
+      tệp trong «khác tag»; "PASS: KL-2b-dot" — hai bản sao lệnh bị tiêm (khớp «chứa» thay vì neo gốc · hằng thêm skills/)
+      làm ca KL-2b ĐỎ trên mỗi bản sao.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-3" — clone --no-tags: thoát 2, TỔNG KẾT có «KHÔNG CHẠY ĐƯỢC», «ref không có: <thẻ>» và
+      «git -C <clone> fetch --tags origin»; áp đúng lệnh in ra bằng bash rồi chạy lại: TỔNG KẾT «ĐẠT»; "PASS: KL-3-khong-remote"
+      — thoát 2, «không có remote», không chứa «fetch»; "PASS: KL-3-sha" — «ref không có: <sha>», không chứa «fetch».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-4" — cây phụ lệch số, gốc khớp: thoát 0, dòng "VÀNG cay-phu:" có đường cây phụ, đường gốc,
+      «lệnh sửa:»; không dòng «khác số» đếm bản ghi ấy; áp lệnh bằng bash rồi chạy lại: không dòng cay-phu, TỔNG KẾT «ĐẠT», số
+      ĐẠT tăng đúng 1; sổ sau khác sổ trước đúng bốn trường của bản ghi cây phụ, bằng bốn trường của bản ghi gốc; "PASS: KL-4
+      sao-luu" — đúng một tệp sao lưu, băm bằng sổ trước khi áp, chép đè thì sổ trở lại từng byte; "PASS: KL-4-dot" — hai bản
+      sao lệnh bị tiêm (bỏ sao lưu · ghi rồi mới sao lưu) làm ca sao lưu ĐỎ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-5" — cây phụ cùng số trỏ bộ đệm lệch một tệp scripts/: thoát 1, dòng ĐỎ không còn «cài lại ở»
+      kể cây phụ, có "VÀNG cay-phu:" kèm «lệnh sửa:»; áp lệnh rồi chạy lại: thoát 0, TỔNG KẾT «ĐẠT».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-6" — (a) gốc cũng cũ: dòng "VÀNG cay-phu:" có «nâng bản ghi gốc trước», không «lệnh sửa:»;
+      (b) bản ghi kho khác và (c) cây phụ mà gốc không có bản ghi: không dòng cay-phu nào kể, được đếm ở «khác số … chưa nâng»;
+      không dòng nào có «lệnh sửa:»; mã thoát bằng mã của cùng sổ bỏ ba bản ghi ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-7" — đúng một dòng "VÀNG mo-coi:" đếm «2 bản ghi trỏ thư mục đã xoá», hai đường, «lệnh dọn:»;
+      hai bản ghi không ở dòng nào khác; số ĐẠT bằng số khi bỏ chúng; TỔNG KẾT có «2 bản ghi mồ côi»; áp lệnh dọn rồi chạy lại:
+      không dòng mo-coi, mọi bản ghi khác giữ từng trường; tệp sao lưu băm bằng sổ trước khi áp, phục hồi đúng từng byte;
+      "PASS: KL-7-dot" — bản sao lệnh bỏ sao lưu của lệnh dọn làm ca sao lưu ĐỎ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-8" — với mỗi cấu hình giả của KL-1…KL-7, băm sổ cài và danh sách tên · cỡ · mtime dưới
+      plugins/ trước và sau mỗi lần chạy lệnh kiểm (trước khi áp lệnh) bằng nhau; "PASS: KL-8-nhay" — hàm chụp đổi khi ca ghi
+      một byte vào sổ của bản sao (độ nhạy của phép so).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_loi_sua
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai-loi-sua.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: KL-9 bash" và "PASS: KL-9 zsh" (hoặc dòng «bỏ qua zsh» khi máy không có zsh) — cấu hình và
+      cây phụ có dấu cách + nháy đơn trong đường: lệnh sửa in ra thoát 0 ở mỗi vỏ, lần chạy lại không còn dòng cay-phu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai
+    paths: [scripts/kiem-ban-cai.mjs, tests/scripts/kiem-ban-cai.ca.mjs]
+    expected: >
+      exit 0; mọi dòng ca có dạng "PASS: KB-…", không dòng "FAIL:" — gồm ca mới "PASS: KB-13" (kho giả lập, nguồn cài lệch
+      chỉ một tệp docs/ → thoát 1, dòng ĐỎ khop-tag có tên tệp) và KB-4, KB-7, KB-10, KB-11 đời trước.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
