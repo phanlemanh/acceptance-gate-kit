@@ -194,6 +194,9 @@ executors:
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs
     kiem_ban_cai_moc: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
+    # Hồ sơ kiem-ban-cai-loi-sua-chay-duoc (TC4): ca LS-1…LS-9 của chế độ --may — lệch tệp không chạy, lệnh lấy thẻ,
+    # lệnh sửa cây phụ, khối mồ côi; không cần CLI claude nên đuôi .test.mjs (cũng chạy trong mảnh mjs của suite).
+    kiem_ban_cai_loi_sua: node tests/scripts/kiem-ban-cai-loi-sua.test.mjs
     # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
     bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
     # Hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): ca GT1…GT10 chung một lệnh; ca GT8 trên bộ hồ sơ thật các kho có trên
