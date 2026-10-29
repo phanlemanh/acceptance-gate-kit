@@ -1479,7 +1479,7 @@
       "ma": "DFK-C2",
       "dot": "design-floor-kho-moi-2910",
       "cau_giao": "Lệnh chung biến CSS thành tokens.json",
-      "ly_do": "Design OS có (~2.400 dòng) nhưng mới một lần dùng thật, làm tay; chủ kho 29/10: invest tự viết bộ sinh trước",
+      "ly_do": "Design OS có (~2.400 dòng) nhưng mới một lần dùng thật, làm tay; chủ kho 29/10: invest tự viết bộ sinh trước. Hình dạng khi mở (chủ kho chốt 30/10): tệp luật của kho sinh tokens.json kèm truy vết luật trong $extensions, bộ kiểm S4 đọc cùng tệp luật — nguyên lý dựng bằng hình học, không gõ tay giá trị",
       "phu": [
         "CH2"
       ],

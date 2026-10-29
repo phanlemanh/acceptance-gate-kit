@@ -74,7 +74,7 @@ không phụ thuộc ngoài), đổi chỗ ghi về thư mục lượt chạy (l
 | Mã | Việc | Mở lại khi |
 |---|---|---|
 | DFK-C1 | Bộ đọc JSX/Tailwind cho S4 trên `.tsx` + luật lệch token (Design OS có bộ đọc ~630 dòng, chưa có luật) | 10 vòng DO1 xong và số cho thấy regex hex bỏ sót hoặc bắt nhầm |
-| DFK-C2 | Lệnh chung CSS → `tokens.json` (Design OS có, ~2.400 dòng, một lần dùng thật) | bộ sinh của invest chạy hết 10 vòng và một kho thứ hai cần |
+| DFK-C2 | Lệnh chung CSS → `tokens.json` (Design OS có, ~2.400 dòng, một lần dùng thật). Hình dạng khi mở (chủ kho chốt 30/10): một tệp luật của kho (gốc + tỉ lệ cỡ chữ, gốc khoảng cách, dải OKLCH, bo góc lồng nhau, họ chiều cao điều khiển); lệnh sinh `tokens.json` ghi luật sinh ra mỗi token trong `$extensions`; bộ kiểm S4 đọc cùng tệp luật. Ca đỏ: sửa tay một giá trị lệch luật | bộ sinh của invest chạy hết 10 vòng và một kho thứ hai cần |
 | DFK-C3 | Sinh sổ thành phần từ mã (upstream không có) | hàng M2 của invest xong và đo được giá trị `reuse-plan check` |
 | FL-C1 | Chấm `ui gate` ở S4 (giữ) | như cũ; bằng chứng hôm nay: 52/747 trang qua, trùng design-gate |
 
@@ -86,6 +86,10 @@ trùng) · pass dựng trang của `tell-lint` (trùng impeccable) · nạp thê
 
 ### Hạt giống (sổ, chưa vào lộ trình)
 
+- Nguyên lý «dựng bằng hình học, không vẽ tay» (chủ kho đưa 30/10): luật giao diện của nghi thức dựng giao diện hôm nay
+  chỉ là lời (tỉ lệ cỡ chữ, dải màu, thang bo góc) và tác tử vẫn gõ tay từng giá trị; chuyển thành tệp luật sinh + kiểm theo
+  hình dạng DFK-C2 ở trên. Kit giữ cơ chế, kho giữ giá trị luật; kho không khai tệp luật thì không đổi gì. Mở sớm hơn điều
+  kiện DFK-C2 chỉ khi chủ kho chỉ ra một màn lệch thật trên kho tiêu thụ.
 - 10 tệp vendored mồ côi (1.459 dòng) chỉ còn để phép kiểm đảo-vá đối chiếu — xét TRỪ khi đổi hợp đồng nhập.
 - Bộ nghe kênh liên máy chết khi app khởi động lại (cả MBP lẫn M5, 29/10); M5 đọc #308 sai vì tham số sắp xếp bị API bỏ
   qua — gói dieu-phoi nên có một lệnh nghe kênh đọc theo mốc thời gian, và `tiep-tuc` giăng lại nó.
