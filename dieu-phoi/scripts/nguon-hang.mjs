@@ -64,21 +64,24 @@ export function docHangLoTrinh(gocKho, nguon) {
   return { hang: ra, loi: null };
 }
 
-// Một hàng theo mã trong các tệp lộ trình mà nguồn hàng của đợt trỏ tới — kể cả hàng nguồn chưa liệt (giám sát thêm việc
-// giữa đợt bằng mã lộ trình). Mã có ở đúng một tệp mới trả; vắng, nhiều tệp hay tệp hỏng → null (bên gọi giữ lối cũ).
-export function timHangLoTrinh(gocKho, nguon, ma) {
-  const ung = [];
-  for (const tep of new Set((nguon ?? []).map((m) => tachNguon(m).tep).filter(Boolean))) {
-    let data;
+// Một hàng theo mã — rồi theo slug (hồ sơ lenh-dot-ghi-dung-hang) — trong các tệp lộ trình mà nguồn hàng của đợt trỏ tới,
+// kể cả hàng nguồn chưa liệt (giám sát thêm việc giữa đợt bằng mã hay slug lộ trình). Khớp ở đúng một tệp mới trả; vắng,
+// nhiều tệp hay tệp hỏng → null (bên gọi giữ lối cũ).
+export function timHangLoTrinh(gocKho, nguon, khoa) {
+  const tep = [...new Set((nguon ?? []).map((m) => tachNguon(m).tep).filter(Boolean))];
+  const hangCua = (t) => {
     try {
-      data = JSON.parse(fs.readFileSync(path.resolve(gocKho, tep), 'utf8'));
+      const data = JSON.parse(fs.readFileSync(path.resolve(gocKho, t), 'utf8'));
+      return (Array.isArray(data.hang) ? data.hang : []).filter((h) => h && typeof h === 'object');
     } catch {
-      continue;
+      return [];
     }
-    const r = (Array.isArray(data.hang) ? data.hang : []).find((h) => h && h.ma === ma);
-    if (r) ung.push({ ma, slug: r.slug || suySlug(r.cau_giao), tep, ...vungCua(r) });
+  };
+  for (const khop of [(r) => r.ma === khoa, (r) => (r.slug || suySlug(r.cau_giao)) === khoa]) {
+    const ung = tep.flatMap((t) => hangCua(t).filter(khop).map((r) => ({ ma: r.ma, slug: r.slug || suySlug(r.cau_giao), tep: t, ...vungCua(r) })));
+    if (ung.length) return ung.length === 1 ? ung[0] : null;
   }
-  return ung.length === 1 ? ung[0] : null;
+  return null;
 }
 
 // Tên việc cho khung định vị (hồ sơ khung-dot-dinh-vi): Map<slug, tên> của các hàng thi công mang mã. Tệp tra: `tep` của

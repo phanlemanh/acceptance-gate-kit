@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, phienCuaCwd, TEN_LIEN_KET, timThuMucDot } from './dot.mjs';
 import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
-import { choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, khaiVung, themHang } from './hang.mjs';
+import { choChayLai, choNghi, dayLen, ghiDanhWorktree, ghiDauChoGhiDanh, ghiNhatKy, khaiVung, themHang } from './hang.mjs';
 import { theDong, theKhoiTao } from './the.mjs';
 import { nhaMay } from './may.mjs';
 import { demDot } from './dem.mjs';
@@ -364,9 +364,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
           'day-len': () => dayLen(thuMuc, doiTuong, co.truoc),
           them: () => themHang(thuMuc, doiTuong, co.day, { ranhGioi: typeof co['ranh-gioi'] === 'string' ? co['ranh-gioi'].split(',').map((x) => x.trim()).filter(Boolean) : null }),
           nghi: () => choNghi(thuMuc, doiTuong),
+          'chay-lai': () => choChayLai(thuMuc, doiTuong),
           vung: () => khaiVung(thuMuc, doiTuong, typeof co.vung === 'string' ? co.vung.split(',') : []),
         }[doiSo];
-        if (!kq) throw new Error('dùng: hang <day-len <mã> --truoc <mã>|them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]|nghi <P>|vung <mã|slug> --vung <glob,glob>>');
+        if (!kq) throw new Error('dùng: hang <day-len <mã> --truoc <mã>|them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]|nghi <P>|chay-lai <P>|vung <mã|slug> --vung <glob,glob>>');
         const ra = kq();
         for (const c of ra.canhBao ?? []) process.stderr.write(`${c}\n`);
         return ra.doi ? `hang ${doiSo}: đã đổi${ra.sau?.length ? ` — chờ ${ra.sau.join(', ')} gộp trước (trùng tệp)` : ''}` : `hang ${doiSo}: không đổi gì`;
@@ -449,7 +450,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|xem --json [--khung]|xem --khung|hoi --cau <câu|-> [--phien <id>]|hoi-xong <mã> [--phien <id>]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|gop <số PR> [--slug <s>] [--xet]|nha <tài nguyên> [--ma <mã thoát>] [--ha-tang <lý do>]|hieu-chuan|yeu-cau <loại> [--chan] [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi|chay-lai|vung> …|the <khoi-tao|dong> [--json]|dem [--json]|ghi-danh <dãy>|chay|dung|dong|xem [--kiem-chuyen [--chi-tiet]]|xem --json [--khung]|xem --khung|hoi --cau <câu|-> [--phien <id>]|hoi-xong <mã> [--phien <id>]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|ban-giao [--ly-do <s>] [--phien <id>] [--json]|ban-giao-xong [--wip <mô tả>]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc "<json>"|xin <loại> [--uoc-phut <n>]|gop <số PR> [--slug <s>] [--xet]|nha <tài nguyên> [--ma <mã thoát>] [--ha-tang <lý do>]|hieu-chuan|yeu-cau <loại> [--chan] [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]|tho [--slug <s>] [--json]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);
