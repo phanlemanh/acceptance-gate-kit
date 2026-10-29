@@ -5,10 +5,10 @@ slug: lenh-dot-ghi-dung-hang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: draft
+status: approved
 design_doc: _acceptance/lenh-dot-ghi-dung-hang/design.md
-approved_by:
-approved_at:
+approved_by: Manh Phan
+approved_at: 2026-10-29T10:32:35Z
 ---
 
 # Acceptance Contract: lenh-dot-ghi-dung-hang
