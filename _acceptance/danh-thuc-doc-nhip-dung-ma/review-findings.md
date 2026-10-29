@@ -1,21 +1,33 @@
-# Review findings: danh-thuc-doc-nhip-dung-ma (round 4)
-
 ## Trong hợp đồng
 
-Không có finding nào map được vào AC.
+(không có)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **TC1-08 ghim cứng số dòng `--phien <mã phiên này>` (== 7): mọi bước mới đúng luật vẫn làm ca đỏ**
+- **Kiểm hook của tiep-tuc coi mọi tệp nhịp cũ là bằng chứng hook đang chạy, không xét tuổi**
+  Người dùng thấy gì: Nếu phiên giám sát từng có hook rồi gói bị nâng hoặc gỡ giữa chừng, hệ thống vẫn tưởng hook đang chạy. Chủ kho nhận lời báo «giám sát không có nhịp sống, hãy chạy lại vai giám sát», nhưng làm theo thì không chữa được, vì nguyên nhân thật là thiếu hook.
+  Căn cứ: Chỉ xảy ra ở ca hẹp (gói đổi giữa phiên), hậu quả là một lời báo sai hướng chứ không mất dữ liệu; người dùng tự gỡ bằng cách mở phiên mới nạp lại gói, và có thể sửa sau mà không đắt.
+  file: `dieu-phoi/scripts/tiep-tuc.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Chẩn đoán gọi bằng mã CLI báo sai giám sát «thiếu», dù lời dặn nói mã CLI cũng nhận**
+  Người dùng thấy gì: Khi phiên giám sát tự chẩn đoán bằng mã CLI của chính nó, bảng chẩn đoán báo giám sát «thiếu» dù phiên đang đảm nhận vai. Phiên có thể bị đẩy đi chạy lại lệnh nhận vai một cách vô ích.
+  Căn cứ: Hậu quả nhẹ: chỉ là một dòng báo thiếu sai và một bước chạy thừa, không mất dữ liệu; người dùng thử lại bằng mã app là qua, và sửa sau không tốn kém.
+  file: `dieu-phoi/scripts/chan-doan.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **TC1-08 ghim cứng số dòng `--phien <mã phiên này>` (== 7): mọi bước mới đúng luật vẫn làm ca đỏ (r4 · tệp đã đổi)**
   Người dùng thấy gì: Hiện lời dặn trong các lệnh vẫn đúng, người dùng không thấy gì sai. Chỉ là mỗi khi có thêm một bước mới nhắc mã phiên, bộ kiểm của kit lại báo đỏ oan và người bảo trì phải sửa số đếm bằng tay.
   Căn cứ: Hậu quả nhẹ và chỉ chạm người bảo trì kit, không làm mất hay lộ dữ liệu của người dùng; báo đỏ oan tự lộ ngay ở lần chạy kế và sửa một con số là xong, nên ghi lại như hạn chế đã biết.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 5 (ma trận viết trước): test đổi số đếm từ 6 lên 7 cho khớp vật, còn evals.yaml E8 vẫn ghi 6**
+- **Hình dạng 5 (ma trận viết trước): test đổi số đếm từ 6 lên 7 cho khớp vật, còn evals.yaml E8 vẫn ghi 6 (r4)**
   Người dùng thấy gì: Lời dặn cho người dùng trong các lệnh vẫn đúng, nhưng bản khai kiểm thử ghi số cũ nên người chấm đọc theo bản khai sẽ thấy lệch một đơn vị. Ngoài ra chưa có ca nào chứng minh rằng bước mới mà quên nói «mã app» thì bộ kiểm sẽ đỏ.
   Căn cứ: Hậu quả nhẹ vì chỉ lệch tài liệu kiểm thử nội bộ và một chiều đỏ còn thiếu cho bước mới, người dùng không mất dữ liệu và kit vẫn chạy đúng; sửa sau rẻ nên ghi lại như hạn chế đã biết.
   file: `_acceptance/danh-thuc-doc-nhip-dung-ma/evals.yaml`
