@@ -1226,11 +1226,7 @@
         "BH4",
         "K4"
       ],
-      "vung": [
-        "scripts/design-floor-bac.mjs",
-        "scripts/design-floor-khoi-tao.mjs"
-      ],
-      "ghi_chu": "CỘNG một lệnh mới — chủ kho phê ở Cổng Đáng của hàng. Lệnh chỉ đọc trừ khi được bảo ghi. Đo đường nền là một ổ cắm khoan dung: kho không có lịch sử PR thì in «không đọc được ở đây». Bước đề xuất vùng chấm KHÔNG thành câu hỏi để chủ kho gật: máy đo, tự khai vùng vào hồ sơ kèm số tệp và phần vendor đã trừ, để cửa veto mở; chủ kho chỉ lên tiếng khi muốn phản đối. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay)."
+      "ghi_chu": "CỘNG một lệnh mới — chủ kho phê ở Cổng Đáng của hàng. Lệnh chỉ đọc trừ khi được bảo ghi. Đo đường nền là một ổ cắm khoan dung: kho không có lịch sử PR thì in «không đọc được ở đây». Bước đề xuất vùng chấm KHÔNG thành câu hỏi để chủ kho gật: máy đo, tự khai vùng vào hồ sơ kèm số tệp và phần vendor đã trừ, để cửa veto mở; chủ kho chỉ lên tiếng khi muốn phản đối. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-bac.mjs, scripts/design-floor-khoi-tao.mjs."
     },
     {
       "ma": "DFK2",
@@ -1250,11 +1246,7 @@
         "K3",
         "MT1"
       ],
-      "vung": [
-        "scripts/design-floor-s4.mjs",
-        "lib/evidence-core.cjs"
-      ],
-      "ghi_chu": "Đổi hành vi S4 của nền thiết kế: chỉ phát hành sau 10 vòng DO1 của invest (chủ kho chốt «Sau 10 vòng M1» 29/10), hoặc invest ghim bản cũ tới hết thí điểm. Bỏ chú thích mang stripNoise, chú thích miễn trừ mang ~157 dòng từ Design OS. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay)."
+      "ghi_chu": "Đổi hành vi S4 của nền thiết kế: chỉ phát hành sau 10 vòng DO1 của invest (chủ kho chốt «Sau 10 vòng M1» 29/10), hoặc invest ghim bản cũ tới hết thí điểm. Bỏ chú thích mang stripNoise, chú thích miễn trừ mang ~157 dòng từ Design OS. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s4.mjs, lib/evidence-core.cjs."
     },
     {
       "ma": "DFK3",
@@ -1271,11 +1263,7 @@
       "phu": [
         "K5"
       ],
-      "vung": [
-        "scripts/design-floor-s1.mjs",
-        "feature-loop/scripts/wf-usage.mjs"
-      ],
-      "ghi_chu": "Mang hook trace + summarize của Design OS, đổi chỗ ghi. Người hưởng: mọi kho bật tri thức. Song song DFK1/DFK2. Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay)."
+      "ghi_chu": "Mang hook trace + summarize của Design OS, đổi chỗ ghi. Người hưởng: mọi kho bật tri thức. Song song DFK1/DFK2. Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s1.mjs, feature-loop/scripts/wf-usage.mjs."
     }
   ],
   "chan_troi": [
