@@ -8,7 +8,7 @@ import { timGoi } from './goi-dot.mjs';
 import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 import { lanDocHieuLuc } from './han-muc.mjs';
 import { docPha } from './pha.mjs';
-import { TEP_SONG_DIR } from './song.mjs';
+import { docNhipSong, nhipCuaPhien } from './song.mjs';
 import { docVai } from './vai.mjs';
 import { kiemMoiTruong } from './moi-truong.mjs';
 import { keHoachDay, TRANG_THAI_HANH_DONG } from './tiep-tuc.mjs';
@@ -79,9 +79,15 @@ export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = f
   if (!phien) them('giam-sat', 'khong-ap', 'gọi với --phien để biết phiên này có phải giám sát');
   else if (giamSat === phien) them('giam-sat', 'du', phien);
   else them('giam-sat', 'thieu', `giám sát hiện tại là ${giamSat ?? '(chưa ai)'} — chạy /dieu-phoi:tiep-tuc để nhận vai`);
+  // TC1: nhịp của phiên đọc bằng `nhipCuaPhien` — `--phien` mang mã app hay mã CLI đều nối được tệp nhịp.
+  const phienCli = phien && giamSat === phien ? vai?.giam_sat?.phien_cli ?? null : null;
   if (!phien) them('hook-phien', 'khong-ap', 'gọi với --phien để kiểm hook của phiên này');
-  else if (fs.existsSync(path.join(thuMuc, TEP_SONG_DIR, `${phien}.json`))) them('hook-phien', 'du', 'hook của gói đã bắn trong phiên này');
+  else if (nhipCuaPhien(thuMuc, { phien, phienCli })) them('hook-phien', 'du', 'hook của gói đã bắn trong phiên này');
   else them('hook-phien', 'thieu', 'hook của gói chưa bắn trong phiên này — kiểm gói dieu-phoi đã cài cho kho và phiên đã nạp lại');
+  // Đường đọc-cũ (TC1): vai đời trước giữ mã app (`local_…`), tệp nhịp chưa mang `ma_app` → không nối được; nói ra, không chặn.
+  if (giamSat?.startsWith('local_') && !vai?.giam_sat?.phien_cli && !nhipCuaPhien(thuMuc, { phien: giamSat }) && docNhipSong(thuMuc).some((n) => !n.ma_app)) {
+    them('vai-ma', 'vang', 'vai giữ mã app nhưng nhịp chưa mang mã app — chạy lại /dieu-phoi:tiep-tuc để vai ghi mã CLI');
+  }
   let keHoach = [];
   try {
     keHoach = keHoachDay(thuMuc, { nowMs });

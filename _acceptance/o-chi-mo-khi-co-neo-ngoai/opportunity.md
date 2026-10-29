@@ -250,6 +250,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
 - `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` — 23–26/10 đợt Điều phối – Thợ thật thứ
   hai (onehub-invest, kit 2.32–2.34): tệp sinh xung đột · đánh thức báo giả · khoá s4 sai hàng · `cong_cu` đỏ oan · `hang`
   thiếu lệnh và suy slug sai · cài từ chợ lệch thẻ · cây phụ không nâng · heredoc chặn nhầm; đầu vào thứ hai của mốc 05/11.
+- `docs/plans/2026-10-26-hat-giong-tc1b-sau-danh-thuc.md` — 26/10 Cổng Bằng chứng TC1: năm mục «mở hợp đồng mới» (`vai
+  --giam-sat` ghi mã CLI của phiên gọi · lời dặn «mã CLI cũng nhận» · TC1-06/TC1-09 thành bất biến lúc gộp).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

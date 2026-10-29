@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -496,16 +497,7 @@ async function canPhanThat(dot, gocGoi = GOI) {
   const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
   await taoVong(dot, ioGia(Date.now()), () => Date.now())();
 }
-// Mỗi hàng: [nhãn, cần, thức (phút trước), nhịp giám sát (phút trước | null), việc chờ: none|yeu-cau|su-kien]
-export const MA_TRAN_THUC = [
-  ['a', 'khong', 5, 3, 'yeu-cau'],
-  ['b', 'nhan-giam-sat', 50, 3, 'yeu-cau'],
-  ['c', 'khong', 50, 50, 'none'],
-  ['d', 'bao-chu-kho', 50, 50, 'yeu-cau'],
-  ['e', 'khong', null, null, 'khong-dot'],
-  ['f', 'khong', 80, 80, 'none'],
-  ['g', 'nhan-giam-sat', 50, 3, 'su-kien'],
-];
+export { MA_TRAN_THUC };
 async function chayMaTranThuc(gocGoi = GOI) {
   const ra = [];
   for (const [hang, can, thucPhut, nhipPhut, viec] of MA_TRAN_THUC) {
