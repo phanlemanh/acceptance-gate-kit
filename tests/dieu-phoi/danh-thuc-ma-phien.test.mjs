@@ -417,7 +417,7 @@ const vanBanHienTai = () => Object.fromEntries(LENH.map((t) => [t, fs.readFileSy
 test('TC1-08 loi-dan', () => {
   const { loi, soDong } = thieuLoiDan(vanBanHienTai());
   console.log(`  số dòng --phien <mã phiên này>: ${soDong}`);
-  assert.equal(soDong, 6, 'ma trận viết trước: 6 dòng (tiep-tuc 15, 18, 56 · ban-giao 14, 29 · mo-dot 26 — số dòng đổi theo tệp, số đếm thì không)');
+  assert.equal(soDong, 7, 'ma trận viết trước: 6 dòng (tiep-tuc 15, 18, 56 · ban-giao 14, 29 · mo-dot 26) + bước 6 «hoi» của tiep-tuc do khung-dot-dinh-vi (#440) thêm — số dòng đổi theo tệp, số đếm thì không');
   assert.deepEqual(loi, []);
 });
 test('TC1-08-do ban-cu', () => {

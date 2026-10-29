@@ -5,7 +5,7 @@ slug: danh-thuc-doc-nhip-dung-ma
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: signed-off
+status: implemented
 design_doc: _acceptance/danh-thuc-doc-nhip-dung-ma/design.md
 approved_by:
 approved_at:

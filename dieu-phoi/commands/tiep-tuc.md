@@ -62,7 +62,7 @@ Các bước, đúng thứ tự:
 
 6. **Câu hỏi chủ kho trong chat.** Mỗi câu phiên này hỏi chủ kho rồi chờ trả lời (xác nhận một chẩn đoán, chọn
    một lối) phải vào sổ của đợt TRƯỚC khi kết lượt, để khung đợt đếm nó vào «cần anh». Câu đi trong heredoc CÓ
-   NHÁY nên nháy, `$` và backtick được ghi nguyên văn; lệnh in `hoi: <mã>`:
+   NHÁY nên nháy, `$` và backtick được ghi nguyên văn; `--phien` là mã app `local_…` như bước 1; lệnh in `hoi: <mã>`:
    ```
    node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" hoi --phien <mã phiên này> --cau - <<'CAU_HET'
    <câu hỏi>
