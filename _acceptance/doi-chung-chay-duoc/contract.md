@@ -6,7 +6,11 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/workflows/** + tests/workflows/** + _acceptance/config.yaml — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-29-doi-chung-chay-duoc-design.md
-status: draft
+status: approved
+approved_by:
+approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-29T05:53:30Z
 ---
 
 # Acceptance Contract: doi-chung-chay-duoc
