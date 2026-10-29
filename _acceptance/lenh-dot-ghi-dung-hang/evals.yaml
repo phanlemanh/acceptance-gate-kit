@@ -1,0 +1,147 @@
+schema_version: 1
+feature_slug: lenh-dot-ghi-dung-hang
+# Ca đo của vòng: tên ca mở bằng «TC2-», ở tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs. Khoá executor:
+#   executors.test.dieu_phoi_tc2 — node --test trên tests/dieu-phoi/**, gộp dòng «ok … TC2-», «not ok», dòng chẩn đoán
+#     «#   …» và tổng kết TAP thành MỘT dòng.
+# Kho thử do code sinh trong lượt (git init + một kho «origin» trần trong thư mục tạm, nhánh chính đẩy lên origin để
+# `origin/main` có thật); thư mục đợt dựng bằng tay theo khuôn bên đọc rồi qua `docHangViec`/`kiemHangViec` của gói; CLI
+# `dieu-phoi.mjs` chạy thật bằng tiến trình con từ worktree của dãy; bộ phát lịch chạy thật một nhịp (`motNhip`) với io
+# thật cho git (cwd kho thử) và io giả cho số đo máy. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên
+# bản sao TRỌN thư mục gói bị tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm từng nhát tiêm khớp đúng một lần, và
+# ghim thông điệp của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số hàng, in ra. Mỗi eval ghim đúng dòng TAP
+# «ok … - <tên ca>»; suite xanh mà thiếu dòng ghim là ĐỎ. Mốc so là sha GHIM 12701df6c841a4c78871e5303a950d02d5d6bf77
+# (hằng trong tệp test), không suy lúc chạy.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-01 xin-dung-hang": ma trận viết sẵn sáu hàng, tiep/P1.json do một nhịp motNhip thật sinh
+      (danh sách tiep assert bằng ["hang-b","hang-b","hang-b","hang-a","hang-b","hang-a"]) — (a) A signed-off ở
+      worktree, origin/main không có hợp đồng A, B không hợp đồng · (b) chỉ B implemented · (c) A signed-off trên
+      origin/main và worktree, B draft · (d) A verified · (e) A signed-off chưa gộp và B implemented · (f) hồ sơ hang-x
+      (hàng của P2) signed-off trong worktree P1; CLI thật `xin s4` không cờ từ worktree P1 → slug của xin/P1-s4.json
+      lần lượt hang-a, hang-b, hang-b, hang-a, hang-b, hang-a; in «số hàng: 6». Ba ca đỏ, mỗi ca chạy bản lành xanh trên
+      cùng ma trận rồi bản sao gói một nhát (kiểm nhát tiêm khớp một lần), danh sách lỗi BẰNG đúng một mục: "TC2-01-do
+      ve-slug-ke" đặt lại `slug ?? slugKeCua(...)` → ["(a): đơn mang hang-b, cần hang-a"] · "TC2-01-do gop-bac" gộp hai
+      bậc thành một → ["(e): đơn mang null, cần hang-b"] · "TC2-01-do bo-loc-day" gỡ bộ lọc hàng của dãy → ["(f): đơn
+      mang hang-x, cần hang-a"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-02 loai-luot": trên fixture hàng (a) của TC2-01, CLI thật `xin ghim-lai` · `xin merge` ·
+      `xin s4 --slug hang-b` · `xin duong-nen` không cờ → slug của bốn đơn lần lượt hang-a, hang-a, hang-b, hang-b; trên
+      fixture hàng (e) `xin s4` · `xin ghim-lai` · `xin merge` không cờ → hang-b, hang-a, hang-a. "ok" cho "TC2-02
+      nhieu-ung-vien": A và C signed-off ở worktree chưa gộp, B kế không hợp đồng → `xin s4` thoát 1, stderr chứa
+      "hang-a", "hang-c" và "--slug", không có tệp xin/P1-s4.json; đối chứng cùng fixture khi gỡ hồ sơ C → thoát 0, đơn
+      mang hang-a. "ok" cho "TC2-02-do lay-dau": bản lành xanh; bản sao gói thay nhánh từ chối bằng lấy ứng viên đầu
+      (kiểm nhát tiêm khớp một lần) → danh sách lỗi BẰNG ["hai ứng viên mà vẫn ghi đơn"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-03 them-theo-lo-trinh": tệp lộ trình do ca sinh có hàng {ma: "F12", slug: "mot-hai-ba-bon-
+      nam-sau-bay", vung: ["app/f12/**"]}, cấu hình gói nguon_hang trỏ một hàng khác của tệp ấy; CLI thật `hang them F12
+      --day P2` → đúng một hàng mới của P2 với slug "mot-hai-ba-bon-nam-sau-bay", ma "F12", ranh_gioi ["app/f12/**"];
+      đúng một dòng Nhật ký mới; docHangViec của gói đọc tệp không lỗi. Đợt mới, `hang them mot-hai-ba-bon-nam-sau-bay
+      --day P2` → cùng ba khoá. Đợt mới, `hang them F12 --day P2 --ranh-gioi app/khac/**` → [slug, ma, ranh_gioi] bằng
+      ["mot-hai-ba-bon-nam-sau-bay", "F12", ["app/khac/**"]]. "ok" cho "TC2-03-do bo-tra-lo-trinh": bản lành xanh; bản
+      sao gói bỏ bước tra lộ trình (kiểm nhát tiêm khớp một lần) → danh sách lỗi chứa "F12: slug f12, cần mot-hai-ba-
+      bon-nam-sau-bay".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-04 ngoai-lo-trinh": cùng đợt của TC2-03, ma trận viết sẵn ba hàng — câu tự do có dấu tám từ ·
+      đối số dạng slug bảy từ không có ở lộ trình · mã "Z9" không có ở lộ trình; câu tự do và Z9 cho hàng mới so bằng
+      (deepEqual) hàng do bản gói ở sha ghim (git archive trọn dieu-phoi) thêm cho cùng đầu vào trên bản sao đợt cùng
+      trạng thái; đối số dạng slug giữ nguyên bảy từ; in «số hàng: 3». Chạy lại mỗi lệnh lần hai → stdout chứa "không đổi
+      gì", số dòng Nhật ký và số dòng su-kien.jsonl không đổi. "ok" cho "TC2-04-do cat-slug": bản lành xanh; bản sao gói bỏ
+      nhánh giữ đối số dạng slug (kiểm nhát tiêm khớp một lần) → hàm kiểm nêu "slug bị cắt còn sáu từ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-05 chay-lai": chụp byte hang-viec.json; CLI thật `hang nghi P2`; một nhịp motNhip thật →
+      tiep/P2.json có cho "nghi"; CLI thật `hang chay-lai P2` → hang-viec.json giống từng byte bản đã chụp, đúng một dòng
+      Nhật ký mới chứa "cho P2 chạy lại", đúng một sự kiện mới loai "doi-ke-hoach" kieu "chay-lai" day "P2"; một nhịp nữa
+      → tiep/P2.json hang bằng slug hàng kế của P2. Lần hai `hang chay-lai P2` → stdout chứa "không đổi gì", không dòng
+      Nhật ký hay sự kiện mới. "ok" cho "TC2-05-do khong-go-nghi": bản lành xanh; bản sao gói chay-lai không gỡ khoá nghi
+      (kiểm nhát tiêm khớp một lần) → hàm kiểm nêu "P2 vẫn nghỉ sau chay-lai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-06 chay-lai-bien": băm mọi tệp của thư mục đợt; CLI thật `hang chay-lai P9` → thoát 1, stderr
+      chứa "không có dãy P9", băm không đổi; `hang chay-lai P1` (chưa nghỉ) → thoát 0, stdout chứa "không đổi gì"; `hang`
+      không đối số con → thoát khác 0, thông điệp dùng chứa "chay-lai <P>". Đối chứng: `hang nghi P1` rồi `hang chay-lai
+      P1` → thoát 0, stdout chứa "đã đổi".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-07 t1-da-gop": dãy P1 hàng T (uu_tien 1) và U (uu_tien 2); hợp đồng T mang "risk_tier: T1      #
+      chú thích" và "status: draft      # chú thích" ở worktree và trên origin/main → một nhịp motNhip thật với io git
+      thật trên kho thử → tiep/P1.json hang "hang-u". Ma trận đối chứng ba hàng cùng fixture: T chỉ ở worktree → tiep
+      "hang-t"; hợp đồng T đổi risk_tier T2 có trên origin/main → tiep "hang-t"; in «số hàng: 3». "ok" cho "TC2-07-do
+      bo-ve-t1": bản lành xanh; bản sao gói bỏ vế T1 khỏi daGopTrenNhanhChinh (kiểm nhát tiêm khớp một lần) → hàm kiểm nêu
+      "hồ sơ T1 đã gộp vẫn là hàng đang làm".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/hang.mjs, dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-08 doc-cu": ma trận viết sẵn năm hàng — xin s4 --slug hang-a · xin s4 không cờ khi dãy không
+      hợp đồng nào · hang them hang-a (đã có ở hang-viec) cho P2 · hang nghi P2 · một nhịp motNhip với một hợp đồng
+      implemented không T1 — mỗi hàng chạy trên hai đợt dựng giống nhau, một bằng bản gói ở sha ghim (git archive trọn
+      dieu-phoi), một bằng gói hiện tại; xin/*.json, hang-viec.json, tiep/*.json, su-kien.jsonl sau khi bỏ khoá giờ và
+      thay đường thư mục tạm bằng nhãn giống từng byte; mỗi hàng có ít nhất một tệp để so; ca assert hang.mjs của bản ở
+      sha ghim KHÔNG có "choChayLai" (bản cũ thật) và in «số hàng: 5» cùng đường CLI bản cũ. "ok" cho "TC2-08-do doi-su-
+      kien-nghi": bản lành xanh; bản sao gói hiện tại thêm khoá vào sự kiện của hang nghi (kiểm nhát tiêm khớp một lần)
+      → danh sách lệch BẰNG ["nghi"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/README.md, dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC2-09 loi-dan": hàm kiểm lời dặn trên cây hiện tại trả danh sách lỗi rỗng — README (khoảng
+      trắng gộp) chứa ba câu ghim: "`hang chay-lai <dãy>` là lệnh ngược của `hang nghi`", "`xin s4` lấy slug theo thứ tự
+      `--slug` → hồ sơ đang chấm → hồ sơ đã thông chưa gộp → `tiep`", "`hang them` nhận mã hay slug của lộ trình"; mọi
+      dòng tiep-tuc.md nhắc `hang nghi` có `hang chay-lai`. Ba biến thể README, mỗi biến thể gỡ đúng một câu → danh sách
+      lỗi BẰNG đúng ["dieu-phoi/README.md: thiếu «<câu ấy>»"]. "ok" cho "TC2-09-do ban-moc": cùng hàm trên hai tệp ở sha
+      ghim (git show) → tập tên tệp trong lỗi BẰNG ["dieu-phoi/README.md", "dieu-phoi/commands/tiep-tuc.md"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc2
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng tổng kết TAP "# fail 0", không dòng "not ok"; có dòng "ok … - TC1-09 than-ca-doi" (bộ canh thân ca cũ
+      của hồ sơ danh-thuc-doc-nhip-dung-ma chạy và xanh — tức không ca nào có ở sha ghim của nó bị đổi thân ngoài sổ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
