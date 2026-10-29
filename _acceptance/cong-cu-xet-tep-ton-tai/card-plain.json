@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Khi một kho ghim đường tới một tệp kịch bản cho một công cụ (ví dụ bộ kiểm giao diện), bước kiểm nền đầu vòng coi công cụ ấy là có mặt nếu tệp có thật trên đĩa — không còn báo «thiếu» chỉ vì tệp không có quyền chạy; tệp hay chương trình thật sự vắng thì vẫn báo đúng tên.",
+  "scope_plain": "Bốn việc đã khai bỏ ngoài từ Cổng Phạm vi, máy giữ nguyên:"
+}
