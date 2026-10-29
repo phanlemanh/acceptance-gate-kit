@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c7912f5207c5b79dcf5115dae798d3d70288544d
+verified_commit: 7f229b93c8b5c2e43df28bb0d841a27475970fa4
 human_signoff: Manh Phan 2026-10-29 — ký; Ngoài-1…9, 12…17 ghi Known limits; Ngoài-10, 11 chấp nhận, không sửa; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -194,3 +194,7 @@ none — every multi-run eval is uniform
 Round 1: E10 failed — bộ ca `kiem-ban-cai.ca.mjs` in đủ dòng PASS (gồm KB-13) nhưng sập ENOTEMPTY khi dọn thư mục tạm trong `chayTron` (dòng 451) nên thoát khác 0; chưa rõ do tranh chấp thư mục tạm hay do một ca để lại tiến trình/tệp. Returned to implementation. Chín eval E1–E9 xanh; mười tìm thấy ngoài hợp đồng nằm ở review-findings.md để người quyết.
 Round 2: E1–E10 đều xanh (E10 đã qua sau khi dọn thư mục tạm có thử lại), nhưng lệnh suite `tests/plugins/run-tests.sh --manh vung:3` đỏ ở ca P179 [MBC] E6 (không gắn eval nào) nên verdict REJECT; hai finding ngoài hợp đồng mới (cách dọn thư mục tạm còn sót ở `tests/scripts/kiem-ban-cai.ca.mjs` và `scripts/kiem-ban-cai.mjs`) nằm ở review-findings.md. Returned to implementation.
 Round 3: E1–E10 mang từ round 2 (delta không chạm paths của eval nào); cả mười một lệnh suite xanh, gồm `vung:3`. Verdict PASS. Một finding trong hợp đồng (AC-4, mức medium) và năm finding ngoài hợp đồng nằm ở review-findings.md; thời điểm chạy của các lệnh suite round 3 ghi ở mức ngày vì run-log được ghi sau khi báo cáo soạn xong.
+
+### Re-pin lần 1 — 2026-10-29, do hoá cũ do gộp main sau chữ ký
+run_id: repin-20261029T134914Z-87670
+sha: 7f229b93c8b5c2e43df28bb0d841a27475970fa4 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
