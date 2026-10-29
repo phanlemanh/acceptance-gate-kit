@@ -7,13 +7,13 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>7 việc"]
+  GD --> B["Sắp mở vòng<br/>6 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>136 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>59 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>60 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -37,7 +37,6 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
 - design-floor bước 1 — hợp đồng nhập cho mã Design OS (ease-design) mà kit sẽ vendor, bộ đo do kit giữ (giới hạn đã khai là xfail chặt) và rào đóng kín module có tệp khoá băm từng tệp; chưa vendor, chưa móc vào vòng (`design-floor-hop-dong-nhap`)
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
 - Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
@@ -60,6 +59,7 @@ flowchart TD
 - Lượt chấm không tự đốt lượt — mã thoát máy đọc từ dấu, lượt chặn vì hạ tầng mang nhãn hạ tầng và thử lại cùng round, verified_commit từ máy; thẻ Cổng Phạm vi hiện đủ «sẽ không làm» và mọi bảng phản biện; bảng chi phí S4 tách theo khối; ảnh ui-check neo trong hồ sơ (`cham-khong-tu-dot-luot`)
 - Lượt chấm lại không tự dối — eval đổi định nghĩa thì chạy lại, và thước của lượt nào so bằng tham số của chính lượt ấy (`cham-lai-khong-tu-doi`)
 - CI của kho bỏ job nặng cho PR không chạm vật bằng một chế độ của chính cổng — `pre-merge-check.sh --hang-pr` in hạng PR + bit cham_vat ra GitHub output, đọc đúng t1_skip_globs/t3_paths của kho bằng đúng bộ khớp của cổng; nghi ngờ thì chạy đủ; kho không gọi cờ thì cổng không đổi byte (`ci-cua-kho-bo-job-nang`)
+- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
 - Ý mới thợ hay người nêu giữa chiến dịch đi vào cửa tín hiệu và được trả «đã ghi, xử ở mốc khép» — không đẻ lượt phán; người gửi bằng /road-map:gui (`cua-tin-hieu-giua-chien-dich`)
 - Ý gửi vào cửa tín hiệu từ bất kỳ worktree nào đều nằm ở thư mục chính của kho — mọi bộ đọc ở mọi worktree thấy cùng một tập, và dọn worktree không làm mất ý (`cua-tin-hieu-goc-moi-worktree`)
 - Cửa tín hiệu của kho — tín hiệu người và phát sinh của thợ chung một khuôn; phiên gom theo trục kết quả thành bản gom (cũng là bản phạm vi của cắt lượt); răng phủ «mỗi tín hiệu ở đúng một chỗ»; đường đi tín hiệu → nhóm → hàng → hồ sơ cho người gửi, kể cả trong khối dữ liệu lộ trình (`cua-tin-hieu-gom-nhom`)

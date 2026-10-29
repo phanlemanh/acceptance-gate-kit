@@ -250,6 +250,17 @@ function tuDau(cmd, sau = 0) {
 const tenChuongTrinh = (tu) => !/[$`({]/.test(tu);
 // CONG-CU-TU-DAU>>>
 
+// <<<CONG-CU-DUONG-TEP
+// Một TỪ ĐẦU là ĐƯỜNG TỆP khi nó chứa `/` hoặc là tên trần mang đuôi kịch bản. Câu chân công cụ
+// hỏi là «công cụ có trên máy không», nên đường tệp được xét theo việc tệp có tồn tại, KHÔNG theo
+// quyền chạy: khuôn kit của `executors.design.ui_check` là một tệp .js `-rw-r--r--`, và
+// `command -v` trên nó thoát 1 dù tệp nằm trên đĩa (hồ sơ cong-cu-xet-tep-ton-tai). Đường tương
+// đối giải theo GỐC KHO — nơi `bashNguoiGoi` chạy lệnh. Thư mục hay liên kết gãy là vắng.
+const DUOI_KICH_BAN = /\.[cm]?js$/;
+const laDuongTep = (tu) => tu.includes('/') || DUOI_KICH_BAN.test(tu);
+const coTep = (tu) => { try { return fs.statSync(path.resolve(root, tu)).isFile(); } catch { return false; } };
+// CONG-CU-DUONG-TEP>>>
+
 // <<<BASH-NGUOI-GOI
 // Mọi lệnh của kho (tra `command -v` lẫn chạy suite) đi qua MỘT cửa: `bash -c` với ĐÚNG
 // môi trường của người gọi — cùng cách `repin-lane.mjs` chạy lệnh. KHÔNG `bash -lc`: shell
@@ -278,8 +289,10 @@ const VANG = [];
       continue;
     }
     if (!coTrenMay.has(tu)) {
-      const r = bashNguoiGoi('command -v "$1"', ['_', tu], { stdio: ['ignore', 'ignore', 'ignore'] });
-      coTrenMay.set(tu, r.status === 0);
+      const coLenh = () => bashNguoiGoi('command -v "$1"', ['_', tu], { stdio: ['ignore', 'ignore', 'ignore'] }).status === 0;
+      // Đường có `/` chỉ xét tệp. Tên trần đuôi kịch bản xét tệp ở gốc kho rồi mới tra PATH như
+      // trước vòng — nằm trên PATH mà không ở gốc kho thì vẫn xanh như cũ.
+      coTrenMay.set(tu, laDuongTep(tu) ? coTep(tu) || (!tu.includes('/') && coLenh()) : coLenh());
     }
     if (!coTrenMay.get(tu)) { chan.cong_cu = 'do'; DO.push(dongDo('cong-cu-thieu', { tu, khoa })); }
   }
