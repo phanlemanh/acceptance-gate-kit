@@ -42,3 +42,9 @@ Mục 3 TRƯỚC khi TC2 (`lenh-dot-ghi-dung-hang`) gộp — TC2 đổi ca ở 
 
 **Người hưởng:** giám sát của mọi đợt (mục 1–2: không ai bị báo sai về giám sát mới) · máy làm các vòng dieu-phoi kế tiếp
 (mục 3: không CI đỏ giả sau gộp).
+
+## Cổng Bằng chứng 29/10 (ký lại sau lượt chấm 5)
+
+Chủ kho giữ «mở hợp đồng mới» cho mục 1 và mục 2 (đánh số lại: Ngoài-9, Ngoài-12 = mục 1 · Ngoài-5 = mục 2). Hai phép đo ở
+mục 3 (TC1-09, TC1-06; nay Ngoài-10, Ngoài-11) chủ kho chuyển sang «ghi Known limits» theo đề xuất máy — vẫn là việc của
+TC1b nếu vòng ấy mở, nhưng không còn là cam kết của lối «mở hợp đồng mới». Dòng sổ `stage: gate2` ngày 29/10 của hồ sơ.

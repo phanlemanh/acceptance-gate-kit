@@ -5,7 +5,7 @@ slug: danh-thuc-doc-nhip-dung-ma
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/danh-thuc-doc-nhip-dung-ma/design.md
 approved_by:
 approved_at:
@@ -73,3 +73,15 @@ Quét hình thái preset test-matrix — bản đủ ở design doc §4. Bốn t
   - Ngoài-4: Ca đo phép so của bộ hai môi trường dùng dữ liệu viết tay, chưa chạy qua bộ đọc đầu ra thật của lần chạy.
   - Ngoài-9: Bộ tìm ca đổi thân chỉ nhận ca viết ở đầu dòng, nên ca một dòng hay ca sinh trong vòng lặp có thể bị đọc sai hay lọt.
   - Ngoài-10: Ma trận ba hàng «không ghi mã CLI» chỉ chạy qua lệnh mở đợt, chưa qua lệnh tiếp tục.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-29:
+  - Ngoài-1: Phiên giám sát từng có hook rồi gói bị nâng hay gỡ giữa phiên vẫn được coi là còn hook, nên chủ kho nhận lời báo «chạy lại vai giám sát» thay vì «mở phiên mới».
+  - Ngoài-2: Phiên giám sát tự chẩn đoán bằng mã CLI của chính nó thấy dòng giám sát «thiếu» giả và có thể chạy lại lệnh nhận vai vô ích.
+  - Ngoài-3: Bộ kiểm lời dặn đếm đúng bảy chỗ nhắc mã phiên, nên mỗi bước mới nhắc mã phiên — dù viết đúng — lại báo đỏ oan cho người bảo trì.
+  - Ngoài-4: Bản khai kiểm thử của lời dặn còn ghi sáu chỗ trong khi bộ kiểm đếm bảy, và chưa ca nào chứng minh bước mới quên nói «mã app» thì bộ kiểm đỏ.
+  - Ngoài-6: Bộ so hai môi trường có thể nhận một ca thỉnh thoảng đỏ là chập chờn mà chưa ca nào thử xem nó có nhận nhầm một ca đỏ thật.
+  - Ngoài-7: Một ca hỏng ổn định khi chạy cả bộ nhưng xanh khi chạy riêng bị bộ so hai môi trường báo xanh; bước chạy trọn bộ riêng vẫn bắt nó.
+  - Ngoài-8: Phép so của bộ hai môi trường chưa chạy qua đầu ra thật của bộ kiểm, nên một ca chỉ bị bỏ qua ở một môi trường có thể lọt.
+  - Ngoài-10: Sau khi gộp, vòng nào sửa thân một ca kiểm thử điều phối cũ sẽ gặp CI đỏ cho tới khi ghi thêm dòng vào sổ của hồ sơ này.
+  - Ngoài-11: Mỗi lần sau này thêm hay đổi một mục trong báo cáo chẩn đoán, bộ kiểm của vòng này đỏ dù đánh thức vẫn đúng.
+  - Ngoài-13: Bộ canh ca cũ chỉ nhận ra ca viết ở đầu dòng, nên ca một dòng hay ca sinh trong vòng lặp bị đổi nội dung có thể lọt.
+  - Ngoài-14: Các ca biến môi trường sai hay vắng chỉ được thử khi mở đợt, chưa thử khi giám sát chạy lệnh tiếp tục.

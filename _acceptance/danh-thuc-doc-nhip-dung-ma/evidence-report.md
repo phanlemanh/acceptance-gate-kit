@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ba3644704e10ef48575d6c564867ff3696c912bf
-human_signoff:
+human_signoff: Manh Phan 2026-10-29 — ký; Ngoài-5, 9, 12 mở hợp đồng mới (đã có trong hạt giống TC1b); Ngoài-1, 2, 3, 4, 6, 7, 8, 10, 11, 13, 14 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: danh-thuc-doc-nhip-dung-ma
