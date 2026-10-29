@@ -1,0 +1,31 @@
+{
+  "feature_plain": "Vòng làm việc ở kho có giao diện tự sửa lỗi sàn của trang và sinh lại tệp dẫn xuất trước khi chấm, rồi lúc chấm chặn màu viết cứng (hex thô) theo bậc của kho — và không ghi tệp nào sau khi chấm.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ tự sửa lỗi sàn trên đúng trang HTML mà vòng đã đổi, gom vào một commit riêng trước lượt chấm; kho chưa khai giao diện thì im lặng, không đổi gì."},
+    {"id": "AC-2", "p": "Sẽ chạy các lệnh sinh lại tệp dẫn xuất mà kho đã khai, theo thứ tự, và đưa tệp chúng sinh vào cùng commit; một lệnh hỏng thì dừng, gọi tên lệnh, không commit."},
+    {"id": "AC-3", "p": "Sẽ để nguyên việc dở chưa commit của người, không kéo vào commit máy; chỉ dừng khi chính trang cần sửa đang có thay đổi chưa commit."},
+    {"id": "AC-4", "p": "Sẽ chỉ ra từng chỗ màu viết cứng trong tệp giao diện mà vòng chạm, và không báo nhầm tệp chỉ dùng token, tệp token hay tệp ngoài vùng giao diện."},
+    {"id": "AC-5", "p": "Sẽ đo độ phủ token trên trang HTML ở kho đã khai nguồn; đo không được thì nói rõ «không đo được ở đây», không chặn; công cụ lỗi lạ thì báo lỗi, không bao giờ báo đạt."},
+    {"id": "AC-6", "p": "Sẽ chặn theo bậc đúng bảng đã chốt: bậc càng cao càng chặt, không bậc nào chặn ít hơn bậc dưới."},
+    {"id": "AC-7", "p": "Sẽ chấm mà không ghi một byte nào lên kho — kể cả hồ sơ và tệp chưa theo dõi."},
+    {"id": "AC-8", "p": "Sẽ có răng chặn việc nối bộ chấm tổng của Design OS vào lượt chấm khi điều kiện mở (FL-C1) chưa đạt — canh thật trên nhánh chính hôm nay."},
+    {"id": "AC-9", "p": "Sẽ chứng bằng một vòng mẫu đi trọn từ đầu tới gộp mà lưới trước-gộp không thấy tệp nào đổi sau lượt chấm."},
+    {"id": "AC-10", "p": "Sẽ nối bước cuối S3 vào quy trình vòng đúng chỗ, và khi kho chưa nối kiểm tuân thủ thì nói ra một dòng thay vì im lặng."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Sẽ KHÔNG nối bộ chấm tổng của Design OS vào lượt chấm — chờ mục FL-C1."},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG tự sửa cấu hình của kho hay tự nâng bậc."},
+    {"id": "OOS-3", "p": "Sẽ KHÔNG đo thí điểm trong vòng này — cần ít nhất mười vòng giao diện thật sau khi kho nhận bản."},
+    {"id": "OOS-4", "p": "Sẽ KHÔNG chấm font, bo góc hay luật màu khác ngoài hex thô."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Không quét độ phủ: phạm vi là hai điểm móc đã đặt tên cộng một răng và một vòng mẫu — không có chiều nào để liệt kê thêm."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Luật «cây bẩn thì dừng» sẽ làm kho có công cụ sinh tệp bị dừng ở mọi vòng — đã đổi: máy chỉ commit đúng tệp nó đổi, để nguyên việc dở, chỉ dừng khi trang cần sửa đang dở."},
+    {"i": 1, "p": "Răng chặn bộ chấm tổng không canh gì trên nhánh chính hôm nay — đã đổi: răng đọc thêm mục chờ FL-C1 nên chèn hôm nay là đỏ."},
+    {"i": 2, "p": "Hai phép thử «chấm mà ghi tệp» có thể không bao giờ đỏ vì trang đã sạch — đã thêm điều kiện: trang thử phải có lỗi sửa được."},
+    {"i": 3, "p": "Bảng chặn theo bậc có ô mơ hồ — đã viết lại mỗi ô đủ mã thoát và dòng in, phép thử đếm theo bảng."},
+    {"i": 4, "p": "Quét màu cứng và đọc mã của công cụ thiếu ca biên — đã thêm ca biên và quy định mã lạ là lỗi, không phải đạt."}
+  ]
+}

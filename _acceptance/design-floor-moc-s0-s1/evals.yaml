@@ -1,0 +1,107 @@
+schema_version: 1
+feature_slug: design-floor-moc-s0-s1
+# Ca đo sống ở tests/design-floor/moc-s0-s1.mjs: kho fixture M0–M3, chỉ mục tri thức và tệp khoá tri thức đều do mã sinh
+# trong chính lượt chạy (không tệp viết tay đúng khuôn bên đọc). Mỗi nhãn chạy chiều xanh rồi đột biến cùng nhãn trên bản
+# sao, mỗi đột biến đòi đúng mã thoát kèm thông điệp ghim. Mỗi eval gọi một lệnh con của tests/design-floor/eval.sh.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.df4_bac
+    paths: [scripts/design-floor-bac.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: BAC-M0", "PASS: BAC-M1", "PASS: BAC-M2", "PASS: BAC-M3" (M0: stdout rỗng, thoát 0) và
+      "PASS: BAC-DOT" — đột biến bỏ nhánh M3 khỏi bản sao lệnh làm kho M3 ra M2, ca đỏ «BAC-M3: ra M2, mong M3».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.df4_bac_hong
+    paths: [scripts/design-floor-bac.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: BAC-HONG" với bốn ca (niem_phong thiếu tokens → M1 · tokens trỏ tệp vắng → M1 · tokens có
+      mà registry vắng → M1 · surface_globs không khớp → M0), mỗi ca lý do gọi tên khoá hỏng; đối chứng dương: cùng kho với
+      khai báo lành ra M3/M2/M2/M1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.df4_tri_thuc
+    paths: [scripts/design-floor-s1.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: TT-CHON" (hồ sơ khớp năm mục → đúng hai mục điểm cao nhất, tên ghim; token của chỉ mục và
+      từng tệp trong design-floor.json bằng byte/4 tính lại từ tệp do mã sinh trong lượt) và "PASS: TT-KHONG"
+      (khớp không mục nào → chỉ chỉ mục) và "PASS: TT-DOT" — đột biến bỏ trần hai tệp ra năm tệp, ca đỏ «TT-CHON: 5 tệp, trần 2».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.df4_tri_thuc_lech
+    paths: [scripts/design-floor-s1.mjs, design-floor/upstream.lock.json, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: TT-LECH" (sửa một byte tệp tri thức đã chọn → dòng «không đọc được ở đây» gọi tên tệp, không
+      tệp nào được trỏ, hai kiểm còn lại vẫn chạy), "PASS: TT-LECH-CHI-MUC" (sửa một byte chỉ mục → cùng nhãn gọi tên chỉ
+      mục) và "PASS: TT-VANG" (không bản ghim → cùng nhãn); đối chứng dương: bản lành trỏ đúng hai tệp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.df4_reuse_plan
+    paths: [scripts/design-floor-s1.mjs, design-floor/dist/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: RP-DAT" (kế hoạch toàn tên có thật → «đạt»), "PASS: RP-TRUOT" (một tên bịa → «trượt (1 tên)»),
+      "PASS: RP-M1" (kho M1 → «chưa khai nguồn», bản gói không được gọi — đếm lời gọi bằng vỏ ghi lại) và "PASS: RP-DOT" —
+      đột biến bỏ --tokens khỏi argv trong bản sao lệnh, ca đỏ «RP-DAT: không đo được (mã 4)».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.df4_flow_lint
+    paths: [scripts/design-floor-s1.mjs, design-floor/dist/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: FL-DAT", "PASS: FL-TRUOT" (luồng có nút cụt → «trượt (N lỗi)», N > 0) và "PASS: FL-VANG" (không
+      flow.json, không reuse-plan.md → không dòng tương ứng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.df4_the
+    paths: [scripts/gate-card.js, scripts/design-floor-s1.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: THE-KHOI" (thẻ Cổng Phạm vi có khối «Sàn thiết kế» với đúng các dòng của design-floor.json,
+      `routing.hoi` của --extract bằng bản không có tệp), "PASS: THE-M0" (hồ sơ vắng tệp → HTML thẻ giống từng byte thẻ
+      dựng bằng bản gốc `git archive <merge-base với nhánh chính> scripts lib`, trọn thư mục) và "PASS: THE-DOT" — đột biến
+      bỏ khối khỏi bản sao gate-card.js, ca đỏ «THE-KHOI: thiếu khối Sàn thiết kế»; đột biến chèn khung rỗng vô điều kiện,
+      ca đỏ «THE-M0: thẻ đổi khi không có design-floor.json».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.df4_chi_ghi
+    paths: [scripts/design-floor-s1.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: GHI-CHI" (băm mọi tệp của kho fixture M2 trước/sau: chỉ design-floor.json mới và usage-report.md
+      thêm đúng một dòng mang số token) và "PASS: GHI-DOT" — đột biến cho lệnh ghi thêm vào config.yaml, ca đỏ «GHI-CHI: tệp
+      ngoài phạm vi ghi: _acceptance/config.yaml»; "PASS: GHI-M0" (kho M0: stdout rỗng, thoát 0, băm mọi tệp trước/sau bằng
+      nhau; đối chứng dương là ca M2 có ghi) — đột biến bỏ nhánh thoát sớm ở M0, ca đỏ «GHI-M0: kho M0 bị ghi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.df4_noi_day
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/design-floor-bac.mjs, scripts/design-floor-s1.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: SKILL-S0" và "PASS: SKILL-S1" (lệnh rút từ khối marker chạy trên kho fixture M2 cho đúng đầu ra
+      gọi trực tiếp) và "PASS: SKILL-DOT" — đột biến xoá khối S1 khỏi bản sao SKILL, ca đỏ «SKILL-S1: thiếu khối DESIGN-FLOOR-S1».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.df4_tri_thuc_that
+    paths: [scripts/design-floor-s1.mjs, design-floor/upstream.lock.json, tests/design-floor/**]
+    expected: >
+      exit 0; có mạng: stdout có "PASS: TT-THAT" (chỉ mục thật của bản ghim a7ad5f1 và mọi tệp nó trỏ khớp băm khối tri_thuc
+      của tệp khoá; hồ sơ fixture chọn ≤2 tệp thật, tên in ra) và bộ đệm nằm ngoài cây kho; DESIGN_FLOOR_KHONG_MANG=1:
+      stdout có "SKIP: TT-THAT (không mạng)", không có "PASS: TT-THAT". Đối chứng đỏ: sửa một băm trong bản sao tệp khoá → ca
+      đỏ «TT-THAT: lệch băm <tệp>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

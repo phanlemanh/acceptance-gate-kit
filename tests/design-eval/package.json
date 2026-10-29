@@ -8,6 +8,6 @@
     "report": "node score.mjs"
   },
   "optionalDependencies": {
-    "jsdom": "^24.0.0"
+    "jsdom": "24.1.3"
   }
 }

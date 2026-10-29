@@ -1,0 +1,120 @@
+schema_version: 1
+feature_slug: design-floor-moc-s3-s4
+# Ca đo sống ở tests/design-floor/moc-s3-s4.mjs: kho fixture M0–M3 (git thật, commit gốc + nhánh vòng), trang HTML có lỗi
+# sàn, tệp token, lệnh sinh lại đều do mã sinh trong chính lượt chạy — không tệp viết tay đúng khuôn bên đọc. Mỗi nhãn
+# chạy chiều xanh rồi đột biến cùng nhãn trên bản sao lệnh, mỗi đột biến đòi đúng mã thoát kèm thông điệp ghim. Mỗi eval
+# gọi một lệnh con của tests/design-floor/eval.sh.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.df5_s3_autofix
+    paths: [scripts/design-floor-s3.mjs, scripts/design-floor-bac.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S3-AUTOFIX" (trang .html đổi băm và đầu ra autofix không còn lỗi sàn đã cài; .tsx và mọi tệp
+      khác giữ băm; đúng một commit mới, danh sách tệp của nó = {trang .html}), "PASS: S3-M0" (stdout rỗng, thoát 0, HEAD và
+      băm cây không đổi) và "PASS: S3-AUTOFIX-DOT" — đột biến bỏ lời gọi autofix khỏi bản sao lệnh làm ca đỏ
+      «S3-AUTOFIX: trang không đổi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.df5_s3_sinh_lai
+    paths: [scripts/design-floor-s3.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S3-SINH-LAI" (hai lệnh ghi dấu thứ tự vào tệp nhật ký fixture theo đúng thứ tự, sau autofix;
+      tệp chúng tạo nằm trong cùng commit S3), "PASS: S3-SINH-LAI-HONG" (lệnh thứ hai thoát 7 → lệnh S3 thoát 1, stderr gọi
+      tên lệnh ấy, HEAD không đổi), "PASS: S3-SINH-LAI-VANG" (dòng «chưa khai lệnh sinh lại», thoát 0) và đột biến bỏ vòng
+      chạy sinh_lai → đỏ «S3-SINH-LAI: thiếu tệp sinh lại trong commit».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.df5_s3_cay_ban
+    paths: [scripts/design-floor-s3.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S3-VIEC-DO" (một tệp theo dõi đã sửa + một tệp chưa theo dõi, không trùng đích → commit S3
+      không chứa hai tệp, cả hai giữ băm, trang đích vẫn được autofix) và "PASS: S3-DICH-BAN" (đích autofix đã sửa chưa
+      commit → thoát 2, stderr gọi tên tệp, đích giữ băm, nhật ký sinh lại không có dòng, HEAD không đổi); đột biến commit
+      cả cây → đỏ «S3-VIEC-DO: commit S3 chứa việc dở <tệp>»; đột biến bỏ kiểm đích bẩn → đỏ «S3-DICH-BAN: lệnh ghi đè đích
+      bẩn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.df5_s4_hex
+    paths: [scripts/design-floor-s4.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S4-HEX" — tập dòng `tệp:dòng giá-trị` lệnh in BẰNG tập chỗ hex mà fixture đã cài vào tệp
+      giao diện (so hai tập), gồm hàng dương (#fff, #FFFF, #1a2b3c, #1a2b3c80) và hàng âm cùng tệp không được in (#12345,
+      #1234567, &#039;, chữ/số liền sau như #fffg); không dòng nào cho tệp chỉ dùng token, tệp token đã khai, tệp ngoài
+      surface_globs; thoát 2; đối chứng: bỏ hàng dương → thoát 0 không dòng; đột biến bỏ loại trừ tệp token → đỏ «S4-HEX:
+      dòng thừa ở tệp token».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.df5_s4_token_coverage
+    paths: [scripts/design-floor-s4.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S4-TC" — DESIGN_FLOOR_UI trỏ vỏ do mã sinh trả lần lượt 0, 2, 3, 4, 5 và 1: nhãn «đạt»,
+      «trượt», «không đo được ở đây (mã 3/4/5)» (thoát 0 ở M3) và «lệnh ui lỗi (mã 1)» (thoát 1), mỗi mã một khẳng định nhãn +
+      mã thoát; "PASS: S4-TC-THAT" — bản gói thật trên trang chỉ dùng token / có giá trị thô / không CSS cho mã 0 / 2 / 5 và
+      lệnh S4 in đúng nhãn tương ứng; vỏ ghi lại đối số chứng --tokens lấy từ khai báo kho; "PASS: S4-TC-M1" — ở M1 vỏ không
+      được gọi lần nào.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.df5_s4_bac
+    paths: [scripts/design-floor-s4.mjs, scripts/design-floor-bac.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có một dòng "PASS: S4-BAC <bậc> <cột>" cho MỖI ô của bảng rút từ khối DF-CHAN-THEO-BAC trong
+      contract.md (bộ đọc rút bảng từ chính hợp đồng, không chép tay vào ca; số dòng PASS = số ô rút được, và bảng rút được
+      phải có ≥ 1 ô mỗi bậc), mỗi ô so mã thoát VÀ nhãn dòng (hay vắng dòng); đột biến đổi M2 thành chặn độ phủ token → đỏ
+      «S4-BAC M2 tc-truot: thoát 2, mong 0».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.df5_s4_chi_doc
+    paths: [scripts/design-floor-s4.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: S4-CHI-DOC" — fixture M3 có hex thô, trang .html có một lỗi sàn autofix sửa được (tiền điều
+      kiện trong ca: autofix --write trên BẢN SAO trang đổi băm), ảnh chụp băm MỌI tệp dưới gốc kho (gồm _acceptance/, tệp
+      chưa theo dõi, .git/index) trước và sau lệnh S4 bằng nhau hai chiều; đột biến lệnh S4 gọi autofix --write → đỏ
+      «S4-CHI-DOC: đổi <trang>».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.df5_gate_df07
+    paths: [design-floor/HOP-DONG-NHAP.md, docs/plans/lo-trinh-kit.json, feature-loop/skills/feature-loop/SKILL.md, scripts/design-floor-s4.mjs, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: GATE-DF07" (cây thật xanh), "PASS: GATE-FLC1" (bản sao cây thật, chèn `ui gate` vào khối
+      DESIGN-FLOOR-S4 hay argv gate vào lệnh S4 → ca răng thoát 1, thông điệp «móc ui gate vào S4 khi FL-C1 còn chờ»),
+      "PASS: GATE-DF07-GIOI-HAN" (bản sao bỏ FL-C1 khỏi chan_troi, thêm DF-07 vào gioi_han, chèn → thông điệp «… khi khối máy
+      còn giới hạn DF-07») và "PASS: GATE-MO" (bản sao bỏ FL-C1, không DF-07, chèn → xanh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.df5_vong_mau
+    paths: [scripts/design-floor-*.mjs, scripts/pre-merge-check.sh, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: VONG-MAU" (pre-merge-check.sh trên kho fixture sau S0→S5 thoát 0, không dòng VIOLATION) và
+      "PASS: VONG-MAU-DOT" — bản sao lệnh S4 gọi autofix --write trên một trang chưa qua S3 có lỗi sàn sửa được (tiền điều
+      kiện: autofix trên bản sao trang đổi băm), ghi chưa commit sau khi hồ sơ ghim verified_commit → pre-merge in
+      «evidence is stale» và tên trang bị ghi (pre-merge đọc git diff <verified_commit> gồm cả thay đổi chưa commit).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.df5_noi_day
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/design-floor-bac.mjs, GUIDE.md, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: SKILL-S3" (lệnh rút từ khối DESIGN-FLOOR-S3 chạy trên kho M2 cho cùng stdout, mã thoát và
+      commit như gọi trực tiếp; khối đứng trước dòng sang implemented của S3), "PASS: SKILL-S3-DOT" (bỏ khối khỏi bản sao →
+      đỏ «SKILL-S3: thiếu khối DESIGN-FLOOR-S3»), "PASS: BAC-FLOOR" (kho M1 chưa khai executors.design.floor → đúng một dòng
+      nói S4 chưa chấm tuân thủ design system; kho đã khai → không có dòng ấy).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

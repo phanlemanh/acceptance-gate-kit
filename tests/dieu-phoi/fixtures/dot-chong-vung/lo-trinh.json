@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "ten": "Lộ trình phát lại",
+  "hang": [
+    {
+      "ma": "H1",
+      "cau_giao": "Người dùng mở màn của hàng 1",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-1",
+      "dot": "phat-lai",
+      "phu": [
+        "P1"
+      ],
+      "vung": [
+        "ui/man-a/**"
+      ]
+    },
+    {
+      "ma": "H2",
+      "cau_giao": "Người dùng mở màn của hàng 2",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-2",
+      "dot": "phat-lai",
+      "phu": [
+        "P2"
+      ],
+      "vung": [
+        "app/khu/**"
+      ]
+    },
+    {
+      "ma": "H3",
+      "cau_giao": "Người dùng mở màn của hàng 3",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-3",
+      "dot": "phat-lai",
+      "phu": [
+        "P3"
+      ],
+      "vung": [
+        "app/khu/man-b/**"
+      ]
+    },
+    {
+      "ma": "H4",
+      "cau_giao": "Người dùng mở màn của hàng 4",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-4",
+      "dot": "phat-lai",
+      "phu": [
+        "P4"
+      ],
+      "vung": [
+        "app/khu/man-c/**"
+      ]
+    },
+    {
+      "ma": "H5",
+      "cau_giao": "Người dùng mở màn của hàng 5",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-5",
+      "dot": "phat-lai",
+      "phu": [
+        "P5"
+      ],
+      "vung": [
+        "app/khu/man-b/**",
+        "api/khu/**"
+      ]
+    },
+    {
+      "ma": "H6",
+      "cau_giao": "Người dùng mở màn của hàng 6",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-6",
+      "dot": "phat-lai",
+      "phu": [
+        "P6"
+      ],
+      "vung": [
+        "app/khu-chu/khu-*.ts"
+      ]
+    },
+    {
+      "ma": "H7",
+      "cau_giao": "Người dùng mở màn của hàng 7",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-7",
+      "dot": "phat-lai",
+      "phu": [
+        "P7"
+      ],
+      "vung": [
+        "api/khu/man-d/**",
+        "tro-ly/khu/**"
+      ]
+    },
+    {
+      "ma": "H8",
+      "cau_giao": "Người dùng mở màn của hàng 8",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-8",
+      "dot": "phat-lai",
+      "phu": [
+        "P8"
+      ],
+      "vung": [
+        "app/khu/man-b/**"
+      ]
+    },
+    {
+      "ma": "H9",
+      "cau_giao": "Người dùng mở màn của hàng 9",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-9",
+      "dot": "phat-lai",
+      "phu": [
+        "P9"
+      ],
+      "vung": [
+        "app/khu/man-b/**"
+      ]
+    },
+    {
+      "ma": "H10",
+      "cau_giao": "Người dùng mở màn của hàng 10",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-10",
+      "dot": "phat-lai",
+      "phu": [
+        "P10"
+      ],
+      "vung": [
+        "app/khu/**"
+      ]
+    },
+    {
+      "ma": "H11",
+      "cau_giao": "Người dùng mở màn của hàng 11",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-11",
+      "dot": "phat-lai",
+      "phu": [
+        "P11"
+      ],
+      "vung": [
+        "app/khu/man-e/**",
+        "app/khu/man-f/**"
+      ]
+    },
+    {
+      "ma": "H12",
+      "cau_giao": "Người dùng mở màn của hàng 12",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-12",
+      "dot": "phat-lai",
+      "phu": [
+        "P12"
+      ],
+      "vung": [
+        "app/khu/man-f/man-g/**"
+      ]
+    },
+    {
+      "ma": "H13",
+      "cau_giao": "Người dùng mở màn của hàng 13",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-13",
+      "dot": "phat-lai",
+      "phu": [
+        "P13"
+      ],
+      "vung": [
+        "app/khu/man-h/**"
+      ]
+    },
+    {
+      "ma": "H14",
+      "cau_giao": "Người dùng mở màn của hàng 14",
+      "vai": "Người dùng",
+      "tieu_chi": 9,
+      "vi_sao": "Phát lại",
+      "hang": "T2",
+      "slug": "hang-14",
+      "dot": "phat-lai",
+      "phu": [
+        "P14"
+      ],
+      "vung": [
+        "ui/man-i/**"
+      ]
+    }
+  ]
+}

@@ -28,6 +28,13 @@ nguyên» của tệp `luat` trong JSON — khối này không chép cách ghi; 
   `luat`; mỗi câu xin duyệt thiết kế thành một dòng sổ `approach` (Cổng Phạm vi vẫn theo luật làn V); không in
   khối GOAL-TEMPLATE. Câu chỉ người biết → gửi yêu cầu `can-nguoi` (câu hỏi + khuyến nghị) TRƯỚC khi hỏi bằng
   chữ, để bảng đợt thấy và đếm.
+- **Cổng Phạm vi, hàng có vùng** (`ranh_gioi` của hàng trong `hang-viec.json` có glob ngoài `_acceptance/`): trước khi
+  trình thẻ, khai thêm thư mục mã mà thiết kế chạm — mỗi màn một thư mục, không glob trần (`**`, `*.tsx`). Lệnh gộp vào
+  vùng cũ; hàng đang làm ở dãy khác mà chồng thì lệnh in một dòng báo — không phải câu hỏi, đi tiếp. Hàng không có
+  vùng: bỏ bước này.
+  <!-- <<<TRONG-DOT-VUNG -->
+  `node <thư mục đợt>/loi/dieu-phoi.mjs hang vung <slug> --vung '<glob,glob>'`
+  <!-- TRONG-DOT-VUNG>>> -->
 - **S4, ghim lại, đường nền:** xin lượt (`s4`, `ghim-lai`, `duong-nen`) rồi chờ bằng lệnh nền tới khi khoá ghi
   tên dãy; chạy; nhả khi verdict đã ghi. Lời chặn `chan-s4` là CHỜ LƯỢT: không phải BLOCKED, không hỏi người,
   không tung lượt mới, không đếm round.
@@ -186,6 +193,13 @@ Từ vựng hiển thị: **D0** = ¬CT1 · **D1** = CT1 — chỉ để nói ch
 
 **Nghi thức S1-D (cuối S1, MỌI feature chạm UI — trigger là surface web-UI của feature, KHÔNG phụ thuộc CT1 hay `executors.design.*`):** feature chạm UI → chạy skill `design-pass` (plugin acceptance-gate ≥ 1.26.0, in-harness) TRƯỚC Gate 1 — Gate 1 duyệt UI trên BẢN BẤM ĐƯỢC, không duyệt UI bằng chữ. Bỏ bước này PHẢI là entry `descope` CÓ TÊN trong ledger (AUTO-DRAFT: decision bắt đầu đúng chuỗi `"bỏ design-pass — <lý do 1 dòng>"`, impact "Gate 1 duyệt UI bằng chữ — mất khoảnh khắc visual trước duyệt"); không có đường bỏ im lặng. Chọn chạy = entry `type:"approach"` như mọi quyết định lane. Nấc phản ứng theo thang bốn nấc của nghi thức — Mặc định là KHÔNG ĐỒNG BỘ: máy dựng bản mẫu, tự chụp ma trận trạng thái × khổ, gửi gói rồi đi làm việc khác; nac-3 (ngồi cùng) chỉ mở khi có người gọi tên nó. Kết phiên S1-D phải đủ 4 mục: ma trận capture + findings + nấc ngữ cảnh đã khai + nấc phản ứng đã khai (khoá `reaction:`; thiếu → thẻ cờ vàng đường đọc-cũ, KHÔNG chặn, không bắt migrate) (khoá `context:` trong `design-pass.md` — thẻ Cổng 1 render nấc; `standalone` thiếu cảnh ngữ-cảnh sẽ cờ vàng). Khi resume vào workspace có `design-pass.md`, đọc khoá `context:`; thiếu (sổ phiên đời trước trục ngữ cảnh) → thẻ cờ vàng đường đọc-cũ, KHÔNG chặn, không bắt migrate.
 
+**Sàn thiết kế ở S4 (hồ sơ design-floor-moc-s3-s4).** Kho M1–M3 chấm tuân thủ design system bằng lệnh chỉ đọc dưới — hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai; không đo được không bao giờ chặn). Kho nối nó bằng tay thành `executors.design.floor` (GUIDE «Wire executors.design»); hồ sơ chạm giao diện khai một eval `script` với `cmd: config:executors.design.floor`. Kho chưa nối → lệnh bậc ở S0 in một dòng nói S4 chưa chấm tuân thủ design system.
+<!-- <<<DESIGN-FLOOR-S4 -->
+```
+node "<acceptance-gate>/scripts/design-floor-s4.mjs" --root .
+```
+<!-- DESIGN-FLOOR-S4>>> -->
+
 **Lưới S4 tier-mismatch (chạy ở bước chuẩn-bị-args S4):** config có `design.surface_globs` → chạy `git diff --name-only <diffBase>`; có file khớp glob mà `evals.yaml` KHÔNG có eval design nào (static/fidelity) → DỪNG, báo user: "diff chạm surface (`<path>` → `<glob>`) nhưng lane hiện tại không có design eval — nâng lane (thêm static evals) hoặc xác nhận + ghi entry `descope`". Key vắng → bỏ qua lưới, ghi chú 1 dòng vào gói Gate 2.
 
 🎨 Resume guard: khi resume vào feature chạm UI mà `status` ≥ `approved` nhưng workspace KHÔNG có `design-pass.md` → báo user + đề nghị chạy skill `design-pass`, KHÔNG chặn (workspace cũ đi đường đọc-cũ).
@@ -262,6 +276,12 @@ CAU_GIAO_HET
 <!-- S0-THEM-HANG-THOAT>>> -->
    **Dòng «Nguồn:» của ô** (hồ sơ o-mo-viec-mang-nguon): kho khai `tri_thuc` và hàng có `dot` → ô do khối `S0-MO-O` mở mang thêm dòng «Nguồn:» ngay sau dòng «Mở từ hàng …»: đường trỏ băm tới trang nền, trang đợt và trang mang mã của hàng (bên ghi và bên đọc `scripts/tri-thuc-nguon.cjs`). Kho không khai, hay hàng không có `dot`, nhận ô như cũ từng byte.
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
+4b. **Bậc design-floor của kho (hồ sơ design-floor-moc-s0-s1).** Chạy đúng khối dưới (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`) và nói lại nguyên văn dòng nó in. Kho M0 (không khai `design.surface_globs`, hay khai mà không khớp tệp nào) → lệnh không in gì: không nhắc design-floor, đi tiếp. Dòng in là thông tin, không phải câu hỏi; lệnh không ghi tệp nào; máy không tự nâng bậc hay ghi `design_floor.niem_phong` (M3 chỉ người ghi).
+<!-- <<<DESIGN-FLOOR-S0 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-bac.mjs) && node "$AG/scripts/design-floor-bac.mjs" --root .
+```
+<!-- DESIGN-FLOOR-S0>>> -->
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 
 ## S1 — DESIGN (sinh 3 artifact CÙNG LÚC)
@@ -276,6 +296,12 @@ AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gat
 CAU_TRA_HET
 ```
 <!-- TRI-THUC-TRA-MO-TA>>> -->
+0d. **Sàn thiết kế ở S1 (hồ sơ design-floor-moc-s0-s1).** Sau khi hồ sơ có `contract.md` (hay ít nhất ô cơ hội), chạy đúng khối dưới, thay `<slug>` (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`). Kho M0 → không in, không ghi. M1–M3 → lệnh ghi `_acceptance/<slug>/design-floor.json` và một dòng vào `usage-report.md` của hồ sơ, rồi in các dòng: bậc kho · tri thức thiết kế (chỉ mục + tối đa hai tệp, kèm token) · kế hoạch dùng lại (khi hồ sơ có `reuse-plan.md`) · luồng (khi hồ sơ có `flow.json`). Đọc ĐÚNG các tệp tri thức dòng ấy trỏ (đường tương đối thư mục `tri_thuc.goc` của `design-floor.json`) trước khi chọn phương án — không mở tệp tri thức nào khác. Viết `reuse-plan.md` hay `flow.json` rồi thì chạy lại khối để dòng thẻ mới. Dòng «không đọc được ở đây» không chặn vòng. Thẻ Cổng Phạm vi in các dòng thành khối «Sàn thiết kế» — thông tin, không câu hỏi.
+<!-- <<<DESIGN-FLOOR-S1 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-s1.mjs) && node "$AG/scripts/design-floor-s1.mjs" --root . --slug '<slug>'
+```
+<!-- DESIGN-FLOOR-S1>>> -->
 1. **Nghĩ bằng brainstorming, KHÔNG hỏi-đáp với người** (ngoài đợt; trong đợt theo khối TRONG-DOT). Invoke `superpowers:brainstorming` để dựng phương án, nhưng câu brainstorm lẽ ra hỏi người thì máy tự trả lời từ ô cơ hội đã ký, câu giao của hàng lộ trình, luật kho (CLAUDE.md · AGENTS.md · CONTEXT.md · ADR) và vật đã có. Mỗi lựa chọn như vậy xếp theo **nguồn căn cứ** rồi thành MỘT dòng sổ S1 mang khoá `can_cu` (khuôn `DEC-CAN-CU-SLOT`, mục «Sổ quyết định»):
    - **mục tiêu + quy tắc đã khai** — trỏ được MỘT tệp có từ trước vòng (không phải vật của chính vòng; ô cơ hội đã ký thì được) và câu trích nguyên văn QUYẾT được lựa chọn → máy quyết;
    - **chỉ một lối ra sống** — các lối khác chết vì một ràng buộc nêu được → máy quyết, ghi lối khác chết vì sao;
@@ -373,6 +399,12 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
 2. Plan có ≥2 task `independent: true` → gom các task đó, invoke Workflow:
    `Workflow({ scriptPath: '<WORKFLOWS_DIR>/execute-parallel.js', args: { planPath: '<abs plan path>', repoRoot: '<abs repo root>', tasks: [{ id, title, summary, files, verifyCmd }], models: <feature_loop.models nếu có, như S4> } })` (WORKFLOWS_DIR xem ghi chú đầu file; script chỉ dùng `models.executor` — default kế thừa model phiên)
    Xong: merge các branch worktree về feature branch (task failed → tự fix tuần tự trong main loop). Ngay khi Workflow trả về: chạy usage report (xem "Đo model/token per run").
+2b. **Sàn thiết kế cuối S3 (hồ sơ design-floor-moc-s3-s4).** Mọi task xong + verify per-task pass, TRƯỚC khi hợp đồng sang `implemented`: chạy đúng khối dưới, thay `<slug>` (kit tự host thêm `--root .` ngay sau `--plugin acceptance-gate`). Kho M0 → không in, không ghi. M1–M3 → autofix các trang HTML mà vòng đổi, chạy lệnh sinh lại kho khai ở `design_floor.sinh_lai`, rồi MỘT commit chỉ gồm tệp chính lệnh làm đổi — việc dở chưa commit giữ nguyên. Thoát 2 (một trang cần sửa đang có thay đổi chưa commit) → commit hay hoàn lại trang ấy rồi chạy lại; thoát 1 → đọc dòng lỗi (autofix hay lệnh sinh lại), sửa rồi chạy lại. Không bước nào sau đây được ghi tệp của vòng.
+<!-- <<<DESIGN-FLOOR-S3 -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/design-floor-s3.mjs) && node "$AG/scripts/design-floor-s3.mjs" --root . --slug '<slug>'
+```
+<!-- DESIGN-FLOOR-S3>>> -->
 3. Kết thúc S3 (mọi task xong + verify per-task pass): set contract `status: implemented`, rồi **dispatch Workflow S4 NGAY trong cùng lượt**. KHÔNG tự chạy evals trong main loop — nhưng cũng KHÔNG dừng chờ người ở ranh giới này: doer ≠ grader được thoả bởi agent TƯƠI của Workflow S4, không phải bởi một lượt hỏi người.
 
 ## S4 — VERIFY (một Workflow run)

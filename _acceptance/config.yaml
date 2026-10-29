@@ -187,6 +187,13 @@ executors:
     # Hồ sơ ky-den-gop: năm tệp ca «C-», «I-», «DG-», «H-», «KDG-M» (lịch biết tệp · gộp không chạy lại CI · đo ký → gộp ·
     # PR sẵn sàng lúc trình thẻ · chiều đỏ trong bộ kiểm), cùng khuôn một dòng của dieu_phoi_tin_gd. Thiếu dòng ghim là ĐỎ.
     dieu_phoi_ky_den_gop: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/loi/trung-tep.test.mjs\" \"tests/dieu-phoi/loi/gop.test.mjs\" \"tests/dieu-phoi/loi/do-gop.test.mjs\" \"tests/workflows/pr-san-sang.test.mjs\" \"tests/dieu-phoi/ky-den-gop-mutants.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (C|I|DG|H|KDG)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ vung-giao-viec-tu-cat-luot: CV-… (răng phủ cắt lượt, tệp .test.mjs — cũng chạy trong mảnh mjs của suite) và
+    # VG-… (gói đợt, thêm hàng, phát lại, khai vùng ở Cổng Phạm vi, vi phân bản gốc — node --test, CI chạy cùng tests/dieu-phoi).
+    cat_luot_vung: node tests/scripts/cat-luot-vung.test.mjs
+    vung_giao_viec: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/vung-giao-viec.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - VG-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ khung-dot-dinh-vi (ADR 0027 bước a–b): câu giám sát chờ chủ kho + khung định vị; gộp dòng «ok … KD-»,
+    # «not ok», chẩn đoán và tổng kết TAP thành MỘT dòng.
+    khung_dinh_vi: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/khung-dinh-vi.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - KD-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ kiem-ban-cai-sau-phat-hanh (KC1): trọn bộ ca KB-1…KB-9 (cài cách ly, cần CLI claude — đuôi .ca.mjs
     # nên KHÔNG vào mảnh *.test.mjs của CI) · bản `_moc` là cổng lượt cắt mốc, nằm trong feature_loop.suite_keys.
     kiem_ban_cai: node tests/scripts/kiem-ban-cai.ca.mjs
@@ -812,6 +819,11 @@ executors:
     rel2340_dd_giu: "bash -c 'c=$(git show 279b1515:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 279b1515 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2340_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 279b1515 2.34.0
     rel2340_goi_doi: "bash -c 'd=$(git diff --name-only 279b1515 HEAD -- road-map | tr \"\\n\" \" \"); echo \"road-map doi: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json \" ]'"
+    # Mốc 2.35.0 (nền thiết kế FL1–FL5 + design-gate chế độ chặt + vùng giao việc + khung đợt định vị): cửa sổ 0e095648 (v2.34.0) → HEAD.
+    rel2350_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 0e095648 design-gate-che-do-chat design-gate-khong-do-duoc-ba-nguyen-nhan design-floor-vendor-va-ban-va-a design-floor-ban-va-b-c-d design-floor-moc-s0-s1 design-floor-moc-s3-s4 vung-giao-viec-tu-cat-luot khung-dot-dinh-vi
+    rel2350_dd_giu: "bash -c 'c=$(git show 0e095648:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 0e095648 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2350_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 0e095648 2.35.0
+    rel2350_goi_doi: "bash -c 'd=$(git diff --name-only 0e095648 HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
@@ -935,6 +947,63 @@ executors:
     chd_ac6: CHD_CASES=AC-6,AC-6-do-khoi,AC-6-do-lop node tests/scripts/co-hop-dong.test.mjs
     chd_ac7: CHD_CASES=AC-7,AC-7-do,AC-7-do-ngay-ky node tests/scripts/co-hop-dong.test.mjs
     chd_ac8: CHD_CASES=AC-8,AC-8-do node tests/scripts/co-hop-dong.test.mjs
+    # Hồ sơ design-gate-khong-do-duoc-ba-nguyen-nhan (FL1): ca KD1…KD7 ở tests/design-eval/khong-do-duoc.test.mjs (tên ca
+    # mở đầu bằng mã AC). kdd.sh cài jsdom ghim (npm ci) khi thiếu rồi chạy đúng nhóm ca; nhóm khớp 0 ca thì đỏ.
+    kdd_tai_lap: bash tests/design-eval/kdd.sh KD1
+    kdd_css: bash tests/design-eval/kdd.sh KD2
+    kdd_nen: bash tests/design-eval/kdd.sh KD3
+    kdd_gradient: bash tests/design-eval/kdd.sh KD4
+    kdd_doi_chung: bash tests/design-eval/kdd.sh KD5
+    kdd_ma_thoat: bash tests/design-eval/kdd.sh KD6
+    kdd_dot_bien: bash tests/design-eval/kdd.sh KD7
+    kdd_hoi_quy: bash tests/design-eval/kdd.sh --hoi-quy
+    kdd_nen_mau: bash tests/design-eval/kdd.sh KD9
+    kdd_nen_tinh_ra: bash tests/design-eval/kdd.sh KD10
+    # Vi phân bản gốc ↔ bản mới trên đích dom của các kho tiêu thụ trên máy (KHO_GOC hoặc ~/dev). Chỉ in số. Không vào suite_keys.
+    kdd_vi_phan_kho: node tests/design-eval/vi-phan-kho.mjs
+    # Chỉ khi Hỏi-1 (job CI design-eval) được duyệt ở Cổng Phạm vi.
+    kdd_ci: bash tests/design-eval/kdd.sh KD8-ci
+    # Hồ sơ design-floor-vendor-va-ban-va-a (FL2): mỗi lệnh chạy chiều xanh trên cây thật rồi đột biến cùng nhãn của
+    # tests/design-floor/tu-thu.mjs. Cần `npm ci --prefix tests/design-floor`. df_dong_bo lấy bản ghim upstream (mạng
+    # hay cache) — không vào feature_loop.suite_keys; CI chạy bộ đo ngoại tuyến ở job design-floor.
+    df_va01: bash tests/design-floor/eval.sh va01
+    df_fn01: bash tests/design-floor/eval.sh fn01
+    df_bg01: bash tests/design-floor/eval.sh bg01
+    df_ngoai_tuyen: bash tests/design-floor/eval.sh ngoai-tuyen
+    df_ban_va_a: bash tests/design-floor/eval.sh ban-va-a
+    df_xfail_con: bash tests/design-floor/eval.sh xfail-con
+    df_luat_gioi_han: bash tests/design-floor/eval.sh luat-gioi-han
+    df_vo: bash tests/design-floor/eval.sh vo
+    df_dong_bo: bash tests/design-floor/eval.sh dong-bo
+    # Hồ sơ design-floor-ban-va-b-c-d (FL3): bản vá B, C, D — cùng nếp chiều xanh + đột biến cùng nhãn.
+    df_b_df01: bash tests/design-floor/eval.sh b-df01
+    df_b_df04: bash tests/design-floor/eval.sh b-df04
+    df_b_df05: bash tests/design-floor/eval.sh b-df05
+    df_b_df06: bash tests/design-floor/eval.sh b-df06
+    df_c: bash tests/design-floor/eval.sh c
+    df_d: bash tests/design-floor/eval.sh d
+    df_bo_ban_va: bash tests/design-floor/eval.sh bo-ban-va
+    df_chuoi_so_va: bash tests/design-floor/eval.sh chuoi-so-va
+    df4_bac: bash tests/design-floor/eval.sh df4-bac
+    df4_bac_hong: bash tests/design-floor/eval.sh df4-bac-hong
+    df4_tri_thuc: bash tests/design-floor/eval.sh df4-tri-thuc
+    df4_tri_thuc_lech: bash tests/design-floor/eval.sh df4-tri-thuc-lech
+    df4_reuse_plan: bash tests/design-floor/eval.sh df4-reuse-plan
+    df4_flow_lint: bash tests/design-floor/eval.sh df4-flow-lint
+    df4_the: bash tests/design-floor/eval.sh df4-the
+    df4_chi_ghi: bash tests/design-floor/eval.sh df4-chi-ghi
+    df4_noi_day: bash tests/design-floor/eval.sh df4-noi-day
+    df4_tri_thuc_that: bash tests/design-floor/eval.sh df4-tri-thuc-that
+    df5_s3_autofix: bash tests/design-floor/eval.sh df5-s3-autofix
+    df5_s3_sinh_lai: bash tests/design-floor/eval.sh df5-s3-sinh-lai
+    df5_s3_cay_ban: bash tests/design-floor/eval.sh df5-s3-cay-ban
+    df5_s4_hex: bash tests/design-floor/eval.sh df5-s4-hex
+    df5_s4_token_coverage: bash tests/design-floor/eval.sh df5-s4-token-coverage
+    df5_s4_bac: bash tests/design-floor/eval.sh df5-s4-bac
+    df5_s4_chi_doc: bash tests/design-floor/eval.sh df5-s4-chi-doc
+    df5_gate_df07: bash tests/design-floor/eval.sh df5-gate-df07
+    df5_vong_mau: bash tests/design-floor/eval.sh df5-vong-mau
+    df5_noi_day: bash tests/design-floor/eval.sh df5-noi-day
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
@@ -1039,3 +1108,16 @@ feature_loop:
 # hẹn với owner 08/10). Khối chan_troi trong tệp là trường tự do, trang không hiện.
 lo_trinh:
   tep: docs/plans/lo-trinh-kit.json
+# Tầng tri thức của chính kit (mục chờ điều kiện TT-C5/F5; chủ kho bật 26/10 — kế hoạch
+# docs/plans/2026-10-26-ke-hoach-design-floor-tiep.md, bước 1). Kho này CÔNG KHAI nên gốc tri thức là kho riêng
+# đi kèm; `duong` tương đối gốc checkout chính (cha của git-common-dir), không theo worktree.
+tri_thuc:
+  cong_khai: true
+  kho:
+    ten: acceptance-gate-kit-tri-thuc
+    duong: ../acceptance-gate-kit-tri-thuc
+    remote: https://github.com/phanlemanh/acceptance-gate-kit-tri-thuc.git
+
+# Gói đợt của gói dieu-phoi (dieu-phoi/README.md): `{ten}` thay bằng tên đợt khi mở bằng /dieu-phoi:mo-dot.
+dieu_phoi:
+  goi_dot: docs/plans/dot-{ten}

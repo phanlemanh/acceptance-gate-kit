@@ -60,5 +60,17 @@ Các bước, đúng thứ tự:
    trước. Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.
    Kết lượt chờ người bằng chữ thường, không qua nút: lượt có trang thẻ (`card.html`; Cổng Bằng chứng thêm `evidence-page.html`) thì gửi trang ấy bằng công cụ gửi tệp của phiên (`SendUserFile`), phiên không có công cụ ấy thì in đường dẫn trang; dòng lệnh hay dòng trả lời mẫu nằm trong một khối `` ```text ``, chép đúng như thẻ in — ô thẻ để `___` thì giữ `___`, máy không tự điền chữ quyết; hộp «bước kế» của app (`wrap_up`) ở lượt này chỉ mang phần tóm tắt, không câu hỏi và không nút, vì app bỏ nút mở đầu «/» hay «!» hoặc chứa «@», cắt tin của nút ở 300 ký tự, và bỏ nút khuyến nghị thì mất luôn câu hỏi.
 
+6. **Câu hỏi chủ kho trong chat.** Mỗi câu phiên này hỏi chủ kho rồi chờ trả lời (xác nhận một chẩn đoán, chọn
+   một lối) phải vào sổ của đợt TRƯỚC khi kết lượt, để khung đợt đếm nó vào «cần anh». Câu đi trong heredoc CÓ
+   NHÁY nên nháy, `$` và backtick được ghi nguyên văn; lệnh in `hoi: <mã>`:
+   ```
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" hoi --phien <mã phiên này> --cau - <<'CAU_HET'
+   <câu hỏi>
+   CAU_HET
+   ```
+   Chủ kho đã trả lời → `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" hoi-xong <mã>`. Câu mang kiểu
+   `hoi-chu-kho` và `can_phan:false`, nên Monitor của phiên này không thức vì nó — không ghi câu của chính mình
+   bằng `yeu-cau` hay bất kỳ sự kiện nào mang `can_phan:true`. Quên `hoi-xong` thì khung báo dư kèm tuổi câu.
+
 **Dạng `--nhe`** (mỗi lần phiên giám sát thức): bước 0 (đọc mức dùng: `get_usage` rồi `han-muc`), bước 1 với `--nhe`, bước 2, phần Monitor của bước 3, và
 bước 5 — không dựng lại lịch, nhóm hay chip. Nhờ vậy Monitor hết hạn được giăng lại ngay ở lần thức kế.

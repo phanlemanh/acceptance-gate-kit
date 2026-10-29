@@ -7,13 +7,13 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>7 việc"]
+  GD --> B["Sắp mở vòng<br/>8 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>135 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>51 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>136 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>58 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -38,6 +38,7 @@ flowchart TD
 ## Sắp mở vòng
 
 - Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
+- design-floor bước 1 — hợp đồng nhập cho mã Design OS (ease-design) mà kit sẽ vendor, bộ đo do kit giữ (giới hạn đã khai là xfail chặt) và rào đóng kín module có tệp khoá băm từng tệp; chưa vendor, chưa móc vào vòng (`design-floor-hop-dong-nhap`)
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
 - Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được (`kiem-ban-cai-loi-sua-chay-duoc`)
 - Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
@@ -66,6 +67,11 @@ flowchart TD
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - Ô «chưa làm gì» của dải tóm tắt in đúng số giới hạn đã biết ở mọi hình dạng khối gặp thật trên sáu kho — đầu đoạn bọc dòng, đoạn dẫn trước danh sách, danh sách đánh số, gạch tự mở bằng «known-limits», «None.» — và nói «chưa đọc được» thay vì in số khi khối không theo khuôn; trang hồ sơ đầy đủ hiện trọn mục «Vì sao làm», trần 400 ký tự chỉ áp cho dải một phút (`dai-tom-tat-dem-dung-vi-sao-tron`)
 - Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi (hook tự khai mã app, vai tự ghi mã CLI), nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên (`danh-thuc-doc-nhip-dung-ma`)
+- design-floor bước 2b — bản vá cục bộ B, C, D cho lõi Design OS vendored — mã thoát ba trạng thái, đầu vào tường minh, không module Figma trong đóng kín; khối máy hết giới hạn (`design-floor-ban-va-b-c-d`)
+- design-floor bước 2c — móc S0 (đọc bậc M0–M3 của kho) và S1 (định tuyến tri thức thiết kế có trần, kiểm kế hoạch dùng lại, flow lint) thành dòng thông tin trên thẻ Cổng Phạm vi (`design-floor-moc-s0-s1`)
+- design-floor bước 2d — móc cuối S3 (autofix và sinh lại tệp dẫn xuất, commit trước S4) và S4 (chấm tuân thủ design system bằng hex thô và độ phủ token, chặn theo bậc), răng ui gate và vòng mẫu không ghi sau S4 (`design-floor-moc-s3-s4`)
+- design-floor bước 2a — lõi gọn Design OS vendored vào kit khớp từng băm của tệp khoá, sổ LOCAL-PATCHES, bản gói dựng tất định, và bản vá A làm mọi lệnh chấm không ghi tệp (`design-floor-vendor-va-ban-va-a`)
+- cổng thiết kế chế độ dom trả KHÔNG-ĐO-ĐƯỢC kèm mã nguyên nhân, không REJECT, khi CSS không áp được, khi nền khai ở tổ tiên bị bỏ qua, hay khi chữ gradient cắt theo chữ (`design-gate-khong-do-duoc-ba-nguyen-nhan`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - Chủ kho dời hay ghi đè ngày mục tiêu của một mốc mà trang lộ trình vẫn giữ dự báo lúc mốc bắt đầu, cờ quá tải vẫn tính theo mục tiêu mới, và phép đo lệch vẫn đọc được mốc ấy (`du-bao-dong-bang-theo-ma-moc`)
 - Eval gọi model thật không chạy lại khi đầu vào không đổi — làn ghim lại dùng lại kết quả của lần eval model thật sự chạy gần nhất khi băm năm lớp đầu vào không đổi (hạn 7 ngày, khoá bật theo lựa chọn), nói ra mọi lần dùng lại, và chạy lại khi một byte đầu vào đổi (`eval-goi-model-that-khong-chay`)
@@ -78,6 +84,7 @@ flowchart TD
 - Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho (`kho-cam-ket-co-lo-trinh`)
 - Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn (`kho-moi-cai-goi-road-map`)
 - Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree (`kho-tri-thuc-va-lint`)
+- Khung đợt mở bằng định vị và đếm đủ mọi câu đang chờ chủ kho — chủ kho ngủ dậy hay đổi máy đọc một khung là biết đợt đang ở đâu và đang chờ mình điều gì (`khung-dot-dinh-vi`)
 - Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng chạm (tác tử chấm, thẻ cổng, lưới trước-gộp, gói dieu-phoi) trước khi phát tới kho thật; bản cài thiếu thư mục gói hay khác tag thì đỏ (`kiem-ban-cai-sau-phat-hanh`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
@@ -103,6 +110,7 @@ flowchart TD
 - Dấu «đã đến», «chấp nhận», «kết lượt» không mất khi bộ canh nền đồng bộ kênh cùng lúc; hạn gõ sai bị từ chối kèm câu báo; đáp một yêu cầu cũ bằng lệnh mới tới đúng người hỏi và đóng vòng (`vong-mo-khong-mat-dau`)
 - Vòng mở thẳng bằng Feature Loop cũng bị đo cỡ — hợp đồng từ 13 tiêu chí không vào được Cổng Phạm vi khi chưa tách hoặc chưa có dòng sổ giữ có tên, 11–12 tiêu chí lên thẻ thành cờ vàng; khoảng đọc từ chính khối CAT-LUOT-CO của lượt cắt, năm chỗ dạy «5–15» nói cùng chính sách (`vong-mo-thang-bang-feature-loop`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
+- Vùng giao việc đi từ cắt lượt — mỗi hàng mang vùng mã dự kiến từ lúc cắt, gói đợt chép sang vùng tệp của đợt, phiên thợ khai thêm ở Cổng Phạm vi, để lịch biết tệp tự xếp nối tiếp hai hàng cùng sửa một màn (`vung-giao-viec-tu-cat-luot`)
 
 ## Đã giao
 
@@ -216,6 +224,7 @@ flowchart TD
 - Phát hành kit 2.33.0 — road-map dễ dùng (RD1) + hồ sơ đã ký luôn tươi (K-A); lộ trình đọc trong một phút, bỏ mốc ngoài, giờ máy theo làn, lệnh giữ tươi (`release-2-33-0`)
 - Phát hành kit 2.33.1 — bản vá mang giao tiếp giữa các phiên có mã và hạn (GT1), vòng mở không mất dấu (GT2), nháy đơn trong config (R3), lời mời cổng không qua nút (KY1) và sửa bản đồ ở lệnh đóng cổng (`release-2-33-1`)
 - Phát hành kit 2.34.0 — tầng tri thức theo LLM Wiki (TT1–TT5), ký → gộp có chủ máy (lịch biết tệp, PR sẵn sàng lúc trình thẻ, gộp không chạy lại CI, đo ký → gộp), sức khoẻ máy đo chỗ trống và tốc độ (SK1), ảnh có thật trong hồ sơ; gói mới tri-thuc (`release-2-34-0`)
+- Phát hành kit 2.35.0 — nền thiết kế design-floor-2710 (FL1–FL5), design-gate chế độ chặt tuỳ chọn, vùng giao việc đi từ cắt lượt, khung đợt định vị với bộ đếm «cần anh» đếm đủ; kho chờ nhận invest (thí điểm nền thiết kế, bậc M1) rồi crm (`release-2-35-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)

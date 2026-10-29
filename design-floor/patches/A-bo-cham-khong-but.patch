@@ -1,0 +1,66 @@
+--- a/src/commands/autofix.ts
++++ b/src/commands/autofix.ts
+@@ -12,7 +12,6 @@
+ import type { CommandResult } from "../core/output.js";
+ import { errJson, errText, okJson } from "../core/output.js";
+ import { runAutofix } from "../core/html-autofix.js";
+-import { withOutcome } from "../core/memory-autorecord.js";
+ 
+ const CMD = "autofix";
+ 
+@@ -132,13 +131,6 @@
+         : { exitCode: 0, stdout: fixedHtml, stderr: summary };
+     }
+ 
+-    const recordable = doWrite && written && findings.length > 0;
+-    if (!recordable) return out;
+-    return withOutcome(out, parsed, {
+-      type: "autofix_applied",
+-      actor: "ui autofix",
+-      projectDir: filePath,
+-      data: { file: filePath, fixCount: findings.length, ruleIds: [...new Set(findings.map((f) => f.ruleId))].sort() },
+-    });
++    return out;
+   },
+ };
+--- a/src/commands/gate.ts
++++ b/src/commands/gate.ts
+@@ -15,7 +15,6 @@
+ import { loadTokenHexes } from "./taste-lint.js";
+ import { inlineLinkedCss } from "../core/html-css-loader.js";
+ import { tryDiscoverDesignSystem } from "../core/design-system.js";
+-import { withOutcome, lintOutcomeData } from "../core/memory-autorecord.js";
+ import { autoScoreTokenCoverage, scoreTokenCoverage } from "../core/token-coverage-io.js";
+ import type { TokenCoverageSource } from "../core/token-coverage-io.js";
+ import type { TokenCoverageResult } from "../core/token-coverage.js";
+@@ -384,6 +383,6 @@
+       : [];
+     const data = { file, ...result, pass, tokenCoverage, tokenCoverageSource, tokenCoverageFindings, tokenCoverageFloor, linkedCssErrors: loaded.errors };
+     const out = useJson ? okJsonWithExit(CMD, data, exitCode) : { exitCode, stdout: lines.join("\n") + "\n" };
+-    return withOutcome(out, parsed, { type: "lint_run", actor: "ui gate", projectDir: file, data: lintOutcomeData("gate", file, { findings: [...Object.values(result.families).flatMap((r) => r.findings), ...tokenCoverageFindings], errorCount: result.errorCount, warningCount: result.warningCount }) });
++    return out;
+   },
+ };
+--- a/src/commands/taste-lint.ts
++++ b/src/commands/taste-lint.ts
+@@ -19,7 +19,6 @@
+ import type { TasteFinding } from "../core/taste-lint.js";
+ import { isTokenLeaf } from "../core/token-model.js";
+ import { inlineLinkedCss } from "../core/html-css-loader.js";
+-import { withOutcome, lintOutcomeData } from "../core/memory-autorecord.js";
+ 
+ const CMD = "taste-lint";
+ 
+@@ -217,11 +216,6 @@
+     const out = useJson
+       ? okJsonWithExit(CMD, { file: filePath, errorCount, warningCount, axesAffected, findings }, exitCode)
+       : { exitCode, stdout: formatReport(filePath, errorCount, warningCount, axesAffected, findings) };
+-    return withOutcome(out, parsed, {
+-      type: "lint_run",
+-      actor: "ui taste-lint",
+-      projectDir: filePath,
+-      data: { ...lintOutcomeData("taste-lint", filePath, { errorCount, warningCount, findings }), axes: axesAffected },
+-    });
++    return out;
+   },
+ };
