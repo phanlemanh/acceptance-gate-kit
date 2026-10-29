@@ -226,3 +226,4 @@ vung-giao-viec-tu-cat-luot	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngo�
 design-floor-moc-s3-s4	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo
 khung-dot-dinh-vi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 release-2-35-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
+cong-cu-xet-tep-ton-tai	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo

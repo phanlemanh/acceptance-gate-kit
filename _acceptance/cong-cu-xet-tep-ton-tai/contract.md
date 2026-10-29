@@ -5,7 +5,7 @@ slug: cong-cu-xet-tep-ton-tai
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified     # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off     # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -52,3 +52,8 @@ Source input: hàng TC5 của `docs/plans/lo-trinh-kit.json` · ô `_acceptance/
 ## Notes
 
 - Vật: `feature-loop/scripts/duong-nen.mjs` (khối marker mới `CONG-CU-DUONG-TEP`) · thước: `tests/scripts/duong-nen.test.mjs` ca NEN-TT1…NEN-TT5 · khoá eval `executors.script.cxt_ton_tai` thêm vào `_acceptance/config.yaml` (khai vùng ở Cổng Phạm vi).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-29:
+  - Ngoài-1: Ca đối chứng «bản tiêm chết» của bộ kiểm đường nền chỉ xét việc không có tệp đầu ra, chưa xét thông điệp của chính nhát tiêm.
+  - Ngoài-2: Bảng mô tả bốn chân trong khuôn đường nền giao cho kho tiêu thụ vẫn tả luật cũ của chân công cụ.
+- Mở hợp đồng mới ở Cổng Bằng chứng 2026-10-29: hạt giống
+  `docs/plans/2026-10-29-hat-giong-ten-tran-kich-ban-goc-kho.md` (Ngoài-3).
