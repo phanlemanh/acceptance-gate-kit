@@ -168,8 +168,9 @@
       ]
     },
     {
-      "ten": "Phát hành 2.x kế tiếp — design-floor-2710 (số đặt lúc cắt): plugin design-floor chấm giao diện trong vòng S0–S5; mỗi hàng FL vào mốc khi hợp đồng của nó đã duyệt",
-      "ngay": "2026-10-31",
+      "ten": "Phát hành 2.35.0 — nền thiết kế design-floor-2710 (FL1–FL5) cùng design-gate chế độ chặt (#413), vùng giao việc (#436), khung đợt định vị (#440); chủ kho 28/10 chốt danh sách gom, cắt khi khung đợt gộp; kho chờ nhận invest (thí điểm nền thiết kế, bậc M1) rồi crm",
+      "ngay": "2026-10-29",
+      "ly_do": "Về sớm 31/10 → 29/10: chủ kho 28/10 «Cắt bản khi vòng khung đợt gộp.» — #440 gộp 28/10, chủ kho 29/10 «Gộp và cắt bản». TC1 (#419) chưa ký nên không vào mốc này.",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
