@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/workflows/** + tests/workflows/** + _acceptance/config.yaml — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-29-doi-chung-chay-duoc-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -104,3 +104,16 @@ Ngưỡng ở `opportunity.md` (một câu bốn vế) — mỗi vế một thư
   sửa bộ chấm không làm AC-9 đỏ, nhưng cũng không chứng lại bản mới — đổi lệnh ghi thì ghi lại bản ghi. Bộ canh lệnh của Claude Code đọc cả thân heredoc thì bước ghi bị từ
   chối — làn rơi về «chưa chạy dòng nào», thẻ Cổng 2 nói ra (cờ đối chứng có sẵn). Ngưỡng mở lại: ≥1 lượt chấm sau bản
   này có dòng `baseline-khong-do` mang chữ từ chối của bộ canh hay của móc điều phối.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-30:
+  - Ngoài-1: Khi môi trường không cho ghi tệp kịch bản (đĩa đầy, thư mục bị khoá), lượt chấm vẫn dừng an toàn nhưng báo nhầm là tác tử chép sai và tệp đã bị đổi tên.
+  - Ngoài-2: Ca kiểm bản cũ chỉ cho thấy đề bài cũ dặn công cụ ghi, chưa cho thấy tác tử cũ thật sự báo lỗi đó; bằng chứng tác tử thật nằm ở bản ghi riêng.
+  - Ngoài-3: Ca kiểm trên bản ghi tác tử cũ có thể xanh cả khi tác tử không làm gì, nên không tách được bộ chấm cũ khỏi bộ chấm mới.
+  - Ngoài-4: Phép thử phá cố ý chỉ đòi có một lý do lỗi hạ tầng bất kỳ, nên không chắc đúng cơ chế cần bảo vệ đang được kiểm.
+  - Ngoài-5: Cùng phép thử ấy báo đỏ đúng lúc nhưng không phân biệt vì sao đỏ, và lời chú thích cạnh nó nói sai nguyên nhân.
+  - Ngoài-6: Khi môi trường chặn ghi kịch bản, báo cáo lượt chấm đổ lỗi cho tác tử và giấu mất dòng lỗi thật; người đọc phải xem nhật ký để chẩn đoán.
+  - Ngoài-7: Ca kiểm bản cũ chỉ chứng bộ đọc chuyển đúng chữ lỗi được bơm vào, chưa chứng tác tử thật của bản cũ in ra đúng chữ ấy.
+  - Ngoài-8: Ca kiểm trên tác tử thật phát lại qua bản bộ chấm đã đóng băng, nên nếu sau này bộ chấm bị sửa hỏng thì ca này vẫn xanh.
+  - Ngoài-10: Tác tử chép thiếu dòng đầu của lệnh ghi thì đối chứng vẫn bị loại đúng, nhưng sổ lượt chấm ghi «chưa chạy dòng nào» trong khi kịch bản đã chạy.
+  - Ngoài-11: Ca kiểm khẳng định lượt chấm cũ báo đúng câu lỗi thiếu công cụ ghi, nhưng câu ấy do chính ca kiểm dựng; tác tử thật khi đó trả về rỗng.
+  - Ngoài-12: Ca kiểm về lượt chấm cũ xanh với bất kỳ đầu ra rỗng nào, nên không phân biệt đề bài cũ hỏng với tác tử không chạy gì.
+  - Ngoài-13: Ca kiểm lệnh nhiều dòng hứa kịch bản chạy trọn nhưng không kiểm kết quả chạy; lệnh bị cắt dở mà vẫn in đủ dấu thì ca vẫn xanh.
