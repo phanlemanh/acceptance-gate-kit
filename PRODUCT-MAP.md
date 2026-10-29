@@ -7,11 +7,11 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>9 việc"]
+  GD --> B["Sắp mở vòng<br/>8 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>136 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>57 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
@@ -37,7 +37,6 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
 - Đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi, nên giám sát đang chạy không bị báo «không có nhịp sống»; phiên giám sát mở trước khi nạp gói được nói ra đúng tên thay cho báo chủ kho (`danh-thuc-doc-nhip-dung-ma`)
 - design-floor bước 1 — hợp đồng nhập cho mã Design OS (ease-design) mà kit sẽ vendor, bộ đo do kit giữ (giới hạn đã khai là xfail chặt) và rào đóng kín module có tệp khoá băm từng tệp; chưa vendor, chưa móc vào vòng (`design-floor-hop-dong-nhap`)
 - «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc» (`dieu-phoi-tho-trong-kit`)
@@ -50,6 +49,7 @@ flowchart TD
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
+- Chân cong_cu của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (`cong-cu-xet-tep-ton-tai`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 
 ## Đã giao — chờ phiên nghiệm thu
