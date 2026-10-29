@@ -169,6 +169,10 @@ executors:
     dieu_phoi_dp6: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[1-9]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-doi-tai-khoan: như khoá `dieu_phoi_dp3` nhưng ghim cả «ok … DP4-».
     dieu_phoi_dp4: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[1234]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ danh-thuc-doc-nhip-dung-ma (hàng TC1): như khoá `dieu_phoi_dp6` nhưng ghim «ok … TC1-».
+    dieu_phoi_tc1: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - TC1-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ danh-thuc-doc-nhip-dung-ma (AC-9, E9b): suite tests/dieu-phoi hai lần — môi trường sạch và mang hai biến mã phiên giả.
+    dieu_phoi_tc1_hai_moi_truong: node tests/dieu-phoi/hai-moi-truong.mjs
     # Hồ sơ dieu-phoi-sua-truoc-dot-thu: như `dieu_phoi_dp3` nhưng ghim «ok … SDT-» cùng mọi «ok … DP<n>-».
     dieu_phoi_sdt: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ trang-thai-dot-dieu-phoi-tho (DP6b): như `dieu_phoi_sdt` nhưng ghim cả «ok … KH-» (xem --json, khung.mjs).
@@ -592,6 +596,9 @@ executors:
     # Vật của hồ sơ nen-cong-cu-gan-bang-lenh-con — ghim ca NEN-LC* của vòng cùng các ca
     # cũ của chân công cụ (NEN0 đối chứng dương, NEN1 và NEN-TD* hồi quy).
     ncl_lenh_con: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Vật của hồ sơ cong-cu-xet-tep-ton-tai — ghim ca NEN-TT* của vòng (từ đầu là đường tệp thì xét
+    # tệp có tồn tại) cùng các ca cũ của chân công cụ (NEN0 NEN1 NEN-TD* NEN-LC*).
+    cxt_ton_tai: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-TT1 NEN-TT2 NEN-TT3 NEN-TT4 NEN-TT5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Vật của hồ sơ nen-chay-bang-moi-truong-nguoi-goi — ghim ca NEN-ENV* của vòng cùng các ca
     # cũ của chân suite (NEN0 NEN2 NEN3 NEN4 NEN4b) và chân công cụ (NEN1 NEN-TD* NEN-LC*).
     nme_moi_truong: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-ENV1 NEN-ENV2 NEN-ENV3 NEN-ENV4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
