@@ -33,3 +33,6 @@ Bên VIẾT mục (`review-findings.md`, máy sinh ở S4) và bên ĐỌC (P179
 ## Ngưỡng mở thành ô
 
 Owner gọi tên (vòng nhỏ T2), hoặc thêm một lượt S4 nữa bị P179 đánh trượt vì thiếu hàng của chính hồ sơ.
+
+**Thêm một lượt bị đánh trượt (26/10) — ngưỡng ĐỦ.** `danh-thuc-doc-nhip-dung-ma` (TC1) lượt 2: mọi eval xanh, 0 lỗi trong
+hợp đồng, REJECT chỉ vì P179 (sổ 1055 hàng < corpus 1060 sau bảy mục known-limits của chính hồ sơ); thêm 7 hàng ở lượt 3.

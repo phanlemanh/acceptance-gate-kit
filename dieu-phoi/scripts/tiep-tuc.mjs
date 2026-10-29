@@ -10,9 +10,9 @@ import { banGiaoGanNhat, roiBanGiao } from './ban-giao.mjs';
 import { mucDay } from './muc-day.mjs';
 import { docDau } from './dau.mjs';
 import { hangKeTuTiep } from './lich.mjs';
-import { conSong, coThuMucSong, nhipMoiNhatCua } from './song.mjs';
+import { bayGio, conSong, coThuMucSong, laMaPhien, nhipCuaPhien, nhipMoiNhatCua } from './song.mjs';
 import { loiGiaoViec, suyLoiGiaoDot } from './tin-giao.mjs';
-import { ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
+import { docVai, ghiHookThieu, ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
 
 // Bảy hành động của một dãy — MỘT nguồn cho chẩn đoán, tiep-tuc và thân lệnh người.
 export const HANH_DONG = {
@@ -141,5 +141,22 @@ export function tiepTuc(cwd, { phien, nhe = false, nowMs = null, chay = null }) 
   const pha = docPha(thuMuc).pha;
   const phatLich = pha === 'nhap' || !chay ? 'khong-chay' : chay(cwd);
   const { pha: _p, ...thongTinRoi } = roi;
-  return { dot: thuMuc, thoi_vai: false, vai_doi: vaiDoi, pha, phat_lich: phatLich, ...thongTinRoi, ke_hoach: keHoachDay(thuMuc, { nowMs }) };
+  const hook = xetHookPhien(thuMuc, phien, { nowMs });
+  return { dot: thuMuc, thoi_vai: false, vai_doi: vaiDoi, pha, phat_lich: phatLich, ...thongTinRoi, ...hook, ke_hoach: keHoachDay(thuMuc, { nowMs }) };
+}
+
+// Hook của gói có nạp trong phiên giám sát không (TC1). Lệnh chạy trong Bash của chính phiên nên `CLAUDE_CODE_SESSION_ID`
+// là mã CLI của nó; lời dặn đặt bước đọc hạn mức (một lời gọi công cụ) trước lệnh này, nên hook đã nạp thì tệp nhịp đã có.
+// Ngoài app (biến vắng) không xét gì.
+export const CAU_HOOK_THIEU = 'hook của gói chưa nạp trong phiên này — mở phiên giám sát mới rồi chạy /dieu-phoi:tiep-tuc';
+function xetHookPhien(thuMuc, phien, { nowMs = null, phienCli = process.env.CLAUDE_CODE_SESSION_ID } = {}) {
+  if (!laMaPhien(phienCli)) return {};
+  const gs = docVai(thuMuc)?.giam_sat;
+  if (gs?.phien !== phien) return {};
+  if (nhipCuaPhien(thuMuc, { phien, phienCli })) {
+    if (gs.hook_thieu_luc) ghiHookThieu(thuMuc, phien, null);
+    return {};
+  }
+  if (!gs.hook_thieu_luc) ghiHookThieu(thuMuc, phien, new Date(bayGio(nowMs)).toISOString());
+  return { hook_thieu: true, hook_thieu_cau: CAU_HOOK_THIEU };
 }
