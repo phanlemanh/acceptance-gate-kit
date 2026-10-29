@@ -278,7 +278,7 @@ function main() {
       [s.k.ma === 0, `mong thoát 0 trước khi sửa (${tt(s.k)})`],
       [s.l.includes(phu) && s.l.includes(k4), `dòng cay-phu thiếu đường «${s.l}»`],
       [!!s.lenh, `thiếu «lệnh sửa:» «${s.l}»`],
-      [!s.k.dong.some(x => x.includes('khác số')), `dòng khác số vẫn đếm cây phụ: ${s.k.co('khác số').join(' | ')}`],
+      [!s.k.dong.some(x => x.startsWith('[kiem-ban-cai] VÀNG may:') && x.includes('khác số')), `dòng khác số vẫn đếm cây phụ: ${s.k.co('khác số').join(' | ')}`],
       [s.a && s.a.status === 0, `áp lệnh sửa thoát ${s.a && s.a.status}: ${s.a && s.a.stderr}`],
       [!k2.dong.some(x => x.includes('cay-phu')), `chạy lại vẫn có cay-phu: ${k2.co('cay-phu').join(' | ')}`],
       [k2.cuoi.startsWith('[kiem-ban-cai] TỔNG KẾT: ĐẠT 2 ') && s.k.cuoi.startsWith('[kiem-ban-cai] TỔNG KẾT: ĐẠT 1 '), `ĐẠT không tăng đúng 1: «${s.k.cuoi}» → «${k2.cuoi}»`],
@@ -328,7 +328,7 @@ function main() {
     ghiSo(cfg, [nguoiDung, goc2, a, b, c]);
     const k = chay(cfg, { root: kit });
     const cp = k.co('VÀNG cay-phu:');
-    const ks = k.co('khác số');
+    const ks = k.dong.filter(l => l.startsWith('[kiem-ban-cai] VÀNG may:') && l.includes('khác số'));
     kiem('LS-6', [
       [cp.length === 1 && cp[0].includes(k2.phu) && cp[0].includes('nâng bản ghi gốc trước'), `(a) dòng cay-phu «${cp.join(' | ')}»`],
       [!k.dong.some(x => x.includes('lệnh sửa:')), `có «lệnh sửa:»: ${k.co('lệnh sửa:').join(' | ')}`],
