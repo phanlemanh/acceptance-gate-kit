@@ -21,6 +21,9 @@ const GOI = path.join(KIT, 'dieu-phoi');
 export const SHA_MOC = '12701df6c841a4c78871e5303a950d02d5d6bf77';
 const SLUG_BAY = 'mot-hai-ba-bon-nam-sau-bay';
 const BIEN = ['CLAUDE_CODE_HOST_SESSION_ID', 'CLAUDE_CODE_SESSION_ID'];
+// Trạng thái đã ký đọc từ bộ phát lịch (một nguồn với gói), không viết trần trong ca.
+const { DA_THONG } = await import(pathToFileURL(path.join(GOI, 'scripts', 'phat-lich.mjs')).href);
+const DA_KY = DA_THONG[0];
 
 const canDon = [];
 after(() => {
@@ -148,12 +151,12 @@ const HANG_AB = [
 const HANG_ABX = [...HANG_AB, { slug: 'hang-x', day: 'P2', uu_tien: 1 }];
 // Sáu hàng viết sẵn: [tên, dựng, slug đơn cần, tiep cần, hàng của đợt?]. `tiep` do nhịp bộ phát lịch thật sinh.
 const MA_TRAN_XIN = [
-  ['a', (t) => datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'signed-off')), 'hang-a'],
+  ['a', (t) => datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', DA_KY)), 'hang-a'],
   ['b', (t) => datHopDong(t.w.P1, 'hang-b', hopDong('hang-b', 'implemented')), 'hang-b'],
-  ['c', (t) => { lenNhanhChinh(t.kho, 'hang-a', hopDong('hang-a', 'signed-off')); datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'signed-off')); datHopDong(t.w.P1, 'hang-b', hopDong('hang-b', 'draft')); }, 'hang-b'],
+  ['c', (t) => { lenNhanhChinh(t.kho, 'hang-a', hopDong('hang-a', DA_KY)); datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', DA_KY)); datHopDong(t.w.P1, 'hang-b', hopDong('hang-b', 'draft')); }, 'hang-b'],
   ['d', (t) => datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'verified')), 'hang-a'],
-  ['e', (t) => { datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'signed-off')); datHopDong(t.w.P1, 'hang-b', hopDong('hang-b', 'implemented')); }, 'hang-b'],
-  ['f', (t) => datHopDong(t.w.P1, 'hang-x', hopDong('hang-x', 'signed-off')), 'hang-a', HANG_ABX],
+  ['e', (t) => { datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', DA_KY)); datHopDong(t.w.P1, 'hang-b', hopDong('hang-b', 'implemented')); }, 'hang-b'],
+  ['f', (t) => datHopDong(t.w.P1, 'hang-x', hopDong('hang-x', DA_KY)), 'hang-a', HANG_ABX],
 ];
 async function chayMaTranXin(gocGoi = GOI) {
   const loi = [];
@@ -195,7 +198,7 @@ test('TC2-01-do bo-loc-day', async () => {
 // ---------- TC2-02: loại lượt, --slug và nhiều ứng viên (AC-2, E2) ----------
 async function dotHangA() {
   const t = khoDot({ day: ['P1'], hang: HANG_AB });
-  datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'signed-off'));
+  datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', DA_KY));
   await motNhipThat(t);
   return t;
 }
@@ -209,7 +212,7 @@ test('TC2-02 loai-luot', async () => {
   assert.deepEqual(ra, ['hang-a', 'hang-a', 'hang-b', 'hang-b']);
   // Hàng (e): A đã ký chờ gộp, B đang chấm — s4 mang B, ghim-lai và merge mang A.
   const e = khoDot({ day: ['P1'], hang: HANG_AB });
-  datHopDong(e.w.P1, 'hang-a', hopDong('hang-a', 'signed-off'));
+  datHopDong(e.w.P1, 'hang-a', hopDong('hang-a', DA_KY));
   datHopDong(e.w.P1, 'hang-b', hopDong('hang-b', 'implemented'));
   await motNhipThat(e);
   assert.deepEqual(['s4', 'ghim-lai', 'merge'].map((l) => (chayCli(e.w.P1, ['xin', l]), slugDon(e, 'P1', l))), ['hang-b', 'hang-a', 'hang-a']);
@@ -217,8 +220,8 @@ test('TC2-02 loai-luot', async () => {
 const HANG_ABC = [...HANG_AB, { slug: 'hang-c', day: 'P1', uu_tien: 3 }];
 async function xetNhieuUngVien(gocGoi = GOI) {
   const t = khoDot({ day: ['P1'], hang: HANG_ABC });
-  datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', 'signed-off'));
-  datHopDong(t.w.P1, 'hang-c', hopDong('hang-c', 'signed-off'));
+  datHopDong(t.w.P1, 'hang-a', hopDong('hang-a', DA_KY));
+  datHopDong(t.w.P1, 'hang-c', hopDong('hang-c', DA_KY));
   await motNhipThat(t);
   const r = chayCli(t.w.P1, ['xin', 's4'], { gocGoi });
   const loi = [];

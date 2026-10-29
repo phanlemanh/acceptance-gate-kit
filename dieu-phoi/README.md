@@ -143,7 +143,7 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   trình không có `vung` và không ai gọi `hang vung` → lịch y như trước.
 - **Lệnh của đợt ghi đúng hàng** (hồ sơ `lenh-dot-ghi-dung-hang`). Đơn xin lượt không cờ đọc hợp đồng các hàng của dãy
   trong worktree mà nhánh chính chưa gộp. `xin s4` lấy slug theo thứ tự `--slug` → hồ sơ đang chấm → hồ sơ đã thông chưa gộp → `tiep`
-  (đang chấm = `implemented`, `verified`; đã thông = `signed-off`, `machine-cleared`, `da-cham-boi-thuc-te`); `xin
+  (đang chấm = `implemented`, `verified`; đã thông = đã ký hay máy đã thông, đúng danh sách `DA_THONG` của bộ phát lịch); `xin
   ghim-lai` và `xin merge` bỏ bậc đang chấm. Một bậc có từ hai hồ sơ thì lệnh từ chối, in tên từng hồ sơ và lời dặn
   `--slug`, không ghi đơn. `xin duong-nen` giữ lối `tiep` (đường nền chạy trước khi hợp đồng của hàng kế
   có). `hang them` nhận mã hay slug của lộ trình: tra `hang-viec.json` → tệp lộ trình của nguồn hàng theo mã rồi theo
