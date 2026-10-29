@@ -405,6 +405,10 @@ function main() {
 }
 
 try { main(); } catch (e) { fail('KL-0 dung', e.stack || e.message); }
-finally { fs.rmSync(tam, { recursive: true, force: true }); }
+finally {
+  // Dọn rác, không phải phép đo — thử lại khi tệp còn đang được ghi; vẫn hỏng thì nói ra, không lật kết quả các ca.
+  try { fs.rmSync(tam, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); }
+  catch (e) { console.log(`CẢNH BÁO: KL — không dọn được thư mục tạm ${tam}: ${e.code || e.message}`); }
+}
 console.log(soFail ? `KL: ${soFail} ca FAIL` : 'KL: mọi ca PASS');
 process.exitCode = soFail ? 1 : 0;

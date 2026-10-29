@@ -448,7 +448,11 @@ async function chayTron() {
       kiem('KB-9 khong-do', [[n.ket === 'chay-tron', `kho không có nhánh chính mà hàm trả «${n.ket}»`]]);
     }
   } finally {
-    fs.rmSync(tam, { recursive: true, force: true });
+    // Dọn rác, không phải phép đo: CLI claude mà KB-7 gọi trên cấu hình giả trong `tam` có thể còn ghi vài tệp sau khi
+    // thoát, nên xoá một lần gặp ENOTEMPTY (lượt chấm 1 của hồ sơ kiem-ban-cai-loi-sua-chay-duoc). Thử lại; vẫn hỏng thì
+    // nói ra một dòng, không lật kết quả các ca đã in.
+    try { fs.rmSync(tam, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); }
+    catch (e) { console.log(`CẢNH BÁO: KB — không dọn được thư mục tạm ${tam}: ${e.code || e.message}`); }
   }
 }
 
