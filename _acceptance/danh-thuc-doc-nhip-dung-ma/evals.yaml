@@ -1,0 +1,143 @@
+schema_version: 1
+feature_slug: danh-thuc-doc-nhip-dung-ma
+# Ca đo của vòng: tên ca mở bằng «TC1-», ở tests/dieu-phoi/danh-thuc-ma-phien.test.mjs. Khoá executor:
+#   executors.test.dieu_phoi_tc1 — node --test trên tests/dieu-phoi/**, gộp dòng «ok … TC1-», «not ok», dòng chẩn đoán
+#     «#   …» và tổng kết TAP thành MỘT dòng.
+# Kho thử do code sinh trong lượt (git init trong thư mục tạm); đợt dựng bằng `mo` thật từ gói đợt khai qua cấu hình;
+# hook PostToolUse chạy thật bằng tiến trình con với stdin {session_id, cwd} và môi trường giả
+# (CLAUDE_CODE_HOST_SESSION_ID, CLAUDE_CODE_SESSION_ID); CLI chạy thật. Mã app và mã CLI trong mọi ca KHÁC nhau
+# («local_gs» / «c-gs») — chỗ bộ ca DP3 mù. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao
+# gói bị tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm từng lần thay đã áp, và ghim thông điệp của ĐÚNG lỗi được
+# tiêm. Ma trận viết sẵn: số assert = số hàng, in ra. Mỗi eval ghim đúng dòng TAP «ok … - <tên ca>»; suite xanh mà
+# thiếu dòng ghim là ĐỎ. Mọi tiến trình con (hook, CLI) chạy với môi trường đã XOÁ hai biến thừa kế
+# CLAUDE_CODE_HOST_SESSION_ID và CLAUDE_CODE_SESSION_ID rồi mới thêm đúng biến của ca — vì lượt chấm chạy trong phiên
+# app mang hai biến thật. Mốc so là sha GHIM 45e9f2cf13d104aa4b1a2321a0026c4b739f8914 (hằng trong tệp test), không suy lúc chạy.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/song.mjs, dieu-phoi/scripts/hook-nhip.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-01 hook-ghi-ma-app": hook thật, stdin session_id "c-gs", môi trường
+      CLAUDE_CODE_HOST_SESSION_ID=local_gs → song/c-gs.json có ma_app "local_gs". "ok" cho "TC1-01 khong-bien": cùng lời
+      gọi không biến app, và với biến "a b" (sai khuôn) → tệp không có khoá ma_app; các khoá phien, day, worktree giống
+      tệp do bản gói ở sha ghim ghi cho cùng đầu vào (luc bỏ khỏi phép so); ca assert môi trường tiến trình con không
+      chứa hai biến trước khi kết luận. Chiều đỏ của nguồn ma_app nằm ở TC1-03-do go-ma-app (biến thể ii).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/vai.mjs, dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/dot.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-02 vai-hai-ma": CLI thật tiep-tuc --phien local_gs --json với CLAUDE_CODE_SESSION_ID=c-gs →
+      vai.json giam_sat.phien "local_gs", giam_sat.phien_cli "c-gs"; mo --phien local_gs cùng môi trường → cùng hai khoá.
+      Ma trận ba hàng viết sẵn (biến vắng · biến "a b" · biến bằng "local_gs") → không có khoá phien_cli, in «số hàng: 3».
+      "ok" cho "TC1-02-do bo-phien-cli": bản sao vai.mjs không ghi phien_cli (kiểm bước tiêm áp) → hàm kiểm nêu
+      "vai thiếu phien_cli c-gs".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/danh-thuc.mjs, dieu-phoi/scripts/song.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-03 ma-tran-hai-ma": dùng lại MA_TRAN_THUC bảy hàng của DP3-09 (import từ mô-đun dùng chung,
+      không chép), chạy ba biến thể mã app local_gs ≠ mã CLI c-gs — (i) chỉ phien_cli: vai do CLI thật ghi với
+      CLAUDE_CODE_SESSION_ID=c-gs, hook không biến app; (ii) chỉ ma_app: vai do CLI thật ghi không biến CLI, hook có
+      CLAUDE_CODE_HOST_SESSION_ID=local_gs; (iii) cả hai. Mỗi biến thể in «số hàng: 7»; danh sách hanh_dong của mỗi biến
+      thể so bằng (deepEqual) danh sách ma trận mã-trùng chạy trong cùng ca; hàng b và g: phien "local_gs". "ok" cho
+      "TC1-03-do go-ma-app": bản lành xanh; bản sao gỡ dòng ghi ma_app khỏi ghiNhipSong (kiểm bước tiêm áp) → lỗi của
+      biến thể (ii) BẰNG đúng ["(b): nhịp tươi của giám sát mà vẫn báo chủ kho", "(g): nhịp tươi của giám sát mà vẫn báo
+      chủ kho"], lỗi của (i) và (iii) rỗng. "ok" cho "TC1-03-do bo-doc-phien-cli": bản sao gỡ nhánh đọc phien_cli khỏi
+      bên đọc nhịp (kiểm bước tiêm áp) → lỗi của (i) BẰNG đúng hai thông điệp ấy, (ii) và (iii) rỗng. Thông điệp chỉ sinh
+      khi danh-thuc trả bao-chu-kho thật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-04 hook-phien-hai-ma": vai local_gs/c-gs, tệp nhịp c-gs do hook thật ghi → chan-doan --json
+      --chi-tiet --phien local_gs và --phien c-gs đều cho mục hook-phien trang_thai "du"; đối chứng cùng đợt khi xoá tệp
+      nhịp → "thieu" ở cả hai. "ok" cho "TC1-04-do ghep-ten": bản sao chan-doan.mjs về phép ghép song/<phien>.json (kiểm
+      bước tiêm áp) → hàm kiểm nêu "hook-phien --phien local_gs: thieu dù có nhịp".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/danh-thuc.mjs, dieu-phoi/scripts/vai.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-05 hook-chua-nap": không tệp nhịp nào; tiep-tuc --phien local_gs --json và --nhe với
+      CLAUDE_CODE_SESSION_ID=c-gs → JSON hook_thieu true, câu chứa «hook của gói chưa nạp trong phiên này»; vai có
+      hook_thieu_luc. Ma trận thang leo viết sẵn ba hàng (việc chờ có, vai mang hook_thieu_luc, không tệp nhịp): thức 5′ →
+      khong · thức 50′ → nhan-giam-sat, phien "local_gs", cau chứa «không có hook của gói» và «/dieu-phoi:tiep-tuc» ·
+      thức 90′ → bao-chu-kho, cau chứa «không có hook của gói», không chứa «không có nhịp sống»; in «số hàng: 3». Đối chứng
+      cùng ca: có tệp nhịp c-gs trước lời gọi → không có khoá hook_thieu, và hàng d của DP3-09 (nhịp cũ 50′) trả câu «không
+      có nhịp sống» như cũ. "ok" cho "TC1-05-do bo-bao": bản sao tiep-tuc.mjs gỡ nhánh hook_thieu (kiểm bước tiêm áp) →
+      hàm kiểm nêu "tiep-tuc không báo hook chưa nạp". "ok" cho "TC1-05-do bo-thang": bản sao danh-thuc.mjs gỡ nhánh
+      hook_thieu_luc (kiểm bước tiêm áp) → lỗi thang leo BẰNG đúng ["(50′): bao-chu-kho, cần nhan-giam-sat", "(90′): câu
+      thiếu «không có hook của gói»"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/danh-thuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/song.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-06 doc-cu-tung-byte": bản gói ở sha ghim rút bằng `git archive <sha ghim> dieu-phoi` (trọn
+      thư mục) vào thư mục tạm; ma trận DP3-09 bảy hàng với vai một mã "c-gs" (không phien_cli) và nhịp không ma_app
+      (hook chạy không biến app), cộng chan-doan --json --chi-tiet --phien c-gs, chạy trên cả hai bản với cùng đồng hồ
+      giả → mọi chuỗi JSON đầu ra so bằng (bỏ khoá thời điểm sinh); in «số đầu ra so: 8». Đối chứng dương của phép so:
+      đổi một hàng ma trận sang thức 5′ ở một bên → phép so báo lệch đúng hàng ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-07 vang-ma-app": vai chỉ phien "local_gs" (ghi tay đúng khuôn vai.json đời trước, rút từ
+      ghiVai của bản gói ở sha ghim), tệp nhịp c-gs không ma_app → chan-doan --json --chi-tiet --phien local_gs có đúng
+      MỘT mục chứa «vai giữ mã app nhưng nhịp chưa mang mã app» và «/dieu-phoi:tiep-tuc»; mã thoát bằng mã thoát của bản
+      ở sha ghim cho cùng đợt. Đối chứng: vai có phien_cli "c-gs" → không có dòng ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [dieu-phoi/commands/tiep-tuc.md, dieu-phoi/commands/ban-giao.md, dieu-phoi/commands/mo-dot.md, tests/dieu-phoi/danh-thuc-ma-phien.test.mjs]
+    expected: >
+      exit 0; "ok" cho "TC1-08 loi-dan": quan hệ theo TỪNG dòng — mỗi dòng mang `--phien <mã phiên này>` của ba tệp lệnh
+      nằm trong một bước đánh số mà chính bước ấy nói «mã app `local_…`», và mỗi tệp có câu «máy tự ghi mã CLI»; ma trận viết
+      trước 6 dòng, in «số dòng --phien <mã phiên này>: 6». "ok" cho "TC1-08-do ban-cu": ba tệp ở sha ghim (git show) → 6
+      dòng đều đỏ «bước có --phien không nói mã app» và ba tệp thiếu câu. "ok" cho "TC1-08-do bo-mot-buoc": đối chứng dương
+      xanh; bỏ câu mã app khỏi bước 5 của tiep-tuc.md (kiểm bước tiêm áp) → đúng một lỗi «tiep-tuc.md:<dòng>: bước có --phien
+      không nói mã app».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1
+    paths: [tests/dieu-phoi/**, dieu-phoi/**]
+    expected: >
+      exit 0; dòng tổng kết TAP của suite tests/dieu-phoi/**/*.test.mjs có «# fail 0»; "ok" cho "TC1-09 than-ca-doi":
+      tập ca test(...) đã có ở sha ghim mà thân đổi BẰNG đúng tập tên rút từ khoá ca_doi_than của các dòng sổ `fix` của
+      hồ sơ; đối chứng dương: tiêm một khoảng trắng vào thân ca DP3-02 30-giay trong bản đọc → hàm kiểm nêu đúng tên ca ấy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_tc1_hai_moi_truong
+    paths: [tests/dieu-phoi/**, dieu-phoi/**]
+    expected: >
+      exit 0; script chạy suite tests/dieu-phoi/**/*.test.mjs hai lần — môi trường đã xoá CLAUDE_CODE_HOST_SESSION_ID và
+      CLAUDE_CODE_SESSION_ID, rồi môi trường cha mang hai biến giả local_x / y — in hai dòng «<lần>: <n> ok · <k> not ok»;
+      mỗi ca lệch hay đỏ được chạy lại ĐÚNG MỘT lần ở cả hai môi trường: xanh cả hai → dòng «CHẬP CHỜN <ca>», còn lệch hay
+      còn đỏ → «LỖI <ca>: …»; dòng cuối «hai-moi-truong: XANH — cùng tập dòng ok» khi không còn LỖI. "ok" cho "TC1-09
+      hai-moi-truong-so" (khoá dieu_phoi_tc1): phép so caNghi trên tập tổng hợp — cùng tập → rỗng (đối chứng dương); xanh
+      một bên đỏ bên kia, chỉ có một bên, đỏ cả hai → mỗi ca nghi đúng tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
