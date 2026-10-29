@@ -206,7 +206,7 @@ async function chayTron() {
       ]);
     }
     // ---- KB-13 (hồ sơ kiem-ban-cai-loi-sua-chay-duoc, design L3): kho giả lập GIỮ NGHIÊM — lệch chỉ ở một tệp
-    // docs/ vẫn ĐỎ khop-tag. Chế độ --may khoan dung cùng hình lệch thành VÀNG (ca LS-1 của tệp ca kia).
+    // docs/ vẫn ĐỎ khop-tag. Chế độ --may khoan dung cùng hình lệch thành VÀNG (ca KL-1 của tệp ca kia).
     if (canDoiChung('KB-13')) {
       const tepDocs = gitOk(ROOT, ['ls-tree', '-r', '--name-only', 'HEAD', '--', 'docs']).split('\n').filter(Boolean)[0];
       if (!tepDocs) fail('KB-13', 'HEAD không có tệp nào dưới docs/ để tiêm');

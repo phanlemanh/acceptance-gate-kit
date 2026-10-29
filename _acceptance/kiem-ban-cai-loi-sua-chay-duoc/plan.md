@@ -10,9 +10,9 @@ ca đo đứng trước commit vật.
 - Dựng trong thư mục tạm: kho kit thu nhỏ (chợ + `plugin.json` của mọi gói chép từ `git show HEAD:` của kit, tệp mẫu
   `scripts/a.mjs`, `docs/a.md`, `_acceptance/a/x.md`, `LO-TRINH.html`, thẻ `v<số>`), bộ đệm = `git archive <thẻ>`,
   kho tiêu thụ giả + `git worktree add`, sổ cài khuôn `version: 2`.
-- Ca LS-1…LS-9 (AC-1…AC-9) — mỗi ca đỏ chạy sau đối chứng dương cùng fixture, ghim thông điệp; lệnh in ra được áp
+- Ca KL-1…KL-9 (AC-1…AC-9) — mỗi ca đỏ chạy sau đối chứng dương cùng fixture, ghim thông điệp; lệnh in ra được áp
   bằng vỏ thật.
-- Verify: `node tests/scripts/kiem-ban-cai-loi-sua.test.mjs` → FAIL ở các ca của vật mới (đỏ có tên), LS-8-nhay PASS.
+- Verify: `node tests/scripts/kiem-ban-cai-loi-sua.test.mjs` → FAIL ở các ca của vật mới (đỏ có tên), KL-8-nhay PASS.
 - Phục vụ: E1–E9.
 
 ## Task 2 — vật (independent: false)

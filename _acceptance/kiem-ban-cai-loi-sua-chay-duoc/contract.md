@@ -74,7 +74,7 @@ tính theo đường từ gốc kho.
   tên · cỡ · mtime dưới `plugins/` trước và sau mỗi lần chạy bằng nhau — lệnh kiểm không ghi gì; mọi lệnh sửa, lệnh dọn
   chỉ nằm trong đầu ra. Độ nhạy: ghi một byte vào sổ của một bản sao làm phép so đổi.
 - AC-9: Given AC-4 dựng lại với thư mục cấu hình và đường cây phụ chứa dấu cách và một nháy đơn, When áp lệnh sửa in
-  ra bằng `bash -c` và bằng `zsh -c` (zsh vắng → ca in «BỎ QUA: LS-9 zsh», không xanh im), Then cả hai thoát 0 và lần chạy
+  ra bằng `bash -c` và bằng `zsh -c` (zsh vắng → ca in «BỎ QUA: KL-9 zsh», không xanh im), Then cả hai thoát 0 và lần chạy
   lại không còn dòng `cay-phu`.
 - AC-10: Given trọn bộ ca KB của hồ sơ `kiem-ban-cai-sau-phat-hanh` (`tests/scripts/kiem-ban-cai.ca.mjs`, cần CLI
   `claude`) cộng ca mới KB-13 — chế độ kho giả lập với nguồn cài lệch CHỈ một tệp `docs/` → thoát 1, dòng `ĐỎ khop-tag`
@@ -118,7 +118,7 @@ Chân ngành: [NGÀNH: brew doctor] — mỗi cảnh báo kèm lệnh sửa ch�
 
 ## Notes
 
-- Ca đo: `tests/scripts/kiem-ban-cai-loi-sua.test.mjs` (ca `LS-<n>` = AC-n), khoá `executors.test.kiem_ban_cai_loi_sua`.
+- Ca đo: `tests/scripts/kiem-ban-cai-loi-sua.test.mjs` (ca `KL-<n>` = AC-n), khoá `executors.test.kiem_ban_cai_loi_sua`.
   Không cần CLI `claude` — chế độ `--may` không gọi nó — nên tệp mang đuôi `.test.mjs` và chạy trong mảnh mjs của CI.
 - Cỡ vòng: 10 tiêu chí.
 - Bảng dự báo năm dòng: design §4.

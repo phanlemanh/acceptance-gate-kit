@@ -1,7 +1,7 @@
 # Thiết kế — kiểm bản cài nói lối sửa chạy được (hàng TC4)
 
 **Ngày:** 2026-10-29 · **Hạng:** T2 · **Vật:** `scripts/kiem-ban-cai.mjs` (chế độ `--may` và bước giải ref) ·
-**Ca đo:** `tests/scripts/kiem-ban-cai-loi-sua.test.mjs` (ca `LS-<n>` = AC-n).
+**Ca đo:** `tests/scripts/kiem-ban-cai-loi-sua.test.mjs` (ca `KL-<n>` = AC-n).
 
 ## 1. Vấn đề
 
