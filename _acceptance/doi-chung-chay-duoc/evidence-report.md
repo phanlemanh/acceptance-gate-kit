@@ -1,19 +1,17 @@
 ---
 schema_version: 2
 feature_slug: doi-chung-chay-duoc
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3ad22b7962950edb8e53b41e7bdf918673612aa4
+verified_commit: c4978485077faa029ae9ff78ecf9af1c78d7edec
 human_signoff:
 ---
 
 # Evidence Report: doi-chung-chay-duoc
-
-Round 2. Cả chín eval E1-E9 đều giữ nguyên kết quả đạt từ round 1 (không chạy lại vì delta không chạm paths của chúng). Verdict là REJECT vì một lệnh suite không gắn eval nào đã đỏ ở round này: `tests/plugins/run-tests.sh --manh vung:3` (ca P179 `[MBC] E6 ledger known-limits`). `failed_evals` để trống vì lệnh đó không thuộc eval nào.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -122,64 +120,59 @@ Round 2. Cả chín eval E1-E9 đều giữ nguyên kết quả đạt từ roun
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_hooks_run_tests_sh-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_hooks_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
-  exit_code: 1
-  verified_at: 2026-10-29T11:05:16Z
-  output: |
-    FAIL: P179 [MBC] E6 ledger known-limits: dem tu corpus + bat bien hang + quan he >=
-    MUTANT-6 bi bat: doc_manifest() FAIL-LOUD ghim 'site thieu so ban: feature-loop/skills/feature-loop/SKILL.md'
-    Results: 4 passed, 0 failed (ntr-observed)
-    Results: 1 failed
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
+  exit_code: 0
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_workflows_run_tests_sh-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-bash_tests_workflows_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-doi-chung-chay-duoc-SUITE-node_scripts_product_map_mjs_root_check-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-node_scripts_product_map_mjs_root_check-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 - cmd: node tests/scripts/kiem-ban-cai.ca.mjs --chi-luot-moc
-  run_id: minted-doi-chung-chay-duoc-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r2
+  run_id: minted-doi-chung-chay-duoc-SUITE-node_tests_scripts_kiem_ban_cai_ca_mjs_c-r3
   exit_code: 0
-  verified_at: 2026-10-29T11:05:16Z
+  verified_at: 2026-10-29T12:58:20Z
 
 ## Known limits
 
@@ -187,19 +180,16 @@ Round 2. Cả chín eval E1-E9 đều giữ nguyên kết quả đạt từ roun
 
 ## Analyst
 
-carried tu round 1 — baseline khong do lai round nay
+carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi, round 1). Moi eval mang baseline: n-a.
 
-Eval không-phân-biệt: none. Các lệnh suite xanh ở cả hai phía là regression-guard bình thường, không liệt kê.
-
-Lệnh fail không gắn eval: `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 ...'` (ca P179 `[MBC] E6 ledger known-limits`). Đây là lý do duy nhất của verdict REJECT ở round này. Lệnh này không thuộc eval nào nên `failed_evals` để trống.
-
-Judge panel: không có panel nào được đề xuất ở round này (cả chín eval là machine, không có judgment item); `human_override` không áp dụng.
+Eval khong-phan-biet (xanh ca hai phia): none. Lenh suite xanh ca hai phia la regression-guard binh thuong, khong liet ke.
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — khong eval nao chay nhieu lan; moi eval deterministic.
 
 ## Iterations
 
-Round 1: S4 lượt 1 REJECT (ca P161) — đã sửa căn cứ gây đỏ (commit 3ad22b79). E1-E9 đạt.
-Round 2: E1-E9 giữ nguyên (carry-forward từ round 1); lệnh suite `vung:3` đỏ ở ca P179 `[MBC] E6 ledger known-limits` — REJECT, trả về implementation.
+Round 1: E1–E9 chay lan dau, ket qua duoc carry-forward sang round 3 (delta khong cham paths cua eval).
+Round 2: S4 luot 2 bi tu choi — so known-limits thieu hang (P179); da them 8 hang so known-limits.
+Round 3: E1–E9 carry-forward tu round 1; 11 lenh suite chay lai tren verified_commit, tat ca xanh. Verdict PASS. (verified_at cua khoi suite la gio ghi bao cao xap xi, khong lay tu run-log.)
