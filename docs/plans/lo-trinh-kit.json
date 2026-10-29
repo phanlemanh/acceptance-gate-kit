@@ -82,7 +82,8 @@
         "TC2",
         "TC3",
         "TC4",
-        "TC5"
+        "TC5",
+        "TC6"
       ]
     },
     {
@@ -1194,6 +1195,23 @@
       "tieu_chi": 10,
       "cau_giao": "Vòng feature-loop chạy autofix và sinh lại tệp dẫn xuất ở cuối S3, chấm tuân thủ design system ở S4 bằng độ phủ token và hex thô, và không ghi tệp nào sau commit S4",
       "bat_khi": "Một vòng mẫu trên kho fixture chạy trọn S0→S5 và pre-merge-check không thấy tệp nào đổi sau commit S4; S4 đỏ đúng tệp có hex thô và im với tệp chỉ dùng token; chèn ui gate vào chỗ móc S4 khi khối máy còn giới hạn DF-07 thì ca răng đỏ đúng thông điệp"
+    },
+    {
+      "ma": "TC6",
+      "nhom": "luot-cham",
+      "hang": "T2",
+      "slug": "doi-chung-chay-duoc",
+      "ten_ngan": "Bước đối chứng của lượt chấm chạy được",
+      "cau_giao": "Bước đối chứng của lượt chấm S4 chạy lại các lệnh máy trên commit gốc và phân loại được eval xanh cả hai phía, không còn BLOCKED vì tác tử đối chứng thiếu công cụ ghi tệp",
+      "vai": "nen",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/aer-ac2-so-cap-co-dinh/ — evidence-report ghi baseline BLOCKED «No such tool available: Write»; M5 báo lại trên 2.35.0 ở kit #308 (29/10, hai lượt S4 của hồ sơ dung-m2-song-song). Ở kho kit, lượt chấm FL5 (_acceptance/design-floor-moc-s3-s4/) cũng ghi baseline n-a ở mọi eval. Gốc trong mã: lời giao của tác tử baseline trong feature-loop/workflows/acceptance-verify.js bảo dùng công cụ Write, mà loại tác tử feature-loop:cham-lenh chỉ có Bash, Read, Grep, Glob. Hệ quả: mọi eval máy xanh chưa từng được thấy đỏ trên mã cũ, ở mọi kho.",
+      "bat_khi": "Lượt chấm mẫu: eval xanh cả trên commit gốc → báo cáo ghi không-phân-biệt; eval đỏ ở gốc xanh ở đầu → phân biệt; bản workflow cũ trên cùng mẫu ra BLOCKED đúng thông điệp «No such tool available: Write» (đối chứng); tác tử chấm vẫn không cầm bút ghi vào cây kho",
+      "vung": [
+        "feature-loop/workflows/acceptance-verify.js",
+        "feature-loop/agents/cham-lenh.md"
+      ],
+      "ghi_chu": "Chủ kho gõ «Thêm TC6» 29/10 sau khi máy hỏi có đưa lỗi bước đối chứng vào bản vá không. Nghiệm đúng tầng chọn ở thiết kế: kit sinh sẵn tệp kịch bản đối chứng (tác tử chỉ gọi Bash) thay vì trao bút cho tác tử. Ước giá máy 3–5 giờ; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt. Mỗi phép kiểm mới có một ca làm nó đỏ."
     }
   ],
   "chan_troi": [
