@@ -1289,7 +1289,9 @@ const xVang = chayTT(TT_VANG_KHOA);
       ['a', "const laDuongTep = (tu) => tu.includes('/') || DUOI_KICH_BAN.test(tu);", 'const laDuongTep = () => false;', TT_CO,
         b => b.includes(`nen cong-cu: THIEU ${TT_TUYET_DOI} (khoa executors.design.ui_check)`)],
       ['b', 'const coTep = (tu) =>', 'const coTep = () => true; const coTepGoc = (tu) =>', TT_VANG_KHOA,
-        b => !b.some(l => l.endsWith('(khoa executors.script.tt_tuyet_doi_vang)'))],
+        // Vế vắng không đứng một mình: tên trần không qua `coTep`, nên lượt đột biến chạy hết vẫn phải
+        // gọi MONG_TEN — thiếu nó là bản tiêm chết sớm, không phải đột biến bị bắt.
+        b => !b.some(l => l.endsWith('(khoa executors.script.tt_tuyet_doi_vang)')) && b.includes(MONG_TEN)],
       ['c', 'const DUOI_KICH_BAN = /\\.[cm]?js$/;', 'const DUOI_KICH_BAN = /\\.cjs$/;', TT_CO,
         b => b.includes('nen cong-cu: THIEU kiem-goc.js (khoa executors.script.tt_tran_js)')],
     ];
@@ -1303,11 +1305,23 @@ const xVang = chayTT(TT_VANG_KHOA);
       writeFileSync(f, goc);
       const b = x.r ? bulletCongCuMoi(x.r.tep) : [];
       if (!x.r) loi.push(`(${ten}) khong chay duoc: ${x.lech.join(',')}`);
+      else if (!x.r.tep || ![0, 1].includes(x.r.code)) loi.push(`(${ten}) ban tiem khong chay het (khong ghi duong-nen.md hoac ma la) — ${tomTat(x.r)}`);
       else if (!dung(b)) loi.push(`(${ten}) dot bien ma ca khong do: ${JSON.stringify(b)}`);
+    }
+    // Đối chứng của chính phép xét (b): bản tiêm CHẾT ngay khi nạp không ghi tệp nào, và phép xét (b)
+    // phải từ chối danh sách bullet rỗng ấy — nếu không, «đột biến bị bắt» và «bản tiêm không chạy»
+    // cho cùng một màu (review S4-r1, assertion âm-tính-một-mình).
+    if (!loi.length) {
+      writeFileSync(f, `${goc.slice(0, i)}throw new Error('tiem chet');\n${goc.slice(i)}`);
+      const x = chayTT(TT_VANG_KHOA, { script: f });
+      writeFileSync(f, goc);
+      if (!x.r) loi.push(`(chet) khong chay duoc: ${x.lech.join(',')}`);
+      else if (x.r.tep) loi.push('(chet) ban tiem chet van ghi duong-nen.md — doi chung khong chet that');
+      else if (DOT[1][4](bulletCongCuMoi(x.r.tep))) loi.push('(chet) phep xet (b) nhan ban tiem chet la dot bien bi bat');
     }
   } catch (e) { loi.push(String(e.message || e)); }
   if (loi.length) bad('NEN-TT5 dot bien', loi.join(' | '));
-  else ok('NEN-TT5 ban chep chua tiem dat TT1/TT2; ba dot bien (khong gi la duong tep · moi tep deu co · chi nhan .cjs) deu do dung khoa');
+  else ok('NEN-TT5 ban chep chua tiem dat TT1/TT2; ba dot bien (khong gi la duong tep · moi tep deu co · chi nhan .cjs) deu do dung khoa; ban tiem chet bi goi khong chay het');
 }
 
 donDep();
