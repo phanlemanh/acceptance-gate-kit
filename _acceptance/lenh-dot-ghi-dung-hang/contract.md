@@ -5,7 +5,7 @@ slug: lenh-dot-ghi-dung-hang
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/lenh-dot-ghi-dung-hang/design.md
 approved_by: Manh Phan
 approved_at: 2026-10-29T10:32:35Z
@@ -108,3 +108,6 @@ chạy.
 - `CHANGELOG.md`, số phiên bản, cắt mốc — việc của chiến dịch phát hành.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-30:
+  - Ngoài-2: Ở kho ghi mức rủi ro T1 có ngoặc kép hay chữ thường, hồ sơ T1 đã gộp vẫn bị lịch coi là đang làm nên dãy không tiến tiếp, và không có cảnh báo; kho viết `T1` chuẩn không bị.

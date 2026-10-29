@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>136 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>60 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>61 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -47,7 +47,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -87,6 +86,7 @@ flowchart TD
 - Kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy, chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ lệch số một lối sửa chạy được (`kiem-ban-cai-loi-sua-chay-duoc`)
 - Mỗi bản kit vừa cắt được cài đúng tag vào một kho giả lập sạch và chạy thử một vòng chạm (tác tử chấm, thẻ cổng, lưới trước-gộp, gói dieu-phoi) trước khi phát tới kho thật; bản cài thiếu thư mục gói hay khác tag thì đỏ (`kiem-ban-cai-sau-phat-hanh`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
+- Đơn xin s4 không cờ mang slug của hàng đang chấm, hang them nhận mã hay slug của lộ trình và thêm hàng mang đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng hang chay-lai — không còn sửa tay hang-viec.json (`lenh-dot-ghi-dung-hang`)
 - Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
 - Lộ trình chỉ chứa việc phát triển — răng cắt lượt đặt việc vận hành của người vào mốc ngoài (chỗ thứ ba của bảng phủ), đỏ khi hàng đứng chờ mốc vận hành hay đo trên dữ liệu giả mà không có hàng sinh dữ liệu giả đứng trước, nhắc tự phục vụ cho vận hành lặp lại; SKILL tách vận hành trước sáu luật và sửa Ngoài-1/2 của S3 (`lo-trinh-chi-viec-phat-trien`)
 - Kho tiêu thụ đọc khối dữ liệu trang lộ trình và có giờ máy của từng hàng, giờ máy cùng ngày dự kiến của từng mốc — kèm cờ khi số đo chưa đủ; trang đọc bản cũ vẫn chạy y như trước (`lo-trinh-du-lieu-ngay-du-kien`)
