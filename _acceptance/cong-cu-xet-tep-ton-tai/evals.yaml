@@ -1,0 +1,76 @@
+schema_version: 1
+feature_slug: cong-cu-xet-tep-ton-tai
+# Khuôn như hồ sơ nen-cong-cu-gan-bang-lenh-con: mọi eval chạy CHUNG một lệnh (bộ chạy dedupe),
+# lệnh ghim dòng PASS của đúng các ca gọi tên — phán quyết không lấy từ mã thoát trọn suite.
+# Mọi ca dùng fixture lành của NEN0 (code sinh trong lượt, đường dẫn suy từ vị trí tệp ca), mỗi
+# lượt thêm khoá executor NGOÀI `feature_loop.suite_keys` (chân suite không chạy chuỗi đang đo) và
+# một khoá đối chứng chắc chắn bỏ-tra. Hai lượt: «có» (mọi khoá trỏ tệp có thật) và «vắng».
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cxt_ton_tai
+    expected: >
+      Exit 0 và dòng PASS của NEN-TT1. Tiền đề (đỏ có tên nếu hỏng): tệp tuyệt đối
+      `<tạm>/scripts/design-scan.js` dựng trong lượt có mode `& 0o111 === 0` và
+      `bash -c 'command -v "$1"'` trên nó thoát khác 0; round-trip mọi khoá qua `resolveConfigKey`;
+      khoá đối chứng `executors.script.tt_doi_chung` có ĐÚNG 1 dòng bỏ-tra nguyên văn. Lượt «có»
+      chạy với cwd là thư mục tạm KHÁC gốc kho và PATH thêm một thư mục tạm chứa
+      `cong-cu-tt-path.mjs` có quyền chạy. Bảy khoá: executors.design.ui_check (tuyệt đối),
+      script.tt_tuong_doi_co `tools/kiem-giao-dien.js`, script.tt_tran_js `kiem-goc.js`,
+      script.tt_tran_mjs `kiem-goc.mjs`, script.tt_tran_cjs `kiem-goc.cjs` (ba tệp ở gốc kho),
+      script.tt_tran_path `cong-cu-tt-path.mjs`, script.tt_khuon (E4). Ghim: mã đường nền 0, chân
+      cong_cu `xanh`, 0 bullet `nen cong-cu:`, 0 dòng bỏ-tra cho sáu khoá đầu. Chiều đỏ: trên bản
+      trước vá ca này ĐỎ (bullet `THIEU <tạm>/scripts/design-scan.js`) — commit ca đứng trước commit vật.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cxt_ton_tai
+    expected: >
+      Exit 0 và dòng PASS của NEN-TT2 — lượt «vắng»: mã đường nền 1, chân cong_cu `do`, đúng một
+      bullet nguyên văn cho mỗi khoá: tt_tuyet_doi_vang
+      `nen cong-cu: THIEU <tạm>/khong-co/design-scan.js (khoa executors.script.tt_tuyet_doi_vang)`,
+      tt_tuong_doi_vang `nen cong-cu: THIEU tools/vang.mjs (khoa executors.script.tt_tuong_doi_vang)`,
+      tt_thu_muc `nen cong-cu: THIEU tools/ (khoa executors.script.tt_thu_muc)`,
+      tt_tran_vang `nen cong-cu: THIEU khong-co-tt-vang.mjs (khoa executors.script.tt_tran_vang)`.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cxt_ton_tai
+    expected: >
+      Exit 0 và dòng PASS của NEN-TT3, NEN1, NEN-TD2, NEN-LC2. NEN-TT3: lượt «vắng» có thêm khoá
+      tt_ten_vang `khong-co-that-tt --x` với bullet nguyên văn
+      `nen cong-cu: THIEU khong-co-that-tt (khoa executors.script.tt_ten_vang)`, và tập bullet
+      `nen cong-cu:` (đã sắp) của lượt BẰNG ĐÚNG tập 5 dòng viết trước (bốn của E2 + dòng này), số
+      phần tử == 5; ma trận khai sai kích thước (khác 5 khoá đo, khác 5 bullet) → ca đỏ.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cxt_ton_tai
+    expected: >
+      Exit 0 và dòng PASS của NEN-TT4 và NEN-TD6 — lượt «có», khoá script.tt_khuon mang đúng
+      `${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js`: 0 bullet cho khoá ấy, stderr có ĐÚNG 1 dòng
+      nguyên văn `cong-cu: bo qua executors.script.tt_khuon — tu dau «${CLAUDE_PLUGIN_ROOT}/scripts/design-scan.js» dung cu phap shell, khong phai ten chuong trinh`.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.cxt_ton_tai
+    expected: >
+      Exit 0 và dòng PASS của NEN-TT5. Bản sao `feature-loop` chưa tiêm chạy cả hai lượt trước và phải
+      qua đúng kiểm của NEN-TT1 và NEN-TT2 (nếu không: đỏ «ban chep hong»). Mỗi chỗ tiêm khớp đúng 1 lần
+      trong khối marker `CONG-CU-DUONG-TEP` của bản sao và bản tiêm khác bản gốc (khác → đỏ có tên).
+      Đột biến (a) `laDuongTep` luôn sai: lượt «có» có bullet
+      `nen cong-cu: THIEU <tạm>/scripts/design-scan.js (khoa executors.design.ui_check)`.
+      Đột biến (b) `coTep` luôn đúng: lượt «vắng» mất bullet của tt_tuyet_doi_vang.
+      Đột biến (c) đuôi chỉ nhận `.cjs`: lượt «có» có bullet
+      `nen cong-cu: THIEU kiem-goc.js (khoa executors.script.tt_tran_js)`.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
