@@ -1,14 +1,28 @@
-# Review findings: danh-thuc-doc-nhip-dung-ma (round 3)
+# Review findings: danh-thuc-doc-nhip-dung-ma (round 4)
 
 ## Trong hợp đồng
 
-Không có finding mới ở round này.
+Không có finding nào map được vào AC.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Bước 5 của tiep-tuc.md nói «mã CLI cũng nhận» cho chan-doan --phien, nhưng chan-doan báo giam-sat «thieu» khi nhận mã CLI (r2)**
+- **TC1-08 ghim cứng số dòng `--phien <mã phiên này>` (== 7): mọi bước mới đúng luật vẫn làm ca đỏ**
+  Người dùng thấy gì: Hiện lời dặn trong các lệnh vẫn đúng, người dùng không thấy gì sai. Chỉ là mỗi khi có thêm một bước mới nhắc mã phiên, bộ kiểm của kit lại báo đỏ oan và người bảo trì phải sửa số đếm bằng tay.
+  Căn cứ: Hậu quả nhẹ và chỉ chạm người bảo trì kit, không làm mất hay lộ dữ liệu của người dùng; báo đỏ oan tự lộ ngay ở lần chạy kế và sửa một con số là xong, nên ghi lại như hạn chế đã biết.
+  file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 5 (ma trận viết trước): test đổi số đếm từ 6 lên 7 cho khớp vật, còn evals.yaml E8 vẫn ghi 6**
+  Người dùng thấy gì: Lời dặn cho người dùng trong các lệnh vẫn đúng, nhưng bản khai kiểm thử ghi số cũ nên người chấm đọc theo bản khai sẽ thấy lệch một đơn vị. Ngoài ra chưa có ca nào chứng minh rằng bước mới mà quên nói «mã app» thì bộ kiểm sẽ đỏ.
+  Căn cứ: Hậu quả nhẹ vì chỉ lệch tài liệu kiểm thử nội bộ và một chiều đỏ còn thiếu cho bước mới, người dùng không mất dữ liệu và kit vẫn chạy đúng; sửa sau rẻ nên ghi lại như hạn chế đã biết.
+  file: `_acceptance/danh-thuc-doc-nhip-dung-ma/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Bước 5 của tiep-tuc.md nói «mã CLI cũng nhận» cho chan-doan --phien, nhưng chan-doan báo giam-sat «thieu» khi nhận mã CLI (r2 · tệp đã đổi)**
   Người dùng thấy gì: Lời dặn bảo phiên có thể đưa mã CLI vào lệnh chẩn đoán, nhưng làm vậy chẩn đoán báo sai là chưa có giám sát. Phiên làm theo lời dặn có thể chạy lại bước nhận vai bằng mã CLI và tự đổi vai giám sát về mã không đúng, tức là lặp lại lỗi vòng này đi sửa.
   Căn cứ: Hậu quả vừa phải: chỉ xảy ra khi phiên đưa mã CLI vào lệnh chẩn đoán, không mất dữ liệu và chạy lại bằng mã app là gỡ được, còn sửa là bỏ một vế lời dặn hoặc chỉnh một chỗ so khớp nên rẻ.
   file: `dieu-phoi/commands/tiep-tuc.md`
@@ -29,7 +43,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): ca TC1-09 hai-moi-truong-so chỉ đưa Set viết tay vào caNghi, không lần nào chạy bộ phân tích TAP trong chay() hay nhánh hạ đỏ thành CHẬP CHỜN (r2)**
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): ca TC1-09 hai-moi-truong-so chỉ đưa Set viết tay vào caNghi, không lần nào chạy bộ phân tích TAP trong chay() hay nhánh hạ đỏ thành CHẬP CHỜN (r2 · tệp đã đổi)**
   Người dùng thấy gì: Công cụ so hai môi trường chưa được thử với đầu ra thật của bộ kiểm, nên một ca chỉ bị bỏ qua ở một môi trường có thể lọt qua mà vẫn báo xanh. Hôm nay chưa có ca nào như vậy, nên chưa gây sai lệch thật.
   Căn cứ: Là lỗ tiềm ẩn chưa gây hại, chỉ ảnh hưởng độ tin của công cụ kiểm nội bộ, và ghi giới hạn kèm ngưỡng đếm rẻ hơn mở thêm vòng đo thước.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
@@ -43,14 +57,14 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: high
   Đề xuất: new-contract
 
-- **TC1-09 đặt một bất biến lúc gộp (sha ghim cứng + sổ của hồ sơ này) vào suite thường trực: vòng sau sửa bất kỳ ca nào ở tests/dieu-phoi là CI đỏ (r1)**
+- **TC1-09 đặt một bất biến lúc gộp (sha ghim cứng + sổ của hồ sơ này) vào suite thường trực: vòng sau sửa bất kỳ ca nào ở tests/dieu-phoi là CI đỏ (r1 · tệp đã đổi)**
   Người dùng thấy gì: Sau khi gộp, người sửa một ca kiểm thử cũ ở nhóm điều phối ở vòng sau sẽ bị CI đỏ cho tới khi ghi thêm dòng vào sổ quyết định. Việc này gây vướng cho người làm kit, người dùng cuối không thấy.
   Căn cứ: Hậu quả chỉ là báo đỏ giả và mất ít phút ghi sổ cho vòng sau, không mất dữ liệu; có thể ghi thành giới hạn đã biết rồi gỡ sau.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **TC1-06 so trọn đầu ra `chan-doan --chi-tiet` với gói ở sha ghim: vòng sau thêm hay đổi bất kỳ mục chẩn đoán nào là đỏ (r1)**
+- **TC1-06 so trọn đầu ra `chan-doan --chi-tiet` với gói ở sha ghim: vòng sau thêm hay đổi bất kỳ mục chẩn đoán nào là đỏ (r1 · tệp đã đổi)**
   Người dùng thấy gì: Mỗi lần sau này thêm hay đổi một mục trong báo cáo chẩn đoán, kiểm thử này sẽ đỏ dù tính năng đánh thức vẫn đúng. Người dùng kit không bị ảnh hưởng, chỉ người sửa kit phải cập nhật phép so.
   Căn cứ: Gây báo đỏ giả cho vòng sau chứ không làm sai kết quả cho người dùng; người sửa kit tự gỡ được bằng cách thu hẹp phép so.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
@@ -64,22 +78,18 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: medium
   Đề xuất: new-contract
 
-- **Hình dạng 5: TC1-09 tuyên «tập ca đổi thân BẰNG tập khai trong sổ» trên mọi ca, nhưng bộ tách khối chỉ thấy test( ở cột 0 (r1)**
+- **Hình dạng 5: TC1-09 tuyên «tập ca đổi thân BẰNG tập khai trong sổ» trên mọi ca, nhưng bộ tách khối chỉ thấy test( ở cột 0 (r1 · tệp đã đổi)**
   Người dùng thấy gì: Kiểm thử bảo vệ các ca cũ chỉ nhận ra một số kiểu ca bị đổi nội dung. Nếu ai đó sửa một ca kiểu khác, hệ thống có thể không báo.
   Căn cứ: Điểm mù chỉ làm lọt thay đổi thầm lặng ở các ca kiểm thử, không ảnh hưởng người dùng cuối, và còn lưới review ở vòng sau.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 5: ma trận ba hàng của TC1-02 chỉ chạy qua đường `mo` (ghiVai), không qua `tiep-tuc`, dù AC-2 đặt `tiep-tuc` làm hành động chính (r1)**
+- **Hình dạng 5: ma trận ba hàng của TC1-02 chỉ chạy qua đường `mo` (ghiVai), không qua `tiep-tuc`, dù AC-2 đặt `tiep-tuc` làm hành động chính (r1 · tệp đã đổi)**
   Người dùng thấy gì: Các trường hợp biến môi trường sai hoặc vắng chỉ được thử khi mở đợt, chưa thử khi giám sát chạy lệnh tiếp tục. Nếu đường tiếp tục có lỗi riêng thì chưa có kiểm thử bắt được.
   Căn cứ: Mức nhẹ, chỉ là khoảng trống kiểm thử; nếu lỗi có thật thì hậu quả là mã phiên ghi nhầm, người dùng chạy lại lệnh là sửa được.
   file: `tests/dieu-phoi/danh-thuc-ma-phien.test.mjs`
   severity: low
   Đề xuất: known-limits
-
-## Chưa adversarial-verify (refuter chết)
-
-Không có.
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
