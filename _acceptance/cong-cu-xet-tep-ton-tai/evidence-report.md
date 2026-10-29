@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 59ac5ddf6576bd2c68981cf78190d8d9f359355e
+verified_commit: 8b81ad32d3d8d84a836020107a9b3972648e545f
 human_signoff: Manh Phan 2026-10-29
 ---
 
@@ -151,3 +151,7 @@ none — mọi eval là deterministic (runs: 1), không có pass_rate hỗn hợ
 
 Round 1: S4 lượt 1 — PASS 5/5 eval, 11/11 lệnh suite xanh; 1 lỗi đo trong hợp đồng (AC-5 đột biến (b) chỉ xét lượt vắng, chưa ghim bullet tên trần có mặt). Returned to implementation: thêm ghim bullet tên trần có mặt + đối chứng bản tiêm chết cho NEN-TT5.
 Round 2: E1–E5 PASS sau nhát sửa S4-r1 (57 ca xanh, đủ 16 dòng PASS theo tên); 11/11 lệnh suite xanh; baseline không đo được (hạ tầng).
+
+### Re-pin lần 1 — 2026-10-29, do hoá cũ do gộp main (TC1 #419)
+run_id: repin-20261029T101726Z-79838
+sha: 8b81ad32d3d8d84a836020107a9b3972648e545f · suites: 11 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
