@@ -3368,7 +3368,9 @@ Object.assign(MATRIX, {
   'noc|o-matquyen': 'broken:EACCES', 'noc|o-thieustage': 'broken:thiếu stage',
   'noc|o-discovery': 'gates:dang',   'noc|o-can-nhac': 'cons:', 'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
   'noc|o-park': 'done:park',         'noc|o-kill': 'done:kill',
-  'noc|o-rac': 'broken:decision không nhận diện được', 'noc|o-trong': 'broken:không có contract.md lẫn opportunity.md',
+  'noc|o-rac': 'broken:decision không nhận diện được',
+  // Thu muc KHONG tep nao: git khong giu duoc nen khong ban clone nao co — bo quet bo qua (ho so tep-sinh-khong-chan-gop AC-6).
+  'noc|o-trong': '(mat tich)',
 });
 
 const build = () => {
@@ -3404,7 +3406,7 @@ const checkMatrix = scanPath => {
     const got = cellOf(r, key.replace(/[|]/g, '-'));
     const [wc, wd] = [want.slice(0, want.indexOf(':')), want.slice(want.indexOf(':') + 1)];
     const [gc, gd] = [got.slice(0, got.indexOf(':') < 0 ? got.length : got.indexOf(':')), got.slice(got.indexOf(':') + 1)];
-    const ok = wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
+    const ok = want === '(mat tich)' ? got === want : wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
     if (!ok) errs.push(`o [${key}] mong ${want}, duoc ${got}`);
   }
   return errs;
