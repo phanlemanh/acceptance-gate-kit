@@ -263,7 +263,7 @@
       <text x="200" y="370" fill="#4f5d75">Lời dặn</text>
     </g>
     <g font-family="'Geist', sans-serif" font-size="10" fill="#636b80">
-      <text x="200" y="92">khung có khe; ngoài khung cấm khối dựng trần</text>
+      <text x="200" y="92">khe bắt buộc qua kiểu; ngoài khuôn cấm nhập khối dựng trần</text>
       <text x="200" y="148">tạo màn = sinh từ khuôn, tác tử chỉ điền khe</text>
       <text x="200" y="204">bản đồ khuôn + bài quét trên mã đã dựng</text>
       <text x="200" y="260">ảnh màn mới cạnh màn mẫu, người phản ứng lúc rảnh</text>
@@ -271,7 +271,7 @@
       <text x="200" y="388">«hãy dùng thành phần chung» — thêm một dòng vào ngữ cảnh</text>
     </g>
     <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" text-anchor="end">
-      <text x="928" y="84">Polaris Page · Atlassian use-primitives</text>
+      <text x="928" y="84">props là luật · Atlassian use-primitives</text>
       <text x="928" y="140">đường lát sẵn: Netflix, Spotify</text>
       <text x="928" y="196">Primer lint khe · răng màu crm</text>
       <text x="928" y="252">Chromatic · design-pass</text>
@@ -284,6 +284,7 @@
   <div class="doc">
     <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
       <li>Càng lên cao, tác tử càng ít chỗ tự chọn. T0: không còn đường sai. T4: người phải chọn.</li>
+      <li>T0 rẻ nhất khi có sẵn: kiểu bắt buộc khe và lint cấm nhập khối dựng ngoài khuôn — học từ gói ux-kit (§10).</li>
       <li>«Lời dặn» nằm ngoài khung nét liền: nó không phải một bậc, chỉ là một dòng trong ngữ cảnh — ở crm tác tử có đọc mà vẫn lệch.</li>
       <li>Mũi tên cam là việc của lời giải: đưa điểm chọn «khuôn nào» từ lời dặn lên T2.</li>
       <li>T4 không biến mất, nhưng chỉ quyết một lần mỗi loại rồi thành luật máy áp.</li>
@@ -372,13 +373,13 @@
       <rect x="648" y="78" width="64" height="14" rx="2" fill="#f5f5f5"/><text x="680" y="88">ĐỀ XUẤT</text>
       <rect x="252" y="78" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="272" y="88">ĐỌC</text>
       <rect x="700" y="178" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="720" y="188">ĐỌC</text>
-      <rect x="428" y="212" width="92" height="14" rx="2" fill="#f5f5f5"/><text x="474" y="222">THÊM LOẠI MỚI</text>
+      <rect x="428" y="212" width="104" height="14" rx="2" fill="#f5f5f5"/><text x="480" y="222">THÊM ĐỐI TƯỢNG</text>
     </g>
     <!-- hộp -->
     <g font-family="'Geist', sans-serif" text-anchor="middle">
       <rect x="400" y="64" width="200" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
       <text x="500" y="104" font-size="12" font-weight="600" fill="#2d3142">Bản đồ khuôn</text>
-      <text x="500" y="122" font-size="10" fill="#4f5d75">loại màn → khuôn · màn mẫu · ngoại lệ</text>
+      <text x="500" y="122" font-size="10" fill="#4f5d75">đối tượng → loại → khuôn · màn mẫu</text>
       <rect x="760" y="64" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
       <text x="860" y="104" font-size="12" font-weight="600" fill="#2d3142">Máy dò khuôn từ mã</text>
       <text x="860" y="122" font-size="10" fill="#4f5d75">một lần · kê luôn lệch hiện có</text>
@@ -386,14 +387,14 @@
       <text x="140" y="336" font-size="12" font-weight="600" fill="#2d3142">Nạp khuôn + màn mẫu</text>
       <text x="140" y="354" font-size="10" fill="#4f5d75">vào ngữ cảnh tác tử</text>
       <rect x="280" y="296" width="200" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
-      <text x="380" y="336" font-size="12" font-weight="600" fill="#2d3142">Loại mới? · ảnh đối chiếu</text>
-      <text x="380" y="354" font-size="10" fill="#4f5d75">một lần mỗi loại màn</text>
+      <text x="380" y="336" font-size="12" font-weight="600" fill="#2d3142">Đối tượng mới?</text>
+      <text x="380" y="354" font-size="10" fill="#4f5d75">thuộc nhóm nào · ảnh cạnh màn mẫu</text>
       <rect x="520" y="296" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
       <text x="620" y="336" font-size="12" font-weight="600" fill="#2d3142">Sinh khung, điền khe</text>
       <text x="620" y="354" font-size="10" fill="#4f5d75">tuỳ chọn</text>
       <rect x="760" y="296" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
       <text x="860" y="336" font-size="12" font-weight="600" fill="#2d3142">Kiểm mã theo khuôn</text>
-      <text x="860" y="354" font-size="10" fill="#4f5d75">đỏ đúng tên tệp · im với tài liệu</text>
+      <text x="860" y="354" font-size="10" fill="#4f5d75">kiểu · cấm nhập · quét — hai chiều</text>
     </g>
     <!-- nhãn bước -->
     <g font-family="'Geist Mono', monospace" font-size="9" letter-spacing="0.08em">
@@ -410,15 +411,15 @@
       <text x="112" y="432">KHO = giá trị của kho</text>
       <text x="280" y="432">KIT = cơ chế chung mọi kho</text>
       <text x="480" y="432">NGƯỜI = ở cổng sẵn có, không thêm lượt</text>
-      <line x1="740" y1="429" x2="768" y2="429" stroke="#4f5d75" stroke-dasharray="4,3"/><text x="776" y="432">chỉ khi gặp loại mới</text>
+      <line x1="740" y1="429" x2="768" y2="429" stroke="#4f5d75" stroke-dasharray="4,3"/><text x="776" y="432">chỉ khi gặp đối tượng mới</text>
     </g>
   </svg>
   </div>
   <div class="doc">
     <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
       <li>Hàng dưới là vòng làm một tính năng, trái sang phải: trước khi dựng → Cổng 1 → dựng → chấm.</li>
-      <li>Bản đồ khuôn (cam, của kho) được máy đọc ở ba chỗ: nạp đúng khuôn trước khi dựng, sinh khung khi dựng, kiểm mã khi chấm.</li>
-      <li>Ô cam thứ hai là chỗ duy nhất có người: chỉ khi màn không khớp loại nào — nét đứt thêm loại mới vào bản đồ.</li>
+      <li>Bản đồ khuôn (cam, của kho) khoá theo đối tượng: deal, KR, mục tiêu… đều thuộc nhóm «bản ghi» nên chung một khuôn ngăn. Máy đọc nó ở ba chỗ: nạp đúng khuôn trước khi dựng, sinh khung khi dựng, kiểm mã khi chấm (kiểu bắt khe · lint cấm nhập · bài quét).</li>
+      <li>Ô cam thứ hai là chỗ duy nhất có người: chỉ khi gặp một đối tượng chưa có trong bản đồ — người chọn nhóm cho nó, nét đứt ghi vào bản đồ.</li>
       <li>Máy dò (phải trên) chạy một lần cho kho đã có mã: đề xuất bản đồ và kê luôn các màn đang lệch.</li>
     </ul></div>
     <div class="card"><h3><span class="dot"></span>Cân trên mọi kho</h3><p>Kho không khai bản đồ: không đổi gì. Kho không có giao diện: im. Kho có bản đồ: lệch hiện ở suite thay vì ở mắt chủ kho. Không đổi mặc định của ai.</p></div>
@@ -494,7 +495,7 @@
 </section>
 
 <footer>
-  Nguồn chữ: docs/findings/2026-10-30-ui-dong-nhat-giua-cac-man.md (§1–§9) — hình là chiếu của chữ ở commit 8f98cc95; sửa thì sửa chữ rồi vẽ lại.<br>
+  Nguồn chữ: docs/findings/2026-10-30-ui-dong-nhat-giua-cac-man.md (§1–§10) — hình là chiếu của chữ cùng commit với tệp này; sửa thì sửa chữ rồi vẽ lại.<br>
   Đo: crm origin/onehub 16604ce3f · onehub-invest origin/main ec899d03 · Design OS bản sao ~/dev/designos (30/10). Khuôn vẽ: skill diagram-design, skin mặc định của kho kit.
 </footer>
 

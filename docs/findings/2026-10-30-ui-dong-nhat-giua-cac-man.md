@@ -540,3 +540,54 @@ pháp vào một hình.
 
 **Giới hạn của bộ hình:** vị trí các chấm ở hình 4 là phán đoán định tính, không phải số đo. Ô «LỜI» của invest ở
 hàng «loại màn» suy từ việc có skill danh mục và tệp tuyến (`routes.md`), chưa đọc hết nội dung.
+
+---
+
+## 10. Chủ kho đồng ý cách giải · bài học từ gói «ux-kit» của phiên brainstorm khác
+
+**Ghi nhận (30/10):** chủ kho viết «Tôi đồng ý với cách giải». Máy đọc đây là gật nhánh trái ở hình 6 (§7.7): crm
+chạy thử bản đồ khuôn như việc của kho → invest khai cùng hình dạng → kit rút cơ chế ở một vòng meta có tên sau mốc
+kho nhận. Cửa veto mở: chủ kho nói khác thì sửa dòng này. Không ô nào được mở, không hàng lộ trình nào được thêm từ
+phiên này.
+
+Cùng ngày, chủ kho đưa một gói skill do phiên brainstorm khác sinh ra cho cùng câu hỏi (`ux-kit.zip`, 23 tệp, ~1 000
+dòng; đã đọc trọn, không chạy gì). Gói gồm: skill `ux-patterns` (8 luật vàng G1–G8, 5 nguyên tắc có thứ tự, bảng
+nếu–thì có mã D/L/F/V/S/O/T/E/U/K, ma trận trạng thái, hợp đồng thành phần bằng TypeScript, token hành vi, từ vựng
+nhãn, mẫu đặc tả màn, danh sách tự rà), một hook chạy sau mỗi lần sửa tệp, và cấu hình ESLint.
+
+### 10.1 Học được gì — tám điều, xếp theo mức đổi lời giải
+
+| # | Điều | Gói làm thế nào | Đổi gì ở lời giải bản đồ khuôn |
+|---|---|---|---|
+| H1 | **Xếp loại theo ĐỐI TƯỢNG, không theo tệp** (hướng OOUX) | sổ đăng ký đối tượng; mỗi đối tượng có bộ màn chuẩn List · Detail · Create · Edit; luật G5 «cùng loại đối tượng thì cùng bộ màn và cùng vị trí hành động» | bản đồ khuôn khoá theo đối tượng: `deal`, `kr`, `muc-tieu`… → loại «bản ghi» → khuôn ngăn chi tiết. Ca deal–KR chính là một vi phạm G5. Câu hỏi cho người đổi từ «màn này loại gì» (khó) thành «đối tượng mới thuộc nhóm nào» (người biết). **Thay đổi lớn nhất.** |
+| H2 | **Khe bắt buộc qua kiểu — «props là luật»** | `DataView` bắt buộc `skeleton`, `empty.first`, `empty.filtered`, `retry`; thiếu thì không biên dịch | trạng thái rỗng · tải · lỗi thành bắt buộc ngay trong khuôn, kiểm bằng bộ kiểm kiểu có sẵn — không cần bàn đo mới. Chiều đỏ rẻ: một ca `@ts-expect-error` thiếu khe. `RecordSheetFrame` của crm đã bắt `loading`, `error`; thiếu là các nhánh rỗng theo từng khu. |
+| H3 | **Cấm nhập khối dựng mà khuôn đã bọc, theo vùng** | `no-restricted-imports` cấm gọi thẳng `dialog`, `alert-dialog` ngoài thư mục khuôn | dạng răng rẻ nhất của T0: ví dụ trong thư mục ngăn bản ghi cấm nhập `DetailSheetHeader`, `Skeleton` trừ tệp khuôn. crm đã có plugin oxlint riêng với ghi đè theo glob (`.oxlintrc.json`) — chỗ đặt sẵn. Giảm phần phải dựng bằng bộ quét JSX tự viết. |
+| H4 | **Mỗi luật có MÃ, bảng nếu–thì** | `D-01`, `L-03`, `O-04`…; mã ghi vào mã nguồn và báo cáo | luật ở tầng hành vi (cách ghi, phản hồi) có mã → tiêu chí hợp đồng trỏ mã, S4 chấm theo mã, máy đếm được mã nào chưa có răng. Bảng «Ghi vào bản ghi» 30/10 của crm đã là bảng nếu–thì, chỉ thiếu mã. |
+| H5 | **Nguyên tắc có thứ tự + luật phá hoà** | P1 không mất dữ liệu > P2 biết chuyện gì xảy ra > P3 nhất quán > P4 nhanh > P5 tối giản | đây là cách đổi «gu» (T4) thành luật máy áp: người xếp thứ tự MỘT lần, xung đột sau đó máy tự phân xử. Khớp đúng «chính sách chốt một lần ở Cổng Đáng» của kit. |
+| H6 | **Token hành vi** | thời gian chờ, debounce, z-index, ngưỡng số ô của form… gom một tệp | mở rộng điểm chọn 7 (§7.3) từ giá trị thị giác sang giá trị hành vi. Luật «tối đa ba ô thì `Dialog`» của crm hôm nay là token hành vi viết bằng chữ. |
+| H7 | **Phản hồi ngay lúc sửa tệp** | hook sau mỗi lần sửa, thoát 2 để gửi lỗi về tác tử | cùng bài quét của S4 có thể chạy sớm hơn, lúc tác tử đang viết — rẻ hơn chờ tới lượt chấm. Phải là bản đọc cây cú pháp và có vùng, không phải grep (xem K4). |
+| H8 | **Luật đi trước mã + mẫu đề xuất mẫu mới** | G1: không luật nào khớp thì đề xuất theo mẫu, duyệt xong ghi luật rồi mới dựng | khớp «loại mới → rút khuôn trong chính vòng». Mẫu đề xuất của gói (tình huống · vì sao luật cũ không khớp · hành vi · nguyên tắc ưu tiên · phạm vi) dùng được làm khuôn cho mục «loại mới» trên thẻ Cổng Phạm vi. |
+
+### 10.2 Không lấy — năm điều, kèm lý do đo được
+
+| # | Điều | Vì sao không |
+|---|---|---|
+| K1 | **Lấy nguyên bộ luật mặc định** | va trực tiếp với quyết định crm đã chốt: gói V-03 «nút gửi luôn bật» ↔ crm `docs/settings.md` «Nút gửi tắt tới khi form hợp lệ» (đã ký trong `khung-tao-okr-nhu-deal` AC-4); gói O-02 «≤ 6 ô thì hộp thoại» ↔ crm «tối đa ba ô thì `Dialog`»; gói cấm gọi thẳng thư viện báo nổi ↔ crm có 144 tệp gọi thẳng `sonner`. Luật phải rút từ quyết định của kho và màn đang chạy, không nhập từ một bộ mặc định viết chung — nếu không là một trí tưởng tượng viết luật thay chủ kho. |
+| K2 | **G1 «dừng lại chờ duyệt»** mỗi khi không có luật khớp | thêm lượt gọi người giữa vòng, trái mục tiêu ≤ 3 lượt/vòng. Dịch sang kit: đề xuất thành một mục trên thẻ cổng đã có, máy đi tiếp phần không phụ thuộc. |
+| K3 | **Đặc tả màn + danh sách tự rà làm bằng chứng** | là lời tự khai (mức «KẾ»/«LỜI» ở hình 1). Kit chỉ tính bằng chứng có chiều đỏ. Giữ đặc tả làm đầu vào cho tác tử, không làm bằng chứng. |
+| K4 | **Hook grep trên mọi `.ts`** | bắt nhầm: `setTimeout(fn, 1000)` ở mã máy chủ cũng bị chặn; mù chú thích và chuỗi — đúng lớp lỗi K3 của bản phạm vi DFK (mã màu trong chú thích bị bắt). Không có ca đối chứng nào chứng minh hook đỏ đúng và im đúng. |
+| K5 | **Dựng mới lớp `src/ux/` mười thành phần** | crm đã có tương đương trong `packages/ui` và `apps/app` (`VungTaiLoi`, `KhungTaiLoi`, `RecordSheetFrame`, `ConfirmDialog`, bộ giữ thay đổi `useKhaiThayDoi`…). Việc đúng là **ánh xạ vai trò → thành phần sẵn có** trong bản đồ khuôn, không dựng lớp song song. |
+
+### 10.3 Lời giải sau khi học
+
+Bản đồ khuôn (§7.4) đổi ba chỗ, hình 3 và hình 5 vẽ lại theo:
+
+1. **Khoá theo đối tượng (H1).** `doi_tuong → loai`, rồi `loai → khuon · mau_dang_chay · trang_thai`. Điểm hỏi người
+   duy nhất thành «đối tượng mới thuộc nhóm nào».
+2. **Răng ba lớp, từ rẻ tới đắt:** kiểu bắt buộc khe (H2) → cấm nhập khối dựng theo vùng bằng lint sẵn có của kho (H3)
+   → bài quét «tệp loại X dựng khuôn X» chỉ cho phần hai lớp trên không phủ. Cả ba chạy được lúc sửa (H7) và ở S4.
+3. **Tầng hành vi có mã luật (H4) và token hành vi (H6)**, giá trị rút từ `docs/design.md` và `docs/settings.md` của
+   kho, không nhập mặc định (K1).
+
+Vòng crm chạy thử (§5.1) giữ nguyên cỡ 8–10 tiêu chí. Bước 3 của nó dùng H3 trước (rẻ hơn bộ quét tự viết), và bước 2
+thêm khe bắt buộc cho trạng thái trong khuôn ngăn (H2).
