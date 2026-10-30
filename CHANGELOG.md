@@ -10,6 +10,28 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### ui-check khai trong `model_evals` chạy sau chuỗi suite (hồ sơ `ui-check-chay-sau-suite`)
+
+Gốc: crm 15/10, hồ sơ `hoi-dap-okr`, lượt chấm 1 bị REJECT. Eval E10 (ui-check) dựng `eve dev` đúng lúc chuỗi suite
+chạy `turbo run build --force`; `eve build` ghi đè `.eve/compile/` mà `eve dev` đang nạp, luồng trả lời đứt. Chạy
+riêng thì 7/7 ĐẠT. Từ 2.28 kit đã cho eval `test`/`script` trong `feature_loop.model_evals` chạy riêng, nhưng
+ui-check thì vẫn luôn chạy song song với chuỗi suite, kể cả khi đã khai.
+
+- **Đổi gì:** ui-check có id trong `feature_loop.model_evals` chạy SAU mọi lệnh máy: eval song song, chuỗi suite, eval
+  `test`/`script` chạy riêng và mọi ui-check không khai. Các ui-check đã khai chạy lần lượt từng cái. Prompt của
+  tác tử ui giữ nguyên. Dry-run có thêm khoá `uiChayRieng`. `judgment` vẫn ngoài diện: hội đồng chỉ đọc tệp.
+- **Kho nào bị ảnh hưởng:** kho có ui-check trong `model_evals`. Đo 19/10 trên mọi kho có trên máy: chỉ crm, với sáu
+  ui-check. Hôm nay sáu eval này bị chạy song song mà không báo gì; sau mốc chúng chạy riêng, nên lượt chấm của các hồ
+  sơ đó dài hơn. Kho không khai ui-check nào thì không đổi gì: eval `test`/`script` chạy riêng vẫn giữ nhịp 2.28, và
+  nhánh ui y hệt 2.33.0 (đã đo vi phân cả đường xanh lẫn đường lỗi).
+- **Làm gì khi nhận:** không phải migrate. Muốn ui-check nào tránh chuỗi suite thì liệt nó vào
+  `feature_loop.model_evals`. crm: thêm `hoi-dap-okr/E10` (danh sách hôm nay mới có E8, E9), rồi bỏ bản chép
+  acceptance-verify đổi thứ tự. Lớp CI chép không đổi.
+- **Giới hạn đã khai:** eval `test`/`script` chạy riêng vẫn có thể chồng lên một ui-check KHÔNG khai, như 2.28–2.33.
+  Gặp ca đó thì khai ui-check ấy vào `model_evals`. Kit chọn không đổi mặc định cho mọi kho chỉ vì sự cố của một kho.
+
 ## 2.35.0 — 29/10/2026
 
 Mốc mang **nền thiết kế** (đợt `design-floor-2710`, FL1–FL5): lõi gọn Design OS vendored vào kit, nối vào vòng ở S0,

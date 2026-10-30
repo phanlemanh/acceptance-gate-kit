@@ -657,7 +657,10 @@ if (round >= 2) {
 // trị không được dừng lượt chấm (S4-r1 finding t2/t4). Giá trị sai → dừng với thông điệp của bộ đọc.
 let modelEvals;
 try { modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList })); } catch (e) { die(String((e && e.message) || e)); }
-const evalsChayRieng = evals.filter(e => (e.executor === 'test' || e.executor === 'script') && modelEvals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
+// ui-check-chay-sau-suite: ui-check dựng tiến trình (dev server) như eval lệnh nặng nên cùng diện; judgment chỉ
+// đọc tệp inputs, không dựng gì — xếp nó vào hàng tuần tự chỉ kéo dài lượt chấm.
+const EXECUTOR_CHAY_RIENG = new Set(['test', 'script', 'ui-check']);
+const evalsChayRieng = evals.filter(e => EXECUTOR_CHAY_RIENG.has(e.executor) && modelEvals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
 
 const args = {
   generated_at: invokedAt,

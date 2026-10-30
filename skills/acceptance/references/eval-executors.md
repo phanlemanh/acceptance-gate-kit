@@ -130,10 +130,15 @@ Without the key, a command pushed to the background is waited on for up to 30
 minutes by the TOOL-KILL rule (`tool-kill-rule.md`).
 
 Evals listed in `feature_loop.model_evals` (`<slug>/<Eid>`, see GUIDE §7.1)
-also **run alone** in the S4 round: after every other machine command (parallel
-evals and the sequential suite chain) has finished, one at a time. A measure
-that starts a shared process (a dev server, an agent runtime) no longer runs
-on top of a suite that guards that process.
+also **run alone** in the S4 round, one at a time. A `test`/`script` eval runs
+after the parallel evals and the sequential suite chain have finished. A
+`ui-check` eval runs after all of that, after every listed `test`/`script`
+eval, and after every `ui-check` that is not listed. A measure that starts a
+shared process (a dev server, an agent runtime) no longer runs on top of a
+suite that rebuilds or guards that process. `judgment` evals are not covered:
+the panel only reads its `inputs` and starts nothing, so listing one changes
+nothing. A listed `test`/`script` eval can still overlap an unlisted
+`ui-check`; when that collides, list the `ui-check` too.
 
 Boundary + should-NOT-fire: for a threshold/numeric/window criterion (a count,
 ≥/≤/<>, "trong N ngày", a budget), don't stop at the happy path — add an eval
