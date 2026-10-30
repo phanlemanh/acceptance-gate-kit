@@ -74,6 +74,9 @@
       "vi_sao": "Hàng 5 cần dữ liệu của một kỳ trước khi tổ chức thật có dữ liệu",
       "hang": "T2",
       "du_lieu": "sinh-gia",
+      "chay_sau": [
+        "1"
+      ],
       "slug": "to-chuc-mau-mot-ky",
       "bat_khi": "Dựng lại hai lần ra cùng dữ liệu; mọi bản ghi mang nhãn mẫu",
       "nhom": "trang-x",
