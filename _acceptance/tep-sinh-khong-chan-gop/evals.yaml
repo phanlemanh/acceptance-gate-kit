@@ -40,7 +40,7 @@ evals:
       "PRODUCT-MAP.md khớp"; chạy lệnh vẽ (không --check) rồi --check → thoát 0 ở cả hai hàng, PRODUCT-MAP.md hàng
       «ho-so» chứa slug A và slug B. Dòng "PASS: TS-2-do bo-so-trang": bản lành xanh; bản sao trọn scripts + lib mà
       product-map.mjs bỏ phép so LO-TRINH.html của --check (kiểm nhát tiêm khớp một lần) → danh sách lỗi BẰNG
-      ["hang-khac: --check xanh trên bản vẽ cũ"].
+      ["ho-so: --check bỏ sót LO-TRINH.html lệch", "hang-khac: --check xanh trên bản vẽ cũ"].
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3

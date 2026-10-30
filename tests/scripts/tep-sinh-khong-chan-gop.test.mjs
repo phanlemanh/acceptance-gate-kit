@@ -138,8 +138,8 @@ const kiemCheck = (kho, may) => {
   const loiDs = [];
   const h = kho['ho-so'].g; const k = kho['hang-khac'].g;
   const rH = ve(may, h, '--check');
-  if (!(rH.status === 1 && rH.stderr.includes('PRODUCT-MAP.md lệch') && rH.stderr.includes('LO-TRINH.html lệch')))
-    loiDs.push(`ho-so: --check thoát ${rH.status}, stderr ${JSON.stringify(rH.stderr.slice(0, 160))}`);
+  if (rH.status !== 1) loiDs.push(`ho-so: --check thoát ${rH.status}`);
+  for (const t of SINH) if (!rH.stderr.includes(`${t} lệch`)) loiDs.push(`ho-so: --check bỏ sót ${t} lệch`);
   const rK = ve(may, k, '--check');
   if (rK.status === 0) loiDs.push('hang-khac: --check xanh trên bản vẽ cũ');
   else if (!(rK.status === 1 && rK.stderr.includes('LO-TRINH.html lệch') && !rK.stderr.includes('PRODUCT-MAP.md lệch') && rK.stdout.includes('PRODUCT-MAP.md khớp')))
@@ -244,7 +244,7 @@ if (want('TS-2-do')) {
     if (lanh.length) throw new Error(`bản lành đỏ: ${lanh.join(' · ')}`);
     const may = banSao([['scripts/product-map.mjs', 'const ketThuc = code => {\n    if (trang != null) {', 'const ketThuc = code => {\n    if (false) {']]);
     const hong = kiemCheck(kiemGopKhongDung(KHOI_THAT).kho, may);
-    const mong = ['hang-khac: --check xanh trên bản vẽ cũ'];
+    const mong = ['ho-so: --check bỏ sót LO-TRINH.html lệch', 'hang-khac: --check xanh trên bản vẽ cũ'];
     if (deq(hong, mong)) ok('TS-2-do bo-so-trang'); else bad('TS-2-do bo-so-trang', `${JSON.stringify(hong)} ≠ ${JSON.stringify(mong)}`);
   } catch (e) { bad('TS-2-do bo-so-trang', loi(e)); }
 }
