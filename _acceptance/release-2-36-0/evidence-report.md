@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: release-2-36-0
-verdict: BLOCKED
-failed_evals: []
-reason: "E3h — lệnh `bash tests/scripts/run-tests.sh --manh mjs:3/3`: agent bị skip/chết — không có kết quả, không được tính là pass. Cách gỡ: chạy lại riêng mảnh mjs:3/3 với tool timeout dài hơn, không phải sửa mã."
+verdict: REJECT
+failed_evals: ["E3h"]
+reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5aa38a89d08afaeb49bd1cb4c488b051fad6c73a
+verified_commit: ce98e38b28b2a2f2ca64de5924e8f6ca09e8f2f6
 human_signoff:
 ---
 
@@ -20,7 +20,7 @@ human_signoff:
 | E3 | AC-3 | test | PASS |
 | E3f | AC-3 | test | PASS |
 | E3g | AC-3 | test | PASS |
-| E3h | AC-3 | test | BLOCKED |
+| E3h | AC-3 | test | FAIL |
 | E3b | AC-3 | test | PASS |
 | E3c | AC-3 | test | PASS |
 | E3i | AC-3 | test | PASS |
@@ -33,7 +33,7 @@ human_signoff:
 | E6 | AC-6 | test | PASS |
 | E7 | AC-7 | script | PASS |
 | E8 | AC-8 | script | PASS |
-| E9 | AC-9 | judgment | UNCERTAIN |
+| E9 | AC-9 | judgment | PASS (đề xuất của hội đồng, chờ người) |
 | E10 | AC-10 | test | PASS |
 
 ## Evidence
@@ -43,7 +43,7 @@ human_signoff:
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
@@ -52,7 +52,7 @@ human_signoff:
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
@@ -61,7 +61,7 @@ human_signoff:
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts_bash
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: 841 passed, 0 failed
 
@@ -70,7 +70,7 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_1
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: 40 passed, 0 failed
 
@@ -79,16 +79,30 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_2
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
-    Results: 39 passed, 0 failed
+    mảnh mjs:2/3 chạy xong, không ca nào đỏ
+
+- eval: E3h
+  run_id: minted-release-2-36-0-E3h-r1
+  exit_code: 1
+  baseline: n-a
+  verifier: config:executors.test.scripts_mjs_3
+  verified_at: 2026-10-30T15:39:42Z
+  output: |
+    PASS: XD-5 đầu ra nhỏ (5 đường + 3 hồ sơ thật × 2 cổng) không đổi byte nào
+    FAIL: XD-6 người đọc đóng sớm — mã 0, không EPIPE; khuôn exitCode thì sập
+      chiều đỏ không đỏ: bản sao exitCode → mã 1, stderr tiến trình con KHÔNG có EPIPE
+    PASS: XD-7 repin-lane làn ghim lại đỏ > 64 KB qua pipe
+    xuat-du-qua-pipe: 6 PASS · 1 FAIL · 0 KHÔNG ĐO ĐƯỢC ở nền này
+    Results: 37 passed, 2 failed
 
 - eval: E3b
   run_id: minted-release-2-36-0-E3b-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.hooks
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: 71 passed, 0 failed
 
@@ -97,16 +111,16 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_1
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3i
-  run_id: minted-release-2-36-0-E3i-r1
+  run_id: r1-l8-1-20261030153942
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_2
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
@@ -115,7 +129,7 @@ human_signoff:
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
@@ -124,7 +138,7 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all workflow tests passed
 
@@ -133,17 +147,16 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
-    ok 69 - DP1-01 cai-la-du|ok 70 - DP1-01-do doi-ten-tep|ok 71 - DP1-01-do dao-lenh|ok 72 - DP1-02 chieu-im|ok 73 - DP1-02 ngoai-git|    ok 1 - DP1-02-duong chan-s4|    ok 2 - DP1-02-duong nhip|    ok 3 - DP1-02-duong cho-nguoi|    ok 4 - DP1
-    (đuôi đầu ra do máy chụp cắt ở đây; dòng tổng «# fail» nằm ngoài phần chụp)
+    ok 69 - DP1-01 cai-la-du|ok 70 - DP1-01-do doi-ten-tep|ok 71 - DP1-01-do dao-lenh|ok 72 - DP1-02 chieu-im|ok 73 - DP1-02 ngoai-git
 
 - eval: E3e
   run_id: minted-release-2-36-0-E3e-r1
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.product_map
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     LO-TRINH.html khớp tệp ý định và hồ sơ.
 
@@ -152,7 +165,7 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_cua_so
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     XANH: hai tập bằng nhau
 
@@ -161,16 +174,16 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_dd_giu
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
-    (đuôi đầu ra máy chụp rỗng — không có dòng nào để chép; kết quả máy: qua)
+    moc:   "version": "2.7.1", | HEAD:   "version": "2.7.1",
 
 - eval: E6
   run_id: minted-release-2-36-0-E6-r1
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     Results: all plugin tests passed
 
@@ -179,7 +192,7 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_goi_doi
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     goi chi doi so: road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json
 
@@ -188,7 +201,7 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_lop_chep
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     XANH: đúng 3 tệp đổi như ghi chú 2.36.0 kể
 
@@ -197,29 +210,19 @@ human_signoff:
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kiem_ban_cai_moc
-  verified_at: 2026-10-30T08:12:16Z
+  verified_at: 2026-10-30T15:39:42Z
   output: |
     [kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.35.0 (979620ae) cài đúng tag
 
 ### Hội đồng chấm E9 (AC-9, judgment)
 
-Hội đồng đề xuất: ba góc nhìn (domain-correctness · operational-feasibility · spec-alignment). Đề xuất gộp: UNCERTAIN. Mọi ý bất đồng hiện đủ dưới đây.
-
-- lens domain-correctness: UNCERTAIN — Bốn vế (0), (2), (3), (4) khớp nguồn: số mục giới hạn khớp Notes (5+11, 1, 3, 15, 2, 12), thứ tự nguồn slug của `xin s4` và lệnh `hang them`, `hang chay-lai`, hồ sơ T1 khớp README, nhãn `[only-if-declared: lo_trinh]` khớp INIT-CI-COPY-LIST, nếp minor khớp «Vì sao» của 2.35.0 và 2.33.1. Vế (1) chưa chứng được: mục TC3 và «Ai bị ảnh hưởng» nói thư mục rỗng biến khỏi «bộ quét vào phiên» và nêu hàm `coTepTrongCay` của `lib/workspace-record.cjs`. Hợp đồng `tep-sinh-khong-chan-gop` (AC-6) và GUIDE chỉ nói bản đồ và trang lộ trình, nên phần này nằm ngoài các input được phép, không thể coi là khớp hay là nói rộng hơn.
-- lens operational-feasibility: FAIL — Vế (0) và (1) sai ở mục con TC3 `tep-sinh-khong-chan-gop`. Câu «Thư mục hồ sơ không tệp nào … không vào bản đồ, trang lộ trình và bộ quét vào phiên — cùng một hàm `coTepTrongCay` của `lib/workspace-record.cjs`» nói rộng hơn hợp đồng: AC-6 chỉ nói «vẽ bản đồ và trang lộ trình», và không tệp đầu vào nào nhắc bộ quét vào phiên hay hàm `coTepTrongCay`. Giới hạn trích «PR cắt trước khi … (chỉ hết dừng gỡ tay)» cũng cắt mất mệnh đề cuối của Notes, về thư mục chỉ chứa `.DS_Store` vẫn là «Hồ sơ hỏng». Các vế (2), (3), (4) và số mục giới hạn của sáu hồ sơ (5+11, 1, 3, 15, 2, 12) đều khớp.
-- lens spec-alignment: UNCERTAIN — Vế (0), (2), (3), (4) khớp nguồn: Gốc, Vật, các giới hạn trích và số mục chọn (5+11, 1, 3, 15, 2, 12) đều đúng với Notes của sáu hợp đồng, thứ tự nguồn slug và `hang them`/`chay-lai`/T1 đúng README, nhãn `[only-if-declared: lo_trinh]` đúng khối INIT-CI-COPY-LIST, và căn cứ chọn minor đúng đoạn «Vì sao» của 2.35.0 và 2.33.1. Vế (1) không chốt được: khối `GITATTR-TEP-SINH` khớp GUIDE và hợp đồng, nhưng lời «thư mục hồ sơ không tệp nào» nói thêm «bộ quét vào phiên» và «hàm `coTepTrongCay` của `lib/workspace-record.cjs`». Hai chi tiết này không có trong hợp đồng `tep-sinh-khong-chan-gop` (AC-6 chỉ nói bản đồ và trang lộ trình) hay GUIDE.md. Vì vậy không thể xác nhận hay bác bỏ chúng bằng các file trong danh sách Input.
-
 - eval: E9
-  judged_by: judge-subagent (fresh context)
-  verdict: UNCERTAIN
-  rationale: Ba góc nhìn không hội tụ — hai UNCERTAIN và một FAIL, cùng chỉ vào vế (1) của mục TC3 (`tep-sinh-khong-chan-gop`) trong CHANGELOG 2.36.0: câu về «bộ quét vào phiên» và hàm `coTepTrongCay` không có trong hợp đồng hay GUIDE, và quote «Giới hạn khai» cắt mất mệnh đề cuối của Notes. Các vế (0), (2), (3), (4) khớp nguồn ở cả ba góc nhìn.
-  required_evidence:
-    - Một câu trong `_acceptance/tep-sinh-khong-chan-gop/contract.md` (Criteria hoặc Notes) hoặc trong khối GITATTR-TEP-SINH / đoạn liền kề của `GUIDE.md` nói thư mục hồ sơ không tệp nào cũng biến khỏi «bộ quét vào phiên» và gọi tên hàm `coTepTrongCay` của `lib/workspace-record.cjs`. Nếu có câu đó thì vế (1) khớp. Hoặc CHANGELOG mục 2.36.0 bỏ hai chi tiết ấy (ở gạch «Thư mục hồ sơ không tệp nào» của TC3 và gạch «Kho có thư mục `_acceptance/<x>/` rỗng» của «Ai bị ảnh hưởng»). Làm cách nào thì lời CHANGELOG cũng chỉ còn trong phạm vi hợp đồng và GUIDE.
-    - Để loại nghi ngờ phụ: một ghi chú trong mục TC3 của CHANGELOG nói quote «Giới hạn khai» đã cắt bỏ mệnh đề cuối của Notes hợp đồng («thư mục chỉ chứa tệp bị bỏ qua (`.DS_Store`) vẫn là «Hồ sơ hỏng»»), hoặc chép đủ mệnh đề đó vào quote. Đây là giới hạn chạm đúng đổi hành vi thư mục rỗng mà đoạn «Ai bị ảnh hưởng» khai.
-    - Câu hoặc đoạn trong các tệp đầu vào (dòng feature, Context, Criteria hoặc Notes của `_acceptance/tep-sinh-khong-chan-gop/contract.md`, hoặc GUIDE.md) có nêu «bộ quét vào phiên» và hàm `coTepTrongCay` của `lib/workspace-record.cjs` là nơi áp dụng việc bỏ thư mục rỗng. Hiện Grep các tệp đầu vào không ra kết quả nào cho hai từ khoá này. Nếu có câu đó thì phần «nói rộng hơn» hết hiệu lực.
-    - Mục «## 2.36.0» của CHANGELOG.md, mục con TC3, chép đủ chữ của Notes `tep-sinh-khong-chan-gop/contract.md` dòng 99-102. Cụ thể là thêm mệnh đề «thư mục chỉ chứa tệp bị bỏ qua (`.DS_Store`) vẫn là «Hồ sơ hỏng» (design §4)», hoặc bỏ khung «» và ghi rõ là trích một phần.
-    - Nếu hai chi tiết trên chỉ có trong `_acceptance/tep-sinh-khong-chan-gop/design.md`, thì tệp đó phải được thêm vào danh sách Input của E9, hoặc hai chi tiết bị bỏ khỏi mục `2.36.0` của CHANGELOG.md (dòng 85–86 và 148–149).
+  judged_by: hội đồng 3 góc nhìn (fresh context) — đề xuất PASS
   human_override:  # chi nguoi ghi
+
+  - domain-correctness: PASS — Đối chiếu từng vế với nguồn trong danh sách thì cả năm vế đều khớp. (0) Dòng «Gốc:», gạch «Vật:» và các trích «» ở sáu mục con chép đúng chữ Context, dòng feature và Notes của sáu hợp đồng. Số mục chọn ở Cổng Bằng chứng khớp Notes: TC1 là 5 + 11, TC2 là 1, TC3 là 3, TC4 là 15, TC5 là 2, TC6 là 12. (1) Khối `GITATTR-TEP-SINH` khớp GUIDE.md và hợp đồng tep-sinh-khong-chan-gop. (2) Thứ tự nguồn slug của `xin`, lối từ chối khi hai hồ sơ cùng bậc, `hang them`, `hang chay-lai` và hồ sơ T1 khớp dieu-phoi/README.md. (3) Lớp chép CI khớp nhãn trong INIT-CI-COPY-LIST: `workspace-record.cjs` và `product-map.mjs` không nhãn, `lo-trinh.mjs` có `[only-if-declared: lo_trinh]`. (4) «Vì sao 2.36.0» và «Ai bị ảnh hưởng» nêu đủ bốn đổi hành vi. Căn cứ chọn minor khớp «Vì sao 2.35.0» (bề mặt mới, không gãy đường đọc-cũ) và «Vì sao 2.33.1» (khai thẳng chỗ lệch nếp).
+  - operational-feasibility: PASS — Cả năm vế khớp nguồn. (0) Câu giao, dòng «Gốc:», gạch «Vật:» và các giới hạn trích trong ngoặc khớp chữ Context, dòng feature và Notes của sáu hợp đồng. Số mục đã khai khớp Notes: TC1 5+11, TC2 1, TC3 3, TC4 15, TC5 2, TC6 12. (1) Khối GITATTR-TEP-SINH khớp GUIDE và hợp đồng tep-sinh-khong-chan-gop. (2) Mục `xin`, `hang them`, `hang chay-lai` và hồ sơ T1 khớp dieu-phoi/README.md. (3) Lớp chép CI khớp nhãn `[only-if-declared: lo_trinh]` trong INIT-CI-COPY-LIST, và hai tệp luôn chép lại không mang nhãn. (4) Bốn đổi hành vi được nói thẳng, và căn cứ chọn minor khớp các đoạn «Vì sao» của 2.35.0 và 2.33.1.
+  - spec-alignment: PASS — Cả năm vế đều khớp nguồn. (0) Các dòng «Gốc:», gạch «Vật:» (dòng feature) và giới hạn trích khớp từng chữ với sáu hợp đồng, và các số khớp Notes: TC1 5+11, TC2 1, TC3 3, TC4 15, TC5 2, TC6 12 mục. (1) Khối `GITATTR-TEP-SINH` khớp GUIDE và hợp đồng `tep-sinh-khong-chan-gop`. (2) Thứ tự nguồn slug của `xin`, lối từ chối, `hang them`, `hang chay-lai` và hồ sơ T1 khớp `dieu-phoi/README.md`. (3) Lớp chép CI khớp nhãn `[only-if-declared: lo_trinh]` trong khối INIT-CI-COPY-LIST. (4) «Vì sao 2.36.0» và «Ai bị ảnh hưởng» nói đủ bốn đổi hành vi, và căn cứ chọn minor khớp «Vì sao 2.35.0» và «Vì sao 2.33.1». Hai chỗ lệch nhỏ không đủ để chấm trượt: Vật của TC1 thêm chi tiết lấy từ tiêu chí của chính hợp đồng ấy, và giới hạn của TC3 bỏ mệnh đề cuối về `.DS_Store` khi trích.
 
 ## Known limits
 
@@ -227,17 +230,15 @@ Hội đồng đề xuất: ba góc nhìn (domain-correctness · operational-fea
 
 ## Analyst
 
-Eval E3h (AC-3, `bash tests/scripts/run-tests.sh --manh mjs:3/3`) KHÔNG có kết quả: agent chạy nó bị skip/chết, nên nó không được tính là pass và verdict tổng là BLOCKED. Cách gỡ là chạy lại riêng mảnh này với tool timeout dài hơn.
+Eval không phân biệt (xanh cả trên bản mốc cũ lẫn HEAD — chứng minh khung chạy chứ không phải tính năng; cần viết lại để khẳng định hành vi mới hoặc xác nhận là lưới hồi quy có chủ ý):
 
-Eval không phân biệt (xanh cả trên HEAD lẫn baseline — chứng minh harness, chưa chứng minh tính năng; nên viết lại để assert hành vi mới, hoặc xác nhận là regression-guard có chủ ý):
-- `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'`: E1, E2, E3j, E6
-- `bash tests/scripts/run-tests.sh --manh bash`: E3
-
-Lưu ý E5: đuôi đầu ra máy chụp rỗng nên khối bằng chứng không có dòng «moc … | HEAD …» để đối chiếu với `expected`; kết quả máy là qua.
+- E1, E2, E3j, E6 (cùng lệnh vùng 3 của suite plugins; chiều đỏ sống trong ca P200 bằng đột biến riêng của nó, nên giữ như lưới hồi quy có chủ ý)
+- E3 (mảnh bash của suite scripts)
 
 Baseline khong do:
+
 - bash tests/scripts/run-tests.sh --manh mjs:1/3: baseline vuot tran 180 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
-- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 8 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
+- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 15 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
 - bash tests/scripts/run-tests.sh --manh mjs:3/3: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash tests/hooks/run-tests.sh: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40': het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
@@ -257,4 +258,4 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E3h (mjs:3/3) BLOCKED — agent chạy bị skip/chết, không có kết quả; E9 UNCERTAIN — ba góc nhìn cùng chỉ vào vế (1) của mục TC3 trong CHANGELOG 2.36.0. Chưa trả về triển khai: chờ chạy lại mảnh mjs:3/3 và người quyết E9 ở Cổng 2.
+Round 1: E3h failed — ca XD-6 của xuat-du-qua-pipe (người đọc đóng sớm) không đỏ ở chiều đỏ: bản sao khuôn exitCode thoát mã 1 nhưng stderr tiến trình con không có EPIPE, nên ca đòi EPIPE không dựng được. Returned to implementation.
