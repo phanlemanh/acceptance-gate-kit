@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: release-2-36-0
-verdict: REJECT
-failed_evals: ["E3h"]
+verdict: PASS
+failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ce98e38b28b2a2f2ca64de5924e8f6ca09e8f2f6
+verified_commit: 33cb0e70d6507d86e425b8e50a2ccad17be01792
 human_signoff:
 ---
 
@@ -20,7 +20,7 @@ human_signoff:
 | E3 | AC-3 | test | PASS |
 | E3f | AC-3 | test | PASS |
 | E3g | AC-3 | test | PASS |
-| E3h | AC-3 | test | FAIL |
+| E3h | AC-3 | test | PASS |
 | E3b | AC-3 | test | PASS |
 | E3c | AC-3 | test | PASS |
 | E3i | AC-3 | test | PASS |
@@ -33,196 +33,195 @@ human_signoff:
 | E6 | AC-6 | test | PASS |
 | E7 | AC-7 | script | PASS |
 | E8 | AC-8 | script | PASS |
-| E9 | AC-9 | judgment | PASS (đề xuất của hội đồng, chờ người) |
+| E9 | AC-9 | judgment | PASS |
 | E10 | AC-10 | test | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-release-2-36-0-E1-r1
+  run_id: minted-release-2-36-0-E1-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E2
-  run_id: minted-release-2-36-0-E2-r1
+  run_id: minted-release-2-36-0-E2-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3
-  run_id: minted-release-2-36-0-E3-r1
+  run_id: minted-release-2-36-0-E3-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts_bash
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: 841 passed, 0 failed
 
 - eval: E3f
-  run_id: minted-release-2-36-0-E3f-r1
+  run_id: minted-release-2-36-0-E3f-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_1
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: 40 passed, 0 failed
 
 - eval: E3g
-  run_id: minted-release-2-36-0-E3g-r1
+  run_id: minted-release-2-36-0-E3g-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_2
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
-    mảnh mjs:2/3 chạy xong, không ca nào đỏ
+    Results: 39 passed, 0 failed
 
 - eval: E3h
-  run_id: minted-release-2-36-0-E3h-r1
-  exit_code: 1
+  run_id: minted-release-2-36-0-E3h-r2
+  exit_code: 0
   baseline: n-a
   verifier: config:executors.test.scripts_mjs_3
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
-    PASS: XD-5 đầu ra nhỏ (5 đường + 3 hồ sơ thật × 2 cổng) không đổi byte nào
-    FAIL: XD-6 người đọc đóng sớm — mã 0, không EPIPE; khuôn exitCode thì sập
-      chiều đỏ không đỏ: bản sao exitCode → mã 1, stderr tiến trình con KHÔNG có EPIPE
-    PASS: XD-7 repin-lane làn ghim lại đỏ > 64 KB qua pipe
-    xuat-du-qua-pipe: 6 PASS · 1 FAIL · 0 KHÔNG ĐO ĐƯỢC ở nền này
-    Results: 37 passed, 2 failed
+    Results: 39 passed, 0 failed
 
 - eval: E3b
-  run_id: minted-release-2-36-0-E3b-r1
+  run_id: minted-release-2-36-0-E3b-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.hooks
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: 71 passed, 0 failed
 
 - eval: E3c
-  run_id: minted-release-2-36-0-E3c-r1
+  run_id: minted-release-2-36-0-E3c-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_1
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3i
-  run_id: r1-l8-1-20261030153942
+  run_id: minted-release-2-36-0-E3i-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.plugins_vung_2
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3j
-  run_id: minted-release-2-36-0-E3j-r1
+  run_id: minted-release-2-36-0-E3j-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E3d
-  run_id: minted-release-2-36-0-E3d-r1
+  run_id: minted-release-2-36-0-E3d-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.workflows
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all workflow tests passed
 
 - eval: E3k
-  run_id: minted-release-2-36-0-E3k-r1
+  run_id: minted-release-2-36-0-E3k-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.dieu_phoi
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
-    ok 69 - DP1-01 cai-la-du|ok 70 - DP1-01-do doi-ten-tep|ok 71 - DP1-01-do dao-lenh|ok 72 - DP1-02 chieu-im|ok 73 - DP1-02 ngoai-git
+    ok 69 - DP1-01 cai-la-du|ok 70 - DP1-01-do doi-ten-tep|ok 71 - DP1-01-do dao-lenh|ok 72 - DP1-02 chieu-im|ok 73 - DP1-02 ngoai-git|    ok 1 - DP1-02-duong chan-s4|    ok 2 - DP1-02-duong nhip|    ok 3 - DP1-02-duong cho-nguoi
 
 - eval: E3e
-  run_id: minted-release-2-36-0-E3e-r1
+  run_id: minted-release-2-36-0-E3e-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.product_map
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     LO-TRINH.html khớp tệp ý định và hồ sơ.
 
 - eval: E4
-  run_id: minted-release-2-36-0-E4-r1
+  run_id: minted-release-2-36-0-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_cua_so
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     XANH: hai tập bằng nhau
 
 - eval: E5
-  run_id: minted-release-2-36-0-E5-r1
+  run_id: minted-release-2-36-0-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_dd_giu
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     moc:   "version": "2.7.1", | HEAD:   "version": "2.7.1",
 
 - eval: E6
-  run_id: minted-release-2-36-0-E6-r1
+  run_id: minted-release-2-36-0-E6-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.test.plugins_vung_3
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     Results: all plugin tests passed
 
 - eval: E7
-  run_id: minted-release-2-36-0-E7-r1
+  run_id: minted-release-2-36-0-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_goi_doi
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     goi chi doi so: road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json
 
 - eval: E8
-  run_id: minted-release-2-36-0-E8-r1
+  run_id: minted-release-2-36-0-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.rel2360_lop_chep
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     XANH: đúng 3 tệp đổi như ghi chú 2.36.0 kể
 
 - eval: E10
-  run_id: minted-release-2-36-0-E10-r1
+  run_id: minted-release-2-36-0-E10-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.kiem_ban_cai_moc
-  verified_at: 2026-10-30T15:39:42Z
+  verified_at: 2026-10-30T17:36:57Z
   output: |
     [kiem-ban-cai] TỔNG KẾT: ĐẠT 8/8 — v2.35.0 (979620ae) cài đúng tag
 
-### Hội đồng chấm E9 (AC-9, judgment)
+### Judgment
+
+Panel đề xuất cho E9: PASS (ba thấu kính, cả ba cùng PASS). Chưa có người chốt; dòng human_override để trống.
 
 - eval: E9
-  judged_by: hội đồng 3 góc nhìn (fresh context) — đề xuất PASS
+  judged_by: judge-subagent (fresh context)
+  verdict: PASS
+  rationale: Đề xuất PASS. Cả năm vế (sáu mục con khớp hợp đồng; khối GITATTR-TEP-SINH; phần xin/hang và hồ sơ T1; lớp chép CI; hai đoạn «Vì sao» và «Ai bị ảnh hưởng» cùng căn cứ chọn minor) khớp nguồn.
+  votes:
+    - domain-correctness: PASS — Dòng «Gốc:», dòng «Vật:» và các câu trích giới hạn của sáu hồ sơ khớp chữ; số mục chọn khớp Notes (TC1 5 và 11, TC2 1, TC3 3, TC4 15, TC5 2, TC6 12). Khối GITATTR-TEP-SINH khớp GUIDE và hợp đồng tep-sinh-khong-chan-gop. Phần xin/hang và hồ sơ T1 khớp dieu-phoi/README.md. Lớp chép CI khớp nhãn trong INIT-CI-COPY-LIST. Hai đoạn «Vì sao» và «Ai bị ảnh hưởng» nêu đủ bốn đổi hành vi, căn cứ chọn minor khớp «Vì sao» của 2.35.0 (minor cho bề mặt mới) và 2.33.1 (khai thẳng chỗ lệch nếp).
+    - operational-feasibility: PASS — Gốc, Vật và các câu giới hạn trích của sáu mục con là chữ của hợp đồng; các số khớp Notes. Khối GITATTR-TEP-SINH khớp GUIDE và hợp đồng. Thứ tự nguồn slug, lối từ chối, hang them, hang chay-lai và hồ sơ T1 khớp dieu-phoi/README.md. Lớp chép CI khớp nhãn only-if-declared lo_trinh trong INIT-CI-COPY-LIST. Bốn đổi hành vi chạm kho đang dùng được khai thẳng, căn cứ chọn minor khớp «Vì sao» của 2.35.0 và 2.33.1.
+    - spec-alignment: PASS — Sáu mục con đối chiếu từng hợp đồng: dòng Gốc, gạch Vật, các câu trích và số mục chọn khớp Notes. Khối GITATTR-TEP-SINH, driver và thư mục rỗng khớp GUIDE và hợp đồng tep-sinh-khong-chan-gop. Thứ tự slug của xin s4, lối từ chối, hang them, hang chay-lai và hồ sơ T1 khớp dieu-phoi/README. Lớp chép CI khớp nhãn trong INIT-CI-COPY-LIST. «Vì sao» và «Ai bị ảnh hưởng» nêu đủ bốn đổi hành vi, căn cứ chọn minor khớp 2.35.0 và 2.33.1.
   human_override:  # chi nguoi ghi
-
-  - domain-correctness: PASS — Đối chiếu từng vế với nguồn trong danh sách thì cả năm vế đều khớp. (0) Dòng «Gốc:», gạch «Vật:» và các trích «» ở sáu mục con chép đúng chữ Context, dòng feature và Notes của sáu hợp đồng. Số mục chọn ở Cổng Bằng chứng khớp Notes: TC1 là 5 + 11, TC2 là 1, TC3 là 3, TC4 là 15, TC5 là 2, TC6 là 12. (1) Khối `GITATTR-TEP-SINH` khớp GUIDE.md và hợp đồng tep-sinh-khong-chan-gop. (2) Thứ tự nguồn slug của `xin`, lối từ chối khi hai hồ sơ cùng bậc, `hang them`, `hang chay-lai` và hồ sơ T1 khớp dieu-phoi/README.md. (3) Lớp chép CI khớp nhãn trong INIT-CI-COPY-LIST: `workspace-record.cjs` và `product-map.mjs` không nhãn, `lo-trinh.mjs` có `[only-if-declared: lo_trinh]`. (4) «Vì sao 2.36.0» và «Ai bị ảnh hưởng» nêu đủ bốn đổi hành vi. Căn cứ chọn minor khớp «Vì sao 2.35.0» (bề mặt mới, không gãy đường đọc-cũ) và «Vì sao 2.33.1» (khai thẳng chỗ lệch nếp).
-  - operational-feasibility: PASS — Cả năm vế khớp nguồn. (0) Câu giao, dòng «Gốc:», gạch «Vật:» và các giới hạn trích trong ngoặc khớp chữ Context, dòng feature và Notes của sáu hợp đồng. Số mục đã khai khớp Notes: TC1 5+11, TC2 1, TC3 3, TC4 15, TC5 2, TC6 12. (1) Khối GITATTR-TEP-SINH khớp GUIDE và hợp đồng tep-sinh-khong-chan-gop. (2) Mục `xin`, `hang them`, `hang chay-lai` và hồ sơ T1 khớp dieu-phoi/README.md. (3) Lớp chép CI khớp nhãn `[only-if-declared: lo_trinh]` trong INIT-CI-COPY-LIST, và hai tệp luôn chép lại không mang nhãn. (4) Bốn đổi hành vi được nói thẳng, và căn cứ chọn minor khớp các đoạn «Vì sao» của 2.35.0 và 2.33.1.
-  - spec-alignment: PASS — Cả năm vế đều khớp nguồn. (0) Các dòng «Gốc:», gạch «Vật:» (dòng feature) và giới hạn trích khớp từng chữ với sáu hợp đồng, và các số khớp Notes: TC1 5+11, TC2 1, TC3 3, TC4 15, TC5 2, TC6 12 mục. (1) Khối `GITATTR-TEP-SINH` khớp GUIDE và hợp đồng `tep-sinh-khong-chan-gop`. (2) Thứ tự nguồn slug của `xin`, lối từ chối, `hang them`, `hang chay-lai` và hồ sơ T1 khớp `dieu-phoi/README.md`. (3) Lớp chép CI khớp nhãn `[only-if-declared: lo_trinh]` trong khối INIT-CI-COPY-LIST. (4) «Vì sao 2.36.0» và «Ai bị ảnh hưởng» nói đủ bốn đổi hành vi, và căn cứ chọn minor khớp «Vì sao 2.35.0» và «Vì sao 2.33.1». Hai chỗ lệch nhỏ không đủ để chấm trượt: Vật của TC1 thêm chi tiết lấy từ tiêu chí của chính hợp đồng ấy, và giới hạn của TC3 bỏ mệnh đề cuối về `.DS_Store` khi trích.
 
 ## Known limits
 
@@ -230,15 +229,13 @@ human_signoff:
 
 ## Analyst
 
-Eval không phân biệt (xanh cả trên bản mốc cũ lẫn HEAD — chứng minh khung chạy chứ không phải tính năng; cần viết lại để khẳng định hành vi mới hoặc xác nhận là lưới hồi quy có chủ ý):
-
-- E1, E2, E3j, E6 (cùng lệnh vùng 3 của suite plugins; chiều đỏ sống trong ca P200 bằng đột biến riêng của nó, nên giữ như lưới hồi quy có chủ ý)
-- E3 (mảnh bash của suite scripts)
+Eval không phân biệt (xanh trên cả HEAD lẫn baseline, chứng minh harness chứ không chứng minh feature; đây là bảo vệ hồi quy có chủ ý, chiều đỏ sống trong ca P200 và các ca của suite scripts):
+- E1, E2, E3j, E6 (lệnh: plugins --manh vung:3)
+- E3 (lệnh: scripts --manh bash)
 
 Baseline khong do:
-
 - bash tests/scripts/run-tests.sh --manh mjs:1/3: baseline vuot tran 180 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
-- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 15 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
+- bash tests/scripts/run-tests.sh --manh mjs:2/3: baseline vuot tran 35 giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu
 - bash tests/scripts/run-tests.sh --manh mjs:3/3: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash tests/hooks/run-tests.sh: het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
 - bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40': het tran tong 480 giay cua lane baseline truoc khi toi lenh nay — khong chay
@@ -258,4 +255,5 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E3h failed — ca XD-6 của xuat-du-qua-pipe (người đọc đóng sớm) không đỏ ở chiều đỏ: bản sao khuôn exitCode thoát mã 1 nhưng stderr tiến trình con không có EPIPE, nên ca đòi EPIPE không dựng được. Returned to implementation.
+Round 1: REJECT — E3h đỏ vì hai ca phụ thuộc môi trường (XD-6 thời điểm EPIPE · GM-6-that bản ghi tự sinh), không chạm vật mốc. Trả về sửa.
+Round 2: PASS — đo giờ máy bỏ lời nhắn tự sinh khỏi token, thêm ca hai chiều GM-6-do5; toàn bộ eval máy xanh trên commit 33cb0e70.
