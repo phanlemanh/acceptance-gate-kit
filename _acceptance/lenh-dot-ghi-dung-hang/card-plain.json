@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Các lệnh của đợt Điều phối – Thợ ghi đúng hàng: xin lượt chấm mang đúng việc đang chấm, thêm việc theo mã lộ trình mang đúng tên và mã, cho một dãy đã nghỉ chạy lại bằng một lệnh — giám sát thôi sửa tay tệp kế hoạch của đợt.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ ghi lượt chấm dưới tên việc đang chấm, kể cả khi việc ấy đã ký mà chưa gộp và lịch đã chuyển dãy sang việc sau (sáu ca viết sẵn)."},
+    {"id": "AC-2", "p": "Sẽ cho lượt ghim lại và lượt gộp mang việc đã ký, lượt đường nền giữ như cũ, và từ chối có tên khi hai việc cùng bậc tranh nhau thay vì đoán."},
+    {"id": "AC-3", "p": "Sẽ thêm việc theo mã hay tên của lộ trình với đúng tên đầy đủ, đúng mã và đúng vùng tệp của nó; vùng giám sát tự đặt vẫn thắng."},
+    {"id": "AC-4", "p": "Sẽ giữ nguyên tên giám sát gõ khi đã đúng dạng tên, còn câu tự do và mã ngoài lộ trình đi đúng như trước; gõ lại lần hai không đổi gì."},
+    {"id": "AC-5", "p": "Sẽ cho một dãy đã nghỉ chạy lại bằng một lệnh: tệp kế hoạch về đúng như trước khi nghỉ, nhịp lịch kế giao lại việc cho dãy, chạy lại lần hai không đổi gì."},
+    {"id": "AC-6", "p": "Sẽ từ chối cho chạy lại một dãy không có mà không chạm byte nào, và nói «không đổi gì» với dãy chưa nghỉ."},
+    {"id": "AC-7", "p": "Sẽ coi một việc nhỏ không qua cổng (hồ sơ T1) đã lên nhánh chính là xong, để thợ được giao việc kế thay vì quay lại việc đã gộp — chỉ khi anh duyệt Hỏi-1."},
+    {"id": "AC-8", "p": "Sẽ giữ y từng byte mọi kết quả của kho chưa gặp các ca này, so với bản gói trước vòng."},
+    {"id": "AC-9", "p": "Sẽ ghi vào hướng dẫn của gói thứ tự chọn việc của lượt xin, cách thêm việc theo lộ trình, và lệnh cho chạy lại đi cạnh lệnh cho nghỉ."},
+    {"id": "AC-10", "p": "Sẽ giữ xanh toàn bộ bộ kiểm của gói, không sửa ca kiểm cũ nào."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG làm lệnh đặt thứ tự ưu tiên tuyệt đối (mục chờ TC-C1) — đó là thêm mới, chỉ mở khi anh gọi tên."},
+    {"id": "OOS-2", "p": "KHÔNG làm lệnh rút đơn xin lượt chưa cấp, cũng không sửa cách bàn giao commit tệp lạc — để cửa sổ sau."},
+    {"id": "OOS-3", "p": "KHÔNG đổi luật suy tên việc từ câu giao."},
+    {"id": "OOS-4", "p": "KHÔNG sửa đợt đang chạy ở kho tiêu thụ — kho nhận theo bản phát hành."},
+    {"id": "OOS-5", "p": "KHÔNG đổi số phiên bản hay nhật ký phát hành — việc của lượt cắt bản vá."}
+  ],
+  "scope_plain": "Bỏ ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Lượt xin chấm: không việc nào, một việc, việc ở hai bậc, việc của dãy khác (AC-1); hai việc cùng bậc và từng loại lượt (AC-2)."},
+    {"i": 1, "p": "Thêm việc: theo mã và theo tên lộ trình (AC-3); tên đúng dạng, câu tự do, mã ngoài lộ trình, gõ hai lần (AC-4)."},
+    {"i": 2, "p": "Cho chạy lại: dãy đã nghỉ, gõ hai lần (AC-5); dãy chưa nghỉ, dãy không có (AC-6)."},
+    {"i": 3, "p": "Lịch đọc «xong»: việc T1 trên nhánh chính, chỉ ở nhánh làm việc, việc T2 đang làm (AC-7)."},
+    {"i": 4, "p": "Kho chưa gặp ca nào không đổi (AC-8), hướng dẫn của gói (AC-9), bộ kiểm cũ còn xanh (AC-10)."},
+    {"i": 5, "p": "Mẫu ngành đối chiếu: lệnh ngược đối xứng chạy lại không đổi gì; tên nhập nhằng thì từ chối thay vì đoán."},
+    {"i": 6, "p": "Để sau: lệnh đặt thứ tự ưu tiên (thêm mới). Không bao giờ: đoán việc từ tên nhánh git."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Luật «hai ứng viên thì từ chối» chặn đúng ca thường nhất: việc A đã ký chờ gộp trong lúc việc B đang chấm cùng nhánh — đã đổi sang chọn theo bậc (lượt chấm lấy việc đang chấm trước, ghim lại và gộp lấy việc đã ký), thêm ca và ca đỏ cho đúng tình huống ấy."},
+    {"i": 1, "p": "Phép so «kho cũ không đổi gì» chưa từng thấy đỏ và chưa chứng bản cũ thật sự được chạy — đã thêm ca đỏ (tiêm một khác biệt, chỉ đúng hàng ấy lệch) và kiểm bản cũ chưa có vật của vòng."},
+    {"i": 2, "p": "Chưa ca nào cho một hồ sơ phụ không thuộc dãy — đã thêm ca và ca đỏ gỡ bộ lọc, chỉ ca ấy đỏ."},
+    {"i": 3, "p": "Kiểm hướng dẫn chỉ đỏ một lần trên cả tệp cũ — đã thêm ba biến thể, mỗi biến thể gỡ đúng một câu và lỗi nêu đúng câu ấy."},
+    {"i": 4, "p": "Chưa ca nào cho vùng tệp giám sát tự đặt khi thêm việc từ lộ trình — đã thêm ca: vùng tự đặt thắng, tên và mã vẫn của lộ trình."}
+  ]
+}

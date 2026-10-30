@@ -141,6 +141,16 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   đầu ở dãy khác được lịch so lại ở nhịp kế; hàng đang làm hay đã ký ở dãy khác mà chồng → một sự kiện `trung-tep`
   mang `luc: cong-pham-vi` (`can_phan: false`) và một dòng cảnh báo — chỉ báo, không ghi `sau`, không đụng khoá. Lộ
   trình không có `vung` và không ai gọi `hang vung` → lịch y như trước.
+- **Lệnh của đợt ghi đúng hàng** (hồ sơ `lenh-dot-ghi-dung-hang`). Đơn xin lượt không cờ đọc hợp đồng các hàng của dãy
+  trong worktree mà nhánh chính chưa gộp. `xin s4` lấy slug theo thứ tự `--slug` → hồ sơ đang chấm → hồ sơ đã thông chưa gộp → `tiep`
+  (đang chấm = `implemented`, `verified`; đã thông = đã ký hay máy đã thông, đúng danh sách `DA_THONG` của bộ phát lịch); `xin
+  ghim-lai` và `xin merge` bỏ bậc đang chấm. Một bậc có từ hai hồ sơ thì lệnh từ chối, in tên từng hồ sơ và lời dặn
+  `--slug`, không ghi đơn. `xin duong-nen` giữ lối `tiep` (đường nền chạy trước khi hợp đồng của hàng kế
+  có). `hang them` nhận mã hay slug của lộ trình: tra `hang-viec.json` → tệp lộ trình của nguồn hàng theo mã rồi theo
+  slug (hàng thêm mang đúng `slug`, `ma` và vùng của hàng ấy) → đối số đã có dạng slug thì giữ nguyên → chỉ câu tự do
+  mới suy slug (sáu từ đầu). `hang chay-lai <dãy>` là lệnh ngược của `hang nghi`: gỡ khoá `nghi`, một dòng Nhật ký và
+  một sự kiện `doi-ke-hoach` kiểu `chay-lai`; dãy chưa nghỉ thì không làm gì; nhịp kế giao lại hàng kế cho dãy. Bộ phát
+  lịch tính hồ sơ `risk_tier: T1` có trên nhánh chính là đã gộp — hồ sơ T1 không qua cổng nên giữ `draft` mãi.
 - **Duyệt chạm tệp khi không dò được nhánh mở** → giám sát phán (`can_phan` nêu lỗi), không còn máy duyệt với lý do
   «không nhánh mở nào chạm». Nhánh của chính phiên xin không tính là nhánh đang sửa tệp ấy.
 - **Đếm ký → gộp.** Mỗi sự kiện `hang-gop` mang giờ commit chữ ký và giờ commit gộp đọc từ nhánh chính, số lần gộp
@@ -215,7 +225,7 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
 
 ## Phiên thợ trong đợt
 
-**Ghi danh worktree.** Chip của app luôn dựng worktree MỚI tên ngẫu nhiên, nên gói đợt không biết trước worktree của dãy — gói khai chỗ giữ (ví dụ `/CHUA-CO-WORKTREE/P1`). Việc đầu tiên của phiên mở từ chip, trước S1, chạy từ worktree của chip: `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>` (lời ghi danh của chip mang sẵn dòng lệnh này). Lệnh ghi gốc worktree của phiên vào `day[<dãy>].worktree` của `hang-viec.json`, thêm một dòng Nhật ký và một sự kiện `ghi-danh`; chạy lại thì không làm gì. Lệnh từ chối và không ghi byte nào khi: dãy không có trong đợt · worktree này đã là của dãy khác · cwd là gốc kho chính · không có đợt · dãy còn phiên ở worktree cũ (hành động `khong`, `nhan-giang-lai` hay `cho-nguoi` — đọc cùng hàm với `tiep-tuc`, nên dãy nào được mời chip thì phiên chip ghi danh được). Worktree cũ đã chết thì bị đè: đơn còn chờ của dãy theo sang worktree mới, giữ giờ xin; nhánh cũ còn checkout ở worktree cũ, lệnh in cách gỡ. Lúc mở đợt từ gói, dãy có worktree chưa tồn tại nhận dấu `cho-ghi-danh/<dãy>.json`: `chan-doan` và `tiep-tuc` xếp dãy ấy như dãy không phiên sống (thường `mo-chip`), không `worktree-mat`; đợt mở bằng bản gói cũ không có dấu thì giữ hành vi cũ. Mọi bên viết `hang-viec.json` (ghi danh, `hang day-len|them|nghi`) giữ khoá `hang-viec.khoa` nên tám chip bấm cùng lúc không mất bản ghi.
+**Ghi danh worktree.** Chip của app luôn dựng worktree MỚI tên ngẫu nhiên, nên gói đợt không biết trước worktree của dãy — gói khai chỗ giữ (ví dụ `/CHUA-CO-WORKTREE/P1`). Việc đầu tiên của phiên mở từ chip, trước S1, chạy từ worktree của chip: `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>` (lời ghi danh của chip mang sẵn dòng lệnh này). Lệnh ghi gốc worktree của phiên vào `day[<dãy>].worktree` của `hang-viec.json`, thêm một dòng Nhật ký và một sự kiện `ghi-danh`; chạy lại thì không làm gì. Lệnh từ chối và không ghi byte nào khi: dãy không có trong đợt · worktree này đã là của dãy khác · cwd là gốc kho chính · không có đợt · dãy còn phiên ở worktree cũ (hành động `khong`, `nhan-giang-lai` hay `cho-nguoi` — đọc cùng hàm với `tiep-tuc`, nên dãy nào được mời chip thì phiên chip ghi danh được). Worktree cũ đã chết thì bị đè: đơn còn chờ của dãy theo sang worktree mới, giữ giờ xin; nhánh cũ còn checkout ở worktree cũ, lệnh in cách gỡ. Lúc mở đợt từ gói, dãy có worktree chưa tồn tại nhận dấu `cho-ghi-danh/<dãy>.json`: `chan-doan` và `tiep-tuc` xếp dãy ấy như dãy không phiên sống (thường `mo-chip`), không `worktree-mat`; đợt mở bằng bản gói cũ không có dấu thì giữ hành vi cũ. Mọi bên viết `hang-viec.json` (ghi danh, `hang day-len|them|nghi|chay-lai|vung`) giữ khoá `hang-viec.khoa` nên tám chip bấm cùng lúc không mất bản ghi.
 
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
 feature-loop (chỉ đọc). Kho không có đợt → lệnh không in gì và vòng chạy y như cũ. Có đợt → nó gọi lệnh
