@@ -512,3 +512,31 @@ mà người đã rời khỏi giữa vòng. Thứ thật sự mới chỉ là c
 [Spotify paved paths (InfoQ)](https://www.infoq.com/jp/news/2021/05/spotify-paved-paths) ·
 [Golden paths (platformengineering.org)](https://platformengineering.org/blog/how-to-pave-golden-paths-that-actually-go-somewhere).
 Mốc năm của sổ tay NASA, Bootstrap, Material, Atomic Design, Airbnb DLS ghi theo hiểu biết chung, chưa tra lại.
+
+---
+
+## 9. Trình bằng hình — cấu trúc sáu hình
+
+Chủ kho (30/10) muốn ra quyết định bằng hình. Bộ hình tầng 2 theo `docs/reference/DIAGRAM-RULE.md`:
+[`assets/2026-10-30-ui-dong-nhat-giua-cac-man.html`](assets/2026-10-30-ui-dong-nhat-giua-cac-man.html). Hình là chiếu
+của các mục chữ ở trên; sửa chữ trước rồi vẽ lại.
+
+**Cấu trúc:** sáu câu hỏi theo đúng đường ra quyết định. Mỗi câu dùng loại hình hợp với nó, không gộp nhiều ngữ
+pháp vào một hình.
+
+| # | Câu hỏi | Loại hình | Chiếu từ | Vì sao loại này |
+|---|---|---|---|---|
+| 1 | Lệch ở đâu, chỗ nào có máy giữ? | ma trận (7 điểm chọn × crm · invest · design-floor · Design OS; ô = MÁY / KẾ / LỜI / trống) | §1, §2, §7.1, §7.3 | thấy *chỗ trống* trong một cái nhìn |
+| 2 | Vì sao lệch? | hai làn song song (đội người · vòng tác tử) | §3.1, §8.3 | bước «chọn khuôn» bị mất hiện ra ở cùng một cột |
+| 3 | Nguyên lý tất định hoá | chồng tầng T0–T4 + «lời dặn» ngoài thang | §7.2 | thang có thứ bậc; thấy đứng ở đâu và đi lên đâu |
+| 4 | Thế giới đã giải tới đâu? | bốn góc (tầng giải × lời/máy) | §4, §8 | góc «máy giữ khung» còn trống = chỗ cần lấp |
+| 5 | Lời giải chạy thế nào? | kiến trúc (bản đồ khuôn → S1 · S3 · S4; người ở Cổng 1) | §7.4 | ai giữ gì: kho, kit, người |
+| 6 | Quyết gì? | lưu đồ hai nhánh kèm giá | §5.3, §7.7 | một câu hỏi, hai lối, hệ quả từng lối |
+
+**Bổ sung số cho hình 1 (đo 30/10, invest `origin/main` `ec899d03`):** invest có skill danh mục giao diện
+(`.claude/skills/onehub-ui/`) nói về đầu trang và trạng thái — tức là lời. Lộ trình của invest có hàng
+«/ops/deals thiếu PageHeader» (OPS-16) và các hàng GD «đủ tải/trống/lỗi». Bản kiểm kê giao diện tháng 10 của invest
+đếm 5 kiểu đầu trang ở vùng vận hành. Cùng lớp với crm: luật bằng lời, lệch sửa sau bằng hàng lộ trình.
+
+**Giới hạn của bộ hình:** vị trí các chấm ở hình 4 là phán đoán định tính, không phải số đo. Ô «LỜI» của invest ở
+hàng «loại màn» suy từ việc có skill danh mục và tệp tuyến (`routes.md`), chưa đọc hết nội dung.
