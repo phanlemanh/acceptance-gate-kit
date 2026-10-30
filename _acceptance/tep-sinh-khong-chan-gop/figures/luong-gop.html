@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luồng gộp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --font-sans:    'Geist', system-ui, sans-serif;
+      --font-serif:   'Instrument Serif', 'Lora', serif;
+      --font-mono:    'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Cổng Phạm vi · tep-sinh-khong-chan-gop · Hỏi-2</p>
+    <h1>Gộp nhánh chính vào nhánh PR — hai làn</h1>
+
+    <svg viewBox="0 0 1000 608" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .nm { font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 600; fill: #2d3142; }
+          .sb { font-family: 'Geist', sans-serif; font-size: 10px; font-weight: 400; fill: #636b80; }
+          .mo { font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 400; fill: #4f5d75; }
+          .ey { font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.14em; fill: #4f5d75; }
+          .ea { font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.14em; fill: #ba4513; }
+          .ac { font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 500; fill: #4f5d75; }
+          .lg { font-family: 'Geist', sans-serif; font-size: 9px; fill: #4f5d75; }
+          .co { font-family: 'Instrument Serif', 'Lora', serif; font-style: italic; font-size: 14px; fill: #2d3142; }
+        </style>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Containers ===== -->
+      <!-- Lane divider -->
+      <line x1="500" y1="148" x2="500" y2="388" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <!-- Shared band (row C, both lanes) -->
+      <rect x="44" y="400" width="912" height="104" rx="8" fill="none" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="60" y="416" class="ey">VẪN CÒN Ở CẢ HAI LÀN</text>
+
+      <!-- ===== Connectors (drawn before boxes) ===== -->
+      <!-- shared → lane 1 -->
+      <path d="M480 88 V120 Q480 128 472 128 H268 Q260 128 260 136 V204" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- shared → lane 2 -->
+      <path d="M520 88 V120 Q520 128 528 128 H732 Q740 128 740 136 V204" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- lane 1: A → B → C -->
+      <line x1="260" y1="280" x2="260" y2="308" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="260" y1="384" x2="260" y2="420" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- lane 2: stop → C -->
+      <line x1="740" y1="384" x2="740" y2="420" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- ===== Shared start ===== -->
+      <rect x="320" y="24" width="360" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="320" y="24" width="360" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="500" y="52" class="nm" text-anchor="middle">Nhánh chính dời → thợ gộp nó vào nhánh PR</text>
+      <text x="500" y="72" class="sb" text-anchor="middle">một PR khác vừa gộp, bản đồ trên nhánh chính đổi</text>
+
+      <!-- ===== Lane headers ===== -->
+      <text x="60" y="164" class="ey">KHO ĐÃ BẬT</text>
+      <text x="60" y="182" class="sb">đủ thuộc tính + cấu hình máy</text>
+      <text x="540" y="164" class="ey">KHO CHƯA BẬT</text>
+      <text x="540" y="182" class="sb">hoặc máy chưa cấu hình</text>
+
+      <!-- ===== Lane 1 · A: git gộp không dừng ===== -->
+      <rect x="60" y="208" width="400" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="60" y="208" width="400" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="76" y="232" class="nm">Git gộp xong, không dừng</text>
+      <rect x="400" y="220" width="44" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="422" y="232" class="ac" text-anchor="middle">AC-1</text>
+      <text x="76" y="252" class="mo">PRODUCT-MAP.md · LO-TRINH.html</text>
+      <text x="76" y="268" class="sb">giữ nguyên bản vẽ của nhánh PR</text>
+
+      <!-- ===== Lane 1 · B: kiểm bản vẽ đỏ đúng tệp ===== -->
+      <rect x="60" y="312" width="400" height="72" rx="6" fill="#f5f5f5"/>
+      <rect x="60" y="312" width="400" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="76" y="336" class="nm">Kiểm bản vẽ đỏ đúng tệp lệch</text>
+      <rect x="400" y="324" width="44" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="422" y="336" class="ac" text-anchor="middle">AC-2</text>
+      <text x="76" y="356" class="mo">product-map.mjs --check</text>
+      <text x="76" y="372" class="sb">bắt được khi người gộp quên vẽ lại</text>
+
+      <!-- ===== Lane 2 · A+B: dừng, gỡ tay (focal — the box this round removes) ===== -->
+      <rect x="540" y="208" width="400" height="176" rx="6" fill="#f5f5f5"/>
+      <rect x="540" y="208" width="400" height="176" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="556" y="232" class="ea">Ô VÒNG NÀY BỎ</text>
+      <rect x="880" y="220" width="44" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="902" y="232" class="ac" text-anchor="middle">AC-3</text>
+      <text x="556" y="260" class="nm">Git dừng giữa chừng</text>
+      <text x="556" y="280" class="mo">xung đột: PRODUCT-MAP.md · LO-TRINH.html</text>
+      <line x1="556" y1="300" x2="924" y2="300" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="556" y="328" class="nm">Người hoặc máy gỡ tay</text>
+      <text x="556" y="348" class="sb">lấy bản của một bên — nội dung hai phía không giúp gì</text>
+      <text x="556" y="368" class="sb">git y như hôm nay</text>
+
+      <!-- ===== Row C · both lanes ===== -->
+      <rect x="60" y="424" width="400" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="60" y="424" width="400" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="76" y="452" class="nm">Vẽ lại từ nguồn đã gộp → commit, đẩy → CI</text>
+      <text x="76" y="472" class="mo">node product-map.mjs --root .</text>
+
+      <rect x="540" y="424" width="400" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="540" y="424" width="400" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="556" y="452" class="nm">Vẽ lại từ nguồn đã gộp → commit, đẩy → CI</text>
+      <text x="556" y="472" class="mo">node product-map.mjs --root .</text>
+
+      <!-- ===== Callout ===== -->
+      <text x="500" y="536" class="co" text-anchor="middle">Vòng này chỉ bỏ ô «dừng, gỡ tay»; lần gộp lại, vẽ lại và CI vẫn diễn ra mỗi khi nhánh chính dời.</text>
+
+      <!-- ===== Legend ===== -->
+      <line x1="40" y1="560" x2="960" y2="560" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="584" class="ey">CHÚ GIẢI</text>
+
+      <rect x="120" y="576" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="152" y="586" class="lg">Bước</text>
+
+      <rect x="216" y="576" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="248" y="586" class="lg">Ô vòng này bỏ</text>
+
+      <rect x="356" y="576" width="24" height="12" rx="2" fill="none" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="388" y="586" class="lg">Phần còn ở cả hai làn</text>
+
+      <rect x="528" y="574" width="36" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="572" y="586" class="lg">Tiêu chí trong hợp đồng</text>
+    </svg>
+  </div>
+</body>
+</html>

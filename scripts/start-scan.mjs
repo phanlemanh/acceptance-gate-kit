@@ -30,7 +30,7 @@ const { khoaTuConfig: khoaLoTrinh } = require(path.join(__dirname, 'lo-trinh-kho
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
-        DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE, thucTe, hoSoDaKhep } =
+        DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE, thucTe, hoSoDaKhep, coTepTrongCay } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -290,6 +290,8 @@ const ageDays = iso => Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 8
 
 for (const entry of readdirSync(acc, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
+  // Thư mục không tệp nào: cùng luật với bản đồ (hồ sơ tep-sinh-khong-chan-gop, AC-6) — hai bên đọc phải cùng kết luận (P123).
+  if (!coTepTrongCay(path.join(acc, entry.name))) continue;
   const slug = entry.name;
   const dir = path.join(acc, slug);
   const cPath = path.join(dir, 'contract.md'), oPath = path.join(dir, 'opportunity.md');

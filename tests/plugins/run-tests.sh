@@ -3368,7 +3368,9 @@ Object.assign(MATRIX, {
   'noc|o-matquyen': 'broken:EACCES', 'noc|o-thieustage': 'broken:thiếu stage',
   'noc|o-discovery': 'gates:dang',   'noc|o-can-nhac': 'cons:', 'noc|o-build': 'prog:S1', 'noc|o-iterate': 'prog:S1',
   'noc|o-park': 'done:park',         'noc|o-kill': 'done:kill',
-  'noc|o-rac': 'broken:decision không nhận diện được', 'noc|o-trong': 'broken:không có contract.md lẫn opportunity.md',
+  'noc|o-rac': 'broken:decision không nhận diện được',
+  // Thu muc KHONG tep nao: git khong giu duoc nen khong ban clone nao co — bo quet bo qua (ho so tep-sinh-khong-chan-gop AC-6).
+  'noc|o-trong': '(mat tich)',
 });
 
 const build = () => {
@@ -3404,7 +3406,7 @@ const checkMatrix = scanPath => {
     const got = cellOf(r, key.replace(/[|]/g, '-'));
     const [wc, wd] = [want.slice(0, want.indexOf(':')), want.slice(want.indexOf(':') + 1)];
     const [gc, gd] = [got.slice(0, got.indexOf(':') < 0 ? got.length : got.indexOf(':')), got.slice(got.indexOf(':') + 1)];
-    const ok = wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
+    const ok = want === '(mat tich)' ? got === want : wc === gc && (wc !== 'broken' ? wd === gd : gd.includes(wd));
     if (!ok) errs.push(`o [${key}] mong ${want}, duoc ${got}`);
   }
   return errs;
@@ -4343,6 +4345,14 @@ function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
   const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
     || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x")
     || scan.groups.considering.some(g => g.slug === "x");   // o «dang can nhac» (vao-co-o-ra-co-ten)
+  // Thu muc KHONG tep nao (moi file vang) thi git khong giu duoc — khong ban clone nao co no, nen CA HAI ben phai
+  // bo qua (ho so tep-sinh-khong-chan-gop AC-6); con lai slug KHONG duoc bien mat.
+  const rong = fs.readdirSync(dir).length === 0;
+  if (rong) {
+    if (oNao) lech.push(`[${nhan}] thu muc rong van hien o bo quet`);
+    if (mapTxt.includes("`x`")) lech.push(`[${nhan}] thu muc rong van hien o ban do`);
+    return scanHong;
+  }
   if (!oNao) lech.push(`[${nhan}] slug BIEN MAT khoi bo quet`);
   if (!mapTxt.includes("`x`")) lech.push(`[${nhan}] slug BIEN MAT khoi ban do`);
   return scanHong;
