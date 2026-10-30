@@ -5,7 +5,7 @@ slug: tep-sinh-khong-chan-gop
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: approved
+status: implemented
 design_doc: _acceptance/tep-sinh-khong-chan-gop/design.md
 approved_by: Manh Phan
 approved_at: 2026-10-30T02:02:42Z
