@@ -1,6 +1,6 @@
 {
   "name": "tri-thuc",
-  "version": "2.35.0",
+  "version": "2.36.0",
   "description": "Tầng tri thức theo LLM Wiki: kho tri thức của kho (raw bất biến + trang wiki) mà mọi vòng đọc. Vỏ lệnh; mã ở lõi acceptance-gate. Cài theo kho (--scope project). Đi cùng acceptance-gate cùng số phiên bản.",
   "author": {
     "name": "Manh Phan"

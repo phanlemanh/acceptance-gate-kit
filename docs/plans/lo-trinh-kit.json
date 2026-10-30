@@ -73,8 +73,9 @@
       ]
     },
     {
-      "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
-      "ngay": "2026-11-05",
+      "ten": "Phát hành 2.36.0 — tinh chỉnh sau hai đợt thử (đợt tinh-chinh-2610, TC1–TC6): đánh thức đọc đúng mã phiên (#419), lệnh của đợt ghi đúng hàng (#449), gộp không dừng ở hai tệp sinh (#452), kiểm bản cài có lối sửa chạy được (#448), chân công cụ xét tệp có tồn tại (#447), làn đối chứng chạy được (#450); kho chờ nhận invest rồi crm",
+      "ngay": "2026-10-30",
+      "ly_do": "Về sớm 05/11 → 30/10: chủ kho giao từ đầu đợt tinh-chinh-2610 «đủ các hàng gộp thì cắt bản»; sáu hàng TC1–TC6 gộp sáng 30/10 (f64b5754). Số 2.36.0, không 2.35.1: nếp minor cho bề mặt mới (hang chay-lai, khối GITATTR-TEP-SINH).",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
