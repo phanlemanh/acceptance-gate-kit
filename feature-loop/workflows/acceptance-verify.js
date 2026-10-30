@@ -990,11 +990,50 @@ const LENH_BASELINE = (cmds) => [
 // về «chưa chạy dòng nào» và thẻ Cổng 2 nói ra (dòng run-log dưới). Ngưỡng mở lại: ≥1 lượt như vậy.
 const BL_TEP = `${BL_DIR}/chay.sh`
 const LOI_GOI_BASELINE = `bash ${sq(BL_TEP)}`
-// Bộ đọc dấu — MỘT nguồn với bên viết (DAU_BL). Trả { du, batDau, haTang, theoCmd: Map(cmd → kết quả) }.
-// `du` = có `__BL_XONG` và không `__BL_HA_TANG`; lệnh vắng dòng dấu → cannotRun có tên.
+// LỆNH GHI (hồ sơ doi-chung-chay-duoc). Bản 23/10 bảo tác tử ghi tệp bằng công cụ ghi tệp, mà vai baseline chạy
+// bằng loại tác tử `feature-loop:cham-lenh` — chỉ Bash, Read, Grep, Glob (hồ sơ tac-tu-cham-chi-cham-khong rút bút
+// khỏi vai chấm 09/10): mọi lượt từ 23/10 ở mọi kho ra «No such tool available: Write», đối chứng không chạy dòng
+// nào. Nay kit sinh sẵn CẢ lệnh ghi — `mkdir -p` · heredoc có nháy chở nguyên văn kịch bản · so `cksum` của tệp vừa
+// ghi với số kit tính sẵn — tác tử chỉ gọi Bash. Chép lệch dù một byte → tệp đổi tên `.sai` (không `rm` — xem trên)
+// và in `__BL_GHI sai`, nên lời gọi kế không chạy kịch bản hỏng. Đo 29/10 bằng tác tử cham-lenh thật, cả ở worktree
+// cô lập: heredoc ghi được; lối base64 (`printf … | base64 -d > tệp`) bị bộ phân loại an toàn dừng — đừng đổi sang.
+// GIỚI HẠN ĐÃ KHAI: bộ canh đọc cả thân heredoc (chữ git, hay lệnh nặng mà móc điều phối nhận ra) thì bước ghi bị từ
+// chối và làn rơi về «chưa chạy dòng nào» như trước — thẻ Cổng 2 vẫn nói ra. Ngưỡng mở lại: ≥1 lượt như vậy.
+// CRC của `cksum` POSIX trên byte UTF-8 — JS thuần: sandbox workflow không có Buffer hay TextEncoder.
+const blCksum = s => {
+  const u = unescape(encodeURIComponent(String(s)))
+  let crc = 0
+  const buoc = b => { crc = (crc ^ (b << 24)) >>> 0; for (let k = 0; k < 8; k++) crc = (crc & 0x80000000) ? ((crc << 1) ^ 0x04C11DB7) >>> 0 : (crc << 1) >>> 0 }
+  for (let i = 0; i < u.length; i++) buoc(u.charCodeAt(i))
+  for (let n = u.length; n > 0; n = Math.floor(n / 256)) buoc(n & 0xff)
+  return `${(~crc) >>> 0} ${u.length}`
+}
+const LENH_GHI_BASELINE = (cmds) => {
+  const kb = LENH_BASELINE(cmds)
+  // Dấu kết heredoc không được trùng một dòng của kịch bản — lệnh eval là chữ của kho, có thể nhiều dòng.
+  let het = 'AGK_HET_KICH_BAN'
+  for (let k = 1; kb.split('\n').includes(het); k++) het = `AGK_HET_KICH_BAN_${k}`
+  // `.acceptance-runs/` tự bỏ khỏi git NGAY ở lệnh ghi: chép sai thì kịch bản (nơi vế này vẫn có) không chạy, mà
+  // thư mục lượt đã tạo — không có vế này cây đang kiểm bẩn đúng ở ca hỏng.
+  const runs = `${args.repoRoot}/.acceptance-runs`, boQua = `${runs}/.gitignore`
+  return [
+    `mkdir -p ${sq(runs)} ${sq(BL_DIR)} && { [ -f ${sq(boQua)} ] || printf '*\\n' > ${sq(boQua)}; } && cat > ${sq(BL_TEP)} <<'${het}'`,
+    kb,
+    het,
+    `C=$(cksum < ${sq(BL_TEP)} 2>&1 | tr -s ' \\t' ' '); if [ "$C" = ${sq(blCksum(kb + '\n'))} ]; then echo "${DAU_BL}_GHI dung $C"; else mv -f ${sq(BL_TEP)} ${sq(BL_TEP + '.sai')} 2>/dev/null; echo "${DAU_BL}_GHI sai $C"; fi`,
+  ].join('\n')
+}
+// Bộ đọc dấu — MỘT nguồn với bên viết (DAU_BL). Trả { du, batDau, haTang, ghiSai, ghiDung, theoCmd: Map(cmd → kết quả) }.
+// `du` = có `__BL_XONG` và không `__BL_HA_TANG`; lệnh vắng dòng dấu → cannotRun có tên. `ghiSai`/`ghiDung` = chữ sau
+// `__BL_GHI sai`/`__BL_GHI dung` (dấu kiểm tệp vừa ghi), `null` khi không có dòng ấy — bên dùng so `ghiDung` với số kit
+// tính và mặc định KHÔNG tin: tác tử bỏ hay viết lại dòng so dấu kiểm thì không có dòng đúng số (gap-probe F1).
 function docBaseline(dauRa, cmds) {
   const s = String(dauRa || '')
   const haTang = (s.match(new RegExp(`^${DAU_BL}_HA_TANG (.+)$`, 'm')) || [])[1] || ''
+  const mGhi = s.match(new RegExp(`^${DAU_BL}_GHI sai(?: (.*))?$`, 'm'))
+  const ghiSai = mGhi ? (mGhi[1] || '').trim() : null
+  const mDung = s.match(new RegExp(`^${DAU_BL}_GHI dung(?: (.*))?$`, 'm'))
+  const ghiDung = mDung ? (mDung[1] || '').trim() : null
   const du = new RegExp(`^${DAU_BL}_XONG$`, 'm').test(s) && !haTang
   // Không có dòng bắt đầu = kịch bản CHƯA chạy dòng nào (công cụ từ chối lời gọi, tệp không ghi được) —
   // khác với chạy dở. Đọc từ dấu, không từ chữ tác tử hay chữ công cụ (đổi theo bản Claude Code).
@@ -1011,7 +1050,7 @@ function docBaseline(dauRa, cmds) {
     else if (kq === 'het-tran-tong') theoCmd.set(cmd, { cmd, cannotRun: true, tran: true, reason: `het tran tong ${BL_TRAN_TONG_GIAY} giay cua lane baseline truoc khi toi lenh nay — khong chay` })
     else if (kq === 'bo-qua') theoCmd.set(cmd, { cmd, cannotRun: true, boQua: true, reason: `bo qua baseline: tep ${du3} co o cay dang kiem nhung chua co o merge-base ${args.diffBase} — eval moi, chay tren code cu khong phan biet gi` })
   }
-  return { du, batDau, haTang, theoCmd }
+  return { du, batDau, haTang, ghiSai, ghiDung, theoCmd }
 }
 // BASELINE-LENH>>>
 
@@ -1179,15 +1218,15 @@ const baselineP = Promise.resolve().then(() => baselineCmds.length === 0
     : agentT(
         `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho ${baselineCmds.length} lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
 Kit DA SINH SAN toan bo viec: worktree CO LAP tren commit goc (KHONG dung cwd chinh — verifier HEAD dang chay song song o do), noi node_modules/.env, chay tung lenh co TRAN ${BL_TRAN_LENH_GIAY} giay/lenh va TRAN TONG ${BL_TRAN_TONG_GIAY} giay, bo qua lenh tro toi tep chua co o commit goc, don worktree ke ca khi bi dung. Viec cua ban DUY NHAT, hai buoc:
-BUOC 1 — dung cong cu ghi tep (Write) ghi tep ${BL_TEP} voi noi dung la kich ban giua hai dong dau duoi day, chep NGUYEN VAN tung byte (KHONG tach, KHONG viet lai thanh vong lap, KHONG sua). Hai dong dau KHONG thuoc kich ban.
-<<<AGK-BASELINE
-${LENH_BASELINE(baselineCmds)}
-AGK-BASELINE>>>
-BUOC 2 — MOT lan goi Bash (timeout 600000) voi DUNG lenh giua hai dong dau duoi day, nguyen van: KHONG them doi so, KHONG cd, KHONG ghep lenh khac, KHONG chay kich ban o dang khoi lenh (phien o worktree co lap tu choi moi lenh nhac git o dang no khong kiem duoc).
+BUOC 1 — MOT lan goi Bash voi DUNG lenh giua hai dong dau duoi day, chep NGUYEN VAN tung byte (KHONG tach, KHONG viet lai, KHONG sua, KHONG bo dong nao). Lenh nay ghi tep kich ban ${BL_TEP} roi tu so dau kiem cua tep vua ghi; hai dong dau KHONG thuoc lenh.
+<<<AGK-BASELINE-GHI
+${LENH_GHI_BASELINE(baselineCmds)}
+AGK-BASELINE-GHI>>>
+BUOC 2 — sau buoc 1 (ke ca khi no in ${DAU_BL}_GHI sai), MOT lan goi Bash (timeout 600000) voi DUNG lenh giua hai dong dau duoi day, nguyen van: KHONG them doi so, KHONG cd, KHONG ghep lenh khac, KHONG chay kich ban o dang khoi lenh (phien o worktree co lap tu choi moi lenh nhac git o dang no khong kiem duoc).
 <<<AGK-BASELINE-GOI
 ${LOI_GOI_BASELINE}
 AGK-BASELINE-GOI>>>
-Tra ve: dauRa = TOAN BO ket qua cua lan goi Bash do NGUYEN VAN (cac dong bat dau bang ${DAU_BL}); results = [] (JS tu doc ma thoat tu dauRa — ban KHONG khai exit). Cong cu tu choi hoac bao loi (o buoc 1 hay buoc 2) → dauRa = NGUYEN VAN chu cong cu tra (ke ca rong) va DUNG: KHONG thu cach chay khac, KHONG tach lenh, KHONG chay lai. KHONG goi them lenh nao khac, KHONG doc nhat ky, KHONG sua gi ngoai tep o buoc 1.\n${TOOL_KILL_RULE}`,
+Tra ve: dauRa = ket qua cua lan goi Bash o buoc 1, roi ket qua cua lan goi Bash o buoc 2, NGUYEN VAN theo thu tu do (cac dong bat dau bang ${DAU_BL}); results = [] (JS tu doc ma thoat tu dauRa — ban KHONG khai exit). Cong cu tu choi hoac bao loi (o buoc 1 hay buoc 2) → dauRa = NGUYEN VAN chu cong cu tra (ke ca rong) va DUNG: KHONG thu cach chay khac, KHONG tach lenh, KHONG chay lai. KHONG goi them lenh nao khac, KHONG doc nhat ky, KHONG sua gi ngoai tep o buoc 1.\n${TOOL_KILL_RULE}`,
         { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...vaiOpt('baseline') }
       )
 ).catch(() => null)   // BẮT BUỘC: parallel nuốt throw, promise trần thì KHÔNG — một lần reject giết cả lượt
@@ -1754,8 +1793,12 @@ if (baselineCmds.length > 0) {
   if (!baselineRaw || typeof baselineRaw !== 'object') baselineHaTang = 'tac tu baseline chet hoac bi dung — khong co ket qua'
   else if (typeof baselineRaw.dauRa === 'string') {
     const doc = docBaseline(baselineRaw.dauRa, baselineCmds)
+    const ckBaseline = blCksum(LENH_BASELINE(baselineCmds) + '\n')
     if (baselineRaw.killedByTool === true) baselineHaTang = 'lenh baseline bi cong cu dung giua chung'
+    else if (doc.ghiSai !== null) baselineChuaChay = true, baselineHaTang = `tac tu chep kich ban doi chung sai (dau kiem tep vua ghi: «${doc.ghiSai.slice(0, 120)}», kit tinh ${ckBaseline}) — tep da doi ten .sai, kich ban khong chay`
     else if (!doc.batDau) baselineChuaChay = true, baselineHaTang = `lenh baseline khong chay dong nao (cong cu tu choi loi goi, hoac khong ghi duoc tep kich ban)${baselineRaw.dauRa.trim() ? ` — cong cu tra: «${baselineRaw.dauRa.replace(/\s+/g, ' ').trim().slice(0, 240)}»` : ''}`
+    // Kịch bản đã chạy mà lệnh ghi không xác nhận ĐÚNG số dấu kiểm → không biết nó có phải kịch bản kit sinh: không tin.
+    else if (doc.ghiDung !== ckBaseline) baselineHaTang = `lenh ghi khong xac nhan dau kiem ${ckBaseline} (dong ${DAU_BL}_GHI dung ${doc.ghiDung === null ? 'vang' : `«${doc.ghiDung.slice(0, 120)}»`}) — khong tin dau ra cua kich ban`
     else if (doc.haTang) baselineHaTang = `khong dung duoc worktree tren ${args.diffBase} (${doc.haTang})`
     else if (!doc.du) baselineHaTang = `dau ra thieu dong ${DAU_BL}_XONG — lenh baseline khong chay het (bi dung, cho hop xin quyen, dau ra bi cat, hoac lenh eval vo cu phap shell)`
     baselineKetQua = baselineCmds.map(c => doc.theoCmd.get(c) || { cmd: c, cannotRun: true, reason: 'khong co dong ket qua cho lenh nay trong dau ra baseline' })

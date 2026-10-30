@@ -6,7 +6,7 @@
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { runWorkflow, check, summary, TOOL_KILL_RULE_LINES, TOOL_KILL_RULE_SRC } from './harness.mjs';
+import { runWorkflow, check, summary, TOOL_KILL_RULE_LINES, TOOL_KILL_RULE_SRC, kemGhiDung } from './harness.mjs';
 import { measureShapes } from './measure-pins.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -356,7 +356,7 @@ console.log('W19 P2 baseline-once: skip agent, Analyst carried, run-log kind:bas
   check('W19 verdict PASS unchanged', result.verdict === 'PASS');
   // default path: runBaseline absent -> agent runs, baseline line has hash, NO carried marker.
   // Phép đo TRỌN (dòng dấu đủ — baseline-tran-bo-qua-don): phép đo rỗng/cụt không còn được ghi thành dòng này.
-  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ evalsHash: 'abc123' }), responder({ 'baseline:': { dauRa: '__BL_BAT_DAU 1\n__BL 1 xong 1\n__BL_XONG', results: [] } }));
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ evalsHash: 'abc123' }), responder({ 'baseline:': (call) => kemGhiDung(call, { dauRa: '__BL_BAT_DAU 1\n__BL 1 xong 1\n__BL_XONG', results: [] }) }));
   check('W19 default still spawns baseline', byLabel(c2, 'baseline:').length === 1);
   const bl2 = r2.runLog.map(l => JSON.parse(l)).find(l => l.kind === 'baseline');
   check('W19 fresh baseline line: hash, no carried marker', !!bl2 && bl2.evals_hash === 'abc123' && !('carried_from_round' in bl2));

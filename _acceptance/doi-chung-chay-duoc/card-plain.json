@@ -1,0 +1,31 @@
+{
+  "feature_plain": "Bước đối chứng của lượt chấm chạy lại được các lệnh kiểm trên mã cũ, nên người ký thấy lại eval nào thật sự phân biệt mã mới với mã cũ — thay vì «không đo» ở mọi kho như từ 23/10.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ giao cho tác tử đối chứng một lệnh ghi tệp do kit soạn sẵn, chỉ dùng Bash — đề bài không còn nhắc công cụ ghi tệp mà tác tử không có."},
+    {"id": "AC-2", "p": "Sẽ ghi đúng từng byte kịch bản và chạy được trên cả bash lẫn zsh; mọi thứ ghi ra nằm gọn trong vùng tạo phẩm của lượt chấm, cây kho sạch."},
+    {"id": "AC-4", "p": "Sẽ xếp eval xanh ở cả mã cũ lẫn mã mới vào danh sách «không phân biệt» trên báo cáo."},
+    {"id": "AC-6", "p": "Sẽ chứng lại lỗi cũ: bộ chấm trước bản sửa, cùng mẫu, vẫn ra «No such tool available: Write» và không đo được."},
+    {"id": "AC-7", "p": "Sẽ đối chiếu đề bài của cả chín vai chấm với công cụ thật của loại tác tử — lỗi «dặn công cụ mà tác tử không có» bị bắt ở mọi vai, và tác tử chấm vẫn không cầm bút."},
+    {"id": "AC-8", "p": "Sẽ tự đổi dấu kết của lệnh ghi khi một lệnh eval vô tình mang đúng dấu ấy."},
+    {"id": "AC-9", "p": "Sẽ giữ bản ghi đầu ra của tác tử chấm thật ở cỡ thật và phát lại qua bộ đọc thật — không chỉ dựa trên bộ mô phỏng."}
+  ],
+  "wont_do": [
+    {"id": "AC-3", "p": "Chặn kịch bản chép sai: tác tử chép lệch, bỏ dòng kiểm hay viết lại lệnh thì kịch bản không chạy và lượt ghi rõ lý do — không bao giờ đọc kết quả hỏng như đo thật."},
+    {"id": "AC-5", "p": "Sẽ KHÔNG xếp eval đỏ ở mã cũ, xanh ở mã mới vào «không phân biệt» — nó được ghi là có phân biệt."},
+    {"id": "OOS-1", "p": "KHÔNG đo lại lời từ chối của chế độ cô lập worktree ngày 23/10 — hôm nay không tái hiện được; giữ nguyên cách gọi của bản 23/10."},
+    {"id": "OOS-2", "p": "KHÔNG trao công cụ ghi tệp cho tác tử chấm, kể cả một loại tác tử riêng cho làn đối chứng."},
+    {"id": "OOS-3", "p": "KHÔNG để bước chuẩn bị lượt chấm ghi sẵn kịch bản — tránh hai nơi cùng soạn một kịch bản."},
+    {"id": "OOS-4", "p": "KHÔNG sửa móc chặn lệnh nặng của gói điều phối — ca eval gọi thẳng lệnh chấm của kit chưa gặp, ghi là giới hạn."},
+    {"id": "OOS-5", "p": "KHÔNG ghim lại các hồ sơ đã ký có bộ kiểm đổi cách rút kịch bản — việc của chiến dịch ghim lại ở mốc phát hành."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Không quét không gian tiêu chí: bốn vế của câu «bật khi» của hàng TC6 ánh xạ thẳng AC-4 (không phân biệt), AC-5 (phân biệt), AC-6 (đối chứng bản cũ), AC-7 (không cầm bút); AC-1, AC-2, AC-3, AC-8 là các chiều hỏng của chính cách sửa; AC-9 đặt tác tử thật vào bộ kiểm."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Tác tử có thể bỏ dòng kiểm dấu mà vẫn chạy kịch bản chép hỏng — đã sửa: máy chỉ tin kết quả khi thấy dòng xác nhận đúng số, ba kiểu «gọn hoá» đều bị bắt."},
+    {"i": 1, "p": "Tám tiêu chí đầu chạy trên tác tử mô phỏng — đã thêm AC-9 với bản ghi tác tử thật ở cỡ thật (lệnh ghi ~10 KB, chép đúng từng byte)."},
+    {"i": 2, "p": "Vế «không ghi vào cây kho» chỉ đo danh sách công cụ — đã ghim: mọi tệp làn tạo ra nằm dưới vùng tạo phẩm, dời ra ngoài thì phép kiểm đỏ; không dời ra ngoài cây vì chế độ cô lập từng chặn ghi ngoài worktree."},
+    {"i": 3, "p": "Căn cứ chọn cách ghi tệp ghi nhầm «lối duy nhất» — đã thay bằng căn cứ đúng: giữ cách gọi 23/10 vì một kho tiêu thụ đang dựa vào nó."},
+    {"i": 4, "p": "Lời gọi ghi bị từ chối thì lý do phải mang chữ từ chối để ngưỡng mở lại đếm được — đã sửa và ghim."}
+  ]
+}

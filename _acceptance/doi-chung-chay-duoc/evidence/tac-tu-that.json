@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "ghi_luc": "2026-10-29T05:48:00Z",
+  "cach_ghi": "Phiên của vòng sinh đề bài làn đối chứng bằng bộ chấm thật (tests/workflows/harness.mjs, args dưới) cho 8 lệnh eval của hồ sơ, rồi giao mỗi đề bài cho một tác tử Agent loại feature-loop:cham-lenh (model sonnet, công cụ Bash/Read) qua một tệp đề bài; tác tử in dauRa giữa hai dòng dấu và phiên chép NGUYÊN VĂN vào đây. Kho chạy là bản sao tách rời của worktree vòng (đường repoRoot), commit gốc origin/main — ở gốc chưa có tệp ca của hồ sơ nên cả 8 lệnh ra bo-qua; lệnh chạy thật trên gốc được đo ở DC2 (shell thật) và ở số đo 29/10 trong design doc.",
+  "ban_cham_blob": "2a5442e83d070e2cd6ab1fccbe03bed6e66bade8",
+  "args": {
+    "slug": "doi-chung-chay-duoc",
+    "round": 1,
+    "riskTier": "T2",
+    "evals": [
+      {
+        "id": "E1",
+        "criterion": "AC-1",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC1a DC1b DC1c DC1d; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x0",
+        "expected": "ok"
+      },
+      {
+        "id": "E2",
+        "criterion": "AC-2",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC2a DC2a-goi DC2b DC2b-goi; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x1",
+        "expected": "ok"
+      },
+      {
+        "id": "E3",
+        "criterion": "AC-3",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC3a DC3b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x2",
+        "expected": "ok"
+      },
+      {
+        "id": "E4",
+        "criterion": "AC-4",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC4a DC4b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x3",
+        "expected": "ok"
+      },
+      {
+        "id": "E5",
+        "criterion": "AC-5",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC5a DC5b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x4",
+        "expected": "ok"
+      },
+      {
+        "id": "E6",
+        "criterion": "AC-6",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC6a DC6b DC6c; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x5",
+        "expected": "ok"
+      },
+      {
+        "id": "E7",
+        "criterion": "AC-7",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC7a DC7b DC7c DC7d DC7e; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x6",
+        "expected": "ok"
+      },
+      {
+        "id": "E8",
+        "criterion": "AC-8",
+        "executor": "script",
+        "cmd": "bash -c 'out=$(node tests/workflows/doi-chung-chay-duoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in DC8a DC8b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'",
+        "ref": "config:executors.script.x7",
+        "expected": "ok"
+      }
+    ],
+    "suiteCommands": [],
+    "diffBase": "origin/main",
+    "repoRoot": "/private/tmp/claude-501/-Users-manhphan-dev-acceptance-gate-kit--claude-worktrees-tc6-doi-chung-chay-duoc-5caeb9/d97e554b-1693-46f2-bff1-e6780007d9ce/scratchpad/viet",
+    "personasPath": "/x",
+    "templatePath": "/y",
+    "invokedAt": "2026-10-29T06:00:00Z",
+    "invokedSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "evalsHash": "h"
+  },
+  "moi": {
+    "dauRa": "__BL_GHI dung 730097493 10313\n__BL_BAT_DAU 8\n__BL 1 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 2 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 3 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 4 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 5 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 6 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 7 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL 8 bo-qua tests/workflows/doi-chung-chay-duoc.test.mjs\n__BL_XONG"
+  },
+  "cu": {
+    "dauRa": "",
+    "ghi_chu": "Tác tử nhận đề bài của d3cfca5c không gọi công cụ nào: báo phiên chỉ có Bash, Read (không Write) nên theo đề trả dauRa rỗng và dừng."
+  }
+}

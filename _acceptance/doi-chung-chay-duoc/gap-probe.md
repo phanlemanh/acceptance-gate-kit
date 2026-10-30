@@ -1,0 +1,18 @@
+---
+slug: doi-chung-chay-duoc
+at: 2026-10-29T05:20:17Z
+verdict: findings
+p0: 0
+p1: 4
+p2: 1
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P1 | contract | AC-3 chỉ hứa bắt chép sai ở thân heredoc; bộ đọc không bắt buộc thấy `__BL_GHI dung` kèm dấu kiểm thật trước khi tin dấu `__BL`, nên dòng so cksum là điểm yếu nhất | Tác tử thật «gọn hoá» lệnh: bỏ dòng so (hoặc viết lại thành `echo __BL_GHI dung`) và chép lệch thân → không `sai`, không `.sai`, lời gọi 2 chạy kịch bản hỏng, bộ đọc ghi `kind: baseline` như đo thật | Lệnh ghi in `__BL_GHI dung <N L>`; bộ đọc so với số kit tính, mặc định không tin; DC3c ba đột biến (bỏ dòng so · echo dung · mất dòng mở) | fixed: lệnh ghi in `__BL_GHI dung $C`; bộ đọc thêm nhánh «lenh ghi khong xac nhan dau kiem» khi kịch bản đã chạy mà thiếu dòng đúng số; DC3c ba đột biến, mỗi kiểu ghim lý do; AC-3 mở rộng; sổ d-20261029T055500Z-11 |
+| P1 | evals | Cả tám eval chạy trên bộ mô phỏng tất định; chữ «No such tool available: Write» ở DC6b do bộ mô phỏng in; không thước nào trên tác tử thật | Tác tử sonnet thật chép sai một heredoc vài nghìn byte ở cỡ 8–10 lệnh → cksum lệch mọi lượt, làn rơi về `baseline-khong-do`, E1–E8 vẫn xanh | Một AC đọc run-log thật của lượt S4 vòng này, hoặc ghim chữ từ dòng thật | fixed: AC-9 + E9 — bản ghi nguyên văn đầu ra của hai tác tử cham-lenh thật ở cỡ thật (8 lệnh, lệnh ghi ~10 KB, khớp dấu kiểm), phát lại qua đúng blob bộ chấm; chiều đỏ DC9d. Không dùng run-log của chính lượt S4: eval chạy TRONG lượt ấy (vòng tròn) và các eval của hồ sơ ra bo-qua ở gốc. DC6b giữ chữ lỗi đo 29/10 + FL5; tác tử thật nhận đề bài cũ trong bản ghi trả rỗng (biến thể hành vi), DC9c ghim điều chung cho cả hai |
+| P1 | contract | Vế «không cầm bút ghi vào CÂY KHO» chỉ đo danh sách công cụ; design không nói thư mục lượt nằm đâu so với cây | Thư mục lượt nằm trong cây dưới đường git bỏ qua; `git status --porcelain` vẫn rỗng; AC-7 xanh dù tác tử ghi vào cây mọi lượt | Khai đường dẫn; assert tệp ngoài show-toplevel và `status --ignored` trước = sau; đột biến đặt vào trong cây phải đỏ | fixed một phần: design khai thư mục lượt `<gốc>/.acceptance-runs/<slug>/s4-baseline/<nhãn>/`; AC-2 thêm DC2-cay (`status --porcelain --ignored --untracked-files=all` — mọi tệp mới dưới `.acceptance-runs/`) và đột biến DC2c (dời ra ngoài vùng → đỏ). rejected vế «ngoài show-toplevel»: bộ canh cô lập worktree từng từ chối ghi ngoài worktree, `.acceptance-runs/` là vùng tạo phẩm đã khai của lượt chấm (ca cây-đổi-trong-lượt không canh nó) |
+| P1 | design | Dòng sổ d-20261029T052000Z-3 ghi nguồn một-lối «heredoc là lối Bash duy nhất còn sống», trong khi bảng số đo cho thấy khối trơn chạy được | Người ký đọc «một lối» nên không thấy lối khối trơn đơn giản hơn; phạm vi mang thêm dấu kiểm + đổi dấu kết mà căn cứ không đòi | Thay d-3 bằng dòng có căn cứ đúng, liệt lối khối trơn trong «Lối đã cân và loại» | fixed: dòng d-20261029T055500Z-10 supersedes d-3, nguồn mục-tiêu trích luật kho «hành vi cũ có ai đang dựa không?» (lời gọi qua tệp sinh ra vì kho tiêu thụ 23/10); design thêm lối khối trơn kèm vì sao không chọn |
+| P2 | contract | Ngưỡng mở lại của giới hạn «bộ canh siết thêm» đếm dòng `baseline-khong-do` mang chữ từ chối, nhưng không AC hứa lý do mang chữ của lời gọi 1 | Bộ canh từ chối lời gọi 1, bộ đọc ghi lý do chung kèm lỗi của lời gọi 2 → ngưỡng đếm mãi bằng 0 | DC3d: từ chối lời gọi 1 → lý do và dòng `baseline-khong-do` chứa nguyên chữ từ chối | fixed: đề bài dặn trả nguyên chữ công cụ rồi DỪNG khi lời gọi 1 bị từ chối; nhánh «chưa chạy dòng nào» mang chữ ấy; DC3d ghim cả haTang lẫn `ly_do` của dòng run-log |
