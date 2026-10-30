@@ -721,3 +721,40 @@ kiểm tra để ngoài kho.
 
 **Giới hạn:** chữ của khung trình xem (Light/Dark, Present, Export, Legend, tên loại khối Frontend/Backend…) là
 tiếng Anh — trình xem chỉ có giao diện tiếng Anh và tiếng Trung; nội dung hình là tiếng Việt.
+
+---
+
+## 13. Sổ quyết định · việc còn mở · đường đọc lại bối cảnh
+
+Chủ kho (30/10): «Viết lại thành tất cả tài liệu cũng như quyết định sau đó mới thực hiện vòng thử ở CRM. Để khi thực
+hiện chúng ta không mất bối cảnh?» Mục này là sổ của cả mạch thảo luận. Phiên mở vòng thử đọc nó trước tiên.
+
+### 13.1 Quyết định đã chốt
+
+| Mã | Ngày | Quyết định | Ai · căn cứ | Trạng thái |
+|---|---|---|---|---|
+| QĐ-1 | 30/10 | Lệch giữa các màn được giải bằng **bản đồ khuôn**: kho giữ giá trị, kit giữ cơ chế (§7.4, §10.3, §11) | máy đề xuất; chủ kho: «Tôi đồng ý với cách giải» | chốt, cửa veto mở |
+| QĐ-2 | 30/10 | **Thứ tự:** crm chạy thử như việc của kho → invest khai cùng hình dạng → kit rút cơ chế ở một vòng meta có tên, sau mốc kho nhận (§7.7, hình 6) | như QĐ-1 (khuyến nghị nhánh trái) | chốt, cửa veto mở |
+| QĐ-3 | 30/10 | Tiếp thu 8 điều từ gói ux-kit (H1–H8), bỏ 5 điều (K1–K5) — chính là khoá theo đối tượng, khe bắt buộc qua kiểu, cấm nhập theo vùng (§10) | máy quyết theo căn cứ đã khai (quyết định crm đã ký, luật ≤ 3 lượt) | máy quyết, ghi sổ, cửa veto mở |
+| QĐ-4 | 30/10 | Kiến trúc §11 và hình duyệt cuối §12 làm hướng cho vòng thử | chủ kho xem hình, không sửa, chuyển sang ghi tài liệu | **xác nhận khi chủ kho duyệt bản phạm vi crm** (M-1) |
+| QĐ-5 | 30/10 | Trước khi chạy vòng: ghi hết tài liệu và quyết định — finding (kho kit) · tri thức (kho riêng của crm) · bản phạm vi (crm) | chủ kho, câu đầu mục này | đã làm trong phiên này |
+| QĐ-6 | 30/10 | Chờ tải trong ngăn bản ghi dùng **khung xương** (kéo luật trang 09/10 của crm xuống tầng ngăn) | máy, căn cứ `docs/design.md` «Chờ tải và lỗi tải» | máy quyết, cửa veto mở |
+
+### 13.2 Việc còn mở
+
+| Mã | Việc | Ai | Ghi chú |
+|---|---|---|---|
+| M-1 | Duyệt bản phạm vi `docs/plan/pham-vi-ban-do-khuon-3010.md` của crm → cắt lượt (`cat-luot`) → hàng lộ trình → mở vòng | chủ kho duyệt; máy cắt và mở | vòng chạy trong phiên cấp cao nhất ở thư mục crm (cần công cụ Workflow) |
+| M-2 | Đẩy ba nơi đang chỉ commit tại máy: nhánh kit `claude/thao-luan-ui-dong-nhat-b528d4` (finding + hình) · kho tri thức `crm-onehub-nguon` · nhánh bản phạm vi của crm | chủ kho cho phép đẩy | kho kit công khai: chạy rà ẩn danh trước khi đẩy |
+| M-3 | Thứ tự với bản phạm vi `okr-ghi-trong-ngan-3010` (N1, N2 chạm cùng `kr-sheet.tsx`, `objective-sheet.tsx`) | máy xếp khi cắt lượt | không chạy song song hai vòng sửa cùng tệp ngăn |
+| M-4 | Mở hạt giống phía kit cho «bản đồ khuôn trong design-floor» | máy, sau khi có neo | neo = hồ sơ vòng thử của crm sau khi ký (luật «ô chỉ mở khi có neo ngoài») |
+
+### 13.3 Đường đọc lại bối cảnh (cho phiên mở vòng thử)
+
+1. **crm** `docs/plan/pham-vi-ban-do-khuon-3010.md` — phạm vi, mã, quyết định, tệp chạm.
+2. **kho tri thức crm** `crm-onehub-nguon:wiki/chu-de/ban-do-khuon.md` — điều rút ra; dòng `nguon` trỏ bản thô bất biến
+   (finding này, các trang hình, đặc tả kiến trúc, gói ux-kit, trích phiên).
+3. **finding này** §0 (một phút) → §5.1 (vòng thử) → §10.3 (sau khi học ux-kit) → §11 (kiến trúc, giai đoạn, hai chiều
+   của thước) → §13 (sổ).
+4. **Hình:** [`assets/2026-10-30-kien-truc-ban-do-khuon.html`](assets/2026-10-30-kien-truc-ban-do-khuon.html) (duyệt cuối) ·
+   [`assets/2026-10-30-ui-dong-nhat-giua-cac-man.html`](assets/2026-10-30-ui-dong-nhat-giua-cac-man.html) (tám hình).
