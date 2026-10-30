@@ -5,7 +5,7 @@ slug: release-2-36-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + hạt giống + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -89,3 +89,6 @@ limits của sáu hồ sơ · GUIDE khối `GITATTR-TEP-SINH` · `dieu-phoi/READ
 - Chỗ cắt cho cửa sổ kế (luật (c)): P179 — sổ known-limits thiếu hàng cho đề xuất của lượt trước — đốt bốn trong 19
   lượt chấm của cửa sổ (dòng 3 của CHANGELOG mục `2.36.0`); hạt giống
   `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` đã chạm ngưỡng — vòng meta kế khi chủ kho gọi tên.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-31:
+  - Ngoài-1: bộ đo giờ máy bỏ đúng phần lượng dùng của lời nhắn tự sinh, nhưng chưa có ca kiểm giữ vế «mốc thời gian của lời nhắn ấy vẫn vào giờ máy» — sửa nhầm vế này sau này thì giờ máy lệch nhẹ mà bộ kiểm vẫn xanh.
+  - Ngoài-2: danh sách sáu hồ sơ của mốc được kiểm theo một bản chép tay trong cấu hình, không theo hợp đồng — sửa lệch một bên thì phép kiểm vẫn xanh.
