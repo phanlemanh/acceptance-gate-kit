@@ -1,0 +1,97 @@
+{
+  "feature_plain": "Kho chọn bật thì khi gộp nhánh chính vào nhánh việc, git không còn dừng ở bản đồ sản phẩm và trang lộ trình; người gộp vẽ lại hai trang, và nếu quên thì bước kiểm bản vẽ vẫn đỏ đúng trang lệch.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ gộp không dừng ở kho đã bật (gộp không dừng), cả khi hai nhánh thêm hai việc khác nhau lẫn khi sửa hai hàng lộ trình khác nhau — hai trang giữ bản của nhánh việc."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ để bước kiểm bản vẽ đỏ đúng trang lệch nếu người gộp quên vẽ lại (kiểm đỏ đúng tệp), và xanh lại sau khi vẽ lại, bản đồ có đủ cả hai việc."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ giữ git y như hôm nay ở kho chưa bật hoặc máy chưa chạy lệnh cấu hình (không bật như cũ): vẫn dừng ở đúng hai trang."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ vẫn dừng khi hai nhánh sửa cùng một hàng lộ trình (xung đột nguồn còn nguyên) — chỉ hai trang vẽ mới được bỏ qua."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ bật luôn cho chính kho kit (kit tự bật), hai dòng khai lấy từ đúng một khối hướng dẫn trong sách dùng kit."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ bỏ qua thư mục rỗng sót trong sổ hồ sơ (thư mục rỗng — Hỏi-1), nên bản vẽ của máy có vết khớp bản tải sạch; thư mục có tệp lạ vẫn báo hỏng như cũ."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ giữ mọi bộ kiểm có sẵn xanh và bản đồ của kho kit khớp (bộ cũ xanh)."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-7",
+      "p": "Sẽ KHÔNG đổi một byte bản đồ hay trang lộ trình ở kho không bật và không có thư mục rỗng (đường đọc-cũ)."
+    },
+    {
+      "id": "OOS-1",
+      "p": "KHÔNG dùng lối ghép hai bản (union), không vẽ lại giữa lúc gộp, không đổi luật gộp nhanh của đợt."
+    },
+    {
+      "id": "OOS-2",
+      "p": "KHÔNG làm việc tự vẽ trên nhánh chính sau gộp, không hạ bước kiểm thành cảnh báo — chờ đo trên hai kho."
+    },
+    {
+      "id": "OOS-3",
+      "p": "KHÔNG để kit tự đổi cấu hình git của máy, và không bật hộ kho tiêu thụ — kho nhận theo bản phát hành."
+    },
+    {
+      "id": "OOS-4",
+      "p": "KHÔNG đụng các tệp sinh khác ngoài bản đồ và trang lộ trình."
+    },
+    {
+      "id": "OOS-5",
+      "p": "KHÔNG đổi số phiên bản hay nhật ký phát hành — việc của lượt cắt bản."
+    }
+  ],
+  "scope_plain": "Những việc vòng này cố ý không làm:",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Ba trạng thái kho (chưa khai, khai mà máy chưa cấu hình, bật đủ) nhân ba kiểu hai nhánh cùng đổi nguồn đều có ca dựng thật: AC-1 đến AC-4."
+    },
+    {
+      "i": 1,
+      "p": "Kho kit tự bật (AC-5), thư mục rỗng (AC-6), kho không bật giữ nguyên từng byte (AC-7), bộ kiểm cũ (AC-8)."
+    },
+    {
+      "i": 2,
+      "p": "Đối chiếu ngành: tài liệu git về driver gộp tự khai, và cách npm gỡ xung đột tệp khoá bằng sinh lại."
+    },
+    {
+      "i": 3,
+      "p": "Để sau: việc tự vẽ trên nhánh chính. Không bao giờ: lối ghép hai bản."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Ngưỡng của ô bị đổi nghĩa mà không hỏi ai: thiết kế này không xoá được lần gộp lại khi nhánh chính dời, chỉ xoá phần dừng gỡ tay — đã đưa thành Hỏi-2 cho anh, và đường đo viết lại bằng phát lại các lần gộp."
+    },
+    {
+      "i": 1,
+      "p": "Lý do bỏ lối ghép hai bản dựa vào hành vi GitHub chưa kiểm — đã viết lại căn cứ: lối ghép đổi hành vi tuỳ công cụ gộp mà kit không kiểm được cho mọi kho, còn driver tự khai rơi về dừng như cũ ở mọi nơi chưa cấu hình."
+    },
+    {
+      "i": 2,
+      "p": "Thư mục chỉ chứa tệp kho bỏ qua (như .DS_Store) vẫn báo hỏng — khai thành giới hạn, mở lại khi một lần kiểm ở máy chủ đỏ vì nó."
+    },
+    {
+      "i": 3,
+      "p": "Ca đo gộp thật có thể bị cấu hình git của máy chấm làm lệch — đã cô lập cấu hình trong mọi ca và thêm bước chứng việc cô lập có tác dụng."
+    }
+  ],
+  "analyst_plain": "Bước kiểm bản vẽ (E8) xanh cả trên mã cũ lẫn mã mới vì bản vẽ của kho kit vốn khớp nguồn — nó canh bản vẽ không lệch, không phân biệt vật mới; vật mới được đo bằng bảy ca dựng kho thử (E1–E7)."
+}
