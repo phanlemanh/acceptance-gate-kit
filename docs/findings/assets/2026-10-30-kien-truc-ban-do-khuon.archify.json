@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Bản đồ khuôn — kiến trúc trong kit",
+    "output": "2026-10-30-kien-truc-ban-do-khuon.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "duong-chinh",
+        "label": "Đường chính",
+        "focus": [
+          "bando",
+          "lenh",
+          "ketqua",
+          "the",
+          "chukho"
+        ],
+        "note": "Luật của kho đi qua lệnh khuôn, thành tệp kết quả, lên thẻ cổng cho chủ kho đọc."
+      },
+      {
+        "id": "tac-tu-dung",
+        "label": "Tác tử dựng màn",
+        "focus": [
+          "lenh",
+          "tactu",
+          "khuon",
+          "lint"
+        ],
+        "note": "Máy nạp đúng khuôn trước khi dựng; khe bắt buộc và lint cấm nhập giữ tác tử trong khuôn."
+      },
+      {
+        "id": "nguoi-cham",
+        "label": "Người chạm ở đâu",
+        "focus": [
+          "the",
+          "chukho",
+          "bando"
+        ],
+        "note": "Chỉ ở cổng sẵn có; chạm thêm một lần khi vòng mang đối tượng mới."
+      },
+      {
+        "id": "nguyen-lieu",
+        "label": "Nguyên liệu Design OS",
+        "focus": [
+          "jsx",
+          "so",
+          "lenh"
+        ],
+        "note": "Bộ đọc cây mã và sổ thành phần từ mã — hai hàng chờ, chưa vendor."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "bando",
+      "type": "database",
+      "label": "Bản đồ khuôn",
+      "sublabel": "design/patterns/<nhóm>.md",
+      "tag": "luật của kho",
+      "pos": [
+        60,
+        340
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "khuon",
+      "type": "frontend",
+      "label": "Khuôn có khe",
+      "sublabel": "khe bắt buộc qua kiểu",
+      "pos": [
+        60,
+        140
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "lint",
+      "type": "backend",
+      "label": "Lint cấm nhập",
+      "sublabel": "theo vùng, trong suite kho",
+      "pos": [
+        60,
+        540
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "tactu",
+      "type": "external",
+      "label": "Tác tử viết mã",
+      "sublabel": "S1 → S3",
+      "pos": [
+        360,
+        40
+      ],
+      "size": [
+        220,
+        72
+      ]
+    },
+    {
+      "id": "lenh",
+      "type": "backend",
+      "label": "Lệnh khuôn",
+      "sublabel": "đề xuất · nạp · kiểm · gợi ý lint",
+      "tag": "mới",
+      "pos": [
+        360,
+        340
+      ],
+      "size": [
+        220,
+        72
+      ]
+    },
+    {
+      "id": "ketqua",
+      "type": "database",
+      "label": "khuon-cham.json",
+      "sublabel": "kết quả lượt chấm S4",
+      "pos": [
+        660,
+        340
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "designpass",
+      "type": "frontend",
+      "label": "design-pass",
+      "sublabel": "ảnh màn mới cạnh màn mẫu",
+      "pos": [
+        940,
+        200
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "the",
+      "type": "frontend",
+      "label": "Thẻ cổng",
+      "sublabel": "khối «Khuôn» · Cổng 1, Cổng 2",
+      "pos": [
+        940,
+        340
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "chukho",
+      "type": "external",
+      "label": "Chủ kho",
+      "sublabel": "quyết ở cổng",
+      "pos": [
+        1220,
+        340
+      ],
+      "size": [
+        120,
+        72
+      ]
+    },
+    {
+      "id": "jsx",
+      "type": "backend",
+      "label": "Bộ đọc JSX/TSX",
+      "sublabel": "hàng chờ DFK-C1",
+      "pos": [
+        360,
+        560
+      ],
+      "size": [
+        220,
+        72
+      ]
+    },
+    {
+      "id": "so",
+      "type": "backend",
+      "label": "Sổ thành phần từ mã",
+      "sublabel": "hàng chờ DFK-C3",
+      "pos": [
+        660,
+        560
+      ],
+      "size": [
+        200,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "KHO — giữ giá trị",
+      "wraps": [
+        "bando",
+        "khuon",
+        "lint"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "KIT — giữ cơ chế",
+      "wraps": [
+        "lenh",
+        "ketqua",
+        "the",
+        "designpass"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "DESIGN OS — nguyên liệu",
+      "wraps": [
+        "jsx",
+        "so"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "doc-ban-do",
+      "from": "bando",
+      "to": "lenh",
+      "label": "đọc bản đồ",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ghi-ket-qua",
+      "from": "lenh",
+      "to": "ketqua",
+      "label": "ghi ở S4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "the-doc",
+      "from": "ketqua",
+      "to": "the",
+      "label": "thẻ chỉ đọc",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trinh-cong",
+      "from": "the",
+      "to": "chukho",
+      "label": "trình cổng",
+      "variant": "emphasis"
+    },
+    {
+      "id": "nap-khuon",
+      "from": "lenh",
+      "to": "tactu",
+      "label": "nạp khuôn + màn mẫu",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "dien-khe",
+      "from": "tactu",
+      "to": "khuon",
+      "label": "điền khe"
+    },
+    {
+      "id": "goi-y-lint",
+      "from": "lenh",
+      "to": "lint",
+      "label": "gợi ý cấu hình",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "doc-cay-ma",
+      "from": "jsx",
+      "to": "lenh",
+      "label": "đọc cây mã",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        404,
+        460
+      ]
+    },
+    {
+      "id": "do-khuon",
+      "from": "so",
+      "to": "lenh",
+      "label": "dò khuôn",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "anh-doi-chieu",
+      "from": "designpass",
+      "to": "the",
+      "label": "ảnh đối chiếu",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        1040,
+        306
+      ]
+    },
+    {
+      "id": "doi-tuong-moi",
+      "from": "chukho",
+      "to": "bando",
+      "label": "đối tượng mới",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "left",
+      "via": [
+        [
+          1280,
+          12
+        ],
+        [
+          24,
+          12
+        ],
+        [
+          24,
+          376
+        ]
+      ],
+      "labelAt": [
+        900,
+        28
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Kho giữ giá trị",
+      "items": [
+        "Bản đồ khoá theo đối tượng: deal, KR, mục tiêu… cùng nhóm thì cùng khuôn",
+        "Răng rẻ trước: khe bắt buộc qua kiểu, rồi lint cấm nhập",
+        "Không khai bản đồ thì nhận bản mới không đổi gì"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Kit giữ cơ chế",
+      "items": [
+        "Một lệnh mới: đề xuất · nạp ở S1 · kiểm ở S4 · gợi ý lint",
+        "Thẻ chỉ đọc tệp kết quả, như luật sản phẩm (ADR 0024)",
+        "Chạy được cả ở bậc M0; không thêm khoá cấu hình"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Người chạm ở đâu",
+      "items": [
+        "Một lần mỗi kho: duyệt bản đồ khi khởi tạo",
+        "Mỗi vòng: 0 lượt, hoặc 1 chạm ở Cổng 1 khi có đối tượng mới",
+        "Thứ tự đã chốt: crm chạy thử → invest khai → kit rút"
+      ]
+    }
+  ]
+}
