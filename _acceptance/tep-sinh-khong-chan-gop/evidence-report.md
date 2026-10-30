@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 774ecafcb64855e2df08c839cb1154c70aff4c75
-human_signoff:
+human_signoff: Manh Phan 2026-10-30
 ---
 
 # Evidence Report: tep-sinh-khong-chan-gop

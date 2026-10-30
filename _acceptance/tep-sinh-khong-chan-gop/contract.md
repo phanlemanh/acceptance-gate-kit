@@ -5,7 +5,7 @@ slug: tep-sinh-khong-chan-gop
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: _acceptance/tep-sinh-khong-chan-gop/design.md
 approved_by: Manh Phan
 approved_at: 2026-10-30T02:02:42Z
@@ -100,3 +100,7 @@ gộp · D vết trong cây.
   đứng); bản clone chưa chạy lệnh cấu hình xung đột như cũ; trên web GitHub PR vẫn báo xung đột ở tệp sinh (forge không
   chạy driver máy) — cố ý, giữ lưới của forge; PR chạm hồ sơ vẫn gộp nhánh chính vào và vẽ lại mỗi lần nhánh chính dời
   (chỉ hết dừng gỡ tay); thư mục chỉ chứa tệp bị bỏ qua (`.DS_Store`) vẫn là «Hồ sơ hỏng» (design §4).
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-30:
+  - Ngoài-1: Ca kiểm «kho không bật giữ nguyên bản vẽ» còn chỗ hở ở nửa trang lộ trình — nếu bản mới bỏ không vẽ trang, ca có thể vẫn báo khớp; tờ bản đồ vẫn được giữ đủ.
+  - Ngoài-2: Thư mục rỗng sót lại trùng đúng tên một hàng lộ trình vẫn làm trang báo hàng đó hỏng và bước kiểm bản vẽ đỏ; xoá thư mục ấy là hết.
+  - Ngoài-3: Chưa có ca kiểm nào giữ trường hợp thư mục chỉ có tệp nằm trong thư mục con; hành vi hôm nay đúng.
