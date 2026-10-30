@@ -1,0 +1,25 @@
+{
+  "name": "design-floor-hop-dong",
+  "private": true,
+  "type": "module",
+  "description": "Kit-owned measurement suite for design-floor: import contract, module-closure fence, LOCAL-PATCHES ledger and the deterministic bundle build of the vendored Design OS (ease-design) core. esbuild + the runtime packages pinned here build design-floor/dist/ui.mjs; nothing in this folder ships.",
+  "scripts": {
+    "test": "bash run-tests.sh"
+  },
+  "devDependencies": {
+    "boolbase": "2.0.0",
+    "css-select": "7.0.0",
+    "css-tree": "3.2.1",
+    "css-what": "8.0.0",
+    "dom-serializer": "3.1.1",
+    "domelementtype": "3.0.0",
+    "domhandler": "6.0.1",
+    "domutils": "4.0.2",
+    "entities": "8.0.0",
+    "esbuild": "0.25.10",
+    "htmlparser2": "12.0.0",
+    "mdn-data": "2.27.1",
+    "nth-check": "3.0.1",
+    "source-map-js": "1.2.1"
+  }
+}

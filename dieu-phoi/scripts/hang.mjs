@@ -6,24 +6,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
-import { suySlug } from './nguon-hang.mjs';
+import { suySlug, timHangLoTrinh } from './nguon-hang.mjs';
 import { HANH_DONG, keHoachDay, THU_MUC_CHO_GHI_DANH } from './tiep-tuc.mjs';
+import { coThuMucTinh, docChupNhanhMo, xetTrungTep } from './trung-tep.mjs';
+import { ghiNhatKy, luu, TEP_KHOA_HANG_VIEC, treThu, voiKhoaHangViec } from './khoa-hang-viec.mjs';
 
-const TIEU_DE_NHAT_KY = '## Nhật ký';
-
-// Chèn một dòng ngay dưới tiêu đề Nhật ký của LUAT.md (thiếu tiêu đề thì thêm vào cuối).
-export function ghiNhatKy(thuMuc, cau) {
-  const p = path.join(thuMuc, 'LUAT.md');
-  const cu = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
-  const dong = `- ${new Date().toISOString()} ${cau}`;
-  const dsDong = cu.split('\n');
-  const i = dsDong.findIndex((d) => d.trim() === TIEU_DE_NHAT_KY);
-  if (i < 0) fs.writeFileSync(p, `${cu.replace(/\s*$/, '')}\n\n${TIEU_DE_NHAT_KY}\n${dong}\n`);
-  else {
-    dsDong.splice(i + 1, 0, dong);
-    fs.writeFileSync(p, dsDong.join('\n'));
-  }
-}
+export { ghiNhatKy, TEP_KHOA_HANG_VIEC, voiKhoaHangViec };
+export { themSau } from './khoa-hang-viec.mjs';
 
 // Khoá vắng (`undefined`) từng khớp mọi hàng không mang `ma` — S4-r1 lượt 2. Đối số phải là chuỗi có chữ.
 const coChu = (x) => typeof x === 'string' && x.trim() !== '';
@@ -31,55 +20,6 @@ const can = (x, ten) => {
   if (!coChu(x)) throw new Error(`hang: thiếu ${ten}`);
 };
 const timHang = (hv, khoa) => (coChu(khoa) ? hv.hang.find((h) => h.ma === khoa || h.slug === khoa) : undefined);
-const luu = (thuMuc, hv, cau, suKien) => {
-  ghiJsonNguyenTu(path.join(thuMuc, 'hang-viec.json'), hv);
-  ghiNhatKy(thuMuc, cau);
-  ghiSuKien(thuMuc, { loai: 'doi-ke-hoach', ...suKien });
-};
-
-// Khoá ghi của `hang-viec.json` (DP8, design chỗ chọn 2e): tám chip bấm gần nhau thì tám `ghi-danh` cùng đọc-sửa-ghi.
-// Mọi bên viết của tệp này bọc đọc-sửa-ghi (kể cả dòng Nhật ký CHÍNH chúng ghi; `pha` và `nhat-ky` ghi Nhật ký
-// ngoài khoá — giới hạn đã khai, hạt giống) trong khoá thư mục `hang-viec.khoa`: mkdir nguyên tử,
-// chờ tối đa 10″, khoá cũ hơn 30″ là của tiến trình đã chết. `DIEU_PHOI_TRE_GHI_MS` chỉ ca đo đặt: trễ giữa đọc và
-// ghi để ép tranh chấp.
-export const TEP_KHOA_HANG_VIEC = 'hang-viec.khoa';
-const CHO_KHOA_MS = 10_000;
-const KHOA_BO_ROI_MS = 30_000;
-const ngu = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-const treThu = () => {
-  const ms = Number(process.env.DIEU_PHOI_TRE_GHI_MS);
-  if (ms > 0) ngu(ms);
-};
-
-export function voiKhoaHangViec(thuMuc, viec) {
-  const d = path.join(thuMuc, TEP_KHOA_HANG_VIEC);
-  const het = Date.now() + CHO_KHOA_MS;
-  for (;;) {
-    try {
-      fs.mkdirSync(d);
-      break;
-    } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-    }
-    let tuoi = 0;
-    try {
-      tuoi = Date.now() - fs.statSync(d).mtimeMs;
-    } catch {
-      continue;
-    }
-    if (tuoi > KHOA_BO_ROI_MS) {
-      fs.rmSync(d, { recursive: true, force: true });
-      continue;
-    }
-    if (Date.now() > het) throw new Error(`hang: hang-viec.json đang bị khoá quá ${CHO_KHOA_MS / 1000}″ (${d}) — thử lại`);
-    ngu(25);
-  }
-  try {
-    return viec();
-  } finally {
-    fs.rmSync(d, { recursive: true, force: true });
-  }
-}
 
 export function dayLen(thuMuc, khoa, truocKhoa) {
   can(khoa, 'mã hàng cần đẩy');
@@ -101,22 +41,94 @@ function dayLenTrongKhoa(thuMuc, khoa, truocKhoa) {
   return { doi: true };
 }
 
-export function themHang(thuMuc, khoa, day) {
+export function themHang(thuMuc, khoa, day, { ranhGioi = null } = {}) {
   can(khoa, 'mã hoặc việc cần thêm');
   can(day, '--day <dãy>');
-  return voiKhoaHangViec(thuMuc, () => themHangTrongKhoa(thuMuc, khoa, day));
+  return voiKhoaHangViec(thuMuc, () => themHangTrongKhoa(thuMuc, khoa, day, ranhGioi));
 }
 
-function themHangTrongKhoa(thuMuc, khoa, day) {
+// Lịch biết tệp (hồ sơ ky-den-gop, hạng C): hàng mới gán vào dãy được so vùng tệp với việc đang dở ở dãy khác — đọc
+// từ trang-thai.json của bộ phát lịch (hàng của mỗi dãy + tiến độ, bản chụp PR đang mở). Trùng hàng → tự thêm `sau`
+// (hàng kia gộp xong mới bắt đầu); trùng PR ngoài đợt → báo, bộ phát lịch giữ hàng tới khi PR ấy đóng. Hàng không
+// khai vùng tệp → một dòng cảnh báo, không chặn.
+function trungLucThem(thuMuc, hv, hangMoi) {
+  const tt = docJson(path.join(thuMuc, 'trang-thai.json'), {}) ?? {};
+  const tienDo = new Map();
+  const keCua = new Map();
+  for (const d of tt.day ?? []) {
+    if (!d.hang) continue;
+    keCua.set(d.id, d.hang);
+    if (['dang', 'ky'].includes(d.tien_do)) tienDo.set(d.hang, d.tien_do);
+  }
+  return xetTrungTep(hangMoi, { hangViec: hv, tienDo, keCua, nhanhMo: docChupNhanhMo(tt.nhanh_mo), nhanhCuaDay: new Map(Object.entries(tt.nhanh_mo?.nhanh_day ?? {})) });
+}
+
+// Mã hay slug của một hàng lộ trình mà đợt chưa có: hàng thêm mang slug và mã của lộ trình (hồ sơ lenh-dot-ghi-dung-hang),
+// vùng mã dự kiến của hàng ấy làm vùng tệp (hồ sơ vung-giao-viec-tu-cat-luot). Đợt không khai nguồn hàng, hay khoá không
+// khớp ở đúng một tệp lộ trình → null, như trước.
+function hangLoTrinh(thuMuc, khoa) {
+  const cfg = docJson(path.join(thuMuc, 'dieu-phoi.config.json'), {}) ?? {};
+  if (!Array.isArray(cfg.nguon_hang) || typeof cfg.goc_kho !== 'string') return null;
+  return timHangLoTrinh(cfg.goc_kho, cfg.nguon_hang, khoa);
+}
+
+// Đối số đã có dạng slug thì giữ nguyên — `suySlug` là luật suy từ CÂU GIAO (sáu từ đầu), không phải luật nhận một slug.
+const LA_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+function themHangTrongKhoa(thuMuc, khoa, day, ranhGioi) {
   const hv = docHangViec(thuMuc);
   treThu();
   if (!hv.day.some((d) => d.id === day)) throw new Error(`hang: không có dãy ${day}`);
-  const slug = timHang(hv, khoa)?.slug ?? suySlug(khoa);
+  const goc = timHang(hv, khoa);
+  const lt = goc ? null : hangLoTrinh(thuMuc, khoa);
+  const slug = goc?.slug ?? lt?.slug ?? (LA_SLUG.test(khoa) ? khoa : suySlug(khoa));
   if (!slug) throw new Error(`hang: không suy được slug từ «${khoa}»`);
-  if (hv.hang.some((h) => h.day === day && (h.slug === slug || h.ma === khoa))) return { doi: false };
-  hv.hang.push({ slug, day });
-  luu(thuMuc, hv, `thêm việc ${khoa} cho ${day}`, { kieu: 'them', hang: slug, day });
-  return { doi: true, slug };
+  if (hv.hang.some((h) => h.day === day && (h.slug === slug || h.ma === khoa || (lt?.ma !== undefined && h.ma === lt.ma)))) return { doi: false };
+  const rg = ranhGioi ?? goc?.ranh_gioi ?? lt?.vung ?? null;
+  const hangMoi = { ...(typeof lt?.ma === 'string' ? { ma: lt.ma } : {}), slug, day, ...(rg?.length ? { ranh_gioi: rg } : {}) };
+  const { vang, trung } = trungLucThem(thuMuc, hv, hangMoi);
+  const sau = [...new Set(trung.filter((t) => t.voi === 'hang').map((t) => t.khoa))];
+  if (sau.length) hangMoi.sau = sau;
+  hv.hang.push(hangMoi);
+  luu(thuMuc, hv, `thêm việc ${khoa} cho ${day}${sau.length ? ` — sau ${sau.join(', ')} (trùng tệp)` : ''}`, { kieu: 'them', hang: slug, day, ...(sau.length ? { sau, trung } : {}) });
+  const canhBao = [];
+  if (vang) canhBao.push(`hang them: ${slug} không khai ranh_gioi — lịch không so được tệp; thêm --ranh-gioi <glob,glob> để máy xếp tránh trùng`);
+  for (const t of trung.filter((x) => x.voi === 'pr')) canhBao.push(`hang them: ${slug} trùng tệp PR mở ${t.nhanh} (${t.tep.slice(0, 3).join(', ')}) — bộ phát lịch giữ hàng tới khi PR ấy đóng`);
+  return { doi: true, slug, sau, canhBao };
+}
+
+// Khai vùng ở Cổng Phạm vi (hồ sơ vung-giao-viec-tu-cat-luot): phiên thợ GỘP thư mục mã mà thiết kế chạm vào vùng tệp của
+// hàng (vùng cũ giữ nguyên — thà báo trùng thừa còn hơn lọt). Glob không có thư mục tĩnh bị từ chối trước khi ghi byte nào.
+// Hàng chưa bắt đầu ở dãy khác do bộ phát lịch so lại ở nhịp kế (có thể nhận `sau`); hàng đang làm hay đã ký ở dãy khác mà
+// chồng vùng mới thì chỉ BÁO — một sự kiện `trung-tep` (luc cong-pham-vi) mỗi hàng, không ghi `sau`, không đụng khoá.
+export function khaiVung(thuMuc, khoa, vung) {
+  can(khoa, 'mã hoặc slug của hàng');
+  const ds = (Array.isArray(vung) ? vung : []).map((g) => String(g).trim()).filter(Boolean);
+  if (!ds.length) throw new Error('hang vung: thiếu --vung <glob,glob>');
+  const rong = ds.filter((g) => !coThuMucTinh(g));
+  if (rong.length) throw new Error(`hang vung: ${rong.map((g) => `«${g}»`).join(', ')} không có thư mục tĩnh trước ký tự đại diện — chồng mọi hàng; ghi thư mục mã của màn`);
+  return voiKhoaHangViec(thuMuc, () => khaiVungTrongKhoa(thuMuc, khoa, ds));
+}
+
+function khaiVungTrongKhoa(thuMuc, khoa, ds) {
+  const hv = docHangViec(thuMuc);
+  treThu();
+  const h = timHang(hv, khoa);
+  if (!h) throw new Error(`hang vung: không có hàng ${khoa}`);
+  const cu = h.ranh_gioi ?? [];
+  const moi = ds.filter((g) => !cu.includes(g));
+  if (!moi.length) return { doi: false, canhBao: [] };
+  h.ranh_gioi = [...cu, ...moi];
+  luu(thuMuc, hv, `${h.slug} khai thêm vùng ở Cổng Phạm vi: ${moi.join(', ')}`, { kieu: 'vung', hang: h.slug, day: h.day, them: moi });
+  const tt = docJson(path.join(thuMuc, 'trang-thai.json'), {}) ?? {};
+  const tienDo = new Map((tt.day ?? []).filter((d) => d.hang && ['dang', 'ky'].includes(d.tien_do)).map((d) => [d.hang, d.tien_do]));
+  const { trung } = xetTrungTep(h, { hangViec: hv, tienDo });
+  const canhBao = [];
+  for (const t of trung.filter((x) => x.voi === 'hang')) {
+    ghiSuKien(thuMuc, { loai: 'trung-tep', luc: 'cong-pham-vi', hang: h.slug, phien: h.day, voi: 'hang', khoa: t.khoa, voi_hang: t.hang, mau: t.mau, can_phan: false });
+    canhBao.push(`hang vung: ${h.slug} chồng vùng với ${t.hang} (${t.day}, ${tienDo.get(t.hang) === 'ky' ? 'đã ký' : 'đang làm'}) — ${t.mau.join(' × ')}; chỉ báo, hai hàng vẫn chạy`);
+  }
+  return { doi: true, them: moi, canhBao };
 }
 
 export function choNghi(thuMuc, day) {
@@ -132,6 +144,24 @@ function choNghiTrongKhoa(thuMuc, day) {
   if (d.nghi === true) return { doi: false };
   d.nghi = true;
   luu(thuMuc, hv, `cho ${day} nghỉ`, { kieu: 'nghi', day });
+  return { doi: true };
+}
+
+// Ngược của `nghi` (hồ sơ lenh-dot-ghi-dung-hang), cùng khuôn: gỡ hẳn khoá — tệp sau `chay-lai` giống từng byte tệp trước
+// `nghi` — một dòng Nhật ký, một sự kiện; dãy chưa nghỉ thì không làm gì. Nhịp kế của bộ phát lịch giao lại hàng kế.
+export function choChayLai(thuMuc, day) {
+  can(day, 'dãy cần cho chạy lại');
+  return voiKhoaHangViec(thuMuc, () => choChayLaiTrongKhoa(thuMuc, day));
+}
+
+function choChayLaiTrongKhoa(thuMuc, day) {
+  const hv = docHangViec(thuMuc);
+  treThu();
+  const d = hv.day.find((x) => x.id === day);
+  if (!d) throw new Error(`hang: không có dãy ${day}`);
+  if (d.nghi !== true) return { doi: false };
+  delete d.nghi;
+  luu(thuMuc, hv, `cho ${day} chạy lại`, { kieu: 'chay-lai', day });
   return { doi: true };
 }
 

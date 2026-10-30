@@ -13,14 +13,19 @@
 // and reference it from a `script` eval: cmd: config:executors.design.gate
 //
 // Usage:
-//   node scripts/design-gate.mjs <file.html> [--mode dom|static] [--fail-on P0,P1]
+//   node scripts/design-gate.mjs <file.html> [--mode dom|static] [--fail-on P0,P1] [--require-measured]
 //
 // DOM mode (default) needs jsdom resolvable from this script's install. When it
 // is not, the gate emits BLOCKED (exit 3) with install guidance — it never
 // silently falls back to the weaker static scan and passes an inaccessible UI.
 // Pass --mode static to accept the zero-dependency source scan knowingly.
 //
-// Exit codes: 0 PASS or KHONG-DO-DUOC · 2 REJECT (blocking finding) · 3 BLOCKED · 4 bad usage.
+// Exit codes: 0 PASS or KHONG-DO-DUOC · 2 REJECT (blocking finding) · 3 BLOCKED · 4 bad usage
+//             · 5 KHONG-DO-DUOC under --require-measured.
+//
+// The static engine never computes color or contrast, even on rendered HTML:
+// `<p style="color:#eee;background:#fff">` passes static and fails dom
+// (low-contrast). Static sees markup-level tells only (broken-image, side-tab…).
 //
 // The static engine reads rendered HTML. A target that is not HTML (.tsx, .jsx,
 // .vue…, or no extension at all) is read as HTML text: style objects, classNames and computed props are
@@ -33,6 +38,20 @@
 // --mode dom (no jsdom in the kit's shared suite to measure that path). (Record
 // nen-dieu-kien-va-static-khong-do-duoc; crm-onehub#375: 262/265 static runs on
 // .tsx were PASS.)
+//
+// DOM on an HTML target can also answer KHONG-DO-DUOC (record design-gate-khong-do-duoc-ba-nguyen-nhan): a
+// low-contrast finding jsdom could not measure — a stylesheet that did not apply (@layer, unparseable or
+// missing local CSS), a dark background declared on an ancestor that jsdom could not read, or text painted
+// by a clipped gradient — carries `do_duoc: false` + `ly_do: [<code>]` instead of blocking. FAIL wins: a
+// measured blocking finding on the same page still REJECTs. Same exit contract: 0, or 5 under
+// --require-measured; JSON adds `khong_do_duoc` (how many) and one stderr line names the codes.
+//
+// --require-measured is the opt-in strict mode (record design-gate-che-do-chat):
+// a non-HTML target exits 5 instead of 0, in static AND dom mode. Dom decides by
+// extension before loading jsdom, so a repo without jsdom gets 5 (wrong target),
+// not 3 (missing environment). A blocking finding static CAN see on such a
+// target stays REJECT 2. HTML targets are untouched by the flag. Without the
+// flag every exit code is what it always was.
 
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -40,12 +59,13 @@ import { createRequire } from 'node:module';
 import { detectStatic, detectDomWith } from '../lib/design-detect.mjs';
 
 function parseArgs(argv) {
-  const a = { mode: 'dom', failOn: ['P0'], target: null, jsdom: null };
+  const a = { mode: 'dom', failOn: ['P0'], target: null, jsdom: null, requireMeasured: false };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (t === '--mode') a.mode = argv[++i];
     else if (t === '--fail-on') a.failOn = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
     else if (t === '--jsdom') a.jsdom = argv[++i];
+    else if (t === '--require-measured') a.requireMeasured = true;
     else if (!t.startsWith('--')) a.target = t;
   }
   return a;
@@ -79,6 +99,22 @@ if (!args.target) {
   emit({ ...base, verdict: 'BLOCKED', reason: 'no target file given', exit_code: 4 }, 4);
 }
 
+const HTML_DUOI = new Set(['.html', '.htm', '.xhtml']);
+const MA_KHONG_DO = 5;
+const duoi = path.extname(args.target).toLowerCase();
+const laHtml = HTML_DUOI.has(duoi);
+const lyDoKhongDo = (mode) => `${mode} không đo được tệp này (${duoi || 'không đuôi'}) — bộ dò chỉ đọc HTML đã dựng; `
+  + (args.requireMeasured ? `--require-measured: thoát ${MA_KHONG_DO}` : 'xanh ở đây không phải đạt');
+function baoKhongDo(mode) {
+  const ly = lyDoKhongDo(mode);
+  process.stderr.write(`design-gate: ${ly}: ${args.target}\n`);
+  return { do_duoc: false, ly_do_khong_do_duoc: ly, ...(args.requireMeasured ? { require_measured: true } : {}) };
+}
+
+if (args.requireMeasured && args.mode !== 'static' && !laHtml) {
+  emit({ ...base, mode: args.mode, verdict: 'KHONG-DO-DUOC', exit_code: MA_KHONG_DO, ...baoKhongDo(args.mode) }, MA_KHONG_DO);
+}
+
 let result;
 if (args.mode === 'static') {
   result = await detectStatic(args.target, { failOn: args.failOn });
@@ -95,25 +131,31 @@ if (args.mode === 'static') {
   result = await detectDomWith(JSDOM, args.target, { failOn: args.failOn });
 }
 
-const HTML_DUOI = new Set(['.html', '.htm', '.xhtml']);
-const duoi = path.extname(args.target).toLowerCase();
-const khongDo = {};
+const khongDoDuoc = !laHtml;
+let khongDo = {};
 let verdict = result.verdict;
-if (args.mode === 'static' && !HTML_DUOI.has(duoi)) {
+if (args.mode === 'static' && khongDoDuoc) {
   if (verdict === 'PASS') verdict = 'KHONG-DO-DUOC';
-  khongDo.do_duoc = false;
-  khongDo.ly_do_khong_do_duoc = `static không đo được tệp này (${duoi || 'không đuôi'}) — bộ dò chỉ đọc HTML đã dựng; xanh ở đây không phải đạt`;
-  process.stderr.write(`design-gate: ${khongDo.ly_do_khong_do_duoc}: ${args.target}\n`);
+  khongDo = baoKhongDo('static');
+} else if (result.mode === 'dom' && verdict === 'KHONG-DO-DUOC') {
+  // Dom measured nothing blocking but some contrast findings could not be measured (lib/design-detect.mjs).
+  const n = result.unmeasured.length;
+  const ma = [...new Set(result.unmeasured.flatMap((f) => f.ly_do))];
+  const ly = `dom không đo được ${n} phát hiện tương phản (${ma.join(', ')}) — `
+    + (args.requireMeasured ? `--require-measured: thoát ${MA_KHONG_DO}` : 'xanh ở đây không phải đạt');
+  process.stderr.write(`design-gate: ${ly}: ${args.target}\n`);
+  khongDo = { do_duoc: false, ly_do_khong_do_duoc: ly, khong_do_duoc: n, ...(args.requireMeasured ? { require_measured: true } : {}) };
 }
+const exitCode = verdict === 'KHONG-DO-DUOC' && args.requireMeasured ? MA_KHONG_DO : result.exitCode;
 
 emit({
   ...base,
   mode: result.mode,
   verdict,
-  exit_code: result.exitCode,
+  exit_code: exitCode,
   ...khongDo,
   p0_count: result.p0Count,
   blocking: result.blocking,
   hits: result.hits,
   findings: result.findings,
-}, result.exitCode);
+}, exitCode);

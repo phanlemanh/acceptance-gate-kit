@@ -9,7 +9,7 @@ import { CFG_PHAT_LICH, hangViecHai } from './mau-thu.mjs';
 const tam = () => fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dp-')));
 const NOW = Date.parse('2026-10-05T12:00:00Z');
 const CFG = CFG_PHAT_LICH;
-function dung({ swapUsed = 1024 } = {}) {
+function dung({ swapUsed = 1024, apLuc = 1 } = {}) {
   const dot = tam();
   const w1 = tam();
   const w2 = tam();
@@ -20,7 +20,7 @@ function dung({ swapUsed = 1024 } = {}) {
     nowMs: () => NOW,
     chay: (cmd, args) => {
       if (cmd === 'sysctl' && args[0] === 'vm.swapusage') return `total = 24576.00M  used = ${swapUsed}.00M  free = 1.00M`;
-      if (cmd === 'sysctl' && args.includes('kern.memorystatus_vm_pressure_level')) return '1';
+      if (cmd === 'sysctl' && args.includes('kern.memorystatus_vm_pressure_level')) return `${apLuc}`;
       if (cmd === 'sysctl') return '{ 3.00 2.00 1.00 }';
       if (cmd === 'ps') return '102400 node\n';
       if (cmd === 'gh') return '[]';
@@ -77,14 +77,15 @@ test('hạn thuê: hết hạn + nhịp cũ → thu hồi + can_phan; thư mục
   assert.ok(sk.every((s) => s.can_phan === true));
 });
 
-test('giảm tải: không cấp s4; đúng một sự kiện can_phan khi vào giảm tải', async () => {
-  const { dot, w1, io } = dung({ swapUsed: 22835 });
+test('giảm tải (áp lực mức 2, swap 22,3 GB không phải lý do): không cấp s4; đúng một sự kiện can_phan khi vào giảm tải', async () => {
+  const { dot, w1, io } = dung({ swapUsed: 22835, apLuc: 2 });
   xin(dot, 'P1-s4', { phien: 'P1', slug: 'a', loai: 's4', luc: '2026-10-05T11:00:00Z', worktree: w1 });
   await motNhip(dot, io);
   await motNhip(dot, io);
   assert.equal(fs.existsSync(path.join(dot, 'khoa', 's4')), false);
   assert.equal(suKien(dot).filter((s) => s.loai === 'giam-tai').length, 1);
   assert.equal(JSON.parse(fs.readFileSync(path.join(dot, 'trang-thai.json'), 'utf8')).trang_thai, 'giam-tai');
+  assert.deepEqual(suKien(dot).find((s) => s.loai === 'giam-tai').ly_do, ['áp lực bộ nhớ mức 2']);
 });
 
 test('đơn hỏng → xin/hong/ + can_phan, nhịp vẫn chạy tiếp', async () => {

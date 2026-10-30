@@ -1,0 +1,30 @@
+{
+  "feature_plain": "Cổng thiết kế thôi chặn oan khi nó không đọc được màu: thay vì báo «chữ khó đọc» rồi chặn, nó nói «không đo được» và nêu đúng nguyên nhân.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ dựng lại ba trang của đo chéo 26/10, cho thấy bản hiện hành báo sai đúng năm lần, và bản mới đổi cả năm thành «không đo được» với đúng nguyên nhân từng lần."},
+    {"id": "AC-4", "p": "Sẽ nói «không đo được — chữ gradient» cho chữ tô bằng dải màu, ở cả ba cách viết, kể cả chữ nằm trong phần tử con."},
+    {"id": "AC-5", "p": "Sẽ vẫn chặn chữ khó đọc thật trên trang đọc được CSS, kể cả khi cùng trang có một chỗ không đo được; ảnh hỏng vẫn bị chặn trên trang CSS hỏng; chữ ghim màu ngay trên thẻ vẫn bị chặn."},
+    {"id": "AC-7", "p": "Sẽ chứng mỗi nhánh mới làm đúng việc của nó: gỡ từng nhánh thì đúng nhóm trang của nhánh ấy đỏ lại, không thừa không thiếu."},
+    {"id": "AC-8", "p": "Sẽ giữ nguyên bộ dò mượn ngoài từng byte, giữ xanh bộ ca cũ, và đo trên ba kho tiêu thụ rằng không phán quyết nào ở đó đổi."}
+  ],
+  "wont_do": [
+    {"id": "AC-2", "p": "Sẽ KHÔNG chặn khi tệp CSS của trang không áp được mà chữ không ghim màu trên thẻ — nói «không đo được — CSS không áp được»; trang không có chữ khó đọc nào vẫn đạt như cũ."},
+    {"id": "AC-3", "p": "Sẽ KHÔNG chặn khi nền tối khai ở thân trang mà máy không đọc được — nói «không đo được — nền bị bỏ»; nền tối hay nền trắng đọc được thì vẫn đo và vẫn chặn."},
+    {"id": "AC-6", "p": "Sẽ KHÔNG đổi mã thoát nào kho đang dùng: «không đo được» vẫn thoát 0, chỉ thoát 5 khi kho bật chế độ chặt; chặn vẫn là 2."},
+    {"id": "OOS-1", "p": "KHÔNG đổi trang CSS hỏng mà không có chữ khó đọc thành «không đo được» — bộ chấm của crm đòi đúng chữ «đạt»."},
+    {"id": "OOS-2", "p": "KHÔNG làm hai việc còn lại của hạt giống 25/10 (cờ gõ sai, nền bán trong suốt) — hạt giống vẫn mở."},
+    {"id": "OOS-3", "p": "KHÔNG xử lý quy tắc «chữ xám trên nền màu» — dùng chung phép đo màu nhưng chưa gặp ca sai nào."},
+    {"id": "OOS-4", "p": "KHÔNG coi tệp CSS trên mạng tải không được là «CSS không áp được»."},
+    {"id": "OOS-5", "p": "KHÔNG sửa bộ dò mượn ngoài để đo đúng màu — chỉ nói thật khi không đo được."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Phủ đủ ba nguyên nhân × mọi cách viết đã gặp × ba kết cục (không đo được · chặn · đạt) × có/không chế độ chặt × ba lớp đo (bản cũ · bản mới · bản bị gỡ nhánh); chừa có chủ đích quy tắc «chữ xám trên nền màu» và trang CSS hỏng không có lỗi chữ."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Nặng nhất: «CSS hỏng thì cả trang không đo được» có thể bỏ sót chữ khó đọc thật trên trang Tailwind — đã sửa: chữ ghim màu trên thẻ vẫn bị chặn (đúng cách crm lưu trang), phần còn lại thành câu hỏi Hỏi-2 cho anh."},
+    {"i": 1, "p": "Phép thử gỡ nhánh chỉ kiểm «có đỏ» — đã sửa: mỗi lần gỡ phải đỏ đúng nhóm trang viết trước và mọi trang khác vẫn xanh."},
+    {"i": 2, "p": "Phép đo ba kho luôn tự khớp và vẫn qua khi thiếu kho — đã sửa: đòi đủ ba kho và số phán quyết đổi phải bằng 0; không tự kéo mã mới về kho người khác, in mã phiên bản để biết cây đo cũ hay mới."},
+    {"i": 3, "p": "Phép kiểm CI khoá sẵn câu trả lời «có» cho Hỏi-1 — đã sửa: tách riêng, chỉ tồn tại nếu anh chọn thêm job, và so lệnh thật chứ không tìm chữ."},
+    {"i": 4, "p": "Chưa nói các bản thử nạp bộ giả lập trình duyệt từ đâu — đã sửa: mọi bản nạp cùng một chỗ, sai phiên bản thì đỏ với thông báo riêng."}
+  ]
+}

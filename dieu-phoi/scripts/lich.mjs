@@ -20,13 +20,14 @@ export function xepHang(donXin, hangViec) {
   });
 }
 
-export function capLuot({ donXin, dangGiu, giamTai, hangViec }) {
+export function capLuot({ donXin, dangGiu, giamTai, hangViec, vua = () => ({ duoc: true }) }) {
   const cap = [];
   const ban = new Set(Object.entries(dangGiu).filter(([, chu]) => chu).map(([tn]) => tn));
   for (const don of xepHang(donXin, hangViec)) {
     const tn = TAI_NGUYEN[don.loai];
     if (!tn || ban.has(tn)) continue;
     if (giamTai && tn !== 'merge') continue;
+    if (!vua(don).duoc) continue;
     cap.push({ taiNguyen: tn, don });
     ban.add(tn);
   }
@@ -49,7 +50,10 @@ export function hanGiaHan({ hanCu, nowMs, phut }) {
 // `quyet` (hồ sơ dieu-phoi-sua-truoc-dot-thu, B1): bảng slug → 'da-quyet' | 'cho' | 'khong-build' do bộ phát
 // lịch dựng mỗi nhịp bằng `bangQuyet` (the.mjs — một nguồn với thẻ khởi tạo và thợ). Hàng chưa bắt đầu chỉ được
 // giao khi đã quyết; vắng bảng (ca đơn vị cũ) thì mọi hàng coi là đã quyết.
-export function chonHangKe(hangViec, phien, tienDo, quyet = null) {
+// `trung` (hồ sơ ky-den-gop, hạng C): hàm hàng → {trung: [...]} (`xetTrungTep`). Hàng sẵn sàng mà trùng tệp với việc
+// đang dở ở chỗ khác thì bị bỏ qua; hàng sau nó không trùng thì được giao. Trả `trung` liệt các hàng đã bỏ qua để bộ
+// phát lịch ghi phụ thuộc `sau`; mọi hàng sẵn sàng đều trùng → `cho: 'trung-tep'`. Vắng hàm thì như cũ.
+export function chonHangKe(hangViec, phien, tienDo, quyet = null, trung = null) {
   // Dãy được cho nghỉ (§4.6 «Cho P4 nghỉ») không nhận hàng kế nào.
   if (hangViec.day?.find((d) => d.id === phien)?.nghi === true) return { hang: null, cho: 'nghi' };
   const cua = hangViec.hang.filter((h) => h.day === phien);
@@ -59,12 +63,18 @@ export function chonHangKe(hangViec, phien, tienDo, quyet = null) {
   const chua = (h) => (tienDo.get(h.slug) ?? 'chua') === 'chua';
   const duPhuThuoc = (h) =>
     (h.sau ?? []).every((ma) => {
-      const truoc = hangViec.hang.find((x) => x.ma === ma);
+      const truoc = hangViec.hang.find((x) => x.ma === ma) ?? hangViec.hang.find((x) => x.ma === undefined && x.slug === ma);
       return truoc !== undefined && tienDo.get(truoc.slug) === 'gop';
     });
   const coThe = cua.filter((h) => chua(h) && duPhuThuoc(h));
   const sanSang = coThe.filter((h) => quyetCua(h) === 'da-quyet').sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
-  if (sanSang.length > 0) return { hang: sanSang[0].slug, moi: true };
+  const boQua = [];
+  for (const h of sanSang) {
+    const voi = trung ? trung(h).trung : [];
+    if (voi.length === 0) return { hang: h.slug, moi: true, ...(boQua.length ? { trung: boQua } : {}) };
+    boQua.push({ hang: h.slug, voi });
+  }
+  if (boQua.length > 0) return { hang: null, cho: 'trung-tep', trung: boQua };
   // Hàng chưa bắt đầu mà ô đã quyết khác build không vào đợt — không tính là việc còn lại của dãy.
   const conViec = cua.some((h) => !(chua(h) && quyetCua(h) === 'khong-build') && !['ky', 'gop'].includes(tienDo.get(h.slug) ?? 'chua'));
   if (!conViec) return { hang: null, xong: true };

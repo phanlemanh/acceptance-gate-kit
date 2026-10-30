@@ -1,0 +1,132 @@
+schema_version: 1
+feature_slug: anh-co-that-trong-ho-so
+# Ca đo sống ở tests/plugins/lop-nhin-thay.test.mjs (ca LNT7 = AC-1…AC-5, LNT8 = AC-6 + AC-8, LNT9 = AC-7, LNT10 = vế kho
+# tổng hợp của AC-9); tệp tự xuất danh sách ca qua --ids nên bốn ca mới tự vào suite plugins vùng 3. Khoá riêng
+# executors.test.anh_co_that chạy đúng bốn ca ấy. Vế kho thật của AC-9 là tests/scripts/anh-co-that-kho.mjs; kho khai bằng
+# biến KHO_DO hoặc tệp cục bộ .acceptance-runs/kho-do (gitignore — đường máy không vào kho), không đường mặc định; tệp không mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (thiếu KHO_DO → thoát 2
+# «không có kho để đo» khi không khai kho — mù, không xanh). Lệnh chỉ in số: kho kit công khai, tên hồ sơ và đường máy của kho tiêu thụ không vào báo cáo.
+# Fixture do code sinh trong lượt: hồ sơ trong thư mục tạm, hợp đồng từ CONTRACT-FRONTMATTER-TEMPLATE, báo cáo từ vùng chép
+# của evidence-report-template.md + khối UI-CHECK-BLOCK-TEMPLATE (cùng bộ dựng của ca LNT4, nay đưa ra phạm vi tệp); tệp ảnh
+# do ca ghi (8 byte chữ ký PNG). «Bản main trước vòng» = `git archive adab9a82 scripts lib` bung trong lượt. Đường dẫn suy
+# từ vị trí tệp ca. Mỗi ca in ma trận «hàng · kỳ vọng · thực tế» (số dòng = số hàng) rồi đúng một dòng «PASS: [LNT<n>] …»
+# hoặc các dòng «FAIL: [LNT<n>] …»; mỗi eval ghim dòng PASS của chính nó — lệnh xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT7]". Ma trận đạt 6 hàng (evidence/ · ./evidence/ · tên trần · kèm chú thích · nháy kép · nháy đơn), mỗi hàng
+      một dòng "LNT7 dat <hàng> · present true passed 1 · <thực tế>"; mỗi hàng: --extract cho ui_observed.present true,
+      passed 1, khoá thieu_anh vắng (so bằng Object.keys).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT7]". Ma trận thiếu 13 hàng viết trước (số assert = số hàng, ca tự đếm và in "13/13"):
+      tuyệt đối trỏ tệp CÓ THẬT · ~/E10.png · C:\w\E10.png · .acceptance-runs có tệp · ../ · https:// · docs/ · evidence/sub/ · .txt · không tệp ·
+      thư mục · 0 byte · liên kết mềm ra ngoài; mỗi hàng present false, passed 0, thieu_anh deep-equal
+      [{id:"E10", gia_tri:<giá trị đã bỏ chú thích>, ly_do:<chuỗi lý do rút từ bảng LY_DO export của scripts/anh-ho-so.cjs>}];
+      ca kiểm riêng rằng bảng LY_DO bằng đúng sáu chuỗi của bảng luật trong design doc (rút từ tệp, không literal).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT7]". Hàng trộn (E10 ảnh thật, E11 .acceptance-runs): present true, passed 1,
+      thieu_anh có đúng một mục id E11; HTML (bỏ mã màu) có đúng chuỗi "1 eval ui-check đạt (E10) — xem frame ở trang bằng
+      chứng." và dòng cờ chứa "Bằng chứng lớp nhìn-thấy: THIẾU ảnh" cùng "E11", giá trị và lý do của E11; dòng "đạt" KHÔNG
+      chứa "E11".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT7]". Với mỗi hàng của ma trận thiếu 13 hàng: HTML thẻ có chuỗi UI_OBS_G2_NONE (rút từ
+      nguồn gate-card.js) và trên CÙNG dòng cờ ấy có "E10", giá trị (đã thoát HTML) và lý do; HTML không chứa "xem frame ở
+      trang bằng chứng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/evidence-page.js, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT7]". Trên CÙNG mọi fixture của E1–E3 (20 hàng) cộng hàng đối chứng «không khai» (21 hàng), chạy evidence-page.js rồi đọc trang:
+      quan hệ (không phải chuỗi có mặt) — với mỗi eval ui-check, (số <img> có src trong khối của eval > 0) === (thẻ
+      --extract tính eval đó đạt); mỗi src giải theo thư mục hồ sơ là tệp thường > 0 byte nằm dưới evidence/; số cờ
+      "Thiếu ảnh:" trên trang = số mục thieu_anh của thẻ và mỗi cờ chứa giá trị + lý do của mục tương ứng; trang không chứa
+      "downgrade sang judgment" ở 20 hàng có screenshot:; hàng đối chứng (E10 ui-check exit 0, không dòng screenshot:,
+      không evidence/) → trang CÓ câu ấy, thẻ present false và không khoá thieu_anh. Ca in "LNT7 trang 21/21".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/evidence-page.js, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT8]". Ca A (hai eval E10, E11 exit 0, observed nói đã đọc 8 ảnh, hồ sơ không có
+      evidence/): --extract present false, thieu_anh E10 và E11 lý do "tệp không có trong evidence/ của hồ sơ"; HTML có
+      UI_OBS_G2_NONE nêu cả hai id; trang 0 <img>. Ca B (E6 carried_from_round 1 trỏ .acceptance-runs/x/evidence/e6-1280.png
+      có tệp thật ở đó; E7 trỏ đường tuyệt đối vào một thư mục tạm khác có tệp thật): thieu_anh E6 lý do "thư mục lượt chấm
+      (.acceptance-runs/)", E7 lý do "đường tuyệt đối"; trang 0 <img>, đúng hai cờ "Thiếu ảnh:". Đối chứng: cùng hai fixture
+      chạy bằng bản main trước vòng → present true (in "LNT8 ca-that-ban-cu A present true · B present true") — ca chứng
+      rằng fixture tái lập đúng lỗi chứ không phải fixture tự đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/evidence-page.js, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT9]". Bản sao trọn scripts/ + lib/ (cpSync đệ quy) vào thư mục tạm; bản sao chưa tiêm chạy
+      hàm đo của LNT7 → 0 hàng lật (đối chứng dương, in "LNT9 lanh 0 lat"); ba nhát tiêm, mỗi nhát thay đúng MỘT chỗ (ca
+      đếm số lần khớp === 1, chuỗi tiêm có mặt, chuỗi gốc vắng): (i) gate-card.js — điều kiện đạt quay về exit 0 + chuỗi
+      screenshot khác rỗng → hàm đo nêu hàng "khong-tep" (và mọi hàng thiếu có tệp không ở evidence/) với thực tế "present
+      true"; (ii) anh-ho-so.cjs — bỏ kiểm tệp có thật → nêu hàng "khong-tep"; (iii) evidence-page.js — khung ảnh quay về
+      safeShot không kiểm tệp → nêu hàng trang "khong-tep" với thực tế "img 1". Ca in mỗi nhát "LNT9 <nhát> lat <hàng…>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/evidence-page.js, scripts/gate-card.js, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT8]". git archive adab9a82 scripts lib bung vào thư mục tạm (thất bại → FAIL nêu
+      "không dựng được bản main trước vòng"); trên fixture ảnh thật đúng chỗ và trên sáu fixture LNT4 a1, a2, a3, c, d, e:
+      stdout HTML thẻ, stdout --extract và tập src <img> của trang giống từng byte giữa bản cũ và bản mới (in "LNT8 doc-cu
+      7/7"); bản cũ cho mỗi fixture exit 0 và stdout khác rỗng (đối chứng gốc chạy thật). Ca LNT4 (b) trong cùng lượt
+      suite ghi evidence/E10-step1.png thật và xanh (dòng "PASS: [LNT4]" có ở khoá plugins_vung_3).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.anh_co_that_kho
+    long_running: 120
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/scripts/anh-co-that-kho.mjs]
+    expected: >
+      exit 0 (máy chấm khai kho tiêu thụ ở .acceptance-runs/kho-do); stdout có dòng "anh-co-that-kho: ho-so-ui <n> · cu-co-anh <a>
+      · moi-co-anh <b> · doi <d> · du-kien <d>" với hai số d bằng nhau, dòng "khong-doi-khi-du-anh <k>/<k>" và một dòng lý
+      do gộp "ly-do <chuỗi>:<số> …"; stdout không chứa "_acceptance/", "/Users/" hay "/home/". Không khai kho → thoát 2, stderr
+      "không có kho để đo" (mù, không xanh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.anh_co_that
+    paths: [scripts/anh-ho-so.cjs, scripts/gate-card.js, tests/scripts/anh-co-that-kho.mjs, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT10]". Kho tổng hợp do code sinh trong lượt, ba hồ sơ dựng bằng cùng bộ dựng của LNT7: đủ
+      ảnh (E10 ảnh thật) · trộn (E10 ảnh thật, E11 .acceptance-runs) · hết ảnh (E10 evidence/ không tệp); chạy lệnh với
+      KHO_DO = kho ấy → exit 0 và stdout có đúng "ho-so-ui 3 · cu-co-anh 3 · moi-co-anh 2 · doi 1 · du-kien 1" và
+      "khong-doi-khi-du-anh 2/2"; stdout không chứa đường thư mục tạm. Chạy không KHO_DO → exit 2 và stderr chứa "không có kho
+      để đo". Chiều đỏ của phép so: bản sao lệnh tiêm du-kien đếm cả hồ sơ trộn → lệnh thoát 1 và in "doi 1 · du-kien 2".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

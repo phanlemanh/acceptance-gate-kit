@@ -1,9 +1,9 @@
 // Ca của phần mod khung trạng thái đợt (hồ sơ trang-thai-dot-dieu-phoi-tho AC-5, AC-6, AC-7). kiem-khung.mjs chép
 // tệp này cạnh phần mod trong một BẢN SAO gói và thay ba chỗ giữ bằng stdout THẬT mà CLI in trong cùng lượt trên
-// kho thử dựng từ fixture dot-crm-0910 (round-trip CLI → mod): `xem --json` ở worktree P3, `xem --json` ở kho không
-// đợt, và `xem` không cờ ở worktree P3; chỗ giữ thứ tư là gốc của chính bản sao gói (argv của nhịp phải BẰNG nó). Mỗi ca lặp qua hai bề mặt terminal và desktop.
+// kho thử dựng từ fixture dot-crm-0910 (round-trip CLI → mod): `xem --json --khung` ở worktree P3, `xem --json --khung`
+// ở kho không đợt, và `xem` không cờ ở worktree P3; chỗ giữ thứ tư là gốc của chính bản sao gói (argv của nhịp phải BẰNG nó). Mỗi ca lặp qua hai bề mặt terminal và desktop.
 import { test, expect, mock } from 'claude-code/testing'
-import { veDai } from '../../scripts/khung.mjs'
+import { chuKhung, veDai } from '../../scripts/khung.mjs'
 import { chuXem } from '../../scripts/mo-hinh.mjs'
 
 const JSON_P3: string = __XEM_JSON_P3__
@@ -126,15 +126,18 @@ test('bam xem mo pane', async ($, on) => {
   expect(mo).toEqual(['dieu-phoi-dot', 'dieu-phoi-dot'])
 })
 
-test('pane dung chu xem', async ($, on) => {
+// Hồ sơ khung-dot-dinh-vi AC-5: pane vẽ khung định vị, không vẽ chữ `xem` (lệnh /dieu-phoi:xem vẫn trả chữ xem).
+test('pane dung chu khung', async ($, on) => {
   const clock = mock.clock(on)
   nen(on, { stdout: JSON_P3 })
   await batDau($, clock)
   for (const s of SURFACES) {
     const ui = await $.ui.mount(PANE(s))
     const dong = (await ui.findAll({ type: 'Text' })).map((x: any) => x.text)
-    expect(dong).toEqual(CHU_XEM.replace(/\n$/, '').split('\n'))
-    expect(dong.join('\n')).toBe(chuXem(JSON.parse(JSON_P3)))
+    const mong = chuKhung(JSON.parse(JSON_P3))
+    expect(dong).toEqual(mong.split('\n'))
+    expect(dong.join('\n')).not.toBe(CHU_XEM.replace(/\n$/, ''))
+    expect(dong[0]).toContain('Đợt sau-14-10 — ')
     await ui.unmount()
   }
 })
@@ -176,7 +179,7 @@ test('nhip co dot', async ($, on) => {
   await clock.advance(1)
   expect(goi.length).toBe(1)
   console.log('ARGV ' + JSON.stringify(goi[0]))
-  expect(goi[0].argv.slice(2)).toEqual(['xem', '--json'])
+  expect(goi[0].argv.slice(2)).toEqual(['xem', '--json', '--khung'])
   expect(goi[0].argv[0]).toBe('node')
   expect(goi[0].argv[1]).toBe(`${GOC_GOI}/scripts/dieu-phoi.mjs`)
   expect(goi[0].init.cwd).toBe('/tmp/kho-thu/.claude/worktrees/wt-3')

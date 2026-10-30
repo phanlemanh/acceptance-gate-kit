@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.33.1 · feature-loop 2.33.1 · diagram-design 2.7.1 · dieu-phoi 2.33.1.
+> Khớp phiên bản: acceptance-gate 2.35.0 · feature-loop 2.35.0 · diagram-design 2.7.1 · dieu-phoi 2.35.0.
 
 ## Mục lục
 
@@ -83,8 +83,8 @@ cửa veto mở.
 | # | Mục tiêu | Thước đo |
 |---|---|---|
 | 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 2 | **≤3** lượt gọi người/vòng (T3 trần **4** · mốc phát hành **≤1** · **≤1** chạm/lượt) | Đếm 5 dòng số mỗi mốc phát hành (3 tay + 2 máy, luật (c) từ 14/09) — tách trong-thiết-kế / ngoài-thiết-kế |
-| 5 | **Chi phí máy giảm giữa hai mốc, tin cậy không đổi** — token S4/vòng · phút máy/lượt chấm; dòng người đứng trước dòng máy | Dòng 4–5 của luật (c), máy đo (`wf-usage` → `usage-report.md`); điều kiện tin cậy: đường verdict không đổi thành phần hoặc răng cả hai chiều |
+| 2 | **≤3** lượt gọi người/vòng (T3 trần **4** · mốc phát hành **≤1** · **≤1** chạm/lượt) | Đếm 5 dòng số mỗi mốc phát hành (3 tay + 2 máy, luật (c) từ 14/09) — tách trong-thiết-kế / ngoài-thiết-kế; từ 23/10 vòng tính tới khi **gộp** vào nhánh chính kho tiêu thụ, dòng 1 tách làm-xong→ký / ký→gộp |
+| 5 | **Chi phí máy giảm giữa hai mốc, tin cậy không đổi** — token S4/vòng đã gộp · phút máy/lượt chấm; dòng người đứng trước dòng máy | Dòng 4–5 của luật (c), máy đo (`wf-usage` → `usage-report.md`); điều kiện tin cậy: đường verdict không đổi thành phần hoặc răng cả hai chiều |
 | 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
 | 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 | 6 | **Hiệu chuẩn «đủ»** (ADR 0020) — dòng thứ sáu của hồ sơ mốc: `ĐẠT đã ký → prod đỏ: k / N` | `node scripts/hieu-chuan-moc.mjs --root <kho nhận>`; N = số hồ sơ có dòng quan sát prod; N = 0 → dòng in «vô hiệu», không bao giờ đọc thành «0 sự cố» |
@@ -915,11 +915,22 @@ executors:
   design:
     static: "node scripts/design-scan.js --slug {slug}"   # lệnh THẬT của repo bạn
     gate:   "node scripts/design-gate.mjs --slug {slug}"
+    floor:  "node <acceptance-gate>/scripts/design-floor-s4.mjs --root ."   # tuân thủ design system ở S4 (design-floor)
 design:
   surface_globs:                    # để S4 bắt "diff chạm surface mà lane không có design eval"
     - "src/app/**"
     - "src/components/**"
+design_floor:                       # bậc design-floor của kho (M2 = khai tokens + registry)
+  tokens: "design/tokens.json"
+  registry: "design/component-registry.json"
+  sinh_lai:                         # lệnh sinh lại tệp dẫn xuất, chạy cuối S3 sau autofix — commit trước S4
+    - "npm run tokens:build"
 ```
+
+`floor` chỉ đọc: hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex
+thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai). `<acceptance-gate>` là đường bản kit đang cài — ghim lại theo
+mỗi bản phát hành như `product_map`. Cuối S3, khối `DESIGN-FLOOR-S3` của feature-loop autofix và chạy `sinh_lai` rồi
+commit, nên S4 không bao giờ ghi tệp.
 
 Thiếu khối này thì làn design tắt: feature chạm UI vẫn chạy được, chỉ mất eval
 design và kit sẽ cảnh báo một dòng ở Cổng 1 (không chặn).
@@ -1025,7 +1036,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 29 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 36 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1064,6 +1075,13 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
+- `scripts/tri-thuc-khoa.cjs` — bộ đọc MỘT nguồn của ổ cắm tri thức `tri_thuc`; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` cho hàng có `dot`, răng phủ của `cat-luot.mjs` chỉ khi có tệp — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/tri-thuc-nguon.cjs` — bên ghi và bên đọc dòng «Nguồn:» của ô cơ hội; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/tri-thuc.mjs` — lint tri thức và bộ chọn trang `chonTrang`; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/tri-thuc-tra.cjs` — bộ đọc dòng tra tri thức và bộ tra sổ hồ sơ trước `traSo`; `tri-thuc.mjs` chỉ nạp ở lối `--tra` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/can-cu-s1.cjs` — ngưỡng độ dài câu trích MỘT nguồn `TRICH_MIN` mà `tri-thuc-tra.cjs` nạp lười khi dựng căn cứ từ một dòng sổ trước — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
+- `scripts/luat-san-pham.cjs` — bộ đọc luật sản phẩm mà `can-cu-s1.cjs` nạp khoan dung lúc nạp — cùng lối `--tra` — chỉ cần khi kho khai `tri_thuc`
+- `skills/acceptance/references/tri-thuc-template.md` — khuôn MỘT nguồn của kho tri thức (frontmatter trang, loại, dòng raw, đường trỏ băm) mà `tri-thuc.mjs` và `tri-thuc-nguon.cjs` đọc lúc chạy; thiếu → `ENOENT` ở lần đọc tri thức đầu — chỉ cần khi kho khai `tri_thuc`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;

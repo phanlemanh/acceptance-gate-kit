@@ -1,0 +1,104 @@
+schema_version: 1
+feature_slug: design-floor-vendor-va-ban-va-a
+# Ca đo sống ở tests/design-floor/ — rao-dong.mjs (VA-01 · FN-01…04 · BG-01), hop-dong.mjs (DF-01…09) và
+# tu-thu.mjs (đối chứng dương + đột biến trên bản sao do mã sinh trong lượt). Mỗi eval chạy CẢ chiều xanh lẫn
+# chiều đỏ của đúng một tiêu chí: `tu-thu.mjs --chi <nhãn>` chạy đối chứng dương rồi các đột biến mang nhãn đó,
+# mỗi đột biến đòi thoát 1 kèm thông điệp ghim.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.df_va01
+    paths: [design-floor/vendor/**, design-floor/LOCAL-PATCHES.md, design-floor/upstream.lock.json, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: VA-01" (rao-dong trên cây thật) và "tu-thu: XANH"; các ca tu-thu nhãn VA-01 —
+      đối chứng dương bản sao nguyên vẹn xanh; sửa một byte của src/core/output.ts trong bản sao → thoát 1 kèm
+      "FAIL: VA-01" và "src/core/output.ts"; thêm tệp lạ src/core/la.ts → thoát 1 kèm "src/core/la.ts"; xoá
+      src/core/output.ts → thoát 1 kèm "thiếu" và "src/core/output.ts"; sau của tệp vá gate.ts sai → thoát 1 kèm
+      "src/commands/gate.ts"; dòng A thiếu lam_xanh → thoát 1 kèm "A" và "lam_xanh".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.df_fn01
+    paths: [design-floor/patches/**, design-floor/LOCAL-PATCHES.md, design-floor/upstream.lock.json, design-floor/vendor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: FN-01" và "tu-thu: XANH"; ca tu-thu nhãn FN-01 — tệp khoá lệch một băm → thoát 1
+      kèm "FAIL: FN-01" và tên tệp; tệp diff A sửa một dòng ngữ cảnh → thoát 1 kèm "FAIL: FN-01" và "A".
+      Dòng A của sổ có đủ các trường id · trang_thai da-ap · ten · vi_sao · lam_xanh · tep_va · tep[{path,truoc,sau}]
+      — đột biến thiếu trường đo ở E1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.df_bg01
+    paths: [design-floor/dist/**, design-floor/vo/**, design-floor/vendor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: BG-01" và "tu-thu: XANH"; BG-01 gồm lần dựng thứ hai từ bản sao nguồn ở thư mục tạm
+      (đường tuyệt đối khác, cùng bố cục) — stdout BG-01 nêu "2 lần dựng" và cả hai bằng tệp commit; ca tu-thu nhãn
+      BG-01 — bản sao bản gói sửa một byte → thoát 1 kèm "FAIL: BG-01" và "bản gói lệch nguồn".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.df_ngoai_tuyen
+    paths: [tests/design-floor/**, design-floor/**, .github/workflows/gate.yml]
+    expected: >
+      exit 0; stdout có "rao-dong: XANH", "hop-dong: XANH", "tu-thu: XANH" dưới DESIGN_FLOOR_KHONG_MANG=1. Đối
+      chứng trên đường bộ đo (ca tu-thu nhãn MANG, chạy trong cùng executor): chuanBiNguon với gốc kit không có
+      thư mục vendored ném lỗi chứa "thiếu bản vendored"; layUpstream dưới biến ném lỗi chứa "KHONG_MANG"; và
+      bước grep của executor: job design-floor trong gate.yml có "DESIGN_FLOOR_KHONG_MANG" và "run-tests.sh".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.df_ban_va_a
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: DF-07", "PASS: DF-08", "XFAIL: FN-02", "tu-thu: XANH" và dòng kiểm khối máy
+      "khoi-may: FN-02 vi_pham = 3 cặp figma, 0 memory; gioi_han không có DF-07, DF-08" (bước node của executor so
+      TẬP bằng nhau với ba cặp mong đợi viết độc lập trong khoi-may-ban-va-a.mjs, đỏ nếu khác); ca tu-thu nhãn BAN-VA-A — thêm lại
+      cặp "gate src/core/memory-store.ts" vào vi_pham → thoát 1 kèm "FAIL: FN-02" và "đã khai mà KHÔNG còn";
+      bản sao bỏ bản vá A (đảo tệp diff) rồi dựng lại bản gói → hop-dong --chi DF-07,DF-08 thoát 1 kèm
+      "FAIL: DF-07", "FAIL: DF-08" và "memory.events".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.df_xfail_con
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "XFAIL: DF-01", "PASS: DF-02", "XFAIL: DF-03", "XFAIL: DF-04", "XFAIL: DF-05",
+      "XFAIL: DF-06", "PASS: DF-09" và "hop-dong: XANH" — chữ ký đỏ khai ở khối máy là của bước 1, không đổi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.df_luat_gioi_han
+    paths: [design-floor/HOP-DONG-NHAP.md, design-floor/LOCAL-PATCHES.md, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "tu-thu: XANH"; ca tu-thu nhãn LUAT — thiếu ban_va → thoát 1 kèm "không có đường ra"; thiếu
+      can_upstream → thoát 1 kèm "không có đường ra";
+      ban_va "Z" → thoát 1 kèm "con trỏ chết"; ban_va "A" → thoát 1 kèm "bản vá đã áp"; và bước grep của
+      executor: HOP-DONG-NHAP.md không còn chuỗi "pr_upstream", có "ban_va".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.df_vo
+    paths: [design-floor/vo/**, design-floor/dist/**, design-floor/upstream.lock.json, design-floor/HOP-DONG-NHAP.md, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "PASS: FN-04" và "tu-thu: XANH"; ca tu-thu nhãn VO — `ui init` trên bản gói thoát 4 kèm
+      "gate, token-coverage, reuse-plan, flow, autofix"; `ui gate --help` thoát 0 (lệnh trong năm lệnh chạy);
+      tệp khoá hop.tep = 126 và lenh.vo.tep = 2; trần FN-04 hạ dưới số đo → thoát 1 kèm "FAIL: FN-04".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.df_dong_bo
+    paths: [design-floor/**, tests/design-floor/**]
+    expected: >
+      exit 0; stdout có "dong-bo: khớp" — lấy bản ghim a7ad5f1 qua mạng, chép 126 tệp, áp bản vá da-ap, dựng bản
+      gói trong thư mục tạm, so từng byte với cây đã commit. Chiều đỏ cùng lệnh: `--kiem --vendor <bản sao lệch một
+      byte>` thoát 1 kèm tên tệp lệch (ca tu-thu nhãn DONG-BO, chạy trong cùng executor).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

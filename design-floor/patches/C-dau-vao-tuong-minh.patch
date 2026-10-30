@@ -1,0 +1,41 @@
+--- a/src/commands/gate.ts
++++ b/src/commands/gate.ts
+@@ -220,6 +220,12 @@
+       const msg = "ui gate requires <file.html>";
+       return useJson ? errJson(CMD, "BAD_ARG", msg) : errText(`ui: ${msg}\n`);
+     }
++    // design-floor (bản vá C): inputs are explicit — absent --tokens is a usage error (exit 4), never a walk up the
++    // parent folders looking for a design system.
++    if (typeof parsed.flags["tokens"] !== "string") {
++      const msg = "ui gate requires --tokens <file> (design-floor: no design-system auto-discovery)";
++      return useJson ? errJson(CMD, "BAD_ARG", msg) : errText(`ui: ${msg}\n`);
++    }
+     let html: string;
+     try {
+       html = readFileSync(file, "utf8");
+--- a/src/commands/reuse-plan-check-impl.ts
++++ b/src/commands/reuse-plan-check-impl.ts
+@@ -58,6 +58,10 @@
+   for (const [name, v] of Object.entries(flags)) {
+     if (v === true) return usage(`--${name} requires a value`);
+   }
++  // design-floor (bản vá C): inputs are explicit — absent --file or --tokens is a usage error (exit 4), never read
++  // from <cwd>/design/.
++  if (typeof flags.file !== "string") return usage("ui reuse-plan check requires --file <registry> (design-floor: no registry auto-discovery)");
++  if (typeof flags.tokens !== "string") return usage("ui reuse-plan check requires --tokens <file> (design-floor: no design-system auto-discovery)");
+   const designDir = join(typeof flags.dir === "string" ? resolve(flags.dir) : process.cwd(), "design");
+   const tokensPath = typeof flags.tokens === "string" ? resolve(flags.tokens) : join(designDir, "design.tokens.json");
+ 
+--- a/src/commands/token-coverage.ts
++++ b/src/commands/token-coverage.ts
+@@ -110,7 +110,9 @@
+     }
+ 
+     const tokensFlag = parsed.flags["tokens"];
+-    const tokensPath = typeof tokensFlag === "string" ? resolve(tokensFlag) : resolveProjectTokensPath(dirname(resolve(file)));
++    // design-floor (bản vá C): inputs are explicit — absent --tokens is a usage error (exit 4), never auto-detected.
++    if (typeof tokensFlag !== "string") return err("BAD_ARG", "ui token-coverage requires --tokens <file> (design-floor: no design-system auto-discovery)");
++    const tokensPath = resolve(tokensFlag);
+     if (tokensPath === undefined || !existsSync(tokensPath)) {
+       return err("TOKENS_NOT_FOUND", "no token file given or auto-detected — pass --tokens or run 'ui ds init'");
+     }

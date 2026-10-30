@@ -23,7 +23,11 @@ function tachNguon(muc) {
   return { loi: `mục nguồn «${muc}» không phải <tệp>:<mã> hay <tệp>@<ngày>` };
 }
 
-// Trả {hang:[{ma, slug, tep}], loi}. `loi` khác null → bên gọi dùng hàng khai tay và nói ra một dòng.
+// Vùng mã dự kiến của một hàng lộ trình (hồ sơ vung-giao-viec-tu-cat-luot): khoá `vung` do lượt cắt ghi — mảng glob khác
+// rỗng; khác dáng ấy thì coi như không khai (răng của skill cắt lượt đã báo lỗi dáng lúc cắt).
+const vungCua = (r) => (Array.isArray(r.vung) && r.vung.length && r.vung.every((g) => typeof g === 'string' && g.trim()) ? { vung: r.vung } : {});
+
+// Trả {hang:[{ma, slug, tep, vung?}], loi}. `loi` khác null → bên gọi dùng hàng khai tay và nói ra một dòng.
 export function docHangLoTrinh(gocKho, nguon) {
   const ra = [];
   const daThay = new Set();
@@ -54,10 +58,64 @@ export function docHangLoTrinh(gocKho, nguon) {
       const khoa = `${n.tep}\u0000${m}`;
       if (daThay.has(khoa)) continue;
       daThay.add(khoa);
-      ra.push({ ma: m, slug: r.slug || suySlug(r.cau_giao), tep: n.tep });
+      ra.push({ ma: m, slug: r.slug || suySlug(r.cau_giao), tep: n.tep, ...vungCua(r) });
     }
   }
   return { hang: ra, loi: null };
+}
+
+// Một hàng theo mã — rồi theo slug (hồ sơ lenh-dot-ghi-dung-hang) — trong các tệp lộ trình mà nguồn hàng của đợt trỏ tới,
+// kể cả hàng nguồn chưa liệt (giám sát thêm việc giữa đợt bằng mã hay slug lộ trình). Khớp ở đúng một tệp mới trả; vắng,
+// nhiều tệp hay tệp hỏng → null (bên gọi giữ lối cũ).
+export function timHangLoTrinh(gocKho, nguon, khoa) {
+  const tep = [...new Set((nguon ?? []).map((m) => tachNguon(m).tep).filter(Boolean))];
+  const hangCua = (t) => {
+    try {
+      const data = JSON.parse(fs.readFileSync(path.resolve(gocKho, t), 'utf8'));
+      return (Array.isArray(data.hang) ? data.hang : []).filter((h) => h && typeof h === 'object');
+    } catch {
+      return [];
+    }
+  };
+  for (const khop of [(r) => r.ma === khoa, (r) => (r.slug || suySlug(r.cau_giao)) === khoa]) {
+    const ung = tep.flatMap((t) => hangCua(t).filter(khop).map((r) => ({ ma: r.ma, slug: r.slug || suySlug(r.cau_giao), tep: t, ...vungCua(r) })));
+    if (ung.length) return ung.length === 1 ? ung[0] : null;
+  }
+  return null;
+}
+
+// Tên việc cho khung định vị (hồ sơ khung-dot-dinh-vi): Map<slug, tên> của các hàng thi công mang mã. Tệp tra: `tep` của
+// hàng, không có thì các tệp mà nguồn hàng của đợt trỏ tới (mã phải có ở đúng một tệp). Tên: `ten_ngan` → `ten` → sáu từ
+// đầu của câu giao kèm «…» (cùng luật tên ngắn của bộ đọc lộ trình kit). Tệp vắng/hỏng → hàng ấy không có tên, không lỗi.
+export function docTenViec(gocKho, hangViec, nguon = []) {
+  const daDoc = new Map();
+  const doc = (tep) => {
+    if (!daDoc.has(tep)) {
+      try {
+        daDoc.set(tep, JSON.parse(fs.readFileSync(path.resolve(gocKho, tep), 'utf8')));
+      } catch {
+        daDoc.set(tep, null);
+      }
+    }
+    return daDoc.get(tep);
+  };
+  const chuoi = (s) => (typeof s === 'string' ? s.trim() : '');
+  const tenNgan = (r) => {
+    const n = chuoi(r.ten_ngan) || chuoi(r.ten);
+    if (n) return n;
+    const tu = chuoi(r.cau_giao).split(/\s+/).filter(Boolean);
+    return tu.length > 6 ? `${tu.slice(0, 6).join(' ')}…` : tu.join(' ');
+  };
+  const tepNguon = [...new Set((nguon ?? []).map((m) => tachNguon(m).tep).filter(Boolean))];
+  const ra = new Map();
+  for (const h of hangViec?.hang ?? []) {
+    if (!h?.ma || !h.slug) continue;
+    const ung = (h.tep ? [h.tep] : tepNguon).map((tep) => (Array.isArray(doc(tep)?.hang) ? doc(tep).hang : []).find((r) => r && r.ma === h.ma)).filter(Boolean);
+    if (ung.length !== 1) continue;
+    const ten = tenNgan(ung[0]);
+    if (ten) ra.set(h.slug, ten);
+  }
+  return ra;
 }
 
 // <<<DOC-DU-LIEU-CHEP — bản chép NGUYÊN VĂN `docDuLieu` của scripts/lo-trinh.mjs (kit). Hàm tự đủ; ca

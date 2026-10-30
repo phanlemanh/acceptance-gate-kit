@@ -80,6 +80,15 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 - Khoá hợp lệ của tệp trả lời: `ket_qua`, `boi`, `ly_do`, `luc`, `voi`, `tai_nguyen`, `uoc_phut`.
 - Không dùng `/loop` làm nhịp: phiên giám sát thức dậy nhờ Monitor ở bước 4 và task lịch 30′ ở bước 5 của
   phần mở đợt, cộng tin của owner.
+- **Câu giám sát hỏi chủ kho** (hồ sơ `khung-dot-dinh-vi`, ADR 0027 bước a). Mỗi câu phiên giám sát hỏi chủ kho
+  trong chat và chờ trả lời → `node "$GOI/scripts/dieu-phoi.mjs" hoi --cau - <<'CAU_HET' … CAU_HET` (hay
+  `--cau "<câu>"`) TRƯỚC khi kết lượt; lệnh in `hoi: <mã>`. Chủ kho trả lời → `hoi-xong <mã>`. Sự kiện mang kiểu
+  `hoi-chu-kho` / `hoi-chu-kho-xong` và `can_phan:false`, nên Monitor của giám sát không thức vì câu của chính nó —
+  không ghi câu của chính mình bằng sự kiện mang `can_phan:true`. Câu rỗng hay mã không mở → thoát 2, không ghi gì.
+  `xem --json` liệt câu đang mở ở khoá `hoi_chu_kho` — khoá chỉ có khi có câu mở. Không tự đóng câu khi có tin vào
+  phiên giám sát (lịch 30′ và tin liên phiên cũng vào đó): quên `hoi-xong` thì khung báo dư kèm tuổi câu.
+  - Giới hạn đã khai: giám sát GỌI `hoi` là chỉ dẫn ở `/dieu-phoi:tiep-tuc`, không có máy giữ. Ngưỡng mở vòng hook
+    tự ghi: ≥1 lần trên đợt thật dải báo thiếu một câu giám sát đã hỏi.
 - Mỗi sự kiện `can_phan`: đọc dòng sự kiện. Với yêu cầu, ghi `tra-loi/<id>.json` gồm
   `{ket_qua, boi:"giam-sat", ly_do, luc}` và một dòng Nhật ký. Với `dich:"owner"`: gom lại, push tối
   đa 1 lần mỗi 30′.
@@ -88,9 +97,17 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
   múi giờ. Kho không có đợt thì in `{"dot":null}`.
 - **Khung trạng thái đợt trong app** (phần mod `hooks/mod/khung.ts`, hồ sơ `trang-thai-dot-dieu-phoi-tho`). Ở mọi
   phiên trong kho có đợt, trên ô nhập có một dải một dòng:
-  `Đợt <tên> · <pha> · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`.
+  `Đợt <tên> · <pha> · S4: <phiên> → HH:MM · chờ lượt <n> · cần anh <n>`. «Cần anh» đếm MỌI việc đang chờ chủ
+  kho bằng một hàm (`canAnh`): tệp chờ người và yêu cầu `can-nguoi` của thợ, lời báo sức khoẻ máy, câu giám sát
+  đang mở.
   - Ở phiên thợ, dải thêm dãy của phiên đó. Khi giảm tải, dải mở đầu `GIẢM TẢI`.
-  - Nút `xem` trên dải mở pane «Đợt» với đúng nội dung `xem` in ra.
+  - Nút `xem` trên dải mở pane «Đợt» với **khung định vị** (hồ sơ `khung-dot-dinh-vi`): dòng đầu là mục tiêu đợt
+    (khoá `muc_tieu` của `hang-viec.json`; vắng → cờ vàng) · tiến độ «xong <đã gộp>/<số hàng> · đang làm · đang
+    chấm · chờ · rảnh» · «CẦN ANH: n» kèm từng việc — là gì, ở phiên nào, bao lâu · mỗi dãy một dòng việc mang tên
+    ngắn từ tệp lộ trình (`ten_ngan`, rồi `ten`, rồi sáu từ đầu câu giao) và mã trong ngoặc — hàng không tra được
+    tên mang cờ «chưa có tên trong lộ trình» · giờ địa phương tương đối. Tên tra qua `tep` + `ma` của hàng thi
+    công, không có `tep` thì qua `nguon_hang` của gói. Mod đọc `xem --json --khung`; `xem --khung` in cùng khung ra
+    terminal. Dòng `xem`, `xem --json` và lệnh `/dieu-phoi:xem` giữ chữ cho máy đọc như cũ.
   - Dải làm mới mỗi 20″ khi có đợt và mỗi 120″ khi không; kho không có đợt thì không có dải.
   - `/dieu-phoi:xem` trả lời ngay, không tốn lượt model. Khi mod không chạy hoặc CLI lỗi, lệnh markdown cũ trả lời
     qua model như trước.
@@ -105,6 +122,40 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
     Đợt đầu tiên của kho tiêu thụ chạy bản này sẽ đọc hai nhãn đó.
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
+- **Lịch biết tệp** (hồ sơ `ky-den-gop`). Hàng chưa bắt đầu chỉ được giao khi vùng tệp nó khai (`ranh_gioi` trong
+  `hang-viec.json`) không trùng tệp của PR đang mở và không trùng `ranh_gioi` của hàng đang dở ở dãy khác (đang làm,
+  đã ký chưa gộp, hay đã được chọn làm hàng kế). Trùng một hàng của đợt → máy tự thêm phụ thuộc `sau` (hàng kia gộp
+  xong mới bắt đầu), một dòng Nhật ký và một sự kiện `doi-ke-hoach` kiểu `them-sau`; dãy nhận hàng kế không trùng.
+  Trùng PR ngoài đợt → hàng được giữ tới khi PR ấy đóng, một sự kiện `trung-tep`. PR của chính dãy không tính là
+  trùng. Hàng giao đi mà không khai vùng tệp → một sự kiện `ranh-gioi-vang`, không chặn. Không dò được PR (gh lỗi,
+  nhánh từ fork) → một sự kiện `trung-tep-mu`, lịch vẫn so phần hàng của đợt. Hai mẫu glob đều có ký tự đại diện thì
+  so phần tĩnh đứng trước ký tự đại diện đầu — dư về phía báo trùng (`a/**/*.ts` và `a/**/*.css` bị coi là trùng).
+  Lệnh `hang them <mã|việc> --day <P> [--ranh-gioi <glob,glob>]` so cùng luật lúc gán hàng, đọc tiến độ và bản chụp PR
+  mà bộ phát lịch để trong `trang-thai.json` (`nhanh_mo`, tươi tới một phút).
+- **Vùng đi từ cắt lượt** (hồ sơ `vung-giao-viec-tu-cat-luot`). Hàng lộ trình mang `vung` — vùng mã dự kiến theo màn,
+  do lượt cắt ghi (skill `cat-luot`). Gói khai `nguon_hang` thì hàng thi công không khai `ranh_gioi` nhận `ranh_gioi` =
+  `vung` của hàng lộ trình; hàng khai tay giữ nguyên. `hang them <mã>` với mã của một hàng lộ trình mà đợt chưa có
+  cũng nhận vùng ấy (`--ranh-gioi` thắng). Lúc trình Cổng Phạm vi, phiên thợ của hàng có vùng chạy
+  `hang vung <mã|slug> --vung <glob,glob>`: lệnh GỘP thư mục mã của thiết kế vào `ranh_gioi` (một dòng Nhật ký, một sự
+  kiện `doi-ke-hoach` kiểu `vung`), từ chối glob không có thư mục tĩnh (`**`, `*.tsx`) mà không ghi gì; hàng chưa bắt
+  đầu ở dãy khác được lịch so lại ở nhịp kế; hàng đang làm hay đã ký ở dãy khác mà chồng → một sự kiện `trung-tep`
+  mang `luc: cong-pham-vi` (`can_phan: false`) và một dòng cảnh báo — chỉ báo, không ghi `sau`, không đụng khoá. Lộ
+  trình không có `vung` và không ai gọi `hang vung` → lịch y như trước.
+- **Lệnh của đợt ghi đúng hàng** (hồ sơ `lenh-dot-ghi-dung-hang`). Đơn xin lượt không cờ đọc hợp đồng các hàng của dãy
+  trong worktree mà nhánh chính chưa gộp. `xin s4` lấy slug theo thứ tự `--slug` → hồ sơ đang chấm → hồ sơ đã thông chưa gộp → `tiep`
+  (đang chấm = `implemented`, `verified`; đã thông = đã ký hay máy đã thông, đúng danh sách `DA_THONG` của bộ phát lịch); `xin
+  ghim-lai` và `xin merge` bỏ bậc đang chấm. Một bậc có từ hai hồ sơ thì lệnh từ chối, in tên từng hồ sơ và lời dặn
+  `--slug`, không ghi đơn. `xin duong-nen` giữ lối `tiep` (đường nền chạy trước khi hợp đồng của hàng kế
+  có). `hang them` nhận mã hay slug của lộ trình: tra `hang-viec.json` → tệp lộ trình của nguồn hàng theo mã rồi theo
+  slug (hàng thêm mang đúng `slug`, `ma` và vùng của hàng ấy) → đối số đã có dạng slug thì giữ nguyên → chỉ câu tự do
+  mới suy slug (sáu từ đầu). `hang chay-lai <dãy>` là lệnh ngược của `hang nghi`: gỡ khoá `nghi`, một dòng Nhật ký và
+  một sự kiện `doi-ke-hoach` kiểu `chay-lai`; dãy chưa nghỉ thì không làm gì; nhịp kế giao lại hàng kế cho dãy. Bộ phát
+  lịch tính hồ sơ `risk_tier: T1` có trên nhánh chính là đã gộp — hồ sơ T1 không qua cổng nên giữ `draft` mãi.
+- **Duyệt chạm tệp khi không dò được nhánh mở** → giám sát phán (`can_phan` nêu lỗi), không còn máy duyệt với lý do
+  «không nhánh mở nào chạm». Nhánh của chính phiên xin không tính là nhánh đang sửa tệp ấy.
+- **Đếm ký → gộp.** Mỗi sự kiện `hang-gop` mang giờ commit chữ ký và giờ commit gộp đọc từ nhánh chính, số lần gộp
+  nhánh chính vào nhánh của PR; `dem` in `ky_den_gop` (trung vị, lớn nhất, theo hàng; hàng gộp squash vào
+  `chua_do`), `gop_vao_nhanh`, `ghim_lai_sau_ky` (lượt ghim lại được cấp sau giờ ký) và `gop` (lối của lệnh gộp).
 
 ## Chặn S4 và việc chờ người
 
@@ -174,7 +225,7 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
 
 ## Phiên thợ trong đợt
 
-**Ghi danh worktree.** Chip của app luôn dựng worktree MỚI tên ngẫu nhiên, nên gói đợt không biết trước worktree của dãy — gói khai chỗ giữ (ví dụ `/CHUA-CO-WORKTREE/P1`). Việc đầu tiên của phiên mở từ chip, trước S1, chạy từ worktree của chip: `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>` (lời ghi danh của chip mang sẵn dòng lệnh này). Lệnh ghi gốc worktree của phiên vào `day[<dãy>].worktree` của `hang-viec.json`, thêm một dòng Nhật ký và một sự kiện `ghi-danh`; chạy lại thì không làm gì. Lệnh từ chối và không ghi byte nào khi: dãy không có trong đợt · worktree này đã là của dãy khác · cwd là gốc kho chính · không có đợt · dãy còn phiên ở worktree cũ (hành động `khong`, `nhan-giang-lai` hay `cho-nguoi` — đọc cùng hàm với `tiep-tuc`, nên dãy nào được mời chip thì phiên chip ghi danh được). Worktree cũ đã chết thì bị đè: đơn còn chờ của dãy theo sang worktree mới, giữ giờ xin; nhánh cũ còn checkout ở worktree cũ, lệnh in cách gỡ. Lúc mở đợt từ gói, dãy có worktree chưa tồn tại nhận dấu `cho-ghi-danh/<dãy>.json`: `chan-doan` và `tiep-tuc` xếp dãy ấy như dãy không phiên sống (thường `mo-chip`), không `worktree-mat`; đợt mở bằng bản gói cũ không có dấu thì giữ hành vi cũ. Mọi bên viết `hang-viec.json` (ghi danh, `hang day-len|them|nghi`) giữ khoá `hang-viec.khoa` nên tám chip bấm cùng lúc không mất bản ghi.
+**Ghi danh worktree.** Chip của app luôn dựng worktree MỚI tên ngẫu nhiên, nên gói đợt không biết trước worktree của dãy — gói khai chỗ giữ (ví dụ `/CHUA-CO-WORKTREE/P1`). Việc đầu tiên của phiên mở từ chip, trước S1, chạy từ worktree của chip: `node <thư mục đợt>/loi/dieu-phoi.mjs ghi-danh <dãy>` (lời ghi danh của chip mang sẵn dòng lệnh này). Lệnh ghi gốc worktree của phiên vào `day[<dãy>].worktree` của `hang-viec.json`, thêm một dòng Nhật ký và một sự kiện `ghi-danh`; chạy lại thì không làm gì. Lệnh từ chối và không ghi byte nào khi: dãy không có trong đợt · worktree này đã là của dãy khác · cwd là gốc kho chính · không có đợt · dãy còn phiên ở worktree cũ (hành động `khong`, `nhan-giang-lai` hay `cho-nguoi` — đọc cùng hàm với `tiep-tuc`, nên dãy nào được mời chip thì phiên chip ghi danh được). Worktree cũ đã chết thì bị đè: đơn còn chờ của dãy theo sang worktree mới, giữ giờ xin; nhánh cũ còn checkout ở worktree cũ, lệnh in cách gỡ. Lúc mở đợt từ gói, dãy có worktree chưa tồn tại nhận dấu `cho-ghi-danh/<dãy>.json`: `chan-doan` và `tiep-tuc` xếp dãy ấy như dãy không phiên sống (thường `mo-chip`), không `worktree-mat`; đợt mở bằng bản gói cũ không có dấu thì giữ hành vi cũ. Mọi bên viết `hang-viec.json` (ghi danh, `hang day-len|them|nghi|chay-lai|vung`) giữ khoá `hang-viec.khoa` nên tám chip bấm cùng lúc không mất bản ghi.
 
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
 feature-loop (chỉ đọc). Kho không có đợt → lệnh không in gì và vòng chạy y như cũ. Có đợt → nó gọi lệnh
@@ -196,7 +247,16 @@ thợ (`quyetCua` của `the.mjs`): hàng chưa có chữ build bị bỏ qua (d
 của thợ.
 
 Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
-thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
+thợ đọc là không tự merge.
+
+**Gộp dưới khoá merge** (hồ sơ `ky-den-gop`): thợ giữ khoá `merge` chạy `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`.
+Lệnh gộp bằng `gh pr merge <n> --merge --match-head-commit <sha>` (không bao giờ `--auto`) khi CI xanh trên đúng đầu
+nhánh, hồ sơ trên đầu nhánh đã ký hay đã thông, và (a) nhánh đã chứa đỉnh nhánh chính, hoặc (b) kho bật
+`"gop_khong_chay_lai_ci": true` trong `dieu-phoi.config.json` và tệp PR tự thêm (so với merge-base) không giao tệp của
+các commit vào nhánh chính kể từ merge-base. Chủ kho chấp nhận rủi ro của (b) ngày 23/10/2026: lỗi lọt qua thì CI trên
+nhánh chính sau gộp bắt. Thoát 0 = đã gộp · 4 = trùng tệp, khoá tắt hay CI chưa xanh — gộp nhánh chính vào nhánh, chờ
+CI theo lệ của kho, chạy lại · 1 = chặn (PR nháp, hồ sơ chưa ký, không giữ khoá, đợt không cho tự gộp). `gop <n> --xet
+--slug <s>` chỉ in quyết định, không gộp, không đòi khoá — cho giám sát và người. Mỗi lần chạy ghi một sự kiện `gop`. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
 `hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
 sách chờ người của bảng đợt và được lệnh đếm tính một lần.
 

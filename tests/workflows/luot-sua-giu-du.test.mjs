@@ -200,6 +200,9 @@ function hoSoThe(report) {
   w(d, '_acceptance/demo/contract.md', '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nsurfaces: [ui]\nstatus: verified\n---\n\n- AC-1: Given a When b Then c\n- AC-2: Given a When b Then c\n');
   w(d, '_acceptance/demo/evals.yaml', 'schema_version: 1\nfeature_slug: demo\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n    expected: pass\n  - id: E2\n    criterion: AC-2\n    executor: ui-check\n    layer: ui-observed\n    cmd: config:executors.test.api\n    steps: [mo trang]\n    expected: thay danh sach\n');
   w(d, '_acceptance/demo/evidence-report.md', report);
+  // Thẻ chỉ tính ảnh là TỆP có thật dưới evidence/ của hồ sơ (hồ sơ anh-co-that-trong-ho-so); carry thật chỉ giữ khung khi
+  // ảnh còn trên đĩa, nên hồ sơ của thẻ mang đúng tệp ấy khi báo cáo khai nó.
+  if (String(report).includes(`screenshot: ${KHUNG.screenshot}`)) w(d, `_acceptance/demo/${KHUNG.screenshot}`, '\x89PNG\r\n\x1a\n');
   const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--root', d, '--slug', 'demo', '--gate', '2', '--extract'], { encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`gate-card exit ${r.status}: ${r.stderr}`);
   return JSON.parse(r.stdout).ui_observed;

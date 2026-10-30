@@ -22,7 +22,7 @@ th{background:#ececec;font-size:.75rem;text-transform:uppercase}.do{color:#b3261
 <h2>Hộp quyết định</h2>${bang(['Phiên', 'Loại', 'Tin', 'Từ'], m.cho_nguoi.map((c) => [lienKet(c.link, c.phien), thoat(c.loai), thoat(c.tin), thoat(c.luc)]))}
 <h2>Phiên thợ</h2>${bang(['Phiên', 'Hàng', 'Tiến độ', 'Kế hoạch', 'Chờ'], m.day.map((d) => [lienKet(d.link, d.id), thoat(d.hang), thoat(d.tien_do), thoat(d.nhom_ke_hoach), thoat(d.cho)]))}
 <h2>Khoá đang giữ</h2>${bang(['Tài nguyên', 'Phiên', 'Hạn thuê'], m.khoa.map((k) => [thoat(k.tai_nguyen), thoat(k.phien), thoat(k.han)]))}
-<h2>Hàng chờ lượt</h2>${bang(['Phiên', 'Loại', 'Xin lúc'], m.hang_cho.map((h) => [thoat(h.phien), thoat(h.loai), thoat(h.luc)]))}
+<h2>Hàng chờ lượt</h2>${bang(['Phiên', 'Loại', 'Xin lúc', 'Chờ'], m.hang_cho.map((h) => [thoat(h.phien), thoat(h.loai), thoat(h.luc), thoat(h.cho ?? '')]))}
 </body></html>
 `;
 }

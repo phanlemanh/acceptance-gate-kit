@@ -2,12 +2,15 @@
 // không bằng công cụ ghi tệp — thư mục đợt nằm ngoài worktree của phiên (sự cố 09/10). Mỗi lệnh kiểm khuôn
 // bằng CHÍNH hàm kiểm của bên đọc (bộ phát lịch) rồi mới ghi nguyên tử; tên tệp theo khuôn bên đọc.
 // Lệnh của thợ (`xin`, `nha`, `yeu-cau`) đòi cwd thuộc một dãy; lệnh của giám sát chạy từ mọi cwd trong kho.
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { daGopTrenNhanhChinh, DA_THONG, trangThaiHopDong } from './phat-lich.mjs';
 import { docJson, ghiJsonNguyenTu, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { ghiNhatKy } from './hang.mjs';
 import { docHangViec, kiemDon, kiemTraLoi, kiemYeuCau } from './hinh-dang.mjs';
 import { docVai, laGiamSat } from './vai.mjs';
+import { ghiKetQuaNha } from './do-lan.mjs';
 
 function canDot(cwd, lenh) {
   const thuMuc = timThuMucDot(cwd);
@@ -37,9 +40,46 @@ function slugKeCua(thuMuc, hangViec, id) {
   return (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0]?.slug ?? null;
 }
 
+// Đơn của lượt chạm một hồ sơ đã có hợp đồng (hồ sơ lenh-dot-ghi-dung-hang) mang hàng ĐANG CHẤM, không hàng kế: hồ sơ vừa đã
+// thông trong worktree thì lịch đã chuyển `tiep` sang hàng sau, mà lượt chấm lại hay ghim lại vẫn của hàng cũ. Ứng viên =
+// hàng của dãy có hợp đồng trong worktree mà nhánh chính chưa gộp, theo bậc của loại lượt: `s4` lấy hồ sơ đang chấm
+// (`implemented`, `verified`) rồi mới tới hồ sơ đã thông (chấm lại sau ký); `ghim-lai`, `merge` chỉ hồ sơ đã thông. Bậc đầu
+// có đúng một → nó; từ hai → từ chối. Đường nền chạy ở S1 của hàng kế, trước khi hợp đồng của nó có — giữ lối `tiep`.
+const BAC_THEO_LOAI = { s4: [['implemented', 'verified'], DA_THONG], 'ghim-lai': [DA_THONG], merge: [DA_THONG] };
+
+function hoSoChuaGop(thuMuc, hangViec, day) {
+  const nhanh = docJson(path.join(thuMuc, 'dieu-phoi.config.json'), {})?.nhanh_chinh ?? 'main';
+  const ra = [];
+  for (const h of (hangViec.hang ?? []).filter((x) => x.day === day.id)) {
+    const p = path.join(day.worktree, '_acceptance', h.slug, 'contract.md');
+    if (!fs.existsSync(p)) continue;
+    let trenNhanhChinh = null;
+    try {
+      trenNhanhChinh = execFileSync('git', ['show', `origin/${nhanh}:_acceptance/${h.slug}/contract.md`], { cwd: day.worktree, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch {
+      trenNhanhChinh = null;
+    }
+    if (!daGopTrenNhanhChinh(trenNhanhChinh)) ra.push({ slug: h.slug, status: trangThaiHopDong(fs.readFileSync(p, 'utf8')) });
+  }
+  return ra;
+}
+
+function slugCuaDon(thuMuc, hangViec, day, loai) {
+  const bac = BAC_THEO_LOAI[loai];
+  if (bac) {
+    const hoSo = hoSoChuaGop(thuMuc, hangViec, day);
+    for (const trangThai of bac) {
+      const ung = hoSo.filter((x) => trangThai.includes(x.status)).map((x) => x.slug);
+      if (ung.length === 1) return ung[0];
+      if (ung.length > 1) throw new Error(`xin: dãy ${day.id} có ${ung.length} hồ sơ ${trangThai.join('/')} chưa gộp (${ung.join(', ')}) — truyền --slug <slug đang chấm>`);
+    }
+  }
+  return slugKeCua(thuMuc, hangViec, day.id);
+}
+
 export function ghiDon(cwd, { loai, uocPhut = null, moMerge = false, slug = null }) {
   const { thuMuc, hangViec, day } = dayCua(cwd, 'xin');
-  const don = { phien: day.id, slug: slug ?? slugKeCua(thuMuc, hangViec, day.id), loai, luc: new Date().toISOString(), worktree: day.worktree };
+  const don = { phien: day.id, slug: slug ?? slugCuaDon(thuMuc, hangViec, day, loai), loai, luc: new Date().toISOString(), worktree: day.worktree };
   if (uocPhut != null) don.uoc_phut = Number(uocPhut);
   if (moMerge) don.mo_merge = true;
   kiemDon(don);
@@ -48,12 +88,15 @@ export function ghiDon(cwd, { loai, uocPhut = null, moMerge = false, slug = null
   return p;
 }
 
-export function nhaKhoa(cwd, taiNguyen) {
+export function nhaKhoa(cwd, taiNguyen, { ma = null, haTang = null } = {}) {
   const { thuMuc, day } = dayCua(cwd, 'nha');
+  const maSo = ma === null || ma === undefined || ma === '' ? null : Number(ma);
+  if (maSo !== null && !Number.isInteger(maSo)) throw new Error(`nha: --ma ${ma} không phải mã thoát nguyên`);
   const d = path.join(thuMuc, 'khoa', String(taiNguyen));
   if (!fs.existsSync(d)) return `nha: khoá ${taiNguyen} không có — không làm gì`;
   const chu = docJson(path.join(d, 'chu.json'), null);
   if (chu?.phien !== day.id) throw new Error(`nha: khoá ${taiNguyen} không do ${day.id} giữ (${chu?.phien ?? '?'})`);
+  ghiKetQuaNha(thuMuc, String(taiNguyen), { ma: maSo, haTang: typeof haTang === 'string' && haTang !== '' ? haTang : null });
   fs.rmSync(d, { recursive: true, force: true });
   return `nha: đã nhả ${taiNguyen}`;
 }

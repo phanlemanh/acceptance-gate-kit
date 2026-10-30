@@ -1,0 +1,1515 @@
+{
+  "schema": 1,
+  "sinh_boi": "node tests/design-floor/rao-dong.mjs --write",
+  "nguon": {
+    "repo": "https://github.com/jangtrinh/design-os",
+    "commit": "a7ad5f1e650321ac325734e9199f266c9b990212"
+  },
+  "lenh": {
+    "gate": {
+      "entry": "src/commands/gate.ts",
+      "tep": 104,
+      "dong": 16465,
+      "ngoai": [
+        "./memory-events.js",
+        "css-select",
+        "css-tree/generator",
+        "css-tree/parser",
+        "css-tree/walker",
+        "domutils",
+        "htmlparser2",
+        "node:crypto",
+        "node:fs",
+        "node:os",
+        "node:path",
+        "node:url"
+      ]
+    },
+    "token-coverage": {
+      "entry": "src/commands/token-coverage.ts",
+      "tep": 27,
+      "dong": 4298,
+      "ngoai": [
+        "htmlparser2",
+        "node:crypto",
+        "node:fs",
+        "node:path"
+      ]
+    },
+    "reuse-plan check": {
+      "entry": "src/commands/reuse-plan.ts",
+      "tep": 34,
+      "dong": 4842,
+      "ngoai": [
+        "node:crypto",
+        "node:fs",
+        "node:path"
+      ]
+    },
+    "flow lint": {
+      "entry": "src/commands/flow.ts",
+      "tep": 4,
+      "dong": 489,
+      "ngoai": [
+        "node:fs"
+      ]
+    },
+    "autofix": {
+      "entry": "src/commands/autofix.ts",
+      "tep": 41,
+      "dong": 6163,
+      "ngoai": [
+        "./memory-events.js",
+        "node:crypto",
+        "node:fs",
+        "node:os",
+        "node:path"
+      ]
+    },
+    "vo": {
+      "entry": "design-floor/vo/ui.ts",
+      "tep": 2,
+      "dong": 1542,
+      "ngoai": []
+    }
+  },
+  "hop": {
+    "tep": 126,
+    "dong": 20016
+  },
+  "tep": [
+    {
+      "path": "src/commands/autofix.ts",
+      "sha256": "74b6c53ae130713024448b1e1a92a552bcf88f50839306df49f6534ce6cdc2e3",
+      "dong": 145,
+      "lenh": [
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/commands/flow.ts",
+      "sha256": "632a70d6c6aa15a124e1987062d0cb14bc6a9d9270794af1c3763123f9e44ae7",
+      "dong": 103,
+      "lenh": [
+        "flow lint"
+      ]
+    },
+    {
+      "path": "src/commands/gate.ts",
+      "sha256": "a2eb0818638208f891393d1eca8f27523fb792423566dcef39f25779299c0d65",
+      "dong": 390,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/commands/reuse-plan-check-impl.ts",
+      "sha256": "0f4fec7c03eb62af9f8acfe821f13dc1df7e5388badc87d1fb111aa39b409066",
+      "dong": 103,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/commands/reuse-plan.ts",
+      "sha256": "c31cecb764100b3061e854acd35bd1dcca8ce1265d96b976c7b9f1fef31e41d6",
+      "dong": 102,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/commands/taste-lint.ts",
+      "sha256": "89fad8800a2ff3eee641505d3c6e4eacaaa3571a825a6ac66d1dbcc8bd265ef6",
+      "dong": 228,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/commands/token-coverage.ts",
+      "sha256": "c20aadd8828d893ccd97fda498daa947d4be47b3baabc8e4df2d87615e15d7f9",
+      "dong": 133,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/a11y-checks-contrast.ts",
+      "sha256": "995234d1f483252cbdd81449a6f275b4b4adb55c4b11ad723199166316f9f4e6",
+      "dong": 235,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/a11y-checks-focus-and-labels.ts",
+      "sha256": "21af627affd77d7f2afcb3142d0610e6368f2c9336222e34faa9f5e33bd5715d",
+      "dong": 141,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/a11y-checks.ts",
+      "sha256": "f24b2965a204dc66d47ac7008676531e97c2eec4f890c7fbf6fd295bf066cc51",
+      "dong": 220,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/a11y-lint.ts",
+      "sha256": "9309f8e75c72fe57b4dbbd24be23e5f890db0388559ee972ae58af943e15c037",
+      "dong": 92,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/check-catalog.ts",
+      "sha256": "25062762089a7e2abbcd9409c957fdd91f54d8fd702911c1b4370e92b1b49641",
+      "dong": 202,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/cli-args.ts",
+      "sha256": "80ffcd213fb879d432de1e975c02291eb2d50c469eb1a9423af6a9792d718fe8",
+      "dong": 170,
+      "lenh": [
+        "vo"
+      ]
+    },
+    {
+      "path": "src/core/color-convert.ts",
+      "sha256": "da6193c33e70582a7b1ee224092ef8471112b51f854f0c3be462164c3d4bd034",
+      "dong": 173,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/color-scale.ts",
+      "sha256": "0c2ea585d4c67f4030f1dc999c29d14a6630ef718d77724414ced09c11e23068",
+      "dong": 167,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/command-signatures.ts",
+      "sha256": "5fb023360295ab47cf0d4c7e16298d62620956d0e4cc431ceae56d2957661ce3",
+      "dong": 1372,
+      "lenh": [
+        "vo"
+      ]
+    },
+    {
+      "path": "src/core/content-checks-metadata.ts",
+      "sha256": "b79ecabeeddbd393670b8b9d5e5c99e019ea5c3a20e67211f4dd186a3e81c40a",
+      "dong": 70,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/content-checks-punctuation.ts",
+      "sha256": "6b969e5fb49fc824413d7bbf003cbb4c70972149991204bbb8a7069934bb15e0",
+      "dong": 52,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/content-checks-voice.ts",
+      "sha256": "b5e614dd6743996b3e7a9bf869ea3da63a462a6af9913e634fe806ac0efb44f3",
+      "dong": 169,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/content-checks.ts",
+      "sha256": "0d4af21675eb5efbaf6b62f56e2b837db20d378eaa6fc53370fe0b8bc2587825",
+      "dong": 175,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/css-selector-blocks.ts",
+      "sha256": "426f7b2fb2a86d00fa5ff92837d653086c28881d59414aacbc9bb397e6126766",
+      "dong": 87,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/css-selector-mode.ts",
+      "sha256": "1a8a69738fcd4e0eb50d57720a2d17af0f2a0c1acd4c712694480b83e049ff57",
+      "dong": 45,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/extractor-registry.ts",
+      "sha256": "795f1265335fa8e64f39da9f797d2854502650697db847106618cafc5a738873",
+      "dong": 151,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/fact-collector.ts",
+      "sha256": "479a0ceacf0e7e4878e951c1f13d26292432ed5cafb2875621890741af1b4efb",
+      "dong": 117,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/fact-kinds.ts",
+      "sha256": "62a9ca01c752c0753eb6f3360e10d1eb49e8445c88d4d3c1d12691fc2f440d35",
+      "dong": 177,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/fact-model.ts",
+      "sha256": "b36bcf799d38d987424b5903df4299599fc44432b50493142ff13d9042760091",
+      "dong": 75,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/index.ts",
+      "sha256": "eb93571655ed040db8c7536bc416807dc48f0b66faa24e9adba1f2a2ea77d371",
+      "dong": 11,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/role-synthesis.ts",
+      "sha256": "fd20f2452226ab5ce52516ee93fffccdd4d339b4abe636f95ab55dd116e46c73",
+      "dong": 187,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-facts/rule-requirements.ts",
+      "sha256": "fd93dcb1bcef4114134361eaa9371a99d1cd73cc08571ba039979604331bf653",
+      "dong": 130,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/design-system.ts",
+      "sha256": "b1dbc6504a8681d875a233d8820ad0f16404c0b17a2f9f44d66e30a642b2f249",
+      "dong": 335,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-a11y.ts",
+      "sha256": "607d92962faf49029fba066d464968435e22743d70c6da8dc383060943e93f06",
+      "dong": 189,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/ds-docs.ts",
+      "sha256": "6157f4e2172ff57b40442a7f86a1fd0e2e35c590f7722c6c8f398d953a672fa4",
+      "dong": 105,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/ds-guidelines-components.ts",
+      "sha256": "f94e35517f631e771bc27c581d1bcb0353330c3455ef0d9c57b9d1477dec14c7",
+      "dong": 132,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/ds-guidelines-model.ts",
+      "sha256": "66d28629b8802a9746a3ff1ed07ae31806df8198f78140e836a4bbaa20a729dc",
+      "dong": 155,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/ds-guidelines-render.ts",
+      "sha256": "dd8542edf54b8a3fa22855e14e10c0048a08600c177046d40f142ec22efcfbee",
+      "dong": 105,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-evidence.ts",
+      "sha256": "891189796234076d322899267a32833e56e139e27d77f363cf2dc4e2fb31861b",
+      "dong": 30,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-files.ts",
+      "sha256": "e1a4009f5eee7969796c102ee8a6351ce78709e97b60d07c5a6ce951b18ce36d",
+      "dong": 77,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-inventory.ts",
+      "sha256": "026decd699a9c6ae60b91ed14ca7770e84d0f99d14e22ee4b624abade043cc1d",
+      "dong": 84,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-parse.ts",
+      "sha256": "ed18a01641e9d60a9192aade78f6f47fd57e2d13e412172684b64f6da83a5f15",
+      "dong": 67,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-seal.ts",
+      "sha256": "3733909b2e62a55e77b5e5dd903d8c7be93ffa65ebf9e119dfc39aa660b10057",
+      "dong": 142,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-theme.ts",
+      "sha256": "7f6f2839ada662c9f8dd415d2912a6f615cd193bcd9d7f227e5fa4de6ab873fb",
+      "dong": 121,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-types.ts",
+      "sha256": "aef93b0cc3bfa5b733c753bea64bab5fc6a2cc0f1bdd70da120587ca4c00c5a8",
+      "dong": 36,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-kit-validate.ts",
+      "sha256": "aca385460b0fd10e5766870b1a3af8bd0aad9090de985e9a0a514368399a2113",
+      "dong": 101,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/ds-manifest.ts",
+      "sha256": "38825eab8724ab7c5f22bc79a9444144cd19e639ca99598df039800aefa944d2",
+      "dong": 318,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/css-cascade.ts",
+      "sha256": "4ab77f56ab3b8d291e7918b30c9b4755236bb4b6a70370cf39f4893e5ff3208d",
+      "dong": 309,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/css-custom-properties.ts",
+      "sha256": "8a7c2585d8b94e4f6adc11072477032cf72a2cb2b8130c3d254bc2b73359078e",
+      "dong": 97,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/css-shorthands.ts",
+      "sha256": "1a6205025ba1a474d403e629c1b958887c5e043972e71d2ffb5649a1cc9e5a2f",
+      "dong": 64,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/css-values.ts",
+      "sha256": "26cdbdfd802165bec4520ddf824e89f377196831c7c1c6e4651be91b6ffbdf5e",
+      "dong": 179,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/html-dom.ts",
+      "sha256": "26f368ee803883d44f3cce9fd15c8e4041a704d1f56917561d1e396a2b0ac8ac",
+      "dong": 210,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/extractors/html/html-extractor.ts",
+      "sha256": "d7cd4c11f6d024de9dd4ca0780c8188de9e67211362ff60fa5bd8952f4dfde34",
+      "dong": 399,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/figma-ds-tokens.ts",
+      "sha256": "1f36dc8be03d86efaa1d3b1e43ec2dda7c36355f08a5775b25162fcbfb6ab401",
+      "dong": 283,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/finding-schema.ts",
+      "sha256": "54e38396a6157483e2e30de0c2eabe2b2703f3b807d657a3ee0f011c873ef6c1",
+      "dong": 110,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/flag-guard.ts",
+      "sha256": "6bbd04c833c32a056300adbcff233785e39479d6de6aaa0abdcb70972bf8d543",
+      "dong": 101,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/flow-lint.ts",
+      "sha256": "20d333513478dc26b3f2b9e6022c1a4d14e560082d26bd8021fa76cdb492b58b",
+      "dong": 120,
+      "lenh": [
+        "flow lint"
+      ]
+    },
+    {
+      "path": "src/core/flow-model.ts",
+      "sha256": "16baec2aead5b787ec58aef7993e3c3b1d7896e8f9809dfbeed6ac4152fb5163",
+      "dong": 116,
+      "lenh": [
+        "flow lint"
+      ]
+    },
+    {
+      "path": "src/core/gate.ts",
+      "sha256": "428179b404397bc75fbdb4d730d9aaf2542ade3014d3d122a0f2a6ffec7098b7",
+      "dong": 208,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/html-autofix-floor-repairs.ts",
+      "sha256": "1145ebc168fa9384cd2445faf4d5d474a04994e9c760ca1f713b45cd0576d194",
+      "dong": 155,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/html-autofix-font-display.ts",
+      "sha256": "661f755e6a4a02c91e9d0b3c2077e7a3a820bd9ef49ec2bc3d1e63aafdf829bf",
+      "dong": 87,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/html-autofix.ts",
+      "sha256": "6a892383e9d239afe6569f4f664e933f3c539d8f41f56efa7500c3c77f1b481c",
+      "dong": 222,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/html-css-loader.ts",
+      "sha256": "5caaa53a8612b615e9d3aa0894bd53b5c47f98f74d3fd08c96aa4bd28d288800",
+      "dong": 195,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/html-export.ts",
+      "sha256": "1a789b4cfd228ac62f05f7d49017b862f43d51379dc5bd21ce677b5f82fdd425",
+      "dong": 161,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/html-img-fallback-script.ts",
+      "sha256": "0b3632ae03313385650094cb3a6a9bfb34751daf20dce054005bb99ffe826510",
+      "dong": 19,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/insight-recurrence.ts",
+      "sha256": "4c4c274c695f948e928d27fec3d6700cff12d02417c4976ef06522c70d94ec00",
+      "dong": 40,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks-craft.ts",
+      "sha256": "a6671139fe7b7ed94f5a090168a4c55ca8866511002434d1aaa618a234fae59a",
+      "dong": 117,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks-delivery.ts",
+      "sha256": "6a8e29e202930e6a105d54ec2b994e5b1a156838071353c38dd5db27c88e6976",
+      "dong": 86,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks-hover.ts",
+      "sha256": "76d5acdd8eed63c2c6e7691b5b5ab8f0069458742911afc06c96af4d4d2c49d9",
+      "dong": 75,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks-mobile.ts",
+      "sha256": "baab3cb26595a31e4808723f272686c166935d581aac56a4d8291436f0187f5d",
+      "dong": 166,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks-viewport.ts",
+      "sha256": "678fe538ea7bfcda076f56a4068e444fc450d5b98e67c8096b0924fb85f19cc7",
+      "dong": 107,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/layout-checks.ts",
+      "sha256": "09fe18fda9cb80fb6db827c791c9e4a343074412ccef6f413eeb510b93ccc08d",
+      "dong": 200,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/layout-lint.ts",
+      "sha256": "3a226ab64bc611ebb2627fc44dec88d414d0577c6a9b5317c427e2dd998e4eb8",
+      "dong": 125,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/lifecycle-name.ts",
+      "sha256": "89751dbd49606bc48c9d7cb00f69dc12f0561ea6596ef9e43ccab095a16d6f7c",
+      "dong": 23,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/line-index.ts",
+      "sha256": "95cf7a19ace25dd0ba3f232b7ac8b6091ada39bb0802144a8083ca1b69374deb",
+      "dong": 141,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-autorecord.ts",
+      "sha256": "e53d87a1b35a61382ce3dd62caf30868e6ff3d56685aba261e775e9425efb0f6",
+      "dong": 190,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-error.ts",
+      "sha256": "a0a90d869ff86e50c30151ac46b10bac61bf5a011d6573482b91fa80ee466f93",
+      "dong": 26,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-events.ts",
+      "sha256": "9b73a58564b9328f57a49f734cb4c83903984027a6e454c4b990aa62abe4b00d",
+      "dong": 268,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-graph-cache.ts",
+      "sha256": "28eb2ec84f2e9f807b49e28077e1e1b27de21e46e74ab7eccf972dbf867558cc",
+      "dong": 33,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-graph.ts",
+      "sha256": "3cb524a3809b687941af878346a0baee21d1d2c1de9341b5f7e12d21b88122cf",
+      "dong": 212,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-lesson-evidence.ts",
+      "sha256": "fcbddc98a1c8ac8c4135f46f70d650a84d6a87082e0ec5013f94f14aa3930443",
+      "dong": 89,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-lessons.ts",
+      "sha256": "14d0e73c404def3f39d14fb5baedcfd75d5c650a772fe36dd9910868ccbfb1d3",
+      "dong": 101,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/memory-store.ts",
+      "sha256": "b6de5c17a344451c9f0ff813c8808b61ac54c3772dda7e2a8faed4dabf34c61c",
+      "dong": 217,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/output.ts",
+      "sha256": "6148fd60c8b71d4e6450dc9905cc964871449517ffe58221e8d922e645aca24b",
+      "dong": 150,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "flow lint",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/redirect-stub.ts",
+      "sha256": "681e9905daab7ffce3069d26600fe361cafea3ddcbbd38aa02fad0991739211e",
+      "dong": 16,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/registry-shards.ts",
+      "sha256": "7f6e9121a0b6d32a9977eefae7cba791bb53e1c01e78e1cb530f8c45a1e48dcd",
+      "dong": 269,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/registry-store.ts",
+      "sha256": "5488379e0ee9f44bee6d687ec68ab9233502680ff2e7420e4b027ff9f07e34d4",
+      "dong": 497,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/registry-token-check.ts",
+      "sha256": "696dc9a09048211b526e559ae57c4b9da88d087ed41d7b7f2a38b9b45845fe5a",
+      "dong": 46,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-check-new.ts",
+      "sha256": "fbf833719f96c84673de38191fca42e0b2a3ff0517d918de23df30bf9d68a291",
+      "dong": 46,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-check-row.ts",
+      "sha256": "8df058a6db64fe1e0965bf380e597d55da28980399637c185a6cc0bc1cef9aa9",
+      "dong": 112,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-check.ts",
+      "sha256": "17e277e6577fca64ec5dda24c70f0797ba95940a9f3a510008804f8128188cf8",
+      "dong": 140,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-names.ts",
+      "sha256": "6f024a70a391939f0f232fabec2692ac72fe73fc4f8bc72d03e6176529f1585c",
+      "dong": 138,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-parse.ts",
+      "sha256": "db10ee20843fdc317429faf2255aa72abd2eaa97f405c7f42038cf65c31926f8",
+      "dong": 150,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-reason.ts",
+      "sha256": "c88b3ffbb3c072ec6d1cb939fa0ca3b580734aaae23f90f01791c440e6b84e30",
+      "dong": 21,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/reuse-plan-render.ts",
+      "sha256": "aa6d2430f4be64f219714775b3f9b58ab673bd6f7a8bd7a14252a9aa1ded547f",
+      "dong": 46,
+      "lenh": [
+        "reuse-plan check"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-concentric-radius.ts",
+      "sha256": "85ac68624ad92ed5d482eec819a96d4863cb24033b492d1edb41b9dc02e14c38",
+      "dong": 82,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-consistency.ts",
+      "sha256": "41eac1071e03d715a21826722c2dce51e0a2380d38d51225d0d10cf5cbda76ca",
+      "dong": 69,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-depth.ts",
+      "sha256": "05e4e2b16caf134bb7657f79cb205e0ddb942e42c8c73317d4ca9c8072dc9125",
+      "dong": 71,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-font-scale.ts",
+      "sha256": "bec3344e3638aa7492a6303d8172d681e2ca7d6aaf844b040f45151738482eec",
+      "dong": 83,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-gradient.ts",
+      "sha256": "c34e65b11881d49ae97bde1d8a7712798dbc62e3978df01d776b4281c87ebea8",
+      "dong": 154,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-gsap.ts",
+      "sha256": "d781ba15024141ee6988231e53124f31b7085fdd13aa4ae06468e68a25f316ec",
+      "dong": 233,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-invisible-surface.ts",
+      "sha256": "c8dcea121fa0fe78ae344992bb66e71582d496a97e49870e60bc24812fae6d46",
+      "dong": 184,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-motion-state.ts",
+      "sha256": "9083d7aa474d062199aac5757258082d00d71018aaafa528209cbc485a750471",
+      "dong": 102,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-motion.ts",
+      "sha256": "e4b54861cb0d3cf69753eaf64036ba99c1c36d7f1192d25f01a4b21e197c7170",
+      "dong": 136,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-nesting.ts",
+      "sha256": "310dcd1543d1b021d261c281591f066ad9ec661095c4541a9d0e32f1a47df828",
+      "dong": 200,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-radius.ts",
+      "sha256": "27dec4d917f3f16663950afdd7a8dafe051a06419c4f0652ec0122d3e4ef22c4",
+      "dong": 147,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-shared.ts",
+      "sha256": "054449c8abf5907fb0272f71868a1d3abb6fa5587ea793810550d4eeef8ab7eb",
+      "dong": 107,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-tap-target.ts",
+      "sha256": "72d0ab25b4e1ade71e8b3cb6d3d2a4105e355e5dd210d09782c699729f3273f7",
+      "dong": 139,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-typography.ts",
+      "sha256": "cd0662227f8628d4f15a0c3614ea28a2506ca6786ccc3c2e683f573a8fb0a28e",
+      "dong": 133,
+      "lenh": [
+        "gate",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks-video-scrub.ts",
+      "sha256": "fb2aec75853bf2efa61bc4de7d02b839bac4c7b1cb2086b93683ef05c8c1414a",
+      "dong": 149,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-checks.ts",
+      "sha256": "e7b4981b6b19965576a8da4ab569a179c5e3ff4fb657465383d9e044a9f35ec1",
+      "dong": 284,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/taste-lint.ts",
+      "sha256": "fec4102f294c6c372ce3bf5efe6aa9898f71bc6d29f7a868a0e3789086e0b83e",
+      "dong": 182,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-lint.ts",
+      "sha256": "38dc9e20b23178b61c2a82a57c569e284ee45d07320d0a0aa0501d8403b5f022",
+      "dong": 200,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-color.ts",
+      "sha256": "41f9671f2a863f5170114bb677918d367d6ecde6a64cc96adaf0c3036b23130a",
+      "dong": 332,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-labels.ts",
+      "sha256": "18cae634a17ce46489f1bdcb9a6212dd7d963aa0bbd928af156f6fb29b267d54",
+      "dong": 138,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-motion.ts",
+      "sha256": "0eac6d96defed9a645683865a9b78cdb65dc8501daa0e39692f00149646ea10b",
+      "dong": 268,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-rendered.ts",
+      "sha256": "6d6deb3b73f3dd2eace572e5cefdec46b3e8552eb7b0bbe9d462c45f48948782",
+      "dong": 253,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-surface.ts",
+      "sha256": "18d2cebdda8d04fca90fe8a653722e67fae949b79353ea268c8faf3134698d1b",
+      "dong": 263,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules-type.ts",
+      "sha256": "515258f22985938c0b951de4e6476317bc4f64a72e57dd6cada9062d85d5b090",
+      "dong": 296,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-rules.ts",
+      "sha256": "0f20aa8859157acd69c43e1e86ae51795acfff9e21762de483da29370115efdc",
+      "dong": 255,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/tell-thresholds.ts",
+      "sha256": "dc074b5b29e09b8a93e2a3bfc44146bbeae3d190e7194f8d586a9e99dd29bf9b",
+      "dong": 163,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/token-coverage-classify.ts",
+      "sha256": "be1a05b211ac77767a501141081b4bb831850607ce1d71c0cc84daad747b18f1",
+      "dong": 108,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/token-coverage-extract.ts",
+      "sha256": "efa576a99cd5c32cec015d2578c9fb4c5adfdf09720d1e29115c7669b94ff674",
+      "dong": 82,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/token-coverage-io.ts",
+      "sha256": "4fc2e385360c5d7820d6b4927021c817bbb6110db4c1efa3b20c22e15eb15068",
+      "dong": 121,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/token-coverage.ts",
+      "sha256": "e0f1c9442abe46c8bad5d5a4ec78bbf7828e0d2916a98e192862544f83369a6f",
+      "dong": 69,
+      "lenh": [
+        "gate",
+        "token-coverage"
+      ]
+    },
+    {
+      "path": "src/core/token-emit.ts",
+      "sha256": "fae79d2fcc3438cb2d39759ea7d8dc215516f9afd6a8ee31106eef0675035c24",
+      "dong": 204,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/token-model.ts",
+      "sha256": "c7d58f3d4280fc48467d0be5f72612cb48bf18036c0dbc12d5aee0eb59236d45",
+      "dong": 219,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    },
+    {
+      "path": "src/core/token-pairs.ts",
+      "sha256": "3059f47fa4d4494d09a4bd7442cc0e360793fcc9e879aa47679b1006ecf3c808",
+      "dong": 66,
+      "lenh": [
+        "gate"
+      ]
+    },
+    {
+      "path": "src/core/token-resolve.ts",
+      "sha256": "edda80c62394000db680cbc2e4e61bc5acf1bc62473a3d6c5be02326e2c8821e",
+      "dong": 223,
+      "lenh": [
+        "gate",
+        "token-coverage",
+        "reuse-plan check",
+        "autofix"
+      ]
+    }
+  ],
+  "tri_thuc": {
+    "chi_muc": {
+      "path": "knowledge/index.json",
+      "sha256": "c18a983c46eadff5780295cb4e8fcea9b76c09ffb0e236fdf01165f62517e5ff",
+      "byte": 21239
+    },
+    "tep": [
+      {
+        "id": "accessibility",
+        "path": "knowledge/accessibility.md",
+        "sha256": "fb63a888f2a133f2db50cf7d53d08ed172b5f4d8a4b9af3d291d95875aca03f9",
+        "byte": 7188
+      },
+      {
+        "id": "apple-swiftui-craft",
+        "path": "knowledge/apple-swiftui-craft.md",
+        "sha256": "b585f3829d49c3697a2228dac94ac75b1e9e7724d609cd7053e99bdb71181a6e",
+        "byte": 7645
+      },
+      {
+        "id": "asset-production-orchestration",
+        "path": "knowledge/asset-production-orchestration.md",
+        "sha256": "d80c99310ad89584c9d2df0105da4522414d8fc834a70c4bbdd7589aae29814e",
+        "byte": 7682
+      },
+      {
+        "id": "authoring-standard",
+        "path": "knowledge/authoring-standard.md",
+        "sha256": "1370acc7aaa8458188ba8d486a4ea0d4db92f039b5464e28ed43b60c99b63dd9",
+        "byte": 10696
+      },
+      {
+        "id": "build-loop",
+        "path": "knowledge/build-loop.md",
+        "sha256": "b62456ad19b667bc3098d644a16d8ddf5db81a0ba7d94bfde59672517240a672",
+        "byte": 10165
+      },
+      {
+        "id": "canvas-effect-direction",
+        "path": "knowledge/canvas-effect-direction.md",
+        "sha256": "5fc5ac55bec3c17b22e5f877853b422c5f411ccdc2d9503f78fdcbcfe952aaa9",
+        "byte": 16026
+      },
+      {
+        "id": "chart-craft",
+        "path": "knowledge/chart-craft.md",
+        "sha256": "9953fea300fe2de40fd80edb72b6dc9f20fd996acebdb0b835344e5859da9d0c",
+        "byte": 10118
+      },
+      {
+        "id": "color-science",
+        "path": "knowledge/color-science.md",
+        "sha256": "72097a0906f18fece5311aa7ab74dc1c8fcc847e0c4de3166c1ca9c218f6f5a3",
+        "byte": 12918
+      },
+      {
+        "id": "component-catalog",
+        "path": "knowledge/component-catalog.md",
+        "sha256": "d12885750360ef3f87298acbe1275cdb9df69899078beb368cbb1e5f80b9674e",
+        "byte": 9231
+      },
+      {
+        "id": "content-design",
+        "path": "knowledge/content-design.md",
+        "sha256": "218ae76678601680eb85d3405dbf02ca58ff727afd28fba72cd9ee42f94177b8",
+        "byte": 5254
+      },
+      {
+        "id": "delivery-assets",
+        "path": "knowledge/delivery-assets.md",
+        "sha256": "22ffe9a70846059f991e0eddb6dd8f21aa4ba1042df299663bcd875982acecf7",
+        "byte": 6601
+      },
+      {
+        "id": "design-agents",
+        "path": "knowledge/design-agents.md",
+        "sha256": "8b22550eb7d5ae19f71f6c6cc36c92a4c59844fdf77b6f9fb63c96ef1e17840a",
+        "byte": 6713
+      },
+      {
+        "id": "design-reuse-ladder",
+        "path": "knowledge/design-reuse-ladder.md",
+        "sha256": "e074bf6f349db8a5f3385dd4aea7ec8e9b7d4ccd654aeee317df167c470713fd",
+        "byte": 10304
+      },
+      {
+        "id": "design-review",
+        "path": "knowledge/design-review.md",
+        "sha256": "656b84ee4139bdd9a4a10b73c17b2eb847a8fce5d5079ac2ae70b97875bfb734",
+        "byte": 3361
+      },
+      {
+        "id": "design-soul",
+        "path": "knowledge/design-soul.md",
+        "sha256": "2b4b2bd64eeec32ac0ee3afdf5fe5a54ba6081f8fe579e81d7c6926b410121a0",
+        "byte": 9010
+      },
+      {
+        "id": "design-tells",
+        "path": "knowledge/design-tells.md",
+        "sha256": "9def6556228a2ef1d8989c66d1d596aa288a709b81de969f2463b535363c0841",
+        "byte": 7614
+      },
+      {
+        "id": "designmd-format",
+        "path": "knowledge/designmd-format.md",
+        "sha256": "65c6740eac98bcc3d09d27a7dc1800fc9783c2f2b2b8edca565a4c31c06396df",
+        "byte": 10778
+      },
+      {
+        "id": "diagram-craft",
+        "path": "knowledge/diagram-craft.md",
+        "sha256": "9d5ca2ac14d0d1f81da23480c9c827dc6a66a2cebee7a4ae50ccda0a9da90d47",
+        "byte": 13978
+      },
+      {
+        "id": "diagram-icons",
+        "path": "knowledge/diagram-icons.md",
+        "sha256": "3524fb8c49ab3907123d5999c9a0ad173b159de40228360d073f17dee216e6ea",
+        "byte": 105623
+      },
+      {
+        "id": "ds-guidelines",
+        "path": "knowledge/ds-guidelines.md",
+        "sha256": "5c439e03ea59aeef63d1717b9d74bc0f0f7fe0a0be2762bfdb53c30d7211730e",
+        "byte": 15964
+      },
+      {
+        "id": "ds-kit-onboarding",
+        "path": "knowledge/ds-kit-onboarding.md",
+        "sha256": "fc17f5a5dbdbcfda30fef53bb1d605f7a4e89768f38c28f6d00b14bfce61cb46",
+        "byte": 15275
+      },
+      {
+        "id": "figma-agent-hand",
+        "path": "knowledge/figma-agent-hand.md",
+        "sha256": "1eb9a7e48568c6fc4c5282f3703e849b8ef42c78d5e09b294172402d17021012",
+        "byte": 17123
+      },
+      {
+        "id": "figma-ds-onboarding",
+        "path": "knowledge/figma-ds-onboarding.md",
+        "sha256": "269e0f18f0e2eaf998eb82a6e452d4bdd1bd7995c27b05f1ee3638c7164542e4",
+        "byte": 11381
+      },
+      {
+        "id": "flow-craft",
+        "path": "knowledge/flow-craft.md",
+        "sha256": "4dec64e7851e3d08b7a1f9c5d2a14100cd5c5affebabeeebc0ab3229b14d9f1f",
+        "byte": 4005
+      },
+      {
+        "id": "generation-craft-defaults",
+        "path": "knowledge/generation-craft-defaults.md",
+        "sha256": "37eca779157c5b370077a4e6a2c7c03bc8fa2bd5e61a4cb6901db9f4a4affdfa",
+        "byte": 9803
+      },
+      {
+        "id": "gflow-hand",
+        "path": "knowledge/gflow-hand.md",
+        "sha256": "39dfcfaf6af44896b1b27665a7e89c7a35d29b4857e003216d83957a5bec9726",
+        "byte": 8620
+      },
+      {
+        "id": "gsap-motion-direction",
+        "path": "knowledge/gsap-motion-direction.md",
+        "sha256": "180f4751396e1ad96563f86584c1e82fd6f21989477d184019c37c14d2aa845c",
+        "byte": 9289
+      },
+      {
+        "id": "librarian-loop",
+        "path": "knowledge/librarian-loop.md",
+        "sha256": "d4f86497073509b886333a8c0164e31aafd99007a054632c4a4d706a0dadae92",
+        "byte": 7608
+      },
+      {
+        "id": "mode-constraints",
+        "path": "knowledge/mode-constraints.md",
+        "sha256": "0907f69774ce3865bb239f67838bfaee12983c0265b71264282ff627dbed3b46",
+        "byte": 18334
+      },
+      {
+        "id": "motion-craft",
+        "path": "knowledge/motion-craft.md",
+        "sha256": "05f68a530a72c5b8b2c234602c8ef5dff0299ff487d158c4ca051f0fc1d7fbeb",
+        "byte": 20735
+      },
+      {
+        "id": "native-ios-craft",
+        "path": "knowledge/native-ios-craft.md",
+        "sha256": "c662a8053d3024a022257a3a0a4c76e3469498adb8b3d7f56f70cb037a69c5f0",
+        "byte": 4782
+      },
+      {
+        "id": "native-ipados-craft",
+        "path": "knowledge/native-ipados-craft.md",
+        "sha256": "ffc2aec9f44a5c91cd4d9aea37efdba6f00f90873cf10369b10b69844e9ebf1f",
+        "byte": 4679
+      },
+      {
+        "id": "native-macos-craft",
+        "path": "knowledge/native-macos-craft.md",
+        "sha256": "4ef2b2a4dcbb12c7fd28f2dbb91da406870281cc959605f1b80bfb40584f22e9",
+        "byte": 5577
+      },
+      {
+        "id": "need-routing",
+        "path": "knowledge/need-routing.md",
+        "sha256": "7a90f188774e330bdf2876e740e7d874dedc04c12bceebdddfa7d5716c9bba7b",
+        "byte": 13689
+      },
+      {
+        "id": "page-structures",
+        "path": "knowledge/page-structures.md",
+        "sha256": "0463e8ed6eccf3ee80bc4047973c74456624580101afbd0e2b296f6f8f835254",
+        "byte": 10417
+      },
+      {
+        "id": "pattern-cards",
+        "path": "knowledge/pattern-cards.md",
+        "sha256": "8c8aaf557708ea97f27024026960f142f70813c3c966bca288b04399e42ae178",
+        "byte": 2480
+      },
+      {
+        "id": "persona-index",
+        "path": "knowledge/persona-index.md",
+        "sha256": "a5e4bb22450ef9d574e674a9b507ce4be21ee9d04119da86ac2dc2d07626be01",
+        "byte": 14404
+      },
+      {
+        "id": "personas/families",
+        "path": "knowledge/personas/families.json",
+        "sha256": "af8becf52711edcd495cd7c39658b59d88e762ef028217ab7d24d11805612d88",
+        "byte": 45795
+      },
+      {
+        "id": "personas/personas",
+        "path": "knowledge/personas/personas.json",
+        "sha256": "f3cb82d8a4eb18b657ce8b8a4f638ca0f2c4eb46aaf47956455a8f17957dcdcd",
+        "byte": 30940
+      },
+      {
+        "id": "prompt-modes",
+        "path": "knowledge/prompt-modes.md",
+        "sha256": "182dcccbd67aa1cb1e3b3ba771424e81336a98dc903b7143f53cabfb515231da",
+        "byte": 14089
+      },
+      {
+        "id": "prompt-plan-orchestration",
+        "path": "knowledge/prompt-plan-orchestration.md",
+        "sha256": "c2562e7344638334cc52aa9eb5ebf6ba41665272284a419d5167dbd56d5a09b5",
+        "byte": 9342
+      },
+      {
+        "id": "qualified-delivery",
+        "path": "knowledge/qualified-delivery.md",
+        "sha256": "783eaf9692f5e7eb99b0e3a1c73daaf5d36ae0b57d3b6c4f99941cfa75148f0e",
+        "byte": 3945
+      },
+      {
+        "id": "recall-mind",
+        "path": "knowledge/recall-mind.md",
+        "sha256": "44734fb774fa05f03d4c1fdbc034058c277e556799a6e8bac0acef205ecbd61d",
+        "byte": 8375
+      },
+      {
+        "id": "scroll-cinema-direction",
+        "path": "knowledge/scroll-cinema-direction.md",
+        "sha256": "5bd34c0a5dba3ff9990a8498c5f8d84b21404bd94c16287fc3b00dfa143aa227",
+        "byte": 14295
+      },
+      {
+        "id": "shader-gradient-direction",
+        "path": "knowledge/shader-gradient-direction.md",
+        "sha256": "ec7a0cb75606b8735c3b0851df7fd2030da817ff219710016e7eeaf36a1083f6",
+        "byte": 15252
+      },
+      {
+        "id": "signature-devices",
+        "path": "knowledge/signature-devices.md",
+        "sha256": "e6630e853a01b5891ce8b6e37663af6ab4d2c352f92a7f231c5b48c4886d8b8f",
+        "byte": 10935
+      },
+      {
+        "id": "taste-rubric",
+        "path": "knowledge/taste-rubric.md",
+        "sha256": "da781189d09782894327bbf95531a3bda28c8fff597747ad6ddbf093a152c154",
+        "byte": 29547
+      },
+      {
+        "id": "token-taxonomy",
+        "path": "knowledge/token-taxonomy.md",
+        "sha256": "15f1b03b58b8d1940ea96c0dd9b4af328c670014572de61ce3c86f3fb9d09baa",
+        "byte": 16708
+      },
+      {
+        "id": "user-evidence",
+        "path": "knowledge/user-evidence.md",
+        "sha256": "05e89764dfd3ea5455c657d1cdf45a82cba845a37d1178a31b5fbfcba73e4c6e",
+        "byte": 7074
+      },
+      {
+        "id": "ux-psychology",
+        "path": "knowledge/ux-psychology.md",
+        "sha256": "a4822152c8c5917e158ad2ceebf298ec1abfbe11c49e6b33ef24866b66f76a1e",
+        "byte": 40206
+      },
+      {
+        "id": "verification-honesty",
+        "path": "knowledge/verification-honesty.md",
+        "sha256": "c4b90956110bf4bb14d08caea7af660125abda2dc8f0138df9c193f7a2164dd2",
+        "byte": 7501
+      },
+      {
+        "id": "versioning-semver",
+        "path": "knowledge/versioning-semver.md",
+        "sha256": "39b4328b3578f8b745a75b658b9333ec1b81b762ad540445f0d8842745ff1c68",
+        "byte": 4272
+      },
+      {
+        "id": "visual-regression",
+        "path": "knowledge/visual-regression.md",
+        "sha256": "4cfbac91d4c0a143161d3a71f48e31551f6943faf5cd7b29484ec1d768b79c8b",
+        "byte": 4176
+      },
+      {
+        "id": "web-technique-craft",
+        "path": "knowledge/web-technique-craft.md",
+        "sha256": "6f2a767f62b8cefb848637056f934cd4792f342229a3669260234f2a7fbcefa8",
+        "byte": 4553
+      },
+      {
+        "id": "world-class-learning-loop",
+        "path": "knowledge/world-class-learning-loop.md",
+        "sha256": "51529d1fe1e47d6d5255404482892ffae2be07dcbff0fad554dc3f5f4e327f5f",
+        "byte": 7940
+      }
+    ]
+  }
+}

@@ -1381,7 +1381,9 @@ if (want('RT18')) {
       if (!existsSync(dir)) return;
       for (const e of require('node:fs').readdirSync(dir, { withFileTypes: true })) {
         const p2 = path.join(dir, e.name);
-        if (e.isDirectory()) { walk(p2); continue; }
+        // node_modules: phụ thuộc bên thứ ba cài cục bộ (jsdom của tests/design-eval, esbuild của tests/design-floor)
+        // — không phải mã của kit, nên không thể là bản chép luật (hồ sơ design-gate-khong-do-duoc-ba-nguyen-nhan).
+        if (e.isDirectory()) { if (e.name !== 'node_modules') walk(p2); continue; }
         if (!/\.(js|cjs|mjs)$/.test(e.name)) continue;
         const rel = path.relative(root, p2).split(path.sep).join('/');
         if (rel === OWNER) continue;
@@ -1416,8 +1418,11 @@ if (want('RT18')) {
       for (const d of ['scripts', 'lib', 'hooks']) cpSync(path.join(ROOT, d), path.join(g, d), { recursive: true });
       mkdirSync(path.join(g, 'tests'), { recursive: true });
       W(g, 'scripts/gia-lap-chep-luat.mjs', `// bản chép mới\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
+      W(g, 'tests/goi/node_modules/thu-vien/chep.js', `// thư viện ngoài\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
       const la2 = soSanh18(scanRoot(g), GACH18);
       if (!la2.some(x => x.startsWith('scripts/gia-lap-chep-luat.mjs'))) errs.push('chiều đỏ (a): tiêm bản chép vào cây mà phép quét không nêu tên');
+      // Đặc hiệu: cùng chuỗi trong node_modules của cùng bản sao phải IM — cạnh bản tiêm ở scripts/ vẫn bị nêu.
+      if (la2.some(x => x.includes('node_modules/'))) errs.push('chiều đỏ (a): phép quét nêu tệp trong node_modules — thư viện ngoài không phải bản chép luật');
     } finally { rmSync(g, { recursive: true, force: true }); }
     // Chiều đỏ (b): gỡ một dòng gạch → file đó phải thành lạ.
     const bo = GACH18[0];

@@ -17,7 +17,7 @@ import { readFileSync, mkdtempSync, rmSync, existsSync, writeFileSync, mkdirSync
 import { execFileSync, spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { runWorkflow, check, summary } from './harness.mjs';
+import { runWorkflow, check, summary, KHOI_GHI_BASELINE, lenhGhiBaseline, kichBanTuLenhGhi, kemGhiDung } from './harness.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WF = path.join(HERE, '..', '..', 'feature-loop', 'workflows', 'acceptance-verify.js');
@@ -42,17 +42,15 @@ const responder = ({ baseline } = {}) => (call) => {
   if (l.startsWith('review:')) return { findings: [] };
   if (l.startsWith('refute:')) return { refuted: true, reason: 'not real' };
   if (l.startsWith('triage')) return { items: [] };
-  if (l === 'baseline:diffBase') return typeof baseline === 'function' ? baseline(call) : (baseline === undefined ? { results: [] } : baseline);
+  // Đầu ra đóng khung đi kèm dòng xác nhận dấu kiểm như tác tử thật trả (hồ sơ doi-chung-chay-duoc).
+  if (l === 'baseline:diffBase') return typeof baseline === 'function' ? kemGhiDung(call, baseline(call)) : (baseline === undefined ? { results: [] } : kemGhiDung(call, baseline));
   if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
   if (l === 'synthesize:report') return { report: '# Evidence demo', findings: '# Findings demo' };
   throw new Error('unexpected agent label: ' + l);
 };
-const MO = '<<<AGK-BASELINE\n', DONG = '\nAGK-BASELINE>>>';
-const lenhCua = (calls) => {
-  const p = (calls.find(c => c.label === 'baseline:diffBase') || {}).prompt || '';
-  const a = p.indexOf(MO), b = p.indexOf(DONG);
-  return a >= 0 && b > a ? p.slice(a + MO.length, b) : '';
-};
+// Kịch bản là thân heredoc của LỆNH GHI kit sinh (hồ sơ doi-chung-chay-duoc) — rút bằng bộ rút chung của harness.
+const [MO, DONG] = KHOI_GHI_BASELINE;
+const lenhCua = (calls) => kichBanTuLenhGhi(lenhGhiBaseline((calls.find(c => c.label === 'baseline:diffBase') || {}).prompt || ''));
 const synthCua = (calls) => (calls.find(c => c.label === 'synthesize:report') || {}).prompt || '';
 const baselineLog = (result) => (result.runLog || []).map(l => JSON.parse(l)).filter(o => o.kind === 'baseline');
 // Thay hằng số trần trong lệnh RÚT từ prompt — khẳng định khớp ĐÚNG MỘT lần trước khi tin.

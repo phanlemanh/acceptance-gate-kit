@@ -1,0 +1,98 @@
+schema_version: 1
+feature_slug: ghi-tri-thuc
+# Ca đo của hàng TT2: tệp tests/scripts/ghi-tri-thuc.test.mjs, tên ca «GT-<n>», in «PASS: GT-…» / «FAIL: GT-…», thoát 1
+# khi có ca đỏ. Khoá executor thêm ở S3 (chỉ thêm khoá): executors.test.ghi_tri_thuc = node trên tệp ca ấy.
+# Mọi kho thử dựng trong thư mục tạm của lượt (git init + commit thật; remote trần bằng git init --bare). Khuôn rút từ
+# tri-thuc-template.md thật lúc chạy; kết quả bên ghi được đọc bằng lint TT1 thật (scripts/tri-thuc.mjs), không bộ đọc
+# riêng của test. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ: chiều xanh trên cùng đầu vào TRƯỚC; mutant là bản sao
+# bên ghi trong thư mục tạm, nhát tiêm khớp đúng một lần (kiểm là đã áp), thông điệp ghim. Ma trận viết sẵn, số assert
+# = số hàng, in ra. «Ảnh cây» = băm mọi tệp + git status --porcelain + HEAD, chụp trước và sau.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs, scripts/tri-thuc.mjs]
+    expected: >
+      exit 0; "PASS: GT-1": kho thử khai noi; ghi loại phien hai tệp (chữ + ảnh nhị phân) → thoát 0; tệp raw giống từng byte bản gốc (so băm); nguon.md có đủ khoá rút từ khối TRI-THUC-RAW, mỗi tệp đúng một dòng khớp biểu thức khối TRI-THUC-RAW-DONG với băm git hash-object thật; TRI-THUC.md bằng khối TRI-THUC-LUAT đã thay tên kho; lint TT1 thật thoát 0 với «tri thức: 1 trang, 1 raw, 0 lỗi». Chiều đỏ "PASS: GT-1-mutant": bản sao bên ghi viết dòng tệp lệch khuôn (bỏ backtick) → lint TT1 thoát 1 với «lỗi: [raw-bi-sua] … tệp không có dòng trong nguon.md».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-2": ma trận mười một hàng in ra (loại · hợp lệ/phạm · mã thoát · câu lỗi); năm hàng hợp lệ thoát 0 với loai đúng trong nguon.md; năm hàng phạm thoát 2, stderr gọi tên đúng loại của hàng; hàng loại lạ thoát 2 và liệt đúng năm loại rút từ khối TRI-THUC-NGUON (so tập); mọi hàng thoát 2 có ảnh cây không đổi. Mutant "PASS: GT-2-mutant": gỡ phép kiểm của loại tep-kho → hàng tep-kho-phạm thôi thoát 2, chín hàng kia giữ nguyên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-3": ghi lại cùng ten và luc với một byte khác → thoát 2, stderr chứa «raw bất biến: raw/<luc>-<ten> đã có nội dung khác — nguồn mới là thư mục mới», ảnh cây không đổi; ghi lại y hệt khi đã commit → thoát 0, stdout chứa «dùng lại raw», HEAD không đổi; hàng nối 1: raw dựng bằng lệnh ghi --khong-commit rồi chạy lại y hệt không cờ → thoát 0, HEAD tiến, git show --name-only chứa raw và trang; hàng nối 2: dùng lại raw kèm --than khác → trang vào commit mới. Mutant "PASS: GT-3-mutant": gỡ phép so nội dung → hàng khác-nội-dung thôi thoát 2; mutant "PASS: GT-3-mutant-theo-doi": bỏ phép kiểm raw đã được git theo dõi → hàng nối 1 đỏ «HEAD không tiến».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs, scripts/tri-thuc.mjs]
+    expected: >
+      exit 0; "PASS: GT-4": ghi nguồn thứ hai vào cùng trang với --ma A2,A3, không --than → thứ tự khoá frontmatter bằng thứ tự khoá rút từ khối TRI-THUC-TRANG, ma: [A1, A2, A3], nguon = tệp cũ rồi tệp mới không trùng, cap_nhat = --luc, thân giống từng byte; tạo trang mới không --than → thoát 2; --trang có đoạn đầu ngoài khối TRI-THUC-LOAI → thoát 2 liệt ba loại rút từ khối; lint TT1 thoát 0 sau mỗi lần ghi thành công.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-5": kho riêng có remote trần; một lần ghi → đúng một commit mới, git show --name-only bằng đúng tập tệp mong đợi (in ra hai tập); ảnh cây kho tiêu thụ không đổi; git ls-remote của remote trần không đổi; --khong-commit → tệp có, HEAD kho riêng không đổi; kho riêng không phải kho git → thoát 2 «kho riêng không phải kho git»; kho riêng có hook pre-commit thoát 1 → lệnh thoát 2, stderr chứa nguyên văn lỗi hook, ảnh cây cả hai kho không đổi. Mọi hàng thoát khác 0 (kể cả của GT-4 và GT-8) chụp ảnh cây hai kho, đối chứng xanh trước. Mutant "PASS: GT-5-mutant": gỡ bước hoàn lại khi commit hỏng → hàng hook đỏ «ảnh cây kho riêng đổi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs, scripts/tri-thuc.mjs]
+    expected: >
+      exit 0; "PASS: GT-6": hai dạng gốc (trong kho, kho riêng); mọi dòng raw: và trang: lệnh in khớp biểu thức khối TRI-THUC-CON-TRO; tiền tố <kho>: có đúng khi gốc là kho riêng; scripts/tri-thuc.mjs --con-tro thoát 0 với từng đường trỏ; sau một commit khác không chạm các tệp ấy vẫn thoát 0; dòng commit: bằng git rev-parse HEAD của gốc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs, scripts/tri-thuc.mjs]
+    expected: >
+      exit 0; "PASS: GT-7": noi + cong_khai: true, không kho; năm loại nguồn (hàng hợp lệ của GT-2) → cả năm thoát 4, stdout chứa «kho công khai chưa có kho riêng», «khai tri_thuc.kho» và «bỏ cong_khai»; ảnh cây kho thử không đổi ở cả năm; đối chứng: cùng năm hàng có khai kho → thoát 0, raw nằm trong kho riêng, kho tiêu thụ không đổi. Mutant "PASS: GT-7-mutant": bản sao gỡ phép chặn → cả năm thôi thoát 4 và lint TT1 trên kho thử thoát 1 với «lỗi: [raw-trong-kho-cong-khai]».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-8": gh giả đầu PATH ghi lại đối số; ma trận (a) PUBLIC · PRIVATE · gh thoát 1 → thoát 4 «nơi giữ raw đang công khai trên GitHub: <chủ>/<kho>» · thoát 0 · thoát 4 «không kiểm được nơi giữ raw có riêng tư không»; ma trận (b) năm dạng remote (https có .git · https không .git · git@github.com: · ssh://git@github.com/ · vắng kho.remote dùng origin SSH) với gh PUBLIC → cả năm thoát 4 và tệp đối số chứa đúng <chủ>/<kho>; remote không phải GitHub → thoát 0 kèm «cảnh báo: remote không phải GitHub»; ma trận (c) kho tiêu thụ chỉ khai noi, không cong_khai, origin GitHub: PUBLIC → thoát 4, PRIVATE → thoát 0. Mọi hàng thoát 4 có ảnh cây hai kho không đổi; số assert = số hàng, in ra. Mutant "PASS: GT-8-mutant": gỡ nhánh PUBLIC → hàng (a)1 thôi thoát 4; mutant "PASS: GT-8-mutant-ssh": bộ tách chỉ nhận https → các hàng SSH của (b) thôi thoát 4.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [scripts/tri-thuc-ghi.mjs, skills/acceptance/references/tri-thuc-template.md, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-9": ma trận tám hàng in ra; bảy hàng đầu thoát 2 với câu lỗi riêng gọi tên đối số (--ten / --trang / --tep / tri_thuc); hàng tám thoát 3, stdout chứa «không đọc được ở đây: <tên kho>» và «git clone <remote> <đường tuyệt đối>»; cả tám có ảnh cây không đổi. Mutant "PASS: GT-9-mutant": gỡ phép chặn .. trong --trang → hàng ấy thôi thoát 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.ghi_tri_thuc
+    paths: [tri-thuc/**, tests/scripts/ghi-tri-thuc.test.mjs]
+    expected: >
+      exit 0; "PASS: GT-10": tri-thuc/commands/ghi.md không chứa «disable-model-invocation»; khối TT-GHI-LENH rút được và dòng lệnh trong nó (sau khi thay $AG bằng gốc kit) đúng là lệnh ca GT-1 chạy; bảng mã thoát của ghi.md liệt đúng tập {0, 2, 3, 4}; tri-thuc/README.md có hai dòng lệnh /tri-thuc:kiem và /tri-thuc:ghi. Chiều đỏ "PASS: GT-10-mutant": bản sao ghi.md đổi dòng lệnh trong khối → ca đỏ «dòng lệnh của ghi.md lệch lệnh ca GT-1».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10b
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [.claude-plugin/marketplace.json, tri-thuc/**, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; dòng "Results:" không có FAIL — trọn suite plugins xanh với lệnh thứ hai của gói tri-thuc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

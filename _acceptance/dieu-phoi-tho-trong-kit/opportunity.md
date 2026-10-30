@@ -154,3 +154,6 @@ việc này ở quãng lặng.
   giữ hàng gộp khi hồ sơ hoá cũ, bản đồ cặp PR xung đột, đăng ký phiên mở thẳng từ chip. Mục nào đợt thử
   OneFlow vấp thì vào. Mục còn lại ghi thành hạt giống.
 - **Tự mở phiên thợ không cần người bấm.** App khoá `start_session`, kit không gỡ được. Khai ở giả định 6.
+- **Việc nặng của kho (đẩy có móc toàn kho, trọn bộ test) đi qua khoá máy của kit, gọi được từ worktree
+  cô lập.** Một kho tiêu thụ 23/10: kịch bản khoá riêng bị bộ canh của chế độ cô lập từ chối, một lượt gọi
+  người ngoài thiết kế. Chưa mở ô — hạt giống `docs/plans/2026-10-23-hat-giong-viec-nang-qua-khoa-may-kit.md`.

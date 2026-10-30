@@ -123,8 +123,8 @@ console.log(`engine: ${tenBan(BAN)}`);
 const wt3 = (kho) => path.join(kho, '.claude', 'worktrees', 'wt-3');
 const khoP3 = khoDot();
 const STDOUT = {
-  json_p3: cli(wt3(khoP3), 'xem', '--json').stdout,
-  json_khong: cli(khoGit(), 'xem', '--json').stdout,
+  json_p3: cli(wt3(khoP3), 'xem', '--json', '--khung').stdout,
+  json_khong: cli(khoGit(), 'xem', '--json', '--khung').stdout,
   chu: cli(wt3(khoP3), 'xem').stdout,
 };
 const caTep = fs.readFileSync(CA_TEP, 'utf8')
@@ -151,12 +151,13 @@ function khoiLoi(tho, ca) {
 const NHOM = {
   'KH-05 dai': ['dai co dot', 'dai khong dot', 'dai loi doc', 'dai stdout hong', 'dai survey', 'bam xem mo pane'],
   'KH-06 nhip': ['nhip co dot', 'nhip khong dot', 'nhip loi 20s'],
-  'KH-07 pane': ['pane dung chu xem', 'pane dang doc', 'pane loi doc', 'khong mo pane khi khong hoi', 'lenh xem tra chu'],
+  'KH-07 pane': ['pane dung chu khung', 'pane dang doc', 'pane loi doc', 'khong mo pane khi khong hoi', 'lenh xem tra chu'],
 };
 const lanh = chayPluginTest();
 for (const [ten, ds] of Object.entries(NHOM)) {
   const truot = ds.filter((c) => lanh.ca.get(c) !== 'pass');
   ket(truot.length === 0, ten, truot.length ? `trượt: ${truot.map((c) => `${c}=${lanh.ca.get(c) ?? 'vắng'}`).join(', ')}` : `${ds.length}/${ds.length} pass · terminal+desktop`);
+  for (const c of truot) console.log(khoiLoi(lanh.tho, c).split('\n').slice(0, 30).join('\n'));
 }
 // Chiều đỏ: mỗi bản tiêm phải làm ĐÚNG ca nhắm tới thành (fail), SAU khi bản lành xanh đúng ca đó (đối chứng
 // dương trên chính dòng), và khối lỗi THẬT của ca trong đầu ra plugin test phải mang thông điệp ghim — không in
@@ -164,7 +165,9 @@ for (const [ten, ds] of Object.entries(NHOM)) {
 const DO = [
   ['KH-05-do bo-next-khong-dot', 'dai khong dot', /toBeUndefined/, (s) => tiem(tepKhung(s), '    if (dai === null) return next(e)\n', '')],
   ['KH-06-do chu-ky', 'nhip khong dot', /Expected: 1\s+Received: 2/, (s) => tiem(path.join(s, 'scripts', 'khung.mjs'), 'khong_dot: 120000', 'khong_dot: 20000')],
-  ['KH-06-do argv-goc', 'nhip co dot', /scripts\/dieu-phoi\.mjs/, (s) => tiem(tepKhung(s), "['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'xem', '--json']", "['node', './scripts/dieu-phoi.mjs', 'xem', '--json']")],
+  ['KH-06-do argv-goc', 'nhip co dot', /scripts\/dieu-phoi\.mjs/, (s) => tiem(tepKhung(s), "['node', `${$.plugin.root}/scripts/dieu-phoi.mjs`, 'xem', '--json', '--khung']", "['node', './scripts/dieu-phoi.mjs', 'xem', '--json', '--khung']")],
+  // Hồ sơ khung-dot-dinh-vi AC-5: pane vẽ lại chữ `xem` thì ca pane khung phải đỏ.
+  ['KH-07-do pane-chu-xem', 'pane dung chu khung', /Expected|toEqual/, (s) => tiem(tepKhung(s), 'chuKhung(k.kq).split', 'chuXem(k.kq).split')],
   ['KH-07-do mo-khong-hoi', 'khong mo pane khi khong hoi', /Expected: 0\s+Received: 1/, (s) => tiem(tepKhung(s), "  on('session.start', async ($, e, next) => {\n", "  on('session.start', async ($, e, next) => {\n    void $.ui.open({ id: PANE, title: 'Đợt' })\n")],
 ];
 for (const [ten, caNham, ghim, sua] of DO) {
@@ -263,7 +266,7 @@ const RANG_DO = [
   }],
   ['KH-09-do allow', (l) => /hooks\/mod\/khung\.ts:\d+ trả lời cho phép/.test(l), (s) => fs.appendFileSync(tepKhung(s), "export const tra = () => ({ decision: 'allow' })\n")],
   ['KH-09-do ghi-tep', (l) => l.includes('$.fs.write'), (s) => tiem(tepKhung(s), '  await update($, khung, () => moi)\n  $.clock.after', "  await update($, khung, () => moi)\n  await $.fs.write('/tmp/khung-dem.json', '{}')\n  $.clock.after")],
-  ['KH-09-do argv', (l) => l.includes('khung.ts') && l.includes('pha'), (s) => tiem(tepKhung(s), "'xem', '--json']", "'pha', 'dang-chay']")],
+  ['KH-09-do argv', (l) => l.includes('khung.ts') && l.includes('pha'), (s) => tiem(tepKhung(s), "'xem', '--json', '--khung']", "'pha', 'dang-chay']")],
 ];
 for (const [ten, khop, sua] of RANG_DO) {
   const { ds } = await kiemRang(banSao(sua));

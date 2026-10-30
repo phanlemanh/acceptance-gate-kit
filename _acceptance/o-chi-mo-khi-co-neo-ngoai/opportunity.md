@@ -244,6 +244,14 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   commit nuốt mọi lỗi git, lặng lẽ đọc cả ý chưa commit; nguồn khai đường tuyệt đối làm mất mọi ý.
 - `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` — 13–18/10 RM2, RM4, TH-cau, RM6c, RD1: P179 đánh trượt
   một lượt S4 vì sổ giới hạn thiếu hàng cho chính hồ sơ đang chấm (≈ 40′ máy mỗi lần); máy sinh hàng sổ từ hồ sơ.
+- `docs/plans/2026-10-20-hat-giong-nam-loi-kit-tu-dot-lo-trinh-tin-hieu.md` — 19–20/10 đợt Điều phối – Thợ thật của crm
+  (kit 2.33.0): lệch mã phiên app/CLI · thợ chờ khoá bị coi chết · hàng T1 không hồ sơ không «xong» · giữ tươi không
+  nhắm một hồ sơ · 281/299 hồ sơ đã ký «cũ»; đầu vào mốc «Tinh chỉnh sau hai đợt thử» 05/11.
+- `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` — 23–26/10 đợt Điều phối – Thợ thật thứ
+  hai (onehub-invest, kit 2.32–2.34): tệp sinh xung đột · đánh thức báo giả · khoá s4 sai hàng · `cong_cu` đỏ oan · `hang`
+  thiếu lệnh và suy slug sai · cài từ chợ lệch thẻ · cây phụ không nâng · heredoc chặn nhầm; đầu vào thứ hai của mốc 05/11.
+- `docs/plans/2026-10-26-hat-giong-tc1b-sau-danh-thuc.md` — 26/10 Cổng Bằng chứng TC1: năm mục «mở hợp đồng mới» (`vai
+  --giam-sat` ghi mã CLI của phiên gọi · lời dặn «mã CLI cũng nhận» · TC1-06/TC1-09 thành bất biến lúc gộp).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

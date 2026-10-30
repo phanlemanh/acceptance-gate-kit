@@ -26,7 +26,15 @@ const LY_DO = {
   'sinh-trong-vong': 'câu trích không có ở gốc nhánh — căn cứ sinh trong vòng',
   'thieu-loi-chet': 'một lối ra nhưng không nói lối khác chết vì sao',
   'thieu-khuyen': 'câu chỉ-người-biết thiếu khuyến nghị hoặc lối khác',
+  'tri-thuc-sai': 'con trỏ tri thức sai khuôn <kho>:<trang>#<băm>',
+  'tri-thuc-lech': 'trang tri thức không khớp băm đã trỏ (đã đổi hoặc không còn)',
+  'tri-thuc-khong-khai': 'căn cứ trỏ tri thức mà kho chưa khai tri_thuc',
+  'tri-thuc-kem-trich': 'căn cứ trỏ kho tri thức riêng không được chở câu trích hay tệp',
+  'tri-thuc-vang': 'không nạp được bộ đọc tri thức (scripts/tri-thuc-tra.cjs)',
 };
+// Căn cứ trỏ trang tri thức (hồ sơ thiet-ke-nap-tri-thuc): khoá `tri_thuc` thay cặp tep + trich. Vắng mô-đun → dòng mang
+// khoá ĐỎ tri-thuc-vang (đóng an toàn), mọi dòng khác xếp như cũ.
+let TTT = null; try { TTT = require('./tri-thuc-tra.cjs'); } catch (_) { TTT = null; }
 // Luật sản phẩm của kho (bat-bien-san-pham): ba luật đỏ của pham_luat. Vắng mô-đun (bản sao đứng một mình) →
 // dòng mang pham_luat ĐỎ luat-vang (đóng an toàn), mọi dòng khác xếp như cũ.
 let luatSP = null; try { luatSP = require('./luat-san-pham.cjs'); Object.assign(LY_DO, luatSP.LY_DO_LUAT); } catch (_) { LY_DO['luat-vang'] = 'mã luật không có trong tệp luật sản phẩm'; }
@@ -100,6 +108,10 @@ function phanLoaiDong(e, nc) {
   if (c.nguon === 'chi-nguoi') return chuoi(c.khuyen) && chuoi(c.loi_khac) ? ra('cau-hoi') : ra('do', 'thieu-khuyen');
   if (c.kho_dao === true) return ra('do', 'kho-dao');
   if (c.nguon === 'mot-loi') return chuoi(c.loi_chet) ? ra('da-quyet') : ra('do', 'thieu-loi-chet');
+  if (c.tri_thuc !== undefined) {
+    const x = TTT ? TTT.xetCanCu(c, { root: nc.root, base: nc.goc === 'da-kiem' ? nc.base : null }) : { lop: 'do', ma: 'tri-thuc-vang' };
+    return ra(x.lop, x.ma, x.ghi_chu ? { ghi_chu: x.ghi_chu } : undefined);
+  }
   const trich = gom(c.trich);
   if (!chuoi(c.tep) || !trich) return ra('do', 'thieu-con-tro');
   const rel = chuanTep(c.tep);
@@ -139,8 +151,15 @@ function phanLoaiSo(entries, ctx) {
   out.cau_hoi.forEach((d, k) => { d.nhan = `Hỏi-${k + 1}`; });
   return out;
 }
+// Đường đo tầng tri thức (hồ sơ vong-don-le-tra-tri-thuc): căn cứ máy đã quyết trỏ trang tri thức hay sổ của hồ sơ KHÁC.
+const RE_SO_TEP = /^_acceptance\/([^/]+)\/decisions\.jsonl$/;
+const troTriThuc = (c, slug) => !!c && (c.tri_thuc !== undefined || (m => !!m && m[1] !== slug)(chuoi(c.tep).match(RE_SO_TEP)));
+const tinhTriThuc = (d, slug) => d.lop === 'da-quyet' && troTriThuc(d.e.can_cu, slug);
+const CHU_DO_TRI_THUC = (k, n) => `đường đo tri thức: ${k}/${n} hồ sơ có dòng tra có căn cứ trỏ trang hay sổ trước`;
 // Đường đo: mỗi hồ sơ có sổ — số theo lớp, và số dòng `stage: gate1` lật một dòng S1 (theo lớp gốc của dòng bị lật).
+// Kho khai tri_thuc → mỗi hàng thêm dong_tra, can_cu_tri_thuc; kho không khai → hàng như trước từng byte.
 function dem(root) {
+  const khai = !!(TTT && TTT.docCfg(root));
   let ds = [];
   try { ds = fs.readdirSync(path.join(root, '_acceptance')).filter(n => !n.startsWith('.')).sort(); } catch (_) { return []; }
   const doc = docDia(root); const rows = [];
@@ -155,7 +174,8 @@ function dem(root) {
       const l = lopGoc.get(e.supersedes);
       if (l === 'da-quyet') latMay++; else if (l === 'cau-hoi') latHoi++;
     }
-    rows.push({ slug, cau_hoi: kq.cau_hoi.length, da_quyet: kq.da_quyet.length, do: kq.do.length, doi_truoc: kq.doi_truoc, bi_thay: kq.bi_thay, lat_may_quyet: latMay, lat_cau_hoi: latHoi });
+    rows.push({ slug, cau_hoi: kq.cau_hoi.length, da_quyet: kq.da_quyet.length, do: kq.do.length, doi_truoc: kq.doi_truoc, bi_thay: kq.bi_thay, lat_may_quyet: latMay, lat_cau_hoi: latHoi,
+      ...(khai ? { dong_tra: !!TTT.dongTra(entries), can_cu_tri_thuc: kq.dong.filter(d => tinhTriThuc(d, slug)).length } : {}) });
   }
   return rows;
 }
@@ -166,7 +186,10 @@ if (require.main === module) {
   if (a.includes('--dem')) {
     const rows = dem(root);
     if (json) process.stdout.write(JSON.stringify(rows, null, 2) + '\n');
-    else for (const r of rows) process.stdout.write(`${r.slug} · câu hỏi ${r.cau_hoi} · máy đã quyết ${r.da_quyet} · đỏ ${r.do} · đời trước ${r.doi_truoc} · bị thay ${r.bi_thay} · máy quyết bị lật ${r.lat_may_quyet} · câu hỏi chọn khác ${r.lat_cau_hoi}\n`);
+    else {
+      for (const r of rows) process.stdout.write(`${r.slug} · câu hỏi ${r.cau_hoi} · máy đã quyết ${r.da_quyet} · đỏ ${r.do} · đời trước ${r.doi_truoc} · bị thay ${r.bi_thay} · máy quyết bị lật ${r.lat_may_quyet} · câu hỏi chọn khác ${r.lat_cau_hoi}${'dong_tra' in r ? ` · dòng tra ${r.dong_tra ? 'có' : 'không'} · căn cứ trỏ trang hay sổ trước ${r.can_cu_tri_thuc}` : ''}\n`);
+      if (TTT && TTT.docCfg(root)) { const co = rows.filter(r => r.dong_tra); process.stdout.write(CHU_DO_TRI_THUC(co.filter(r => r.can_cu_tri_thuc > 0).length, co.length) + '\n'); }
+    }
     process.exit(0);
   }
   const slug = opt('--slug');
@@ -182,4 +205,4 @@ if (require.main === module) {
   }
   process.exit(kq.do.length ? 1 : 0);
 }
-module.exports = { NGUON, LY_DO, GHI_CHU, CO, TRICH_MIN, docSo, phanLoaiDong, phanLoaiSo, dem, chuanTep };
+module.exports = { NGUON, LY_DO, GHI_CHU, CO, TRICH_MIN, docSo, phanLoaiDong, phanLoaiSo, dem, chuanTep, troTriThuc, CHU_DO_TRI_THUC };

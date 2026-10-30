@@ -1841,7 +1841,8 @@ echo ""
 echo "--- evidence-page.js ---"
 EP="$HERE/../../scripts/evidence-page.js"
 EPR="$T/evp"; de="$EPR/_acceptance/epf"; mkdir -p "$de/evidence"
-: > "$de/evidence/E3-step1.png"; : > "$de/evidence/E3-step2.png"
+# Ảnh phải là tệp > 0 byte (hồ sơ anh-co-that-trong-ho-so: tệp rỗng không được tính là ảnh) — 8 byte chữ ký PNG.
+printf '\211PNG\r\n\032\n' > "$de/evidence/E3-step1.png"; printf '\211PNG\r\n\032\n' > "$de/evidence/E3-step2.png"
 printf -- '---\nfeature: EP demo\nslug: epf\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n' > "$de/contract.md"
 cat > "$de/evidence-report.md" <<'EOF'
 ---
@@ -1904,12 +1905,17 @@ hasout EP06 "CHƯA điền" "$H"
 hasout EP07 "không phân biệt" "$H"
 echo "EP08 invalid slug -> exit 2"
 node "$EP" --root "$EPR" --slug '../evil' >/dev/null 2>&1; check EP08 2 $?
-echo "EP09 malicious screenshot src (http/traversal) is rejected — absent from page"
+echo "EP09 malicious screenshot src (http/traversal) is rejected — never a src/href, only escaped text in the «Thiếu ảnh:» flag"
 ds="$EPR/_acceptance/epsec"; mkdir -p "$ds/evidence"
 printf -- '---\nfeature: sec\nslug: epsec\n---\n' > "$ds/contract.md"
 printf -- '---\nschema_version: 1\nfeature_slug: epsec\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | ui-check | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsec-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n  screenshot: http://evil.test/x.png?leak=1\n' > "$ds/evidence-report.md"
 SEC="$(node "$EP" --root "$EPR" --slug epsec 2>/dev/null)"
-nothas EP09 "evil.test" "$(cat "$SEC" 2>/dev/null)"
+# Lời hứa: giá trị `screenshot:` độc hại không bao giờ thành đèn hiệu lúc mở trang (src/href/url()). Từ hồ sơ
+# anh-co-that-trong-ho-so trang NÓI ra giá trị bị loại — chỉ dạng chữ đã thoát trong cờ «Thiếu ảnh:» kèm nguyên nhân.
+SECH="$(cat "$SEC" 2>/dev/null)"
+case "$SECH" in *'src="http://evil'*|*"src='http://evil"*|*'href="http://evil'*|*'url(http://evil'*|*'url("http://evil'*) echo "  FAIL: EP09 (evil.test dùng làm src/href/url)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: EP09 không src/href/url nào mang evil.test"; PASS_COUNT=$((PASS_COUNT+1));; esac
+hasout EP09b 'Thiếu ảnh: <code>http://evil.test/x.png?leak=1</code> — ngoài evidence/ của hồ sơ' "$SECH"
+nothas EP09c "<img" "$SECH"
 
 echo "EPS1 khoi LENH SUITE khong duoc de len run_id/verified_at cua eval CUOI"
 # Khuôn SUITE-BLOCK-TEMPLATE mở đầu bằng `- cmd:` chứ không phải `- eval:`. Bộ đọc
