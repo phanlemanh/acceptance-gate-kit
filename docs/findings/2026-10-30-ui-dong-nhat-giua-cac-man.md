@@ -250,6 +250,9 @@ dọn xong, màn OKR kế tiếp lại đẻ hàng mới.
     DFK-C2. Nên nó là bằng chứng cho một hạt giống khác (DFK-C3 / vật theo khung), không phải lý do mở DFK-C2.
   - Điều kiện nâng từ kho lên kit: răng bước 3 của crm chạy qua ≥ 3 vòng OKR mà bắt được ≥ 1 lệch thật, **và** một
     kho thứ hai (invest) muốn cùng cơ chế. Chưa đủ hai vế thì đây là vật của kho.
+  - **Cập nhật cùng ngày (§7.1):** kho thứ hai đã cho thấy *cùng lớp lỗi*. Vế «kho thứ hai» chuyển từ «muốn» sang
+    «đã đo thấy». Vế còn lại vẫn là crm chạy thử và bắt được lệch thật. §7 thay khoá đơn «vật theo khung» ở trên
+    bằng một hình dạng chung hơn: bản đồ khuôn.
 - **`design-pass`:** mục «màn chuẩn cạnh màn mới» ở bước 5 là một đổi lời của skill. Đưa vào kit sau khi crm dùng
   thử bằng config.
 
@@ -288,3 +291,153 @@ khu OKR là đo thật, không phải biểu thức mù.
 - Số «khoảng 30 hàm» đếm tay từ 44 tên khớp `Rong|DangTai|Loi|Cho|KhongThay…`, đã bỏ 14 tên khớp nhầm
   (`ChonChuKy`, `TraLoi`, `HopChonDuong`…).
 - Danh sách vòng «đồng nhất lại» lọc theo từ khoá dòng `feature:`, nên có thể sót vòng không dùng các từ đó.
+
+---
+
+## 7. Nguyên lý cho MỌI kho — biến bất định thành tất định
+
+Câu hỏi tiếp của chủ kho (30/10): chỉ giải ở một kho thì kho khác sẽ lặp lại. Nguyên lý gốc và cách giải đúng
+cho mọi kho là gì? Biến bất định thành tất định, hoặc thành một bộ nguyên tắc để tác tử viết mã dễ làm đúng?
+
+### 7.1 Lớp lỗi lặp ở kho thứ hai
+
+Đo onehub-invest ở `origin/main` `ec899d03` (30/10), vùng vận hành (`app/src/app/ops` + `app/src/components/ops`):
+
+- **Khung đầu trang:** có thành phần dùng chung `PageHeader`, 8 tệp dùng. Nhưng 2 trang tự dựng `<h1>`
+  (`ops/deals/page.tsx`, `ops/review-content.tsx`).
+- **Trạng thái:** có thành phần lỗi dùng chung `RegionError` (4 chỗ dùng). Nhưng mỗi khu tự đặt khung xương và
+  trạng thái rỗng riêng: `AiCallsSkeleton`, `AiCallsEmpty`, `LabelsSkeleton`, `LabelsEmpty`, `ReviewQueueEmpty`,
+  `DataFlowSkeleton`… — 11 hàm.
+
+Cùng hình dạng với crm: **mẫu dùng chung có sẵn, màn mới đi vòng; trạng thái vẽ lại theo từng khu.** Hai kho chung
+nền kỹ thuật (Next, shadcn, ReUI) nhưng khác tên thành phần, cách chia khu và luật chữ. Vậy nghiệm không thể là
+tên thành phần của một kho; nghiệm phải là **cơ chế**.
+
+### 7.2 Định lý gốc: bất định = điểm chọn không có người giữ
+
+Khi dựng một màn, tác tử đi qua một chuỗi **điểm chọn**: màn này thuộc loại nào, khung gì, đầu trang ra sao, chờ
+tải vẽ gì, lỗi vẽ gì… Ở mỗi điểm chọn mà **không có câu trả lời do máy giữ**, tác tử trả lời bằng thứ gần nhất
+trong ngữ cảnh của nó: mã cạnh bên, mẫu trong đầu, nhu cầu riêng của vòng. Ngữ cảnh mỗi vòng một khác, nên mỗi vòng
+một đáp án.
+
+> **Độ lệch giữa các màn ≈ số điểm chọn không ai giữ × số cách trả lời hợp lệ ở mỗi điểm.**
+
+Tất định hoá không có nghĩa là bắt tác tử «cẩn thận hơn». Nó có nghĩa là **đẩy từng điểm chọn lên bậc cao nhất có
+thể của thang tất định**:
+
+| Bậc | Tên | Điểm chọn còn lại | Ví dụ | Tất định? |
+|---|---|---|---|---|
+| T0 | **Không còn lựa chọn** (ràng bằng cấu tạo) | 0 — chỉ có một đường | khung có khe; ngoài khung cấm dùng tiêu đề trần, khung xương trần | ✓ |
+| T1 | **Sinh sẵn** | 0 lúc bắt đầu | lệnh «tạo màn loại X» sinh tệp từ khuôn, tác tử chỉ điền khe | ✓ |
+| T2 | **Khai rồi kiểm** | có, nhưng sai thì đỏ | bản đồ khuôn + bài quét trên mã | ✓ (sau khi chạy) |
+| T3 | **Chọn có đối chiếu** | có, người phản ứng | ảnh màn mới cạnh mẫu đang chạy ở cổng sẵn có | ◐ |
+| T4 | **Gu** | người quyết | chọn khung xương hay vòng quay; chọn tỉ lệ cỡ chữ | ✗ — nhưng chỉ quyết MỘT lần, rồi ghi thành giá trị luật và hạ xuống T2 |
+
+**Lời dặn** («hãy dùng `/packages/ui`») không nằm trên thang. Nó chỉ thêm một dòng vào ngữ cảnh — đúng thứ hiến
+pháp kit cấm dùng làm nghiệm. Ở crm, luật được tác tử đọc mà ngăn KR vẫn đi vòng (§1.5).
+
+### 7.3 Ngữ pháp màn: các điểm chọn mọi kho đều có
+
+Mọi màn của mọi sản phẩm phải trả lời cùng một bộ câu hỏi. Kho này khác kho kia ở **giá trị** của câu trả lời,
+không ở **bộ câu hỏi**. Bộ này là phần chung mà kit giữ được:
+
+| # | Điểm chọn | crm đã có câu trả lời ở | invest |
+|---|---|---|---|
+| 1 | **Loại màn** (danh sách · chi tiết · ngăn bản ghi · tạo/sửa · tổng quan · toàn vùng · cài đặt…) | rải trong `docs/design.md`, `docs/settings.md` | chưa khai |
+| 2 | **Khung của loại** (thành phần + khe) | `PageShell`, `RecordSheetFrame` | `PageHeader`, hai vỏ (cổng · vận hành) |
+| 3 | **Trạng thái** chờ tải · rỗng · lỗi · không quyền · không thấy | `VungTaiLoi`, `KhungTaiLoi` (hai cái, §1.2) | `RegionError`; rỗng/tải chưa có chuẩn |
+| 4 | **Đầu** tiêu đề · mô tả · số nút chính · lùi | `docs/design.md` «Khung trang» | — |
+| 5 | **Ghi** sửa tại chỗ · ngăn · hộp thoại, theo loại việc | bảng 30/10 | — |
+| 6 | **Phản hồi** báo thành công/lỗi · hoàn tác | rải rác | — |
+| 7 | **Giá trị** màu · cỡ chữ · khoảng cách · bo góc | token + răng màu trạng thái | `design/tokens.json` |
+
+Điểm chọn 7 là tầng mà design-floor và hạt giống DFK-C2 (tệp luật hình học, chủ kho chốt hình dạng 30/10) đang
+giải. **Điểm chọn 1–6 là tầng khung và hành vi — hôm nay không kho nào có răng ở đó, ngoài hai răng của crm.**
+
+### 7.4 Cơ chế chung: «bản đồ khuôn» — kit giữ cơ chế, kho giữ giá trị
+
+Cùng hình dạng mà chủ kho đã chốt cho DFK-C2: **một tệp luật của kho, kit đọc nó; kho không khai thì không đổi
+gì.** Ở đây tệp luật mô tả khuôn thay vì giá trị hình học.
+
+**Tệp của kho** (ví dụ `design/khuon.yaml`, hay một khối trong config) — mỗi loại màn một mục:
+
+```yaml
+loai:
+  ngan-ban-ghi:
+    nhan_dien: "apps/app/components/crm/record-sheet/*-sheet.tsx"   # hoặc marker: data-khuon="ngan-ban-ghi"
+    khuon: RecordSheetFrame                                         # thành phần phải dựng ở gốc
+    mau_dang_chay: { tep: ".../deal-sheet.tsx", duong: "/deals?record=deal:<mau>" }
+    trang_thai: { cho: "(của khuôn)", loi: KhungTaiLoi, rong: DetailSheetEmpty }
+    cam_ngoai_khuon: [DetailSheetHeader, Skeleton, Spinner]         # khối dựng chỉ khuôn được dùng
+    ngoai_le: []                                                    # { tep, ly_do } — lý do bắt buộc
+```
+
+**Kit làm bốn việc, đều ở bước ĐÃ CÓ của vòng — không thêm cổng người:**
+
+1. **Định tuyến ngữ cảnh (S1).** Vòng chạm giao diện thì máy xếp mỗi màn mới/sửa vào một loại theo `nhan_dien`,
+   rồi nạp **đúng khuôn + tệp mẫu đang chạy** vào ngữ cảnh tác tử. Đây là chỗ sửa nguyên nhân «nguồn chuẩn không
+   nằm nơi tác tử đọc khi làm». Hợp đồng tự mang một tiêu chí máy: «màn X theo khuôn Y», người không phải viết.
+   - Màn không khớp loại nào → **một mục ở thẻ Cổng Phạm vi** sẵn có: «loại mới — rút khuôn trong chính vòng này»
+     hay «xếp vào loại Z». Đây là điểm T4 duy nhất, và mỗi loại chỉ hỏi một lần trong đời kho.
+2. **Sinh sẵn (S3, tuỳ chọn).** Khuôn có tệp mẫu → lệnh tạo màn sinh khung, tác tử điền khe (T1).
+3. **Kiểm vật (S4).** Mọi tệp vòng chạm mà khớp `nhan_dien` phải dựng `khuon` ở gốc và không dùng
+   `cam_ngoai_khuon`; ngoại lệ phải có lý do. Hai đường đo, chọn theo kho:
+   - **tĩnh** — đọc cây JSX/TSX (phần đông kho tiêu thụ; Design OS đã có bộ đọc JSX ~630 dòng, hàng chờ DFK-C1);
+   - **chạy** — khuôn tự gắn `data-khuon="<loai>"` lên phần tử gốc; bài kiểm giao diện trên bản đang chạy đếm màn
+     loại X mà gốc thiếu marker. Đường này không phụ thuộc ngôn ngữ (HTML, Vue, Swift web view…).
+   - Hai chiều theo luật kit: tiêm một màn gọi thẳng khối bị cấm thì đỏ đúng tên tệp; chạm `docs/` hay
+     `_acceptance/` thì im. Nợ cũ không làm đỏ vòng không gây ra nó (cùng luật «chấm phần đổi» của DFK2); nợ cũ lên
+     thẻ thành nhãn, không tự sinh việc (K8).
+4. **Đối chiếu (design-pass).** Gói thiết kế tự chụp màn mới cạnh `mau_dang_chay`, cùng khổ và cùng trạng thái
+   (T3), ở Cổng 1 sẵn có.
+
+**Khởi tạo cho kho đã có mã (một lần).** Máy dò ứng viên khuôn từ mã: thành phần được ≥ 3 màn dựng ở gốc. Kèm theo
+là danh sách tệp cùng loại mà không dựng nó — chính là bản kiểm kê lệch hiện có (ở crm: ngăn KR, ngăn Số KR; ở
+invest: hai trang tự dựng `<h1>`). Đây là dạng tổng quát của DFK-C3 («sinh sổ thành phần từ mã»). Invest đã tự
+dựng lệnh sinh sổ thành phần trên nhánh M2 của nó — tiền lệ cho thấy việc này máy làm được.
+
+**Cân trên mọi kho (luật 26/09):**
+
+| Kho | Được | Mất |
+|---|---|---|
+| không khai bản đồ | — | 0: không đọc, không chấm |
+| không có giao diện | — | 0: M0 im |
+| có bản đồ | màn mới vào khuôn từ lúc dựng; lệch hiện ra ở suite thay vì ở mắt chủ kho | một tệp luật; một lần khởi tạo do máy đề xuất |
+| hành vi cũ có ai dựa không? | không — khoá mới, không đổi mặc định | — |
+
+### 7.5 Bộ nguyên tắc cho tác tử viết mã — mỗi dòng đi kèm răng của nó
+
+Lời dặn một mình không phải nghiệm. Bảy nguyên tắc dưới chép được vào `AGENTS.md` của bất kỳ kho nào, nhưng **chỉ
+tính khi cột phải có răng**:
+
+| # | Nguyên tắc | Răng giữ nó |
+|---|---|---|
+| 1 | **Xếp loại trước khi dựng.** Gọi tên loại màn; mở và đọc tệp mẫu đang chạy của loại đó trước khi viết dòng nào. | S1 nạp mẫu vào ngữ cảnh; tiêu chí «theo khuôn Y» tự vào hợp đồng |
+| 2 | **Điền khe, không dựng khung.** Khung thiếu khe thì sửa khung một chỗ, mọi màn cùng hưởng; ghi lý do trong PR. | S4: tệp loại X không dựng khuôn X thì đỏ |
+| 3 | **Không tự vẽ trạng thái.** Chờ · rỗng · lỗi · không quyền · không thấy luôn dùng thành phần trạng thái của khuôn. | S4: khối trạng thái trần ngoài khuôn thì đỏ |
+| 4 | **Chép mẫu đang chạy, không chép mã gần nhất.** Mã gần nhất là mã dễ lệch nhất (Design OS). | `mau_dang_chay` là tệp duy nhất được nạp làm mẫu |
+| 5 | **Loại mới thì rút khuôn ngay trong vòng ấy.** Màn thứ hai cùng loại chỉ điền khe. | thẻ Cổng Phạm vi hiện «loại mới»; S4 đòi bản đồ có loại ấy trước khi ký |
+| 6 | **Thành phần mới là bậc cuối, có tên và lý do, hiện cho người thấy.** | thang dùng lại (Design OS) — danh sách `ds-new` lên thẻ |
+| 7 | **Khai trong PR: loại · khuôn · mẫu đối chiếu · ngoại lệ.** | máy tự in từ bản đồ, không viết tay |
+
+### 7.6 Giới hạn tất định — khai thẳng
+
+- **Xếp đúng loại cho một màn thật sự mới** thuộc người, một lần mỗi loại, ở Cổng Phạm vi.
+  Ngưỡng đang đếm: số màn mỗi vòng không khớp loại nào. Số này không giảm qua các vòng thì bản đồ đang thiếu loại.
+- **Khuôn có đúng cho người dùng không** thuộc reality (phiên nghiệm thu, prod), không thuộc thước.
+- **«Đọc như cùng một sản phẩm»** chỉ tới được T3 (so cạnh nhau). Phần còn lại là gu, quyết một lần.
+- **Bản đồ khuôn chính là một thước mới.** Nó phải có chiều đỏ và chiều im ngay từ bản đầu; không mở vòng
+  «đo thước của bản đồ» (luật chiều rộng (a)).
+
+### 7.7 Đường đi theo luật kit
+
+1. **crm chạy thử đúng hình dạng này như vật của kho** (vòng NM1 mở rộng, §5.1): tệp `khuon` của kho + bài quét
+   của kho. Mục đích là thử *lược đồ* trên một kho thật trước khi kit đóng băng nó.
+2. **invest khai cùng lược đồ** cho vùng vận hành, đo xem bài quét bắt đúng hai trang `<h1>` và im trên phần còn
+   lại. Đây là phép thử «cân trên mọi kho» bằng số.
+3. **Kit rút cơ chế** — đọc bản đồ, nạp ngữ cảnh S1, kiểm S4 tĩnh/chạy, ảnh đối chiếu — trong **một vòng meta có
+   tên** sau mốc kho nhận gần nhất. Đây là CỘNG, nên chủ kho phê đích danh ở Cổng Phạm vi của chính vòng đó.
+   Hạt giống DFK-C1 (bộ đọc JSX) và DFK-C3 (sổ từ mã) gộp vào đây làm nguyên liệu.
+
+Thứ tự này đổi chiều so với «kit trước». Kho trả giá một tệp luật và một bài kiểm đổi lấy kết quả ngay. Kit chỉ
+đóng băng lược đồ sau khi hai kho thật đã dùng nó, nên không dựng cơ chế trên một ca duy nhất.
