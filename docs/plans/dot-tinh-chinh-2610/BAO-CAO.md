@@ -2,7 +2,8 @@
 
 Đợt thứ hai kho kit tự chạy bằng gói `dieu-phoi` của chính nó, cho mốc «Tinh chỉnh sau hai đợt thử». Mục đích là sửa
 những chỗ hai kho tiêu thụ vấp sau 2.34.0 và 2.35.0. Mở 29/10 ~02:11Z: chủ kho duyệt thẻ khởi tạo, cho build sáu hàng và
-cho tự gộp. Sáu hàng gộp xong 30/10 07:58Z. Bản phát hành **2.36.0** chở cả sáu hàng; chủ kho ký 30/10 22:18Z (PR #455).
+cho tự gộp. Sáu hàng gộp xong 30/10 07:58Z. Bản phát hành **2.36.0** chở cả sáu hàng; chủ kho ký 30/10 22:18Z, gộp 31/10 (PR #455 → `4f891b07`), thẻ `v2.36.0`; kiểm bản cài trên thẻ
+ĐẠT 8/8.
 
 ## Đã giao
 
@@ -14,7 +15,7 @@ cho tự gộp. Sáu hàng gộp xong 30/10 07:58Z. Bản phát hành **2.36.0**
 | TC2 | Lệnh của đợt ghi đúng hàng (xin lượt không cờ, `hang them` nhận mã hay slug) | #449 | 29/10 23:37Z |
 | TC6 | Làn đối chứng của lượt chấm chạy được bằng Bash, không cần công cụ ghi tệp | #450 | 30/10 03:09Z |
 | TC3 | Gộp nhánh chính không dừng ở hai tệp sinh (driver gộp bật theo lựa chọn) | #452 | 30/10 07:58Z |
-| — | Mốc 2.36.0 gom sáu hàng trên + bộ đo giờ máy bỏ lời nhắn tự sinh khỏi token | #455 | chờ CI lúc viết |
+| — | Mốc 2.36.0 gom sáu hàng trên + bộ đo giờ máy bỏ lời nhắn tự sinh khỏi token | #455 | 31/10 · `4f891b07` |
 
 Gộp cùng cửa sổ, ngoài hàng của đợt: #446 (lộ trình design-floor cho kho mới, DFK1–DFK3) và #451 (finding UI đồng nhất
 giữa các màn). Cả hai gộp TRƯỚC lượt chấm 2 của mốc nên nằm trong 2.36.0. Mục 2.36.0 của CHANGELOG còn ghi «#446 chưa gộp,
@@ -74,5 +75,5 @@ trang lộ trình mỗi hàng một dòng, để tệp sinh không làm xung đ�
 
 ## Còn lại trước khi đóng đợt
 
-Gộp #455 → gắn thẻ `v2.36.0` vào commit gộp → `node scripts/kiem-ban-cai.mjs --ref v2.36.0` phải TỔNG KẾT ĐẠT → ghi chú
-nhận cho invest → báo kênh liên máy → thẻ đóng đợt (`/dieu-phoi:dong-dot`).
+Đã xong: gộp #455, thẻ `v2.36.0` vào commit gộp, `node scripts/kiem-ban-cai.mjs --ref v2.36.0` → TỔNG KẾT: ĐẠT 8/8.
+Còn: ghi chú nhận cho invest → báo kênh liên máy → thẻ đóng đợt (`/dieu-phoi:dong-dot`).
