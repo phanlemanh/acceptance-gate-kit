@@ -182,6 +182,18 @@
         "FL4",
         "FL5"
       ]
+    },
+    {
+      "ten": "Nền thiết kế cho kho mới (số đặt lúc cắt) — bật bằng một lệnh, S4 chấm phần vòng đổi, đo tri thức S1",
+      "ngay": "2026-11-12",
+      "ly_do": "Sau bản vá TC (05/11); DFK2 chỉ phát hành sau 10 vòng DO1 của invest — chủ kho chốt «Sau 10 vòng M1» 29/10. Ngày là ước theo giờ máy (~12–17 giờ cho ba hàng), nhịp T2 của kho chưa đọc được (trung vị 0).",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "DFK1",
+        "DFK2",
+        "DFK3"
+      ]
     }
   ],
   "hang": [
@@ -1198,6 +1210,64 @@
       "bat_khi": "Một vòng mẫu trên kho fixture chạy trọn S0→S5 và pre-merge-check không thấy tệp nào đổi sau commit S4; S4 đỏ đúng tệp có hex thô và im với tệp chỉ dùng token; chèn ui gate vào chỗ móc S4 khi khối máy còn giới hạn DF-07 thì ca răng đỏ đúng thông điệp"
     },
     {
+      "ma": "DFK1",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "bat-nen-thiet-ke-mot-lenh",
+      "ten_ngan": "Bật nền thiết kế bằng một lệnh",
+      "cau_giao": "Một lệnh dò thư mục giao diện và vendor của kho, đề xuất vùng giao diện liệt kê dương kèm test bắt thư mục sót, đo đường nền N PR gần nhất bằng chính bộ chấm S4, và in bậc kèm tác dụng theo loại tệp cùng bản nháp ghi chú nhận",
+      "vai": "nen",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/nhan-kit-2-35-0/ — lần nhận 2.35.0 và thí điểm DO1 bậc M1 (29/10); kit #445 K1–K5; bản phạm vi docs/plans/pham-vi-design-floor-kho-moi-2910.md. Lần bật đầu tiên ở invest mất cả buổi, qua ba máy và năm lượt chủ kho chuyển lời hay quyết; vùng giao diện ôm vendor (248/263 chỗ bắt), liệt kê dương làm rơi thư mục mới, không ai biết bật thì bao nhiêu vòng cũ đỏ (đo tay 2/10 đỏ oan), và tưởng lên M2 là được chấm thêm (K4).",
+      "bat_khi": "Kho mẫu có thư mục vendor: lệnh đề xuất vùng không chứa vendor và test sinh ra đỏ đúng tên khi thêm một thư mục mới chưa khai; kho không giao diện → M0, im; đường nền chạy trên bản sao ra đúng số vòng đỏ đã đo tay (2/10 trên bản clone invest 09313c55)",
+      "dot": "design-floor-kho-moi-2910",
+      "phu": [
+        "BH1",
+        "BH2",
+        "BH3",
+        "BH4",
+        "K4"
+      ],
+      "ghi_chu": "CỘNG một lệnh mới — chủ kho phê ở Cổng Đáng của hàng. Lệnh chỉ đọc trừ khi được bảo ghi. Đo đường nền là một ổ cắm khoan dung: kho không có lịch sử PR thì in «không đọc được ở đây». Bước đề xuất vùng chấm KHÔNG thành câu hỏi để chủ kho gật: máy đo, tự khai vùng vào hồ sơ kèm số tệp và phần vendor đã trừ, để cửa veto mở; chủ kho chỉ lên tiếng khi muốn phản đối. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-bac.mjs, scripts/design-floor-khoi-tao.mjs."
+    },
+    {
+      "ma": "DFK2",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "s4-nen-thiet-ke-cham-phan-doi",
+      "ten_ngan": "S4 nền thiết kế chấm phần vòng đổi",
+      "cau_giao": "Bước chấm S4 của nền thiết kế chỉ bắt điều vòng gây ra: trừ được thư mục vendor bằng !glob, chấm dòng thêm/đổi trong diff thay vì cả tệp, bỏ qua hex trong chú thích, và nhận chú thích miễn trừ có ghi lý do",
+      "vai": "nen",
+      "tieu_chi": 10,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/nhan-kit-2-35-0/ — lần nhận 2.35.0 và thí điểm DO1 bậc M1 (29/10); kit #445 K1–K5; bản phạm vi docs/plans/pham-vi-design-floor-kho-moi-2910.md. Trên 10 vòng đường nền của invest, 2/10 đỏ oan: một vòng vì nợ hex có sẵn trong tệp được phép (K2+K3), một vòng vì mặt nạ #000 (K3); vendor không trừ được (K1).",
+      "bat_khi": "10 vòng đường nền invest đo lại trên bản sao: 0/10 đỏ oan mà kho không dọn tay; vòng thêm một hex thật vẫn đỏ đúng dòng (đối chứng); một dòng !glob trên kho đọc theo cách cũ không khớp tệp nào (đọc-cũ); chú thích miễn trừ thiếu lý do → đỏ đúng tên",
+      "dot": "design-floor-kho-moi-2910",
+      "phu": [
+        "K1",
+        "K2",
+        "K3",
+        "MT1"
+      ],
+      "ghi_chu": "Đổi hành vi S4 của nền thiết kế: chỉ phát hành sau 10 vòng DO1 của invest (chủ kho chốt «Sau 10 vòng M1» 29/10), hoặc invest ghim bản cũ tới hết thí điểm. Bỏ chú thích mang stripNoise, chú thích miễn trừ mang ~157 dòng từ Design OS. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s4.mjs, lib/evidence-core.cjs."
+    },
+    {
+      "ma": "DFK3",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "do-doc-tri-thuc-s1",
+      "ten_ngan": "Đo tri thức S1 có được dùng",
+      "cau_giao": "Mỗi lượt chấm ghi tri thức thiết kế mà S1 đã đọc và đã dùng trước lần sửa đầu vào usage-report.md, và kho tắt được việc nạp tri thức",
+      "vai": "nen",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: onehub-invest/_acceptance/nhan-kit-2-35-0/ — lần nhận 2.35.0 và thí điểm DO1 bậc M1 (29/10); kit #445 K1–K5; bản phạm vi docs/plans/pham-vi-design-floor-kho-moi-2910.md. Tri thức S1 tốn ~9,5k token mỗi vòng ở invest và chưa ai đo có được dùng (K5); Design OS có hook trace và lệnh tổng hợp (~300 dòng, không phụ thuộc ngoài) nhưng ghi vào kho, trái luật không bút của kit.",
+      "bat_khi": "Vòng mẫu đọc một trang tri thức rồi sửa: usage-report ghi đúng trang và «đã dùng»; vòng không đọc: ghi 0 (đối chứng); trace ghi vào thư mục lượt chạy, cây kho không đổi byte nào; kho khai tắt nạp → S1 không tải chỉ mục",
+      "dot": "design-floor-kho-moi-2910",
+      "phu": [
+        "K5"
+      ],
+      "ghi_chu": "Mang hook trace + summarize của Design OS, đổi chỗ ghi. Người hưởng: mọi kho bật tri thức. Song song DFK1/DFK2. Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s1.mjs, feature-loop/scripts/wf-usage.mjs."
+    },
+    {
       "ma": "TC6",
       "nhom": "luot-cham",
       "hang": "T2",
@@ -1409,6 +1479,36 @@
         "CG1"
       ],
       "mo_lai_khi": "DF-07 xanh trên bản vendored và một vòng thật ở kho tiêu thụ chứng không tệp nào đổi sau commit S4"
+    },
+    {
+      "ma": "DFK-C1",
+      "dot": "design-floor-kho-moi-2910",
+      "cau_giao": "Bộ đọc JSX/Tailwind cho S4 trên .tsx kèm luật lệch token",
+      "ly_do": "Design OS có bộ đọc (~630 dòng) nhưng chưa có luật tuân thủ token; bằng chứng trên .tsx mới 3 kết quả và đếm thiếu với cn()/cva()",
+      "phu": [
+        "CH1"
+      ],
+      "mo_lai_khi": "10 vòng DO1 của invest xong và số cho thấy regex hex bỏ sót hoặc bắt nhầm"
+    },
+    {
+      "ma": "DFK-C2",
+      "dot": "design-floor-kho-moi-2910",
+      "cau_giao": "Lệnh chung biến CSS thành tokens.json",
+      "ly_do": "Design OS có (~2.400 dòng) nhưng mới một lần dùng thật, làm tay; chủ kho 29/10: invest tự viết bộ sinh trước. Hình dạng khi mở (chủ kho chốt 30/10): tệp luật của kho sinh tokens.json kèm truy vết luật trong $extensions, bộ kiểm S4 đọc cùng tệp luật — nguyên lý dựng bằng hình học, không gõ tay giá trị",
+      "phu": [
+        "CH2"
+      ],
+      "mo_lai_khi": "Bộ sinh của invest chạy hết 10 vòng DO1 và một kho thứ hai cần lên M2"
+    },
+    {
+      "ma": "DFK-C3",
+      "dot": "design-floor-kho-moi-2910",
+      "cau_giao": "Sinh sổ thành phần từ mã của kho",
+      "ly_do": "Upstream không có; giá trị của reuse-plan check với kho .tsx chưa đo",
+      "phu": [
+        "CH3"
+      ],
+      "mo_lai_khi": "Hàng dựng M2 của invest xong và đo được giá trị reuse-plan check"
     }
   ],
   "da_bac": [

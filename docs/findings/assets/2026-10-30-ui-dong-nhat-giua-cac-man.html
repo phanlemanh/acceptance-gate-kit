@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giao diện đồng nhất giữa các màn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-paper-2: #ececec; --color-ink: #2d3142;
+      --color-muted: #4f5d75; --color-soft: #636b80; --color-rule: rgba(45,49,66,0.12);
+      --color-accent: #eb6c36; --color-accent-text: #ba4513; --color-accent-tint: rgba(235,108,54,0.08);
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', 'Times New Roman', serif;
+      --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); padding: 3rem 2rem; }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.6rem; }
+    h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.75rem, 3vw + 1rem, 2.5rem); line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
+    h2 { font-family: var(--font-serif); font-weight: 400; font-size: 1.6rem; line-height: 1.2; margin-bottom: 1rem; }
+    .subtitle { font-size: 1rem; line-height: 1.6; color: var(--color-muted); max-width: 70ch; }
+    header { margin-bottom: 2.5rem; }
+    table.ban-doc { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.875rem; background: #fff; border: 1px solid var(--color-rule); border-radius: 6px; overflow: hidden; }
+    .ban-doc th { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-muted); text-align: left; font-weight: 500; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--color-rule); }
+    .ban-doc td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--color-rule); vertical-align: top; line-height: 1.5; color: var(--color-muted); }
+    .ban-doc td:first-child { font-family: var(--font-mono); color: var(--color-ink); width: 2.5rem; }
+    .ban-doc td:nth-child(2) { color: var(--color-ink); font-weight: 500; }
+    .ban-doc tr:last-child td { border-bottom: none; }
+    .ban-doc a { color: inherit; }
+    section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--color-rule); }
+    .diagram { overflow-x: auto; }
+    svg { width: 100%; min-width: 640px; display: block; }
+    .doc { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 1rem; margin-top: 1rem; }
+    .card { background: #fff; border: 1px solid var(--color-rule); border-radius: 6px; padding: 1.1rem 1.25rem; }
+    .card h3 { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.6rem; display: flex; gap: 0.5rem; align-items: center; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: var(--color-ink); }
+    .dot.coral { background: var(--color-accent); }
+    .card ul { list-style: none; color: var(--color-muted); font-size: 0.84rem; line-height: 1.55; }
+    .card li { padding-left: 0.9rem; position: relative; margin-bottom: 0.3rem; }
+    .card li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 4px; height: 1px; background: var(--color-soft); }
+    .card p { color: var(--color-muted); font-size: 0.84rem; line-height: 1.55; }
+    .quyet { border-color: var(--color-accent); background: var(--color-accent-tint); }
+    footer { margin-top: 3.5rem; padding-top: 1rem; border-top: 1px solid var(--color-rule); font-family: var(--font-mono); font-size: 0.68rem; color: var(--color-soft); line-height: 1.7; }
+    @media (max-width: 720px) { body { padding: 2rem 1rem; } .doc { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <p class="eyebrow">Finding nháp · 30/10/2026 · chờ chủ kho quyết</p>
+  <h1>Vì sao màn mới lệch khỏi màn cũ — và cách giữ đúng cho mọi kho</h1>
+  <p class="subtitle">Tám hình, đọc từ trên xuống theo đúng đường ra quyết định. Mỗi hình trả lời một câu hỏi và dùng loại hình hợp với câu hỏi đó. Chữ đầy đủ ở tệp finding; hình chỉ là chiếu của chữ.</p>
+
+  <table class="ban-doc">
+    <thead><tr><th>#</th><th>Câu hỏi</th><th>Loại hình</th><th>Vì sao chọn loại này</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><a href="#h1">Lệch ở đâu, chỗ nào đã có máy giữ?</a></td><td>Ma trận</td><td>Thấy <em>chỗ trống</em> trong một cái nhìn: hàng = câu mọi màn phải trả lời, cột = kho và công cụ.</td></tr>
+      <tr><td>2</td><td><a href="#h2">Vì sao lệch?</a></td><td>Hai làn song song</td><td>Đặt cách đội người làm cạnh cách tác tử làm; bước bị mất hiện ra ngay ở cột thứ hai.</td></tr>
+      <tr><td>3</td><td><a href="#h3">Nguyên lý: làm sao biến bất định thành tất định?</a></td><td>Chồng tầng</td><td>Thang có thứ bậc; cho thấy hôm nay đứng ở bậc nào và lời giải đẩy lên bậc nào.</td></tr>
+      <tr><td>4</td><td><a href="#h4">Thế giới đã giải tới đâu?</a></td><td>Bốn góc</td><td>Xếp mọi framework lên hai trục; góc còn trống chính là chỗ cần lấp.</td></tr>
+      <tr><td>5</td><td><a href="#h5">Lời giải chạy thế nào?</a></td><td>Kiến trúc</td><td>Một tệp của kho, bốn chỗ máy dùng, một chỗ người — thấy được ai giữ gì.</td></tr>
+      <tr><td>6</td><td><a href="#h6">Quyết gì?</a></td><td>Lưu đồ hai nhánh</td><td>Một câu hỏi, hai lối, giá và hệ quả của từng lối.</td></tr>
+      <tr><td>7</td><td><a href="#h7">Nếu nằm trong kit: ai giữ gì?</a></td><td>Kiến trúc ba vùng</td><td>Tách rõ phần của kho, của kit, và nguyên liệu mượn từ Design OS.</td></tr>
+      <tr><td>8</td><td><a href="#h8">Đi qua các giai đoạn thế nào?</a></td><td>Các làn theo giai đoạn</td><td>Thấy từng bước máy làm gì, và chỗ duy nhất người phải chạm.</td></tr>
+    </tbody>
+  </table>
+</header>
+
+<!-- ═══════════════ HÌNH 1 · MA TRẬN ═══════════════ -->
+<section id="h1">
+  <p class="eyebrow">Hình 1 · Ma trận · hiện trạng</p>
+  <h2>Lệch ở đâu, và chỗ nào đã có máy giữ?</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ma trận bảy điểm chọn của một màn theo bốn cột crm, invest, design-floor, Design OS">
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- lưới -->
+    <g stroke="rgba(45,49,66,0.12)" stroke-width="0.8">
+      <line x1="32" y1="72" x2="960" y2="72"/><line x1="32" y1="104" x2="960" y2="104"/>
+      <line x1="32" y1="148" x2="960" y2="148"/><line x1="32" y1="192" x2="960" y2="192"/>
+      <line x1="32" y1="236" x2="960" y2="236"/><line x1="32" y1="280" x2="960" y2="280"/>
+      <line x1="32" y1="324" x2="960" y2="324"/><line x1="32" y1="368" x2="960" y2="368"/>
+      <line x1="32" y1="412" x2="960" y2="412"/>
+      <line x1="288" y1="72" x2="288" y2="412"/><line x1="456" y1="72" x2="456" y2="412"/>
+      <line x1="624" y1="72" x2="624" y2="412"/><line x1="792" y1="72" x2="792" y2="412"/>
+    </g>
+    <!-- đầu cột -->
+    <g font-family="'Geist Mono', monospace" font-size="9" letter-spacing="0.18em">
+      <text x="44" y="92" fill="#636b80">ĐIỂM CHỌN CỦA MỘT MÀN</text>
+      <text x="372" y="92" fill="#4f5d75" text-anchor="middle">CRM</text>
+      <text x="540" y="92" fill="#4f5d75" text-anchor="middle">INVEST</text>
+      <text x="708" y="92" fill="#4f5d75" text-anchor="middle">DESIGN-FLOOR (KIT)</text>
+      <text x="876" y="92" fill="#4f5d75" text-anchor="middle">DESIGN OS</text>
+    </g>
+    <!-- nhãn hàng -->
+    <g font-family="'Geist', sans-serif" font-size="12" fill="#2d3142">
+      <text x="44" y="131">Màn này thuộc loại nào</text>
+      <text x="44" y="175">Khung + chờ tải của trang</text>
+      <text x="44" y="219" font-weight="600">Khung ngăn chi tiết</text>
+      <text x="44" y="263">Rỗng · lỗi theo từng khu</text>
+      <text x="44" y="307">Ghi dữ liệu trong màn</text>
+      <text x="44" y="351">Thành phần dùng chung</text>
+      <text x="44" y="395">Giá trị: màu · chữ · khoảng</text>
+    </g>
+    <!-- ô focal: crm × khung ngăn -->
+    <rect x="292" y="196" width="160" height="36" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+    <!-- chip: MÁY = nền ink; KẾ = viền ink; LỜI = viền muted -->
+    <g font-family="'Geist Mono', monospace" font-size="9" font-weight="600" text-anchor="middle">
+      <!-- hàng 0 -->
+      <rect x="352" y="117" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="372" y="130" fill="#4f5d75">LỜI</text>
+      <rect x="520" y="117" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="540" y="130" fill="#4f5d75">LỜI</text>
+      <rect x="856" y="117" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="876" y="130" fill="#2d3142">KẾ</text>
+      <!-- hàng 1 -->
+      <rect x="352" y="161" width="40" height="18" rx="4" fill="#2d3142"/><text x="372" y="174" fill="#f5f5f5">MÁY</text>
+      <rect x="520" y="161" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="540" y="174" fill="#4f5d75">LỜI</text>
+      <rect x="856" y="161" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="876" y="174" fill="#2d3142">KẾ</text>
+      <!-- hàng 2 (focal) -->
+      <rect x="352" y="205" width="40" height="18" rx="4" fill="none" stroke="#ba4513"/><text x="372" y="218" fill="#ba4513">LỜI</text>
+      <rect x="856" y="205" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="876" y="218" fill="#2d3142">KẾ</text>
+      <!-- hàng 3 -->
+      <rect x="352" y="249" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="372" y="262" fill="#4f5d75">LỜI</text>
+      <rect x="520" y="249" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="540" y="262" fill="#4f5d75">LỜI</text>
+      <!-- hàng 4 -->
+      <rect x="352" y="293" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="372" y="306" fill="#4f5d75">LỜI</text>
+      <!-- hàng 5 -->
+      <rect x="352" y="337" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="372" y="350" fill="#4f5d75">LỜI</text>
+      <rect x="520" y="337" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="540" y="350" fill="#2d3142">KẾ</text>
+      <rect x="688" y="337" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="708" y="350" fill="#2d3142">KẾ</text>
+      <rect x="856" y="337" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="876" y="350" fill="#2d3142">KẾ</text>
+      <!-- hàng 6 -->
+      <rect x="352" y="381" width="40" height="18" rx="4" fill="#2d3142"/><text x="372" y="394" fill="#f5f5f5">MÁY</text>
+      <rect x="520" y="381" width="40" height="18" rx="4" fill="#2d3142"/><text x="540" y="394" fill="#f5f5f5">MÁY</text>
+      <rect x="688" y="381" width="40" height="18" rx="4" fill="#2d3142"/><text x="708" y="394" fill="#f5f5f5">MÁY</text>
+      <rect x="856" y="381" width="40" height="18" rx="4" fill="#2d3142"/><text x="876" y="394" fill="#f5f5f5">MÁY</text>
+    </g>
+    <!-- chú thích -->
+    <line x1="372" y1="416" x2="372" y2="428" stroke="#eb6c36" stroke-width="1"/>
+    <text x="384" y="440" fill="#ba4513" font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14">Ngăn KR lệch khỏi ngăn deal ở đúng hàng này: khung đã có, chỉ được giữ bằng lời.</text>
+    <!-- chú giải -->
+    <line x1="32" y1="468" x2="960" y2="468" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <g font-family="'Geist Mono', monospace" font-size="9">
+      <text x="32" y="496" fill="#4f5d75" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="112" y="483" width="40" height="18" rx="4" fill="#2d3142"/><text x="132" y="496" fill="#f5f5f5" font-weight="600" text-anchor="middle">MÁY</text>
+      <text x="160" y="496" fill="#4f5d75">máy kiểm trên mã</text>
+      <rect x="304" y="483" width="40" height="18" rx="4" fill="none" stroke="#2d3142"/><text x="324" y="496" fill="#2d3142" font-weight="600" text-anchor="middle">KẾ</text>
+      <text x="352" y="496" fill="#4f5d75">máy kiểm bản kế hoạch, không kiểm mã</text>
+      <rect x="616" y="483" width="40" height="18" rx="4" fill="none" stroke="#4f5d75" stroke-opacity="0.55"/><text x="636" y="496" fill="#4f5d75" font-weight="600" text-anchor="middle">LỜI</text>
+      <text x="664" y="496" fill="#4f5d75">chỉ có chữ</text>
+      <text x="768" y="496" fill="#4f5d75">ô trống = không thấy gì</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Đọc theo hàng: mỗi hàng là một câu mà mọi màn của mọi sản phẩm đều phải trả lời.</li>
+      <li>Ô viền cam: ngăn chi tiết của crm — chỗ ngăn KR tự dựng lại đầu ngăn, chờ tải, báo lỗi — chỉ có lời giữ.</li>
+      <li>Cột Design OS toàn «KẾ»: nó kiểm điều tác tử <em>định</em> làm, không kiểm điều tác tử <em>đã</em> làm.</li>
+      <li>Hàng cuối kín «MÁY»: tầng giá trị (màu, chữ) đã giải. Các hàng khung và trạng thái phía trên thì chưa.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Số đỡ hình</h3><p>crm: 8 vòng đã ký chỉ để «đồng nhất lại», ~15 hàng lộ trình cùng loại. invest: 5 kiểu đầu trang ở vùng vận hành, 2 trang tự dựng tiêu đề, 11 hàm rỗng/tải riêng theo khu.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 2 · HAI LÀN ═══════════════ -->
+<section id="h2">
+  <p class="eyebrow">Hình 2 · Hai làn · nguyên nhân</p>
+  <h2>Vì sao lệch: bước «chọn khuôn» biến mất</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hai làn: quy trình đội người và vòng tác tử, bước chọn khuôn bị trống ở vòng tác tử">
+    <defs>
+      <marker id="a2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- làn -->
+    <g stroke="rgba(45,49,66,0.12)" stroke-width="1">
+      <line x1="32" y1="64" x2="968" y2="64"/><line x1="32" y1="180" x2="968" y2="180"/><line x1="32" y1="296" x2="968" y2="296"/>
+    </g>
+    <g font-family="'Geist Mono', monospace">
+      <text x="32" y="116" font-size="9" fill="#2d3142" letter-spacing="0.16em" font-weight="500">ĐỘI NGƯỜI</text>
+      <text x="32" y="132" font-size="9" fill="#636b80">cách đội hàng đầu làm</text>
+      <text x="32" y="236" font-size="9" fill="#2d3142" letter-spacing="0.16em" font-weight="500">VÒNG TÁC TỬ</text>
+      <text x="32" y="252" font-size="9" fill="#636b80">hôm nay ở crm, invest</text>
+    </g>
+    <!-- mũi tên trước, hộp sau -->
+    <g stroke="#4f5d75" stroke-width="1" fill="none" marker-end="url(#a2)">
+      <line x1="320" y1="120" x2="348" y2="120"/><line x1="480" y1="120" x2="508" y2="120"/><line x1="640" y1="120" x2="668" y2="120"/>
+      <line x1="320" y1="240" x2="348" y2="240" stroke-dasharray="4,3"/><line x1="480" y1="240" x2="508" y2="240" stroke-dasharray="4,3"/>
+      <line x1="640" y1="240" x2="668" y2="240"/><line x1="800" y1="240" x2="828" y2="240"/>
+      <path d="M896,268 V316 Q896,324 888,324 H584 Q576,324 576,316 V272" stroke-dasharray="5,4"/>
+    </g>
+    <rect x="676" y="302" width="120" height="14" rx="2" fill="#f5f5f5"/>
+    <text x="736" y="312" font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" text-anchor="middle" letter-spacing="0.06em">≥ 8 VÒNG SỬA LẠI</text>
+    <!-- hộp làn A -->
+    <g font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">
+      <rect x="192" y="92" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="256" y="124">Yêu cầu</text>
+      <rect x="352" y="92" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="416" y="116">Designer</text><text x="416" y="132">chọn khuôn</text>
+      <rect x="512" y="92" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="576" y="116">Kỹ sư điền</text><text x="576" y="132">khe của khung</text>
+      <rect x="672" y="92" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="736" y="116">Lint CI</text><text x="736" y="132">giữ khuôn</text>
+    </g>
+    <!-- hộp làn B -->
+    <g font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">
+      <rect x="192" y="212" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="256" y="244">Yêu cầu</text>
+      <rect x="352" y="212" width="128" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="5,4"/><text x="416" y="236" fill="#ba4513">Không ai</text><text x="416" y="252" fill="#ba4513">chọn khuôn</text>
+      <rect x="512" y="212" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="576" y="236">Tác tử chép</text><text x="576" y="252">mã gần nhất</text>
+      <rect x="672" y="212" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="736" y="236">Suite xanh</text><text x="736" y="252" font-weight="400" font-size="10" fill="#4f5d75">không ai đòi «giống»</text>
+      <rect x="832" y="212" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="896" y="236">Chủ kho</text><text x="896" y="252">thấy lệch</text>
+    </g>
+    <!-- chú thích -->
+    <text x="352" y="352" fill="#ba4513" font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14">Câu «màn này dùng khuôn nào?» không còn ai giữ —</text>
+    <text x="352" y="372" fill="#ba4513" font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14">tác tử tự trả lời, mỗi vòng một kiểu.</text>
+    <line x1="32" y1="392" x2="968" y2="392" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75">
+      <text x="32" y="412" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <line x1="112" y1="409" x2="140" y2="409" stroke="#4f5d75" stroke-dasharray="4,3"/><text x="148" y="412">nét đứt = bước không ai làm, hoặc vòng sửa lại sau khi giao</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Hai hàng chạy song song cùng một yêu cầu. Nhìn cột thứ hai: ở trên có người chọn khuôn, ở dưới là ô trống.</li>
+      <li>Ô trống không làm gì đỏ: suite vẫn xanh vì không tiêu chí nào của vòng đòi «giống màn cũ».</li>
+      <li>Lệch chỉ lộ ra khi chủ kho dùng thử, rồi quay về thành một vòng sửa — nét đứt dưới cùng.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Nguyên tắc rút ra</h3><p>Mỗi điểm chọn không có câu trả lời do máy giữ, tác tử sẽ trả lời bằng thứ gần nhất trong ngữ cảnh. Ngữ cảnh mỗi vòng một khác, nên mỗi vòng một đáp án.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 3 · CHỒNG TẦNG ═══════════════ -->
+<section id="h3">
+  <p class="eyebrow">Hình 3 · Chồng tầng · nguyên lý</p>
+  <h2>Thang tất định: đẩy mỗi điểm chọn lên bậc cao nhất có thể</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Thang tất định năm bậc, lời dặn nằm ngoài thang">
+    <defs>
+      <marker id="a3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      <marker id="a3c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- trục bên trái -->
+    <line x1="96" y1="320" x2="96" y2="60" stroke="#4f5d75" stroke-width="1" marker-end="url(#a3)"/>
+    <text x="96" y="40" font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" text-anchor="middle" letter-spacing="0.16em">TẤT ĐỊNH</text>
+    <!-- mũi tên lời giải: từ lời dặn lên T2 -->
+    <path d="M944,372 H960 Q968,372 968,364 V196 Q968,188 960,188 H948" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#a3c)"/>
+    <!-- tầng -->
+    <g font-family="'Geist', sans-serif">
+      <rect x="144" y="48" width="800" height="56" fill="#ffffff" stroke="rgba(45,49,66,0.12)"/>
+      <rect x="144" y="104" width="800" height="56" fill="#ffffff" stroke="rgba(45,49,66,0.12)"/>
+      <rect x="144" y="160" width="800" height="56" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="144" y="216" width="800" height="56" fill="#ffffff" stroke="rgba(45,49,66,0.12)"/>
+      <rect x="144" y="272" width="800" height="56" fill="#ffffff" stroke="rgba(45,49,66,0.12)"/>
+      <rect x="144" y="48" width="800" height="280" fill="none" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="144" y="344" width="800" height="56" rx="4" fill="none" stroke="#4f5d75" stroke-dasharray="4,3"/>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" letter-spacing="0.12em">
+      <text x="160" y="80">T0</text><text x="160" y="136">T1</text><text x="160" y="192" fill="#ba4513">T2</text><text x="160" y="248">T3</text><text x="160" y="304">T4</text><text x="160" y="376">—</text>
+    </g>
+    <g font-family="'Geist', sans-serif" font-size="14" font-weight="600" fill="#2d3142">
+      <text x="200" y="74">Không còn lựa chọn</text>
+      <text x="200" y="130">Sinh sẵn</text>
+      <text x="200" y="186">Khai rồi kiểm</text>
+      <text x="200" y="242">Đối chiếu</text>
+      <text x="200" y="298">Gu</text>
+      <text x="200" y="370" fill="#4f5d75">Lời dặn</text>
+    </g>
+    <g font-family="'Geist', sans-serif" font-size="10" fill="#636b80">
+      <text x="200" y="92">khe bắt buộc qua kiểu; ngoài khuôn cấm nhập khối dựng trần</text>
+      <text x="200" y="148">tạo màn = sinh từ khuôn, tác tử chỉ điền khe</text>
+      <text x="200" y="204">bản đồ khuôn + bài quét trên mã đã dựng</text>
+      <text x="200" y="260">ảnh màn mới cạnh màn mẫu, người phản ứng lúc rảnh</text>
+      <text x="200" y="316">người quyết MỘT lần, ghi thành luật → hạ về T2</text>
+      <text x="200" y="388">«hãy dùng thành phần chung» — thêm một dòng vào ngữ cảnh</text>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" text-anchor="end">
+      <text x="928" y="84">props là luật · Atlassian use-primitives</text>
+      <text x="928" y="140">đường lát sẵn: Netflix, Spotify</text>
+      <text x="928" y="196">Primer lint khe · răng màu crm</text>
+      <text x="928" y="252">Chromatic · design-pass</text>
+      <text x="928" y="308">khung xương hay vòng quay?</text>
+      <text x="928" y="380">design.md · AGENTS.md</text>
+    </g>
+    <text x="144" y="436" font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14" fill="#4f5d75">Khung ngăn của crm hôm nay đứng ở «lời dặn», ngoài thang. Lời giải đưa nó lên T2, rồi dần lên T0.</text>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Càng lên cao, tác tử càng ít chỗ tự chọn. T0: không còn đường sai. T4: người phải chọn.</li>
+      <li>T0 rẻ nhất khi có sẵn: kiểu bắt buộc khe và lint cấm nhập khối dựng ngoài khuôn — học từ gói ux-kit (§10).</li>
+      <li>«Lời dặn» nằm ngoài khung nét liền: nó không phải một bậc, chỉ là một dòng trong ngữ cảnh — ở crm tác tử có đọc mà vẫn lệch.</li>
+      <li>Mũi tên cam là việc của lời giải: đưa điểm chọn «khuôn nào» từ lời dặn lên T2.</li>
+      <li>T4 không biến mất, nhưng chỉ quyết một lần mỗi loại rồi thành luật máy áp.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Bảy câu mọi màn phải trả lời</h3><p>Loại màn · khung của loại · trạng thái · đầu trang · cách ghi · phản hồi và hoàn tác · giá trị màu chữ khoảng. Kho khác nhau ở câu trả lời, không ở bộ câu hỏi — nên cơ chế chung được.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 4 · BỐN GÓC ═══════════════ -->
+<section id="h4">
+  <p class="eyebrow">Hình 4 · Bốn góc · thế giới đã giải tới đâu</p>
+  <h2>Thuốc nào đã có — và góc nào còn trống</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bốn góc: trục ngang tầng giải từ token tới khung, trục dọc cách giữ từ lời tới máy">
+    <defs>
+      <marker id="a4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <line x1="112" y1="300" x2="880" y2="300" stroke="#2d3142" stroke-width="1" marker-end="url(#a4)"/>
+    <line x1="500" y1="560" x2="500" y2="68" stroke="#2d3142" stroke-width="1" marker-end="url(#a4)"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#2d3142" letter-spacing="0.18em">
+      <text x="896" y="304">KHUNG</text>
+      <text x="100" y="304" text-anchor="end">TOKEN</text>
+      <text x="500" y="52" text-anchor="middle">MÁY</text>
+      <text x="500" y="580" text-anchor="middle">LỜI</text>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" letter-spacing="0.16em">
+      <text x="128" y="56">ĐÃ GIẢI NHIỀU</text>
+      <text x="872" y="548" text-anchor="end">CHỈ CÓ LỜI</text>
+      <text x="128" y="548">MÔ HÌNH, TÀI LIỆU</text>
+    </g>
+    <!-- điểm -->
+    <g fill="#2d3142">
+      <circle cx="168" cy="88" r="4"/><circle cx="168" cy="136" r="4"/><circle cx="168" cy="236" r="4"/><circle cx="420" cy="184" r="4"/>
+      <circle cx="620" cy="160" r="4"/><circle cx="760" cy="224" r="4"/><circle cx="600" cy="268" r="4"/>
+      <circle cx="640" cy="380" r="4"/><circle cx="760" cy="480" r="4"/><circle cx="360" cy="420" r="4"/>
+    </g>
+    <circle cx="852" cy="88" r="6" fill="#eb6c36"/>
+    <g font-family="'Geist', sans-serif" font-size="10" fill="#4f5d75">
+      <text x="180" y="92">design-floor: mã màu thô</text>
+      <text x="180" y="140">Lint token: Atlassian, Polaris</text>
+      <text x="180" y="240">Token chuẩn W3C (DTCG)</text>
+      <text x="408" y="188" text-anchor="end">Lint primitive, khe: Atlassian, Primer</text>
+      <text x="632" y="164">Răng khung trang crm (bảng đóng)</text>
+      <text x="748" y="228" text-anchor="end">So ảnh: Chromatic (với chính nó)</text>
+      <text x="612" y="272">Thang dùng lại Design OS (kế hoạch)</text>
+      <text x="652" y="384">Khuôn trang: Polaris, Material</text>
+      <text x="748" y="484" text-anchor="end">Lời dặn: AGENTS.md, design.md</text>
+      <text x="348" y="424" text-anchor="end">Atomic Design (mô hình tư duy)</text>
+    </g>
+    <text x="836" y="92" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#ba4513" text-anchor="end">Bản đồ khuôn (đề xuất)</text>
+    <text x="872" y="124" font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14" fill="#ba4513" text-anchor="end">góc «máy giữ khung» gần như trống</text>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Trục ngang: thuốc chữa tầng nào — từ giá trị (token) tới khung màn. Trục dọc: giữ bằng lời hay bằng máy.</li>
+      <li>Góc trên-trái đông: tầng token đã được nhiều nơi giải bằng máy.</li>
+      <li>Khuôn trang của Polaris, Material nằm dưới: đúng tầng nhưng chọn khuôn vẫn do người. Design OS và so ảnh ở giữa: máy, nhưng kiểm ý định hoặc so với chính nó.</li>
+      <li>Góc trên-phải gần như trống. Chấm cam là chỗ lời giải đặt vào.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Vị trí là ước lượng</h3><p>Vị trí các chấm là phán đoán định tính từ tài liệu và mã đã đọc, không phải số đo. Nguồn tra cứu ở §8 của finding.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 5 · KIẾN TRÚC ═══════════════ -->
+<section id="h5">
+  <p class="eyebrow">Hình 5 · Kiến trúc · lời giải</p>
+  <h2>Lời giải chạy thế nào: một tệp của kho, bốn chỗ máy dùng</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bản đồ khuôn của kho được máy đọc ở S1, S3, S4; người chỉ quyết khi gặp loại màn mới">
+    <defs>
+      <marker id="a5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- mũi tên trước -->
+    <g fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#a5)">
+      <line x1="760" y1="100" x2="604" y2="100"/>
+      <path d="M400,100 H148 Q140,100 140,108 V292"/>
+      <path d="M540,136 V216 Q540,224 548,224 H612 Q620,224 620,232 V292"/>
+      <path d="M580,136 V192 Q580,200 588,200 H852 Q860,200 860,208 V292"/>
+      <line x1="240" y1="332" x2="276" y2="332"/><line x1="480" y1="332" x2="516" y2="332"/><line x1="720" y1="332" x2="756" y2="332"/>
+      <line x1="420" y1="296" x2="420" y2="140" stroke-dasharray="5,4"/>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" letter-spacing="0.06em" text-anchor="middle">
+      <rect x="648" y="78" width="64" height="14" rx="2" fill="#f5f5f5"/><text x="680" y="88">ĐỀ XUẤT</text>
+      <rect x="252" y="78" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="272" y="88">ĐỌC</text>
+      <rect x="700" y="178" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="720" y="188">ĐỌC</text>
+      <rect x="428" y="212" width="104" height="14" rx="2" fill="#f5f5f5"/><text x="480" y="222">THÊM ĐỐI TƯỢNG</text>
+    </g>
+    <!-- hộp -->
+    <g font-family="'Geist', sans-serif" text-anchor="middle">
+      <rect x="400" y="64" width="200" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="500" y="104" font-size="12" font-weight="600" fill="#2d3142">Bản đồ khuôn</text>
+      <text x="500" y="122" font-size="10" fill="#4f5d75">đối tượng → loại → khuôn · màn mẫu</text>
+      <rect x="760" y="64" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="860" y="104" font-size="12" font-weight="600" fill="#2d3142">Máy dò khuôn từ mã</text>
+      <text x="860" y="122" font-size="10" fill="#4f5d75">một lần · kê luôn lệch hiện có</text>
+      <rect x="40" y="296" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="140" y="336" font-size="12" font-weight="600" fill="#2d3142">Nạp khuôn + màn mẫu</text>
+      <text x="140" y="354" font-size="10" fill="#4f5d75">vào ngữ cảnh tác tử</text>
+      <rect x="280" y="296" width="200" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="380" y="336" font-size="12" font-weight="600" fill="#2d3142">Đối tượng mới?</text>
+      <text x="380" y="354" font-size="10" fill="#4f5d75">thuộc nhóm nào · ảnh cạnh màn mẫu</text>
+      <rect x="520" y="296" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="620" y="336" font-size="12" font-weight="600" fill="#2d3142">Sinh khung, điền khe</text>
+      <text x="620" y="354" font-size="10" fill="#4f5d75">tuỳ chọn</text>
+      <rect x="760" y="296" width="200" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="860" y="336" font-size="12" font-weight="600" fill="#2d3142">Kiểm mã theo khuôn</text>
+      <text x="860" y="354" font-size="10" fill="#4f5d75">kiểu · cấm nhập · quét — hai chiều</text>
+    </g>
+    <!-- nhãn bước -->
+    <g font-family="'Geist Mono', monospace" font-size="9" letter-spacing="0.08em">
+      <rect x="408" y="72" width="44" height="16" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.6" stroke-width="0.8"/><text x="430" y="84" text-anchor="middle" fill="#ba4513">KHO</text>
+      <rect x="768" y="72" width="44" height="16" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.4" stroke-width="0.8"/><text x="790" y="84" text-anchor="middle" fill="#4f5d75">KIT</text>
+      <rect x="48" y="304" width="68" height="16" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.4" stroke-width="0.8"/><text x="82" y="316" text-anchor="middle" fill="#4f5d75">S1 · KIT</text>
+      <rect x="288" y="304" width="112" height="16" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.6" stroke-width="0.8"/><text x="344" y="316" text-anchor="middle" fill="#ba4513">CỔNG 1 · NGƯỜI</text>
+      <rect x="528" y="304" width="68" height="16" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.4" stroke-width="0.8"/><text x="562" y="316" text-anchor="middle" fill="#4f5d75">S3 · KIT</text>
+      <rect x="768" y="304" width="68" height="16" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.4" stroke-width="0.8"/><text x="802" y="316" text-anchor="middle" fill="#4f5d75">S4 · KIT</text>
+    </g>
+    <line x1="32" y1="404" x2="968" y2="404" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75">
+      <text x="32" y="432" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <text x="112" y="432">KHO = giá trị của kho</text>
+      <text x="280" y="432">KIT = cơ chế chung mọi kho</text>
+      <text x="480" y="432">NGƯỜI = ở cổng sẵn có, không thêm lượt</text>
+      <line x1="740" y1="429" x2="768" y2="429" stroke="#4f5d75" stroke-dasharray="4,3"/><text x="776" y="432">chỉ khi gặp đối tượng mới</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Hàng dưới là vòng làm một tính năng, trái sang phải: trước khi dựng → Cổng 1 → dựng → chấm.</li>
+      <li>Bản đồ khuôn (cam, của kho) khoá theo đối tượng: deal, KR, mục tiêu… đều thuộc nhóm «bản ghi» nên chung một khuôn ngăn. Máy đọc nó ở ba chỗ: nạp đúng khuôn trước khi dựng, sinh khung khi dựng, kiểm mã khi chấm (kiểu bắt khe · lint cấm nhập · bài quét).</li>
+      <li>Ô cam thứ hai là chỗ duy nhất có người: chỉ khi gặp một đối tượng chưa có trong bản đồ — người chọn nhóm cho nó, nét đứt ghi vào bản đồ.</li>
+      <li>Máy dò (phải trên) chạy một lần cho kho đã có mã: đề xuất bản đồ và kê luôn các màn đang lệch.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Cân trên mọi kho</h3><p>Kho không khai bản đồ: không đổi gì. Kho không có giao diện: im. Kho có bản đồ: lệch hiện ở suite thay vì ở mắt chủ kho. Không đổi mặc định của ai.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 6 · LƯU ĐỒ ═══════════════ -->
+<section id="h6">
+  <p class="eyebrow">Hình 6 · Lưu đồ hai nhánh · quyết định</p>
+  <h2>Quyết gì: dựng ở đâu trước?</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hai lối: crm chạy thử trước hoặc kit dựng trước, kèm giá và hệ quả">
+    <defs>
+      <marker id="a6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+      <marker id="a6c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <g fill="none" stroke-width="1">
+      <path d="M412,88 H268 Q260,88 260,96 V164" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#a6c)"/>
+      <path d="M588,88 H732 Q740,88 740,96 V164" stroke="#4f5d75" marker-end="url(#a6)"/>
+      <g stroke="#4f5d75" marker-end="url(#a6)">
+        <line x1="260" y1="224" x2="260" y2="252"/><line x1="260" y1="312" x2="260" y2="340"/><line x1="260" y1="400" x2="260" y2="428"/>
+        <line x1="740" y1="224" x2="740" y2="252"/><line x1="740" y1="312" x2="740" y2="340"/><line x1="740" y1="400" x2="740" y2="428"/>
+      </g>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" letter-spacing="0.08em" text-anchor="middle">
+      <rect x="292" y="62" width="88" height="14" rx="2" fill="#f5f5f5"/><text x="336" y="72" fill="#ba4513">KHUYẾN NGHỊ</text>
+      <rect x="628" y="62" width="72" height="14" rx="2" fill="#f5f5f5"/><text x="664" y="72" fill="#636b80">LỐI KHÁC</text>
+    </g>
+    <polygon points="500,44 588,88 500,132 412,88" fill="#ffffff" stroke="#2d3142"/>
+    <g font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">
+      <text x="500" y="84">Dựng ở đâu</text><text x="500" y="100">trước?</text>
+    </g>
+    <g font-family="'Geist', sans-serif" text-anchor="middle">
+      <rect x="140" y="168" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="260" y="192" font-size="12" font-weight="600" fill="#2d3142">crm chạy thử bản đồ khuôn</text>
+      <text x="260" y="210" font-size="10" fill="#4f5d75">việc của kho · một vòng 8–10 tiêu chí</text>
+      <rect x="140" y="256" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="260" y="280" font-size="12" font-weight="600" fill="#2d3142">invest khai cùng hình dạng</text>
+      <text x="260" y="298" font-size="10" fill="#4f5d75">đo: bắt đúng 2 trang lệch, im phần còn lại</text>
+      <rect x="140" y="344" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="260" y="368" font-size="12" font-weight="600" fill="#2d3142">Kit rút cơ chế</text>
+      <text x="260" y="386" font-size="10" fill="#4f5d75">một vòng meta có tên, sau mốc kho nhận</text>
+      <rect x="140" y="432" width="240" height="72" rx="20" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="260" y="458" font-size="12" font-weight="600" fill="#2d3142">Kết quả ngay ở crm;</text>
+      <text x="260" y="474" font-size="12" font-weight="600" fill="#2d3142">kit chốt sau khi hai kho đã dùng</text>
+      <text x="260" y="492" font-size="10" fill="#4f5d75">giá: một tệp luật + một bài kiểm</text>
+
+      <rect x="620" y="168" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="740" y="192" font-size="12" font-weight="600" fill="#2d3142">Kit dựng cơ chế trước</text>
+      <text x="740" y="210" font-size="10" fill="#4f5d75">phần CỘNG, chủ kho phê đích danh</text>
+      <rect x="620" y="256" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="740" y="280" font-size="12" font-weight="600" fill="#2d3142">Chờ mốc phát hành</text>
+      <text x="740" y="298" font-size="10" fill="#4f5d75">đóng băng meta giữa hai mốc</text>
+      <rect x="620" y="344" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="740" y="368" font-size="12" font-weight="600" fill="#2d3142">Các kho nhận rồi khai</text>
+      <text x="740" y="386" font-size="10" fill="#4f5d75">hình dạng chốt từ một ca duy nhất</text>
+      <rect x="620" y="432" width="240" height="72" rx="20" fill="#ffffff" stroke="#2d3142"/>
+      <text x="740" y="458" font-size="12" font-weight="600" fill="#2d3142">Mọi kho có cùng lúc;</text>
+      <text x="740" y="474" font-size="12" font-weight="600" fill="#2d3142">chậm ≥ 1 mốc, dễ sai hình dạng</text>
+      <text x="740" y="492" font-size="10" fill="#4f5d75">giá: vòng meta + một mốc chờ</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Một câu hỏi duy nhất ở đỉnh; hai lối chạy xuống, mỗi lối ba bước rồi một kết quả có ghi giá.</li>
+      <li>Nhánh trái (cam): kho trả giá nhỏ, có kết quả ngay; kit chỉ chốt hình dạng sau khi hai kho thật đã dùng — đúng luật «sửa vì một kho phải cân trên mọi kho».</li>
+      <li>Nhánh phải: mọi kho cùng có, nhưng chờ ít nhất một mốc và chốt hình dạng khi mới thấy một ca.</li>
+    </ul></div>
+    <div class="card quyet"><h3><span class="dot coral"></span>Quyết định cho chủ kho</h3><p>Đi nhánh trái: crm chạy thử trước, invest khai cùng hình dạng, kit rút cơ chế ở vòng meta sau mốc kho nhận?</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 7 · KIẾN TRÚC TRONG KIT ═══════════════ -->
+<section id="h7">
+  <p class="eyebrow">Hình 7 · Kiến trúc · nếu nằm trong kit</p>
+  <h2>Ai giữ gì: kho giữ giá trị, kit giữ cơ chế</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ba vùng: kho giữ bản đồ khuôn, khuôn có khe, lint; kit giữ lệnh khuôn, khối thẻ, design-pass; Design OS cấp nguyên liệu">
+    <defs>
+      <marker id="a7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- vùng -->
+    <g fill="none" stroke="#4f5d75" stroke-opacity="0.4" stroke-dasharray="4,3">
+      <rect x="32" y="48" width="304" height="384" rx="8"/>
+      <rect x="368" y="48" width="296" height="384" rx="8"/>
+      <rect x="696" y="48" width="272" height="384" rx="8"/>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" letter-spacing="0.16em">
+      <text x="48" y="72">KHO · GIÁ TRỊ</text>
+      <text x="384" y="72">KIT · CƠ CHẾ</text>
+      <text x="712" y="72">DESIGN OS · NGUYÊN LIỆU</text>
+    </g>
+    <!-- mũi tên -->
+    <g fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#a7)">
+      <line x1="396" y1="124" x2="308" y2="124"/>
+      <line x1="184" y1="168" x2="184" y2="212"/>
+      <path d="M396,152 H352 Q344,152 344,160 V364 Q344,372 336,372 H308"/>
+      <line x1="516" y1="168" x2="516" y2="212"/>
+      <line x1="636" y1="124" x2="708" y2="124"/>
+      <path d="M636,152 H676 Q684,152 684,160 V244 Q684,252 692,252 H708"/>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" letter-spacing="0.06em" text-anchor="middle">
+      <rect x="330" y="102" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="350" y="112">ĐỌC</text>
+      <rect x="292" y="302" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="312" y="312">SINH</text>
+      <rect x="524" y="182" width="64" height="14" rx="2" fill="#f5f5f5"/><text x="556" y="192">KẾT QUẢ</text>
+      <rect x="652" y="102" width="44" height="14" rx="2" fill="#f5f5f5"/><text x="674" y="112">DÙNG</text>
+      <rect x="138" y="182" width="36" height="14" rx="2" fill="#f5f5f5"/><text x="156" y="192">TRỎ</text>
+    </g>
+    <!-- hộp: KHO -->
+    <g font-family="'Geist', sans-serif" text-anchor="middle">
+      <rect x="64" y="96" width="240" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="184" y="132" font-size="12" font-weight="600" fill="#2d3142">Bản đồ khuôn</text>
+      <text x="184" y="150" font-size="10" fill="#4f5d75">design/patterns/&lt;nhóm&gt;.md</text>
+      <rect x="64" y="216" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="184" y="252" font-size="12" font-weight="600" fill="#2d3142">Khuôn có khe</text>
+      <text x="184" y="270" font-size="10" fill="#4f5d75">khe bắt buộc qua kiểu, suite của kho chấm</text>
+      <rect x="64" y="336" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="184" y="372" font-size="12" font-weight="600" fill="#2d3142">Lint cấm nhập theo vùng</text>
+      <text x="184" y="390" font-size="10" fill="#4f5d75">cấu hình lint của kho</text>
+    </g>
+    <!-- hộp: KIT -->
+    <g font-family="'Geist', sans-serif" text-anchor="middle">
+      <rect x="396" y="96" width="240" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="516" y="132" font-size="12" font-weight="600" fill="#2d3142">Lệnh khuôn</text>
+      <text x="516" y="150" font-size="10" fill="#4f5d75">đề xuất · nạp · kiểm · gợi ý lint</text>
+      <rect x="396" y="216" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="516" y="252" font-size="12" font-weight="600" fill="#2d3142">Khối «Khuôn» trên thẻ</text>
+      <text x="516" y="270" font-size="10" fill="#4f5d75">Cổng 1 · Cổng 2, đọc tệp kết quả</text>
+      <rect x="396" y="336" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="516" y="372" font-size="12" font-weight="600" fill="#2d3142">design-pass</text>
+      <text x="516" y="390" font-size="10" fill="#4f5d75">ảnh màn mới cạnh màn mẫu</text>
+    </g>
+    <!-- hộp: DESIGN OS -->
+    <g font-family="'Geist', sans-serif" text-anchor="middle">
+      <rect x="712" y="96" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-dasharray="4,3"/>
+      <text x="832" y="132" font-size="12" font-weight="600" fill="#2d3142">Bộ đọc JSX/TSX</text>
+      <text x="832" y="150" font-size="10" fill="#4f5d75">chưa vendor · hàng chờ DFK-C1</text>
+      <rect x="712" y="216" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-dasharray="4,3"/>
+      <text x="832" y="252" font-size="12" font-weight="600" fill="#2d3142">Sổ thành phần từ mã</text>
+      <text x="832" y="270" font-size="10" fill="#4f5d75">chưa có · hàng chờ DFK-C3</text>
+      <rect x="712" y="336" width="240" height="72" rx="6" fill="#ffffff" stroke="#2d3142"/>
+      <text x="832" y="372" font-size="12" font-weight="600" fill="#2d3142">Thang dùng lại</text>
+      <text x="832" y="390" font-size="10" fill="#4f5d75">đã vendor · tự nhận design/patterns</text>
+    </g>
+    <line x1="32" y1="448" x2="968" y2="448" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75">
+      <text x="32" y="468" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="112" y="459" width="20" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36"/><text x="140" y="468">hai chỗ mới phải dựng</text>
+      <rect x="328" y="459" width="20" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-dasharray="4,3"/><text x="356" y="468">nguyên liệu chưa có trong kit</text>
+      <text x="600" y="468">còn lại: đã có, chỉ thêm một khối</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Ba vùng nét đứt: kho giữ giá trị (trái), kit giữ cơ chế (giữa), Design OS cấp nguyên liệu (phải).</li>
+      <li>Hai ô cam là hai thứ mới phải dựng: tệp bản đồ (của kho) và lệnh khuôn (của kit). Mọi thứ khác đã có, chỉ thêm một khối.</li>
+      <li>Lệnh khuôn đọc bản đồ, sinh gợi ý lint cho kho, ghi kết quả cho thẻ cổng, và mượn bộ đọc JSX cùng sổ từ mã của Design OS.</li>
+      <li>Thư mục <code>design/patterns/</code> phục vụ hai việc: bản đồ khuôn của kit và «mẫu màn» trong thang dùng lại của Design OS — không thêm khoá cấu hình nào.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Tiền lệ trong kit</h3><p>Đi đúng đường của luật sản phẩm của kho (ADR 0024): tệp ở đường cố định, mã luật do kit định nghĩa, nạp lúc thiết kế, lượt chấm ghi một tệp kết quả, thẻ chỉ đọc tệp đó.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HÌNH 8 · CÁC GIAI ĐOẠN ═══════════════ -->
+<section id="h8">
+  <p class="eyebrow">Hình 8 · Các làn theo giai đoạn · đi qua vòng thế nào</p>
+  <h2>Đi qua các giai đoạn: người chỉ xuất hiện khi có đối tượng mới</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ba làn người, máy, kho qua khởi tạo, S1, Cổng 1, S3, S4, Cổng 2">
+    <defs>
+      <marker id="a8" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="#f5f5f5"/>
+    <!-- đầu cột -->
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75" letter-spacing="0.12em" text-anchor="middle">
+      <text x="198" y="40">KHỞI TẠO · 1 LẦN</text>
+      <text x="338" y="40">S0–S1</text><text x="478" y="40">CỔNG 1</text><text x="618" y="40">S3</text><text x="758" y="40">S4</text><text x="898" y="40">CỔNG 2</text>
+    </g>
+    <!-- làn -->
+    <g stroke="rgba(45,49,66,0.12)" stroke-width="1">
+      <line x1="32" y1="56" x2="968" y2="56"/><line x1="32" y1="156" x2="968" y2="156"/><line x1="32" y1="276" x2="968" y2="276"/><line x1="32" y1="356" x2="968" y2="356"/>
+    </g>
+    <line x1="268" y1="48" x2="268" y2="356" stroke="#4f5d75" stroke-opacity="0.4" stroke-dasharray="4,3"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#2d3142" letter-spacing="0.16em" font-weight="500">
+      <text x="32" y="112">NGƯỜI</text><text x="32" y="220">MÁY · KIT</text><text x="32" y="320">KHO</text>
+    </g>
+    <!-- mũi tên -->
+    <g fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#a8)">
+      <line x1="198" y1="188" x2="198" y2="140"/>
+      <line x1="198" y1="244" x2="198" y2="292"/>
+      <path d="M394,204 H458 Q466,204 466,196 V140"/>
+      <path d="M534,108 H610 Q618,108 618,116 V184"/>
+      <line x1="674" y1="216" x2="698" y2="216"/>
+      <path d="M814,204 H890 Q898,204 898,196 V140"/>
+      <line x1="490" y1="136" x2="490" y2="308" stroke-dasharray="5,4"/>
+    </g>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" letter-spacing="0.06em">
+      <rect x="206" y="158" width="56" height="14" rx="2" fill="#f5f5f5"/><text x="210" y="168">ĐỀ XUẤT</text>
+      <rect x="206" y="258" width="40" height="14" rx="2" fill="#f5f5f5"/><text x="210" y="268">NHÁP</text>
+      <rect x="498" y="254" width="104" height="14" rx="2" fill="#f5f5f5"/><text x="502" y="264">THÊM ĐỐI TƯỢNG</text>
+    </g>
+    <!-- hộp -->
+    <g font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142" text-anchor="middle">
+      <rect x="142" y="80" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="198" y="104">Duyệt bản đồ</text><text x="198" y="120" font-weight="400" font-size="10" fill="#4f5d75">một lần mỗi kho</text>
+      <rect x="422" y="80" width="112" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/><text x="478" y="104">Đối tượng mới?</text><text x="478" y="120" font-weight="400" font-size="10" fill="#4f5d75">chỉ khi có · 1 chạm</text>
+      <rect x="842" y="80" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="898" y="104">Đọc dòng khuôn</text><text x="898" y="120" font-weight="400" font-size="10" fill="#4f5d75">không thêm câu hỏi</text>
+      <rect x="142" y="188" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="198" y="212">Dò khuôn</text><text x="198" y="228" font-weight="400" font-size="10" fill="#4f5d75">từ mã · kê lệch</text>
+      <rect x="282" y="188" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="338" y="212">Nạp khuôn</text><text x="338" y="228" font-weight="400" font-size="10" fill="#4f5d75">+ màn mẫu · ảnh</text>
+      <rect x="562" y="188" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="618" y="212">Kiểm lúc sửa</text><text x="618" y="228" font-weight="400" font-size="10" fill="#4f5d75">tuỳ chọn</text>
+      <rect x="702" y="188" width="112" height="56" rx="6" fill="#ffffff" stroke="#2d3142"/><text x="758" y="212">Kiểm khuôn</text><text x="758" y="228" font-weight="400" font-size="10" fill="#4f5d75">ghi tệp kết quả</text>
+      <rect x="142" y="296" width="112" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/><text x="198" y="324">Bản đồ khuôn</text>
+    </g>
+    <line x1="296" y1="316" x2="472" y2="316" stroke="#4f5d75" stroke-opacity="0.5" stroke-dasharray="2,3"/>
+    <line x1="508" y1="316" x2="940" y2="316" stroke="#4f5d75" stroke-opacity="0.5" stroke-dasharray="2,3"/>
+    <text x="724" y="340" font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" text-anchor="middle" letter-spacing="0.06em">máy đọc bản đồ ở S1 · S3 · S4</text>
+    <line x1="32" y1="380" x2="968" y2="380" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+    <g font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75">
+      <text x="32" y="404" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="112" y="395" width="20" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36"/><text x="140" y="404">chỗ duy nhất có người trong vòng · nguồn luật của kho</text>
+      <line x1="560" y1="401" x2="588" y2="401" stroke="#4f5d75" stroke-dasharray="5,4"/><text x="596" y="404">ghi mục mới vào bản đồ</text>
+      <line x1="772" y1="401" x2="800" y2="401" stroke="#4f5d75" stroke-dasharray="4,3" stroke-opacity="0.4"/><text x="808" y="404">khởi tạo | mỗi vòng</text>
+    </g>
+  </svg>
+  </div>
+  <div class="doc">
+    <div class="card"><h3><span class="dot"></span>Cách đọc</h3><ul>
+      <li>Cột trái (trước vạch đứt) chạy một lần mỗi kho: máy dò khuôn từ mã, người duyệt bản đồ, bản đồ vào kho.</li>
+      <li>Sau vạch đứt là mỗi vòng. Máy nạp khuôn và màn mẫu ở S1, kiểm lúc sửa ở S3 (nếu kho bật), kiểm khuôn ở S4; thẻ Cổng 2 chỉ in thêm một dòng.</li>
+      <li>Ô cam ở làn người: một chạm ở Cổng 1, chỉ khi vòng mang đối tượng chưa có trong bản đồ. Nét đứt ghi mục mới vào bản đồ.</li>
+      <li>Đếm lượt người mỗi vòng: 0, hoặc 1 khi có đối tượng mới — luôn ở cổng sẵn có.</li>
+    </ul></div>
+    <div class="card"><h3><span class="dot"></span>Chưa vẽ ở đây</h3><p>Sau gộp: lệch lọt qua lưới mà chủ kho thấy khi dùng được đếm thành một dòng. Hai lần giữa hai mốc thì mở lại thiết kế bản đồ (§11.6).</p></div>
+  </div>
+</section>
+
+<footer>
+  Nguồn chữ: docs/findings/2026-10-30-ui-dong-nhat-giua-cac-man.md (§1–§11) — hình là chiếu của chữ cùng commit với tệp này; sửa thì sửa chữ rồi vẽ lại.<br>
+  Đo: crm origin/onehub 16604ce3f · onehub-invest origin/main ec899d03 · Design OS bản sao ~/dev/designos (30/10). Khuôn vẽ: skill diagram-design, skin mặc định của kho kit.
+</footer>
+
+</div>
+</body>
+</html>
