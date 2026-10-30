@@ -591,3 +591,107 @@ Bản đồ khuôn (§7.4) đổi ba chỗ, hình 3 và hình 5 vẽ lại theo:
 
 Vòng crm chạy thử (§5.1) giữ nguyên cỡ 8–10 tiêu chí. Bước 3 của nó dùng H3 trước (rẻ hơn bộ quét tự viết), và bước 2
 thêm khe bắt buộc cho trạng thái trong khuôn ngăn (H2).
+
+---
+
+## 11. Nếu bản đồ khuôn nằm trong kit — kiến trúc và các giai đoạn nó đi qua
+
+Chủ kho hỏi (30/10): nếu cơ chế này tồn tại trong kit thì kiến trúc ra sao, và nó đi qua các giai đoạn thế nào?
+Mục này là **thiết kế để quyết hướng**, chưa phải hợp đồng. Thứ tự đã chốt ở §10 vẫn giữ: crm làm trước như việc
+của kho, kit rút cơ chế sau. Bảng §11.7 nói phần nào crm dựng bây giờ sẽ thành phần nào của kit sau này.
+Hình 7 và hình 8 trong trang hình là chiếu của mục này.
+
+### 11.1 Năm nguyên tắc kiến trúc — mỗi cái neo vào một tiền lệ của kit
+
+| # | Nguyên tắc | Tiền lệ |
+|---|---|---|
+| A1 | **Kho giữ giá trị, kit giữ cơ chế.** Kho khai đối tượng, nhóm, khuôn, màn mẫu; kit đọc, nạp, kiểm, trình. Kho không khai thì không đổi gì. | hình dạng DFK-C2 chủ kho chốt 30/10; luật 26/09 |
+| A2 | **Đường cố định, không thêm khoá cấu hình.** Bản đồ nằm ở `design/patterns/<nhóm>.md` của kho — đúng thư mục mà thang dùng lại của Design OS (đã vendor) tự nhận làm «mẫu màn» ở bậc 2. Một tệp phục vụ hai việc, không ổ cắm mới. | ADR 0024 (luật sản phẩm ở đường cố định); `design-reuse-ladder.md` |
+| A3 | **Trục riêng, không phải bậc M.** Bậc M0–M3 nói về token; khuôn chạy được cả ở M0. crm hôm nay là M0 vẫn dùng được, không phải trả nợ mã màu trước. | crm đo ở §2: `design-floor-bac` in M0 |
+| A4 | **Răng ba lớp, rẻ trước đắt sau:** (1) kiểu bắt buộc khe — sống trong mã khuôn của kho, chạy trong suite sẵn có; (2) lint cấm nhập khối dựng theo vùng — cấu hình lint của kho, kit chỉ *sinh gợi ý*; (3) bài quét của kit — chỉ cho phần hai lớp trên không phủ. | §10 H2, H3; crm có plugin oxlint riêng |
+| A5 | **Không thêm cổng người.** Người chỉ xuất hiện ở cổng đã có, và chỉ khi gặp một đối tượng chưa có trong bản đồ. Mọi kết quả khác lên thẻ thành dòng thông tin. | bất biến ≤ 3 lượt/vòng; K8 (nhãn không tự sinh việc) |
+
+### 11.2 Thành phần
+
+| Thành phần | Ai giữ | Ở đâu | Vai |
+|---|---|---|---|
+| **Bản đồ khuôn** — mỗi nhóm một tệp | kho | `design/patterns/<nhóm>.md` | khai đối tượng thuộc nhóm, khuôn, màn mẫu, khe, khối cấm, ngoại lệ |
+| **Khuôn có khe** | kho | mã của kho (vd `RecordSheetFrame`) | khe bắt buộc qua kiểu; bộ kiểm kiểu của kho chấm |
+| **Lint cấm nhập theo vùng** | kho | cấu hình lint của kho | chặn dùng khối dựng ngoài khuôn; kit sinh đoạn cấu hình gợi ý từ bản đồ |
+| **Lệnh khuôn** — bốn chế độ: `de-xuat` · `nap` · `kiem` · `goi-y-lint` | kit | `scripts/design-floor-khuon.mjs` (tên dự kiến) | dò từ mã · nạp vào vòng · kiểm vật · in cấu hình lint |
+| **Tệp kết quả lượt chấm** | kit ghi, thẻ đọc | `_acceptance/<slug>/khuon-cham.json` | nguồn duy nhất cho thẻ — thẻ không tự chạm git (cùng luật với `luat-cham.json`) |
+| **Khối «Khuôn» trên thẻ** | kit | `scripts/gate-card.js` | Cổng 1: nhóm đã chọn, màn mẫu, đối tượng mới. Cổng 2: số tệp theo khuôn, lệch mới, nợ cũ |
+| **Ảnh đối chiếu** | kit | skill `design-pass` | chụp màn mới cạnh màn mẫu, cùng khổ, cùng trạng thái |
+| **Kiểm lúc sửa** (tuỳ chọn) | kho bật | hook của kho gọi `kiem --tep` | phản hồi sớm, trước lượt chấm |
+| **Nguyên liệu từ Design OS** | vendor | bộ đọc JSX/TSX (hàng chờ DFK-C1) · sổ từ mã (DFK-C3) · thang dùng lại (đã có) | parser cho `kiem` · dữ liệu cho `de-xuat` · dòng `Pattern:` trỏ nhóm |
+
+### 11.3 Hình dạng một tệp bản đồ (ví dụ của crm, giá trị là của kho)
+
+```markdown
+---
+nhom: ngan-ban-ghi
+doi_tuong: [deal, lien-he, cong-ty, ke-hoach, muc-tieu, kr]
+khuon: { ten: RecordSheetFrame, nhap: "@/components/crm/record-sheet/record-parts" }
+nhan_dien: ["apps/app/components/crm/record-sheet/*-sheet.tsx"]
+mau_dang_chay: { tep: "apps/app/components/crm/record-sheet/deal-sheet.tsx", duong: "/deals?record=deal:<mau>", trang_thai: [dang-tai, loi, xong] }
+khe_bat_buoc: [loading, error, tabs]
+cam_ngoai_khuon: [DetailSheetHeader, Skeleton, Spinner, VungTaiLoi]
+ngoai_le: []          # { tep, ly_do } — lý do bắt buộc
+luat: [KH-ghi-tai-cho, KH-loi-noi-ly-do]   # mã luật hành vi, câu luật nằm trong thân tệp
+---
+# Ngăn bản ghi
+<câu chữ cho người và tác tử: khi nào dùng, khi nào KHÔNG dùng, luật hành vi kèm mã>
+```
+
+Một màn thuộc nhóm theo **đối tượng nó trình bày** (H1). `nhan_dien` chỉ dùng để quét tệp. Hai nguồn lệch nhau —
+đối tượng `kr` mà tệp `kr-sheet.tsx` không dựng `RecordSheetFrame` — chính là ca lệch cần bắt.
+
+### 11.4 Đi qua các giai đoạn
+
+| Giai đoạn | Máy làm | Người | Ghi gì | Thiếu / không đo được |
+|---|---|---|---|---|
+| **Khởi tạo kho** (một lần, cùng lệnh «bật nền thiết kế» DFK1) | `de-xuat`: tìm thành phần mà ≥ 3 màn dựng ở gốc → nháp `design/patterns/*.md` + danh sách màn đang lệch | duyệt bản đồ **một lần**, commit như mọi tệp luật của kho | nháp bản đồ; danh sách lệch là **nhãn**, không tự thành việc (K8) | kho không có giao diện → không đề xuất gì |
+| **S0** | lệnh bậc in thêm một dòng «khuôn: N nhóm, M đối tượng» | — | — | không có `design/patterns/` → không in gì |
+| **S1, bước 0d** | `nap`: từ ô và hợp đồng suy đối tượng → nhóm → nạp khuôn + **đọc tệp màn mẫu** trước khi chọn phương án; ghi khối `khuon` vào `design-floor.json`; thêm eval máy `config:executors.design.khuon` vào `evals.yaml` | — | `design-floor.json`, `evals.yaml` | đối tượng chưa có trong bản đồ → soạn nháp mục bản đồ theo khuyến nghị + một dòng «Hỏi-n» (nguồn «chỉ người có») |
+| **S1-D** (`design-pass`) | chụp màn mới cạnh màn mẫu, cùng khổ và trạng thái | phản ứng lúc rảnh (không đồng bộ, như hôm nay) | ảnh trong hồ sơ | không có màn mẫu chạy được → cờ vàng |
+| **Cổng 1 (Phạm vi)** | thẻ in khối «Khuôn»: nhóm, màn mẫu, ảnh cạnh nhau | **chỉ khi có đối tượng mới**: một chạm chọn nhóm (khuyến nghị sẵn) | máy ghi mục bản đồ mới vào commit của vòng | — |
+| **S3** | dựng bằng khuôn; kho bật hook thì `kiem --tep` sau mỗi lần sửa; cuối S3 giữ nguyên bước 2b | — | — | — |
+| **S4** | `kiem --base`: tệp vòng chạm khớp `nhan_dien` hoặc thuộc đối tượng trong bản đồ phải dựng khuôn và không dùng khối cấm; chỉ chấm dòng thêm/đổi; kiểu và lint chạy trong suite của kho | — | `khuon-cham.json` | parser không đọc được tệp → «không đo được», **không chặn** |
+| **Cổng 2 (Bằng chứng)** | thẻ in «Khuôn: k tệp theo khuôn · 0 lệch mới · nợ cũ j (nhãn)» + ảnh đối chiếu | đọc như mọi dòng thẻ — **không thêm câu hỏi** | — | — |
+| **Sau gộp / thực tế** | — | chủ kho vẫn thấy lệch khi dùng | một dòng đếm: lệch lọt qua lưới | đếm tăng = bản đồ thiếu luật hoặc thước lệch (§11.6) |
+
+**Đếm lượt người:** một lần khi khởi tạo kho; mỗi vòng **0**, trừ vòng mang đối tượng mới — khi đó một chạm, ở Cổng
+1 sẵn có. Không mục nào cộng lượt ngoài thiết kế.
+
+### 11.5 Hai chiều của thước (bắt buộc trong bộ đo của kit)
+
+| Chiều | Ca | Kỳ vọng |
+|---|---|---|
+| đỏ | tiêm một tệp nhóm «ngăn bản ghi» gọi thẳng `DetailSheetHeader` | REJECT, gọi đúng tên tệp và khối cấm |
+| đỏ | đối tượng `kr` khai trong bản đồ, tệp của nó không dựng khuôn | REJECT, nói «đối tượng kr thuộc ngăn-ban-ghi» |
+| đỏ | ngoại lệ không có `ly_do` | REJECT ở bước đọc bản đồ |
+| im | chỉ sửa `docs/`, `_acceptance/`, hay tệp ngoài mọi nhóm | PASS, không dòng nào |
+| im | nợ cũ trong tệp vòng chạm nhưng dòng thêm không lệch | PASS + nhãn nợ cũ |
+| đối chứng dương | bản đồ và mã nguyên vẹn sau khi crm đưa ngăn KR vào khuôn | PASS — trước khi tin mọi ca đỏ |
+
+### 11.6 Cân trên mọi kho · đường đọc cũ · giới hạn
+
+- **Kho không khai bản đồ:** lệnh không in, không ghi, thẻ không có khối — nhận bản mới không đổi một byte hành vi.
+- **Kho không phải React:** lớp kiểu và lint không áp; lệnh `kiem` dùng đường «chạy»: khuôn tự gắn
+  `data-khuon="<nhóm>"` lên phần tử gốc, bài kiểm giao diện đếm màn thiếu dấu. Đây là giới hạn đã khai, không dựng
+  trước khi có kho cần.
+- **Hồ sơ cũ:** không có `khuon-cham.json` → thẻ cờ vàng đường đọc cũ, không bắt chuyển đổi.
+- **Giới hạn đã khai, kèm ngưỡng:** thước chứng minh màn *đi qua khuôn*, không chứng minh khuôn *đúng cho người
+  dùng* (thuộc thực tế) hay màn *trông giống* (thuộc ảnh đối chiếu). Ngưỡng đếm: số lần chủ kho thấy lệch khi
+  dùng mà lưới không bắt. Hai lần giữa hai mốc thì mở lại thiết kế bản đồ.
+
+### 11.7 crm dựng bây giờ → kit rút sau
+
+| crm làm trong vòng chạy thử (việc của kho) | Thành phần kit rút ra sau |
+|---|---|
+| tệp `design/patterns/ngan-ban-ghi.md` theo §11.3 | lược đồ bản đồ + bộ đọc + bộ đo lược đồ |
+| khe bắt buộc trong `RecordSheetFrame`; ngăn KR và Số KR vào khuôn | (không rút — là vật của kho) |
+| luật oxlint cấm nhập trong thư mục ngăn bản ghi | chế độ `goi-y-lint` sinh đoạn cấu hình từ bản đồ |
+| bài kiểm dựng trên `quet-jsx.ts` cho phần lint không phủ | chế độ `kiem` + bộ đọc JSX (DFK-C1) + `khuon-cham.json` |
+| dòng «màn mẫu» trong `docs/proto.md` cho `design-pass` | bước chụp đối chiếu của skill `design-pass` |
+| (invest khai cùng lược đồ cho vùng vận hành, đo bắt đúng 2 trang lệch) | chế độ `de-xuat` + khối thẻ + dòng S0 — vòng meta có tên sau mốc kho nhận, phần CỘNG chủ kho phê |
