@@ -695,3 +695,29 @@ Một màn thuộc nhóm theo **đối tượng nó trình bày** (H1). `nhan_di
 | bài kiểm dựng trên `quet-jsx.ts` cho phần lint không phủ | chế độ `kiem` + bộ đọc JSX (DFK-C1) + `khuon-cham.json` |
 | dòng «màn mẫu» trong `docs/proto.md` cho `design-pass` | bước chụp đối chiếu của skill `design-pass` |
 | (invest khai cùng lược đồ cho vùng vận hành, đo bắt đúng 2 trang lệch) | chế độ `de-xuat` + khối thẻ + dòng S0 — vòng meta có tên sau mốc kho nhận, phần CỘNG chủ kho phê |
+
+---
+
+## 12. Bản kiến trúc để chủ kho duyệt cuối
+
+Tổng hợp §7.4, §10.3 và §11 thành MỘT hình kiến trúc tương tác (skill archify):
+[`assets/2026-10-30-kien-truc-ban-do-khuon.html`](assets/2026-10-30-kien-truc-ban-do-khuon.html).
+Đặc tả nguồn: [`assets/2026-10-30-kien-truc-ban-do-khuon.archify.json`](assets/2026-10-30-kien-truc-ban-do-khuon.archify.json).
+Hình là chiếu của chữ ở các mục trên: sửa thì sửa chữ và đặc tả, rồi xuất lại.
+
+**Cách đọc:**
+- Ba vùng: KHO giữ giá trị (trái) · KIT giữ cơ chế (giữa) · DESIGN OS cấp nguyên liệu (dưới).
+- Đường chính màu xanh đậm: bản đồ khuôn → lệnh khuôn → tệp kết quả lượt chấm → thẻ cổng → chủ kho.
+- Tác tử viết mã nằm ngoài cả ba vùng: lệnh khuôn nạp khuôn cho nó, nó điền khe vào khuôn của kho.
+- Nét đứt quanh viền trên: chỗ duy nhất người ghi vào bản đồ — khi vòng mang một đối tượng mới.
+- Bốn «guided view» ở đầu trang lọc theo từng câu hỏi: đường chính · tác tử dựng màn · người chạm ở đâu · nguyên liệu Design OS.
+
+**Biên nhận máy (30/10):** `validate --quality showcase` 9/9 kiểm, 0 lỗi, 0 cảnh báo. `deliver` đặc tả sha256
+`9ef7dea3…` (7 888 byte) → HTML sha256 `cbdfad3d…` (714 628 byte). `visual-check` không tràn ở 1440×900, 1600×1000,
+1920×1080, 2048×1320; chữ nhỏ nhất 6,45 px ở 1440 (ngưỡng 6). Máy đã tự xem ảnh sáng/tối ở khổ nhỏ nhất và lớn nhất,
+qua hai vòng sửa bằng mắt: (1) tác tử bị vùng KIT bao nhầm và đường «đối tượng mới» chạy dưới thanh điều hướng →
+đưa tác tử ra ngoài, đổi đường lên trên; (2) nhãn «đối tượng mới» bị cắt ở mép trên → đặt xuống dưới nét. Ảnh chụp
+kiểm tra để ngoài kho.
+
+**Giới hạn:** chữ của khung trình xem (Light/Dark, Present, Export, Legend, tên loại khối Frontend/Backend…) là
+tiếng Anh — trình xem chỉ có giao diện tiếng Anh và tiếng Trung; nội dung hình là tiếng Việt.
