@@ -441,3 +441,74 @@ tính khi cột phải có răng**:
 
 Thứ tự này đổi chiều so với «kit trước». Kho trả giá một tệp luật và một bài kiểm đổi lấy kết quả ngay. Kit chỉ
 đóng băng lược đồ sau khi hai kho thật đã dùng nó, nên không dựng cơ chế trên một ca duy nhất.
+
+---
+
+## 8. Design OS đã giải tới đâu, và các đội hàng đầu đã giải thế nào
+
+Câu hỏi tiếp của chủ kho (30/10): Design OS đã giải vấn đề này chưa? Trước nay con người và các đội hàng đầu giải
+nó thế nào, bằng framework hay phương thức nào?
+
+### 8.1 Design OS — đọc toàn bộ kho, không chỉ năm lệnh kit đã vendor
+
+Bản sao `~/dev/designos` có khoảng 100 lệnh; kit vendor 5. Những lệnh chạm vấn đề này:
+
+| Lệnh / tri thức | Làm gì | Có giải lệch giữa các màn không |
+|---|---|---|
+| `reuse-plan check` + `design-reuse-ladder.md` (đã vendor) | thang 7 bậc; bậc 2 = mẫu màn khai sẵn; mỗi màn phải có dòng `Pattern:` | **giải nửa ý định**: tác tử phải khai khuôn trước khi dựng. Tự khai là không kiểm mã đã dựng |
+| `synthesize-conventions` | học «ngữ pháp đã áp dụng» từ màn thật, sinh `CONVENTIONS.md` (DO/DON'T có số đếm theo bố cục, màu, khoảng cách, bo góc, chữ, thành phần, từng phần) | gần nhất với «khởi tạo bản đồ khuôn» — nhưng đầu vào là bản quét **Figma**, không phải mã; tách lệch chủ yếu ở tầng giá trị |
+| `vr` | so ảnh tất định (diff · gate · accept) | giữ một màn không trôi khỏi ảnh nền của **chính nó**; không so màn mới với màn mẫu |
+| `ds-usage-lint`, `token-coverage`, `gate` | trang có dùng token của hệ không | tầng token, trên HTML |
+| `pattern` + `pattern-cards.md` | thẻ mẫu màn rút từ màn sản phẩm khác (đếm trên n, sàn n ≥ 8) | bằng chứng thị trường «thường có gì», tự khai **không phải quyết định** |
+| `templates`, `registry`, `scan` | danh mục khuôn, sổ thành phần, dò tín hiệu thiết kế của dự án | nguyên liệu; không có bước kiểm vật theo khuôn |
+
+**Kết luận về Design OS:** nó đã **chẩn đúng bệnh** và có đủ **nguyên liệu**: thang dùng lại, học quy ước từ màn
+thật, so ảnh, sổ thành phần. Nó **chưa** có mắt xích cuối: kiểm *mã đã dựng* có đi qua khuôn đã khai, quét trên
+toàn bộ màn cùng loại. Đó đúng là bậc T2 của §7.2, và cũng là thứ các đội hàng đầu dưới đây đã phải tự dựng.
+
+### 8.2 Con người đã giải thế nào — bốn thời kỳ
+
+| Thời kỳ | Cách giải | Người giữ nhất quán | Hạn chế |
+|---|---|---|---|
+| **Sổ tay quy chuẩn** (in ấn, nhận diện; vd. sổ quy chuẩn đồ hoạ của NASA 1975, hệ biển báo tàu điện New York) | luật bằng chữ + hình mẫu | một nhóm trung tâm duyệt từng ấn phẩm | nút cổ chai người duyệt; luật chữ trôi khi nhóm duyệt vắng mặt |
+| **Thư viện thành phần** (Bootstrap 2011, rồi design system của từng hãng: Material 2014, Salesforce Lightning + công cụ token 2014–15, Airbnb DLS 2016) | thành phần + token **trong mã** — nhất quán nhờ dùng chung | nhóm design system + designer chọn mẫu ở Figma trước khi kỹ sư code | thành phần thống nhất nhưng **bố cục màn** vẫn do từng đội ghép |
+| **Mẫu cấp trang** (Atomic Design 2013 đặt tên tầng *template*; Polaris có khuôn «Resource index», «Resource details», «App settings»; Material có bố cục chuẩn danh sách–chi tiết; GOV.UK có mẫu kèm nghiên cứu và mục «khi nào KHÔNG dùng») | khuôn trang có khe + hướng dẫn chọn khuôn theo loại màn | designer + duyệt thiết kế | chọn đúng khuôn vẫn là việc của người |
+| **Ép bằng máy trong CI** | luật lint của chính design system: Atlassian `use-primitives` (bắt dùng primitive) và `ensure-design-token-usage`; Primer `direct-slot-children` (ràng cấu trúc khe), `no-deprecated-props`; Shopify `stylelint-polaris` (hơn 40 luật xếp theo nhóm để **đo độ phủ** hệ trên mã admin, có lệnh chèn chú thích bỏ qua cho mã cũ để bật được ngay); codemod để di chuyển hàng loạt | máy | phần lớn mới ép tầng token và thành phần; tầng khuôn trang ít đội ép bằng máy |
+
+Song song có một nguyên lý từ kỹ thuật nền tảng: **«đường lát sẵn»** (Netflix: *paved road*; Spotify: *golden
+path*). Không ép ai, nhưng làm đường đúng **tốt và dễ hơn hẳn** mọi lối khác (khuôn khởi tạo, công cụ có sẵn), nên
+các đội tự chọn nó. Đây chính là bậc T0–T1 của §7.2.
+
+### 8.3 Đội hàng đầu giữ nhất quán bằng bốn chân — và chân nào gãy khi tác tử viết mã
+
+1. **Một nguồn:** token + thành phần + khuôn trang có khe.
+2. **Đường lát sẵn:** khuôn khởi tạo; đường đúng là đường rẻ nhất.
+3. **Ép và đo bằng máy:** luật lint trong CI, số độ phủ, mã cũ được ghi bỏ qua chứ không chặn.
+4. **Quản trị đóng góp:** mẫu không vừa thì *đóng góp vào hệ* (nhóm hệ duyệt), không tự chế ở màn.
+
+**Chân thứ năm, ẩn:** trong quy trình của người, **designer chọn khuôn trước khi kỹ sư viết dòng nào**, và duyệt
+thiết kế bắt phần còn lại. Khi tác tử viết mã đi thẳng từ yêu cầu sang mã, bước đó biến mất. Điểm chọn «khuôn nào»
+trở thành **điểm chọn không ai giữ**. Đó là lý do lệch tăng rõ ở kho do tác tử viết, dù ba chân đầu vẫn còn: crm có
+nguồn chung, có khung, có hai răng — nhưng không ai giữ điểm chọn khuôn.
+
+**Vì vậy nghiệm cho kho do tác tử viết = bốn chân của đội hàng đầu + máy thay chỗ designer ở chân năm:**
+
+| Chân | Đội hàng đầu | Kho do tác tử viết (cơ chế §7.4) |
+|---|---|---|
+| Một nguồn | design system + khuôn trang | tệp bản đồ khuôn của kho |
+| Đường lát sẵn | khuôn khởi tạo | S1 nạp khuôn + màn mẫu vào ngữ cảnh; S3 sinh khung |
+| Ép và đo | lint CI + số độ phủ | S4 kiểm vật theo khuôn; mã cũ thành nhãn, không chặn |
+| Quản trị đóng góp | nhóm hệ duyệt đóng góp | «sửa khung, không thoát khung», ngoại lệ có lý do lên thẻ |
+| **Designer chọn khuôn** | người | **máy xếp loại theo bản đồ; chỉ màn thuộc loại mới mới hỏi người, ở Cổng Phạm vi sẵn có, một lần mỗi loại** |
+
+Cột phải không phát minh gì mới về nguyên lý — nó dịch đúng cách đã chạy ở Shopify, Atlassian, GitHub sang chỗ
+mà người đã rời khỏi giữa vòng. Thứ thật sự mới chỉ là chân năm.
+
+**Nguồn tra cứu (30/10):** [Stylelint Polaris](https://polaris.shopify.com/tools/stylelint-polaris) ·
+[Polaris patterns (bản lưu)](https://shopify.github.io/polaris-react-archive/patterns) ·
+[Atlassian `ensure-design-token-usage`](https://atlassian.design/components/eslint-plugin-design-system/ensure-design-token-usage) ·
+[`@atlaskit/eslint-plugin-design-system`](https://npmjs.com/package/@atlaskit/eslint-plugin-design-system) ·
+[`eslint-plugin-primer-react`](https://www.npmjs.com/package/eslint-plugin-primer-react) ·
+[Spotify paved paths (InfoQ)](https://www.infoq.com/jp/news/2021/05/spotify-paved-paths) ·
+[Golden paths (platformengineering.org)](https://platformengineering.org/blog/how-to-pave-golden-paths-that-actually-go-somewhere).
+Mốc năm của sổ tay NASA, Bootstrap, Material, Atomic Design, Airbnb DLS ghi theo hiểu biết chung, chưa tra lại.
