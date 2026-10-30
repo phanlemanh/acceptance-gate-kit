@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c4978485077faa029ae9ff78ecf9af1c78d7edec
+verified_commit: 2b3bcc2522dd202109af0c65579cd21f572940eb
 human_signoff: Manh Phan 2026-10-30
 ---
 
@@ -193,3 +193,7 @@ none — khong eval nao chay nhieu lan; moi eval deterministic.
 Round 1: E1–E9 chay lan dau, ket qua duoc carry-forward sang round 3 (delta khong cham paths cua eval).
 Round 2: S4 luot 2 bi tu choi — so known-limits thieu hang (P179); da them 8 hang so known-limits.
 Round 3: E1–E9 carry-forward tu round 1; 11 lenh suite chay lai tren verified_commit, tat ca xanh. Verdict PASS. (verified_at cua khoi suite la gio ghi bao cao xap xi, khong lay tu run-log.)
+
+### Re-pin lần 1 — 2026-10-30, do gộp main c0cf637f và ẩn danh đường dẫn kho tiêu thụ trong run-log; vật của vòng không đổi
+run_id: repin-20261030T005532Z-51067
+sha: 2b3bcc2522dd202109af0c65579cd21f572940eb · suites: 11 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
