@@ -1,0 +1,115 @@
+schema_version: 1
+feature_slug: tep-sinh-khong-chan-gop
+# Ca đo của vòng: tên ca mở bằng «TS-», ở tests/scripts/tep-sinh-khong-chan-gop.test.mjs. Khoá executor:
+#   executors.test.tep_sinh — chạy trọn tệp; mỗi ca in «PASS: TS-…» hay «FAIL: TS-… — <lý do>», tệp thoát khác 0 khi có
+#     ca đỏ. Lọc ca bằng TS_CASES.
+# Kho thử do code sinh trong lượt (git init trong thư mục tạm, hồ sơ và tệp lộ trình viết bằng khuôn của bên đọc rồi vẽ
+# bằng CHÍNH scripts/product-map.mjs của cây đang đo, chạy bằng tiến trình con với --root kho thử). Khối bật rút NGUYÊN VĂN
+# từ khối GITATTR-TEP-SINH của GUIDE.md trong cây đang đo — hai dòng thuộc tính ghi vào .gitattributes, dòng lệnh cấu hình
+# chạy trong kho thử. git thật gộp thật, CÔ LẬP khỏi cấu hình máy chấm: mọi tiến trình git (và product-map, lệnh của
+# khối) chạy với GIT_CONFIG_GLOBAL trỏ một tệp rỗng do ca tạo, GIT_CONFIG_NOSYSTEM=1, danh tính commit khai tường minh
+# qua biến môi trường, commit.gpgsign=false. Mỗi ca đỏ chạy CHÍNH hàm đo trên BẢN SAO bị tiêm (bản sao trọn `scripts` + `lib`
+# cho mã; bản sao chuỗi khối cho khối bật), SAU khi bản lành xanh trên cùng fixture, kiểm nhát tiêm khớp đúng một lần, và
+# ghim thông điệp. Ma trận viết sẵn: số assert = số hàng, in ra. Mốc so là sha GHIM
+# c0cf637f88fa33a4f30ade8cd1ec68212dd2fa26 (hằng trong tệp test), không suy lúc chạy. Mọi đường suy từ vị trí tệp test.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [.gitattributes, GUIDE.md, scripts/product-map.mjs, scripts/lo-trinh.mjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-1 gop-khong-dung": kho thử bật đủ; ma trận viết sẵn hai hàng — «ho-so» (nhánh a thêm hồ sơ
+      A, nhánh chinh thêm hồ sơ B, mỗi nhánh vẽ lại rồi commit; assert hai bản PRODUCT-MAP.md và hai bản LO-TRINH.html
+      của hai nhánh KHÁC nhau trước khi gộp) · «hang-khac» (hai nhánh sửa cau_giao của hai hàng khác nhau của tệp lộ trình,
+      vẽ lại, commit; assert hai bản LO-TRINH.html khác nhau) — trên nhánh a `git merge chinh` thoát 0, `git diff
+      --name-only --diff-filter=U` rỗng, PRODUCT-MAP.md và LO-TRINH.html bằng từng byte bản ở đỉnh nhánh a trước gộp; in
+      «số hàng: 2». Dòng "PASS: TS-1-do thieu-dong": bản lành xanh; bản sao khối bật bỏ dòng LO-TRINH.html (kiểm nhát
+      tiêm khớp một lần) → danh sách lỗi của hàm kiểm BẰNG ["ho-so: xung đột: LO-TRINH.html", "hang-khac: xung đột:
+      LO-TRINH.html"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-2 check-dung-tep": sau lần gộp của TS-1, `node scripts/product-map.mjs --root <kho thử>
+      --check` chưa vẽ lại — hàng «ho-so» thoát 1, stderr chứa "PRODUCT-MAP.md lệch" và "LO-TRINH.html lệch"; hàng
+      «hang-khac» thoát 1, stderr chứa "LO-TRINH.html lệch" và KHÔNG chứa "PRODUCT-MAP.md lệch", stdout chứa
+      "PRODUCT-MAP.md khớp"; chạy lệnh vẽ (không --check) rồi --check → thoát 0 ở cả hai hàng, PRODUCT-MAP.md hàng
+      «ho-so» chứa slug A và slug B. Dòng "PASS: TS-2-do bo-so-trang": bản lành xanh; bản sao trọn scripts + lib mà
+      product-map.mjs bỏ phép so LO-TRINH.html của --check (kiểm nhát tiêm khớp một lần) → danh sách lỗi BẰNG
+      ["hang-khac: --check xanh trên bản vẽ cũ"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [.gitattributes, GUIDE.md, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-3 khong-bat-nhu-cu": cùng hai nhánh hàng «ho-so» của TS-1, ma trận viết sẵn hai hàng —
+      «khong-thuoc-tinh» (không .gitattributes) · «chua-cau-hinh» (hai dòng thuộc tính của khối bật, KHÔNG chạy lệnh cấu
+      hình; ca ghi `merge.tep-sinh.driver true` vào một tệp cấu hình toàn cục GIẢ khác tệp cô lập để chứng lớp cô lập có tác
+      dụng, rồi assert `git config --get merge.tep-sinh.driver` thoát khác 0 trong kho thử) — `git merge chinh` thoát 1 và
+      danh sách `git diff --name-only --diff-filter=U` sắp xếp BẰNG ["LO-TRINH.html", "PRODUCT-MAP.md"]; in «số hàng: 2».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [.gitattributes, GUIDE.md, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-4 nguon-van-xung-dot": kho thử bật đủ, hai nhánh sửa cau_giao của CÙNG một hàng tệp lộ trình
+      bằng hai câu khác nhau, mỗi nhánh vẽ lại rồi commit — `git merge chinh` thoát 1, danh sách tệp xung đột BẰNG
+      ["docs/plan/lo-trinh.json"]. Dòng "PASS: TS-4-do nuot-nguon": bản lành xanh; bản sao khối bật thêm dòng
+      "*.json merge=tep-sinh" → danh sách lỗi BẰNG ["xung đột nguồn bị nuốt"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [.gitattributes, GUIDE.md, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-5 kit-tu-bat": khối GITATTR-TEP-SINH rút từ GUIDE.md của cây đang đo có đúng hai dòng thuộc
+      tính BẰNG ["PRODUCT-MAP.md merge=tep-sinh", "LO-TRINH.html merge=tep-sinh"] và đúng một dòng lệnh BẰNG
+      "git config merge.tep-sinh.driver true"; mọi dòng thuộc tính của khối có trong .gitattributes của cây. Dòng
+      "PASS: TS-5-do thieu-dong-kit": bản lành xanh; chuỗi .gitattributes bỏ dòng LO-TRINH.html (kiểm nhát tiêm khớp một
+      lần) → danh sách lỗi BẰNG [".gitattributes thiếu: LO-TRINH.html merge=tep-sinh"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, lib/workspace-record.cjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-6 thu-muc-rong": kho thử có lộ trình, vẽ và commit; tạo `_acceptance/rong/` rỗng và
+      `_acceptance/rong2/figures/` rỗng — PRODUCT-MAP.md và LO-TRINH.html vẽ lại vào thư mục tạm BẰNG từng byte bản đã
+      commit, `--check` thoát 0; đối chứng cùng kho: thêm `_acceptance/la/ghi-chu.txt` → bản đồ của bản mới có dòng
+      "`la` — không đọc được hồ sơ" và PRODUCT-MAP.md của bản mới bằng từng byte bản của sha ghim (git archive scripts lib)
+      trên cùng kho. Dòng "PASS: TS-6-do loc-ban-do": bản lành xanh; bản sao trọn scripts + lib gỡ phép lọc ở bản đồ
+      (kiểm nhát tiêm khớp một lần) → danh sách lỗi BẰNG ["rong được xếp Hồ sơ hỏng"]. Dòng "PASS: TS-6-do loc-trang":
+      bản sao gỡ phép lọc ở trang lộ trình → danh sách lỗi BẰNG ["rong được đếm ngoài lộ trình"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.tep_sinh
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, lib/workspace-record.cjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: TS-7 duong-doc-cu": ma trận viết sẵn ba kho thử không .gitattributes, không thư mục rỗng —
+      «lo-trinh» (khai lo_trinh, hai hồ sơ) · «khong-lo-trinh» (không khai lo_trinh, hai hồ sơ) · «tep-la» (khai lo_trinh,
+      thêm _acceptance/la/ghi-chu.txt) — PRODUCT-MAP.md và (khi có) LO-TRINH.html do bản ở sha ghim (git archive trọn
+      scripts lib, assert bản cũ không có chuỗi "coTepTrongCay") và bản cây đang đo vẽ BẰNG từng byte; in «số hàng: 3».
+      Dòng "PASS: TS-7-do lech": bản lành xanh; bản sao cây đang đo chèn một dòng vào đầu bản đồ (kiểm nhát tiêm khớp một
+      lần) → danh sách lệch BẰNG ["lo-trinh", "khong-lo-trinh", "tep-la"].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.product_map
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, lib/workspace-record.cjs, PRODUCT-MAP.md, LO-TRINH.html]
+    expected: >
+      exit 0; stdout chứa "PRODUCT-MAP.md khớp hồ sơ xưởng." và "LO-TRINH.html khớp tệp ý định và hồ sơ."; bốn suite
+      của feature_loop.suite_keys chạy ở suiteCommands của lượt chấm đều thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
