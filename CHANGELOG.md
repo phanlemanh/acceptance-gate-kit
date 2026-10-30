@@ -10,6 +10,221 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.36.0 — 30/10/2026
+
+Mốc **tinh chỉnh sau hai đợt thử** (đợt `tinh-chinh-2610`): sửa những gì hai kho tiêu thụ vấp sau 2.34.0 và 2.35.0 —
+giám sát của đợt bị báo «không có nhịp sống» khi đang chạy, lệnh của đợt ghi nhầm hàng, gộp nhánh chính dừng ở hai tệp
+sinh, kiểm bản cài đọc lệch tài liệu thành ĐỎ, đường nền đỏ «THIẾU» với tệp kịch bản có thật, làn đối chứng của lượt
+chấm không chạy dòng nào. Chủ kho giao từ đầu đợt: đủ các hàng gộp thì cắt bản. Có **sáu hồ sơ được ký** — tập đối
+chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `danh-thuc-doc-nhip-dung-ma` (TC1, #419),
+`cong-cu-xet-tep-ton-tai` (TC5, #447), `kiem-ban-cai-loi-sua-chay-duoc` (TC4, #448), `lenh-dot-ghi-dung-hang` (TC2,
+#449), `doi-chung-chay-duoc` (TC6, #450), `tep-sinh-khong-chan-gop` (TC3, #452). Ngoài vòng: #443 (dòng KC1 của 2.35.0) ·
+#444 (gói đợt `tinh-chinh-2610`). Lộ trình DFK (#446) chưa gộp, mốc không chờ. Kho chờ nhận: `invest` trước, `crm` sau.
+Mốc đi **làn V**, không dựng răng mới. Năm gói `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc`
+cùng lên `2.36.0` (`acceptance-gate`, `feature-loop`, `dieu-phoi` đổi vật; `road-map`, `tri-thuc` chỉ đổi số);
+`diagram-design` giữ `2.7.1`. Thẻ `v2.36.0` gắn vào commit gộp PR mốc.
+
+**Vì sao 2.36.0, không 2.35.1** (minor; chủ kho gọi đợt là «bản vá»): theo nếp «minor cho bề mặt mới» (tiền lệ
+2.33.1 khai thẳng chỗ lệch nếp ấy), đợt này có bề mặt mới, không gãy đường đọc-cũ — lệnh `hang chay-lai` của gói
+`dieu-phoi`, `hang them` nhận mã hay slug của lộ trình, khối bật theo lựa chọn `GITATTR-TEP-SINH` (hai dòng
+`.gitattributes` + driver gộp `tep-sinh`), khoá `ma_app` của tệp nhịp và `phien_cli` của vai giám sát. Kho không khai
+thuộc tính thì gộp như cũ; vai và tệp nhịp đời trước đọc ra y như trước. Bốn đổi hành vi chạm kho đang dùng, khai thẳng
+ở «Ai bị ảnh hưởng» dưới: đơn `xin s4` không cờ lấy slug của hàng đang chấm (từ chối khi hai hồ sơ cùng bậc); bộ phát
+lịch tính hồ sơ `T1` trên nhánh chính là đã gộp; thư mục hồ sơ không tệp nào biến khỏi bản đồ và trang lộ trình; làn
+đối chứng của lượt chấm nay chạy thật nên thẻ Cổng Bằng chứng có thể mang cột «xanh cả hai phía».
+
+### Đánh thức đọc nhịp sống bằng đúng mã phiên (hồ sơ `danh-thuc-doc-nhip-dung-ma`, hàng TC1, T2)
+
+Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt Điều phối – Thợ `dieu-phoi-dot0-cam-mau` (23–26/10) và đợt crm
+`lo-trinh-tin-hieu` (19–20/10) cùng vấp: lịch 30′ gần như lần nào cũng trả `bao-chu-kho` «giám sát không có nhịp sống»
+khi giám sát đang chạy.
+
+- **Vật:** đánh thức và chẩn đoán đọc nhịp sống của giám sát bằng đúng mã phiên mà hook ghi — hook tự khai mã app
+  (`ma_app` trong `song/<mã CLI>.json`, từ `CLAUDE_CODE_HOST_SESSION_ID`), vai tự ghi mã CLI (`phien_cli` trong
+  `vai.json`, từ `CLAUDE_CODE_SESSION_ID`); phiên giám sát mở trước khi nạp gói được nói ra đúng tên («hook của gói
+  chưa nạp trong phiên này», `hook_thieu`). Vai một mã và tệp nhịp đời trước cho đầu ra giống từng byte bản trước;
+  vai chỉ mã app mà nhịp chưa mang mã app → một dòng vàng ở `chan-doan`, mã thoát không đổi.
+- **Lời dặn:** `--phien` ở `tiep-tuc`, `ban-giao`, `mo-dot` là mã app (`local_…`); máy tự ghi mã CLI; ngoài app dùng mã
+  CLI.
+- **Giới hạn đã khai:** 5 mục chọn ở Cổng Bằng chứng 26/10 và 11 mục chọn ở Cổng Bằng chứng 29/10, ở Notes hợp đồng —
+  đáng nhớ nhất: Ngoài-1 «Phiên giám sát từng có hook rồi gói bị nâng hay gỡ giữa phiên vẫn được coi là còn hook, nên
+  chủ kho nhận lời báo «chạy lại vai giám sát» thay vì «mở phiên mới».» và Ngoài-10 «Sau khi gộp, vòng nào sửa thân một
+  ca kiểm thử điều phối cũ sẽ gặp CI đỏ cho tới khi ghi thêm dòng vào sổ của hồ sơ này.»
+
+### Lệnh của đợt ghi đúng hàng (hồ sơ `lenh-dot-ghi-dung-hang`, hàng TC2, T2)
+
+Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt Điều phối – Thợ `dieu-phoi-dot0-cam-mau` (25–26/10): khoá s4 ghi
+slug của hàng kế, `hang them F12` thêm hàng
+slug `f12`, và không có lệnh ngược của `hang nghi` — giám sát sửa tay `hang-viec.json` trong khoá.
+
+- **Vật:** đơn xin s4 không cờ mang slug của hàng đang chấm, `hang them` nhận mã hay slug của lộ trình và thêm hàng mang
+  đúng slug và mã, và một dãy đã nghỉ chạy lại được bằng `hang chay-lai` — không còn sửa tay `hang-viec.json`.
+- **`xin`:** slug theo thứ tự `--slug` → hồ sơ đang chấm (`implemented`, `verified`) → hồ sơ đã thông chưa gộp →
+  `tiep`; hai hồ sơ cùng bậc → từ chối, in tên từng hồ sơ và lời dặn `--slug`, không ghi đơn. `xin ghim-lai` và `xin
+  merge` bỏ bậc đang chấm; `xin duong-nen` giữ lối `tiep`.
+- **`hang them <mã|slug>`:** tra `hang-viec.json` → tệp lộ trình của nguồn hàng theo mã rồi theo slug (hàng thêm mang
+  `slug`, `ma` và vùng của hàng ấy) → đối số đã có dạng slug thì giữ nguyên → chỉ câu tự do mới suy slug.
+- **`hang chay-lai <dãy>`** — lệnh ngược của `hang nghi`: gỡ khoá `nghi`, một dòng Nhật ký, một sự kiện `doi-ke-hoach`
+  kiểu `chay-lai`; dãy chưa nghỉ thì không làm gì.
+- **Bộ phát lịch** tính hồ sơ `risk_tier: T1` có trên nhánh chính là đã gộp — hồ sơ T1 không qua cổng nên giữ `draft`
+  mãi (mục c5 của M5 ở kit #308, Hỏi-1 ở Cổng Phạm vi).
+- **Giới hạn đã khai:** 1 mục chọn ở Cổng Bằng chứng 30/10, ở Notes hợp đồng: Ngoài-2 «Ở kho ghi mức rủi ro T1 có ngoặc
+  kép hay chữ thường, hồ sơ T1 đã gộp vẫn bị lịch coi là đang làm nên dãy không tiến tiếp, và không có cảnh báo; kho
+  viết `T1` chuẩn không bị.»
+
+### Gộp nhánh chính không dừng ở hai tệp sinh (hồ sơ `tep-sinh-khong-chan-gop`, hàng TC3, T2)
+
+Gốc: onehub-invest/_acceptance/lo-trinh-2310/ — đợt Điều phối – Thợ `dieu-phoi-dot0-cam-mau` (25–26/10) gần như mỗi
+lần gộp xung đột ở hai tệp sinh; kho thứ nhất là crm 16/10 (PR #432 gộp lại ba lần trong một giờ).
+
+- **Vật:** gộp nhánh chính vào nhánh PR không dừng ở `PRODUCT-MAP.md` hay `LO-TRINH.html` ở kho đã bật, và bản vẽ sai
+  sau gộp vẫn bị `--check` bắt. **Bật theo lựa chọn** — khối máy đọc `GITATTR-TEP-SINH` ở GUIDE: hai dòng
+  `PRODUCT-MAP.md merge=tep-sinh` · `LO-TRINH.html merge=tep-sinh` vào `.gitattributes`, và `git config
+  merge.tep-sinh.driver true` một lần trên MỖI bản clone. Driver giữ bản của nhánh đang đứng; vẽ lại bằng `node
+  scripts/product-map.mjs --root .` rồi commit. Xung đột ở tệp nguồn vẫn dừng như thường. Kit tự bật.
+- **Thư mục hồ sơ không tệp nào** (git không giữ được) không vào bản đồ, trang lộ trình và bộ quét vào phiên — cùng
+  một hàm `coTepTrongCay` của `lib/workspace-record.cjs` (mục c2 của M5 ở kit #308, Hỏi-1 ở Cổng Phạm vi).
+- **Giới hạn khai:** «PR cắt trước khi `.gitattributes` có hai dòng vẫn xung đột ở lần gộp đầu (git đọc thuộc tính ở
+  nhánh đang đứng); bản clone chưa chạy lệnh cấu hình xung đột như cũ; trên web GitHub PR vẫn báo xung đột ở tệp sinh
+  (forge không chạy driver máy) — cố ý, giữ lưới của forge; PR chạm hồ sơ vẫn gộp nhánh chính vào và vẽ lại mỗi lần
+  nhánh chính dời (chỉ hết dừng gỡ tay)» — và 3 mục chọn ở Cổng Bằng chứng 30/10, ở Notes hợp đồng — đáng nhớ nhất:
+  Ngoài-2 «Thư mục rỗng sót lại trùng đúng tên một hàng lộ trình vẫn làm trang báo hàng đó hỏng và bước kiểm bản vẽ
+  đỏ; xoá thư mục ấy là hết.»
+
+### Kiểm bản cài sau thẻ có lối sửa chạy được (hồ sơ `kiem-ban-cai-loi-sua-chay-duoc`, hàng TC4, T2)
+
+Gốc: onehub-invest/_acceptance/nang-kit-2-34-0/ — lần nhận 2.34.0 (25/10) vấp ba chỗ của lệnh kiểm bản cài ở chế độ
+máy thật: lệch chỉ ở ba tệp không chạy sau thẻ đọc thành ĐỎ; bản clone thiếu thẻ chỉ nói «ref không có»; lời khuyên
+cho bản ghi cây phụ không chạy được.
+
+- **Vật:** kiểm bản cài sau thẻ phân biệt lệch mã với lệch chỉ ở tệp không chạy (`docs/**`, `_acceptance/**`,
+  `LO-TRINH.html`, tính theo đường từ gốc kho), chỉ lệnh lấy thẻ khi bản clone thiếu thẻ, và in cho mỗi bản ghi cây phụ
+  lệch số một lối sửa chạy được.
+- **Giới hạn đã khai:** 15 mục chọn ở Cổng Bằng chứng 29/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-1 «Khi một gói đã
+  bị gỡ hay đổi tên khỏi chợ, lệnh kiểm vẫn khuyên nâng bản ghi gốc của cây phụ rồi chạy lại — việc không làm được — và
+  không nói thẳng gói không còn trong chợ.» và Ngoài-7 «Lệnh kiểm có thể báo lỗi ngay sau khi đã in ĐẠT nếu bước dọn
+  thư mục cấu hình tạm của nó gặp trục trặc; bản cài vẫn nguyên.»
+
+### Chân công cụ của đường nền xét tệp có tồn tại (hồ sơ `cong-cu-xet-tep-ton-tai`, hàng TC5, T2)
+
+Gốc: khuôn kit của `executors.design.ui_check` là một đường tệp `.js` không có quyền chạy, nên kho nào ghim đường thật
+cho khoá ấy thì chân đỏ «THIẾU» ở mọi dãy dù tệp có trên đĩa (lần nhận 2.34.0 của một kho tiêu thụ, 25/10; tái hiện trên
+kit `45e9f2cf` — hạt giống `docs/plans/2026-10-26-hat-giong-muoi-loi-kit-tu-dot-cam-mau-onehub-invest.md` mục 4).
+
+- **Vật:** chân `cong_cu` của đường nền xét một từ đầu là đường tệp kịch bản theo việc tệp có tồn tại, không theo quyền
+  chạy, và vẫn đỏ đúng tên khi chương trình hay tệp vắng (khối marker `CONG-CU-DUONG-TEP` của
+  `feature-loop/scripts/duong-nen.mjs`). Khuôn `${CLAUDE_PLUGIN_ROOT}/…` vẫn bỏ tra với một dòng stderr như trước.
+- **Giới hạn đã khai:** 2 mục chọn ở Cổng Bằng chứng 29/10, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-2 «Bảng mô tả bốn
+  chân trong khuôn đường nền giao cho kho tiêu thụ vẫn tả luật cũ của chân công cụ.» Ngoài-3 thành hạt giống
+  `docs/plans/2026-10-29-hat-giong-ten-tran-kich-ban-goc-kho.md`.
+
+### Làn đối chứng của lượt chấm chạy được (hồ sơ `doi-chung-chay-duoc`, hàng TC6, T2)
+
+Gốc: từ 23/10 đề bài làn đối chứng S4 bảo tác tử «dùng công cụ ghi tệp (Write)», mà vai ấy chạy bằng loại tác tử
+`feature-loop:cham-lenh` chỉ có Bash, Read, Grep, Glob — mọi lượt chấm ở mọi kho ra «No such tool available: Write»,
+đối chứng không chạy dòng nào (kho tiêu thụ báo trên 2.35.0; kit: FL5, `_acceptance/design-floor-moc-s3-s4/`).
+
+- **Vật:** bước đối chứng của lượt chấm S4 chạy lại các lệnh máy trên commit gốc và phân loại được eval xanh cả hai
+  phía, không còn BLOCKED vì tác tử đối chứng thiếu công cụ ghi tệp. Kit sinh sẵn LỆNH GHI tệp kịch bản (heredoc + dấu
+  kiểm), tác tử chỉ gọi Bash; tác tử chấm vẫn không cầm bút. Lệnh ghi chép lệch một byte hay thiếu một dòng → đối chứng
+  bị loại, không chạy nhầm.
+- **Giới hạn khai:** «Bộ canh lệnh của Claude Code đọc cả thân heredoc thì bước ghi bị từ chối — làn rơi về «chưa chạy
+  dòng nào», thẻ Cổng 2 nói ra (cờ đối chứng có sẵn). Ngưỡng mở lại: ≥1 lượt chấm sau bản này có dòng
+  `baseline-khong-do` mang chữ từ chối của bộ canh hay của móc điều phối.» — và 12 mục chọn ở Cổng Bằng chứng 30/10, ở
+  Notes hợp đồng — đáng nhớ nhất: Ngoài-6 «Khi môi trường chặn ghi kịch bản, báo cáo lượt chấm đổ lỗi cho tác tử và
+  giấu mất dòng lỗi thật; người đọc phải xem nhật ký để chẩn đoán.»
+
+### Ngoài vòng
+
+- **Dòng KC1 của 2.35.0** (#443): kiểm bản cài sau thẻ `v2.35.0` — ĐẠT 8/8.
+- **Gói đợt `tinh-chinh-2610`** (#444): hàng việc, cấu hình và luật riêng của đợt.
+
+**Ai bị ảnh hưởng:**
+
+- Kho có đợt Điều phối: giám sát mở trong app không còn bị báo «không có nhịp sống» khi đang chạy; giám sát mở trước
+  khi nạp gói nhận lời «mở phiên mới». Đơn `xin s4` không cờ nay lấy slug của hàng đang chấm thay vì hàng kế — hai hồ sơ
+  cùng bậc thì lệnh từ chối và đòi `--slug`. Hồ sơ `T1` trên nhánh chính được tính là đã gộp, nên dãy tiến tiếp thay vì
+  đứng chờ.
+- Kho có thư mục `_acceptance/<x>/` rỗng (không tệp nào) trên đĩa: thư mục ấy biến khỏi `PRODUCT-MAP.md`, trang lộ
+  trình và bộ quét vào phiên — bản vẽ trên máy nay khớp bản clone sạch.
+- Mọi kho chạy lượt chấm S4: làn đối chứng chạy thật, nên lượt chấm có thêm vài lệnh trên commit gốc (phút máy ↑ nhẹ) và
+  thẻ Cổng Bằng chứng có thể liệt eval «xanh cả hai phía» (không phân biệt được vật mới với vật cũ).
+- Kho ghim đường tệp kịch bản cho một executor: chân `cong_cu` của đường nền thôi đỏ «THIẾU» oan.
+- Kho chạy `kiem-ban-cai.mjs --may` sau khi nhận: lệch chỉ ở tài liệu và hồ sơ là vàng, không ĐỎ; bản ghi cây phụ lệch
+  số có lệnh sửa in sẵn.
+
+**Đường đọc-cũ:** kho không khai hai dòng thuộc tính → gộp như cũ; vai một mã và tệp nhịp đời trước → đầu ra giống từng
+byte bản trước; đơn có `--slug` và đơn không cờ khi dãy không có hồ sơ chấm được → như cũ; `hang them` với câu tự do →
+như cũ.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI:** chép lại từ thẻ `v2.36.0` hai tệp `lib/workspace-record.cjs` và `scripts/product-map.mjs` (CÙNG
+  NHAU — bản đồ mới gọi hàm mới của bộ đọc hồ sơ), và `scripts/lo-trinh.mjs` CHỈ khi kho khai `lo_trinh` (nhãn
+  `[only-if-declared: lo_trinh]`). Các tệp còn lại giống từng byte `v2.35.0`. Sau khi chép, chạy `node
+  scripts/product-map.mjs --root .` rồi commit nếu kho có thư mục hồ sơ rỗng.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.36.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, `tri-thuc` nếu dùng — rồi kiểm
+  `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.36.0 --root <bản clone kit đã git fetch
+  --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI (hook của `dieu-phoi` nạp lúc mở phiên).
+- **Lệnh trỏ bộ đệm có số** (`…/acceptance-gate/2.35.0/scripts/…`) trong `_acceptance/config.yaml` phải đổi số — hay
+  tốt hơn, đổi sang đường không số (GUIDE §5.3).
+- **Tuỳ chọn — gộp không dừng ở tệp sinh:** chép hai dòng của khối `GITATTR-TEP-SINH` (GUIDE) vào `.gitattributes` của
+  kho và chạy `git config merge.tep-sinh.driver true` trên mỗi bản clone.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.36.0` (KC1) — dòng TỔNG KẾT ghi vào
+hồ sơ `release-2-36-0`.
+
+**invest** (đang ở 2.35.0): năm trong sáu hồ sơ có gốc ở lần nhận và đợt của kho này (TC1–TC5) —
+nhận theo các bước trên; kho khai `lo_trinh` nên chép cả ba tệp; bật khối `GITATTR-TEP-SINH` nếu muốn hết dừng gỡ
+tay ở hai tệp sinh. Thí điểm nền thiết kế bậc M1 của 2.35.0 không đổi.
+
+**crm** (nhận sau invest): như trên — kho khai `lo_trinh`, chép cả ba tệp.
+
+**Năm dòng số của luật (c)** — sáu vòng gộp trong cửa sổ (giờ VN). Cùng định nghĩa mốc 2.35.0: làm-xong = commit đưa
+hợp đồng sang `implemented` · ký = commit đầu đưa `status:` sang `signed-off` · gộp = commit đầu trên lối cha-đầu của
+nhánh chính có commit ký là tổ tiên. Dòng 2 đếm từ sổ quyết định, commit cổng, Nhật ký và sổ sự kiện của đợt. Dòng 4–5
+từ bảng vai trò của `usage-report.md`. Cả sáu hồ sơ T2 (trần 3).
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `danh-thuc-doc-nhip-dung-ma` (TC1) | 4 g 41 · 73 g 25 ‡ · 5 (lượt 1 REJECT: phép đo AC-8 dò chuỗi thay vì quan hệ; lượt 2 REJECT chỉ vì bộ ca của kho; lượt 3 PASS → ký 26/10; lượt 4 REJECT sau khi mở lại: bản đồ lệch; lượt 5 PASS → ký lại 29/10) | 1 + Đáng chung / **2** (3) — trong: Bằng chứng 26/10; Phạm vi làn V; ngoài: «Sửa, chấm lại» sau làn ghim lại đỏ, Bằng chứng ký lại | **2** (lượt 2: P179 + dọn thư mục tạm; lượt 4: bản đồ lệch, vật không đổi) | 282 648 · 45,2 / 31,6 / 23,2 | 78 · 82 · 69 · 51 · 49 = 329; ghim lại sau chữ ký 84 + 58 (đỏ) |
+| `cong-cu-xet-tep-ton-tai` (TC5) | 5 g 34 · 3 g 07 · 2 (lượt 1 PASS kèm một lỗi đo trong hợp đồng, máy sửa; lượt 2 PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V; Bằng chứng | 0 | 97 578 · 51,7 / 29,4 / 18,9 | 49 · 49 = 98; ghim lại sau chữ ký 46 |
+| `kiem-ban-cai-loi-sua-chay-duoc` (TC4) | 9 g 04 · 3 g 28 · 3 (lượt 1 REJECT: bộ ca sập ở bước dọn thư mục tạm, vật sửa; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 1 + Đáng chung / 0 (3) — Phạm vi làn V; Bằng chứng | **1** (lượt 2, P179) | 243 641 · 30,4 / 51,4 / 18,2 | 68 · 47 · 50 = 165; ghim lại sau chữ ký 47 |
+| `lenh-dot-ghi-dung-hang` (TC2) | 12 g 12 · 0 g 47 · 3 (lượt 1 REJECT: P161 và RT13 vì chữ của vật, vật sửa; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 2 + Đáng chung / 0 (3) — Phạm vi (Hỏi-1), Bằng chứng | **1** (lượt 2, P179) | 235 489 · 30,9 / 49,5 / 19,6 | 44 · 49 · 46 = 139 |
+| `doi-chung-chay-duoc` (TC6) | 17 g 23 · 3 g 38 · 3 (lượt 1 REJECT: P161 vì câu trích sổ, vật không đổi; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 2 / 0 (3) — Đáng riêng 29/10, Bằng chứng; Phạm vi làn V | **2** (lượt 1 P161 · lượt 2 P179) | 244 832 · 39,2 / 45,4 / 15,4 | 43 · 64 · 48 = 155; ghim lại sau chữ ký 81 (ngắt) + 70 |
+| `tep-sinh-khong-chan-gop` (TC3) | 5 g 07 · 0 g 45 · 3 (lượt 1 REJECT: P123 — bộ quét vào phiên lệch bản đồ, vật sửa; lượt 2 REJECT: ca cũ ghim đúng hành vi AC-6 đổi → dừng-vá; lượt 3 PASS) | 2 + Đáng chung / **1** (3) — trong: Phạm vi (Hỏi-1, Hỏi-2), Bằng chứng; ngoài: dừng-vá (chủ kho chọn «Đổi khuôn») | 0 | 143 026 · 50,2 / 32,0 / 17,8 | 44 · 51 · 49 = 144 |
+
+‡ TC1 ký hai lần: lần đầu 26/10 (trước thẻ `v2.35.0`, nên bảng 2.35.0 không đếm, và dòng «Ký chưa gộp: 0» của 2.35.0
+đúng ra là 1); 29/10 gộp nhánh chính 2.35.0 làm một ca của TC1 đỏ ở làn ghim lại, chủ kho chọn «Sửa, chấm lại», hồ sơ
+về `implemented`, chấm lượt 4–5, ký lại và gộp cùng ngày. Đọc theo chu kỳ hai: làm-xong → ký 4 g 29 · ký → gộp 0 g 54.
+«Đáng chung» = một lượt Cổng Đáng cho TC1–TC5 (26/10); TC6 có Cổng Đáng riêng (29/10). Gộp sáu hồ sơ: 1 247 214
+out-token, vật 39,5 / tìm-lỗi 41,4 / tổng hợp 19,0 %; 1 030 phút S4 qua 19 lượt (bỏ phần lượt 1–3 của TC1 nằm trong
+cửa sổ 2.35.0: 1 068 565 out-token, 801 phút). Trung vị sáu vòng: làm-xong → ký **7 g 19**, ký → gộp **3 g 18** (đọc TC1
+theo lần ký lại: 2 g 01). Ký chưa gộp: 0. Gọi người: 9 trong thiết kế + 1 Đáng chung + 3 ngoài (TC1 ×2, TC3 ×1) = 13
+cho 6 kết quả gộp (thẻ khởi tạo đợt 29/10 không đếm; tính thì 14).
+
+**Đọc số:** **hạ tầng đốt 6 / 19 lượt (336 phút máy)** — bốn lượt vì P179 (sổ known-limits thiếu hàng cho đề xuất của
+lượt trước: TC1, TC4, TC2, TC6), một vì P161 (câu trích sổ, TC6), một vì bản đồ lệch (TC1). P179 lặp bốn lượt trong cửa sổ này
+(sau ba lần qua hai cửa sổ trước) và là khoản lớn nhất của dòng 3 — hạt giống `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md`
+đã chạm ngưỡng; là chỗ cắt cho cửa sổ kế. Làm-xong → ký dài ở TC6 và TC2 chủ yếu là chờ người qua đêm (verified → ký
+9 g 42 và 5 g 14). Ký → gộp 3–3,6 giờ ở TC4, TC5, TC6 do ghim lại sau chữ ký khi PR khác gộp trước (6 lần ở 4 vòng, 386
+phút máy) — TC3 (vòng này) giảm phần gỡ tay ở tệp sinh, chưa giảm lần ghim lại. TC1 và TC3 vượt trần 3 khi tính Đáng
+chung, đều vì lượt ngoài thiết kế (một mở lại sau khi bản 2.35.0 đổi nghi thức dưới chân hồ sơ đã ký, một dừng-vá).
+**Làn đối chứng code cũ BLOCKED ở 10 / 19 lượt** («No such tool available: Write»), chỉ 2 lượt đo thật — đúng lỗ mà TC6
+đóng. **Điều kiện tin cậy:** (i) `git diff v2.35.0 <cây mốc> -- feature-loop/workflows/ feature-loop/agents/` KHÁC rỗng
+— `acceptance-verify.js` đổi ở làn đối chứng (TC6: kit sinh sẵn lệnh ghi, tác tử chỉ gọi Bash); đường finder → refute →
+REJECT không đổi thành phần, và đổi kèm ca cả hai chiều (đỏ DC3a/c/d, DC6b/c, DC7b/c/e, DC8b, DC9c/d · im DC3b, DC2a/b,
+DC4a, DC5a/b, DC7a, DC8a, DC9b trong `tests/workflows/doi-chung-chay-duoc.test.mjs`); (ii) lượt chấm sai do
+phép-đo-tự-dối giữa hai mốc: 0 (hai lỗi đo trong hợp đồng ở TC1 và TC5 bị bắt ngay trong lượt).
+
+**Dự báo năm dòng cho thay đổi của mốc này:** 1 ↓ ký → gộp ở kho bật `GITATTR-TEP-SINH` (gộp lại tại máy không dừng gỡ
+tay) và ở kho có đợt (dãy T1 không đứng chờ, lệnh xin ghi đúng hàng) · 2 ↓ (đánh thức thôi báo «giám sát không có nhịp
+sống» oan; dãy nghỉ chạy lại không cần sửa tay) · 3 ↓ (kiểm bản cài không đọc lệch tài liệu thành ĐỎ; đường nền thôi đỏ
+«THIẾU» oan) · 4 ↑ nhẹ (làn đối chứng chạy thật: thêm lệnh trên commit gốc) · 5 ↑ nhẹ (cùng lý do).
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .` (30/10).
+**N không tăng so với mốc 2.35.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.35.0 — 29/10/2026
 
 Mốc mang **nền thiết kế** (đợt `design-floor-2710`, FL1–FL5): lõi gọn Design OS vendored vào kit, nối vào vòng ở S0,
