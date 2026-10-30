@@ -138,6 +138,9 @@ Gốc: từ 23/10 đề bài làn đối chứng S4 bảo tác tử «dùng côn
 
 - **Dòng KC1 của 2.35.0** (#443): kiểm bản cài sau thẻ `v2.35.0` — ĐẠT 8/8.
 - **Gói đợt `tinh-chinh-2610`** (#444): hàng việc, cấu hình và luật riêng của đợt.
+- **Đo giờ máy bỏ lời nhắn tự sinh** (sửa trong hồ sơ mốc, lượt chấm 1 đỏ ở ca `GM-6-that`): `scripts/do-vong.mjs` không
+  cộng token của lời nhắn model `<synthetic>` mà Claude Code tự sinh (thông báo hạn mức, ngắt lượt); mốc thời gian của nó
+  vẫn vào giờ máy. Ca hai chiều `GM-6-do5` trong `tests/scripts/lo-trinh-gio-may.test.mjs`.
 
 **Ai bị ảnh hưởng:**
 

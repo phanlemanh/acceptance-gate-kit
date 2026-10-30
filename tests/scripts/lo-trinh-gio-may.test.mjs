@@ -323,6 +323,7 @@ function banGhi(slug, base, { songSong = false, truocCuaSo = false } = {}) {
   if (!songSong) {
     main = [ev(base, 60, { cham }), msg(base, 65, 'm1', 'claude-opus-5-5', { input_tokens: 10, output_tokens: 100, cache_read_input_tokens: 1000, cache_creation_input_tokens: 50 }),
       msg(base, 65, 'm1', 'claude-opus-5-5', { input_tokens: 10, output_tokens: 100, cache_read_input_tokens: 1000, cache_creation_input_tokens: 50 }),
+      msg(base, 66, 's1', '<synthetic>', { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }),
       ev(base, 70), ev(base, 120), msg(base, 128, 'm2', 'claude-opus-5-5', { output_tokens: 200 })];
     a1 = [ev(base, 80), msg(base, 85, 'm3', 'claude-sonnet-5-5', { input_tokens: 5, output_tokens: 30 })];
     den = base + 130 * 60e3;
@@ -362,6 +363,7 @@ const gm6 = async kit => {
   if (o.gio_cho !== 1.62) sai.push(`gio_cho ${o.gio_cho}, cần 1.62`);
   if (o.token && o.token['claude-opus-5-5'] && o.token['claude-opus-5-5'].ra === 400) sai.push('token ra 2×, cần 1×');
   if (o.token && o.token['claude-opus-5-5'] && o.token['claude-opus-5-5'].ra >= 999) sai.push('bản ghi lạ vào phép đo');
+  if (o.token && o.token['<synthetic>']) sai.push('model <synthetic> có lời nhắn mà token 0');
   if (!deq(o.token, TOKEN6)) sai.push(`token ${JSON.stringify(o.token)} ≠ ${JSON.stringify(TOKEN6)}`);
   if (!deq(o.nguon, ['proj1/s1.jsonl', 'proj1/s1/subagents/agent-1.jsonl'])) { sai.push(`nguon ${JSON.stringify(o.nguon)}`); if (Array.isArray(o.nguon) && o.nguon.some(n => n.includes('proj2'))) sai.push('bản ghi lạ vào phép đo'); }
   return sai;
@@ -389,6 +391,7 @@ if (want('GM-6-khong-ghi') && await chayCa('GM-6-khong-ghi', async kit => {
   return bam(p) === h ? [] : ['không --write mà run-log đổi'];
 })) ok('GM-6-khong-ghi', 'không --write: in dòng, run-log không đổi byte');
 if (want('GM-6-do')) await chayDo('GM-6-do', gm6, [['scripts/do-vong.mjs', 'if (x.t < tu || x.t > den || thay.has(x.ma)) continue;', 'if (x.t < tu || x.t > den) continue;']], 'token ra 2×, cần 1×', 'bản sao đếm lời nhắn lặp hai lần');
+if (want('GM-6-do5')) await chayDo('GM-6-do5', gm6, [['scripts/do-vong.mjs', '    if (x.model === MODEL_TU_SINH) continue;\n', '']], 'model <synthetic> có lời nhắn mà token 0', 'bản sao gỡ bộ lọc lời nhắn tự sinh');
 if (want('GM-6-do2')) await chayDo('GM-6-do2', gm6, [['scripts/do-vong.mjs', 'const cham = phienDoc.filter(p => p.ban.some(b => b.cham));', 'const cham = phienDoc;']], 'bản ghi lạ vào phép đo', 'bản sao đếm phiên không chạm hồ sơ');
 if (want('GM-6-do3')) await chayDo('GM-6-do3', gm6SongSong, [['scripts/do-vong.mjs', 'const gioMay = gioHoatDong(ev);', 'const gioMay = ban.reduce((a, b) => a + gioHoatDong(b.ev.filter(t => t >= tuMs && t <= denMs)), 0);']], 'giờ máy cộng trùng tác tử song song', 'bản sao cộng giờ từng bản ghi');
 if (want('GM-6-do4')) await chayDo('GM-6-do4', gm6SongSong, [['scripts/do-vong.mjs', 'const tm = congToken(ban.flatMap(b => b.loi), tuMs, denMs);', 'const tm = congToken(ban.flatMap(b => b.loi), -Infinity, denMs);']], 'sự kiện ngoài cửa sổ vào phép đo', 'bản sao bỏ cắt cửa sổ');

@@ -73,6 +73,13 @@ limits của sáu hồ sơ · GUIDE khối `GITATTR-TEP-SINH` · `dieu-phoi/READ
 ## Notes
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths`.
+- Phạm vi nới sau lượt chấm 1 chạy lại (phiên điều phối giao 30/10, máy tự quyết, cửa veto mở — sổ quyết định): lượt
+  đỏ ở E3h vì ca `GM-6-that` đọc bản ghi phiên thật có lời nhắn model `<synthetic>` token 0 (thông báo hạn mức của tài
+  khoản trước) — lỗi của `scripts/do-vong.mjs`, nhánh chính cũng đỏ trên máy này. Sửa trong mốc: bộ đo bỏ lời nhắn ấy khỏi
+  token (giờ máy giữ mốc thời gian của nó) + ca hai chiều `GM-6-do5`; một dòng ở mục «Ngoài vòng» của CHANGELOG 2.36.0.
+  `scripts/do-vong.mjs` không thuộc `t3_paths` và không thuộc lớp chép CI. Ca `XD-6` (`xuat-du-qua-pipe`, người đọc
+  đóng sớm) đỏ một lần trong lượt chấm vì thời điểm EPIPE, chạy riêng xanh 3/3 — chập chờn, không sửa ở mốc này; vào
+  sổ known-limits cùng lượt ký Cổng Bằng chứng.
 - Cùng PR: lộ trình kit `docs/plans/lo-trinh-kit.json` — mốc «Tinh chỉnh sau hai đợt thử (số đặt lúc cắt)» đổi tên thành
   «Phát hành 2.36.0», ngày về 30/10; vẽ lại `LO-TRINH.html` và `PRODUCT-MAP.md`. Hạt giống
   `docs/plans/2026-10-30-hat-giong-tep-sinh-mot-hang-mot-dong.md` (lời hứa M5 ở kit #308, neo `_acceptance/tep-sinh-khong-chan-gop/`).
