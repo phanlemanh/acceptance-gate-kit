@@ -119,6 +119,7 @@ capture:
 #   repin_budget_min: 80     # optional (2.23): lane budget in minutes (set BELOW your tool's own cap); over → exit 4, repin-do vuot-tran
 #   repin_cost_cmd: "<cmd>"  # optional (2.23): prints one number that grows with spend; the summary reports the delta
 #   repin_ci_blank_env: [KEY]  # optional (2.23): suites run with these vars set EMPTY (like CI); evals keep the full env
+#   model_carry_cmd: "<cmd>"  # optional (2.27): prints the model environment fingerprint (model id + lockfile hash); a model_evals eval whose inputs hash is unchanged reuses its last real result (7 days)
 #                            # S5 ships by opening a PR and says so in one line — no menu
 ```
 
