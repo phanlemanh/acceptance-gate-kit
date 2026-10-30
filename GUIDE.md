@@ -694,6 +694,24 @@ Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR th�
 - **Sửa tệp ý định bằng PR** làm trang lệch cho tới khi vẽ lại: CI của kho đỏ với đúng lệnh
   `node scripts/product-map.mjs --root .` — chạy lệnh đó trong cùng PR.
 
+**Gộp nhánh chính không dừng ở hai tệp sinh — bật theo lựa chọn** (vòng `tep-sinh-khong-chan-gop`). `PRODUCT-MAP.md` và
+`LO-TRINH.html` vẽ trọn từ nguồn, nên hai PR sửa hai nguồn khác nhau vẫn xung đột ở hai tệp ấy mỗi lần nhánh chính dời.
+Kho nào muốn hết dừng thì khai hai dòng dưới vào `.gitattributes` và chạy dòng lệnh một lần trên MỖI bản clone (mọi
+worktree của bản clone dùng chung cấu hình). Driver `true` giữ bản của nhánh đang đứng, nên git ghi hai tệp là đã gộp
+sạch; bản ấy cũ so với nguồn vừa gộp — vẽ lại bằng `node scripts/product-map.mjs --root .` rồi commit, quên thì
+`--check` đỏ đúng tệp lệch. Xung đột ở tệp nguồn (hồ sơ, tệp lộ trình) vẫn dừng như thường.
+<!-- <<<GITATTR-TEP-SINH -->
+```
+PRODUCT-MAP.md merge=tep-sinh
+LO-TRINH.html merge=tep-sinh
+git config merge.tep-sinh.driver true
+```
+<!-- GITATTR-TEP-SINH>>> -->
+Giới hạn: bản clone chưa chạy lệnh cấu hình gộp như hôm nay (git gặp driver chưa khai thì gộp văn bản); forge (GitHub) không
+chạy driver của máy nên trên web PR vẫn báo xung đột ở hai tệp — cố ý, tín hiệu xung đột của forge không đổi; PR cắt
+trước khi nhánh có hai dòng vẫn xung đột ở lần gộp đầu. Bật không bớt lần gộp lại khi nhánh chính dời, chỉ bớt phần gỡ tay.
+Kho không khai thì không có gì đổi.
+
 Từ vòng `lo-trinh-cat-luot` (lát 2): **cắt lượt** — skill `/acceptance-gate:cat-luot` biến một bản phạm
 vi (tệp markdown trong git, khuôn `skills/acceptance/references/pham-vi-template.md`) thành hàng và
 chân trời của lộ trình, mỗi hàng mang `dot` và `phu`. Răng `scripts/cat-luot.mjs --pham-vi <tệp>
