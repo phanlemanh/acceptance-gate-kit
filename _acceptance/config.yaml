@@ -175,6 +175,9 @@ executors:
     dieu_phoi_tc1_hai_moi_truong: node tests/dieu-phoi/hai-moi-truong.mjs
     # Hồ sơ lenh-dot-ghi-dung-hang (hàng TC2): như khoá `dieu_phoi_tc1` nhưng ghim «ok … TC2-» và «ok … TC1-09» (bộ canh thân ca cũ).
     dieu_phoi_tc2: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (TC2-|TC1-09 )|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ tep-sinh-khong-chan-gop (hàng TC3): ca TS-1…TS-7 — kho thử gộp thật bằng git cô lập cấu hình máy. Tệp .test.mjs nên
+    # cũng chạy trong mảnh mjs của suite.
+    tep_sinh: node tests/scripts/tep-sinh-khong-chan-gop.test.mjs
     # Hồ sơ dieu-phoi-sua-truoc-dot-thu: như `dieu_phoi_dp3` nhưng ghim «ok … SDT-» cùng mọi «ok … DP<n>-».
     dieu_phoi_sdt: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ trang-thai-dot-dieu-phoi-tho (DP6b): như `dieu_phoi_sdt` nhưng ghim cả «ok … KH-» (xem --json, khung.mjs).
