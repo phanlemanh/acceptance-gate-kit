@@ -1,0 +1,111 @@
+schema_version: 1
+feature_slug: doi-chung-chay-duoc
+# Ca đo sống ở tests/workflows/doi-chung-chay-duoc.test.mjs: kho git thật, kịch bản và đầu ra do mã sinh trong lượt chạy;
+# «tác tử» của DC1–DC8 là bộ mô phỏng tất định của loại cham-lenh (bộ công cụ đọc từ feature-loop/agents/cham-lenh.md, chạy
+# nguyên văn các khối lệnh của đề bài trong shell thật); DC9 phát lại đầu ra của tác tử THẬT (evidence/tac-tu-that.json).
+# Mỗi eval ghim nhãn PASS của MỘT AC; chiều đỏ là ca đột biến / bộ chấm cũ d3cfca5c trong cùng tệp.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.dccd_de_bai
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC1a" (đúng một khối AGK-BASELINE-GHI, dòng đầu `mkdir -p` + `cat > '<tệp của lời gọi>'
+      <<'AGK_HET_KICH_BAN'`), "PASS: DC1b" (dòng cuối so cksum với số kit tính, in «__BL_GHI dung $C», lệch thì `mv
+      -f` sang `.sai`, không rm), "PASS: DC1c" (đề bài không nhắc Write/Edit/NotebookEdit) và "PASS: DC1d" (đúng hai
+      lời gọi Bash, dauRa gồm đầu ra cả hai). Chiều đỏ: DC6a/DC7b — bộ chấm d3cfca5c còn câu dặn Write và bị bắt đúng
+      vai đối chứng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.dccd_shell_that
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC2a" và "PASS: DC2b" (bash và zsh: tệp kịch bản = thân heredoc + một dòng mới, đúng
+      từng byte; lệnh ghi in đúng dòng «__BL_GHI dung <số rút từ lệnh ghi>»), "PASS: DC2a-goi"/"PASS: DC2b-goi"
+      («__BL_BAT_DAU 1», «__BL 1 xong 1» trên gốc, «__BL_XONG»; không còn worktree agk-baseline; `git status
+      --porcelain` rỗng), "PASS: DC2a-cay"/"PASS: DC2b-cay" (mọi dòng mới của `git status --porcelain --ignored
+      --untracked-files=all` nằm dưới .acceptance-runs/) và "PASS: DC2c" (đột biến dời thư mục lượt ra ngoài
+      .acceptance-runs/ → có tệp mới ngoài vùng — chiều đỏ của phép trên). Máy không có zsh → dòng «BỎ QUA DC2-zsh» và
+      eval này đỏ (thiếu nhãn) — không xanh giả.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.dccd_chep_sai
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC3a" — lệch một byte / bỏ một dòng thân: lý do bắt đầu «tac tu chep kich ban doi chung
+      sai (dau kiem tep vua ghi: «N L», kit tinh N L)», đúng một dòng baseline-khong-do chua_chay true, 0 dòng
+      kind:baseline, tệp lời gọi vắng và `<tệp>.sai` có, cây sạch; "PASS: DC3b" (chiều im: chép lành → haTang null, có
+      dòng kind:baseline); "PASS: DC3c" (bỏ dòng so → «lenh ghi khong xac nhan dau kiem N L (dong __BL_GHI dung
+      vang)»; thay bằng `echo "__BL_GHI dung"` → «… (dong __BL_GHI dung «»)»; mất dòng mở → «tac tu chep kich ban doi
+      chung sai»; mỗi kiểu 0 dòng kind:baseline, không phân loại) và "PASS: DC3d" (lời gọi ghi bị từ chối → haTang và
+      ly_do của dòng baseline-khong-do chứa nguyên chữ từ chối, chua_chay true).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.dccd_khong_phan_biet
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC4a" (eval `bash t/xanh.sh` xanh ở gốc và đầu nằm trong nonDiscriminating, cột đối
+      chứng trong đề bài tổng hợp = green) và "PASS: DC4b" (dòng kind:baseline có lệnh đó trong non_discriminating).
+      Kho mẫu và đầu ra đều do mã sinh; vai máy chạy chính lệnh eval ở HEAD.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.dccd_phan_biet
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC5a" (eval `bash t/do.sh` đỏ ở gốc xanh ở đầu không nằm trong nonDiscriminating, cột
+      đối chứng = red) và "PASS: DC5b" (haTang null, 0 dòng baseline-khong-do, verdict PASS).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.dccd_doi_chung_ban_cu
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC6a" (git show d3cfca5c nạp được bộ chấm cũ và nó còn câu «dung cong cu ghi tep
+      (Write)»), "PASS: DC6b" (cùng kho mẫu, cùng tác tử: lý do «khong chay dong nao» mang nguyên chữ «No such tool
+      available: Write») và "PASS: DC6c" (đúng một dòng baseline-khong-do chua_chay true, nonDiscriminating rỗng, cột
+      đối chứng hai eval = n-a).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.dccd_moi_vai
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC7a" (đủ chín vai, 0 chỗ đề bài nhắc công cụ vắng khỏi loại tác tử đọc từ feature-
+      loop/agents/*.md), "PASS: DC7b" (bộ chấm d3cfca5c → đúng [baseline:diffBase/Write]), "PASS: DC7c" (đột biến: đề
+      bài tổng hợp nhắc Bash → đúng [synthesize:report/Bash]), "PASS: DC7d" (vai baseline = feature-loop:cham-lenh,
+      loại ấy không có Write/Edit/NotebookEdit) và "PASS: DC7e" (đột biến thêm Write vào cham-lenh → phép không-cầm-
+      bút đỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.dccd_dau_ket
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/agents/**, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC8a" (lệnh eval có dòng «AGK_HET_KICH_BAN» → dấu kết đổi thành AGK_HET_KICH_BAN_1,
+      phép đo trọn, có dòng kind:baseline) và "PASS: DC8b" (đột biến gỡ vòng đổi dấu → dấu kết giữ AGK_HET_KICH_BAN,
+      có lý do hạ tầng, 0 dòng kind:baseline).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.dccd_tac_tu_that
+    paths: [_acceptance/doi-chung-chay-duoc/evidence/tac-tu-that.json, feature-loop/workflows/acceptance-verify.js, tests/workflows/doi-chung-chay-duoc.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DC9a" (bản ghi có đủ trường, ≥8 lệnh, blob `ban_cham_blob` đọc được bằng git cat-file),
+      "PASS: DC9b" (đầu ra tác tử thật cho đề bài mới có đúng dòng «__BL_GHI dung <số rút từ lệnh ghi của đúng blob
+      đó>», 8/8 dòng kết quả, «__BL_XONG»; bộ đọc: haTang null, đúng một dòng kind:baseline), "PASS: DC9c" (đầu ra tác
+      tử thật cho đề bài d3cfca5c không có dòng __BL nào; bộ đọc cũ: «khong chay dong nao») và "PASS: DC9d" (đột biến
+      lệch một chữ số dấu kiểm trên CÙNG bản ghi → «lenh ghi khong xac nhan dau kiem», 0 dòng kind:baseline).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

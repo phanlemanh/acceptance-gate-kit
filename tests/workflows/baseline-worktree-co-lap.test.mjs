@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { runWorkflow, check, summary } from './harness.mjs';
+import { runWorkflow, check, summary, KHOI_GHI_BASELINE, lenhGhiBaseline, kichBanTuLenhGhi, kemGhiDung } from './harness.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -52,14 +52,17 @@ const responder = ({ baseline } = {}) => (call) => {
   if (l.startsWith('review:')) return { findings: [] };
   if (l.startsWith('refute:')) return { refuted: true, reason: 'not real' };
   if (l.startsWith('triage')) return { items: [] };
-  if (l === 'baseline:diffBase') return baseline === undefined ? { results: [] } : baseline;
+  // Đầu ra đóng khung đi kèm dòng xác nhận dấu kiểm như tác tử thật trả (hồ sơ doi-chung-chay-duoc).
+  if (l === 'baseline:diffBase') return baseline === undefined ? { results: [] } : kemGhiDung(call, baseline);
   if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
   if (l === 'synthesize:report') return { report: '# Evidence demo', findings: '# Findings demo' };
   throw new Error('unexpected agent label: ' + l);
 };
 const giua = (p, mo, dong) => { const a = p.indexOf(mo), b = p.indexOf(dong, a + mo.length); return a >= 0 && b > a ? p.slice(a + mo.length, b) : ''; };
 const promptBL = calls => (calls.find(c => c.label === 'baseline:diffBase') || {}).prompt || '';
-const kichBan = calls => giua(promptBL(calls), '<<<AGK-BASELINE\n', '\nAGK-BASELINE>>>');
+// Kịch bản là thân heredoc của LỆNH GHI kit sinh (hồ sơ doi-chung-chay-duoc) — bộ rút chung của harness.
+const lenhGhi = calls => lenhGhiBaseline(promptBL(calls));
+const kichBan = calls => kichBanTuLenhGhi(lenhGhi(calls));
 const loiGoi = calls => giua(promptBL(calls), '<<<AGK-BASELINE-GOI\n', '\nAGK-BASELINE-GOI>>>');
 const dongLog = (result, kind) => (result.runLog || []).map(l => JSON.parse(l)).filter(o => o.kind === kind);
 // Chữ từ chối đúng khuôn công cụ trả trong ca 23/10 (đường worktree thay bằng /repo).
@@ -76,13 +79,15 @@ let goiMau = '';
   goiMau = goi;
   const m = goi.match(/^bash '([^']+)'$/);
   const tep = m ? m[1] : '';
-  check('BW1a prompt mang đúng một khối kịch bản và một khối lời gọi', soLan(p, '<<<AGK-BASELINE\n') === 1 && soLan(p, '<<<AGK-BASELINE-GOI\n') === 1 && kb.length > 0 && goi.length > 0, goi);
+  check('BW1a prompt mang đúng một khối kịch bản và một khối lời gọi', soLan(p, KHOI_GHI_BASELINE[0]) === 1 && soLan(p, '<<<AGK-BASELINE-GOI\n') === 1 && kb.length > 0 && goi.length > 0, goi);
   check('BW1b lời gọi = `bash \'<đường tuyệt đối>\'` — không đối số, không toán tử', !!m && path.isAbsolute(tep), goi);
   // Bộ canh của công cụ đọc CHỮ lệnh: chữ «git» ở bất kỳ đâu trong lời gọi là bị từ chối (đo 23/10, bước 4).
   check('BW1c lời gọi không chứa chữ git', goi.length > 0 && !/git/i.test(goi), goi);
   check('BW1d tệp nằm TRONG cây đang kiểm, dưới .acceptance-runs/<slug>/s4-baseline/', tep.startsWith('/repo/.acceptance-runs/demo/s4-baseline/') && tep.endsWith('.sh'), tep);
-  check('BW1e prompt dặn ghi tệp bằng công cụ ghi tệp đúng đường đó, rồi MỘT lần gọi Bash timeout 600000',
-    p.includes(`Write`) && p.includes(tep) && /MOT lan goi Bash/.test(p) && /600000/.test(p), '');
+  // Từ hồ sơ doi-chung-chay-duoc: bước ghi là lời gọi Bash với lệnh kit sinh — vai baseline chạy bằng loại tác tử
+  // không có công cụ ghi tệp (bản 23/10 dặn «Write» ở đây; ca này khi ấy ghim đúng chữ đó).
+  check('BW1e bước ghi là MỘT lần gọi Bash với lệnh kit sinh ghi đúng tệp đó, rồi MỘT lần gọi Bash timeout 600000',
+    lenhGhi(calls).startsWith(`mkdir -p '`) && lenhGhi(calls).split('\n')[0].includes(`cat > '${tep}' <<'`) && (p.match(/MOT lan goi Bash/g) || []).length === 2 && /600000/.test(p), lenhGhi(calls).split('\n')[0]);
   // Tệp riêng mỗi lượt: lượt chấm lại song song không ghi đè kịch bản của nhau.
   const { calls: c2 } = await runWorkflow(WF, buildArgs({ evals: EVALS, invokedAt: '2026-10-23T04:10:00Z' }), responder());
   check('BW1f lượt khác → tệp khác', loiGoi(c2) !== goi && /^bash '\/repo\/\.acceptance-runs\/demo\/s4-baseline\/[^']+'$/.test(loiGoi(c2)), loiGoi(c2));
@@ -100,14 +105,14 @@ function dungKho() {
   g('add', '-A'); g('commit', '-qm', 'head');
   return { d, g, don: () => { try { execFileSync('git', ['-C', d, 'worktree', 'prune']); } catch { /* dọn */ } } };
 }
-// Đóng vai tác tử: ghi kịch bản ra đúng tệp lời gọi nêu, rồi chạy CHÍNH lời gọi (qua bash, như công cụ).
+// Đóng vai tác tử (chỉ Bash, như loại cham-lenh): chạy CHÍNH lệnh ghi rồi CHÍNH lời gọi, qua bash như công cụ.
 const chayNhuTacTu = async (kho, evals) => {
   const { calls } = await runWorkflow(WF, buildArgs({ repoRoot: kho.d, diffBase: 'goc', evals }), responder());
-  const goi = loiGoi(calls), tep = (goi.match(/^bash '([^']+)'$/) || [])[1];
-  if (!tep) throw new Error('không rút được tệp từ lời gọi: ' + goi);
-  w('/', tep, kichBan(calls));
+  const goi = loiGoi(calls), tep = (goi.match(/^bash '([^']+)'$/) || [])[1], ghi = lenhGhi(calls);
+  if (!tep || !ghi) throw new Error('không rút được lệnh ghi hay tệp từ lời gọi: ' + goi);
+  const r1 = spawnSync('bash', ['-c', ghi], { cwd: kho.d, encoding: 'utf8', timeout: 60000 });
   const r = spawnSync('bash', ['-c', goi], { cwd: kho.d, encoding: 'utf8', timeout: 60000 });
-  return { out: (r.stdout || '') + (r.stderr || ''), code: r.status, tep };
+  return { out: (r1.stdout || '') + (r1.stderr || '') + (r.stdout || '') + (r.stderr || ''), code: r.status, tep };
 };
 {
   const kho = dungKho();

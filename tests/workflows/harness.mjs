@@ -87,6 +87,38 @@ export async function runWorkflow(file, args, respond, srcOverride) {
   return { result, calls, logs, phases };
 }
 
+// ── làn đối chứng: rút lệnh ghi + kịch bản từ đề bài (hồ sơ doi-chung-chay-duoc) ──
+// Đề bài baseline chở LỆNH GHI do kit sinh (heredoc có nháy + so dấu kiểm) giữa hai dòng dấu; kịch bản là thân
+// heredoc. MỘT bộ rút cho mọi ca — tệp ca không giữ bản chép thứ hai của khuôn. Rút không được → chuỗi rỗng, ca
+// tự đỏ ở khẳng định hình dạng.
+export const KHOI_GHI_BASELINE = ['<<<AGK-BASELINE-GHI\n', '\nAGK-BASELINE-GHI>>>'];
+export function lenhGhiBaseline(prompt) {
+  const [mo, dong] = KHOI_GHI_BASELINE;
+  const p = String(prompt || ''), a = p.indexOf(mo), b = p.indexOf(dong, a + mo.length);
+  return a >= 0 && b > a ? p.slice(a + mo.length, b) : '';
+}
+export function kichBanTuLenhGhi(ghi) {
+  const dong = String(ghi || '').split('\n');
+  const m = (dong[0] || '').match(/<<'([A-Za-z0-9_]+)'$/);
+  if (!m) return '';
+  const k = dong.indexOf(m[1], 1);
+  return k > 0 ? dong.slice(1, k).join('\n') : '';
+}
+
+// Dòng xác nhận mà lệnh ghi in khi tệp khớp dấu kiểm — số RÚT từ chính lệnh ghi (bên viết), không tính lại ở ca.
+// Ca đưa đầu ra đóng khung cho bộ đọc dùng nó: bộ đọc không tin dấu `__BL` nào thiếu dòng này (hồ sơ doi-chung-chay-duoc).
+export function dongGhiDung(prompt) {
+  const cuoi = lenhGhiBaseline(prompt).split('\n').pop() || '';
+  const m = cuoi.match(/\[ "\$C" = '(\d+ \d+)' \]/);
+  return m ? `__BL_GHI dung ${m[1]}` : '';
+}
+// Bọc kết quả đóng khung của vai baseline: đầu ra có dấu bắt đầu (kịch bản đã chạy) → thêm dòng xác nhận lên đầu,
+// như tác tử thật trả đầu ra của lời gọi ghi trước lời gọi chạy. Không có dấu bắt đầu → giữ nguyên (lời từ chối…).
+export function kemGhiDung(call, bl) {
+  if (!bl || typeof bl.dauRa !== 'string' || !/^__BL_BAT_DAU /m.test(bl.dauRa)) return bl;
+  return { ...bl, dauRa: `${dongGhiDung(call.prompt)}\n${bl.dauRa}` };
+}
+
 // ── tiny assertion kit (same output style as the other suites) ──────────────
 let PASS = 0;
 let FAIL = 0;
