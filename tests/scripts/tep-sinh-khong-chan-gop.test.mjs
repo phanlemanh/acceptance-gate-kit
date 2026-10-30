@@ -189,6 +189,10 @@ const kiemRong = may => {
   const map = doc(path.join(g, 'PRODUCT-MAP.md')); const trang = doc(path.join(g, 'LO-TRINH.html'));
   if (/`rong2?`/.test(map)) loiDs.push('rong được xếp Hồ sơ hỏng');
   if (/\brong2?\b/.test(trang)) loiDs.push('rong được đếm ngoài lộ trình');
+  // Bên đọc thứ ba của cùng thư mục: bộ quét vào phiên (P123 đòi nó cùng kết luận với bản đồ).
+  const q = spawnSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', g], { encoding: 'utf8', env: ENV });
+  if (q.status !== 0) loiDs.push(`bộ quét vào phiên thoát ${q.status}`);
+  else if (/"rong2?"/.test(q.stdout)) loiDs.push('rong hiện ở bộ quét vào phiên');
   if (!loiDs.length && (r.status !== 0 || git(g, 'status', '--porcelain'))) loiDs.push(`--check thoát ${r.status}, cây đổi: ${git(g, 'status', '--porcelain')}`);
   return loiDs;
 };
@@ -293,6 +297,7 @@ if (want('TS-5-do')) {
 }
 const TIEM_BAN_DO = ['scripts/product-map.mjs', '      if (!coTepTrongCay(path.join(acc, entry.name))) continue;\n', ''];
 const TIEM_TRANG = ['scripts/lo-trinh.mjs', ' && coTepTrongCay(path.join(acc, e.name))', ''];
+const TIEM_QUET = ['scripts/start-scan.mjs', '  if (!coTepTrongCay(path.join(acc, entry.name))) continue;\n', ''];
 if (want('TS-6')) {
   try {
     const loiDs = kiemRong(KIT);
@@ -312,6 +317,8 @@ if (want('TS-6-do')) {
     if (deq(h1, ['rong được xếp Hồ sơ hỏng'])) ok('TS-6-do loc-ban-do'); else bad('TS-6-do loc-ban-do', JSON.stringify(h1));
     const h2 = kiemRong(banSao([TIEM_TRANG]));
     if (deq(h2, ['rong được đếm ngoài lộ trình'])) ok('TS-6-do loc-trang'); else bad('TS-6-do loc-trang', JSON.stringify(h2));
+    const h3 = kiemRong(banSao([TIEM_QUET]));
+    if (deq(h3, ['rong hiện ở bộ quét vào phiên'])) ok('TS-6-do loc-quet'); else bad('TS-6-do loc-quet', JSON.stringify(h3));
   } catch (e) { bad('TS-6-do', loi(e)); }
 }
 if (want('TS-7')) {

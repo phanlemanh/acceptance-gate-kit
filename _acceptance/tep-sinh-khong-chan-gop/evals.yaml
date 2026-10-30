@@ -81,7 +81,7 @@ evals:
     criterion: AC-6
     executor: test
     cmd: config:executors.test.tep_sinh
-    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, lib/workspace-record.cjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, scripts/start-scan.mjs, lib/workspace-record.cjs, tests/scripts/tep-sinh-khong-chan-gop.test.mjs]
     expected: >
       exit 0; dòng "PASS: TS-6 thu-muc-rong": kho thử có lộ trình, vẽ và commit; tạo `_acceptance/rong/` rỗng và
       `_acceptance/rong2/figures/` rỗng — PRODUCT-MAP.md và LO-TRINH.html vẽ lại vào thư mục tạm BẰNG từng byte bản đã
@@ -89,7 +89,9 @@ evals:
       "`la` — không đọc được hồ sơ" và PRODUCT-MAP.md của bản mới bằng từng byte bản của sha ghim (git archive scripts lib)
       trên cùng kho. Dòng "PASS: TS-6-do loc-ban-do": bản lành xanh; bản sao trọn scripts + lib gỡ phép lọc ở bản đồ
       (kiểm nhát tiêm khớp một lần) → danh sách lỗi BẰNG ["rong được xếp Hồ sơ hỏng"]. Dòng "PASS: TS-6-do loc-trang":
-      bản sao gỡ phép lọc ở trang lộ trình → danh sách lỗi BẰNG ["rong được đếm ngoài lộ trình"].
+      bản sao gỡ phép lọc ở trang lộ trình → danh sách lỗi BẰNG ["rong được đếm ngoài lộ trình"]. Vế bộ quét vào phiên
+      (start-scan.mjs --root <kho thử>) thoát 0 và không liệt "rong"/"rong2"; dòng "PASS: TS-6-do loc-quet": bản sao gỡ
+      phép lọc ở bộ quét → danh sách lỗi BẰNG ["rong hiện ở bộ quét vào phiên"].
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7

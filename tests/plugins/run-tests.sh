@@ -4343,6 +4343,14 @@ function doiChieu(nhan, { c, o, u, evidence = null, giuNguyenCay = false }) {
   const oNao = scanHong || scan.groups.gates.some(g => g.slug === "x")
     || scan.groups.inProgress.some(g => g.slug === "x") || scan.groups.done.some(g => g.slug === "x")
     || scan.groups.considering.some(g => g.slug === "x");   // o «dang can nhac» (vao-co-o-ra-co-ten)
+  // Thu muc KHONG tep nao (moi file vang) thi git khong giu duoc — khong ban clone nao co no, nen CA HAI ben phai
+  // bo qua (ho so tep-sinh-khong-chan-gop AC-6); con lai slug KHONG duoc bien mat.
+  const rong = fs.readdirSync(dir).length === 0;
+  if (rong) {
+    if (oNao) lech.push(`[${nhan}] thu muc rong van hien o bo quet`);
+    if (mapTxt.includes("`x`")) lech.push(`[${nhan}] thu muc rong van hien o ban do`);
+    return scanHong;
+  }
   if (!oNao) lech.push(`[${nhan}] slug BIEN MAT khoi bo quet`);
   if (!mapTxt.includes("`x`")) lech.push(`[${nhan}] slug BIEN MAT khoi ban do`);
   return scanHong;
