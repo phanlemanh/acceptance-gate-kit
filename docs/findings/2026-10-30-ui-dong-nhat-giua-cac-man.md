@@ -1,0 +1,290 @@
+# Giao diện không đồng nhất giữa các màn — đo ở kho tiêu thụ, luật hiện có, nguyên tắc gốc, cách giải (30/10/2026)
+
+**Trạng thái:** finding nháp, chờ chủ kho đọc. Không mở ô, không mở hàng lộ trình, không đổi engine.
+Phiên: thao-luan-ui-dong-nhat (mở bởi điều phối MBP local_e9d2c0cb theo yêu cầu chủ kho 30/10).
+
+**Câu hỏi của chủ kho (30/10):** ở kho crm, màn chi tiết deal đã có giao diện riêng, nhưng màn OKR mới lại dựng
+một giao diện chi tiết khác. Luật giao diện của design-floor và Design OS giải việc này tới đâu? Rút về nguyên tắc
+gốc; framework nào đã giải; cách giải đúng tầng là gì?
+
+**Cách đo.** Đọc mã trên `origin/onehub` của crm ở `16604ce3f` (30/10 10:25), sau `git fetch`. Không chạy app
+(cần cơ sở dữ liệu và đăng nhập), nên không chụp ảnh — mọi số dưới đây đọc từ mã, lệnh đo ghi ở §6. Kho kit công
+khai: tệp này chỉ trích tên tệp và tên thành phần, không có dữ liệu sản phẩm.
+
+---
+
+## 0. Trả lời một phút
+
+1. **Lệch nằm ở tầng KHUNG và TRẠNG THÁI, không nằm ở tầng token.** Khu OKR gần như không có mã màu thô, giá trị
+   tuỳ ý hay bo góc tự đặt. Lệch là: ngăn chi tiết KR **không dùng khung ngăn chung** mà ngăn deal, liên hệ, công
+   ty, kế hoạch và mục tiêu đều dùng. Nó tự dựng đầu ngăn, chờ tải, báo lỗi và «không thấy». Riêng khu OKR có
+   khoảng 30 thành phần rỗng/tải/lỗi đặt tên riêng.
+2. **Khung chung đã có từ trước khi màn KR được dựng.** `RecordSheetFrame` có từ commit đầu tiên (31/07). Ngăn KR
+   dựng ngày 28/09 vẫn đi vòng qua nó. Vậy *có mẫu* chưa đủ: không gì *buộc* màn mới phải dùng mẫu.
+3. **Luật của kit hôm nay không chặn lệch kiểu này.**
+   - crm đang ở bậc **M0** (chưa khai vùng giao diện), nên design-floor không chạy gì ở crm.
+   - Kể cả khi lên M2, design-floor chỉ chặn được mã màu thô và kiểm *bản kế hoạch dùng lại* có ghi tên có thật
+     hay không. Không phần nào kiểm *mã đã dựng* có theo khung đã chọn, hay so màn mới với màn chuẩn.
+   - Design OS chẩn đúng bệnh. Nó tự khai rằng bộ kiểm của nó chỉ chứng minh ý định, không chứng minh vật.
+4. **Cách giải đúng tầng:** biến «màn mới dùng khung chung» từ một câu trong tài liệu thành **một ràng buộc máy
+   giữ trên mã**. Ràng buộc quét mọi ngăn và mọi trang hiện có lẫn sẽ có (không dùng danh sách đóng), có ngoại lệ
+   kèm tên và lý do, có chiều đỏ. Khi khung không đủ chỗ cho nhu cầu mới thì **sửa khung, không thoát khung**.
+   - Việc này là **vật của kho crm**. crm đã có sẵn bộ quét JSX và hai răng cùng dạng: màu trạng thái và khung
+     trang.
+   - Phía kit chỉ ghi hạt giống, và chỉ đưa lên kit khi một kho thứ hai cần cùng cơ chế.
+
+---
+
+## 1. Hiện trạng crm — lệch ở đâu, tầng nào
+
+### 1.1 «Chi tiết deal» và «chi tiết KR» cùng là một loại màn
+
+Cả hai mở thành **ngăn bản ghi** trượt từ phải, chung một chỗ đặt ngăn (`?record=<loại>:<id>`). Hai trang
+`deals/[dealId]/page.tsx` và `okr/kr/[keyResultId]/page.tsx` chỉ chuyển hướng tới ngăn. Vậy câu hỏi đúng là:
+*các ngăn bản ghi có cùng một khung không?*
+
+Khung chung là `RecordSheetFrame` (`apps/app/components/crm/record-sheet/record-parts.tsx`). Nó gói năm phần: đầu
+ngăn (`DetailSheetHeader`: tiêu đề, mô tả, hành động, nút lùi khi ngăn chồng), chờ tải, lỗi tải (`KhungTaiLoi`,
+nói đúng lý do: đã xoá · không có quyền · mất kết nối), dải ô số (`stats`) và thẻ con (`DetailSheetTabs`).
+
+| Ngăn | Dùng khung chung | Chờ tải | Lỗi tải | Ô số | Hành động bản ghi | Dòng thời gian |
+|---|---|---|---|---|---|---|
+| Deal | ✓ | vòng quay (của khung) | `KhungTaiLoi` (của khung) | ✓ | `RecordActions` | ✓ |
+| Liên hệ · Công ty | ✓ | vòng quay | `KhungTaiLoi` | ✓ | `RecordActions` | ✓ |
+| Kế hoạch | ✓ | vòng quay | `KhungTaiLoi` | ✓ | — | ✓ |
+| Mục tiêu | ✓ | vòng quay | `KhungTaiLoi` | ✓ | — (riêng) | — (Trao đổi riêng) |
+| **KR** | **✗** — gọi thẳng `DetailSheetHeader` | **khung xương riêng** (`DangTaiKr`) | **`VungTaiLoi`** + `KhongThayKr` riêng | ✗ | ✗ (hành động tự đặt ở đầu) | ✗ (Lịch sử riêng) |
+| Số KR | **✗** | khung xương riêng | riêng | ✓ (gọi thẳng) | ✗ | ✗ |
+
+Đo bằng số lần xuất hiện của các khối dựng ở từng tệp (lệnh ở §6). Ngăn deal dùng `RecordSheetFrame` ×2,
+`RecordActions` ×2, `Timeline` ×2. Ngăn KR dùng ba khối đó 0 lần, `DetailSheetHeader` ×2 và `Skeleton` ×6.
+
+### 1.2 Trạng thái rỗng · tải · lỗi: ba đường song song
+
+- **Hai thành phần lỗi tải dùng chung cùng tồn tại.** `KhungTaiLoi` là của khung ngăn, nói lý do. `VungTaiLoi`
+  nằm trong `packages/ui`, thêm ngày 08/10, chỉ có tiêu đề, mô tả và nút thử lại. `docs/design.md` chỉ định
+  `VungTaiLoi` cho *trang*, nhưng không nói gì về *ngăn*.
+- **Khu OKR tự đặt khoảng 30 hàm rỗng/tải/lỗi/chờ:** `BangRong`, `RongCuaToi`, `RongTheoChip`, `DangTaiHoiY`,
+  `LoiPhan`, `LoiTai`, `KhungCho`, `ManSoDoCho`… Thư mục deal không đặt hàm nào như vậy.
+- **Chờ tải trong ngăn chưa có chuẩn.** Ngăn deal (qua khung) dùng vòng quay; ngăn KR dùng khung xương. Luật
+  «khung xương cùng hình, không vòng quay» của `docs/design.md` viết cho *trang*. Ở tầng ngăn, chưa ai quyết đâu
+  là đúng. Đây là chỗ máy không tự suy được nếu chỉ đọc mã (xem §5.1 bước 1).
+
+### 1.3 Tầng token và thành phần: gần như sạch
+
+| Vùng | Dòng `.tsx` | Mã màu thô | Giá trị tuỳ ý (đối chứng: cả app có `w-[12%]` ×29, `text-[13px]` ×16) | `className` đè lên `Button/Badge/Card/Input/Tabs/Sheet` |
+|---|---|---|---|---|
+| khu OKR | 26 473 | 0 | chỉ bề rộng cột bảng theo % | 11 |
+| khu deal | 1 300 | 0 | 0 | 0 |
+| các ngăn bản ghi | 10 608 | 0 | chỉ bề rộng cột bảng | 0 |
+
+Màu trạng thái đã có răng: `packages/ui/test/mau-trang-thai-mot-bang.spec.ts` đỏ khi một tệp tự khai bảng màu
+trạng thái. **Kết luận tầng:** token ✓ đã giữ · thành phần ✓ phần lớn · **khung ngăn ✗** · **trạng thái ✗** ·
+hành vi ghi trong ngăn: đang lệch, chủ kho vừa chốt luật hôm nay (§1.5).
+
+### 1.4 Giá của lệch: sửa sau tốn hơn chặn trước
+
+- **Ít nhất 8 vòng đã ký có mục đích chính là đồng nhất lại**, theo dòng `feature:` của hợp đồng:
+  `khung-tao-okr-nhu-deal` (T2, 14 tiêu chí), `soan-okr-trong-khung`, `muc-tieu-va-kr` («trong cùng một khung»),
+  `khung-ban-ghi-kara`, `khung-loi-ban-ghi-dung-ly-do`, `kara-gop-y-luot-2` («dùng khung chung»),
+  `dai-luu-tru-dung-chung`, `khung-trang-cai-dat`, `thanh-vien-hai-khoi-cung-khuon`.
+- **Lộ trình OKR đang chở thêm khoảng 15 hàng cùng loại:** NM1–NM4 (khung màn chung, lọc chung, màu trạng thái
+  chung, chữ màn — ba hàng chưa mở) và SV1–SV11 (bấm KR mở chi tiết KR, cập nhật ngay trong ngăn, sửa ngay trong
+  ngăn…).
+- **Thước «trông giống» hôm nay là mắt người, dựng tay từng vòng.** Ví dụ AC-12 của `khung-tao-okr-nhu-deal`:
+  «một người không làm lượt này đặt cạnh nhau… thấy cùng một khung».
+
+### 1.5 Mốc thời gian: luật đến sau màn
+
+| Ngày | Sự kiện |
+|---|---|
+| 31/07 | `RecordSheetFrame` đã có (commit đầu tiên) |
+| 28/09 | Ngăn KR dựng — đi vòng qua khung |
+| 09/10 | `docs/design.md` thêm «Nếp màn trong app» (khung trang, chờ tải, lỗi tải…), rút từ bảy màn đang chạy |
+| 13/10 | Răng `apps/app/test/khung-man-chung.spec.ts`: tiêu đề trang, khung xương thay vòng quay — **chỉ cho trang** |
+| 30/10 | Chủ kho chốt bảng «Ghi vào bản ghi: ngay trong ngăn» sau khi soát tay sáu ngăn |
+
+Tác tử **có** đọc luật: `AGENTS.md` nạp `@docs/design.md` và bảng «đọc gì trước khi chạm gì» trỏ tới nó. Nhưng
+luật được viết *sau* màn, để mô tả đích. Ngoài hai răng kể trên, mọi phần còn lại vẫn là chữ.
+
+Răng khung trang cũng có giới hạn. Phần «hình khung xương theo màn» neo vào một bảng 39 tệp, rút từ một commit gốc
+(`SHA_GOC`). Trang sinh ra sau ngày đó không bị buộc vào bảng: đó là danh sách đóng. Phần «không vòng quay» quét
+rộng hơn bảng; chưa đo nó có bắt trang mới hay không.
+
+---
+
+## 2. Luật hiện có — chặn ở tầng nào, bỏ ngỏ tầng nào
+
+| Tầng | Kit: design-floor (M0–M3) | Kit: skill `ux-ui-craft` / `design-pass` | Design OS (bản vendored) | crm hôm nay |
+|---|---|---|---|---|
+| **Token** | S4 chặn mã màu thô (M1+). Độ phủ token chỉ trên `.html` (M2 cảnh báo, M3 chặn) — **không chạy trên `.tsx`** | lời: «tokens before screens», gắn vào hệ có sẵn | `ui gate` / `token-coverage` trên `.html` | lời (`docs/design.md`) + răng màu trạng thái |
+| **Thành phần** | — | lời | `reuse-plan check` bậc 3–5: tên trong kế hoạch có thật trong sổ thành phần (M2, cần sổ) | lời: «`/packages/ui` là nguồn duy nhất» |
+| **Khung trang / mẫu màn** | — | `ux-ui-craft` đo khoảng cách và đường căn *trong* một màn; không so với màn khác | `reuse-plan check` bậc 2 + dòng `Pattern:` — **gần nhất với câu hỏi**, nhưng chỉ kiểm *kế hoạch* | lời + răng khung trang (chỉ trang, bảng đóng) |
+| **Khung ngăn bản ghi** | — | — | như trên | **chỉ lời** (hôm nay) |
+| **Hành vi** (ghi ở đâu, chờ tải kiểu gì) | — | `design-pass`: người phản ứng trên bản mẫu của *một* vòng | `flow lint` kiểm cấu trúc luồng của một vòng | lời; AC «đặt cạnh nhau» dựng tay mỗi vòng |
+
+**Trả lời thẳng: luật hôm nay KHÔNG chặn được lệch kiểu deal-vs-OKR.** Có ba lý do:
+
+1. **crm ở M0.** `design-floor-bac.mjs --root crm` in `{"bac":"M0","ly_do":"chưa khai design.surface_globs"}`.
+2. **Ngay cả ở M2–M3, các phần CHẶN đều nằm ở tầng token**: mã màu thô, độ phủ token trên `.html`. Kho React
+   `.tsx` chỉ còn kiểm mã màu thô — đúng điều bản phạm vi DFK đã đo ở kho invest (K4).
+3. **Thang dùng lại của Design OS đúng hướng nhưng dừng ở ý định.**
+   - Mô hình của nó gần như mô tả nguyên văn ca crm: kho đã có sẵn thành phần, nhưng không gì bắt tác tử chọn từ
+     đó; tác tử chép mã gần nhất, mà mã gần nhất lại là mã đã lệch. (Diễn ý `knowledge/design-reuse-ladder.md`,
+     mục «Mental Model».)
+   - Mục «What the checker proves, and what it does not» của tệp đó tự khai: bộ kiểm chỉ chứng minh tên có trong
+     sổ. Nó **không** chứng minh mã đã dựng theo kế hoạch, và cũng không chứng minh thành phần được chọn là đúng.
+   - Nó cần một sổ thành phần và mẫu màn khai sẵn (`design/patterns/*` hoặc `Pattern/*`). crm chưa có cả hai.
+     Kit cũng chưa có lệnh sinh sổ từ mã (hàng chờ DFK-C3).
+
+**Phần bỏ ngỏ, gọi tên:** chưa tầng nào của kit kiểm **«vật đã dựng đi qua khung đã chọn»**, và chưa tầng nào **so
+màn mới với màn chuẩn**. Cả hai là bất biến *xuyên vòng*, trong khi mọi thước hiện có đều là thước *của một vòng*.
+
+---
+
+## 3. Nguyên tắc gốc
+
+### 3.1 Vì sao màn mới lệch — sáu nguyên nhân, có số đo đỡ
+
+| # | Nguyên nhân | Bằng chứng ở crm |
+|---|---|---|
+| N1 | **Nhất quán là bất biến xuyên vòng, còn hợp đồng chỉ nói về một vòng.** Không tiêu chí nào của vòng KR đòi «giống ngăn deal», nên không thước nào đỏ. Đây là nguyên tử tái diễn của hiến pháp kit: một trí tưởng tượng viết cả vật, thước và lời | vòng `canh-kr-okr` (28/09) ký mà ngăn KR ngoài khung |
+| N2 | **Có mẫu ≠ bị buộc dùng mẫu.** Đường rẻ nhất cho tác tử là viết mới cho vừa nhu cầu riêng. Khi khung không có chỗ cho nhu cầu đó (ngăn KR cần hành động riêng ở đầu và một thân nhận thẻ con), tác tử thoát khung thay vì mở rộng khung | khung có từ 31/07; ngăn KR 28/09 đi vòng |
+| N3 | **Luật viết sau màn.** Luật mô tả đích; mỗi màn lệch biến thành một hàng sửa | «Nếp màn» 09/10 rút từ màn đang chạy; ~15 hàng NM/SV |
+| N4 | **Luật bằng lời không có răng.** Lời dặn không phải nghiệm (hiến pháp kit) | hai răng (màu, khung trang) đều giữ được tầng của chúng; tầng ngăn không răng thì lệch |
+| N5 | **Chưa có màn chuẩn được chỉ định ở mỗi tầng.** Máy không thể chặn một thứ chưa được quyết | chờ tải trong ngăn: vòng quay (deal) hay khung xương (KR)? chưa ai chốt |
+| N6 | **Thước «trông giống» là mắt người, dùng sau khi giao.** Lệch được phát hiện khi chủ kho dùng thử, thành lượt gọi người ngoài thiết kế | AC-12 dựng tay; bảng 30/10 sinh từ một lần soát tay |
+
+### 3.2 Bảy nguyên tắc cốt lõi
+
+1. **Mỗi quyết định thiết kế có MỘT nguồn, đặt ở tầng thấp nhất giữ được nó.** Thứ tự tầng: token → thành phần →
+   khung (màn, ngăn) → hành vi. Quyết định sống trong **vật** (một thành phần, một khung có khe), không sống trong
+   chữ.
+2. **Đường đúng phải là đường rẻ nhất.** Màn mới dựng bằng cách *điền khe* của khung. Khi khung thiếu khe thì
+   **sửa khung một chỗ**, không thoát khung. crm đã có luật này cho thành phần («cần biến thể mới thì làm trong
+   `packages/ui`»); mở rộng nó lên khung.
+3. **Bất biến xuyên vòng do máy giữ, quét mở.** Quét *mọi* tệp thuộc loại (mọi ngăn mà chỗ đặt ngăn đăng ký, mọi
+   `page.tsx`), không dùng danh sách đóng. Ngoại lệ có tên và lý do.
+4. **Hai chiều cho mọi thước.** Phá khung trong một bản sao thì thước đỏ, đúng tên tệp. Chạm tài liệu hay hồ sơ
+   thì thước im.
+5. **Người quyết màn chuẩn MỘT lần, máy áp mãi.** Mỗi tầng có một mẫu đang chạy được chỉ định («mẫu đang chạy»
+   như bảng 30/10 của crm). Câu hỏi «cái nào đúng» chỉ hỏi khi hai mẫu mâu thuẫn.
+6. **Luật trước màn, không sau màn.** Lần đầu một loại màn xuất hiện, khung của nó được rút thành thành phần *trong
+   chính vòng đó*. Vòng thứ hai cùng loại chỉ điền khe.
+7. **Phần không tất định («đọc như cùng một sản phẩm») đi qua một phép so cạnh nhau ở cổng ĐÃ CÓ.** Máy chụp màn
+   mới cạnh màn chuẩn, người đọc lúc rảnh. Không thêm lượt gọi người.
+
+---
+
+## 4. Các framework đã giải — giải tầng nào, giá ra sao, hợp với kit đến đâu
+
+| Framework / cách | Tầng giải | Cơ chế ép | Giá | Hợp với kit (máy làm + tự chứng minh, người chỉ quyết) |
+|---|---|---|---|---|
+| **Design token (W3C DTCG)** — định dạng chuẩn cho token, công cụ như Style Dictionary sinh ra CSS/TS | token | một nguồn, sinh sang các nền | thấp | ✓ — crm đã giữ tầng này; không giải khung |
+| **Atomic Design** (nguyên tử → phân tử → khối → **khuôn trang** → trang) | từ vựng cho mọi tầng | không có — là mô hình tư duy | 0 | ✓ làm ngôn ngữ: chỗ crm hở chính là tầng *template* |
+| **Design system có thư viện mẫu** — Material (bố cục chuẩn: danh sách–chi tiết, ngăn phụ), Carbon (mẫu rỗng, tải, luồng tạo), Polaris (thành phần `Page` có khe tiêu đề/hành động/lùi; khuôn trang chỉ mục và chi tiết), Atlassian, GOV.UK (mẫu kèm «khi nào KHÔNG dùng») | khung + hành vi | **thành phần cấp trang có khe** + tài liệu + duyệt | trung bình (một lần dựng khung) | ✓✓ — đúng tầng hở; cơ chế «khe» là nguyên tắc 2 |
+| **Ràng buộc bằng cấu tạo** — Braid (SEEK), Every Layout (Stack/Box/Cluster/Sidebar): cấm `className`/`style` tự do, chỉ ghép primitive bố cục | khoảng cách, bố cục trong màn | API không cho phép lệch | cao nếu áp ngược lên mã cũ | ◐ — crm đã cấm đè kiểu bằng lời; đủ dùng ở tầng thành phần |
+| **Lint / quét cấu trúc** — `no-restricted-imports`, `no-restricted-syntax`, luật AST tự viết, lint Tailwind cấm giá trị tuỳ ý | token · thành phần · **khung** | máy, tất định, chạy trong suite | thấp | ✓✓ — đúng dạng răng kit ưa: thước cùng nhà với vật, chiều đỏ nằm trong lịch sử. crm đã có bộ quét JSX (`apps/app/test/lib/quet-jsx.ts`) và hai răng dùng nó |
+| **Storybook + so ảnh** (Chromatic, `toHaveScreenshot` của Playwright) | giữ một màn không trôi khỏi chính nó | so điểm ảnh với ảnh nền | trung bình–cao (dữ liệu giả ổn định, duyệt ảnh nền) | ◐ — bắt trôi, **không** bắt màn MỚI lệch (màn mới chưa có ảnh nền); dùng được cho chính khung chung |
+| **Màn chuẩn / bản tham chiếu** (golden screen, reference implementation) | cảm nhận tổng thể | so cạnh nhau | thấp nếu máy chụp | ✓ — nguyên tắc 7; ghép vào gói `design-pass` sẵn có |
+| **Thang dùng lại + kế hoạch dùng lại** (Design OS); sổ thành phần cho tác tử (sổ shadcn, máy chủ MCP của ReUI) | ý định của tác tử trước khi dựng | kiểm tên trong kế hoạch | trung bình (cần sổ thành phần + mẫu khai) | ◐ — giải nửa ý định; thiếu nửa vật (Design OS tự khai) |
+
+**Rút gọn:** các design system lớn giải bằng **thành phần cấp trang có khe**, cộng với **duyệt của người**. Kit
+thay phần «duyệt của người» bằng **răng quét cấu trúc trên mã**, rẻ và tất định, cộng với **so cạnh nhau ở cổng đã
+có** cho phần cảm nhận. So ảnh và thang dùng lại là bổ sung, không thay được răng cấu trúc.
+
+---
+
+## 5. Cách giải đề xuất
+
+### 5.1 Khuyến nghị chính: «khung là vật, không phải lời» — làm ở KHO crm trước
+
+Đây là vật của kho, theo thứ tự chọn nghiệm của luật 26/09: sửa đúng tầng trước, đổi mặc định của kit sau cùng.
+Gọn trong MỘT vòng, ước 8–10 tiêu chí:
+
+1. **Chốt mẫu tầng ngăn (máy đề xuất, cửa veto mở).** Mẫu = ngăn deal qua `RecordSheetFrame`. Riêng chờ tải
+   trong ngăn, máy đề xuất **khung xương**: kéo luật trang đã chốt 09/10 xuống tầng ngăn, nghĩa là khung chung đổi
+   theo, còn ngăn KR đã đúng ở điểm này. Căn cứ là luật đã khai, nên máy đi tiếp và ghi sổ; chủ kho có thể đảo.
+2. **Sửa khung, không thoát khung.** Mở `RecordSheetFrame` thêm đúng các khe mà ngăn KR và Số KR đang cần (hành
+   động riêng ở đầu, thân nhận thẻ con, lỗi «không thấy» riêng). Đưa hai ngăn đó vào khung. Chọn **một** thành
+   phần lỗi tải cho ngăn (`KhungTaiLoi` nói lý do), ghi vào `docs/design.md`.
+3. **Răng quét mở cho tầng ngăn**, dựng trên `quet-jsx.ts`:
+   - Mọi loại bản ghi mà chỗ đặt ngăn (`record-sheet-host.tsx`) đăng ký phải dựng `RecordSheetFrame` ở gốc.
+   - Ngăn không được tự dựng `DetailSheetHeader`, `Skeleton`, hay một thành phần lỗi ngoài khung.
+   - Ngoại lệ là một bảng có tên và lý do.
+   - Chiều đỏ: tiêm một ngăn gọi thẳng `DetailSheetHeader` thì đỏ đúng tên tệp. Chiều im: sửa `docs/` hay
+     `_acceptance/` thì im.
+4. **Mở răng khung trang.** Phần «hình theo màn» của `khung-man-chung.spec.ts` chuyển từ bảng neo vào commit gốc
+   sang quét mọi `page.tsx`, có bảng ngoại lệ. Trang mới sau 13/10 tự vào lưới.
+5. **Màn chuẩn trong gói thiết kế.** Khai danh sách màn chuẩn theo tầng (trang danh sách, ngăn bản ghi, ngăn
+   tạo). `design-pass` của mỗi vòng chạm loại màn ấy chụp màn mới cạnh màn chuẩn, cùng khổ và cùng trạng thái.
+   Người phản ứng ở Cổng 1 sẵn có, không thêm lượt. Lúc đầu chỉ cần một dòng trong `docs/proto.md` hoặc khối
+   `design_pass` của config; chưa cần kit đổi gì.
+
+Các hàng SV và NM đang mở **giữ nguyên** — đó là dọn nợ. Vòng này là phần *chặn tái sinh*. Không có nó thì mỗi lần
+dọn xong, màn OKR kế tiếp lại đẻ hàng mới.
+
+**Dự báo trên thước của kit** (↑ ↓ =):
+
+| Dòng | Dự báo | Vì sao |
+|---|---|---|
+| làm-xong → ký | = | thêm một bài kiểm nhanh trong suite sẵn có |
+| ký → gộp | = | — |
+| lượt gọi người ngoài thiết kế / vòng | ↓ | lệch khung bị chặn trong suite, không chờ chủ kho dùng thử mới thấy |
+| token · phút máy / kết quả gộp | ↓ về sau | bớt vòng «đồng nhất lại»: hôm nay ≥ 8 vòng đã ký, ~15 hàng chờ |
+| vòng bị hạ tầng đốt lượt chấm | = | răng cùng nhà với vật, không cần bàn đo mới |
+
+**Điều kiện tin cậy:** răng ở bước 3 phải có đối chứng dương (mọi ngăn hiện có xanh sau bước 2) và ghim đúng thông
+điệp. Không có hai thứ đó thì bước 3 không tính.
+
+### 5.2 Phần của KIT — ghi hạt giống, không mở vòng bây giờ
+
+- **Đóng băng meta và luật CỘNG:** cơ chế mới trong kit cần chủ kho phê và chỉ mở sau mốc kho nhận gần nhất.
+- **Hạt giống đề xuất (chưa ghi):** «design-floor kiểm *vật theo khung*». Đây là một khoá tuỳ chọn trong config,
+  ánh xạ glob tệp → thành phần khung bắt buộc, ví dụ `**/record-sheet/*-sheet.tsx → RecordSheetFrame`. S4 kiểm mã
+  đã dựng có đi qua khung đó, cho cả `.tsx` lẫn `.html`. Đây là nửa còn thiếu của `reuse-plan check`: nửa kia
+  kiểm ý định, nửa này kiểm vật.
+  - Kho không khai thì không đổi gì. Đó là nấc «bật thêm theo lựa chọn», không đổi mặc định.
+  - Neo: bản phạm vi DFK (PR #446) ghi rằng hàng chờ DFK-C2 «mở sớm hơn điều kiện… chỉ khi chủ kho chỉ ra một màn
+    lệch thật trên kho tiêu thụ» — ca này là màn lệch thật đó, nhưng nó nằm ở tầng khung, không ở tầng token của
+    DFK-C2. Nên nó là bằng chứng cho một hạt giống khác (DFK-C3 / vật theo khung), không phải lý do mở DFK-C2.
+  - Điều kiện nâng từ kho lên kit: răng bước 3 của crm chạy qua ≥ 3 vòng OKR mà bắt được ≥ 1 lệch thật, **và** một
+    kho thứ hai (invest) muốn cùng cơ chế. Chưa đủ hai vế thì đây là vật của kho.
+- **`design-pass`:** mục «màn chuẩn cạnh màn mới» ở bước 5 là một đổi lời của skill. Đưa vào kit sau khi crm dùng
+  thử bằng config.
+
+### 5.3 Các lối khác và hệ quả
+
+| Lối | Được | Mất |
+|---|---|---|
+| **A. Kit trước** — dựng khoá «vật theo khung» trong design-floor ngay | mọi kho có cùng lúc | cần một vòng meta có tên + CỘNG; chờ ≥ 1 mốc phát hành; dựng cơ chế khi mới có một kho có số — trái luật 26/09 |
+| **B. Chỉ thêm lời** vào `docs/design.md` / `AGENTS.md` | gần như 0 giá | đã thử: tác tử đọc luật mà ngăn KR vẫn đi vòng khung có sẵn; ≥ 8 vòng đồng nhất lại là giá của lối này |
+| **C. So ảnh cho mọi ngăn** (Chromatic / `toHaveScreenshot`) | bắt trôi điểm ảnh của khung chung | không bắt màn MỚI lệch; cần dữ liệu giả ổn định và duyệt ảnh nền — đắt hơn răng cấu trúc, nên là lớp sau |
+| **D. Lên M2 design-floor ở crm** (sổ thành phần + tệp token + kế hoạch dùng lại) | tác tử phải khai khung trước khi dựng | chưa có lệnh sinh sổ từ mã; vẫn chỉ kiểm ý định; tốn công dựng sổ |
+| **E. Chỉ dọn nợ** (chạy hết SV/NM) | màn hiện có đồng nhất | không chặn tái sinh: màn OKR kế tiếp lại lệch |
+
+---
+
+## 6. Lệnh đo (đọc lại được)
+
+```bash
+cd ~/dev/crm && git fetch origin onehub && git rev-parse --short origin/onehub   # 16604ce3f
+# khối dựng theo ngăn
+for f in deal-sheet contact-sheet company-sheet plan-sheet kr-sheet objective-sheet so-kr-sheet; do
+  git show "origin/onehub:apps/app/components/crm/record-sheet/$f.tsx" \
+  | grep -oE '\b(RecordSheetFrame|RecordActions|Timeline|DetailSheetHeader|DetailSheetStats|Skeleton|VungTaiLoi|KhungTaiLoi)\b' \
+  | sort | uniq -c | tr '\n' ' '; echo " ← $f"; done
+# bậc design-floor của crm
+node scripts/design-floor-bac.mjs --root ~/dev/crm --json   # {"bac":"M0",...}
+# vòng «đồng nhất lại»: dòng feature: của mọi contract.md có «như deal | khung chung | thống nhất | dùng chung …»
+```
+
+Đối chứng tầng token: cùng biểu thức giá trị tuỳ ý bắt `w-[12%]` ×29 và `text-[13px]` ×16 trên cả app. Vậy số 0 ở
+khu OKR là đo thật, không phải biểu thức mù.
+
+**Giới hạn đã khai:**
+- Không chụp ảnh. Lệch *thị giác* (khoảng cách, cỡ chữ đầu ngăn) chưa đo trên bản chạy. Kết luận tầng khung đọc từ
+  cấu trúc mã.
+- Số «khoảng 30 hàm» đếm tay từ 44 tên khớp `Rong|DangTai|Loi|Cho|KhongThay…`, đã bỏ 14 tên khớp nhầm
+  (`ChonChuKy`, `TraLoi`, `HopChonDuong`…).
+- Danh sách vòng «đồng nhất lại» lọc theo từ khoá dòng `feature:`, nên có thể sót vòng không dùng các từ đó.
