@@ -87,11 +87,14 @@ function docBanGhi(p, can = null) {
   }
   return { ev, loi, cham: can != null && txt.includes(can) };
 }
-// Tổng token theo model × loại của các lời nhắn trong [tu, den], mỗi mã một lần.
+// Tổng token theo model × loại của các lời nhắn trong [tu, den], mỗi mã một lần. Lời nhắn model «<synthetic>» do Claude Code tự
+// sinh (thông báo hạn mức, ngắt lượt…), không phải việc của model: bỏ khỏi token; mốc thời gian của nó vẫn vào giờ máy như mọi sự kiện.
+const MODEL_TU_SINH = '<synthetic>';
 function congToken(loiDs, tu, den) {
   const thay = new Set(); const theoModel = {};
   for (const x of loiDs) {
     if (x.t < tu || x.t > den || thay.has(x.ma)) continue;
+    if (x.model === MODEL_TU_SINH) continue;
     thay.add(x.ma);
     const k = theoModel[x.model] || (theoModel[x.model] = { vao: 0, ra: 0, doc_dem: 0, ghi_dem: 0 });
     k.vao += x.u.input_tokens || 0; k.ra += x.u.output_tokens || 0;
