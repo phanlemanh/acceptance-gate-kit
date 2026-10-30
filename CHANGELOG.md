@@ -82,8 +82,8 @@ lần gộp xung đột ở hai tệp sinh; kho thứ nhất là crm 16/10 (PR #
   `PRODUCT-MAP.md merge=tep-sinh` · `LO-TRINH.html merge=tep-sinh` vào `.gitattributes`, và `git config
   merge.tep-sinh.driver true` một lần trên MỖI bản clone. Driver giữ bản của nhánh đang đứng; vẽ lại bằng `node
   scripts/product-map.mjs --root .` rồi commit. Xung đột ở tệp nguồn vẫn dừng như thường. Kit tự bật.
-- **Thư mục hồ sơ không tệp nào** (git không giữ được) không vào bản đồ, trang lộ trình và bộ quét vào phiên — cùng
-  một hàm `coTepTrongCay` của `lib/workspace-record.cjs` (mục c2 của M5 ở kit #308, Hỏi-1 ở Cổng Phạm vi).
+- **Thư mục hồ sơ không tệp nào** (git không giữ được) không vào bản đồ và trang lộ trình (mục c2 của M5 ở kit #308,
+  Hỏi-1 ở Cổng Phạm vi).
 - **Giới hạn khai:** «PR cắt trước khi `.gitattributes` có hai dòng vẫn xung đột ở lần gộp đầu (git đọc thuộc tính ở
   nhánh đang đứng); bản clone chưa chạy lệnh cấu hình xung đột như cũ; trên web GitHub PR vẫn báo xung đột ở tệp sinh
   (forge không chạy driver máy) — cố ý, giữ lưới của forge; PR chạm hồ sơ vẫn gộp nhánh chính vào và vẽ lại mỗi lần
@@ -145,8 +145,8 @@ Gốc: từ 23/10 đề bài làn đối chứng S4 bảo tác tử «dùng côn
   khi nạp gói nhận lời «mở phiên mới». Đơn `xin s4` không cờ nay lấy slug của hàng đang chấm thay vì hàng kế — hai hồ sơ
   cùng bậc thì lệnh từ chối và đòi `--slug`. Hồ sơ `T1` trên nhánh chính được tính là đã gộp, nên dãy tiến tiếp thay vì
   đứng chờ.
-- Kho có thư mục `_acceptance/<x>/` rỗng (không tệp nào) trên đĩa: thư mục ấy biến khỏi `PRODUCT-MAP.md`, trang lộ
-  trình và bộ quét vào phiên — bản vẽ trên máy nay khớp bản clone sạch.
+- Kho có thư mục `_acceptance/<x>/` rỗng (không tệp nào) trên đĩa: thư mục ấy biến khỏi `PRODUCT-MAP.md` và trang lộ
+  trình — bản vẽ trên máy nay khớp bản clone sạch.
 - Mọi kho chạy lượt chấm S4: làn đối chứng chạy thật, nên lượt chấm có thêm vài lệnh trên commit gốc (phút máy ↑ nhẹ) và
   thẻ Cổng Bằng chứng có thể liệt eval «xanh cả hai phía» (không phân biệt được vật mới với vật cũ).
 - Kho ghim đường tệp kịch bản cho một executor: chân `cong_cu` của đường nền thôi đỏ «THIẾU» oan.
