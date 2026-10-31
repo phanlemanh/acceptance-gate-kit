@@ -14,7 +14,7 @@
 // Hai lệnh `ui` gọi bản gói design-floor/dist/ui.mjs với argv rút từ khối máy của design-floor/HOP-DONG-NHAP.md — một
 // nguồn với bộ đo của hợp đồng nhập.
 //
-//   node scripts/design-floor-s1.mjs --root . --slug <slug> [--json]   0 chạy xong (mọi bậc) · 2 gọi sai / không có hồ sơ
+//   node scripts/design-floor-s1.mjs --root . --slug <slug> [--json]   0 chạy xong (mọi bậc) · 1 không đọc được (danh sách tệp git, tri thức) · 2 gọi sai / không có hồ sơ
 // Biến môi trường (bộ đo): DESIGN_FLOOR_TRI_THUC (thư mục có knowledge/ dùng thay bộ đệm), DESIGN_FLOOR_KHOA (tệp khoá),
 // DESIGN_FLOOR_UI (bản gói), DESIGN_FLOOR_CACHE (bộ đệm của bộ đo bước 1), DESIGN_FLOOR_KHONG_MANG=1 (cấm tải).
 import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -52,7 +52,7 @@ function gocTriThuc(nguon) {
   if (process.env.DESIGN_FLOOR_KHONG_MANG) throw new Error('không mạng (DESIGN_FLOOR_KHONG_MANG=1) và chưa có bộ đệm tri thức');
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
-  const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
+  const git = (...a) => execFileSync('git', a, { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   try {
     git('init', '-q');
     git('remote', 'add', 'origin', `${nguon.repo}.git`);
@@ -127,7 +127,7 @@ function dinhTuyen(khoa, chu) {
 function goiUi(hd, lenh, gia, root) {
   const argv = hd.lenh[lenh].argv.map((a) => a.replace(/^\{(\w+)\}$/, (_, k) => gia[k]));
   const ui = process.env.DESIGN_FLOOR_UI || path.join(KIT, 'design-floor', 'dist', 'ui.mjs');
-  const r = spawnSync(process.execPath, [ui, ...argv], { cwd: root, encoding: 'utf8', env: { ...process.env, ...(hd.moi_truong || {}) } });
+  const r = spawnSync(process.execPath, [ui, ...argv], { cwd: root, encoding: 'utf8', env: { ...process.env, ...(hd.moi_truong || {}) }, maxBuffer: 64 * 1024 * 1024 });
   let n = null;
   try {
     n = JSON.parse(r.stdout).data?.errorCount ?? null;
@@ -209,7 +209,13 @@ function main(argv) {
     process.stderr.write(`design-floor-s1: không có hồ sơ _acceptance/${slug}\n`);
     return 2;
   }
-  const ra = chayS1(root, slug);
+  let ra;
+  try {
+    ra = chayS1(root, slug);
+  } catch (e) {
+    process.stderr.write(`design-floor-s1: ${e.message}\n`);
+    return 1;
+  }
   if (!ra) return 0;
   if (json) process.stdout.write(`${JSON.stringify(ra)}\n`);
   else for (const d of ra.dong) process.stdout.write(`design-floor: ${d}\n`);

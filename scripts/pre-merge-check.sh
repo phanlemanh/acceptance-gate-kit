@@ -83,6 +83,13 @@ AC_LINE_FALLBACK_SEEN=""
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RECHECK="$HERE/recheck-evidence.cjs"
 
+# Thư viện của kit đọc theo CHỖ ĐẶT script, không theo gốc kho đang kiểm (hồ sơ pre-merge-doc-lib-theo-kit):
+# kho cài kit theo đường plugin không có lib/ ở gốc, nên đọc "$ROOT/lib/…" là fail-closed oan ở mọi hồ sơ
+# machine-cleared. Thư viện cạnh script thắng; vắng thì lùi về lib/ của gốc kho như trước vòng.
+# <<<KIT-LIB-THEO-CHO-CAI
+kit_lib() { if [ -f "$HERE/../lib/$1" ]; then printf '%s' "$HERE/../lib/$1"; else printf '%s' "$ROOT/lib/$1"; fi; }
+# KIT-LIB-THEO-CHO-CAI>>>
+
 ROOT="."
 SLUGS=()
 # PRE_MERGE_BASE set-nhưng-RỖNG khác với không-set: không-set là bỏ-qua-có-tín-
@@ -448,7 +455,7 @@ xanh_sach_check() { # <report path>
       && l.replace(/^#{2,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
       if(!has){process.stdout.write("__VANG__");process.exit(0);}
       process.stdout.write(section(t,h).join("\n").trim()?"__CO__":"");
-    ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
+    ' "$(kit_lib md-section.cjs)" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
     case "$_body" in
       __VANG__) clean_ok=0; clean_why="mục «$_sec» VẮNG khỏi báo cáo (vắng ≠ rỗng)"; break ;;
       __CO__)   clean_ok=0; clean_why="mục «$_sec» có nội dung"; break ;;
@@ -472,7 +479,7 @@ xanh_sach_check() { # <report path>
       const m=mucChuaDinhTuyen(a[0],a[1],a[2]);
       if(m.suspect){process.stdout.write("__NGO__");process.exit(0);}
       process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", ")+cumCu(a[0],a[1],a[2]):"OK:"+m.tong);
-    ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" "$_cdir/run-log.jsonl" 2>/dev/null || printf '__LOI__')"
+    ' "$(kit_lib out-of-contract.cjs)" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" "$_cdir/run-log.jsonl" 2>/dev/null || printf '__LOI__')"
     case "$_ooc" in
       OK:*) CLEAN_OOC_DINH_TUYEN="${_ooc#OK:}" ;;
       __NGO__) clean_ok=0; clean_why="review-findings.md có chữ trong mục «Ngoài hợp đồng» nhưng không đọc ra mục nào (sai khuôn OOC-ITEM-TEMPLATE)" ;;

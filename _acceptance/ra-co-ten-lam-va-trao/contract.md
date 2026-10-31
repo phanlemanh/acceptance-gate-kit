@@ -136,6 +136,7 @@ lan-ghim-lai-giu-tron-loi-loi cho-cong-gia-tri da-nghi
 lan-ghim-lai-theo-paths cho-cong-gia-tri da-nghi
 release-2-26-0 ho-so-hong da-giao-may-thong-veto-mo
 du-bao-dong-bang-theo-ma-moc ho-so-hong cho-cong-gia-tri
+pre-merge-doc-lib-theo-kit cho-cong-gia-tri da-giao-khong-do
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:
