@@ -740,15 +740,16 @@ hiện chúng ta không mất bối cảnh?» Mục này là sổ của cả m�
 | QĐ-7 | 30/10 | Bản phạm vi `pham-vi-ban-do-khuon-3010` (BK1–BK4) được duyệt; đẩy finding kit, tri thức crm, bản phạm vi crm; nguyên lý chung ghi thêm vào tri thức riêng của kit | chủ kho: «Duyệt và đẩy, những hạng mục nào đưa vào tri thức?» | chốt |
 | QĐ-5 | 30/10 | Trước khi chạy vòng: ghi hết tài liệu và quyết định — finding (kho kit) · tri thức (kho riêng của crm) · bản phạm vi (crm) | chủ kho, câu đầu mục này | đã làm trong phiên này |
 | QĐ-6 | 30/10 | Chờ tải trong ngăn bản ghi dùng **khung xương** (kéo luật trang 09/10 của crm xuống tầng ngăn) | máy, căn cứ `docs/design.md` «Chờ tải và lỗi tải» | máy quyết, cửa veto mở |
+| QĐ-8 | 31/10 | **Kho thử thứ hai là onehub-quy-hang, chạy song song crm** (sửa QĐ-2): crm thử dạng sửa lệch đã có, Quỹ hàng thử dạng khai trước khi lệch; kit nhận bằng chứng từ một trong hai kho cho KH-C1…KH-C5; invest không còn bắt buộc | chủ kho: «Tôi muốn thực hiện điều tương tự của crm vào rep onehub-quy-hang. Như một Repo thử nghiệm…», rồi «Đồng ý, làm» | chốt — bản phạm vi Quỹ hàng chờ duyệt (onehub-quy-hang #22) |
 
 ### 13.2 Việc còn mở
 
 | Mã | Việc | Ai | Ghi chú |
 |---|---|---|---|
 | M-1 | ~~Duyệt bản phạm vi~~ (duyệt 30/10, QĐ-7) → cắt lượt (`cat-luot`) → hàng lộ trình → mở vòng | máy cắt và mở | vòng chạy trong phiên cấp cao nhất ở thư mục crm (cần công cụ Workflow) |
-| M-2 | (đang làm 30/10, QĐ-7) Đẩy ba nơi đang chỉ commit tại máy: nhánh kit `claude/thao-luan-ui-dong-nhat-b528d4` (finding + hình) · kho tri thức `crm-onehub-nguon` · nhánh bản phạm vi của crm | chủ kho cho phép đẩy | kho kit công khai: chạy rà ẩn danh trước khi đẩy |
+| M-2 | ~~Đẩy ba nơi~~ (xong 30/10: kit #451, crm #591, hai kho tri thức) — Đẩy ba nơi đang chỉ commit tại máy: nhánh kit `claude/thao-luan-ui-dong-nhat-b528d4` (finding + hình) · kho tri thức `crm-onehub-nguon` · nhánh bản phạm vi của crm | chủ kho cho phép đẩy | kho kit công khai: chạy rà ẩn danh trước khi đẩy |
 | M-3 | Thứ tự với bản phạm vi `okr-ghi-trong-ngan-3010` (N1, N2 chạm cùng `kr-sheet.tsx`, `objective-sheet.tsx`) | máy xếp khi cắt lượt | không chạy song song hai vòng sửa cùng tệp ngăn |
-| M-4 | Mở hạt giống phía kit cho «bản đồ khuôn trong design-floor» | máy, sau khi có neo | neo = hồ sơ vòng thử của crm sau khi ký (luật «ô chỉ mở khi có neo ngoài») |
+| M-4 | Mở hạt giống phía kit cho «bản đồ khuôn trong design-floor» — 31/10 đã cắt thành năm mục chờ điều kiện KH-C1…KH-C5 (đợt `ban-do-khuon-kit-3110`, [`docs/plans/pham-vi-ban-do-khuon-kit-3110.md`](../plans/pham-vi-ban-do-khuon-kit-3110.md)) | máy, sau khi có neo | neo = hồ sơ vòng thử của crm sau khi ký (luật «ô chỉ mở khi có neo ngoài»); điều kiện mở từng mục ở `chan_troi` của `docs/plans/lo-trinh-kit.json` |
 
 ### 13.3 Đường đọc lại bối cảnh (cho phiên mở vòng thử)
 
@@ -759,3 +760,7 @@ hiện chúng ta không mất bối cảnh?» Mục này là sổ của cả m�
    của thước) → §13 (sổ).
 4. **Hình:** [`assets/2026-10-30-kien-truc-ban-do-khuon.html`](assets/2026-10-30-kien-truc-ban-do-khuon.html) (duyệt cuối) ·
    [`assets/2026-10-30-ui-dong-nhat-giua-cac-man.html`](assets/2026-10-30-ui-dong-nhat-giua-cac-man.html) (tám hình).
+5. **Phần kit đã cắt (31/10):** [`docs/plans/pham-vi-ban-do-khuon-kit-3110.md`](../plans/pham-vi-ban-do-khuon-kit-3110.md) — năm mã KH1–KH5,
+   lý do chưa mở hàng, điều kiện mở lại, đường đọc lại bối cảnh đầy đủ.
+6. **Kho tri thức kit** `acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md` — nguyên lý chung, cơ chế, bài học ux-kit;
+   nối chéo `wiki/chu-de/design-floor.md`.

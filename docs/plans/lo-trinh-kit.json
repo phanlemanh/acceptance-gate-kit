@@ -1509,6 +1509,56 @@
         "CH3"
       ],
       "mo_lai_khi": "Hàng dựng M2 của invest xong và đo được giá trị reuse-plan check"
+    },
+    {
+      "ma": "KH-C1",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "S4 chấm vật theo khuôn: vòng dựng màn ngoài khuôn bị trả lại, gọi đúng tên tệp và khối cấm; kho không khai bản đồ thì không đổi gì",
+      "ly_do": "Kho thứ nhất chưa chạy vòng thử nào (QĐ-2 của finding 2026-10-30-ui-dong-nhat-giua-cac-man §13); chưa có hồ sơ đã ký làm neo (luật «ô chỉ mở khi có neo ngoài»); là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Lược đồ tệp bản đồ phải rút từ tệp kho thứ nhất dựng thật ở BK1, không đoán trước. Điểm chốt khi mở: chờ bộ đọc JSX (DFK-C1) hay bản đầu kiểm theo mẫu chữ kèm giới hạn đã khai",
+      "phu": [
+        "KH1"
+      ],
+      "mo_lai_khi": "Một trong hai kho thử có hồ sơ dựng bản đồ và răng giữ khuôn đã ký và gộp — crm (BK1, BK2) hoặc onehub-quy-hang (QK1, QK2) — và răng khuôn của kho ấy bắt được ≥1 lệch thật qua ≥3 vòng giao diện; ≥1 kho đã nhận 2.36.0 và chủ kho gọi tên vòng meta"
+    },
+    {
+      "ma": "KH-C2",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có",
+      "ly_do": "Kho thứ nhất chưa chạy vòng thử nào (QĐ-2 của finding 2026-10-30-ui-dong-nhat-giua-cac-man §13); chưa có hồ sơ đã ký làm neo (luật «ô chỉ mở khi có neo ngoài»); là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Khối thẻ chỉ đọc tệp kết quả lượt chấm của KH1, nên không có gì để đọc khi KH1 chưa giao",
+      "phu": [
+        "KH2"
+      ],
+      "mo_lai_khi": "KH1 đã giao và gộp"
+    },
+    {
+      "ma": "KH-C3",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "Bước thiết kế chụp màn mới cạnh màn mẫu, cùng khổ và cùng trạng thái",
+      "ly_do": "Đổi lời của skill design-pass; finding §5.2 chốt chỉ đưa vào kit sau khi kho thứ nhất dùng thử bằng cấu hình (dòng «màn mẫu», nay nằm trong câu giao BK2 của crm)",
+      "phu": [
+        "KH3"
+      ],
+      "mo_lai_khi": "Một kho thử dùng màn mẫu cạnh màn mới qua ≥3 vòng giao diện — crm (dòng «màn mẫu» của BK2) hoặc onehub-quy-hang (QK3) — và ảnh đối chiếu có mặt ở Cổng Phạm vi của các vòng ấy"
+    },
+    {
+      "ma": "KH-C4",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "Sinh đoạn cấu hình lint cấm nhập theo vùng từ bản đồ khuôn",
+      "ly_do": "Kho thứ nhất chưa chạy vòng thử nào (QĐ-2 của finding 2026-10-30-ui-dong-nhat-giua-cac-man §13); chưa có hồ sơ đã ký làm neo (luật «ô chỉ mở khi có neo ngoài»); là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Một kho viết tay luật lint thì chưa có hình dạng chung để sinh",
+      "phu": [
+        "KH4"
+      ],
+      "mo_lai_khi": "Hai kho có luật lint cấm nhập theo vùng viết tay cùng hình dạng — crm (BK2) và onehub-quy-hang (QK2), hoặc invest"
+    },
+    {
+      "ma": "KH-C5",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "Lúc bật nền thiết kế, máy đề xuất bản đồ nháp từ mã và liệt kê màn đang lệch",
+      "ly_do": "Kho thứ nhất chưa chạy vòng thử nào (QĐ-2 của finding 2026-10-30-ui-dong-nhat-giua-cac-man §13); chưa có hồ sơ đã ký làm neo (luật «ô chỉ mở khi có neo ngoài»); là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Chế độ đề xuất gắn vào lệnh bật một lần của DFK1 và cần ≥2 kho đã khai bản đồ để rút cách dò",
+      "phu": [
+        "KH5"
+      ],
+      "mo_lai_khi": "DFK1 đã giao và kho thứ hai đã khai bản đồ khuôn — onehub-quy-hang (QK1, QK4) hoặc invest"
     }
   ],
   "da_bac": [
