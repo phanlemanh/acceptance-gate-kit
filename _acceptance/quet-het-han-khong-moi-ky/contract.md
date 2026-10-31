@@ -5,7 +5,7 @@ slug: quet-het-han-khong-moi-ky
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: _acceptance/quet-het-han-khong-moi-ky/design.md
 approved_by: Manh Phan
 approved_at: 2026-10-31T15:47:21Z
@@ -79,3 +79,8 @@ biến môi trường.
 
 - Gác luật sản phẩm (`luatG2.chan`) không có ca riêng ở vòng này: nó tính từ tệp hồ sơ trước và độc lập với bộ quét,
   và vế mới nằm trong cùng biểu thức gác (gap-probe P1 deferred).
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-01:
+  - Ngoài-1: Khi bộ quét hỏng vì lý do khác hết hạn (thoát lỗi, bị ngắt, đầu ra hỏng), cờ vàng vẫn khuyên chạy lại với hạn dài hơn — lời chỉ đường sai hướng, thẻ vẫn không mời ký nhầm.
+  - Ngoài-2: Câu cờ cũ còn chữ «hoặc bộ quét lỗi» dù ca bộ quét lỗi nay có cờ riêng.
+  - Ngoài-3: Cùng lỗi với Ngoài-1 (một phiên soi khác nêu) — lời khuyên nới hạn hiện cả ở kiểu hỏng không phải hết giờ.
+  - Ngoài-4: Với hai kiểu hỏng thoát lỗi và bị ngắt, bộ kiểm chưa ghim câu lý do bằng chữ trên thẻ thật — câu ấy mất thì bộ kiểm không đỏ ngay.
