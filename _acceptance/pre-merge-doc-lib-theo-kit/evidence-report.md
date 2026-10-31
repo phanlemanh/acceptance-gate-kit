@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0bfe1ca64a60fb8054dc9f8b0e20f3b661e6d7bb
+verified_commit: b892fda4778dff6a3af788638308de85ceae5593
 human_signoff: Manh Phan 2026-10-31
 ---
 
@@ -149,3 +149,7 @@ none — mọi eval đều chạy một lần (deterministic), không có eval n
 
 Round 1: lượt chấm S4 đầu trả REJECT — lưới của kit cần miễn trừ đích danh hai dòng cũ trong DV5. Returned to implementation (commit 0bfe1ca6).
 Round 2: các lệnh suite chạy lại trên 0bfe1ca64a60fb8054dc9f8b0e20f3b661e6d7bb đều xanh; E1–E5 carry-forward từ round 1 vì delta không chạm paths của eval. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-31, do hoá cũ do gộp main a9f02e3a (#465 design-floor) vào nhánh PR
+run_id: repin-20261031T162813Z-83090
+sha: b892fda4778dff6a3af788638308de85ceae5593 · suites: 11 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
