@@ -70,8 +70,8 @@ ngưỡng đếm; hoặc chờ DFK-C1. Lựa chọn thuộc chủ kho ở cổng
 3. **Hình:** [`assets/2026-10-30-kien-truc-ban-do-khuon.html`](../findings/assets/2026-10-30-kien-truc-ban-do-khuon.html)
    (duyệt cuối) · [`assets/2026-10-30-ui-dong-nhat-giua-cac-man.html`](../findings/assets/2026-10-30-ui-dong-nhat-giua-cac-man.html)
    (tám hình).
-4. **Kho tri thức crm** (riêng tư) `crm-onehub-nguon:wiki/chu-de/ban-do-khuon.md#c9d74eaf0b846ddf5f3c2d50c9bf729045eec214`
-   — phần riêng của crm: tệp, màn, chữ duyệt của chủ kho.
+4. **Kho tri thức crm** (riêng tư) `crm-onehub-nguon:wiki/chu-de/ban-do-khuon.md#c14b6409128abca4bea56a936a28fe25a15e3c9e`
+   — phần riêng của crm: tệp, màn, chữ duyệt của chủ kho, trạng thái BK1–BK3 lúc cắt và đường báo về kit khi BK1, BK2 ký.
 5. **crm** `docs/plan/pham-vi-ban-do-khuon-3010.md` (PR crm-onehub #591) — BK1–BK4, tệp chạm, thứ tự; và hàng BK1–BK3
    trong `docs/plan/lo-trinh-okr.json`.
 6. **Nền thiết kế của kit:** bản phạm vi DFK (PR #446) — hàng chờ DFK-C1, DFK-C3 là nguyên liệu của KH1 và KH5.
