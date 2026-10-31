@@ -212,7 +212,10 @@ const CA = {
     ];
     for (const [ten, r] of ds) {
       if (r.ec !== 1) return `HONG-BON: ${ten} thoát ${r.ec} — ${dong(r)}`;
-      if (!r.err.includes('không đọc được danh sách tệp git')) return `HONG-BON: ${ten} stderr thiếu «không đọc được danh sách tệp git» — ${dong(r)}`;
+      // Đúng MỘT dòng stderr mang tiền tố của lệnh: lệnh sập không bắt cũng thoát 1 và in cùng thông điệp, kèm chồng lời gọi.
+      const dongLoi = r.err.trim().split('\n');
+      const tienTo = `design-floor-${ten}: không đọc được danh sách tệp git (`;
+      if (dongLoi.length !== 1 || !dongLoi[0].startsWith(tienTo)) return `HONG-BON: ${ten} stderr không phải một dòng «${tienTo}…» — ${dong(r)}`;
       if ((r.out + r.err).includes('không khớp tệp nào')) return `HONG-BON: ${ten} in «không khớp tệp nào»`;
     }
     return giongAnh(truoc, chup(R)) ? null : 'HONG-BON: cây đổi sau bốn lệnh';
@@ -286,13 +289,16 @@ const CA = {
     if (dong(sua) !== dong(goc)) return `CU-DOI-TEN: bản sửa ≠ bản gốc — sửa ${dong(sua)} / gốc ${dong(goc)}`;
     return sua.ec === 2 ? null : `CU-DOI-TEN: S4 không chấm (${dong(sua)})`;
   },
-  // Checkout kiểu CI: init + remote add + fetch — git không ghi origin/HEAD. Giới hạn đã khai: như 2.36.0, thoát 1.
+  // Bản sao có remote mà không có origin/HEAD (checkout kiểu CI trên git cũ hơn 2.48: init + remote add + fetch). Git từ
+  // 2.48 tự ghi origin/HEAD khi fetch (remote.<tên>.followRemoteHEAD), nên fixture gỡ nó tường minh để ca đúng hình trên
+  // mọi bản git. Giới hạn đã khai: như 2.36.0, thoát 1.
   'CU-CI': (kit) => {
     const { B } = khoCloneThem({ nhanh: 'onehub', cfg: cfgKho() });
     const R = moi('ci');
     initKho(R, 'vong');
     gitR(R, 'remote', 'add', 'origin', B);
     gitR(R, 'fetch', '-q', 'origin');
+    spawnSync('git', ['remote', 'set-head', 'origin', '-d'], { cwd: R, stdio: 'ignore' });
     gitR(R, 'checkout', '-q', '-B', 'vong', 'origin/onehub');
     if (coRef(R, 'refs/remotes/origin/HEAD')) return 'CU-CI: fixture có origin/HEAD';
     const sua = s4(kit, R);
@@ -412,7 +418,10 @@ const NHAN = {
   },
   HONG: {
     xanh: ['HONG-BON', 'HONG-GOC'],
-    dot: [['HONG-DOT', () => kitDotBien('design-floor-bac.mjs', ['throw new Error(`không đọc được danh sách tệp git', 'dsTep = []; if (0) throw new Error(`không đọc được danh sách tệp git']), 'HONG-BON', 'HONG-BON: bac thoát 0']],
+    dot: [
+      ['HONG-DOT', () => kitDotBien('design-floor-bac.mjs', ['throw new Error(`không đọc được danh sách tệp git', 'dsTep = []; if (0) throw new Error(`không đọc được danh sách tệp git']), 'HONG-BON', 'HONG-BON: bac thoát 0'],
+      ['HONG-DOT-S1', () => kitDotBien('design-floor-s1.mjs', ['  let ra;\n  try {\n    ra = chayS1(root, slug);\n  } catch (e) {\n    process.stderr.write(`design-floor-s1: ${e.message}\\n`);\n    return 1;\n  }\n', '  const ra = chayS1(root, slug);\n']), 'HONG-BON', 'HONG-BON: s1 stderr không phải một dòng'],
+    ],
   },
   // Đột biến trên bản sao design-floor-s4.mjs: S3 nhập timBase qua đường thật của tệp liên kết nên vẫn dùng bản lành —
   // ca đỏ ở bước S4.

@@ -25,9 +25,12 @@ evals:
     paths: [scripts/design-floor-bac.mjs, scripts/design-floor-s1.mjs, scripts/design-floor-s3.mjs, scripts/design-floor-s4.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
     expected: >
       exit 0; stdout có "PASS: HONG-BON" (thư mục không phải kho git, khai surface_globs: lệnh bậc, S1, S3, S4 cùng thoát 1,
-      stderr mỗi lệnh chứa «không đọc được danh sách tệp git», không lệnh nào in «không khớp tệp nào», băm cây trước = sau),
+      stderr mỗi lệnh là ĐÚNG MỘT dòng mở đầu «design-floor-<lệnh>: không đọc được danh sách tệp git (» — lệnh sập không bắt
+      cũng thoát 1 và in cùng thông điệp kèm chồng lời gọi, nên ghim số dòng; không lệnh nào in «không khớp tệp nào», băm
+      cây trước = sau),
       "PASS: HONG-GOC" (bản 2.36.0 lệnh bậc thoát 0, stdout rỗng) và "PASS: HONG-DOT — đỏ đúng «HONG-BON: bac thoát 0»" —
-      đột biến đổi throw thành gán danh sách rỗng trên bản sao.
+      đột biến đổi throw thành gán danh sách rỗng trên bản sao; và "PASS: HONG-DOT-S1 — đỏ đúng «HONG-BON: s1 stderr không
+      phải một dòng»" — đột biến gỡ khối bắt lỗi ở main của design-floor-s1.mjs.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -51,7 +54,7 @@ evals:
       mã), "PASS: CU-DOI-TEN" (remote đổi master→main, fetch --prune, master cục bộ cũ còn và đứng sau: S4 bản sửa = bản
       2.36.0, thoát 2 — chọn master cục bộ thì diff phình và lệch), "PASS: CU-DUNG" (origin/HEAD trỏ ref đã xoá, không main/master: thoát 1, stderr nêu «origin/HEAD» kèm tên ref
       đã khai và «truyền --base <ref>»), "PASS: CU-KHONG" (không origin/HEAD, không main/master: stderr bằng nguyên văn bản
-      2.36.0), "PASS: CU-CI" (init + remote add + fetch, có origin/onehub, không origin/HEAD: bản sửa = bản 2.36.0, thoát
+      2.36.0), "PASS: CU-CI" (init + remote add + fetch rồi gỡ origin/HEAD — git từ 2.48 tự ghi nó — có origin/onehub: bản sửa = bản 2.36.0, thoát
       1, «truyền --base <ref>») và "PASS: CU-DOT — đỏ đúng «CU-LUI: bản sửa ≠ bản gốc»" — đột biến dừng ngay khi origin/HEAD không giải được.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5

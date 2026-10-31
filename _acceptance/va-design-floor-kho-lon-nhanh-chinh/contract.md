@@ -66,8 +66,8 @@ Quét tay ba trục (phản biện context sạch chỉ ra trục thứ ba mà d
 ## Out of scope
 
 - Khoá cấu hình nhánh chính trong `_acceptance/config.yaml` — kit chưa có; thêm là CỘNG.
-- Kho không có origin/HEAD (không remote, hoặc checkout kiểu CI: init + remote add + fetch) mà nhánh chính tên khác
-  main/master — vẫn thoát 1 như 2.36.0; đường gỡ: `git remote set-head origin -a` ở bước checkout, hoặc truyền `--base`.
+- Kho không có origin/HEAD (không remote, hoặc bản sao có remote mà không ghi origin/HEAD — checkout kiểu CI trên git cũ
+  hơn 2.48; git từ 2.48 tự ghi origin/HEAD khi fetch) mà nhánh chính tên khác main/master — vẫn thoát 1 như 2.36.0; đường gỡ: `git remote set-head origin -a` ở bước checkout, hoặc truyền `--base`.
 - Bộ dò nhánh chính của `feature-loop/scripts/s4-args.mjs` và khối gọi trong SKILL — không đổi.
 - `scripts/pre-merge-check.sh` — vòng vá song song.
 - Đọc danh sách tệp bằng `-z` (tên có dấu) — đổi kết quả khớp glob ở kho đang chạy.
