@@ -1,0 +1,80 @@
+schema_version: 1
+feature_slug: va-design-floor-kho-lon-nhanh-chinh
+# Ca đo sống ở tests/design-floor/kho-lon-nhanh-chinh.mjs. Kho fixture là git thật do mã sinh trong chính lượt chạy (kho
+# lớn dựng chỉ mục bằng git update-index --index-info; kho nhánh onehub clone từ remote trần để origin/HEAD do git ghi).
+# Bản gốc = git archive của cây phát hành 2.36.0 (sha ghim 4f891b07…) lấy TRỌN scripts + lib. Mỗi nhãn chạy chiều xanh
+# trên bản sửa, chiều đỏ trên bản gốc với thông điệp ghim, rồi đột biến cùng nhãn trên bản sao lệnh — đột biến phải làm
+# đúng ca đỏ với đúng thông điệp ghim. Mỗi eval gọi một lệnh con của tests/design-floor/eval.sh.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.va460_kho_lon
+    paths: [scripts/design-floor-bac.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: LON-CO" (git ls-files của fixture > 1048576 byte — tự kiểm cỡ), "PASS: LON-SUA" (bản sửa
+      --json bac M1, số khớp bằng số đường fixture khớp glob; dòng chữ mở đầu «design-floor: bậc M1 — có giao diện (»),
+      "PASS: LON-GOC" (bản 2.36.0 --json bac M0, ly_do mở đầu «design.surface_globs không khớp tệp nào») và
+      "PASS: LON-DOT — đỏ đúng «LON-SUA: thoát 1 — design-floor-bac: không đọc được danh sách tệp git (»" — đột biến gỡ
+      maxBuffer khỏi lời gọi ls-files trên bản sao: ENOBUFS giờ được nói ra, không thành M0 im.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.va460_git_hong
+    paths: [scripts/design-floor-bac.mjs, scripts/design-floor-s1.mjs, scripts/design-floor-s3.mjs, scripts/design-floor-s4.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: HONG-BON" (thư mục không phải kho git, khai surface_globs: lệnh bậc, S1, S3, S4 cùng thoát 1,
+      stderr mỗi lệnh chứa «không đọc được danh sách tệp git», không lệnh nào in «không khớp tệp nào», băm cây trước = sau),
+      "PASS: HONG-GOC" (bản 2.36.0 lệnh bậc thoát 0, stdout rỗng) và "PASS: HONG-DOT — đỏ đúng «HONG-BON: bac thoát 0»" —
+      đột biến đổi throw thành gán danh sách rỗng trên bản sao.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.va460_nhanh_khac
+    paths: [scripts/design-floor-s3.mjs, scripts/design-floor-s4.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: KHAC-CO" (fixture: origin/HEAD = origin/onehub, không ref main/master nào giải được),
+      "PASS: KHAC-SUA" (S3 thoát 0; S4 thoát 2, stdout đúng một dòng «design-floor S4: hex thô web/a.css:1 #fff»),
+      "PASS: KHAC-GOC" (bản 2.36.0 S3 và S4 thoát 1, stderr chứa «không tìm được nhánh chính để so diff — truyền --base
+      <ref>») và "PASS: KHAC-DOT — đỏ đúng «KHAC-SUA: S4 thoát 1»" — đột biến bỏ bước đọc origin/HEAD trên bản sao
+      design-floor-s4.mjs (S3 nhập timBase qua đường thật nên dùng bản lành; ca đỏ ở S4).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.va460_khai_cu
+    paths: [scripts/design-floor-s4.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: CU-LUI" (origin/HEAD trỏ ref đã xoá, có main: S4 bản sửa = bản 2.36.0 về stdout, stderr,
+      mã), "PASS: CU-DOI-TEN" (remote đổi master→main, fetch --prune, master cục bộ cũ còn và đứng sau: S4 bản sửa = bản
+      2.36.0, thoát 2 — chọn master cục bộ thì diff phình và lệch), "PASS: CU-DUNG" (origin/HEAD trỏ ref đã xoá, không main/master: thoát 1, stderr nêu «origin/HEAD» kèm tên ref
+      đã khai và «truyền --base <ref>»), "PASS: CU-KHONG" (không origin/HEAD, không main/master: stderr bằng nguyên văn bản
+      2.36.0), "PASS: CU-CI" (init + remote add + fetch, có origin/onehub, không origin/HEAD: bản sửa = bản 2.36.0, thoát
+      1, «truyền --base <ref>») và "PASS: CU-DOT — đỏ đúng «CU-LUI: bản sửa ≠ bản gốc»" — đột biến dừng ngay khi origin/HEAD không giải được.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.va460_kho_nho
+    paths: [scripts/design-floor-*.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: NHO-CLONE-M1", "PASS: NHO-CLONE-M2", "PASS: NHO-TRAN-M1", "PASS: NHO-TRAN-M2" — mỗi ca chạy
+      lệnh bậc (chữ, --json), S3, S4 bằng bản sửa và bản 2.36.0 trên hai bản sao giống hệt; stdout, stderr (chuẩn hoá đường
+      tạm) và mã thoát bằng nhau từng lệnh, commit S3 cùng danh sách tệp; ca M1 có ít nhất một dòng hex thô (S4 thật sự
+      chấm); và "PASS: NHO-DOT — đỏ đúng «NHO-CLONE-M1: S4 lệch»" — đột biến đảo thứ tự dò thành cục bộ-trước trên bản
+      sao (tên khai đọc thành nhánh cục bộ thay vì origin/<tên>), với fixture có main cục bộ đứng sau origin/main.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.va460_cung_lop
+    paths: [scripts/design-floor-*.mjs, tests/design-floor/kho-lon-nhanh-chinh.mjs, tests/design-floor/eval.sh]
+    expected: >
+      exit 0; stdout có "PASS: LOP-QUET" (mọi execFileSync/spawnSync/execSync trong scripts/design-floor-*.mjs mang đúng
+      «maxBuffer: 64 * 1024 * 1024» — đoạn lời gọi cắt bằng đếm ngoặc nên lời gọi nhiều dòng cũng tính; số lời gọi in ra), "PASS: LOP-SINH-LAI" (sinh_lai in 2 MiB: bản sửa S3 thoát 0), "PASS: LOP-GOC"
+      (bản 2.36.0 S3 thoát 1, stderr chứa «lệnh sinh lại thoát null») và ma trận đột biến «LOP-DOT <tệp>:<dòng>» — một đột biến cho MỖI lời
+      gọi, gỡ trần của riêng nó trên bản sao, mỗi cái PASS đỏ đúng «LOP-QUET: thiếu maxBuffer scripts/<tệp>:<dòng>»; số đột
+      biến bằng số lời gọi in ở LOP-QUET.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
