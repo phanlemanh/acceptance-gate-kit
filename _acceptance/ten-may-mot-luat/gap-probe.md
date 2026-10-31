@@ -1,6 +1,6 @@
 ---
 slug: ten-may-mot-luat
-at: 2026-10-31T15:55:00Z
+at: 2026-10-31T15:40:00Z
 verdict: findings
 p0: 3
 p1: 2
