@@ -456,12 +456,16 @@ if (!gate) {
 let _quet = null;
 function quetHoSo() {
   if (_quet) return _quet;
-  const q = { state: null, err: null, broken: null, hit: null };
+  const q = { state: null, err: null, broken: null, hit: null, han: null };
   try {
+    // Hạn theo cỡ kho, không trần cứng 20 giây: crm 380 hồ sơ quét 19–22 giây nên hết hạn 7/7 lượt, và lý do
+    // rơi về «exit null» vì hết hạn cho status null (hồ sơ quet-het-han-khong-moi-ky, issue #463).
+    const HQ = require('./han-quet.cjs');
+    const han = q.han = HQ.hanQuet(root);
     const r = require('child_process').spawnSync(process.execPath,
       [path.join(__dirname, 'start-scan.mjs'), '--root', root],
-      { encoding: 'utf8', timeout: 20000, maxBuffer: 64 * 1024 * 1024 });
-    if (r.status !== 0) q.err = (r.stderr || '').trim().slice(0, 200) || `exit ${r.status}`;
+      { encoding: 'utf8', timeout: han, maxBuffer: 64 * 1024 * 1024 });
+    if (r.status !== 0) q.err = HQ.lyDoQuet(r, han);
     else {
       const j = JSON.parse(r.stdout);
       // `config: false` = máy quét CHẠY ĐƯỢC nhưng repo chưa dựng cổng, nên không
@@ -1177,11 +1181,11 @@ const dinhTuyenMay = ooc.findings.map((f, fi) => { const d = dtmMay(fi); return 
 // Máy quét chết → GIỮ NGUYÊN hành vi cũ + một cờ vàng; không bao giờ im lặng
 // tuyên sạch (fail-visible, không fail-quiet).
 const trangThai = require('./trang-thai-ho-so.cjs');
-let scanState = null, scanErr = null, scanBroken = null, scanHit = null;
+let scanState = null, scanErr = null, scanBroken = null, scanHit = null, scanHan = null;
 // Chỉ quét khi thẻ CÓ THỂ ký: nhánh REJECT/BLOCKED không đọc MAY_DI_TIEP, mà
 // start-scan là lượt chạy tiến trình con đắt nhất của bộ dựng (S4-r1 đo:
 // --extract 0,03s → 0,45s sau khi khối bị dời lên trước extract).
-if (approvable) ({ state: scanState, err: scanErr, broken: scanBroken, hit: scanHit } = quetHoSo());
+if (approvable) ({ state: scanState, err: scanErr, broken: scanBroken, hit: scanHit, han: scanHan } = quetHoSo());
 // Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
 // khoá riêng, thẻ phải nhận cả bốn, nếu không hồ sơ máy-thông lại bị mời ký (hồ sơ ra-co-ten).
 const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
@@ -1205,9 +1209,14 @@ const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 // là đúng lớp lỗi hồ sơ này sinh ra để đóng. Nghỉ nghĩa là hồ sơ thôi chờ ai —
 // mời ký một hồ sơ đã cho nghỉ là mời người ký lại chính điều họ đã quyết dừng.
 const NGHI = (scanHit && scanHit.nghi) || null;
-const MAY_DI_TIEP = !(luatG2 && luatG2.chan) && !scanBroken && scanState != null && (MAY_THONG || !!NGHI
+// Bộ quét LỖI (hết hạn · bị ngắt · thoát lỗi) khác bộ quét mù vì kho chưa dựng cổng (`config: false`, không lỗi):
+// hồ sơ khai `machine-cleared` đã qua Cổng Bằng chứng không chữ ký, nên ở lượt bộ quét lỗi thẻ vẫn hỏi «đi tiếp hay
+// kéo lại» theo lời khai ấy + một cờ vàng nói chưa ai kiểm lại — không rơi về «ký hay trả» (crm 7/7 thẻ, issue #463;
+// Hỏi-1 của hồ sơ quet-het-han-khong-moi-ky). Ca `config: false` giữ lối mời ký của S4-r12 [2].
+const MU_LOI = scanState == null && !!scanErr;
+const MAY_DI_TIEP = !(luatG2 && luatG2.chan) && !scanBroken && ((scanState != null && (MAY_THONG || !!NGHI
   || ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
-      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState));
+      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState))) || (MAY_THONG && MU_LOI));
 // Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
 // dùng câu dự phòng — `chu(null)` NÉM (bảng cố ý chết cho khoá lạ) và làm sập cả thẻ, đúng
 // ca S4-r5 dựng lại được trên repo chưa dựng cổng: exit 1, 0 byte, người nhận màn hình trắng.
@@ -1340,8 +1349,9 @@ const chip = MAY_DI_TIEP
   : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
 P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">${MAY_DI_TIEP ? 'Cổng 2 · máy đã đi tiếp' : 'Cổng 2 · ký duyệt'}${tier === 'T3' ? ' · tier T3 (đụng critical)' : ''}</div></div><span class="chip ${chip.c}">${esc(chip.t)}</span></div>`);
-if (MAY_THONG && !scanBroken && scanState == null) P.push(`<div class="flag fwarn">Hợp đồng tự khai «máy đã thông» nhưng thẻ KHÔNG hỏi được bộ quét (repo chưa dựng cổng, hoặc bộ quét lỗi) — chưa ai kiểm sáu điều kiện xanh-sạch. Thẻ giữ lối ký như cũ; chạy máy quét trước khi tin lời khai đó.</div>`);
-if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V (${esc(scanErr)}) — thẻ đang trình theo lối cũ, nên nó có thể đang mời ký một hồ sơ máy đã đi tiếp hợp lệ. Kiểm bằng máy quét trước khi ký.</div>`);
+if (MAY_THONG && !scanBroken && scanState == null && !scanErr) P.push(`<div class="flag fwarn">Hợp đồng tự khai «máy đã thông» nhưng thẻ KHÔNG hỏi được bộ quét (repo chưa dựng cổng, hoặc bộ quét lỗi) — chưa ai kiểm sáu điều kiện xanh-sạch. Thẻ giữ lối ký như cũ; chạy máy quét trước khi tin lời khai đó.</div>`);
+if (scanErr && MAY_DI_TIEP && MU_LOI) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V — ${esc(scanErr)}. Thẻ trình theo lời khai «máy đã thông» của hợp đồng; chưa ai kiểm lại sáu điều kiện xanh-sạch ở lượt dựng thẻ này. Chạy lại với hạn dài hơn: <code>${esc(require('./han-quet.cjs').lenhChayLai({ card: __filename, root, slug, han: scanHan || 0 }))}</code></div>`);
+else if (scanErr) P.push(`<div class="flag fwarn">⚠ Chưa đọc được trạng thái làn V (${esc(scanErr)}) — thẻ đang trình theo lối cũ, nên nó có thể đang mời ký một hồ sơ máy đã đi tiếp hợp lệ. Kiểm bằng máy quét trước khi ký.</div>`);
 // Bộ quét gọi HỎNG → cờ ĐỎ in đúng lý do + đường sửa. Hồ sơ mâu thuẫn không bao giờ là
 // «máy đã đi tiếp hợp lệ»; lưới trước-merge sẽ chặn y vậy, thẻ phải nói trước (S4-r6 [4]).
 if (scanBroken) P.push(`<div class="flag fred">⚠ Bộ quét gọi hồ sơ này là HỎNG — ${esc(scanBroken.reason || 'không nêu lý do')}. Đường sửa: sửa hồ sơ đúng theo lý do trên rồi mở lại thẻ (lưới trước-merge cũng sẽ chặn y vậy); chưa sửa thì đừng ký.</div>`);
