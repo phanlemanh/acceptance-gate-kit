@@ -161,14 +161,15 @@ const O_PHU = [
   ['cham-dau', evalsPaths('["./_acceptance/<slug>/opportunity.md"]')],
   ['id-sau', 'schema_version: 1\nfeature_slug: <slug>\nevals:\n  - criterion: AC-1\n    id: E1\n    executor: script\n    cmd: verify.sh\n    paths: ["_acceptance/<slug>/**"]\n'],
   ['trung-id', evalsPaths('["src/**"]') + '  - id: E1\n    criterion: AC-2\n    executor: script\n    cmd: verify.sh\n    paths: ["_acceptance/<slug>/opportunity.md"]\n'],
-  // Lượt chấm 2 (t2): cú pháp glob kit không hiểu — ngoặc nhọn, lớp ký tự — không được đọc thành «không phủ».
+  // Lượt chấm 2 (t2): ngoặc nhọn — cú pháp glob kit không hiểu — không được đọc thành «không phủ».
   ['ngoac-nhon', evalsPaths('["_acceptance/<slug>/{opportunity.md,x.md}"]')],
-  ['lop-ky-tu', evalsPaths('["_acceptance/<slug>/opportunit[y].md"]')],
 ];
 // Đối chứng: paths không phủ tệp chữ — kể cả viết `./` ở đầu (bỏ `./` không được biến «không phủ» thành «phủ»).
 const O_KHONG_PHU = [
   ['rang-va-src', evalsPaths('["_acceptance/<slug>/rang/**", "src/**"]')],
   ['cham-dau-src', evalsPaths('["./src/**"]')],
+  // `[…]` là chữ thật trong tên đường (hình dạng crm): không được biến thành «không đọc được».
+  ['ngoac-vuong-crm', evalsPaths('["apps/app/app/(app)/[slug]/okr/**"]')],
 ];
 
 await ca('TV1 chi-tep-chu', () => {
