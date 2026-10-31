@@ -5,7 +5,7 @@ slug: ten-may-mot-luat
 owner: phanlemanh@gmail.com
 risk_tier: T2      # dieu-phoi/scripts/** — ngoài risk_tiers.t3_paths
 surfaces: [cli]
-status: approved   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented   # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Manh Phan
 approved_at: 2026-10-31T15:43:39Z
 design_doc: _acceptance/ten-may-mot-luat/design.md
