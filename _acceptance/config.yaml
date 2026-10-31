@@ -1037,6 +1037,14 @@ executors:
     df5_gate_df07: bash tests/design-floor/eval.sh df5-gate-df07
     df5_vong_mau: bash tests/design-floor/eval.sh df5-vong-mau
     df5_noi_day: bash tests/design-floor/eval.sh df5-noi-day
+    # Hồ sơ va-design-floor-kho-lon-nhanh-chinh (#460): mỗi lệnh chạy chiều xanh, bản 2.36.0 và đột biến cùng nhãn của
+    # tests/design-floor/kho-lon-nhanh-chinh.mjs.
+    va460_kho_lon: bash tests/design-floor/eval.sh va460-kho-lon
+    va460_git_hong: bash tests/design-floor/eval.sh va460-git-hong
+    va460_nhanh_khac: bash tests/design-floor/eval.sh va460-nhanh-khac
+    va460_khai_cu: bash tests/design-floor/eval.sh va460-khai-cu
+    va460_kho_nho: bash tests/design-floor/eval.sh va460-kho-nho
+    va460_cung_lop: bash tests/design-floor/eval.sh va460-cung-lop
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
