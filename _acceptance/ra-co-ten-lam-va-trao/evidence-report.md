@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: df2a693ce8a610387af83b3847627a4c57902f5e
+verified_commit: b892fda4778dff6a3af788638308de85ceae5593
 human_signoff: Manh 2026-08-25
 ---
 
@@ -422,3 +422,11 @@ sha: d76ca283f3d27d58eb7bcc627661a343b98d0064 · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 42 — 2026-10-17, do chiến dịch ghim lại mốc 2.32.0 — cửa sổ v2.31.0→HEAD
 run_id: repin-20261017T024130Z-65967
 sha: df2a693ce8a610387af83b3847627a4c57902f5e · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 43 — 2026-10-31, do khai pre-merge-doc-lib-theo-kit ở KHAC-BIET-DOC-CU (RT13, thuế tự-host)
+run_id: repin-20261031T143735Z-16318
+sha: 7ff17ba10d6106804e6f9cb4c4615734fb5c45de · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 44 — 2026-10-31, do hoá cũ do gộp main a9f02e3a (#465 design-floor) vào nhánh PR
+run_id: repin-20261031T162813Z-83090
+sha: b892fda4778dff6a3af788638308de85ceae5593 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

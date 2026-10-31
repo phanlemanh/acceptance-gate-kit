@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>138 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>63 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>139 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>64 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -104,6 +104,7 @@ flowchart TD
 - Bước thiết kế của mọi vòng ở kho đã khai tri thức ghi dòng «đã tra tri thức», và thẻ Cổng Phạm vi không mời duyệt khi thiếu dòng ấy (`thiet-ke-nap-tri-thuc`)
 - Mỗi việc đã giao có một trang hồ sơ đọc trong một phút — vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không — vẽ từ vật của hồ sơ, và bản chiếu lộ trình nhận cùng dải tóm tắt qua khối dữ liệu bản 2 (`trang-ho-so-mot-viec`)
 - «Trạng thái đợt Điều phối – Thợ hiện ngay trong app, không phải mở trang hay dò nhật ký» (`trang-thai-dot-dieu-phoi-tho`)
+- Vá design-floor — bậc đúng ở kho có danh sách tệp git trên 1 MiB, git hỏng nói lỗi thật, S3/S4 tìm được nhánh chính tên khác main/master qua origin/HEAD; kho nhỏ dùng main y như 2.36.0 (`va-design-floor-kho-lon-nhanh-chinh`)
 - Trang lộ trình vẽ ở đâu cũng chỉ lấy ý đã theo dõi trong chính cây đang vẽ — vẽ trong worktree khớp CI, còn các bộ đọc tương tác vẫn thấy mọi ý ở thư mục chính (`ve-lo-trinh-doc-tin-hieu-cua-cay`)
 - Vòng mở từ một câu mô tả tra được trang tri thức liên quan và sổ quyết định của các hồ sơ trước, rồi ghi vào cùng dòng «đã tra tri thức» (`vong-don-le-tra-tri-thuc`)
 - Vòng là một kết quả — răng cắt lượt nói ra hàng nào phải tách, gộp được, hay lệch dáng câu giao (cờ có tên, khoảng cỡ một nguồn trong SKILL), và đồng hồ chỉ đọc in lại bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao để mỗi mốc đọc lại khoảng trên số thật (`vong-la-mot-ket-qua`)
@@ -188,6 +189,7 @@ flowchart TD
 - Máy tự định tuyến mục Ngoài-n mà chính máy đề xuất known-limits hoặc wont-fix — kho bật bằng một khoá, máy ghi dòng sổ gate2 phân biệt được với người kèm lệnh đảo một dòng, thẻ Cổng 2 hiện chúng là dòng báo, làn V chạy được; kho không bật không đổi byte nào (`ngoai-n-tu-dinh-tuyen`)
 - Nhãn lối ra của hồ sơ máy-đi-trước theo hướng sản phẩm — «đi tiếp hay kéo lại», máy điền sẵn «đi tiếp» ở dòng báo, signoff vẫn nhận chữ cũ (`nhan-lan-v-theo-huong`)
 - Lệnh trong config viết bằng nháy đơn có dấu nháy nhân đôi ('') tới shell đúng như người viết — làn ghim lại và lượt chấm S4 chạy đúng `bash -c '…'` thay vì một lệnh bị xẻ (`nhay-don-nhan-doi`)
+- Bộ kiểm trước gộp đọc thư viện của kit theo chỗ cài kit, không theo gốc kho tiêu thụ (`pre-merge-doc-lib-theo-kit`) — đã giao — không đo, khai ở Cổng Đáng
 - Sổ luật-đã-chạy — `clean` phải được chứng minh, không phải mặc định (`premerge-rules-ledger`)
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
 - Thẻ cửa veto của hồ sơ máy đã thông không mời ký khi bộ quét trạng thái không trả lời kịp — nói rõ hết hạn và cách chạy lại; bộ quét ở kho lớn có hạn theo cỡ kho (`quet-het-han-khong-moi-ky`)
