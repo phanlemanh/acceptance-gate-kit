@@ -38,15 +38,30 @@ export function khoiMay(duong, ten) {
 
 const git = (root, ...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
 
-// Điểm rẽ khỏi nhánh chính — cùng thứ tự dò với s4-args (remote trước, rồi nhánh cục bộ).
+// Tên quen của bản 2.36.0, đúng thứ tự cũ (remote trước, rồi nhánh cục bộ).
+const TEN_QUEN = ['origin/main', 'origin/master', 'main', 'master'];
+
+// Điểm rẽ khỏi nhánh chính. Nhánh chính đọc từ origin/HEAD của bản sao cục bộ — git ghi lúc clone, không cần mạng — rồi
+// mới tới tên quen. Chỉ nhận ref remote của tên khai: origin/HEAD trỏ ref không còn (remote đổi tên nhánh rồi fetch
+// --prune) thì nhánh cục bộ cùng tên là bản cũ, nên lùi về tên quen như 2.36.0. Khác bộ dò của s4-args có chủ ý: s4-args
+// đọc lời khai sống của remote (`git remote show origin`, cần mạng), còn origin/HEAD cục bộ là bản chép có thể cũ (#460).
 export function timBase(root) {
-  for (const ref of ['origin/main', 'origin/master', 'main', 'master']) {
+  let ten = null;
+  let khai = [];
+  try {
+    ten = git(root, 'symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD').trim().replace(/^origin\//, '') || null;
+  } catch {
+    /* không có origin/HEAD */
+  }
+  if (ten) khai = [`origin/${ten}`];
+  for (const ref of [...khai, ...TEN_QUEN]) {
     try {
       return git(root, 'merge-base', 'HEAD', ref).trim();
     } catch {
       /* thử ref kế */
     }
   }
+  if (ten) throw new Error(`origin/HEAD khai nhánh chính origin/${ten} mà cây không giải được, và không có main/master — truyền --base <ref>`);
   throw new Error('không tìm được nhánh chính để so diff — truyền --base <ref>');
 }
 
@@ -63,7 +78,7 @@ export function dichGiaoDien(root, base) {
 export function goiUi(hd, lenh, gia, root, khoaArgv = 'argv') {
   const argv = hd.lenh[lenh][khoaArgv].map((a) => a.replace(/^\{(\w+)\}$/, (_, k) => gia[k]));
   const ui = process.env.DESIGN_FLOOR_UI || path.join(KIT, 'design-floor', 'dist', 'ui.mjs');
-  const r = spawnSync(process.execPath, [ui, ...argv], { cwd: root, encoding: 'utf8', env: { ...process.env, ...(hd.moi_truong || {}) } });
+  const r = spawnSync(process.execPath, [ui, ...argv], { cwd: root, encoding: 'utf8', env: { ...process.env, ...(hd.moi_truong || {}) }, maxBuffer: 64 * 1024 * 1024 });
   return r.status;
 }
 
