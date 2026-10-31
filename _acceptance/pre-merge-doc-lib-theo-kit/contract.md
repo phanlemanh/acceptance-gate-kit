@@ -5,9 +5,9 @@ slug: pre-merge-doc-lib-theo-kit
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths (lời giao ghi T2; máy suy T3, không tự hạ)
 surfaces: [cli]
-status: draft      # draft | approved | implemented | verified | signed-off | machine-cleared
-approved_by:
-approved_at:
+status: approved   # draft | approved | implemented | verified | signed-off | machine-cleared
+approved_by: Manh Phan
+approved_at: 2026-10-31T11:18:59Z
 design_doc: _acceptance/pre-merge-doc-lib-theo-kit/design.md
 ---
 
