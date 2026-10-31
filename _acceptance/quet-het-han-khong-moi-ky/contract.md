@@ -5,7 +5,7 @@ slug: quet-het-han-khong-moi-ky
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: _acceptance/quet-het-han-khong-moi-ky/design.md
 approved_by: Manh Phan
 approved_at: 2026-10-31T15:47:21Z
