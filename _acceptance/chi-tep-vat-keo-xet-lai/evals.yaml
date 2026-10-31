@@ -46,9 +46,11 @@ evals:
     cmd: config:executors.script.tvx_e4
     expected: >
       Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của TV4 paths-phu-chu, TV4-doi-chung paths-khong-phu.
-      TV4: ba ô (glob-ho-so «_acceptance/old/**» · dung-ten «_acceptance/old/opportunity.md» · bi-danh «paths: *p») — PR
-      chỉ sửa opportunity.md, mỗi ô mã ≠ 0 với «VIOLATION [old]: evidence is stale» và 0 dòng «NOTE [old]: sửa tệp chữ»;
-      3/3. TV4-doi-chung: paths [«_acceptance/old/rang/**», «src/**»] — mã 0 và đúng 1 dòng NOTE tệp chữ của old.
+      TV4: sáu ô (glob-ho-so «_acceptance/old/**» · dung-ten «_acceptance/old/opportunity.md» · bi-danh «paths: *p» ·
+      cham-dau «./_acceptance/old/opportunity.md» · id-sau «id» không đứng đầu mục · trung-id hai eval cùng E1, eval sau
+      phủ opportunity.md) — PR chỉ sửa opportunity.md, mỗi ô mã ≠ 0 với «VIOLATION [old]: evidence is stale» và 0 dòng
+      «NOTE [old]: sửa tệp chữ»; 6/6. TV4-doi-chung: hai ô (paths [«_acceptance/old/rang/**», «src/**»] · [«./src/**»]) —
+      mỗi ô mã 0 và đúng 1 dòng NOTE tệp chữ của old; 2/2.
     paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -68,8 +70,8 @@ evals:
     cmd: config:executors.script.tvx_e6
     expected: >
       Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của TV6 lui-ve-vat: đối chứng — bản sao chưa tiêm cho
-      mã 0 và đúng 1 dòng NOTE tệp chữ của old; hai bản sao tiêm (ham-vang: đổi tên phanTepHoSo trong lib ·
-      dau-ra-hong: hàm trả chuỗi rác) — mỗi bản mã ≠ 0, «VIOLATION [old]: evidence is stale» kèm «src/app.js», 0 dòng
-      NOTE tệp chữ; 2/2.
+      mã 0 và đúng 1 dòng NOTE tệp chữ của old; ba bản sao tiêm (ham-vang: đổi tên phanTepHoSo trong lib · ham-nem: hàm
+      trả chuỗi thay vì đối tượng, node thoát ≠ 0 · dau-ra-hong: lib tự in rác trước kết quả, node thoát 0) — mỗi bản
+      mã ≠ 0, «VIOLATION [old]: evidence is stale» kèm «src/app.js», 0 dòng NOTE tệp chữ; 3/3.
     paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -157,6 +157,15 @@ const O_PHU = [
   ['glob-ho-so', evalsPaths('["_acceptance/<slug>/**"]')],
   ['dung-ten', evalsPaths('["src/**", "_acceptance/<slug>/opportunity.md"]')],
   ['bi-danh', 'schema_version: 1\nfeature_slug: <slug>\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: verify.sh\n    paths: *p\n'],
+  // Lượt chấm 1 (t1–t3): ba dạng bộ đọc paths từng bỏ im — `./` ở đầu · id không đứng đầu mục · trùng id.
+  ['cham-dau', evalsPaths('["./_acceptance/<slug>/opportunity.md"]')],
+  ['id-sau', 'schema_version: 1\nfeature_slug: <slug>\nevals:\n  - criterion: AC-1\n    id: E1\n    executor: script\n    cmd: verify.sh\n    paths: ["_acceptance/<slug>/**"]\n'],
+  ['trung-id', evalsPaths('["src/**"]') + '  - id: E1\n    criterion: AC-2\n    executor: script\n    cmd: verify.sh\n    paths: ["_acceptance/<slug>/opportunity.md"]\n'],
+];
+// Đối chứng: paths không phủ tệp chữ — kể cả viết `./` ở đầu (bỏ `./` không được biến «không phủ» thành «phủ»).
+const O_KHONG_PHU = [
+  ['rang-va-src', evalsPaths('["_acceptance/<slug>/rang/**", "src/**"]')],
+  ['cham-dau-src', evalsPaths('["./src/**"]')],
 ];
 
 await ca('TV1 chi-tep-chu', () => {
@@ -204,8 +213,9 @@ await ca('TV4 paths-phu-chu', () => {
   return sai.length ? { loi: sai.join(' ;; ') } : { msg: `${O_PHU.length}/${O_PHU.length}` };
 });
 await ca('TV4-doi-chung paths-khong-phu', () => {
-  const r = luoi(pr(kho({ evals: evalsPaths('["_acceptance/<slug>/rang/**", "src/**"]') }), 'old', ['opportunity.md']));
-  return imDung(r, 'old', ['opportunity.md']) ? {} : { loi: tomTat(r, 'old') };
+  const sai = [];
+  for (const [ten, ev] of O_KHONG_PHU) { const r = luoi(pr(kho({ evals: ev }), 'old', ['opportunity.md'])); if (!imDung(r, 'old', ['opportunity.md'])) sai.push(`${ten} — ${tomTat(r, 'old')}`); }
+  return sai.length ? { loi: sai.join(' ;; ') } : { msg: `${O_KHONG_PHU.length}/${O_KHONG_PHU.length}` };
 });
 await ca('TV5 hai-luat-giu', () => {
   const k = pr(kho({ cfg: ['recheck: strict', 'gap_probe: required'], runLogKhac: true, evals: evalsPaths('["src/**"]') }), 'old', ['opportunity.md']);
@@ -225,9 +235,13 @@ await ca('TV6 lui-ve-vat', () => {
   const sai = [];
   for (const [ten, tiem] of [
     ['ham-vang', [['lib/evidence-core.cjs', '  phanTepHoSo,', '  phanTepHoSoX: phanTepHoSo,']]],
-    ['dau-ra-hong', [['lib/evidence-core.cjs', dinh[0], dinh[0] + ' return "rac{";']]],
+    // Hàm ném (trả chuỗi thay vì đối tượng): node thoát ≠ 0 — nhánh `|| return 0`.
+    ['ham-nem', [['lib/evidence-core.cjs', dinh[0], dinh[0] + ' return "rac{";']]],
+    // Đầu ra hỏng mà node thoát 0: lib tự in rác trước kết quả — chạm nhánh mặc định của `case "$_tv"`
+    // (lượt chấm 1, t4: hai ô cũ cùng thoát ở `|| return 0`, nhánh này chưa ai đo).
+    ['dau-ra-hong', [['lib/evidence-core.cjs', dinh[0], dinh[0] + ' process.stdout.write("rac{");']]],
   ]) { const r = luoi(k, banSaoMay(tiem)); if (!doDung(r, 'old')) sai.push(`${ten} — ${tomTat(r, 'old')}`); }
-  return sai.length ? { loi: sai.join(' ;; ') } : { msg: '2/2' };
+  return sai.length ? { loi: sai.join(' ;; ') } : { msg: '3/3' };
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed`);
