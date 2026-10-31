@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/design-floor-*.mjs + tests/design-floor/** + config executors — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-31-va-design-floor-kho-lon-nhanh-chinh-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
