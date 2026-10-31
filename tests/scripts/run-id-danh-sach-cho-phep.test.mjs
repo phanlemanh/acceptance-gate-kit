@@ -55,7 +55,10 @@ const MOI = { goc: KIT, src: SRC };
 
 // ── Ma trận viết trước ──────────────────────────────────────────────────────
 // Mã tác tử khai mà KHÔNG phải mã lượt — máy phải đúc mã. Hàng đầu là đúng vật crm (E9).
-const DUC = ['`', '``', '`abc123`', '""', "''", "\"''\"", '   ', 'none', 'null', 'abc', 'rid 12', 'a/b-12'];
+// Bốn hàng cuối canh riêng từng vế của luật (gap-probe P0): ngắn mà có số (`L08` — rác thật đo ở kit), mở đầu
+// bằng ký tự không phải chữ/số, dài 201 ký tự.
+const DAI_201 = 'a' + '1'.repeat(200);
+const DUC = ['`', '``', '`abc123`', '""', "''", "\"''\"", '   ', 'none', 'null', 'abc', 'rid 12', 'a/b-12', 'L08', '-12ab', '_ab12', DAI_201];
 // Mã hợp lệ (đối chứng dương) — [tác tử khai, run-log phải ghi].
 const GIU = [
   ['rid-a1', 'rid-a1'],
@@ -66,7 +69,9 @@ const GIU = [
   ['2026-10-31T14:12:53Z', '2026-10-31T14:12:53Z'],
   ['minted-demo-E1-r1', 'minted-demo-E1-r1'],
   ['vitest_run.42', 'vitest_run.42'],
+  ['a' + '1'.repeat(199), 'a' + '1'.repeat(199)],   // biên trên: đúng 200 ký tự
 ];
+const tom = r => (r.length > 24 ? `${r.slice(0, 12)}…(${r.length})` : r);
 
 const VC = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2';
 const ev = (id, cmd) => ({ id, criterion: 'AC-1', executor: 'script', cmd, ref: `config:executors.script.${id}`, expected: 'ok' });
@@ -101,7 +106,7 @@ if (want('RH1')) {
   const sai = [];
   for (const rid of DUC) {
     const got = await ridEval(SRC, rid);
-    if (got !== 'minted-demo-E1-r2') sai.push(`${JSON.stringify(rid)} → ${JSON.stringify(got)}, mong minted-demo-E1-r2`);
+    if (got !== 'minted-demo-E1-r2') sai.push(`${JSON.stringify(tom(rid))} → ${JSON.stringify(tom(String(got)))}, mong minted-demo-E1-r2`);
   }
   for (const [rid, mong] of GIU) {
     const got = await ridEval(SRC, rid);
@@ -116,8 +121,17 @@ if (want('RH1')) {
   else { const g = await ridEval(GOC.src, '`'); if (g !== '`') sai.push(`ban goc ${GOC_SHA} ghi ${JSON.stringify(g)} — fixture khong tai hien loi (mong «\`»)`); }
   if (soLan(SRC, KIM_CHO_PHEP) !== 1) sai.push(`kim cho-phep khop ${soLan(SRC, KIM_CHO_PHEP)} lan`);
   else { const m = await ridEval(DOT_BIEN, '`'); if (m !== '`') sai.push(`dot bien (bo danh sach cho phep) ghi ${JSON.stringify(m)}, mong «\`»`); }
+  // Ba đột biến cô lập trên khối luật, mỗi cái chỉ nới MỘT vế; đối chứng dương là RH1 (bản lành đúc cả ba mã).
+  const KHOI = SRC.match(/\/\/ <<<RUN-ID-HINH\n[\s\S]*?\/\/ RUN-ID-HINH>>>/);
+  const VE = [['do-dai-duoi', '{3,199}', '{0,199}', 'L08'], ['ky-tu-dau', '[A-Za-z0-9][', '[\\w.:-][', '-12ab'], ['do-dai-tren', '{3,199}', '{3,}', DAI_201]];
+  if (!KHOI) sai.push('khong thay khoi RUN-ID-HINH');
+  else for (const [ten, kim, thay, ma] of VE) {
+    if (soLan(KHOI[0], kim) !== 1) { sai.push(`${ten}: kim ${kim} khop ${soLan(KHOI[0], kim)} lan trong khoi`); continue; }
+    const m = await ridEval(SRC.replace(KHOI[0], KHOI[0].replace(kim, thay)), ma);
+    if (m !== ma) sai.push(`${ten}: dot bien ghi ${JSON.stringify(tom(String(m)))}, mong giu ${tom(ma)}`);
+  }
   if (sai.length) bad('RH1-do', sai.join(' ; '));
-  else ok('RH1-do', 'ban-goc-va-dot-bien — bản gốc và bản bỏ danh sách cho phép đều ghi «`» vào run-log');
+  else ok('RH1-do', 'ban-goc-va-dot-bien — bản gốc và bản bỏ danh sách cho phép đều ghi «`»; 3/3 đột biến nới một vế (độ dài dưới, ký tự đầu, độ dài trên) giữ đúng mã vế ấy chặn');
 }
 
 // ═════ RH2 — bên viết, dòng suite ═══════════════════════════════════════════
@@ -125,7 +139,7 @@ if (want('RH2')) {
   const sai = [];
   for (const rid of DUC) {
     const got = await ridSuite(SRC, rid);
-    if (!/^minted-demo-SUITE-bash_t_s_sh-r2$/.test(String(got))) sai.push(`${JSON.stringify(rid)} → ${JSON.stringify(got)}, mong minted-demo-SUITE-bash_t_s_sh-r2`);
+    if (!/^minted-demo-SUITE-bash_t_s_sh-r2$/.test(String(got))) sai.push(`${JSON.stringify(tom(rid))} → ${JSON.stringify(tom(String(got)))}, mong minted-demo-SUITE-bash_t_s_sh-r2`);
   }
   for (const [rid, mong] of GIU) {
     const got = await ridSuite(SRC, rid);
@@ -161,8 +175,18 @@ if (want('RH3')) {
     const dongs = dongLog(r).filter(o => /^E\d+$/.test(o.evalId));
     const sai = [];
     if (dongs.length !== vao.length) sai.push(`${dongs.length} dong eval, mong ${vao.length}`);
+    // Dòng run_id rút từ khuôn báo cáo của bên viết (SUITE-BLOCK-TEMPLATE — tác tử tổng hợp chép khuôn này),
+    // không dựng tay (gap-probe P2).
+    const TPL = readFileSync(path.join(KIT, 'skills', 'acceptance', 'references', 'evidence-report-template.md'), 'utf8')
+      .match(/<!-- <<<SUITE-BLOCK-TEMPLATE -->\n([\s\S]*?)<!-- SUITE-BLOCK-TEMPLATE>>> -->/);
+    if (!TPL || soLan(TPL[1], '{run_id}') !== 1) throw new Error('khong rut duoc SUITE-BLOCK-TEMPLATE co dung mot {run_id}');
+    const khoi = (rid, tpl = TPL[1]) => tpl.replace('{cmd}', 'bash t/x.sh').replace('{ISO8601}', '2026-10-31T00:00:00Z').replace('{run_id}', rid);
+    // chiều đỏ của phép đọc lại: khuôn bọc mã trong dấu huyền → bộ đọc trả mã kèm dấu → lệch (không phải im).
+    const tplHong = TPL[1].replace('{run_id}', '`{run_id}`');
+    const lechHong = extractRunIds(khoi('rid-a1', tplHong));
+    if (!(lechHong.length === 1 && lechHong[0] === '`rid-a1`')) sai.push(`dot bien khuon (boc dau huyen) doc ra ${JSON.stringify(lechHong)}, mong ["\`rid-a1\`"]`);
     for (const l of dongs) {
-      const doc = extractRunIds(`  run_id: ${l.run_id}`);
+      const doc = extractRunIds(khoi(l.run_id));
       if (!(doc.length === 1 && doc[0] === l.run_id)) sai.push(`${l.evalId}=${JSON.stringify(l.run_id)} doc lai ${JSON.stringify(doc)}`);
       if (String(l.run_id).length < 4) sai.push(`${l.evalId}=${JSON.stringify(l.run_id)} ngan hon 4 ky tu (the Cong 2 coi la thieu)`);
     }
@@ -175,7 +199,7 @@ if (want('RH3')) {
       for (const l of dongs) if (mang.get(l.evalId) !== l.run_id) sai.push(`${l.evalId}: carry-plan ${mang.has(l.evalId) ? `mang ${JSON.stringify(mang.get(l.evalId))}` : `khong mang (${plan.reason[l.evalId]})`}, mong mang ${JSON.stringify(l.run_id)}`);
     }
     if (sai.length) bad('RH3', sai.join(' ; '));
-    else ok('RH3', `khu-hoi — ${dongs.length}/${vao.length} mã bên viết ghi: bộ đọc báo cáo đọc lại đúng, ≥ 4 ký tự, carry-plan mang sang nguyên văn`);
+    else ok('RH3', `khu-hoi — ${dongs.length}/${vao.length} mã bên viết ghi, chép vào khuôn khối báo cáo: bộ đọc báo cáo đọc lại đúng, ≥ 4 ký tự, carry-plan mang sang nguyên văn; khuôn bọc dấu huyền thì đọc lệch`);
   } catch (e) { bad('RH3', loi(e)); }
 }
 

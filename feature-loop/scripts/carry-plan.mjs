@@ -57,6 +57,24 @@ function readers(agRoot) {
 }
 function die3(msg) { process.stderr.write(`carry-plan: ${msg}\n`); process.exit(2); }
 
+// Luật hình dạng run_id — MỘT nguồn: khối RUN-ID-HINH của bộ chấm (feature-loop/workflows/acceptance-verify.js),
+// chỗ đúc mã lượt (hồ sơ run-id-danh-sach-cho-phep, #467). Bộ chấm chạy trong hộp cát không nạp được thư viện,
+// nên tệp này RÚT khối từ bộ chấm cùng gói (đường suy từ vị trí chính tệp này), không chép biểu thức. Rút không
+// được → dừng có tên: thà dừng còn hơn mang sang một mã mà bộ chấm sẽ không bao giờ ghi.
+let HINH = null;
+export function hinhRunId() {
+  if (HINH) return HINH;
+  const f = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'workflows', 'acceptance-verify.js');
+  let src = '';
+  try { src = fs.readFileSync(f, 'utf8'); } catch (_) { /* vắng tệp → khớp rỗng → dừng có tên dưới */ }
+  const m = src.match(/\/\/ <<<RUN-ID-HINH\n([\s\S]*?)\/\/ RUN-ID-HINH>>>/);
+  let re = null;
+  if (m) { try { re = new Function(`${m[1]}; return RUN_ID_HINH;`)(); } catch (_) { re = null; } }
+  if (!(re instanceof RegExp)) die3(`không rút được luật hình dạng run_id (khối RUN-ID-HINH) từ ${f}`);
+  HINH = re;
+  return HINH;
+}
+
 // Cờ được nhận DIỆN — một chỗ duy nhất. Cờ lạ (kể cả gõ lệch dấu gạch, vd
 // `--delta_files`) PHẢI nổ: bản trước im lặng nhận mọi tên, nên một lần gõ sai
 // biến thành "không có delta" = mang sang TOÀN BỘ với mã thoát 0 (S4-r3).
@@ -240,6 +258,11 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
   for (const e of evals) {
     const prev = lastOfPrev.get(e.id);
     if (!prev) { rerun.push(e.id); reason[e.id] = 'không có dòng round trước'; continue; }
+    // Sổ cũ của kho tiêu thụ có thể mang mã rác tác tử khai (crm rang-hang-cong-cu E9: «`»). Không mang sang —
+    // chạy lại, nói ra một dòng (s4-args in lý do này); không bắt kho sửa sổ (đường đọc-cũ).
+    if (!hinhRunId().test(typeof prev.run_id === 'string' ? prev.run_id : '')) {
+      rerun.push(e.id); reason[e.id] = `run_id lượt trước sai hình dạng (${JSON.stringify(prev.run_id ?? null)}) — chạy lại`; continue;
+    }
     if (!Array.isArray(e.paths) || !e.paths.length) { rerun.push(e.id); reason[e.id] = 'thiếu paths — luôn chạy lại'; continue; }
     if (prev.exit_code !== 0) { rerun.push(e.id); reason[e.id] = 'round trước không xanh'; continue; }
     const res = e.paths.map(globToRe);

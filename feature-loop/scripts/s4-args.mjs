@@ -546,10 +546,11 @@ if (flags['carry-anchor']) {
     const out = execFileSync(process.execPath, [path.join(HERE, 'carry-plan.mjs'), ...cpArgs], { encoding: 'utf8' });
     const plan = JSON.parse(out);
     if (Array.isArray(plan.carriedEvals) && plan.carriedEvals.length) carriedEvals = plan.carriedEvals;
-    // Eval paths không chạm mà vẫn chạy lại vì ĐỊNH NGHĨA đổi (cham-lai-khong-tu-doi): nói ra từng
-    // eval một dòng — không thì người đọc thấy một eval «đáng lẽ mang sang» chạy lại mà không biết vì sao.
+    // Eval paths không chạm mà vẫn chạy lại vì ĐỊNH NGHĨA đổi (cham-lai-khong-tu-doi) hay vì sổ cũ mang run_id
+    // sai hình dạng (run-id-danh-sach-cho-phep): nói ra từng eval một dòng — không thì người đọc thấy một eval
+    // «đáng lẽ mang sang» chạy lại mà không biết vì sao.
     for (const [id, lyDo] of Object.entries(plan.reason || {}))
-      if (/^(định nghĩa eval đổi|tiêu chí .* đổi chữ|không đọc được định nghĩa)/.test(lyDo)) console.error(`s4-args: ${id} không mang sang — ${lyDo}`);
+      if (/^(định nghĩa eval đổi|tiêu chí .* đổi chữ|không đọc được định nghĩa|run_id lượt trước sai hình dạng)/.test(lyDo)) console.error(`s4-args: ${id} không mang sang — ${lyDo}`);
     if (Array.isArray(plan.carriedFindings) && plan.carriedFindings.length) carriedFindings = plan.carriedFindings;  // T5
   } catch (e) {
     const code = e && typeof e.status === 'number' ? e.status : null;

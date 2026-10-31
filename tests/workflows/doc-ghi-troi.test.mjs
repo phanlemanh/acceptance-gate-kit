@@ -213,7 +213,7 @@ console.log('DR bên đọc: khối eval khai run_id rỗng → ghi chú có tê
 
 console.log('DR đột biến: bên viết không bỏ nháy → chuỗi `""` lọt thành run_id');
 {
-  const KIM = "const docRid = (v) => String(v == null ? '' : v).replace(/\\s+#.*$/, '').trim().replace(/^[\"']+|[\"']+$/g, '').trim()";
+  const KIM = "const docRid = (v) => { const s = String(v == null ? '' : v).replace(/\\s+#.*$/, '').trim().replace(/^[\"']+|[\"']+$/g, '').trim(); return RUN_ID_HINH.test(s) ? s : '' }";
   const mut = SRC.replace(KIM, "const docRid = (v) => String(v == null ? '' : v).trim()");
   const { result } = await runWorkflow(WF, args(), responder({ machine: { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '""', cannotRun: false } }), mut);
   const got = (result.runLog.map(l => JSON.parse(l)).find(o => o.evalId === 'E1') || {}).run_id;
