@@ -1,0 +1,71 @@
+schema_version: 1
+feature_slug: pre-merge-doc-lib-theo-kit
+# Mỗi eval chạy đúng các ca LK<k> của nó trong tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs, ghim số ca
+# (dòng «Results: n passed, 0 failed» — ma trận viết trước) và dòng PASS của từng ca theo tên. Kho thử do code
+# sinh trong lượt; bản sao máy chép trọn scripts/ lib/ skills/ commands/; bản gốc thật là main c8870a49 dựng trọn
+# bốn thư mục ấy bằng git archive trong lượt (CI của kit checkout fetch-depth: 0; commit vắng → ca đỏ có tên). Mỗi
+# ca đột biến chạy bản sao chưa tiêm trên CÙNG kho trước (xanh), neo tiêm khớp đúng một lần, bản tiêm khác bản gốc.
+# Chiều đỏ trong lịch sử: commit tệp ca đứng trước commit vật; trên cây trước vòng LK1 đỏ với
+# `không đọc được mục «Known limits» (fail-closed)`.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.pmlk_e1
+    expected: >
+      Exit 0, đúng «Results: 4 passed, 0 failed» và dòng PASS của LK1 kho-khong-lib, LK1-do ban-goc,
+      LK1-do chi-goc-kho, LK1-do ooc-goc-kho. LK1: kho không có lib/, ba cách gọi (tuyet-doi · ci-plugin = đứng ở
+      kho, `bash <kit>/scripts/pre-merge-check.sh . --base basepoint` · tuong-doi) — mỗi cách mã 0, dòng
+      `OK [lk1]: PASS — làn V`, 0 dòng `VIOLATION [lk1]`. LK1-do ban-goc: bản gốc c8870a49, ba cách gọi — mỗi cách
+      mã ≠ 0 và dòng `VIOLATION [lk1]: status machine-cleared` chứa `không đọc được mục «Known limits» (fail-closed)`.
+      LK1-do chi-goc-kho: bản sao bộ giải chỉ trả "$ROOT/lib/$1" — cùng thông điệp ấy. LK1-do ooc-goc-kho: bản sao
+      riêng chỗ gọi out-of-contract.cjs đọc gốc kho — dòng VIOLATION chứa
+      `không đọc được review-findings.md × sổ quyết định (fail-closed)` và đầu ra KHÔNG chứa thông điệp Known limits.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.pmlk_e2
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của LK2 kho-co-lib-chep: kho lk2 có lib/ và scripts/
+      chép trọn — qua lưới (mã 0, `OK [lk2]: PASS — làn V`, 0 VIOLATION) ở bản sửa, ở bản gốc c8870a49, và ở bản
+      chép trong kho gọi đúng hình dạng CI của kho có lớp chép (đứng ở kho, `bash scripts/pre-merge-check.sh . --base basepoint`).
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.pmlk_e3
+    expected: >
+      Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của LK3 kho-lib-chep-hong, LK3-do dao-thu-tu.
+      LK3: kho lk3 (lib/md-section.cjs và lib/out-of-contract.cjs ném lỗi khi nạp) và kho lk3m (thiếu
+      lib/out-of-contract.cjs) — lưới của kit qua ở cả hai. LK3-do: bản sao bộ giải hỏi gốc kho trước — trên kho lk3
+      mã ≠ 0, dòng VIOLATION [lk3] chứa `không đọc được mục «Known limits» (fail-closed)`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.pmlk_e4
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của LK4 lui-ve-goc-kho: bản sửa và bản gốc c8870a49
+      cùng bỏ lib/md-section.cjs và lib/out-of-contract.cjs; trên kho lk2 (có lib/) và kho lk1 (không lib/) hai bản
+      cùng mã thoát và cùng tập dòng chứa `[lk2]` / `[lk1]` (đã sắp). Đối chứng: bản sửa thiếu thư viện cho kho lk2
+      qua lưới (dòng OK làn V) và kho lk1 mã ≠ 0 với dòng VIOLATION [lk1] chứa
+      `không đọc được mục «Known limits» (fail-closed)`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.pmlk_e5
+    expected: >
+      Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của LK5 quet-lop, LK5-do hinh-dang. LK5: phạm vi quét
+      là mọi *.sh dưới scripts/ và hooks/ và có scripts/pre-merge-check.sh; 0 dòng khớp ba mẫu của lớp (dòng không
+      chú thích, không echo/printf, ngoài khối KIT-LIB-THEO-CHO-CAI); tập chỗ gọi `$(kit_lib …)` ==
+      ["md-section.cjs","out-of-contract.cjs"]. LK5-do: ma trận 6 hình dạng viết trước (nhay-root, khong-nhay,
+      ngoac-root, mac-dinh, tuong-doi, cham-gach), mỗi hình dạng tiêm riêng vào chỗ gọi out-of-contract.cjs của một
+      bản sao — phép quét ra đúng 1 dòng, bắt đầu `scripts/pre-merge-check.sh:` và chứa đúng hình dạng ấy; 6/6.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

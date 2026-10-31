@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Kho cài kit theo đường plugin (không chép thư viện của kit vào kho) thôi bị lưới trước gộp chặn oan mọi kết quả máy đã thông.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cho kết quả máy đã thông của kho cài theo plugin đi qua lưới, theo cả ba cách kho gọi lưới — gồm đúng cách CI của kho onehub-quy-hang gọi; bản trước vòng vẫn chặn oan đúng như sự cố."},
+    {"id": "AC-2", "p": "Sẽ giữ nguyên màu xanh cho kho đã chép thư viện của kit (như onehub-invest, crm), cả khi kho gọi bản chép của chính mình."},
+    {"id": "AC-3", "p": "Sẽ không bị đánh lừa khi bản chép thư viện trong kho bị hỏng hoặc chép thiếu — lưới dùng thư viện đi cùng chính nó."},
+    {"id": "AC-4", "p": "Sẽ cư xử y như trước vòng khi lưới bị chép lẻ mà thiếu thư viện đi cùng — dùng bản trong kho nếu có, chặn đúng tên nếu không."},
+    {"id": "AC-5", "p": "Sẽ có một phép quét giữ cả lớp lỗi: không còn chỗ nào trong các tệp lệnh của kit đọc thư viện theo gốc kho tiêu thụ, và phép quét bắt được sáu cách viết khác nhau của lỗi ấy."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG sửa hai bộ kiểm cũ đang chép thư viện vào kho thử (chính thứ đã che lỗi này) — để sau mốc phát hành."},
+    {"id": "OOS-2", "p": "KHÔNG đụng các chỗ đọc thư viện khác của lưới — chúng đã đọc đúng chỗ."},
+    {"id": "OOS-3", "p": "KHÔNG đổi chữ của hai lời báo chặn."},
+    {"id": "OOS-4", "p": "KHÔNG cắt bản 2.36.1 hay nâng kho onehub-quy-hang ở vòng này — phiên điều phối làm sau khi gộp."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Bốn kiểu kho: không có thư viện, chép lành, chép hỏng, chép thiếu — đúng các hình dạng ba kho tiêu thụ đang có."},
+    {"i": 1, "p": "Hai kiểu lưới: có thư viện đi cùng, hoặc bị chép lẻ thiếu thư viện."},
+    {"i": 2, "p": "Hai chỗ lưới đọc thư viện: đọc phần «hạn chế đã biết» của báo cáo, và đọc các mục ngoài hợp đồng."},
+    {"i": 3, "p": "Bốn cách gọi lưới, gồm đúng cách CI của kho cài plugin và của kho có bản chép (đọc từ CI của ba kho ngày 31/10)."},
+    {"i": 4, "p": "Mỗi tổ hợp chính có một tiêu chí (AC-1 tới AC-5)."},
+    {"i": 5, "p": "Để sau: lưới chép lẻ thiếu thư viện trên kho chép hỏng hoặc chép thiếu — cư xử như trước vòng, không kho nào ở bố cục ấy."},
+    {"i": 6, "p": "Không chạy bước quét độ phủ tự động: bốn trục kê tay, bước phản biện đã bổ sung trục cách gọi và kiểu chép thiếu."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Lý do chọn thứ tự «thư viện đi cùng lưới trước» chỉ dựa vào một dòng mã — đã thay bằng lý do thật: thứ tự ngược lại ghép lưới mới với thư viện chép cũ và lại chặn oan; đo ở ba kho: không kho nào đổi màu."},
+    {"i": 1, "p": "Thiếu trục «cách gọi lưới» và kiểu kho chép thiếu — đã thêm, gồm đúng cách CI của kho gặp sự cố gọi lưới."},
+    {"i": 2, "p": "Lời hứa «như trước vòng» đo bằng bản giả lập thay vì bản trước vòng thật — đã dựng bản trước vòng thật trong mỗi lượt và so bằng nhau."},
+    {"i": 3, "p": "Phép quét lớp lỗi chỉ bắt một cách viết — đã có bảng sáu cách viết, mỗi cách phải bị bắt đúng một dòng."},
+    {"i": 4, "p": "Một tiêu chí gọi lẫn tên hồ sơ thử — đã gọi đích danh."}
+  ],
+  "scope_plain": "Vòng vá nhỏ cho bản 2.36.1 — chỉ sửa đúng hai chỗ đọc thư viện của lưới và thêm thước giữ cả lớp lỗi.",
+  "decisions_plain": []
+}

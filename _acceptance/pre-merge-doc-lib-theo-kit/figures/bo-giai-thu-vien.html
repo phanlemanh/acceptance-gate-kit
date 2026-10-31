@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lưới tìm thư viện ở đâu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+    .sub { color: var(--color-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sơ đồ quyết định · pre-merge-doc-lib-theo-kit</p>
+    <h1>Lưới trước gộp tìm thư viện ở đâu</h1>
+    <p class="sub">Hỏi cạnh script trước, gốc kho sau — và ba bố cục kho tiêu thụ đi nhánh nào.</p>
+
+    <svg viewBox="0 0 1000 592" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Mũi tên (vẽ trước, nằm sau các nút) ===== -->
+      <!-- Bắt đầu → ô hỏi -->
+      <line x1="500" y1="88" x2="500" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- Ô hỏi → CÓ (phải) -->
+      <line x1="620" y1="176" x2="680" y2="176" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- Ô hỏi → KHÔNG (trái) -->
+      <line x1="380" y1="176" x2="320" y2="176" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- CÓ → bố cục 1 (thẳng xuống) -->
+      <line x1="800" y1="204" x2="800" y2="320" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- CÓ → bố cục 2 (khuỷu bo tròn) -->
+      <path d="M 712 204 V 248 Q 712 256 704 256 H 508 Q 500 256 500 264 V 320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- KHÔNG → bố cục 3 -->
+      <line x1="200" y1="204" x2="200" y2="320" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Nhãn mũi tên (mặt nạ giấy, cách đường 8px) -->
+      <rect x="636" y="156" width="28" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="650" y="165" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">CÓ</text>
+      <rect x="328" y="156" width="44" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="350" y="165" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">KHÔNG</text>
+
+      <!-- ===== Nút ===== -->
+      <!-- Bắt đầu -->
+      <rect x="380" y="40" width="240" height="48" rx="24" fill="#f5f5f5"/>
+      <rect x="380" y="40" width="240" height="48" rx="24" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="500" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Lưới cần một tệp thư viện X</text>
+
+      <!-- Ô hỏi -->
+      <polygon points="500,120 620,176 500,232 380,176" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="500" y="172" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">X có nằm cạnh</text>
+      <text x="500" y="188" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">script không?</text>
+
+      <!-- Nhánh CÓ (trọng tâm: chỗ vòng này đổi) -->
+      <rect x="680" y="148" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="148" width="240" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="800" y="172" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đọc X cạnh script</text>
+      <text x="800" y="188" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">cùng bản với script — đường mới của vòng</text>
+
+      <!-- Nhánh KHÔNG -->
+      <rect x="80" y="148" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="80" y="148" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="200" y="172" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Đọc lib/X ở gốc kho</text>
+      <text x="200" y="188" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">đường lùi — như trước vòng</text>
+
+      <!-- Tiêu đề khu ba làn -->
+      <text x="40" y="304" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">BA BỐ CỤC KHO</text>
+
+      <!-- ===== Bố cục 3: script chép lẻ thiếu thư viện (cột trái) ===== -->
+      <rect x="80" y="320" width="240" height="172" rx="6" fill="#f5f5f5"/>
+      <rect x="80" y="320" width="240" height="172" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="92" y="332" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="120" y="341" fill="rgba(79,93,117,0.8)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BỐ CỤC 3</text>
+      <text x="308" y="341" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">AC-4</text>
+      <text x="92" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Script chép lẻ</text>
+      <text x="92" y="380" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">thiếu thư viện nằm cạnh nó</text>
+      <text x="92" y="404" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.12em">NHÁNH · KHÔNG</text>
+      <line x1="92" y1="416" x2="308" y2="416" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="92" y="436" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">TRƯỚC</text>
+      <text x="152" y="436" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">đọc lib/ ở gốc kho</text>
+      <text x="92" y="460" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">SAU</text>
+      <text x="152" y="460" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Như trước vòng</text>
+      <text x="152" y="476" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lùi về lib/ ở gốc kho</text>
+
+      <!-- ===== Bố cục 2: kho có lớp chép (cột giữa) ===== -->
+      <rect x="380" y="320" width="240" height="172" rx="6" fill="#f5f5f5"/>
+      <rect x="380" y="320" width="240" height="172" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="392" y="332" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="420" y="341" fill="rgba(79,93,117,0.8)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BỐ CỤC 2</text>
+      <text x="608" y="341" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">AC-2 · AC-3</text>
+      <text x="392" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Kho có lớp chép</text>
+      <text x="392" y="380" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">chạy bản chép của lưới</text>
+      <text x="392" y="404" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.12em">NHÁNH · CÓ</text>
+      <line x1="392" y1="416" x2="608" y2="416" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="392" y="436" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">TRƯỚC</text>
+      <text x="452" y="436" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">đọc lib/ của bản chép</text>
+      <text x="392" y="460" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">SAU</text>
+      <text x="452" y="460" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Không đổi</text>
+      <text x="452" y="476" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">X cạnh script chính là bản chép</text>
+
+      <!-- ===== Bố cục 1: kho cài theo plugin (cột phải) ===== -->
+      <rect x="680" y="320" width="240" height="172" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="320" width="240" height="172" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="692" y="332" width="56" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="720" y="341" fill="rgba(79,93,117,0.8)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BỐ CỤC 1</text>
+      <text x="908" y="341" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">AC-1</text>
+      <text x="692" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Kho cài kit theo plugin</text>
+      <text x="692" y="380" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">không có lib/ ở gốc kho</text>
+      <text x="692" y="404" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.12em">NHÁNH · CÓ</text>
+      <line x1="692" y1="416" x2="908" y2="416" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="692" y="436" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">TRƯỚC</text>
+      <text x="752" y="436" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">vi phạm oan, không gộp được</text>
+      <text x="692" y="460" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">SAU</text>
+      <circle cx="756" cy="456" r="4" fill="#eb6c36"/>
+      <text x="768" y="460" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Qua lưới</text>
+      <text x="752" y="476" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">đọc thư viện cùng bản script</text>
+
+      <!-- ===== Chú giải ===== -->
+      <line x1="40" y1="524" x2="960" y2="524" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="540" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI · HÌNH DẠNG NÓI LOẠI NÚT</text>
+
+      <rect x="40" y="556" width="24" height="12" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="72" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bắt đầu</text>
+
+      <polygon points="152,562 164,556 176,562 164,568" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="184" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Câu hỏi</text>
+
+      <rect x="264" y="556" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="296" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cách đọc thư viện</text>
+
+      <rect x="416" y="556" width="24" height="12" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="448" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bố cục kho tiêu thụ (trước → sau vòng)</text>
+
+      <rect x="656" y="556" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="688" y="566" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cam: chỗ vòng này đổi</text>
+    </svg>
+  </div>
+</body>
+</html>
