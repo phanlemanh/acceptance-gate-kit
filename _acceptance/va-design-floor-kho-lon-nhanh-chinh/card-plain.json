@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Kho lớn (trên ~18 nghìn tệp) giờ được xếp đúng bậc giao diện thay vì bị coi là «không có giao diện»; kho có nhánh chính tên khác main/master (như onehub) chạy được bước dọn giao diện cuối S3 và bước chấm S4 mà không phải tự khai; kho nhỏ dùng main thấy kết quả y như bản 2.36.0.",
+  "scope_plain": "Năm việc cố ý không làm trong vòng vá này — máy đề xuất cắt cả năm, không mục nào chạm người dùng kho nhỏ:"
+}

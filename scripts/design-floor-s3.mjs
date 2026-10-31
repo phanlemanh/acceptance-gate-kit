@@ -75,7 +75,7 @@ export function chayS3(root, slug, base) {
   const cfgP = path.join(root, '_acceptance', 'config.yaml');
   const lenh = resolveConfigList(existsSync(cfgP) ? readFileSync(cfgP, 'utf8') : '', 'design_floor.sinh_lai').filter(Boolean);
   for (const l of lenh) {
-    const r = spawnSync('sh', ['-c', l], { cwd: root, encoding: 'utf8' });
+    const r = spawnSync('sh', ['-c', l], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     if (r.status !== 0) {
       ra.loi = `lệnh sinh lại thoát ${r.status} — ${l}`;
       ra.ma = 1;

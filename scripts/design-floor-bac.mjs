@@ -10,7 +10,7 @@
 // M1–M3 mà kho chưa nối executors.design.floor (lệnh S4 của hồ sơ design-floor-moc-s3-s4) → thêm một dòng stderr nói S4
 // chưa chấm tuân thủ design system; stdout giữ đúng một dòng bậc.
 //
-//   node scripts/design-floor-bac.mjs --root . [--json]   0 đọc được (kể cả M0) · 2 gọi sai
+//   node scripts/design-floor-bac.mjs --root . [--json]   0 đọc được (kể cả M0) · 1 git không đọc được danh sách tệp · 2 gọi sai
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -35,9 +35,11 @@ export function docBac(root) {
   let dsTep = [];
   if (globs.length) {
     try {
-      dsTep = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).split('\n').filter(Boolean);
-    } catch {
-      dsTep = [];
+      dsTep = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }).split('\n').filter(Boolean);
+    } catch (e) {
+      // Không đọc được thì nói lỗi thật: danh sách rỗng giả từng xếp kho lớn vào M0 với lý do «không khớp tệp nào» (#460).
+      const lyDo = e.code === 'ENOBUFS' ? 'ENOBUFS — danh sách vượt trần bộ đệm' : String(e.stderr || e.message).trim().split('\n')[0];
+      throw new Error(`không đọc được danh sách tệp git (${lyDo})`);
     }
   }
   const res = globs.map(pathGlobToRe);
@@ -82,7 +84,13 @@ function main(argv) {
     process.stderr.write('design-floor-bac: thiếu --root <gốc kho>\n');
     return 2;
   }
-  const r = docBac(path.resolve(root));
+  let r;
+  try {
+    r = docBac(path.resolve(root));
+  } catch (e) {
+    process.stderr.write(`design-floor-bac: ${e.message}\n`);
+    return 1;
+  }
   if (json) process.stdout.write(`${JSON.stringify(r)}\n`);
   else if (r.bac !== 'M0') {
     process.stdout.write(`design-floor: bậc ${r.bac} — ${r.ly_do}\n`);
