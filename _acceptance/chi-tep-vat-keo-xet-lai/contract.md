@@ -5,7 +5,7 @@ slug: chi-tep-vat-keo-xet-lai
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh + lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: approved   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented   # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Manh Phan
 approved_at: 2026-10-31T15:47:03Z
 design_doc: _acceptance/chi-tep-vat-keo-xet-lai/design.md
