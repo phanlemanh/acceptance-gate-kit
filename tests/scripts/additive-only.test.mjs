@@ -18,6 +18,13 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // Hồ sơ `pre-merge-doc-lib-theo-kit` (31/10/2026, vòng vá 2.36.1): hai dòng đọc thư viện của kit theo GỐC KHO
+  // ("$ROOT/lib/…") chuyển sang bộ giải kit_lib (thư viện cạnh script thắng, vắng thì lùi về lib/ của gốc kho).
+  // Kho cài kit theo đường plugin không có lib/ ở gốc nên dòng cũ fail-closed oan ở mọi hồ sơ machine-cleared;
+  // không có đường «chỉ thêm» — đối số node là chính chỗ đọc. Luật và thông điệp giữ từng chữ; kho có lib/ chép
+  // cho cùng kết cục với bản gốc (tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs ca LK2, LK4).
+  `    ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"`,
+  `    ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" "$_cdir/run-log.jsonl" 2>/dev/null || printf '__LOI__')"`,
   // Hồ sơ `dinh-tuyen-theo-ma-muc` (13/10/2026, S4-r1 t1/t3): vế «Ngoài hợp đồng» của xanh_sach_check phải đọc
   // CÙNG ba tệp với bản mjs (khong-can-nguoi.mjs) — thêm run-log.jsonl để dòng sổ ghi trước một lượt chấm đọc
   // như nhau. Bản «chỉ thêm» (một khối thứ hai sau khối cũ) làm khối cũ hai đối số chặn trước, nên hai bản dựng
