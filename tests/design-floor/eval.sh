@@ -60,5 +60,12 @@ case "${1:-}" in
   df5-gate-df07) node "$HERE/moc-s3-s4.mjs" --chi GATE ;;
   df5-vong-mau) node "$HERE/moc-s3-s4.mjs" --chi VONG-MAU ;;
   df5-noi-day) node "$HERE/moc-s3-s4.mjs" --chi SKILL-S3,BAC-FLOOR ;;
-  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo b-df01 b-df04 b-df05 b-df06 c d bo-ban-va chuoi-so-va df4-bac df4-bac-hong df4-tri-thuc df4-tri-thuc-lech df4-reuse-plan df4-flow-lint df4-the df4-chi-ghi df4-noi-day df4-tri-thuc-that df5-s3-autofix df5-s3-sinh-lai df5-s3-cay-ban df5-s4-hex df5-s4-token-coverage df5-s4-bac df5-s4-chi-doc df5-gate-df07 df5-vong-mau df5-noi-day" >&2; exit 2 ;;
+  # Hồ sơ va-design-floor-kho-lon-nhanh-chinh (#460): mỗi lệnh chạy chiều xanh, bản 2.36.0 và đột biến cùng nhãn.
+  va460-kho-lon) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi LON ;;
+  va460-git-hong) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi HONG ;;
+  va460-nhanh-khac) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi KHAC ;;
+  va460-khai-cu) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi CU ;;
+  va460-kho-nho) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi NHO ;;
+  va460-cung-lop) node "$HERE/kho-lon-nhanh-chinh.mjs" --chi LOP ;;
+  *) echo "eval.sh: không biết eval «${1:-}» — va01 fn01 bg01 ngoai-tuyen ban-va-a xfail-con luat-gioi-han vo dong-bo b-df01 b-df04 b-df05 b-df06 c d bo-ban-va chuoi-so-va df4-bac df4-bac-hong df4-tri-thuc df4-tri-thuc-lech df4-reuse-plan df4-flow-lint df4-the df4-chi-ghi df4-noi-day df4-tri-thuc-that df5-s3-autofix df5-s3-sinh-lai df5-s3-cay-ban df5-s4-hex df5-s4-token-coverage df5-s4-bac df5-s4-chi-doc df5-gate-df07 df5-vong-mau df5-noi-day va460-kho-lon va460-git-hong va460-nhanh-khac va460-khai-cu va460-kho-nho va460-cung-lop" >&2; exit 2 ;;
 esac

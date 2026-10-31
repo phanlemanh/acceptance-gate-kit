@@ -616,6 +616,13 @@ executors:
     # Vật của hồ sơ cong-cu-xet-tep-ton-tai — ghim ca NEN-TT* của vòng (từ đầu là đường tệp thì xét
     # tệp có tồn tại) cùng các ca cũ của chân công cụ (NEN0 NEN1 NEN-TD* NEN-LC*).
     cxt_ton_tai: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-TT1 NEN-TT2 NEN-TT3 NEN-TT4 NEN-TT5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Hồ sơ pre-merge-doc-lib-theo-kit (vòng vá 2.36.1): mỗi eval chạy đúng các ca LK<k> của nó, ghim số ca
+    # (dòng Results) và dòng PASS của từng ca theo tên — phán quyết không lấy từ mã thoát trọn tệp.
+    pmlk_e1: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK1 LK1-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 4 passed, 0 failed\" || exit 1; for c in kho-khong-lib ban-goc chi-goc-kho ooc-goc-kho; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK1(-do)? $c \" || exit 1; done'"
+    pmlk_e2: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK2 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in kho-co-lib-chep; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK2(-do)? $c \" || exit 1; done'"
+    pmlk_e3: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK3 LK3-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in kho-lib-chep-hong dao-thu-tu; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK3(-do)? $c \" || exit 1; done'"
+    pmlk_e4: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK4 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in lui-ve-goc-kho; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK4(-do)? $c \" || exit 1; done'"
+    pmlk_e5: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK5 LK5-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in quet-lop hinh-dang; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK5(-do)? $c \" || exit 1; done'"
     # Vật của hồ sơ nen-chay-bang-moi-truong-nguoi-goi — ghim ca NEN-ENV* của vòng cùng các ca
     # cũ của chân suite (NEN0 NEN2 NEN3 NEN4 NEN4b) và chân công cụ (NEN1 NEN-TD* NEN-LC*).
     nme_moi_truong: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-ENV1 NEN-ENV2 NEN-ENV3 NEN-ENV4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
@@ -1039,6 +1046,14 @@ executors:
     df5_gate_df07: bash tests/design-floor/eval.sh df5-gate-df07
     df5_vong_mau: bash tests/design-floor/eval.sh df5-vong-mau
     df5_noi_day: bash tests/design-floor/eval.sh df5-noi-day
+    # Hồ sơ va-design-floor-kho-lon-nhanh-chinh (#460): mỗi lệnh chạy chiều xanh, bản 2.36.0 và đột biến cùng nhãn của
+    # tests/design-floor/kho-lon-nhanh-chinh.mjs.
+    va460_kho_lon: bash tests/design-floor/eval.sh va460-kho-lon
+    va460_git_hong: bash tests/design-floor/eval.sh va460-git-hong
+    va460_nhanh_khac: bash tests/design-floor/eval.sh va460-nhanh-khac
+    va460_khai_cu: bash tests/design-floor/eval.sh va460-khai-cu
+    va460_kho_nho: bash tests/design-floor/eval.sh va460-kho-nho
+    va460_cung_lop: bash tests/design-floor/eval.sh va460-cung-lop
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
