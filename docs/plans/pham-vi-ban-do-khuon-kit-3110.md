@@ -16,6 +16,10 @@ liệu để đảm bảo không mất bối cảnh». Năm mã dưới đây c�
 | Giữa hai mốc được một kho nhận: tối đa một vòng meta, chủ kho gọi tên | `CLAUDE.md` luật chiều rộng (b) | 2.36.0 vừa phát hành 31/10, chưa kho nào nhận |
 | Hàng sau đứng trên dữ liệu thật của hàng trước | skill `cat-luot`, luật 2 | lược đồ tệp bản đồ phải rút từ tệp crm dựng thật ở BK1 |
 
+**Sửa 31/10 (QĐ-8 của finding):** kho thử thứ hai là onehub-quy-hang, chạy song song crm — Quỹ hàng thử dạng «khai
+trước khi lệch» (bản phạm vi `docs/plan/pham-vi-ban-do-khuon-3110.md` của kho ấy, QK1–QK4, PR onehub-quy-hang #22).
+Điều kiện mở của KH-C1, KH-C3, KH-C4, KH-C5 nhận bằng chứng từ một trong hai kho.
+
 Bốn mã là CỘNG (KH1, KH2, KH4, KH5): khi mở, chủ kho phê đích danh ở Cổng Phạm vi của chính hàng (ADR 0018). Từ 31/10
 máy MacBook Pro không chạy crm nữa; tín hiệu «vòng thử đã ký» về qua kênh liên máy kit #308.
 
@@ -31,7 +35,7 @@ máy MacBook Pro không chạy crm nữa; tín hiệu «vòng thử đã ký» v
 ```
 dot: ban-do-khuon-kit-3110
 dang: chuoi
-nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md#07ce066535c66b90e25103a5b7e8edca3c62d294
+nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md#c22c2e6c48e2bea649dbbbde6dd345fe1383e0de
 
 - `KH1` — S4 chấm vật theo khuôn: vòng dựng màn ngoài khuôn bị trả lại, gọi đúng tên tệp và khối cấm; kho không khai bản đồ thì không đổi gì
 - `KH2` — thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có
@@ -74,4 +78,7 @@ ngưỡng đếm; hoặc chờ DFK-C1. Lựa chọn thuộc chủ kho ở cổng
    — phần riêng của crm: tệp, màn, chữ duyệt của chủ kho, trạng thái BK1–BK3 lúc cắt và đường báo về kit khi BK1, BK2 ký.
 5. **crm** `docs/plan/pham-vi-ban-do-khuon-3010.md` (PR crm-onehub #591) — BK1–BK4, tệp chạm, thứ tự; và hàng BK1–BK3
    trong `docs/plan/lo-trinh-okr.json`.
-6. **Nền thiết kế của kit:** bản phạm vi DFK (PR #446) — hàng chờ DFK-C1, DFK-C3 là nguyên liệu của KH1 và KH5.
+6. **onehub-quy-hang** `docs/plan/pham-vi-ban-do-khuon-3110.md` (QK1–QK4) và trang tri thức trong kho
+   `docs/tri-thuc/wiki/dot/ban-do-khuon-3110.md` — kho thử thứ hai, dạng khai trước khi lệch; bản đồ khuôn bằng lời sẵn có
+   ở `docs/design/vo-va-ia.md` §2.
+7. **Nền thiết kế của kit:** bản phạm vi DFK (PR #446) — hàng chờ DFK-C1, DFK-C3 là nguyên liệu của KH1 và KH5.

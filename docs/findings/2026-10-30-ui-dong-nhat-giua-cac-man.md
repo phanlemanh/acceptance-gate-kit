@@ -740,6 +740,7 @@ hiện chúng ta không mất bối cảnh?» Mục này là sổ của cả m�
 | QĐ-7 | 30/10 | Bản phạm vi `pham-vi-ban-do-khuon-3010` (BK1–BK4) được duyệt; đẩy finding kit, tri thức crm, bản phạm vi crm; nguyên lý chung ghi thêm vào tri thức riêng của kit | chủ kho: «Duyệt và đẩy, những hạng mục nào đưa vào tri thức?» | chốt |
 | QĐ-5 | 30/10 | Trước khi chạy vòng: ghi hết tài liệu và quyết định — finding (kho kit) · tri thức (kho riêng của crm) · bản phạm vi (crm) | chủ kho, câu đầu mục này | đã làm trong phiên này |
 | QĐ-6 | 30/10 | Chờ tải trong ngăn bản ghi dùng **khung xương** (kéo luật trang 09/10 của crm xuống tầng ngăn) | máy, căn cứ `docs/design.md` «Chờ tải và lỗi tải» | máy quyết, cửa veto mở |
+| QĐ-8 | 31/10 | **Kho thử thứ hai là onehub-quy-hang, chạy song song crm** (sửa QĐ-2): crm thử dạng sửa lệch đã có, Quỹ hàng thử dạng khai trước khi lệch; kit nhận bằng chứng từ một trong hai kho cho KH-C1…KH-C5; invest không còn bắt buộc | chủ kho: «Tôi muốn thực hiện điều tương tự của crm vào rep onehub-quy-hang. Như một Repo thử nghiệm…», rồi «Đồng ý, làm» | chốt — bản phạm vi Quỹ hàng chờ duyệt (onehub-quy-hang #22) |
 
 ### 13.2 Việc còn mở
 

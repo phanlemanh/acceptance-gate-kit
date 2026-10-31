@@ -1518,7 +1518,7 @@
       "phu": [
         "KH1"
       ],
-      "mo_lai_khi": "crm có hồ sơ BK1 và BK2 đã ký và gộp; bài kiểm khung của crm bắt được ≥1 lệch thật qua ≥3 vòng OKR; ≥1 kho đã nhận 2.36.0 và chủ kho gọi tên vòng meta"
+      "mo_lai_khi": "Một trong hai kho thử có hồ sơ dựng bản đồ và răng giữ khuôn đã ký và gộp — crm (BK1, BK2) hoặc onehub-quy-hang (QK1, QK2) — và răng khuôn của kho ấy bắt được ≥1 lệch thật qua ≥3 vòng giao diện; ≥1 kho đã nhận 2.36.0 và chủ kho gọi tên vòng meta"
     },
     {
       "ma": "KH-C2",
@@ -1538,7 +1538,7 @@
       "phu": [
         "KH3"
       ],
-      "mo_lai_khi": "crm dùng dòng «màn mẫu» qua ≥3 vòng chạm ngăn bản ghi và ảnh đối chiếu có mặt ở Cổng Phạm vi của các vòng ấy"
+      "mo_lai_khi": "Một kho thử dùng màn mẫu cạnh màn mới qua ≥3 vòng giao diện — crm (dòng «màn mẫu» của BK2) hoặc onehub-quy-hang (QK3) — và ảnh đối chiếu có mặt ở Cổng Phạm vi của các vòng ấy"
     },
     {
       "ma": "KH-C4",
@@ -1548,7 +1548,7 @@
       "phu": [
         "KH4"
       ],
-      "mo_lai_khi": "invest viết tay luật lint cấm nhập cùng hình dạng với luật của crm (BK2), tức hai kho có cùng hình dạng"
+      "mo_lai_khi": "Hai kho có luật lint cấm nhập theo vùng viết tay cùng hình dạng — crm (BK2) và onehub-quy-hang (QK2), hoặc invest"
     },
     {
       "ma": "KH-C5",
@@ -1558,7 +1558,7 @@
       "phu": [
         "KH5"
       ],
-      "mo_lai_khi": "DFK1 đã giao và invest đã khai bản đồ khuôn (bước 2 của QĐ-2)"
+      "mo_lai_khi": "DFK1 đã giao và kho thứ hai đã khai bản đồ khuôn — onehub-quy-hang (QK1, QK4) hoặc invest"
     }
   ],
   "da_bac": [
