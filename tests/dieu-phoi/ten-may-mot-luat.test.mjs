@@ -161,9 +161,12 @@ test('TM-3-do khong-kiem', async () => {
   const gh = ghGia({ nextId: 990 });
   const mbp = khoKenh({ gocGoi: goc, may: 'MBP', gh: gh.lenh });
   gh.xoaNhatKy();
+  const truoc = bamCay(path.dirname(tepKenhCua(mbp)));
   const r = tin(mbp, ['GIAO', 'Mac Studio', 'một việc', '--ket-qua', 'một kết quả', '--kenh', KENH], { gocGoi: goc, nowMs: T0, gh: gh.lenh });
   assert.equal(r.ma, 0, r.err);
   assert.equal(soGhi(gh), 1);
+  // Đối chứng dương của vế «kênh không đổi» ở TM-3: lời gọi đi trọn thì phép băm cùng chỗ thấy ĐỔI.
+  assert.notEqual(bamCay(path.dirname(tepKenhCua(mbp))), truoc, 'GIAO đi trọn trên kênh phải đổi cây trạng thái kênh mà TM-3 băm');
   assert.equal(docDongDau(daDang(gh).at(-1)), null);
 });
 
