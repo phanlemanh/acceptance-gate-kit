@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Khi công cụ chấm nhận về một mã lượt chạy rác (dấu huyền, chữ trơn, chuỗi có khoảng trắng), máy tự đặt mã thay, và lượt chấm lại không còn mang mã rác cũ sang — phiên của kho không phải sửa tay đối số nữa.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ thay mọi mã rác của tác tử bằng mã máy đặt khi ghi sổ cho một tiêu chí, và giữ nguyên mã thật (kể cả mã bọc nháy hay kèm ghi chú)."},
+    {"id": "AC-2", "p": "Sẽ làm đúng như vậy cho các bộ kiểm chạy mỗi lượt (không gắn tiêu chí)."},
+    {"id": "AC-3", "p": "Sẽ bảo đảm mọi mã máy ghi vào sổ đều đọc lại đúng từ báo cáo và đều mang sang được ở lượt sau."},
+    {"id": "AC-4", "p": "Sẽ chạy lại một tiêu chí được giao mang sang mà mã của nó là rác, thay vì tin mã ấy."},
+    {"id": "AC-5", "p": "Sẽ đọc được sổ cũ đã hỏng (như ở crm): tiêu chí có mã rác chạy lại ở lượt sau, kèm một dòng nói lý do — không bắt kho sửa sổ."},
+    {"id": "AC-6", "p": "Sẽ giữ luật hình dạng mã ở đúng một chỗ: bước tính mang sang đọc chính luật của bộ chấm, thiếu luật thì dừng có tên."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG đổi cách đọc báo cáo đã ký — báo cáo cũ ở các kho giữ nguyên màu."},
+    {"id": "OOS-2", "p": "KHÔNG sửa sổ cũ của kho tiêu thụ; lượt sau tự chạy lại tiêu chí có mã rác."},
+    {"id": "OOS-3", "p": "KHÔNG trông vào việc dặn tác tử kỹ hơn — dặn bằng lời không phải cách sửa."},
+    {"id": "OOS-4", "p": "KHÔNG đụng mã của lượt ghim lại và của hội đồng — những mã đó máy tự sinh."},
+    {"id": "OOS-5", "p": "KHÔNG cắt bản 2.36.2 hay nâng kho ở vòng này — phiên điều phối làm sau khi gộp."}
+  ],
+  "scope_plain": "Vòng chỉ sửa chỗ GHI mã và chỗ tính mang sang; chỗ đọc báo cáo và việc phát hành để ngoài.",
+  "coverage_plain": [
+    {"i": 0, "p": "Phủ mọi chỗ chạm mã lượt: ghi cho tiêu chí, ghi cho bộ kiểm, nhận mang sang, tính mang sang; chỗ đọc báo cáo để ngoài (có tên)."},
+    {"i": 1, "p": "Phủ mọi dạng mã rác và mã thật đã thấy ngoài đời — đo trên sổ của kit và ba kho tiêu thụ; mã thật chỉ toàn chữ ở crm sẽ bị thay (giới hạn đã khai)."},
+    {"i": 2, "p": "Phủ cả sổ cũ đã hỏng lẫn sổ mới."},
+    {"i": 3, "p": "Mỗi ô trên có một tiêu chí AC-1…AC-6 đo nó."},
+    {"i": 4, "p": "Chỗ đọc báo cáo để sau — sau vòng này máy không còn ghi mã rác để nó gặp."},
+    {"i": 5, "p": "Không chạy công cụ quét độ phủ; phản biện độc lập đã bổ sung ca cho từng vế của luật."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Bộ ca chưa canh riêng từng vế của luật (mã quá ngắn, ký tự đầu lạ, mã quá dài) — một bản sửa nới luật vẫn qua. Đã sửa: thêm bốn mã thử và ba phép phá luật từng vế, mỗi phép phải đỏ."},
+    {"i": 1, "p": "Chưa đo luật trên sổ của các kho sẽ nhận bản vá. Đã đo: crm 296 trên 14 431 dòng không đạt (58 là mã thật chỉ toàn chữ — sẽ bị thay, ghi giới hạn), invest 16 trên 2 793, quy-hàng 0; kết luận nghiệm thu không đổi vì báo cáo chép mã từ máy, không từ đầu ra lệnh."},
+    {"i": 2, "p": "Phép đọc lại mã dùng dòng tự viết, không lấy từ khuôn báo cáo thật. Đã sửa: rút dòng từ khuôn báo cáo, và có phép phá khuôn để chứng nó đỏ được."}
+  ]
+}
