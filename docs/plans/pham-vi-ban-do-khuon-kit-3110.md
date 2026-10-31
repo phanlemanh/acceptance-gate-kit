@@ -21,11 +21,11 @@ máy MacBook Pro không chạy crm nữa; tín hiệu «vòng thử đã ký» v
 
 ## 2. Trạng thái phía crm lúc cắt (đọc 31/10 trên nhánh `onehub` `a3138b29c`)
 
-- `docs/plan/lo-trinh-okr.json` có ba hàng: BK1 `khung-chung-ngan-ban-ghi` (đứng trên SV9, SV10) · BK2
+- Lộ trình `docs/plan/lo-trinh-okr.json` có ba hàng: BK1 `khung-chung-ngan-ban-ghi` (đứng trên SV9, SV10) · BK2
   `rang-giu-khung-ngan` (đứng trên BK1; câu giao đã gánh luôn ảnh ngăn mới cạnh ngăn deal của BK4) · BK3
   `rang-khung-trang-mo`.
 - Ô BK3 `_acceptance/rang-khung-trang-mo/` dừng ở Cổng Đáng, nhánh `chore/rang-khung-trang-mo`.
-- `design/patterns/` chưa có trên `onehub`: tệp bản đồ đầu tiên là vật của BK1.
+- Thư mục `design/patterns/` chưa có trên `onehub`: tệp bản đồ đầu tiên là vật của BK1.
 
 <!-- <<<PHAM-VI-MA -->
 ```
