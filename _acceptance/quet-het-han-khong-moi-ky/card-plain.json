@@ -1,0 +1,31 @@
+{
+  "feature_plain": "Ở kho lớn, thẻ cửa veto của việc máy đã cho qua không còn mời ký nhầm khi máy đọc trạng thái chậm — thẻ nói rõ vì sao và in sẵn lệnh chạy lại.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ giữ câu «đi tiếp hay kéo lại» trên thẻ của việc máy đã cho qua, kể cả khi máy đọc trạng thái hết giờ, sập hay bị ngắt — không còn nút ký."},
+    {"id": "AC-2", "p": "Sẽ in một cờ vàng nói thẳng «máy đọc trạng thái hết giờ sau … giây», «chưa ai kiểm lại», kèm một lệnh chạy lại dán vào là chạy xong."},
+    {"id": "AC-3", "p": "Sẽ không bao giờ in lý do khó hiểu kiểu «exit null» — mỗi kiểu hỏng có một câu riêng bằng chữ."},
+    {"id": "AC-4", "p": "Sẽ cho kho lớn đợi lâu hơn theo số hồ sơ (kho 380 hồ sơ đợi 57 giây); kho dưới 134 hồ sơ giữ nguyên 20 giây như cũ."},
+    {"id": "AC-5", "p": "Sẽ giữ nguyên lối cũ cho việc chưa được máy cho qua (vẫn hỏi «ký hay trả») và cho kho chưa dựng cổng."},
+    {"id": "AC-6", "p": "Sẽ giữ xanh toàn bộ ca kiểm cũ, gồm ca «kho chưa dựng cổng vẫn có nút ký»."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Không làm máy đọc trạng thái nhanh hơn, cũng không chỉ đọc một hồ sơ — để vòng riêng."},
+    {"id": "OOS-2", "p": "Không thêm ô cấu hình cho thời gian đợi — đợi theo cỡ kho cộng một biến môi trường là đủ."},
+    {"id": "OOS-3", "p": "Không đổi thẻ Cổng Phạm vi (nó tự hưởng thời gian đợi mới và lý do bằng chữ)."},
+    {"id": "OOS-4", "p": "Không đụng nhật ký thay đổi hay số phiên bản — việc của đợt phát hành 2.36.2."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Việc máy đã cho qua × ba kiểu máy đọc hỏng (hết giờ, sập, bị ngắt) → AC-1 (không mời ký); hết giờ → AC-2 (cờ + lệnh chạy lại); đọc kịp → đối chứng."},
+    {"i": 1, "p": "Mọi kiểu hỏng → AC-3 (lý do bằng chữ); cỡ kho × biến môi trường → AC-4 (thời gian đợi)."},
+    {"i": 2, "p": "Việc chưa được cho qua khi hết giờ, kho chưa dựng cổng → AC-5 (lối cũ giữ nguyên); ca kiểm cũ → AC-6."},
+    {"i": 3, "p": "Theo nếp ngành: thời gian đợi = mức sàn + hệ số × cỡ việc."},
+    {"i": 4, "p": "Để sau: đọc nhanh hơn. Không bao giờ: thẻ tự kiểm sáu điều kiện khi máy đọc hỏng."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Chọn «đi tiếp» khi máy đọc hỏng là khẩu vị rủi ro chứ không phải lối duy nhất — đã chuyển thành câu Hỏi-1 cho anh."},
+    {"i": 1, "p": "Ca kiểm chỉ ép hết giờ, chưa thử máy đọc sập hay bị ngắt — đã thêm hai ca đó và một ca phá thử."},
+    {"i": 2, "p": "Lệnh chạy lại chỉ được kiểm là có mặt — nay ca kiểm rút lệnh ra, so đúng kho và hồ sơ, rồi chạy thật."},
+    {"i": 3, "p": "Chặn theo luật sản phẩm chưa có ca riêng khi máy đọc hỏng — để sau, vì chặn ấy không phụ thuộc máy đọc; ghi vào Ghi chú."},
+    {"i": 4, "p": "Câu «máy đã thông» chỉ được kiểm là vắng — nay ca đối chứng kiểm nó có mặt khi đọc kịp."}
+  ]
+}
