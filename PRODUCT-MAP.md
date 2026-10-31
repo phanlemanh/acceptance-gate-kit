@@ -46,7 +46,7 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Mã lượt chạy (run_id) chỉ được ghi khi đúng hình dạng mã — mã rác của tác tử (dấu huyền, chữ không có số, chuỗi có khoảng trắng) thành mã máy đúc, và lượt sau không mang sang eval có mã rác trong sổ cũ (`run-id-danh-sach-cho-phep`)
+- Mã lượt chạy chỉ được ghi khi đúng hình dạng mã — mã rác của tác tử (dấu huyền, chữ không có số, chuỗi có khoảng trắng) thành mã máy đúc, và lượt sau không mang sang eval có mã rác trong sổ cũ (`run-id-danh-sach-cho-phep`)
 
 ## Đã giao — chờ phiên nghiệm thu
 

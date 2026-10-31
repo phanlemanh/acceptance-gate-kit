@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Mã lượt chạy (run_id) chỉ được ghi khi đúng hình dạng mã — mã rác của tác tử (dấu huyền, chữ không có số, chuỗi có khoảng trắng) thành mã máy đúc, và lượt sau không mang sang eval có mã rác trong sổ cũ
+feature: Mã lượt chạy chỉ được ghi khi đúng hình dạng mã — mã rác của tác tử (dấu huyền, chữ không có số, chuỗi có khoảng trắng) thành mã máy đúc, và lượt sau không mang sang eval có mã rác trong sổ cũ
 slug: run-id-danh-sach-cho-phep
 owner: phanlemanh@gmail.com
 risk_tier: T2      # chạm feature-loop/workflows/** và feature-loop/scripts/** — không trong risk_tiers.t3_paths
