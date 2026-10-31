@@ -64,3 +64,9 @@ Source input: ô `_acceptance/run-id-danh-sach-cho-phep/opportunity.md` (Cổng 
   crm có 58 dòng (trên 14 431) chỉ thiếu chữ số, phần lớn là mã 12 chữ thường mà phiên crm khai; onehub-invest có 16
   dòng mã kèm khoảng trắng. Phán quyết không đổi: báo cáo chép mã từ bản đồ bộ chấm truyền xuống (cùng mã đúc với sổ),
   không chép từ đầu ra của lệnh.
+- Mã ngắn (dưới 4 ký tự) cũng là mã sai hình dạng: sổ cũ của một kho mang mã như thế thì eval CHẠY LẠI ở lượt sau
+  thay vì mang sang — hướng an toàn, trả bằng giờ máy, không đổi phán quyết. Ca BG9 của bộ kiểm giải nháy dựng sổ
+  với mã `r-1` nên đỏ ở lượt chấm 1; mẫu đổi sang `run-1`, vật không đổi. Đo 31/10 trên dòng eval của sổ lượt chạy
+  (lệnh `_acceptance/run-id-danh-sach-cho-phep/do/do-ma-ngan.mjs`): mã ngắn mà đúng dạng chữ-số — kit 1/8 925
+  (`L08`, mã nhóm tác tử chép nhầm), crm 1/14 431 (`E18`, tên eval chép nhầm), onehub-invest 0/2 793, onehub-quy-hang
+  0/710; không kho nào có mã lượt thật ngắn hơn 4 ký tự — mã `r-1` chỉ có trong mẫu kiểm.
