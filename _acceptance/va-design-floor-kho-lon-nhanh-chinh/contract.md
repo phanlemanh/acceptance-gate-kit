@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/design-floor-*.mjs + tests/design-floor/** + config executors — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-31-va-design-floor-kho-lon-nhanh-chinh-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -78,3 +78,7 @@ Quét tay ba trục (phản biện context sạch chỉ ra trục thứ ba mà d
   tên khai không giải được; design-floor đọc origin/HEAD cục bộ (không mạng), chỉ nhận ref remote `origin/<tên>` (nhánh
   cục bộ cùng tên có thể là bản cũ sau khi remote đổi tên), và lùi về bốn tên cũ khi ref ấy không còn.
 - Khoá DO1: AC-5 là ca kiểm «không đổi cách S4 chấm» ở kho dạng invest.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-31:
+  - Ngoài-1: Phần hướng dẫn đầu lệnh S3 và S4 chưa kể lý do dừng mới «không đọc được danh sách tệp git».
+  - Ngoài-2: Bước S0 của vòng chưa nói gặp lỗi đọc danh sách tệp thì dừng hay đi tiếp.
+  - Ngoài-3: Phép quét trần bộ đệm chỉ thấy lời gọi viết theo cách quen thuộc; lời gọi viết khác có thể lọt.
