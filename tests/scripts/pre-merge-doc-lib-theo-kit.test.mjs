@@ -203,11 +203,12 @@ await ca('LK4 lui-ve-goc-kho', () => {
 // và không phải echo/printf (thông điệp nhắc tên tệp không phải chỗ đọc), ngoài khối bộ giải:
 //   (1) chữ trong nháy kép bắt đầu ngay bằng tiền tố gốc kho ($ROOT, ${ROOT…}, ./ hoặc không gì) rồi lib/|scripts/
 //   (2) từ không nháy bắt đầu bằng $ROOT / ${ROOT…} rồi lib/|scripts/
-//   (3) `node` theo sau là đường tương đối lib/… hoặc scripts/…
+//   (3) `node` ở VỊ TRÍ LỆNH (đầu dòng, sau ; & | ( hoặc mở $( ) theo sau là đường tương đối lib/… hoặc scripts/…
+//       — chữ «node lib/…» nằm trong một lời báo lỗi không phải chỗ đọc (S3: bản đầu bắt nhầm đúng một dòng như thế)
 const MAU_LOP = [
   /"(\$\{?ROOT[^"/]*\}?\/|\.\/)?(lib|scripts)\/[\w.-]+"/,
   /(^|[\s=(])\$\{?ROOT[^\s/"]*\}?\/(lib|scripts)\//,
-  /\bnode\s+(\.\/)?(lib|scripts)\//,
+  /(^|[;&|(]|\$\()\s*node\s+(\.\/)?(lib|scripts)\//,
 ];
 const THU_MUC_SHELL = ['scripts', 'hooks'];
 function tepShell(dir) {
@@ -229,14 +230,17 @@ function quet(dir) {
   return { sai, giai: giai.sort() };
 }
 const GIAI_KHAI = ['md-section.cjs', 'out-of-contract.cjs'];
-// Ma trận hình dạng của lớp, viết trước — mỗi hình dạng tiêm riêng vào chỗ gọi out-of-contract.cjs của bản sao.
+// Ma trận hình dạng của lớp, viết trước — mỗi hình dạng tiêm riêng vào một bản sao: sáu hình dạng đối số thay chỗ
+// gọi out-of-contract.cjs (mẫu 1 và 2), một hình dạng lệnh chèn ngay sau khối bộ giải (mẫu 3).
+// [tên, neo, thay, chuỗi phải có trong dòng quét ra]
 const HINH_DANG = [
-  ['nhay-root', '"$ROOT/lib/out-of-contract.cjs"'],
-  ['khong-nhay', '$ROOT/lib/out-of-contract.cjs'],
-  ['ngoac-root', '"${ROOT}/lib/out-of-contract.cjs"'],
-  ['mac-dinh', '"${ROOT:-.}/lib/out-of-contract.cjs"'],
-  ['tuong-doi', '"lib/out-of-contract.cjs"'],
-  ['cham-gach', '"./lib/out-of-contract.cjs"'],
+  ['nhay-root', CHO_GOI_OOC, '"$ROOT/lib/out-of-contract.cjs"'],
+  ['khong-nhay', CHO_GOI_OOC, '$ROOT/lib/out-of-contract.cjs'],
+  ['ngoac-root', CHO_GOI_OOC, '"${ROOT}/lib/out-of-contract.cjs"'],
+  ['mac-dinh', CHO_GOI_OOC, '"${ROOT:-.}/lib/out-of-contract.cjs"'],
+  ['tuong-doi', CHO_GOI_OOC, '"lib/out-of-contract.cjs"'],
+  ['cham-gach', CHO_GOI_OOC, '"./lib/out-of-contract.cjs"'],
+  ['node-lenh', '# KIT-LIB-THEO-CHO-CAI>>>\n', '# KIT-LIB-THEO-CHO-CAI>>>\n_x="$(node lib/out-of-contract.cjs 2>/dev/null)"\n', 'node lib/out-of-contract.cjs'],
 ];
 await ca('LK5 quet-lop', () => {
   const tep = tepShell(KIT);
@@ -248,9 +252,9 @@ await ca('LK5 quet-lop', () => {
 });
 await ca('LK5-do hinh-dang', () => {
   const sai = [];
-  for (const [ten, thay] of HINH_DANG) {
-    const { sai: ra } = quet(banSaoMay([[PM, CHO_GOI_OOC, thay]]));
-    if (!(ra.length === 1 && ra[0].startsWith(`${PM}:`) && ra[0].includes(thay))) sai.push(`${ten}: quet ra ${JSON.stringify(ra)}`);
+  for (const [ten, neo, thay, dau = thay] of HINH_DANG) {
+    const { sai: ra } = quet(banSaoMay([[PM, neo, thay]]));
+    if (!(ra.length === 1 && ra[0].startsWith(`${PM}:`) && ra[0].includes(dau))) sai.push(`${ten}: quet ra ${JSON.stringify(ra)}`);
   }
   return sai.length ? { loi: sai.join(' ; ') } : { msg: `— ${HINH_DANG.length}/${HINH_DANG.length} hình dạng (${HINH_DANG.map(h => h[0]).join(', ')}): mỗi bản tiêm bắt đúng một dòng` };
 });

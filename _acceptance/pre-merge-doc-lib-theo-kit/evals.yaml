@@ -64,8 +64,10 @@ evals:
       Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của LK5 quet-lop, LK5-do hinh-dang. LK5: phạm vi quét
       là mọi *.sh dưới scripts/ và hooks/ và có scripts/pre-merge-check.sh; 0 dòng khớp ba mẫu của lớp (dòng không
       chú thích, không echo/printf, ngoài khối KIT-LIB-THEO-CHO-CAI); tập chỗ gọi `$(kit_lib …)` ==
-      ["md-section.cjs","out-of-contract.cjs"]. LK5-do: ma trận 6 hình dạng viết trước (nhay-root, khong-nhay,
-      ngoac-root, mac-dinh, tuong-doi, cham-gach), mỗi hình dạng tiêm riêng vào chỗ gọi out-of-contract.cjs của một
-      bản sao — phép quét ra đúng 1 dòng, bắt đầu `scripts/pre-merge-check.sh:` và chứa đúng hình dạng ấy; 6/6.
+      ["md-section.cjs","out-of-contract.cjs"]. Mẫu thứ ba chỉ khớp `node` ở vị trí lệnh (đầu dòng, sau ; & | ( hoặc
+      $( ), không khớp chữ «node lib/…» trong một lời báo lỗi. LK5-do: ma trận 7 hình dạng viết trước — nhay-root,
+      khong-nhay, ngoac-root, mac-dinh, tuong-doi, cham-gach tiêm vào chỗ gọi out-of-contract.cjs; node-lenh chèn
+      `_x="$(node lib/out-of-contract.cjs 2>/dev/null)"` sau khối bộ giải — mỗi hình dạng một bản sao, phép quét ra
+      đúng 1 dòng, bắt đầu `scripts/pre-merge-check.sh:` và chứa đúng hình dạng ấy; 7/7.
     paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
