@@ -5,7 +5,7 @@ slug: pre-merge-doc-lib-theo-kit
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths (lời giao ghi T2; máy suy T3, không tự hạ)
 surfaces: [cli]
-status: verified   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off   # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Manh Phan
 approved_at: 2026-10-31T11:18:59Z
 design_doc: _acceptance/pre-merge-doc-lib-theo-kit/design.md
@@ -53,3 +53,8 @@ Source input: ô `_acceptance/pre-merge-doc-lib-theo-kit/opportunity.md` (Cổng
 - Vật: `scripts/pre-merge-check.sh` (khối marker mới `KIT-LIB-THEO-CHO-CAI` + hai chỗ gọi) · thước:
   `tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs` ca LK1…LK5 · khoá eval `executors.script.pmlk_e1…e5` thêm vào
   `_acceptance/config.yaml`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-10-31:
+  - Ngoài-1: Lớp dịch của thẻ Cổng Phạm vi còn ghi «sáu cách viết» trong khi phép quét nay kiểm bảy.
+  - Ngoài-2: Cùng chỗ lệch với Ngoài-1 — lời mô tả trên thẻ đã qua cũ hơn thước đang chạy.
+  - Ngoài-3: Phép quét lớp lỗi chưa có ca tiêm nào cho nhánh «scripts/» của lớp, chỉ cho nhánh «lib/».
+  - Ngoài-4: Dạng lệnh «node lib/…» mới có chiều đỏ ở một vị trí lệnh, và chưa có ca riêng chứng phép quét im trước một lời báo lỗi chứa chữ ấy.
