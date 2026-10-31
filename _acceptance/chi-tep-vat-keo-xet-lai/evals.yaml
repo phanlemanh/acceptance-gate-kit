@@ -1,0 +1,75 @@
+schema_version: 1
+feature_slug: chi-tep-vat-keo-xet-lai
+# Mỗi eval chạy đúng các ca TV<k> của nó trong tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs, ghim số ca (dòng
+# «Results: n passed, 0 failed» — ma trận viết trước) và dòng PASS của từng ca theo tên. Kho thử do code sinh trong
+# lượt (git, hồ sơ cũ ghim commit đầu, mã đổi ở nhánh chính, PR là một commit sau basepoint). Bản gốc thật là main
+# 115100b6 dựng trọn scripts/ lib/ skills/ commands/ bằng git archive trong lượt (CI checkout fetch-depth: 0). Mỗi ca
+# đột biến chạy bản sao chưa tiêm trên CÙNG kho trước (xanh), neo tiêm khớp đúng một lần, bản tiêm khác bản gốc.
+# Chiều đỏ trong lịch sử: commit tệp ca đứng trước commit vật; trên cây trước vòng TV1 đỏ với «evidence is stale».
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tvx_e1
+    expected: >
+      Exit 0, đúng «Results: 3 passed, 0 failed» và dòng PASS của TV1 chi-tep-chu, TV1-do ban-goc, TV1-do go-ve-chu.
+      TV1: ma trận 5 ô viết trước (opportunity · decisions · ca-hai · kho-sau — bốn ô không evals.yaml, kho thử assert vắng tệp ·
+      stale-scope-paths — evals.yaml paths [src/**]) — mỗi ô mã 0, 0 dòng
+      «VIOLATION [old]: evidence is stale», đúng 1 dòng bắt đầu «NOTE [old]: sửa tệp chữ, không xét bằng chứng cũ — PR
+      chỉ đổi » chứa tên mọi tệp chữ ô ấy đổi; 5/5. TV1-do ban-goc: bản gốc 115100b6 trên 5 ô ấy — mỗi ô mã ≠ 0 và dòng
+      «VIOLATION [old]: evidence is stale» kèm «src/app.js» trong đầu ra; 5/5. TV1-do go-ve-chu: bản sao mà nhánh
+      STALE-TEP-CHU-GUARD thành «elif false; then» (xanh trước khi tiêm trên cùng kho) — ô opportunity đỏ cùng thông điệp ấy.
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tvx_e2
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của TV2 tep-vat: ma trận 9 ô viết trước (evals · contract ·
+      evidence-report · run-log · rang-con · rang-trung-ten · tep-la · chu-va-vat · kho-sau-evals) — mỗi ô mã ≠ 0, có dòng
+      «VIOLATION [old]: evidence is stale» và «src/app.js» trong đầu ra, 0 dòng «NOTE [old]: sửa tệp chữ»; 9/9.
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tvx_e3
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của TV3 ho-so-tuoi: hồ sơ ghim đỉnh basepoint; PR chỉ sửa
+      opportunity.md và PR sửa evals.yaml — cả hai mã 0, có dòng bắt đầu «OK [fresh]», 0 dòng «VIOLATION [fresh]».
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tvx_e4
+    expected: >
+      Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của TV4 paths-phu-chu, TV4-doi-chung paths-khong-phu.
+      TV4: ba ô (glob-ho-so «_acceptance/old/**» · dung-ten «_acceptance/old/opportunity.md» · bi-danh «paths: *p») — PR
+      chỉ sửa opportunity.md, mỗi ô mã ≠ 0 với «VIOLATION [old]: evidence is stale» và 0 dòng «NOTE [old]: sửa tệp chữ»;
+      3/3. TV4-doi-chung: paths [«_acceptance/old/rang/**», «src/**»] — mã 0 và đúng 1 dòng NOTE tệp chữ của old.
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tvx_e5
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của TV5 hai-luat-giu: kho gap_probe: required + recheck:
+      strict, hồ sơ cũ thiếu gap-probe.md, run-log.jsonl mang run_id khác báo cáo; PR chỉ sửa opportunity.md — mã ≠ 0,
+      đầu ra có «VIOLATION [old]: chưa qua phản biện context sạch (gap-probe)», «VIOLATION [old]: committed evidence
+      fails re-check (recheck: strict)», đúng 1 dòng NOTE tệp chữ của old, 0 dòng «evidence is stale».
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.tvx_e6
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của TV6 lui-ve-vat: đối chứng — bản sao chưa tiêm cho
+      mã 0 và đúng 1 dòng NOTE tệp chữ của old; hai bản sao tiêm (ham-vang: đổi tên phanTepHoSo trong lib ·
+      dau-ra-hong: hàm trả chuỗi rác) — mỗi bản mã ≠ 0, «VIOLATION [old]: evidence is stale» kèm «src/app.js», 0 dòng
+      NOTE tệp chữ; 2/2.
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -1020,6 +1020,14 @@ executors:
     df4_chi_ghi: bash tests/design-floor/eval.sh df4-chi-ghi
     df4_noi_day: bash tests/design-floor/eval.sh df4-noi-day
     df4_tri_thuc_that: bash tests/design-floor/eval.sh df4-tri-thuc-that
+    # Hồ sơ chi-tep-vat-keo-xet-lai (vòng vá 2.36.2, #468): mỗi eval chạy đúng các ca TV<k> của nó, ghim số ca
+    # (dòng Results) và dòng PASS của từng ca theo tên — phán quyết không lấy từ mã thoát trọn tệp.
+    tvx_e1: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV1 TV1-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 3 passed, 0 failed\" || exit 1; for c in chi-tep-chu ban-goc go-ve-chu; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV1(-do|-doi-chung)? $c \" || exit 1; done'"
+    tvx_e2: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV2 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in tep-vat; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV2(-do|-doi-chung)? $c \" || exit 1; done'"
+    tvx_e3: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV3 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in ho-so-tuoi; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV3(-do|-doi-chung)? $c \" || exit 1; done'"
+    tvx_e4: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV4 TV4-doi-chung 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in paths-phu-chu paths-khong-phu; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV4(-do|-doi-chung)? $c \" || exit 1; done'"
+    tvx_e5: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV5 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in hai-luat-giu; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV5(-do|-doi-chung)? $c \" || exit 1; done'"
+    tvx_e6: "bash -c 'out=$(node tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs TV6 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in lui-ve-vat; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: TV6(-do|-doi-chung)? $c \" || exit 1; done'"
     df5_s3_autofix: bash tests/design-floor/eval.sh df5-s3-autofix
     df5_s3_sinh_lai: bash tests/design-floor/eval.sh df5-s3-sinh-lai
     df5_s3_cay_ban: bash tests/design-floor/eval.sh df5-s3-cay-ban
