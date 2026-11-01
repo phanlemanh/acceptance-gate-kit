@@ -1,34 +1,20 @@
 ## Trong hợp đồng
 
+- **Hình dạng 5 — tuyên quét LỚP «paths không đọc được» nhưng ma trận TV4 chỉ có điểm-case ngoặc nhọn; bốn phần tử còn lại của lớp không có ô**
+  AC: AC-4
+  file: `tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs:156`
+  severity: medium
+  source: measurement
+  detail: AC-4 (card-plain.json, evals.yaml E4) hứa cả lớp: «khi máy không đọc được phép đo ấy đo gì — vẫn xét lại». Vật định nghĩa lớp ấy bằng một bộ đóng năm phần tử ở lib/evidence-core.cjs:592 `/^(\.\.\/|\/)|[\s\\{}]/`, chú thích ngay trên dòng đó cũng liệt kê đủ: `/…`, `../…`, khoảng trắng, `\`, `{a,b}`. Ma trận viết trước O_PHU (dòng 156–166) chỉ có một ô cho bộ này (`ngoac-nhon`). Không có ô nào cho paths bắt đầu bằng `/`, bắt đầu bằng `../`, chứa khoảng trắng, hay chứa `\`. Số assert (7) vì vậy không bằng số phần tử của lớp, trái mẫu P105. Tôi đã đo chiều đỏ: trên một bản sao cây (git archive HEAD), thu regex còn `/[{}]/` rồi chạy `TV4 TV4-doi-chung` thì ra «PASS: TV4 paths-phu-chu 7/7 · PASS: TV4-doi-chung paths-khong-phu 3/3 · Results: 2 passed, 0 failed». Tức là gỡ bốn trong năm chốt mà eval E4 vẫn xanh. Đây không phải đột biến vô hại: với `paths: ["../_acceptance/old/opportunity.md"]` hay `["/abs/…"]`, hàm `phu` so không khớp, nên opportunity.md bị xếp vào tệp chữ và hồ sơ cũ thoát lượt xét bằng chứng cũ. AC-4 cấm đúng hành vi này. Chốt «tệp có chữ mà không mục nào» ở dòng 588 cũng không có ô riêng (chưa đo đột biến).
+
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **phanTepHoSo coi eval không khai paths là «không đo tệp chữ», ngược khuôn staleByPaths (eval thiếu paths = không biết đo gì → giữ luật cũ)**
-  Người dùng thấy gì: Khi một hồ sơ có phép đo không khai rõ nó đo tệp nào, một PR chỉ sửa phần chữ của hồ sơ vẫn có thể được gộp mà không bị đòi ghim lại bằng chứng, dù phép đo ấy có thể đang dựa vào chính phần chữ đó.
-  Căn cứ: Hậu quả là lưới bớt chặt ở một hình dạng hồ sơ hẹp, chỉ làm lỡ một lần đòi ghim lại chứ không mất dữ liệu, và vòng sau vẫn phát hiện được khi mã đổi.
-  file: `lib/evidence-core.cjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Đọc evals.yaml lỗi bị nuốt và coi như hồ sơ không có evals.yaml, nên lưới bớt xét thay vì lùi về coi là tệp vật**
-  Người dùng thấy gì: Nếu tệp khai phép đo của hồ sơ có mặt mà máy không đọc được, một PR chỉ sửa phần chữ có thể được coi nhẹ hơn mức cần, và hồ sơ cũ lọt qua mà không bị đòi ghim lại.
-  Căn cứ: Chỉ xảy ra khi tệp bị hỏng quyền đọc, hiếm gặp, và người dùng tự thấy được qua lỗi hệ thống nên hậu quả nhẹ, sửa sau không đắt.
+- **Đổi tên một tệp vật thành tệp chữ thì vật bị xoá không hiện ra, nên bước kiểm bằng chứng cũ bị bỏ qua mà không báo**
+  Người dùng thấy gì: Nếu một PR vừa đổi tên một tệp bằng chứng của hồ sơ thành tệp ghi chú, hệ thống có thể coi đó là chỉ sửa chữ và bỏ qua việc kiểm bằng chứng cũ mà không báo. Trường hợp này hiếm, vì tên mới phải trùng đúng hai tệp chữ.
+  Căn cứ: Hậu quả nhẹ vì ca rất hiếm, không mất dữ liệu, và lần ghim lại kế tiếp sẽ bắt được; sửa sau cũng không đắt nên ghi giới hạn là đủ.
   file: `scripts/pre-merge-check.sh`
-  severity: low
-  Đề xuất: known-limits
-
-- **Hình dạng 5 — tuyên quét lớp «paths không đọc được» nhưng ma trận chỉ có một điểm (ngoặc nhọn)**
-  Người dùng thấy gì: Bộ kiểm hiện chưa chứng minh được rằng mọi kiểu khai đường dẫn lạ đều bị lưới xử lý chặt, nên một thay đổi sau này có thể làm lỏng lưới mà bộ kiểm vẫn báo xanh.
-  Căn cứ: Đây là điểm yếu của thước đo chứ chưa phải lỗi người dùng đã gặp, và bổ sung ca đo sau này rẻ.
-  file: `tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 3 — coStale kiểm «src/app.js» có mặt ở bất cứ đâu trong đầu ra, không gắn với dòng VIOLATION stale**
-  Người dùng thấy gì: Bộ kiểm có thể báo xanh dù dòng cảnh báo bằng chứng cũ không nêu tệp mã đã đổi, miễn tên tệp ấy xuất hiện ở dòng khác, nên người đọc có thể thiếu chỉ dẫn đúng chỗ.
-  Căn cứ: Rủi ro nhẹ vì lưới vẫn chặn đúng và chỉ việc nêu tên tệp có thể sai chỗ, người dùng vẫn tự đọc được toàn bộ đầu ra.
-  file: `tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs`
   severity: low
   Đề xuất: known-limits
 
