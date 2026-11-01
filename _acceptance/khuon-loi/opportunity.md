@@ -26,7 +26,18 @@ Vì sao: Gốc: crm/_acceptance/khung-chung-ngan-ban-ghi/ — BK1 đã ký: kho 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Trong bộ kiểm kit: tiêm một màn ngoài khuôn vào bản sao kho mẫu thì bước chấm đỏ đúng tên tệp và khối; chạm tài liệu hay hồ sơ thì im; kho không khai bản đồ thì hành vi không đổi; hai mutant (gỡ bộ lọc vùng · đổi loại trừ thành bao gồm) đều đỏ» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Trong bộ kiểm kit: tiêm một màn ngoài khuôn vào bản sao kho mẫu thì bước chấm đỏ đúng tên tệp và khối; chạm tài liệu hay hồ sơ thì im; kho không khai bản đồ thì hành vi không đổi; hai mutant (gỡ bộ lọc vùng · đổi loại trừ thành bao gồm) đều đỏ
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Trong bộ kiểm kit: tiêm một màn ngoài khuôn vào bản sao kho mẫu thì bước chấm đỏ đúng tên tệp và khối; chạm tài liệu hay hồ sơ thì im; kho không khai bản đồ thì hành vi không đổi; hai mutant (gỡ bộ lọc vùng · đổi loại trừ thành bao gồm) đều đỏ» khi hết timebox
+- Câu hỏi phép đo trả lời: [đề xuất] kho đã khai bản đồ khuôn có còn phải mở vòng «đồng nhất lại» và chủ kho có còn
+  thấy màn lệch khi dùng, sau khi kho nhận 2.37.0?
+- Thước trước phát hành: [đề xuất] trong bộ kiểm kit, tiêm một màn ngoài khuôn vào kho mẫu thì bước chấm đỏ đúng tệp và
+  khối; chạm tài liệu hay hồ sơ thì im; đối chứng dương xanh trước; hai mutant (gỡ bộ lọc vùng · đổi loại trừ thành bao
+  gồm) đều đỏ. Thay vế «răng bắt ≥1 lệch thật qua ≥3 vòng giao diện» của mục chờ cũ KH-C1 — vế ấy đo sai vì răng tốt
+  chặn lệch trước commit nên số bắt ở bước chấm tiến về 0 (kho thứ hai: 0 lệch trong 2 vòng có số đo).
+- Kết quả nào là SỐNG: [đề xuất] trong 21 ngày kể từ khi onehub-quy-hang cài 2.37.0 và bước chấm khuôn chạy trên ≥1 vòng
+  giao diện thật của kho ấy: 0 vòng «đồng nhất lại» mới cho nhóm đã khai, và dưới 2 lệch lọt (mỗi vòng đồng nhất lại mới
+  hay mỗi lệch lọt là một dòng đếm).
+- Kết quả nào là CHẾT: [đề xuất] 21 ngày sau mốc mà không kho nào chạy bước chấm khuôn trên một vòng giao diện thật; hoặc
+  ở kho nhận vẫn còn sửa tay danh sách trong bài kiểm, tỉ lệ hồ sơ giao diện có số đo không lên gần trọn, hay hạ tầng kit
+  đốt lượt chấm → vòng 2 «Chọn khối ở cổng» nằm yên, ghi lý do vào hồ sơ mốc.
+- Mốc gốc ở kho nhận (lấy 01/11, trước khi làm): lượt chấm sáu vòng giao diện gần nhất 5 · 2 · 3 · 2 · 3 · 1; 7 lần sửa
+  tay danh sách trong bài kiểm bản đồ; 1/9 hồ sơ giao diện có số đo.
 - Timebox: [đề xuất] 2026-11-04 (mốc Phát hành 2.37.0 — sáu bản vá sau 2.36.0 (#465 #466 #469 #471 #472 #474) + Khuôn lõi (KH1); kho nhận tính kết quả: onehub-quy-hang, crm nhận trước)
