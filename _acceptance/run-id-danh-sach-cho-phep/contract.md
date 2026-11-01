@@ -5,7 +5,7 @@ slug: run-id-danh-sach-cho-phep
 owner: phanlemanh@gmail.com
 risk_tier: T2      # chạm feature-loop/workflows/** và feature-loop/scripts/** — không trong risk_tiers.t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
