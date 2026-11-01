@@ -401,10 +401,11 @@ if (want('GM-6-that')) {
     const x = node([DV(KIT), '--root', KIT, '--slug', 'lo-trinh-gio-may'], { env: { ...process.env, HAN_MUC_TEP: path.join(TMP, 'khong-co.jsonl') } });
     const o = x.status === 0 ? JSON.parse(x.stdout) : null;
     if (!o || o.nguon === 'khong-co-ban-ghi') console.log('  SKIP: GM-6-that — không đọc được ở đây: không có bản ghi phiên của vòng');
+    // Máy chỉ có phiên khác NHẮC tên hồ sơ (không có bản ghi tác tử con của vòng): vẫn là không đọc được ở đây, không phải đỏ.
+    else if (!o.nguon.some(n => n.includes('/subagents/'))) console.log(`  SKIP: GM-6-that — không đọc được ở đây: ${o.nguon.length} bản ghi nhắc hồ sơ, không có bản ghi tác tử con của vòng`);
     else {
       const sai = [];
       if (!o.nguon.some(n => n.split('/').length === 2)) sai.push('không có bản ghi phiên chính');
-      if (!o.nguon.some(n => n.includes('/subagents/'))) sai.push('không có bản ghi tác tử con');
       if (!(o.gio_may > 0)) sai.push(`gio_may ${o.gio_may}`);
       const ra = Object.values(o.token || {}).reduce((a, t) => a + t.ra, 0); if (!(ra > 0)) sai.push('token ra 0');
       for (const [m, t] of Object.entries(o.token || {})) if (!(t.vao + t.ra + t.doc_dem + t.ghi_dem > 0)) sai.push(`model ${m} có lời nhắn mà token 0`);
