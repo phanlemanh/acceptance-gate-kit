@@ -1,0 +1,82 @@
+schema_version: 1
+feature_slug: ten-may-mot-luat
+# Mỗi eval E1–E5 chạy đúng các ca TM-<k> của nó trong tests/dieu-phoi/ten-may-mot-luat.test.mjs, ghim số ca («# pass n»
+# — ma trận viết trước), «# fail 0» và dòng «ok … - <tên ca>» của từng ca. Kho thử, kênh và gh giả do code sinh trong
+# lượt (tests/dieu-phoi/tin-kho-thu.mjs); bên viết thật là CLI tin.mjs, bên đọc thật là docDongDau — fixture không viết
+# tay đúng khuôn bên đọc. Mỗi ca đột biến chạy trên bản sao gói (banSao: neo tiêm khớp đúng một chỗ, bản tiêm khác bản
+# gốc), SAU khi phép đo xanh trên gói thật cùng fixture, và ghim thông điệp của đúng lỗi được tiêm. Chiều đỏ trong lịch
+# sử: commit tệp ca đứng trước commit vật; trên cây trước vòng TM-1, TM-3, TM-4 đỏ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tmml_e1
+    expected: >
+      Exit 0, đúng «# pass 2», «# fail 0» và dòng ok của «TM-1 khu-hoi», «TM-1-do noi-luat». TM-1: ma trận 12 tên viết
+      trước (6 hợp lệ, 6 không hợp lệ) qua luật dùng chung — luật nhận đúng 6, từ chối đúng 6; mỗi tên được nhận viết
+      bằng vietDongDau (làm người gửi và người nhận, mã từ maMoi) rồi đọc bằng docDongDau ra đúng den, tu, ma — 18 hàng
+      in ra, 18 assert. TM-1-do: bản sao nới nguồn luật thành «[A-Za-z0-9 ]+» — chạy CHÍNH phép đo TM-1, lỗi trả về có
+      hàng «Mac Studio» chứa «đọc ra null».
+    paths: [dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/ten-may-mot-luat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tmml_e2
+    expected: >
+      Exit 0, đúng «# pass 1», «# fail 0» và dòng ok của «TM-2 viet-hop-le»: máy MBP gọi tin GIAO, HỎI, BÁO tới
+      MacStudio với --kenh — mỗi lệnh thoát 0, nhật ký gh giả đúng 1 lời gọi ghi mỗi lệnh; dòng đầu của từng bình luận
+      trong ca.json của gh giả đọc bằng docDongDau ra den MacStudio, tu MBP; máy thứ hai nhận vai MacStudio trên cùng gh
+      giả: «tin so --kenh … --json» có đúng hai vòng (GIAO, HỎI) với den MacStudio.
+    paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-kenh.mjs, dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/ten-may-mot-luat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tmml_e3
+    expected: >
+      Exit 0, đúng «# pass 2», «# fail 0» và dòng ok của «TM-3 viet-sai», «TM-3-do khong-kiem». TM-3: ma trận 15 lời gọi
+      (GIAO, HỎI, BÁO × «Mac Studio», «MBP » (dấu cách cuối), «Mac-Studio», «Máy», chuỗi rỗng) với --kenh — mỗi lời gọi thoát 1, stderr đúng một dòng bằng
+      nguyên văn «tin: đích «Mac Studio» không hợp lệ — tên máy chỉ gồm chữ và số (thành tiền tố mã tin); thử «MacStudio»»
+      («MBP »: cùng câu với vế cuối «; thử «MBP»»; ba đích kia: «tin: đích «<tên>» không hợp lệ — tên máy chỉ gồm chữ
+      và số (thành tiền tố mã tin)»), 15 hàng in ra, 15 assert, nhật ký gh
+      giả rỗng, băm tệp trạng thái kênh trước = sau. TM-3-do: bản sao gỡ bước kiểm đích của tin.mjs — CHÍNH phép đo TM-3
+      đỏ, và riêng lời gọi GIAO «Mac Studio» trên bản sao thoát 0, đăng 1 bình luận mà docDongDau trả null.
+    paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/ten-may-mot-luat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tmml_e4
+    expected: >
+      Exit 0, đúng «# pass 4», «# fail 0» và dòng ok của «TM-4 vai», «TM-4 mot-nguon», «TM-4-do vai-rieng»,
+      «TM-4-do viet-rieng». TM-4 vai: «tin vai --may "Mac Studio"» thoát 1, stderr đúng nguyên văn «tin: tên máy «Mac
+      Studio» không hợp lệ — tên máy chỉ gồm chữ và số (thành tiền tố mã tin); thử «MacStudio»», thư mục
+      .acceptance-runs/tin không có tệp kênh; «--may MacStudio» thoát 0 và tệp kênh CÓ ở đúng đường dẫn đã dò (đối
+      chứng dương của vế vắng mặt). TM-4 mot-nguon: phép đo một-nguồn trên gói thật
+      xanh — bản dẫn xuất chỉ đổi nguồn luật thành «[A-Za-z0-9-]+» nhận «Mac-Studio» ở cả vai (thoát 0) lẫn GIAO --kenh
+      (thoát 0, 1 bình luận), mã tin «Mac-Studio-<ddmm>-1» đọc lại bằng docDongDau. TM-4-do vai-rieng / viet-rieng: gói
+      mà vai (hoặc bên viết) giữ biểu thức viết tại chỗ — phép đo một-nguồn đỏ với lỗi nêu đúng «vai không đọc luật dùng
+      chung» (hoặc «bên viết không đọc luật dùng chung»).
+    paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-kenh.mjs, dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/ten-may-mot-luat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tmml_e5
+    expected: >
+      Exit 0, đúng «# pass 1», «# fail 0» và dòng ok của «TM-5 dot-khong-doi»: trong kho thử có đợt (khoDot), «tin GIAO
+      "Mac Studio" "…"» không --kenh thoát 1 với stderr chứa «đích Mac Studio không có trong đợt (dãy hoặc G)» và KHÔNG
+      chứa «tên máy chỉ gồm chữ và số»; GIAO tới dãy P2 của đợt vẫn thoát 0.
+    paths: [dieu-phoi/scripts/tin.mjs, tests/dieu-phoi/ten-may-mot-luat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tmml_e6
+    expected: >
+      Exit 0, «# fail 0», không dòng «not ok», và số ở dòng «# pass n» ≥ 69 (số ca của hai tệp ở gốc vòng — cận dưới,
+      để vòng anh em thêm ca không làm đỏ oan, mà gỡ ca cũ thì đỏ) khi chạy trọn tests/dieu-phoi/tin.test.mjs và
+      tests/dieu-phoi/tin-khong-mat-dau.test.mjs — mọi ca GT- của lệnh tin (đợt và kênh) không đổi kết cục.
+    paths: [dieu-phoi/scripts/tin.mjs, dieu-phoi/scripts/tin-kenh.mjs, dieu-phoi/scripts/tin-doc.mjs, tests/dieu-phoi/tin.test.mjs, tests/dieu-phoi/tin-khong-mat-dau.test.mjs, tests/dieu-phoi/tin-kho-thu.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Lời giao việc giữa các máy gửi tới một tên máy sai luật (ví dụ «Mac Studio» có dấu cách) bị chặn ngay lúc gõ, kèm luật và gợi ý «MacStudio», thay vì đăng lên kênh rồi nằm chết không ai nhận.",
+  "will_do": [
+    {"id": "AC-2", "p": "Sẽ giữ nguyên đường đi của tên đúng: giao việc, hỏi, báo tới «MacStudio» vẫn đăng một lần và máy MacStudio thấy đúng việc gửi mình."},
+    {"id": "AC-3", "p": "Sẽ chặn giao việc, hỏi, báo tới tên sai luật (có dấu cách, dấu cách cuối, gạch nối, chữ có dấu, rỗng) — dừng với luật và gợi ý, chưa gọi kênh lần nào, kênh không đổi."},
+    {"id": "AC-4", "p": "Sẽ cho bước nhận vai máy dùng đúng luật và đúng câu báo ấy, và chứng minh luật chỉ nằm một chỗ: đổi luật một chỗ thì nhận vai, giao việc và mã tin cùng đổi theo."}
+  ],
+  "wont_do": [
+    {"id": "AC-1", "p": "Sẽ KHÔNG để một tên luật nhận mà khi viết ra lại đọc không được — mọi tên hợp lệ viết rồi đọc lại phải ra đúng người gửi, người nhận và mã."},
+    {"id": "AC-5", "p": "Sẽ KHÔNG đổi gì trong đợt điều phối một máy: tên dãy sai vẫn nhận câu báo cũ, và mọi ca cũ của lệnh tin vẫn xanh."},
+    {"id": "OOS-1", "p": "Không sửa lỗi gõ thiếu nháy (đích bị cắt thành «Mac») — lỗi khác loại, ghi để làm sau."},
+    {"id": "OOS-2", "p": "Không siết bộ đọc tin theo luật tên máy — bộ đọc giữ dễ tính để tin cũ vẫn đọc được."},
+    {"id": "OOS-3", "p": "Không đổi tên máy đang dùng và không dọn tin chết đã đăng ngày 31/10 trên kênh crm."},
+    {"id": "OOS-4", "p": "Không cắt bản 2.36.2 — phiên điều phối làm sau khi bốn vòng vá gộp."}
+  ],
+  "scope_plain": "Phần để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Đã kê sáu dạng tên: chữ-số thuần, dấu cách giữa, dấu cách cuối, ký tự ngoài luật, chữ có dấu, rỗng — đủ là mỗi dạng có hàng trong bảng đo."},
+    {"i": 1, "p": "Đã kê năm chỗ dùng tên: nhận vai, gửi trên kênh, gửi trong đợt, đọc tin, mã tin — đủ là mỗi chỗ có một tiêu chí đo."},
+    {"i": 2, "p": "Hai chiều: tên đúng đi trọn viết→đọc, tên sai bị chặn trước khi chạm kênh."},
+    {"i": 3, "p": "Ô đã phủ: khứ hồi (AC-1), gửi tên đúng (AC-2), gửi tên sai (AC-3), nhận vai và một nguồn (AC-4), đợt không đổi (AC-5)."},
+    {"i": 4, "p": "Để sau: siết bộ đọc theo luật — quan hệ viết→đọc đã giữ bằng AC-1 (khứ hồi)."},
+    {"i": 5, "p": "Không chạy công cụ quét độ phủ; bảng kê tay đã qua một lượt phản biện độc lập và được bổ sung hai ô."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Ngưỡng thực tế đếm được (tin đọc không ra trên kênh = 0) mà hồ sơ lại ghi bỏ đường đo — đã sửa: chỉ đếm tin đăng sau ngày nhận bản, tin 31/10 là ngoại lệ có tên, lệnh đếm có sẵn."},
+    {"i": 1, "p": "Lý do giữ bộ đọc dễ tính trích sai chỗ — đã thay bằng luật 26/09 của kit (bộ đọc khoan dung trước đổi mặc định) và nói rõ giá phải trả."},
+    {"i": 2, "p": "Bảng tên sai thiếu dấu cách cuối và tên rỗng — đã thêm, giờ 15 lần gửi sai đều phải bị chặn đúng câu."},
+    {"i": 3, "p": "Ca «nhận vai sai không tạo tệp» chỉ đo vắng mặt — đã thêm đối chứng: tên đúng phải tạo tệp ở đúng chỗ đã dò."},
+    {"i": 4, "p": "Ca hồi quy ghim cứng 69 ca, dễ đỏ oan khi vòng anh em thêm ca — đã đổi thành 0 ca hỏng và không dưới 69 ca qua."}
+  ]
+}

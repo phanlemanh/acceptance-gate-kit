@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { timThuMucDot } from './dot.mjs';
 import { bayGio } from './song.mjs';
-import { KHAU_LENH, KHAU_LENH_MO, docDongDau, gapSo, maMoi, soMo, vietDongDau } from './tin-doc.mjs';
+import { KHAU_LENH, KHAU_LENH_MO, docDongDau, gapSo, loiTenMay, maMoi, soMo, vietDongDau } from './tin-doc.mjs';
 import { goiGh } from './tin-gh.mjs';
 import { khoCua, loiGiaoViec, suyLoiGiaoDot, trangThaiHoSoCua } from './tin-giao.mjs';
 import { minhTrongDot, noiChuaDot } from './tin-noi-chua.mjs';
@@ -304,6 +304,11 @@ export async function chay(argv, { cwd = process.cwd(), nowMs = null } = {}) {
   // Hạn kiểm trước khi mở nơi chứa: trên kênh, mở nơi chứa đã là một lời gọi mạng.
   const hanNhan = phutNguyenDuong(co, 'han', 30);
   const hanXong = phutNguyenDuong(co, 'han-xong', null);
+  // Trên kênh, đích phải là tên máy nhận vai được — cùng luật một nguồn với `tin vai`, kiểm trước mọi lời gọi gh.
+  if (co.kenh && (KHAU_LENH_MO.includes(lenh) || lenh === 'BÁO') && vi[1] != null) {
+    const sai = loiTenMay(vi[1], 'đích');
+    if (sai) loi(sai);
+  }
   const ctx = await noiChuaCua(cwd, co);
   if (lenh === 'so') return so(co, ctx, now);
   if (lenh === 'nhac') return nhac(vi, co, ctx, now);

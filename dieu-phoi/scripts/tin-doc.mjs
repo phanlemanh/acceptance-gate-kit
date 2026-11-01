@@ -11,7 +11,20 @@ export const HAN_NHAN_MAC_DINH_PHUT = 30;
 const PHUT = 60_000;
 
 const chuan = (s) => String(s ?? '').normalize('NFC');
-const MA_RE = /^[A-Za-z0-9]+-\d{4}-\d+$/u;
+
+// Luật tên máy — MỘT nguồn (hồ sơ ten-may-mot-luat, #464): nhận vai, bên viết trên kênh và tiền tố mã tin cùng rút từ
+// đây. Bên đọc dòng đầu giữ khoan dung (\S+); quan hệ viết→đọc do ca khứ hồi TM-1 giữ.
+export const TEN_MAY_NGUON = '[A-Za-z0-9]+';
+export const TEN_MAY_RE = new RegExp(`^${TEN_MAY_NGUON}$`, 'u');
+export const LUAT_TEN_MAY = 'tên máy chỉ gồm chữ và số (thành tiền tố mã tin)';
+// null khi hợp lệ; không thì câu báo nêu luật, kèm gợi ý bỏ khoảng trắng khi gợi ý ấy qua luật.
+export function loiTenMay(ten, vai) {
+  const t = String(ten ?? '');
+  if (TEN_MAY_RE.test(t)) return null;
+  const goiY = t.replace(/\s+/gu, '');
+  return `${vai} «${t}» không hợp lệ — ${LUAT_TEN_MAY}${TEN_MAY_RE.test(goiY) ? `; thử «${goiY}»` : ''}`;
+}
+const MA_RE = new RegExp(`^${TEN_MAY_NGUON}-\\d{4}-\\d+$`, 'u');
 
 // Khẩu lệnh dài nhất trước, để «MỞ LẠI» không bị đọc thành «MỞ».
 const THEO_DO_DAI = [...KHAU_LENH, ...Object.keys(BI_DANH)].sort((a, b) => b.length - a.length);

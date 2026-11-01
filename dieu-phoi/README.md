@@ -270,7 +270,8 @@ giao · người giao chấp nhận. Luật đầy đủ cho phiên thợ nằm 
   Yêu cầu cũ `yeu-cau/` hiện trên sổ như câu hỏi có mã; tệp của nó không đổi.
 - Trên kênh liên máy: mỗi máy chạy một lần `node "$GOI/scripts/tin.mjs" vai --kenh <chủ>/<kho>#<số> --may <tên>` từ
   worktree giữ kênh, rồi thêm `--kenh <chủ>/<kho>#<số>` vào mọi lệnh. Trạng thái nằm ở `.acceptance-runs/tin/` của kho
-  (tên máy không vào cấu hình commit). Bộ canh: `tin canh --kenh … [--cho]` — không bắt lại được tin cuối thì thoát 3.
+  (tên máy không vào cấu hình commit). Tên máy chỉ gồm chữ và số; `tin GIAO|HỎI|BÁO <đích> --kenh …` kiểm đích theo
+  đúng luật ấy và dừng trước khi đăng nếu sai (gợi ý tên bỏ khoảng trắng). Bộ canh: `tin canh --kenh … [--cho]` — không bắt lại được tin cuối thì thoát 3.
 - Đo ngưỡng «mọi yêu cầu có trả lời trỏ về mã»: `tin so --kenh … --tu <ngày> --json` in thẳng phán quyết.
 - Hook: phần đưa tin chạy bên trong `hook-nhip` và `hook-cho-nguoi` (không thêm mục hook); khối `Stop` gọi `hook-tin.mjs`.
   Kho không đợt, không kênh thì cả ba im. `tin tat` / `tin bat` tắt hay bật cho một worktree.
