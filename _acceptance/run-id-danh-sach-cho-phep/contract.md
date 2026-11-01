@@ -5,7 +5,7 @@ slug: run-id-danh-sach-cho-phep
 owner: phanlemanh@gmail.com
 risk_tier: T2      # chạm feature-loop/workflows/** và feature-loop/scripts/** — không trong risk_tiers.t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -73,3 +73,6 @@ Source input: ô `_acceptance/run-id-danh-sach-cho-phep/opportunity.md` (Cổng 
 - Lượt chấm 2 BLOCKED vì bộ kiểm plugin vùng 2 vượt trần 10 phút của công cụ (đo riêng 735 giây); lượt 3 giữ đường
   chấm, chờ nền theo luật 30 phút. Lối máy giữ cho lệnh bộ kiểm chung ghi ở hạt giống
   `docs/plans/2026-11-01-hat-giong-lenh-suite-chay-nen-may-giu.md`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-01:
+  - Ngoài-1: Công cụ đo mã ngắn từng chép tay luật hình dạng mã lượt thay vì rút từ bộ chấm, nên số mã ngắn trong hồ sơ là số đo ngày 31/10 (đã sửa cho công cụ rút luật ở 8586048f).
+  - Ngoài-3: Cùng lỗi chép tay luật của công cụ đo mã ngắn, gọi theo hình dạng thước viết tay; trùng Ngoài-1.

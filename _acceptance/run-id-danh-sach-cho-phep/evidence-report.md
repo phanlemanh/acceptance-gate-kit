@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 4ce13979cfe1a956b53a796dfee26ac6c9aaaa63
-human_signoff:
+human_signoff: Manh Phan 2026-11-01 — ký; Ngoài-1, Ngoài-3 ghi Known limits; Ngoài-2 chấp nhận, không sửa; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: run-id-danh-sach-cho-phep
