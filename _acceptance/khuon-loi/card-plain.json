@@ -1,0 +1,124 @@
+{
+ "feature_plain": "Kho đã khai bản đồ khuôn được kit chấm: màn nào dựng ngoài khuôn bị trả lại kèm đúng tên tệp và khối sai; kho chưa khai thì không thấy gì khác.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ đọc được bản đồ của cả hai kho thử dù viết theo hai kiểu; khai sai thì gọi đúng tệp và khoá, khai thiếu mục «dùng khi» thì chỉ nhắc nhẹ."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ cho luật lint của kho gọi cùng bộ đọc và nhận đúng danh sách khối cấm mà bước chấm dùng."
+  },
+  {
+   "id": "AC-3",
+   "p": "Sẽ trả lại màn dùng khối cấm (kể cả đổi tên khi nhập), màn không dựng khuôn, hay chỗ trạng thái thiếu khe — mỗi lỗi một dòng nêu tệp, khối và nhóm."
+  },
+  {
+   "id": "AC-4",
+   "p": "Sẽ báo một tệp màn nằm trong hai nhóm cùng lúc; tệp giao diện chưa thuộc nhóm nào chỉ được đếm, không làm đỏ."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ im khi vòng chỉ sửa tài liệu, hồ sơ hay tệp ngoài vùng; nợ cũ chỉ ghi nhãn, nhưng thêm chỗ dùng khối nợ cũ vẫn bị trả lại."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ ghi «không đo được» thay vì chặn khi gặp cách viết máy đọc chữ không hiểu; ba dạng sót được khai rõ."
+  },
+  {
+   "id": "AC-7",
+   "p": "Sẽ tự ghi số đo sau mỗi lượt chấm và in một dòng «Khuôn» trên thẻ Cổng Bằng chứng; thiếu số đo của bản đã chấm thì thẻ cờ vàng."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ chấm theo bản đồ đã ghim lúc thiết kế, kể cả khi bản đồ đổi giữa vòng; phạm vi đo khai theo từng nhóm."
+  },
+  {
+   "id": "AC-10",
+   "p": "Sẽ cho tác tử thấy danh sách nhóm khuôn ngay đầu vòng, và thêm mục «Thẻ việc» năm trường vào khuôn đặc tả giao diện."
+  },
+  {
+   "id": "AC-11",
+   "p": "Sẽ dừng trước lượt chấm khi một vòng chạm vùng nhóm mà quên khai bước chấm khuôn."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "AC-8",
+   "p": "Sẽ KHÔNG đổi gì ở kho chưa khai bản đồ: lệnh mới im, thẻ hai cổng giống hệt bản trước vòng."
+  },
+  {
+   "id": "OOS-1",
+   "p": "Không làm ba lối chọn khối và khối «Khuôn» có ảnh trên thẻ — để vòng 2."
+  },
+  {
+   "id": "OOS-2",
+   "p": "Không dựng bản đồ từ mã có sẵn, không làm bộ đọc cây mã."
+  },
+  {
+   "id": "OOS-3",
+   "p": "Không sinh cấu hình lint; mỗi kho tự viết luật lint trên bộ đọc chung."
+  },
+  {
+   "id": "OOS-4",
+   "p": "Không dùng khuôn để chặn làn máy-đi-tiếp, không dạy lưới trước gộp về khuôn."
+  },
+  {
+   "id": "OOS-5",
+   "p": "Không cắt mốc 2.37.0 trong vòng này — đó là hồ sơ phát hành riêng."
+  }
+ ],
+ "scope_plain": "Những phần dưới đây cố ý để vòng sau, để vòng này giữ đúng một kết quả.",
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Màn dùng khối cấm, thiếu khuôn, thiếu khe ở kho một nhóm lẫn nhiều nhóm — AC-3 (trả lại đúng tệp); tệp hai nhóm, ngoài bản đồ — AC-4 (quan hệ một nhóm)."
+  },
+  {
+   "i": 1,
+   "p": "Chạm tài liệu, nợ cũ, ngoại lệ có lý do phải im — AC-5 (kèm hai bản đột biến); cách viết không đọc được — AC-6 (không chặn)."
+  },
+  {
+   "i": 2,
+   "p": "Bản đồ khai sai, khoá lạ, kiểu sổ đăng ký — AC-1 (bộ đọc); luật lint của kho — AC-2 (cùng kết quả)."
+  },
+  {
+   "i": 3,
+   "p": "Số đo sau lượt chấm và dòng thẻ — AC-7; kho chưa khai — AC-8 (không đổi byte); bản đồ đổi sau khi ghim và đo theo nhóm — AC-9."
+  },
+  {
+   "i": 4,
+   "p": "Đầu vòng nạp khuôn và thẻ việc — AC-10; vòng quên khai bước chấm khuôn — AC-11 (dừng trước lượt chấm)."
+  },
+  {
+   "i": 5,
+   "p": "Đối chiếu ngành: luật cấm nhập theo vùng của ESLint, eslint-plugin-boundaries, dependency-cruiser; mục «dùng khi / không dùng khi» của Shopify Polaris."
+  },
+  {
+   "i": 6,
+   "p": "Để sau: ba lối, khối khuôn có ảnh, màn mẫu chụp cạnh, dựng từ mã, bộ đọc cây mã. Không bao giờ: sinh cấu hình lint, để máy phán thẩm mỹ, thêm cổng duyệt thiết kế."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Vòng quên khai bước chấm khuôn thì lệch lọt mà ở làn máy-đi-tiếp không ai đọc thẻ. Đã xử: thành câu hỏi Hỏi-4 cho anh, và thêm AC-11 (dừng trước lượt chấm)."
+  },
+  {
+   "i": 1,
+   "p": "Chỉ đếm cặp tệp–khối thì dán thêm chỗ dùng khối nợ cũ vẫn ra «0 lệch mới». Đã sửa: đếm cả số lần xuất hiện, tăng là trả lại."
+  },
+  {
+   "i": 2,
+   "p": "Sổ lệch lọt nằm trong thư mục bản đồ sẽ bị đọc nhầm thành một nhóm và làm mọi vòng giao diện bị trả lại oan. Đã sửa: tên sổ được dành riêng, đếm theo mục."
+  },
+  {
+   "i": 3,
+   "p": "Bảng «eval thiết kế» chỉ là chữ, không chương trình nào đọc. Đã gỡ; chỗ đọc thật là lưới dừng trước lượt chấm (AC-11)."
+  },
+  {
+   "i": 4,
+   "p": "Thẻ thiếu ca cho số đo của lượt cũ và cho chiều im. Đã thêm hai ca và một bản đột biến."
+  }
+ ]
+}

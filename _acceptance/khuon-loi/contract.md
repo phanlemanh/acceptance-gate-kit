@@ -99,7 +99,7 @@ Quét hình thái preset test-matrix — bản đủ ở design doc §11. Trục
 - Thước trước phát hành (ma trận đỏ và im + hai mutant trong bộ kiểm kit) — số từ `tests/scripts/khuon-loi.test.mjs`
   ở lượt chấm · AC-3, AC-4, AC-5 bảo đảm.
 - Thước sau phát hành (21 ngày ở kho nhận: vòng «đồng nhất lại» mới · lệch lọt) — số từ sổ quyết định của kho nhận và
-  dòng «sổ lệch lọt: N dòng» trên thẻ Cổng Bằng chứng · AC-7 bảo đảm phần thẻ; đếm vòng đồng nhất lại là việc đọc sổ ở
+  dòng «sổ lệch lọt: N mục» trên thẻ Cổng Bằng chứng · AC-7 bảo đảm phần thẻ; đếm vòng đồng nhất lại là việc đọc sổ ở
   hồ sơ mốc, không phải mã mới.
 - Lượt chấm mỗi vòng giao diện và tỉ lệ hồ sơ giao diện có số đo ở kho nhận — số từ `khuon-cham.json` của từng hồ sơ ·
   AC-7 bảo đảm tệp có mặt sau mọi lượt chấm; AC-11 bảo đảm hồ sơ chạm vùng nhóm không bỏ được bước chấm.
