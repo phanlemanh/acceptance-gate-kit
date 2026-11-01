@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>139 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>64 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>140 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>65 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -100,6 +100,7 @@ flowchart TD
 - Chủ kho mở thẻ khởi động và thấy ngay hàng nào của lộ trình cần rà soát — dời mốc, chờ điều kiện hay bác — kèm căn cứ máy đọc, mà máy không sửa tệp lộ trình và không thêm lượt gọi người (`ra-soat-lo-trinh`)
 - Bộ phát lịch chỉ giảm tải khi máy đang nghẹt thật hoặc thiếu chỗ cho làn sắp cấp — không vì swap cũ hay một tiến trình lớn hợp lệ; lượt chạy dưới tải được gắn nhãn và thử lại một lần thay vì tính là lỗi vật; ngưỡng hiệu chuẩn từ các lượt bị hạ tầng đốt (`suc-khoe-cho-trong-va-toc-do`)
 - tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
+- Một luật tên máy cho kênh liên máy — tin gửi tới một tên máy không nhận vai được thì bị từ chối ngay lúc gửi, không nằm chết trên kênh (`ten-may-mot-luat`)
 - Gộp nhánh chính vào nhánh PR không dừng ở PRODUCT-MAP.md hay LO-TRINH.html ở kho đã bật, và bản vẽ sai sau gộp vẫn bị --check bắt (`tep-sinh-khong-chan-gop`)
 - Bước thiết kế của mọi vòng ở kho đã khai tri thức ghi dòng «đã tra tri thức», và thẻ Cổng Phạm vi không mời duyệt khi thiếu dòng ấy (`thiet-ke-nap-tri-thuc`)
 - Mỗi việc đã giao có một trang hồ sơ đọc trong một phút — vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không — vẽ từ vật của hồ sơ, và bản chiếu lộ trình nhận cùng dải tóm tắt qua khối dữ liệu bản 2 (`trang-ho-so-mot-viec`)
@@ -192,6 +193,7 @@ flowchart TD
 - Bộ kiểm trước gộp đọc thư viện của kit theo chỗ cài kit, không theo gốc kho tiêu thụ (`pre-merge-doc-lib-theo-kit`) — đã giao — không đo, khai ở Cổng Đáng
 - Sổ luật-đã-chạy — `clean` phải được chứng minh, không phải mặc định (`premerge-rules-ledger`)
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
+- Thẻ cửa veto của hồ sơ máy đã thông không mời ký khi bộ quét trạng thái không trả lời kịp — nói rõ hết hạn và cách chạy lại; bộ quét ở kho lớn có hạn theo cỡ kho (`quet-het-han-khong-moi-ky`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`) — đã chấm bởi thực tế
 - Phát hành kit 2.10.0 — đóng số cho cửa sổ 2.9→2.10 (PR 157 glob-hai-sao · 159 duong-lui-phai-song · 163 vòng T3 gom đúc kết 08/09), để repo tiêu thụ nhận bộ máy theo mốc có chủ đích (`release-2-10-0`)
 - Phát hành kit 2.11.0 — đóng số cho cửa sổ 2.10→2.11 và VÁ TRONG MỐC lỗ xanh-giả của bộ giải cấu hình (nháy không cân làm hỏng chuỗi lệnh, bash trả 2, luật expected_exit đọc 2 thành giới hạn đã khai) (`release-2-11-0`)

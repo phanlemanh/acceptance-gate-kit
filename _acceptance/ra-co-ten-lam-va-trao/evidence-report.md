@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b892fda4778dff6a3af788638308de85ceae5593
+verified_commit: f66ce851b0747a91187bdfe9fca1566741ec02d6
 human_signoff: Manh 2026-08-25
 ---
 
@@ -430,3 +430,7 @@ sha: 7ff17ba10d6106804e6f9cb4c4615734fb5c45de · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 44 — 2026-10-31, do hoá cũ do gộp main a9f02e3a (#465 design-floor) vào nhánh PR
 run_id: repin-20261031T162813Z-83090
 sha: b892fda4778dff6a3af788638308de85ceae5593 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 45 — 2026-11-01, do khai ten-may-mot-luat ở KHAC-BIET-DOC-CU (RT13, thuế tự-host)
+run_id: repin-20261101T041122Z-64420
+sha: f66ce851b0747a91187bdfe9fca1566741ec02d6 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
