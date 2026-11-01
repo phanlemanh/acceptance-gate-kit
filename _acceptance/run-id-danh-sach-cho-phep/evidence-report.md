@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4ce13979cfe1a956b53a796dfee26ac6c9aaaa63
+verified_commit: a94e7f31f83c200af5ae67fa8ed1d78fc36b38aa
 human_signoff: Manh Phan 2026-11-01 — ký; Ngoài-1, Ngoài-3 ghi Known limits; Ngoài-2 chấp nhận, không sửa; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -164,3 +164,7 @@ none — every multi-run eval is uniform
 Round 1: E1–E6 chay va dat; sau do duoc mang sang (carry-forward) o cac round sau.
 Round 2: BLOCKED — mang plugin vung 2 vuot tran 600 s cua cong cu do (ha tang, khong phai loi vat).
 Round 3: PASS — E1–E6 mang tu round 1 (delta khong cham paths cua eval), 12 lenh suite hoi quy chay xanh tren commit da ghim.
+
+### Re-pin lần 1 — 2026-11-01, do gộp main 1de12588 sau chữ ký + khai RT13 ở ra-co-ten
+run_id: repin-20261101T071413Z-86762
+sha: a94e7f31f83c200af5ae67fa8ed1d78fc36b38aa · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
