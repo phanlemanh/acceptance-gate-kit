@@ -18,7 +18,7 @@ import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, khoiMarker, thuMuc, 
 const LENH = 'scripts/design-floor-khuon.mjs';
 const TEMPLATE = path.join(KIT, 'skills', 'acceptance', 'references', 'ban-do-khuon-template.md');
 
-const CA = ['KL-1', 'KL-1-do', 'KL-1-tao', 'KL-2', 'KL-2-do', 'KL-3', 'KL-4', 'KL-4-do', 'KL-5', 'KL-5-m1', 'KL-5-m2', 'KL-6', 'KL-7', 'KL-7-do', 'KL-7-do2', 'KL-8', 'KL-8-do', 'KL-9', 'KL-9-do', 'KL-10'];
+const CA = ['KL-1', 'KL-1-do', 'KL-1-tao', 'KL-2', 'KL-2-do', 'KL-3', 'KL-4', 'KL-4-do', 'KL-5', 'KL-5-m1', 'KL-5-m2', 'KL-6', 'KL-7', 'KL-7-do', 'KL-7-do2', 'KL-8', 'KL-8-do', 'KL-9', 'KL-9-do', 'KL-10', 'KL-11', 'KL-11-do'];
 const chon = (process.env.KL_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`khuon-loi.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -487,6 +487,37 @@ if (want('KL-8') || want('KL-8-do')) {
   const lanh = kiemKL8(KIT);
   if (want('KL-8')) ket('KL-8', lanh);
   if (want('KL-8-do')) caDo('KL-8-do', kiemKL8, lanh, () => banSaoTiem(['scripts', 'lib'], LENH, 'if (!bd.co_thu_muc) return 0;', 'if (false) return 0;'), 'kho không khai mà lệnh in');
+}
+
+// ── KL-11: s4-args dừng hồ sơ chạm vùng nhóm mà thiếu eval khuôn ───────────────────────────────────────────────
+const S4 = 'feature-loop/scripts/s4-args.mjs';
+const HD_IMPL = slug => `---\nschema_version: 1\nfeature: F\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
+const EV_TEST = 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: xanh\n    evidence_required: [run_id, exit_code]\n';
+const EV_KHUON = EV_TEST + '  - id: E2\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.design.khuon\n    expected: exit 0\n    evidence_required: [run_id, exit_code]\n';
+const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', kit]); return { ...r, coTep: fs.existsSync(out) }; };
+function kiemKL11(kit, inSo = false) {
+  const loi = [];
+  if (inSo) console.log('số hàng: 4');
+  const kho = taoKhoMau();
+  nhanh(kho, 'h', { '_acceptance/h/contract.md': HD_IMPL('h'), '_acceptance/h/evals.yaml': EV_TEST, 'src/man/form/Moi.tsx': manForm() });
+  const a = sinhArgs(kit, kho, 'h');
+  if (a.ma !== 2 || a.coTep || !['h', 'form-nhap', 'executors.design.khuon'].every(x => a.err.includes(x))) loi.push(`thiếu eval khuôn mà vẫn sinh args (thoát ${a.ma}, tệp ${a.coTep}: ${a.err.trim().split('\n').pop()})`);
+  ghi(kho, '_acceptance/h/evals.yaml', EV_KHUON); git(kho, 'commit', '-qam', 'thêm eval khuôn');
+  const b = sinhArgs(kit, kho, 'h');
+  if (b.ma !== 0 || !b.coTep) loi.push(`có eval khuôn mà không sinh args (thoát ${b.ma}: ${b.err.trim().split('\n').pop()})`);
+  nhanh(kho, 'h2', { '_acceptance/h2/contract.md': HD_IMPL('h2'), '_acceptance/h2/evals.yaml': EV_TEST, 'docs/ghi-chu.md': '# x\n' });
+  const c = sinhArgs(kit, kho, 'h2');
+  if (c.ma !== 0 || !c.coTep) loi.push(`hồ sơ chỉ chạm docs/ bị chặn (thoát ${c.ma}: ${c.err.trim().split('\n').pop()})`);
+  const kho2 = taoKhoMau({ coBanDo: false });
+  nhanh(kho2, 'h', { '_acceptance/h/contract.md': HD_IMPL('h'), '_acceptance/h/evals.yaml': EV_TEST, 'src/man/form/Moi.tsx': manForm() });
+  const d = sinhArgs(kit, kho2, 'h');
+  if (d.ma !== 0 || !d.coTep) loi.push(`kho không có design/patterns/ bị chặn (thoát ${d.ma}: ${d.err.trim().split('\n').pop()})`);
+  return loi;
+}
+if (want('KL-11') || want('KL-11-do')) {
+  const lanh = kiemKL11(KIT, want('KL-11'));
+  if (want('KL-11')) ket('KL-11', lanh);
+  if (want('KL-11-do')) caDo('KL-11-do', kiemKL11, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], S4, 'if (thieuEvalKhuon) die(', 'if (false) die('), 'thiếu eval khuôn mà vẫn sinh args');
 }
 
 process.exitCode = hong ? 1 : 0;

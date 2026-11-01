@@ -126,7 +126,7 @@ export function taoKhoMau(opts = {}) {
   ghi(root, 'src/man/form/Xoa.tsx', MAN_FORM.replace('NhapMau', 'Xoa'));
   const cfg = ['schema_version: 1'];
   if (surfaceGlobs) cfg.push('design:', `  surface_globs: [${surfaceGlobs.map(g => `"${g}"`).join(', ')}]`);
-  cfg.push('executors:', '  test:', '    x: "true"', '  design:', '    khuon: "node design-floor-khuon.mjs --kiem --root ."', 'feature_loop:', '  suite_keys: []');
+  cfg.push('executors:', '  test:', '    x: "true"', '  design:', '    khuon: "node design-floor-khuon.mjs --kiem --root ."', 'feature_loop:', '  suite_keys: [executors.test.x]');
   ghi(root, '_acceptance/config.yaml', cfg.join('\n') + '\n');
   if (coBanDo) for (const [f, t] of Object.entries(BAN_DO)) ghi(root, `design/patterns/${f}`, t);
   git(root, 'add', '-A');
