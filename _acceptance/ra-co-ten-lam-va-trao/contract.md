@@ -132,6 +132,7 @@ cua-veto-sau-chu-ky da-giao da-nghi
 lan-v-khong-phai-cho-ky da-giao da-nghi
 release-2-18-0 da-giao da-nghi
 nghi-van-mang-co-qua-han ho-so-hong da-giao-may-thong-veto-mo
+chi-tep-vat-keo-xet-lai cho-cong-gia-tri da-giao-khong-do
 lan-ghim-lai-giu-tron-loi-loi cho-cong-gia-tri da-nghi
 lan-ghim-lai-theo-paths cho-cong-gia-tri da-nghi
 release-2-26-0 ho-so-hong da-giao-may-thong-veto-mo

@@ -5,7 +5,7 @@ slug: chi-tep-vat-keo-xet-lai
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh + lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: verified   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off   # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Manh Phan
 approved_at: 2026-10-31T15:47:03Z
 design_doc: _acceptance/chi-tep-vat-keo-xet-lai/design.md
@@ -64,3 +64,6 @@ fail-safe: tệp lạ vẫn kéo xét lại).
 - Vật: `scripts/pre-merge-check.sh` (vị từ `slug_vat_in_diff` + nhánh `STALE-TEP-CHU-GUARD`) · `lib/evidence-core.cjs`
   (khối marker `TEP-CHU-HO-SO` + `phanTepHoSo`) · thước: `tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs` ca TV1…TV6 ·
   khoá eval `executors.script.tvx_e1…e6` · ADR 0028 (thu AC-3 của `stale-theo-diff-pr`).
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-01:
+  - Ngoài-1: PR đổi tên một tệp bằng chứng của hồ sơ thành đúng tên tệp chữ thì bị coi là chỉ sửa chữ, nên lượt xét bằng chứng cũ bị bỏ qua mà không báo; ca hiếm, lần ghim lại kế tiếp sẽ bắt.
+  - AC-4: bộ kiểm chỉ phủ 1/5 cách viết vùng đo không đọc được — hệ thống chặn đủ năm cách, nhưng nếu ai gỡ nhầm bốn chốt còn lại thì phép đo vẫn xanh.
