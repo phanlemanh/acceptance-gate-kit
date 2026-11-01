@@ -11,9 +11,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { KIT, taoKhoMau, banSaoTiem, ghi, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { KIT, taoKhoMau, banSaoTiem, ghi, git, chay, khoiMarker, BAN_DO } from './khuon-loi-kho-mau.mjs';
 
-const CA = ['KL-1', 'KL-1-do'];
+const LENH = 'scripts/design-floor-khuon.mjs';
+const TEMPLATE = path.join(KIT, 'skills', 'acceptance', 'references', 'ban-do-khuon-template.md');
+
+const CA = ['KL-1', 'KL-1-do', 'KL-1-tao', 'KL-10'];
 const chon = (process.env.KL_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`khuon-loi.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -115,5 +118,53 @@ if (want('KL-1') || want('KL-1-do')) {
   if (want('KL-1')) ket('KL-1', lanh);
   if (want('KL-1-do')) caDo('KL-1-do', kiemKL1, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'if (!n.ly_do) sai.push(', 'if (false) sai.push('), 'ngoại lệ thiếu lý do mà không sai');
 }
+
+// ── KL-1-tao: --tao sinh tệp nhóm từ khối marker, đọc ra 0 sai ─────────────────────────────────────────────────
+if (want('KL-1-tao')) {
+  const loi = [];
+  const kho = taoKhoMau();
+  const r = chay(KIT, LENH, ['--root', kho, '--tao', 'bang-moi']);
+  const tep = path.join(kho, 'design', 'patterns', 'bang-moi.md');
+  if (r.ma !== 0) loi.push(`--tao thoát ${r.ma}: ${r.err.trim()}`);
+  else if (!fs.existsSync(tep)) loi.push('--tao không sinh design/patterns/bang-moi.md');
+  else {
+    const mong = khoiMarker(TEMPLATE, 'BAN-DO-KHUON-TEMPLATE').replaceAll('<nhom>', 'bang-moi') + '\n';
+    const that = fs.readFileSync(tep, 'utf8');
+    if (that !== mong) loi.push('tệp sinh ra khác khối marker BAN-DO-KHUON-TEMPLATE');
+    const d = docLai(KIT).docBanDo(that, 'design/patterns/bang-moi.md');
+    if (d.sai.length) loi.push(`tệp sinh ra có sai: ${d.sai.join('; ')}`);
+    const lai = chay(KIT, LENH, ['--root', kho, '--tao', 'bang-moi']);
+    if (lai.ma !== 2) loi.push(`--tao trên tệp đã có thoát ${lai.ma} (cần 2)`);
+  }
+  ket('KL-1-tao', loi);
+}
+
+// ── KL-10: S0 đếm, S1 nạp + chỉ mục (phần SKILL/khuôn UX nối ở Task 6) ─────────────────────────────────────────
+function kiemKL10Lenh(kit) {
+  const loi = [];
+  const kho = taoKhoMau();
+  const dem = chay(kit, LENH, ['--root', kho, '--dem']);
+  if (dem.ma !== 0 || dem.out.trim() !== 'khuôn: 3 nhóm (2 màn · 1 phần tử)') loi.push(`--dem in «${dem.out.trim()}» (thoát ${dem.ma})`);
+  fs.mkdirSync(path.join(kho, '_acceptance', 'h'), { recursive: true });
+  const nap = chay(kit, LENH, ['--root', kho, '--nap', '--slug', 'h']);
+  if (nap.ma !== 0) loi.push(`--nap thoát ${nap.ma}: ${nap.err.trim()}`);
+  const dong = nap.out.trim().split('\n').filter(Boolean);
+  if (dong.length !== 3) loi.push(`--nap in ${dong.length} dòng (cần 3)`);
+  const B = docLai(kit);
+  for (const n of B.docThuMuc(kho).nhom) {
+    const d = dong.find(x => x.startsWith(`${n.nhom} · `));
+    if (!d) { loi.push(`--nap không có dòng nhóm ${n.nhom}`); continue; }
+    for (const can of [n.doi_tuong, n.nhan_viec, n.dung_khi, n.tep, n.mau_dang_chay.tep]) if (!d.includes(can)) loi.push(`dòng ${n.nhom} thiếu «${can}»`);
+  }
+  let nj = null;
+  try { nj = JSON.parse(fs.readFileSync(path.join(kho, '_acceptance', 'h', 'khuon-nap.json'), 'utf8')); } catch (_) { loi.push('không đọc được khuon-nap.json'); }
+  if (nj) for (const f of Object.keys(BAN_DO)) {
+    const ten = f.replace(/\.md$/, '');
+    const bam = git(kho, 'rev-parse', `HEAD:design/patterns/${f}`).trim();
+    if (!nj.ghim || nj.ghim[ten] !== bam) loi.push(`ghim nhóm ${ten} = ${nj.ghim && nj.ghim[ten]} (cần ${bam})`);
+  }
+  return loi;
+}
+if (want('KL-10')) ket('KL-10', kiemKL10Lenh(KIT));
 
 process.exitCode = hong ? 1 : 0;
