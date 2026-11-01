@@ -1050,6 +1050,14 @@ executors:
     df5_gate_df07: bash tests/design-floor/eval.sh df5-gate-df07
     df5_vong_mau: bash tests/design-floor/eval.sh df5-vong-mau
     df5_noi_day: bash tests/design-floor/eval.sh df5-noi-day
+    # Hồ sơ run-id-danh-sach-cho-phep (issue #467, vòng vá 2.36.2): mỗi eval chạy đúng ca RH<k> của nó, ghim số ca
+    # (dòng Results) và dòng PASS của từng ca theo tên — phán quyết không lấy từ mã thoát trọn tệp.
+    rh_e1: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH1 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in \"RH1 dong-eval\" \"RH1-do ban-goc-va-dot-bien\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    rh_e2: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH2 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in \"RH2 dong-suite\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    rh_e3: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH3 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in \"RH3 khu-hoi\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    rh_e4: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH4 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in \"RH4 loc-mang-sang\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    rh_e5: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH5 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in \"RH5 so-cu-hong\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    rh_e6: "bash -c 'out=$(node tests/scripts/run-id-danh-sach-cho-phep.test.mjs RH6 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in \"RH6 mot-nguon\"; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Hồ sơ va-design-floor-kho-lon-nhanh-chinh (#460): mỗi lệnh chạy chiều xanh, bản 2.36.0 và đột biến cùng nhãn của
     # tests/design-floor/kho-lon-nhanh-chinh.mjs.
     va460_kho_lon: bash tests/design-floor/eval.sh va460-kho-lon

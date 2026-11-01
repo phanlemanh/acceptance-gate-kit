@@ -674,7 +674,16 @@ if (evalProblems.length) {
 // ` # …`, bỏ mọi nháy đầu/cuối) TRƯỚC khi vào run-log. Verifier từng trả nguyên hai dấu nháy `""`
 // thay cho chuỗi rỗng: bộ ghi chép nguyên vào log, bộ đọc bỏ nháy, hai bên lệch nhau — L2 PROVENANCE
 // chặn ngay lúc ghi chữ ký (hồ sơ lo-trinh-cat-luot, 09/10). Còn rỗng sau chuẩn hoá → máy đúc mã.
-const docRid = (v) => String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
+// Bóc rồi mới XÉT HÌNH DẠNG bằng danh sách CHO PHÉP (hồ sơ run-id-danh-sach-cho-phep, #467): bước bóc là danh
+// sách ký tự cấm, nên ký tự rác kế tiếp lọt đúng lối cũ — crm rang-hang-cong-cu E9: tác tử trả một dấu huyền
+// «`» cho lệnh không in run_id, sổ ghi «`», lượt sau mang nó sang. Mã không đạt hình dạng → rỗng → máy đúc mã.
+// Khối dưới là NGUỒN DUY NHẤT của luật: carry-plan.mjs rút nguyên khối từ tệp này (đừng chép biểu thức sang
+// chỗ khác). Hình dạng: bắt đầu bằng chữ/số; chỉ chữ, số, `_` `.` `:` `-`; dài 4–200; có ít nhất một chữ số
+// (`none`, `null` không phải mã). Đo 31/10 trên 8 925 dòng eval của kit: mọi mã thật đạt, 14 dòng rác không đạt.
+// <<<RUN-ID-HINH
+const RUN_ID_HINH = /^(?=.*\d)[A-Za-z0-9][\w.:-]{3,199}$/
+// RUN-ID-HINH>>>
+const docRid = (v) => { const s = String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim(); return RUN_ID_HINH.test(s) ? s : '' }
 const evalById = new Map(args.evals.map(e => [e.id, e]))
 const carriedEvals = (Array.isArray(args.carriedEvals) ? args.carriedEvals : []).filter(c =>
   c && typeof c.id === 'string' && typeof c.runId === 'string' && docRid(c.runId)

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f66ce851b0747a91187bdfe9fca1566741ec02d6
+verified_commit: a94e7f31f83c200af5ae67fa8ed1d78fc36b38aa
 human_signoff: Manh 2026-08-25
 ---
 
@@ -434,3 +434,7 @@ sha: b892fda4778dff6a3af788638308de85ceae5593 · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 45 — 2026-11-01, do khai ten-may-mot-luat ở KHAC-BIET-DOC-CU (RT13, thuế tự-host)
 run_id: repin-20261101T041122Z-64420
 sha: f66ce851b0747a91187bdfe9fca1566741ec02d6 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 46 — 2026-11-01, do gộp main 1de12588 sau chữ ký + khai RT13 ở ra-co-ten
+run_id: repin-20261101T071413Z-86762
+sha: a94e7f31f83c200af5ae67fa8ed1d78fc36b38aa · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

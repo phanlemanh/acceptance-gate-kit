@@ -1,0 +1,79 @@
+schema_version: 1
+feature_slug: run-id-danh-sach-cho-phep
+# Mỗi eval chạy đúng các ca RH<k> của nó trong tests/scripts/run-id-danh-sach-cho-phep.test.mjs, ghim số ca (dòng
+# «Results: n passed, 0 failed» — ma trận viết trước) và dòng PASS của từng ca theo tên. Dòng sổ do bộ chấm thật
+# dựng (harness vm); kho git do code sinh trong lượt; bản gốc thật là main 115100b6 dựng trọn bốn thư mục bằng git
+# archive trong lượt (CI của kit checkout fetch-depth: 0; commit vắng → ca đỏ có tên). Mỗi ca đột biến có đối chứng
+# dương trên cùng fixture, kim khớp đúng một lần, bản tiêm khác bản gốc.
+# Chiều đỏ trong lịch sử: commit tệp ca đứng trước commit vật; trên cây trước vòng cả sáu ca đỏ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.rh_e1
+    expected: >
+      Exit 0, đúng «Results: 2 passed, 0 failed» và dòng PASS của RH1 dong-eval, RH1-do ban-goc-va-dot-bien.
+      RH1: 16/16 mã rác (` `` `abc123` "" '' "''" ba-khoảng-trắng none null abc «rid 12» a/b-12 L08 -12ab _ab12
+      mã-201-ký-tự) → run_id dòng E1 là minted-demo-E1-r2; 9/9 mã hợp lệ → rid-a1, rid-e9, rid-e9, run-1, UUID, dấu
+      thời gian, minted-demo-E1-r1, vitest_run.42, mã-200-ký-tự. RH1-do: bản gốc 115100b6 ghi «`»; bản sao thay
+      `return RUN_ID_HINH.test(s) ? s : ''` bằng `return s` (kim khớp đúng một lần) ghi «`»; ba đột biến cô lập trên
+      khối RUN-ID-HINH ({3,199}→{0,199} giữ L08 · [A-Za-z0-9][→[\w.:-][ giữ -12ab · {3,199}→{3,} giữ mã 201 ký tự),
+      kim mỗi cái khớp đúng một lần trong khối. Trên cây trước vòng RH1 đỏ với «"`" → "`", mong minted-demo-E1-r2».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.rh_e2
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của RH2 dong-suite: 16/16 mã rác → run_id dòng SUITE
+      là minted-demo-SUITE-bash_t_s_sh-r2; 9/9 mã hợp lệ ghi đúng giá trị đã bóc; bản gốc và bản sao bỏ phép xét
+      đều ghi «`» cho dòng suite.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.rh_e3
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của RH3 khu-hoi: lượt chấm 1 với 25 eval (mỗi eval
+      một lệnh, tác tử khai 25 mã của hai ma trận) ghi 25 dòng eval; mỗi run_id chép vào khối rút từ marker
+      SUITE-BLOCK-TEMPLATE của skills/acceptance/references/evidence-report-template.md rồi đọc lại bằng extractRunIds
+      của lib/evidence-core.cjs ra đúng chính nó, dài ≥ 4; khuôn bọc `{run_id}` trong dấu huyền đọc ra mã kèm dấu
+      (chiều đỏ); carry-plan lượt 2 --no-delta mang sang đủ 25 eval với đúng run_id lượt 1. Trên cây trước vòng đỏ với «E1="`" ngan hon 4 ky tu».
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/carry-plan.mjs, skills/acceptance/references/evidence-report-template.md, lib/evidence-core.cjs, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rh_e4
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của RH4 loc-mang-sang: E1 giao mang sang với ` ``
+      `abc123` none «rid 12» → 5/5 có lời gọi machine:bash t/a.sh, một dòng E1 run_id rid-moi-r2, không
+      carried_from_round; run-that-123 → không gọi lại, dòng E1 run_id run-that-123 carried_from_round 1; bản gốc
+      mang «`» với carried_from_round 1.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rh_e5
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của RH5 so-cu-hong: sổ lượt 1 do bộ chấm bản gốc ghi
+      E1 «`»; s4-args bản mới --carry-anchor mang đúng ["E3"], stderr có
+      `s4-args: E1 không mang sang — run_id lượt trước sai hình dạng ("`")`, không dòng nào cho E3; s4-args bản gốc
+      mang E1 runId «`»; sổ do bộ chấm bản mới ghi E1 minted-demo-E1-r1 → lượt 2 mang ["E1","E3"], stderr không có
+      «sai hình dạng».
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/carry-plan.mjs, feature-loop/scripts/s4-args.mjs, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.rh_e6
+    expected: >
+      Exit 0, đúng «Results: 1 passed, 0 failed» và dòng PASS của RH6 mot-nguon: khối RUN-ID-HINH khớp đúng một lần
+      trong bộ chấm; bản sao trọn feature-loop/ + lib/ nguyên vẹn → carry-plan mang ["E2"], lý do E1 bắt đầu
+      `run_id lượt trước sai hình dạng ("`")`; bản sao nới khối thành /^[\s\S]+$/ → mang ["E1","E2"]; bản sao gỡ khối
+      → thoát 2, stderr `carry-plan: không rút được luật hình dạng run_id (khối RUN-ID-HINH)`.
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/carry-plan.mjs, tests/scripts/run-id-danh-sach-cho-phep.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
