@@ -196,10 +196,19 @@ function main() {
   let base = co.base;
   if (base) { try { base = git(root, 'rev-parse', base).trim(); } catch (_) { sai(`--base không giải được: ${co.base}`); } }
   else { try { base = timBase(root); } catch (e) { sai(e.message); } }
-  const ra = chamKho(root, base);
   if (co.write) {
+    // Số đo phải là của den: bước chấm đọc HEAD + cây làm việc, nên HEAD khác den hay cây bẩn ngoài hồ sơ → từ chối, không
+    // đóng dấu den lên số của một cây khác (thẻ tắt cờ «chưa chấm» theo đúng dấu này).
     let den;
     try { den = git(root, 'rev-parse', co.den).trim(); } catch (_) { sai(`--den không giải được: ${co.den}`); }
+    const head = git(root, 'rev-parse', 'HEAD').trim();
+    if (head !== den) sai(`--den ${den.slice(0, 12)} khác HEAD ${head.slice(0, 12)} — chạy --write ngay sau lượt chấm, trên đúng sha đã chấm`);
+    const ban = tachZ(git(root, 'status', '--porcelain', '-z', '--untracked-files=all')).map(l => l.slice(3)).filter(f => f && !/^(_acceptance|\.acceptance-runs|\.claude)\//.test(f));
+    if (ban.length) sai(`cây làm việc đổi ngoài hồ sơ (${ban.slice(0, 3).join(', ')}${ban.length > 3 ? ', …' : ''}) — số đo sẽ không phải của ${den.slice(0, 12)}`);
+  }
+  const ra = chamKho(root, base);
+  if (co.write) {
+    const den = git(root, 'rev-parse', co.den).trim();
     const nap = path.join(root, '_acceptance', co.slug, 'khuon-nap.json');
     let ghim = null;
     try { ghim = JSON.parse(fs.readFileSync(nap, 'utf8')).ghim || null; } catch (_) { ghim = null; }
