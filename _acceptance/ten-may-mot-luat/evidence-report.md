@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4758eb0f115ff6801dc7fd27461c43ed2247807b
+verified_commit: e3e39017bd030008ebfe373727f0f19f27786a4d
 human_signoff:
 ---
 
@@ -166,3 +166,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, xác đ
 Round 1: trước round 2, vòng chưa qua lượt chấm sạch; chi tiết ở lịch sử hồ sơ.
 Round 2: bị REJECT ở suite sau khi gộp main — dòng sổ known-limits cho Ngoài-1 đã ghi; chạy lại trọn trên nền main 225784d1.
 Round 3: sáu eval và toàn bộ lệnh suite xanh trên commit 4758eb0f; verdict PASS.
+
+### Re-pin lần 1 — 2026-11-01, do gộp main 5eaed0cd (#469) sau khi máy thông Cổng Bằng chứng
+run_id: repin-20261101T030329Z-95069
+sha: e3e39017bd030008ebfe373727f0f19f27786a4d · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
