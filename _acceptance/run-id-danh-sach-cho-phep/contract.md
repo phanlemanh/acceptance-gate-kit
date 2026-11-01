@@ -70,3 +70,6 @@ Source input: ô `_acceptance/run-id-danh-sach-cho-phep/opportunity.md` (Cổng 
   (lệnh `_acceptance/run-id-danh-sach-cho-phep/do/do-ma-ngan.mjs`): mã ngắn mà đúng dạng chữ-số — kit 1/8 925
   (`L08`, mã nhóm tác tử chép nhầm), crm 1/14 431 (`E18`, tên eval chép nhầm), onehub-invest 0/2 793, onehub-quy-hang
   0/710; không kho nào có mã lượt thật ngắn hơn 4 ký tự — mã `r-1` chỉ có trong mẫu kiểm.
+- Lượt chấm 2 BLOCKED vì bộ kiểm plugin vùng 2 vượt trần 10 phút của công cụ (đo riêng 735 giây); lượt 3 giữ đường
+  chấm, chờ nền theo luật 30 phút. Lối máy giữ cho lệnh bộ kiểm chung ghi ở hạt giống
+  `docs/plans/2026-11-01-hat-giong-lenh-suite-chay-nen-may-giu.md`.
