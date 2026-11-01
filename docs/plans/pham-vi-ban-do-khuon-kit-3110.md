@@ -20,6 +20,11 @@ liệu để đảm bảo không mất bối cảnh». Năm mã dưới đây c�
 trước khi lệch» (bản phạm vi `docs/plan/pham-vi-ban-do-khuon-3110.md` của kho ấy, QK1–QK4, PR onehub-quy-hang #22).
 Điều kiện mở của KH-C1, KH-C3, KH-C4, KH-C5 nhận bằng chứng từ một trong hai kho.
 
+**Sửa 01/11 — KH4 gộp vào KH1** (hàng `khuon-loi`, mốc 2.37.0), theo quyết định của chủ kho 01/11: hai kho thử viết
+luật lint bằng hai bộ lint khác nhau và đều đọc thẳng tệp bản đồ, nên không có cấu hình lint nào để sinh — kit cấp bộ
+đọc bản đồ dùng chung, kho tự bọc luật. Cùng ngày thêm mã KH6 (ba lối chọn khối, mục chờ KH-C6, vòng 2 «Chọn khối ở
+cổng»). Bối cảnh: [finding 01/11](../findings/2026-11-01-ban-do-khuon-vao-kit.md).
+
 Bốn mã là CỘNG (KH1, KH2, KH4, KH5): khi mở, chủ kho phê đích danh ở Cổng Phạm vi của chính hàng (ADR 0018). Từ 31/10
 máy MacBook Pro không chạy crm nữa; tín hiệu «vòng thử đã ký» về qua kênh liên máy kit #308.
 
@@ -42,6 +47,7 @@ nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md#c22c2e6c48e2bea6
 - `KH3` — bước thiết kế chụp màn mới cạnh màn mẫu, cùng khổ và cùng trạng thái
 - `KH4` — sinh đoạn cấu hình lint cấm nhập theo vùng từ bản đồ khuôn
 - `KH5` — lúc bật nền thiết kế, máy đề xuất bản đồ nháp từ mã và liệt kê màn đang lệch
+- `KH6` — ô chưa có khuôn trình ba lối chọn khối có ảnh ở Cổng Phạm vi sẵn có; ký cổng là duyệt lối
 ```
 <!-- PHAM-VI-MA>>> -->
 

@@ -54,3 +54,5 @@ Vì sao: Gốc: crm/_acceptance/khung-chung-ngan-ban-ghi/ — BK1 đã ký: kho 
   đọc chính bản đồ mà lint của kho đọc) và nguyên tố 3 (người khỏi soi màn lệch bằng mắt); người hưởng: chủ
   kho và đội sản phẩm ở kho đã khai bản đồ (onehub-quy-hang nhận trước tính kết quả, crm nhận trước).
 - **Luật chiều rộng (b):** đây là vòng meta duy nhất của cửa sổ 2.37.0, chủ kho gọi tên 01/11.
+- **Hạt giống vòng sinh ra:** `docs/plans/2026-11-01-hat-giong-vong-doi-ban-mau.md` — vòng đời bản mẫu và bản đồ (ba hạng
+  quyền sửa, mười thao tác); sổ, không phải cam kết.

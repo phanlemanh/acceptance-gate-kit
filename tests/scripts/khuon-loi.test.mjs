@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { CONTRACT_G2, EVALS, REPORT_PASS, G1, PROBE } from './gate-fixture.mjs';
 import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
 
@@ -25,6 +25,8 @@ if (la.length) { console.error(`khuon-loi.test: mã ca lạ: ${la.join(', ')} (b
 const want = c => (chon.length ? chon.includes(c) : true);
 
 const require = createRequire(import.meta.url);
+// Trạng thái «đã ký» rút từ lib (MỘT nguồn — nếp co-hop-dong): tệp ca không mang chuỗi trạng thái của riêng nó.
+const [DA_KY] = require(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2;
 const docLai = kit => { const p = path.join(kit, 'scripts', 'ban-do-khuon.cjs'); delete require.cache[require.resolve(p)]; return require(p); };
 let hong = 0;
 const ket = (ma, loi) => {
@@ -175,7 +177,28 @@ function kiemKL10Lenh(kit) {
   }
   return loi;
 }
-if (want('KL-10')) ket('KL-10', kiemKL10Lenh(KIT));
+// Phần tài liệu của KL-10: mục «Thẻ việc» của khuôn đặc tả UX + ba khối SKILL chạy được trên kho mẫu.
+const SKILL_FL = path.join(KIT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
+const UX_SPEC = path.join(KIT, 'skills', 'acceptance', 'references', 'ux-spec-template.md');
+function kiemKL10TaiLieu() {
+  const loi = [];
+  const ux = fs.readFileSync(UX_SPEC, 'utf8');
+  const muc = /^#{2,4}[^\n]*Thẻ việc[^\n]*\n([\s\S]*?)(?=^#{2,4} |$(?![\s\S]))/m.exec(ux);
+  if (!muc) loi.push('ux-spec-template.md không có mục «Thẻ việc»');
+  else for (const t of ['ai dùng', 'việc chính', 'tần suất', 'số bản ghi', 'thiết bị']) if (!muc[1].toLowerCase().includes(t)) loi.push(`mục «Thẻ việc» thiếu trường «${t}»`);
+  const kho = taoKhoMau();
+  nhanh(kho, 'vong', { 'src/man/form/Moi.tsx': manForm() });
+  const sha = git(kho, 'rev-parse', 'HEAD').trim();
+  for (const ten of ['KHUON-S0', 'KHUON-S1', 'KHUON-SAU-S4']) {
+    let khoi;
+    try { khoi = khoiMarker(SKILL_FL, ten); } catch (e) { loi.push(e.message); continue; }
+    const lenh = khoi.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${KIT}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha);
+    if (!lenh.includes(KIT)) { loi.push(`khối ${ten} không gọi lệnh qua $AG: ${khoi}`); continue; }
+    const r = spawnSync('bash', ['-c', lenh], { cwd: kho, encoding: 'utf8' });
+    if (r.status !== 0) loi.push(`lệnh khối ${ten} thoát ${r.status}: ${(r.stderr || r.stdout).trim()}`);
+  }
+  return loi;
+}
 
 // ── Bước chấm: tiện ích chung ────────────────────────────────────────────────────────────────────────────────
 const manBang = (nhap = '', jsx = '') => `import { KhungBang } from '@/khuon/KhungBang';\n${nhap}export default function M() {\n  return <KhungBang>${jsx}</KhungBang>;\n}\n`;
@@ -430,7 +453,7 @@ function kiemKL7(kit) {
   fs.writeFileSync(tep, goc.replace(sha, git(kho, 'rev-parse', 'main').trim()));
   const t2 = the(kit, kho, 'h');
   if (!t2.out.includes(CO_THE)) loi.push(`số khuôn của lượt cũ mà không cờ (thoát ${t2.ma})`);
-  ghi(kho, '_acceptance/h/contract.md', CONTRACT_G2.replace('slug: s', 'slug: h').replace('status: verified', 'status: signed-off'));
+  ghi(kho, '_acceptance/h/contract.md', CONTRACT_G2.replace('slug: s', 'slug: h').replace('status: verified', `status: ${DA_KY}`));
   const t3 = the(kit, kho, 'h');
   if (t3.out.includes(CO_THE) || ![...t3.out.matchAll(RE_DONG_THE)].length) loi.push(`hồ sơ đã ký: cờ «${t3.out.includes(CO_THE)}», dòng Khuôn ${[...t3.out.matchAll(RE_DONG_THE)].length} (cần không cờ, có dòng; thoát ${t3.ma})`);
   git(kho, 'stash', '-u', '-q');
@@ -519,5 +542,8 @@ if (want('KL-11') || want('KL-11-do')) {
   if (want('KL-11')) ket('KL-11', lanh);
   if (want('KL-11-do')) caDo('KL-11-do', kiemKL11, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], S4, 'if (thieuEvalKhuon) die(', 'if (false) die('), 'thiếu eval khuôn mà vẫn sinh args');
 }
+
+// KL-10 gọi cuối: phần tài liệu dùng tiện ích bước chấm khai ở trên.
+if (want('KL-10')) ket('KL-10', [...kiemKL10Lenh(KIT), ...kiemKL10TaiLieu()]);
 
 process.exitCode = hong ? 1 : 0;

@@ -64,4 +64,15 @@ phải tiểu luận; dòng nào feature này không có thì xoá dòng đó.
 
 Khuôn IA: {{MỘT tên từ danh sách đóng: wizard · trung-tâm-toả-nhánh (hub-and-spoke) · bảng-điều-khiển (dashboard-first) · hội-thoại · kanban · danh-sách-chi-tiết (master-detail) · một-cột-cuộn}}
 Căn cứ: {{đã tra gì / rút gì — thang 2 nấc: (i) phiên có công cụ tra mẫu thị trường (vd MCP Mobbin) → tra luồng cùng loại, ghi 1 dòng đã xem gì + rút gì; (ii) không có → chọn từ danh sách trên, ghi lý do. CHỈ tra khi không tự chắc (≥ 2 khuôn khả dĩ) — luồng hiển nhiên thì ghi thẳng lý do. Dòng này TRỐNG = máy đoán chay — người duyệt thấy tại cổng (máy không kiểm)}}
+### 7. Thẻ việc
+
+Năm trường để máy so với `nhan_viec` của nhóm trong bản đồ khuôn (`design/patterns/<nhóm>.md`) — kho không khai bản đồ thì vẫn điền, đó là căn cứ chọn khuôn IA ở mục 6.
+
+| Trường | Giá trị |
+|---|---|
+| Ai dùng | {{vai người dùng chính}} |
+| Việc chính | {{một câu: người dùng đến màn này để làm gì}} |
+| Tần suất | {{mỗi ngày nhiều lần · mỗi ngày · mỗi tuần · hiếm}} |
+| Số bản ghi | {{một · vài chục · hàng trăm trở lên}} |
+| Thiết bị | {{máy tính · điện thoại · cả hai}} |
 <!-- UX-SPEC-TEMPLATE>>> -->

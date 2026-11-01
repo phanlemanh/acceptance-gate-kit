@@ -1567,6 +1567,16 @@
         "KH5"
       ],
       "mo_lai_khi": "DFK1 đã giao và kho thứ hai đã khai bản đồ khuôn — onehub-quy-hang (QK1, QK4) hoặc invest"
+    },
+    {
+      "ma": "KH-C6",
+      "dot": "ban-do-khuon-kit-3110",
+      "cau_giao": "Ô chưa có khuôn được trình ba lối chọn khối (trong kho · kho khối ngoài · vẽ mới) có ảnh cùng khổ, đánh đổi và lời khuyên đã qua phản biện đối kháng ở Cổng Phạm vi sẵn có; ký cổng là duyệt lối và nhóm mới; khối được chọn tự vào danh mục khối của kho",
+      "ly_do": "Chủ kho 01/11: ba lối là một bước hiệu quả của cơ chế bản đồ khuôn. Kho thứ hai đã dùng hai lần (0 lần đổi hướng — mới chứng minh có so, có vết). Cần KH1 giao trước để biết «ô chưa có khuôn» là gì. Là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Đi cùng KH2, KH3 và đòn bẩy L4, L7 trong vòng 2 «Chọn khối ở cổng» (docs/findings/2026-11-01-ban-do-khuon-vao-kit.md §6, §11)",
+      "phu": [
+        "KH6"
+      ],
+      "mo_lai_khi": "Mốc 2.37.0 có kho nhận cài và chạy bước chấm khuôn (hàng KH1) trên ≥1 vòng giao diện thật"
     }
   ],
   "da_bac": [

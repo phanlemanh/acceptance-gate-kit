@@ -109,10 +109,11 @@ export function chamKho(root, base) {
     if (!nhomTep.length) continue;
     const noi = fs.readFileSync(path.join(root, f), 'utf8');
     const noiBase = banBase(root, base, f);
-    let co = false;
+    let co = false;   // tệp có lệch mới, nợ cũ hay chỗ không đo được → không đếm «theo khuôn»
     if (man.length >= 2) {
       const x = { tep: f, khoi: 'hai nhóm màn', loai: 'quan-he', nhom: man.map(n => n.nhom).join(', '), so: 1 };
-      if (noiBase === null) { ra.lech_moi.push({ ...x, tu: 0, den_so: 1 }); co = true; } else ra.no_cu.push(x);
+      if (noiBase === null) ra.lech_moi.push({ ...x, tu: 0, den_so: 1 }); else ra.no_cu.push(x);
+      co = true;
     }
     const kiemNhom = man.length >= 2 ? nhomTep.filter(n => n.don_vi === 'phan-tu') : nhomTep;
     for (const n of kiemNhom) {
@@ -123,7 +124,7 @@ export function chamKho(root, base) {
         const c = cu.lech.find(y => y.loai === x.loai && y.khoi === x.khoi);
         const coNgoaiLe = n.ngoai_le.some(e => e.tep === f && e.khoi === x.khoi && e.ly_do);
         const loaiTru = (coNgoaiLe || Boolean(c && x.so <= c.so));
-        if (loaiTru) { if (!coNgoaiLe) ra.no_cu.push({ ...x, nhom: n.nhom }); continue; }
+        if (loaiTru) { if (!coNgoaiLe) { ra.no_cu.push({ ...x, nhom: n.nhom }); co = true; } continue; }
         ra.lech_moi.push({ ...x, nhom: n.nhom, tu: c ? c.so : 0, den_so: x.so });
         co = true;
       }
