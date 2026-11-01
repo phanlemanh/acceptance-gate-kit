@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fa91d347f933e77fe6a9a89e924dad0117e59ff2
+verified_commit: 9adc50d58405a74b5aa91919a490b0167df3a0a1
 human_signoff: Manh Phan 2026-11-01
 ---
 
@@ -154,3 +154,7 @@ none — mọi eval chạy một lần, không eval nào có pass_rate lẫn.
 
 Round 1-2: xem sổ lượt chấm trong decisions.jsonl của hồ sơ.
 Round 3: sáu eval E1-E6 và mười hai lệnh suite đều xanh trên cây đã ghim; không có eval hỏng, không có mục chờ người.
+
+### Re-pin lần 1 — 2026-11-01, do gộp main 3b232f08 sau chữ ký + dòng khai RT13 của chi-tep-vat-keo-xet-lai
+run_id: repin-20261101T091722Z-92096
+sha: 9adc50d58405a74b5aa91919a490b0167df3a0a1 · suites: 11 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
