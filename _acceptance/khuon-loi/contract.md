@@ -5,7 +5,9 @@ slug: khuon-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-11-01T20:50:21Z
 design_doc: _acceptance/khuon-loi/design.md
 ---
 
