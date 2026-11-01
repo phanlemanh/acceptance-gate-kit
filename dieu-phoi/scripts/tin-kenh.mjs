@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { docJson, ghiJsonNguyenTu, gocKhoChinh } from './dot.mjs';
 import { bayGio } from './song.mjs';
-import { docDongDau, gapSo, truongThan } from './tin-doc.mjs';
+import { docDongDau, gapSo, loiTenMay, truongThan } from './tin-doc.mjs';
 import { goiGh, tranMacDinh } from './tin-gh.mjs';
 import { khoCua, loiGiaoViec } from './tin-giao.mjs';
 import { docMayKenh, themMayKenh } from './tin-noi-chua.mjs';
@@ -162,7 +162,8 @@ export function noiChuaKenhCua(cwd, kenh) {
 
 export function vai(cwd, co) {
   if (!co.kenh || !co.may) loi('dùng: tin vai --kenh <chủ/kho#số> --may <tên máy>');
-  if (!/^[A-Za-z0-9]+$/u.test(co.may)) loi('tên máy chỉ gồm chữ và số (thành tiền tố mã tin)');
+  const sai = loiTenMay(co.may, 'tên máy');
+  if (sai) loi(sai);
   const k = tachKenh(co.kenh);
   const p = tepKenh(cwd, k);
   const tt = docTrangThai(p);

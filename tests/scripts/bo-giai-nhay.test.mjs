@@ -419,7 +419,7 @@ function bg9() {
     'evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: echo ok\n'
     + `    paths: ["${duong.replace(/"/g, '\\"')}"]\n`);
   fs.writeFileSync(path.join(d, '_acceptance', slug, 'run-log.jsonl'),
-    JSON.stringify({ ts: 't', sha: 'a'.repeat(40), round: 1, evalId: 'E1', run_id: 'r-1', exit_code: 0, verified_at: 'x', cmd: 'echo ok' }) + '\n');
+    JSON.stringify({ ts: 't', sha: 'a'.repeat(40), round: 1, evalId: 'E1', run_id: 'run-1', exit_code: 0, verified_at: 'x', cmd: 'echo ok' }) + '\n');
   const chay = (delta) => {
     const r = spawnSync(process.execPath, [
       path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs'),
