@@ -15,10 +15,12 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { timBase } from './design-floor-s4.mjs';
 
 const require = createRequire(import.meta.url);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const B = require('./ban-do-khuon.cjs');
+const { pathGlobToRe, resolveConfigList } = require('../lib/evidence-core.cjs');
 const TEMPLATE = path.join(HERE, '..', 'skills', 'acceptance', 'references', 'ban-do-khuon-template.md');
 
 function git(root, ...a) { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }); }
@@ -68,6 +70,86 @@ export function goiYEval(n) {
   ].join('\n');
 }
 
+// ── Bước chấm ────────────────────────────────────────────────────────────────────────────────────────────────
+const tachZ = s => s.split('\0').filter(Boolean);
+function tepVong(root, base) {
+  const ds = [
+    ...tachZ(git(root, 'diff', '--name-only', '-z', `${base}...HEAD`)),
+    ...tachZ(git(root, 'diff', '--name-only', '-z', 'HEAD')),
+    ...tachZ(git(root, 'ls-files', '-o', '--exclude-standard', '-z')),
+  ];
+  return [...new Set(ds)];
+}
+function banBase(root, base, tep) {
+  try { return git(root, 'show', `${base}:${tep}`); } catch (_) { return null; }
+}
+// Hồ sơ của vòng = hồ sơ DUY NHẤT có khuon-nap.json trong diff; nhiều hơn một → không ghim, nói ra.
+function timGhim(root, ds) {
+  const nap = ds.filter(f => /^_acceptance\/[^/]+\/khuon-nap\.json$/.test(f) && fs.existsSync(path.join(root, f)));
+  if (nap.length !== 1) return { ghim: null, dong: nap.length > 1 ? `nhiều hồ sơ có khuon-nap.json trong diff (${nap.join(', ')}) — chấm theo bản cây` : null };
+  try { return { ghim: JSON.parse(fs.readFileSync(path.join(root, nap[0]), 'utf8')).ghim || null, dong: null }; }
+  catch (_) { return { ghim: null, dong: `${nap[0]} không đọc được — chấm theo bản cây` }; }
+}
+
+// chamKho(root, base) → kết quả bước chấm; null khi kho không có design/patterns/.
+export function chamKho(root, base) {
+  if (!B.docThuMuc(root).co_thu_muc) return null;
+  const ds = tepVong(root, base);
+  const g = timGhim(root, ds);
+  const banDo = B.docThuMuc(root, { ghim: g.ghim || {} });
+  const cfgP = path.join(root, '_acceptance', 'config.yaml');
+  const giaoDien = resolveConfigList(fs.existsSync(cfgP) ? fs.readFileSync(cfgP, 'utf8') : '', 'design.surface_globs').filter(Boolean).map(pathGlobToRe);
+  const ra = { theo_khuon: [], lech_moi: [], no_cu: [], khong_do: [], ngoai_ban_do: 0, sai: banDo.sai, doi_sau_ghim: banDo.doi_sau_ghim, ghi_chu: g.dong ? [g.dong] : [], nhom: banDo.nhom.map(n => n.nhom) };
+  for (const n of banDo.nhom) if (n.khong_doc_duoc) ra.khong_do.push(`nhóm ${n.nhom} — nhan_dien dạng sổ đăng ký`);
+  for (const f of ds) {
+    if (f.startsWith('_acceptance/') || !fs.existsSync(path.join(root, f))) continue;
+    const nhomTep = B.nhomCuaTep(banDo, f);
+    const man = nhomTep.filter(n => n.don_vi === 'man');
+    if (!man.length && giaoDien.some(re => re.test(f))) ra.ngoai_ban_do++;
+    if (!nhomTep.length) continue;
+    const noi = fs.readFileSync(path.join(root, f), 'utf8');
+    const noiBase = banBase(root, base, f);
+    let co = false;
+    if (man.length >= 2) {
+      const x = { tep: f, khoi: 'hai nhóm màn', loai: 'quan-he', nhom: man.map(n => n.nhom).join(', '), so: 1 };
+      if (noiBase === null) { ra.lech_moi.push({ ...x, tu: 0, den_so: 1 }); co = true; } else ra.no_cu.push(x);
+    }
+    const kiemNhom = man.length >= 2 ? nhomTep.filter(n => n.don_vi === 'phan-tu') : nhomTep;
+    for (const n of kiemNhom) {
+      const moi = B.lechTrongTep(n, f, noi);
+      const cu = noiBase === null ? { lech: [] } : B.lechTrongTep(n, f, noiBase);
+      for (const k of moi.khong_do) { const d = `${f} — ${k}`; if (!ra.khong_do.includes(d)) ra.khong_do.push(d); co = true; }
+      for (const x of moi.lech) {
+        const c = cu.lech.find(y => y.loai === x.loai && y.khoi === x.khoi);
+        const coNgoaiLe = n.ngoai_le.some(e => e.tep === f && e.khoi === x.khoi && e.ly_do);
+        const loaiTru = (coNgoaiLe || Boolean(c && x.so <= c.so));
+        if (loaiTru) { if (!coNgoaiLe) ra.no_cu.push({ ...x, nhom: n.nhom }); continue; }
+        ra.lech_moi.push({ ...x, nhom: n.nhom, tu: c ? c.so : 0, den_so: x.so });
+        co = true;
+      }
+    }
+    if (!co) ra.theo_khuon.push(f);
+  }
+  return ra;
+}
+
+export function dongLech(x) {
+  if (x.loai === 'quan-he') return `lệch: ${x.tep} · thuộc hai nhóm màn: ${x.nhom}`;
+  const khoi = x.loai === 'khuon' ? `khuôn ${x.khoi}` : x.khoi;
+  return `lệch: ${x.tep} · ${khoi} · nhóm ${x.nhom}${x.thay ? ` · dùng ${x.thay}` : ''}${x.tu > 0 ? ` · tăng ${x.tu} → ${x.den_so}` : ''}`;
+}
+export function inCham(ra) {
+  return [
+    ...ra.sai.map(s => `sai: ${s}`),
+    ...ra.doi_sau_ghim.map(n => `bản đồ nhóm ${n} đổi sau khi ghim — chấm theo bản ghim`),
+    ...ra.ghi_chu,
+    ...ra.lech_moi.map(dongLech),
+    ...ra.no_cu.map(x => (x.loai === 'quan-he' ? `nợ cũ: ${x.tep} · thuộc hai nhóm màn: ${x.nhom}` : `nợ cũ: ${x.tep} · ${x.loai === 'khuon' ? `khuôn ${x.khoi}` : x.khoi}`)),
+    ...ra.khong_do.map(k => `không đo được: ${k}`),
+    ...(ra.ngoai_ban_do ? [`${ra.ngoai_ban_do} tệp giao diện ngoài bản đồ`] : []),
+  ];
+}
+
 function docCo(argv) {
   const co = {};
   const BOOL = new Set(['dem', 'nap', 'goi-y-eval', 'kiem', 'write']);
@@ -110,8 +192,15 @@ function main() {
     process.stdout.write(goiYEval(n) + '\n');
     return 0;
   }
-  sai('--kiem chưa có');
-  return 2;
+  let base = co.base;
+  if (base) { try { base = git(root, 'rev-parse', base).trim(); } catch (_) { sai(`--base không giải được: ${co.base}`); } }
+  else { try { base = timBase(root); } catch (e) { sai(e.message); } }
+  const ra = chamKho(root, base);
+  const dong = inCham(ra);
+  if (dong.length) process.stdout.write(dong.join('\n') + '\n');
+  return ra.lech_moi.length || ra.sai.length ? 1 : 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exit(main());
+// realpath cả hai vế: chạy từ đường dẫn qua liên kết (vd /var → /private/var trên macOS) mà so thô thì main không chạy và
+// lệnh thoát 0 im lặng — đúng hình dạng xanh-rỗng.
+if (process.argv[1] && fs.realpathSync(path.resolve(process.argv[1])) === fs.realpathSync(fileURLToPath(import.meta.url))) process.exit(main());

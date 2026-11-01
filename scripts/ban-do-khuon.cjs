@@ -231,7 +231,69 @@ function nhomCuaTep(banDo, tep) {
   return (banDo.nhom || []).filter(n => Array.isArray(n.nhan_dien) && n.nhan_dien.some(g => pathGlobToRe(g).test(tep)));
 }
 
-module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, tachFrontmatter };
+// ── Phép kiểm một tệp theo một nhóm — đọc theo MẪU CHỮ (design doc §7: xuất lại có đổi tên, thẻ qua biến, «ở gốc»
+// không thấy; ngưỡng mở bộ đọc cây mã DFK-C1 là một lệch lọt qua đúng các dạng này) ────────────────────────────────
+const RE_DONG = /\bimport\s*\(|\brequire\s*\(/;
+const thoatRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Khai báo nhập: tên gốc → tên cục bộ ({ X as Y } → X ↦ Y; mặc định X → X ↦ X) và các namespace (`* as ns`).
+function phanTichNhap(noi) {
+  const goc = new Map();
+  const ns = [];
+  for (const m of noi.matchAll(/\bimport\s+(?:type\s+)?([^'";]*?)\s+from\s+['"][^'"]+['"]/g)) {
+    const spec = m[1].trim();
+    const mNs = /\*\s*as\s+([A-Za-z_$][\w$]*)/.exec(spec);
+    if (mNs) ns.push(mNs[1]);
+    const mTen = /\{([^}]*)\}/.exec(spec);
+    if (mTen) for (const p of mTen[1].split(',')) {
+      const t = p.trim().replace(/^type\s+/, '');
+      if (!t) continue;
+      const [g, c] = t.split(/\s+as\s+/).map(x => x.trim());
+      goc.set(g, c || g);
+    }
+    const mMd = /^([A-Za-z_$][\w$]*)\s*(?:,|$)/.exec(spec);
+    if (mMd) goc.set(mMd[1], mMd[1]);
+  }
+  return { goc, ns };
+}
+const demThe = (noi, ten) => (noi.match(new RegExp(`<${thoatRe(ten)}(?![\\w$.])`, 'g')) || []).length;
+// lechTrongTep(nhom, tep, noiDung) → { lech: {tep, khoi, loai, thay?, so}[], khong_do: string[] }
+// so = số lần cặp (tệp, khối) xuất hiện — nợ cũ so theo cặp và số lần, không theo dòng đổi.
+function lechTrongTep(nhom, tep, noiDung) {
+  const noi = String(noiDung || '');
+  if (RE_DONG.test(noi)) return { lech: [], khong_do: ['nhập động'] };
+  const { goc, ns } = phanTichNhap(noi);
+  const laCam = k => nhom.cam_ngoai_khuon.includes(k) || nhom.cam_ho.some(h => new RegExp(`^${thoatRe(h)}[A-Z]`).test(k));
+  const dem = new Map();
+  const cong = (k, n) => dem.set(k, (dem.get(k) || 0) + n);
+  for (const [g, c] of goc) if (laCam(g)) cong(g, Math.max(1, demThe(noi, c)));
+  for (const n of ns) {
+    const thay = new Map();
+    for (const m of noi.matchAll(new RegExp(`\\b${thoatRe(n)}\\.([A-Z][\\w$]*)`, 'g'))) thay.set(m[1], (thay.get(m[1]) || 0) + 1);
+    for (const [k, v] of thay) if (laCam(k)) cong(k, v);
+  }
+  const lech = [...dem].map(([khoi, so]) => ({ tep, khoi, loai: 'cam', so, ...(nhom.thay_cho[khoi] ? { thay: nhom.thay_cho[khoi] } : {}) }));
+  const khong_do = [];
+  const ten = nhom.khuon.ten;
+  const cucBo = [...(goc.has(ten) ? [goc.get(ten)] : []), ...ns.map(n => `${n}.${ten}`)];
+  if (nhom.don_vi === 'man') {
+    if (!cucBo.some(c => demThe(noi, c) > 0)) lech.push({ tep, khoi: ten, loai: 'khuon', so: 1 });
+  } else if (nhom.khe_bat_buoc.length) {
+    const thieu = new Map();
+    for (const c of cucBo) for (const m of noi.matchAll(new RegExp(`<${thoatRe(c)}(?![\\w$.])([^>]*)>`, 'g'))) {
+      const thuocTinh = m[1];
+      if (/\{\s*\.\.\./.test(thuocTinh)) { if (!khong_do.includes('thẻ mang spread')) khong_do.push('thẻ mang spread'); continue; }
+      const tuDong = /\/\s*$/.test(thuocTinh);
+      for (const k of nhom.khe_bat_buoc) {
+        const co = k === 'children' ? !tuDong : new RegExp(`(^|\\s)${thoatRe(k)}(\\s*=|\\s|/|$)`).test(thuocTinh);
+        if (!co) thieu.set(k, (thieu.get(k) || 0) + 1);
+      }
+    }
+    for (const [k, so] of thieu) lech.push({ tep, khoi: `${ten} thiếu khe ${k}`, loai: 'khe', so });
+  }
+  return { lech, khong_do };
+}
+
+module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, lechTrongTep, tachFrontmatter };
 
 // ── CLI: `--root <kho> --json` in bản đồ đã chuẩn hoá (cho lint của kho) ──────────────────────────────────────
 if (require.main === module) {
