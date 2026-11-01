@@ -293,7 +293,50 @@ function lechTrongTep(nhom, tep, noiDung) {
   return { lech, khong_do };
 }
 
-module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, lechTrongTep, tachFrontmatter };
+// ── Thẻ Cổng Bằng chứng: chỉ ĐỌC khuon-cham.json (nếp luat-cham.json của luat-san-pham.cjs) ─────────────────────
+const CO_CHUA_CHAM = 'Khuôn: chưa chấm khuôn trên bản đã chấm — chạy design-floor-khuon.mjs --kiem --write sau lượt chấm';
+// demLechLot(text) — số dòng mục theo khuôn LECH-LOT-TEMPLATE (`- <ngày> · <tệp> · <khối> · <vì sao>`), bỏ dòng mẫu.
+function demLechLot(text) {
+  return String(text || '').split(/\r?\n/).filter(l => /^- (?!<)\S.* · .+ · .+ · .+/.test(l)).length;
+}
+const fmGia = (t, k) => { const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(String(t || '')); if (!m) return ''; const mm = new RegExp(`^${k}\\s*:\\s*(.*)$`, 'm').exec(m[1]); return mm ? mm[1].replace(/\s+#.*$/, '').trim() : ''; };
+// Tệp mà hồ sơ chạm: merge-base(nhánh chính, den)...den. Không dò được → null (bên gọi coi là chạm: cờ, không im).
+function tepHoSo(root, den) {
+  let ten = null;
+  try { ten = git(root, 'symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD').trim(); } catch (_) { ten = null; }
+  for (const ref of [...(ten ? [ten] : []), 'origin/main', 'origin/master', 'main', 'master']) {
+    try {
+      const mb = git(root, 'merge-base', den, ref).trim();
+      return git(root, 'diff', '--name-only', '-z', `${mb}...${den}`).split('\0').filter(Boolean);
+    } catch (_) { /* thử ref kế */ }
+  }
+  return null;
+}
+// theCong2({root, slug, contractTxt, evidenceTxt}) → null (kho không khai bản đồ) | { dong, co }
+function theCong2({ root, slug, contractTxt, evidenceTxt }) {
+  if (!tepNhom(root)) return null;
+  let cham = null;
+  try { cham = JSON.parse(fs.readFileSync(path.join(root, '_acceptance', slug, 'khuon-cham.json'), 'utf8')); } catch (_) { cham = null; }
+  let lot = '';
+  const lotP = path.join(root, THU_MUC, 'lech-lot.md');
+  if (fs.existsSync(lotP)) lot = ` · sổ lệch lọt: ${demLechLot(fs.readFileSync(lotP, 'utf8'))} mục`;
+  const dem = k => (Array.isArray(cham && cham[k]) ? cham[k].length : 0);
+  const dong = cham ? `Khuôn: ${dem('theo_khuon')} tệp theo khuôn · ${dem('lech_moi')} lệch mới · nợ cũ ${dem('no_cu')} · không đo ${dem('khong_do')}${lot}` : null;
+  const W = require('../lib/workspace-record.cjs');
+  const daQua = [...W.DA_THONG_CONG_2, ...(W.DA_DONG_THUC_TE || [])].includes(fmGia(contractTxt, 'status').toLowerCase());
+  let co = null;
+  if (!daQua) {
+    const vc = fmGia(evidenceTxt, 'verified_commit') || 'HEAD';
+    const chuaCham = !cham || cham.den !== vc;
+    const ds = tepHoSo(root, vc);
+    const bd = docThuMuc(root);
+    const chamVung = ds === null || ds.some(f => !f.startsWith('_acceptance/') && nhomCuaTep(bd, f).length > 0);
+    if (chuaCham && chamVung) co = CO_CHUA_CHAM;
+  }
+  return { dong, co };
+}
+
+module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, lechTrongTep, tachFrontmatter, theCong2, demLechLot };
 
 // ── CLI: `--root <kho> --json` in bản đồ đã chuẩn hoá (cho lint của kho) ──────────────────────────────────────
 if (require.main === module) {

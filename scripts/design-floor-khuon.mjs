@@ -196,6 +196,19 @@ function main() {
   if (base) { try { base = git(root, 'rev-parse', base).trim(); } catch (_) { sai(`--base không giải được: ${co.base}`); } }
   else { try { base = timBase(root); } catch (e) { sai(e.message); } }
   const ra = chamKho(root, base);
+  if (co.write) {
+    let den;
+    try { den = git(root, 'rev-parse', co.den).trim(); } catch (_) { sai(`--den không giải được: ${co.den}`); }
+    const nap = path.join(root, '_acceptance', co.slug, 'khuon-nap.json');
+    let ghim = null;
+    try { ghim = JSON.parse(fs.readFileSync(nap, 'utf8')).ghim || null; } catch (_) { ghim = null; }
+    const so = { schema: 1, den, base, ghim, theo_khuon: ra.theo_khuon, lech_moi: ra.lech_moi, no_cu: ra.no_cu, khong_do: ra.khong_do, ngoai_ban_do: ra.ngoai_ban_do, nhom: ra.nhom };
+    const dich = path.join(root, '_acceptance', co.slug, 'khuon-cham.json');
+    fs.mkdirSync(path.dirname(dich), { recursive: true });
+    fs.writeFileSync(dich, JSON.stringify(so, null, 2) + '\n');
+    process.stdout.write(`khuon-cham.json: ${ra.theo_khuon.length} theo khuôn · ${ra.lech_moi.length} lệch mới · nợ cũ ${ra.no_cu.length} · không đo ${ra.khong_do.length}\n`);
+    return 0;
+  }
   const dong = inCham(ra);
   if (dong.length) process.stdout.write(dong.join('\n') + '\n');
   return ra.lech_moi.length || ra.sai.length ? 1 : 0;

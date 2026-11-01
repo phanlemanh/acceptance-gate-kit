@@ -11,12 +11,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+import { CONTRACT_G2, EVALS, REPORT_PASS, G1, PROBE } from './gate-fixture.mjs';
 import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
 
 const LENH = 'scripts/design-floor-khuon.mjs';
 const TEMPLATE = path.join(KIT, 'skills', 'acceptance', 'references', 'ban-do-khuon-template.md');
 
-const CA = ['KL-1', 'KL-1-do', 'KL-1-tao', 'KL-2', 'KL-2-do', 'KL-3', 'KL-4', 'KL-4-do', 'KL-5', 'KL-5-m1', 'KL-5-m2', 'KL-6', 'KL-9', 'KL-9-do', 'KL-10'];
+const CA = ['KL-1', 'KL-1-do', 'KL-1-tao', 'KL-2', 'KL-2-do', 'KL-3', 'KL-4', 'KL-4-do', 'KL-5', 'KL-5-m1', 'KL-5-m2', 'KL-6', 'KL-7', 'KL-7-do', 'KL-7-do2', 'KL-8', 'KL-8-do', 'KL-9', 'KL-9-do', 'KL-10'];
 const chon = (process.env.KL_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`khuon-loi.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -384,6 +386,107 @@ if (want('KL-2') || want('KL-2-do')) {
   const lanh = kiemKL2(KIT);
   if (want('KL-2')) ket('KL-2', lanh);
   if (want('KL-2-do')) caDo('KL-2-do', kiemKL2, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'bd.nhom.map(n => ({ ...n }))', 'bd.nhom.map(n => ({ ...n, cam_ho: [] }))'), 'lint và bước chấm lệch');
+}
+
+// ── KL-7: khuon-cham.json sau lượt chấm + dòng Khuôn và cờ trên thẻ Cổng Bằng chứng ────────────────────────────
+const RE_DONG_THE = /Khuôn: (\d+) tệp theo khuôn · (\d+) lệch mới · nợ cũ (\d+) · không đo (\d+)/g;
+const CO_THE = 'chưa chấm khuôn trên bản đã chấm';
+const hoSoG2 = (kho, slug, vc, trangThai = 'verified') => {
+  ghi(kho, `_acceptance/${slug}/contract.md`, CONTRACT_G2.replace('slug: s', `slug: ${slug}`).replace('status: verified', `status: ${trangThai}`));
+  ghi(kho, `_acceptance/${slug}/evals.yaml`, EVALS);
+  ghi(kho, `_acceptance/${slug}/evidence-report.md`, REPORT_PASS.replace('feature_slug: s', `feature_slug: ${slug}`).replace('verified_commit: 0000000', `verified_commit: ${vc}`));
+  ghi(kho, `_acceptance/${slug}/review-findings.md`, '# Review\n');
+};
+const the = (kit, kho, slug) => chay(kit, 'scripts/gate-card.js', ['--root', kho, '--slug', slug]);
+function kiemKL7(kit) {
+  const loi = [];
+  const kho = taoKhoMau();
+  nhanh(kho, 'vong', { 'src/man/form/Moi.tsx': manForm() });
+  const sha = git(kho, 'rev-parse', 'HEAD').trim();
+  hoSoG2(kho, 'h', sha);
+  const w = chay(kit, LENH, ['--root', kho, '--kiem', '--write', '--slug', 'h', '--den', sha]);
+  const k = kiem(kit, kho);
+  let cham = null;
+  try { cham = JSON.parse(fs.readFileSync(path.join(kho, '_acceptance', 'h', 'khuon-cham.json'), 'utf8')); } catch (_) { loi.push(`--write không ghi khuon-cham.json (thoát ${w.ma}: ${w.err.trim()})`); return loi; }
+  const demIn = p => k.out.split('\n').filter(l => l.startsWith(p)).length;
+  if (cham.den !== sha) loi.push(`khuon-cham.json den = ${cham.den} (cần ${sha})`);
+  if (cham.theo_khuon.length !== 1 || cham.lech_moi.length !== demIn('lệch:') || cham.no_cu.length !== demIn('nợ cũ:') || cham.khong_do.length !== demIn('không đo được:')) loi.push(`số trong khuon-cham.json khác đầu ra bước chấm: ${JSON.stringify(cham)} / ${k.out.trim()}`);
+  const so = () => [...the(kit, kho, 'h').out.matchAll(RE_DONG_THE)];
+  const d = so();
+  if (d.length !== 1) loi.push(`thẻ có ${d.length} dòng Khuôn (cần 1)`);
+  else if (d[0].slice(1).map(Number).join() !== [cham.theo_khuon.length, cham.lech_moi.length, cham.no_cu.length, cham.khong_do.length].join()) loi.push(`dòng thẻ «${d[0][0]}» khác tệp số đo`);
+  const lechLot = khoiMarker(TEMPLATE, 'LECH-LOT-TEMPLATE').split('\n').filter(l => !l.startsWith('- <')).join('\n').trimEnd() + '\n\n- 2026-11-02 · src/a.tsx · Hop · lọt qua thẻ\n- 2026-11-02 · src/b.tsx · BangTho · lọt qua thẻ\n';
+  ghi(kho, 'design/patterns/lech-lot.md', lechLot);
+  if (!the(kit, kho, 'h').out.includes('sổ lệch lọt: 2 mục')) loi.push('thẻ không in «sổ lệch lọt: 2 mục»');
+  const k2 = kiem(kit, kho);
+  const d2 = chay(kit, LENH, ['--root', kho, '--dem']);
+  if (k2.ma !== 0 || k2.out.includes('sai:') || !d2.out.includes('3 nhóm')) loi.push(`lech-lot.md làm bước chấm đổi (thoát ${k2.ma}: ${k2.out.trim()} / ${d2.out.trim()})`);
+  const tep = path.join(kho, '_acceptance', 'h', 'khuon-cham.json');
+  const goc = fs.readFileSync(tep, 'utf8');
+  if (the(kit, kho, 'h').out.includes(CO_THE)) loi.push('số đo cùng sha mà vẫn cờ');
+  fs.rmSync(tep);
+  const t1 = the(kit, kho, 'h');
+  if (!t1.out.includes(CO_THE)) loi.push(`thiếu tệp khuôn mà không cờ (thoát ${t1.ma})`);
+  fs.writeFileSync(tep, goc.replace(sha, git(kho, 'rev-parse', 'main').trim()));
+  const t2 = the(kit, kho, 'h');
+  if (!t2.out.includes(CO_THE)) loi.push(`số khuôn của lượt cũ mà không cờ (thoát ${t2.ma})`);
+  ghi(kho, '_acceptance/h/contract.md', CONTRACT_G2.replace('slug: s', 'slug: h').replace('status: verified', 'status: signed-off'));
+  const t3 = the(kit, kho, 'h');
+  if (t3.out.includes(CO_THE) || ![...t3.out.matchAll(RE_DONG_THE)].length) loi.push(`hồ sơ đã ký: cờ «${t3.out.includes(CO_THE)}», dòng Khuôn ${[...t3.out.matchAll(RE_DONG_THE)].length} (cần không cờ, có dòng; thoát ${t3.ma})`);
+  git(kho, 'stash', '-u', '-q');
+  nhanh(kho, 'vong2', { 'docs/ghi-chu-2.md': '# chỉ tài liệu\n' });
+  const sha2 = git(kho, 'rev-parse', 'HEAD').trim();
+  hoSoG2(kho, 'h2', sha2);
+  const t4 = the(kit, kho, 'h2');
+  if (t4.ma !== 0 || !t4.out.includes('E1')) loi.push(`thẻ hồ sơ chỉ chạm docs/ không dựng được (thoát ${t4.ma}: ${t4.err.trim()})`);
+  if (t4.out.includes(CO_THE)) loi.push('hồ sơ chỉ chạm docs/ mà vẫn cờ');
+  return loi;
+}
+if (want('KL-7') || want('KL-7-do') || want('KL-7-do2')) {
+  const lanh = kiemKL7(KIT);
+  if (want('KL-7')) ket('KL-7', lanh);
+  if (want('KL-7-do')) caDo('KL-7-do', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'if (chuaCham && chamVung) co =', 'if (false) co ='), 'thiếu tệp khuôn mà không cờ');
+  if (want('KL-7-do2')) caDo('KL-7-do2', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', '!cham || cham.den !== vc', '!cham'), 'số khuôn của lượt cũ mà không cờ');
+}
+
+// ── KL-8: kho không khai bản đồ — mọi lệnh im, thẻ bằng từng byte bản trước vòng ──────────────────────────────
+let _goc = null;
+const banGocVong = () => {
+  if (_goc) return _goc;
+  let mb = '';
+  for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
+  _goc = thuMuc('goc-vong');
+  execFileSync('bash', ['-c', `git -C "${KIT}" archive "${mb}" scripts lib | tar -x -C "${_goc}"`]);
+  // Chỉ scripts/ + lib/ là biến: thẻ còn đọc khối CAT-LUOT-CO ở skills/, nên skills/ lấy từ cây đang kiểm cho cả hai bên.
+  fs.cpSync(path.join(KIT, 'skills'), path.join(_goc, 'skills'), { recursive: true });
+  return _goc;
+};
+function kiemKL8(kit) {
+  const loi = [];
+  const kho = taoKhoMau({ coBanDo: false });
+  for (const [f, t] of Object.entries(G1(PROBE('clean')))) ghi(kho, `_acceptance/g/${f}`, t);
+  const sha = git(kho, 'rev-parse', 'HEAD').trim();
+  hoSoG2(kho, 'h', sha);
+  git(kho, 'add', '-A'); git(kho, 'commit', '-qm', 'hồ sơ');
+  const truoc = git(kho, 'status', '--porcelain');
+  for (const a of [['--dem'], ['--nap', '--slug', 'h'], ['--kiem'], ['--kiem', '--write', '--slug', 'h', '--den', sha]]) {
+    const r = chay(kit, LENH, ['--root', kho, ...a]);
+    if (r.ma !== 0 || r.out || r.err) loi.push(`kho không khai mà lệnh in (${a.join(' ')}: thoát ${r.ma}, «${(r.out + r.err).trim()}»)`);
+  }
+  if (git(kho, 'status', '--porcelain') !== truoc) loi.push('kho không khai mà lệnh ghi tệp');
+  const goc = banGocVong();
+  for (const [slug, them] of [['g', []], ['g', ['--extract']], ['h', []], ['h', ['--extract']]]) {
+    const moi = chay(kit, 'scripts/gate-card.js', ['--root', kho, '--slug', slug, ...them]);
+    const cu = chay(goc, 'scripts/gate-card.js', ['--root', kho, '--slug', slug, ...them]);
+    if (moi.out !== cu.out || moi.ma !== cu.ma) loi.push(`thẻ ${slug} ${them.join(' ')} khác bản trước vòng (thoát ${moi.ma}/${cu.ma})`);
+    if (!moi.out) loi.push(`thẻ ${slug} ${them.join(' ')} rỗng — đối chứng không đo gì`);
+  }
+  return loi;
+}
+if (want('KL-8') || want('KL-8-do')) {
+  const lanh = kiemKL8(KIT);
+  if (want('KL-8')) ket('KL-8', lanh);
+  if (want('KL-8-do')) caDo('KL-8-do', kiemKL8, lanh, () => banSaoTiem(['scripts', 'lib'], LENH, 'if (!bd.co_thu_muc) return 0;', 'if (false) return 0;'), 'kho không khai mà lệnh in');
 }
 
 process.exitCode = hong ? 1 : 0;
