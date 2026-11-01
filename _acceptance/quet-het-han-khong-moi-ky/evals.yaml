@@ -1,0 +1,84 @@
+schema_version: 1
+feature_slug: quet-het-han-khong-moi-ky
+# Ca đo của vòng: tên ca mở bằng «QH-», ở tests/scripts/quet-het-han-khong-moi-ky.test.mjs (đuôi .test.mjs — cũng chạy
+# trong mảnh mjs của suite). Khoá executor (thêm ở vòng này):
+#   executors.test.quet_het_han — node tests/scripts/quet-het-han-khong-moi-ky.test.mjs, in «PASS: [QH-…]»/«FAIL: …».
+#   executors.test.quet_het_han_rt5 — RT_CASES=RT5 node tests/plugins/ra-co-ten.test.mjs (ca có sẵn, không đổi thân).
+# Kho thử do code sinh trong lượt (thư mục tạm, `_acceptance/config.yaml` tối thiểu, hợp đồng dựng từ khuôn
+# CONTRACT-FRONTMATTER-TEMPLATE, báo cáo dựng từ vùng chép của evidence-report-template — cùng nếp RT của ra-co-ten);
+# bộ quét và bộ dựng thẻ chạy thật bằng tiến trình con. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm kiểm
+# trên bản sao TRỌN hai thư mục `scripts/` và `lib/` của cây đang kiểm bị tiêm một nhát, SAU khi bản lành xanh trên cùng
+# fixture; kiểm nhát tiêm khớp đúng một lần, và ghim thông điệp của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số
+# hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.quet_het_han
+    paths: [scripts/gate-card.js, scripts/han-quet.cjs, tests/scripts/quet-het-han-khong-moi-ky.test.mjs]
+    expected: >
+      exit 0; "PASS: [QH-1]": bộ quét thật xếp hồ sơ fixture vào da-giao-may-thong-veto-mo; ba cách bộ quét không trả
+      lời — (i) ACCEPTANCE_SCAN_TIMEOUT_MS=1, (ii) bản sao cây có scripts/start-scan.mjs thay bằng `process.exit(3)`,
+      (iii) bản sao cây có start-scan.mjs tự `process.kill(process.pid, 'SIGKILL')` — ở cả ba `--extract` có one_shot
+      kết bằng "đi tiếp hay kéo lại: đi tiếp", HTML chứa "Kéo lại" và không chứa "ký hay trả" lẫn "Ký duyệt"; đối chứng
+      hạn mặc định cùng fixture: one_shot kết bằng "đi tiếp hay kéo lại: đi tiếp", HTML CHỨA "máy đã thông — hồ sơ này
+      qua Cổng Bằng chứng" và không chứa "hết hạn". "PASS: [QH-1-do]": bản lành xanh; bản sao gỡ vế
+      máy-thông-khi-bộ-quét-lỗi (nhát tiêm khớp một lần) → danh sách lỗi chứa "hết hạn mà thẻ mời ký".
+      "PASS: [QH-1-do2]": bản sao chỉ nhận ca hết hạn → lỗi nêu "bộ quét lỗi mà thẻ mời ký" ở (ii) và (iii), không lỗi ở (i).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.quet_het_han
+    paths: [scripts/gate-card.js, scripts/han-quet.cjs, tests/scripts/quet-het-han-khong-moi-ky.test.mjs]
+    expected: >
+      exit 0; "PASS: [QH-2]": cùng fixture, ép hết hạn → HTML chứa "bộ quét hết hạn sau" và "chưa ai kiểm lại sáu điều
+      kiện"; lệnh chạy lại rút từ HTML khớp `ACCEPTANCE_SCAN_TIMEOUT_MS=(\d+) node '<…>/gate-card.js' --root '<fixture>'
+      --slug 'm'` với số = 120000 (max(2×1, 120000)), root và slug khớp fixture; chạy chính lệnh ấy bằng bash → exit 0,
+      HTML không chứa "hết hạn"; không chứa "exit null" và không chứa "máy đã thông — hồ sơ này qua Cổng Bằng chứng".
+      "PASS: [QH-2-do]": bản sao trả lý do về `exit ${status}` (nhát tiêm khớp một lần) → danh sách lỗi chứa "thẻ in exit
+      null". "PASS: [QH-2-do2]": bản sao in hạn đã dùng thay cho N → danh sách lỗi chứa "lệnh chạy lại vẫn hết hạn".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.quet_het_han
+    paths: [scripts/han-quet.cjs, tests/scripts/quet-het-han-khong-moi-ky.test.mjs]
+    expected: >
+      exit 0; "PASS: [QH-3]" và dòng "số hàng: 6": lyDoQuet trên {error ETIMEDOUT, status null, signal SIGTERM} hạn
+      57000 → "bộ quét hết hạn sau 57 giây"; {status null, signal SIGKILL} → "bộ quét bị ngắt (SIGKILL)"; {status null,
+      signal null} → "bộ quét dừng mà không có mã thoát"; {status 1, stderr "  lỗi x \n"} → "lỗi x"; {status 2, stderr
+      ""} → "bộ quét thoát mã 2"; {error ENOENT "spawn node ENOENT"} → "không chạy được bộ quét: spawn node ENOENT";
+      không hàng nào chứa "null". "PASS: [QH-3-do]": bản sao bỏ nhánh tín hiệu → danh sách lỗi BẰNG đúng một mục, mở
+      bằng "bị ngắt:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.quet_het_han
+    paths: [scripts/han-quet.cjs, tests/scripts/quet-het-han-khong-moi-ky.test.mjs]
+    expected: >
+      exit 0; "PASS: [QH-4]" và dòng "số hàng: 11": hanQuet trên kho tạm có đúng N thư mục con trong _acceptance/ cộng
+      một tệp config.yaml — N ∈ {0, 10, 133, 134, 380} không biến môi trường → [20000, 20000, 20000, 20100, 57000]; N=380
+      với ACCEPTANCE_SCAN_TIMEOUT_MS ∈ {"45000", "1", "0", "-5", "abc", ""} → [45000, 1, 57000, 57000, 57000, 57000].
+      "PASS: [QH-4-do]": bản lành xanh; bản sao bỏ vế cỡ kho (nhát tiêm khớp một lần) → danh sách lỗi chứa "380 hồ sơ:
+      hạn 20000, cần 57000".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.quet_het_han
+    paths: [scripts/gate-card.js, scripts/han-quet.cjs, tests/scripts/quet-het-han-khong-moi-ky.test.mjs]
+    expected: >
+      exit 0; "PASS: [QH-5]": (a) hồ sơ verified PASS, ép hết hạn → one_shot kết bằng "ký hay trả: ___", HTML chứa
+      "bộ quét hết hạn sau" và "có thể đang mời ký"; (b) kho không _acceptance/config.yaml, hồ sơ máy-thông, hạn mặc
+      định → HTML chứa "Ký duyệt" và "chưa ai kiểm sáu điều kiện", không chứa "hết hạn".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.quet_het_han_rt5
+    paths: [scripts/gate-card.js, scripts/han-quet.cjs, tests/plugins/ra-co-ten.test.mjs]
+    expected: >
+      exit 0; dòng "PASS: [RT5]" và không dòng "FAIL:". Suite của feature_loop.suite_keys chạy ở mọi lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

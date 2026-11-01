@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>138 việc"]
+  GB --> DG["Đã giao<br/>139 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>64 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -192,6 +192,7 @@ flowchart TD
 - Bộ kiểm trước gộp đọc thư viện của kit theo chỗ cài kit, không theo gốc kho tiêu thụ (`pre-merge-doc-lib-theo-kit`) — đã giao — không đo, khai ở Cổng Đáng
 - Sổ luật-đã-chạy — `clean` phải được chứng minh, không phải mặc định (`premerge-rules-ledger`)
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
+- Thẻ cửa veto của hồ sơ máy đã thông không mời ký khi bộ quét trạng thái không trả lời kịp — nói rõ hết hạn và cách chạy lại; bộ quét ở kho lớn có hạn theo cỡ kho (`quet-het-han-khong-moi-ky`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`) — đã chấm bởi thực tế
 - Phát hành kit 2.10.0 — đóng số cho cửa sổ 2.9→2.10 (PR 157 glob-hai-sao · 159 duong-lui-phai-song · 163 vòng T3 gom đúc kết 08/09), để repo tiêu thụ nhận bộ máy theo mốc có chủ đích (`release-2-10-0`)
 - Phát hành kit 2.11.0 — đóng số cho cửa sổ 2.10→2.11 và VÁ TRONG MỐC lỗ xanh-giả của bộ giải cấu hình (nháy không cân làm hỏng chuỗi lệnh, bash trả 2, luật expected_exit đọc 2 thành giới hạn đã khai) (`release-2-11-0`)
