@@ -1,0 +1,24 @@
+{
+  "feature_plain": "PR chỉ sửa chữ trong hồ sơ (timebox, ngưỡng, sổ quyết định) gộp được ngay — không còn bị bắt ghim lại hồ sơ vì mã đã trôi từ trước.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cho PR chỉ sửa ô cơ hội hay sổ quyết định của một hồ sơ cũ đi qua, kèm một dòng ghi chú gọi tên hồ sơ và tệp đã sửa — ở kho thường, kho đặt hồ sơ trong thư mục con, và kho bật lọc theo vùng đo như crm; bản kit hôm nay chặn đúng các ca này."}
+  ],
+  "wont_do": [
+    {"id": "AC-2", "p": "Sẽ KHÔNG nới khi PR đổi thứ bằng chứng đo — tiêu chí, phép đo, báo cáo, sổ chạy, tệp đo trong thư mục con (kể cả tệp trùng tên tệp chữ), hay một tệp lạ: hồ sơ vẫn bị xét lại như hôm nay."},
+    {"id": "AC-3", "p": "Sẽ KHÔNG làm đỏ hồ sơ còn tươi: sửa chữ hay sửa phép đo của nó đều vẫn xanh."},
+    {"id": "AC-4", "p": "Sẽ KHÔNG bỏ qua tệp chữ mà chính phép đo của hồ sơ đọc tới, hay khi máy không đọc được phép đo ấy đo gì — lúc đó vẫn xét lại."},
+    {"id": "AC-5", "p": "Sẽ KHÔNG đổi hai luật khác cùng dùng phạm vi này — phản biện trước duyệt và soi lại bằng chứng vẫn xét hồ sơ chỉ sửa chữ."},
+    {"id": "AC-6", "p": "Sẽ KHÔNG bớt xét khi bộ phân loại tệp hỏng: lúc đó lưới quay về đúng luật cũ."},
+    {"id": "OOS-1", "p": "KHÔNG đổi phạm vi của phản biện trước duyệt, soi lại bằng chứng, và ba chỗ khác dùng chung phạm vi."},
+    {"id": "OOS-2", "p": "KHÔNG coi thêm tệp nào khác là tệp chữ — kho nào vấp tệp khác thì mở việc sau."},
+    {"id": "OOS-3", "p": "KHÔNG đổi bộ lọc theo vùng đo hay luật khi chạy không có nhánh gốc."},
+    {"id": "OOS-4", "p": "KHÔNG ghim lại hồ sơ của crm và KHÔNG cắt bản 2.36.2 — phiên điều phối làm sau khi gộp."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Vòng này nới lưới cho mọi kho mà sổ chưa hỏi chủ kho «áp cho mọi kho hay để kho tự bật» — đã đưa lên thẻ thành câu Hỏi-1."},
+    {"i": 1, "p": "Bảng ca thiếu tệp đo trong thư mục con trùng tên tệp chữ và ca bộ phân loại hỏng — đã thêm cả hai thành ô đo."},
+    {"i": 2, "p": "Một dòng sổ gộp hai lựa chọn (hạng rủi ro và gom duyệt kế hoạch vào lượt này) dưới một căn cứ — đã tách hai dòng."},
+    {"i": 3, "p": "Bộ phân loại hỏng có thể mở cửa im lặng — đã thêm tiêu chí AC-6 đòi lưới quay về luật cũ; thiếu hẳn node thì khai giới hạn."},
+    {"i": 4, "p": "Tiêu chí AC-1 chưa nói từng ô có phép đo hay không — đã ghi rõ và ca thử kiểm trước khi chạy."}
+  ]
+}

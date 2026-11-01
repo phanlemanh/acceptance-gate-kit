@@ -132,6 +132,7 @@ cua-veto-sau-chu-ky da-giao da-nghi
 lan-v-khong-phai-cho-ky da-giao da-nghi
 release-2-18-0 da-giao da-nghi
 nghi-van-mang-co-qua-han ho-so-hong da-giao-may-thong-veto-mo
+chi-tep-vat-keo-xet-lai cho-cong-gia-tri da-giao-khong-do
 lan-ghim-lai-giu-tron-loi-loi cho-cong-gia-tri da-nghi
 lan-ghim-lai-theo-paths cho-cong-gia-tri da-nghi
 release-2-26-0 ho-so-hong da-giao-may-thong-veto-mo
@@ -179,6 +180,7 @@ tests/scripts/eval-thay-boi.test.mjs fixture-code-sinh-mang-status-hồ-sơ-thay
 dieu-phoi/scripts/phat-lich.mjs lõi-dieu-phoi-chuyển-nguyên-từ-crm-đọc-status-hồ-sơ-KHO-TIÊU-THỤ-để-suy-hàng-kế-không-phải-bộ-đọc-bảng-trạng-thái-kit-lỗ-machine-cleared-khai-ở-sổ-dieu-phoi-dong-goi-loi
 tests/dieu-phoi/loi/phat-lich.test.mjs fixture-ca-lõi-dieu-phoi-mang-status-không-rẽ-nhánh-theo-status-của-hồ-sơ-này
 tests/dieu-phoi/mo-dot.test.mjs io-giả-của-bộ-phát-lịch-dieu-phoi-trả-status-hồ-sơ-trên-nhánh-chính-không-rẽ-nhánh-theo-status-của-hồ-sơ-này
+tests/scripts/chi-tep-vat-keo-xet-lai.test.mjs fixture-code-sinh-mang-status-hồ-sơ-cũ-để-luật-bằng-chứng-cũ-xét-ca-không-rẽ-nhánh-theo-status
 BO-DOC-KHAI-GACH>>> -->
 
 
