@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Kho đã khai bản đồ khuôn cài 2.37.0 sẽ được bước chấm đọc đúng bản đồ thật của mình: ngoại lệ viết dạng danh sách được miễn, tệp dựng qua lớp trình bày đã khai không bị báo oan, và lời nhắc chỉ đúng chỗ đặt glob.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ đọc mọi cách viết ngoại lệ mà khuôn tệp cho phép (một tên, danh sách một dòng, danh sách xuống dòng, mục viết một dòng) ra cùng một kết quả như khi viết từng mục riêng — cả ở bộ đọc lẫn ở đầu ra cho bộ lint của kho."},
+    {"id": "AC-2", "p": "Sẽ miễn đúng các khối đã khai ngoại lệ dạng danh sách, cả với tệp mới lẫn tệp đã có từ trước mà vòng chạm vào."},
+    {"id": "AC-3", "p": "Sẽ vẫn báo đúng tệp và đúng khối khi một tên bị gỡ khỏi danh sách ngoại lệ — tệp mới thành lệch, tệp cũ thành nợ cũ."},
+    {"id": "AC-4", "p": "Sẽ tính tệp dựng thẳng lớp trình bày đã khai là theo khuôn, dù khai ở trong khối khuôn hay ở ngoài, một tên hay nhiều tên, và dù tệp nhập theo cách nào; thẻ lớp trình bày thiếu khe bắt buộc vẫn bị báo (Hỏi-1)."},
+    {"id": "AC-5", "p": "Sẽ vẫn báo «thiếu khuôn» khi kho không khai lớp trình bày, hoặc khai một tên khác — chỉ miễn đúng tên đã khai."},
+    {"id": "AC-6", "p": "Sẽ nói đúng chỗ đặt glob («nhan_dien.tep») ở dòng «không đo được», ở đầu ra cho bộ lint, và gắn cờ vàng khi người đặt glob sai chỗ."},
+    {"id": "AC-7", "p": "Sẽ chạy sạch trên một kho mẫu dựng lại đúng hình dạng bản đồ của kho thứ nhất: không lệch, không nợ cũ, không sai lược đồ."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "KHÔNG dạy kit đọc nhóm khai bằng sổ đăng ký — cách viết này hôm nay chỉ một kho dùng; kho thêm một dòng glob là đủ."},
+    {"id": "OOS-2", "p": "KHÔNG sửa chỗ danh sách «đối tượng» bị nối thành một chuỗi — bước chấm không dùng trường này."},
+    {"id": "OOS-3", "p": "KHÔNG làm hai mục đã thành hạt giống ở Cổng Bằng chứng của vòng trước (bản đồ hỏng mà vẫn ghi số sạch, kiểm khe dừng sớm)."},
+    {"id": "OOS-4", "p": "KHÔNG xử lý ngoại lệ có danh sách rỗng — như hôm nay, nó không miễn gì."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Mọi cách viết ngoại lệ × bộ đọc và đầu ra cho bộ lint → AC-1; × bước chấm, chiều xanh và chiều đỏ → AC-2, AC-3."},
+    {"i": 1, "p": "Lớp trình bày khai trong hay ngoài khối khuôn, một hay nhiều tên × dò khuôn và dò khe → AC-4; chiều đỏ (không khai, khai tên khác) → AC-5."},
+    {"i": 2, "p": "Nhóm sổ đăng ký: không glob, glob đặt sai chỗ, glob đúng chỗ × bước chấm, bộ lint, cờ vàng → AC-6."},
+    {"i": 3, "p": "Mọi cách viết trên gộp trong một kho mẫu hình dạng thật → AC-7."},
+    {"i": 4, "p": "Kho không khai bản đồ và mọi cách viết vòng trước đã phủ → bộ kiểm của vòng trước phải xanh nguyên."},
+    {"i": 5, "p": "Đối chiếu ngành: luật cấm nhập của ESLint nhận một tên hay một mảng tên cùng nghĩa."},
+    {"i": 6, "p": "Không bao giờ: đọc sổ đăng ký; đọc glob đặt ngoài nhan_dien như glob thật (hai chỗ cùng nghĩa sẽ lệch nhau)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Lựa chọn miễn khuôn cho tệp dựng thẳng lớp trình bày là một đánh đổi rủi ro mà máy đã tự quyết — đã chuyển thành Hỏi-1 cho anh."},
+    {"i": 1, "p": "Ca đo cách viết ngoại lệ chỉ thử một dạng — đã thành ma trận bảy hàng viết sẵn."},
+    {"i": 2, "p": "Ca đo lớp trình bày thiếu ô khai ngoài khối khuôn dạng danh sách, ca khai cả hai chỗ, và các cách nhập — đã thành ma trận tám hàng."},
+    {"i": 3, "p": "Triệu chứng đo được ở kho thứ nhất là ở đường nợ cũ mà tiêu chí chỉ thử tệp mới — đã thêm hàng tệp có từ trước, cả chiều xanh lẫn chiều đỏ."},
+    {"i": 4, "p": "Chưa có lượt đo trên tệp thật để so với mốc gốc — đã thêm bước đo trên bản sao dùng một lần của kho thứ nhất, ghi số trước Cổng Bằng chứng."}
+  ]
+}

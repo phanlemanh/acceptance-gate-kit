@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lớp trình bày — ba lối</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hỏi-1 · Cổng Phạm vi · AC-4 · AC-5</p>
+    <h1>Tệp dựng thẳng lớp trình bày đã khai — ba lối</h1>
+
+    <svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Connectors (drawn first, behind nodes) — three attach points fanned on the entry node's right edge -->
+      <!-- 1 · Miễn đúng tên (khuyến nghị) -->
+      <path d="M320,172 H372 Q380,172 380,164 V92 Q380,84 388,84 H440" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+      <!-- 2 · Giữ báo lệch -->
+      <path d="M320,196 H440" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- 3 · Hạ thành cờ vàng -->
+      <path d="M320,220 H372 Q380,220 380,228 V300 Q380,308 388,308 H440" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Entry node -->
+      <rect x="40" y="148" width="280" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="148" width="280" height="96" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="180" y="180" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tệp trong vùng nhóm màn</text>
+      <text x="180" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">dựng thẳng lớp trình bày đã khai,</text>
+      <text x="180" y="220" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">không dựng khuôn</text>
+
+      <!-- Outcome 1 — focal, recommended (light emphasis) -->
+      <rect x="440" y="40" width="520" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="440" y="40" width="520" height="88" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="852" y="52" width="96" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+      <text x="900" y="64" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHUYẾN NGHỊ</text>
+      <text x="456" y="64" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Miễn đúng tên đã khai — máy khuyên</text>
+      <text x="456" y="88" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Bước chấm im, tệp tính theo khuôn.</text>
+      <text x="456" y="108" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif"><tspan font-weight="600" fill="#2d3142">Giá:</tspan> tệp lẽ ra dựng khuôn đầy đủ mà dựng thẳng lớp trình bày sẽ lọt.</text>
+
+      <!-- Outcome 2 -->
+      <rect x="440" y="152" width="520" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="440" y="152" width="520" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="456" y="176" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Giữ báo lệch như hôm nay</text>
+      <text x="456" y="200" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Bước chấm đỏ <tspan font-family="'Geist Mono', monospace">«khuôn &lt;tên&gt;»</tspan>.</text>
+      <text x="456" y="220" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif"><tspan font-weight="600" fill="#2d3142">Giá:</tspan> kho tự thêm ngoại lệ từng tệp; kho thứ nhất còn một báo oan mỗi vòng ngăn.</text>
+
+      <!-- Outcome 3 -->
+      <rect x="440" y="264" width="520" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="440" y="264" width="520" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="456" y="288" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Hạ thành cờ vàng</text>
+      <text x="456" y="312" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Không chặn, thẻ hiện một cờ.</text>
+      <text x="456" y="332" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif"><tspan font-weight="600" fill="#2d3142">Giá:</tspan> một cờ mỗi vòng ngăn, ai cũng quen bỏ qua.</text>
+
+      <!-- Legend -->
+      <line x1="40" y1="380" x2="960" y2="380" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI</text>
+
+      <rect x="144" y="392" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="176" y="402" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Tình huống / lối</text>
+
+      <line x1="316" y1="398" x2="344" y2="398" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+      <text x="352" y="402" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối máy khuyên</text>
+
+      <line x1="488" y1="398" x2="516" y2="398" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="524" y="402" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lối khác</text>
+    </svg>
+  </div>
+</body>
+</html>
