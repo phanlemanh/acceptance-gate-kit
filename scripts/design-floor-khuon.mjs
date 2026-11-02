@@ -201,10 +201,15 @@ function main() {
     // đóng dấu den lên số của một cây khác (thẻ tắt cờ «chưa chấm» theo đúng dấu này).
     let den;
     try { den = git(root, 'rev-parse', co.den).trim(); } catch (_) { sai(`--den không giải được: ${co.den}`); }
-    const head = git(root, 'rev-parse', 'HEAD').trim();
-    if (head !== den) sai(`--den ${den.slice(0, 12)} khác HEAD ${head.slice(0, 12)} — chạy --write ngay sau lượt chấm, trên đúng sha đã chấm`);
-    const ban = tachZ(git(root, 'status', '--porcelain', '-z', '--untracked-files=all')).map(l => l.slice(3)).filter(f => f && !/^(_acceptance|\.acceptance-runs|\.claude)\//.test(f));
-    if (ban.length) sai(`cây làm việc đổi ngoài hồ sơ (${ban.slice(0, 3).join(', ')}${ban.length > 3 ? ', …' : ''}) — số đo sẽ không phải của ${den.slice(0, 12)}`);
+    // HEAD được đi tiếp bằng commit chỉ chạm hồ sơ (gói evidence commit trước bước này — SKILL nhánh PASS); khuon-nap.json
+    // không được miễn vì nó đổi bản ghim mà bước chấm đọc.
+    const ngoaiHoSo = f => !/^(_acceptance|\.acceptance-runs|\.claude)\//.test(f) || /(^|\/)khuon-nap\.json$/.test(f);
+    const ke = ds => `${ds.slice(0, 3).join(', ')}${ds.length > 3 ? ', …' : ''}`;
+    try { git(root, 'merge-base', '--is-ancestor', den, 'HEAD'); } catch (_) { sai(`--den ${den.slice(0, 12)} không phải tổ tiên của HEAD — chạy --write trên nhánh đã chấm`); }
+    const sauDen = tachZ(git(root, 'diff', '--name-only', '-z', den, 'HEAD')).filter(ngoaiHoSo);
+    if (sauDen.length) sai(`sau ${den.slice(0, 12)} có commit đổi ngoài hồ sơ (${ke(sauDen)}) — số đo sẽ không phải của ${den.slice(0, 12)}`);
+    const ban = [...tachZ(git(root, 'diff', '--name-only', '-z', 'HEAD')), ...tachZ(git(root, 'ls-files', '-o', '--exclude-standard', '-z'))].filter(ngoaiHoSo);
+    if (ban.length) sai(`cây làm việc đổi ngoài hồ sơ (${ke(ban)}) — số đo sẽ không phải của ${den.slice(0, 12)}`);
   }
   const ra = chamKho(root, base);
   if (co.write) {

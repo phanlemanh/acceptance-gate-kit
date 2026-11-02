@@ -191,8 +191,10 @@ function kiemKL10TaiLieu() {
   else for (const t of ['ai dùng', 'việc chính', 'tần suất', 'số bản ghi', 'thiết bị']) if (!muc[1].toLowerCase().includes(t)) loi.push(`mục «Thẻ việc» thiếu trường «${t}»`);
   const kho = taoKhoMau();
   nhanh(kho, 'vong', { 'src/man/form/Moi.tsx': manForm() });
-  const sha = git(kho, 'rev-parse', 'HEAD').trim();
   for (const ten of ['KHUON-S0', 'KHUON-S1', 'KHUON-SAU-S4']) {
+    // Luồng thật: hồ sơ (gồm khuon-nap.json của S1) đã commit trước lượt chấm — sha lượt chấm là HEAD lúc ấy.
+    if (ten === 'KHUON-SAU-S4') { git(kho, 'add', '-A'); git(kho, 'commit', '-q', '--allow-empty', '-m', 'hồ sơ S1'); }
+    const sha = git(kho, 'rev-parse', 'HEAD').trim();
     let khoi;
     try { khoi = khoiMarker(SKILL_FL, ten); } catch (e) { loi.push(e.message); continue; }
     const lenh = khoi.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${KIT}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha);
@@ -453,15 +455,24 @@ function kiemKL7(kit) {
   const soTep = [cham.theo_khuon.length, cham.lech_moi.length, cham.no_cu.length, cham.khong_do.length];
   if (soTep.join() !== '4,2,1,3') loi.push(`khuon-cham.json đếm ${soTep.join('·')} (cần 4·2·1·3)`);
   if (cham.lech_moi.length !== demIn('lệch:') || cham.no_cu.length !== demIn('nợ cũ:') || cham.khong_do.length !== demIn('không đo được:')) loi.push(`số trong khuon-cham.json khác đầu ra bước chấm: ${soTep.join('·')} / ${k.out.trim()}`);
-  // --write từ chối khi số đo không phải của den: HEAD đã đi tiếp, hay cây bẩn ngoài hồ sơ — và không chạm tệp đã có.
-  const daGhi = fs.readFileSync(path.join(kho, '_acceptance', 'h', 'khuon-cham.json'), 'utf8');
-  git(kho, 'commit', '-q', '--allow-empty', '-m', 'đi tiếp');
-  const tu1 = chay(kit, LENH, ['--root', kho, '--kiem', '--write', '--slug', 'h', '--den', sha]);
-  git(kho, 'reset', '-q', '--soft', sha);
+  // --write: HEAD đi tiếp bằng commit CHỈ chạm hồ sơ (gói evidence) → vẫn ghi, den giữ nguyên (đối chứng của luồng SKILL);
+  // commit đổi ngoài hồ sơ sau den, hay cây bẩn ngoài hồ sơ → từ chối, không chạm tệp đã có.
+  const tepCham = path.join(kho, '_acceptance', 'h', 'khuon-cham.json');
+  const ghiLai = () => chay(kit, LENH, ['--root', kho, '--kiem', '--write', '--slug', 'h', '--den', sha]);
+  git(kho, 'add', '-A'); git(kho, 'commit', '-qm', 'gói evidence');
+  fs.rmSync(tepCham);
+  const qua = ghiLai();
+  let denQua = null; try { denQua = JSON.parse(fs.readFileSync(tepCham, 'utf8')).den; } catch (_) { /* không ghi */ }
+  if (qua.ma !== 0 || denQua !== sha) loi.push(`commit chỉ chạm hồ sơ mà --write không ghi số của den (thoát ${qua.ma}, den ${denQua}: ${qua.err.trim()})`);
+  const daGhi = fs.readFileSync(tepCham, 'utf8');
+  const truocNgoai = git(kho, 'rev-parse', 'HEAD').trim();
+  ghi(kho, 'src/man/form/Sau.tsx', manForm()); git(kho, 'add', '-A'); git(kho, 'commit', '-qm', 'đổi ngoài hồ sơ');
+  const tu1 = ghiLai();
+  git(kho, 'reset', '-q', '--hard', truocNgoai);
   ghi(kho, 'src/man/form/Ban.tsx', manForm());
-  const tu2 = chay(kit, LENH, ['--root', kho, '--kiem', '--write', '--slug', 'h', '--den', sha]);
+  const tu2 = ghiLai();
   fs.rmSync(path.join(kho, 'src/man/form/Ban.tsx'));
-  if (tu1.ma !== 2 || !tu1.err.includes('khác HEAD') || tu2.ma !== 2 || !tu2.err.includes('cây làm việc đổi ngoài hồ sơ') || fs.readFileSync(path.join(kho, '_acceptance', 'h', 'khuon-cham.json'), 'utf8') !== daGhi) loi.push(`đóng dấu den lên số đo của cây khác (HEAD đi tiếp: thoát ${tu1.ma} «${tu1.err.trim()}» · cây bẩn: thoát ${tu2.ma} «${tu2.err.trim()}»)`);
+  if (tu1.ma !== 2 || !tu1.err.includes('đổi ngoài hồ sơ') || tu2.ma !== 2 || !tu2.err.includes('cây làm việc đổi ngoài hồ sơ') || fs.readFileSync(tepCham, 'utf8') !== daGhi) loi.push(`đóng dấu den lên số đo của cây khác (commit ngoài hồ sơ: thoát ${tu1.ma} «${tu1.err.trim()}» · cây bẩn: thoát ${tu2.ma} «${tu2.err.trim()}»)`);
   const so = () => [...the(kit, kho, 'h').out.matchAll(RE_DONG_THE)];
   const d = so();
   if (d.length !== 1) loi.push(`thẻ có ${d.length} dòng Khuôn (cần 1)`);
@@ -498,7 +509,7 @@ if (want('KL-7') || want('KL-7-do') || want('KL-7-do2') || want('KL-7-do3')) {
   if (want('KL-7')) ket('KL-7', lanh);
   if (want('KL-7-do')) caDo('KL-7-do', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'if (chuaCham && chamVung) co =', 'if (false) co ='), 'thiếu tệp khuôn mà không cờ');
   if (want('KL-7-do2')) caDo('KL-7-do2', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', '!cham || cham.den !== vc', '!cham'), 'số khuôn của lượt cũ mà không cờ');
-  if (want('KL-7-do3')) caDo('KL-7-do3', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], LENH, 'if (head !== den) sai(', 'if (false) sai('), 'đóng dấu den lên số đo của cây khác');
+  if (want('KL-7-do3')) caDo('KL-7-do3', kiemKL7, lanh, () => banSaoTiem(['scripts', 'lib'], LENH, 'if (sauDen.length) sai(', 'if (false) sai('), 'đóng dấu den lên số đo của cây khác');
 }
 
 // ── KL-8: kho không khai bản đồ — mọi lệnh im, thẻ bằng từng byte bản trước vòng ──────────────────────────────
