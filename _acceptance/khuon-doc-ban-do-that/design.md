@@ -52,8 +52,22 @@ khi bản lành xanh; ghim thông điệp. Bộ `KL-*` của `khuon-loi` phải 
 
 ## 5. Số SAU trên tệp thật của crm
 
-Chưa đo — điền trước Cổng Bằng chứng (mục Đường đo của hợp đồng): bản sao dùng một lần của crm `onehub` `7341a193`, hai
-cấu hình của mốc gốc, chỉ ghi số.
+Đo 02/11 trên bản sao dùng một lần của crm `onehub` ở `1d55430a` — đỉnh nhánh lúc clone, cha thứ nhất của nó là
+`7341a193` mà ô cơ hội ghi. TRƯỚC (kit `main`, `git archive main scripts lib`) và SAU (cây nhánh này) chạy trên CÙNG bản
+sao, cùng commit giả lập `nhan_dien.tep`, nên so được. Lệnh: `design-floor-khuon.mjs --root . --kiem --base <base>`.
+Tên tệp crm không chép sang kho công khai.
+
+| Cấu hình glob | base | TRƯỚC | SAU |
+|---|---|---|---|
+| hẹp — chỉ tệp ngăn (9 tệp) | 30 commit trước | thoát 0 · lệch 0 · nợ cũ 1 | thoát 0 · lệch 0 · nợ cũ **0** |
+| hẹp | trước khi có bản đồ | thoát 0 · nợ cũ 1 | thoát 0 · nợ cũ **0** |
+| cả thư mục | 30 commit trước | thoát 1 · lệch 2 · nợ cũ 8 | thoát 1 · lệch 2 · nợ cũ **5** |
+| cả thư mục | trước khi có bản đồ | thoát 0 · nợ cũ 4 | thoát 0 · nợ cũ **3** |
+
+Ba dòng biến mất ở cấu hình cả thư mục: một ngăn dựng thẳng lớp trình bày đã khai (lỗi 2) và hai khối của một tệp đã khai
+ngoại lệ dạng danh sách (lỗi 1). Bảy dòng còn lại đều nằm ở năm tệp phụ KHÔNG phải ngăn (khối con, phần dùng chung, tệp
+`.ts` không dựng giao diện) — glob cả thư mục kéo chúng vào nhóm; đó là phạm vi glob của kho, không phải báo oan của bước
+chấm, và glob hẹp là cách khai đúng. Kết luận: với glob hẹp, bước chấm trên tệp bản đồ thật của crm im hoàn toàn.
 
 ## Đặc tả UX
 
