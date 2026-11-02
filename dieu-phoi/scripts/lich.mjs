@@ -61,11 +61,15 @@ export function chonHangKe(hangViec, phien, tienDo, quyet = null, trung = null) 
   if (dangLam) return { hang: dangLam.slug, moi: false };
   const quyetCua = (h) => quyet?.get(h.slug) ?? 'da-quyet';
   const chua = (h) => (tienDo.get(h.slug) ?? 'chua') === 'chua';
+  // `sau` khai bằng mã hay bằng slug đều được (#477 lỗi 2): tra mã trước, rồi slug bất kể hàng đích có mã hay không.
+  // Chuỗi không khớp hàng nào → hàng vẫn chờ như cũ (không đổi phán quyết của kho cũ), nhưng gọi tên ở `sau_khong_co`.
+  const hangTruoc = (ma) => hangViec.hang.find((x) => x.ma === ma) ?? hangViec.hang.find((x) => x.slug === ma);
   const duPhuThuoc = (h) =>
     (h.sau ?? []).every((ma) => {
-      const truoc = hangViec.hang.find((x) => x.ma === ma) ?? hangViec.hang.find((x) => x.ma === undefined && x.slug === ma);
+      const truoc = hangTruoc(ma);
       return truoc !== undefined && tienDo.get(truoc.slug) === 'gop';
     });
+  const sauKhongCo = cua.filter(chua).flatMap((h) => (h.sau ?? []).filter((ma) => hangTruoc(ma) === undefined).map((ma) => `${h.slug}→${ma}`));
   const coThe = cua.filter((h) => chua(h) && duPhuThuoc(h));
   const sanSang = coThe.filter((h) => quyetCua(h) === 'da-quyet').sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
   const boQua = [];
@@ -78,7 +82,8 @@ export function chonHangKe(hangViec, phien, tienDo, quyet = null, trung = null) 
   // Hàng chưa bắt đầu mà ô đã quyết khác build không vào đợt — không tính là việc còn lại của dãy.
   const conViec = cua.some((h) => !(chua(h) && quyetCua(h) === 'khong-build') && !['ky', 'gop'].includes(tienDo.get(h.slug) ?? 'chua'));
   if (!conViec) return { hang: null, xong: true };
-  return { hang: null, cho: coThe.some((h) => quyetCua(h) === 'cho') ? 'cong-dang' : 'phu-thuoc' };
+  const cho = coThe.some((h) => quyetCua(h) === 'cho') ? 'cong-dang' : 'phu-thuoc';
+  return { hang: null, cho, ...(cho === 'phu-thuoc' && sauKhongCo.length ? { sau_khong_co: sauKhongCo } : {}) };
 }
 
 // Bên đọc của `tiep/<dãy>.json` (bên viết: `capNhatHangKe` của bộ phát lịch ghi `ke` do `chonHangKe` trả) — MỘT
@@ -86,7 +91,11 @@ export function chonHangKe(hangViec, phien, tienDo, quyet = null, trung = null) 
 // `{hang: null, ly_do}`. Tệp vắng (bộ phát lịch chưa chạy nhịp nào) → hàng ưu tiên đầu của dãy, như trước.
 export function hangKeTuTiep(tiep, hangViec, id) {
   if (hangViec.day?.find((d) => d.id === id)?.nghi === true) return { hang: null, ly_do: 'nghi' };
-  if (tiep) return tiep.hang ? { hang: tiep.hang } : { hang: null, ly_do: tiep.xong ? 'xong' : tiep.cho ?? 'cho' };
+  if (tiep?.hang) return { hang: tiep.hang };
+  if (tiep) {
+    const lyDo = tiep.xong ? 'xong' : tiep.cho ?? 'cho';
+    return { hang: null, ly_do: tiep.sau_khong_co?.length ? `${lyDo} — sau trỏ hàng không có: ${tiep.sau_khong_co.join(', ')}` : lyDo };
+  }
   const dau = (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0];
   return dau ? { hang: dau.slug } : { hang: null, ly_do: 'khong-co-hang' };
 }
