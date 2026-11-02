@@ -5,7 +5,7 @@ slug: khuon-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-01T20:50:21Z
 design_doc: _acceptance/khuon-loi/design.md
@@ -124,3 +124,16 @@ Quét hình thái preset test-matrix — bản đủ ở design doc §11. Trục
   chữ «eval design» của lưới — không làm lưới thành mã ở vòng này.
 - Hai số trong gói giao việc được sửa khi chép vào finding: 1/9 (không phải 2/9) hồ sơ giao diện kho thứ hai có số đo;
   0 lệch trong 2 vòng có số đo (không phải «trong 6 vòng»).
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-02:
+  - Ngoài-1: Sửa cấu hình vùng giao diện sau lượt chấm thì tệp số đo vẫn được ghi như tính từ cấu hình cũ (con số ấy chưa hiện trên thẻ).
+  - Ngoài-2: Dời một màn vào thư mục hồ sơ sau lượt chấm thì bước ghi số đo vẫn cho qua, số đo có thể lệch với bản đã chấm.
+  - Ngoài-3: Gỡ nhầm phép từ chối «bản chấm không nằm trên nhánh hiện tại» thì bộ kiểm không báo đỏ.
+  - Ngoài-4: Lời hứa «từ chối thì không đụng tệp số đo cũ» ở ca có commit mới sau lượt chấm chỉ được giữ bằng mã thoát.
+  - Ngoài-5: Hai nhánh chặn ghi số đo khi cây đã đổi chưa có ca kiểm canh giữ.
+  - Ngoài-7: Đổi tên một tệp trong hồ sơ mà chưa commit thì bước ghi số đo từ chối nhầm (đã hết từ lượt 3 khi phép kiểm chuyển sang git diff).
+  - Ngoài-8: Gõ tên hồ sơ có dấu đi ngược thư mục thì lệnh khuôn có thể ghi tệp ra ngoài thư mục hồ sơ.
+  - Ngoài-9: Khuôn đặc tả UX và hướng dẫn nói máy đối chiếu Thẻ việc với nhan_viec, nhưng chưa có bước nào làm vậy.
+  - Ngoài-10: Một ca kiểm của hồ sơ lo-trinh-gio-may đã ký nay báo bỏ qua thay vì đỏ khi không có bản ghi tác tử con; hồ sơ ấy cần ghim lại ở đợt phát hành.
+  - Ngoài-11: Lượt sau chỉ sửa dữ liệu mẫu của bộ kiểm thì các eval có thể giữ màu xanh cũ mà không chạy lại.
+  - Ngoài-15: Tệp bản đồ dùng mô tả nhiều dòng thì các khoá phía sau bị bỏ qua lặng lẽ.
+  - Ngoài-16: Phần dựng dòng Khuôn trên thẻ gặp lỗi bất ngờ thì thẻ bỏ dòng ấy và trông như kho không dùng khuôn.

@@ -56,3 +56,5 @@ Vì sao: Gốc: crm/_acceptance/khung-chung-ngan-ban-ghi/ — BK1 đã ký: kho 
 - **Luật chiều rộng (b):** đây là vòng meta duy nhất của cửa sổ 2.37.0, chủ kho gọi tên 01/11.
 - **Hạt giống vòng sinh ra:** `docs/plans/2026-11-01-hat-giong-vong-doi-ban-mau.md` — vòng đời bản mẫu và bản đồ (ba hạng
   quyền sửa, mười thao tác); sổ, không phải cam kết.
+- **Hạt giống từ Cổng Bằng chứng 02/11:** `docs/plans/2026-11-02-hat-giong-khuon-cham-sau-ky.md` — Ngoài-13 và Ngoài-14
+  (người ký chọn «mở hợp đồng mới»).
