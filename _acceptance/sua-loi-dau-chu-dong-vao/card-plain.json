@@ -1,0 +1,32 @@
+{
+  "feature_plain": "Thợ của đợt Điều phối thôi kẹt hàng, thôi canh nhầm khoá và thôi giữ khoá sau khi PR đã gộp; người chấm màn hình biết địa chỉ bản dev và chấm lần lượt — năm lỗi đợt dau-chu-dong-vao phải lách tay sẽ do máy giữ.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ giao hàng sau khi hàng trước đã gộp, kể cả khi hàng sau ghi phụ thuộc bằng tên hồ sơ của một hàng có mã."},
+    {"id": "AC-2", "p": "Sẽ giữ hàng ở trạng thái chờ khi phụ thuộc trỏ vào một hàng không có, nhưng nói rõ tên phụ thuộc lạc trong lý do chờ."},
+    {"id": "AC-3", "p": "Sẽ in sẵn lệnh chờ đúng khoá máy sẽ cấp — xin lượt ghim lại thì canh khoá s4, không canh một khoá không bao giờ có."},
+    {"id": "AC-4", "p": "Sẽ nhả đúng khoá khi thợ gõ tên loại lượt; gõ tên lạ hay nhả khoá của dãy khác thì báo lỗi và không chạm khoá nào."},
+    {"id": "AC-6", "p": "Sẽ tự thu hồi khoá đã có từ trước khi hồ sơ của nó gộp, không coi đó là sự cố; khoá cấp cố ý sau lúc gộp thì giữ."},
+    {"id": "AC-7", "p": "Sẽ đưa địa chỉ bản dev đã khai trong cấu hình vào lời giao việc cho người chấm màn hình; chưa khai thì nói thẳng là chưa khai."},
+    {"id": "AC-8", "p": "Sẽ chấm các bài kiểm màn hình lần lượt từng bài, không chạy chồng trên cùng một trình duyệt."}
+  ],
+  "wont_do": [
+    {"id": "AC-5", "p": "Sẽ KHÔNG để khoá gộp treo sau khi lệnh gộp đã gộp xong; lệnh không gộp thì khoá giữ nguyên."},
+    {"id": "AC-9", "p": "Sẽ KHÔNG còn chặn hồ sơ máy-thông ở kho cài kit theo plugin — bản sửa đã có trên nhánh chính, vòng này chạy lại ca kiểm để mốc 2.37.0 mang nó."},
+    {"id": "OOS-1", "p": "Không thêm trường mục tiêu mới cho bài kiểm màn hình — việc đó cần anh phê riêng."},
+    {"id": "OOS-2", "p": "Không đổi cách truyền tham số lớn của lượt chấm — chỉ ghi thêm nguồn gốc vào hạt giống sẵn có."},
+    {"id": "OOS-3", "p": "Không tách khoá ghim lại khỏi khoá chấm — hai lượt nặng cố ý không chạy cùng lúc."},
+    {"id": "OOS-4", "p": "Không sửa hook giữ nhịp sống — thu hồi theo «đã gộp» ở bộ phát lịch là đủ."},
+    {"id": "OOS-5", "p": "Không đụng hai vấn đề đã có issue riêng: vùng khai rộng tự thêm phụ thuộc, và ghim lại nhiều lần mỗi hàng."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Không quét thêm không gian: issue #477 đã chốt năm lỗi; mỗi lỗi có tiêu chí riêng — lỗi 1 → AC-9, lỗi 2 → AC-1, AC-2, lỗi 3/4 → AC-3 tới AC-6, lỗi 5 → AC-7, AC-8."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Thiếu ca chứng minh thợ không nhả được khoá của dãy khác — đã thêm ca ấy cho lệnh nhả; lệnh gộp vốn từ chối khi khoá không phải của mình."},
+    {"i": 1, "p": "Thu hồi theo «đã gộp» có thể cắt ngang một lượt ghim lại cố ý trên hồ sơ đã gộp — đã thu hẹp: chỉ thu hồi khoá có từ trước lúc gộp."},
+    {"i": 2, "p": "Ca kiểm lệnh chờ chỉ so chữ, chưa chứng minh máy thật cấp khoá ở đúng chỗ ấy — đã thêm vòng xin rồi cấp thật."},
+    {"i": 3, "p": "Vế «lượt đo không bị ghi hỏng» chỉ có kiểm âm — đã ghim giá trị mong đợi và thêm đối chứng ca hết hạn thật."},
+    {"i": 4, "p": "Hai chỗ nối bên ghi với bên đọc được thử bằng dữ liệu tự dựng — đã cho đi qua bên ghi thật."}
+  ],
+  "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này:"
+}
