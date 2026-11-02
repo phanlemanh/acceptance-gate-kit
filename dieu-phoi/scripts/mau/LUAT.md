@@ -10,9 +10,11 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
   từ worktree của chip — ghi worktree của phiên vào dãy; chưa ghi danh thì mọi lệnh dưới đây báo «không thuộc
   dãy nào».
 - Xin lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs xin <loại> [--uoc-phut <n>] [--mo-merge]`;
-  `loại` ∈ `s4`, `ghim-lai`, `duong-nen`, `merge`. Rồi chờ bằng lệnh nền
-  `until jq -e '.phien=="<dãy>"' <thư mục đợt>/khoa/<tài nguyên>/chu.json >/dev/null 2>&1; do sleep 15; done`.
-- Nhả lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs nha <tài nguyên> [--ma <mã thoát>] [--ha-tang "<lý do>"]`.
+  `loại` ∈ `s4`, `ghim-lai`, `duong-nen`, `merge`. Rồi chờ bằng ĐÚNG lệnh chờ mà `xin` in ở dòng «chờ (chạy nền)»,
+  chạy nền — không tự ghép đường khoá: lệnh đã giải tên loại thành khoá bộ phát lịch cấp (`ghim-lai` dùng chung khoá
+  `s4` với lượt chấm).
+- Nhả lượt: `node <thư mục đợt>/loi/dieu-phoi.mjs nha <loại hoặc tài nguyên> [--ma <mã thoát>] [--ha-tang "<lý do>"]`
+  — `nha ghim-lai` nhả khoá `s4`; tên lạ thoát 1 và không chạm khoá nào.
   Lượt bị máy làm hỏng (bị giết, mã 137 hay 143, hết bộ nhớ, hết giờ) thì khai mã hoặc lý do — bộ phát lịch ghi nó vào
   sổ đo của máy để hiệu chuẩn chỗ trống mỗi loại lượt cần (`dieu-phoi.mjs hieu-chuan` in số hiệu chuẩn).
 - Lượt chạy dưới tải: TRƯỚC khi nhả khoá `s4` hay `duong-nen`, đọc `<thư mục đợt>/do-dang-chay/<tài nguyên>.json`.
@@ -39,7 +41,8 @@ nói lý do. `<thư mục đợt>` là đường trong lời ghi danh của chip
   phút đó, tính từ hạn còn lại (hạn đã qua thì tính từ lúc áp).
 - Hàng kế: đọc `tiep/<phiên>.json`. `cho: trung-tep` = mọi hàng sẵn sàng của dãy đang trùng tệp với việc dở ở chỗ khác
   — máy đã ghi phụ thuộc `sau`, chờ nhịp sau; không tự mở hàng.
-- Gộp (khi đợt cho tự gộp): giữ khoá `merge` rồi `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`. Thoát 0 = đã gộp ·
+- Gộp (khi đợt cho tự gộp): giữ khoá `merge` rồi `node <thư mục đợt>/loi/dieu-phoi.mjs gop <số PR>`. Thoát 0 = đã gộp
+  và khoá `merge` đã tự nhả (không cần `nha merge`) ·
   4 = gộp nhánh chính vào nhánh và chờ CI theo «Thứ tự gộp» dưới, rồi chạy lại · 1 = chặn, báo giám sát. Khoá
   `gop_khong_chay_lai_ci` của `dieu-phoi.config.json` (vắng = tắt): bật thì PR không trùng tệp với commit vào nhánh
   chính từ base của CI được gộp ngay, không chạy lại CI — lưới là CI trên nhánh chính sau gộp; CI ấy đỏ thì báo giám

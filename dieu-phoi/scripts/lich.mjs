@@ -1,6 +1,12 @@
+import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
 
 export const TAI_NGUYEN = { s4: 's4', 'ghim-lai': 's4', 'duong-nen': 'duong-nen', merge: 'merge' };
+// MỘT bộ giải tên khoá cho bên cấp (capLuot) và bên thợ (`xin` in lệnh chờ, `nha` nhả) — #477 lỗi 3/4: `ghim-lai`
+// cố ý dùng chung khoá `s4`, nên thợ gõ tên loại phải tới đúng thư mục bộ phát lịch tạo. Tên lạ → null.
+export const giaiTaiNguyen = (ten) => (Object.hasOwn(TAI_NGUYEN, ten) ? TAI_NGUYEN[ten] : null);
+export const lenhChoKhoa = (thuMuc, phien, loai) =>
+  `until jq -e '.phien=="${phien}"' ${path.join(thuMuc, 'khoa', giaiTaiNguyen(loai), 'chu.json')} >/dev/null 2>&1; do sleep 15; done`;
 const MOC_XA = '9999-12-31';
 
 const mocCua = (hangViec, slug) => hangViec?.hang?.find((h) => h.slug === slug)?.moc ?? MOC_XA;
@@ -91,11 +97,9 @@ export function chonHangKe(hangViec, phien, tienDo, quyet = null, trung = null) 
 // `{hang: null, ly_do}`. Tệp vắng (bộ phát lịch chưa chạy nhịp nào) → hàng ưu tiên đầu của dãy, như trước.
 export function hangKeTuTiep(tiep, hangViec, id) {
   if (hangViec.day?.find((d) => d.id === id)?.nghi === true) return { hang: null, ly_do: 'nghi' };
-  if (tiep?.hang) return { hang: tiep.hang };
-  if (tiep) {
-    const lyDo = tiep.xong ? 'xong' : tiep.cho ?? 'cho';
-    return { hang: null, ly_do: tiep.sau_khong_co?.length ? `${lyDo} — sau trỏ hàng không có: ${tiep.sau_khong_co.join(', ')}` : lyDo };
-  }
+  // Cờ vàng `sau` mồ côi (#477 lỗi 2) đi kèm lý do chờ — chỉ thêm chữ, không đổi lối.
+  if (tiep && !tiep.hang && tiep.sau_khong_co?.length) return { hang: null, ly_do: `${tiep.cho ?? 'cho'} — sau trỏ hàng không có: ${tiep.sau_khong_co.join(', ')}` };
+  if (tiep) return tiep.hang ? { hang: tiep.hang } : { hang: null, ly_do: tiep.xong ? 'xong' : tiep.cho ?? 'cho' };
   const dau = (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0];
   return dau ? { hang: dau.slug } : { hang: null, ly_do: 'khong-co-hang' };
 }
