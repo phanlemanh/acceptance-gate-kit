@@ -676,6 +676,11 @@ let modelEvals;
 try { modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList })); } catch (e) { die(String((e && e.message) || e)); }
 const evalsChayRieng = evals.filter(e => (e.executor === 'test' || e.executor === 'script') && modelEvals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
 
+// URL bản dev cho người chấm ui-check (#477 lỗi 5): workflow không đọc được config.yaml, nên giá trị ĐÃ GIẢI của
+// `config:dev_server.url` đi qua args. Chỉ khi hồ sơ có eval ui-check; config không khai → khoá vắng hẳn, không dừng
+// (workflow tự nói «chưa khai» trong lời gọi). Không thêm trường nào vào eval — `target` là CỘNG chưa phê.
+const devServerUrl = evals.some(e => e.executor === 'ui-check') ? resolveConfigKey(configText, 'dev_server.url') : null;
+
 const args = {
   generated_at: invokedAt,
   generated_sha: invokedSha,
@@ -687,6 +692,7 @@ const args = {
   ...(evalsNotRun.length ? { evalsNotRun } : {}),
   ...(canhBaoDanhSach.length ? { canhBaoDanhSach } : {}),
   ...(evalsChayRieng.length ? { evalsChayRieng } : {}),
+  ...(typeof devServerUrl === 'string' && devServerUrl.trim() ? { devServerUrl: devServerUrl.trim() } : {}),
   suiteCommands,
   diffBase,
   repoRoot: root,

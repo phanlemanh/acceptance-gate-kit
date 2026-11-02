@@ -25,6 +25,8 @@ export const meta = {
 //                                          // dài hơn trần công cụ: chạy nền, nhật ký đường cố định, chờ bằng lệnh máy sinh
 //   evalsChayRieng: ['E6', ...],       // OPTIONAL (lenh-dai-chay-rieng): id trong feature_loop.model_evals — lệnh của
 //                                      // chúng chạy tuần tự SAU mọi lệnh máy khác. Vắng → thứ tự 2.24.0.
+//   devServerUrl: 'http://localhost:3000', // OPTIONAL (#477 lỗi 5): giá trị ĐÃ GIẢI của config:dev_server.url — s4-args
+//                                      // chỉ phát khi hồ sơ có eval ui-check và config khai khoá; tiêm vào lời gọi ui-check.
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //                                      // thuoc-co-cua AC-9: lệnh có tên trong danh sách này chạy TUẦN TỰ (theo thứ tự
 //                                      // xuất hiện) — kể cả khi trùng lệnh của một eval; lệnh máy khác giữ song song.
@@ -1266,6 +1268,17 @@ const agentCuaLenh = (cmd, __i) => {
 // cham-khong-tu-dot-luot AC-9: ảnh ui lưu DƯỚI hồ sơ bằng đường tuyệt đối — đường tương đối
 // `evidence/…` rơi vào cwd của tác tử (không phải hồ sơ). Báo cáo mang lại đường tương đối.
 const EVD = `${args.repoRoot}/_acceptance/${args.slug}/evidence`
+// ui-check (#477 lỗi 5): người chấm biết URL bản dev đã giải, vắng thì nói thẳng — không để nó đoán cổng.
+const DEV_SERVER_DONG = typeof args.devServerUrl === 'string' && args.devServerUrl.trim()
+  ? `Dev server (config:dev_server.url da giai): ${args.devServerUrl.trim()} — dung URL nay cho moi buoc mo trang.\n`
+  : 'Dev server: config chưa khai dev_server.url — doc _acceptance/config.yaml va steps de tim URL; khong doan cong.\n'
+// Các eval ui-check dùng chung MỘT trình duyệt (#477 lỗi 5: hai bài chạy song song làm nhiễm nhau) — chạy lần lượt.
+// Ngữ nghĩa như parallel(): thunk ném → null, thứ tự kết quả giữ nguyên.
+const tuanTu = async (thunks) => {
+  const ra = []
+  for (const t of thunks) ra.push(await Promise.resolve().then(t).catch(() => null))
+  return ra
+}
 
 const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
   // AC-9: nhánh song song (lệnh eval) và nhánh tuần tự (lệnh suite) chạy ĐỒNG THỜI với nhau;
@@ -1287,10 +1300,12 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
     return [...ss, ...tt, ...rr]
   }),
 
-  // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
-  () => parallel(uiEvals.map(e => () =>
+  // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file. Lần lượt, không
+  // song song (chung trình duyệt); cả khối vẫn song song với lệnh máy, hội đồng, review.
+  () => tuanTu(uiEvals.map(e => () => // <<<UI-TUAN-TU-KIM>>>
     agentT(
       `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} — MOI lenh shell ban chay trong steps phai o dang \`${CD_GUARD(`"${args.repoRoot}"`)} && <lenh>\`: cho dung dat trong CHINH lenh (giu nguyen ve || exit 97), khong tin cwd hien tai (thu muc trung ten o noi khac la moi nhu).\n` +
+      `${DEV_SERVER_DONG}` +
       `Eval ${e.id} (criterion ${e.criterion}) — lam DUNG cac steps sau, theo thu tu:\n` +
       `${(e.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}\n` +
       `Expected: ${e.expected}\n\n` +
