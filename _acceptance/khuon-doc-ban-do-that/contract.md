@@ -5,7 +5,7 @@ slug: khuon-doc-ban-do-that
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-11-02T08:21:16Z
 design_doc: _acceptance/khuon-doc-ban-do-that/design.md
