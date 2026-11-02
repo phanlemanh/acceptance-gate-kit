@@ -100,7 +100,7 @@ export function chamKho(root, base) {
   const cfgP = path.join(root, '_acceptance', 'config.yaml');
   const giaoDien = resolveConfigList(fs.existsSync(cfgP) ? fs.readFileSync(cfgP, 'utf8') : '', 'design.surface_globs').filter(Boolean).map(pathGlobToRe);
   const ra = { theo_khuon: [], lech_moi: [], no_cu: [], khong_do: [], ngoai_ban_do: 0, sai: banDo.sai, doi_sau_ghim: banDo.doi_sau_ghim, ghi_chu: g.dong ? [g.dong] : [], nhom: banDo.nhom.map(n => n.nhom) };
-  for (const n of banDo.nhom) if (n.khong_doc_duoc) ra.khong_do.push(`nhóm ${n.nhom} — nhan_dien dạng sổ đăng ký`);
+  for (const n of banDo.nhom) if (n.khong_doc_duoc) ra.khong_do.push(`nhóm ${n.nhom} — ${n.khong_doc_duoc}`);
   for (const f of ds) {
     if (f.startsWith('_acceptance/') || !fs.existsSync(path.join(root, f))) continue;
     const nhomTep = B.nhomCuaTep(banDo, f);
