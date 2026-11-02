@@ -2,18 +2,18 @@ schema_version: 1
 feature_slug: sua-loi-dau-chu-dong-vao
 # Ca đo của vòng, ba tệp (đường dẫn trong mọi tệp suy từ vị trí tệp, đợt thử và kho thử do code sinh trong lượt):
 #   tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs — ca «SD-<n>» = AC-<n> (n = 1..6), node:test; cũng chạy trong
-#     khoá dieu_phoi* của suite (glob tests/dieu-phoi/**/*.test.mjs). Khoá: executors.test.sd_dieu_phoi.
-#   tests/scripts/s4-args-dev-server.test.mjs — ca «DS-<n>» (AC-7, nửa s4-args). Khoá: executors.test.sd_s4_args.
+#     khoá dieu_phoi* của suite (glob tests/dieu-phoi/**/*.test.mjs). Khoá: executors.script.sd_dieu_phoi.
+#   tests/scripts/s4-args-dev-server.test.mjs — ca «DS-<n>» (AC-7, nửa s4-args). Khoá: executors.script.sd_s4_args.
 #   tests/workflows/ui-check-tuan-tu.test.mjs — ca «UT-<n>» (AC-7 nửa workflow, AC-8) chạy CHÍNH acceptance-verify.js qua
-#     tests/workflows/harness.mjs. Khoá: executors.test.sd_ui_tuan_tu.
+#     tests/workflows/harness.mjs. Khoá: executors.script.sd_ui_tuan_tu.
 # Chiều đỏ của SD-* và DS-*: LỊCH SỬ — commit ca đứng TRƯỚC commit vật, và ca đỏ trên commit ấy với thông điệp ghim dưới
 # (ghi số ở decisions.jsonl lúc S3). Chiều đỏ của UT-*: thêm đột biến trong bộ nhớ (srcOverride của harness) — kim khớp
 # ĐÚNG một lần trong nguồn thật trước khi tin màu đỏ. Mỗi ca có đối chứng dương trên CÙNG fixture.
 evals:
   - id: E1
     criterion: AC-1
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-1 …»: hàng C sau:['b'] (slug của B, B mang ma 'B'), B gộp → chonHangKe giao C; đối
@@ -22,8 +22,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-2 …»: đợt thử, hàng a sau:['zzz']; motNhip thật (io giả) ghi tiep/P1.json; tệp ấy mang
@@ -33,8 +33,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/mau/LUAT.md, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-3 …»: đợt thử, CLI `dieu-phoi.mjs xin ghim-lai --slug s` (tiến trình con thật) thoát 0,
@@ -45,8 +45,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-4 …»: dãy P1 giữ khoa/s4 → CLI `nha ghim-lai` thoát 0, stdout "nha: đã nhả s4", khoa/s4
@@ -57,8 +57,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/gop.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-5 …»: kho git thật + origin trần, chỉ gh giả; gop gộp lối khong-trung → da_gop true,
@@ -67,8 +67,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
-    executor: test
-    cmd: config:executors.test.sd_dieu_phoi
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
     paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
     expected: >
       exit 0; dòng «ok … - SD-6 …»: motNhip với io giả (git show trả hợp đồng đã thông cho slug a), trang-thai.json
@@ -80,8 +80,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
-    executor: test
-    cmd: config:executors.test.sd_s4_args
+    executor: script
+    cmd: config:executors.script.sd_s4_args
     paths: [feature-loop/scripts/s4-args.mjs, tests/scripts/s4-args-dev-server.test.mjs]
     expected: >
       exit 0; "PASS: DS-1": kho thử config khai dev_server.url "http://localhost:4173" + một eval ui-check → args.json
@@ -91,8 +91,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-7
-    executor: test
-    cmd: config:executors.test.sd_ui_tuan_tu
+    executor: script
+    cmd: config:executors.script.sd_ui_tuan_tu
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/ui-check-tuan-tu.test.mjs, tests/workflows/harness.mjs]
     expected: >
       exit 0; "PASS: UT-2": devServerUrl lấy từ args.json do s4-args THẬT sinh trên kho thử khai dev_server.url
@@ -102,8 +102,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-8
-    executor: test
-    cmd: config:executors.test.sd_ui_tuan_tu
+    executor: script
+    cmd: config:executors.script.sd_ui_tuan_tu
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/ui-check-tuan-tu.test.mjs, tests/workflows/harness.mjs]
     expected: >
       exit 0; "PASS: UT-1": hai eval ui-check, agent giả ghi cờ start/end (setTimeout) → khoảng [start,end] của ui:E1 và
@@ -113,8 +113,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-9
-    executor: test
-    cmd: config:executors.test.pmlk_e1
+    executor: script
+    cmd: config:executors.script.pmlk_e1
     paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
     expected: >
       exit 0; khoá có sẵn của hồ sơ pre-merge-doc-lib-theo-kit: "Results: 4 passed, 0 failed", "PASS: LK1 kho-khong-lib",
