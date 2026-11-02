@@ -5,7 +5,7 @@ slug: khuon-doc-ban-do-that
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-02T08:21:16Z
 design_doc: _acceptance/khuon-doc-ban-do-that/design.md
@@ -86,3 +86,9 @@ Quét hình thái preset test-matrix. Trục A cách viết · B chỗ đọc ·
 - Mục ngoại lệ có `khoi: []` rỗng — không mục nào, như hôm nay `khoi` rỗng không khớp gì.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-03:
+  - Ngoài-1: Khai miễn trừ nhiều khối cho một tệp không tồn tại thì báo lỗi hiện cùng một câu lặp lại nhiều lần; kết luận vẫn đúng.
+  - Ngoài-2: Phần mô tả kết quả mong đợi của vài ca đo ghi tên khối và số phép so không khớp ca chạy thật.
+  - Ngoài-4: Một số ca chiều đỏ có thể đỏ vì một lỗi khác lỗi định bắt, nên chưa chứng minh chắc máy bắt đúng lỗi được tiêm.
+  - Ngoài-5: Trên kho giống thật, tệp mới mang miễn trừ nhiều khối chưa có ca đỏ; trường hợp này chỉ được kiểm ở kho tổng hợp.
