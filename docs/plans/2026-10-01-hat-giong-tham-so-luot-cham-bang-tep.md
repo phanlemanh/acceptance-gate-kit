@@ -5,6 +5,9 @@ Gốc: acceptance-gate-kit/_acceptance/thuoc-biet-truoc-khong-phan-duoc/ — s�
 (tệp args 35 KB, 163 mã băm thước; phiên sinh một bản script workflow nhúng nguyên tệp args, khác
 bản gốc đúng một dòng). Cùng ngày ở crm `soan-okr-cung-tro-ly` (~100 KB args, sổ
 `d-20261001T074708Z-19` «bản nhúng tham số một dòng»); phiên crm còn bị auto mode chặn đúng bước đó.
+Gốc: acceptance-gate-kit/_acceptance/sua-loi-dau-chu-dong-vao/ — issue #477 §5 (onehub-quy-hang, đợt
+`dau-chu-dong-vao` 31/10–02/11, kit v2.36.0): `s4-args` của hàng lớn 110–330 KB, các dãy phải nhúng vào bản sao kịch
+bản chấm ở scratchpad. Vòng ấy chỉ sửa phần URL bản dev và ui-check tuần tự; phần này để nguyên ở hạt giống.
 
 Phát hiện trong vòng: `_acceptance/luot-cham-ghi-vao-cay/` (Out of scope của hợp đồng trích lại tệp này).
 
