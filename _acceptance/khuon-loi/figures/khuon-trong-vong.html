@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khuôn trong vòng</title>
+  <!-- Hình tầng 2 — chiếu của figures/index.md (đề bài khuon-trong-vong). Nhãn nguyên văn từ đề bài.
+       AC chở: AC-1, AC-2, AC-3, AC-7, AC-8, AC-9, AC-10. -->
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-rule:    rgba(45,49,66,0.12);
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1280px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 960px; display: block; }
+    .footer {
+      margin-top: 1.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-rule);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--color-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hình 1 · khuon-loi · Cổng Phạm vi · sơ đồ luồng</p>
+    <h1>Hỏi-1 · duyệt phần cộng (bộ đọc + lệnh khuôn + dòng thẻ)</h1>
+
+    <svg viewBox="0 0 1240 424" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Chú thích góc (AC-8) ===== -->
+      <text x="1200" y="48" fill="#4f5d75" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">không có design/patterns/ → mọi bước im (AC-8)</text>
+
+      <!-- ===== Mũi tên (vẽ trước nút) ===== -->
+      <!-- làn chính: S0 → S1 → S4 → sau lượt chấm → Cổng Bằng chứng -->
+      <line x1="240" y1="128" x2="280" y2="128" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="480" y1="128" x2="520" y2="128" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="720" y1="128" x2="760" y2="128" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="960" y1="128" x2="1000" y2="128" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- nhánh phụ: S4 gọi bộ đọc (vào cạnh trên) -->
+      <line x1="620" y1="168" x2="620" y2="232" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- nhánh phụ: lint của kho gọi cùng bộ đọc (vào cạnh trái) -->
+      <line x1="440" y1="260" x2="520" y2="260" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- bộ đọc đọc design/patterns/<nhóm>.md -->
+      <line x1="620" y1="288" x2="620" y2="344" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- ===== Nhãn mũi tên (mặt nạ giấy, cách nét 8px) ===== -->
+      <rect x="628" y="192" width="28" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="642" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỌI</text>
+
+      <rect x="466" y="236" width="28" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="480" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GỌI</text>
+
+      <rect x="628" y="308" width="32" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="644" y="320" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỌC</text>
+
+      <!-- ===== Nút — làn chính ===== -->
+      <!-- S0 -->
+      <rect x="40" y="88" width="200" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="88" width="200" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="140" y="116" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">S0 · --dem:</text>
+      <text x="140" y="140" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">khuôn N nhóm</text>
+
+      <!-- S1 -->
+      <rect x="280" y="88" width="200" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="280" y="88" width="200" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="380" y="112" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">S1 · --nap:</text>
+      <text x="380" y="136" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">chỉ mục nhóm + ghim băm</text>
+      <text x="380" y="154" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">(khuon-nap.json)</text>
+
+      <!-- S4 — điểm nhấn 1 -->
+      <rect x="520" y="88" width="200" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="520" y="88" width="200" height="80" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="620" y="116" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">S4 · eval --kiem:</text>
+      <text x="620" y="140" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">lệch / nợ cũ / không đo</text>
+
+      <!-- sau lượt chấm -->
+      <rect x="760" y="88" width="200" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="760" y="88" width="200" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="860" y="116" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sau lượt chấm · --write:</text>
+      <text x="860" y="140" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">khuon-cham.json</text>
+
+      <!-- Cổng Bằng chứng — kết của làn -->
+      <rect x="1000" y="88" width="200" height="80" rx="20" fill="#f5f5f5"/>
+      <rect x="1000" y="88" width="200" height="80" rx="20" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1100" y="116" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Cổng Bằng chứng:</text>
+      <text x="1100" y="140" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">một dòng Khuôn + cờ vàng</text>
+
+      <!-- ===== Nút — nhánh phụ dưới S4 ===== -->
+      <!-- lint của kho -->
+      <rect x="240" y="232" width="200" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="240" y="232" width="200" height="56" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="340" y="264" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">lint của kho</text>
+
+      <!-- bộ đọc ban-do-khuon.cjs — điểm nhấn 2 -->
+      <rect x="520" y="232" width="200" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="520" y="232" width="200" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="620" y="256" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">bộ đọc</text>
+      <text x="620" y="274" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">ban-do-khuon.cjs</text>
+
+      <!-- design/patterns/<nhóm>.md -->
+      <rect x="520" y="344" width="200" height="48" rx="6" fill="#f5f5f5"/>
+      <rect x="520" y="344" width="200" height="48" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="620" y="372" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">design/patterns/&lt;nhóm&gt;.md</text>
+    </svg>
+
+    <div class="footer">
+      <span>Hình tầng 2 · chiếu của figures/index.md (đề bài khuon-trong-vong) · AC-1 · AC-2 · AC-3 · AC-7 · AC-8 · AC-9 · AC-10</span>
+      <span>hồ sơ khuon-loi · vẽ 01/11/2026</span>
+    </div>
+  </div>
+</body>
+</html>

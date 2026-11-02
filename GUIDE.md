@@ -934,6 +934,7 @@ executors:
     static: "node scripts/design-scan.js --slug {slug}"   # lệnh THẬT của repo bạn
     gate:   "node scripts/design-gate.mjs --slug {slug}"
     floor:  "node <acceptance-gate>/scripts/design-floor-s4.mjs --root ."   # tuân thủ design system ở S4 (design-floor)
+    khuon:  "node <acceptance-gate>/scripts/design-floor-khuon.mjs --kiem --root ."   # chấm vật theo bản đồ khuôn design/patterns/ (khuon-loi)
 design:
   surface_globs:                    # để S4 bắt "diff chạm surface mà lane không có design eval"
     - "src/app/**"
@@ -944,6 +945,15 @@ design_floor:                       # bậc design-floor của kho (M2 = khai to
   sinh_lai:                         # lệnh sinh lại tệp dẫn xuất, chạy cuối S3 sau autofix — commit trước S4
     - "npm run tokens:build"
 ```
+
+**Bản đồ khuôn (`executors.design.khuon`).** Kho khai `design/patterns/<nhóm>.md` (khuôn tệp:
+`skills/acceptance/references/ban-do-khuon-template.md`; sinh nhóm mới bằng `design-floor-khuon.mjs --tao <nhóm>`) thì nối
+dòng `khuon:` trên và mỗi hồ sơ chạm vùng một nhóm khai một eval `cmd: config:executors.design.khuon` (khối mẫu:
+`--goi-y-eval --nhom <nhóm>`); thiếu eval ấy thì `s4-args` dừng lượt chấm và gọi tên nhóm. Luật lint của kho đọc cùng bản
+đồ bằng `createRequire('<acceptance-gate>/scripts/ban-do-khuon.cjs')` hoặc CLI `ban-do-khuon.cjs --root . --json`. Giới
+hạn: kho để `**/*.md` ở T1 (`risk_tiers.t1_skip_globs`) thì sửa bản đồ không làm hồ sơ nào hoá cũ — gỡ
+`design/patterns/**` khỏi T1 nếu muốn sửa bản đồ kéo xét lại hồ sơ của nhóm. `nhan_dien` dạng sổ đăng ký (không có
+`tep:`) thì nhóm «không đọc được ở đây» và không bị chấm. Kho không có `design/patterns/` → mọi lệnh khuôn im.
 
 `floor` chỉ đọc: hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex
 thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai). `<acceptance-gate>` là đường bản kit đang cài — ghim lại theo

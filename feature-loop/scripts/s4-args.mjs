@@ -349,6 +349,22 @@ const pathsKhaiRes = evals.flatMap(e => (Array.isArray(e.paths) ? e.paths : []))
 const laNgoaiVat = f => !pathsKhaiRes.some(re => re.test(f)) && ngoaiVatRes.some(re => re.test(f));
 // NGOAI-VAT>>>
 const diffTatCa = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').filter(Boolean);
+// ── Lưới khuôn (hồ sơ khuon-loi, AC-11): kho khai bản đồ khuôn, vòng chạm vùng một nhóm mà evals.yaml không có eval
+// mang config:executors.design.khuon → dừng, không sinh tệp. Nhờ đó «màn ngoài khuôn bị trả lại» không phụ thuộc tác tử
+// S1 nhớ chép khối eval, và không đụng vị từ còn-cần-người. Gốc kit đời cũ không có bộ đọc → bỏ qua; kho không khai
+// bản đồ → không đổi gì.
+{
+  const docKhuon = path.join(agRoot, 'scripts', 'ban-do-khuon.cjs');
+  if (fs.existsSync(docKhuon)) {
+    const K = require_(docKhuon);
+    const bd = K.docThuMuc(root);
+    if (bd.co_thu_muc) {
+      const cham = [...new Set(diffTatCa.filter(f => !f.startsWith('_acceptance/')).flatMap(f => K.nhomCuaTep(bd, f).map(n => n.nhom)))];
+      const thieuEvalKhuon = cham.length > 0 && !evals.some(e => e.ref === 'config:executors.design.khuon');
+      if (thieuEvalKhuon) die(`hồ sơ ${flags.slug} chạm vùng nhóm ${cham.join(', ')} mà evals.yaml không có eval mang config:executors.design.khuon — thêm khối từ design-floor-khuon.mjs --goi-y-eval --nhom <nhóm>, KHÔNG sinh tệp`);
+    }
+  }
+}
 const vungVat = diffTatCa.filter(f => !laNgoaiVat(f));
 // ── ĐỔI KHUÔN (owner quyết 14/09, STOP-PATCHING) ────────────────────────────
 // Lớp «writer/reader trôi» tái phát BA lần trong hai lượt sửa: `laNgoaiVat` thiếu vế

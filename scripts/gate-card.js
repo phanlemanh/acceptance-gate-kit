@@ -1150,6 +1150,8 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 // Luật sản phẩm của kho (bat-bien-san-pham): khối, ô, cờ rút ở luat-san-pham.cjs; kho không khai luật → null, thẻ y nguyên.
 let luatG2 = null; try { luatG2 = require('./luat-san-pham.cjs').theCong2({ root, slug, contractTxt: read(path.join(dir, 'contract.md')), evidenceTxt: read(path.join(dir, 'evidence-report.md')), esc }); } catch (_) { luatG2 = null; }
+// Bản đồ khuôn của kho (khuon-loi): một dòng số đo + cờ rút ở ban-do-khuon.cjs; kho không khai bản đồ → null, thẻ y nguyên.
+let khuonG2 = null; try { khuonG2 = require('./ban-do-khuon.cjs').theCong2({ root, slug, contractTxt: read(path.join(dir, 'contract.md')), evidenceTxt: read(path.join(dir, 'evidence-report.md')) }); } catch (_) { khuonG2 = null; }
 // Mục máy tự định tuyến (hồ sơ ngoai-n-tu-dinh-tuyen): dòng gate2 định tuyến mục mang dấu máy → mục là
 // dòng BÁO (routing.bao), in kèm lệnh đảo. Dòng máy không còn mục nào cùng mã → cờ, mục về người. Sổ
 // không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
@@ -1399,6 +1401,7 @@ if (ooc.unclassified) {
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
 if (luatG2) { for (const [c, t] of luatG2.co) P.push(`<div class="flag ${c}">${esc(t)}</div>`); if (luatG2.html) P.push(luatG2.html); }
+if (khuonG2) { if (khuonG2.co) P.push(`<div class="flag fwarn">⚠ ${esc(khuonG2.co)}</div>`); if (khuonG2.dong) P.push(`<div class="flag finfo">${esc(khuonG2.dong)}</div>`); }
 // Dòng máy cũ trỏ một mục đã đổi sau lượt chấm mới (tiêu đề lệch) — mục ấy về người; lưới trước-merge
 // không bắt ca này (giới hạn khai ở hồ sơ ngoai-n-tu-dinh-tuyen), nên thẻ phải nói to.
 if (dtmLech.length) P.push(`<div class="flag fwarn">⚠ dòng máy trỏ mục đã đổi: ${esc(dtmLech.join(', '))} — dòng sổ máy định tuyến một mục khác mục đang ở vị trí ấy; người quyết lại mục này.</div>`);

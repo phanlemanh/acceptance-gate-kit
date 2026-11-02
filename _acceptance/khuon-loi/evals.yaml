@@ -1,0 +1,148 @@
+schema_version: 1
+feature_slug: khuon-loi
+# Ca đo của vòng: tên ca mở bằng «KL-», ở tests/scripts/khuon-loi.test.mjs (đuôi .test.mjs — cũng chạy trong mảnh mjs
+# của suite). Khoá executor (thêm ở vòng này):
+#   executors.test.khuon_loi — node tests/scripts/khuon-loi.test.mjs, in «PASS: [KL-…]»/«FAIL: …».
+# Kho mẫu do code sinh trong lượt (git init trong thư mục tạm): ba nhóm hình dạng rút từ hai kho thử — nhóm màn YAML
+# khối, nhóm màn YAML một dòng, nhóm phần tử — tên khối và tên tệp giả. Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy
+# CHÍNH hàm kiểm trên bản sao TRỌN thư mục scripts/ và lib/ của cây đang kiểm bị tiêm một nhát, SAU khi bản lành xanh
+# trên cùng fixture; kiểm nhát tiêm khớp đúng một lần, ghim thông điệp của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số
+# assert = số hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, skills/acceptance/references/ban-do-khuon-template.md, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-1]": hai tệp bản đồ cùng nội dung ở dạng mapping khối và dạng một dòng đọc ra cùng bản chuẩn
+      hoá (so JSON bằng nhau); khoá lạ «mau_sac» → canh_bao chứa "khoá lạ: mau_sac"; thân thiếu «Dùng khi» → canh_bao chứa
+      "thiếu «Dùng khi»"; thiếu nhan_viec → canh_bao chứa "thiếu nhan_viec"; thiếu khuon → sai chứa "<tệp>: thiếu khoá
+      khuon"; ngoai_le thiếu ly_do → sai chứa "ngoai_le thiếu ly_do"; cam_ho có tên ngoài cam_ngoai_khuon → sai nêu tên ấy;
+      nhan_dien {dang_ky, kind} không tep → nhóm mang nhãn "không đọc được ở đây"; thêm design/patterns/lech-lot.md và
+      README.md → số nhóm không đổi, sai không đổi. "PASS: [KL-1-tao]": `--tao bang-moi`
+      sinh design/patterns/bang-moi.md từ khối marker BAN-DO-KHUON-TEMPLATE (rút lúc chạy) và bộ đọc trả 0 sai.
+      "PASS: [KL-1-do]": bản lành xanh; bản sao bỏ kiểm ly_do → danh sách lỗi chứa "ngoại lệ thiếu lý do mà không sai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-2]": kho mẫu có package.json "type":"module"; tệp luật giả .mjs của kho nạp bộ đọc bằng
+      createRequire và in JSON {cam, ngoai_le, nhom_cua_tep}; CLI `--root <kho> --json` cho cùng ba tập; tập khối cấm mà
+      bước chấm báo trên tệp tiêm bằng tập lint thấy trên cùng tệp. "PASS: [KL-2-do]": bản sao CLI bỏ cam_ho khỏi đầu ra →
+      danh sách lỗi chứa "lint và bước chấm lệch".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-3]" và dòng "số hàng: 7": đối chứng dương — kho mẫu chưa tiêm, bước chấm thoát 0 và 0 dòng
+      "lệch:"; bảy nhánh tiêm, mỗi nhánh bước chấm thoát 1 và in đúng một dòng "lệch:" chứa tệp tiêm và nhóm: (1) nhập tên
+      gốc khối cấm → khối ấy + "dùng <thay>" khi bản đồ khai thay_cho; (2) `import { Hop as H }` → khối "Hop"; (3) nhập mặc
+      định `import Hop from` → "Hop"; (4) `import * as ui` rồi `<ui.Hop` → "Hop"; (5) tên họ cấm "HopTieuDe" → "HopTieuDe";
+      (6) màn không nhập khuôn → "khuôn"; (7) thẻ phần tử thiếu khe title → "khe title".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-4]": tệp khớp nhan_dien của hai nhóm màn → thoát 1, một dòng chứa tên cả hai nhóm; tệp khớp một
+      nhóm màn và nhóm phần tử, đúng khuôn → thoát 0; hai tệp khớp design.surface_globs ngoài mọi nhóm màn → thoát 0 và dòng
+      "2 tệp giao diện ngoài bản đồ". "PASS: [KL-4-do]": bản sao bỏ kiểm quan hệ → danh sách lỗi chứa "tệp hai nhóm mà im".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-5]" và dòng "số hàng: 6": sáu nhánh, mỗi nhánh thoát 0 và 0 dòng "lệch:" — chỉ docs/; chỉ
+      _acceptance/; tệp ngoài mọi vùng có khối cấm; tệp vùng mang cặp lệch đã có ở base (in "nợ cũ: <tệp> · <khối>"); cặp
+      có ngoai_le với ly_do; xoá một dòng khác trong tệp nợ cũ (cặp vẫn in "nợ cũ", không thành "lệch:"). Đối chứng cùng
+      kho: thêm chỗ thứ hai của khối nợ cũ vào chính tệp ấy → thoát 1, một dòng "lệch:" chứa "tăng 1 → 2". "PASS: [KL-5-m1]":
+      bản lành xanh; mutant gỡ bộ lọc vùng → danh sách lỗi chứa "tệp ngoài vùng bị chấm". "PASS: [KL-5-m2]": mutant đổi
+      loại trừ thành bao gồm → danh sách lỗi chứa "nợ cũ hay ngoại lệ thành lệch".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-6]" và dòng "số hàng: 3": `import("./hop")` trong tệp vùng → "không đo được: <tệp> — nhập động";
+      `<TrangThaiMau {...p} />` → "không đo được: <tệp> — thẻ mang spread"; nhóm nhan_dien dạng sổ đăng ký → "không đo
+      được: nhóm <n> — nhan_dien dạng sổ đăng ký"; cả ba thoát 0. Design doc §7 khai ba dạng sót kèm ngưỡng DFK-C1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, scripts/gate-card.js, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-7]": `--kiem --write --slug h --den <sha>` ghi _acceptance/h/khuon-cham.json với den = sha,
+      theo_khuon/lech_moi/no_cu/khong_do bằng đếm từ đầu ra bước chấm cùng sha; `gate-card.js --root <kho> --slug h`
+      (hồ sơ verified, Cổng 2) — HTML chứa đúng một dòng khớp "Khuôn: \d+ tệp theo khuôn · \d+ lệch mới · nợ cũ \d+ ·
+      không đo \d+" với số bằng tệp; thêm design/patterns/lech-lot.md sinh từ khuôn sổ có tiêu đề, một dòng trống và 2
+      dòng mục → HTML chứa "sổ lệch lọt: 2 mục", rồi chạy lại --kiem và --dem: thoát 0, 0 sai, vẫn "3 nhóm"; xoá
+      khuon-cham.json → HTML chứa "chưa chấm khuôn trên bản đã chấm"; khuon-cham.json có den khác verified_commit → HTML
+      chứa câu ấy; cùng hồ sơ ở signed-off → không chứa câu ấy; hồ sơ verified thứ hai chỉ chạm docs/ không có
+      khuon-cham.json → không chứa câu ấy. "PASS: [KL-7-do]": bản sao thẻ bỏ nhánh cờ → danh sách lỗi chứa "thiếu tệp
+      khuôn mà không cờ". "PASS: [KL-7-do2]": bản sao bỏ so den → danh sách lỗi chứa "số khuôn của lượt cũ mà không cờ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, scripts/gate-card.js, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-8]": kho mẫu không có design/patterns/ — `--dem`, `--nap --slug h`, `--kiem`, `--kiem --write
+      --slug h --den <sha>` đều thoát 0, stdout và stderr rỗng, `git status --porcelain` không đổi; thẻ Cổng 1 và Cổng 2
+      (HTML + --extract) của hồ sơ h dựng bởi cây đang kiểm bằng từng byte bản dựng bởi `git archive <gốc vòng> scripts
+      lib` (gốc vòng = merge-base với nhánh chính). "PASS: [KL-8-do]": bản sao in dòng S0 cả khi không có thư mục → danh
+      sách lỗi chứa "kho không khai mà lệnh in".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-9]": `--nap --slug h` ghi khuon-nap.json có ghim = băm git của từng tệp bản đồ; commit thêm một
+      khối cấm mới vào bản đồ nhóm A rồi tiêm khối ấy vào tệp vùng A → bước chấm thoát 0 (chấm theo bản ghim) và in "bản đồ
+      nhóm A đổi sau khi ghim — chấm theo bản ghim"; nhóm D thêm sau ghim được chấm theo bản cây. `--goi-y-eval --nhom A`
+      in khối có paths bằng đúng [design/patterns/A.md] + nhan_dien của A, không chứa "design/patterns/**" hay glob của
+      nhóm khác. "PASS: [KL-9-do]": bản sao đọc bản cây thay bản ghim → danh sách lỗi chứa "chấm theo
+      bản cây sau khi ghim".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [scripts/design-floor-khuon.mjs, skills/acceptance/references/ux-spec-template.md, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-10]": kho mẫu ở bậc M0 (không design.surface_globs) — `--dem` in đúng "khuôn: 3 nhóm (2 màn · 1
+      phần tử)"; `--nap --slug h` in ba dòng, mỗi dòng chứa nhóm, đối tượng, nhan_viec, câu đầu sau «Dùng khi», đường tệp
+      bản đồ, đường màn mẫu của nhóm ấy; ux-spec-template.md có mục «Thẻ việc» liệt đúng năm trường "ai dùng", "việc
+      chính", "tần suất", "số bản ghi", "thiết bị"; ba khối marker KHUON-S0, KHUON-S1, KHUON-SAU-S4 của SKILL feature-loop
+      có mặt và lệnh rút từ từng khối (thay AG, slug, sha) chạy trên kho mẫu thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.khuon_loi
+    paths: [feature-loop/scripts/s4-args.mjs, scripts/ban-do-khuon.cjs, tests/scripts/khuon-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: [KL-11]" và dòng "số hàng: 4": kho mẫu có design/patterns/ và _acceptance/config.yaml tối thiểu có
+      executors.design.khuon; hồ sơ h có commit chạm tệp vùng nhóm A, evals.yaml chỉ có eval test → `s4-args.mjs --slug h
+      --root <kho> --out <tạm> --no-carry` thoát 2, stderr chứa "h", "A" và "executors.design.khuon", tệp --out không tồn
+      tại; thêm eval cmd config:executors.design.khuon → thoát 0, tệp có mặt; hồ sơ h2 chỉ chạm docs/ không eval khuôn →
+      thoát 0; cùng hồ sơ h trên bản sao kho bỏ design/patterns/ → thoát 0. "PASS: [KL-11-do]": bản lành xanh; bản sao
+      s4-args bỏ lưới (nhát tiêm khớp một lần) → danh sách lỗi chứa "thiếu eval khuôn mà vẫn sinh args".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
