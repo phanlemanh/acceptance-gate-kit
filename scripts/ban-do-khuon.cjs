@@ -19,7 +19,8 @@ const KHOA_LOI = ['nhom', 'doi_tuong', 'khuon', 'nhan_dien', 'mau_dang_chay', 'k
 const KHOA_MO_RONG = ['don_vi', 'cam_ho', 'thay_cho', 'khe_tuy_chon', 'luat', 'nhan_viec', 'lop_trinh_bay', 'thanh_phan_tang_ngan'];
 const TEN_DANH_RIENG = ['lech-lot.md', 'README.md'];
 const THU_MUC = path.join('design', 'patterns');
-const KHONG_DOC_SO_DANG_KY = 'nhan_dien dạng sổ đăng ký — thêm tep: [glob] để bước chấm biết tệp nào thuộc nhóm';
+const KHONG_DOC_SO_DANG_KY = 'nhan_dien dạng sổ đăng ký — thêm nhan_dien.tep: [glob] để bước chấm biết tệp nào thuộc nhóm';
+const TEP_CAP_DAU = 'tep cấp đầu không được đọc — glob tệp của nhóm đặt ở nhan_dien.tep';
 
 // ── YAML: scalar và flow `{…}` `[…]` một dòng ────────────────────────────────────────────────────────────────
 function boNhay(s) {
@@ -110,6 +111,11 @@ function docYaml(fm) {
 
 // ── Chuẩn hoá một nhóm ───────────────────────────────────────────────────────────────────────────────────────
 const mang = v => (Array.isArray(v) ? v.map(x => (typeof x === 'string' ? x : x)).filter(x => x !== null && x !== '') : v == null ? [] : [v]);
+// `khoi` của một ngoại lệ: một tên hay danh sách tên — mỗi tên thành một mục riêng (lint của kho đọc `khoi` là chuỗi).
+// Danh sách rỗng giữ đúng hành vi cũ: một mục `khoi: ''`, không miễn gì.
+const khoiCua = v => (Array.isArray(v) && v.length ? v.map(k => String(k == null ? '' : k)) : [Array.isArray(v) || v == null ? '' : String(v)]);
+// Tên lớp trình bày: `khuon.lop_trinh_bay` rồi khoá cấp đầu, chuỗi hay danh sách, bỏ trùng và bỏ chính tên khuôn.
+const lopTrinhBay = (ten, ...nguon) => [...new Set(nguon.flatMap(v => mang(v)).filter(x => typeof x === 'string' && x !== ten))];
 function cauDau(than, nhan) {
   // Nhận «## Dùng khi» (tiêu đề) hay «**Dùng khi:** …» / «Dùng khi: …» (dòng thân) — hai kho thử viết hai kiểu.
   const dong = String(than || '').split(/\r?\n/);
@@ -146,14 +152,25 @@ function docBanDo(text, tep) {
   try { y = docYaml(tach.fm); } catch (e) { return { nhom: null, sai: [`${tep}: YAML không đọc được — ${e.message}`], canh_bao }; }
   if (!y || typeof y !== 'object' || Array.isArray(y)) return { nhom: null, sai: [`${tep}: frontmatter không phải mapping`], canh_bao };
   for (const k of KHOA_LOI) if (!(k in y)) sai.push(`${tep}: thiếu khoá ${k}`);
-  for (const k of Object.keys(y)) if (!KHOA_LOI.includes(k) && !KHOA_MO_RONG.includes(k)) canh_bao.push(`${tep}: khoá lạ: ${k}`);
-  const khuon = y.khuon && typeof y.khuon === 'object' ? { ten: y.khuon.ten == null ? '' : String(y.khuon.ten), nhap: y.khuon.nhap == null ? '' : String(y.khuon.nhap) } : { ten: '', nhap: '' };
+  for (const k of Object.keys(y)) {
+    if (k === 'tep') canh_bao.push(`${tep}: ${TEP_CAP_DAU}`);
+    else if (!KHOA_LOI.includes(k) && !KHOA_MO_RONG.includes(k)) canh_bao.push(`${tep}: khoá lạ: ${k}`);
+  }
+  const coKhuon = y.khuon && typeof y.khuon === 'object';
+  const tenKhuon = coKhuon && y.khuon.ten != null ? String(y.khuon.ten) : '';
+  const khuon = {
+    ten: tenKhuon,
+    nhap: coKhuon && y.khuon.nhap != null ? String(y.khuon.nhap) : '',
+    lop_trinh_bay: lopTrinhBay(tenKhuon, coKhuon ? y.khuon.lop_trinh_bay : null, y.lop_trinh_bay),
+  };
   if ('khuon' in y && !khuon.ten) sai.push(`${tep}: khuon thiếu ten`);
   const mau = y.mau_dang_chay && typeof y.mau_dang_chay === 'object' ? { tep: y.mau_dang_chay.tep == null ? '' : String(y.mau_dang_chay.tep) } : { tep: y.mau_dang_chay == null ? '' : String(y.mau_dang_chay) };
   const cam = mang(y.cam_ngoai_khuon).map(String);
   const camHo = mang(y.cam_ho).map(String);
   for (const h of camHo) if (!cam.includes(h)) sai.push(`${tep}: cam_ho có tên không nằm trong cam_ngoai_khuon: ${h}`);
-  const ngoaiLe = mang(y.ngoai_le).map(x => (x && typeof x === 'object' ? { tep: String(x.tep || ''), khoi: String(x.khoi || ''), ly_do: String(x.ly_do || '').trim() } : { tep: '', khoi: String(x), ly_do: '' }));
+  const ngoaiLe = mang(y.ngoai_le).flatMap(x => (x && typeof x === 'object'
+    ? khoiCua(x.khoi).map(khoi => ({ tep: String(x.tep || ''), khoi, ly_do: String(x.ly_do || '').trim() }))
+    : [{ tep: '', khoi: String(x), ly_do: '' }]));
   for (const n of ngoaiLe) if (!n.ly_do) sai.push(`${tep}: ngoai_le thiếu ly_do (${n.tep || '?'} · ${n.khoi || '?'})`);
   const thay = y.thay_cho && typeof y.thay_cho === 'object' && !Array.isArray(y.thay_cho) ? Object.fromEntries(Object.entries(y.thay_cho).map(([k, v]) => [k, String(v)])) : {};
   const donVi = y.don_vi === 'phan-tu' ? 'phan-tu' : 'man';
@@ -274,7 +291,9 @@ function lechTrongTep(nhom, tep, noiDung) {
   const lech = [...dem].map(([khoi, so]) => ({ tep, khoi, loai: 'cam', so, ...(nhom.thay_cho[khoi] ? { thay: nhom.thay_cho[khoi] } : {}) }));
   const khong_do = [];
   const ten = nhom.khuon.ten;
-  const cucBo = [...(goc.has(ten) ? [goc.get(ten)] : []), ...ns.map(n => `${n}.${ten}`)];
+  // Tệp dựng thẳng lớp trình bày đã khai được tính là theo khuôn (Hỏi-1 của khuon-doc-ban-do-that: miễn đúng tên).
+  const tenDung = [ten, ...(nhom.khuon.lop_trinh_bay || [])];
+  const cucBo = tenDung.flatMap(t => [...(goc.has(t) ? [goc.get(t)] : []), ...ns.map(n => `${n}.${t}`)]);
   if (nhom.don_vi === 'man') {
     if (!cucBo.some(c => demThe(noi, c) > 0)) lech.push({ tep, khoi: ten, loai: 'khuon', so: 1 });
   } else if (nhom.khe_bat_buoc.length) {

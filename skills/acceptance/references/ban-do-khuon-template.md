@@ -5,16 +5,22 @@ Một tệp cho một nhóm màn (hay một nhóm phần tử). Bộ đọc dùn
 chạy — đừng chép tay sang chỗ khác.
 
 **Lõi v1 — tám khoá bắt buộc:** `nhom` · `doi_tuong` · `khuon{ten, nhap}` · `nhan_dien` · `mau_dang_chay{tep}` ·
-`khe_bat_buoc` · `cam_ngoai_khuon` · `ngoai_le[{tep, khoi, ly_do}]`. Thiếu một khoá, `ngoai_le` thiếu `ly_do` hay trỏ tệp
+`khe_bat_buoc` · `cam_ngoai_khuon` · `ngoai_le[{tep, khoi, ly_do}]` (`khoi` một tên hay danh sách tên — mỗi tên là
+một ngoại lệ riêng cùng `ly_do`). Thiếu một khoá, `ngoai_le` thiếu `ly_do` hay trỏ tệp
 không có, `cam_ho` có tên không nằm trong `cam_ngoai_khuon`, `mau_dang_chay.tep` không có, hai tệp cùng `nhom` → sai
 lược đồ (bước chấm thoát 1).
 
 **Mở rộng có tên** (đọc được, không bắt buộc): `don_vi` (`man` mặc định · `phan-tu`) · `cam_ho` (họ tên cấm: tên rồi một
 chữ hoa) · `thay_cho` (khối cấm → thành phần thay) · `khe_tuy_chon` · `luat` · `nhan_viec` · `lop_trinh_bay` ·
-`thanh_phan_tang_ngan`. Khoá khác → cờ vàng «khoá lạ», không đỏ. Thiếu «Dùng khi», «Không dùng» hay `nhan_viec` → cờ vàng.
+`thanh_phan_tang_ngan`. Khoá khác → cờ vàng «khoá lạ», không đỏ.
+
+**`lop_trinh_bay`** — tên thành phần mà khuôn bọc, một tên hay danh sách, đặt trong `khuon` hay ở cấp đầu (hai chỗ
+hợp lại). Tệp dựng thẳng thành phần ấy được tính là theo khuôn, và thẻ của nó được kiểm khe như thẻ khuôn. Kho muốn bắt
+tệp dựng thẳng lớp trình bày thì không khai khoá này, hoặc đưa tên ấy vào `cam_ngoai_khuon`. Thiếu «Dùng khi», «Không dùng» hay `nhan_viec` → cờ vàng.
 
 **`nhan_dien`** là danh sách glob tệp thuộc nhóm. Dạng sổ đăng ký (đối tượng không có `tep:`) đọc được nhưng nhóm mang
-nhãn «không đọc được ở đây» và không bị chấm — thêm `tep: [glob]` để bước chấm biết tệp nào thuộc nhóm.
+nhãn «không đọc được ở đây» và không bị chấm — thêm `nhan_dien.tep: [glob]` (khoá `tep` NẰM TRONG `nhan_dien`) để bước
+chấm biết tệp nào thuộc nhóm. Khoá `tep` đặt ở cấp đầu không được đọc — cờ vàng chỉ chỗ đúng.
 
 **YAML** viết dạng khối thụt lề hay dạng một dòng `{…}` `[…]` đều được; hai dạng cùng nội dung ra cùng bản chuẩn hoá.
 
