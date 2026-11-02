@@ -1,26 +1,56 @@
-# Review findings: khuon-loi (round 2)
+# Review findings: khuon-loi (round 3)
 
 ## Trong hợp đồng
 
-- **--write đòi HEAD bằng đúng den, nên chạy theo thứ tự SKILL thì mọi lượt PASS đều bị từ chối, vì commit gói evidence (chỉ gồm _acceptance/) đã làm HEAD đi tiếp**
-  file: `scripts/design-floor-khuon.mjs:205`
-  severity: medium
-  AC: AC-7
-  source: conventions
-  detail: Bản sửa lượt này thêm `if (head !== den) sai(...)`, tức so bằng tuyệt đối. Trong khi đó, SKILL.md dòng 497 (nhánh PASS / PENDING-JUDGMENT) bắt phiên «COMMIT NGAY gói evidence máy-viết» trước Gate 2. Gói đó gồm evidence-report, run-log, contract, evidence/, usage-report, decisions.jsonl, tất cả nằm dưới _acceptance/<slug>/. Bullet «Số đo khuôn sau lượt chấm» (dòng 499, khối KHUON-SAU-S4) lại đứng SAU bước commit đó và truyền `--den <sha lượt chấm>`. Phiên làm đúng thứ tự thì lúc gọi --write, HEAD đã là commit evidence chứ không còn là den. Lệnh thoát 2 «khác HEAD», bị khối này nuốt thành «WARN một dòng, không chặn vòng», khuon-cham.json không được ghi, và thẻ Cổng Bằng chứng hiện cờ vàng «chưa chấm khuôn trên bản đã chấm» trên mọi vòng PASS. Người ký phải đọc một cờ sai. Kiểm tra cũng tự mâu thuẫn: cây bẩn ở _acceptance/ được bỏ qua (regex `^(_acceptance|\.acceptance-runs|\.claude)\/`), nhưng cùng những tệp đó đã commit thì lại bị chặn. Ca KL-7 trong tests/scripts/khuon-loi.test.mjs chỉ ghim chiều đỏ bằng một commit rỗng («đi tiếp»). Nó không có hàng đối chứng cho trường hợp HEAD đi tiếp chỉ bằng commit trong _acceptance/, nên xanh mà không bắt được chuyện này. Hai hướng sửa. Một là nới điều kiện: cho qua khi den là tổ tiên của HEAD và `git diff --name-only den HEAD` chỉ chạm _acceptance/ · .acceptance-runs/ · .claude/, rồi thêm một hàng KL-7 cho ca đó. Hai là đo thẳng ở den như luat-san-pham.cjs --quet vẫn làm (đọc git object tại den). Nếu chọn giữ kiểm tra chặt thì phải dời khối KHUON-SAU-S4 lên trước bước commit evidence trong SKILL.
-
-- **--write refuses whenever HEAD has moved past den, even if the new commit only touches the hồ sơ, so the card's yellow flag stays on**
-  file: `scripts/design-floor-khuon.mjs:205`
-  severity: medium
-  AC: AC-7
-  source: bugs
-  detail: The new check `if (head !== den) sai(...)` compares commit SHAs, not the tree outside the hồ sơ. In feature-loop SKILL.md, the PASS branch says to COMMIT NGAY the machine-written evidence package (evidence-report.md, run-log.jsonl, contract, usage-report.md) before Gate 2. That commit only touches `_acceptance/<slug>/`, but it still moves HEAD off the sha lượt chấm (verified_commit = den). If the session commits first and then runs the KHUON-SAU-S4 block with `--den <sha lượt chấm>`, the command always exits 2 with «khác HEAD». The SKILL says «Lỗi → WARN một dòng, không chặn vòng», so khuon-cham.json is never written and the card (ban-do-khuon.cjs:330, `cham.den !== vc`) keeps showing «chưa chấm khuôn trên bản đã chấm» on every PASS hồ sơ that follows the commit-first order. The intent («số đo phải là của den») would be met by checking that `git diff --name-only den HEAD` has nothing outside `_acceptance|.acceptance-runs|.claude`, the same rule the dirty-tree check below uses. Test KL-7 only covers an `--allow-empty` commit and never the real case of a commit that touches only the hồ sơ, so it does not catch this. luat-san-pham.cjs takes the same `--den <sha lượt chấm>` and has no HEAD check, which shows the flow expects den != HEAD to be normal.
+(không có)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **The porcelain -z filter cuts 3 characters off the old path of a rename entry, so a staged rename inside _acceptance/ is refused by mistake**
+- **Bộ lọc «chỉ chạm hồ sơ» của --write miễn cả _acceptance/config.yaml, mà chính bước chấm lại đọc tệp này**
+  Người dùng thấy gì: Nếu ai đó sửa cấu hình vùng giao diện của kho sau khi chấm, tệp số đo vẫn được ghi và đóng dấu như thể số đo ấy tính từ cấu hình cũ. Hiện chưa có chỗ nào đọc con số bị ảnh hưởng nên người dùng chưa thấy gì sai.
+  Căn cứ: Hậu quả nhẹ: con số bị ảnh hưởng chưa hiện trên thẻ nào, không mất dữ liệu, và chạy chấm lại là sửa được.
+  file: `scripts/design-floor-khuon.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **git diff --name-only (rename detection mặc định bật) chỉ in đường dẫn đích, nên dời một tệp vùng vào _acceptance/ sau den vẫn qua được**
+  Người dùng thấy gì: Nếu một màn giao diện bị dời vào thư mục hồ sơ sau lần chấm, hệ thống vẫn cho ghi số đo và đóng dấu như chưa có gì thay đổi, nên số đo có thể không còn đúng với bản đã chấm. Tình huống này hiếm.
+  Căn cứ: Rất hiếm gặp, hậu quả chỉ là một con số lệch trong tệp số đo, người dùng tự chạy lại để sửa được.
+  file: `scripts/design-floor-khuon.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Chiều đỏ của răng --write mới chỉ phủ nhánh sauDen; nhánh is-ancestor không có ca, và thông điệp tu1 ghim chưa phân biệt được hai lối từ chối**
+  Người dùng thấy gì: Một lần gỡ nhầm đoạn kiểm tra sản phẩm từ chối ghi số đo khi bản chấm không nằm trên nhánh hiện tại có thể không bị bộ kiểm phát hiện. Người dùng chỉ gặp nếu sau này ai đó sửa nhầm đoạn này.
+  Căn cứ: Không ảnh hưởng người dùng hôm nay, chỉ làm mạng lưới kiểm thưa hơn ở một chỗ phụ; bổ sung ca kiểm sau này rẻ.
+  file: `tests/scripts/khuon-loi.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **KL-7: phần kiểm «không chạm tệp đã có» của nhánh commit-ngoài-hồ-sơ (tu1) không còn tác dụng vì `git reset --hard` xoá dấu vết trước khi so**
+  Người dùng thấy gì: Lời hứa rằng khi từ chối thì không đụng tới tệp số đo cũ, ở trường hợp có commit mới sau lần chấm, hiện chỉ được giữ bằng mã thoát chứ chưa được kiểm trực tiếp trên nội dung tệp. Hôm nay hành vi thật vẫn đúng.
+  Căn cứ: Hành vi thật đang đúng, chỉ là phép kiểm yếu; nếu sau này hỏng thì tệp số đo cũ bị ghi đè nhưng chạy lại là khôi phục được.
+  file: `tests/scripts/khuon-loi.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 5 (tuyên quét LỚP, chỉ có điểm-case): bộ lọc «ngoài hồ sơ» mới của --write có ba nhánh, nhưng không ca nào bắt hai nhánh mới**
+  Người dùng thấy gì: Một số cách chặn ghi số đo khi cây làm việc đã đổi chưa được bộ kiểm canh giữ, nên nếu ai đó vô tình gỡ chúng thì không có gì báo đỏ. Người dùng chỉ thấy hậu quả nếu số đo bị đóng dấu trên bản đã đổi mà không ai hay.
+  Căn cứ: Rủi ro nằm ở việc sửa đổi sau này chứ không ở hành vi hiện tại; lỗi nếu xảy ra chỉ làm số đo kém tin cậy và chạy chấm lại là sửa được.
+  file: `tests/scripts/khuon-loi.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 4 (thông điệp ghim không phân biệt): tu1 ghim chuỗi con mà cả hai lời từ chối đều chứa**
+  Người dùng thấy gì: Bộ kiểm không phân biệt được hai lý do từ chối ghi số đo vì cả hai lời báo có chung một cụm chữ. Người dùng vẫn bị từ chối đúng, chỉ là lời báo trong bài kiểm kém chính xác.
+  Căn cứ: Không có ảnh hưởng nào lên người dùng, chỉ là độ chặt của bài kiểm; sửa chủ yếu là chỉnh chữ nhưng giá trị mang lại rất nhỏ.
+  file: `tests/scripts/khuon-loi.test.mjs`
+  severity: low
+  Đề xuất: wont-fix
+
+- **The porcelain -z filter cuts 3 characters off the old path of a rename entry, so a staged rename inside _acceptance/ is refused by mistake (r2 · tệp đã đổi)**
   Người dùng thấy gì: Khi ai đó vừa đổi tên một tệp trong thư mục hồ sơ mà chưa commit, lệnh ghi số đo khuôn từ chối chạy và in một đường dẫn bị cụt chữ. Người dùng chỉ cần commit hoặc bỏ thay đổi đó rồi chạy lại là xong.
   Căn cứ: Hậu quả nhẹ: không mất dữ liệu, chỉ bị từ chối nhầm một lần ở ca hiếm, và người dùng tự gỡ được bằng cách commit rồi chạy lại.
   file: `scripts/design-floor-khuon.mjs`
