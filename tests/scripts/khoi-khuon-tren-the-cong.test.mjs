@@ -260,8 +260,8 @@ if (wantAny('KK-4')) {
     const r = the1(KIT, kho, 'j'); const k = k1(KIT, kho, 'j');
     ket('KK-4-hong', r.ma === 0 && coCo(k, CO_A) ? [] : [`khuon-nap.json hỏng: thoát ${r.ma}, cờ ${JSON.stringify(k.co)}`]);
   }
-  if (want('KK-4-do')) caDo('KK-4-do', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'const khop = bamHienTai === mau.bam;', 'const khop = true;'), 'màn mẫu đổi mà không cờ');
-  if (want('KK-4-do2')) caDo('KK-4-do2', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib'], 'scripts/ban-do-khuon.cjs', 'if (!chon) {', 'if (!napCo) {'), 'nạp không chọn mà không cờ');
+  if (want('KK-4-do')) caDo('KK-4-do', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'const khop = bamHienTai === mau.bam;', 'const khop = true;'), 'màn mẫu đổi mà không cờ');
+  if (want('KK-4-do2')) caDo('KK-4-do2', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'if (!chon) {', 'if (!napCo) {'), 'nạp không chọn mà không cờ');
 }
 
 // ── KK-5: khối «Khuôn» trên thẻ Cổng 2 ────────────────────────────────────────────────────────────────────────

@@ -168,11 +168,8 @@ export function chamKho(root, base) {
   return ra;
 }
 
-export function dongLech(x) {
-  if (x.loai === 'quan-he') return `lệch: ${x.tep} · thuộc hai nhóm màn: ${x.nhom}`;
-  const khoi = x.loai === 'khuon' ? `khuôn ${x.khoi}` : x.khoi;
-  return `lệch: ${x.tep} · ${khoi} · nhóm ${x.nhom}${x.thay ? ` · dùng ${x.thay}` : ''}${x.tu > 0 ? ` · tăng ${x.tu} → ${x.den_so}` : ''}`;
-}
+// Một nguồn với thẻ Cổng Bằng chứng (KH2): chuỗi sống ở bộ đọc.
+export const dongLech = B.dongLech;
 export function inCham(ra) {
   return [
     ...ra.sai.map(s => `sai: ${s}`),
