@@ -16,7 +16,7 @@ import { docNhomKeHoach, docTenViec } from './nguon-hang.mjs';
 import { dongHoi, ghiHoi, hoiMo } from './hoi.mjs';
 import { chuKhung } from './khung.mjs';
 import { ghiVai, nhanVaiGiamSat } from './vai.mjs';
-import { ghiDon, ghiNhatKyCli, ghiTraLoi, ghiYeuCau, kiemGiamSat, nhaKhoa } from './ghi.mjs';
+import { ghiDon, ghiNhatKyCli, ghiTraLoi, ghiYeuCau, kiemGiamSat, lenhChoDon, nhaKhoa } from './ghi.mjs';
 import { tiepTuc } from './tiep-tuc.mjs';
 import { danhThuc } from './danh-thuc.mjs';
 import { ghiLanDoc } from './han-muc.mjs';
@@ -320,7 +320,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
   if (lenh === 'gop') {
     try {
       const kq = gop(cwd, doiSo, { slug: typeof co.slug === 'string' ? co.slug : null, xet: co.xet === true });
-      process.stdout.write(`gop #${doiSo}: ${kq.duong}${kq.da_gop ? ' · đã gộp' : ''} — ${kq.ly_do}\n`);
+      process.stdout.write(`gop #${doiSo}: ${kq.duong}${kq.da_gop ? ' · đã gộp' : ''}${kq.nha_merge ? ' · đã nhả khoá merge' : ''} — ${kq.ly_do}\n`);
       process.exit(maThoatGop(kq));
     } catch (e) {
       process.stderr.write(`dieu-phoi: ${e.message}\n`);
@@ -400,7 +400,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         const kq = tiepTuc(cwd, { phien: typeof co.phien === 'string' ? co.phien : null, nhe: co.nhe === true, chay: chayPhatLich });
         return co.json ? JSON.stringify(kq) : kq.thoi_vai ? `phiên này đã thôi giám sát đợt ${path.basename(kq.dot).replace(/^dieu-phoi-/, '')}` : JSON.stringify(kq, null, 2);
       },
-      xin: () => ghiDon(cwd, { loai: doiSo, uocPhut: typeof co['uoc-phut'] === 'string' ? co['uoc-phut'] : null, moMerge: co['mo-merge'] === true, slug: typeof co.slug === 'string' ? co.slug : null }),
+      // Dòng đầu vẫn là đường đơn (người gọi cũ đọc nó); dòng hai là lệnh chờ đã giải khoá (#477 lỗi 4).
+      xin: () => `${ghiDon(cwd, { loai: doiSo, uocPhut: typeof co['uoc-phut'] === 'string' ? co['uoc-phut'] : null, moMerge: co['mo-merge'] === true, slug: typeof co.slug === 'string' ? co.slug : null })}\nchờ (chạy nền): ${lenhChoDon(cwd, doiSo)}`,
       nha: () => nhaKhoa(cwd, doiSo, { ma: typeof co.ma === 'string' ? co.ma : null, haTang: typeof co['ha-tang'] === 'string' ? co['ha-tang'] : null }),
       'hieu-chuan': () => {
         const thuMuc = thuMucHienTai(cwd);

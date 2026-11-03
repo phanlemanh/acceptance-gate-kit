@@ -13,6 +13,7 @@
 // merge-base), nên tập «tệp vào nhánh chính từ base» chỉ có thể rộng hơn cái CI chưa thấy — phép so dư về phía an toàn.
 // Lệnh gộp luôn `--merge --match-head-commit <sha>`, KHÔNG `--auto`: đầu nhánh đổi sau lúc xét thì gh từ chối.
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { docJson, ghiSuKien, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { docCauHinh, docHangViec } from './hinh-dang.mjs';
@@ -98,8 +99,12 @@ export function gop(cwd, pr, { slug = null, xet = false, io = IO_THAT(cwd) } = {
   const kq = xetGop({ io, cfg, pr, slug: s });
   const gopNgay = !xet && GOP_DUOC.includes(kq.duong);
   if (gopNgay) io.chay('gh', ['pr', 'merge', String(pr), '--merge', '--match-head-commit', kq.sha]);
-  ghiSuKien(thuMuc, { loai: 'gop', pr: Number(pr), hang: s, phien: day, duong: kq.duong, sha: kq.sha ?? null, da_gop: gopNgay, ly_do: kq.ly_do, ...(kq.trung ? { trung: kq.trung.slice(0, 20) } : {}) });
-  return { ...kq, da_gop: gopNgay };
+  // Gộp xong thì khoá merge hết việc (#477 lỗi 3c): nhả ngay, không để treo tới hết hạn thuê. Chỉ nhả khoá của CHÍNH
+  // dãy — lối không gộp đã đòi chu.phien === day ở trên.
+  const nhaMerge = gopNgay && chu?.phien === day;
+  if (nhaMerge) fs.rmSync(path.join(thuMuc, 'khoa', 'merge'), { recursive: true, force: true });
+  ghiSuKien(thuMuc, { loai: 'gop', pr: Number(pr), hang: s, phien: day, duong: kq.duong, sha: kq.sha ?? null, da_gop: gopNgay, nha_merge: nhaMerge, ly_do: kq.ly_do, ...(kq.trung ? { trung: kq.trung.slice(0, 20) } : {}) });
+  return { ...kq, da_gop: gopNgay, nha_merge: nhaMerge };
 }
 
 export const maThoatGop = (kq) => (GOP_DUOC.includes(kq.duong) ? 0 : kq.duong === 'chan' ? 1 : 4);

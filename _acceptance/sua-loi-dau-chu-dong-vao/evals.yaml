@@ -1,0 +1,123 @@
+schema_version: 1
+feature_slug: sua-loi-dau-chu-dong-vao
+# Ca đo của vòng, ba tệp (đường dẫn trong mọi tệp suy từ vị trí tệp, đợt thử và kho thử do code sinh trong lượt):
+#   tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs — ca «SD-<n>» = AC-<n> (n = 1..6), node:test; cũng chạy trong
+#     khoá dieu_phoi* của suite (glob tests/dieu-phoi/**/*.test.mjs). Khoá: executors.script.sd_dieu_phoi.
+#   tests/scripts/s4-args-dev-server.test.mjs — ca «DS-<n>» (AC-7, nửa s4-args). Khoá: executors.script.sd_s4_args.
+#   tests/workflows/ui-check-tuan-tu.test.mjs — ca «UT-<n>» (AC-7 nửa workflow, AC-8) chạy CHÍNH acceptance-verify.js qua
+#     tests/workflows/harness.mjs. Khoá: executors.script.sd_ui_tuan_tu.
+# Chiều đỏ của SD-* và DS-*: LỊCH SỬ — commit ca đứng TRƯỚC commit vật, và ca đỏ trên commit ấy với thông điệp ghim dưới
+# (ghi số ở decisions.jsonl lúc S3). Chiều đỏ của UT-*: thêm đột biến trong bộ nhớ (srcOverride của harness) — kim khớp
+# ĐÚNG một lần trong nguồn thật trước khi tin màu đỏ. Mỗi ca có đối chứng dương trên CÙNG fixture.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-1 …»: hàng C sau:['b'] (slug của B, B mang ma 'B'), B gộp → chonHangKe giao C; đối
+      chứng cùng fixture: B chưa gộp → {hang:null, cho:'phu-thuoc'}; C sau:['B'] (mã) → giao C như cũ. Chiều đỏ (commit
+      ca, trước vật): SD-1 «not ok» — kết quả {hang:null, cho:'phu-thuoc'} khác {hang:'c', moi:true}.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-2 …»: đợt thử, hàng a sau:['zzz']; motNhip thật (io giả) ghi tiep/P1.json; tệp ấy mang
+      sau_khong_co ['a→zzz'], hang null, cho 'phu-thuoc' (cùng phán quyết bản trước); hangKeTuTiep đọc chính tệp ấy trả
+      ly_do chứa "sau trỏ hàng không có: a→zzz"; đối chứng cùng fixture: chonHangKe với sau trỏ hàng có thật chưa gộp →
+      không có sau_khong_co. Chiều đỏ: SD-2 «not ok» vì tiep thiếu sau_khong_co.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/mau/LUAT.md, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-3 …»: đợt thử, CLI `dieu-phoi.mjs xin ghim-lai --slug s` (tiến trình con thật) thoát 0,
+      stdout chứa lệnh chờ trỏ `<đợt>/khoa/s4/chu.json`, không chứa `khoa/ghim-lai`; round-trip: đường rút từ stdout VẮNG
+      trước nhịp, motNhip thật (io giả) cấp đơn, sau nhịp đường ấy tồn tại và chu.json mang phien P1, loai ghim-lai; `xin
+      s4` → `khoa/s4/chu.json`, `xin merge` → `khoa/merge/chu.json`; phụ: mẫu LUAT.md không còn `khoa/<tài
+      nguyên>/chu.json` và chứa "lệnh chờ mà `xin` in". Chiều đỏ: SD-3 «not ok» — stdout chỉ là đường đơn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-4 …»: dãy P1 giữ khoa/s4 → CLI `nha ghim-lai` thoát 0, stdout "nha: đã nhả s4", khoa/s4
+      vắng; `nha khoa-la` thoát 1, stderr chứa "«khoa-la» không phải loại hay tài nguyên" và "s4, ghim-lai, duong-nen,
+      merge", khoá đang giữ còn; khoa/s4 đứng tên P2 → `nha ghim-lai` từ P1 thoát 1, stderr chứa "không do P1 giữ (P2)",
+      khoá còn; đối chứng: `nha merge` khi vắng khoá thoát 0, stdout "không có — không làm gì". Chiều đỏ: SD-4 «not ok» —
+      `nha ghim-lai` in "khoá ghim-lai không có" và khoa/s4 còn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/gop.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-5 …»: kho git thật + origin trần, chỉ gh giả; gop gộp lối khong-trung → da_gop true,
+      khoa/merge vắng, sự kiện gop mang nha_merge: true; đối chứng cùng fixture lối cu (nhánh chính tiến bằng chính tệp
+      PR) → da_gop false, khoa/merge còn, chu.phien P1. Chiều đỏ: SD-5 «not ok» — khoa/merge còn sau gộp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.sd_dieu_phoi
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs]
+    expected: >
+      exit 0; dòng «ok … - SD-6 …»: motNhip với io giả (git show trả hợp đồng đã thông cho slug a), trang-thai.json
+      chưa có a trong gop_da_bao: khoa/s4 của P1 slug a, còn hạn, nhịp vừa chạm → bị xoá, sự kiện thu-hoi ly_do "hồ sơ a
+      đã gộp trên nhánh chính", can_phan false; do-lan.jsonl có đúng một dòng slug a với ket_thuc "nha". Đối chứng cùng
+      fixture: (i) git show ném (chưa gộp) → khoá còn; (ii) a đã có trong gop_da_bao (gộp từ nhịp trước) → khoá còn;
+      (iii) chưa gộp, hạn thuê đã qua, nhịp cũ 60′ → khoá thu hồi và dòng sổ đo mang ket_thuc "thu-hoi". Chiều đỏ: SD-6
+      «not ok» — khoa/s4 còn sau nhịp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.sd_s4_args
+    paths: [feature-loop/scripts/s4-args.mjs, tests/scripts/s4-args-dev-server.test.mjs]
+    expected: >
+      exit 0; "PASS: DS-1": kho thử config khai dev_server.url "http://localhost:4173" + một eval ui-check → args.json
+      có devServerUrl "http://localhost:4173"; "PASS: DS-2": cùng kho bỏ khối dev_server → s4-args thoát 0, args không
+      có khoá devServerUrl; "PASS: DS-3": eval ui-check trong args không có khoá target. Chiều đỏ: DS-1 FAIL
+      "devServerUrl phai la http://localhost:4173 (undefined)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.sd_ui_tuan_tu
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/ui-check-tuan-tu.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; "PASS: UT-2": devServerUrl lấy từ args.json do s4-args THẬT sinh trên kho thử khai dev_server.url
+      "http://localhost:4173" (round-trip bên viết → bên đọc) → prompt của mọi lời gọi nhãn ui:E* chứa giá trị ấy; vắng
+      devServerUrl → prompt chứa "config chưa khai dev_server.url". "PASS: UT-2-do": bản sao bỏ dòng tiêm (kim khớp đúng 1
+      lần) → kiểm UT-2 đỏ. Chiều đỏ lịch sử: UT-2 FAIL trên commit ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.sd_ui_tuan_tu
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/ui-check-tuan-tu.test.mjs, tests/workflows/harness.mjs]
+    expected: >
+      exit 0; "PASS: UT-1": hai eval ui-check, agent giả ghi cờ start/end (setTimeout) → khoảng [start,end] của ui:E1 và
+      ui:E2 không chồng, mỗi nhãn đúng một lời gọi, report có cả hai; cùng lượt một lệnh machine: chồng với khối ui (song
+      song giữ). "PASS: UT-1-do": bản sao trả khối ui về parallel() (kim khớp đúng 1 lần) → kiểm UT-1 đỏ (chồng). Chiều đỏ
+      lịch sử: UT-1 FAIL trên commit ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.pmlk_e1
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    expected: >
+      exit 0; khoá có sẵn của hồ sơ pre-merge-doc-lib-theo-kit: "Results: 4 passed, 0 failed", "PASS: LK1 kho-khong-lib",
+      "PASS: LK1 ban-goc", "PASS: LK1-do chi-goc-kho" (thông điệp «không đọc được mục «Known limits» (fail-closed)»),
+      "PASS: LK1-do ooc-goc-kho".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
