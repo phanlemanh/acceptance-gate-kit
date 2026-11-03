@@ -101,7 +101,7 @@ evals:
       Exit 0 và dòng «XANH: hai tập bằng nhau» — tập hồ sơ ĐƯỢC KÝ trong cửa sổ `4f891b07..HEAD`, suy từ kho bằng QUAN HỆ
       (bỏ hồ sơ mốc `release-*`), BẰNG tập kể trong Context (va-design-floor-kho-lon-nhanh-chinh,
       pre-merge-doc-lib-theo-kit, quet-het-han-khong-moi-ky, run-id-danh-sach-cho-phep, chi-tep-vat-keo-xet-lai,
-      khuon-loi, khuon-doc-ban-do-that). Chiều đỏ trong chính lệnh: slug thừa và slug thiếu đều in tên, thoát 1.
+      khuon-loi, khuon-doc-ban-do-that, sua-loi-dau-chu-dong-vao). Chiều đỏ trong chính lệnh: slug thừa và slug thiếu đều in tên, thoát 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -143,19 +143,19 @@ evals:
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-37-0/contract.md, _acceptance/va-design-floor-kho-lon-nhanh-chinh/contract.md, _acceptance/pre-merge-doc-lib-theo-kit/contract.md, _acceptance/quet-het-han-khong-moi-ky/contract.md, _acceptance/ten-may-mot-luat/contract.md, _acceptance/run-id-danh-sach-cho-phep/contract.md, _acceptance/chi-tep-vat-keo-xet-lai/contract.md, _acceptance/khuon-loi/contract.md, _acceptance/khuon-doc-ban-do-that/contract.md, GUIDE.md, skills/acceptance/references/ban-do-khuon-template.md, dieu-phoi/README.md, commands/acceptance-init.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-37-0/contract.md, _acceptance/va-design-floor-kho-lon-nhanh-chinh/contract.md, _acceptance/pre-merge-doc-lib-theo-kit/contract.md, _acceptance/quet-het-han-khong-moi-ky/contract.md, _acceptance/ten-may-mot-luat/contract.md, _acceptance/run-id-danh-sach-cho-phep/contract.md, _acceptance/chi-tep-vat-keo-xet-lai/contract.md, _acceptance/khuon-loi/contract.md, _acceptance/khuon-doc-ban-do-that/contract.md, _acceptance/sua-loi-dau-chu-dong-vao/contract.md, GUIDE.md, skills/acceptance/references/ban-do-khuon-template.md, dieu-phoi/README.md, commands/acceptance-init.md]
     question: >
       Đọc AC-9 của contract release-2-37-0 và mục «## 2.37.0» của CHANGELOG.md (chỉ mục đó), cạnh đúng nguồn nó chép.
-      (0) Ở các mục con của tám hồ sơ: mỗi câu mô tả vòng (dòng «Gốc:», gạch «Vật:» chép dòng feature, giới hạn trích trong
+      (0) Ở các mục con của chín hồ sơ: mỗi câu mô tả vòng (dòng «Gốc:», gạch «Vật:» chép dòng feature, giới hạn trích trong
       ngoặc «») có phải chữ của hợp đồng hồ sơ ấy (dòng feature, Context, Notes) — không tóm tắt, không nói rộng hơn — và
       số giới hạn đã khai (số mục chọn ở Cổng Bằng chứng mỗi ngày) có khớp Notes không? (1) Lời về bộ đọc bản đồ khuôn,
       bước chấm khuôn (lệch, nợ cũ, `khuon-cham.json`, dòng «Khuôn» trên thẻ), ngoại lệ `khoi` dạng danh sách, lớp trình bày
       đã khai và `nhan_dien.tep` có khớp GUIDE §5.2, khuôn tệp ban-do-khuon-template.md và hai hợp đồng khuon-loi,
-      khuon-doc-ban-do-that không? (2) Lời về luật tên máy của gói dieu-phoi có khớp dieu-phoi/README.md không? (3) Lời về
+      khuon-doc-ban-do-that không? (2) Lời về luật tên máy của gói dieu-phoi có khớp dieu-phoi/README.md, và lời về `sau` trỏ slug, lệnh chờ của `xin`, `nha` theo loại, `gop` nhả khoá, thu hồi khoá khi hồ sơ đã gộp, `devServerUrl` và ui-check chạy lần lượt có khớp hợp đồng sua-loi-dau-chu-dong-vao không? (3) Lời về
       lớp chép CI (`lib/evidence-core.cjs` và `scripts/pre-merge-check.sh`) có khớp nhãn trong khối INIT-CI-COPY-LIST của
       commands/acceptance-init.md không? (4) Đoạn «Vì sao 2.37.0» và «Ai bị ảnh hưởng» có nói thẳng các đổi hành vi chạm kho
       đang dùng — lượt chấm S4 dừng hồ sơ chạm vùng nhóm mà thiếu eval khuôn; lưới trước gộp không kéo hồ sơ vào xét bằng
-      chứng cũ khi PR chỉ sửa tệp chữ; mã lượt rác thành mã đúc — và nói thẳng giới hạn chủ kho chọn «cắt trước» (mục
+      chứng cũ khi PR chỉ sửa tệp chữ; mã lượt rác thành mã đúc; `nha` tên lạ thoát 1 thay vì im; nhiều eval ui-check chạy lần lượt — và nói thẳng giới hạn chủ kho chọn «cắt trước» (mục
       `ngoai_le` không `khoi` chưa được hiểu là tệp rời nhóm, kho viết như thế thấy báo oan tới mốc kế) không, và căn cứ chọn
       minor (bề mặt mới) có đúng với nếp đã khai ở các đoạn «Vì sao» của mục 2.36.0 và 2.33.1 không? Trả PASS khi cả năm vế
       đúng; FAIL nêu đúng vế và câu sai.

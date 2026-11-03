@@ -25,12 +25,13 @@ Mốc lộ trình: «Phát hành 2.37.0».
 02/11 «Vá trước» — mở `khuon-doc-ban-do-that` trước khi cắt; 03/11 «Cắt trước» — sau khảo sát kho thứ hai
 (`docs/findings/2026-11-03-ban-do-khuon-quy-hang-va-ke-hoach-kit.md`, nhánh `claude/khao-sat-ban-do-khuon-quy-hang-f55a61`,
 commit `e10ac284`), cắt 2.37.0 như đang có, bản vá V0 (bộ đọc hiểu `ngoai_le` không `khoi` là «tệp rời nhóm») đi ở
-mốc kế.
+mốc kế; 03/11 «Chờ #478 gộp» — mốc chờ năm bản vá Điều phối – Thợ của issue #477 (hồ sơ `sua-loi-dau-chu-dong-vao`,
+kho chờ nhận onehub-quy-hang) vào nhánh chính rồi mới cắt.
 
 **Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ:
 `va-design-floor-kho-lon-nhanh-chinh` (#465) · `pre-merge-doc-lib-theo-kit` (#466) · `quet-het-han-khong-moi-ky` (#469) ·
 `run-id-danh-sach-cho-phep` (#472) · `chi-tep-vat-keo-xet-lai` (#474) · `khuon-loi` (#475) · `khuon-doc-ban-do-that`
-(#476). **Máy thông, không chữ ký người** (không vào tập của AC-4 vì `rel-cua-so.sh` chỉ đếm `signed-off`):
+(#476) · `sua-loi-dau-chu-dong-vao` (#478). **Máy thông, không chữ ký người** (không vào tập của AC-4 vì `rel-cua-so.sh` chỉ đếm `signed-off`):
 `ten-may-mot-luat` (#471). Ngoài vòng: #456 (báo cáo đợt `tinh-chinh-2610`) · #457 và #462 (ghi chú nhận 2.36.0) ·
 #458 (bản phạm vi bản đồ khuôn 31/10).
 
@@ -41,7 +42,7 @@ veto số ở Cổng Bằng chứng. Năm dòng số, dự báo, điều kiện 
 của `CHANGELOG.md` — một nguồn, hồ sơ không chép lại.
 
 Source input: `git log v2.36.0..HEAD --first-parent` · nếp phát hành `_acceptance/release-2-36-0/` · Notes và Known
-limits của tám hồ sơ · GUIDE §5.2 · `skills/acceptance/references/ban-do-khuon-template.md` · `dieu-phoi/README.md` ·
+limits của chín hồ sơ · GUIDE §5.2 · `skills/acceptance/references/ban-do-khuon-template.md` · `dieu-phoi/README.md` ·
 finding 03/11 §5.2 và §10.
 
 ## Criteria
@@ -71,7 +72,7 @@ finding 03/11 §5.2 và §10.
 - Bản vá V0 (bộ đọc hiểu `ngoai_le` không `khoi` là «tệp rời nhóm») — chủ kho 03/11 «Cắt trước»; đi ở mốc kế.
 - Gộp nhánh khảo sát `claude/khao-sat-ban-do-khuon-quy-hang-f55a61` (finding + hạt giống 03/11) — PR riêng, không đi trong PR mốc.
 - Ghi chú nhận riêng cho crm và onehub-quy-hang ngoài mục CHANGELOG — việc của phiên điều phối sau khi gắn thẻ.
-- Sửa Known limits của tám hồ sơ — vòng sau.
+- Sửa Known limits của chín hồ sơ — vòng sau.
 - Cài 2.37.0 vào crm và onehub-quy-hang, khai `executors.design.khuon` ở kho tiêu thụ — việc của kho nhận sau mốc.
 
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
@@ -83,5 +84,6 @@ finding 03/11 §5.2 và §10.
   kèm lý do «Cắt trước»; vẽ lại `LO-TRINH.html` và `PRODUCT-MAP.md`. Bốn khoá executor `rel2370_*` trong
   `_acceptance/config.yaml`.
 - Điều kiện tin cậy (i) của dòng 4–5 ĐỔI ở cửa sổ này: `feature-loop/workflows/acceptance-verify.js` đổi (mã lượt theo
-  khối RUN-ID-HINH, `run-id-danh-sach-cho-phep`) — đổi kèm ca cả hai chiều trong hồ sơ ấy; đường finder → refute →
+  khối RUN-ID-HINH, `run-id-danh-sach-cho-phep`; lời gọi người chấm ui-check mang `devServerUrl` và các người chấm ui-check
+  chạy lần lượt, `sua-loi-dau-chu-dong-vao`) — mỗi đổi kèm ca cả hai chiều trong hồ sơ của nó; đường finder → refute →
   REJECT không đổi thành phần.

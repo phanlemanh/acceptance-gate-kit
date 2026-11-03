@@ -17,10 +17,12 @@ của kho bằng một bộ đọc dùng chung; bước chấm đọc đúng b�
 design-floor kẹt M0 ở kho lớn, lưới trước gộp đọc thư viện ở gốc kho tiêu thụ, thẻ cửa veto mời ký nhầm khi bộ quét hết
 hạn, tên máy có dấu cách làm tin nằm chết, mã lượt rác được mang sang lượt sau, sửa tệp chữ kéo cả trăm hồ sơ vào ghim
 lại. Chủ kho 01/11 giao một mốc thay cho cắt 2.36.1 riêng — năm vòng vá vốn ghi đích 2.36.1 hay 2.36.2 ở Out of scope
-nay vào 2.37.0. Có **bảy hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc):
+nay vào 2.37.0. Chủ kho 03/11 «Chờ #478 gộp»: mốc mang thêm **năm bản vá Điều phối – Thợ** của issue #477 (đợt
+`dau-chu-dong-vao` của onehub-quy-hang). Có **tám hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4
+của hồ sơ mốc):
 `va-design-floor-kho-lon-nhanh-chinh` (#465), `pre-merge-doc-lib-theo-kit` (#466), `quet-het-han-khong-moi-ky` (#469),
 `run-id-danh-sach-cho-phep` (#472), `chi-tep-vat-keo-xet-lai` (#474), `khuon-loi` (#475), `khuon-doc-ban-do-that`
-(#476) — và **một hồ sơ máy thông**, không chữ ký người: `ten-may-mot-luat` (#471). Ngoài vòng: #456 · #457 · #458 ·
+(#476), `sua-loi-dau-chu-dong-vao` (#478) — và **một hồ sơ máy thông**, không chữ ký người: `ten-may-mot-luat` (#471). Ngoài vòng: #456 · #457 · #458 ·
 #462. Kho chờ nhận: `crm` trước, `onehub-quy-hang` sau. Mốc đi **làn V**, không dựng răng mới. Năm gói
 `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.37.0` (`acceptance-gate`,
 `feature-loop`, `dieu-phoi` đổi vật; `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.37.0`
@@ -30,9 +32,10 @@ gắn vào commit gộp PR mốc.
 đọc-cũ — bộ đọc `scripts/ban-do-khuon.cjs`, lệnh khuôn `scripts/design-floor-khuon.mjs` (`--dem`, `--tao`, `--nap`,
 `--goi-y-eval`, `--kiem`), tệp `khuon-cham.json`, khoá `executors.design.khuon`, dòng «Khuôn» trên thẻ Cổng Bằng chứng,
 khối `KHUON-S0`, `KHUON-S1`, `KHUON-SAU-S4` của feature-loop. Kho không khai `design/patterns/` không đi qua đường nào
-mới. Ba đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị ảnh hưởng» dưới: lượt chấm S4 dừng hồ sơ chạm vùng một
+mới. Năm đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị ảnh hưởng» dưới: lượt chấm S4 dừng hồ sơ chạm vùng một
 nhóm khuôn mà thiếu eval khuôn; lưới trước gộp không kéo hồ sơ vào xét bằng chứng cũ khi PR chỉ sửa tệp chữ; mã lượt
-sai hình dạng thành mã đúc và eval mang mã ấy chạy lại. Và một giới hạn chủ kho chọn giữ: **cắt trước, vá sau** (03/11)
+sai hình dạng thành mã đúc và eval mang mã ấy chạy lại; `nha` của Điều phối – Thợ với tên lạ thoát 1 thay vì «không làm
+gì»; lượt chấm có từ hai eval ui-check chạy người chấm ui-check lần lượt. Và một giới hạn chủ kho chọn giữ: **cắt trước, vá sau** (03/11)
 — bước chấm khuôn chưa hiểu mục `ngoai_le` không có `khoi`.
 
 ### Bậc design-floor đúng ở kho lớn và nhánh chính tên khác (hồ sơ `va-design-floor-kho-lon-nhanh-chinh`, hàng #460, T2)
@@ -162,6 +165,25 @@ thấy ba chỗ bước chấm nói sai trên cách viết mà khuôn tệp kit 
 - **Giới hạn đã khai:** 4 mục chọn ở Cổng Bằng chứng 03/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-4 «Một số ca chiều đỏ
   có thể đỏ vì một lỗi khác lỗi định bắt, nên chưa chứng minh chắc máy bắt đúng lỗi được tiêm.»
 
+### Điều phối thôi kẹt hàng, thôi treo khoá; người chấm ui-check biết URL bản dev (hồ sơ `sua-loi-dau-chu-dong-vao`, T2)
+
+Gốc: issue phanlemanh/acceptance-gate-kit#477 — năm lỗi kit v2.36.0 gặp trong đợt `dau-chu-dong-vao` của
+onehub-quy-hang (5 dãy, 35 hàng gộp, 53 PR), đều đã lách tay; lỗi (a) của nhóm 3/4 đã báo ở #403 §3 ngày 23/10.
+
+- **Vật:** Điều phối thôi kẹt hàng vì `sau` trỏ slug, thôi treo khoá sau gộp và thôi canh nhầm khoá ghim lại; người
+  chấm ui-check biết URL bản dev và chạy lần lượt — sửa năm lỗi của đợt dau-chu-dong-vao (#477) cho mốc 2.37.0
+- **Điều phối – Thợ** (gói `dieu-phoi`): `sau` khai bằng slug của hàng có `ma` được hiểu như khai bằng mã; `sau` trỏ
+  chuỗi không khớp mã hay slug nào thì hàng vẫn chờ `phu-thuoc` và kết quả mang `sau_khong_co` «<slug hàng>→<chuỗi>»;
+  `xin ghim-lai` in lệnh chờ trỏ `khoa/s4/chu.json`, mẫu LUAT bảo thợ chép đúng lệnh chờ do `xin` in; `nha ghim-lai`
+  nhả `khoa/s4`, `nha` tên lạ thoát 1 nêu bảng tên hợp lệ; `gop` gộp thành công thì `khoa/merge` tự nhả; bộ phát lịch
+  thu hồi khoá có trước lúc hồ sơ `chu.slug` vừa sang đã gộp trên nhánh chính, lý do «hồ sơ <slug> đã gộp trên nhánh
+  chính».
+- **Lượt chấm S4:** hồ sơ có eval ui-check và `_acceptance/config.yaml` khai `dev_server.url` → args mang
+  `devServerUrl`, lời gọi người chấm ui-check chứa giá trị ấy, vắng thì chứa «config chưa khai dev_server.url»; eval
+  không có trường `target` mới. Hai người chấm ui-check không chạy chồng nhau; khối ui vẫn chạy song song với lệnh máy.
+- **Giới hạn đã khai:** 3 mục chọn ở Cổng Bằng chứng 03/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-2 «Lệnh chờ do
+  `xin` in không bọc nháy đường khoá — kho dưới thư mục có dấu cách thì thợ chờ mãi mà không báo lỗi.»
+
 ### Ngoài vòng
 
 - **Báo cáo đợt `tinh-chinh-2610`** (#456): chỉ thêm `docs/plans/dot-tinh-chinh-2610/BAO-CAO.md` — tổng kết đợt
@@ -204,6 +226,12 @@ thấy ba chỗ bước chấm nói sai trên cách viết mà khuôn tệp kit 
   hay nợ cũ báo oan; bản vá đi ở mốc kế. Số đo và lý do: `docs/findings/2026-11-03-ban-do-khuon-quy-hang-va-ke-hoach-kit.md`
   §5.2 và §10 (nhánh `claude/khao-sat-ban-do-khuon-quy-hang-f55a61`, commit `e10ac284`) — trên bản sao kho ấy, kit
   `428b2773` ra 10 lệch mới và 6 nợ cũ khi bộ đo của kho ra 0.
+- Kho chạy Điều phối – Thợ: hàng khai `sau` bằng slug thôi kẹt; `nha <tên lạ>` thoát 1 thay vì thoát 0 «không làm gì»;
+  `gop` thành công tự nhả `khoa/merge` (gọi `nha merge` sau đó vẫn thoát 0 «không có»); bộ phát lịch thu hồi khoá của
+  hồ sơ vừa gộp với sự kiện `thu-hoi`. Đợt đang chạy giữ `LUAT.md` đã chép lúc mở đợt — đợt mở sau khi nhận mới có
+  dòng «chép đúng lệnh chờ do `xin` in».
+- Mọi kho chạy lượt chấm S4: hồ sơ có từ hai eval ui-check chạy người chấm ui-check lần lượt — khối ui dài hơn ở hồ sơ
+  ấy (đường găng chỉ dài ra khi khối ui dài hơn khối lệnh máy). Kho khai `dev_server.url`: lời gọi người chấm mang URL.
 
 **Đường đọc-cũ:** kho không khai `design/patterns/` → mọi lệnh khuôn im, thẻ hai cổng bằng từng byte bản trước; kho nhỏ
 có nhánh chính `main` → design-floor y như 2.36.0; kho chép lớp CI → lưới trước gộp đọc `lib/` của gốc kho như trước
@@ -223,6 +251,8 @@ kênh liên máy như cũ.
 - **Kho có `design/patterns/`:** khai `executors.design.khuon` (GUIDE, khối «Bản đồ khuôn») và thêm eval khuôn cho hồ sơ
   chạm vùng một nhóm (`design-floor-khuon.mjs --goi-y-eval --nhom <nhóm>`), nếu không lượt chấm S4 của hồ sơ ấy dừng.
   Glob tệp của nhóm đặt ở `nhan_dien.tep`.
+- **Kho chạy Điều phối – Thợ:** nâng gói `dieu-phoi` lên `v2.37.0` trước khi mở đợt kế (mẫu LUAT mới chỉ vào đợt mở
+  sau khi nhận); thợ của đợt đang chạy chờ khoá bằng lệnh `xin` in, không tự ghép `khoa/<tài nguyên>`.
 
 **Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.37.0` (KC1) — dòng TỔNG KẾT ghi vào
 hồ sơ `release-2-37-0`.
@@ -232,14 +262,15 @@ hồ sơ đã ký của crm — nhận theo các bước trên; kho khai bản �
 `nhan_dien.tep` hẹp (chỉ tệp ngăn) — số SAU của `khuon-doc-ban-do-that` trên bản sao crm: 0 báo oan.
 
 **onehub-quy-hang** (nhận sau): kho tự dựng bộ đọc, răng và số đo bản đồ khuôn của riêng nó; trước khi bỏ mã trùng, đọc
-giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_le` không `khoi` của kho sẽ báo oan cho tới mốc kế.
+giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_le` không `khoi` của kho sẽ báo oan cho tới mốc kế. Năm bản vá
+Điều phối – Thợ có gốc ở đợt `dau-chu-dong-vao` của kho này: nâng `KIT_TAG` lên `v2.37.0` trước đợt `dau-khach-nhap`.
 
-**Năm dòng số của luật (c)**: tám vòng gộp trong cửa sổ (giờ VN). Định nghĩa giữ như mốc 2.36.0: làm-xong = commit
+**Năm dòng số của luật (c)**: chín vòng gộp trong cửa sổ (giờ VN). Định nghĩa giữ như mốc 2.36.0: làm-xong = commit
 đưa hợp đồng sang `implemented` · ký = commit đầu đưa `status:` sang `signed-off` (hồ sơ máy thông thì lấy commit sang
 `machine-cleared`) · gộp = commit đầu trên lối cha-đầu của nhánh chính có commit ký là tổ tiên. Dòng 2 đếm từ sổ quyết
 định, phần `decided_by`/`decided_at` của `opportunity.md` và các commit cổng. Kho kit không có sổ sự kiện đợt. Dòng
 4–5 lấy từ bảng vai trò của `usage-report.md`. Phút ghim lại lấy `wall_s` của các dòng `repin`/`repin-do` trong
-`run-log.jsonl`, kể cả làn chung ghi ở `ra-co-ten-lam-va-trao`. Sáu hồ sơ T2 (trần 3), hai hồ sơ T3 (trần 4):
+`run-log.jsonl`, kể cả làn chung ghi ở `ra-co-ten-lam-va-trao`. Bảy hồ sơ T2 (trần 3), hai hồ sơ T3 (trần 4):
 `pre-merge-doc-lib-theo-kit`, `chi-tep-vat-keo-xet-lai`.
 
 | Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
@@ -252,24 +283,26 @@ giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_
 | `chi-tep-vat-keo-xet-lai` (#474, T3) | 14 g 51 · 4 g 27 · 4 (lượt 1 REJECT: hai phát hiện trong hợp đồng (AC-4, AC-6) và năm bộ kiểm đỏ vì nghi thức của chính vòng; vật sửa; lượt 2 REJECT chỉ vì P161: một glob trần trong sổ quyết định; lượt 3 BLOCKED: mjs:2/3 quá 600 s, bị ngắt; lượt 3 thử lại PASS) | 2 + Đáng chung / 0 (4): Phạm vi và Gate 1.5 gộp một chạm (Hỏi-1), Bằng chứng | **2** (lượt 2: P161; lượt 3: trần 600 s) | 234 237 · 49,3 / 33,9 / 16,9 | 48 · 49 · 53 · 55 = 205; ghim lại sau chữ ký 67 |
 | `khuon-loi` (#475, T2, vòng meta) | 3 g 49 · 1 g 38 · 3 (lượt 1 ra PASS nhưng mang bảy phát hiện trong hợp đồng: một dòng tự xưng không kiểm, năm chỗ thước không phân biệt vật đúng với vật sai; máy sửa; lượt 2 REJECT: hai phát hiện AC-7 «từ chối oan», cộng P179; vật sửa; lượt 3 PASS) | 2 / 0 (3): Đáng gộp vào Phạm vi một chạm (Hỏi-1 CỘNG, Hỏi-2), Bằng chứng | 0 | 220 551 · 28,1 / 52,6 / 19,3 | 53 · 52 · 52 = 157 |
 | `khuon-doc-ban-do-that` (#476, T2) | 13 g 48 · 1 g 12 · 1 (PASS) | 3 / 0 (3): Đáng riêng («Vá trước»), Phạm vi, Bằng chứng | 0 | 54 389 · 42,3 / 39,3 / 18,5 | 59 |
+| `sua-loi-dau-chu-dong-vao` (#478, T2) | 2 g 43 · 2 g 49 · 2 (lượt 1 REJECT: không eval nào đỏ; RT13 bắt tệp ca mới chứa chữ «signed-off» chưa khai; máy sửa fixture, vật giữ nguyên; lượt 2 PASS) | 1 / **1** (3): Bằng chứng; Phạm vi đi làn V; Đáng là lời giao từ phiên cắt mốc, không thẻ, không đếm · ngoài thiết kế: cho phép đưa PR khỏi nháp và gộp, sau chữ ký (bộ phân loại chặn lệnh) | **1** (lượt 1: RT13 là nghi thức của kho, vật không đổi) | 144 724 · 53,8 / 32,3 / 13,9 | 54 · 55 = 109; ghim lại sau chữ ký 51 |
 
 - «Đáng chung» là một lượt Cổng Đáng mở bốn vòng vá #463, #464, #467, #468 (chủ kho trả lời «Mở cả bốn» ở phiên điều
   phối kit, 31/10).
 - `khuon-loi` là vòng meta duy nhất của cửa sổ, chủ kho gọi tên ngày 01/11 (luật chiều rộng (b)). Lời giao vòng meta
   không đếm, như thẻ khởi tạo đợt ở 2.36.0. Tính thì thêm 1.
-- Gộp tám hồ sơ: **1 073 666** out-token S4, vật 50,4 / tìm-lỗi 32,8 / tổng hợp 16,8 %; **1 137** phút S4 qua **20**
-  lượt. Ghim lại sau chữ ký: **617** phút qua 9 làn ở 5 vòng, 2 làn đỏ vì RT13.
-- Trung vị tám vòng: làm-xong → ký **8 g 22**, ký → gộp **3 g 16**. Ký chưa gộp: **0**.
-- Gọi người: 16 trong thiết kế (tính riêng từng hồ sơ) + 1 Đáng chung + 0 ngoài thiết kế = **17 cho 8 kết quả gộp**
-  (2,1 mỗi kết quả). Tính cả lời giao vòng meta thì 18.
+- Gộp chín hồ sơ: **1 218 390** out-token S4, vật 50,8 / tìm-lỗi 32,7 / tổng hợp 16,5 %; **1 246** phút S4 qua **22**
+  lượt. Ghim lại sau chữ ký: **668** phút qua 10 làn ở 6 vòng, 2 làn đỏ vì RT13.
+- Trung vị chín vòng: làm-xong → ký **6 g 27**, ký → gộp **3 g 09**. Ký chưa gộp: **0**.
+- Gọi người: 17 trong thiết kế (tính riêng từng hồ sơ) + 1 Đáng chung + 1 ngoài thiết kế = **19 cho 9 kết quả gộp**
+  (2,1 mỗi kết quả). Tính cả lời giao vòng meta thì 20. Lượt ngoài thiết kế đếm theo báo của phiên #478.
 - Giờ máy cả vòng, kể cả phiên chính (dòng `gio-may` cuối của mỗi `run-log.jsonl`, chỉ để tham khảo): tổng 18,2 giờ
-  máy · 44,2 giờ chờ · 2 256 165 out-token.
+  máy · 44,2 giờ chờ · 2 256 165 out-token — tám vòng đầu; `sua-loi-dau-chu-dong-vao` không có dòng `gio-may`.
 
 **Đọc số:**
-- **Hạ tầng đốt 7 / 20 lượt (439 phút máy)**, so với 6 / 19 (336′) ở 2.36.0.
+- **Hạ tầng đốt 8 / 22 lượt (493 phút máy)**, so với 6 / 19 (336′) ở 2.36.0.
   - Theo nguyên nhân: P179 hai lượt (ten-may lượt 2 cùng bản đồ lệch, run-id lượt 3); trần 600 s của công cụ hai lượt
     (run-id lượt 2, chi-tep lượt 3); P161 một (chi-tep lượt 2); hàng tốc độ GT-07 chập chờn khi máy tải nặng một
-    (ten-may lượt 1); ca DV5 đòi miễn trừ đích danh một (pre-merge lượt 1).
+    (ten-may lượt 1); ca DV5 đòi miễn trừ đích danh một (pre-merge lượt 1); RT13 bắt chữ trạng thái trong tệp ca mới một
+    (sua-loi lượt 1).
   - P179 còn góp đỏ trong hai lượt có cả phát hiện trong hợp đồng (chi-tep lượt 1, khuon-loi lượt 2), không đếm.
   - P179 vẫn tái diễn sau khi hạt giống `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` chạm
     ngưỡng ở 2.36.0. Cửa sổ này không vòng nào sửa nó, và run-id lượt 4 còn cho thấy bộ chấm mang phát hiện cũ sang
@@ -280,27 +313,31 @@ giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_
   #472 16:16 → #474 18:14. Mỗi PR phải gộp nhánh chính vào nhánh rồi ghim lại sau PR trước: 11 lần gộp nhánh chính vào
   nhánh ở sáu PR, 617 phút ghim lại, ngang 11 lượt chấm.
   - Hai vòng gộp không qua hàng đợi (`khuon-loi`, `khuon-doc-ban-do-that`) có ký → gộp ≤ 1 g 38 và 0 lần ghim lại.
+  - `sua-loi-dau-chu-dong-vao` ký sau #476 gộp: một lần gộp nhánh chính vào nhánh, ghim lại 51 phút, ký → gộp 2 g 49.
   - Vòng `chi-tep-vat-keo-xet-lai` của chính mốc này nhắm vào đoạn đó: PR chỉ sửa tệp chữ của hồ sơ thì thôi kéo xét
     lại. Cửa sổ này chưa đo được tác dụng vì nó gộp sau cùng trong sáu vòng vá.
 - **Làm-xong → ký dài ở bốn vòng vá chạy song song tối 31/10** (ten-may 10 g 17, run-id 13 g 05, chi-tep 14 g 51,
   quet 6 g 27). Mỗi vòng có 6–9 giờ ngoài S4: chờ khoá máy, gộp nhánh chính giữa các lượt, sửa giữa lượt.
   - `khuon-doc-ban-do-that` 13 g 48 gần như toàn bộ là chờ người qua đêm (từ verified tới ký 12 g 48).
-- **Gọi người: 0 lượt ngoài thiết kế** (2.36.0 có 3). Không vòng nào vượt trần. Hai T3 gộp Gate 1.5 vào Phạm vi, ba
-  vòng đi làn V hoặc máy thông ở một cổng, nên 17 lượt / 8 kết quả, thấp hơn trần thiết kế 26.
-- **Dòng 4: tỉ phần vật lên 50,4 %** (39,5 % ở 2.36.0).
+- **Gọi người: 1 lượt ngoài thiết kế** (2.36.0 có 3): phiên #478 xin chủ kho cho phép đưa PR khỏi nháp và gộp sau
+  chữ ký, vì bộ phân loại của phiên chặn hai lệnh ấy — lượt sau chữ ký tính vào vòng. Không vòng nào vượt trần. Hai T3
+  gộp Gate 1.5 vào Phạm vi, bốn vòng đi làn V hoặc máy thông ở một cổng, nên 19 lượt / 9 kết quả, thấp hơn trần thiết
+  kế 29.
+- **Dòng 4: tỉ phần vật lên 50,8 %** (39,5 % ở 2.36.0).
   - Ngoại lệ là `khuon-loi`: tìm-lỗi 52,6 %, lượt 1 có 8 tác tử phản bác. Đó cũng là vòng duy nhất mà khối tìm-lỗi
     đổi được vật (bảy phát hiện trong hợp đồng ở lượt 1).
-  - Token S4 mỗi kết quả gộp: 134 208, so với 207 869 ở 2.36.0.
+  - Token S4 mỗi kết quả gộp: 135 377, so với 207 869 ở 2.36.0.
 - **Làn đối chứng code cũ chạy được ở mọi lượt** (2.36.0: BLOCKED 10/19 lượt vì thiếu công cụ ghi tệp). Ngoại lệ là
   ba lượt của `ten-may-mot-luat` ghi «baseline không đo được» cho cả sáu eval. Làn bắt một eval xanh-cả-hai-phía
   (`quet-het-han-khong-moi-ky` E6, ca RT5). Đây là số đầu tiên cho thấy bản vá TC6 của 2.36.0 có tác dụng.
-- **Thước ký → gộp của kit vẫn mù ở 7/8 vòng**: `do-gop.mjs` trả rỗng khi PR có commit sau chữ ký. Hạt giống
+- **Thước ký → gộp của kit vẫn mù ở 8/9 vòng**: `do-gop.mjs` trả rỗng khi PR có commit sau chữ ký. Hạt giống
   `docs/plans/2026-10-25-hat-giong-do-gop-mu-khi-co-commit-sau-ky.md` vẫn chưa làm. Vòng đọc được duy nhất là
-  `khuon-loi`: 98 phút, khớp số đếm tay 1 g 38. Bảng đọc bảy vòng còn lại bằng tay theo đúng định nghĩa của tệp.
+  `khuon-loi`: 98 phút, khớp số đếm tay 1 g 38. Bảng đọc tám vòng còn lại bằng tay theo đúng định nghĩa của tệp.
 
 **Điều kiện tin cậy:**
-- **(i)** `git diff --stat v2.36.0 428b2773 -- feature-loop/workflows/ feature-loop/agents/` ra KHÁC rỗng:
-  `feature-loop/workflows/acceptance-verify.js` +10 / −1, commit `c3849956`, vòng `run-id-danh-sach-cho-phep`.
+- **(i)** `git diff --stat v2.36.0 eab2ca41 -- feature-loop/workflows/ feature-loop/agents/` ra KHÁC rỗng:
+  `feature-loop/workflows/acceptance-verify.js` +27 / −3 qua hai commit — `c3849956` (+10 / −1, vòng
+  `run-id-danh-sach-cho-phep`) và `cf9d4177` (vòng `sua-loi-dau-chu-dong-vao`).
   - Thay đổi: `docRid` nay xét mã lượt bằng danh sách cho phép (khối marker `RUN-ID-HINH`). Mã sai hình dạng thành
     rỗng, máy tự đúc mã mới, và eval không được mang sang nữa.
   - Đường finder → refute → REJECT không đổi thành phần. Thay đổi nằm ở xuất xứ và bước mang sang, và có ca hai
@@ -309,6 +346,10 @@ giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_
     - chiều im / đối chứng dương: mã hợp lệ giữ nguyên (RH1, RH2), sổ do bản mới ghi vẫn mang E1 sang (vế (b) của
       RH5);
     - một nguồn: RH6, `carry-plan` rút luật từ khối marker.
+  - `cf9d4177`: lời gọi người chấm ui-check mang `devServerUrl` (hay «config chưa khai dev_server.url»), và các người
+    chấm ui-check chạy lần lượt. Đường finder → refute → REJECT không đổi thành phần. Ca hai chiều:
+    `tests/workflows/ui-check-tuan-tu.test.mjs` và `tests/scripts/s4-args-dev-server.test.mjs`, chiều đỏ ở commit ca
+    đứng trước mọi commit vật (sổ quyết định của hồ sơ, dòng S3).
   - `feature-loop/agents/` không đổi.
   - Ngoài phạm vi của (i) nhưng chạm đầu vào S4: `s4-args` dừng khi hồ sơ chạm vùng một nhóm khuôn mà thiếu eval khuôn
     (KL-11, `khuon-loi`, chỉ ở kho khai bản đồ).
@@ -323,7 +364,10 @@ giới hạn «cắt trước» ở «Ai bị ảnh hưởng» — mục `ngoai_
   cài kit.
 - 4 ↑ nhẹ ở kho khai bản đồ khuôn: thêm một eval khuôn cho mỗi hồ sơ chạm vùng nhóm. Cũng ↑ nhẹ ở kho có sổ cũ mang mã
   lượt sai, vì eval ở đó chạy lại thay vì mang sang.
-- 5 ↑ nhẹ, cùng hai lý do ở dòng 4; một phần bù lại nhờ ít làn ghim lại.
+- 5 ↑ nhẹ, cùng hai lý do ở dòng 4; một phần bù lại nhờ ít làn ghim lại. Thêm ↑ ở hồ sơ có từ hai eval ui-check, khi
+  khối ui chạy lần lượt dài hơn khối lệnh máy.
+- 2 ↓ ở kho chạy Điều phối – Thợ: hàng thôi kẹt vì `sau` trỏ slug, khoá thôi phải nhả tay (đo ở đợt
+  `dau-chu-dong-vao`: 5 hàng kẹt, 4 lần nhả tay, 3 lần đứng 10–11′).
 
 **Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `node scripts/hieu-chuan-moc.mjs --root .`
 (03/11). **N không tăng so với mốc 2.36.0 (vẫn 1), nên dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
