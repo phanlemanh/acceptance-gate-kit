@@ -124,6 +124,11 @@ executors:
     khoi_khuon: node tests/scripts/khoi-khuon-tren-the-cong.test.mjs
     # Hồ sơ khuon-doc-ban-do-that (bản vá trong 2.37.0): ca KD-1…KD-7 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     khuon_doc_ban_do_that: node tests/scripts/khuon-doc-ban-do-that.test.mjs
+    # Hồ sơ ban-do-khuon-roi-nhom (V0, mốc kế sau 2.37.0): ca RN-1…RN-4, RN-6 chung một lệnh (đuôi .test.mjs — cũng chạy trong
+    # mảnh mjs). RN-5 cần hai kho thử trên máy (QUY_HANG_ROOT hoặc ~/onehub-quy-hang · CRM_ROOT hoặc ~/dev/crm) nên tệp không
+    # mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (kho vắng → thoát 2, mù).
+    ban_do_khuon_roi_nhom: node tests/scripts/ban-do-khuon-roi-nhom.test.mjs
+    ban_do_khuon_roi_nhom_hai_kho: node tests/scripts/ban-do-khuon-roi-nhom-hai-kho.mjs
     quet_het_han_rt5: "RT_CASES=RT5 node tests/plugins/ra-co-ten.test.mjs"
     # Hồ sơ kho-tri-thuc-va-lint (TT1, đợt tri-thuc-2410): ca KT-1…KT-9 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     kho_tri_thuc_va_lint: node tests/scripts/kho-tri-thuc-va-lint.test.mjs

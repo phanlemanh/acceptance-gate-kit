@@ -168,10 +168,14 @@ function docBanDo(text, tep) {
   const cam = mang(y.cam_ngoai_khuon).map(String);
   const camHo = mang(y.cam_ho).map(String);
   for (const h of camHo) if (!cam.includes(h)) sai.push(`${tep}: cam_ho có tên không nằm trong cam_ngoai_khuon: ${h}`);
-  const ngoaiLe = mang(y.ngoai_le).flatMap(x => (x && typeof x === 'object'
-    ? khoiCua(x.khoi).map(khoi => ({ tep: String(x.tep || ''), khoi, ly_do: String(x.ly_do || '').trim() }))
-    : [{ tep: '', khoi: String(x), ly_do: '' }]));
-  for (const n of ngoaiLe) if (!n.ly_do) sai.push(`${tep}: ngoai_le thiếu ly_do (${n.tep || '?'} · ${n.khoi || '?'})`);
+  // Mục VẮNG khoá `khoi` = TỆP RỜI NHÓM: `khoi: null`, nhomCuaTep bỏ nhóm này cho tệp ấy. `khoi:` trống, `khoi: ""` và
+  // `khoi: []` giữ nghĩa cũ (một mục `khoi: ''`, không miễn gì) — chỉ khai báo tường minh mới gỡ tệp khỏi phép chấm.
+  const ngoaiLe = mang(y.ngoai_le).flatMap(x => {
+    if (!x || typeof x !== 'object') return [{ tep: '', khoi: String(x), ly_do: '' }];
+    const roiNhom = !Object.prototype.hasOwnProperty.call(x, 'khoi');
+    return (roiNhom ? [null] : khoiCua(x.khoi)).map(khoi => ({ tep: String(x.tep || ''), khoi, ly_do: String(x.ly_do || '').trim() }));
+  });
+  for (const n of ngoaiLe) if (!n.ly_do) sai.push(`${tep}: ngoai_le thiếu ly_do (${n.tep || '?'} · ${n.khoi === null ? 'rời nhóm' : n.khoi || '?'})`);
   const thay = y.thay_cho && typeof y.thay_cho === 'object' && !Array.isArray(y.thay_cho) ? Object.fromEntries(Object.entries(y.thay_cho).map(([k, v]) => [k, String(v)])) : {};
   const donVi = y.don_vi === 'phan-tu' ? 'phan-tu' : 'man';
   const nd = chuanNhanDien(y.nhan_dien);
@@ -243,9 +247,11 @@ function docThuMuc(root, opts) {
   return ra;
 }
 
-// nhomCuaTep(banDo, tep) → Nhom[] — chỉ nhóm có nhan_dien đọc được.
+// nhomCuaTep(banDo, tep) → Nhom[] — chỉ nhóm có nhan_dien đọc được, trừ nhóm khai tệp ấy rời nhóm (mục ngoai_le không
+// khoi, có ly_do).
 function nhomCuaTep(banDo, tep) {
-  return (banDo.nhom || []).filter(n => Array.isArray(n.nhan_dien) && n.nhan_dien.some(g => pathGlobToRe(g).test(tep)));
+  return (banDo.nhom || []).filter(n => Array.isArray(n.nhan_dien) && n.nhan_dien.some(g => pathGlobToRe(g).test(tep))
+    && !n.ngoai_le.some(e => e.khoi === null && e.tep === tep && e.ly_do));
 }
 
 // ── Phép kiểm một tệp theo một nhóm — đọc theo MẪU CHỮ (design doc §7: xuất lại có đổi tên, thẻ qua biến, «ở gốc»

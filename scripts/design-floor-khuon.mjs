@@ -137,7 +137,7 @@ export function chamKho(root, base) {
   for (const n of banDo.nhom) if (n.khong_doc_duoc) ra.khong_do.push(`nhóm ${n.nhom} — ${n.khong_doc_duoc}`);
   for (const f of ds) {
     if (f.startsWith('_acceptance/') || !fs.existsSync(path.join(root, f))) continue;
-    const nhomTep = B.nhomCuaTep(banDo, f);
+    const nhomTep = B.nhomCuaTep(banDo, f);   // tệp khai rời nhóm (ngoai_le không khoi) không thuộc nhóm ấy
     const man = nhomTep.filter(n => n.don_vi === 'man');
     if (!man.length && giaoDien.some(re => re.test(f))) ra.ngoai_ban_do++;
     if (!nhomTep.length) continue;
