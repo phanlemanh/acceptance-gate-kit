@@ -38,3 +38,8 @@ Vì sao: Gốc: kit/_acceptance/khuon-loi/ — KH1 đã ký, gộp main 02/11 (#
   không dùng bản đồ), hoặc vòng có khối «Khuôn» phải gọi người thêm một lượt ngoài thiết kế vì khối → ghi lý do vào hồ sơ
   mốc, xét gỡ khối.
 - Timebox: 21 ngày kể từ ngày một kho nhận cài mốc mang KH2.
+
+## Hạt giống
+
+- **Hạt giống từ Cổng Bằng chứng 04/11:** `docs/plans/2026-11-04-hat-giong-the-viec-round-trip.md` — Ngoài-14 (bộ đọc
+  Thẻ việc chưa có ca round-trip với khuôn bên viết).

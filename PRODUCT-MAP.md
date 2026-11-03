@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>143 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>67 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>68 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn» đọc từ vật S1 và lượt chấm ghi; S1 ghi đã chọn nhóm nào và đọc màn mẫu nào; màn mới chỉ thêm một câu hỏi ở cổng sẵn có (`khoi-khuon-tren-the-cong`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -83,6 +82,7 @@ flowchart TD
 - Kho cam kết có lộ trình thì vòng không thuộc hàng nào bị chặn mở, theo lựa chọn từng kho (`kho-cam-ket-co-lo-trinh`)
 - Kho mới cài gói road-map có sẵn tệp lộ trình khởi tạo đúng khuôn (`kho-moi-cai-goi-road-map`)
 - Kho khai nơi để tri thức một lần; lint máy đọc kho tri thức theo khuôn một nguồn và đỏ đúng sáu lỗi cấu trúc, đường trỏ băm phân giải được ở mọi worktree (`kho-tri-thuc-va-lint`)
+- Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn» đọc từ vật S1 và lượt chấm ghi; S1 ghi đã chọn nhóm nào và đọc màn mẫu nào; màn mới chỉ thêm một câu hỏi ở cổng sẵn có (`khoi-khuon-tren-the-cong`)
 - Khung đợt mở bằng định vị và đếm đủ mọi câu đang chờ chủ kho — chủ kho ngủ dậy hay đổi máy đọc một khung là biết đợt đang ở đâu và đang chờ mình điều gì (`khung-dot-dinh-vi`)
 - Bước chấm khuôn đọc đúng bản đồ thật của kho đã khai — ngoại lệ dạng danh sách được miễn, tệp dựng qua lớp trình bày đã khai được tính là theo khuôn, lời nhắc chỗ đặt glob nói đúng chỗ (`khuon-doc-ban-do-that`)
 - Kit chấm vật theo bản đồ khuôn của kho bằng một bộ đọc dùng chung mà luật lint của kho cũng gọi được — màn ngoài khuôn bị trả lại, gọi đúng tệp và khối; kho không khai bản đồ thì không đổi gì (`khuon-loi`)

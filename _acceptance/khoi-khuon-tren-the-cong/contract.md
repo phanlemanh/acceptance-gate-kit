@@ -5,7 +5,7 @@ slug: khoi-khuon-tren-the-cong
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-03T14:49:55Z
 design_doc: _acceptance/khoi-khuon-tren-the-cong/design.md
@@ -148,3 +148,21 @@ Later: ảnh màn mẫu (KH3) · trang ba lối (KH-C6) · so khớp chữ Thẻ
 
 - Vế «S1 đã đọc màn mẫu» là lời tự khai có băm. Băm chứng tệp có thật và không đổi kể từ lúc nạp, không chứng tác tử đã
   hiểu tệp (design §5).
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-04:
+  - Ngoài-1: Hồ sơ ghi loại giao diện bằng chữ hoa (UI, Web) vẫn được coi là giao diện, nhưng thẻ Cổng Phạm vi không nhắc rằng bước thiết kế chưa chọn nhóm khuôn.
+  - Ngoài-2: Cách băm màn mẫu có hai bản ở bên ghi và bên đọc; đổi một bên mà quên bên kia thì thẻ báo sai màn mẫu đã đổi hoặc không báo khi nó đổi thật.
+  - Ngoài-4: Vòng chọn một nhóm mà sửa màn của nhóm khác thì thẻ Cổng Bằng chứng có thể không cắm cờ khi màn ấy đã lệch từ trước hoặc nạp động.
+  - Ngoài-5: Bộ đọc Thẻ việc ghép nhầm giá trị sang sai nhãn thì bộ kiểm hiện tại vẫn xanh.
+  - Ngoài-6: Dòng lệch ở bước chấm và dòng lệch trên thẻ Cổng Bằng chứng khác chữ nhau thì bộ kiểm vẫn xanh.
+  - Ngoài-7: Kho đã nạp khuôn rồi gỡ bản đồ chưa được thử, nên chưa biết thẻ có đổi ở ca hiếm đó không.
+  - Ngoài-8: Hai ca từ chối tên nhóm sai chỉ ghim mã thoát, chưa chứng minh lệnh bị từ chối đúng lý do.
+  - Ngoài-9: Một số ca chiều đỏ có thể xanh dù lỗi được tiêm làm sập cả bộ đọc; khối Khuôn trên thẻ vẫn hiện đúng cho người dùng.
+  - Ngoài-10: Hồ sơ khai giao diện bằng chữ hoa (UI) không được nhắc «chưa ghi đã chọn nhóm khuôn nào» trên thẻ duyệt.
+  - Ngoài-11: Cờ của khối Khuôn nằm dưới nhãn «thông tin, không cần trả lời», nên người ký có thể lướt qua.
+  - Ngoài-12: Thẻ duyệt hỏng hẳn thì ba hàng «không cắm cờ» của KK-4 vẫn xanh.
+  - Ngoài-13: Hai ca từ chối lệnh sai có thể xanh vì một lý do khác lý do định bắt.
+  - Ngoài-15: Từ vựng mặt người nhìn chép tay và so phân biệt hoa thường, nên hồ sơ khai UI hoặc Web không nhận lời nhắc chưa ghi nhóm khuôn.
+  - Ngoài-16: Nhóm đã chọn bị xoá khỏi bản đồ thì thẻ duyệt chỉ ghi một dòng thông tin, không cắm cờ lựa chọn đã mồ côi.
+  - Ngoài-17: Lệnh chọn nhóm với giá trị rỗng báo thành công mà không ghi lựa chọn; chỉ lộ muộn bằng cờ chưa chọn trên thẻ duyệt.
+  - Ngoài-18: Xoá câu hướng dẫn cờ chọn nhóm khỏi GUIDE thì bộ kiểm vẫn xanh.
+  - Ngoài-19: Đổi cách đếm tệp theo khuôn hay nợ cũ trên thẻ Cổng Bằng chứng thì bộ kiểm vẫn xanh, vì dòng số đo chỉ so bằng mẫu chữ.

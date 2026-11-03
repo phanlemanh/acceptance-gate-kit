@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 232fda0ca30e594c14fd213e9d2b20f25870bf3f
-human_signoff:
+human_signoff: Phan Le Manh 2026-11-04
 ---
 
 # Evidence Report: khoi-khuon-tren-the-cong
