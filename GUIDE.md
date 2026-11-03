@@ -953,7 +953,9 @@ dòng `khuon:` trên và mỗi hồ sơ chạm vùng một nhóm khai một eval
 đồ bằng `createRequire('<acceptance-gate>/scripts/ban-do-khuon.cjs')` hoặc CLI `ban-do-khuon.cjs --root . --json`. Giới
 hạn: kho để `**/*.md` ở T1 (`risk_tiers.t1_skip_globs`) thì sửa bản đồ không làm hồ sơ nào hoá cũ — gỡ
 `design/patterns/**` khỏi T1 nếu muốn sửa bản đồ kéo xét lại hồ sơ của nhóm. `nhan_dien` dạng sổ đăng ký (không có
-`tep:`) thì nhóm «không đọc được ở đây» và không bị chấm. Kho không có `design/patterns/` → mọi lệnh khuôn im.
+`tep:`) thì nhóm «không đọc được ở đây» và không bị chấm. Mục `ngoai_le` không có `khoi` (vắng hẳn khoá, có `ly_do`) là
+tệp rời nhóm: tệp ấy không thuộc nhóm khai nó — không bị chấm lệch hay nợ cũ theo nhóm ấy, không làm vòng bị đòi eval khuôn
+của nhóm ấy; mục có `khoi` chỉ miễn khối đó. Kho không có `design/patterns/` → mọi lệnh khuôn im.
 
 `floor` chỉ đọc: hex thô trên tệp giao diện mà vòng chạm, độ phủ token trên trang HTML ở M2/M3, chặn theo bậc (M1 hex
 thô · M2 hex thô, độ phủ token chỉ cảnh báo · M3 cả hai). `<acceptance-gate>` là đường bản kit đang cài — ghim lại theo
