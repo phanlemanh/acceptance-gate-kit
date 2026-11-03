@@ -143,11 +143,11 @@ evals:
   - id: E9
     criterion: AC-9
     executor: judgment
-    inputs: [CHANGELOG.md, _acceptance/release-2-37-0/contract.md, _acceptance/va-design-floor-kho-lon-nhanh-chinh/contract.md, _acceptance/pre-merge-doc-lib-theo-kit/contract.md, _acceptance/quet-het-han-khong-moi-ky/contract.md, _acceptance/ten-may-mot-luat/contract.md, _acceptance/run-id-danh-sach-cho-phep/contract.md, _acceptance/chi-tep-vat-keo-xet-lai/contract.md, _acceptance/khuon-loi/contract.md, _acceptance/khuon-doc-ban-do-that/contract.md, _acceptance/sua-loi-dau-chu-dong-vao/contract.md, GUIDE.md, skills/acceptance/references/ban-do-khuon-template.md, dieu-phoi/README.md, commands/acceptance-init.md]
+    inputs: [CHANGELOG.md, _acceptance/release-2-37-0/contract.md, _acceptance/va-design-floor-kho-lon-nhanh-chinh/contract.md, _acceptance/pre-merge-doc-lib-theo-kit/contract.md, _acceptance/quet-het-han-khong-moi-ky/contract.md, _acceptance/ten-may-mot-luat/contract.md, _acceptance/run-id-danh-sach-cho-phep/contract.md, _acceptance/chi-tep-vat-keo-xet-lai/contract.md, _acceptance/khuon-loi/contract.md, _acceptance/khuon-doc-ban-do-that/contract.md, _acceptance/sua-loi-dau-chu-dong-vao/contract.md, _acceptance/pre-merge-doc-lib-theo-kit/opportunity.md, _acceptance/ten-may-mot-luat/opportunity.md, _acceptance/run-id-danh-sach-cho-phep/opportunity.md, _acceptance/chi-tep-vat-keo-xet-lai/opportunity.md, _acceptance/khuon-loi/design.md, _acceptance/khuon-doc-ban-do-that/design.md, _acceptance/quet-het-han-khong-moi-ky/design.md, _acceptance/sua-loi-dau-chu-dong-vao/design.md, GUIDE.md, skills/acceptance/references/ban-do-khuon-template.md, dieu-phoi/README.md, commands/acceptance-init.md]
     question: >
       Đọc AC-9 của contract release-2-37-0 và mục «## 2.37.0» của CHANGELOG.md (chỉ mục đó), cạnh đúng nguồn nó chép.
       (0) Ở các mục con của chín hồ sơ: mỗi câu mô tả vòng (dòng «Gốc:», gạch «Vật:» chép dòng feature, giới hạn trích trong
-      ngoặc «») có phải chữ của hợp đồng hồ sơ ấy (dòng feature, Context, Notes) — không tóm tắt, không nói rộng hơn — và
+      ngoặc «») có phải chữ của hợp đồng hồ sơ ấy (dòng feature, Context, Notes; dòng «Gốc:» đọc ở `opportunity.md` khi hợp đồng không có, chi tiết vật đọc ở `design.md` khi có trong inputs) — không tóm tắt, không nói rộng hơn — và
       số giới hạn đã khai (số mục chọn ở Cổng Bằng chứng mỗi ngày) có khớp Notes không? (1) Lời về bộ đọc bản đồ khuôn,
       bước chấm khuôn (lệch, nợ cũ, `khuon-cham.json`, dòng «Khuôn» trên thẻ), ngoại lệ `khoi` dạng danh sách, lớp trình bày
       đã khai và `nhan_dien.tep` có khớp GUIDE §5.2, khuôn tệp ban-do-khuon-template.md và hai hợp đồng khuon-loi,

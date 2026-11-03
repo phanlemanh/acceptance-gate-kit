@@ -25,8 +25,9 @@ Mốc lộ trình: «Phát hành 2.37.0».
 02/11 «Vá trước» — mở `khuon-doc-ban-do-that` trước khi cắt; 03/11 «Cắt trước» — sau khảo sát kho thứ hai
 (`docs/findings/2026-11-03-ban-do-khuon-quy-hang-va-ke-hoach-kit.md`, nhánh `claude/khao-sat-ban-do-khuon-quy-hang-f55a61`,
 commit `e10ac284`), cắt 2.37.0 như đang có, bản vá V0 (bộ đọc hiểu `ngoai_le` không `khoi` là «tệp rời nhóm») đi ở
-mốc kế; 03/11 «Chờ #478 gộp» — mốc chờ năm bản vá Điều phối – Thợ của issue #477 (hồ sơ `sua-loi-dau-chu-dong-vao`,
-kho chờ nhận onehub-quy-hang) vào nhánh chính rồi mới cắt.
+mốc kế; 03/11 «Chờ #478 gộp» — mốc chờ bản vá năm lỗi của issue #477 (Điều phối – Thợ, người chấm ui-check, lưới trước gộp; hồ sơ
+`sua-loi-dau-chu-dong-vao`, kho chờ nhận onehub-quy-hang) vào nhánh chính rồi mới cắt. Số của khảo sát (finding §0, commit
+`e10ac284`): trên bản sao onehub-quy-hang, `main` `428b2773` ra 10 lệch mới và 6 nợ cũ; bộ đo của kho ra 0.
 
 **Cửa sổ này có gì** — suy từ kho bằng quan hệ (AC-4), không chép tay. Hồ sơ **được ký** trong cửa sổ:
 `va-design-floor-kho-lon-nhanh-chinh` (#465) · `pre-merge-doc-lib-theo-kit` (#466) · `quet-het-han-khong-moi-ky` (#469) ·

@@ -13,11 +13,12 @@
 ## 2.37.0 — 03/11/2026
 
 Mốc **Khuôn lõi** (hàng KH1 của lộ trình kit, KH4 gộp vào) kèm **sáu bản vá sau 2.36.0**: kit chấm vật theo bản đồ khuôn
-của kho bằng một bộ đọc dùng chung; bước chấm đọc đúng bản đồ thật của crm; và sáu chỗ crm vấp sau khi nhận 2.36.0 —
+của kho bằng một bộ đọc dùng chung; bước chấm đọc đúng bản đồ thật của crm; và sáu chỗ vấp sau khi nhận 2.36.0 (năm ở crm, một ở onehub-quy-hang) —
 design-floor kẹt M0 ở kho lớn, lưới trước gộp đọc thư viện ở gốc kho tiêu thụ, thẻ cửa veto mời ký nhầm khi bộ quét hết
 hạn, tên máy có dấu cách làm tin nằm chết, mã lượt rác được mang sang lượt sau, sửa tệp chữ kéo cả trăm hồ sơ vào ghim
 lại. Chủ kho 01/11 giao một mốc thay cho cắt 2.36.1 riêng — năm vòng vá vốn ghi đích 2.36.1 hay 2.36.2 ở Out of scope
-nay vào 2.37.0. Chủ kho 03/11 «Chờ #478 gộp»: mốc mang thêm **năm bản vá Điều phối – Thợ** của issue #477 (đợt
+nay vào 2.37.0. Chủ kho 03/11 «Chờ #478 gộp»: mốc mang thêm **bản vá năm lỗi của issue #477** — Điều phối – Thợ, người chấm ui-check, lưới
+trước gộp — (đợt
 `dau-chu-dong-vao` của onehub-quy-hang). Có **tám hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4
 của hồ sơ mốc):
 `va-design-floor-kho-lon-nhanh-chinh` (#465), `pre-merge-doc-lib-theo-kit` (#466), `quet-het-han-khong-moi-ky` (#469),
