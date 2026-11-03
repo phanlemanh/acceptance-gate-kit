@@ -55,7 +55,17 @@ const tuoiPhut = (p, nowMs) => {
   }
 };
 
-function xuLyKhoa(thuMuc, cfg, nowMs) {
+// Hồ sơ sang gộp ở CHÍNH nhịp này — chưa có trong sổ `gop_da_bao` của nhịp trước (#477 lỗi 3d). Khoá của nó có từ trước
+// lúc gộp nên hết việc: thu hồi ngay, không chờ hạn thuê (hook nhịp chạm mọi khoá của worktree nên nhịp không bao giờ cũ
+// khi thợ làm tiếp hàng kế). Khoá cấp SAU khi bộ phát lịch đã thấy gộp là cố ý (ghim lại hồ sơ đã gộp) — giữ. Nâng từ bộ
+// phát lịch chưa có sổ → rỗng, cùng luật nạp im của `suKienDem`.
+function slugVuaGop(cu, tienDo) {
+  if (cu.nhip_cuoi !== undefined && cu.gop_da_bao === undefined) return new Set();
+  const daBao = new Set(cu.gop_da_bao ?? []);
+  return new Set([...tienDo].filter(([slug, td]) => td === 'gop' && !daBao.has(slug)).map(([slug]) => slug));
+}
+
+function xuLyKhoa(thuMuc, cfg, nowMs, vuaGop = new Set()) {
   const dangGiu = {};
   for (const tn of CAC_TAI_NGUYEN) {
     const d = path.join(thuMuc, 'khoa', tn);
@@ -69,6 +79,12 @@ function xuLyKhoa(thuMuc, cfg, nowMs) {
       } else {
         dangGiu[tn] = { phien: '?' };
       }
+      continue;
+    }
+    if (chu.slug && vuaGop.has(chu.slug)) {
+      // Không qua danhDauThuHoi: lượt đo khép như một lần nhả, sổ hiệu chuẩn không đọc nó thành lượt hỏng.
+      fs.rmSync(d, { recursive: true, force: true });
+      ghiSuKien(thuMuc, { loai: 'thu-hoi', tai_nguyen: tn, phien: chu.phien, slug: chu.slug, ly_do: `hồ sơ ${chu.slug} đã gộp trên nhánh chính`, can_phan: false });
       continue;
     }
     const nhip = tuoiPhut(path.join(d, 'nhip'), nowMs);
@@ -524,7 +540,8 @@ export async function motNhip(thuMuc, io) {
 
   const bo = boNhanhMo(io, cfg, hangViec, cu.nhanh_mo ?? null, nowMs);
   const daBao = apGiaHan(thuMuc, nowMs, xuLyYeuCau(thuMuc, cfg, hangViec, io, cu, nowMs, bo));
-  const dangGiu = xuLyKhoa(thuMuc, cfg, nowMs);
+  const tienDo = tienDoCua(hangViec, cfg, io);
+  const dangGiu = xuLyKhoa(thuMuc, cfg, nowMs, slugVuaGop(cu, tienDo));
   dongLuotDaXong(thuMuc, dangGiu, { kho, nowMs });
   const dk = docPha(thuMuc);
   // DP4: xét hạn mức TRƯỚC khi cấp — chạm ngưỡng có thể đưa đợt vào bàn giao hay chờ đặt lại ngay nhịp này.
@@ -543,7 +560,6 @@ export async function motNhip(thuMuc, io) {
     if (!thieuChoCu.has(h.khoa)) ghiSuKien(thuMuc, { loai: 'thieu-cho', phien: h.phien, don: h.loai, ly_do: h.cho, can_phan: false });
   }
   const chuaHieuChuan = LOAI_NANG.filter((loai) => nhuCau({ kho, loai, cfg, so: soDo }).nguon === 'chua');
-  const tienDo = tienDoCua(hangViec, cfg, io);
   const { day, so: soTrung } = capNhatHangKe(thuMuc, hangViec, tienDo, dk.nguon_goi ? cfg.goc_kho : null, bo, cu);
   const lienKetCua = new Map(hangViec.day.map((d) => [d.id, d.link]));
   const choNguoi = [

@@ -11,6 +11,7 @@ import { ghiNhatKy } from './hang.mjs';
 import { docHangViec, kiemDon, kiemTraLoi, kiemYeuCau } from './hinh-dang.mjs';
 import { docVai, laGiamSat } from './vai.mjs';
 import { ghiKetQuaNha } from './do-lan.mjs';
+import { giaiTaiNguyen, lenhChoKhoa, TAI_NGUYEN } from './lich.mjs';
 
 function canDot(cwd, lenh) {
   const thuMuc = timThuMucDot(cwd);
@@ -88,17 +89,28 @@ export function ghiDon(cwd, { loai, uocPhut = null, moMerge = false, slug = null
   return p;
 }
 
-export function nhaKhoa(cwd, taiNguyen, { ma = null, haTang = null } = {}) {
+// Lệnh chờ đi kèm đơn: đã giải tên loại thành khoá bộ phát lịch thật sự tạo (`ghim-lai` → `khoa/s4`, #477 lỗi 4).
+export const lenhChoDon = (cwd, loai) => {
+  const { thuMuc, day } = dayCua(cwd, 'xin');
+  return lenhChoKhoa(thuMuc, day.id, loai);
+};
+
+// `ten` là loại hay tài nguyên — cùng bộ giải với bên cấp. Tên lạ thoát 1, không chạm khoá nào (#477 lỗi 3: `nha
+// ghim-lai` từng «không làm gì» mà thoát 0 trong khi `khoa/s4` còn). Khoá vắng giữ hành vi cũ: nhả lại khoá đã bị thu hồi
+// là vô hại.
+export function nhaKhoa(cwd, ten, { ma = null, haTang = null } = {}) {
   const { thuMuc, day } = dayCua(cwd, 'nha');
+  const taiNguyen = giaiTaiNguyen(String(ten));
+  if (!taiNguyen) throw new Error(`nha: «${ten}» không phải loại hay tài nguyên (${Object.keys(TAI_NGUYEN).join(', ')})`);
   const maSo = ma === null || ma === undefined || ma === '' ? null : Number(ma);
   if (maSo !== null && !Number.isInteger(maSo)) throw new Error(`nha: --ma ${ma} không phải mã thoát nguyên`);
-  const d = path.join(thuMuc, 'khoa', String(taiNguyen));
+  const d = path.join(thuMuc, 'khoa', taiNguyen);
   if (!fs.existsSync(d)) return `nha: khoá ${taiNguyen} không có — không làm gì`;
   const chu = docJson(path.join(d, 'chu.json'), null);
   if (chu?.phien !== day.id) throw new Error(`nha: khoá ${taiNguyen} không do ${day.id} giữ (${chu?.phien ?? '?'})`);
-  ghiKetQuaNha(thuMuc, String(taiNguyen), { ma: maSo, haTang: typeof haTang === 'string' && haTang !== '' ? haTang : null });
+  ghiKetQuaNha(thuMuc, taiNguyen, { ma: maSo, haTang: typeof haTang === 'string' && haTang !== '' ? haTang : null });
   fs.rmSync(d, { recursive: true, force: true });
-  return `nha: đã nhả ${taiNguyen}`;
+  return `nha: đã nhả ${taiNguyen}${taiNguyen !== ten ? ` (loại ${ten})` : ''}`;
 }
 
 export function ghiYeuCau(cwd, { loai, hang = null, noiDung = {} }) {
