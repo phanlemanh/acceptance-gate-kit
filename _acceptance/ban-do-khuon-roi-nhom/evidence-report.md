@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 8a9d517ca36bf163a579511da9a0d491e0971621
-human_signoff:
+human_signoff: Phan Le Manh 2026-11-03
 ---
 
 # Evidence Report: ban-do-khuon-roi-nhom

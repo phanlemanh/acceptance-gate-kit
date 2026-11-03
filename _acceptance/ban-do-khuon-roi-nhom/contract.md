@@ -5,7 +5,7 @@ slug: ban-do-khuon-roi-nhom
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: _acceptance/ban-do-khuon-roi-nhom/design.md
 approved_by:
 approved_at:
@@ -97,3 +97,11 @@ Quét hình thái preset test-matrix. Trục A cách viết mục · B bên đ�
 - In một dòng «rời nhóm: <tệp>» ở `--kiem` cho tệp của vòng đã rời nhóm (lối khác của design §2 R6).
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-03:
+  - Ngoài-1: Người viết bản đồ gõ sai tên khoá khi muốn miễn một khối thì cả tệp lặng lẽ rời nhóm, không có cảnh báo nào.
+  - Ngoài-2: Cùng lỗi gõ sai khoá ở Ngoài-1, do một làn tìm lỗi khác nêu.
+  - Ngoài-3: Tài liệu chưa nói đầu ra máy đọc của bản đồ ghi giá trị rỗng cho mục rời nhóm, nên bước kiểm riêng của một kho có thể vẫn chấm tệp đã rời.
+  - Ngoài-4: Cùng lỗi gõ sai khoá ở Ngoài-1, nêu ở lượt chấm 1.
+  - Ngoài-5: Phép đo trên hai kho thật chỉ đếm số mục rời nhóm, chưa đối chiếu từng tệp từng bị báo oan.
+  - Ngoài-6: Chưa có phép đo giữ việc tên tệp trong danh sách ngoại lệ là đường đúng, không phải mẫu có dấu sao.
