@@ -1307,6 +1307,22 @@
         "KH4"
       ],
       "ghi_chu": "CỘNG — chủ kho phê đích danh ở Cổng Phạm vi của chính hàng (ADR 0018), cùng lần chốt câu thay vế «răng bắt ≥1 lệch thật qua ≥3 vòng giao diện» của mục chờ cũ KH-C1 bằng hai thước (trước phát hành: đỏ và im trong bộ kiểm; sau phát hành: 21 ngày ở kho nhận, 0 vòng đồng nhất lại mới và dưới 2 lệch lọt). KH4 «sinh cấu hình lint» gộp vào đây: hai kho viết luật lint bằng hai bộ lint khác nhau và đều đọc thẳng tệp bản đồ — kit cấp bộ đọc dùng chung, kho tự bọc luật. Ràng buộc: paths của eval khuôn theo vùng nhóm màn, bản đồ có phiên bản, ảnh nhúng thẳng. Ước giá máy: 8–10 giờ máy."
+    },
+    {
+      "ma": "KH2",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "khoi-khuon-tren-the-cong",
+      "ten_ngan": "Khuôn trên thẻ cổng",
+      "cau_giao": "Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có",
+      "vai": "nen",
+      "vi_sao": "Gốc: kit/_acceptance/khuon-loi/ — KH1 đã ký, gộp main 02/11 (#475, bản vá #476), phát hành v2.37.0 03/11. KH1 để lại: thẻ Cổng Bằng chứng in MỘT dòng số đo khuôn (scripts/ban-do-khuon.cjs theCong2), thẻ Cổng Phạm vi chưa có gì về khuôn; khối KHUON-S1 dặn bằng lời «đọc đúng tệp bản đồ và màn mẫu của nhóm» mà không có vật nào cho thấy đã đọc; đối tượng mới chưa có nhóm không có lối ra ở cổng. Chủ kho 03/11 gõ «Mở KH-C2 ngay» sau khi máy khuyên chờ kho nhận chạy 2.37.0 — vòng meta có tên theo luật chiều rộng (b). Nguồn: docs/findings/2026-11-01-ban-do-khuon-vao-kit.md §6, §11; docs/plans/pham-vi-ban-do-khuon-kit-3110.md.",
+      "bat_khi": "Trong bộ kiểm kit: hồ sơ của kho mẫu có bản đồ khuôn thì thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng có khối «Khuôn» đọc từ đúng tệp lượt chấm và tệp nạp; kho không khai bản đồ thì thẻ không đổi từng byte; đối tượng mới chưa có nhóm thì thẻ thêm đúng một ô quyết ở cổng sẵn có, không thêm lượt gọi người",
+      "dot": "ban-do-khuon-kit-3110",
+      "phu": [
+        "KH2"
+      ],
+      "ghi_chu": "CỘNG — chủ kho phê đích danh ở Cổng Phạm vi của chính hàng (ADR 0018). Mở trước điều kiện cũ «kho nhận chạy 2.37.0»: khối thẻ dựng trên khuôn tệp KH1 đã định (bộ kiểm kit sinh), chưa có tệp lượt chấm thật từ kho nhận — giới hạn này khai trong hồ sơ. Chưa gắn mốc."
     }
   ],
   "chan_troi": [
@@ -1537,16 +1553,6 @@
         "CH3"
       ],
       "mo_lai_khi": "Hàng dựng M2 của invest xong và đo được giá trị reuse-plan check"
-    },
-    {
-      "ma": "KH-C2",
-      "dot": "ban-do-khuon-kit-3110",
-      "cau_giao": "Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có",
-      "ly_do": "Kho thứ nhất chưa chạy vòng thử nào (QĐ-2 của finding 2026-10-30-ui-dong-nhat-giua-cac-man §13); chưa có hồ sơ đã ký làm neo (luật «ô chỉ mở khi có neo ngoài»); là CỘNG nên chủ kho phê ở Cổng Phạm vi của chính hàng. Khối thẻ chỉ đọc tệp kết quả lượt chấm của KH1, nên không có gì để đọc khi KH1 chưa giao",
-      "phu": [
-        "KH2"
-      ],
-      "mo_lai_khi": "KH1 đã giao và gộp"
     },
     {
       "ma": "KH-C3",
