@@ -5,9 +5,9 @@ slug: khoi-khuon-tren-the-cong
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-11-03T14:49:55Z
 design_doc: _acceptance/khoi-khuon-tren-the-cong/design.md
 ---
 

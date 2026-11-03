@@ -3,10 +3,10 @@ schema_version: 1
 slug: khoi-khuon-tren-the-cong
 feature: Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-11-03T14:49:55Z   # chủ kho gõ «/acceptance-gate:approve khoi-khuon-tren-the-cong duyệt» 03/11, gộp Cổng Đáng vào Cổng Phạm vi như tiền lệ KH1 (khuon-loi)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
