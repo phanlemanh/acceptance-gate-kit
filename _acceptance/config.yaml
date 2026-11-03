@@ -874,6 +874,11 @@ executors:
     rel2360_dd_giu: "bash -c 'c=$(git show 979620ae:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 979620ae HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2360_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 979620ae 2.36.0
     rel2360_goi_doi: "bash -c 'd=$(git diff --name-only 979620ae HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
+    # Mốc 2.37.0 (Khuôn lõi + sáu bản vá): cửa sổ 4f891b07 (v2.36.0) → HEAD.
+    rel2370_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 4f891b07 va-design-floor-kho-lon-nhanh-chinh pre-merge-doc-lib-theo-kit quet-het-han-khong-moi-ky run-id-danh-sach-cho-phep chi-tep-vat-keo-xet-lai khuon-loi khuon-doc-ban-do-that
+    rel2370_dd_giu: "bash -c 'c=$(git show 4f891b07:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 4f891b07 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2370_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 4f891b07 2.37.0
+    rel2370_goi_doi: "bash -c 'd=$(git diff --name-only 4f891b07 HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu

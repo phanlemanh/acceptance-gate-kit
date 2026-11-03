@@ -184,9 +184,9 @@
       ]
     },
     {
-      "ten": "Phát hành 2.37.0 — sáu bản vá sau 2.36.0 (#465 #466 #469 #471 #472 #474) + Khuôn lõi (KH1); kho nhận tính kết quả: onehub-quy-hang, crm nhận trước",
-      "ngay": "2026-11-04",
-      "ly_do": "Chủ kho 01/11 «Giao Mac Studio»: một mốc thay cho cắt 2.36.1 riêng; sáu bản vá tới kho muộn khoảng hai ngày, đổi lại một chữ ký mốc. Ngày ước theo giờ máy: KH1 8–10 giờ + mốc ~3 giờ.",
+      "ten": "Phát hành 2.37.0 — Khuôn lõi (KH1: #475, bản vá #476) + sáu bản vá sau 2.36.0 (#465 #466 #469 #471 #472 #474); kho nhận tính kết quả: onehub-quy-hang, crm nhận trước",
+      "ngay": "2026-11-03",
+      "ly_do": "Chủ kho 01/11 «Giao Mac Studio»: một mốc thay cho cắt 2.36.1 riêng; sáu bản vá tới kho muộn khoảng hai ngày, đổi lại một chữ ký mốc. Ngày ước theo giờ máy: KH1 8–10 giờ + mốc ~3 giờ. Về sớm 04/11 → 03/11: KH1 gộp 02/11, bản vá khuon-doc-ban-do-that gộp 03/11; chủ kho 03/11 «Cắt trước» — bước chấm khuôn chưa hiểu ngoai_le không khoi (tệp rời nhóm) của onehub-quy-hang, bản vá đi ở mốc kế (finding 2026-11-03).",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
