@@ -49,7 +49,7 @@ const ioLich = (nhanh, gopSlugs = []) => ({
     if (cmd === 'gh') return '[]';
     if (cmd === 'git' && args[0] === 'show') {
       const s = gopSlugs.find((x) => args[1] === `origin/${nhanh}:_acceptance/${x}/contract.md`);
-      if (s) return `---\nslug: ${s}\nstatus: signed-off\n---\n`;
+      if (s) return `---\nslug: ${s}\nstatus: machine-cleared\n---\n`;
       throw new Error('not found');
     }
     return '';
