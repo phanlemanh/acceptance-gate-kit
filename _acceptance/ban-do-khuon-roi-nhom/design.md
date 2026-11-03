@@ -74,7 +74,20 @@ lập hai cấu hình `nhan_dien.tep` trong một commit của bản sao để p
 
 ## 5. Số TRƯỚC/SAU trên bản sao hai kho
 
-Điền từ đầu ra của `RN-5` ở lượt chấm (mục này cập nhật trước Cổng Bằng chứng).
+Đo 03/11 bằng `node tests/scripts/ban-do-khuon-roi-nhom-hai-kho.mjs` (ca RN-5) trên bản sao dùng một lần: kho thứ hai
+@`3273a44`, kho thứ nhất @`3ee79f16`. TRƯỚC = bộ máy gốc `eab2ca41`, SAU = cây của nhánh này; hai bản chạy `chamKho` trên
+CÙNG bản sao. Tên tệp của hai kho không chép sang kho công khai.
+
+| Kho · base | TRƯỚC: lệch mới · nợ cũ · theo khuôn | SAU |
+|---|---|---|
+| kho thứ hai · base trước bản đồ (`e7a5f2c`) | 10 · 6 · 65 | **0 · 0 · 81** |
+| kho thứ hai · 30 commit trước | 6 · 3 · 47 | **0 · 0 · 56** |
+| kho thứ nhất · glob thư mục mẫu phẳng (giả lập) | 5 · 4 · 3 | 5 · 4 · 3 (bằng hệt từng mục) |
+| kho thứ nhất · glob cả cây thư mục mẫu (giả lập) | 8 · 4 · 3 | 8 · 4 · 3 (bằng hệt từng mục) |
+
+Số mục rời nhóm bộ đọc của cây thấy: kho thứ hai **18** (16 tệp báo oan đều nằm trong đó), kho thứ nhất **0**. Số kho thứ
+hai khớp đúng giả lập của finding 03/11 §5.2. Dòng báo còn lại ở kho thứ nhất nằm ở tệp phụ mà glob giả lập kéo vào nhóm —
+phạm vi glob, không phải báo oan, và không đổi giữa hai bản.
 
 ## Đặc tả UX
 
