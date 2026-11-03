@@ -5,6 +5,8 @@
 //   --dem                                  S0: «khuôn: N nhóm (M màn · K phần tử)»
 //   --tao <nhóm>                           sinh design/patterns/<nhóm>.md từ khối BAN-DO-KHUON-TEMPLATE
 //   --nap --slug <s>                       S1: ghim băm từng tệp bản đồ vào _acceptance/<s>/khuon-nap.json + chỉ mục
+//     [--nhom <n>]                         …và ghi lựa chọn `chon` (nhóm, tệp bản đồ, màn mẫu + băm git lúc đọc)
+//     [--nhom-moi <tên> [--gan <n>]]       …màn không vào nhóm nào: ghi `chon.moi`, in dòng sổ câu hỏi chỉ-người (KH2)
 //   --goi-y-eval --nhom <n>                khối eval khuôn, paths theo đúng nhóm n
 //   --kiem [--base <ref>]                  bước chấm (eval S4, chỉ đọc)
 //   --kiem --write --slug <s> --den <sha>  sau lượt chấm: ghi _acceptance/<s>/khuon-cham.json
@@ -43,7 +45,28 @@ export function dongChiMuc(n) {
   return [n.nhom, n.doi_tuong || '—', `nhận việc: ${n.nhan_viec || '—'}`, `dùng khi: ${n.dung_khi || '—'}`, n.tep, `màn mẫu: ${n.mau_dang_chay.tep || '—'}`].join(' · ');
 }
 
-export function nap(root, slug, bd) {
+// Băm git của một tệp kho — null khi không có trên đĩa. Đường đi như MỘT đối số (không qua shell): dấu cách, chữ Việt.
+function bamTep(root, rel) {
+  if (!rel || !fs.existsSync(path.join(root, rel))) return null;
+  return git(root, 'hash-object', '--', rel).trim();
+}
+
+// Lối khác cố định khi màn mới không có nhóm gần: câu hỏi luôn có hai lối sống (KH2 AC-2).
+export const LOI_NGOAI_BAN_DO = 'để màn ngoài bản đồ — bước chấm đếm nó vào tệp giao diện ngoài bản đồ';
+// dongCauHoiMoi(moi, gan) — dòng GIỮA của khối DEC-ID-RECIPE (JSON không ngoặc): câu hỏi chỉ-người cho màn mới, lên thẻ
+// Cổng Phạm vi thành một Hỏi-n sẵn có — không nhãn mới trong câu duyệt.
+export function dongCauHoiMoi(moi, gan) {
+  const o = {
+    type: 'approach', stage: 'S1', at: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
+    decision: `Màn mới «${moi}» không vào nhóm khuôn nào: tạo nhóm ${moi}, hay ${gan ? `xếp vào nhóm ${gan}` : 'để ngoài bản đồ'}?`,
+    why: 'Bước thiết kế không thấy nhóm nào của bản đồ khuôn nhận màn này; xếp một màn thật sự mới vào nhóm là việc của người, một lần mỗi nhóm.',
+    cost_if_wrong: 'Xếp sai thì màn mới bị chấm theo khuôn không hợp, hoặc bản đồ thiếu nhóm và màn lọt khỏi bước chấm.',
+    can_cu: { nguon: 'chi-nguoi', kho_dao: false, khuyen: `tạo nhóm ${moi} (lệnh --tao ${moi}), điền từ màn mới`, loi_khac: gan ? `xếp vào ${gan}` : LOI_NGOAI_BAN_DO },
+  };
+  return JSON.stringify(o).slice(1, -1);
+}
+
+export function nap(root, slug, bd, chon) {
   const ghim = {};
   const tep = {};
   for (const n of bd.nhom) {
@@ -51,10 +74,21 @@ export function nap(root, slug, bd) {
     ghim[n.nhom] = git(root, 'hash-object', n.tep).trim();
     tep[n.nhom] = n.tep;
   }
+  const ra = { schema: 1, ghim, tep };
+  const dong = bd.nhom.map(dongChiMuc);
+  if (chon && chon.nhom) {
+    const n = bd.nhom.find(x => x.nhom === chon.nhom);
+    const mau = (n.mau_dang_chay && n.mau_dang_chay.tep) || null;
+    ra.chon = { nhom: n.nhom, tep: n.tep, mau: { tep: mau, bam: bamTep(root, mau) } };
+    if (ra.chon.mau.bam === null) dong.push(`màn mẫu không có trên đĩa: ${mau || '—'}`);
+  } else if (chon && chon.moi) {
+    ra.chon = { moi: chon.moi, ...(chon.gan ? { gan: chon.gan } : {}) };
+    dong.push(dongCauHoiMoi(chon.moi, chon.gan || null));
+  }
   const dich = path.join(root, '_acceptance', slug, 'khuon-nap.json');
   fs.mkdirSync(path.dirname(dich), { recursive: true });
-  fs.writeFileSync(dich, JSON.stringify({ schema: 1, ghim, tep }, null, 2) + '\n');
-  return bd.nhom.map(dongChiMuc);
+  fs.writeFileSync(dich, JSON.stringify(ra, null, 2) + '\n');
+  return dong;
 }
 
 export function goiYEval(n) {
@@ -154,7 +188,7 @@ export function inCham(ra) {
 function docCo(argv) {
   const co = {};
   const BOOL = new Set(['dem', 'nap', 'goi-y-eval', 'kiem', 'write']);
-  const GIA = new Set(['root', 'tao', 'slug', 'nhom', 'base', 'den']);
+  const GIA = new Set(['root', 'tao', 'slug', 'nhom', 'nhom-moi', 'gan', 'base', 'den']);
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) sai(`đối số lạ: ${a}`);
@@ -181,12 +215,26 @@ function main() {
     return 0;
   }
   if (co.nap && !co.slug) sai('--nap cần --slug <hồ sơ>');
+  if (co['nhom-moi'] || co.gan) {
+    if (!co.nap) sai('--nhom-moi và --gan chỉ đi với --nap');
+    if (co.nhom) sai('--nhom và --nhom-moi loại trừ nhau');
+    if (!co['nhom-moi']) sai('--gan chỉ đi với --nhom-moi');
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(co['nhom-moi'])) sai(`tên nhóm mới không hợp lệ: ${co['nhom-moi']} (chữ thường, số, gạch nối)`);
+  }
   if (co['goi-y-eval'] && !co.nhom) sai('--goi-y-eval cần --nhom <nhóm>');
   if (co.write && !(co.kiem && co.slug && co.den)) sai('--write chỉ đi với --kiem --slug <s> --den <sha>');
   const bd = B.docThuMuc(root);
   if (!bd.co_thu_muc) return 0;
   if (co.dem) { process.stdout.write(dem(bd) + '\n'); return 0; }
-  if (co.nap) { process.stdout.write(nap(root, co.slug, bd).join('\n') + '\n'); return 0; }
+  if (co.nap) {
+    const ten = bd.nhom.map(x => x.nhom);
+    if (co.nhom && !ten.includes(co.nhom)) sai(`không có nhóm ${co.nhom} (có: ${ten.join(', ')})`);
+    if (co.gan && !ten.includes(co.gan)) sai(`không có nhóm ${co.gan} (có: ${ten.join(', ')})`);
+    if (co['nhom-moi'] && ten.includes(co['nhom-moi'])) sai(`đã có nhóm ${co['nhom-moi']} — chọn bằng --nhom`);
+    const chon = co.nhom ? { nhom: co.nhom } : co['nhom-moi'] ? { moi: co['nhom-moi'], gan: co.gan } : undefined;
+    process.stdout.write(nap(root, co.slug, bd, chon).join('\n') + '\n');
+    return 0;
+  }
   if (co['goi-y-eval']) {
     const n = bd.nhom.find(x => x.nhom === co.nhom);
     if (!n) sai(`không có nhóm ${co.nhom} (có: ${bd.nhom.map(x => x.nhom).join(', ')})`);
