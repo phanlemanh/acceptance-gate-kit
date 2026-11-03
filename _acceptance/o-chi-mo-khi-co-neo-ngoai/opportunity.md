@@ -252,6 +252,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   thiếu lệnh và suy slug sai · cài từ chợ lệch thẻ · cây phụ không nâng · heredoc chặn nhầm; đầu vào thứ hai của mốc 05/11.
 - `docs/plans/2026-10-26-hat-giong-tc1b-sau-danh-thuc.md` — 26/10 Cổng Bằng chứng TC1: năm mục «mở hợp đồng mới» (`vai
   --giam-sat` ghi mã CLI của phiên gọi · lời dặn «mã CLI cũng nhận» · TC1-06/TC1-09 thành bất biến lúc gộp).
+- `docs/plans/2026-11-03-hat-giong-khuon-hoc-tu-kho-thu-hai.md` — 03/11 khảo sát kho thử thứ hai của bản đồ khuôn: bốn cơ
+  chế đã chạy thật ở kho ấy (ngoại lệ có hạn · ảnh chuẩn ghim commit · tìm kit khi thiếu biến · đường bản mẫu cố định).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
