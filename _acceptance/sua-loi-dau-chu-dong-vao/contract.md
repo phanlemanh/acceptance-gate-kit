@@ -5,7 +5,7 @@ slug: sua-loi-dau-chu-dong-vao
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -80,3 +80,7 @@ lỗi 3/4 (a) → AC-3 · (b) → AC-4 · (c) → AC-5 · (d) → AC-6 · lỗi 
 - Trace nguyên tố 3 (khoảnh khắc quyết thật): mỗi lỗi đã đốt lượt gọi giám sát/chủ kho trong đợt — 5 hàng kẹt, 4 lần
   nhả tay, 3 lần đứng 10–11′, mỗi hồ sơ máy-thông hạ về ký tay. Người hưởng: giám sát và chủ kho onehub-quy-hang ở
   đợt `dau-khach-nhap`, và mọi kho chạy Điều phối – Thợ.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-03:
+  - Ngoài-1: Dòng hướng dẫn «dùng:» của CLI vẫn ghi cách gọi `nha <tài nguyên>` cũ; lệnh chạy đúng.
+  - Ngoài-2: Lệnh chờ do `xin` in không bọc nháy đường khoá — kho dưới thư mục có dấu cách thì thợ chờ mãi mà không báo lỗi.
+  - Ngoài-3: Ca SD-3 kiểm đường khoá của lệnh chờ nhưng chưa kiểm tên dãy trong vị từ `.phien==` của lệnh in ra.

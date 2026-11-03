@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>141 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>142 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>66 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Điều phối thôi kẹt hàng vì `sau` trỏ slug, thôi treo khoá sau gộp và thôi canh nhầm khoá ghim lại; người chấm ui-check biết URL bản dev và chạy lần lượt — sửa năm lỗi của đợt dau-chu-dong-vao (#477) cho mốc 2.37.0 (`sua-loi-dau-chu-dong-vao`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -248,6 +247,7 @@ flowchart TD
 - «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ (`start-bang-dieu-khien`)
 - Hồ sơ có bằng chứng nhưng status chưa arm cổng không được tàng hình — pre-merge thôi `continue` im lặng ở draft/approved khi đã có evidence-report.md hoặc PR đổi code chịu cổng; giữ đường đọc-cũ cho hồ sơ không có bằng chứng (`status-chua-arm-cong`)
 - Vòng lặp biết tự nhận ra khi cách sửa sai khuôn — vòng thứ hai còn sinh lỗi cùng loại thì dừng và hỏi người, thay vì chạy tiếp vòng ba rồi hỏng cùng kiểu (`stop-patching-law`)
+- Điều phối thôi kẹt hàng vì `sau` trỏ slug, thôi treo khoá sau gộp và thôi canh nhầm khoá ghim lại; người chấm ui-check biết URL bản dev và chạy lần lượt — sửa năm lỗi của đợt dau-chu-dong-vao (#477) cho mốc 2.37.0 (`sua-loi-dau-chu-dong-vao`)
 - Lệnh suite phải sinh dòng sổ chạy — không thì mọi vòng đỏ đối chiếu sau khi ký (`suite-run-log-provenance`)
 - Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump version) (`t1-escape-event-scope`)
 - Tên ca chập chờn đọc được qua tiền tố của bộ chạy monorepo — dòng pin chap_chon gọi đúng tên ca khi suite chạy qua turbo (`ten-ca-qua-tien-to-turbo`)
