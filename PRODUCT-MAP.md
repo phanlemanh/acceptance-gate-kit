@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>142 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>143 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>67 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Phát hành kit 2.37.0 — Khuôn lõi (bộ đọc bản đồ khuôn dùng chung, bước chấm khuôn ở lượt chấm S4, bước chấm đọc đúng bản đồ thật) cùng sáu bản vá sau 2.36.0 (design-floor ở kho lớn, lưới trước gộp đọc thư viện theo chỗ cài và chỉ kéo hồ sơ khi chạm tệp vật, thẻ cửa veto khi bộ quét hết hạn, mã lượt chạy đúng hình dạng, một luật tên máy của gói dieu-phoi); kho chờ nhận crm trước, onehub-quy-hang sau (`release-2-37-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -235,6 +234,7 @@ flowchart TD
 - Phát hành kit 2.34.0 — tầng tri thức theo LLM Wiki (TT1–TT5), ký → gộp có chủ máy (lịch biết tệp, PR sẵn sàng lúc trình thẻ, gộp không chạy lại CI, đo ký → gộp), sức khoẻ máy đo chỗ trống và tốc độ (SK1), ảnh có thật trong hồ sơ; gói mới tri-thuc (`release-2-34-0`)
 - Phát hành kit 2.35.0 — nền thiết kế design-floor-2710 (FL1–FL5), design-gate chế độ chặt tuỳ chọn, vùng giao việc đi từ cắt lượt, khung đợt định vị với bộ đếm «cần anh» đếm đủ; kho chờ nhận invest (thí điểm nền thiết kế, bậc M1) rồi crm (`release-2-35-0`)
 - Phát hành kit 2.36.0 — tinh chỉnh sau hai đợt thử (đợt tinh-chinh-2610, TC1–TC6) — đánh thức đọc đúng mã phiên, lệnh của đợt ghi đúng hàng, gộp không dừng ở hai tệp sinh, kiểm bản cài có lối sửa chạy được, chân công cụ xét tệp có tồn tại, làn đối chứng chạy được; kho chờ nhận invest rồi crm (`release-2-36-0`)
+- Phát hành kit 2.37.0 — Khuôn lõi (bộ đọc bản đồ khuôn dùng chung, bước chấm khuôn ở lượt chấm S4, bước chấm đọc đúng bản đồ thật) cùng sáu bản vá sau 2.36.0 (design-floor ở kho lớn, lưới trước gộp đọc thư viện theo chỗ cài và chỉ kéo hồ sơ khi chạm tệp vật, thẻ cửa veto khi bộ quét hết hạn, mã lượt chạy đúng hình dạng, một luật tên máy của gói dieu-phoi); kho chờ nhận crm trước, onehub-quy-hang sau (`release-2-37-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)

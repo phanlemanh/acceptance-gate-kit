@@ -5,7 +5,7 @@ slug: release-2-37-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + lộ trình kit + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -88,3 +88,7 @@ finding 03/11 §5.2 và §10.
   khối RUN-ID-HINH, `run-id-danh-sach-cho-phep`; lời gọi người chấm ui-check mang `devServerUrl` và các người chấm ui-check
   chạy lần lượt, `sua-loi-dau-chu-dong-vao`) — mỗi đổi kèm ca cả hai chiều trong hồ sơ của nó; đường finder → refute →
   REJECT không đổi thành phần.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-03:
+  - Ngoài-1: Hai lượt chấm của mốc chạy bằng máy chấm bản 2.36.0 đã cài, không phải cây đang kiểm (tham số sinh thiếu `--ag-root`); tệp máy chấm đọc giống từng byte và kho kit không khai bản đồ khuôn, nên kết quả không đổi.
+  - Ngoài-2: Lệnh chờ khoá do `xin` in không bọc nháy đường khoá — kho dưới thư mục có dấu cách thì thợ chờ mãi mà không báo lỗi.
+  - Ngoài-3: Cùng lỗi Ngoài-2, do một làn tìm lỗi khác nêu: vòng chờ treo im lặng khi đường kho có dấu cách.
