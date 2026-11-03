@@ -34,7 +34,8 @@ const ket = (ma, loi) => {
 };
 let _khoSong = null;
 const khoSong = () => (_khoSong ||= taoKhoMau());
-const caDo = (ma, kiem, lanh, saoTiem, thongDiep) => {
+// chiMot: MỌI lỗi của bản tiêm phải là đúng lỗi ghim — bản sao sập hay đỏ lan sang hàng khác không được tính là «bắt đúng».
+const caDo = (ma, kiem, lanh, saoTiem, thongDiep, chiMot = false) => {
   if (lanh.length) return ket(ma, [`bản lành chưa xanh: ${lanh.join(' | ')}`]);
   let loi;
   try {
@@ -43,6 +44,7 @@ const caDo = (ma, kiem, lanh, saoTiem, thongDiep) => {
     if (song.out.trim() !== 'khuôn: 3 nhóm (2 màn · 1 phần tử)') return ket(ma, [`hạ tầng ca: bản sao không chạy (--dem in «${song.out.trim()}», thoát ${song.ma})`]);
     loi = kiem(sao);
   } catch (e) { return ket(ma, [`hạ tầng ca: ${e.message}`]); }
+  if (chiMot && loi.some(x => !x.includes(thongDiep))) return ket(ma, [`bản tiêm đỏ ngoài hàng đích — không phân biệt «bắt đúng lỗi» với «bộ đọc sập» (lỗi: ${loi.join(' | ')})`]);
   ket(ma, loi.some(x => x.includes(thongDiep)) ? [] : [`bản tiêm không cho lỗi «${thongDiep}» (lỗi: ${loi.join(' | ') || 'không có'})`]);
 };
 // saoTu(goc, ds, tep, tim, thay) — như banSaoTiem nhưng chép từ một gốc bất kỳ (KK-7 tiêm chồng hai nhát).
@@ -260,8 +262,8 @@ if (wantAny('KK-4')) {
     const r = the1(KIT, kho, 'j'); const k = k1(KIT, kho, 'j');
     ket('KK-4-hong', r.ma === 0 && coCo(k, CO_A) ? [] : [`khuon-nap.json hỏng: thoát ${r.ma}, cờ ${JSON.stringify(k.co)}`]);
   }
-  if (want('KK-4-do')) caDo('KK-4-do', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'const khop = bamHienTai === mau.bam;', 'const khop = true;'), 'màn mẫu đổi mà không cờ');
-  if (want('KK-4-do2')) caDo('KK-4-do2', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'if (!chon) {', 'if (!napCo) {'), 'nạp không chọn mà không cờ');
+  if (want('KK-4-do')) caDo('KK-4-do', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'const khop = bamHienTai === mau.bam;', 'const khop = true;'), 'màn mẫu đổi mà không cờ', true);
+  if (want('KK-4-do2')) caDo('KK-4-do2', kiemKK4, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], 'scripts/ban-do-khuon.cjs', 'const chon = chonNap(root, slug);\n  const matNguoi', "const chon = fs.existsSync(path.join(root, '_acceptance', slug, 'khuon-nap.json')) ? (chonNap(root, slug) || {}) : null;\n  const matNguoi"), 'nạp không chọn mà không cờ', true);
 }
 
 // ── KK-5: khối «Khuôn» trên thẻ Cổng 2 ────────────────────────────────────────────────────────────────────────
