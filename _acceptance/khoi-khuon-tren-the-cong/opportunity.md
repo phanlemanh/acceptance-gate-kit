@@ -18,7 +18,7 @@ lo_trinh_tep: docs/plans/lo-trinh-kit.json
 
 Mở từ hàng KH2 của «Lộ trình kit nghiệm thu — từ 2.24.0» (`docs/plans/lo-trinh-kit.json`).
 Nguồn: `acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md#80a46d525b411191c17d03ff0795f34d34f2597f` — chưa có trang: trang nền, trang đợt ban-do-khuon-kit-3110
-Mốc: chưa gắn — việc này chưa thuộc mốc nào của kế hoạch; gắn nó vào một mốc, hoặc ghi vì sao chưa.
+Mốc: Khuôn trên thẻ cổng (số đặt lúc cắt) — KH2; kho nhận tính kết quả: onehub-quy-hang, crm — 06/11/2026.
 
 Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn»; S1 đọc màn mẫu trước khi chọn phương án; đối tượng mới chỉ thêm một chạm ở cổng sẵn có
 
@@ -26,7 +26,15 @@ Vì sao: Gốc: kit/_acceptance/khuon-loi/ — KH1 đã ký, gộp main 02/11 (#
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Trong bộ kiểm kit: hồ sơ của kho mẫu có bản đồ khuôn thì thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng có khối «Khuôn» đọc từ đúng tệp lượt chấm và tệp nạp; kho không khai bản đồ thì thẻ không đổi từng byte; đối tượng mới chưa có nhóm thì thẻ thêm đúng một ô quyết ở cổng sẵn có, không thêm lượt gọi người» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Trong bộ kiểm kit: hồ sơ của kho mẫu có bản đồ khuôn thì thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng có khối «Khuôn» đọc từ đúng tệp lượt chấm và tệp nạp; kho không khai bản đồ thì thẻ không đổi từng byte; đối tượng mới chưa có nhóm thì thẻ thêm đúng một ô quyết ở cổng sẵn có, không thêm lượt gọi người
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Trong bộ kiểm kit: hồ sơ của kho mẫu có bản đồ khuôn thì thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng có khối «Khuôn» đọc từ đúng tệp lượt chấm và tệp nạp; kho không khai bản đồ thì thẻ không đổi từng byte; đối tượng mới chưa có nhóm thì thẻ thêm đúng một ô quyết ở cổng sẵn có, không thêm lượt gọi người» khi hết timebox
-- Timebox: …
+- Câu hỏi phép đo trả lời: ở kho đã khai bản đồ khuôn, người duyệt Cổng Phạm vi có thấy màn sắp dựng thuộc nhóm nào và
+  màn mẫu nào mà không phải mở tệp, và màn mới có được quyết ngay ở cổng sẵn có thay vì lộ ra ở bước chấm?
+- Thước trước phát hành: trong bộ kiểm kit, trên kho mẫu do code sinh — lệnh nạp ghi lựa chọn có băm màn mẫu; thẻ hai
+  cổng có khối «Khuôn» đọc đúng tệp nạp và tệp lượt chấm; nhóm mới thêm đúng một câu Hỏi-n, không thêm nhãn câu duyệt;
+  kho không khai bản đồ thì thẻ và lệnh không đổi từng byte; mỗi phép đo có chiều đỏ trên bản sao bị tiêm.
+- Kết quả nào là SỐNG: trong 21 ngày kể từ khi một kho nhận cài mốc mang KH2, ≥1 hồ sơ giao diện của kho ấy có
+  `khuon-nap.json` mang `chon` và thẻ Cổng Phạm vi in khối «Khuôn»; số lượt gọi người của vòng ấy không tăng so với trần
+  thiết kế (≤3, T3 ≤4).
+- Kết quả nào là CHẾT: 21 ngày sau mốc mà không hồ sơ giao diện nào ở kho nhận có `chon` (bước S1 bị bỏ qua hoặc kho
+  không dùng bản đồ), hoặc vòng có khối «Khuôn» phải gọi người thêm một lượt ngoài thiết kế vì khối → ghi lý do vào hồ sơ
+  mốc, xét gỡ khối.
+- Timebox: 21 ngày kể từ ngày một kho nhận cài mốc mang KH2.

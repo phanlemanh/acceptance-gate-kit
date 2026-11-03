@@ -1,0 +1,31 @@
+{
+  "feature_plain": "Ở kho đã khai bản đồ khuôn, người duyệt nhìn thẻ là biết màn sắp dựng thuộc nhóm nào và theo màn mẫu nào. Màn mới chưa có nhóm được quyết ngay ở cổng, không phải chờ tới lúc chấm mới lộ ra.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ ghi lại ở bước thiết kế máy đã chọn nhóm khuôn nào và đã đọc màn mẫu nào. Màn mẫu kèm dấu băm để biết sau đó tệp có bị đổi không."},
+    {"id": "AC-2", "p": "Sẽ biến màn không vào nhóm nào thành đúng một câu hỏi trên thẻ Cổng Phạm vi, luôn có hai lối: tạo nhóm mới, hoặc xếp vào nhóm gần nhất (không có nhóm gần thì để màn ngoài bản đồ)."},
+    {"id": "AC-3", "p": "Sẽ in trên thẻ Cổng Phạm vi khối «Khuôn» gồm: nhóm, đối tượng, việc nhóm nhận, màn mẫu, và năm trường Thẻ việc của màn đặt cạnh việc nhóm nhận."},
+    {"id": "AC-4", "p": "Sẽ cắm cờ vàng trên thẻ Cổng Phạm vi khi: hồ sơ có mặt người nhìn mà bước thiết kế chưa chọn nhóm; màn mẫu bị đổi sau khi đọc; màn mẫu không có trên đĩa; nhóm mới chưa thành câu hỏi."},
+    {"id": "AC-5", "p": "Sẽ in trên thẻ Cổng Bằng chứng tệp nào lệch, khối nào lệch, thay vì chỉ một con số. Có cờ khi vật chạm nhóm khác với nhóm đã chọn."},
+    {"id": "AC-8", "p": "Sẽ đổi lời dặn ở bước thiết kế thành lệnh ghi được lựa chọn. Ca đo chạy đúng dòng lệnh chép trong hướng dẫn, nên lời dặn và vật đi qua cùng một phép đo."}
+  ],
+  "wont_do": [
+    {"id": "AC-6", "p": "Sẽ KHÔNG đổi gì ở kho không khai bản đồ khuôn. Lệnh im lặng, thẻ hai cổng giống hệt từng byte so với bản hiện hành."},
+    {"id": "AC-7", "p": "Sẽ KHÔNG nuốt lỗi khi dựng khối «Khuôn». Gặp lỗi thì thẻ vẫn dựng xong và mang một cờ vàng gọi tên lỗi, thay vì trông như kho không dùng khuôn."},
+    {"id": "OOS-1", "p": "Chưa có ảnh màn mẫu trên thẻ và chưa chụp màn mới cạnh màn mẫu. Việc này thuộc hàng chờ KH3."},
+    {"id": "OOS-2", "p": "Chưa có trang ba lối chọn khối có phản biện. Việc này thuộc hàng chờ KH-C6, mở khi một kho nhận đã chạy bước chấm khuôn."},
+    {"id": "OOS-3", "p": "Máy không tự xếp nhóm bằng cách so chữ giữa Thẻ việc và việc nhóm nhận. Hai câu tiếng Việt tự do so bằng mẫu rất dễ đúng giả."},
+    {"id": "OOS-4", "p": "Không đổi lệnh duyệt và không đổi cách gõ câu trả lời ở cổng."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Kho có khai bản đồ hay không: AC-6 giữ nguyên trạng cho kho không khai, các tiêu chí khác lo kho có khai."},
+    {"i": 1, "p": "Sáu trạng thái của hồ sơ ở bước thiết kế (chưa nạp, nạp mà không chọn, đã chọn, nhóm mới, màn mẫu đổi, màn mẫu vắng) có đủ ở AC-1, AC-2, AC-4."},
+    {"i": 2, "p": "Bốn nơi đọc vật (thẻ Cổng Phạm vi, thẻ Cổng Bằng chứng, bản trích máy đọc, lệnh trong hướng dẫn) có đủ ở AC-3, AC-5, AC-8."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Chọn «câu hỏi sẵn có» thay vì «nhãn riêng trong câu duyệt» từng được ghi như thể có luật chống lưng, nhưng câu trích không phân xử được hai lối. Đã sửa: chuyển thành câu hỏi cho anh (Hỏi-2)."},
+    {"i": 1, "p": "Bảng cờ thiếu ba ca: nạp mà không chọn nhóm, màn mẫu không có trên đĩa (có thể in nhầm «băm khớp»), và mặt người nhìn khai là web. Đã thêm thành mười hàng, kèm một ca phá thử."},
+    {"i": 2, "p": "Ca đo chỉ chạy nhánh chọn nhóm của lời dặn, bỏ nhánh nhóm mới. Đã sửa: chạy cả hai nhánh trên hai hồ sơ, kèm ca phá thử nhánh nhóm mới."},
+    {"i": 3, "p": "Đường đo sau phát hành chưa có lệnh đếm cho từng ngưỡng. Đã viết lại, mỗi vế một lệnh; riêng vế «phải gọi thêm người vì khối» không đo được nên khai thành giới hạn kèm ngưỡng."},
+    {"i": 4, "p": "Màn mới không có nhóm gần có thể ra một câu hỏi chỉ có một lối. Đã sửa: lối thứ hai cố định là «để màn ngoài bản đồ», kèm ca phá thử."}
+  ]
+}
