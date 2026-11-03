@@ -30,7 +30,7 @@ này (§11). Tên nhóm, tên khối và chữ của sản phẩm không chép s
 4. **Trình tự đề xuất có năm vế** (§7): V0 vá bộ đọc trước khi kho nhận cài · V1 kho thứ hai cài và bỏ dần mã trùng
    (TRỪ ở kho) · V2 vòng 2 rút cơ chế đã chạy thật ở kho thứ hai (CỘNG, phê ở Cổng Phạm vi) · V3 hạt giống · V4 khởi tạo
    từ mã giữ ở cuối.
-5. **Một quyết định cho chủ kho** (§10): vá V0 trước khi cắt 2.37.0, hay cắt rồi vá ở bản kế.
+5. **Một quyết định cho chủ kho** (§10): vá V0 trước khi cắt 2.37.0, hay cắt rồi vá ở bản kế. Chủ kho quyết 03/11: **cắt trước**; V0 sang bản kế (hạt giống H0).
 
 ## 1. Đã đọc gì, và giới hạn của việc đọc
 
@@ -192,7 +192,8 @@ rẻ nhất có thể, vì kho thứ hai đã làm phần khó nhất: chứng m
 
 Bốn ý chưa có neo đủ để mở ô, ghi ở
 [`docs/plans/2026-11-03-hat-giong-khuon-hoc-tu-kho-thu-hai.md`](../plans/2026-11-03-hat-giong-khuon-hoc-tu-kho-thu-hai.md).
-V0 có neo ngoài (hồ sơ tạo bản đồ của kho thứ hai, đã ký, cùng số đo §5.2), nên không vào hạt giống: chủ kho quyết ở §10.
+V0 có neo ngoài (hồ sơ tạo bản đồ của kho thứ hai, đã ký, cùng số đo §5.2). Sau quyết định «cắt trước» ở §10, nó vào
+cùng tệp ấy ở mục H0, để mở ô ngay sau mốc 2.37.0.
 
 ## 9. Giới hạn đã khai
 
@@ -212,6 +213,17 @@ rồi vá ở bản kế?
 **Khuyến nghị: vá trước.** Căn cứ: §5.2. Kho thứ hai là kho đo mốc gốc cho 2.37.0; cài bản chưa vá thì vòng giao diện
 đầu tiên của nó gặp eval khuôn đỏ vì lỗi của kit. Vá chỉ đổi một phép lọc; trên kho thứ nhất kết quả bằng hệt. Đánh đổi:
 2.37.0 chậm thêm một vòng T2 nhỏ, cỡ `khuon-doc-ban-do-that`. Chữ «vá trước» hay «cắt trước» là của chủ kho.
+
+**Chủ kho quyết 03/11: «Cắt trước».** 2.37.0 cắt với bộ đọc như đang có; V0 sang bản kế, giữ ở hạt giống (mục H0) để
+không mất. Hệ quả máy tự áp, không thêm lượt gọi:
+- **Kho thứ hai cài 2.37.0 thì lưới `s4-args` tự bật**, vì kho đã có `design/patterns/`
+  (`feature-loop/scripts/s4-args.mjs:357-364`). Nhóm trang tạm và nhóm trạng thái của kho phủ mọi trang. Nên mọi vòng
+  chạm giao diện phải có eval mang `config:executors.design.khuon`, nếu không `s4-args` dừng.
+- **Đường đi được trên 2.37.0:** kho trỏ `executors.design.khuon` vào bộ quét cây của chính kho (lệnh do kho chọn), nên
+  eval chấm đúng. Còn lại một chỗ oan: bước sau lượt chấm (`KHUON-SAU-S4`) vẫn ghi `khuon-cham.json` bằng bộ đọc kit. Thẻ
+  Cổng Bằng chứng vì thế in lệch oan ở vòng chạm một tệp trong danh sách rời nhóm. Người ký đọc thẻ cạnh eval xanh.
+- V1 đầy đủ (eval trỏ lệnh kit, bỏ bộ đo riêng) chờ bản có V0.
+- Báo oan §5.2 và đường đi ở trên là giới hạn đã biết của 2.37.0. Ghi chúng vào hồ sơ mốc là việc của phiên mốc.
 
 ## 11. Phụ lục riêng
 

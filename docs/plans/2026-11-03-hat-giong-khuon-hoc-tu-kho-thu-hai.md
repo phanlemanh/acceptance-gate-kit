@@ -8,6 +8,20 @@ mở khi có neo ngoài»; meta-work đóng băng tới mốc).
 Mỗi ý là một cơ chế đã CHẠY THẬT ở kho thứ hai bằng mã riêng của kho. Nó chưa vào kit vì mới một kho dùng: phép thử
 «kho không có sự cố này được gì, mất gì» chưa có số ở kho nào khác.
 
+## H0 — bộ đọc hiểu `ngoai_le` không `khoi` là «tệp rời nhóm» (vế V0 của finding)
+
+Mục này KHÁC bốn mục dưới: nó đã có neo ngoài và chỉ chờ mốc. Chủ kho quyết 03/11 «Cắt trước»: 2.37.0 cắt như đang có,
+vá ở bản kế.
+
+- **Người dùng gặp gì:** kho viết dòng ngoại lệ `{tep, ly_do}` không có `khoi` để đưa tệp ra khỏi một nhóm có glob rộng.
+  Bộ chấm kit bỏ qua dòng ấy, nên báo «thuộc hai nhóm màn» hay «thiếu khuôn». Đo trên bản sao kho thứ hai: 10 lệch mới và
+  6 nợ cũ, cả 16 đều oan (finding §5.2).
+- **Hướng:** trong `nhomCuaTep` (`scripts/ban-do-khuon.cjs`), bỏ nhóm có `ngoai_le` không `khoi` trỏ đúng tệp. Khuôn tệp
+  nói rõ hai nghĩa của `ngoai_le`. Ca đỏ và im dựng kho mẫu theo HÌNH DẠNG kho thứ hai, tên giả. Giả lập: 16 → 0; kho thứ
+  nhất 0 → 0 (mọi dòng của nó có `khoi`).
+- **Neo ngoài:** hồ sơ tạo bản đồ của kho thứ hai, đã ký (sha `e4caaed` của kho ấy), cùng số đo §5.2.
+- **Ngưỡng mở:** mốc 2.37.0 đã cắt — mở ngay, không chờ thêm số.
+
 ## H1 — ngoại lệ có hạn gắn slug hồ sơ
 
 - **Người dùng gặp gì:** ngoại lệ của bản đồ khuôn sống mãi. Màn «sẽ chuyển sang khuôn ở hàng N» nằm trong danh sách ngoại
