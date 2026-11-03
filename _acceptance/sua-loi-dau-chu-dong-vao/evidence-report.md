@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ab51307b72118e7a1d10a8502db7be36f3ebba3a
+verified_commit: 007191b8d43f93742d6cd68d78b83aad9cb453c6
 human_signoff: Phan Le Manh 2026-11-03
 ---
 
@@ -208,3 +208,7 @@ none — mọi eval nhiều lượt đều đồng nhất (không eval nào khai
 
 Round 1: REJECT — không eval nào đỏ; lệnh suite plugins vùng 3 đỏ ở ca RT13 (tệp test mới chứa chữ «signed-off» chưa khai trong BO-DOC-KHAI-GACH). Trả về thực thi.
 Round 2: PASS — nhát sửa S4-r1 (fixture SD-6 dùng machine-cleared thay chữ trạng thái ký người) đưa suite plugins vùng 3 về xanh; E1..E6 và mọi lệnh suite chạy lại xanh; E7..E10 carry-forward từ round 1.
+
+### Re-pin lần 1 — 2026-11-03, do đồng bộ main sau chữ ký (gộp #476)
+run_id: repin-20261103T030301Z-31104
+sha: 007191b8d43f93742d6cd68d78b83aad9cb453c6 · suites: 11 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
