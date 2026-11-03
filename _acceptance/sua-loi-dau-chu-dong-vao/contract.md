@@ -5,7 +5,7 @@ slug: sua-loi-dau-chu-dong-vao
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
