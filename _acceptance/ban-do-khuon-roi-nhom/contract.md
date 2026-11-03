@@ -5,7 +5,7 @@ slug: ban-do-khuon-roi-nhom
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: _acceptance/ban-do-khuon-roi-nhom/design.md
 approved_by:
 approved_at:
