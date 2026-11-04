@@ -1,0 +1,109 @@
+schema_version: 1
+feature_slug: khoi-khuon-tren-the-cong
+# Ca đo của vòng: tên ca mở bằng «KK-», ở tests/scripts/khoi-khuon-tren-the-cong.test.mjs (đuôi .test.mjs — cũng chạy
+# trong mảnh mjs của suite). Khoá executor thêm ở vòng này:
+#   executors.test.khoi_khuon — node tests/scripts/khoi-khuon-tren-the-cong.test.mjs, in «PASS: [KK-…]»/«FAIL: …».
+# Kho mẫu do code sinh trong lượt (tests/scripts/khuon-loi-kho-mau.mjs, dùng lại của KH1); đường dẫn suy từ vị trí tệp
+# test. Mỗi ca đỏ chạy CHÍNH hàm kiểm trên bản sao TRỌN thư mục scripts/ và lib/ (cộng feature-loop/skills cho AC-8) của
+# cây đang kiểm bị tiêm một nhát, SAU khi bản lành xanh trên cùng fixture; kiểm nhát tiêm khớp đúng một lần; ghim thông
+# điệp của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số hàng, in ra.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/design-floor-khuon.mjs, scripts/ban-do-khuon.cjs, tests/scripts/khoi-khuon-tren-the-cong.test.mjs, tests/scripts/khuon-loi-kho-mau.mjs]
+    expected: >
+      exit 0; "PASS: [KK-1]": `--nap --nhom bang-du-lieu` → khuon-nap.json có chon.nhom "bang-du-lieu", chon.tep
+      "design/patterns/bang-du-lieu.md", chon.mau.tep bằng mau_dang_chay.tep của nhóm, chon.mau.bam bằng `git hash-object`
+      của tệp ấy; `--nap` không cờ chọn → tệp bằng từng byte tệp do bản KH1 (git archive merge-base) sinh trên cùng kho;
+      `--nhom khong-co` → exit 2, stderr chứa "bang-du-lieu", "form-nhap", "trang-thai", tệp nạp không tồn tại;
+      xoá màn mẫu rồi nạp → chon.mau.bam null và stdout chứa "màn mẫu không có trên đĩa"; `--nhom a --nhom-moi b` → exit 2.
+      "PASS: [KK-1-do]": bản lành xanh; bản sao bỏ ghi mau.bam → danh sách lỗi chứa "thiếu băm màn mẫu".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/design-floor-khuon.mjs, scripts/can-cu-s1.cjs, scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-2]": `--nap --nhom-moi bao-cao-tuan --gan bang-du-lieu` → chon {moi: "bao-cao-tuan", gan:
+      "bang-du-lieu"}; dòng in ra nối vào decisions.jsonl bằng khối DEC-ID-RECIPE rút từ SKILL feature-loop lúc chạy;
+      `can-cu-s1.cjs --slug` in dòng tổng kết có "câu hỏi" tăng đúng 1 so với trước khi nối; `gate-card --gate 1
+      --extract` → routing.hoi dài thêm đúng 1 nhãn "Hỏi-<n>" và mục can_cu.cau_hoi cùng nhãn có decision chứa "bao-cao-tuan"; tập nhãn trong one_shot (các token trước
+      dấu ":") bằng nhau trước và sau khi nối; `--nap --nhom-moi bao-cao-tuan` không --gan → dòng in ra có loi_khac chứa "để màn ngoài bản đồ" và can-cu-s1 vẫn
+      đếm thêm 1 câu hỏi; `--nhom-moi "Bao Cao"` → exit 2.
+      "PASS: [KK-2-do]": bản lành xanh; bản sao in can_cu nguon muc-tieu → danh sách lỗi chứa "nhóm mới không thành câu hỏi"; bản
+      sao bỏ lối khác khi vắng --gan → danh sách lỗi chứa "câu hỏi một lối".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/ban-do-khuon.cjs, scripts/gate-card.js, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-3]": hồ sơ có chon.nhom bang-du-lieu và design doc có mục «Thẻ việc» năm hàng → HTML thẻ Cổng 1
+      và mảng khuon_g1.dong của --extract cùng chứa "bang-du-lieu", doi_tuong của nhóm, "nhận việc: tra cứu nhiều bản ghi",
+      "src/man/bang/DanhSachMau.tsx" kèm "băm khớp", và năm giá trị Thẻ việc đã ghi; design doc Thẻ việc văn xuôi →
+      khuon_g1.dong chứa "Thẻ việc: chưa điền".
+      "PASS: [KK-3-do]": bản lành xanh; bản sao bỏ dòng nhan_viec → danh sách lỗi chứa "thiếu việc nhóm nhận".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/ban-do-khuon.cjs, scripts/gate-card.js, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-4]" sau ma trận mười hàng in "10/10": (a) surfaces [ui] không khuon-nap.json → khuon_g1.co chứa
+      "S1 chưa ghi đã chọn nhóm khuôn nào"; (b) sửa màn mẫu sau nạp → co chứa "màn mẫu đổi sau khi S1 đọc"; (c) chon.moi
+      bao-cao-tuan, sổ không có dòng → co chứa "nhóm mới bao-cao-tuan chưa thành câu hỏi ở cổng"; (d) như (a) với surfaces
+      [cli] → co rỗng; (e) chon khớp, mẫu không đổi → co rỗng; (f) như (c) sau khi nối dòng câu hỏi → co rỗng; (g) surfaces [ui], khuon-nap.json do `--nap` không cờ chọn
+      sinh → co chứa "S1 chưa ghi đã chọn nhóm khuôn nào"; (h) như (a) với [web], (h2) với [web-ui] → cùng cờ; (i) chon.mau.bam
+      null → khuon_g1.dong chứa "màn mẫu không có trên đĩa" và không chứa "băm khớp".
+      "PASS: [KK-4-do]": bản lành xanh; bản sao so băm luôn bằng → hàng (b) đỏ, danh sách lỗi chứa "màn mẫu đổi mà không cờ"; bản sao chỉ kiểm tệp nạp tồn tại → hàng (g) đỏ, danh sách lỗi chứa "nạp không chọn mà không cờ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, scripts/gate-card.js, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-5]": khuon-cham.json sinh bằng `--kiem --write` trên kho mẫu có hai lệch mới → HTML thẻ Cổng 2 còn
+      dòng "Khuôn: … tệp theo khuôn · 2 lệch mới · nợ cũ … · không đo …" như bản KH1, cộng hai dòng mỗi dòng bằng đúng
+      dongLech(mục) của cùng mục; bảy lệch → năm dòng lệch và dòng "… và 2 lệch nữa"; chon.nhom form-nhap mà vật chạm tệp
+      nhóm bang-du-lieu → cờ chứa "vòng chọn nhóm form-nhap mà vật chạm nhóm bang-du-lieu".
+      "PASS: [KK-5-do]": bản lành xanh; bản sao bỏ kiểm nhóm khác → danh sách lỗi chứa "chạm nhóm khác mà không cờ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, scripts/gate-card.js, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-6]": kho mẫu không có design/patterns/ → `--nap --nhom x` và `--nap --nhom-moi y` exit 0, stdout
+      rỗng, không tệp mới (so `git status --porcelain` trước/sau); thẻ Cổng 1 và Cổng 2 (HTML và --extract) của một hồ sơ
+      bằng từng byte bản dựng bằng scripts/ và lib/ của `git archive <merge-base>` vào thư mục tạm.
+      "PASS: [KK-6-do]": bản lành xanh; bản sao in khối khi vắng bản đồ → danh sách lỗi chứa "thẻ đổi khi kho không khai bản đồ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [scripts/gate-card.js, scripts/ban-do-khuon.cjs, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-7]": bản sao ban-do-khuon.cjs có theCong1 và theCong2 ném Error("hỏng thử") → thẻ Cổng 1 và thẻ
+      Cổng 2 đều exit 0, mỗi HTML chứa đúng một lần "không dựng được khối Khuôn: hỏng thử".
+      "PASS: [KK-7-do]": bản lành xanh; bản sao gate-card giữ catch trả null → danh sách lỗi chứa "lỗi khối Khuôn bị nuốt".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [feature-loop/skills/feature-loop/SKILL.md, GUIDE.md, scripts/design-floor-khuon.mjs, tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; "PASS: [KK-8]": các dòng lệnh rút từ khối marker KHUON-S1 của SKILL feature-loop lúc chạy tách theo nhánh (đếm
+      số dòng mỗi nhánh, in ra), thay ô và AG=<cây đang kiểm>; nhánh --nhom (<nhóm>=bang-du-lieu) chạy trên hồ sơ A →
+      khuon-nap.json của A có chon.nhom "bang-du-lieu" và khuon_g1.dong của thẻ Cổng 1 chứa "bang-du-lieu"; nhánh --nhom-moi
+      chạy trên hồ sơ B → khuon-nap.json của B có chon.moi và stdout có dòng chứa "\"nguon\":\"chi-nguoi\""; GUIDE.md mục 5.2 chứa "--nhom" và "--nhom-moi".
+      "PASS: [KK-8-do]": bản lành xanh; bản sao SKILL có khối KHUON-S1 của bản KH1 → danh sách lỗi chứa "lệnh khối KHUON-S1 không ghi lựa chọn"; bản sao đổi --gan thành --gần → danh sách lỗi chứa "nhánh nhóm mới của KHUON-S1 hỏng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
