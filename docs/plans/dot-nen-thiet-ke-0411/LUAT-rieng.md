@@ -11,11 +11,14 @@ Chủ kho chọn ba dãy ngày 04/11. Cổng Đáng của sáu hàng gom về th
 Dãy và hàng.
 
 1. **Ba dãy, hai hàng mỗi dãy, chạy theo `uu_tien`.**
-   - D1: DFK1 → KM1. Một lệnh bật, một lệnh khám. Nếu Cổng Phạm vi của KM1 thấy kết quả chồng DFK1 thì gộp ở đó, không
-     dựng hai bảng.
+   - D1: KM1 → DFK1. Khám trước, bật sau. KM1 giữ `scripts/design-floor-bac.mjs` (bậc M0 in lý do), DFK1 dựng lệnh bật
+     trên bảng khám ấy, và mở khi KM2 đã gộp nên đề xuất được dòng `!glob` thay vì liệt kê dương. Nếu Cổng Phạm vi của
+     DFK1 thấy kết quả chồng KM1 thì gộp ở đó, không dựng hai bảng.
    - D2: KM2 → DFK2. DFK2 đứng trên KM2 (`sau`) vì cú pháp `!glob` chỉ có một bản, nằm ở bộ đọc glob dùng chung
-     `lib/evidence-core.cjs`.
-   - D3: DFK3 → KM3.
+     `lib/evidence-core.cjs`. KM2 là thay đổi rộng nhất (mọi bộ đọc glob của kit), nên gộp sớm nhất để các hàng sau mở
+     trên `main` đã có nó.
+   - D3: KM3 → DFK3. KM3 nhỏ nhất và gỡ chỗ một kho vừa bật nền thiết kế bị dừng ngay vòng đầu, nên phải gộp trước khi
+     lệnh bật của DFK1 tới tay kho.
 2. **DFK2 chạy tới chữ ký Cổng Bằng chứng rồi GIỮ PR, chưa gộp.** Chủ kho chốt 29/10: «Sau 10 vòng M1» của invest. Giám
    sát ghi DFK2 là «ký chưa gộp» kèm lý do. Nó vẫn là hàng tồn: lượt gọi người và giờ máy nó tốn vẫn cộng vào đợt
    (North Star 23/10). Khi chủ kho gõ lệnh gộp thì gộp.
