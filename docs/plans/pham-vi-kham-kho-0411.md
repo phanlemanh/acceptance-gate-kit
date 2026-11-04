@@ -18,8 +18,8 @@ nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#3a9c06ec8464d4fe
 
 - `KM` — một lệnh chỉ đọc khám kho tiêu thụ, in một bảng: bậc kèm lý do · executors.design.* đã nối chưa · nhóm khuôn đọc được chưa · lệnh trỏ bộ đệm có số · bản cài khớp thẻ; dòng nào cũng có lối sửa in sẵn; không có --fix trên vật của kho
 - `G1` — glob của kho không hiểu `{a,b}` (pathGlobToRe)
-- `G2` — glob không có cú pháp loại trừ: `*-sheet.tsx` khớp cả hai mặt không dùng khung
-- `G3` — mô hình «mọi tệp trong nhóm phải dùng khuôn» khác mô hình «sổ đăng ký + cấm khối lạ trong cả thư mục» của crm: tệp phần con của ngăn bị đòi `RecordSheetFrame`, bốn chỗ báo oan
+- `G2` — glob không có cú pháp loại trừ: glob theo hậu tố tên tệp khớp cả hai mặt khác không dùng khung
+- `G3` — mô hình «mọi tệp trong nhóm phải dùng khuôn» khác mô hình «sổ đăng ký + cấm khối lạ trong cả thư mục» của crm: tệp phần con của ngăn bị đòi dùng khung của ngăn, bốn chỗ báo oan
 - `T1` — lưới S4 tier-mismatch đòi «eval design (static/fidelity)» mà không nói eval `cmd: config:executors.design.floor` có được tính không; kho bật surface_globs chạm chỗ này ngay vòng đầu
 ```
 <!-- PHAM-VI-MA>>> -->

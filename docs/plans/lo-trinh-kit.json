@@ -1306,7 +1306,7 @@
       "cau_giao": "Mọi chỗ kho khai glob mà kit đọc qua một bộ (surface_globs, nhan_dien của bản đồ khuôn, luật sản phẩm) hiểu {a,b} và dòng loại trừ !glob, còn glob kho đang khai thì khớp đúng như cũ",
       "vai": "nen",
       "tieu_chi": 8,
-      "vi_sao": "Gốc: crm-onehub/_acceptance/bang-chung-kr-mot-loi/ — vòng SV10 (crm #619), nơi phiên crm đo thử bản đồ khuôn và nền thiết kế trên kit 2.37.0 (crm 74a29a68d, worktree nháp đã gỡ) và gửi đề xuất cho phiên điều phối kit 04/11; bản phạm vi docs/plans/pham-vi-kham-kho-0411.md. Trên SV10, nhan_dien.tep: [record-sheet/*.tsx] báo oan bốn chỗ; đổi sang *-sheet.tsx thì 0 lệch nhưng khớp cả soan-sheet.tsx và soan-bo-sheet.tsx (mặt không dùng khung) — kho không có cách nói «trừ hai tệp này» hay «một trong hai tên».",
+      "vi_sao": "Gốc: crm-onehub/_acceptance/bang-chung-kr-mot-loi/ — vòng SV10 (crm #619), nơi phiên crm đo thử bản đồ khuôn và nền thiết kế trên kit 2.37.0 (crm 74a29a68d, worktree nháp đã gỡ) và gửi đề xuất cho phiên điều phối kit 04/11; bản phạm vi docs/plans/pham-vi-kham-kho-0411.md. Trên SV10, glob nhận diện theo thư mục của nhóm báo oan bốn chỗ; đổi sang glob theo hậu tố tên tệp thì 0 lệch nhưng khớp cả hai mặt khác không dùng khung — kho không có cách nói «trừ hai tệp này» hay «một trong hai tên».",
       "bat_khi": "Ca {a,b} khớp đúng hai tên và không khớp tên thứ ba; dòng !glob trừ đúng tệp nó nêu ở cả ba bên đọc; mọi glob đang khai ở các kho tiêu thụ trên máy (ở sha ghim) khớp đúng tập tệp như trước từng tệp (đọc-cũ); một glob loại trừ đứng một mình (không có glob dương) → báo lỗi đúng tên, không thành «khớp hết»",
       "dot": "kham-kho-0411",
       "phu": [
