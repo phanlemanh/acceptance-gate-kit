@@ -121,6 +121,7 @@ executors:
     quet_het_han: node tests/scripts/quet-het-han-khong-moi-ky.test.mjs
     # Hồ sơ khuon-loi (hàng KH1): ca KL-1…KL-10 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs của suite).
     khuon_loi: node tests/scripts/khuon-loi.test.mjs
+    khoi_khuon: node tests/scripts/khoi-khuon-tren-the-cong.test.mjs
     # Hồ sơ khuon-doc-ban-do-that (bản vá trong 2.37.0): ca KD-1…KD-7 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     khuon_doc_ban_do_that: node tests/scripts/khuon-doc-ban-do-that.test.mjs
     # Hồ sơ ban-do-khuon-roi-nhom (V0, mốc kế sau 2.37.0): ca RN-1…RN-4, RN-6 chung một lệnh (đuôi .test.mjs — cũng chạy trong

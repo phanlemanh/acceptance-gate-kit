@@ -337,7 +337,75 @@ function tepHoSo(root, den) {
   }
   return null;
 }
-// theCong2({root, slug, contractTxt, evidenceTxt}) → null (kho không khai bản đồ) | { dong, co }
+// Dòng người đọc của một mục lệch — MỘT nguồn cho bước chấm (design-floor-khuon.mjs) và thẻ Cổng Bằng chứng (KH2).
+function dongLech(x) {
+  if (x.loai === 'quan-he') return `lệch: ${x.tep} · thuộc hai nhóm màn: ${x.nhom}`;
+  const khoi = x.loai === 'khuon' ? `khuôn ${x.khoi}` : x.khoi;
+  return `lệch: ${x.tep} · ${khoi} · nhóm ${x.nhom}${x.thay ? ` · dùng ${x.thay}` : ''}${x.tu > 0 ? ` · tăng ${x.tu} → ${x.den_so}` : ''}`;
+}
+const docJson = p => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (_) { return null; } };
+const chonNap = (root, slug) => { const j = docJson(path.join(root, '_acceptance', slug, 'khuon-nap.json')); return j && j.chon && typeof j.chon === 'object' ? j.chon : null; };
+
+// ── Thẻ Cổng Phạm vi (KH2) ───────────────────────────────────────────────────────────────────────────────────
+const CO_CHUA_CHON = 'S1 chưa ghi đã chọn nhóm khuôn nào — chạy bước nạp kèm --nhom';
+const CO_DOI_MAU = 'màn mẫu đổi sau khi S1 đọc — đọc lại trước khi duyệt';
+const MAT_NGUOI = ['ui', 'web', 'web-ui'];
+const TRUONG_THE_VIEC = { 'ai dùng': 'ai_dung', 'việc chính': 'viec_chinh', 'tần suất': 'tan_suat', 'số bản ghi': 'so_ban_ghi', 'thiết bị': 'thiet_bi' };
+// docTheViec(designTxt) → null | năm trường của mục «Thẻ việc» (bảng khuôn ux-spec-template.md), đọc theo TÊN trường.
+function docTheViec(designTxt) {
+  const dong = String(designTxt || '').split(/\r?\n/);
+  const i = dong.findIndex(l => /^#{1,6}\s.*Thẻ việc/.test(l.normalize('NFC')));
+  if (i < 0) return null;
+  const ra = {};
+  for (const l of dong.slice(i + 1)) {
+    if (/^#{1,6}\s/.test(l)) break;
+    const m = /^\|(.*)\|\s*$/.exec(l.trim());
+    if (!m) continue;
+    const o = m[1].split('|').map(x => x.trim());
+    const k = TRUONG_THE_VIEC[(o[0] || '').normalize('NFC').toLowerCase()];
+    if (k && o[1] && !o[1].includes('{{')) ra[k] = o[1];
+  }
+  return Object.values(TRUONG_THE_VIEC).every(k => ra[k]) ? ra : null;
+}
+const bamTep = (root, rel) => { if (!rel || !fs.existsSync(path.join(root, rel))) return null; return git(root, 'hash-object', '--', rel).trim(); };
+// theCong1({root, slug, contractTxt, designTxt, decisionsTxt}) → null (kho không khai bản đồ, hay hồ sơ không chọn và
+// không có mặt người nhìn — thẻ y nguyên) | { dong: [chuỗi], co: [chuỗi] }
+function theCong1({ root, slug, contractTxt, designTxt, decisionsTxt }) {
+  const coBanDo = tepNhom(root);
+  if (!coBanDo) return null;
+  const chon = chonNap(root, slug);
+  const matNguoi = fmGia(contractTxt, 'surfaces').replace(/^\[|\]$/g, '').split(',').map(x => x.trim().replace(/^["']|["']$/g, '')).some(x => MAT_NGUOI.includes(x));
+  const dong = [];
+  const co = [];
+  if (!chon) {
+    if (matNguoi) co.push(CO_CHUA_CHON);
+    return co.length ? { dong, co } : null;
+  }
+  if (chon.nhom) {
+    const n = docThuMuc(root).nhom.find(x => x.nhom === chon.nhom);
+    if (!n) return { dong: [`nhóm ${chon.nhom} không còn trong bản đồ`], co };
+    dong.push(`Nhóm: ${n.nhom} — ${n.doi_tuong || '—'}`);
+    dong.push(`nhận việc: ${n.nhan_viec || '—'}`);
+    const mau = chon.mau || {};
+    if (mau.bam == null) dong.push(`Màn mẫu: ${mau.tep || '—'} · màn mẫu không có trên đĩa`);
+    else {
+      const bamHienTai = bamTep(root, mau.tep);
+      const khop = bamHienTai === mau.bam;
+      dong.push(`Màn mẫu: ${mau.tep} · ${khop ? 'băm khớp' : 'đã đổi sau khi S1 đọc'}`);
+      if (!khop) co.push(CO_DOI_MAU);
+    }
+  } else if (chon.moi) {
+    dong.push(`Nhóm mới: ${chon.moi} (${chon.gan ? `gần: ${chon.gan}` : 'không có nhóm gần'})`);
+    const so = String(decisionsTxt || '').split(/\r?\n/).map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+    const coCau = so.some(e => e.stage === 'S1' && e.can_cu && e.can_cu.nguon === 'chi-nguoi' && String(e.decision || '').includes(chon.moi));
+    if (!coCau) co.push(`nhóm mới ${chon.moi} chưa thành câu hỏi ở cổng`);
+  }
+  const tv = docTheViec(designTxt);
+  dong.push(tv ? `Thẻ việc: ai dùng ${tv.ai_dung} · việc chính ${tv.viec_chinh} · tần suất ${tv.tan_suat} · số bản ghi ${tv.so_ban_ghi} · thiết bị ${tv.thiet_bi}` : 'Thẻ việc: chưa điền');
+  return { dong, co };
+}
+
+// theCong2({root, slug, contractTxt, evidenceTxt}) → null (kho không khai bản đồ) | { dong, co, lech, co2 }
 function theCong2({ root, slug, contractTxt, evidenceTxt }) {
   if (!tepNhom(root)) return null;
   let cham = null;
@@ -358,10 +426,22 @@ function theCong2({ root, slug, contractTxt, evidenceTxt }) {
     const chamVung = ds === null || ds.some(f => !f.startsWith('_acceptance/') && nhomCuaTep(bd, f).length > 0);
     if (chuaCham && chamVung) co = CO_CHUA_CHAM;
   }
-  return { dong, co };
+  // KH2: tối đa năm dòng lệch mới (đúng chuỗi bước chấm in) + cờ vật chạm nhóm màn khác nhóm S1 đã chọn.
+  const lechMoi = Array.isArray(cham && cham.lech_moi) ? cham.lech_moi : [];
+  const lech = lechMoi.slice(0, 5).map(dongLech);
+  if (lechMoi.length > 5) lech.push(`… và ${lechMoi.length - 5} lệch nữa`);
+  const co2 = [];
+  const chon = chonNap(root, slug);
+  if (cham && chon && chon.nhom) {
+    const bd = docThuMuc(root);
+    const tep = [...(Array.isArray(cham.theo_khuon) ? cham.theo_khuon : []), ...lechMoi.map(x => x.tep)];
+    const khac = [...new Set(tep.flatMap(f => nhomCuaTep(bd, f).filter(n => n.don_vi === 'man' && n.nhom !== chon.nhom).map(n => n.nhom)))];
+    if (khac.length) co2.push(`vòng chọn nhóm ${chon.nhom} mà vật chạm nhóm ${khac.join(', ')}`);
+  }
+  return { dong, co, lech, co2 };
 }
 
-module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, lechTrongTep, tachFrontmatter, theCong2, demLechLot };
+module.exports = { KHOA_LOI, KHOA_MO_RONG, TEN_DANH_RIENG, THU_MUC, KHONG_DOC_SO_DANG_KY, docBanDo, docThuMuc, nhomCuaTep, lechTrongTep, tachFrontmatter, theCong1, theCong2, docTheViec, dongLech, demLechLot };
 
 // ── CLI: `--root <kho> --json` in bản đồ đã chuẩn hoá (cho lint của kho) ──────────────────────────────────────
 if (require.main === module) {

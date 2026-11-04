@@ -197,10 +197,14 @@ function kiemKL10TaiLieu() {
     const sha = git(kho, 'rev-parse', 'HEAD').trim();
     let khoi;
     try { khoi = khoiMarker(SKILL_FL, ten); } catch (e) { loi.push(e.message); continue; }
-    const lenh = khoi.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${KIT}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha);
-    if (!lenh.includes(KIT)) { loi.push(`khối ${ten} không gọi lệnh qua $AG: ${khoi}`); continue; }
-    const r = spawnSync('bash', ['-c', lenh], { cwd: kho, encoding: 'utf8' });
-    if (r.status !== 0) loi.push(`lệnh khối ${ten} thoát ${r.status}: ${(r.stderr || r.stdout).trim()}`);
+    // Mỗi dòng của khối là một lệnh (KHUON-S1 có ba dòng từ hồ sơ khoi-khuon-tren-the-cong): chạy từng dòng, thay mọi ô.
+    for (const dong of khoi.split('\n').filter(l => l.trim())) {
+      const lenh = dong.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${KIT}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha)
+        .replaceAll('<nhóm gần>', 'bang-du-lieu').replaceAll('<nhóm>', 'form-nhap').replaceAll('<tên>', 'bao-cao-tuan');
+      if (!lenh.includes(KIT)) { loi.push(`khối ${ten} không gọi lệnh qua $AG: ${dong}`); continue; }
+      const r = spawnSync('bash', ['-c', lenh], { cwd: kho, encoding: 'utf8' });
+      if (r.status !== 0) loi.push(`lệnh khối ${ten} thoát ${r.status}: ${(r.stderr || r.stdout).trim()}`);
+    }
   }
   return loi;
 }
