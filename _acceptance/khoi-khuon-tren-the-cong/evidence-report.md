@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 232fda0ca30e594c14fd213e9d2b20f25870bf3f
+verified_commit: d6d810ab02e65fc707757e53cdee60505e601095
 human_signoff: Phan Le Manh 2026-11-04
 ---
 
@@ -184,3 +184,7 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, xác đ
 Round 1: E1–E8 đạt (8/8), kèm một lỗi trong hợp đồng (ca phá thử KK-4-do2 xanh rỗng). Quay lại triển khai, sửa mutant chạy được về ngữ nghĩa.
 Round 2: REJECT — lệnh suite vung:3 đỏ ở P179 (sổ known-limits thiếu dòng). Thêm mười dòng sổ known-limits, quay lại triển khai.
 Round 3: E1–E8 mang sang từ round 2 (delta không chạm paths của eval); mười một lệnh suite chạy lại, tất cả xanh. Verdict PASS.
+
+### Re-pin lần 1 — 2026-11-04, do gộp origin/main (PR #481) sau chữ ký
+run_id: repin-20261103T235445Z-52576
+sha: d6d810ab02e65fc707757e53cdee60505e601095 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
