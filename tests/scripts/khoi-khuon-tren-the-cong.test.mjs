@@ -19,7 +19,7 @@ const GC = 'scripts/gate-card.js';
 const CC = 'scripts/can-cu-s1.cjs';
 const SKILL = 'feature-loop/skills/feature-loop/SKILL.md';
 
-const CA = ['KK-0-goc', 'KK-0-goc-do', 'KK-1', 'KK-1-do', 'KK-2', 'KK-2-do', 'KK-2-do2', 'KK-3', 'KK-3-do', 'KK-4', 'KK-4-hong', 'KK-4-do', 'KK-4-do2', 'KK-5', 'KK-5-do', 'KK-6', 'KK-6-do', 'KK-7', 'KK-7-do', 'KK-8', 'KK-8-do', 'KK-8-do2', 'KK-8-tiem', 'KK-8-tiem-do'];
+const CA = ['KK-0-goc', 'KK-0-goc-do', 'KK-0-mot-moc', 'KK-0-mot-moc-do', 'KK-0-dot-bien', 'KK-1', 'KK-1-do', 'KK-2', 'KK-2-do', 'KK-2-do2', 'KK-3', 'KK-3-do', 'KK-4', 'KK-4-hong', 'KK-4-do', 'KK-4-do2', 'KK-5', 'KK-5-do', 'KK-6', 'KK-6-do', 'KK-7', 'KK-7-do', 'KK-8', 'KK-8-do', 'KK-8-do2', 'KK-8-tiem', 'KK-8-tiem-do'];
 const chon = (process.env.KK_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`khoi-khuon-tren-the-cong.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -140,6 +140,41 @@ if (want('KK-0-goc-do')) {
   const trung = nemLoi(() => banGocVong(git(KIT, 'rev-parse', 'HEAD').trim()));
   if (!trung.includes('trùng vật')) loi.push(`mốc trỏ HEAD không nổ đúng thông điệp (được: «${trung || 'không nổ'}»)`);
   ket('KK-0-goc-do', loi);
+}
+// KK-0-mot-moc: mọi bản so trong tệp này đi qua banGocVong — tệp không còn lời gọi git merge-base nào (chuỗi lệnh có
+// nháy). Đỏ: chính văn tệp này chèn một lời gọi merge-base sống → bộ đếm thấy 1, thông điệp ghim. Chữ lệnh ghép lúc
+// chạy để nhát tiêm không tự đếm vào tệp thật.
+const LENH_MB = ['merge', 'base'].join('-');
+const VAN_TEP = fs.readFileSync(new URL(import.meta.url), 'utf8');
+if (want('KK-0-mot-moc')) {
+  const n = demMergeBase(VAN_TEP);
+  ket('KK-0-mot-moc', n === 0 ? [] : [`tệp test còn ${n} lời gọi ${LENH_MB} — bản so phải đi qua banGocVong`]);
+}
+if (want('KK-0-mot-moc-do')) {
+  const tiem = VAN_TEP.replace('const banGocVong = ', `const _song = () => git(KIT, '${LENH_MB}', 'HEAD', 'origin/main');\nconst banGocVong = `);
+  const n0 = demMergeBase(VAN_TEP);
+  const n1 = demMergeBase(tiem);
+  ket('KK-0-mot-moc-do', n0 !== 0 ? [`bản lành chưa xanh: ${n0} lời gọi`] : (tiem === VAN_TEP ? ['hạ tầng ca: nhát tiêm không khớp'] : (n1 === 1 ? [] : [`bản tiêm đếm ${n1} lời gọi (cần 1)`])));
+}
+// KK-0-dot-bien: hai mutant gỡ chốt chạy THẬT trên bản sao tệp này (import viết lại thành đường tuyệt đối, KIT vẫn là
+// cây đang kiểm). Bản sao nguyên vẹn phải xanh ở KK-0-goc-do + KK-8-tiem-do trước; mỗi mutant phải đỏ đúng ca, đúng lời.
+if (want('KK-0-dot-bien')) {
+  const loi = [];
+  const sao = thuMuc('dot-bien');
+  const vanSao = vietLaiImport(VAN_TEP);
+  const chayBan = (ten, van) => { const f = path.join(sao, `${ten}.mjs`); fs.writeFileSync(f, van);
+    return spawnSync(process.execPath, [f], { encoding: 'utf8', env: { ...process.env, KK_CASES: 'KK-0-goc-do,KK-8-tiem-do' } }); };
+  const lanh = chayBan('lanh', vanSao);
+  if (lanh.status !== 0 || !/PASS: \[KK-0-goc-do\]/.test(lanh.stdout) || !/PASS: \[KK-8-tiem-do\]/.test(lanh.stdout)) {
+    loi.push(`bản lành chưa xanh (thoát ${lanh.status}): ${(lanh.stdout + lanh.stderr).trim().slice(-200)}`);
+  } else {
+    for (const [ten, tim, thay, ca, lời] of DOT_BIEN) {
+      if (vanSao.split(tim).length !== 2) { loi.push(`${ten}: nhát tiêm khớp ${vanSao.split(tim).length - 1} lần (cần 1)`); continue; }
+      const r = chayBan(ten, vanSao.replace(tim, thay));
+      if (!new RegExp(`FAIL: \\[${ca}\\][^\\n]*${lời}`).test(r.stdout)) loi.push(`${ten}: không đỏ «${ca} … ${lời}» (thoát ${r.status}: ${r.stdout.trim().slice(-160)})`);
+    }
+  }
+  ket('KK-0-dot-bien', loi);
 }
 const MAN_DAC_BIET = 'src/màn mẫu/A.tsx';
 function kiemKK1(kit) {
