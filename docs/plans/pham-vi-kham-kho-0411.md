@@ -1,6 +1,6 @@
 # Bản phạm vi — khám kho tiêu thụ (đợt `kham-kho-0411`)
 
-Nguồn: đề xuất của phiên crm, gửi phiên điều phối kit ngày 04/11. Chủ kho duyệt việc gửi ở phiên crm. Số đo lấy
+Nguồn: hai trang tri thức ở khối mã dưới (nền thiết kế, bản đồ khuôn) và đề xuất của phiên crm, gửi phiên điều phối kit ngày 04/11. Chủ kho duyệt việc gửi ở phiên crm. Số đo lấy
 trên crm ở `74a29a68d` với kit 2.37.0, chạy trong một worktree nháp rồi gỡ; vòng thử là SV10
 (`crm-onehub/_acceptance/bang-chung-kr-mot-loi/`, PR crm #619).
 
@@ -14,7 +14,7 @@ trên crm ở `74a29a68d` với kit 2.37.0, chạy trong một worktree nháp r�
 ```
 dot: kham-kho-0411
 dang: lan-va
-nguon: đề xuất phiên crm gửi phiên điều phối kit 04/11 (số đo crm 74a29a68d, kit 2.37.0)
+nguon: acceptance-gate-kit-tri-thuc:wiki/chu-de/design-floor.md#3a9c06ec8464d4fe3e2ed863a4373e6da797232f, acceptance-gate-kit-tri-thuc:wiki/chu-de/ban-do-khuon.md#80a46d525b411191c17d03ff0795f34d34f2597f
 
 - `KM` — một lệnh chỉ đọc khám kho tiêu thụ, in một bảng: bậc kèm lý do · executors.design.* đã nối chưa · nhóm khuôn đọc được chưa · lệnh trỏ bộ đệm có số · bản cài khớp thẻ; dòng nào cũng có lối sửa in sẵn; không có --fix trên vật của kho
 - `G1` — glob của kho không hiểu `{a,b}` (pathGlobToRe)
