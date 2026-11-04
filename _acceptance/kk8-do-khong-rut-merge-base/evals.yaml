@@ -1,0 +1,60 @@
+schema_version: 1
+feature_slug: kk8-do-khong-rut-merge-base
+# Một lệnh đo cả ba AC: tệp test của khoi-khuon (khoá executor có sẵn executors.test.khoi_khuon), mỗi ca in
+# «PASS: [KK-…]»/«FAIL: …». Mọi ca đỏ chạy trên vật của cây đang kiểm, sau khi bản lành xanh trên cùng vật; thông điệp
+# ghim. Ma trận viết sẵn: 27 ca (CA trong tệp), số dòng PASS phải bằng 27.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs, tests/scripts/khuon-loi-kho-mau.mjs]
+    expected: >
+      exit 0; stdout có đúng 27 dòng bắt đầu «PASS: [KK-» và 0 dòng «FAIL:»; có «PASS: [KK-8-do]».
+      Chiều đỏ (lịch sử): tệp test ở ed44c2b8 trên cùng nhánh chính cho «FAIL: [KK-8-do] bản tiêm không cho lỗi «lệnh
+      khối KHUON-S1 không ghi lựa chọn» (lỗi: không có)» — CI run 41763815977.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs, feature-loop/skills/feature-loop/SKILL.md]
+    expected: >
+      exit 0; có «PASS: [KK-8-tiem]» (nhát tiêm trên SKILL thật gỡ đúng 1 dòng), «PASS: [KK-8-tiem-do]» (tiêm lần hai
+      nổ «bản tiêm không đổi gì»), «PASS: [KK-8-do]». Chiều đỏ: bản sao gỡ chốt `if (tiem === goc) throw` cho «FAIL:
+      [KK-8-tiem-do] tiêm rỗng không nổ đúng thông điệp (được: «không nổ»)»; commit 305db2fa (trước khi dựng hàm) cho
+      «FAIL: [KK-8-tiem] … tiemBoNhom is not defined».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs, scripts/design-floor-khuon.mjs]
+    expected: >
+      exit 0; có «PASS: [KK-0-goc]» (bản KH1 0f734a69 dựng được, chứa scripts/design-floor-khuon.mjs) và «PASS:
+      [KK-0-goc-do]» (sha vắng → «không có trong kho»; mốc = HEAD → «trùng vật»), cùng «PASS: [KK-1]» và «PASS: [KK-5]»
+      đang dùng bản KH1 ấy. Chiều đỏ: bản sao gỡ chốt trùng-vật cho «FAIL: [KK-0-goc-do] mốc trỏ HEAD không nổ đúng
+      thông điệp (được: «không nổ»)»; commit 305db2fa cho «FAIL: [KK-0-goc-do] sha vắng không nổ đúng thông điệp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; có «PASS: [KK-0-mot-moc]» (tệp không còn lời gọi git merge-base dạng chuỗi) và «PASS: [KK-0-mot-moc-do]»
+      (văn tệp chèn một lời gọi merge-base sống → bộ đếm thấy đúng 1). Chiều đỏ: commit cf0a1438 cho «ReferenceError:
+      demMergeBase is not defined»; bản lành tự đối chứng trong ca (n0 phải bằng 0 trước khi tin n1 = 1).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.khoi_khuon
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs]
+    expected: >
+      exit 0; có «PASS: [KK-0-dot-bien]»: bản sao nguyên vẹn thoát 0 với «PASS: [KK-0-goc-do]» và «PASS: [KK-8-tiem-do]»;
+      mutant go-trung-vat cho «FAIL: [KK-0-goc-do]» chứa «mốc trỏ HEAD không nổ đúng thông điệp»; mutant go-tiem-rong cho
+      «FAIL: [KK-8-tiem-do]» chứa «tiêm rỗng không nổ đúng thông điệp»; mỗi nhát tiêm khớp đúng 1 lần. Chiều đỏ: commit
+      cf0a1438 (bộ chạy mutant chưa dựng) cho ReferenceError; nhát tiêm khớp 2 lần thì ca đỏ «nhát tiêm khớp 2 lần (cần 1)»
+      (đã thấy khi dựng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
