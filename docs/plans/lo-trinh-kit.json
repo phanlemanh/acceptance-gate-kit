@@ -1268,7 +1268,10 @@
         "K3",
         "MT1"
       ],
-      "ghi_chu": "Đổi hành vi S4 của nền thiết kế: chỉ phát hành sau 10 vòng DO1 của invest (chủ kho chốt «Sau 10 vòng M1» 29/10), hoặc invest ghim bản cũ tới hết thí điểm. Bỏ chú thích mang stripNoise, chú thích miễn trừ mang ~157 dòng từ Design OS. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s4.mjs, lib/evidence-core.cjs."
+      "ghi_chu": "Đổi hành vi S4 của nền thiết kế: chỉ phát hành sau 10 vòng DO1 của invest (chủ kho chốt «Sau 10 vòng M1» 29/10), hoặc invest ghim bản cũ tới hết thí điểm. Bỏ chú thích mang stripNoise, chú thích miễn trừ mang ~157 dòng từ Design OS. Ước giá máy: 4–6 giờ máy; S4 ~0,1–0,3 triệu token ra (một lượt FL5 28/10: 93.783 token ra) cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s4.mjs, lib/evidence-core.cjs. Lượt cắt kham-kho-0411 (04/11): cú pháp !glob dời sang KM2 (bộ đọc glob dùng chung) — DFK2 dùng nó, không dựng cú pháp riêng; số đo crm (packages/ui có 10 tệp mang hex hợp lệ nên không vào được surface_globs) thêm vào căn cứ của hàng lúc mở.",
+      "dung_tren": [
+        "KM2"
+      ]
     },
     {
       "ma": "DFK3",
@@ -1286,6 +1289,58 @@
         "K5"
       ],
       "ghi_chu": "Mang hook trace + summarize của Design OS, đổi chỗ ghi. Người hưởng: mọi kho bật tri thức. Song song DFK1/DFK2. Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt, cộng phiên chính đếm tay. Mỗi phép kiểm mới của hàng có một ca làm nó đỏ (chiều đỏ nằm trong bộ kiểm, không phá thử tay). Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/design-floor-s1.mjs, feature-loop/scripts/wf-usage.mjs."
+    },
+    {
+      "ma": "KM1",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "kham-kho-mot-lenh",
+      "ten_ngan": "Khám kho một lệnh",
+      "cau_giao": "Một lệnh chỉ đọc khám kho tiêu thụ và in một bảng: bậc nền thiết kế kèm lý do, executors.design.* đã nối chưa, nhóm khuôn đọc được chưa, lệnh trỏ bộ đệm có số phiên bản, bản cài khớp thẻ — dòng nào chưa đạt cũng có lối sửa in sẵn",
+      "vai": "nen",
+      "tieu_chi": 9,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/bang-chung-kr-mot-loi/ — vòng SV10 (crm #619), nơi phiên crm đo thử bản đồ khuôn và nền thiết kế trên kit 2.37.0 (crm 74a29a68d, worktree nháp đã gỡ) và gửi đề xuất cho phiên điều phối kit 04/11; bản phạm vi docs/plans/pham-vi-kham-kho-0411.md. Kho phải chạy rời kiem-ban-cai --may, design-floor-bac, design-floor-khuon --dem/--kiem rồi grep config, và có ba chỗ đọc nhầm là đã chạy: M0 không in gì, nhóm khuôn «không đọc được ở đây» thoát 0, thiếu executors.design.floor hay khuon chỉ ra một dòng stderr.",
+      "bat_khi": "Kho mẫu ở M0 → bảng có dòng bậc M0 kèm lý do (không im); nhóm khuôn không đọc được → dòng vàng trên bảng, không lẫn với dòng đạt; thiếu executors.design.floor → dòng có lối sửa trên stdout; cây kho không đổi byte nào sau lệnh; trên bản sao crm 74a29a68d bảng ra đúng ba chỗ phiên crm đã đo tay (M0 vì chưa khai surface_globs · nhóm ngan-ban-ghi không đo được · thiếu khai khuôn)",
+      "dot": "kham-kho-0411",
+      "phu": [
+        "KM"
+      ],
+      "ghi_chu": "CỘNG một lệnh mới — chủ kho phê ở Cổng Đáng của hàng. Gom các lệnh có sẵn, không tính lại: mỗi dòng của bảng đọc đúng đầu ra của lệnh đang có (kiem-ban-cai, design-floor-bac, design-floor-khuon), khuôn lối sửa theo kiem-ban-cai. Không có --fix trên vật của kho; chỉ dọn sổ plugin như kiem-ban-cai đang làm. «Không đọc được ở đây» vẫn là nhãn hợp lệ (ĐỊNH VỊ 21/09) — lệnh khám làm nó HIỆN ra, không đổi mã thoát của design-floor-khuon. Song song DFK1: DFK1 bật nền thiết kế, KM1 khám xem đã bật đủ chưa; nếu Cổng Phạm vi của một trong hai thấy chồng kết quả thì gộp ở đó. Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt. Mỗi phép kiểm mới có một ca làm nó đỏ. Vùng mã dự kiến (không ghi trường vung — lộ trình kit chưa dùng vùng, LT-168): scripts/kham-kho.mjs."
+    },
+    {
+      "ma": "KM2",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "glob-ngoac-nhon-va-loai-tru",
+      "ten_ngan": "Glob hiểu {a,b} và loại trừ",
+      "cau_giao": "Mọi chỗ kho khai glob mà kit đọc qua một bộ (surface_globs, nhan_dien của bản đồ khuôn, luật sản phẩm) hiểu {a,b} và dòng loại trừ !glob, còn glob kho đang khai thì khớp đúng như cũ",
+      "vai": "nen",
+      "tieu_chi": 8,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/bang-chung-kr-mot-loi/ — vòng SV10 (crm #619), nơi phiên crm đo thử bản đồ khuôn và nền thiết kế trên kit 2.37.0 (crm 74a29a68d, worktree nháp đã gỡ) và gửi đề xuất cho phiên điều phối kit 04/11; bản phạm vi docs/plans/pham-vi-kham-kho-0411.md. Trên SV10, glob nhận diện theo thư mục của nhóm báo oan bốn chỗ; đổi sang glob theo hậu tố tên tệp thì 0 lệch nhưng khớp cả hai mặt khác không dùng khung — kho không có cách nói «trừ hai tệp này» hay «một trong hai tên».",
+      "bat_khi": "Ca {a,b} khớp đúng hai tên và không khớp tên thứ ba; dòng !glob trừ đúng tệp nó nêu ở cả ba bên đọc; mọi glob đang khai ở các kho tiêu thụ trên máy (ở sha ghim) khớp đúng tập tệp như trước từng tệp (đọc-cũ); một glob loại trừ đứng một mình (không có glob dương) → báo lỗi đúng tên, không thành «khớp hết»",
+      "dot": "kham-kho-0411",
+      "phu": [
+        "G1",
+        "G2"
+      ],
+      "ghi_chu": "Sửa ở MỘT chỗ: pathGlobToRe/resolveConfigList trong lib/evidence-core.cjs, nơi design-floor-bac, design-floor-s4, design-floor-khuon, ban-do-khuon và luat-san-pham cùng đọc. DFK2 đứng trên hàng này cho phần «trừ thư mục vendor bằng !glob» — để không có hai cú pháp loại trừ ở hai bên đọc. Đổi hành vi của bộ đọc dùng chung: đo trước→sau trên các kho (luật «sửa kit vì sự cố của MỘT kho phải cân trên MỌI kho», 26/09). Ước giá máy: 3–5 giờ máy; S4 ~0,1–0,3 triệu token ra cho 1–3 lượt. Vùng mã dự kiến (không ghi trường vung — LT-168): lib/evidence-core.cjs."
+    },
+    {
+      "ma": "KM3",
+      "nhom": "design-floor",
+      "hang": "T2",
+      "slug": "luoi-tier-nhan-eval-nen-thiet-ke",
+      "ten_ngan": "Lưới tier nhận eval nền thiết kế",
+      "cau_giao": "Lưới S4 tier-mismatch nhận eval cmd: config:executors.design.floor là eval thiết kế, nên kho vừa bật surface_globs không bị dừng vòng đầu vì một lưới đọc bằng lời",
+      "vai": "nen",
+      "tieu_chi": 6,
+      "vi_sao": "Gốc: crm-onehub/_acceptance/bang-chung-kr-mot-loi/ — vòng SV10 (crm #619), nơi phiên crm đo thử bản đồ khuôn và nền thiết kế trên kit 2.37.0 (crm 74a29a68d, worktree nháp đã gỡ) và gửi đề xuất cho phiên điều phối kit 04/11; bản phạm vi docs/plans/pham-vi-kham-kho-0411.md. Lưới hôm nay là một câu trong SKILL feature-loop («evals.yaml KHÔNG có eval design nào (static/fidelity) → DỪNG, báo user») mà không định nghĩa «eval design» là gì; eval của nền thiết kế đi qua cmd: config:executors.design.floor nên không rõ có được tính — mỗi kho bật surface_globs chạm chỗ này ngay vòng đầu, thành một lượt gọi người ngoài thiết kế.",
+      "bat_khi": "Hồ sơ mẫu chạm tệp surface_globs và evals.yaml có eval cmd: config:executors.design.floor → lưới im; cùng hồ sơ bỏ eval ấy → lưới đỏ đúng tên tệp và glob; kho không khai surface_globs → lưới bỏ qua như cũ; định nghĩa «eval thiết kế» nằm ở một chỗ máy đọc, SKILL trích nó thay vì tự liệt kê",
+      "dot": "kham-kho-0411",
+      "phu": [
+        "T1"
+      ],
+      "ghi_chu": "Dưới mục tiêu cỡ (6 < 8) mà để riêng: vùng mã khác KM1/KM2 (bước chuẩn bị args S4 của feature-loop), và gỡ trước một lượt gọi người ngoài thiết kế cho mọi kho bật nền thiết kế — không nên chờ lệnh khám. Đổi lưới từ lời sang vật-máy-giữ (dạng nghiệm đúng tầng, North Star 30/08). Ước giá máy: 2–3 giờ máy. Vùng mã dự kiến (không ghi trường vung — LT-168): feature-loop/scripts/s4-args.mjs, feature-loop/skills/feature-loop/SKILL.md."
     },
     {
       "ma": "TC6",
@@ -1593,6 +1648,16 @@
         "KH6"
       ],
       "mo_lai_khi": "Mốc 2.37.0 có kho nhận cài và chạy bước chấm khuôn (hàng KH1) trên ≥1 vòng giao diện thật"
+    },
+    {
+      "ma": "KM-C1",
+      "dot": "kham-kho-0411",
+      "cau_giao": "Bản đồ khuôn nhận mô hình «sổ đăng ký + cấm khối lạ trong cả thư mục» bên cạnh mô hình «mọi tệp trong nhóm phải dùng khuôn», nên tệp phần con của một ngăn không bị đòi dùng khung của ngăn",
+      "ly_do": "Mới có một kho dùng mô hình sổ đăng ký (crm, nhóm ngan-ban-ghi, đo trên SV10: bốn chỗ báo oan) — phanh «không phổ quát quá sớm». KM2 ({a,b} và !glob) có thể đủ để crm khai nhóm đúng mà không cần mô hình mới; chưa biết trước khi KM2 giao.",
+      "phu": [
+        "G3"
+      ],
+      "mo_lai_khi": "KM2 đã giao mà nhóm ngan-ban-ghi của crm vẫn báo oan ≥1 chỗ, hoặc một kho tiêu thụ thứ hai khai nhóm khuôn theo mô hình sổ đăng ký"
     }
   ],
   "da_bac": [

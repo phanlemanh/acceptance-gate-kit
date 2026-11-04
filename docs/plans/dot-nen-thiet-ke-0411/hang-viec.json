@@ -1,0 +1,107 @@
+{
+ "dot": "nen-thiet-ke-0411",
+ "day": [
+  {
+   "id": "D1",
+   "worktree": "/CHUA-CO-WORKTREE/D1",
+   "link": ""
+  },
+  {
+   "id": "D2",
+   "worktree": "/CHUA-CO-WORKTREE/D2",
+   "link": ""
+  },
+  {
+   "id": "D3",
+   "worktree": "/CHUA-CO-WORKTREE/D3",
+   "link": ""
+  }
+ ],
+ "hang": [
+  {
+   "ma": "DFK1",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "bat-nen-thiet-ke-mot-lenh",
+   "day": "D1",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "scripts/design-floor-bac.mjs",
+    "scripts/design-floor-khoi-tao.mjs",
+    "_acceptance/bat-nen-thiet-ke-mot-lenh/**"
+   ],
+   "moc": "2026-11-12"
+  },
+  {
+   "ma": "KM1",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "kham-kho-mot-lenh",
+   "day": "D1",
+   "uu_tien": 1,
+   "s4": "local",
+   "ranh_gioi": [
+    "scripts/kham-kho.mjs",
+    "_acceptance/kham-kho-mot-lenh/**"
+   ],
+   "moc": "2026-11-12"
+  },
+  {
+   "ma": "KM2",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "glob-ngoac-nhon-va-loai-tru",
+   "day": "D2",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "lib/evidence-core.cjs",
+    "_acceptance/glob-ngoac-nhon-va-loai-tru/**"
+   ],
+   "moc": "2026-11-12"
+  },
+  {
+   "ma": "DFK2",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "s4-nen-thiet-ke-cham-phan-doi",
+   "day": "D2",
+   "uu_tien": 1,
+   "s4": "local",
+   "ranh_gioi": [
+    "scripts/design-floor-s4.mjs",
+    "lib/evidence-core.cjs",
+    "_acceptance/s4-nen-thiet-ke-cham-phan-doi/**"
+   ],
+   "moc": "2026-11-12",
+   "sau": [
+    "KM2"
+   ]
+  },
+  {
+   "ma": "DFK3",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "do-doc-tri-thuc-s1",
+   "day": "D3",
+   "uu_tien": 0,
+   "s4": "local",
+   "ranh_gioi": [
+    "scripts/design-floor-s1.mjs",
+    "feature-loop/scripts/wf-usage.mjs",
+    "_acceptance/do-doc-tri-thuc-s1/**"
+   ],
+   "moc": "2026-11-12"
+  },
+  {
+   "ma": "KM3",
+   "tep": "docs/plans/lo-trinh-kit.json",
+   "slug": "luoi-tier-nhan-eval-nen-thiet-ke",
+   "day": "D3",
+   "uu_tien": 1,
+   "s4": "local",
+   "ranh_gioi": [
+    "feature-loop/scripts/s4-args.mjs",
+    "feature-loop/skills/feature-loop/SKILL.md",
+    "_acceptance/luoi-tier-nhan-eval-nen-thiet-ke/**"
+   ],
+   "moc": "2026-11-12"
+  }
+ ]
+}
