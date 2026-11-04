@@ -146,6 +146,15 @@ if (want('KK-0-goc-do')) {
 // chạy để nhát tiêm không tự đếm vào tệp thật.
 const LENH_MB = ['merge', 'base'].join('-');
 const VAN_TEP = fs.readFileSync(new URL(import.meta.url), 'utf8');
+// demMergeBase(văn) — số lời gọi git merge-base dạng chuỗi có nháy ('…' hay "…"); chú thích không có nháy nên không đếm.
+const demMergeBase = van => (van.match(new RegExp(`['"]${LENH_MB}['"]`, 'g')) || []).length;
+// vietLaiImport(văn) — import tương đối './x.mjs' thành URL tuyệt đối cạnh tệp này, để bản sao chạy được ở thư mục tạm.
+const vietLaiImport = van => van.replace(/from '\.\/([\w.-]+\.mjs)'/g, (_, t) => `from '${new URL(`./${t}`, import.meta.url).href}'`);
+// Hai mutant gỡ chốt: [tên, chuỗi tìm (khớp đúng 1 lần), chuỗi thay, ca phải đỏ, lời ghim].
+const DOT_BIEN = [
+  ['go-trung-vat', 'if (git(KIT, \'rev-parse\', `${mb}:${LENH}`)', 'if (false && git(KIT, \'rev-parse\', `${mb}:${LENH}`)', 'KK-0-goc-do', 'mốc trỏ HEAD không nổ đúng thông điệp'],
+  ['go-tiem-rong', 'if (tiem === goc) throw new Error(\'KK-8-do:', 'if (false) throw new Error(\'KK-8-do:', 'KK-8-tiem-do', 'tiêm rỗng không nổ đúng thông điệp'],
+];
 if (want('KK-0-mot-moc')) {
   const n = demMergeBase(VAN_TEP);
   ket('KK-0-mot-moc', n === 0 ? [] : [`tệp test còn ${n} lời gọi ${LENH_MB} — bản so phải đi qua banGocVong`]);
@@ -168,10 +177,10 @@ if (want('KK-0-dot-bien')) {
   if (lanh.status !== 0 || !/PASS: \[KK-0-goc-do\]/.test(lanh.stdout) || !/PASS: \[KK-8-tiem-do\]/.test(lanh.stdout)) {
     loi.push(`bản lành chưa xanh (thoát ${lanh.status}): ${(lanh.stdout + lanh.stderr).trim().slice(-200)}`);
   } else {
-    for (const [ten, tim, thay, ca, lời] of DOT_BIEN) {
+    for (const [ten, tim, thay, ca, loiGhim] of DOT_BIEN) {
       if (vanSao.split(tim).length !== 2) { loi.push(`${ten}: nhát tiêm khớp ${vanSao.split(tim).length - 1} lần (cần 1)`); continue; }
       const r = chayBan(ten, vanSao.replace(tim, thay));
-      if (!new RegExp(`FAIL: \\[${ca}\\][^\\n]*${lời}`).test(r.stdout)) loi.push(`${ten}: không đỏ «${ca} … ${lời}» (thoát ${r.status}: ${r.stdout.trim().slice(-160)})`);
+      if (!new RegExp(`FAIL: \\[${ca}\\][^\\n]*${loiGhim}`).test(r.stdout)) loi.push(`${ten}: không đỏ «${ca} … ${loiGhim}» (thoát ${r.status}: ${r.stdout.trim().slice(-160)})`);
     }
   }
   ket('KK-0-dot-bien', loi);
