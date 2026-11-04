@@ -102,10 +102,8 @@ const soCauHoi = (kit, kho, slug) => { const m = /câu hỏi (\d+)/.exec(chay(ki
 let _goc = null;
 const banGocVong = () => {
   if (_goc) return _goc;
-  // Bản KH1 ghim cứng: main ngay trước khi vòng này gộp (#483). Không rút từ merge-base HEAD với main — sau khi vòng
-  // gộp, merge-base đã mang vật của vòng nên mọi phép so «bằng từng byte bản KH1» tự so với chính nó (xanh rỗng).
-  const mb = '0f734a69237616607a1401ae46d771eb2e4c5811';
-  try { git(KIT, 'cat-file', '-e', `${mb}^{commit}`); } catch (_) { throw new Error(`bản KH1 ${mb} không có trong kho — checkout cần đủ lịch sử (fetch-depth: 0)`); }
+  let mb = '';
+  for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
   _goc = thuMuc('goc-vong');
   execFileSync('bash', ['-c', `git -C "${KIT}" archive "${mb}" scripts lib | tar -x -C "${_goc}"`]);
   fs.cpSync(path.join(KIT, 'skills'), path.join(_goc, 'skills'), { recursive: true });
@@ -397,15 +395,12 @@ if (wantAny('KK-8')) {
   const lanh = kiemKK8(KIT, want('KK-8'));
   if (want('KK-8')) ket('KK-8', lanh);
   if (want('KK-8-do')) caDo('KK-8-do', kiemKK8, lanh, () => {
-    // Bản tiêm tự sinh từ vật: gỡ dòng ghi lựa chọn (`--nhom '<nhóm>'`) khỏi khối KHUON-S1. Không rút «khối cũ» từ
-    // merge-base với main — sau khi vòng này gộp, merge-base đã mang khối mới nên bản tiêm trùng bản gốc (CI #484).
     const sao = banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, '<!-- <<<KHUON-S1 -->', '<!-- <<<KHUON-S1 -->');
+    let mb = ''; for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
+    const cu = git(KIT, 'show', `${mb}:${SKILL}`);
+    const khoiCu = /<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/.exec(cu)[0];
     const f = path.join(sao, SKILL);
-    const goc = fs.readFileSync(f, 'utf8');
-    const tiem = goc.replace(/<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/,
-      k => k.split('\n').filter(l => !/--nhom '<nhóm>'/.test(l)).join('\n'));
-    if (tiem === goc) throw new Error('KK-8-do: bản tiêm không đổi gì — khối KHUON-S1 không còn dòng --nhom để gỡ');
-    fs.writeFileSync(f, tiem);
+    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/, khoiCu));
     return sao;
   }, 'lệnh khối KHUON-S1 không ghi lựa chọn');
   if (want('KK-8-do2')) caDo('KK-8-do2', kiemKK8, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, "--gan '<nhóm gần>'", "--gần '<nhóm gần>'"), 'nhánh nhóm mới của KHUON-S1 hỏng');
