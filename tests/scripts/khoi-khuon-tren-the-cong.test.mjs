@@ -394,13 +394,17 @@ function kiemKK8(kit, inSo = false) {
 if (wantAny('KK-8')) {
   const lanh = kiemKK8(KIT, want('KK-8'));
   if (want('KK-8')) ket('KK-8', lanh);
+  // Nhát tiêm rút từ VẬT: bỏ đúng dòng `--nhom '<nhóm>'` khỏi khối KHUON-S1 đang có. Bản trước chép khối từ
+  // merge-base(HEAD, origin/main) — sau khi gộp, merge-base là chính HEAD nên bản tiêm trùng bản lành và ca đỏ trên
+  // main (CI ed44c2b8). Nhát tiêm không đổi được byte nào → nổ ở chân hạ tầng, không xanh rỗng.
   if (want('KK-8-do')) caDo('KK-8-do', kiemKK8, lanh, () => {
     const sao = banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, '<!-- <<<KHUON-S1 -->', '<!-- <<<KHUON-S1 -->');
-    let mb = ''; for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
-    const cu = git(KIT, 'show', `${mb}:${SKILL}`);
-    const khoiCu = /<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/.exec(cu)[0];
     const f = path.join(sao, SKILL);
-    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/, khoiCu));
+    const goc = fs.readFileSync(f, 'utf8');
+    const tiem = goc.replace(/<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/,
+      k => k.split('\n').filter(l => !/--nhom '<nhóm>'/.test(l)).join('\n'));
+    if (tiem === goc) throw new Error("nhát tiêm KK-8-do không đổi gì — khối KHUON-S1 không có dòng --nhom '<nhóm>'");
+    fs.writeFileSync(f, tiem);
     return sao;
   }, 'lệnh khối KHUON-S1 không ghi lựa chọn');
   if (want('KK-8-do2')) caDo('KK-8-do2', kiemKK8, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, "--gan '<nhóm gần>'", "--gần '<nhóm gần>'"), 'nhánh nhóm mới của KHUON-S1 hỏng');

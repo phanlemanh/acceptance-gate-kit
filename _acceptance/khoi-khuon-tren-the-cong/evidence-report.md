@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d6d810ab02e65fc707757e53cdee60505e601095
+verified_commit: ca93a31ee5584a0a1ae020cef55782142384e481
 human_signoff: Phan Le Manh 2026-11-04
 ---
 
@@ -188,3 +188,7 @@ Round 3: E1–E8 mang sang từ round 2 (delta không chạm paths của eval); 
 ### Re-pin lần 1 — 2026-11-04, do gộp origin/main (PR #481) sau chữ ký
 run_id: repin-20261103T235445Z-52576
 sha: d6d810ab02e65fc707757e53cdee60505e601095 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-11-04, do sửa ca KK-8-do (tệp eval) sau khi gộp PR #483 làm CI main đỏ
+run_id: repin-20261104T042819Z-64331
+sha: ca93a31ee5584a0a1ae020cef55782142384e481 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
