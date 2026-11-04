@@ -19,7 +19,7 @@ const GC = 'scripts/gate-card.js';
 const CC = 'scripts/can-cu-s1.cjs';
 const SKILL = 'feature-loop/skills/feature-loop/SKILL.md';
 
-const CA = ['KK-1', 'KK-1-do', 'KK-2', 'KK-2-do', 'KK-2-do2', 'KK-3', 'KK-3-do', 'KK-4', 'KK-4-hong', 'KK-4-do', 'KK-4-do2', 'KK-5', 'KK-5-do', 'KK-6', 'KK-6-do', 'KK-7', 'KK-7-do', 'KK-8', 'KK-8-do', 'KK-8-do2'];
+const CA = ['KK-0-goc', 'KK-0-goc-do', 'KK-1', 'KK-1-do', 'KK-2', 'KK-2-do', 'KK-2-do2', 'KK-3', 'KK-3-do', 'KK-4', 'KK-4-hong', 'KK-4-do', 'KK-4-do2', 'KK-5', 'KK-5-do', 'KK-6', 'KK-6-do', 'KK-7', 'KK-7-do', 'KK-8', 'KK-8-do', 'KK-8-do2', 'KK-8-tiem', 'KK-8-tiem-do'];
 const chon = (process.env.KK_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`khoi-khuon-tren-the-cong.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -111,6 +111,23 @@ const banGocVong = () => {
   fs.cpSync(path.join(KIT, 'skills'), path.join(_goc, 'skills'), { recursive: true });
   return _goc;
 };
+// ── KK-0: mốc so «bản KH1» là vật-máy-giữ (hồ sơ kk8-do-khong-rut-merge-base) ─────────────────────────────────────
+// Lành: bản KH1 ghim dựng được và KHÁC vật đang kiểm. Đỏ: sha vắng → nổ «không có trong kho»; sha trỏ chính HEAD (hình
+// dạng merge-base sống sau khi vòng gộp) → nổ «trùng vật». Thông điệp ghim; nổ sai thông điệp = đỏ.
+const nemLoi = f => { try { f(); return ''; } catch (e) { return e.message; } };
+if (want('KK-0-goc')) {
+  const m = nemLoi(() => banGocVong());
+  ket('KK-0-goc', m ? [`bản KH1 không dựng được: ${m}`] : (fs.existsSync(path.join(banGocVong(), LENH)) ? [] : [`bản KH1 thiếu ${LENH}`]));
+}
+if (want('KK-0-goc-do')) {
+  const loi = [];
+  if (nemLoi(() => banGocVong())) loi.push('bản lành chưa xanh: bản KH1 ghim không dựng được');
+  const vang = nemLoi(() => banGocVong('f'.repeat(40)));
+  if (!vang.includes('không có trong kho')) loi.push(`sha vắng không nổ đúng thông điệp (được: «${vang || 'không nổ'}»)`);
+  const trung = nemLoi(() => banGocVong(git(KIT, 'rev-parse', 'HEAD').trim()));
+  if (!trung.includes('trùng vật')) loi.push(`mốc trỏ HEAD không nổ đúng thông điệp (được: «${trung || 'không nổ'}»)`);
+  ket('KK-0-goc-do', loi);
+}
 const MAN_DAC_BIET = 'src/màn mẫu/A.tsx';
 function kiemKK1(kit) {
   const loi = [];
@@ -408,6 +425,19 @@ if (wantAny('KK-8')) {
     fs.writeFileSync(f, tiem);
     return sao;
   }, 'lệnh khối KHUON-S1 không ghi lựa chọn');
+  // KK-8-tiem: nhát tiêm của KK-8-do gỡ ĐÚNG MỘT dòng khỏi vật thật. KK-8-tiem-do: tiêm lần hai lên chính bản đã tiêm
+  // (khối không còn dòng --nhom — hình dạng «bản tiêm trùng bản gốc» của CI ed44c2b8) phải nổ thông điệp ghim.
+  const vat = fs.readFileSync(path.join(KIT, SKILL), 'utf8');
+  if (want('KK-8-tiem')) {
+    const m = nemLoi(() => tiemBoNhom(vat));
+    const bot = m ? -1 : vat.split('\n').length - tiemBoNhom(vat).split('\n').length;
+    ket('KK-8-tiem', bot === 1 ? [] : [`nhát tiêm trên vật gỡ ${bot} dòng (cần 1)${m ? `: ${m}` : ''}`]);
+  }
+  if (want('KK-8-tiem-do')) {
+    const m1 = nemLoi(() => tiemBoNhom(vat));
+    const m2 = m1 ? '' : nemLoi(() => tiemBoNhom(tiemBoNhom(vat)));
+    ket('KK-8-tiem-do', m1 ? [`bản lành chưa xanh: ${m1}`] : (m2.includes('bản tiêm không đổi gì') ? [] : [`tiêm rỗng không nổ đúng thông điệp (được: «${m2 || 'không nổ'}»)`]));
+  }
   if (want('KK-8-do2')) caDo('KK-8-do2', kiemKK8, lanh, () => banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, "--gan '<nhóm gần>'", "--gần '<nhóm gần>'"), 'nhánh nhóm mới của KHUON-S1 hỏng');
 }
 
