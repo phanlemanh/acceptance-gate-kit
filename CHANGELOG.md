@@ -10,6 +10,165 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.38.0 — 05/11/2026
+
+Mốc **Khuôn trên thẻ cổng** (hàng KH2 của lộ trình kit) kèm **bản vá V0**: thẻ Cổng Phạm vi và Cổng Bằng chứng có khối
+«Khuôn», S1 ghi đã chọn nhóm nào và đọc màn mẫu nào; bước chấm khuôn hiểu mục `ngoai_le` không có `khoi` là tệp rời
+nhóm — giới hạn «cắt trước» mà 2.37.0 khai thẳng nay đã vá. Lộ trình để KH2 ở một mốc riêng, «ghép hay tách khi cắt số
+là việc của lượt cắt»; lượt cắt ghép V0 vào cùng mốc. Chủ kho 05/11 «Cắt KH2 trước»: cắt trước khi đợt
+`nen-thiet-ke-0411` mở, để hai kho đang chờ KH2 và V0 nhận ngay, và để KM2 của đợt — đổi bộ đọc glob dùng chung
+`lib/evidence-core.cjs` — không đi cùng chữ ký này. Có **hai hồ sơ được ký** — tập đối chiếu bằng
+`scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc): `ban-do-khuon-roi-nhom` (#481), `khoi-khuon-tren-the-cong` (#483).
+Ngoài vòng: #486 · #487. Kho chờ nhận: `onehub-quy-hang` và `crm`. Mốc đi **làn V**, không dựng răng mới. Năm gói
+`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.38.0` (`acceptance-gate`,
+`feature-loop` đổi vật; `dieu-phoi`, `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.38.0`
+gắn vào commit gộp PR mốc.
+
+**Vì sao 2.38.0** (minor): theo nếp «minor cho bề mặt mới» (đoạn «Vì sao 2.37.0»), mốc có bề mặt mới, không gãy đường
+đọc-cũ — cờ `--nhom`, `--nhom-moi`, `--gan` của bước nạp (`design-floor-khuon.mjs --nap`), khoá `chon` trong
+`khuon-nap.json`, khối «Khuôn» trên thẻ Cổng Phạm vi (khoá `khuon_g1` của `--extract`) và các dòng lệch trên thẻ Cổng
+Bằng chứng. Kho không khai `design/patterns/` không đi qua đường nào mới: thẻ hai cổng bằng từng byte bản trước. Hai
+đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị ảnh hưởng» dưới: tệp đã khai rời nhóm thôi bị chấm lệch hay nợ cũ
+theo nhóm ấy và thôi làm `s4-args` dừng lượt chấm; hồ sơ mặt người nhìn ở kho khai bản đồ mà S1 chưa ghi nhóm thì thẻ
+Cổng Phạm vi có cờ «S1 chưa ghi đã chọn nhóm khuôn nào».
+
+### Bước chấm khuôn hiểu tệp rời nhóm (hồ sơ `ban-do-khuon-roi-nhom`, bản vá V0, T2)
+
+Gốc: `onehub-quy-hang/_acceptance/ban-do-khuon-nhom-da-co/` — hồ sơ đã ký dựng bản đồ khuôn của kho thứ hai, trong đó
+nhóm «trang tạm» có glob phủ mọi trang và một danh sách `ngoai_le: [{tep, ly_do}]` không `khoi` để màn thật rời nhóm.
+
+- **Vật:** Bước chấm khuôn hiểu mục ngoai_le không có khoi là tệp rời nhóm — tệp ấy không thuộc nhóm, nên không bị chấm
+  lệch hay nợ cũ theo nhóm ấy
+- **Mục rời nhóm** = mục `ngoai_le` có `tep` và `ly_do` mà VẮNG HẲN khoá `khoi`. `khoi:` để trống, `khoi: ""` và
+  `khoi: []` không phải mục rời nhóm (giữ nghĩa cũ: không miễn gì); mục có `khoi` chỉ miễn khối ấy. Mục rời nhóm thiếu
+  `ly_do` cho dòng «sai:» và không làm tệp rời nhóm; `tep` là đường tệp đúng, không phải glob.
+- **Tệp rời vẫn bị chấm đủ theo nhóm thật** của nó (khối cấm, thiếu khuôn). Hồ sơ chỉ chạm tệp đã khai rời nhóm duy nhất
+  của nó thì `s4-args` không dừng vì thiếu eval khuôn và thẻ Cổng Bằng chứng không cắm cờ «chưa chấm khuôn»; chạm tệp
+  không khai rời nhóm thì vẫn như 2.37.0. CLI `ban-do-khuon.cjs --json` in mục rời nhóm với `"khoi": null`.
+- **Khuôn tệp và GUIDE:** `ban-do-khuon-template.md` và đoạn «Bản đồ khuôn» của GUIDE §5.2 nói mục không có `khoi` là
+  tệp rời nhóm.
+- **Số TRƯỚC/SAU** (design §5, bản sao dùng một lần của hai kho): kho thứ hai, base trước bản đồ — TRƯỚC 10 lệch mới ·
+  6 nợ cũ · 65 theo khuôn → SAU 0 · 0 · 81; base 30 commit trước — 6 · 3 · 47 → 0 · 0 · 56. Kho thứ nhất, ở hai cấu hình
+  glob giả lập, bằng hệt giữa hai bản.
+- **Giới hạn đã khai:** 6 mục chọn ở Cổng Bằng chứng 03/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-1 «Người viết bản đồ
+  gõ sai tên khoá khi muốn miễn một khối thì cả tệp lặng lẽ rời nhóm, không có cảnh báo nào.»
+
+### Khối «Khuôn» trên thẻ hai cổng (hồ sơ `khoi-khuon-tren-the-cong`, hàng KH2, T2)
+
+Gốc: `kit/_acceptance/khuon-loi/` — KH1 đã ký, phát hành v2.37.0; KH1 để lại thẻ Cổng Bằng chứng in MỘT dòng số đo khuôn,
+thẻ Cổng Phạm vi chưa có gì về khuôn, khối KHUON-S1 dặn bằng lời «đọc đúng tệp bản đồ và màn mẫu của nhóm» mà không có
+vật nào cho thấy đã đọc, và đối tượng mới chưa có nhóm không có lối ra ở cổng.
+
+- **Vật:** Thẻ Cổng Phạm vi và Cổng Bằng chứng có khối «Khuôn» đọc từ vật S1 và lượt chấm ghi; S1 ghi đã chọn nhóm nào
+  và đọc màn mẫu nào; màn mới chỉ thêm một câu hỏi ở cổng sẵn có
+- **Bước nạp ghi lựa chọn:** `design-floor-khuon.mjs --nap --slug <s> --nhom <nhóm>` ghi `chon` (nhóm, tệp bản đồ,
+  `mau.tep`, `mau.bam` = `git hash-object` của màn mẫu) vào `khuon-nap.json`; màn mẫu vắng trên đĩa thì `mau.bam: null`.
+  `--nhom-moi <tên> [--gan <nhóm>]` dành cho màn không vào nhóm nào: lệnh in một dòng câu hỏi chỉ-người cho sổ, lên thẻ
+  Cổng Phạm vi thành đúng một «Hỏi-n»; vắng `--gan` thì câu hỏi có lối khác «để màn ngoài bản đồ». Bước nạp không kèm
+  cờ chọn ra tệp bằng từng byte bản KH1. Khối `KHUON-S1` của SKILL feature-loop thêm hai dòng lệnh ấy.
+- **Thẻ Cổng Phạm vi:** khối «Khuôn» (HTML và khoá `khuon_g1` của `--extract`): nhóm · đối tượng · việc nhóm nhận ·
+  màn mẫu kèm «băm khớp» · năm trường Thẻ việc. Cờ: hồ sơ `surfaces` `ui`, `web` hay `web-ui` chưa ghi lựa chọn → «S1
+  chưa ghi đã chọn nhóm khuôn nào»; màn mẫu sửa sau khi nạp → «màn mẫu đổi sau khi S1 đọc»; nhóm mới chưa thành câu hỏi
+  ở cổng → cờ gọi tên nhóm ấy.
+- **Thẻ Cổng Bằng chứng:** giữ dòng số đo của KH1, thêm tối đa năm dòng lệch (cùng chuỗi bước chấm in) cộng «… và n lệch
+  nữa», và cờ khi vật chạm nhóm khác nhóm đã chọn.
+- **Lỗi không im lặng:** bộ đọc khuôn ném lỗi thì thẻ vẫn dựng xong, kèm cờ «không dựng được khối Khuôn:» và thông điệp.
+- **Giới hạn đã khai:** 17 mục chọn ở Cổng Bằng chứng 04/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-11 «Cờ của khối
+  Khuôn nằm dưới nhãn «thông tin, không cần trả lời», nên người ký có thể lướt qua.» và Ngoài-15 «Từ vựng mặt người nhìn
+  chép tay và so phân biệt hoa thường, nên hồ sơ khai UI hoặc Web không nhận lời nhắc chưa ghi nhóm khuôn.»
+
+### Ngoài vòng
+
+- **Sửa ca KK-8-do** (#486): ca phá thử của `khoi-khuon-tren-the-cong` tiêm từ vật thay vì neo merge-base, vì sau khi
+  #483 gộp, merge-base trùng HEAD và ca đỏ trên nhánh chính. Chỉ tệp ca đo và một làn ghim lại của hồ sơ.
+- **Lượt cắt `kham-kho-0411` và gói đợt `nen-thiet-ke-0411`** (#487): chỉ `docs/plans/` — không hàng mới chạy, không
+  đổi engine.
+
+**Ai bị ảnh hưởng:**
+
+- Kho khai `design/patterns/` có mục `ngoai_le` không `khoi` (tệp rời nhóm): tệp ấy thôi bị chấm lệch hay nợ cũ theo
+  nhóm khai nó, và hồ sơ chỉ chạm tệp đã rời nhóm duy nhất của nó thôi bị `s4-args` dừng vì thiếu eval khuôn. Kho viết
+  `khoi:` để trống, `khoi: ""` hay `khoi: []`: như 2.37.0. Kho nào dùng mục không `khoi` với nghĩa khác «rời nhóm» sẽ
+  thấy tệp ấy thôi được chấm theo nhóm.
+- Kho khai `design/patterns/` chạy feature-loop: hồ sơ `surfaces` `ui`, `web` hay `web-ui` mà S1 chưa ghi lựa chọn (không
+  có `khuon-nap.json`, hay có mà thiếu `chon`) thì thẻ Cổng Phạm vi có cờ «S1 chưa ghi đã chọn nhóm khuôn nào» — cờ,
+  không chặn. Thẻ Cổng Bằng chứng có thêm dòng lệch dưới dòng số đo.
+- Kho không có `design/patterns/`: mọi lệnh khuôn im, thẻ hai cổng bằng từng byte bản trước.
+
+**Đường đọc-cũ:** kho không khai `design/patterns/` → không đổi gì; `khuon-nap.json` do bản 2.37.0 ghi (không `chon`) vẫn
+đọc được — thẻ cắm cờ chưa chọn ở hồ sơ mặt người nhìn, không chặn; mục `ngoai_le` có `khoi` → như cũ.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: không chép gì** — 36 tệp giữ nguyên như `v2.37.0`.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.38.0` ở MỌI phạm vi** — kể cả `dieu-phoi`, `tri-thuc` nếu dùng — rồi kiểm
+  `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.38.0 --root <bản clone kit đã git fetch
+  --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+- **Lệnh trỏ bộ đệm có số** (`…/acceptance-gate/2.37.0/scripts/…`) trong `_acceptance/config.yaml` phải đổi số — hay
+  tốt hơn, đổi sang đường không số (GUIDE §5.3).
+- **Kho có `design/patterns/`:** đọc lại mục `ngoai_le` không `khoi` — mỗi mục ấy nay là tệp rời nhóm và phải có
+  `ly_do`. Hồ sơ giao diện mới ghi lựa chọn ở S1 bằng dòng hai hay dòng ba của khối `KHUON-S1`.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.38.0` (KC1).
+
+**onehub-quy-hang**: kho đã chờ bản vá V0 từ mốc 2.37.0 — sau khi nhận, mục `ngoai_le` không `khoi` của kho được hiểu là
+tệp rời nhóm (số SAU trên bản sao: 0 lệch mới, 0 nợ cũ ở cả hai base đo). Kho tự dựng bộ đọc và răng bản đồ khuôn của
+riêng nó; bỏ mã trùng là việc của kho.
+
+**crm**: không có mục rời nhóm (bộ đọc thấy 0 trên bản sao) — bước chấm khuôn bằng hệt 2.37.0; nhận cho khối «Khuôn»
+trên thẻ hai cổng.
+
+**Năm dòng số của luật (c)**: hai vòng gộp trong cửa sổ (giờ VN). Định nghĩa giữ như mốc 2.37.0: làm-xong = commit đưa
+hợp đồng sang `implemented` · ký = commit đầu đưa `status:` sang `signed-off` · gộp = commit đầu trên lối cha-đầu của
+nhánh chính có commit ký là tổ tiên. Dòng 2 đếm từ sổ quyết định, phần `decided_by`/`decided_at` của `opportunity.md` và
+các commit cổng. Dòng 4–5 lấy từ bảng vai trò của `usage-report.md`. Phút ghim lại lấy `wall_s` của các dòng
+`repin`/`repin-do` trong `run-log.jsonl`. Hai hồ sơ T2 (trần 3).
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `ban-do-khuon-roi-nhom` (#481, T2) | 5 g 00 · 8 g 58 · 2 (lượt 1 REJECT: bản đồ sản phẩm phải sinh lại sau khi vào S4, vật giữ nguyên; lượt 2 PASS) | 1 / 0 (3): Bằng chứng; Phạm vi đi làn V; Đáng là câu «Cắt trước» đã đếm ở mốc 2.37.0 | **1** (lượt 1: bản đồ lệch) | 142 808 · 50,9 / 34,8 / 14,4 | 59 · 57 = 116; làn trước chữ ký 54 (đỏ, hai ca chỉ xanh sau ký); ghim lại sau chữ ký 54 |
+| `khoi-khuon-tren-the-cong` (#483, T2, vòng meta) | 8 g 48 · 3 g 03 · 3 (lượt 1: tám eval đạt kèm một phát hiện trong hợp đồng — ca phá thử KK-4-do2 xanh rỗng; máy sửa ca; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 2 / 0 (3): Đáng gộp vào Phạm vi một chạm (Hỏi-1 CỘNG, Hỏi-2), Bằng chứng | **1** (lượt 2: P179) | 194 808 · 33,2 / 47,1 / 19,6 | 57 · 56 · 59 = 172; làn trước chữ ký 51 (đỏ); ghim lại sau chữ ký 49; sau gộp 51 (#486) |
+
+- `khoi-khuon-tren-the-cong` là vòng meta duy nhất của cửa sổ, chủ kho gọi tên ngày 03/11 («Mở KH-C2 ngay», luật chiều
+  rộng (b)). Lời giao vòng meta không đếm, như `khuon-loi` ở 2.37.0. Tính thì thêm 1.
+- Gộp hai hồ sơ: **337 616** out-token S4, vật 40,7 / tìm-lỗi 41,9 / tổng hợp 17,4 %; **288** phút S4 qua **5** lượt.
+  Làn trước chữ ký và ghim lại: **259** phút qua 5 làn ở 2 vòng, 2 làn đỏ vì ca chỉ xanh sau chữ ký.
+- Trung vị hai vòng: làm-xong → ký **6 g 54**, ký → gộp **6 g 01**. Ký chưa gộp: **0**.
+- Gọi người: 3 trong thiết kế + 0 ngoài thiết kế = **3 cho 2 kết quả gộp** (1,5 mỗi kết quả). Tính cả lời giao vòng
+  meta thì 4.
+- Giờ máy cả vòng, kể cả phiên chính (dòng `gio-may` cuối của `run-log.jsonl`, chỉ để tham khảo):
+  `khoi-khuon-tren-the-cong` 2,23 giờ máy · 1,45 giờ chờ · 279 080 out-token; `ban-do-khuon-roi-nhom` không có dòng
+  `gio-may`.
+
+**Đọc số:**
+- **Hạ tầng đốt 2 / 5 lượt (116 phút máy)**, so với 8 / 22 (493′) ở 2.37.0. Một lượt vì bản đồ sản phẩm lệch sau khi
+  vào S4, một lượt vì P179 — hạt giống `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` vẫn chưa làm.
+- **Ký → gộp: hai ca chỉ xanh sau chữ ký làm mỗi vòng tốn một làn đỏ trước ký** (RT13/P179 đọc trạng thái hồ sơ), rồi
+  một làn ghim lại sau ký — 108 phút cho `ban-do-khuon-roi-nhom`, 100 cho `khoi-khuon-tren-the-cong` trước khi gộp.
+  `ban-do-khuon-roi-nhom` ký 21:49 03/11, gộp 06:47 04/11.
+- **Sau gộp #483, nhánh chính đỏ** vì ca KK-8-do neo merge-base — sau gộp merge-base trùng HEAD và bản sao không còn
+  khác vật. #486 sửa ca (tiêm từ vật), thêm một làn ghim lại 51 phút; tính vào vòng `khoi-khuon-tren-the-cong`.
+- **Dòng 4: tỉ phần vật 40,7 %** (50,8 % ở 2.37.0). `khoi-khuon-tren-the-cong` tìm-lỗi 47,1 % — khối tìm-lỗi đổi được
+  vật ở lượt 1 (ca phá thử xanh rỗng). Token S4 mỗi kết quả gộp: 168 808, so với 135 377 ở 2.37.0.
+- **Gọi người 1,5 mỗi kết quả gộp** (2,1 ở 2.37.0); không vòng nào vượt trần, 0 lượt ngoài thiết kế.
+
+**Điều kiện tin cậy:**
+- **(i)** `git diff --stat v2.37.0 HEAD -- feature-loop/workflows/ feature-loop/agents/` RỖNG: đường finder → refute →
+  REJECT không đổi thành phần.
+- **(ii)** Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0**. Phát hiện ca phá thử xanh rỗng (KK-4-do2) bị bắt trong
+  lượt 1, trước khi tới người. Ca KK-8-do đỏ trên nhánh chính sau gộp là ca đỏ oan, không phải lượt chấm sai: lượt chấm
+  của hồ sơ chạy trước gộp, khi merge-base còn khác HEAD.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+- 2 = : khối «Khuôn» và cờ đi trên thẻ cổng sẵn có; màn mới thành một «Hỏi-n» ở cổng sẵn có, không thêm lượt gọi người.
+- 3 ↓ ở kho khai tệp rời nhóm: `s4-args` thôi dừng lượt chấm của hồ sơ chỉ chạm tệp đã rời nhóm.
+- 4 ↑ nhẹ ở kho khai bản đồ: bước nạp và thẻ đọc thêm tệp; khối tìm-lỗi có thêm chữ trên thẻ để soi.
+- 5 = : không lệnh mới trong lượt chấm.
+- 1 = : mốc không chạm đoạn ký → gộp.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `node scripts/hieu-chuan-moc.mjs --root .`
+(05/11). **N không tăng so với mốc 2.37.0 (vẫn 1), nên dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.37.0 — 03/11/2026
 
 Mốc **Khuôn lõi** (hàng KH1 của lộ trình kit, KH4 gộp vào) kèm **sáu bản vá sau 2.36.0**: kit chấm vật theo bản đồ khuôn
