@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>143 việc"]
+  GB --> DG["Đã giao<br/>144 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -237,6 +237,7 @@ flowchart TD
 - Phát hành kit 2.35.0 — nền thiết kế design-floor-2710 (FL1–FL5), design-gate chế độ chặt tuỳ chọn, vùng giao việc đi từ cắt lượt, khung đợt định vị với bộ đếm «cần anh» đếm đủ; kho chờ nhận invest (thí điểm nền thiết kế, bậc M1) rồi crm (`release-2-35-0`)
 - Phát hành kit 2.36.0 — tinh chỉnh sau hai đợt thử (đợt tinh-chinh-2610, TC1–TC6) — đánh thức đọc đúng mã phiên, lệnh của đợt ghi đúng hàng, gộp không dừng ở hai tệp sinh, kiểm bản cài có lối sửa chạy được, chân công cụ xét tệp có tồn tại, làn đối chứng chạy được; kho chờ nhận invest rồi crm (`release-2-36-0`)
 - Phát hành kit 2.37.0 — Khuôn lõi (bộ đọc bản đồ khuôn dùng chung, bước chấm khuôn ở lượt chấm S4, bước chấm đọc đúng bản đồ thật) cùng sáu bản vá sau 2.36.0 (design-floor ở kho lớn, lưới trước gộp đọc thư viện theo chỗ cài và chỉ kéo hồ sơ khi chạm tệp vật, thẻ cửa veto khi bộ quét hết hạn, mã lượt chạy đúng hình dạng, một luật tên máy của gói dieu-phoi); kho chờ nhận crm trước, onehub-quy-hang sau (`release-2-37-0`)
+- Phát hành kit 2.38.0 — khối «Khuôn» trên thẻ hai cổng và S1 ghi nhóm đã chọn (KH2), kèm bản vá V0 — bước chấm khuôn hiểu mục ngoai_le không có khoi là tệp rời nhóm; kho chờ nhận onehub-quy-hang và crm (`release-2-38-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
 - Phát hành kit 2.6.0 — đóng số cho một vòng đã ký sau khi thu phạm vi (cong-dang-co-cua) + đọc NGƯỠNG CẮT KIT tại đúng mốc owner khai trước, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-6-0`)

@@ -194,9 +194,9 @@
       ]
     },
     {
-      "ten": "Khuôn trên thẻ cổng (số đặt lúc cắt) — KH2: khối «Khuôn» trên thẻ hai cổng, S1 ghi nhóm đã chọn; kho nhận tính kết quả: onehub-quy-hang (bản đồ tám nhóm), crm",
+      "ten": "Phát hành 2.38.0 — Khuôn trên thẻ cổng — KH2: khối «Khuôn» trên thẻ hai cổng, S1 ghi nhóm đã chọn; kho nhận tính kết quả: onehub-quy-hang (bản đồ tám nhóm), crm",
       "ngay": "2026-11-06",
-      "ly_do": "Chủ kho 03/11 «Mở KH-C2 ngay». Mốc riêng để không buộc bản vá V0 (#481, kho onehub-quy-hang đang chờ) vào cùng chữ ký; ghép hay tách khi cắt số là việc của lượt cắt. Ngày ước theo giờ máy: KH2 2–6 giờ (du-bao.json) + mốc ~3 giờ.",
+      "ly_do": "Chủ kho 03/11 «Mở KH-C2 ngay». Mốc riêng để không buộc bản vá V0 (#481, kho onehub-quy-hang đang chờ) vào cùng chữ ký; ghép hay tách khi cắt số là việc của lượt cắt. Ngày ước theo giờ máy: KH2 2–6 giờ (du-bao.json) + mốc ~3 giờ. Chủ kho 05/11 «Cắt KH2 trước»: cắt trước khi KM2 của đợt nen-thiet-ke-0411 đổi bộ đọc glob dùng chung, để thay đổi ấy không đi cùng chữ ký này.",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
