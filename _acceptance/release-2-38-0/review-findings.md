@@ -1,8 +1,8 @@
-# Review findings: release-2-38-0 (round 1)
+# Review findings: release-2-38-0 (round 2)
 
 ## Trong hợp đồng
 
-Không có phát hiện nào.
+Không có finding nào.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
