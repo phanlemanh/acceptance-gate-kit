@@ -138,9 +138,12 @@ hợp đồng của một vòng).
 Biến một bản phạm vi thành các hàng của lộ trình (theo sáu luật, hai dáng `chuoi` · `lan-va`) cùng các
 mục **chờ điều kiện**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở đúng một hàng hoặc
 mục chờ điều kiện cùng `dot`. Trước khi chép bản phạm vi, việc của người được tách ra (bước 2b): không vào bản phạm vi,
-liệt «Ra khỏi kho» ở mô tả PR (ADR 0026). Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`,
-`lo-trinh-chi-viec-phat-trien`, `road-map-de-dung`.
-_Avoid_: xếp điểm ưu tiên tự động (RICE/WSJF); bảng phủ chép tay; để kit ghi trạng thái vào tệp lộ trình.
+liệt «Ra khỏi kho» ở mô tả PR (ADR 0026). Skill `cat-luot`; người gộp PR cắt là người chốt, đọc **thẻ lượt cắt**
+(`cat-luot.mjs --the`) — markdown máy dựng từ đúng dữ liệu răng vừa đọc, chép nguyên văn làm mô tả PR. Hai loại nối giữa
+hàng: `dung_tren` (cần kết quả thật của hàng trước) và `chay_sau` (không cần kết quả, chỉ chạm cùng tệp); thẻ vẽ dãy chạy
+song song từ hai trường. Hồ sơ `lo-trinh-cat-luot`, `lo-trinh-chi-viec-phat-trien`, `road-map-de-dung`.
+_Avoid_: xếp điểm ưu tiên tự động (RICE/WSJF); bảng phủ chép tay; mô tả PR cắt lượt soạn tay thay thẻ; `dung_tren` cho hai
+hàng chỉ chạm cùng tệp; để kit ghi trạng thái vào tệp lộ trình.
 
 **Mốc ngoài** (đã bỏ — ADR 0026, 17/10):
 Mục `moc` có `loai: "ngoai"` của lộ trình — loại mốc của luật S3b (11/10) cho việc vận hành của người. Luật 17/10 bỏ nó: việc
