@@ -28,7 +28,7 @@ const ca = (name, fn) => {
 };
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 256 * 1024 * 1024 }).trim();
 
-const MSG = 'no record in it arms the gate for that code';
+const MSG = 'no record in it is judged by the gate';
 const MSG_CU = 'T3 paths (t3_paths) changed but the PR carries NO _acceptance/<slug>/ artifacts';
 const CLEAN = 'pre-merge-check: clean';
 

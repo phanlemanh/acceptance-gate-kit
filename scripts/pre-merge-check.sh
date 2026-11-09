@@ -1935,7 +1935,7 @@ else
     fi
   # Riêng code t3_paths: có tệp dưới _acceptance/ chưa đủ, phải có hồ sơ thật sự bị chấm (xem t3_co_ho_so_arm).
   elif [ -n "$t3_hits" ] && ! t3_co_ho_so_arm; then # T3-CAN-HO-SO-GUARD
-    echo "VIOLATION [PR]: T3 paths (t3_paths) changed and the PR touches _acceptance/, but no record in it arms the gate for that code — critical code changed and no rule judged it. Changed:"
+    echo "VIOLATION [PR]: T3 paths (t3_paths) changed and the PR touches _acceptance/, but no record in it is judged by the gate — critical code changed and no rule judged it. Changed:"
     printf '%s' "$t3_hits" | head -10 | sed 's/^/    /'
     echo "  Hồ sơ trong PR và vì sao không tính:"
     printf '%s' "$T3_HO_SO_LY_DO"
