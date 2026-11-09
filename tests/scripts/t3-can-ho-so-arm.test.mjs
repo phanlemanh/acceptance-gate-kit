@@ -83,23 +83,24 @@ const F = {
   khongContract: () => kho({ pr: R => ghi(R, '_acceptance/feat/notes.md', 'ghi chú\n') }),
   chiCauHinh: () => kho({ pr: R => ghi(R, '_acceptance/config.yaml', `${CFG}# them\n`) }),
   taiLieuCu: () => kho({
-    base: R => { ghi(R, '_acceptance/cu/contract.md', hopDong('cu', 'T3', 'signed-off')); ghi(R, '_acceptance/cu/evidence-report.md', baoCao('cu', '0000000')); ghi(R, '_acceptance/cu/decisions.jsonl', '{"x":1}\n'); },
+    base: R => { ghi(R, '_acceptance/cu/contract.md', hopDong('cu', 'T3', 'implemented')); ghi(R, '_acceptance/cu/evidence-report.md', baoCao('cu', '0000000')); ghi(R, '_acceptance/cu/decisions.jsonl', '{"x":1}\n'); },
     pr: R => appendFileSync(path.join(R, '_acceptance/cu/decisions.jsonl'), '{"x":2}\n'),
   }),
   t2MayThong: () => kho({
     pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'machine-cleared', LAN_V)),
     bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })),
   }),
+  daCham: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'da-cham-boi-thuc-te')) }),
   t3DaKy: () => kho({
-    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'signed-off')),
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented')),
     bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
   }),
   t2DaKy: () => kho({
-    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'signed-off')),
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'implemented')),
     bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
   }),
   hatGiongKemHoSoThat: () => kho({
-    pr: R => { ghi(R, '_acceptance/hat-giong/contract.md', hopDong('hat-giong', 'T1', 'draft')); ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'signed-off')); },
+    pr: R => { ghi(R, '_acceptance/hat-giong/contract.md', hopDong('hat-giong', 'T1', 'draft')); ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented')); },
     bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
   }),
   t3Reject: () => kho({
@@ -120,6 +121,7 @@ ca('HA3-do', () => chan(luoi(F.khongContract()), 'feat: không có contract.md')
 ca('HA4-do', () => chan(luoi(F.chiCauHinh()), 'không có thư mục hồ sơ nào trong PR'));
 ca('HA5-do', () => chan(luoi(F.taiLieuCu()), 'cu: chỉ đổi tệp chữ'));
 ca('HA6-do', () => chan(luoi(F.t2MayThong()), 'feat: hạng T2 chưa có chữ ký người'));
+ca('HA20-do', () => chan(luoi(F.daCham()), 'feat: hồ sơ đã chấm bởi thực tế đã đóng'));
 
 // ── Chiều im: hồ sơ thật, hạt giống hợp lệ, code thường và lần cài kit không bị chặn thêm ─────────────
 ca('HA7-im', () => sach(luoi(F.t3DaKy())));
