@@ -4,7 +4,7 @@
 // Kho fixture là git thật (nhánh main + nhánh vòng) do mã sinh trong chính lượt chạy; bảng chặn theo bậc rút từ khối
 // DF-CHAN-THEO-BAC của chính hợp đồng. Mỗi nhãn chạy chiều xanh trên cây thật rồi đột biến cùng nhãn trên bản sao lệnh —
 // đột biến phải làm đúng ca đỏ với đúng thông điệp ghim.
-// Dùng: node tests/design-floor/moc-s3-s4.mjs [--chi S3-AUTOFIX,S3-SINH-LAI,S3-VIEC-DO,S4-HEX,S4-TC,S4-BAC,S4-CHI-DOC,GATE,VONG-MAU,SKILL-S3,BAC-FLOOR]
+// Dùng: node tests/design-floor/moc-s3-s4.mjs [--chi S3-AUTOFIX,S3-SINH-LAI,S3-VIEC-DO,S4-HEX,S4-CHU-THICH,S4-TC,S4-BAC,S4-CHI-DOC,GATE,VONG-MAU,SKILL-S3,BAC-FLOOR]
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -337,6 +337,29 @@ const CA = {
     const doiChung = s4(kit, mau(false));
     return doiChung.ec === 0 && doiChung.out === '' ? null : `S4-HEX: đối chứng không hex thoát ${doiChung.ec}, in «${doiChung.out.trim()}»`;
   },
+  'S4-CHU-THICH': (kit) => {
+    const chiChuThich = {
+      'web/a.tsx': ['// issue #123', '/* see #456 */', 'export const A = () => <div>{/* ticket #789 */}</div>;', '/*', ' * #abc', ' */'],
+      'web/b.css': ['/* ref #123 */'],
+      'web/p.html': ['<!-- #fff issue #321 -->'],
+    };
+    const coMa = {
+      'web/a.tsx': [...chiChuThich['web/a.tsx'], 'const c = "#123"; // issue #456', 'const u = "https://x.test/a"; const d = "#abcdef";'],
+      'web/b.css': [...chiChuThich['web/b.css'], '.a { color: #111; /* #222 */ color: #333; }', '.b { background: url(//cdn.test/a.png) #444; }'],
+      'web/p.html': [...chiChuThich['web/p.html'], '<p style="color:#555">x</p>'],
+    };
+    const dung = (tep) => kho({ tokensM1: true, vong: { ...Object.fromEntries(Object.entries(tep).map(([f, d]) => [f, `${d.join('\n')}\n`])), 'design/t.json': `${TOKENS}\n` } });
+    const doiChung = s4(kit, dung(chiChuThich));
+    if (doiChung.ec !== 0 || doiChung.out !== '') return `S4-CHU-THICH: dòng thừa — chỉ có chú thích mà thoát ${doiChung.ec}, in «${doiChung.out.trim()}»`;
+    const r = s4(kit, dung(coMa));
+    const mong = ['web/a.tsx:7 #123', 'web/a.tsx:8 #abcdef', 'web/b.css:2 #111', 'web/b.css:2 #333', 'web/b.css:3 #444', 'web/p.html:2 #555'].map((d) => `design-floor S4: hex thô ${d}`);
+    const co = r.out.split('\n').filter(Boolean);
+    const thua = co.filter((d) => !mong.includes(d));
+    const thieu = mong.filter((d) => !co.includes(d));
+    if (thua.length) return `S4-CHU-THICH: dòng thừa ${thua.join(' | ')}`;
+    if (thieu.length) return `S4-CHU-THICH: thiếu dòng ${thieu.join(' | ')}`;
+    return r.ec === 2 ? null : `S4-CHU-THICH: thoát ${r.ec}, mong 2`;
+  },
   'S4-TC': (kit) => {
     const v = vo();
     const mong = { 0: ['đạt', 0], 2: ['độ phủ token trượt', 2], 3: ['không đo được ở đây (mã 3)', 0], 4: ['không đo được ở đây (mã 4)', 0], 5: ['không đo được ở đây (mã 5)', 0], 1: ['lệnh ui lỗi (mã 1)', 1] };
@@ -446,6 +469,7 @@ const NHAN = {
     ],
   },
   'S4-HEX': { xanh: ['S4-HEX'], dot: [['S4-HEX-DOT', () => kitDotBien('design-floor-s4.mjs', ['if (tokens && path.normalize(f) === tokens) continue;', '']), 'S4-HEX', 'S4-HEX: dòng thừa ở tệp token']] },
+  'S4-CHU-THICH': { xanh: ['S4-CHU-THICH'], dot: [['S4-CHU-THICH-DOT', () => kitDotBien('design-floor-s4.mjs', ["boChuThich(readFileSync(path.join(root, f), 'utf8'), f)", "readFileSync(path.join(root, f), 'utf8')"]), 'S4-CHU-THICH', 'S4-CHU-THICH: dòng thừa']] },
   'S4-TC': { xanh: ['S4-TC', 'S4-TC-THAT', 'S4-TC-M1'], dot: [['S4-TC-DOT', () => kitDotBien('design-floor-s4.mjs', ['else if (ma === 3 || ma === 4 || ma === 5)', 'else if (ma === 3 || ma === 4 || ma === 5 || ma === 1)']), 'S4-TC', 'S4-TC: mã 1 → thoát 0']] },
   'S4-BAC': { xanh: ['S4-BAC'], dot: [['S4-BAC-DOT', () => kitDotBien('design-floor-s4.mjs', ["else if (ma === 2 && bac.bac === 'M3') {", 'else if (ma === 2) {']), 'S4-BAC', 'S4-BAC M2 tc-truot: thoát 2, mong 0']] },
   'S4-CHI-DOC': { xanh: ['S4-CHI-DOC'], dot: [['S4-CHI-DOC-DOT', () => kitDotBien('design-floor-s4.mjs', S4_GHI), 'S4-CHI-DOC', 'S4-CHI-DOC: đổi web/p.html']] },

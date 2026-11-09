@@ -134,7 +134,8 @@ h2{font-size:16px;color:#fafafa}
     ['oklch-trang', 'body{background-color:oklch(1 0 0)}p{color:#bbbbbb}'],
     ['hsl-toi', ':root{--background:0 0% 4%}body{background-color:hsl(var(--background))}p{color:#eeeeee}'],
     ['van-toi', ':root{--bg:#0b0b0b}body{background:var(--bg) url(grain.png)}p{color:#eeeeee}'],
-    ['oklch-toi', 'body{background:oklch(0.15 0 0)}p{color:#eeeeee}'],
+    // Qua biến: bộ dò đã đọc được oklch trực tiếp (ca mau-lab), nên «không đọc được nền» giờ chỉ còn ở var().
+    ['oklch-toi', ':root{--bg:oklch(0.15 0 0)}body{background:var(--bg)}p{color:#eeeeee}'],
   ].map(([ten, css]) => [ten, { html: dau(ten, `<style>${css}</style>`) + '<body><main><p>Chữ thử trên nền thân trang.</p></main></body></html>' }])),
   // — AC-10: nhánh nền chỉ đọc style tính ra — cascade, @media và độ trong suốt theo đúng trình duyệt —
   ...Object.fromEntries([
