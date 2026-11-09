@@ -229,6 +229,8 @@ executors:
     ho_so_da_ky_giu_tuoi_bo_cu: "bash -c 'set -e; for f in tests/scripts/repin-lane*.test.mjs tests/scripts/premerge-repin.test.mjs tests/scripts/stale-by-paths.test.mjs; do node \"$f\"; done'"
     # Hồ sơ anh-co-that-trong-ho-so: ca LNT7…LNT10 (ảnh chỉ tính khi tệp có thật dưới evidence/ của hồ sơ).
     anh_co_that: env LNT_CASES=LNT7,LNT8,LNT9,LNT10 node tests/plugins/lop-nhin-thay.test.mjs
+    mau_lab_hai_chieu: node tests/design-eval/mau-lab.test.mjs && node tests/design-eval/mau-lab-do.test.mjs
+    df_s4_chu_thich: node tests/design-floor/moc-s3-s4.mjs --chi S4-HEX,S4-CHU-THICH
   script:
     # Hồ sơ anh-co-that-trong-ho-so (AC-9, vế kho thật): kho khai ở KHO_DO hoặc .acceptance-runs/kho-do (gitignore);
     # không khai → thoát 2 (mù). Chỉ in số. Không vào feature_loop.suite_keys.
@@ -1099,6 +1101,8 @@ executors:
     va460_khai_cu: bash tests/design-floor/eval.sh va460-khai-cu
     va460_kho_nho: bash tests/design-floor/eval.sh va460-kho-nho
     va460_cung_lop: bash tests/design-floor/eval.sh va460-cung-lop
+    design_scan_khop_nguon: node scripts/build-design-scan.mjs --check
+    mau_lab_chromium: node tests/design-eval/mau-lab-chromium.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
