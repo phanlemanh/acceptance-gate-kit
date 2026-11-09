@@ -13,6 +13,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, appendFileSync, rm
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -40,6 +41,8 @@ const hopDong = (slug, risk_tier, status, them = '') => fileFromTemplate(CONTRAC
   .replace(/^approved_by:.*$/m, 'approved_by: [Tên]')
   .replace(/^approved_at:.*$/m, m => [m, them].filter(Boolean).join('\n'));
 const LAN_V = 'veto_state: mo\nveto_opened_at: 2026-10-31T09:00:00Z';
+const { hoSoNghi } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const DONG_NGHI = JSON.stringify({ id: 'd-20261101T000000Z-1', type: 'nghi', stage: 'gate2', at: '2026-11-01T00:00:00Z', by: '[Tên]', decision: 'tính năng đã gỡ khỏi sản phẩm' });
 const baoCao = (slug, vc, { verdict = 'PASS', signoff = '[Tên] 2026-11-09' } = {}) => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: ${verdict}\nverified_commit: ${vc}\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff: ${signoff}\n---\n\n# Evidence Report: ${slug}\n\n## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-10-31\n\n## Known limits\n\n## Ngoài hợp đồng\n\n`;
 
 const CFG = 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n  t3_paths:\n    - "core/**"\n';
@@ -112,6 +115,32 @@ const F = {
   hatGiongChiDocs: () => kho({ co: 'docs', pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T1', 'draft')) }),
   caiKit: () => kho({ cauHinhBase: false, pr: R => ghi(R, '_acceptance/README.md', '# cổng\n') }),
   khongHoSo: () => kho({}),
+  daNghi: () => {
+    const R = kho({
+      pr: R2 => { ghi(R2, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented')); ghi(R2, '_acceptance/feat/decisions.jsonl', `${DONG_NGHI}\n`); },
+      bangChung: (R2, vc) => ghi(R2, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
+    });
+    const n = hoSoNghi({ ledgerText: readFileSync(path.join(R, '_acceptance/feat/decisions.jsonl'), 'utf8'), reportText: readFileSync(path.join(R, '_acceptance/feat/evidence-report.md'), 'utf8'), contractAtRoot: true, suLieuContract: false });
+    if (!n || n.kieu !== 'dong-so') throw new Error(`fixture: bộ đọc không nhận hồ sơ là đã nghỉ: ${JSON.stringify(n)}`);
+    return R;
+  },
+  chiOpportunity: () => kho({
+    base: R => { ghi(R, '_acceptance/cu/contract.md', hopDong('cu', 'T3', 'implemented')); ghi(R, '_acceptance/cu/evidence-report.md', baoCao('cu', '0000000')); ghi(R, '_acceptance/cu/opportunity.md', 'a\n'); },
+    pr: R => appendFileSync(path.join(R, '_acceptance/cu/opportunity.md'), 'b\n'),
+  }),
+  t2LanV: () => kho({
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'machine-cleared', LAN_V).replace(/^approved_by:.*$/m, 'approved_by:')),
+    bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })),
+  }),
+  t3Nhap: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'draft')) }),
+  t3DaDuyet: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'approved')) }),
+  haiHoSoKhongTinh: () => kho({ pr: R => { ghi(R, '_acceptance/mot/contract.md', '# Ghi chú\n'); ghi(R, '_acceptance/hai/contract.md', hopDong('hai', 'T1', 'verified')); } }),
+  thuMucCoCach: () => kho({ pr: R => ghi(R, '_acceptance/ho so/contract.md', hopDong('ho so', 'T1', 'verified')) }),
+  xoaHopDong: () => kho({
+    base: R => { ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented')); ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', '0000000')); },
+    pr: R => rmSync(path.join(R, '_acceptance/feat/contract.md')),
+  }),
+  hoSoLong: () => kho({ pr: R => ghi(R, 'sub/_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented')) }),
   // Nhánh cắt trước lần cài, tự thêm config; trong lúc đó nhánh đích đã cài kit.
   nhanhCuTuThemConfig: () => {
     const R = kho({ cauHinhBase: false });
@@ -135,6 +164,17 @@ ca('HA5-do', () => chan(luoi(F.taiLieuCu()), 'cu: chỉ đổi tệp chữ'));
 ca('HA6-do', () => chan(luoi(F.t2MayThong()), 'feat: hạng T2 chưa có chữ ký người'));
 ca('HA20-do', () => chan(luoi(F.daCham()), 'feat: hồ sơ đã chấm bởi thực tế đã đóng'));
 ca('HA24-do', () => chan(luoi(F.nhanhCuTuThemConfig()), 'không có thư mục hồ sơ nào trong PR'));
+ca('HA21-do', () => chan(luoi(F.daNghi()), 'feat: hồ sơ đã cho nghỉ'));
+ca('HA22-do', () => chan(luoi(F.chiOpportunity()), 'cu: chỉ đổi tệp chữ'));
+ca('HA23-do', () => chan(luoi(F.t2LanV()), 'feat: hạng T2 chưa có chữ ký người'));
+
+// ── Biên: đầu vào hợp đồng không nêu tên; mỗi ca chỉ đòi không được ra clean và nói đúng hồ sơ ──────────
+const khongSach = o => (o.status !== 0 && !o.out.includes(CLEAN) ? null : `không được clean, được ${o.status}: ${cuoi(o.out)}`);
+ca('HA27-bien', () => khongSach(luoi(F.t1Verified(), KIT, ['--base', 'khong-co-nhanh-nay'])));
+ca('HA28-bien', () => chan(luoi(F.haiHoSoKhongTinh()), 'mot: contract thiếu status, risk_tier') || chan(luoi(F.haiHoSoKhongTinh()), 'hai: risk_tier=T1'));
+ca('HA29-bien', () => chan(luoi(F.thuMucCoCach()), 'ho so: risk_tier=T1'));
+ca('HA30-bien', () => chan(luoi(F.xoaHopDong()), 'feat: không có contract.md'));
+ca('HA31-bien', () => chan(luoi(F.hoSoLong()), 'feat: không có contract.md'));
 
 // ── Chiều im: hồ sơ thật, hạt giống hợp lệ, code thường và lần cài kit không bị chặn thêm ─────────────
 ca('HA7-im', () => sach(luoi(F.t3DaKy())));
@@ -152,6 +192,13 @@ ca('HA12-im', () => sach(luoi(F.cuThuongT1())));
 ca('HA13-im', () => sach(luoi(F.hatGiongChiDocs())));
 // PR cài kit: nhánh đích chưa có cổng thì chưa có hồ sơ nào để đòi.
 ca('HA14-im', () => sach(luoi(F.caiKit())));
+// Hồ sơ T3 chưa xong: cổng theo từng hồ sơ chặn bằng lời riêng, luật PR không chồng thêm một dòng.
+const chuaArm = o => {
+  if (o.status !== 1 || !o.out.includes('status chưa arm cổng')) return `muốn «status chưa arm cổng» chặn, được ${o.status}: ${cuoi(o.out)}`;
+  return o.out.includes('VIOLATION [PR]') ? 'hồ sơ đang được chấm mà vẫn bị luật PR chặn chồng' : null;
+};
+ca('HA25-im', () => chuaArm(luoi(F.t3Nhap())));
+ca('HA26-im', () => chuaArm(luoi(F.t3DaDuyet())));
 // Commit đẩy thẳng nhánh chính: tiền đề PR không có, răng tắt có khai báo như mọi nhánh T1-escape khác.
 ca('HA15-im', () => {
   const o = luoi(F.t1Verified(), KIT, ['--no-t1-escape']);
@@ -196,6 +243,19 @@ ca('HA19-mut', () => {
   const o = luoi(R, banSaoMay(KIM_CAI_KIT, 'false; then return 0; fi # T3-CAI-KIT-GUARD'));
   return o.status === 1 && o.out.includes(MSG) ? null : `gỡ miễn trừ cài kit mà không chặn: ${o.status}: ${cuoi(o.out)}`;
 });
+// Mỗi lý do một kim: gỡ đúng nhánh đó trên CÙNG fixture thì đầu ra không còn lý do ấy.
+const dotBienLyDo = (ten, fixture, lyDo, neo, thay = 'ly=""') => ca(ten, () => {
+  const R = fixture(); const truoc = chan(luoi(R), lyDo);
+  if (truoc) return `bản chưa tiêm phải chặn đúng lý do: ${truoc}`;
+  const o = luoi(R, banSaoMay(neo, thay));
+  return o.out.includes(lyDo) ? `gỡ nhánh lý do mà đầu ra vẫn còn «${lyDo}»` : null;
+});
+dotBienLyDo('HA3-mut', F.khongContract, 'feat: không có contract.md', 'ly="không có contract.md"');
+dotBienLyDo('HA4-mut', F.chiCauHinh, 'không có thư mục hồ sơ nào trong PR', 'T3_HO_SO_LY_DO="    không có thư mục hồ sơ nào trong PR (chỉ đổi tệp khác dưới _acceptance/)"$\'\\n\'', 'T3_HO_SO_LY_DO=""');
+dotBienLyDo('HA5-mut', F.taiLieuCu, 'cu: chỉ đổi tệp chữ', 'ly="chỉ đổi tệp chữ (${SLUG_TEP_CHU:-tệp ghi chép}), hồ sơ không bị chấm lại"');
+dotBienLyDo('HA6-mut', F.t2MayThong, 'feat: hạng T2 chưa có chữ ký người', 'ly="hạng $t chưa có chữ ký người — code t3_paths phải có người ký"');
+dotBienLyDo('HA20-mut', F.daCham, 'feat: hồ sơ đã chấm bởi thực tế đã đóng', 'ly="hồ sơ đã chấm bởi thực tế đã đóng, không nhận code mới"');
+dotBienLyDo('HA21-mut', F.daNghi, 'feat: hồ sơ đã cho nghỉ', 'ly="hồ sơ đã cho nghỉ, không còn bị chấm"');
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed`);
