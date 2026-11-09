@@ -1099,6 +1099,15 @@ executors:
     va460_khai_cu: bash tests/design-floor/eval.sh va460-khai-cu
     va460_kho_nho: bash tests/design-floor/eval.sh va460-kho-nho
     va460_cung_lop: bash tests/design-floor/eval.sh va460-cung-lop
+    t3ha_e1: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA1-do HA18-mut
+    t3ha_e2: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA2-do HA17-mut
+    t3ha_e3: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA3-do HA4-do HA5-do HA6-do HA20-do HA21-do HA22-do HA23-do HA3-mut HA4-mut HA5-mut HA6-mut HA20-mut HA21-mut
+    t3ha_e4: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA7-im HA8-im HA9-im HA10-im HA25-im HA26-im
+    t3ha_e5: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA11-im HA12-im HA13-im
+    t3ha_e6: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA14-im HA19-mut HA24-do
+    t3ha_e7: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA15-im HA16-im
+    t3ha_e8: node _acceptance/t3-can-ho-so-arm/rang/vi-phan-kho.mjs
+    t3ha_e9: bash _acceptance/t3-can-ho-so-arm/rang/chieu-do.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

@@ -1,0 +1,100 @@
+schema_version: 1
+feature_slug: t3-can-ho-so-arm
+# E1–E7 chạy đúng các ca HA<k> được nêu của tests/scripts/t3-can-ho-so-arm.test.mjs qua rang/chay-ca.sh: ghim số ca
+# chọn («Results: n passed, 0 failed», n = số đối số) và dòng PASS của từng ca theo tên. Kho thử do code sinh trong
+# lượt; hợp đồng rút CONTRACT-FRONTMATTER-TEMPLATE; đường dẫn suy từ vị trí tệp. Đột biến chạy bản sao trọn thư mục, sau
+# khi bản chưa tiêm đã cho kết quả mong đợi trên CÙNG fixture. Chiều đỏ trong lịch sử: 3539300c đứng trước 4b66432c.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.t3ha_e1
+    expected: >
+      Exit 0, «Results: 2 passed, 0 failed», PASS của HA1-do và HA18-mut. HA1-do: hợp đồng không frontmatter + tệp T3 →
+      thoát 1, dòng VIOLATION [PR] chứa `no record in it is judged by the gate`, nêu core/k.js, nêu
+      `feat: contract thiếu status, risk_tier`. HA18-mut: bản sao gỡ luật trên CÙNG fixture → `pre-merge-check: clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.t3ha_e2
+    expected: >
+      Exit 0, «Results: 2 passed, 0 failed», PASS của HA2-do và HA17-mut. HA2-do: T1 + verified + tệp T3 → thoát 1, cùng
+      thông điệp, lý do `feat: risk_tier=T1 ngoài signoff.required_for`. HA17-mut: bản sao gỡ luật → `clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.t3ha_e3
+    expected: >
+      Exit 0, «Results: 14 passed, 0 failed», PASS của HA3-do, HA4-do, HA5-do, HA6-do, HA20-do, HA21-do, HA22-do, HA23-do và
+      đột biến HA3-mut, HA4-mut, HA5-mut, HA6-mut, HA20-mut, HA21-mut. Mỗi ca -do thoát 1, cùng thông điệp, đúng lý do:
+      `không có contract.md` · `không có thư mục hồ sơ nào trong PR` · `cu: chỉ đổi tệp chữ` (HA5, HA22) ·
+      `hạng T2 chưa có chữ ký người` (HA6 máy-thông, HA23 làn V) · `hồ sơ đã chấm bởi thực tế đã đóng` ·
+      `hồ sơ đã cho nghỉ`. Mỗi đột biến gỡ đúng nhánh lý do trên CÙNG fixture → không còn lý do đó trong đầu ra.
+      Dòng cho nghỉ của HA21 rút từ bộ đọc hoSoNghi của lib/workspace-record.cjs.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.t3ha_e4
+    expected: >
+      Exit 0, «Results: 6 passed, 0 failed», PASS của HA7-im, HA8-im, HA9-im, HA10-im, HA25-im, HA26-im. Ba ca đầu thoát 0 và
+      in `pre-merge-check: clean`; HA10-im thoát 1 với `VIOLATION [feat]: verdict=REJECT`; HA25-im (draft) và HA26-im
+      (approved) thoát 1 với `status chưa arm cổng`; ba ca sau KHÔNG có `VIOLATION [PR]`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.t3ha_e5
+    expected: >
+      Exit 0, «Results: 3 passed, 0 failed», PASS của HA11-im, HA12-im, HA13-im: thoát 0, `pre-merge-check: clean`, không
+      có cụm `no record in it is judged by the gate`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.t3ha_e6
+    expected: >
+      Exit 0, «Results: 3 passed, 0 failed», PASS của HA14-im, HA19-mut, HA24-do. HA14-im: đỉnh nhánh đích chưa có config →
+      thoát 0, `clean`. HA19-mut: bản sao gỡ miễn trừ trên CÙNG fixture → thoát 1 với `no record in it is judged by the gate`.
+      HA24-do: nhánh cắt trước lần cài, tự thêm config, đỉnh nhánh đích đã có config → thoát 1 với thông điệp đó; bản chưa
+      sửa điều kiện (đọc merge-base) cho `clean` trên cùng fixture.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.t3ha_e7
+    expected: >
+      Exit 0, «Results: 2 passed, 0 failed», PASS của HA15-im và HA16-im. HA15-im: `--no-t1-escape` → thoát 0,
+      `T1-ESCAPE: NOT ENFORCED`, không có thông điệp luật mới. HA16-im: không hồ sơ → thoát 1, thông điệp cũ
+      `carries NO _acceptance/<slug>/ artifacts`, không có thông điệp luật mới.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.t3ha_e8
+    expected: >
+      Exit 0 và dòng tổng kết của rang/vi-phan-kho.mjs in mẫu số từng nhóm. Danh sách PR, nhóm và kết quả mong đợi đã chốt
+      trước trong rang/ds-pr.json, viết từ dữ kiện lịch sử, không tính bằng hàm của luật. Mỗi PR đọc được phải cho đúng kết
+      quả đã chốt, lệch một PR là đỏ và nêu tên PR. Kho đọc qua KHO_GOC hoặc thư mục cha của gốc checkout, bằng clone tạm,
+      không ghi vào kho nào. Bản gốc dựng trọn thư mục từ thẻ v2.38.0 trong lượt. Dưới sàn nhóm hoặc dưới 5 kho → exit 2 mù.
+    paths: [scripts/pre-merge-check.sh, _acceptance/t3-can-ho-so-arm/rang/vi-phan-kho.mjs, _acceptance/t3-can-ho-so-arm/rang/ds-pr.json]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.t3ha_e9
+    expected: >
+      Exit 0 và dòng tổng kết của rang/chieu-do.sh: mọi ca -do của tệp test mới khi chạy trên bản v2.38.0 dựng trọn thư mục
+      đều FAIL với `pre-merge-check: clean`, trừ HA20-do chỉ ghim thiếu thông điệp vì bản cũ chặn nó bằng luật khác; và
+      tests/scripts/run-tests.sh còn đủ hai dòng `check GPM13 0` và `nothas GPM13a`. Thẻ v2.38.0 vắng → exit 2 mù.
+    paths: [tests/scripts/t3-can-ho-so-arm.test.mjs, tests/scripts/run-tests.sh, _acceptance/t3-can-ho-so-arm/rang/chieu-do.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
