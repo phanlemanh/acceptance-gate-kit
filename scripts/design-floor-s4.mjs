@@ -5,7 +5,7 @@
 //
 // Đích = tệp mà diff <base>...HEAD chạm, khớp design.surface_globs, còn trên đĩa.
 //   Hex thô  — luật đã phân xử duy nhất ở v1: `#` + đúng 3/4/6/8 chữ số hex, không đứng sau `&` hay chữ/số, không có
-//              chữ/số liền sau; tệp design_floor.tokens được loại.
+//              chữ/số liền sau; tệp design_floor.tokens được loại; chữ trong chú thích không tính.
 //   Độ phủ token — M2/M3, đích .html/.htm: `token-coverage` theo argv khối máy của design-floor/HOP-DONG-NHAP.md.
 // Chặn theo bậc: bảng DF-CHAN-THEO-BAC trong contract.md của hồ sơ — M1 hex thô; M2 hex thô, độ phủ token chỉ cảnh báo;
 // M3 cả hai. Không đo được không bao giờ chặn; mã lạ của lệnh ui → «lệnh ui lỗi», thoát 1.
@@ -26,6 +26,52 @@ const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HOP_DONG = path.join(KIT, 'design-floor', 'HOP-DONG-NHAP.md');
 export const RE_HEX = /(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})(?!\w)/g;
 const LA_HTML = (f) => /\.html?$/i.test(f);
+
+// Chú thích không tô màu nào: `// issue #123` không phải hex thô. Thay chữ trong chú thích bằng dấu cách và giữ dấu xuống
+// dòng, nên số dòng báo ra không đổi. Chữ trong chuỗi được giữ, và `//` ngay sau `:` là URL. Gặp chỗ không chắc (dấu nháy
+// lẻ trong chữ JSX) thì đoạn đó vẫn được quét: bộ lọc này chỉ được bỏ sót chú thích, không được bỏ sót mã.
+export function boChuThich(s, tep) {
+  const duoi = path.extname(tep).toLowerCase();
+  const coHtml = /^\.(?:html?|vue|svelte|astro|svg)$/.test(duoi);
+  const coMotDong = !/^\.(?:html?|css|svg)$/.test(duoi);
+  const coChuoi = !/^\.(?:html?|svg)$/.test(duoi);
+  let ra = '';
+  let i = 0;
+  let nhay = null;
+  const xoaDen = (den) => {
+    for (; i < den; i++) ra += s[i] === '\n' ? '\n' : ' ';
+  };
+  while (i < s.length) {
+    const c = s[i];
+    if (nhay) {
+      if (c === '\\' && i + 1 < s.length) {
+        ra += c + s[i + 1];
+        i += 2;
+        continue;
+      }
+      if (c === nhay || (c === '\n' && nhay !== '`')) nhay = null;
+      ra += c;
+      i++;
+    } else if (coChuoi && (c === '"' || c === "'" || c === '`')) {
+      nhay = c;
+      ra += c;
+      i++;
+    } else if (s.startsWith('/*', i)) {
+      const het = s.indexOf('*/', i + 2);
+      xoaDen(het < 0 ? s.length : het + 2);
+    } else if (coMotDong && s.startsWith('//', i) && s[i - 1] !== ':') {
+      const het = s.indexOf('\n', i);
+      xoaDen(het < 0 ? s.length : het);
+    } else if (coHtml && s.startsWith('<!--', i)) {
+      const het = s.indexOf('-->', i + 4);
+      xoaDen(het < 0 ? s.length : het + 3);
+    } else {
+      ra += c;
+      i++;
+    }
+  }
+  return ra;
+}
 
 export function khoiMay(duong, ten) {
   const md = readFileSync(duong, 'utf8');
@@ -93,7 +139,7 @@ export function chayS4(root, base) {
 
   for (const f of dich) {
     if (tokens && path.normalize(f) === tokens) continue;
-    readFileSync(path.join(root, f), 'utf8').split('\n').forEach((dong, i) => {
+    boChuThich(readFileSync(path.join(root, f), 'utf8'), f).split('\n').forEach((dong, i) => {
       for (const m of dong.matchAll(RE_HEX)) {
         ra.dong.push(`design-floor S4: hex thô ${f}:${i + 1} ${m[0]}`);
         chan = true;
