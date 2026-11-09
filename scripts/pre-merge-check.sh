@@ -808,11 +808,11 @@ slug_vat_in_diff() { # <slug> <evals.yaml>
 # Đọc risk_tier/status bằng fm_field như vòng per-slug: bộ này phải cùng kết luận «hồ sơ nào được chấm».
 NGHI_SLUGS=""
 t3_co_ho_so_arm() { # 0 iff có hồ sơ trong diff được cổng chấm cho code t3_paths; 1 thì đặt T3_HO_SO_LY_DO
-  local f rest s ly t st d seen=" " _t3_mb
+  local f rest s ly t st d seen=" "
   T3_HO_SO_LY_DO=""
-  # PR cài kit: nhánh đích chưa có cổng thì chưa có hồ sơ nào để đòi.
-  _t3_mb="$(git -C "$ROOT" merge-base "$BASE_SHA" HEAD 2>/dev/null || true)"
-  if [ -n "$_t3_mb" ] && ! git -C "$ROOT" cat-file -e "$_t3_mb:./_acceptance/config.yaml" 2>/dev/null; then return 0; fi # T3-CAI-KIT-GUARD
+  # PR cài kit: đỉnh nhánh đích chưa có cổng thì chưa có hồ sơ nào để đòi. Đọc đỉnh, không đọc merge-base:
+  # nhánh cắt trước lần cài không được miễn. Không đọc được commit đích thì cũng không miễn.
+  if git -C "$ROOT" cat-file -e "$BASE_SHA^{commit}" 2>/dev/null && ! git -C "$ROOT" cat-file -e "$BASE_SHA:./_acceptance/config.yaml" 2>/dev/null; then return 0; fi # T3-CAI-KIT-GUARD
   while IFS= read -r f; do
     case "$f" in _acceptance/*|*/_acceptance/*) ;; *) continue ;; esac
     rest="${f##*_acceptance/}"

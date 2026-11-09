@@ -112,6 +112,18 @@ const F = {
   hatGiongChiDocs: () => kho({ co: 'docs', pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T1', 'draft')) }),
   caiKit: () => kho({ cauHinhBase: false, pr: R => ghi(R, '_acceptance/README.md', '# cổng\n') }),
   khongHoSo: () => kho({}),
+  // Nhánh cắt trước lần cài, tự thêm config; trong lúc đó nhánh đích đã cài kit.
+  nhanhCuTuThemConfig: () => {
+    const R = kho({ cauHinhBase: false });
+    const pr = git(R, 'rev-parse', 'HEAD');
+    git(R, 'checkout', '-q', 'basepoint');
+    ghi(R, '_acceptance/config.yaml', CFG);
+    commit(R, 'cai kit tren nhanh dich');
+    git(R, 'branch', '-f', 'dich-da-cai');
+    git(R, 'checkout', '-q', '--detach', pr);
+    git(R, 'branch', '-f', 'basepoint', 'dich-da-cai');
+    return R;
+  },
 };
 
 // ── Chiều đỏ ─────────────────────────────────────────────────────────────────────────────────────────
@@ -122,6 +134,7 @@ ca('HA4-do', () => chan(luoi(F.chiCauHinh()), 'không có thư mục hồ sơ n�
 ca('HA5-do', () => chan(luoi(F.taiLieuCu()), 'cu: chỉ đổi tệp chữ'));
 ca('HA6-do', () => chan(luoi(F.t2MayThong()), 'feat: hạng T2 chưa có chữ ký người'));
 ca('HA20-do', () => chan(luoi(F.daCham()), 'feat: hồ sơ đã chấm bởi thực tế đã đóng'));
+ca('HA24-do', () => chan(luoi(F.nhanhCuTuThemConfig()), 'không có thư mục hồ sơ nào trong PR'));
 
 // ── Chiều im: hồ sơ thật, hạt giống hợp lệ, code thường và lần cài kit không bị chặn thêm ─────────────
 ca('HA7-im', () => sach(luoi(F.t3DaKy())));
@@ -176,7 +189,7 @@ ca('HA18-mut', () => {
   const o = luoi(R, banSaoMay(KIM_LUAT, 'elif false; then'));
   return sach(o) ? `gỡ luật mà fixture không về clean: ${sach(o)}` : null;
 });
-const KIM_CAI_KIT = '! git -C "$ROOT" cat-file -e "$_t3_mb:./_acceptance/config.yaml" 2>/dev/null; then return 0; fi # T3-CAI-KIT-GUARD';
+const KIM_CAI_KIT = '! git -C "$ROOT" cat-file -e "$BASE_SHA:./_acceptance/config.yaml" 2>/dev/null; then return 0; fi # T3-CAI-KIT-GUARD';
 ca('HA19-mut', () => {
   const R = F.caiKit(); const truoc = sach(luoi(R));
   if (truoc) return `bản chưa tiêm phải im: ${truoc}`;
