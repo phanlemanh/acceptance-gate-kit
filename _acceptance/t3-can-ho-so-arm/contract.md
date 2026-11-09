@@ -5,7 +5,7 @@ slug: t3-can-ho-so-arm
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths
 surfaces: [cli, ci]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-11-10
 design_doc: _acceptance/t3-can-ho-so-arm/design.md
