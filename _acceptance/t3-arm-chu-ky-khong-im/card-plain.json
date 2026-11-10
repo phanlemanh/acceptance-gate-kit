@@ -1,0 +1,36 @@
+{
+  "feature_plain": "Khi máy chạy cổng không đọc được chữ ký, code trọng yếu không còn được gộp một cách im lặng nhờ một hồ sơ chưa ai ký.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chặn PR đổi code trọng yếu kèm hồ sơ T2 chưa ký khi máy thiếu thư viện đọc chữ ký, và nói rõ phải chép thêm thư viện."},
+    {"id": "AC-2", "p": "Sẽ chặn cả hồ sơ T2 có chữ ký thật khi máy thiếu thư viện, vì lúc đó không ai biết chữ ký có thật hay không; máy đủ công cụ thì hồ sơ đó vẫn qua."},
+    {"id": "AC-4", "p": "Sẽ giữ nguyên kết quả ở mười ô quanh luật: hồ sơ T3, code thường, chạy tắt có khai báo, hồ sơ đi cạnh hồ sơ T3, và chế độ soi chặt."},
+    {"id": "AC-5", "p": "Sẽ chứng minh chính nhánh mới đang giữ việc chặn: gỡ riêng nhánh đó thì cùng kho thử trở lại qua cổng."},
+    {"id": "AC-6", "p": "Sẽ giữ đủ 46 phép thử cũ cộng 17 phép thử mới, thiếu một tên là báo đỏ, và kết quả trên danh sách PR thật không đổi."},
+    {"id": "AC-7", "p": "Sẽ áp cùng cách chặn cho hồ sơ T1 ở kho có khai T1 phải ký."}
+  ],
+  "wont_do": [
+    {"id": "AC-3", "p": "Chặn PR đổi code trọng yếu kèm hồ sơ T2 khi máy không có node, và nói rõ phải cài node."},
+    {"id": "OOS-1", "p": "KHÔNG thêm công tắc để một kho tự hạ luật này xuống mức cảnh báo."},
+    {"id": "OOS-2", "p": "KHÔNG sửa lời báo khi thư viện có mặt mà chạy lỗi (Hỏi-2 hỏi đúng chỗ này)."},
+    {"id": "OOS-3", "p": "KHÔNG nâng các kho đang dùng cổng trong vòng này; việc đó thuộc lượt phát hành."},
+    {"id": "OOS-4", "p": "KHÔNG đụng các mục ngoài hợp đồng khác của hồ sơ code trọng yếu đã ký."}
+  ],
+  "scope_plain": "Vòng này chỉ đóng đúng lỗ im lặng ở vế chữ ký, không đổi luật ở nơi nào khác.",
+  "coverage_plain": [
+    {"i": 0, "p": "Máy chạy cổng có bốn dạng: đủ công cụ, thiếu thư viện, thiếu node, thư viện chạy lỗi; ba dạng đầu có phép đo, dạng cuối để Hỏi-2."},
+    {"i": 1, "p": "Hồ sơ có năm dạng: T2 chưa ký, T2 có ký, T3 có ký, T1 có ký, T2 chưa ký đi cạnh T3 có ký; đủ theo các nhánh hạng hồ sơ của cổng."},
+    {"i": 2, "p": "Loại code có hai dạng: code trọng yếu và code thường; luật mới chỉ áp cho code trọng yếu."},
+    {"i": 3, "p": "Bối cảnh chạy có ba dạng: PR thường, chế độ soi chặt, chạy tắt có khai báo; đủ theo hai công tắc của cổng."},
+    {"i": 4, "p": "Đối chiếu ngoài: bộ kiểm của Kubernetes mặc định chặn khi bộ kiểm không chạy được, cùng hướng với khuyến nghị."},
+    {"i": 5, "p": "Tổng 120 tổ hợp, chọn đo 18 tổ hợp có nghĩa, mỗi tổ hợp gắn với một tiêu chí từ AC-1 tới AC-7."},
+    {"i": 6, "p": "Để sau: thư viện có mặt mà chạy lỗi, vì PR vẫn bị chặn, chỉ lời báo chưa đúng."},
+    {"i": 7, "p": "Không đo thêm: máy đủ công cụ không đi vào nhánh mới, và AC-6 giữ nguyên hành vi ở đó."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Hợp đồng nói đóng thêm một mục của hồ sơ khác mà không có căn cứ và không có phép đo; đã bỏ câu đó."},
+    {"i": 1, "p": "Hai lựa chọn của máy không có căn cứ đủ mạnh: một lựa chọn chuyển thành câu hỏi Hỏi-2 cho anh, lựa chọn kia đã làm bù bằng bước quét độ phủ."},
+    {"i": 2, "p": "Bộ đo chỉ có hạng T2 trong khi luật áp cho mọi hạng dưới T3; đã thêm tiêu chí và phép thử cho hạng T1."},
+    {"i": 3, "p": "Vài ô trên máy thiếu node ghi kết quả sai so với thực tế; đã đo lại từng ô và viết lại thành bảng kết quả viết trước."},
+    {"i": 4, "p": "Phép đo «phép thử cũ còn đủ» không ghim số lượng, nên xoá bớt vẫn xanh; nay liệt kê đích danh 63 phép thử."}
+  ]
+}
