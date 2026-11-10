@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: caac4053e72297a6bf354f59a79a33f87d8f6749
+verified_commit: b2dbc55c2177ea996e0338841506c9bc3c629fb0
 human_signoff: Manh Phan 2026-11-10
 ---
 
@@ -250,3 +250,7 @@ none — every multi-run eval is uniform
 
 Round 1: chấm tại commit 5f2d360b; chi tiết xem run-log.jsonl.
 Round 2: mọi eval đạt tại commit caac4053e72297a6bf354f59a79a33f87d8f6749; baseline carried từ round 1.
+
+### Re-pin lần 1 — 2026-11-10, do hoá cũ do gộp origin/main (#491) để giải xung đột PR 489
+run_id: repin-20261110T094227Z-45153
+sha: b2dbc55c2177ea996e0338841506c9bc3c629fb0 · suites: 11 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
