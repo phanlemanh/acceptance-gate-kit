@@ -5,7 +5,7 @@ slug: doc-jsx-va-ban-do-hong
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: _acceptance/doc-jsx-va-ban-do-hong/design.md
 approved_by:
 approved_at:
@@ -84,3 +84,12 @@ Trục A dạng giá trị thuộc tính · B kết thúc thẻ · C vị trí k
   là chuỗi nên có thể đọc sai khe của thẻ đó. Hiếm, và sửa đúng cần bộ phân tích cú pháp thật.
 
 ## Notes
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-10:
+  - Ngoài-1: Chỉ sửa phần dựng kho thử của bộ kiểm thì kết quả xanh của lượt trước vẫn được giữ lại, dù bộ kiểm chung vẫn chạy đủ ở mỗi lượt.
+  - Ngoài-2: Xoá nhầm một phép kiểm về lỗi bản đồ nhẹ thì bộ kiểm không báo đỏ; hành vi cho người dùng vẫn đúng.
+  - Ngoài-3: Bộ đếm của ca kiểm lỗi bản đồ cộng số viết tay nên không nhận ra một phép kiểm bị xoá; hành vi thật vẫn đúng.
+  - Ngoài-4: Xoá bớt một dạng thẻ khỏi bảng thử thì bộ kiểm vẫn xanh, nên dạng đó có thể mất bảo vệ mà không ai hay.
+  - Ngoài-6: Chỉ sửa đúng tệp của bước chấm thì một vài bằng chứng cũ có thể được mang sang thay vì chạy lại.
+  - Ngoài-9: Cách sinh khối đánh giá đổi định dạng thì lượt sinh tham số dừng báo lỗi trong khi bộ kiểm vẫn xanh.
+  - AC-2 (điểm trong hợp đồng của lượt chấm 2): Năm nhánh bỏ qua của bộ đọc thẻ chưa có ca làm đỏ riêng, nên sửa nhầm chúng thì bộ kiểm vẫn xanh; hành vi hiện tại vẫn đúng.

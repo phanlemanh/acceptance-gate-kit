@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f481a5e50378fbdf05261b6479e5e1bcc6eff596
-human_signoff:
+human_signoff: Manh Phan 2026-11-10
 ---
 
 # Evidence Report: doc-jsx-va-ban-do-hong
