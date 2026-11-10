@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: cf35252abdcaad4ab409d7e0aa65047d92009451
-human_signoff:
+human_signoff: Manh Phan 2026-11-10
 ---
 
 # Evidence Report: t3-can-ho-so-arm

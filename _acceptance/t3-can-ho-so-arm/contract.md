@@ -5,7 +5,7 @@ slug: t3-can-ho-so-arm
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths
 surfaces: [cli, ci]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-11-10
 design_doc: _acceptance/t3-can-ho-so-arm/design.md
@@ -55,3 +55,26 @@ Source input: lời giao của phiên kiểm cài kit `onehub-inventory`, 09/11/
 - Vật: `scripts/pre-merge-check.sh` (hàm `t3_co_ho_so_arm`, nhánh `T3-CAN-HO-SO-GUARD`) · thước: `tests/scripts/t3-can-ho-so-arm.test.mjs` ca HA1…HA20 · tài liệu: `README.md` · sửa fixture GPM13 trong `tests/scripts/run-tests.sh`.
 - Known limits đã khai trước: luật không buộc hồ sơ với từng tệp T3 (kit không có ánh xạ tệp → hồ sơ), nên một hồ sơ T3 PASS của việc khác đi cùng PR vẫn thoả luật; PR cài kit được miễn trọn. Xem Hỏi-3 của Cổng Phạm vi. Trên lịch sử kho chưa có PR hồ sơ T2 máy-thông chạm T3, nên AC-8 không phủ nhóm đó; ca HA6, HA23 phủ bằng fixture.
 - Vật có trước hồ sơ: chiều đỏ ở lịch sử, commit 3539300c trước 4b66432c.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-10:
+  - Ngoài-1: Người dùng gõ nhầm hoặc cố tình đưa tên hồ sơ có dấu đi lùi thư mục thì lệnh khuôn có thể tạo tệp ngoài thư mục hồ sơ.
+  - Ngoài-2: Một ca kiểm thử có thể báo xanh dù cổng hỏng vì lý do khác với lý do dự định.
+  - Ngoài-3: Nếu thư mục kho có dấu cách, thợ sẽ chờ mãi mà không có thông báo lỗi nào, người dùng phải tự đoán vì sao treo.
+  - Ngoài-6: Nếu đường dẫn kho có dấu cách, thợ chờ khoá mãi dù khoá đã cấp và không có thông báo lỗi.
+  - Ngoài-7: Trên máy thiếu công cụ cần thiết, hồ sơ chưa có chữ ký người vẫn được cho qua mà không có dòng nào báo là đã bỏ kiểm.
+  - Ngoài-8: Nếu bộ đọc giờ máy hỏng và bỏ sót bản ghi, bài kiểm báo bỏ qua thay vì báo đỏ, nên lỗi có thể không bị phát hiện kịp.
+  - Ngoài-9: Thẻ việc có thể hiện nhầm giá trị sang sai trường mà bài kiểm vẫn xanh, nên lỗi đảo hàng khó bị bắt.
+  - Ngoài-10: Nếu mẫu thẻ việc đổi hình dạng, thẻ có thể hiện chưa điền mà bài kiểm vẫn xanh, nên người dùng thấy thẻ trống mà không ai báo.
+  - Ngoài-11: Một số ca chứng minh cổng chặn đúng lý do có thể xanh dù bản thử đã hỏng vì nguyên nhân khác, nên bằng chứng yếu hơn vẻ ngoài.
+  - Ngoài-12: Một ca kiểm thử có thể xanh với bất kỳ kiểu thất bại nào, nên không chứng minh cổng báo đúng khi nhánh gốc không tìm thấy.
+  - Ngoài-13: Bài kiểm tra tự thử của cổng có thể báo xanh dù bản thử đã hỏng giữa chừng, nên có lúc ta tưởng một luật chặn đã được chứng minh sống mà thực ra chưa.
+  - Ngoài-14: Mười hai ca thử kiểu gỡ từng lý do chặn có thể xanh giả khi bản thử chết sớm, nên bằng chứng rằng từng lý do chặn đang thật sự hoạt động yếu hơn vẻ ngoài.
+  - Ngoài-15: Người chạy công cụ dựng khuôn có thể vô tình ghi tệp ra ngoài thư mục hồ sơ nếu gõ tên hồ sơ sai dạng.
+  - Ngoài-18: Công cụ kiểm khuôn giao diện có thể báo thiếu thành phần dù đã có, hoặc bỏ sót thiếu thật, khi mã dùng hàm mũi tên trong thuộc tính.
+  - Ngoài-20: Phép thử có thể vẫn xanh dù thẻ việc ghép nhầm giá trị sang sai trường, nên lỗi ghép nhầm có thể lọt mà không ai biết.
+  - Ngoài-21: Phép thử gỡ nhánh có thể xanh vì bản sao bị hỏng chứ không phải vì lý do chặn đã biến mất, nên bằng chứng yếu hơn vẻ ngoài.
+  - Ngoài-22: Một phép thử về hồ sơ có thể xanh vì bất kỳ lỗi nào, kể cả lỗi không liên quan đến điều nó định kiểm.
+  - Ngoài-23: Phép đối chiếu trên các kho thật có thể coi là đúng cả khi luật chưa chạy tới, nên độ tin cậy của kết quả bị thổi phồng.
+  - Ngoài-24: Nếu mẫu đặc tả đổi dạng, đặc tả viết theo mẫu sẽ bị đọc là chưa điền thẻ việc mà phép thử vẫn xanh.
+  - Ngoài-25: Dòng cho nghỉ trong phép thử là gõ tay chứ không rút từ bộ đọc như mô tả, nên nếu định dạng thật đổi, phép thử không bắt được.
+  - Ngoài-26: Nếu ai đó xoá bớt các ca thử chiều đỏ, bước kiểm vẫn xanh và chỉ báo số nhỏ hơn.
+  - Ngoài-27: Sau khi gộp, phép so với bản trước vòng thành so với chính nó nên không còn phát hiện thay đổi ngoài ý muốn.
