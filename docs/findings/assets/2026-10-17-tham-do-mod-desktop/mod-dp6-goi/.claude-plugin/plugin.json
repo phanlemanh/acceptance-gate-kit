@@ -1,0 +1,1 @@
+{ "name": "dp6-goi", "version": "0.1.0", "description": "Thăm dò câu 5 (17/10): gọi lệnh từ một mod KHÁC để hook command.run của dp6-tham-do không bị bỏ qua vì cùng nguồn; chỉ chạy trong một phiên" }
