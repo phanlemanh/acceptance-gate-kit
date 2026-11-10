@@ -8,6 +8,8 @@
 //   Cổng 2 — chữ ký rỗng ⇒ đòi SÁU điều kiện xanh-sạch (xanh_sach_check):
 //            verdict PASS · bypass_used không true · hạng T2 · 0 mục UNCERTAIN ·
 //            «Known limits» HIỆN DIỆN-và-rỗng · «Ngoài hợp đồng» HIỆN DIỆN-và-rỗng.
+//            Cộng hai vế đọc từ review-findings.md: không còn mục ngoài hợp đồng chưa người
+//            định tuyến, không còn lỗi trong hợp đồng.
 //            Và TRƯỚC đó lưới chặn `enforcement_mode: off` (cổng không làm gì lúc
 //            ghi) — đọc cùng khối frontmatter, nên hỏi ở đây luôn (S4-r3 bắt).
 //   Và `da-veto` là phát ngôn của người: lưới chặn tới khi xử.
@@ -96,6 +98,14 @@ export function xanhSach(contractTxt, evidenceTxt, ctx) {
   const m = ctx.findings == null ? { chua: [], suspect: false } : mucChuaDinhTuyen(ctx.findings, ctx.ledger, ctx.runLog);
   if (m.suspect) return { clean: false, why: 'review-findings.md có chữ trong mục «Ngoài hợp đồng» nhưng không đọc ra mục nào (sai khuôn OOC-ITEM-TEMPLATE)' };
   if (m.chua.length) return { clean: false, why: `review-findings.md có ${m.chua.length} mục ngoài hợp đồng chưa người định tuyến: ${m.chua.join(', ')}${ooc().cumCu(ctx.findings, ctx.ledger, ctx.runLog)}` };
+  // Lỗi trong hợp đồng còn mở: PASS mà còn lỗi thì phải có người đọc. Hồ sơ đã machine-cleared từ trước không bị hỏi
+  // lại ở đây (bản bash chỉ xét lại khi hồ sơ có đổi trong PR, thứ hàm này không biết) — không thì bộ quét báo hỏng
+  // đúng các hồ sơ lưới đã miễn. CÙNG hàm xanh_sach_check gọi.
+  const stHoSo = (frontmatterField(contractTxt, 'status') || '').trim().toLowerCase();
+  if (ctx.findings != null && stHoSo !== 'machine-cleared') {
+    const lyDo = ooc().lyDoTrongHopDong(ctx.findings);
+    if (lyDo) return { clean: false, why: lyDo };
+  }
   return { clean: true, why: '' };
 }
 

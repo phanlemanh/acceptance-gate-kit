@@ -487,6 +487,24 @@ xanh_sach_check() { # <report path>
       *)       clean_ok=0; clean_why="review-findings.md có ${_ooc%%|*} mục ngoài hợp đồng chưa người định tuyến: ${_ooc#*|}" ;;
     esac
   fi
+  # Lỗi trong hợp đồng còn mở: lượt chấm chỉ tự trả lại lỗi nặng, nên PASS vẫn có thể mang lỗi mức vừa, nhẹ mà không ai
+  # đọc. CÙNG hàm bản mjs gọi. Hồ sơ đã machine-cleared từ trước luật này chỉ bị xét lại khi có đổi trong PR: lưới quét
+  # mọi hồ sơ, áp thẳng thì mọi PR của kho có hồ sơ cũ còn lỗi đều đỏ. Tệp vắng → im; lib vắng, đời cũ, đọc lỗi → fail-closed.
+  if [ "$clean_ok" -eq 1 ] && [ -f "$_cdir/review-findings.md" ]; then
+    local _st_ic _ic
+    _st_ic="$(front_field "$_cdir/contract.md" status | tr '[:upper:]' '[:lower:]')"
+    if [ "$_st_ic" != "machine-cleared" ] || slug_in_diff "$(basename "$_cdir")"; then
+      _ic="$(node -e '
+        const {lyDoTrongHopDong}=require(process.argv[1]);
+        process.stdout.write("OK:"+lyDoTrongHopDong(require("fs").readFileSync(process.argv[2],"utf8")));
+      ' "$(kit_lib out-of-contract.cjs)" "$_cdir/review-findings.md" 2>/dev/null || printf '__LOI__')"
+      case "$_ic" in
+        OK:) : ;;
+        OK:*) clean_ok=0; clean_why="${_ic#OK:}" ;;
+        *)    clean_ok=0; clean_why="không đọc được mục «Trong hợp đồng» của review-findings.md (fail-closed)" ;;
+      esac
+    fi
+  fi
   CLEAN_WHY="$clean_why"
   [ "$clean_ok" -eq 1 ]
 }

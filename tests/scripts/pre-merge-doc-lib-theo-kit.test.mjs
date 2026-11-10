@@ -31,6 +31,7 @@ const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8'
 // Hai thông điệp fail-closed của lưới — ghim nguyên văn, mỗi dòng đọc thư viện một thông điệp.
 const MSG_KL = 'không đọc được mục «Known limits» (fail-closed)';
 const MSG_OOC = 'không đọc được review-findings.md × sổ quyết định (fail-closed)';
+const MSG_TRONG_HD = 'không đọc được mục «Trong hợp đồng» của review-findings.md (fail-closed)';
 // Bản gốc thật: main ngay trước vòng (lỗi có từ 2f8de63a). CI của kit checkout fetch-depth: 0.
 const GOC_SHA = 'c8870a49';
 
@@ -137,8 +138,13 @@ const dongGiai = () => {
 //   ooc-goc-kho — riêng chỗ gọi out-of-contract.cjs còn đọc theo gốc kho
 const CHI_GOC_KHO = () => [PM, dongGiai(), `kit_lib() { printf '%s' "$ROOT/lib/$1"; }`];
 const DAO_THU_TU = () => [PM, dongGiai(), `kit_lib() { if [ -f "$ROOT/lib/$1" ]; then printf '%s' "$ROOT/lib/$1"; else printf '%s' "$HERE/../lib/$1"; fi; }`];
-const CHO_GOI_OOC = '"$(kit_lib out-of-contract.cjs)"';
-const OOC_GOC_KHO = [PM, CHO_GOI_OOC, '"$ROOT/lib/out-of-contract.cjs"'];
+// Bộ đọc này có hai chỗ gọi: mục ngoài hợp đồng và lỗi trong hợp đồng. Neo kèm đuôi dòng để mỗi mutant trúng đúng một chỗ.
+const DUOI_OOC = ' "$_cdir/review-findings.md" "$_cdir/decisions.jsonl"';
+const DUOI_TRONG_HD = ' "$_cdir/review-findings.md" 2>/dev/null';
+const CHO_GOI_OOC = `"$(kit_lib out-of-contract.cjs)"${DUOI_OOC}`;
+const CHO_GOI_TRONG_HD = `"$(kit_lib out-of-contract.cjs)"${DUOI_TRONG_HD}`;
+const OOC_GOC_KHO = [PM, CHO_GOI_OOC, `"$ROOT/lib/out-of-contract.cjs"${DUOI_OOC}`];
+const TRONG_HD_GOC_KHO = [PM, CHO_GOI_TRONG_HD, `"$ROOT/lib/out-of-contract.cjs"${DUOI_TRONG_HD}`];
 
 const KHO = { khong: kho('lk1', 'khong'), chep: kho('lk2', 'chep'), hong: kho('lk3', 'hong'), motPhan: kho('lk3m', 'mot-phan') };
 const CACH_LK1 = ['tuyet-doi', 'ci-plugin', 'tuong-doi'];
@@ -161,6 +167,11 @@ await ca('LK1-do ooc-goc-kho', () => {
   if (!qua(luoi(KHO.khong, banSaoMay()), 'lk1')) return { loi: 'ban sao chua tiem do truoc' };
   const o = luoi(KHO.khong, banSaoMay([OOC_GOC_KHO]));
   return chanDung(o, 'lk1', MSG_OOC) && !o.out.includes(MSG_KL) ? { msg: `— riêng dòng mục ngoài hợp đồng theo gốc kho: «${MSG_OOC}»` } : { loi: `mutant khong chan dung: ${tomTat(o, 'lk1')}` };
+});
+await ca('LK1-do trong-hd-goc-kho', () => {
+  if (!qua(luoi(KHO.khong, banSaoMay()), 'lk1')) return { loi: 'ban sao chua tiem do truoc' };
+  const o = luoi(KHO.khong, banSaoMay([TRONG_HD_GOC_KHO]));
+  return chanDung(o, 'lk1', MSG_TRONG_HD) && !o.out.includes(MSG_OOC) ? { msg: `— riêng dòng lỗi trong hợp đồng theo gốc kho: «${MSG_TRONG_HD}»` } : { loi: `mutant khong chan dung: ${tomTat(o, 'lk1')}` };
 });
 await ca('LK2 kho-co-lib-chep', () => {
   // Kho có lớp chép xanh ở bản sửa VÀ bản gốc thật, khi gọi script của kit; và khi gọi bản chép trong kho
@@ -229,17 +240,18 @@ function quet(dir) {
   }
   return { sai, giai: giai.sort() };
 }
-const GIAI_KHAI = ['md-section.cjs', 'out-of-contract.cjs'];
+const GIAI_KHAI = ['md-section.cjs', 'out-of-contract.cjs', 'out-of-contract.cjs'];
 // Ma trận hình dạng của lớp, viết trước — mỗi hình dạng tiêm riêng vào một bản sao: sáu hình dạng đối số thay chỗ
 // gọi out-of-contract.cjs (mẫu 1 và 2), một hình dạng lệnh chèn ngay sau khối bộ giải (mẫu 3).
 // [tên, neo, thay, chuỗi phải có trong dòng quét ra]
 const HINH_DANG = [
-  ['nhay-root', CHO_GOI_OOC, '"$ROOT/lib/out-of-contract.cjs"'],
-  ['khong-nhay', CHO_GOI_OOC, '$ROOT/lib/out-of-contract.cjs'],
-  ['ngoac-root', CHO_GOI_OOC, '"${ROOT}/lib/out-of-contract.cjs"'],
-  ['mac-dinh', CHO_GOI_OOC, '"${ROOT:-.}/lib/out-of-contract.cjs"'],
-  ['tuong-doi', CHO_GOI_OOC, '"lib/out-of-contract.cjs"'],
-  ['cham-gach', CHO_GOI_OOC, '"./lib/out-of-contract.cjs"'],
+  ['nhay-root', CHO_GOI_OOC, '"$ROOT/lib/out-of-contract.cjs"' + DUOI_OOC, '"$ROOT/lib/out-of-contract.cjs"'],
+  ['khong-nhay', CHO_GOI_OOC, '$ROOT/lib/out-of-contract.cjs' + DUOI_OOC, '$ROOT/lib/out-of-contract.cjs'],
+  ['ngoac-root', CHO_GOI_OOC, '"${ROOT}/lib/out-of-contract.cjs"' + DUOI_OOC, '"${ROOT}/lib/out-of-contract.cjs"'],
+  ['mac-dinh', CHO_GOI_OOC, '"${ROOT:-.}/lib/out-of-contract.cjs"' + DUOI_OOC, '"${ROOT:-.}/lib/out-of-contract.cjs"'],
+  ['tuong-doi', CHO_GOI_OOC, '"lib/out-of-contract.cjs"' + DUOI_OOC, '"lib/out-of-contract.cjs"'],
+  ['cham-gach', CHO_GOI_OOC, '"./lib/out-of-contract.cjs"' + DUOI_OOC, '"./lib/out-of-contract.cjs"'],
+  ['trong-hd-nhay-root', CHO_GOI_TRONG_HD, `"$ROOT/lib/out-of-contract.cjs"${DUOI_TRONG_HD}`, '"$ROOT/lib/out-of-contract.cjs"'],
   ['node-lenh', '# KIT-LIB-THEO-CHO-CAI>>>\n', '# KIT-LIB-THEO-CHO-CAI>>>\n_x="$(node lib/out-of-contract.cjs 2>/dev/null)"\n', 'node lib/out-of-contract.cjs'],
 ];
 await ca('LK5 quet-lop', () => {

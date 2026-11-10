@@ -1,4 +1,4 @@
-// Ca của hồ sơ lan-v-khong-phai-cho-ky (LV1–LV6) — một vật: máy quét vào phiên.
+// Ca của hồ sơ lan-v-khong-phai-cho-ky (LV1–LV8) — một vật: máy quét vào phiên.
 //
 // Câu hỏi duy nhất đang đo: với hồ sơ `verified` chưa ký, máy quét có trả lời
 // ĐÚNG câu lưới trước-merge hỏi không — «hồ sơ này còn cần người không?».
@@ -15,6 +15,7 @@
 // Bộ lọc có SÀN ĐẾM: tên không khớp ca nào → exit 1 (không xanh với 0 assertion).
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync, readFileSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -263,6 +264,12 @@ function luoi(R, slug) {
   return { status: r.status, chanSlug, chanKhac, out };
 }
 
+const TRONG_HD_DUOI = '\n## Ngoài hợp đồng — người quyết ở Gate 2\n';
+const TRONG_HD_1 = `## Trong hợp đồng\n\n- **Loi mau**\n  severity: medium\n  AC: AC-1\n${TRONG_HD_DUOI}`;
+const TRONG_HD_RONG = `## Trong hợp đồng\n\nKhông có finding nào.\n${TRONG_HD_DUOI}`;
+const TRONG_HD_NGO = `## Trong hợp đồng\n\n### Loi khuon cu\n\nchu mo ta\n${TRONG_HD_DUOI}`;
+const KY_VONG_CHAN = { 'V-trong-hd': true, 'nguoi-trong-hd': true, 'V-trong-hd-rong': false, 'V-trong-hd-ngo': true };
+
 if (want('LV5')) {
   // Mặt cắt: nơi sáu điều kiện + hai nhánh Cổng 1 + da-veto phân biệt được nhau.
   const MAT_CAT = [
@@ -293,8 +300,13 @@ if (want('LV5')) {
     ['V-ooc-mot-phan',    { ...V_SACH, findings: OOC_2, ledger: gate2Line('Ngoài-1: ghi Known limits') }],
     ['V-ooc-du',          { ...V_SACH, findings: OOC_2, ledger: gate2Line('Ngoai-1 den Ngoai-2: ghi Known limits') }],
     ['V-ooc-ngo',         { ...V_SACH, findings: '## Ngoài hợp đồng — người quyết ở Gate 2\n\n- **sai khuon** khong truong\n' }],
+    // Lỗi trong hợp đồng còn mở: PASS không có nghĩa là không ai phải đọc lỗi.
+    ['V-trong-hd',        { ...V_SACH, findings: TRONG_HD_1 }],
+    ['nguoi-trong-hd',    { ...NGUOI_SACH, findings: TRONG_HD_1 }],
+    ['V-trong-hd-rong',   { ...V_SACH, findings: TRONG_HD_RONG }],
+    ['V-trong-hd-ngo',    { ...V_SACH, findings: TRONG_HD_NGO }],
   ];
-  const SO_MAT_CAT = 26;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
+  const SO_MAT_CAT = 30;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
   if (MAT_CAT.length !== SO_MAT_CAT) { fail('LV5', `MAT_CAT co ${MAT_CAT.length} phan tu, khai truoc ${SO_MAT_CAT}`); }
   const errs = []; let n = 0; let doiChung = false;
   for (const [ten, o] of MAT_CAT) {
@@ -311,6 +323,9 @@ if (want('LV5')) {
         doiChung = l.status === 0 && !l.chanSlug && /xanh-sạch/.test(l.out);
         if (!doiChung) errs.push(`doi chung duong V-sach: exit ${l.status}, chanSlug=${l.chanSlug}, NOTE xanh-sach=${/xanh-sạch/.test(l.out)}`);
       }
+      // LV5 chỉ so hai bản dựng với nhau: hai bên cùng cho qua vẫn «khớp». Bốn ô này cần kỳ vọng tuyệt đối.
+      if (ten in KY_VONG_CHAN && l.chanSlug !== KY_VONG_CHAN[ten])
+        errs.push(`${ten}: mong luoi ${KY_VONG_CHAN[ten] ? 'chan' : 'cho qua'}, thay ${l.chanSlug ? 'chan' : 'cho qua'}`);
       const s = scan(R);
       const mayQuetDone = s.done.has('lv5');
       n++;
@@ -321,6 +336,66 @@ if (want('LV5')) {
   if (n !== SO_MAT_CAT) errs.push(`so fixture da so ${n} != ${SO_MAT_CAT} khai truoc`);
   if (errs.length) fail('LV5', `${errs.length} loi — ${errs.slice(0, 6).join(' · ')}`);
   else pass('LV5', `dang thuc voi luoi: ${n} fixture, may quet == pre-merge o ca ${n}`);
+}
+
+// ─── LV7 — hồ sơ ĐÃ được máy cho qua từ trước khi có luật lỗi trong hợp đồng ──────
+// Lưới quét mọi hồ sơ, kể cả hồ sơ PR không chạm. Áp thẳng thì mọi PR của kho có hồ sơ cũ còn lỗi đều đỏ
+// ngay khi cập nhật kit. Chỉ xét lại khi chính hồ sơ có đổi trong PR.
+if (want('LV7')) {
+  const errs = [];
+  const MC = { ...V_SACH, status: 'machine-cleared', findings: TRONG_HD_1 };
+  const hsCu = R => {
+    execFileSync('git', ['-C', R, 'branch', '-f', 'basepoint', 'HEAD']);
+    mkdirSync(path.join(R, 'docs'), { recursive: true });
+    writeFileSync(path.join(R, 'docs', 'ghi-chu.md'), 'doi tai lieu\n');
+    execFileSync('git', ['-c', 'user.name=lv', '-c', 'user.email=lv@x', '-C', R, 'add', '-A']);
+    execFileSync('git', ['-c', 'user.name=lv', '-c', 'user.email=lv@x', '-C', R, 'commit', '-qm', 'pr chi doi tai lieu']);
+  };
+  for (const [ten, chuanBi, chan] of [['ngoai PR -> khong xet lai', hsCu, false], ['trong PR -> xet', () => {}, true]]) {
+    const R = mkGitRepo('lv7', MC);
+    try {
+      chuanBi(R);
+      const l = luoi(R, 'lv7');
+      if (l.chanSlug !== chan) errs.push(`${ten}: mong ${chan ? 'chan' : 'cho qua'}, thay exit ${l.status} — ${l.out.split('\n').filter(x => /VIOLATION/.test(x)).slice(0, 2).join(' | ').slice(0, 240)}`);
+      if (chan && !/lỗi trong hợp đồng/.test(l.out)) errs.push(`${ten}: VIOLATION phai neu ten dieu kien «lỗi trong hợp đồng»`);
+      if (scan(R).broken.has('lv7')) errs.push(`${ten}: may quet coi ho so cu la hong`);
+    } finally { rmSync(R, { recursive: true, force: true }); }
+  }
+  // Đối chứng: cùng hồ sơ ở status verified không được miễn — miễn trừ chỉ dành cho lời khai đã có từ trước.
+  { const R = mkGitRepo('lv7', { ...V_SACH, findings: TRONG_HD_1 });
+    try { hsCu(R); const l = luoi(R, 'lv7'); if (!l.chanSlug) errs.push('verified ngoai PR phai van bi chan — mien tru chi cho machine-cleared'); }
+    finally { rmSync(R, { recursive: true, force: true }); } }
+  if (errs.length) fail('LV7', errs.slice(0, 5).join(' · '));
+  else pass('LV7', 'machine-cleared cu: ngoai PR khong xet lai, trong PR xet, verified khong duoc mien');
+}
+
+// ─── LV8 — bộ đọc mục «Trong hợp đồng» trên từng hình dạng thật ──────────────────
+if (want('LV8')) {
+  const errs = [];
+  const { loiTrongHopDong, lyDoTrongHopDong } = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'out-of-contract.cjs'));
+  const CA = [
+    ['tep rong', '', 0, false],
+    ['null', null, 0, false],
+    ['khong co muc', '## Ngoài hợp đồng\n\n- **x**\n', 0, false],
+    ['cau khong co loi', TRONG_HD_RONG, 0, false],
+    ['cau khong co trong ngoac', '## Trong hợp đồng\n\n(không có finding nào map được vào AC)\n', 0, false],
+    ['mot muc', TRONG_HD_1, 1, false],
+    ['nhan luot', '## Trong hợp đồng\n\n- **a** (r1)\n  severity: low\n- **b**\n', 2, false],
+    ['CRLF', '## Trong hợp đồng\r\n\r\n- **a**\r\n', 1, false],
+    ['muc ngoai khong tinh', '## Trong hợp đồng\n\nKhông có.\n\n## Ngoài hợp đồng\n\n- **x**\n', 0, false],
+    ['khuon cu h3', TRONG_HD_NGO, 0, true],
+    ['gach dau dong tran', '## Trong hợp đồng\n\n- loi khong in dam\n', 0, true],
+    ['in dam giua cau', '## Trong hợp đồng\n\nCó **một** lỗi.\n', 0, true],
+  ];
+  for (const [ten, vao, so, ngo] of CA) {
+    const r = loiTrongHopDong(vao);
+    if (r.findings.length !== so || r.suspect_empty !== ngo) errs.push(`${ten}: mong ${so}/${ngo}, thay ${r.findings.length}/${r.suspect_empty}`);
+    const ly = lyDoTrongHopDong(vao);
+    if (!!ly !== (so > 0 || ngo)) errs.push(`${ten}: ly do «${ly}» lech voi ket qua doc`);
+  }
+  if (!/Trong-1/.test(lyDoTrongHopDong(TRONG_HD_1))) errs.push('ly do phai goi ten loi bang nhan Trong-N');
+  if (errs.length) fail('LV8', errs.join(' · '));
+  else pass('LV8', `bo doc muc trong hop dong: ${CA.length} hinh dang`);
 }
 
 // ─── LV6 — sàn đếm của chính bộ lọc ──────────────────────────────────────────

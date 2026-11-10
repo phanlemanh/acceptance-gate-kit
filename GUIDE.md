@@ -67,7 +67,7 @@ G-GIATRI	Cổng Giá trị	Value Gate
 |---|---|---|
 | **Cổng Đáng** | Việc này có đáng làm không? | Luôn — một ô cơ hội mở vòng |
 | **Cổng Phạm vi** | Bộ tiêu chí đã đủ và đúng chưa? | T2 **chưa** đủ điều kiện đi tiếp (gap-probe còn P0 · danh từ mờ · coverage chưa gạch · hạng T3). T2 đủ điều kiện: máy chốt phạm vi, để cửa veto mở, đi tiếp |
-| **Cổng Bằng chứng** | Đã làm đúng thứ đã hứa chưa? | Bằng chứng **chưa** xanh-sạch (thiếu một trong sáu điều kiện) **hoặc** việc chạm KHÓ-ĐẢO. T2 xanh-sạch đi **làn V** — `status: machine-cleared`, không cần chữ ký |
+| **Cổng Bằng chứng** | Đã làm đúng thứ đã hứa chưa? | Bằng chứng **chưa** xanh-sạch (thiếu một trong sáu điều kiện, hoặc còn lỗi trong hợp đồng) **hoặc** việc chạm KHÓ-ĐẢO. T2 xanh-sạch đi **làn V** — `status: machine-cleared`, không cần chữ ký |
 | **Cổng Giá trị** | Thứ đã giao có ăn thua không? | Sau khi ship, cho việc sinh từ một ô cơ hội có ngưỡng đã khai |
 
 **Ngân sách lượt gọi người:** mục tiêu **≤3 lượt/vòng** (= đúng số cổng người trong thiết kế) · vòng **T3 trần 4** (thêm Gate 1.5 duyệt plan) · **mốc phát hành ≤1** · **≤1 chạm/lượt**. Mục tiêu thật là **0 lượt ngoài thiết kế**.
