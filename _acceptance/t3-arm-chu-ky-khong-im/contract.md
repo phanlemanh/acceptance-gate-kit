@@ -5,7 +5,7 @@ slug: t3-arm-chu-ky-khong-im
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths
 surfaces: [cli, ci]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-11-10
 design_doc: _acceptance/t3-arm-chu-ky-khong-im/design.md
@@ -67,3 +67,9 @@ Quét bằng skill `morphological-scan`, preset test-matrix.
 - Chiều đỏ: đột biến ở AC-5 trả đúng mã trước vòng vì khối mới chỉ thêm dòng; đo trực tiếp trước khi viết, ghi ở design doc.
 - Nguồn việc là Ngoài-16 của `t3-can-ho-so-arm`. Hợp đồng này không ghi gì vào hồ sơ đó.
 - Known limits khai trước: hồ sơ T2 có chữ ký thật trên máy thiếu công cụ ở kho `recheck: warn` nay bị chặn, gỡ bằng cài node hoặc chép `lib/`.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-11:
+  - Ngoài-1: Một phép kiểm máy thiếu node chưa được so với máy đủ công cụ trên cùng kho thử, nên nếu cổng sai ở đúng ca này thì bộ thử có thể không bắt được.
+  - Ngoài-2: Hồ sơ mẫu trong bộ thử gõ tay, nên khi mẫu hồ sơ thật đổi dạng thì bộ thử vẫn xanh dù cổng có thể đọc sai hồ sơ chưa ký thật.
+  - Ngoài-3: Bộ thử chưa phân biệt máy giả lập thiếu node với máy giả lập hỏng hẳn, nên lỗi dựng có thể báo đỏ muộn và khó hiểu hơn.
+  - Ngoài-4: Bản lặp của Ngoài-1 từ lượt chấm 1 — ca máy thiếu node thiếu phép so với máy đủ công cụ.
+  - Ngoài-5: Bản lặp của Ngoài-2 từ lượt chấm 1 — báo cáo bằng chứng trong bộ thử gõ tay, không rút từ khuôn thật.
