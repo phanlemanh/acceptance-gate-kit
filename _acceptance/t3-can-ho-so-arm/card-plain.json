@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Một thay đổi vào code trọng yếu không còn qua được cổng gộp chỉ nhờ kèm một hồ sơ mà không ai chấm.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chặn PR đổi code trọng yếu nếu hồ sơ đi kèm chưa khai gì cả, và nói rõ tệp nào, hồ sơ nào, vì sao."},
+    {"id": "AC-2", "p": "Sẽ chặn PR đổi code trọng yếu nếu hồ sơ đi kèm tự khai hạng thấp, kể cả khi ghi là đã nghiệm thu."},
+    {"id": "AC-3", "p": "Sẽ chặn tám dạng hồ sơ khác không ai chấm: không có hợp đồng, chỉ đổi tệp ghi chép, đã đóng, đã cho nghỉ, hoặc hạng thường chưa có người ký."},
+    {"id": "AC-4", "p": "Sẽ để qua hồ sơ thật sự được chấm, kể cả khi đi cùng một hồ sơ nháp khác."},
+    {"id": "AC-5", "p": "Sẽ giữ nguyên cách làm hiện tại cho code thường và tài liệu."},
+    {"id": "AC-6", "p": "Sẽ miễn cho đúng lần cài kit đầu tiên, khi nhánh đích chưa có cổng; nhánh cũ tự thêm cấu hình thì không được miễn."},
+    {"id": "AC-9", "p": "Sẽ chứng minh được các ca chặn từng lọt qua bản cũ, bằng cách chạy chúng trên chính bản cũ."}
+  ],
+  "wont_do": [
+    {"id": "AC-7", "p": "Sẽ KHÔNG áp luật mới khi người vận hành đã tắt rõ ràng cho commit đẩy thẳng, và PR không có hồ sơ nào vẫn nhận đúng lời báo cũ."},
+    {"id": "AC-8", "p": "Sẽ KHÔNG làm đổi kết quả của bất kỳ PR thật nào ngoài danh sách đã chốt; đo lại trên các kho đang dùng kit, thiếu dữ liệu thì báo mù chứ không báo đạt."},
+    {"id": "OOS-1", "p": "Không đổi luật cho code ngoài danh sách trọng yếu."},
+    {"id": "OOS-2", "p": "Không sửa chuyện một thư mục mẫu bất kỳ cũng được coi là hồ sơ ở code thường; việc này có mục chờ riêng."},
+    {"id": "OOS-3", "p": "Không sửa ca test chập chờn đã có từ bản 2.38.0."},
+    {"id": "OOS-4", "p": "Không cắt mốc và không nâng các kho đang dùng kit; làm ở lượt phát hành."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Đã xét ba loại thay đổi: code trọng yếu, code thường, chỉ tài liệu."},
+    {"i": 1, "p": "Đã xét đủ các dạng hồ sơ đi kèm, từ không có hợp đồng tới hồ sơ được chấm thật."},
+    {"i": 2, "p": "Đã xét PR có một hồ sơ và PR có hạt giống đi cạnh hồ sơ thật."},
+    {"i": 3, "p": "Đã xét PR thường, PR cài kit và lần chạy đã tắt luật có khai báo."},
+    {"i": 4, "p": "Mỗi ô chính có một tiêu chí, từ AC-1 đến AC-8; AC-8 đo trên kho thật."},
+    {"i": 5, "p": "Để sau: hồ sơ hạng thường chưa ký chạm code trọng yếu đã bị chặn ở bước chấm riêng, luật mới chỉ thêm một dòng báo."},
+    {"i": 6, "p": "Không chạy công cụ quét không gian: đã kê tay bốn trục và nhờ phản biện độc lập soi thêm."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Thế nào là «được chấm» vốn là lựa chọn của người nhưng máy đã tự ghi; lời báo còn hứa hồ sơ gắn với đúng tệp trong khi luật không làm được. Đã chuyển thành Hỏi-2, Hỏi-3, thêm ca hồ sơ máy-thông, và đổi lời báo."},
+    {"i": 1, "p": "Căn cứ giữ nguyên code thường chỉ là một ca test, không quyết được phạm vi. Đã chuyển thành Hỏi-1 và bỏ căn cứ đó."},
+    {"i": 2, "p": "Điều kiện miễn lần cài kit ghi không nhất quán, nên nhánh cũ tự thêm cấu hình vẫn được miễn. Đã đổi điều kiện sang đỉnh nhánh đích, thêm ca chặn; lối miễn hẹp hơn đưa vào Hỏi-3."},
+    {"i": 3, "p": "Phép đo trên kho thật có thể báo đạt khi không có dữ liệu. Đã chốt danh sách PR và kết quả từ trước, đặt sàn số PR, thiếu thì báo mù."},
+    {"i": 4, "p": "Còn thiếu ca cho hồ sơ đã nghỉ, hồ sơ chỉ đổi tờ cơ hội, hồ sơ nháp và đã duyệt. Đã thêm các ca này và ca chứng minh chiều đỏ; báo cáo và chữ ký trong ca thử vẫn viết tay, phần đó nhờ phép đo trên hồ sơ thật phủ."}
+  ],
+  "scope_plain": "Bốn việc cố ý để ngoài lần này:"
+}

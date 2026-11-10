@@ -1,0 +1,444 @@
+{
+ "san": {
+  "code_thuong": 20,
+  "duoi_t3_co_chu_ky": 10,
+  "cai_kit": 2,
+  "t3_khong_ho_so": 5,
+  "so_kho": 5
+ },
+ "ghi_chu": "Chốt ngày 2026-11-10 từ lượt phát lại lịch sử: nhóm theo tệp PR đổi và hồ sơ tại đỉnh PR, không tính bằng luật đang đo. chan_them = true chỉ cho nhóm t3_khong_ho_so.",
+ "pr": [
+  {
+   "kho": "crm",
+   "sha": "1dd1b40f",
+   "tip": "1dd1b40f9c38ed47224142b887315ae221098c84",
+   "base": "55bd9cbf12912147c95f7e18de6c80ebd92d01c3",
+   "slug": "agent-builder-noi-tieng-viet",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "crm",
+   "sha": "758cbf4a",
+   "tip": "758cbf4acfe42b61e7baaea0ed72340dfebd154e",
+   "base": "f6b0cb47934385ab63b798a77c4dee5b0f54ee58",
+   "slug": "cho-tac-nhan-lau",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "2fcb1c0f",
+   "tip": "2fcb1c0f4fc770e4ec03866548e92f80017f66ea",
+   "base": "8530fc3609f8f41ca502ee69c9086bddbbfb3db4",
+   "slug": "bo-dung-chung-nhan-chuoi",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "7e6ed3c3",
+   "tip": "7e6ed3c33f95a9c89240c7f96a09eddab2133a58",
+   "base": "3f0bbe7622c887b723da7fb24a260fa2cbc15598",
+   "slug": "agent-builder-noi-tieng-viet",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "974a916d",
+   "tip": "974a916dbafc2c30433b3c9ca525ce0feb991f0b",
+   "base": "459793e45c679a874780d6ecc5726de8ed686ae7",
+   "slug": "agent-builder-noi-tieng-viet",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "84e9ba1f",
+   "tip": "84e9ba1fd50cd99b5e268cf763d54c8923a972bb",
+   "base": "e5c369cc6d770afec9141d53770ac57f38bfdbe5",
+   "slug": "gop-y-dung-cho",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "b1b757d8",
+   "tip": "b1b757d8cbeae33d767cf6137923ff954065d78c",
+   "base": "7bcdd45a1c39a572cb13293c974b6b121e21edcd",
+   "slug": "ban-mau-okr",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "crm",
+   "sha": "304a950a",
+   "tip": "304a950a1ee1544eb8f93fbc56f8c04ffc53a79e",
+   "base": "6d4793dd6d7aeea91aa6a034e00b17d7408a2d08",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "onehub-invest",
+   "sha": "d2a21a9e",
+   "tip": "d2a21a9e876a27e3a2a30f1e331b568c07c3c1fb",
+   "base": "9ba55d16d3005c8889ca52d385cbc68cdf3bd22d",
+   "slug": "",
+   "nhom": "cai_kit",
+   "chan_them": false
+  },
+  {
+   "kho": "onehub-invest",
+   "sha": "c263701c",
+   "tip": "c263701c4ff16b034e0096a1a2cbcf4af5f09d8f",
+   "base": "56e7462346c1ee76af1babbe3c0938028f6ff337",
+   "slug": "loc-enrich-thu-ops-audit",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "onehub-invest",
+   "sha": "f0bc6aa7",
+   "tip": "f0bc6aa73948562a7db48f4fb5d5ea59d0c18c17",
+   "base": "85072b33773e8aa677ea04a9da2ade36063e7d06",
+   "slug": "che-do-thu-tren-ops",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "onehub-quy-hang",
+   "sha": "24ab7c65",
+   "tip": "24ab7c653e035977968ccf2546f410ea8788dd85",
+   "base": "9b87e171334eae559b9a1ec9bb482f4e7684ae02",
+   "slug": "tang-5-giao-dien",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "onehub-quy-hang",
+   "sha": "b2d5a831",
+   "tip": "b2d5a83120159138e520a90e8b0369160550648e",
+   "base": "9a0461ea96bab7ef71cf6cd99ab6b8af296f3acc",
+   "slug": "",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "onehub-quy-hang",
+   "sha": "426cfe58",
+   "tip": "426cfe58e148574fc608c3df7151a69cf3a68864",
+   "base": "d146e4def551e312f91741d898a47df4433f11d0",
+   "slug": "",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "onehub-quy-hang",
+   "sha": "57407410",
+   "tip": "57407410aa2bd01656ef788a3f0efedcd83cb7c2",
+   "base": "9dd4c90f7debcce3db8b08b8eb6215c14ee0a0a3",
+   "slug": "",
+   "nhom": "cai_kit",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "27fbae2c",
+   "tip": "27fbae2c71b8f0dc599c41ec05d33f11c950879f",
+   "base": "af8a8dd43c05d4cddf9b3ace9c1296db3aeda35e",
+   "slug": "video-compose-first",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "3092e965",
+   "tip": "3092e965a8cb3c8529d07d35f927175714b7e1c7",
+   "base": "2118011a9d331b735428d4fd67bb7eceda1b3b13",
+   "slug": "video-compose-first",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "fefeeffd",
+   "tip": "fefeeffda23177b4f9de43311f28ffb98a311b28",
+   "base": "f0cbab00251ceaeb9f378bf68ed40fd485353e21",
+   "slug": "no3-su-kien-mot-nguon",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "f181f9cf",
+   "tip": "f181f9cf28eab5d2ff58bf0d1c766a415a228bd6",
+   "base": "2a075e688a1a59625467034639c924429c7f9702",
+   "slug": "retire-deal-page-lifecycle",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "db02ca95",
+   "tip": "db02ca9545c756eddf124d514bd56d1dae6cc4e9",
+   "base": "69019ba126f4476ca72c4b786f9bb481a6dbf7d5",
+   "slug": "no5-vat-mau-trung-lap",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "de1d1175",
+   "tip": "de1d1175275c28a2cff403b477c1f4a7ef54c458",
+   "base": "7dd0e4b284505e835b591d1b6a10cae0a57438f3",
+   "slug": "no2-lat-du-lieu-dang-ky",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "f494bda5",
+   "tip": "f494bda5d40cf409ecc844045489792930b0c40c",
+   "base": "b077850c2116e9c1bf1463a88bf0eaac98d17eca",
+   "slug": "no1-tham-so-chat-tu-manifest",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "73842022",
+   "tip": "738420221a30eb4185b82c396bdb063065e15cc6",
+   "base": "203a7876f60deba27df0d1f1b871fc228458c733",
+   "slug": "video-au1-audio-bus",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "d954c906",
+   "tip": "d954c906bd927831a05ef060ba76142faa780a15",
+   "base": "26220595d9de5bfe858e3845c499af093878f0ce",
+   "slug": "video-compose-first",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "d39ef7ed",
+   "tip": "d39ef7edf17012ad2ad5d9902b83eee4472abf5e",
+   "base": "4062f028d64d404750e894a8a534865f4bb35fad",
+   "slug": "creator-host-design-sync",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "79a4267f",
+   "tip": "79a4267feb10cacd37091c5121b1d07cd5be3da1",
+   "base": "7dd69f931e79c29723451633da9a4cd0d5cbe69e",
+   "slug": "deal-entity-g1",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "3d94aa50",
+   "tip": "3d94aa50933993238b46e927e66f81b5e7c82bfc",
+   "base": "3bf32ceadb6884800728f6f6b1001518b32c413d",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "artifact-platform",
+   "sha": "6904d14b",
+   "tip": "6904d14bedf484e98002b50ac371571f9ae9f866",
+   "base": "325035f19ad40dd777f4a68cc76bff0002ab1362",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "oneflow",
+   "sha": "d1224214",
+   "tip": "d12242144490a5a34651b18bc425b81106f0dc25",
+   "base": "044e4015058c74042e888c532422ac009451ccac",
+   "slug": "byo-key-onboarding",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "oneflow",
+   "sha": "7d7dd372",
+   "tip": "7d7dd3720b0bdcb1326e8d6e880d86266a0d3e1c",
+   "base": "df3d2c4169482881d2ce29c61c0109b0840d785a",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "radar",
+   "sha": "beb2f623",
+   "tip": "beb2f62331ebf9839164cc6a8dbff2329b15a974",
+   "base": "f8ec993dc2e57679238654b059815773a76991dd",
+   "slug": "ba-cho-khai-sai",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "radar",
+   "sha": "e3c86cf2",
+   "tip": "e3c86cf298a9435e5e4a5f3922e743d34347aa9c",
+   "base": "fa5e446a8644cc04864038f079fd6b63e40df7c3",
+   "slug": "ba-cho-khai-sai",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "radar",
+   "sha": "d50d9ca1",
+   "tip": "d50d9ca1d907257f0007fc6cfa904b5e6c91f3a8",
+   "base": "3f028ded21592dc06ba639057f66087c6d4d44e0",
+   "slug": "ba-cho-khai-sai",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "media-library",
+   "sha": "7730be5d",
+   "tip": "7730be5dc6b3aa9669165adcf90a3f7989ee499f",
+   "base": "fff3537cb005497d87717104f6d447492a6e81d4",
+   "slug": "itest-teardown-residue",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "media-library",
+   "sha": "5d53e461",
+   "tip": "5d53e46173f98b567b41d6f43e86e71ea0ae6eac",
+   "base": "9426a17f5fcfd54aeee1f804dda0a5aa79c33557",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "OpenMAIC",
+   "sha": "7201c861",
+   "tip": "7201c8618c072ae0ec68d4b029bba85b330f1a63",
+   "base": "8b39c4e86320cbd6a5a456fef19bf16c6a32ebd9",
+   "slug": "cau-hinh-di-theo-nguoi",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "OpenMAIC",
+   "sha": "576cd9bb",
+   "tip": "576cd9bb7ee3c75c4dfaa399158fc9e4cae815b4",
+   "base": "76d07488cefd128140e67ce5cae946e74bbb9151",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "OpenMAIC",
+   "sha": "76d07488",
+   "tip": "76d07488cefd128140e67ce5cae946e74bbb9151",
+   "base": "fe9926253130c58e6ba6d8d813d6751b6718fc44",
+   "slug": "",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "floorplanstudio",
+   "sha": "2a963721",
+   "tip": "2a963721e24b4842b7324cc4ac9659fefbc4da17",
+   "base": "91a474ca1b72088b430710828ddf93aa19587fe7",
+   "slug": "",
+   "nhom": "t3_khong_ho_so",
+   "chan_them": true
+  },
+  {
+   "kho": "floorplanstudio",
+   "sha": "5b7f85bf",
+   "tip": "5b7f85bfeacda331bd8ae03af67bc3d3f6022dfe",
+   "base": "4e615b21d940a38d5697537b21a45c595f530d37",
+   "slug": "digitize-trace-v2",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "47abf615",
+   "tip": "47abf615c00a891a643223ba09d73a7074e4e635",
+   "base": "2258d144bffd8c862e24b6b25fe97efc15b0875f",
+   "slug": "tep-sinh-khong-chan-gop",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "8beb0063",
+   "tip": "8beb006327b63580b9808b032c5ad9537180e8db",
+   "base": "f5188f024d63bacc3e622befcb0d7a43c97b0694",
+   "slug": "luu-kho-codex-va-nghi-le-design",
+   "nhom": "duoi_t3_co_chu_ky",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "e252c9df",
+   "tip": "e252c9df7c210d203bfbb76af7baa38e803f42bc",
+   "base": "2c90e4ca3a096abf79f2efa8216c355952594ada",
+   "slug": "anh-co-that-trong-ho-so",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "df000681",
+   "tip": "df00068114d57632717316a342c6643ba9f74a32",
+   "base": "62377dee05ba10c5d52c120016ff25cceebbd5b2",
+   "slug": "design-floor-hop-dong-nhap",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "66894ee8",
+   "tip": "66894ee895d178c20e03eef68027c235b97e0e72",
+   "base": "c85ab237618c529c983d70421e0f1e9a4b59261d",
+   "slug": "dieu-phoi-tho-trong-kit",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "a69843b6",
+   "tip": "a69843b6f8c6da526e84dbc6e2d8e5e52137224f",
+   "base": "91fd5fdc78def160711f99308a5ec12633729778",
+   "slug": "ba-cho-cat-sau-chu-ky-cua-so-2-13",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "43a810bf",
+   "tip": "43a810bf5f22c1169f07cb0abbdaabf24b2df5a8",
+   "base": "39e91e07d3ed7cfb5aec1efc493fbe75d166304d",
+   "slug": "bo-qua-phai-thay-dinh-nghia-phep-do",
+   "nhom": "code_thuong",
+   "chan_them": false
+  },
+  {
+   "kho": "acceptance-gate-kit",
+   "sha": "616111fb",
+   "tip": "616111fb581528c468514ea3461f3274f0c63458",
+   "base": "df053f7eed48789b56d9a6085ddef96455225004",
+   "slug": "ba-cho-tich-luy-khong-duong-ra",
+   "nhom": "code_thuong",
+   "chan_them": false
+  }
+ ]
+}
