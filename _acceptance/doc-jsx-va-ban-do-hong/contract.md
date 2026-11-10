@@ -5,7 +5,7 @@ slug: doc-jsx-va-ban-do-hong
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: _acceptance/doc-jsx-va-ban-do-hong/design.md
 approved_by:
 approved_at:
