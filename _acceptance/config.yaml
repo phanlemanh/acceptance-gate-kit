@@ -229,6 +229,10 @@ executors:
     ho_so_da_ky_giu_tuoi_bo_cu: "bash -c 'set -e; for f in tests/scripts/repin-lane*.test.mjs tests/scripts/premerge-repin.test.mjs tests/scripts/stale-by-paths.test.mjs; do node \"$f\"; done'"
     # Hồ sơ anh-co-that-trong-ho-so: ca LNT7…LNT10 (ảnh chỉ tính khi tệp có thật dưới evidence/ của hồ sơ).
     anh_co_that: env LNT_CASES=LNT7,LNT8,LNT9,LNT10 node tests/plugins/lop-nhin-thay.test.mjs
+    mau_lab_hai_chieu: node tests/design-eval/mau-lab.test.mjs && node tests/design-eval/mau-lab-do.test.mjs
+    df_s4_chu_thich: node tests/design-floor/moc-s3-s4.mjs --chi S4-HEX,S4-CHU-THICH
+    kdd_hoi_quy: bash tests/design-eval/kdd.sh --hoi-quy
+    kdd_nen_mau: bash tests/design-eval/kdd.sh KD9
   script:
     # Hồ sơ anh-co-that-trong-ho-so (AC-9, vế kho thật): kho khai ở KHO_DO hoặc .acceptance-runs/kho-do (gitignore);
     # không khai → thoát 2 (mù). Chỉ in số. Không vào feature_loop.suite_keys.
@@ -897,6 +901,11 @@ executors:
     rel2380_dd_giu: "bash -c 'c=$(git show 39fa45cc:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 39fa45cc HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2380_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh 39fa45cc 2.38.0
     rel2380_goi_doi: "bash -c 'd=$(git diff --name-only 39fa45cc HEAD -- dieu-phoi road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
+    # release-2-38-1 (AC-4/5/7/8): mốc = c8fa5a65 (thẻ v2.38.0); AC-8 dùng lại tệp lệnh của release-2-38-0
+    rel2381_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh c8fa5a65 t3-can-ho-so-arm
+    rel2381_dd_giu: "bash -c 'c=$(git show c8fa5a65:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c8fa5a65 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2381_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh c8fa5a65 2.38.1
+    rel2381_goi_doi: "bash -c 'd=$(git diff --name-only c8fa5a65 HEAD -- dieu-phoi feature-loop road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json feature-loop/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
@@ -1101,6 +1110,8 @@ executors:
     va460_khai_cu: bash tests/design-floor/eval.sh va460-khai-cu
     va460_kho_nho: bash tests/design-floor/eval.sh va460-kho-nho
     va460_cung_lop: bash tests/design-floor/eval.sh va460-cung-lop
+    design_scan_khop_nguon: node scripts/build-design-scan.mjs --check
+    mau_lab_chromium: node tests/design-eval/mau-lab-chromium.mjs
     t3ha_e1: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA1-do HA18-mut
     t3ha_e2: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA2-do HA17-mut
     t3ha_e3: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA3-do HA4-do HA5-do HA6-do HA20-do HA21-do HA22-do HA23-do HA32-bien HA33-do HA3-mut HA4-mut HA5-mut HA6-mut HA20-mut HA21-mut HA22-mut HA23-mut HA32-mut HA33-mut HA34-mut HA35-mut HA36-bang
