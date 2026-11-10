@@ -5,7 +5,7 @@ slug: lenh-cho-khoa-nhay-duong-dan
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
