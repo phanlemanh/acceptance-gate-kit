@@ -37,12 +37,12 @@ Thuật ngữ:
   `<K onClose={() => dong()} title="x" />`, When bộ máy gốc và cây đang kiểm cùng chạy bước chấm, Then bộ máy gốc thoát 1 với
   dòng báo thiếu khe `title` và không có dòng thiếu khe `children`, còn cây đang kiểm thoát 1 với dòng báo thiếu khe
   `children` và không có dòng thiếu khe `title`.
-- AC-2: Given bảng 24 dạng thẻ viết sẵn trong E2 (dạng × có con hay tự đóng × vị trí khe × hằng khe thiếu), When bộ đọc xét từng
+- AC-2: Given bảng 32 dạng thẻ viết sẵn trong E2 (dạng × có con hay tự đóng × vị trí khe × hằng khe thiếu), When bộ đọc xét từng
   hàng, Then danh sách khe thiếu của mỗi hàng đúng bằng hằng viết sẵn, và mỗi nhánh bỏ qua của bộ quét có một nhát tiêm riêng
   làm đỏ đúng hàng của nó.
 - AC-3: Given thẻ có spread cấp thẻ đứng sau hàm mũi tên, và thẻ chỉ có spread nằm trong giá trị `style={{...s}}`, When bộ đọc
   xét, Then hàng đầu vào nhóm «thẻ mang spread» và không báo lệch, hàng sau không vào nhóm đó và vẫn được chấm khe.
-- AC-4: Given thẻ mở không có dấu đóng trước hết tệp, hoặc ngoặc nhọn hụt, When bước chấm chạy trên kho mẫu, Then bước chấm
+- AC-4: Given thẻ mở không có dấu đóng trước hết tệp, hoặc ngoặc nhọn không có ngoặc khớp tới hết tệp, When bước chấm chạy trên kho mẫu, Then bước chấm
   thoát 0, tệp không có dòng thiếu khe, có dòng không đo được ghi «thẻ không đọc được», và không được đếm theo khuôn.
 - AC-5: Given các thẻ không có dấu `>` trong giá trị (khe đủ, thiếu khe, tự đóng, khe trần), When bộ máy gốc và cây đang kiểm
   chạy bước chấm trên cùng kho mẫu, Then đầu ra và mã thoát bằng hệt nhau và có ít nhất một dòng báo (phép so không rỗng).
@@ -79,6 +79,7 @@ Trục A dạng giá trị thuộc tính · B kết thúc thẻ · C vị trí k
 - Bỏ qua thẻ nêu trong chú thích hay chuỗi của tệp nguồn.
 - Thẻ Cổng Bằng chứng (`theCong2`) khi bản đồ hỏng — `s4-args` đã dừng trước khi tới đó.
 - Chặn lượt chấm vì lỗi bản đồ không làm mất nhóm.
+- Mã không biên dịch được có ngoặc nhọn hụt mà phía sau trong tệp còn `}` khớp nó: bộ quét đọc theo ngoặc khớp, không phát hiện hụt.
 - Dấu nháy trong văn bản JSX lồng trong biểu thức, đứng sau khoảng trắng, có cặp trên cùng dòng và bọc một ngoặc lệch: bộ quét đọc
   là chuỗi nên có thể đọc sai khe của thẻ đó. Hiếm, và sửa đúng cần bộ phân tích cú pháp thật.
 

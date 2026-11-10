@@ -31,8 +31,23 @@ const NHAT_DJ2 = {
   'DJ-2-kieu': { hang: 'tham-so-kieu', tim: "if (noi[j] === '<') { j = cuoiKieu(noi, j); if (j < 0) return null; }", thay: '' },
   'DJ-2-nhay': { hang: 'jsx-long-hai-nhay', tim: `if ((c === '"' || c === "'") && !laChuCai(s[j - 1])) {`, thay: `if (c === '"' || c === "'") {` },
   'DJ-2-le': { hang: 'jsx-long-nhay-le', tim: 'const k = cuoiChuoi(s, j); if (k > 0) { j = k; continue; }', thay: 'const k = cuoiChuoi(s, j); if (k < 0) return -1; j = k; continue;' },
+  'DJ-2-cmt2': { hang: 'chu-thich-dong-trong-bieu-thuc', tim: "if (c === '/' && s[j + 1] === '/' && s[j - 1] !== ':') { const k = s.indexOf('\\n', j); j = k < 0 ? s.length : k + 1; continue; }", thay: '' },
+  'DJ-2-url': { hang: 'url-trong-jsx-long', tim: "if (c === '/' && s[j + 1] === '/' && s[j - 1] !== ':') {", thay: "if (c === '/' && s[j + 1] === '/') {" },
+  'DJ-2-cmt2-the': { hang: 'chu-thich-dong-cap-the', tim: "if (c === '/' && noi[j + 1] === '/') { const k = noi.indexOf('\\n', j); if (k < 0) return null; j = k + 1; continue; }", thay: '' },
+  'DJ-2-chuoi-the': { hang: 'khe-trong-chuoi', tim: `if (c === '"' || c === "'") { const k = noi.indexOf(c, j + 1); if (k < 0) return null; phang += '""'; j = k + 1; continue; }`, thay: '' },
+  'DJ-2-kieu-mui-ten': { hang: 'tham-so-kieu-mui-ten', tim: "else if (s[j] === '>' && s[j - 1] !== '=' && --sau === 0) return j + 1;", thay: "else if (s[j] === '>' && --sau === 0) return j + 1;" },
+  'DJ-2-regex-lop': { hang: 'bieu-thuc-chinh-quy-lop', tim: "else if (s[j] === '/' && !lop) return j + 1;", thay: "else if (s[j] === '/') return j + 1;" },
+  'DJ-2-regex-esc': { hang: 'bieu-thuc-chinh-quy-thoat', tim: "if (s[j] === '\\\\') j++;\n    else if (s[j] === '[') lop = true;", thay: "if (s[j] === '[') lop = true;" },
+  'DJ-2-chuoi-esc': { hang: 'chuoi-thoat-nhay', tim: "if (s[j] === '\\\\') j++;\n    else if (s[j] === s[i]) return j + 1;", thay: 'if (s[j] === s[i]) return j + 1;' },
+  'DJ-2-mau-esc': { hang: 'chuoi-mau-thoat', tim: "if (s[j] === '\\\\') { j += 2; continue; }", thay: '' },
+  'DJ-2-mau-long': { hang: 'chuoi-mau-long-mau', tim: "if (s[j] === '$' && s[j + 1] === '{') { const k = cuoiNgoac(s, j + 1); if (k < 0) return -1; j = k; continue; }", thay: '' },
 };
-const CA = ['DJ-1', 'DJ-1-do', 'DJ-2', ...Object.keys(NHAT_DJ2), 'DJ-3', 'DJ-3-do', 'DJ-4', 'DJ-4-do', 'DJ-5', 'DJ-5-do', 'DJ-6', 'DJ-6-do', 'DJ-6-do2', 'DJ-7', 'DJ-7-do', 'DJ-8', 'DJ-8-do'];
+// Chốt chết: số nhánh bỏ qua và số hàng viết tay ở đây, không tính từ bảng — xoá một nhát hay một hàng là đỏ.
+const SO_NHAT_DJ2 = 20;
+const SO_HANG_DJ2 = 32;
+const SO_O_DJ6 = 8;
+const SO_O_DJ7 = 12;
+const CA = ['DJ-1', 'DJ-1-do', 'DJ-2', 'DJ-2-chot', ...Object.keys(NHAT_DJ2), 'DJ-3', 'DJ-3-do', 'DJ-4', 'DJ-4-do', 'DJ-4-do2', 'DJ-4-do3', 'DJ-5', 'DJ-5-do', 'DJ-6', 'DJ-6-chot', 'DJ-6-do', 'DJ-6-do2', 'DJ-7', 'DJ-7-chot', 'DJ-7-do', 'DJ-7-do2', 'DJ-8', 'DJ-8-do'];
 const chon = (process.env.DJ_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const la = chon.filter(c => !CA.includes(c));
 if (la.length) { console.error(`doc-jsx-va-ban-do-hong.test: mã ca lạ: ${la.join(', ')} (biết: ${CA.join(', ')})`); process.exit(2); }
@@ -149,24 +164,37 @@ const HANG_DJ2 = [
   ['tham-so-kieu-mui-ten', '<K<() => void> title="x" />', ['children']],
   ['nhieu-dong', '<K\n  f={() => {\n    d();\n  }}\n  title="x"\n/>', ['children']],
   ['khe-tran', '<K title f={() => d()} />', ['children']],
+  ['chu-thich-dong-trong-bieu-thuc', "<K a={1 // it's } >\n} title=\"x\">c</K>", []],
+  ['chu-thich-dong-cap-the', '<K a="1" // x > y\n title="x">c</K>', []],
+  ['url-trong-jsx-long', '<K a={<a>http://x.vn</a>} title="x">c</K>', []],
+  ['bieu-thuc-chinh-quy-lop', '<K p={/[/}>]/} title="x">c</K>', []],
+  ['bieu-thuc-chinh-quy-thoat', '<K p={/\\/}>/} title="x">c</K>', []],
+  ['chuoi-thoat-nhay', '<K a={"\\"}>"} title="x">c</K>', []],
+  ['chuoi-mau-thoat', '<K c={`a \\` } > b`} title="x">c</K>', []],
+  ['chuoi-mau-long-mau', '<K c={`a ${`} >`} b`} title="x">c</K>', []],
 ];
 const GOI_DJ2 = { 'khe-trong-bieu-thuc': 'khe trong biểu thức con bị tính' };
 const manK = the => `import { K } from '@/khuon/K';\nexport default function M() { return ${the}; }\n`;
-function kiemDJ2(kit, inSo = false) {
-  if (inSo) console.log(`số hàng: ${HANG_DJ2.length}`);
+function kiemDJ2(kit, inSo = false, hang = HANG_DJ2) {
   const B = docLai(kit);
   const n = B.docBanDo(BAN_DO_K, 'k.md').nhom;
   const loi = [];
-  for (const [ten, the, can] of HANG_DJ2) {
+  let daSo = 0;
+  for (const [ten, the, can] of hang) {
+    daSo++;
     const r = B.lechTrongTep(n, 'src/k/M.tsx', manK(the));
     const thay = r.lech.filter(x => x.loai === 'khe').map(x => x.khoi.replace('K thiếu khe ', ''));
     if (JSON.stringify(thay) !== JSON.stringify(can) || r.khong_do.length) loi.push(`hàng ${ten}: ${GOI_DJ2[ten] || 'sai khe'} — cần [${can}], được [${thay}], không đo [${r.khong_do}]`);
   }
+  if (inSo) console.log(`số hàng: ${daSo}`);
+  if (daSo !== SO_HANG_DJ2) loi.push(`số phép so ${daSo}, cần ${SO_HANG_DJ2}`);
+  if (Object.keys(NHAT_DJ2).length !== SO_NHAT_DJ2) loi.push(`số nhát tiêm ${Object.keys(NHAT_DJ2).length}, cần ${SO_NHAT_DJ2}`);
   return loi;
 }
-if (want('DJ-2') || Object.keys(NHAT_DJ2).some(want)) {
+if (want('DJ-2') || want('DJ-2-chot') || Object.keys(NHAT_DJ2).some(want)) {
   const lanh = kiemDJ2(KIT, want('DJ-2'));
   if (want('DJ-2')) ket('DJ-2', lanh);
+  if (want('DJ-2-chot')) ket('DJ-2-chot', lanh.length ? [`bản lành chưa xanh: ${lanh.join(' | ')}`] : (kiemDJ2(KIT, false, HANG_DJ2.slice(1)).some(x => x.includes(`số phép so ${SO_HANG_DJ2 - 1}, cần ${SO_HANG_DJ2}`)) ? [] : ['xoá một hàng mà chốt số không đỏ']));
   for (const [ma, x] of Object.entries(NHAT_DJ2)) if (want(ma)) caDo(ma, kiemDJ2, lanh, () => banSao(DOC, x.tim, x.thay), `hàng ${x.hang}: ${GOI_DJ2[x.hang] || 'sai khe'}`);
 }
 
@@ -196,10 +224,15 @@ const theoKhuon = (kit, kho) => {
 };
 const HANG_DJ4 = [
   ['hết tệp', `import { TrangThaiMau } from '@/khuon/TrangThaiMau';\nexport default () => (<TrangThaiMau title="x"\n`],
-  ['ngoặc hụt', manThe('<TrangThaiMau a={ x title="x">c</TrangThaiMau>')],
+  // Không có `}` nào sau thẻ, để đi đúng lối «ngoặc không khớp tới hết tệp» (bọc trong thân hàm thì `}` của hàm khớp ngoặc).
+  ['ngoặc hụt', `import { TrangThaiMau } from '@/khuon/TrangThaiMau';\nexport default () => <TrangThaiMau a={ x title="x">c</TrangThaiMau>;\n`],
 ];
 function kiemDJ4(kit) {
   const loi = [];
+  // Đối chứng dương: thẻ lành, cùng kho, cùng tệp thì CÓ trong danh sách theo khuôn — danh sách không rỗng vô điều kiện.
+  const khoLanh = khoKhe();
+  nhanh(khoLanh, 'dj4-lanh', { [TEP_THE]: manThe('<TrangThaiMau title="x">c</TrangThaiMau>') });
+  if (!theoKhuon(kit, khoLanh).includes(TEP_THE)) loi.push('đối chứng: thẻ lành không được đếm theo khuôn');
   for (const [ten, noi] of HANG_DJ4) {
     const kho = khoKhe();
     nhanh(kho, 'dj4', { [TEP_THE]: noi });
@@ -212,10 +245,12 @@ function kiemDJ4(kit) {
   }
   return loi;
 }
-if (want('DJ-4') || want('DJ-4-do')) {
+if (want('DJ-4') || want('DJ-4-do') || want('DJ-4-do2') || want('DJ-4-do3')) {
   const lanh = kiemDJ4(KIT);
   if (want('DJ-4')) ket('DJ-4', lanh);
   if (want('DJ-4-do')) caDo('DJ-4-do', kiemDJ4, lanh, () => banSao(DOC, "if (!the) { if (!khong_do.includes(THE_DO)) khong_do.push(THE_DO); continue; }", 'if (!the) continue;'), 'thẻ dở không báo không đo');
+  if (want('DJ-4-do2')) caDo('DJ-4-do2', kiemDJ4, lanh, () => banSao(LENH, 'if (!ra.khong_do.includes(d)) ra.khong_do.push(d); co = true; }', 'if (!ra.khong_do.includes(d)) ra.khong_do.push(d); }'), 'tệp thẻ dở được đếm theo khuôn');
+  if (want('DJ-4-do3')) caDo('DJ-4-do3', kiemDJ4, lanh, () => banSao(DOC, 'const k = cuoiNgoac(noi, j); if (k < 0) return null;', 'const k = cuoiNgoac(noi, j); if (k < 0) { j++; continue; }'), 'ngoặc hụt: thẻ dở không báo không đo');
 }
 
 // ── DJ-5: đối chứng hồi quy — thẻ không có dấu lớn hơn trong giá trị ─────────────────────────────────────────────
@@ -288,10 +323,11 @@ const LOI_MAT_NHOM = [
   ['không mapping', '---\n- a\n- b\n---\nx\n', 'frontmatter không phải mapping'],
   ['thiếu nhan_dien', banDoRieng({ boNhanDien: true }), 'thiếu khoá nhan_dien'],
 ];
-function kiemDJ6Cay(kit, inSo = false) {
-  if (inSo) console.log(`số hàng: ${LOI_MAT_NHOM.length * 2}`);
+function kiemDJ6Cay(kit, inSo = false, ds = LOI_MAT_NHOM) {
   const loi = [];
-  for (const [ten, banDo, lyDo] of LOI_MAT_NHOM) for (const cham of [true, false]) {
+  let daSo = 0;
+  for (const [ten, banDo, lyDo] of ds) for (const cham of [true, false]) {
+    daSo++;
     const kho = khoRieng();
     const a = sinhArgs(kit, kho, hoSo(kho, banDo, cham, EV_TEST));
     const nhan = `${ten} × ${cham ? 'chạm vùng thiếu eval' : 'không chạm'}`;
@@ -299,6 +335,8 @@ function kiemDJ6Cay(kit, inSo = false) {
     else if (!a.err.includes(TEP_RIENG) || !a.err.includes(lyDo)) loi.push(`${nhan}: không gọi tên tệp và lý do «${lyDo}»: ${a.err.trim()}`);
     else if (a.err.includes('chạm vùng nhóm')) loi.push(`${nhan}: ra thông điệp lưới cũ thay vì lý do bản đồ: ${a.err.trim()}`);
   }
+  if (inSo) console.log(`số hàng: ${daSo}`);
+  if (daSo !== SO_O_DJ6) loi.push(`số phép so ${daSo}, cần ${SO_O_DJ6}`);
   return loi;
 }
 function kiemDJ6Goc() {
@@ -313,9 +351,10 @@ function kiemDJ6Goc() {
   }
   return loi;
 }
-if (want('DJ-6') || want('DJ-6-do') || want('DJ-6-do2')) {
+if (want('DJ-6') || want('DJ-6-chot') || want('DJ-6-do') || want('DJ-6-do2')) {
   const lanh = [...kiemDJ6Goc(), ...kiemDJ6Cay(KIT, want('DJ-6'))];
   if (want('DJ-6')) ket('DJ-6', lanh);
+  if (want('DJ-6-chot')) ket('DJ-6-chot', lanh.length ? [`bản lành chưa xanh: ${lanh.join(' | ')}`] : (kiemDJ6Cay(KIT, false, LOI_MAT_NHOM.slice(1)).some(x => x.includes(`số phép so ${SO_O_DJ6 - 2}, cần ${SO_O_DJ6}`)) ? [] : ['xoá một hàng mà chốt số không đỏ']));
   if (want('DJ-6-do')) caDo('DJ-6-do', kiemDJ6Cay, lanh, () => banSao(S4, 'if (matNhom.length) die(', 'if (false) die('), 'bản đồ hỏng mà vẫn sinh args');
   if (want('DJ-6-do2')) caDo('DJ-6-do2', kiemDJ6Cay, lanh, () => banSao(S4, 'if (matNhom.length) die(', "if (matNhom.length && evals.some(e => e.ref === 'config:executors.design.khuon')) die("), 'bản đồ hỏng mà vẫn sinh args');
 }
@@ -326,10 +365,12 @@ const LOI_KHONG_MAT = [
   ['ngoại lệ thiếu lý do', banDoRieng({ ngoaiLe: '[{tep: docs/README.md, khoi: Hop}]' }), 'ngoai_le thiếu ly_do'],
 ];
 const dongBao = a => a.err.split('\n').filter(l => l.includes('bản đồ khuôn có lỗi'));
-function kiemDJ7(kit, inSo = false) {
-  if (inSo) console.log(`số hàng: ${LOI_KHONG_MAT.length * 3 + 2}`);
+const HAI_LOI = banDoRieng({ ngoaiLe: '[{tep: src/vang.tsx, khoi: Hop, ly_do: cũ}]', mau: '{tep: src/vang2.tsx}' });
+function kiemDJ7(kit, inSo = false, ds = LOI_KHONG_MAT) {
   const loi = [];
-  for (const [ten, banDo, lyDo] of LOI_KHONG_MAT) {
+  let daSo = 0;
+  for (const [ten, banDo, lyDo] of ds) {
+    daSo += 3;
     const k1 = khoRieng();
     const a = sinhArgs(kit, k1, hoSo(k1, banDo, false, EV_TEST));
     if (a.ma !== 0 || !a.coTep) loi.push(`${ten} × không chạm: lỗi không mất nhóm bị chặn (thoát ${a.ma}: ${a.err.trim().split('\n').pop()})`);
@@ -345,17 +386,27 @@ function kiemDJ7(kit, inSo = false) {
     const c = sinhArgs(kit, k3, hoSo(k3, banDo, true, EV_TEST));
     if (c.ma !== 2 || c.coTep || !c.err.includes('chạm vùng nhóm rieng')) loi.push(`${ten} × chạm thiếu eval: lưới có sẵn mất (thoát ${c.ma}: ${c.err.trim().split('\n').pop()})`);
   }
+  daSo += 3;
+  // Quan hệ số dòng báo = số lỗi: một bản đồ mang hai lỗi cho đúng hai dòng, mỗi lý do một dòng.
+  const k6 = khoRieng();
+  const hai = sinhArgs(kit, k6, hoSo(k6, HAI_LOI, false, EV_TEST));
+  const dHai = dongBao(hai);
+  if (hai.ma !== 0 || dHai.length !== 2 || !dHai.some(l => l.includes('ngoai_le trỏ tệp không có: src/vang.tsx')) || !dHai.some(l => l.includes('mau_dang_chay.tep không có: src/vang2.tsx'))) loi.push(`hai lỗi: mỗi lỗi một dòng không đúng (thoát ${hai.ma}, được [${dHai.join(' / ')}])`);
   const k4 = khoRieng();
   const d = sinhArgs(kit, k4, hoSo(k4, null, false, EV_TEST));
   if (d.ma !== 0 || !d.coTep || dongBao(d).length) loi.push(`bản đồ lành × không chạm: thoát ${d.ma}, dòng báo [${dongBao(d).join(' / ')}]`);
   const k5 = khoRieng();
   const e = sinhArgs(kit, k5, hoSo(k5, null, true, EV_KHUON));
   if (e.ma !== 0 || !e.coTep || dongBao(e).length) loi.push(`bản đồ lành × chạm có eval: thoát ${e.ma}, dòng báo [${dongBao(e).join(' / ')}]`);
+  if (inSo) console.log(`số hàng: ${daSo}`);
+  if (daSo !== SO_O_DJ7) loi.push(`số phép so ${daSo}, cần ${SO_O_DJ7}`);
   return loi;
 }
-if (want('DJ-7') || want('DJ-7-do')) {
+if (want('DJ-7') || want('DJ-7-chot') || want('DJ-7-do') || want('DJ-7-do2')) {
   const lanh = kiemDJ7(KIT, want('DJ-7'));
   if (want('DJ-7')) ket('DJ-7', lanh);
+  if (want('DJ-7-chot')) ket('DJ-7-chot', lanh.length ? [`bản lành chưa xanh: ${lanh.join(' | ')}`] : (kiemDJ7(KIT, false, LOI_KHONG_MAT.slice(1)).some(x => x.includes(`số phép so ${SO_O_DJ7 - 3}, cần ${SO_O_DJ7}`)) ? [] : ['xoá một hàng mà chốt số không đỏ']));
+  if (want('DJ-7-do2')) caDo('DJ-7-do2', kiemDJ7, lanh, () => banSao(S4, 'for (const s of bd.sai) console.error(', 'for (const s of bd.sai.slice(0, 1)) console.error('), 'mỗi lỗi một dòng không đúng');
   if (want('DJ-7-do')) caDo('DJ-7-do', kiemDJ7, lanh, () => banSao(S4, 'const matNhom = bd.mat_nhom || [];', 'const matNhom = bd.sai;'), 'lỗi không mất nhóm bị chặn');
 }
 
