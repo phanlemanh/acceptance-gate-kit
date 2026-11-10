@@ -1,0 +1,71 @@
+schema_version: 1
+feature_slug: lenh-cho-khoa-nhay-duong-dan
+# Ca đo: tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs, ca «KN-<n>» = AC-<n>. Lệnh sinh ra chạy bằng vỏ thật với jq thật;
+# sleep giả rút ngắn và đếm số vòng kiểm. Chiều đỏ: commit ca đứng TRƯỚC commit vật (SHA ghi sổ lúc S3), cộng ca đỏ sống -do trên bản sao lich.mjs.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-1, KN-1-do: thư mục có dấu cách, khoá đúng dãy, thoát 0 ở bash, sh (zsh khi có) với số vòng kiểm 0.
+      Đỏ sống cùng fixture: bản bỏ bọc treo qua ≥2 vòng. Đỏ lịch sử: commit ca trước commit vật, SHA ghi sổ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-2, KN-2-do: sống qua ≥2 vòng kiểm ở khoá vắng, ≥2 vòng ở khoá dãy khác, thoát 0 khi về đúng dãy. Đỏ
+      sống: bản bỏ vị từ phiên đỏ «thoát sớm khi khoá của dãy khác»; bản bỏ bọc đỏ «lệnh chờ không thoát».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-3 đếm bảng đúng 9, chín ca con mỗi ký tự thoát 0 ở mọi vỏ và tệp canh không sinh. KN-3-do: chín
+      hàng khớp kết cục khai trước của bản bỏ nháy (treo, cu-phap, khong-phan-biet) và tệp canh xét trước kết cục.
+      KN-3-do2: bọc nháy kép cho $(…) và backtick đều đỏ «lệnh nhúng đã chạy».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-4, KN-4-do: chepLoi thật dựng bản lõi trong thư mục có dấu cách, CLI chạy từ bản lõi, xin ghim-lai
+      thoát 0, trước motNhip lệnh treo ≥2 vòng, sau motNhip thoát 0, trỏ khoa/s4. Đỏ sống: xoá loi/nhay.mjs thì CLI
+      hỏng, stderr nêu nhay.mjs.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-5, KN-5-do: bảng 12 lớp ký tự an toàn, mỗi lớp giống từng byte dạng cũ dựng độc lập trong ca; bốn
+      loại đơn. Đỏ sống: bản luôn bọc đỏ «đường an toàn bị đổi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-6, KN-6-do, KN-6-bang: nhayDoiSo tập {nhay.mjs}, nhayDon tập {nhay.mjs, phan-loai-s4.mjs}; nhay.mjs
+      chỉ import ./ hoặc node:; lenhBoc khớp bảng bốn đầu vào, ca KN-6-bang xanh cả ở commit ca (trước khi dời). Đỏ
+      sống: thêm định nghĩa thứ ba đỏ «định nghĩa trùng nhayDon».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.kn_dieu_phoi
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/nhay.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs]
+    expected: >
+      exit 0; KN-7, KN-7-do: ba tên dãy (nháy đơn, nháy kép, gạch chéo ngược) thoát 0 ở vòng 0 khi khoá đúng, treo
+      ≥2 vòng khi khoá dãy khác. Đỏ sống: bản ghép tên dãy trần treo hoặc lỗi cú pháp với cả ba.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -46,6 +46,14 @@ measured blocking finding on the same page still REJECTs. To keep dom measuring
 a Tailwind v4 page, save it with computed colours inline (crm does) or check
 contrast in this Tier B pass.
 
+Both tiers read `lab()`, `oklab()`, `lch()` and `oklch()`, composite alpha over
+the real background, and share one colour reader. A colour that still cannot be
+read, such as `color(display-p3 …)`, gives a low-contrast finding with
+`do_duoc: false` and the code `mau-khong-doc-duoc`. The browser scan then answers
+`verdict: "KHONG-DO-DUOC"`, `do_duoc: false`, `exit_intent: 0`, or `exit_intent:
+5` when called with `requireMeasured: true`. A green PASS from either tier now
+means every colour on the contrast path was measured.
+
 Static never computes color or contrast — not even on rendered HTML: a
 `<p style="color:#eee;background:#fff">` page passes static and fails `--mode
 dom` with `low-contrast`. A color red direction needs dom (jsdom, with the

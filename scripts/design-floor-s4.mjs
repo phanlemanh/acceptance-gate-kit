@@ -5,7 +5,7 @@
 //
 // Đích = tệp mà diff <base>...HEAD chạm, khớp design.surface_globs, còn trên đĩa.
 //   Hex thô  — luật đã phân xử duy nhất ở v1: `#` + đúng 3/4/6/8 chữ số hex, không đứng sau `&` hay chữ/số, không có
-//              chữ/số liền sau; tệp design_floor.tokens được loại.
+//              chữ/số liền sau; tệp design_floor.tokens được loại; chữ trong chú thích không tính.
 //   Độ phủ token — M2/M3, đích .html/.htm: `token-coverage` theo argv khối máy của design-floor/HOP-DONG-NHAP.md.
 // Chặn theo bậc: bảng DF-CHAN-THEO-BAC trong contract.md của hồ sơ — M1 hex thô; M2 hex thô, độ phủ token chỉ cảnh báo;
 // M3 cả hai. Không đo được không bao giờ chặn; mã lạ của lệnh ui → «lệnh ui lỗi», thoát 1.
@@ -26,6 +26,93 @@ const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HOP_DONG = path.join(KIT, 'design-floor', 'HOP-DONG-NHAP.md');
 export const RE_HEX = /(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})(?!\w)/g;
 const LA_HTML = (f) => /\.html?$/i.test(f);
+
+// Chú thích không tô màu nào: `// issue #123` không phải hex thô. Thay chữ trong chú thích bằng dấu cách và giữ dấu xuống
+// dòng, nên số dòng báo ra không đổi. Gặp chỗ không chắc thì giữ lại để quét: bộ lọc này chỉ được bỏ sót chú thích, không
+// được bỏ sót mã.
+const LA_CSS = /^\.(?:css|scss|sass|less)$/;
+const CO_THE = /^\.(?:html?|vue|svelte|astro|svg)$/;
+
+// Mã CSS hoặc JS/TS. Trong `css`, url() không nháy là một khối chữ. Ngoài `css`, dấu mở `/*` dính sau chữ (`src/*` trong chữ JSX)
+// không phải chú thích. `/*` không có dấu đóng thì giữ nguyên. `//` ngay sau chữ, `:` hay `/` là URL hoặc đường dẫn.
+function xoaChuThichMa(s, { css, motDong }) {
+  let ra = '';
+  let i = 0;
+  let nhay = null;
+  const xoaDen = (den) => {
+    for (; i < den; i++) ra += s[i] === '\n' ? '\n' : ' ';
+  };
+  while (i < s.length) {
+    const c = s[i];
+    const truoc = s[i - 1] || '';
+    if (nhay) {
+      if (c === '\\' && i + 1 < s.length) {
+        ra += c + s[i + 1];
+        i += 2;
+        continue;
+      }
+      if (c === nhay || (c === '\n' && nhay !== '`')) nhay = null;
+      ra += c;
+      i++;
+    } else if (c === '"' || c === "'" || c === '`') {
+      nhay = c;
+      ra += c;
+      i++;
+    } else if (css && !/\w/.test(truoc) && /^url\(\s*[^'"\s]/i.test(s.slice(i, i + 16))) {
+      const het = s.indexOf(')', i);
+      const den = het < 0 ? s.length : het + 1;
+      ra += s.slice(i, den);
+      i = den;
+    } else if (s.startsWith('/*', i) && (css || !/[\w/.*-]/.test(truoc)) && s.indexOf('*/', i + 2) >= 0) {
+      xoaDen(s.indexOf('*/', i + 2) + 2);
+    } else if (motDong && s.startsWith('//', i) && !/[\w:/]/.test(truoc)) {
+      const het = s.indexOf('\n', i);
+      xoaDen(het < 0 ? s.length : het);
+    } else {
+      ra += c;
+      i++;
+    }
+  }
+  return ra;
+}
+
+// Tệp có thẻ: chỉ `<!-- -->` là chú thích của phần thẻ, còn `/* */` và `//` chỉ có nghĩa trong <script>, <style> và phần đầu của astro.
+function xoaChuThichCoThe(s, duoi) {
+  const RE = /<!--|<(script|style)\b([^>]*)>/gi;
+  let ra = '';
+  let tu = 0;
+  const dau = duoi === '.astro' ? /^---\r?\n[\s\S]*?\r?\n---/.exec(s) : null;
+  if (dau) {
+    ra = xoaChuThichMa(dau[0], { css: false, motDong: true });
+    tu = dau[0].length;
+  }
+  RE.lastIndex = tu;
+  for (let m = RE.exec(s); m; m = RE.exec(s)) {
+    ra += s.slice(tu, m.index);
+    tu = m.index;
+    if (m[0] === '<!--') {
+      const het = s.indexOf('-->', m.index + 4);
+      if (het < 0) break;
+      ra += s.slice(m.index, het + 3).replace(/[^\n]/g, ' ');
+      tu = het + 3;
+    } else {
+      const than = m.index + m[0].length;
+      const dong = s.slice(than).search(new RegExp(`</${m[1]}\\b`, 'i'));
+      const het = dong < 0 ? s.length : than + dong;
+      const css = m[1].toLowerCase() === 'style';
+      ra += m[0] + xoaChuThichMa(s.slice(than, het), { css, motDong: !css || /\blang\s*=\s*["']?(?:scss|sass|less)/i.test(m[2]) });
+      tu = het;
+    }
+    RE.lastIndex = tu;
+  }
+  return ra + s.slice(tu);
+}
+
+export function boChuThich(s, tep) {
+  const duoi = path.extname(tep).toLowerCase();
+  if (CO_THE.test(duoi)) return xoaChuThichCoThe(s, duoi);
+  return xoaChuThichMa(s, { css: LA_CSS.test(duoi), motDong: duoi !== '.css' });
+}
 
 export function khoiMay(duong, ten) {
   const md = readFileSync(duong, 'utf8');
@@ -93,7 +180,7 @@ export function chayS4(root, base) {
 
   for (const f of dich) {
     if (tokens && path.normalize(f) === tokens) continue;
-    readFileSync(path.join(root, f), 'utf8').split('\n').forEach((dong, i) => {
+    boChuThich(readFileSync(path.join(root, f), 'utf8'), f).split('\n').forEach((dong, i) => {
       for (const m of dong.matchAll(RE_HEX)) {
         ra.dong.push(`design-floor S4: hex thô ${f}:${i + 1} ${m[0]}`);
         chan = true;

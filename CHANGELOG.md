@@ -10,6 +10,108 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.38.1 — 10/11/2026
+
+Bản vá của 2.38.0: cổng trước gộp thôi cho code trọng yếu đi qua khi PR kèm một hồ sơ mà không luật nào chấm. Lộ ra khi
+kiểm cài kit ở `onehub-inventory` (2.38.0), ma trận 15 ca, 13 ca đúng. Chủ kho 10/11 «Gộp và phát hành», chỉ áp cho bản
+vá này. Có **một hồ sơ được ký** — tập đối chiếu bằng `scripts/rel-cua-so.sh` (AC-4 của hồ sơ mốc):
+`t3-can-ho-so-arm` (#491). Không PR nào khác gộp vào nhánh chính sau thẻ `v2.38.0`; ba việc tách riêng từ Cổng Bằng chứng
+của hồ sơ và PR #489 không vào mốc. Kho chờ nhận: `onehub-inventory`. Mốc đi **làn V**, không dựng răng mới. Năm gói
+`acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.38.1` (`acceptance-gate` đổi vật;
+`feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.38.1` gắn vào
+commit gộp PR mốc.
+
+**Một sửa kèm trong PR mốc:** gộp #491 làm nhánh chính đỏ ở ca DV5u, vì bản vá thêm hai dòng trùng một mục miễn trừ cũ của
+phép đo «cổng chỉ được thêm». PR mốc gỡ mục miễn trừ ấy, nên phép đo chặt hơn chứ không nới; không dòng cổng nào đổi.
+
+**Vì sao 2.38.1** (patch): theo nếp «minor cho bề mặt mới», bản này không có cờ, khoá cấu hình hay lệnh mới nên không
+nâng minor. Một đổi hành vi chạm kho đang dùng, khai thẳng ở «Ai bị ảnh hưởng» dưới: PR đổi tệp `t3_paths` mà không hồ
+sơ nào được cổng chấm nay bị chặn.
+
+### Code `t3_paths` phải có hồ sơ thật sự bị cổng chấm (hồ sơ `t3-can-ho-so-arm`, T3)
+
+Gốc: kiểm cài kit ở `onehub-inventory` (2.38.0), ma trận 15 ca merge-gate, có hai ca để code trọng yếu lọt — PR đổi tệp
+`t3_paths` kèm `contract.md` không frontmatter, hoặc `contract.md` khai `risk_tier: T1` + `status: verified`. Cả hai ra
+`pre-merge-check: clean`.
+
+- **Vật:** Code t3_paths phải có hồ sơ thật sự bị cổng chấm
+- **Luật mới:** PR đổi tệp `t3_paths` và có đổi dưới `_acceptance/` phải có ít nhất một hồ sơ trong PR thật sự được cổng
+  chấm. Không có thì thoát 1, dòng `VIOLATION [PR]` chứa `no record in it is judged by the gate`, nêu tệp T3 và lý do
+  từng hồ sơ không được tính.
+- **Hồ sơ không được tính:** không có `contract.md` · thiếu `status` hoặc `risk_tier` · hạng ngoài `signoff.required_for`
+  · chỉ đổi `opportunity.md` hoặc `decisions.jsonl` · hạng dưới T3 không có chữ ký người (máy-thông, làn V) · hồ sơ đã
+  cho nghỉ hoặc đã chấm bởi thực tế. PR chỉ đổi tệp ngoài thư mục hồ sơ dưới `_acceptance/` cũng bị chặn.
+- **Được tính:** T3 PASS có chữ ký, T2 PASS có chữ ký. Hồ sơ `draft` hay `approved` đúng hạng vẫn tính là có hồ sơ, và
+  vòng chấm chặn nó bằng thông điệp riêng `status chưa arm cổng`.
+- **Không đổi:** code ngoài `t3_paths` theo luật cũ, vì hồ sơ tự khai T1 và hồ sơ hạt giống đang được dùng thật ở đó. Cờ
+  `--no-t1-escape` tắt luật có khai báo như trước. PR đổi `t3_paths` không có gì dưới `_acceptance/` vẫn nhận thông điệp cũ.
+- **Miễn:** PR mà đỉnh nhánh đích chưa có `_acceptance/config.yaml` (lần cài kit). Điều kiện đọc đỉnh nhánh đích, không
+  đọc merge-base, nên nhánh cắt trước lần cài rồi tự thêm config không được miễn.
+- **Đo trên kho thật:** bản 2.38.0 và bản vá chạy trên 48 PR lịch sử của 10 kho, kết quả mong đợi chốt trước trong
+  `rang/ds-pr.json`: code thường 27 · dưới T3 có chữ ký 12 · cài kit 2 không chặn thêm; 7 PR đổi code T3 mà không hồ sơ
+  nào được chấm bị chặn thêm (`onehub-quy-hang` 3 · `artifact-platform` 2 · `crm` 1 · `floorplanstudio` 1).
+- **Giới hạn đã khai:** luật không buộc hồ sơ với từng tệp T3, nên một hồ sơ T3 PASS của việc khác đi cùng PR vẫn thoả
+  luật; PR cài kit được miễn trọn. Thêm 22 mục chọn ở Cổng Bằng chứng 10/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-7
+  «Trên máy thiếu công cụ cần thiết, hồ sơ chưa có chữ ký người vẫn được cho qua mà không có dòng nào báo là đã bỏ kiểm.»
+
+**Ai bị ảnh hưởng:**
+
+- **Kho có PR đổi `t3_paths`:** sau khi nhận, PR đó phải có một hồ sơ được cổng chấm. Hồ sơ T1 tự khai, hồ sơ thiếu trường
+  hay hồ sơ T2 chưa có chữ ký người không còn đủ cho loại code này. Mỗi kho khai `t3_paths` riêng nên số PR bị chặn tuỳ
+  kho; số đo ở trên là trên lịch sử, không phải dự báo.
+- **Kho chỉ đổi code ngoài `t3_paths`:** không đổi gì.
+
+**Đường đọc-cũ:** không khoá cấu hình mới, không đổi khuôn hồ sơ; hồ sơ đã có giữ nguyên.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: chép lại đúng một tệp** `scripts/pre-merge-check.sh` — 35 tệp còn lại giữ nguyên như `v2.38.0`. Kho chép
+  lớp này vào CI mà không chép lại thì luật mới không chạy ở CI.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.38.1` ở MỌI phạm vi** — kể cả `dieu-phoi`, `tri-thuc` nếu dùng — rồi kiểm
+  `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.38.1 --root <bản clone kit đã git fetch
+  --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+- **Lệnh trỏ bộ đệm có số** (`…/acceptance-gate/2.38.0/scripts/…`) trong `_acceptance/config.yaml` phải đổi số — hay
+  tốt hơn, đổi sang đường không số (GUIDE §5.3).
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.38.1` (KC1).
+
+**onehub-inventory**: kho nơi lỗ hổng lộ ra — sau khi nhận, hai ca của ma trận merge-gate chuyển từ lọt sang bị chặn.
+
+**Năm dòng số của luật (c)**: một vòng gộp trong cửa sổ (giờ VN). Định nghĩa giữ như mốc 2.38.0. Dòng 4–5 lấy từ
+`wf-usage` trên ba lượt chạy, vì hồ sơ không commit `usage-report.md`. Một hồ sơ T3 (trần 4).
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `t3-can-ho-so-arm` (#491, T3) | 5 g 34 · 3 g 12 · 3 (lượt 1 REJECT: AC-3 thiếu ca phá thử và hai nhánh thiếu một trường, máy bù; lượt 2 REJECT chỉ vì P179; lượt 3 PASS) | 3 / 1 (4): Phạm vi, Kế hoạch, Bằng chứng; ngoài thiết kế: câu «Mở PR» vì lời giao đầu vòng cấm đẩy nhánh | **1** (lượt 2: P179) | 482 980 · 22,1 / 66,7 / 11,2 | 164 (có một tác tử chết vì mất mạng, chạy tiếp cùng lượt) · 58 · 59 = 281; làn trước chữ ký bỏ qua vì cây bằng pin; ghim lại sau chữ ký 0 |
+
+- Lời giao mở vòng («Mở hồ sơ T3») không đếm. Câu «Gộp và phát hành» đếm cho mốc này, không cho vòng.
+- Giờ máy cả vòng, kể cả phiên chính (dòng `gio-may` cuối của `run-log.jsonl`, chỉ để tham khảo): 3,12 giờ máy · 3,04 giờ
+  chờ · 566 705 out-token. Ký chưa gộp: **0**.
+
+**Đọc số:**
+- **Hạ tầng đốt 1 / 3 lượt (58 phút máy)**: P179 lần nữa, vì báo cáo phát hiện đã commit làm số dòng corpus vượt số dòng
+  sổ. Hạt giống `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` vẫn chưa làm.
+- **Sau gộp #491, nhánh chính đỏ** ở ca DV5u: lượt chấm và CI của PR so với base trước bản vá, nên hai dòng `esac` mới chỉ
+  thành trùng khi base đã chứa chúng. Cùng lớp với ca KK-8-do của mốc 2.38.0: ca đo đọc base, sau gộp base đổi.
+- **Dòng 4: tìm-lỗi 66,7 %** (41,9 % ở 2.38.0). Khối tìm-lỗi đổi được vật ở lượt 1 (thiếu ca phá thử của AC-3), đồng thời
+  đẻ 28 mục ngoài hợp đồng, 16 trong số đó ở code bản vá không đổi.
+- **Ký → gộp 3 g 12**, không tốn làn đỏ nào: cây bằng pin nên làn trước chữ ký tự bỏ qua, và lưới trước gộp không báo cũ.
+
+**Điều kiện tin cậy:**
+- **(i)** `git diff --stat v2.38.0 HEAD -- feature-loop/workflows/ feature-loop/agents/` RỖNG: đường finder → refute →
+  REJECT không đổi thành phần.
+- **(ii)** Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0**.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+- 2 = : luật mới đi trên cổng sẵn có, không thêm lượt gọi người.
+- 3 = : không đổi bộ phận nào của lượt chấm.
+- 4 = : không đổi đường tìm lỗi.
+- 5 = : không lệnh mới trong lượt chấm; bộ ca thêm 46 ca, chạy trong mảnh mjs.
+- 1 ↑ nhẹ ở kho có PR đổi `t3_paths`: PR thiếu hồ sơ được chấm phải đi lại vòng trước khi gộp được.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `node scripts/hieu-chuan-moc.mjs --root .`
+(10/11). **N không tăng so với mốc 2.38.0 (vẫn 1), nên dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.38.0 — 05/11/2026
 
 Mốc **Khuôn trên thẻ cổng** (hàng KH2 của lộ trình kit) kèm **bản vá V0**: thẻ Cổng Phạm vi và Cổng Bằng chứng có khối

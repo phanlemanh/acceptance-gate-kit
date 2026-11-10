@@ -1,0 +1,41 @@
+{
+  "feature_plain": "Cổng thiết kế sẽ phát hiện được chữ khó đọc trên các trang dùng màu hiện đại của Tailwind 4, thay vì âm thầm cho đạt.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ từ chối chữ gần như trắng trên nền trắng ở cả bốn kiểu màu hiện đại, kể cả các cách viết số khác nhau."},
+    {"id": "AC-2", "p": "Sẽ đọc màu ra đúng bằng màu Chrome thật vẽ trên màn hình."},
+    {"id": "AC-3", "p": "Sẽ tính chữ trong suốt theo màu mắt thật sự thấy sau khi hoà với nền."},
+    {"id": "AC-5", "p": "Sẽ đo được chữ trên nền chuyển sắc, kể cả nền chuyển sắc trong suốt."},
+    {"id": "AC-6", "p": "Sẽ tiếp tục cho đạt các trang đủ tương phản, và bộ kiểm cũ vẫn xanh, có khai rõ một trang thử đã đổi."},
+    {"id": "AC-8", "p": "Sẽ chứng minh trên trình duyệt Chromium thật, với đúng hai trang Tailwind 4 đã phát hiện lỗi, rằng lỗi cũ tái lập được ở bản trước và hết ở bản này."}
+  ],
+  "wont_do": [
+    {"id": "AC-4", "p": "Chặn chữ trắng trên nền đen trong suốt khi hoà với trang chỉ còn màu xám, và vẫn cho qua khi nền đủ đậm."},
+    {"id": "AC-7", "p": "Sẽ KHÔNG cho đạt trang có màu bộ dò không đọc được: trang được báo là không đo được, và nếu có lỗi đo được khác thì vẫn bị từ chối."},
+    {"id": "AC-9", "p": "Chặn việc âm thầm chạy bản chưa vá khi bộ dò gốc thay đổi, và bản chạy trong trình duyệt luôn khớp nguồn."},
+    {"id": "AC-10", "p": "Sẽ KHÔNG coi chú thích như số phiếu việc là mã màu thô, còn mã màu thật vẫn bị chặn đúng dòng."},
+    {"id": "OOS-1", "p": "Chưa đo thật các màu kiểu color() và kết quả trộn màu trong sRGB, những màu này báo là không đo được."},
+    {"id": "OOS-2", "p": "Không đổi cách xử lý chữ dùng biến màu ở tầng không có trình duyệt."},
+    {"id": "OOS-3", "p": "Không sửa bộ dò gốc của bên thứ ba và không thay nó bằng axe-core."},
+    {"id": "OOS-4", "p": "Không đổi luật mã màu thô, ngoài việc bỏ qua chú thích."}
+  ],
+  "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Đã xét đủ các kiểu màu trình duyệt có thể trả về, đối chiếu với chuẩn màu CSS và màu Chrome trả thật."},
+    {"i": 1, "p": "Đã xét màu ở chữ, nền đặc, nền trong suốt, nền của khối cha và nền chuyển sắc, đối chiếu cách axe-core đi qua các lớp nền."},
+    {"i": 2, "p": "Đã xét màu đục, trong suốt một phần và trong suốt hẳn, đo theo màu hiển thị như chuẩn WCAG."},
+    {"i": 3, "p": "Đã xét các cách viết số: thập phân, phần trăm, từ khoá none và số mũ."},
+    {"i": 4, "p": "Mọi ô đều chạy trên cả cổng lẫn bộ quét, giữ thứ tự từ chối trước không đo được, và đều có phép thử chứng minh bộ kiểm biết đỏ."},
+    {"i": 5, "p": "Cả mười tiêu chí đều làm trong vòng này."},
+    {"i": 6, "p": "Mỗi ô của ma trận kiểm là một ca có tên, hoặc có câu nói vì sao bỏ."},
+    {"i": 7, "p": "Để sau: đo thật màu kiểu color(), cách khớp gam màu chuẩn hơn, và đưa ca Chromium vào kiểm tự động của kit."},
+    {"i": 8, "p": "Không bao giờ đoán màu gần đúng, vì như vậy biến điều chưa biết thành một con số trông như đã đo."},
+    {"i": 9, "p": "Giả định cần bạn soi: Chrome là trình duyệt chuẩn duy nhất, Firefox và Safari có thể lệch một chút ở ca sát ngưỡng."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Không tiêu chí nào chạy Chrome thật, nên bộ kiểm có thể xanh mà hai trang gốc vẫn lọt. Đã thêm tiêu chí chạy Chromium thật trên đúng hai trang đó."},
+    {"i": 1, "p": "Hai lựa chọn máy tự quyết thiếu căn cứ đủ mạnh. Đã thay căn cứ đúng việc cho một lựa chọn, và chuyển việc nhận hồ sơ viết sau code thành câu hỏi cho bạn."},
+    {"i": 2, "p": "Ma trận kiểm còn hở: nền chuyển sắc trong suốt, màu color(srgb), thứ tự ưu tiên. Đã kê ma trận đủ và thêm tám ca mới cùng hai phép phá thử."},
+    {"i": 3, "p": "Bộ lọc chú thích có thể cắt quá tay và làm mất mã màu thật. Đã thêm các ca chuỗi, khối nhiều dòng, JSX và phép phá thử theo hướng này."},
+    {"i": 4, "p": "Tiêu chí hứa bộ kiểm cũ vẫn đạt trong khi một trang thử cũ đã đổi. Đã khai rõ ngoại lệ, ghim lại nhóm ca đó và thêm ca mới cho hành vi mới."}
+  ]
+}
