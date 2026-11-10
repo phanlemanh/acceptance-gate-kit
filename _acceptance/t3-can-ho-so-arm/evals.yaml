@@ -29,12 +29,14 @@ evals:
     executor: script
     cmd: config:executors.script.t3ha_e3
     expected: >
-      Exit 0, «Results: 14 passed, 0 failed», PASS của HA3-do, HA4-do, HA5-do, HA6-do, HA20-do, HA21-do, HA22-do, HA23-do và
-      đột biến HA3-mut, HA4-mut, HA5-mut, HA6-mut, HA20-mut, HA21-mut. Mỗi ca -do thoát 1, cùng thông điệp, đúng lý do:
+      Exit 0, «Results: 23 passed, 0 failed», PASS của HA3-do, HA4-do, HA5-do, HA6-do, HA20-do, HA21-do, HA22-do, HA23-do,
+      HA32-bien, HA33-do; đột biến HA3-mut, HA4-mut, HA5-mut, HA6-mut, HA20-mut, HA21-mut, HA22-mut, HA23-mut, HA32-mut,
+      HA33-mut, HA34-mut, HA35-mut; và HA36-bang. Mỗi ca -do và -bien thoát 1, cùng thông điệp, đúng lý do:
       `không có contract.md` · `không có thư mục hồ sơ nào trong PR` · `cu: chỉ đổi tệp chữ` (HA5, HA22) ·
       `hạng T2 chưa có chữ ký người` (HA6 máy-thông, HA23 làn V) · `hồ sơ đã chấm bởi thực tế đã đóng` ·
-      `hồ sơ đã cho nghỉ`. Mỗi đột biến gỡ đúng nhánh lý do trên CÙNG fixture → không còn lý do đó trong đầu ra.
-      Dòng cho nghỉ của HA21 rút từ bộ đọc hoSoNghi của lib/workspace-record.cjs.
+      `hồ sơ đã cho nghỉ` · `contract thiếu risk_tier` (HA32) · `contract thiếu status` (HA33). Mỗi đột biến gỡ đúng nhánh lý
+      do trên CÙNG fixture → không còn lý do đó trong đầu ra. HA36-bang đối chiếu chín dòng gán lý do trong luật với chín kim.
+      Dòng cho nghỉ của HA21 được bộ đọc hoSoNghi của lib/workspace-record.cjs xác nhận ngay trong fixture.
     paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4

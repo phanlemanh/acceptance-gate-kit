@@ -132,6 +132,8 @@ const F = {
     pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'machine-cleared', LAN_V).replace(/^approved_by:.*$/m, 'approved_by:')),
     bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })),
   }),
+  thieuRiskTier: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented').replace(/^risk_tier:.*\n/m, '')) }),
+  thieuStatus: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'implemented').replace(/^status:.*\n/m, '')) }),
   t3Nhap: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'draft')) }),
   t3DaDuyet: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T3', 'approved')) }),
   haiHoSoKhongTinh: () => kho({ pr: R => { ghi(R, '_acceptance/mot/contract.md', '# Ghi chú\n'); ghi(R, '_acceptance/hai/contract.md', hopDong('hai', 'T1', 'verified')); } }),
@@ -167,6 +169,8 @@ ca('HA24-do', () => chan(luoi(F.nhanhCuTuThemConfig()), 'không có thư mục h
 ca('HA21-do', () => chan(luoi(F.daNghi()), 'feat: hồ sơ đã cho nghỉ'));
 ca('HA22-do', () => chan(luoi(F.chiOpportunity()), 'cu: chỉ đổi tệp chữ'));
 ca('HA23-do', () => chan(luoi(F.t2LanV()), 'feat: hạng T2 chưa có chữ ký người'));
+ca('HA32-bien', () => chan(luoi(F.thieuRiskTier()), 'feat: contract thiếu risk_tier'));
+ca('HA33-do', () => chan(luoi(F.thieuStatus()), 'feat: contract thiếu status\n'));
 
 // ── Biên: đầu vào hợp đồng không nêu tên; mỗi ca chỉ đòi không được ra clean và nói đúng hồ sơ ──────────
 const khongSach = o => (o.status !== 0 && !o.out.includes(CLEAN) ? null : `không được clean, được ${o.status}: ${cuoi(o.out)}`);
@@ -244,18 +248,38 @@ ca('HA19-mut', () => {
   return o.status === 1 && o.out.includes(MSG) ? null : `gỡ miễn trừ cài kit mà không chặn: ${o.status}: ${cuoi(o.out)}`;
 });
 // Mỗi lý do một kim: gỡ đúng nhánh đó trên CÙNG fixture thì đầu ra không còn lý do ấy.
-const dotBienLyDo = (ten, fixture, lyDo, neo, thay = 'ly=""') => ca(ten, () => {
+const KIM_DA_CO = new Set();
+const dotBienLyDo = (ten, fixture, lyDo, neo, thay = 'ly=""') => (thay === 'ly=""' && KIM_DA_CO.add(neo), ca(ten, () => {
   const R = fixture(); const truoc = chan(luoi(R), lyDo);
   if (truoc) return `bản chưa tiêm phải chặn đúng lý do: ${truoc}`;
   const o = luoi(R, banSaoMay(neo, thay));
   return o.out.includes(lyDo) ? `gỡ nhánh lý do mà đầu ra vẫn còn «${lyDo}»` : null;
-});
+}));
 dotBienLyDo('HA3-mut', F.khongContract, 'feat: không có contract.md', 'ly="không có contract.md"');
 dotBienLyDo('HA4-mut', F.chiCauHinh, 'không có thư mục hồ sơ nào trong PR', 'T3_HO_SO_LY_DO="    không có thư mục hồ sơ nào trong PR (chỉ đổi tệp khác dưới _acceptance/)"$\'\\n\'', 'T3_HO_SO_LY_DO=""');
 dotBienLyDo('HA5-mut', F.taiLieuCu, 'cu: chỉ đổi tệp chữ', 'ly="chỉ đổi tệp chữ (${SLUG_TEP_CHU:-tệp ghi chép}), hồ sơ không bị chấm lại"');
 dotBienLyDo('HA6-mut', F.t2MayThong, 'feat: hạng T2 chưa có chữ ký người', 'ly="hạng $t chưa có chữ ký người — code t3_paths phải có người ký"');
 dotBienLyDo('HA20-mut', F.daCham, 'feat: hồ sơ đã chấm bởi thực tế đã đóng', 'ly="hồ sơ đã chấm bởi thực tế đã đóng, không nhận code mới"');
 dotBienLyDo('HA21-mut', F.daNghi, 'feat: hồ sơ đã cho nghỉ', 'ly="hồ sơ đã cho nghỉ, không còn bị chấm"');
+dotBienLyDo('HA22-mut', F.chiOpportunity, 'cu: chỉ đổi tệp chữ', 'ly="chỉ đổi tệp chữ (${SLUG_TEP_CHU:-tệp ghi chép}), hồ sơ không bị chấm lại"');
+dotBienLyDo('HA23-mut', F.t2LanV, 'feat: hạng T2 chưa có chữ ký người', 'ly="hạng $t chưa có chữ ký người — code t3_paths phải có người ký"');
+dotBienLyDo('HA32-mut', F.thieuRiskTier, 'feat: contract thiếu risk_tier', 'ly="contract thiếu risk_tier"');
+dotBienLyDo('HA33-mut', F.thieuStatus, 'feat: contract thiếu status\n', 'ly="contract thiếu status"');
+dotBienLyDo('HA34-mut', F.khongFm, 'feat: contract thiếu status, risk_tier', 'ly="contract thiếu status, risk_tier"');
+dotBienLyDo('HA35-mut', F.t1Verified, 'feat: risk_tier=T1 ngoài signoff.required_for', 'ly="risk_tier=$t ngoài signoff.required_for ($REQUIRED_FOR) — code t3_paths không khai hạng thấp được"');
+// Bảng viết trước: mỗi dòng gán lý do trong luật phải có đúng một kim ở trên; thêm lý do mới mà quên kim thì đỏ.
+ca('HA36-bang', () => {
+  const src = readFileSync(path.join(KIT, 'scripts', 'pre-merge-check.sh'), 'utf8');
+  const dau = src.indexOf('t3_co_ho_so_arm() {'); const cuoi2 = src.indexOf('\n}\n', dau);
+  if (dau < 0 || cuoi2 < 0) return 'không tìm thấy thân luật';
+  const than = src.slice(dau, cuoi2);
+  const soDong = (than.match(/\bly="[^"]/g) || []).length;
+  if (soDong !== 9) return `bảng viết trước có 9 lý do, luật có ${soDong}`;
+  const thieu = [...KIM_DA_CO].filter(n => n.startsWith('ly=') && !than.includes(n));
+  if (thieu.length) return `kim không còn khớp luật: ${thieu.join(' | ')}`;
+  const soKim = [...KIM_DA_CO].filter(n => n.startsWith('ly=')).length;
+  return soKim === 9 ? null : `9 lý do mà chỉ có ${soKim} kim`;
+});
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed`);
