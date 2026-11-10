@@ -509,7 +509,8 @@ function chayAC8(goi) {
 await ca('AC-7-do-ngay-ky', async () => {
   doiChung('đồng hồ kho 10 hồ sơ', chayAC7(KIT));
   const goi = banSao();
-  tiem(goi, 'scripts/cat-luot.mjs', '      const d = ngayChot(c);', "      const d = ngayDau(frontmatterField(doc(path.join(acc, slug, 'evidence-report.md')) || '', 'human_signoff')) || ngayChot(c);");
+  // the-luot-cat (21/10): ngayChot nhận thêm sổ quyết định (mốc chốt = seal Cổng 1 sớm nhất) — kim đổi theo, nhát tiêm giữ nghĩa.
+  tiem(goi, 'scripts/cat-luot.mjs', '      const d = ngayChot(c, so);', "      const d = ngayDau(frontmatterField(doc(path.join(acc, slug, 'evidence-report.md')) || '', 'human_signoff')) || ngayChot(c, so);");
   const loi = chayAC7(goi);
   if (loi.some(l => l.startsWith(`[--tu ${MOC}] phai-tach n_chot − n_giu = 2 ≠ tay 1`))) return { mo: 'bản sao cho --tu lọc theo ngày ký: hồ sơ h (chốt trước mốc, ký sau mốc) lọt vào nhóm — «--tu lọc theo ngày ký» bắt được' };
   return { loi: [`lọc theo ngày ký mà ca không lệch đúng chỗ: ${loi.join(' | ') || '(xanh)'}`] };

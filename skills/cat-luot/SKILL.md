@@ -138,10 +138,17 @@ Hai dáng cắt, theo `dang` của bản phạm vi:
   chạy đúng); các hàng chạy song song nên KHÔNG đặt `dung_tren` giả giữa chúng; luật 1 hiểu là «một màn,
   một câu», luật 3 vẫn tách lớp khó đảo (một vá chạm đăng nhập thì thành hàng riêng, hạng T3).
 
+**Nối chỉ vì chạm cùng tệp** (cả hai dáng): hai hàng không cần kết quả của nhau nhưng sẽ sửa cùng một tệp hay cùng
+một bảng — chạy song song thì hai vòng giẫm lên nhau. Ghi `chay_sau: ["<mã hàng trước>"]` ở hàng sau, KHÔNG ghi
+`dung_tren` (luật 2: `dung_tren` chỉ khi hàng sau thật sự cần hàng trước đã giao). Răng kiểm mã có thật, không trỏ
+chính nó, không trùng `dung_tren`, không khép vòng; thẻ lượt cắt (bước 4) vẽ dãy chạy song song từ hai trường và in
+hai loại nối bằng hai nhãn khác nhau.
+
 Mỗi hàng ghi theo khuôn `skills/acceptance/references/lo-trinh-template.json`: `ma`, `cau_giao`,
-`vi_sao`, `hang`, `dung_tren`, `bat_khi`, cộng năm trường của lượt cắt: `dot` (đúng `dot` của bản phạm
-vi), `phu` (danh sách mã bản phạm vi mà hàng gánh), `vai` (dáng câu giao), `tieu_chi` (cỡ dự kiến) và
-`du_lieu` (bước 2b luật 5, chỉ khi hàng sinh hay dùng dữ liệu giả), và `vung` — vùng mã dự kiến theo khối dưới.
+`vi_sao`, `hang`, `dung_tren`, `bat_khi`, cộng bảy trường của lượt cắt: `dot` (đúng `dot` của bản phạm
+vi), `phu` (danh sách mã bản phạm vi mà hàng gánh), `vai` (dáng câu giao), `tieu_chi` (cỡ dự kiến),
+`du_lieu` (bước 2b luật 5, chỉ khi hàng sinh hay dùng dữ liệu giả), `chay_sau` (nối chỉ vì chạm cùng tệp, chỉ khi có)
+và `vung` — vùng mã dự kiến theo khối dưới.
 Mốc không gánh mã của bản phạm vi. Các trường này chỉ lượt cắt ghi và răng đọc — agent mở vòng làm từ hợp đồng,
 phép đo và kế hoạch của vòng, không đọc trường nào cho riêng nó từ lộ trình; đừng thêm trường cho agent. Riêng
 `vung` còn một bên đọc: gói đợt `dieu-phoi` chép nó sang vùng tệp (`ranh_gioi`) của hàng để lịch biết tệp xếp hai
@@ -220,9 +227,28 @@ ngoai-dot: mọi dòng cảnh báo: còn lại
      khai dáng: XỬ LÝ (gộp, khai) hoặc giữ và ghi vì sao vào mô tả PR.
    - **Ngoài đợt** (mọi dòng `cảnh báo:` khác — dòng gom `[<cờ>] <k> hàng ngoài đợt …`, hàng cắt tay đời
      trước): chép vào mô tả PR, không sửa mục không thuộc lượt cắt.
-3. **Xanh mới mở PR** — một PR cho cả đợt: bản phạm vi + hàng + mục chờ điều kiện. Dán bảng phủ của răng vào mô
-   tả PR, và dưới nó dòng «Ra khỏi kho» liệt mọi việc của người đã tách ở bước 2b (việc · ai làm · ngày, sự kiện tạo hạn
-   kèm tên mốc nhận hạn) — răng không thấy danh sách này, nên nó là lời khai cho người gộp PR soát. Người gộp PR là người
-   chốt lượt cắt (một chạm).
+3. **Dựng thẻ lượt cắt** — bản cho người gộp PR, dựng từ đúng dữ liệu răng vừa đọc (cùng nếp thẻ cổng
+   `acceptance-card`: thẻ chỉ trình, không quyết; việc của người đứng đầu):
+
+<!-- <<<CAT-LUOT-THE -->
+```bash
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --the --pham-vi <bản phạm vi> --lo-trinh <tệp lộ trình> --ra "<việc> · <ai> · <khi>" --giu "<mã>: <lý do>"
+```
+<!-- CAT-LUOT-THE>>> -->
+
+   Thẻ in markdown: răng xanh hay đỏ · việc của người gộp PR · đợt trong bốn con số (mã · hàng · mục chờ · việc của
+   người) · mã nào về đâu · các dãy chạy song song (nối `dung_tren` và nối `chay_sau` mang hai nhãn) · cỡ từng hàng
+   trên khối khoảng cỡ kèm số của đồng hồ cỡ · cảnh báo của đợt kèm lý do giữ · mục chờ điều kiện · «Ra khỏi kho» ·
+   ngày và vì sao chưa có (kèm nhịp) · mỗi hàng đi qua cổng nào sau khi gộp. Hai thứ thẻ không đọc được từ tệp nào —
+   phiên truyền chúng, mỗi mục một cờ:
+   - `--ra "<việc> · <ai> · <khi>"` — mỗi việc của người đã tách ở bước 2b (sự kiện tạo hạn: `<khi>` kèm tên mốc nhận
+     hạn); đợt không có việc nào: `--ra -`. Vắng cờ thì thẻ in «chưa khai».
+   - `--giu "<mã>: <lý do>"` — mỗi hàng giữ một cảnh báo của đợt (dưới hay trên mục tiêu, chưa khai dáng, gắn mốc đang
+     chạy): vì sao giữ. Vắng thì thẻ in «chưa ghi lý do giữ» dưới cảnh báo ấy.
+   Mã thoát như răng: răng đỏ thì thẻ vẫn in nhưng mở đầu bằng ĐỎ và từng lỗi — sửa rồi dựng lại, đừng mở PR.
+4. **Xanh mới mở PR** — một PR cho cả đợt: bản phạm vi + hàng + mục chờ điều kiện. Mô tả PR là thẻ lượt cắt, CHÉP
+   NGUYÊN VĂN đầu ra của lệnh trên (thẻ đã gồm bảng phủ, cảnh báo ngoài đợt và «Ra khỏi kho») — không soạn lại, không
+   tóm tắt; dán thẻ cả vào tin nhắn mời người gộp. Danh sách «Ra khỏi kho» là lời khai cho người gộp PR soát: răng
+   không thấy nó. Người gộp PR là người chốt lượt cắt (một chạm).
 
 Kho vẽ lại trang lộ trình trong cùng PR (`product-map.mjs`) nếu CI của kho chạy `--check`.
