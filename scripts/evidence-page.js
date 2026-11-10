@@ -42,6 +42,8 @@ const report = read(path.join(dir, 'evidence-report.md'));
 if (!report.trim()) { process.stderr.write('evidence-page: no evidence-report.md at ' + dir + '\n'); process.exit(2); }
 const contract = read(path.join(dir, 'contract.md'));
 const findings = read(path.join(dir, 'review-findings.md'));
+const LTHD = require(path.join(__dirname, 'loi-trong-hop-dong.cjs'));
+const loiHD = LTHD.parse(findings);
 
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#.*$/, '').trim();
@@ -210,6 +212,8 @@ P.push(`<h1>${esc(feature)}</h1><div class="sub">Trang hồ sơ · <span class="
 P.push(`<section class="dai" aria-label="Hồ sơ trong một phút">${HS.O_MOI_NGUOI.map(k => `<div class="o" data-o="${k}" data-nguon="${esc(H.nguon[k] || '')}"><div class="hoi">${esc(NHAN_O[k])}</div><div class="tra">${M[k] == null ? chuaCo(H.nguon[k] || '') : esc(M[k])}</div></div>`).join('')}</section>`);
 const ck = (k, nhan, v) => `<span data-k="${k}">${nhan} <b>${C[k] == null ? chuaCo(H.nguon[k] || '') : esc(v)}</b></span>`;
 P.push(`<div class="chu-kho" data-chu-kho>${[ck('tieu_chi', 'Tiêu chí', C.tieu_chi), ck('phep_do', 'Phép đo', C.phep_do), ck('luot_cham', 'Lượt chấm', C.luot_cham), ck('token', 'Token', so(C.token)), ck('quyet_dinh_may', 'Quyết định máy', C.quyet_dinh_may), ck('quyet_dinh_nguoi', 'người', C.quyet_dinh_nguoi), ck('ma', 'Mã', C.ma && C.ma.slice(0, 7))].join('')}${CT.soHong ? `<span class="vang" data-so-hong>${CT.soHong} dòng sổ không đọc được</span>` : ''}</div>`);
+// Lỗi trong hợp đồng còn mở đứng NGOÀI mọi mục gập: phán quyết PASS không được che nó. Văn kỹ thuật chỉ ở phần gập.
+if (LTHD.conLoi(loiHD)) P.push(`<section data-loi-trong-hop-dong><h2>${esc(LTHD.TIEU_DE(loiHD.findings.length))}</h2><div class="flag fred">${esc(LTHD.HE_QUA)}</div>${loiHD.findings.map((f, i) => `<div class="card" data-ma="${esc(LTHD.nhan(i))}"><b>${esc(LTHD.dauDong(f, i))}</b><p style="margin:4px 0 0">${esc(LTHD.cauNguoiDoc(f, critText))}</p><details><summary class="note">Chi tiết kỹ thuật</summary><p>${esc(f.title)}</p><p class="mono">${esc(f.file)}</p><p class="note">${esc(f.detail)}</p></details></div>`).join('')}${loiHD.suspect_empty ? `<div class="flag fred">⚠ ${esc(LTHD.MSG_SUSPECT)}</div>` : ''}</section>`);
 const muc = (id, ten, than) => `<details class="muc" id="${id}"><summary>${esc(ten)}</summary><div class="noi">${than}</div></details>`;
 // Mục gập in bản ĐẦY ĐỦ của lý do (chiTiet.viSao) — trần 400 ký tự chỉ cho ô của dải và khối dữ liệu lộ trình
 // (hồ sơ dai-tom-tat-dem-dung-vi-sao-tron).

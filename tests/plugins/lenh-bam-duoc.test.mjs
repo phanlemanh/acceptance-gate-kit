@@ -259,6 +259,8 @@ if (want('LB5')) {
       viSao: 'ghim-lai-noi-ra-o-khong-do (20/09): thẻ nói ra AC mà mọi eval phủ nó đều ngoài làn ghim lại — cờ BÁO, không đổi routing' },
     { moi: 'mục chưa có căn cứ',
       viSao: 'bang-ngoai-n-co-can-cu (14/10): hồ sơ chấm trước khi khuôn mục ngoài hợp đồng có dòng Căn cứ — cờ BÁO đọc-cũ, không đổi routing' },
+    { moi: 'Máy chưa sửa các lỗi này',
+      viSao: 'the-loi-trong-hop-dong (10/11): hồ sơ có lỗi trong hợp đồng còn mở mà trước đây thẻ không in — cờ BÁO, không thêm ô hỏi' },
   ];
   const congDung = new Set();
   const doiVanDung = new Set();
