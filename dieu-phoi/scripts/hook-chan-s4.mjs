@@ -6,6 +6,7 @@ import { DOC_DAU_BYTE } from './cau-hinh.mjs';
 import { docJson, phienCuaCwd, timThuMucDot, trongWorktree } from './dot.mjs';
 import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 import { BANG_BASH, phanLoaiLenh } from './phan-loai-s4.mjs';
+import { KY_TU_AN_TOAN, nhayDon, nhayDoiSo } from './nhay.mjs';
 
 const DAY_GOI = path.dirname(fileURLToPath(import.meta.url));
 export const TEP_GIU_NHIP = path.join(DAY_GOI, 'giu-nhip.mjs');
@@ -16,11 +17,6 @@ export const LENH_MAC_DINH = {
 };
 const MAU_THO = /acceptance-verify|repin-lane|s4-args|duong-nen\.mjs/;
 const MAU_LENH_BOC = /^\s*\S*node\s+\S*giu-nhip\.mjs\s+--\s/;
-const KY_TU_AN_TOAN = /^[\w./:@%+,-]+(?: [\w./:@%+,-]+)*$/;
-
-const nhayDon = (s) => (KY_TU_AN_TOAN.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
-// Một ĐỐI SỐ (không phải cả lệnh): dấu cách cũng phải bọc.
-const nhayDoiSo = (s) => (/^[\w./:@%+,-]+$/.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
 
 export function lenhBoc(lenhGoc) {
   const lenh = lenhGoc.trim();

@@ -1,12 +1,14 @@
 import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
+import { nhayDoiSo } from './nhay.mjs';
 
 export const TAI_NGUYEN = { s4: 's4', 'ghim-lai': 's4', 'duong-nen': 'duong-nen', merge: 'merge' };
 // MỘT bộ giải tên khoá cho bên cấp (capLuot) và bên thợ (`xin` in lệnh chờ, `nha` nhả) — #477 lỗi 3/4: `ghim-lai`
 // cố ý dùng chung khoá `s4`, nên thợ gõ tên loại phải tới đúng thư mục bộ phát lịch tạo. Tên lạ → null.
 export const giaiTaiNguyen = (ten) => (Object.hasOwn(TAI_NGUYEN, ten) ? TAI_NGUYEN[ten] : null);
+// Thợ chạy NGUYÊN VĂN dòng này (LUAT.md), và lệnh nuốt lỗi của jq: đối số ghép trần mà hỏng thì vòng chờ treo im lặng.
 export const lenhChoKhoa = (thuMuc, phien, loai) =>
-  `until jq -e '.phien=="${phien}"' ${path.join(thuMuc, 'khoa', giaiTaiNguyen(loai), 'chu.json')} >/dev/null 2>&1; do sleep 15; done`;
+  `until jq -e ${nhayDoiSo(`.phien==${JSON.stringify(phien)}`)} ${nhayDoiSo(path.join(thuMuc, 'khoa', giaiTaiNguyen(loai), 'chu.json'))} >/dev/null 2>&1; do sleep 15; done`;
 const MOC_XA = '9999-12-31';
 
 const mocCua = (hangViec, slug) => hangViec?.hang?.find((h) => h.slug === slug)?.moc ?? MOC_XA;
