@@ -114,6 +114,22 @@ const CA = {
     if (!/^color\(srgb /.test(mau)) return `Chromium tính ra ${mau}, không phải color(srgb …)`;
     return v.verdict === 'KHONG-DO-DUOC' && v.do_duoc === false ? null : `${mau}: ${v.verdict} do_duoc=${v.do_duoc}`;
   },
+  // Lớp phủ trong suốt trên ảnh: không có một màu nào để hoà, nên không đo được, không phải từ chối với trắng tự đặt.
+  'CR-6': async () => {
+    const loi = [];
+    const chu = '<p style="color:#ffffff">Chữ thử tương phản.</p>';
+    const trangPhu = (than) => `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>t</title></head><body><main>${than}</main></body></html>`;
+    for (const [ten, html] of [
+      ['ảnh ở tổ tiên', trangPhu(`<section style="background-image:url(a.png)"><div style="background-image:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.8))">${chu}</div></section>`)],
+      ['ảnh cùng phần tử', trangPhu(`<section style="background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.2)),url(a.png)">${chu}</section>`)],
+    ]) {
+      const p = await moTrang(html, SCAN);
+      const v = await quet(p, {});
+      await p.close();
+      if (v.verdict !== 'KHONG-DO-DUOC' || v.do_duoc !== false) loi.push(`${ten}: ${v.verdict} ${JSON.stringify(lowContrast(v))}`);
+    }
+    return loi.join(' | ') || null;
+  },
 };
 
 let hong = 0;

@@ -84,7 +84,7 @@ const CA = {
         if (v !== 'PASS') loi.push(`${chu}: bộ máy gốc trả ${v}, mong PASS`);
       }
       const nenOklch = phanQuyetGoc(goc, '#ffffff', 'oklch(0.15 0 0)');
-      if (nenOklch === 'REJECT') loi.push(`nền oklch trực tiếp: bộ máy gốc trả REJECT`);
+      if (nenOklch !== 'KHONG-DO-DUOC') loi.push(`nền oklch trực tiếp: bộ máy gốc trả ${nenOklch}, mong KHONG-DO-DUOC`);
       console.log(`  bộ máy gốc trên nền oklch trực tiếp: ${nenOklch}`);
       return loi.join(' | ') || null;
     } finally {
@@ -116,6 +116,14 @@ const CA = {
   'MD-11': () => phaThu(BUNDLE, 'return stops.map((s) => (s.a <= 0 ? duoi : hoaMau(s, duoi)));', 'return stops;', 'gradient-alpha', 'mong REJECT'),
   // khongDo đã loại ca có từ chối, nên đảo thứ tự phải làm ở chỗ tính danh sách chặn: có màu không đọc được thì bỏ hết từ chối.
   'MD-12': () => phaThu(WRAPPER, 'var blocking = measured.filter(inFailOn);', 'var blocking = all.some(function (f) { return f.do_duoc === false && inFailOn(f); }) ? [] : measured.filter(inFailOn);', 'fail-thang', 'quét:'),
+  // Phép kiểm mốc phải áp cho mọi mốc và cả hai chiều: nới một vế thì ma trận moc-va-mat đỏ.
+  'MD-13': () => phaThu(BUNDLE, 'if (count !== 1) throw', 'if (count < 1) throw', 'moc-va-mat', 'thừa mốc'),
+  'MD-14': () => phaThu(BUNDLE, 'if (count !== 1) throw', 'if (count !== 1 && anchor === PATCHES[0][0]) throw', 'moc-va-mat', 'mất mốc'),
+  // Lớp dưới không biết phải ra không đo được; mỗi đường vào một nhát.
+  'MD-15': () => phaThu(BUNDLE, 'if (stops.some((s) => s.a != null && s.a < 1) && !lopDuoiGradient(c)) return image;', '', 'gradient-tren-anh-to-tien', 'cổng:'),
+  'MD-16': () => phaThu(BUNDLE, "if (/url\\s*\\(/i.test(anh) || (anh.match(/gradient\\(/gi) || []).length > 1) return null;", '', 'gradient-tren-anh-cung-phan-tu', 'cổng:'),
+  'MD-17': () => phaThu(BUNDLE, "if (/url\\s*\\(/i.test(cs.backgroundImage || '')) return null;", '', 'gradient-tren-anh-body', 'cổng:'),
+  'MD-18': () => phaThu(BUNDLE, 'const duoi = lopDuoiGradient(el);', 'const duoi = { r: 255, g: 255, b: 255, a: 1 };', 'gradient-alpha-nen-to-tien', 'mong PASS'),
 };
 
 const i = process.argv.indexOf('--chi');

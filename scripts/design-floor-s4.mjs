@@ -28,13 +28,14 @@ export const RE_HEX = /(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4
 const LA_HTML = (f) => /\.html?$/i.test(f);
 
 // Chú thích không tô màu nào: `// issue #123` không phải hex thô. Thay chữ trong chú thích bằng dấu cách và giữ dấu xuống
-// dòng, nên số dòng báo ra không đổi. Chữ trong chuỗi được giữ, và `//` ngay sau `:` là URL. Gặp chỗ không chắc (dấu nháy
-// lẻ trong chữ JSX) thì đoạn đó vẫn được quét: bộ lọc này chỉ được bỏ sót chú thích, không được bỏ sót mã.
-export function boChuThich(s, tep) {
-  const duoi = path.extname(tep).toLowerCase();
-  const coHtml = /^\.(?:html?|vue|svelte|astro|svg)$/.test(duoi);
-  const coMotDong = !/^\.(?:html?|css|svg)$/.test(duoi);
-  const coChuoi = !/^\.(?:html?|svg)$/.test(duoi);
+// dòng, nên số dòng báo ra không đổi. Gặp chỗ không chắc thì giữ lại để quét: bộ lọc này chỉ được bỏ sót chú thích, không
+// được bỏ sót mã.
+const LA_CSS = /^\.(?:css|scss|sass|less)$/;
+const CO_THE = /^\.(?:html?|vue|svelte|astro|svg)$/;
+
+// Mã CSS hoặc JS/TS. Trong `css`, url() không nháy là một khối chữ. Ngoài `css`, dấu mở `/*` dính sau chữ (`src/*` trong chữ JSX)
+// không phải chú thích. `/*` không có dấu đóng thì giữ nguyên. `//` ngay sau chữ, `:` hay `/` là URL hoặc đường dẫn.
+function xoaChuThichMa(s, { css, motDong }) {
   let ra = '';
   let i = 0;
   let nhay = null;
@@ -43,6 +44,7 @@ export function boChuThich(s, tep) {
   };
   while (i < s.length) {
     const c = s[i];
+    const truoc = s[i - 1] || '';
     if (nhay) {
       if (c === '\\' && i + 1 < s.length) {
         ra += c + s[i + 1];
@@ -52,25 +54,64 @@ export function boChuThich(s, tep) {
       if (c === nhay || (c === '\n' && nhay !== '`')) nhay = null;
       ra += c;
       i++;
-    } else if (coChuoi && (c === '"' || c === "'" || c === '`')) {
+    } else if (c === '"' || c === "'" || c === '`') {
       nhay = c;
       ra += c;
       i++;
-    } else if (s.startsWith('/*', i)) {
-      const het = s.indexOf('*/', i + 2);
-      xoaDen(het < 0 ? s.length : het + 2);
-    } else if (coMotDong && s.startsWith('//', i) && s[i - 1] !== ':') {
+    } else if (css && !/\w/.test(truoc) && /^url\(\s*[^'"\s]/i.test(s.slice(i, i + 16))) {
+      const het = s.indexOf(')', i);
+      const den = het < 0 ? s.length : het + 1;
+      ra += s.slice(i, den);
+      i = den;
+    } else if (s.startsWith('/*', i) && (css || !/[\w/.*-]/.test(truoc)) && s.indexOf('*/', i + 2) >= 0) {
+      xoaDen(s.indexOf('*/', i + 2) + 2);
+    } else if (motDong && s.startsWith('//', i) && !/[\w:/]/.test(truoc)) {
       const het = s.indexOf('\n', i);
       xoaDen(het < 0 ? s.length : het);
-    } else if (coHtml && s.startsWith('<!--', i)) {
-      const het = s.indexOf('-->', i + 4);
-      xoaDen(het < 0 ? s.length : het + 3);
     } else {
       ra += c;
       i++;
     }
   }
   return ra;
+}
+
+// Tệp có thẻ: chỉ `<!-- -->` là chú thích của phần thẻ, còn `/* */` và `//` chỉ có nghĩa trong <script>, <style> và phần đầu của astro.
+function xoaChuThichCoThe(s, duoi) {
+  const RE = /<!--|<(script|style)\b([^>]*)>/gi;
+  let ra = '';
+  let tu = 0;
+  const dau = duoi === '.astro' ? /^---\r?\n[\s\S]*?\r?\n---/.exec(s) : null;
+  if (dau) {
+    ra = xoaChuThichMa(dau[0], { css: false, motDong: true });
+    tu = dau[0].length;
+  }
+  RE.lastIndex = tu;
+  for (let m = RE.exec(s); m; m = RE.exec(s)) {
+    ra += s.slice(tu, m.index);
+    tu = m.index;
+    if (m[0] === '<!--') {
+      const het = s.indexOf('-->', m.index + 4);
+      if (het < 0) break;
+      ra += s.slice(m.index, het + 3).replace(/[^\n]/g, ' ');
+      tu = het + 3;
+    } else {
+      const than = m.index + m[0].length;
+      const dong = s.slice(than).search(new RegExp(`</${m[1]}\\b`, 'i'));
+      const het = dong < 0 ? s.length : than + dong;
+      const css = m[1].toLowerCase() === 'style';
+      ra += m[0] + xoaChuThichMa(s.slice(than, het), { css, motDong: !css || /\blang\s*=\s*["']?(?:scss|sass|less)/i.test(m[2]) });
+      tu = het;
+    }
+    RE.lastIndex = tu;
+  }
+  return ra + s.slice(tu);
+}
+
+export function boChuThich(s, tep) {
+  const duoi = path.extname(tep).toLowerCase();
+  if (CO_THE.test(duoi)) return xoaChuThichCoThe(s, duoi);
+  return xoaChuThichMa(s, { css: LA_CSS.test(duoi), motDong: duoi !== '.css' });
 }
 
 export function khoiMay(duong, ten) {

@@ -668,16 +668,37 @@ function timMauKhongDoc(el, style) {
     const solid = parseRgb(cs.backgroundColor);
     if (solid && solid.a >= 1) return null;
     const image = cs.backgroundImage || '';
-    if (/gradient/i.test(image) && /\bcolor\(/i.test(image)) return image;
+    if (/gradient/i.test(image)) {
+      if (/\bcolor\(/i.test(image)) return image;
+      const stops = parseGradientColors(image);
+      if (stops.some((s) => s.a != null && s.a < 1) && !lopDuoiGradient(c)) return image;
+    }
   }
   return null;
 }
 
-// Gradient stops as the eye sees them: a translucent stop over whatever is under the gradient, white when nothing is
-// declared. Alpha 0 shows only what is under it (hoaMau leaves alpha 0 alone, for text).
-function hoaDiemDung(stops, el, win) {
+// What shows through a translucent gradient on element c: one colour, or null when it is a picture or another gradient
+// layer, which no single colour stands for. resolveBackground assumes white for a body-level picture, so pictures are
+// looked for first, up to the first opaque colour.
+function lopDuoiGradient(c) {
+  const win = c.ownerDocument.defaultView;
+  const anh = win.getComputedStyle(c).backgroundImage || '';
+  if (/url\s*\(/i.test(anh) || (anh.match(/gradient\(/gi) || []).length > 1) return null;
+  for (let p = c.parentElement; p && p.nodeType === 1; p = p.parentElement) {
+    const cs = win.getComputedStyle(p);
+    const nen = parseRgb(cs.backgroundColor);
+    if (nen && nen.a >= 1) break;
+    if (/url\s*\(/i.test(cs.backgroundImage || '')) return null;
+  }
+  return c.parentElement ? resolveBackground(c.parentElement, win) : { r: 255, g: 255, b: 255, a: 1 };
+}
+
+// Gradient stops as the eye sees them: a translucent stop over the colour under the gradient. Alpha 0 shows only that
+// colour (hoaMau leaves alpha 0 alone, for text). No such colour: nothing to measure, and timMauKhongDoc reports it.
+function hoaDiemDung(stops, el) {
   if (stops.every((s) => s.a == null || s.a >= 1)) return stops;
-  const duoi = (el.parentElement && resolveBackground(el.parentElement, win)) || { r: 255, g: 255, b: 255, a: 1 };
+  const duoi = lopDuoiGradient(el);
+  if (!duoi) return null;
   return stops.map((s) => (s.a <= 0 ? duoi : hoaMau(s, duoi)));
 }
 
@@ -1434,7 +1455,7 @@ function resolveGradientStops(el, win) {
     const bgImage = style.backgroundImage || '';
     if (bgImage && bgImage !== 'none' && /gradient/i.test(bgImage)) {
       const stops = parseGradientColors(bgImage);
-      if (stops.length > 0) return hoaDiemDung(stops, current, win);
+      if (stops.length > 0) return hoaDiemDung(stops, current);
     }
     if (!DETECTOR_IS_BROWSER) {
       // jsdom doesn't decompose `background:` shorthand — peek at the raw inline style
@@ -1442,7 +1463,7 @@ function resolveGradientStops(el, win) {
       const bgMatch = rawStyle.match(/background(?:-image)?\s*:\s*([^;]+)/i);
       if (bgMatch && /gradient/i.test(bgMatch[1])) {
         const stops = parseGradientColors(bgMatch[1]);
-        if (stops.length > 0) return hoaDiemDung(stops, current, win);
+        if (stops.length > 0) return hoaDiemDung(stops, current);
       }
     }
     current = current.parentElement;

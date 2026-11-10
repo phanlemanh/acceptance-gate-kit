@@ -136,6 +136,16 @@ const CA = [
   ['gradient-oklch', `<section style="background-image:linear-gradient(oklch(0.97 0 0), oklch(0.97 0 0))">${dong('oklch(0.97 0 0)')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #f5f5f5/ })],
   // Một điểm dừng đục, một điểm trong suốt, không tổ tiên nào có nền: điểm trong suốt hoà với trang trắng thành xám giữa.
   ['gradient-alpha', `<section style="background-image:linear-gradient(oklab(0 0 0), oklab(0 0 0 / 0.5))">${dong('#ffffff')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #808080/ })],
+  // Lớp dưới đã biết: điểm dừng hoà với nền thật của tổ tiên, không phải với trắng.
+  ['gradient-alpha-nen-to-tien', `<section style="background-color:#000000"><div style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))">${dong('#ffffff')}</div></section>`, kiemDo('', { verdict: 'PASS' })],
+  // Điểm dừng alpha 0 chỉ để lộ lớp dưới.
+  ['gradient-alpha-khong', `<section style="background-image:linear-gradient(rgba(0, 0, 0, 0), #000000)">${dong('#ffffff')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #ffffff/ })],
+  // Lớp dưới là ảnh hoặc gradient khác: không có một màu nào để hoà, nên không đo được, không được đo với trắng tự đặt.
+  ['gradient-tren-anh-to-tien', `<section style="background-image:url(a.png)"><div style="background-image:linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8))">${dong('#ffffff')}</div></section>`, kiemKhongDo()],
+  ['gradient-tren-anh-cung-phan-tu', `<section style="background-image:linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2)), url(a.png)">${dong('#ffffff')}</section>`, kiemKhongDo()],
+  ['gradient-tren-gradient-cung-phan-tu', `<section style="background-image:linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2)), linear-gradient(#000000, #111111)">${dong('#ffffff')}</section>`, kiemKhongDo()],
+  ['gradient-tren-gradient-to-tien', `<section style="background-image:linear-gradient(#000000, #111111)"><div style="background-image:linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8))">${dong('#ffffff')}</div></section>`, kiemKhongDo()],
+  ['gradient-tren-anh-body', '', () => kiemKhongDo()(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>t</title></head><body style="background-image:url(a.png)"><main><section style="background-image:linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8))">${dong('#ffffff')}</section></main></body></html>`)],
   ['khong-doc-gradient', `<section style="background-image:linear-gradient(color(display-p3 0.1 0.1 0.1), color(display-p3 0.2 0.2 0.2))">${dong('#111111')}</section>`, kiemKhongDo()],
 
   // Chiều sạch: đọc đúng thì không REJECT oan.
@@ -164,9 +174,22 @@ const CA = [
 
   // Đồng bộ lại bản gốc mà làm mất một mốc vá thì phải đỏ to, không được âm thầm chạy bản chưa vá.
   ['moc-va-mat', '', async () => {
-    const { patchDetector } = await import(path.join(ROOT, 'lib', 'design-bundle.mjs'));
-    try { patchDetector('function parseRgb(color) {}'); } catch (e) { return /anchor must occur once/.test(e.message) ? null : `sai lỗi: ${e.message}`; }
-    return 'bản gốc thiếu mốc mà không lỗi';
+    const { patchDetector, PATCHES } = await import(path.join(ROOT, 'lib', 'design-bundle.mjs'));
+    const goc = fs.readFileSync(path.join(ROOT, 'vendor', 'impeccable', 'engine', 'detect-antipatterns-browser.js'), 'utf8');
+    patchDetector(goc);
+    const loi = [];
+    let dem = 0;
+    for (const [moc] of PATCHES) {
+      const dau = moc.split('\n')[0];
+      for (const [ten, ban, so] of [['mất', goc.split(moc).join(''), 0], ['thừa', `${goc}\n${moc}\n`, 2]]) {
+        dem++;
+        try { patchDetector(ban); loi.push(`${ten} mốc «${dau}» mà không lỗi`); } catch (e) {
+          if (!e.message.includes(`anchor must occur once, found ${so}: ${dau}`)) loi.push(`${ten} mốc «${dau}»: sai lỗi ${e.message}`);
+        }
+      }
+    }
+    if (PATCHES.length !== 12 || dem !== 24) loi.push(`phủ ${dem} phép thử trên ${PATCHES.length} mốc, mong 24 trên 12`);
+    return loi.join(' | ') || null;
   }],
 
   ...BANG_CHROME.map(([mau, [r, g, b]]) => {
