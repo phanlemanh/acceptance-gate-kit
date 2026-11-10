@@ -155,6 +155,7 @@ const ALLOWED_REMOVALS = [
   `          __VANG__) clean_ok=0; clean_why="mục «$_sec» VẮNG khỏi báo cáo (vắng ≠ rỗng)"; break ;;`,
   `          __CO__)   clean_ok=0; clean_why="mục «$_sec» có nội dung"; break ;;`,
   `          __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;`,
+  // Mục `        esac` đã GỠ (10/11/2026): bản vá t3-can-ho-so-arm thêm hai dòng cùng chuỗi nên nó thành mục mơ hồ (DV5u).
   `      done`,
   `  # Human-signoff provenance: the signature is text in an AI-writable file —`,
   `  # the git history of the commit that INTRODUCED it is the only`,
