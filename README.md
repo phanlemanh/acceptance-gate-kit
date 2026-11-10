@@ -292,10 +292,16 @@ downstream, and revisited at each release:
   counts *any* change under a path matching `_acceptance/*` or `*/_acceptance/*`
   as "this PR carries gate artifacts". The glob is not anchored to the repo
   root, so a test fixture living under `<anywhere>/_acceptance/` also satisfies
-  it — a PR touching `t3_paths` can pass the backstop without a real contract.
-  The kit's own suites keep their generated gap-probe fixtures in `mktemp`,
-  outside the repo, to avoid exactly this; anchoring the glob is a queued fix
-  (it changes shared behaviour, so it needs its own contract).
+  it for ordinary code. A PR touching `t3_paths` needs more: at least one record
+  in the PR that the gate actually judges for that code — `risk_tier` inside
+  `signoff.required_for`, a `status`, changed beyond `opportunity.md` /
+  `decisions.jsonl`, and a human signature below T3. Ordinary code keeps the
+  looser rule on purpose: self-declared T1 records and frontmatter-less seeds
+  are in real use there. The PR that installs the kit is exempt, because its
+  base has no gate yet. The kit's own suites keep their generated gap-probe
+  fixtures in `mktemp`, outside the repo, to avoid the fixture case; anchoring
+  the glob is a queued fix (it changes shared behaviour, so it needs its own
+  contract).
 - **Gap-probe findings parse splits on `|`**: a finding cell containing a
   literal pipe drops that row from the card — counted and flagged as
   unreadable, never silent.
