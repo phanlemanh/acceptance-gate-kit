@@ -895,6 +895,11 @@ executors:
     rel2380_dd_giu: "bash -c 'c=$(git show 39fa45cc:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 39fa45cc HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2380_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh 39fa45cc 2.38.0
     rel2380_goi_doi: "bash -c 'd=$(git diff --name-only 39fa45cc HEAD -- dieu-phoi road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
+    # release-2-38-1 (AC-4/5/7/8): mốc = c8fa5a65 (thẻ v2.38.0); AC-8 dùng lại tệp lệnh của release-2-38-0
+    rel2381_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh c8fa5a65 t3-can-ho-so-arm
+    rel2381_dd_giu: "bash -c 'c=$(git show c8fa5a65:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c8fa5a65 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2381_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh c8fa5a65 2.38.1
+    rel2381_goi_doi: "bash -c 'd=$(git diff --name-only c8fa5a65 HEAD -- dieu-phoi feature-loop road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json feature-loop/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
