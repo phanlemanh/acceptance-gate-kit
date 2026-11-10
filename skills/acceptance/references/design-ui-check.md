@@ -86,23 +86,25 @@ before trusting the green.
    `autoScan:false`, so no overlay is drawn.
 
    Substitute `<failOn>` with the eval's declared `fail_on` list (default `['P0']`),
-   not a literal — so the call matches the eval.
+   not a literal — so the call matches the eval. Keep `requireMeasured: true`: a
+   page the scan could not finish measuring then returns `exit_intent: 5`, never
+   the `0` that means pass.
 
    Chrome MCP / Playwright-equivalent:
    ```
    javascript_tool({ tabId, action:'javascript_exec',
-     text: <contents of design-scan.js> + "\nwindow.__impeccableDesignScan({failOn: <failOn>})" })
+     text: <contents of design-scan.js> + "\nwindow.__impeccableDesignScan({failOn: <failOn>, requireMeasured: true})" })
    ```
    Claude Preview MCP:
    ```
    preview_eval({ serverId, expression: "(function(){" + <contents of design-scan.js>
-     + "; return window.__impeccableDesignScan({failOn: <failOn>}); })()" })
+     + "; return window.__impeccableDesignScan({failOn: <failOn>, requireMeasured: true}); })()" })
    ```
    Lighter alternative when the dev server serves a static dir: copy
    `design-scan.js` there and inject `<script src="/design-scan.js">`, then call
    the function — avoids passing the 219 KB body through the tool.
 
-4. **Read the verdict** the call returns. Three shapes — handle all three:
+4. **Read the verdict** the call returns. Four outcomes — handle all four:
    ```json
    { "verdict": "REJECT", "exit_intent": 2, "p0": 14,
      "blocking": ["low-contrast"], "hits": ["low-contrast","side-tab","ai-color-palette"],
@@ -110,13 +112,37 @@ before trusting the green.
    ```
    `verdict: "PASS"` (exit_intent 0) when no failOn-tier finding; `verdict: "BLOCKED"`
    (exit_intent 1) when the bundle did not attach (`typeof window.impeccableDetect`
-   not a function — e.g. CSP blocked the inject). Screenshot → `evidence/E-design-B-step2.png`.
+   not a function — e.g. CSP blocked the inject); `verdict: "KHONG-DO-DUOC"` with
+   `do_duoc: false` when nothing measured blocks but a failOn-tier finding could not
+   be measured. Its `exit_intent` is 5 under `requireMeasured: true`, and 0 for a
+   caller that left the flag off; `khong_do_duoc` counts those findings and
+   `ly_do_khong_do_duoc` lists their codes. Screenshot → `evidence/E-design-B-step2.png`.
 
-5. **Map to hook-legal evidence** and write the eval block:
-   - `verdict === 'BLOCKED'` → write `verdict: BLOCKED` + the returned `reason`; do
-     NOT read exit_intent as a pass/fail. BLOCKED is a legal verdict — never fake PASS.
-   - else `verdict`: PASS when `'PASS'`, REJECT when `'REJECT'`.
-   - `exit_code`: `exit_intent` (0 PASS · 2 REJECT).
+5. **Map to hook-legal evidence** and write the eval block. Find the pair the call
+   returned in this table; every pair has exactly one row, and `—` means write no
+   `exit_code` line:
+
+   <!-- <<<TIER-B-DOC-KET-QUA -->
+   | scan verdict | scan exit_intent | write verdict | write exit_code |
+   |---|---|---|---|
+   | PASS | 0 | PASS | 0 |
+   | REJECT | 2 | REJECT | 2 |
+   | BLOCKED | 1 | BLOCKED | — |
+   | KHONG-DO-DUOC | 0 | BLOCKED | — |
+   | KHONG-DO-DUOC | 5 | BLOCKED | 5 |
+   <!-- TIER-B-DOC-KET-QUA>>> -->
+
+   - `KHONG-DO-DUOC` is never a pass, whatever its `exit_intent`. Do NOT read a 0
+     there as green: it only says the caller left `requireMeasured` off. BLOCKED is a
+     legal verdict — never fake PASS.
+   - Every row that writes BLOCKED also writes `reason`: the returned `reason`, or
+     for `KHONG-DO-DUOC` the `khong_do_duoc` count and the `ly_do_khong_do_duoc` codes.
+   - When a verify workflow asks for `exitCode` + `cannotRun`, a row that writes
+     BLOCKED returns `cannotRun: true` + that `reason` + a non-zero `exitCode`: the
+     returned `exit_intent` when it is non-zero, otherwise 1. A 0 with no flag counts
+     as a pass there.
+   - To clear a `KHONG-DO-DUOC` block, change the colour to one the scan can read, or
+     narrow the contract by naming the limit. There is no route to PASS while it stands.
    - `verifier`: **`config:executors.design.ui_check`** — a `config:` reference the
      evidence hook accepts. Do NOT write a bare plugin path (`scripts/design-scan.js`):
      it won't resolve from the consumer repo and the hook will BLOCK the report. (Add

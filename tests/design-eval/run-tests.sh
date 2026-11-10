@@ -46,12 +46,16 @@ if node -e "import('jsdom').then(()=>process.exit(0)).catch(()=>process.exit(1))
   echo "T08 lab/oklab/lch/oklch measured with alpha on both tiers, unreadable colours KHONG-DO-DUOC"
   node "$HERE/mau-lab.test.mjs" | grep -E '^(FAIL|mau-lab:)'
   check T08 0 "${PIPESTATUS[0]}"
+
+  echo "T09 Tier B reader table matches what the scan emits"
+  node "$HERE/tier-b-loi-doc.test.mjs" | grep -E '^(FAIL|tier-b-loi-doc:)'
+  check T09 0 "${PIPESTATUS[0]}"
 elif [ "${DESIGN_EVAL_CAN_DOM:-}" = "1" ]; then
   echo "  FAIL: B-DOM tests — jsdom vắng mà DESIGN_EVAL_CAN_DOM=1 (npm ci --prefix tests/design-eval)"
-  FAIL_COUNT=$((FAIL_COUNT+4))
+  FAIL_COUNT=$((FAIL_COUNT+5))
 else
   echo "  SKIP: B-DOM tests (jsdom not installed — run 'npm ci' in tests/design-eval)"
-  SKIP_COUNT=$((SKIP_COUNT+4))
+  SKIP_COUNT=$((SKIP_COUNT+5))
 fi
 
 echo "T06 design-scan.js is in sync with its build (no drift)"
