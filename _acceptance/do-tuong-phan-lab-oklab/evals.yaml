@@ -1,0 +1,160 @@
+schema_version: 1
+feature_slug: do-tuong-phan-lab-oklab
+# Một lệnh hai chiều cho AC-1..AC-8 (khoá executors.test.mau_lab_hai_chieu): mau-lab.test.mjs chạy chiều xanh trên cây thật,
+# mau-lab-do.test.mjs chạy chiều đỏ trên CÙNG trang thử: bộ máy gốc c8fa5a65, rồi các nhát phá. Mỗi ca MD bung bản sao cây,
+# đổi đúng một chỗ (khớp đúng một lần, không khớp thì ca hỏng), dựng lại bộ quét, chứng bản sao lành trước khi tin màu đỏ,
+# và ghim tên ca xanh phải đỏ. Cần jsdom ghim (npm ci --prefix tests/design-eval).
+#
+# Ma trận viết trước, định dạng × vị trí (ô = tên ca; «—» kèm lý do nghĩa là bỏ):
+#                 chữ                     nền đặc               nền trong suốt     nền tổ tiên                 gradient
+#   lab           lab, alpha-hoa-lab      sach-oklab-nen-lab    nen-alpha-lab      — cùng đường với nền đặc    gradient-lab
+#   oklab         oklab, alpha-oklab      chrome oklab          nen-alpha-truot    — cùng đường với nền đặc    gradient-oklab, gradient-alpha
+#   lch           lch, alpha-hoa-lch      chrome lch            — cùng bộ đọc lab  — cùng đường với nền đặc    — cùng regex với gradient-lab
+#   oklch         oklch, alpha-hoa-oklch  sach-oklch-nen-toi    — cùng bộ đọc      — cùng đường với nền đặc    gradient-oklch
+#   rgba          alpha-hoa-rgba          ca KD cũ              ca KD cũ           ca KD cũ                    ca KD cũ
+#   không đọc được khong-doc-chu,         khong-doc-nen         — đường mauKhongDoc khong-doc-nen-to-tien      khong-doc-gradient
+#                 khong-doc-color-srgb                            không xét alpha
+#   alpha 0:      alpha-khong (rgba), alpha-khong-oklab. Cách viết số: lab-phan-tram, lab-so-mu, oklab-phan-tram, oklch-none.
+#   color-mix(): jsdom giữ nguyên chuỗi và không phán, trình duyệt tính thành color(srgb …), nên đo ở E11 trên Chromium.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, lib/design-detect.mjs, scripts/build-design-scan.mjs, scripts/design-scan.js, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS lab", "PASS oklab", "PASS lch", "PASS oklch", "PASS lab-phan-tram", "PASS lab-so-mu", "PASS oklab-phan-tram",
+      "PASS oklch-none". Chiều đỏ: "PASS: [MD-0]" bộ máy gốc trả đạt trên trang của ca lab và oklab (tái lập lỗi); "PASS: [MD-1]"
+      nhát phá bỏ nhánh đọc họ lab trong parseRgb làm "FAIL lab" với chữ "mong REJECT".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; năm dòng "PASS chrome lab(50 40 -30)", "PASS chrome lab(20 -10 25)", "PASS chrome lch(50 60 200)", "PASS chrome
+      oklab(0.5 0.1 -0.1)", "PASS chrome oklch(0.6 0.15 30)". Chiều đỏ: "PASS: [MD-2]" nhát phá đổi hằng kappa của lab làm "FAIL
+      chrome lab(50 40 -30)" với chữ "không có phát hiện khớp".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS alpha-oklab", "PASS alpha-hoa-lab", "PASS alpha-hoa-lch", "PASS alpha-hoa-oklab", "PASS alpha-hoa-oklch", "PASS
+      alpha-hoa-rgba". Chiều đỏ: "PASS: [MD-3]" nhát phá bỏ hoà màu chữ làm "FAIL alpha-hoa-rgba".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS nen-alpha-truot", "PASS nen-alpha-dat", "PASS nen-alpha-lab" (ca mới). Chiều đỏ: "PASS: [MD-4]" nhát phá bỏ hoà nền trong suốt làm "FAIL
+      nen-alpha-truot".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS gradient-lab", "PASS gradient-oklab", "PASS gradient-oklch", "PASS gradient-alpha" (phát hiện ghi "on #808080"),
+      "PASS khong-doc-gradient"; ba ca mới gradient-oklab, gradient-oklch, gradient-alpha. Chiều đỏ: "PASS: [MD-5]" nhát phá bỏ họ lab
+      khỏi regex gradient làm "FAIL gradient-lab"; "PASS: [MD-11]" nhát phá bỏ hoà điểm dừng trong suốt làm "FAIL gradient-alpha".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6a
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS sach-lab", "PASS sach-oklch-nen-toi", "PASS sach-oklab-nen-lab", "PASS nen-oklch-truc-tiep" (ca mới: chữ sáng trên
+      nền oklch(0.15 0 0) viết trực tiếp, đạt ở hai tầng), "PASS alpha-khong", "PASS alpha-khong-oklab" (ca mới: chữ alpha 0 trên
+      trắng đạt ở hai tầng). Chiều đỏ: "PASS: [MD-6]" nhát phá bỏ vế alpha 0 trong hoaMau làm "FAIL alpha-khong" với "mong PASS".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6b
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kdd_hoi_quy
+    paths: [lib/design-bundle.mjs, lib/design-detect.mjs, scripts/design-scan.js, tests/design-eval/run-tests.sh, tests/design-eval/lib/sinh-trang.mjs, vendor/impeccable/**]
+    expected: >
+      exit 0; ca KD8-design-eval đạt (run-tests.sh trọn, gồm T07 và T08), KD8-thieu-jsdom đạt, KD8-vendor đạt (vendor/impeccable
+      bằng hệt bản gốc).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6c
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.kdd_nen_mau
+    paths: [lib/design-bundle.mjs, lib/design-detect.mjs, tests/design-eval/lib/sinh-trang.mjs, tests/design-eval/khong-do-duoc.test.mjs]
+    expected: >
+      exit 0; mọi ca KD9 đạt, trong đó có dòng ca KD9-oklch-toi: nền qua `var()` trên trang hàng này vẫn ra đúng phán quyết nhánh nền
+      tổ tiên. Ngoại lệ đã khai ở AC-6; trang thử cũ của hàng này trên bộ máy gốc là chiều đối chiếu của ca mới nen-oklch-truc-tiep
+      (E6a, MD-0).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, lib/design-detect.mjs, scripts/build-design-scan.mjs, scripts/design-scan.js, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS khong-doc-chu", "PASS khong-doc-nen", "PASS khong-doc-nen-to-tien", "PASS khong-doc-color-srgb" (ca mới; mỗi ca
+      kiểm cả hai tầng, có và không đòi đo đủ). Chiều đỏ: "PASS: [MD-7]" nhát phá tắt phát hiện màu không đọc được làm "FAIL
+      khong-doc-chu" với chữ "PASS"; "PASS: [MD-8]" nhát phá bỏ nhánh không đo được ở wrapper bộ quét làm "FAIL khong-doc-chu" với chữ
+      "quét:".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, scripts/build-design-scan.mjs, tests/design-eval/mau-lab.test.mjs, tests/design-eval/mau-lab-do.test.mjs]
+    expected: >
+      exit 0; "PASS fail-thang" (từ chối ở hai tầng, cổng --require-measured thoát 2, quét requireMeasured exit_intent 2), "PASS
+      nen-dac-che". Chiều đỏ: "PASS: [MD-9]" nhát phá bỏ điểm dừng ở nền đục làm "FAIL nen-dac-che" với "KHONG-DO-DUOC"; "PASS: [MD-12]"
+      nhát phá đảo thứ tự để không đo được thắng từ chối làm "FAIL fail-thang".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.mau_lab_chromium
+    paths: [lib/design-bundle.mjs, scripts/build-design-scan.mjs, scripts/design-scan.js, tests/design-eval/mau-lab-chromium.mjs, tests/design-eval/fixtures/tailwind4-tai-lap.css]
+    expected: >
+      exit 0; "PASS: [CR-1]" màu chữ Chromium tính ra của hai trang bắt đầu bằng lab( hoặc oklab( (đối chứng: trang thật sự đi qua
+      đường đọc mới; khác đi thì ca hỏng, không xanh). "PASS: [CR-2]" hai trang từ chối ở bộ quét đang kiểm, có và không requireMeasured,
+      phát hiện ghi mã hex màu đã hoà. "PASS: [CR-3]" bộ máy gốc c8fa5a65 trên cùng hai trang trả PASS (tái lập lỗi). "PASS: [CR-4]" năm
+      màu của bảng đo lại bằng canvas khớp bảng, sai số không quá 1 đơn vị kênh. "PASS: [CR-5]" chữ color-mix(in srgb, …) ra KHONG-DO-DUOC,
+      do_duoc false. Không có Chromium hay Playwright thì thoát 2 nêu đường đã thử (mù, không xanh). CSS trang thử do Tailwind 4 sinh, lưu
+      thành fixture kèm phiên bản và lệnh sinh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9a
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.mau_lab_hai_chieu
+    paths: [lib/design-bundle.mjs, tests/design-eval/mau-lab.test.mjs]
+    expected: >
+      exit 0; "PASS moc-va-mat" (bản gốc thiếu mốc ném lỗi chứa "anchor must occur once"). Dòng cuối chiều xanh "mau-lab: 40/40 ca
+      đạt" (32 ca hiện có + 8 ca mới đã kê ở E4..E7).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.design_scan_khop_nguon
+    paths: [scripts/build-design-scan.mjs, scripts/design-scan.js, lib/design-bundle.mjs]
+    expected: >
+      exit 0 khi scripts/design-scan.js khớp bản dựng từ nguồn; lệnh --check của build-design-scan thoát khác 0 khi một byte của tệp
+      đã dựng bị đổi (chiều đỏ đã có trong ca kiểm drift của kit, "PASS: [MD-10]" ghim lại trên bản sao cây).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.df_s4_chu_thich
+    paths: [scripts/design-floor-s4.mjs, tests/design-floor/moc-s3-s4.mjs]
+    expected: >
+      exit 0; ca S4-HEX và S4-CHU-THICH xanh: `// issue #123` không bị báo, hex thô thật trong cùng tệp bị báo đúng dòng và thoát 2,
+      tệp chỉ có chú thích thoát 0 không in gì; hàng mới: `const u = "a//b"; const c = "#ff0000";` chặn đúng dòng, `"// #abc"` trong
+      chuỗi chặn, `/* #abc */` và `{/* #abc */}` không báo, hex sau khối chú thích nhiều dòng báo đúng số dòng. Chiều đỏ hai hướng: đột
+      biến S4-CHU-THICH-DOT (quét không bỏ chú thích) đỏ với dòng thừa "hex thô" ghim tên S4-CHU-THICH; đột biến S4-CHU-THICH-CAT (cắt
+      từ `//` bất kể chuỗi) đỏ với "thiếu dòng" ghim tên S4-CHU-THICH.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
