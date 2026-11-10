@@ -1,0 +1,145 @@
+schema_version: 1
+feature_slug: the-hien-loi-trong-hop-dong
+# Ca đo sống ở tests/scripts/the-loi-trong-hop-dong.test.mjs (TL-0-do, TL-1..TL-10), chạy bằng khoá
+# `executors.test.the_loi_trong_hop_dong`. Hồ sơ thử do code sinh trong lượt, không đọc hồ sơ thật làm fixture.
+# Chiều đỏ giữ vĩnh viễn: ca TL-0-do dựng thẻ và trang bằng MÃ TRƯỚC BẢN VÁ (git archive từ c8fa5a65) trên cùng fixture
+# và đòi đủ hai triệu chứng của lỗ: còn lời mời ký nhanh, không in lỗi. Mỗi eval ghim dòng "PASS: TL-…" của mình.
+# Tệp ca thoát ≠ 0 khi có ca đỏ; bộ chọn TL_CASES khớp 0 ca thì thoát 1.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-0-do" (chiều đỏ: mã trước bản vá còn lời mời ký nhanh và không in lỗi trên cùng fixture) và
+      "PASS: TL-1" (mã sau bản vá: hết lời mời, có «cần bạn quyết», có câu tiếng sản phẩm, có AC-10, không có «không lỗi»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-2": hai câu tiếng sản phẩm đều có mặt, «còn 2 lỗi trong hợp đồng» và «Lỗi trong hợp đồng còn mở (2)».
+      Chiều đỏ: thông điệp "mục 2: thiếu" khi bộ đọc chỉ lấy mục đầu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-3": khối data-loi-trong-hop-dong đứng trước id="vi-sao" VÀ không có thẻ details nào đang mở bao quanh
+      nó (đếm <details> trừ </details> trước vị trí khối bằng 0). Chiều đỏ: thông điệp "khối phải đứng trước mục gập đầu tiên"
+      và "khối nằm trong mục gập" trên bản sao bọc khối bằng details; TL-0-do chứng trang cũ không in lỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-1" (thẻ không chứa tiêu đề và chi tiết kỹ thuật) và "PASS: TL-3" (tiêu đề VÀ chi tiết trên trang
+      đều nằm giữa <details> và </details> của khối). Chiều đỏ: thông điệp "tiêu đề kỹ thuật lộ trước phần gập" và "văn kỹ thuật
+      lộ sau phần gập".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-4": lỗi không có câu thì in lời tiêu chí và «chưa có mô tả cho người đọc», không in tiêu đề kỹ thuật,
+      không có lời mời ký nhanh; và "PASS: TL-15" với lỗi mang mã tiêu chí không có trong hợp đồng: in mã kèm ghi chú không tra được,
+      không in tiêu đề kỹ thuật, không có hàng rỗng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-5" trên hai dạng sai khuôn: thẻ và trang có «máy không đọc ra», thẻ không có lời mời ký nhanh; và
+      "PASS: TL-15" với câu "Không có kiểm thử cho AC-3" phải bị cờ, không được đọc là không có lỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-6" trên năm dạng không-có-lỗi: thẻ giữ lời mời ký nhanh, không có khối lỗi trên thẻ và trang.
+      Đây là đối chứng dương của E1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-7": còn nguyên «ký hay trả: ___», có «giao kèm», dữ liệu trích có đúng một lỗi với câu tiếng sản phẩm,
+      câu hỏi định tuyến vẫn là «ký hay trả»; và "PASS: TL-13": danh sách CONG của LB5 so với c8fa5a65 có đúng một cờ thêm, đúng
+      câu «Máy chưa sửa các lỗi này», và cờ đó không sinh ô trả lời mới trên hồ sơ có lỗi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/gate-card.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-8": hồ sơ REJECT có lỗi mức nặng, thẻ có câu tiếng sản phẩm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [feature-loop/workflows/acceptance-verify.js, scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-9" (khuôn IC-ITEM-TEMPLATE của workflow đọc lại đủ sáu trường qua bộ đọc thật) và "PASS: TL-10"
+      (lượt chấm qua harness: verdict PASS, rejectFindings mang câu tiếng sản phẩm), "PASS: TL-11" (một câu đánh dấu đi từ đầu ra
+      phân loại, xuất hiện trong lời nhắc tổng hợp, dựng thành mục bằng khuôn thật, bộ đọc trả đúng câu đó) và "PASS: TL-12" (phân
+      loại trả câu rỗng thì lượt chấm vẫn xong và thẻ đi đường của AC-5). Chiều đỏ: thông điệp "trường … lệch".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: judgment
+    inputs: [feature-loop/workflows/acceptance-verify.js]
+    question: >
+      Đọc lời nhắc của bước phân loại phạm vi trong tệp này. Với lỗi trong hợp đồng, lời nhắc có buộc viết câu nói người dùng
+      thấy gì, không dùng thuật ngữ kỹ thuật, tên tệp hay tên hàm không? Trả PASS khi điều đó được yêu cầu bằng lời rõ; FAIL nêu
+      điều thiếu.
+    expected: PASS
+    evidence_required: [run_id, verdict, judges, rationale]
+  - id: E12
+    criterion: AC-3
+    executor: ui-check
+    layer: ui-observed
+    paths: [scripts/gate-card.js, scripts/evidence-page.js, scripts/loi-trong-hop-dong.cjs]
+    steps:
+      - "Máy: `node tests/scripts/the-loi-trong-hop-dong.test.mjs --dung-mau <T>` dựng trong thư mục tạm T một hồ sơ thử PASS còn hai lỗi trong hợp đồng, kèm card.html và evidence-page.html"
+      - "Mở file://<T>/_acceptance/demo/evidence-page.html ở khổ 1280×800, chưa bấm gì → screenshot evidence/E12-1-trang.png"
+      - "Đọc trên màn: câu tiếng sản phẩm của cả hai lỗi và mã tiêu chí có hiển thị; tiêu đề và chi tiết kỹ thuật không hiển thị; kiểm bằng JS rằng khối data-loi-trong-hop-dong không có tổ tiên details → ghi vào observed"
+      - "Mở phần gập của khối → screenshot evidence/E12-2-gap.png; xác nhận tiêu đề kỹ thuật chỉ hiện sau khi mở"
+      - "Mở file://<T>/_acceptance/demo/card.html ở khổ 1280×800 → screenshot evidence/E12-3-the.png; đọc nhãn đầu thẻ và khối «Lỗi trong hợp đồng còn mở (2)»"
+    expected: "Chưa bấm gì đã thấy đủ hai lỗi bằng tiếng sản phẩm trên trang; khối không nằm trong mục gập; văn kỹ thuật chỉ hiện sau khi mở; thẻ có nhãn cần bạn quyết và không có lời mời ký nhanh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
+  - id: E13
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [tests/plugins/lenh-bam-duoc.test.mjs, scripts/gate-card.js]
+    expected: >
+      exit 0; có "Results: all plugin tests passed" (gồm LB5). Không có dòng FAIL mang [LB5]. Chiều đỏ đã thấy thật trước khi khai cờ:
+      "[LB5] ... CỘNG cờ lén: Máy chưa sửa các lỗi này".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.the_loi_trong_hop_dong
+    paths: [scripts/loi-trong-hop-dong.cjs, tests/scripts/the-loi-trong-hop-dong.test.mjs]
+    expected: >
+      exit 0; có "PASS: TL-14": quét mọi review-findings.md thật của kho, giữ bất biến chứ không giữ số cứng: mục có chữ khác dạng
+      trống thì hoặc đọc ra lỗi hoặc bị cờ, và mọi lỗi đọc ra có câu hoặc lời tiêu chí không rỗng. Chiều đỏ trên bản sao bộ đọc bỏ cờ:
+      thông điệp "mục có chữ mà không lỗi không cờ" kèm tên hồ sơ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

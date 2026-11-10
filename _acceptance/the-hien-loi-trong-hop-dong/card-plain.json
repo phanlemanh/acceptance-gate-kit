@@ -1,0 +1,111 @@
+{
+  "feature_plain": "Khi còn lỗi trong phạm vi đã duyệt, người ký thấy đủ các lỗi đó ngay trên thẻ và trang bằng chứng, và thẻ không còn mời ký nhanh.",
+  "will_do": [
+    {
+      "id": "AC-2",
+      "p": "Sẽ hiện đủ mọi lỗi còn mở và đếm đúng số lỗi."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ đặt khối lỗi trên trang bằng chứng ở chỗ thấy ngay, không phải bấm mở."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ in lời tiêu chí đã duyệt kèm ghi chú với hồ sơ cũ chưa có câu cho người đọc."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ để trống ô ký hay trả, chỉ nói rõ ký nghĩa là chấp nhận giao kèm lỗi."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ nêu lỗi bằng câu người dùng hiểu cả khi lượt chấm tự trả lại."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ buộc máy chấm viết câu cho người đọc với mỗi lỗi trong phạm vi, và giữ nguyên cách ra phán quyết."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-1",
+      "p": "Chặn lời mời ký nhanh khi còn lỗi; thẻ nêu lỗi bằng một câu người dùng hiểu, kèm tiêu chí bị chạm."
+    },
+    {
+      "id": "AC-6",
+      "p": "Chặn lời mời ký nhanh khi lỗi viết sai khuôn; thẻ và trang báo to «máy không đọc ra»."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ KHÔNG báo động giả: thật sự không còn lỗi thì lời mời ký nhanh giữ nguyên."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ KHÔNG đưa văn kỹ thuật lên thẻ; trên trang nó chỉ nằm trong phần gập."
+    },
+    {
+      "id": "OOS-1",
+      "p": "Không đổi cách ra phán quyết: lỗi mức vừa vẫn ra đạt, trừ khi chủ kho quyết khác ở câu hỏi 1."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Không sửa đường máy tự cho đi tiếp không cần chữ ký. Việc đó ở một nhánh riêng; trước khi nhánh ấy gộp, một hồ sơ còn lỗi vẫn có thể đi tiếp mà không ai đọc."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Không viết lại các hồ sơ cũ; chúng hiện lời tiêu chí cho tới khi được chấm lại."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Không sửa 13 hồ sơ viết tay sai khuôn; chúng nhận cảnh báo «máy không đọc ra»."
+    }
+  ],
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Đã xét cả bốn kết quả chấm: đạt, chờ người xét, tự trả lại, bị chặn."
+    },
+    {
+      "i": 1,
+      "p": "Đã xét năm dạng lỗi, đối chiếu với 206 hồ sơ thật của kit (30 hồ sơ có lỗi đọc được, 13 hồ sơ viết tay sai khuôn)."
+    },
+    {
+      "i": 2,
+      "p": "Đã xét ba chỗ người hoặc máy đọc: thẻ, trang bằng chứng, dữ liệu trích của thẻ."
+    },
+    {
+      "i": 3,
+      "p": "Làm ngay: mọi dạng lỗi khi kết quả là đạt (AC-1 đến AC-7), dữ liệu trích (AC-8), tự trả lại (AC-9), và phần máy chấm viết câu (AC-10)."
+    },
+    {
+      "i": 4,
+      "p": "Để sau: chưa có phép đo riêng cho kết quả chờ người xét và bị chặn."
+    },
+    {
+      "i": 5,
+      "p": "Giả định cần bạn gạch: chưa so với sản phẩm cùng loại, vì đây là cổng nội bộ và thước đo là hồ sơ thật."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Việc tách đường máy tự đi tiếp đã được ghi như máy tự quyết, trong khi nó chạm đường giao cho người dùng. Đã xử: thành câu hỏi 3 cho chủ kho và in rõ giá của việc tách."
+    },
+    {
+      "i": 1,
+      "p": "Khối lỗi trên trang chưa có ai nhìn thật, phép đo chỉ dò vị trí chữ. Đã xử: thêm phép đo bằng mắt có ảnh chụp và siết hai phép đo cấu trúc."
+    },
+    {
+      "i": 2,
+      "p": "Lời hứa máy chấm viết câu cho người đọc chỉ được đo ở lời chỉ dẫn. Đã xử: thêm phép đo đường đi trọn của câu và ca câu rỗng. Không làm phần chặn cả lượt chấm khi thiếu câu, vì thiếu một câu đã có đường hiện lời tiêu chí."
+    },
+    {
+      "i": 3,
+      "p": "Lời «không thêm câu hỏi mới» chưa có phép đo. Đã xử: thêm phép đo chạy bộ kiểm cờ và so danh sách cờ với bản trước."
+    },
+    {
+      "i": 4,
+      "p": "Hồ sơ thử viết đúng khuôn, nên sót dạng lạ của hồ sơ thật. Đã xử: thêm phép quét hồ sơ thật và hai ca biên."
+    }
+  ]
+}

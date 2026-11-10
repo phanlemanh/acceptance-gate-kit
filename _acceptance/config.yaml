@@ -139,6 +139,8 @@ executors:
     can_cu_s1_ca: node tests/scripts/can-cu-s1.ca.mjs
     # Hồ sơ thiet-ke-nap-tri-thuc (TT4, đợt tri-thuc-2410): ca TN-1…TN-8 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
     thiet_ke_nap_tri_thuc: node tests/scripts/thiet-ke-nap-tri-thuc.test.mjs
+    # Hồ sơ the-hien-loi-trong-hop-dong: ca TL-0-do, TL-1…TL-10 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
+    the_loi_trong_hop_dong: node tests/scripts/the-loi-trong-hop-dong.test.mjs
     # Hồ sơ thiet-ke-nap-tri-thuc (AC-9): bốn tệp ca hồi quy, dừng ở tệp đỏ đầu tiên.
     thiet_ke_nap_hoi_quy: "bash -c 'set -e; node tests/scripts/luat-san-pham.ca.mjs; node tests/scripts/co-hop-dong.test.mjs; node tests/scripts/kho-tri-thuc-va-lint.test.mjs; node tests/scripts/o-mo-viec-mang-nguon.test.mjs'"
     # Hồ sơ vong-don-le-tra-tri-thuc (TT5, đợt tri-thuc-2410): ca TD-1…TD-9 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
