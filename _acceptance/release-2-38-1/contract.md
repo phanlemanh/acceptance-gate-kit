@@ -5,7 +5,7 @@ slug: release-2-38-1
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -73,3 +73,5 @@ Source input: `git log v2.38.0..HEAD --first-parent` · nếp phát hành `_acce
   `.claude-plugin/marketplace.json` không mang số kit nào nên không đổi.
 - Điều kiện tin cậy (i) của dòng 4–5 GIỮ ở cửa sổ này: `git diff --stat v2.38.0 HEAD -- feature-loop/workflows/
   feature-loop/agents/` rỗng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-10:
+  - Ngoài-1: Kiểm tra chỉ xác nhận bốn gói có đổi tệp thông tin, không xác nhận chúng chỉ đổi số phiên bản; gói feature-loop còn đổi cả phần mô tả nên ghi chú phát hành nói hẹp hơn thực tế.
