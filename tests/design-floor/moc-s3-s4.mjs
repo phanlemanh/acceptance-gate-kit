@@ -344,7 +344,7 @@ const CA = {
       'web/p.html': ['<!-- #fff issue #321 -->'],
     };
     const coMa = {
-      'web/a.tsx': [...chiChuThich['web/a.tsx'], 'const c = "#123"; // issue #456', 'const u = "https://x.test/a"; const d = "#abcdef";'],
+      'web/a.tsx': [...chiChuThich['web/a.tsx'], 'const c = "#123"; // issue #456', 'const u = "https://x.test/a"; const d = "#abcdef";', 'const v = "a//b"; const e = "#ff0000";', 'const w = "// #abc";', "const x = 'it\\'s // ok'; const f = \"#00ff00\";", '/*', ' * #123456', ' */', 'const g = "#0000ff";'],
       'web/b.css': [...chiChuThich['web/b.css'], '.a { color: #111; /* #222 */ color: #333; }', '.b { background: url(//cdn.test/a.png) #444; }'],
       'web/p.html': [...chiChuThich['web/p.html'], '<p style="color:#555">x</p>'],
     };
@@ -352,7 +352,7 @@ const CA = {
     const doiChung = s4(kit, dung(chiChuThich));
     if (doiChung.ec !== 0 || doiChung.out !== '') return `S4-CHU-THICH: dòng thừa — chỉ có chú thích mà thoát ${doiChung.ec}, in «${doiChung.out.trim()}»`;
     const r = s4(kit, dung(coMa));
-    const mong = ['web/a.tsx:7 #123', 'web/a.tsx:8 #abcdef', 'web/b.css:2 #111', 'web/b.css:2 #333', 'web/b.css:3 #444', 'web/p.html:2 #555'].map((d) => `design-floor S4: hex thô ${d}`);
+    const mong = ['web/a.tsx:7 #123', 'web/a.tsx:8 #abcdef', 'web/a.tsx:9 #ff0000', 'web/a.tsx:10 #abc', 'web/a.tsx:11 #00ff00', 'web/a.tsx:15 #0000ff', 'web/b.css:2 #111', 'web/b.css:2 #333', 'web/b.css:3 #444', 'web/p.html:2 #555'].map((d) => `design-floor S4: hex thô ${d}`);
     const co = r.out.split('\n').filter(Boolean);
     const thua = co.filter((d) => !mong.includes(d));
     const thieu = mong.filter((d) => !co.includes(d));
@@ -469,7 +469,7 @@ const NHAN = {
     ],
   },
   'S4-HEX': { xanh: ['S4-HEX'], dot: [['S4-HEX-DOT', () => kitDotBien('design-floor-s4.mjs', ['if (tokens && path.normalize(f) === tokens) continue;', '']), 'S4-HEX', 'S4-HEX: dòng thừa ở tệp token']] },
-  'S4-CHU-THICH': { xanh: ['S4-CHU-THICH'], dot: [['S4-CHU-THICH-DOT', () => kitDotBien('design-floor-s4.mjs', ["boChuThich(readFileSync(path.join(root, f), 'utf8'), f)", "readFileSync(path.join(root, f), 'utf8')"]), 'S4-CHU-THICH', 'S4-CHU-THICH: dòng thừa']] },
+  'S4-CHU-THICH': { xanh: ['S4-CHU-THICH'], dot: [['S4-CHU-THICH-DOT', () => kitDotBien('design-floor-s4.mjs', ["boChuThich(readFileSync(path.join(root, f), 'utf8'), f)", "readFileSync(path.join(root, f), 'utf8')"]), 'S4-CHU-THICH', 'S4-CHU-THICH: dòng thừa'], ['S4-CHU-THICH-CAT', () => kitDotBien('design-floor-s4.mjs', ["else if (coChuoi && (c === '\"' || c === \"'\" || c === '`')) {", 'else if (false) {']), 'S4-CHU-THICH', 'S4-CHU-THICH: thiếu dòng']] },
   'S4-TC': { xanh: ['S4-TC', 'S4-TC-THAT', 'S4-TC-M1'], dot: [['S4-TC-DOT', () => kitDotBien('design-floor-s4.mjs', ['else if (ma === 3 || ma === 4 || ma === 5)', 'else if (ma === 3 || ma === 4 || ma === 5 || ma === 1)']), 'S4-TC', 'S4-TC: mã 1 → thoát 0']] },
   'S4-BAC': { xanh: ['S4-BAC'], dot: [['S4-BAC-DOT', () => kitDotBien('design-floor-s4.mjs', ["else if (ma === 2 && bac.bac === 'M3') {", 'else if (ma === 2) {']), 'S4-BAC', 'S4-BAC M2 tc-truot: thoát 2, mong 0']] },
   'S4-CHI-DOC': { xanh: ['S4-CHI-DOC'], dot: [['S4-CHI-DOC-DOT', () => kitDotBien('design-floor-s4.mjs', S4_GHI), 'S4-CHI-DOC', 'S4-CHI-DOC: đổi web/p.html']] },
