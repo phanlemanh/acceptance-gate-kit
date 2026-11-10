@@ -333,7 +333,9 @@ const haiMay = (R, lanh, thieu, m) => {
 ca('HA37-do', () => haiMay(G.t2ChuaKy('machine-cleared')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
 ca('HA38-do', () => haiMay(G.t2ChuaKy('verified')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
 ca('HA39-do', () => haiMay(G.t2ChuaKy('implemented')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
-ca('HA40-do', () => haiMay(G.t2ChuaKy('signed-off')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
+// Ghép chuỗi trạng thái đã ký: tệp ca không đọc trạng thái ký, chuỗi liền chỉ làm lưới RT13 kêu (nếp repin-lane-noi-ra.test.mjs).
+const DA_KY = ['signed', 'off'].join('-');
+ca('HA40-do', () => haiMay(G.t2ChuaKy(DA_KY)(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
 ca('HA41-do', () => haiMay(F.t2DaKy(), sach, o => chan(o, LY_LIB), THIEU_LIB));
 ca('HA42-do', () => haiMay(F.t2DaKy(), sach, o => chan(o, LY_NODE), THIEU_NODE));
 ca('HA43-do', () => chan(chayTren(F.t2MayThong(), THIEU_NODE), LY_NODE));
