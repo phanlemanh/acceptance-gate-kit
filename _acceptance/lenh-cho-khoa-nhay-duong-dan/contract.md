@@ -5,7 +5,7 @@ slug: lenh-cho-khoa-nhay-duong-dan
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -64,3 +64,7 @@ Bỏ quét không gian — phạm vi do đề giao chốt (một hàm, một l�
 ## Notes
 
 - Không chạm mặt người nhìn (`surfaces: [cli]`).
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-10:
+  - Ngoài-1: Nếu bộ phát lịch thêm một tệp phụ, sáu ca thử sẽ đỏ dù lệnh chờ vẫn chạy đúng.
+  - Ngoài-2: Hai ca thử lỗi cú pháp có thể báo xanh dù lệnh chưa từng chạy khi môi trường hỏng.
+  - Ngoài-6: Bài thử chưa chứng minh được rằng nó sẽ bắt một nhập khẩu lạ thêm vào tệp nháy.

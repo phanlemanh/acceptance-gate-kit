@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>144 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>145 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Lệnh chờ khoá của thợ thoát được khi thư mục đợt có dấu cách hay ký tự lạ — bọc nháy đường khoá, một bộ nháy dùng chung (`lenh-cho-khoa-nhay-duong-dan`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -173,6 +172,7 @@ flowchart TD
 - Làn ghim lại giữ trọn lời lỗi, để lại dấu lượt đỏ kèm tải máy, và ghi thời lượng làn (`lan-ghim-lai-giu-tron-loi-loi`) — đã giao — đã nghỉ, giữ sử liệu
 - Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`) — đã giao — đã nghỉ, giữ sử liệu
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Lệnh chờ khoá của thợ thoát được khi thư mục đợt có dấu cách hay ký tự lạ — bọc nháy đường khoá, một bộ nháy dùng chung (`lenh-cho-khoa-nhay-duong-dan`)
 - Lượt chấm S4 không còn bị hạ tầng đốt bởi lệnh dài hơn trần công cụ (eval khai long_running — kit chạy nền, ghi nhật ký đường cố định, chờ bằng lệnh máy sinh) và bởi eval nặng chạy chồng suite (eval trong feature_loop.model_evals chạy riêng, sau mọi lệnh máy khác) (`lenh-dai-chay-rieng`)
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
