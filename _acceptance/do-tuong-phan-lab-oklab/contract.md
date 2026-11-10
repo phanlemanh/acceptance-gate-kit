@@ -5,7 +5,7 @@ slug: do-tuong-phan-lab-oklab
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: _acceptance/do-tuong-phan-lab-oklab/design.md
 approved_by: Manh Phan
 approved_at: 2026-11-09T23:20:09Z
@@ -93,3 +93,12 @@ Quét bằng morphological-scan, preset test-matrix.
 - Hợp đồng viết sau code: bước làm cho một tác tử sạch viết tiêu chí chỉ từ đề bài rồi đối chiếu với AC-1..AC-10 (Hỏi-3), lưu
   ở `_acceptance/do-tuong-phan-lab-oklab/doi-chieu-de-bai.md`.
 - CHANGELOG ghi lúc cắt mốc, không ở vòng này.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-10:
+  - Ngoài-1: Bảng kiểm nghiệm ghi sai số ca đạt nên có thể báo đỏ dù sản phẩm vẫn đúng, gây nhầm lẫn cho người đọc kết quả. Người dùng cuối không bị ảnh hưởng.
+  - Ngoài-2: Trang có nền gradient tối kèm lớp phủ gradient trong suốt, chữ trắng đọc rõ, vẫn có thể bị từ chối nhầm là thiếu tương phản. Người làm trang phải tự xem lại và bỏ qua cảnh báo.
+  - Ngoài-3: Thẻ kính mờ đặt trên nền ảnh hoặc nền gradient có thể bị báo thiếu tương phản dù chữ vẫn đọc tốt. Trang bị chặn nhầm cho đến khi người làm trang xử lý tay.
+  - Ngoài-4: Bộ kiểm thử có thể coi một nhát phá là đã bị bắt trong khi thực ra ca khác đỏ thay, nên độ tin cậy của phép thử hơi thấp hơn vẻ ngoài. Người dùng sản phẩm không thấy gì.
+  - Ngoài-5: Việc bỏ qua chú thích trong tệp .astro chưa được kiểm thử, nên nếu nhánh này sai thì chú thích có thể bị báo nhầm hoặc hex thật bị bỏ sót mà không ai biết. Hiện chưa rõ kho đích có dùng loại tệp này không.
+  - Ngoài-7: Một câu trong tài liệu hứa rằng kết quả đạt nghĩa là mọi màu đã được đo, trong khi vài kiểu màu vẫn bị bỏ qua, nên người đọc có thể tin quá mức.
+  - Ngoài-8: Chữ trên một nền nửa trong suốt đặt lên nền chuyển màu có thể bị báo đạt dù thực tế khó đọc.
+  - Ngoài-9: Một số tổ hợp cách viết màu và độ trong suốt chưa có phép thử riêng nên chưa được kiểm chứng riêng lẻ.
