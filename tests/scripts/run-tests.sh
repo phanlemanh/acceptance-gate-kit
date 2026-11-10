@@ -2993,7 +2993,9 @@ GPM_B2="$(git -C "$R" rev-parse HEAD)"
 # PR phải mang MỘT thay đổi dưới _acceptance/ để thoả răng T1-escape (nếu không
 # nó nổ VIOLATION riêng và case này đỏ sai lý do). Slug mới để T1 nên chính nó
 # được vòng lọc tier bỏ qua — thứ duy nhất còn có thể nói là luật gap-probe.
-printf 'v2\n' >> "$R/src/app.js"; gp_feature "$R" feat-new T1 implemented; gp_commit "$R"
+# Tệp đổi nằm NGOÀI t3_paths (fixture này khai src/**): từ t3-can-ho-so-arm, hồ sơ
+# T1 không còn thoả răng cho code t3_paths; code thường vẫn thoả như trước (ARM12).
+printf 'v2\n' >> "$R/app.js"; gp_feature "$R" feat-new T1 implemented; gp_commit "$R"
 GPM13="$(bash "$CHECK" "$R" --base "$GPM_B2" 2>&1)"; check GPM13 0 $?
 nothas GPM13a "phản biện" "$GPM13"
 # Bản cũ assert exit 0 ở đây — tức GHIM chính vế fail-open mà gap-probe v3 (P0-2)
