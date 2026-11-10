@@ -1108,6 +1108,15 @@ executors:
     t3ha_e7: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA15-im HA16-im
     t3ha_e8: node _acceptance/t3-can-ho-so-arm/rang/vi-phan-kho.mjs
     t3ha_e9: bash _acceptance/t3-can-ho-so-arm/rang/chieu-do.sh
+    lvhd_lv5: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/chay-ca.sh LV5
+    lvhd_lv7: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/chay-ca.sh LV7
+    lvhd_lv8: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/chay-ca.sh LV8
+    lvhd_lv9: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/chay-ca.sh LV9
+    lvhd_lk: node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs
+    lvhd_tai_lieu: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/tai-lieu.sh
+    lvhd_chieu_do: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/chieu-do.sh
+    lvhd_kho_that: bash _acceptance/lan-v-giu-loi-trong-hop-dong/rang/kho-that.sh
+    lvhd_doc_that: node _acceptance/lan-v-giu-loi-trong-hop-dong/rang/doc-that.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

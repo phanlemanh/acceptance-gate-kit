@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Hồ sơ còn lỗi đã biết không còn được máy tự thông qua mà không ai đọc.",
+  "will_do": [
+    {"id": "AC-2", "p": "Sẽ đếm đúng số lỗi và gọi tên từng lỗi trong lời báo, kể cả trên hồ sơ thật đã có của kit."},
+    {"id": "AC-3", "p": "Sẽ để hồ sơ đi tiếp khi mục lỗi trống hoặc chỉ ghi là không có lỗi."},
+    {"id": "AC-4", "p": "Sẽ giữ hồ sơ lại để người soi khi mục lỗi có chữ mà máy không đọc được."},
+    {"id": "AC-7", "p": "Sẽ bảo đảm lưới trước khi gộp và máy quét luôn cùng kết luận, trên 39 tình huống viết sẵn."},
+    {"id": "AC-9", "p": "Sẽ chứng minh từng phép đo đỏ thật khi gỡ đúng phần nó canh."}
+  ],
+  "wont_do": [
+    {"id": "AC-1", "p": "Chặn hồ sơ chưa ký còn lỗi ở bất kỳ mức nào, và lời báo gọi tên lỗi."},
+    {"id": "AC-5", "p": "Sẽ KHÔNG chặn hồ sơ đã có người ký, vì người ký đã đọc lỗi."},
+    {"id": "AC-6", "p": "Chặn hồ sơ máy đã thông qua từ trước chỉ khi hồ sơ đó có đổi trong lần gộp này."},
+    {"id": "AC-8", "p": "Chặn hồ sơ khi máy không đọc được mục lỗi, thay vì coi như không có lỗi."},
+    {"id": "AC-10", "p": "Sẽ KHÔNG làm đỏ thêm bất kỳ lần gộp nào ở các kho đang dùng kit; đo lại trên kho thật trước khi ký."},
+    {"id": "OOS-1", "p": "Không sửa các lỗi còn mở trong hồ sơ cũ của kho khác."},
+    {"id": "OOS-2", "p": "Không đổi phần hiển thị lỗi trên thẻ; phần đó thuộc một nhánh riêng."},
+    {"id": "OOS-3", "p": "Không xếp hạng theo mức lỗi."},
+    {"id": "OOS-4", "p": "Không sửa hai phép kiểm phụ thuộc tên thư mục và trạng thái cây."},
+    {"id": "OOS-5", "p": "Không cắt bản phát hành và không nâng các kho đang dùng kit; làm ở lượt phát hành."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Đã xét bốn loại hồ sơ: đã chấm chưa ký, máy đã thông qua, đã ký, người duyệt phạm vi nhưng chưa ký."},
+    {"i": 1, "p": "Đã xét mọi dạng của mục lỗi: không tệp, không mục, ghi không có lỗi, một lỗi ở ba mức, nhiều lỗi, viết sai khuôn."},
+    {"i": 2, "p": "Đã xét cả hai nơi áp luật: lưới trước khi gộp và máy quét."},
+    {"i": 3, "p": "Đã xét lần gộp có đổi hồ sơ và lần gộp không đổi hồ sơ."},
+    {"i": 4, "p": "Đã xét lúc máy đọc được và lúc máy đọc hỏng."},
+    {"i": 5, "p": "Các ô chính đều có tiêu chí: lỗi theo dạng (AC-1 đến AC-4), đã ký (AC-5), người duyệt chưa ký (AC-7), máy đã thông qua (AC-6), hai nơi áp (AC-7), đọc hỏng (AC-8), kho thật (AC-10)."},
+    {"i": 6, "p": "Để sau: xếp hạng theo mức lỗi, và xét lại hồ sơ cũ khi chúng không đổi."},
+    {"i": 7, "p": "Không chạy bước quét tự động: các trục đọc thẳng được từ luật, phản biện độc lập đã soi thêm."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Giữ hồ sơ đã chấm chưa ký ở mọi lần gộp vốn là lựa chọn của người mà máy đã tự ghi, và chưa ai đo số hồ sơ chịu ảnh hưởng. Đã thành Hỏi-3; đo trên bốn kho được 0 hồ sơ chịu ảnh hưởng."},
+    {"i": 1, "p": "Việc giữ hồ sơ viết sai khuôn ghi là chỉ có một lối, trong khi còn lối chỉ giữ khi hồ sơ có đổi. Phạm vi xét đã gộp vào Hỏi-3; dòng ghi cũ được thay."},
+    {"i": 2, "p": "Phép đo trên kho thật có thể xanh khi vắng đúng hai kho chứa ba hồ sơ rủi ro. Đã buộc đủ ba kho, ghim tên ba hồ sơ, kèm phép đối chứng."},
+    {"i": 3, "p": "Các tình huống thử đều do máy tự dựng đúng khuôn bộ đọc, nên không bắt được cách viết thật lệch đi. Đã thêm phép đọc trên hồ sơ thật, so với bản kê chốt trước."},
+    {"i": 4, "p": "Bộ tình huống chưa được kê ra, thiếu vài dạng và thiếu ca máy đọc hỏng. Đã kê 39 tình huống với kết luận từng dòng và thêm các ca thiếu."}
+  ]
+}

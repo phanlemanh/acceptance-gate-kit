@@ -1,0 +1,129 @@
+schema_version: 1
+feature_slug: lan-v-giu-loi-trong-hop-dong
+# E1–E7 chạy ca LV<k> của tests/plugins/lan-v.test.mjs qua rang/chay-ca.sh, ghim dòng PASS theo tên. Fixture do code sinh
+# trong lượt và kỳ vọng tuyệt đối nằm trong KY_VONG_CHAN (LV5 là phép so bằng nhau, hai bên cùng sai vẫn xanh nếu thiếu nó).
+# Ma trận LV5, SO_MAT_CAT = 39: 26 tình huống có sẵn + 13 tình huống về mục lỗi trong hợp đồng, kết luận tuyệt đối ở cả hai bản dựng:
+#   chặn: V-trong-hd, V-trong-hd-thap, V-trong-hd-cao, nguoi-trong-hd, V-trong-hd-ngo, V-trong-hd-ngo-gach, V-trong-hd-ngo-dam
+#   cho qua: ky-trong-hd, V-trong-hd-rong, V-trong-hd-rong-ngoac, V-trong-hd-khong-tep, V-trong-hd-tep-rong, V-trong-hd-khong-muc
+# Chiều đỏ của mọi ca nằm ở E9: phá thử trên bản sao trọn thư mục, sau khi bản chưa phá đã xanh trên CÙNG fixture.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lvhd_lv5
+    expected: >
+      Exit 0, PASS của LV5. `V-trong-hd`, `V-trong-hd-thap`, `V-trong-hd-cao` bị chặn ở cả hai bản dựng, lý do nêu `Trong-1`.
+      Chiều đỏ: E9 ca `ca-hai`, thông điệp `V-trong-hd: mong luoi chan, thay cho qua`; ca `loc-muc` làm `V-trong-hd-thap` đỏ.
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E1b
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lvhd_tai_lieu
+    expected: >
+      Exit 0. Ba tài liệu GUIDE.md, QUICKSTART.md, feature-loop/skills/feature-loop/SKILL.md đều có cụm «còn lỗi trong hợp
+      đồng» ở đoạn liệt điều kiện. Chiều đỏ: bản sao bỏ cụm ở một tệp thì thoát 1 và nêu tên tệp đó.
+    paths: [GUIDE.md, QUICKSTART.md, feature-loop/skills/feature-loop/SKILL.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lvhd_lv8
+    expected: >
+      Exit 0, PASS của LV8: đủ các hình dạng khai trong CA (số lỗi, cờ sai khuôn), gồm `nhan luot`, `CRLF`, `muc ngoai khong
+      tinh`; hồ sơ hai lỗi có lý do nêu `Trong-1, Trong-2`. Chiều đỏ: E9 ca `bo-doc`, thông điệp `mong 2/false`.
+    paths: [lib/out-of-contract.cjs, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2b
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lvhd_doc_that
+    expected: >
+      Exit 0, in `doc-that: <n> ho so khop`. Với mọi review-findings.md do lượt chấm thật ghi trong kit, kết quả khớp `rang/ds-that.json` chốt trước
+      theo ba nhóm: có lỗi kèm số lỗi, sai khuôn, sạch; số lỗi đối chiếu thêm với một cách đếm độc lập (số dòng `- **` trong mục). Chiều đỏ: đổi một số
+      trong bản sao của bản kê thì thoát 1 và nêu tên hồ sơ.
+    paths: [lib/out-of-contract.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lvhd_lv5
+    expected: >
+      Exit 0, PASS của LV5. Năm tình huống `V-trong-hd-khong-tep`, `V-trong-hd-tep-rong`, `V-trong-hd-khong-muc`, `V-trong-hd-rong`,
+      `V-trong-hd-rong-ngoac` cho qua ở cả hai bản dựng. Chiều đỏ: E9 ca `chan-oan` (coi mọi mục có chữ là lỗi) làm `V-trong-hd-rong` đỏ.
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lvhd_lv5
+    expected: >
+      Exit 0, PASS của LV5. Ba tình huống `V-trong-hd-ngo`, `V-trong-hd-ngo-gach`, `V-trong-hd-ngo-dam` bị chặn ở cả hai bản dựng, lý do
+      của cả lưới và máy quét nêu «cần người soi». Chiều đỏ: E9 ca `bo-co-ngo` (bỏ cờ sai khuôn) làm `V-trong-hd-ngo` đỏ.
+    paths: [lib/out-of-contract.cjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lvhd_lv5
+    expected: >
+      Exit 0, PASS của LV5. KY_VONG_CHAN khai `ky-trong-hd` (hồ sơ đã ký, mục còn lỗi) là cho qua. Chiều đỏ: E9 ca `chan-ca-ky`
+      (đưa vế mới lên trước nhánh chữ ký) làm `ky-trong-hd` đỏ.
+    paths: [scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lvhd_lv7
+    expected: >
+      Exit 0, PASS của LV7: ngoài PR không xét lại, trong PR có chặn và nêu «lỗi trong hợp đồng», máy quét không coi là hỏng,
+      `verified` ngoài PR vẫn chặn. Chiều đỏ: E9 ca `bo-mien` và ca `mien-ca-verified`.
+    paths: [scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lvhd_lv5
+    expected: >
+      Exit 0, PASS của LV5 với SO_MAT_CAT = 39, gồm `nguoi-trong-hd`, cùng kết luận ở hai bản dựng. Chiều đỏ: E9 ca `mot-ben-luoi` và
+      `mot-ben-quet`, mỗi ca đỏ vì hai bản dựng lệch; ca `bot-phan-tu` đỏ với `MAT_CAT co`.
+    paths: [scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lvhd_lk
+    expected: >
+      Exit 0, ca `LK1-do trong-hd-goc-kho` và ca `trong-hd-nhay-root` đạt: bộ đọc theo gốc kho thì lưới chặn với thông điệp
+      `không đọc được mục «Trong hợp đồng» của review-findings.md (fail-closed)`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8b
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lvhd_lv9
+    expected: >
+      Exit 0, PASS của LV9: bản sao có bộ đọc ném lỗi, và tệp có mà không đọc được, thì lưới chặn với thông điệp fail-closed và máy quét không
+      trả `clean: true`; bản lành trên cùng hồ sơ trả `clean: true`, và `V-trong-hd-khong-tep` vẫn cho qua. Chiều đỏ: E9 ca `bo-fail-closed`.
+    paths: [scripts/khong-can-nguoi.mjs, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lvhd_chieu_do
+    expected: >
+      Exit 0, in `chieu-do: 12/12`. Bản sao chưa phá xanh trên cùng ca, rồi mỗi đột biến cho đúng thông điệp ghim: `ca-hai` · `mot-ben-luoi` ·
+      `mot-ben-quet` · `bo-mien` · `mien-ca-verified` · `loc-muc` · `bo-doc` · `chan-oan` · `bo-co-ngo` · `chan-ca-ky` · `bot-phan-tu` · `bo-fail-closed`.
+      Đột biến không áp được vào mã (không tìm thấy mỏ neo) là đỏ.
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.lvhd_kho_that
+    expected: >
+      Exit 0, mỗi kho in một dòng `kho-that: <kho> · truoc N · sau M · them 0`. Gốc các kho lấy từ `LVHD_KHO_GOC`, vắng thì suy từ thư mục cha của kho kit;
+      thiếu một trong ba kho bắt buộc thì thoát 1 và nêu tên kho. Ghim ba hồ sơ `va-e7-loi-that-cap-han`, `s03-null-byte`, `test-anh-mau-co-manifest`:
+      không bị chặn; bản sao bỏ miễn trừ thì đúng ba tên đó thành VIOLATION. Chiều đỏ: kho thử có hồ sơ `verified` chưa ký còn lỗi thì thoát 1 và nêu tên hồ sơ.
+    paths: [lib/out-of-contract.cjs, scripts/pre-merge-check.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
