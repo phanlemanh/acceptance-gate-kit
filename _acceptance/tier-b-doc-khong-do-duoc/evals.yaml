@@ -1,0 +1,76 @@
+schema_version: 1
+feature_slug: tier-b-doc-khong-do-duoc
+# Một tệp ca hai chiều cho AC-1..AC-3 (khoá executors.test.tier_b_loi_doc). Bên viết là scripts/design-scan.js chạy thật trong
+# jsdom, bên đọc là khối bảng của chính tài liệu, tập kết quả hợp lệ rút từ khuôn báo cáo. Nhát phá đổi đúng một chỗ (khớp đúng
+# một lần, không khớp thì ca hỏng), chỉ chạy sau khi vật lành xanh trên cùng ma trận, và ghim thông điệp. Cần jsdom ghim
+# (npm ci --prefix tests/design-eval).
+#
+# Ma trận viết trước, tình huống × chế độ (ô = cặp mong đợi):
+#                 mặc định            requireMeasured
+#   dat           PASS/0              PASS/0
+#   tu-choi       REJECT/2            REJECT/2
+#   tron          REJECT/2            REJECT/2
+#   khong-do      KHONG-DO-DUOC/0     KHONG-DO-DUOC/5
+#   thieu-bo-do   BLOCKED/1           BLOCKED/1
+# Bảng đọc mong đợi, viết trước trong tệp ca (BANG_MONG): PASS/0→PASS,0 · REJECT/2→REJECT,2 · BLOCKED/1→BLOCKED,— ·
+# KHONG-DO-DUOC/0→BLOCKED,— · KHONG-DO-DUOC/5→BLOCKED,5.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.tier_b_loi_doc
+    paths: [scripts/design-scan.js, skills/acceptance/references/design-ui-check.md, tests/design-eval/tier-b-loi-doc.test.mjs]
+    expected: >
+      exit 0; "PASS: TB0 ma trận bộ quét thật đủ 10 ô", "PASS: TB0b nguồn bộ quét không khai gì ngoài ma trận" và "PASS: TB1 tập cặp hai bên
+      khớp". Chiều đỏ: "PASS: TB-do-1", "PASS: TB-do-2", "PASS: TB-do-4", "PASS: TB-do-5", "PASS: TB-do-6", "PASS: TB-do-12", mỗi ca chỉ PASS
+      khi hàm đo trả đúng thông điệp ghim, ví dụ "bộ quét phát KHONG-DO-DUOC/5 mà tài liệu chưa có lối đọc".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.tier_b_loi_doc
+    paths: [skills/acceptance/references/design-ui-check.md, skills/acceptance/references/evidence-report-template.md, scripts/design-scan.js, tests/design-eval/tier-b-loi-doc.test.mjs]
+    expected: >
+      exit 0; "PASS: TB2 luật ghi của từng hàng", "PASS: TB3 câu đọc cũ đã gỡ", "PASS: TB4 hai lời gọi trong công thức trả mã 5". Chiều đỏ:
+      "PASS: TB-do-3" (ghim "KHONG-DO-DUOC/0 ghi PASS: không đo được phải ghi BLOCKED"), "PASS: TB-do-7", "PASS: TB-do-8", "PASS: TB-do-9",
+      "PASS: TB-do-10", "PASS: TB-do-11", "PASS: TB-do-13".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.tier_b_loi_doc
+    paths: [tests/design-eval/tier-b-loi-doc.test.mjs]
+    expected: >
+      exit 0; đủ mười bốn dòng "PASS: TB-do-1" … "PASS: TB-do-14" và dòng cuối "tier-b-loi-doc: 21 passed, 0 failed". Một ca TB-do chỉ
+      chạy khi vật lành xanh, nên vật lành đỏ thì cả mười bốn ca FAIL với "vật lành chưa xanh trên cùng fixture".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    inputs: [skills/acceptance/references/design-ui-check.md]
+    question: >
+      Chỉ đọc tệp này, một tác tử chấm nhận từ bộ quét verdict KHONG-DO-DUOC với exit_intent 0, rồi một lần khác với exit_intent 5.
+      Tác tử có xác định được, không phải đoán: (1) ghi verdict BLOCKED ở cả hai lần, không ghi PASS; (2) lý do phải nêu số phát hiện
+      và mã nguyên nhân bộ quét trả về; (3) mã 5 xuất hiện khi nào, công thức có gọi ở chế độ đó không, và cách ghi mã ở từng lần;
+      (4) kết quả tác tử chấm trả về đặt cờ không chạy được kèm lý do, với trường mã khác 0 ở cả hai lần; (5) muốn gỡ thì sửa màu hoặc
+      thu phạm vi có tên, không có lối đạt? Có đoạn nào trong tệp còn nói ngược lại không?
+    evidence_required: [run_id, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.design_eval_day_du
+    paths: [tests/design-eval/run-tests.sh, tests/design-eval/tier-b-loi-doc.test.mjs]
+    expected: >
+      exit 0; stdout có dòng mở đầu "T09 Tier B reader table matches what the scan emits" và dòng tổng kết "design-eval:" với "0 failed,
+      0 skipped". Chiều đỏ: ca "TB-do-5" chứng phép đo đỏ khi mất bảng, và tệp ca thoát 1 khi đỏ nên "check T09" ghi FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.tier_b_loi_doc
+    paths: [lib/evidence-core.cjs, skills/acceptance/references/design-ui-check.md, tests/design-eval/tier-b-loi-doc.test.mjs]
+    expected: >
+      exit 0; "PASS: TB5 báo cáo theo bảng đi qua cổng bằng chứng thật" — hàng ghi BLOCKED không vào luật của báo cáo đạt, hàng ghi PASS có,
+      và cùng khối mang mã 5 mà báo cáo tự xưng đạt bị từ chối. Chiều đỏ: "PASS: TB-do-14" (ghim "cổng bằng chứng không từ chối báo cáo đạt
+      mang mã 5").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
