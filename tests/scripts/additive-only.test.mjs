@@ -155,7 +155,6 @@ const ALLOWED_REMOVALS = [
   `          __VANG__) clean_ok=0; clean_why="mục «$_sec» VẮNG khỏi báo cáo (vắng ≠ rỗng)"; break ;;`,
   `          __CO__)   clean_ok=0; clean_why="mục «$_sec» có nội dung"; break ;;`,
   `          __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;`,
-  `        esac`,
   `      done`,
   `  # Human-signoff provenance: the signature is text in an AI-writable file —`,
   `  # the git history of the commit that INTRODUCED it is the only`,
