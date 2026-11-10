@@ -673,6 +673,14 @@ function timMauKhongDoc(el, style) {
   return null;
 }
 
+// Gradient stops as the eye sees them: a translucent stop over whatever is under the gradient, white when nothing is
+// declared. Alpha 0 shows only what is under it (hoaMau leaves alpha 0 alone, for text).
+function hoaDiemDung(stops, el, win) {
+  if (stops.every((s) => s.a == null || s.a >= 1)) return stops;
+  const duoi = (el.parentElement && resolveBackground(el.parentElement, win)) || { r: 255, g: 255, b: 255, a: 1 };
+  return stops.map((s) => (s.a <= 0 ? duoi : hoaMau(s, duoi)));
+}
+
 function parseRgb(color) {
   if (!color || color === 'transparent') return null;
   const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -1426,7 +1434,7 @@ function resolveGradientStops(el, win) {
     const bgImage = style.backgroundImage || '';
     if (bgImage && bgImage !== 'none' && /gradient/i.test(bgImage)) {
       const stops = parseGradientColors(bgImage);
-      if (stops.length > 0) return stops;
+      if (stops.length > 0) return hoaDiemDung(stops, current, win);
     }
     if (!DETECTOR_IS_BROWSER) {
       // jsdom doesn't decompose `background:` shorthand — peek at the raw inline style
@@ -1434,7 +1442,7 @@ function resolveGradientStops(el, win) {
       const bgMatch = rawStyle.match(/background(?:-image)?\s*:\s*([^;]+)/i);
       if (bgMatch && /gradient/i.test(bgMatch[1])) {
         const stops = parseGradientColors(bgMatch[1]);
-        if (stops.length > 0) return stops;
+        if (stops.length > 0) return hoaDiemDung(stops, current, win);
       }
     }
     current = current.parentElement;

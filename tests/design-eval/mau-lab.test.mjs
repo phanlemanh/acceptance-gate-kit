@@ -128,21 +128,37 @@ const CA = [
   // Nền trong suốt hoà với lớp dưới: chữ trắng trên đen 50% trên trắng là xám giữa, không phải đen, không phải trắng.
   ['nen-alpha-truot', dong('#ffffff', 'oklab(0 0 0 / 0.5)'), kiemDo('', { verdict: 'REJECT', chiTiet: /on #808080/ })],
   ['nen-alpha-dat', dong('#ffffff', 'oklab(0 0 0 / 0.8)'), kiemDo('', { verdict: 'PASS' })],
+  ['nen-alpha-lab', dong('#ffffff', 'lab(0 0 0 / 0.5)'), kiemDo('', { verdict: 'REJECT', chiTiet: /on #808080/ })],
 
   // Nền gradient: mỗi điểm dừng lab phải được đọc, điểm dừng không đọc được thì không đo được.
   ['gradient-lab', `<section style="background-image:linear-gradient(lab(96.52 0 0), lab(96.52 0 0))">${dong('lab(96.52 0 0)')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /text #f5f5f5 on #f5f5f5/ })],
+  ['gradient-oklab', `<section style="background-image:linear-gradient(oklab(0.97 0 0), oklab(0.97 0 0))">${dong('oklab(0.97 0 0)')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #f5f5f5/ })],
+  ['gradient-oklch', `<section style="background-image:linear-gradient(oklch(0.97 0 0), oklch(0.97 0 0))">${dong('oklch(0.97 0 0)')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #f5f5f5/ })],
+  // Một điểm dừng đục, một điểm trong suốt, không tổ tiên nào có nền: điểm trong suốt hoà với trang trắng thành xám giữa.
+  ['gradient-alpha', `<section style="background-image:linear-gradient(oklab(0 0 0), oklab(0 0 0 / 0.5))">${dong('#ffffff')}</section>`, kiemDo('', { verdict: 'REJECT', chiTiet: /on #808080/ })],
   ['khong-doc-gradient', `<section style="background-image:linear-gradient(color(display-p3 0.1 0.1 0.1), color(display-p3 0.2 0.2 0.2))">${dong('#111111')}</section>`, kiemKhongDo()],
 
   // Chiều sạch: đọc đúng thì không REJECT oan.
   ['sach-lab', dong('lab(20 0 0)', '#ffffff'), kiemDo('', { verdict: 'PASS' })],
   ['sach-oklch-nen-toi', dong('oklch(0.98 0 0)', 'oklch(0.2 0 0)'), kiemDo('', { verdict: 'PASS' })],
   ['sach-oklab-nen-lab', dong('oklab(0.98 0 0)', 'lab(10 0 0)'), kiemDo('', { verdict: 'PASS' })],
+  // Nền oklch viết trực tiếp giờ đo được thật (bộ máy gốc không đọc được nó, xem MD-0).
+  ['nen-oklch-truc-tiep', dong('#ffffff', 'oklch(0.15 0 0)'), kiemDo('', { verdict: 'PASS' })],
+  // Chữ alpha 0 do thứ khác vẽ (background-clip: text), không được hoà thành trắng trên trắng.
+  ['alpha-khong', dong('rgba(0, 0, 0, 0)', '#ffffff'), kiemDo('', { verdict: 'PASS' })],
+  ['alpha-khong-oklab', dong('oklab(0 0 0 / 0)', '#ffffff'), kiemDo('', { verdict: 'PASS' })],
 
   ['khong-doc-chu', dong('color(display-p3 0.93 0.93 0.93)', '#ffffff'), kiemKhongDo()],
+  ['khong-doc-color-srgb', dong('color(srgb 0.96 0.96 0.96)', '#ffffff'), kiemKhongDo()],
   ['khong-doc-nen', dong('#111111', 'color(display-p3 0.93 0.93 0.93)'), kiemKhongDo()],
   ['khong-doc-nen-to-tien', `<section style="background-color:color(display-p3 0.1 0.1 0.1)">${dong('#111111')}</section>`, kiemKhongDo()],
   // Đo được thì FAIL thắng phần không đo được trên cùng trang.
-  ['fail-thang', dong('color(display-p3 0.93 0.93 0.93)', '#ffffff') + dong('#eeeeee', '#ffffff'), kiemDo('', { verdict: 'REJECT', chiTiet: /text #eeeeee on #ffffff/ })],
+  ['fail-thang', dong('color(display-p3 0.93 0.93 0.93)', '#ffffff') + dong('#eeeeee', '#ffffff'), async (html) => {
+    const loi = await kiemDo('', { verdict: 'REJECT', chiTiet: /text #eeeeee on #ffffff/ })(html);
+    if (loi) return loi;
+    const [chat, qChat] = [await chayCong(html, ['--require-measured']), chayQuet(html, { requireMeasured: true })];
+    return chat.ma !== 2 ? `cổng --require-measured: thoát ${chat.ma}, mong 2` : qChat.exit_intent !== 2 ? `quét requireMeasured: exit_intent ${qChat.exit_intent}, mong 2` : null;
+  }],
   // Nền đặc phía trên chặn đường đi lên: màu lạ ở tổ tiên bị che không làm mất phép đo.
   ['nen-dac-che', `<section style="background-color:color(display-p3 0.1 0.1 0.1)">${dong('#111111', '#ffffff')}</section>`, kiemDo('', { verdict: 'PASS' })],
 
