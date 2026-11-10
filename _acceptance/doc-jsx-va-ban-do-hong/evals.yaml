@@ -1,0 +1,80 @@
+schema_version: 1
+feature_slug: doc-jsx-va-ban-do-hong
+# Ca đo mở bằng «DJ-» ở tests/scripts/doc-jsx-va-ban-do-hong.test.mjs; khoá executors.test.doc_jsx_va_ban_do_hong in
+# «PASS: [DJ-…]»/«FAIL: …». Bộ máy gốc = git archive c8fa5a65588609b622dc83a9b114d65d2bdc5b47 scripts lib feature-loop skills bung trong lượt, chạy trên CÙNG
+# kho với cây đang kiểm. Mỗi ca «-do» chạy CHÍNH hàm kiểm trên bản sao TRỌN thư mục bị tiêm một nhát (khớp đúng một lần),
+# SAU khi bản lành xanh trên cùng fixture, bản sao phải chạy được, và ghim thông điệp của đúng lỗi được tiêm. Kỳ vọng là
+# hằng viết sẵn trong tệp ca, không tính từ mã sản phẩm.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-1]": trên CÙNG một thẻ, bộ máy gốc thoát 1 có dòng chứa "thiếu khe title" và không có "thiếu khe
+      children"; cây đang kiểm thoát 1 có "thiếu khe children" và không có "thiếu khe title". "PASS: [DJ-1-do]": bản lành
+      xanh; bản sao bỏ bước bỏ qua biểu thức trong ngoặc nhọn → lỗi chứa "thẻ có mũi tên đọc sai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-2]" in «số hàng: 24», số phép so = số hàng, danh sách khe thiếu viết sẵn (khe đòi: title, children): mui-ten-truoc-co-con [] · mui-ten-truoc-tu-dong [children] · mui-ten-sau-co-con [] · mui-ten-sau-tu-dong [children] · khe-vang-co-con [title] · khe-vang-tu-dong [title, children] · khe-trong-bieu-thuc [title] · khe-trong-chuoi [title] · so-sanh [] · mui-ten-chua-tu-dong-co-con [] · mui-ten-chua-tu-dong-tu-dong [children] · ngoac-trong-chuoi [] · chuoi-mau-long [] · jsx-long-mot-nhay [] · jsx-long-hai-nhay [children] · jsx-long-nhay-le [] · bieu-thuc-chinh-quy-ngoac [] · dau-chia [children] · chu-thich-cap-the [] · chu-thich-trong-bieu-thuc [] · tham-so-kieu [] · tham-so-kieu-mui-ten [children] · nhieu-dong [children] · khe-tran [children]. "PASS: [DJ-2-do]": bản lành xanh; bản sao làm phẳng giữ nguyên ruột ngoặc nhọn → lỗi chứa "khe trong biểu thức con bị tính" ở hàng khe-trong-bieu-thuc. Một nhát tiêm cô lập mỗi nhánh bỏ qua, mỗi ca ghim đúng tên hàng đỏ: "PASS: [DJ-2-chuoi]" ngoac-trong-chuoi · "PASS: [DJ-2-mau]" chuoi-mau-long · "PASS: [DJ-2-cmt]" chu-thich-trong-bieu-thuc · "PASS: [DJ-2-cmt-the]" chu-thich-cap-the · "PASS: [DJ-2-regex]" bieu-thuc-chinh-quy-ngoac · "PASS: [DJ-2-chia]" dau-chia · "PASS: [DJ-2-kieu]" tham-so-kieu · "PASS: [DJ-2-nhay]" jsx-long-hai-nhay · "PASS: [DJ-2-le]" jsx-long-nhay-le.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-3]": thẻ spread cấp thẻ sau mũi tên → khong_do đúng ["thẻ mang spread"], 0 lệch; thẻ spread trong giá
+      trị style và thiếu title → khong_do rỗng, đúng một lệch "thiếu khe title". "PASS: [DJ-3-do]": bản lành xanh; bản sao tắt
+      cờ spread → lỗi chứa "spread cấp thẻ không vào nhóm không đo".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, scripts/design-floor-khuon.mjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-4]": hai hàng (hết tệp, ngoặc hụt) chạy bước chấm thật: thoát 0, 0 dòng "thiếu khe", có dòng "không đo được:" chứa "thẻ không đọc được", tệp không nằm trong đếm theo khuôn. "PASS: [DJ-4-do]": bản lành xanh; bản sao bỏ nhánh khong_do của thẻ dở → lỗi chứa "thẻ dở không báo không đo".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-5]": chiều xanh là đối chứng hồi quy — stdout và mã thoát của bước chấm bộ máy gốc và cây bằng hệt
+      trên bốn dạng thẻ không có dấu lớn hơn trong giá trị, tổng dòng báo ≥ 1. Chiều đỏ của phép so: "PASS: [DJ-5-do]": bản
+      lành xanh; bản sao làm cờ tự đóng luôn sai → lỗi chứa "khác bộ máy gốc".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-6]" in «số hàng: 8» (4 lỗi × chạm vùng thiếu eval, không chạm): mỗi ô s4-args của cây thoát 2, không sinh tệp, stderr chứa "design/patterns/rieng.md" và lý do viết sẵn của hàng ("không có frontmatter YAML" · "YAML không đọc được" · "frontmatter không phải mapping" · "thiếu khoá nhan_dien"), không chứa "chạm vùng nhóm". Đối chứng trên bộ máy gốc cùng lối dựng: bản đồ lành + chạm vùng thiếu eval → thoát 2 chứa "chạm vùng nhóm rieng"; bốn lỗi → thoát 0 và có tệp. "PASS: [DJ-6-do]": bản lành xanh; bản sao tắt lệnh dừng → lỗi chứa "bản đồ hỏng mà vẫn sinh args". "PASS: [DJ-6-do2]": bản lành xanh; bản sao chỉ dừng khi hồ sơ có eval khuôn → lỗi chứa "bản đồ hỏng mà vẫn sinh args".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-7]" in «số hàng: 11»: ba lỗi không mất nhóm × không chạm → thoát 0, có tệp, đúng một dòng stderr "bản đồ khuôn có lỗi" chứa lý do viết sẵn; ba lỗi × chạm vùng có eval khuôn → thoát 0, có tệp, bước chấm thật thoát 1 có dòng "sai:" chứa đúng lý do; ba lỗi × chạm vùng thiếu eval khuôn → thoát 2 chứa "chạm vùng nhóm"; bản đồ lành × không chạm và × chạm có eval → thoát 0, 0 dòng "bản đồ khuôn có lỗi". "PASS: [DJ-7-do]": bản lành xanh; bản sao coi mọi lỗi là mất nhóm → lỗi chứa "lỗi không mất nhóm bị chặn".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.doc_jsx_va_ban_do_hong
+    paths: [scripts/ban-do-khuon.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/doc-jsx-va-ban-do-hong.test.mjs]
+    expected: >
+      exit 0; "PASS: [DJ-8]": CLI --json trên kho có tệp hỏng bằng hệt bộ máy gốc và không có khoá "mat_nhom"; kho không có
+      design/patterns/ → sinh tham số thoát 0, có tệp, 0 dòng "bản đồ khuôn". "PASS: [DJ-8-do]": bản lành xanh; bản sao thêm
+      mat_nhom vào JSON → lỗi chứa "JSON của bộ đọc đổi hình dạng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
