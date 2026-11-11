@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ca0a1577c66e5e99667f5c786fcfb485abd6927e
+verified_commit: b6ab5a0f3df14a387c819e8ef690e81138a5e517
 human_signoff: Manh Phan 2026-11-11
 ---
 
@@ -181,3 +181,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1-E8 đã chạy và ghi vào run-log; kết quả được mang sang round 2.
 Round 2: 11 lệnh suite xanh; E1-E8 carry-forward vì delta không chạm paths của các eval này; không có mục chờ người chốt.
+
+### Re-pin lần 1 — 2026-11-11, do ghim lại sau gộp main 9ff2e4f7 (PR 493) và bổ sung sổ known-limits
+run_id: repin-20261111T045447Z-28789
+sha: b6ab5a0f3df14a387c819e8ef690e81138a5e517 · suites: 11 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
