@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>147 việc"]
+  GB --> DG["Đã giao<br/>150 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -152,6 +152,7 @@ flowchart TD
 - Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
 - Bộ dò tương phản đo thật màu lab, oklab, lch, oklch và độ trong suốt; màu không đọc được báo không đo được, không bao giờ đạt (`do-tuong-phan-lab-oklab`)
 - Bên viết và bên đọc không trôi nhau ở hai chỗ crm đo đêm 07–08/10 — mục ngoài hợp đồng mang sang với nhãn (rN) ngoài dấu sao vẫn hiện trên thẻ Cổng 2 (và không bị in hai lần), run_id rỗng không còn được ghi và được gọi tên khi đọc lại (`doc-ghi-troi-mang-sang-run-id`)
+- Bước chấm khuôn đọc đúng thuộc tính thẻ có hàm mũi tên, và lượt chấm dừng khi tệp bản đồ khuôn hỏng làm mất nhóm (`doc-jsx-va-ban-do-hong`)
 - Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`) — đã giao — đã nghỉ, giữ sử liệu
 - Đường đo nằm trong định-nghĩa-xong — contract có ô «Đường đo» khi hồ sơ có ngưỡng; thẻ Cổng Phạm vi cờ vàng khi thiếu, cửa bỏ có tên; gap-probe cross-check ngưỡng↔đường đo (`duong-do-trong-dinh-nghia-xong`) — đã giao — không đo, khai ở Cổng Đáng
 - Đường lùi phải sống — làn máy-đi-trước có đường lùi thật ở hai cửa: người veto bằng một chữ và ô kết máy-đã-thông có đường ghi; máy không coi «không đo được» là sạch, làn V vẫn bị kiểm hoá cũ, lệnh ký chạy làn máy trước chữ ký (`duong-lui-phai-song`) — đã giao — đã nghỉ, giữ sử liệu
@@ -174,6 +175,7 @@ flowchart TD
 - Làn ghim lại giữ trọn lời lỗi, để lại dấu lượt đỏ kèm tải máy, và ghi thời lượng làn (`lan-ghim-lai-giu-tron-loi-loi`) — đã giao — đã nghỉ, giữ sử liệu
 - Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`) — đã giao — đã nghỉ, giữ sử liệu
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Lệnh chờ khoá của thợ thoát được khi thư mục đợt có dấu cách hay ký tự lạ — bọc nháy đường khoá, một bộ nháy dùng chung (`lenh-cho-khoa-nhay-duong-dan`)
 - Lượt chấm S4 không còn bị hạ tầng đốt bởi lệnh dài hơn trần công cụ (eval khai long_running — kit chạy nền, ghi nhật ký đường cố định, chờ bằng lệnh máy sinh) và bởi eval nặng chạy chồng suite (eval trong feature_loop.model_evals chạy riêng, sau mọi lệnh máy khác) (`lenh-dai-chay-rieng`)
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
@@ -258,6 +260,7 @@ flowchart TD
 - Điều phối thôi kẹt hàng vì `sau` trỏ slug, thôi treo khoá sau gộp và thôi canh nhầm khoá ghim lại; người chấm ui-check biết URL bản dev và chạy lần lượt — sửa năm lỗi của đợt dau-chu-dong-vao (#477) cho mốc 2.37.0 (`sua-loi-dau-chu-dong-vao`)
 - Lệnh suite phải sinh dòng sổ chạy — không thì mọi vòng đỏ đối chiếu sau khi ký (`suite-run-log-provenance`)
 - Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump version) (`t1-escape-event-scope`)
+- Vế chữ ký của luật code t3_paths không được tắt im lặng (`t3-arm-chu-ky-khong-im`)
 - Code t3_paths phải có hồ sơ thật sự bị cổng chấm (`t3-can-ho-so-arm`)
 - Tên ca chập chờn đọc được qua tiền tố của bộ chạy monorepo — dòng pin chap_chon gọi đúng tên ca khi suite chạy qua turbo (`ten-ca-qua-tien-to-turbo`)
 - thước biết trước là không phán được — chặn eval judgment hỏi diff/lệnh ở bước sinh args S4, chọn người chấm theo từng vế (`thuoc-biet-truoc-khong-phan-duoc`)
