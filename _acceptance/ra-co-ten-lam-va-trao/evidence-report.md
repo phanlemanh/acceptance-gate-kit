@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9adc50d58405a74b5aa91919a490b0167df3a0a1
+verified_commit: cbee02f7afe381780391c227780bfea49d5b3b40
 human_signoff: Manh 2026-08-25
 ---
 
@@ -442,3 +442,7 @@ sha: a94e7f31f83c200af5ae67fa8ed1d78fc36b38aa · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 47 — 2026-11-01, do gộp main 3b232f08 sau chữ ký + dòng khai RT13 của chi-tep-vat-keo-xet-lai
 run_id: repin-20261101T091722Z-92096
 sha: 9adc50d58405a74b5aa91919a490b0167df3a0a1 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 48 — 2026-11-11, do ghim lại sau gộp main 11dfcd7f và khai khác biệt đọc-cũ RT13
+run_id: repin-20261111T114637Z-20761
+sha: cbee02f7afe381780391c227780bfea49d5b3b40 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
