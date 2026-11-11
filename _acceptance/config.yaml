@@ -232,6 +232,10 @@ executors:
     # Hồ sơ anh-co-that-trong-ho-so: ca LNT7…LNT10 (ảnh chỉ tính khi tệp có thật dưới evidence/ của hồ sơ).
     anh_co_that: env LNT_CASES=LNT7,LNT8,LNT9,LNT10 node tests/plugins/lop-nhin-thay.test.mjs
     mau_lab_hai_chieu: node tests/design-eval/mau-lab.test.mjs && node tests/design-eval/mau-lab-do.test.mjs
+    # Hồ sơ tier-b-doc-khong-do-duoc: bộ quét thật ↔ bảng đọc của Tier B, ca TB0…TB3 và TB-do-1…9. Cần `npm ci --prefix tests/design-eval`.
+    tier_b_loi_doc: node tests/design-eval/tier-b-loi-doc.test.mjs
+    # Trọn bộ design-eval đúng như job CI; không đưa vào suite_keys vì CI đã có job riêng.
+    design_eval_day_du: "DESIGN_EVAL_CAN_DOM=1 bash tests/design-eval/run-tests.sh"
     df_s4_chu_thich: node tests/design-floor/moc-s3-s4.mjs --chi S4-HEX,S4-CHU-THICH
     kdd_hoi_quy: bash tests/design-eval/kdd.sh --hoi-quy
     kdd_nen_mau: bash tests/design-eval/kdd.sh KD9
