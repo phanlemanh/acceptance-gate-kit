@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>148 việc"]
+  GB --> DG["Đã giao<br/>149 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -151,6 +151,7 @@ flowchart TD
 - Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
 - Bộ dò tương phản đo thật màu lab, oklab, lch, oklch và độ trong suốt; màu không đọc được báo không đo được, không bao giờ đạt (`do-tuong-phan-lab-oklab`)
 - Bên viết và bên đọc không trôi nhau ở hai chỗ crm đo đêm 07–08/10 — mục ngoài hợp đồng mang sang với nhãn (rN) ngoài dấu sao vẫn hiện trên thẻ Cổng 2 (và không bị in hai lần), run_id rỗng không còn được ghi và được gọi tên khi đọc lại (`doc-ghi-troi-mang-sang-run-id`)
+- Bước chấm khuôn đọc đúng thuộc tính thẻ có hàm mũi tên, và lượt chấm dừng khi tệp bản đồ khuôn hỏng làm mất nhóm (`doc-jsx-va-ban-do-hong`)
 - Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`) — đã giao — đã nghỉ, giữ sử liệu
 - Đường đo nằm trong định-nghĩa-xong — contract có ô «Đường đo» khi hồ sơ có ngưỡng; thẻ Cổng Phạm vi cờ vàng khi thiếu, cửa bỏ có tên; gap-probe cross-check ngưỡng↔đường đo (`duong-do-trong-dinh-nghia-xong`) — đã giao — không đo, khai ở Cổng Đáng
 - Đường lùi phải sống — làn máy-đi-trước có đường lùi thật ở hai cửa: người veto bằng một chữ và ô kết máy-đã-thông có đường ghi; máy không coi «không đo được» là sạch, làn V vẫn bị kiểm hoá cũ, lệnh ký chạy làn máy trước chữ ký (`duong-lui-phai-song`) — đã giao — đã nghỉ, giữ sử liệu
