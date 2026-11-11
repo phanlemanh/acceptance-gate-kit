@@ -5,7 +5,7 @@ slug: luot-kiem-nhe
 owner: phanlemanh@gmail.com
 risk_tier: T2      # chạm .github/workflows/gate.yml, tests/**, .nvmrc — không tệp nào khớp t3_paths
 surfaces: [ci]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-11-11
 design_doc: docs/superpowers/specs/2026-11-11-luot-kiem-nhe-design.md
@@ -133,3 +133,10 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
   của nó là `duration_ms` mà `node --test` in.
 - Ngưỡng mở lại giới hạn vùng 2 của hồ sơ `ha-tang-khong-dot-luot` (vùng 2 > 480 s máy rảnh) đã chạm — trên máy lượt
   kiểm tự động P161 mất 800–950 s; AC-9 là chỗ vòng này trả nó.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-11:
+  - Ngoài-3: ca đo thời gian chạy bộ móc thật và một vùng bộ plugin thật ngay trong cây đang chấm, nên có thể chồng lên lệnh bộ kiểm cùng lúc và làm lượt chấm đỏ oan.
+  - Ngoài-4: ca so bản cũ/mới của LM13 và LM20 không có đối chứng xanh trên cùng fixture, và chấp nhận «FAIL ở cả hai» là bằng nhau.
+  - Ngoài-5: ca «gọi tên hồ sơ» của LM13 kiểm chữ có mặt trong đầu ra, chưa kiểm đúng quan hệ hồ sơ lệch ↔ thông điệp.
+  - Ngoài-6: khoá nhớ tách cổng của P161 chỉ được canh bằng lời tự khẳng định trên khoá; chưa có phép đo thẻ cổng 2 thật sự được đọc đúng.
+- Mở hợp đồng mới (chủ kho quyết ở Cổng Bằng chứng 11/11) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):
+  - Ngoài-1, Ngoài-2 → `docs/plans/2026-11-11-hat-giong-manh-pr-thieu-zsh.md` (mảnh PR của bộ workflows và bộ điều phối thiếu zsh).

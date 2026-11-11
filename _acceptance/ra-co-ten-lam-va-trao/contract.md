@@ -109,6 +109,7 @@ Khối máy-đọc cho AC-13(ii) — mỗi dòng `slug stateKey-cũ stateKey-m�
 <!-- <<<KHAC-BIET-DOC-CU
 duong-do-trong-dinh-nghia-xong cho-cong-gia-tri da-giao-khong-do
 nen-khong-tinh-tep-cua-vong cho-cong-gia-tri da-giao-khong-do
+luot-kiem-nhe cho-cong-gia-tri da-giao-khong-do
 lan-may-thong-duong-ghi cho-cong-dang da-dong-ho-so
 lan-v-thoat-kiem-stale y-can-nhac da-dong-ho-so
 bo-qua-phai-thay-dinh-nghia-phep-do y-can-nhac da-dong-ho-so

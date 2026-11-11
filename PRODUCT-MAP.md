@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>151 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>152 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Lượt kiểm tự động của kho kit nhẹ đi mà vẫn tin được — bộ kiểm chạy theo mảnh song song trên PR, giữ một lượt chạy trọn trên nhánh chính; bộ chạy kiểm tự xưng và tự so phiên bản Node với lời khai của kho; bảng thời gian từng ca do máy sinh trong chính lượt chạy; ba ca chậm nhất chạy nhanh hơn mà giữ nguyên điều chúng khẳng định (`luot-kiem-nhe`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -182,6 +181,7 @@ flowchart TD
 - Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - lượt chấm ghi vào cây — bộ chấm S4 phát hiện cây đổi trong lượt chấm (commit lạ, tệp vật/thước bị sửa) và lượt ấy không dùng được, chấm lại cùng vòng (`luot-cham-ghi-vao-cay`)
+- Lượt kiểm tự động của kho kit nhẹ đi mà vẫn tin được — bộ kiểm chạy theo mảnh song song trên PR, giữ một lượt chạy trọn trên nhánh chính; bộ chạy kiểm tự xưng và tự so phiên bản Node với lời khai của kho; bảng thời gian từng ca do máy sinh trong chính lượt chạy; ba ca chậm nhất chạy nhanh hơn mà giữ nguyên điều chúng khẳng định (`luot-kiem-nhe`) — đã giao — không đo, khai ở Cổng Đáng
 - Lượt sửa giữ đủ, đếm đúng — mục ngoài hợp đồng lượt trước không rụng khi tệp bị sửa; khối ui-check carry giữ khung lượt gốc; thước-vật không đếm nội dung nhập từ nhánh nền (`luot-sua-giu-du-dem-dung`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu
 - Mã sổ quyết định duy nhất — khuôn mã d-<UTC>-<n> ở bên ghi, khoá overlay theo dòng ở bên đọc để thẻ không lặp một câu dịch lên mọi dòng chung mã (`ma-so-quyet-dinh-duy-nhat`)
