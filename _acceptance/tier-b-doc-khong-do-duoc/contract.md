@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # tài liệu Tier B, một tệp ca trong tests/design-eval, config.yaml — không chạm hooks, lib, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-10-tier-b-doc-khong-do-duoc-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
