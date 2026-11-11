@@ -3,6 +3,15 @@
 # Each case: build a PreToolUse JSON payload on stdin, assert exit code.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# <<<BO-CHAY — hồ sơ luot-kiem-nhe: tự xưng + tự so Node TRƯỚC ca đầu, và bảng thời gian từng ca.
+if [ -f "$HERE/../bo-chay.sh" ]; then
+  . "$HERE/../bo-chay.sh"; bc_node "$HERE/../.." || exit 3
+else
+  echo "bo-chay: không thấy tests/bo-chay.sh cạnh bộ chạy (bản chép?) — không kiểm Node, không đo thời gian" >&2
+  bc_tg_mo() { :; }; bc_tg_ca() { :; }; bc_tg_dong() { :; }
+fi
+bc_tg_mo hooks all "$HERE/../.."
+# BO-CHAY>>>
 HOOK="$HERE/../../hooks/acceptance-evidence-gate.js"
 REPO="$HERE/fixtures/repo"
 REPORT_PATH="$REPO/_acceptance/login-flow/evidence-report.md"
@@ -714,6 +723,7 @@ rm -f "$V_DIR/contract.md" "$V_ERR"
 echo "RT làn hook ruling-truoc-khi-xoa (hồ sơ mot-so-ba-ve)"
 node "$HERE/ruling-truoc-khi-xoa.test.mjs"; check RT-node 0 $?
 
+bc_tg_dong
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

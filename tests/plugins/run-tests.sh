@@ -6,6 +6,18 @@ ROOT="${_PLUGINS_ROOT_GOC:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 # de rang cua ho so chay duoc BAN SAO da dot bien (siet-rang-cau-ve-hinh AC-7).
 export RUN_TESTS_SELF="${_PLUGINS_SELF_GOC:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")}"
 failures=0
+# <<<BO-CHAY — hồ sơ luot-kiem-nhe: tự xưng + tự so Node TRƯỚC ca đầu (ở tiến trình cha, không lặp ở bản ghép
+# của mảnh), và bảng thời gian từng ca. Bản chép bộ chạy ra thư mục tạm không có tests/bo-chay.sh → nói ra, bỏ qua.
+if [ -f "$ROOT/tests/bo-chay.sh" ]; then
+  . "$ROOT/tests/bo-chay.sh"
+  if [ -z "${_PLUGINS_TRONG_MANH:-}" ]; then
+    if [ -n "${PLUGINS_SHARD_EMIT:-}" ]; then bc_node "$ROOT" >&2 || exit 3; else bc_node "$ROOT" || exit 3; fi
+  fi
+else
+  echo "bo-chay: không thấy tests/bo-chay.sh dưới gốc $ROOT (bản chép?) — không kiểm Node, không đo thời gian" >&2
+  bc_tg_mo() { :; }; bc_tg_ca() { :; }; bc_tg_dong() { :; }
+fi
+# BO-CHAY>>>
 
 pass() { echo "  PASS: $1"; }
 fail() { echo "  FAIL: $1"; failures=$((failures + 1)); }
@@ -60,10 +72,11 @@ if [ "$PMANH" != all ] && [ -z "${_PLUGINS_TRONG_MANH:-}" ]; then
   if [ -n "${PLUGINS_SHARD_EMIT:-}" ]; then ghep_vung "$RUN_TESTS_SELF" "$_pk"; exit 0; fi
   _pdir="$(mktemp -d)"
   ghep_vung "$RUN_TESTS_SELF" "$_pk" > "$_pdir/manh-vung-$_pk.sh"
-  _PLUGINS_TRONG_MANH=1 _PLUGINS_SELF_GOC="$RUN_TESTS_SELF" _PLUGINS_ROOT_GOC="$ROOT" bash "$_pdir/manh-vung-$_pk.sh"; _prc=$?
+  _PLUGINS_TRONG_MANH=1 _PLUGINS_MANH="$PMANH" _PLUGINS_SELF_GOC="$RUN_TESTS_SELF" _PLUGINS_ROOT_GOC="$ROOT" bash "$_pdir/manh-vung-$_pk.sh"; _prc=$?
   rm -rf "$_pdir"; exit "$_prc"
 fi
 # PLUGINS-MANH>>>
+bc_tg_mo plugins "${_PLUGINS_MANH:-$PMANH}" "$ROOT"
 # <<<PLUGINS-VUNG 1
 
 run "P07 vendor engine import graph resolves (vendor/ shipped)" \
@@ -6892,6 +6905,19 @@ def load_strip(js_path):
             json.dumps(inp)], capture_output=True, text=True)
         assert r.returncode == 0, "node loi: %s" % r.stderr[-300:]
         return r.stdout
+    # Ca lo (ho so luot-kiem-nhe, AC-9): quet corpus goi stripMd tren hang nghin dong — moi dong mot tien trinh
+    # node la phan lon 13–16′ cua P161 tren may luot kiem. Ban lo chay CUNG khoi stripMd trong MOT tien trinh,
+    # moi dau vao mot lan goi f(x) doc lap; scan_corpus dung no, ket qua so voi ban cu o ca LKN-AC9.
+    def run_many(inps):
+        r = subprocess.run(["node", "-e",
+            "const f=(function(){%s return stripMd;})();let s='';process.stdin.setEncoding('utf8');"
+            "process.stdin.on('data',d=>{s+=d}).on('end',()=>{process.stdout.write(JSON.stringify(JSON.parse(s).map(x=>f(x))))})" % block],
+            input=json.dumps(inps), capture_output=True, text=True)
+        assert r.returncode == 0, "node loi (lo): %s" % r.stderr[-300:]
+        out = json.loads(r.stdout)
+        assert len(out) == len(inps), "ca lo tra %d ket qua cho %d dau vao" % (len(out), len(inps))
+        return out
+    run.many = run_many
     return run
 strip_new = load_strip(CARD)
 
@@ -6986,11 +7012,31 @@ with tempfile.TemporaryDirectory() as d:
             assert strip_new(inp) == strip_old(inp), "hinh dang %r doi hanh vi so ban cu — nhom LOT phai giu nguyen" % name
 
     # ── ham chung cho E6/E7/E8/E9: sinh the that bang MOT ban script ──
+    # Nho + song song (ho so luot-kiem-nhe, AC-9): P161 dung the cho MOI ho so x hai cong x nhieu ban script —
+    # 13–16′ tren may luot kiem tu dong, moi lan mot tien trinh node. Cac lan dung doc lap nhau, nen dung truoc
+    # song song (prefetch) roi card() doc lai; khoa nho gom DUONG + BAM NOI DUNG script + ho so + CONG, de mot
+    # ban script doi noi dung tai cung duong khong doc nham the cu. card() van dem RENDER moi lan goi nhu cu.
+    import concurrent.futures, hashlib
     RENDER = {"ok": 0, "fail": 0}
-    def card(js, slug, gate):
+    _NHO = {}
+    _LUONG = max(2, min(8, os.cpu_count() or 2))
+    def _khoa(js, slug, gate):
+        h = hashlib.sha1(pathlib.Path(js).read_bytes()).hexdigest()
+        return (str(js), h, slug, gate)  # KHOA-NHO
+    def _dung(js, slug, gate):
         r = subprocess.run(["node", str(js), "--root", str(root), "--slug", slug, "--gate", gate],
                            capture_output=True, text=True)
-        if r.returncode == 0: RENDER["ok"] += 1; return r.stdout
+        return r.stdout if r.returncode == 0 else None
+    def dung_truoc(js, slug_list):
+        viec = [(s, g) for s in slug_list for g in ("1", "2") if _khoa(js, s, g) not in _NHO]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=_LUONG) as ex:
+            for (s, g), out in zip(viec, ex.map(lambda sg: _dung(js, sg[0], sg[1]), viec)):
+                _NHO[_khoa(js, s, g)] = out
+    def card(js, slug, gate):
+        k = _khoa(js, slug, gate)
+        out = _NHO[k] if k in _NHO else _dung(js, slug, gate)
+        _NHO[k] = out
+        if out is not None: RENDER["ok"] += 1; return out
         RENDER["fail"] += 1; return None
 
     STAR = re.compile(r"\S*\*+\S*")
@@ -7005,6 +7051,7 @@ with tempfile.TemporaryDirectory() as d:
     #     NGUYEN VAN trong file nguon cua slug do. Khong dem, khong chuan hoa. ══
     def untraceable(js, only_slugs=None):
         """tra list (slug, gate, cum-sao-khong-truy-duoc)"""
+        dung_truoc(js, only_slugs or slugs)
         bad = []
         for slug in (only_slugs or slugs):
             sd = root / "_acceptance" / slug
@@ -7054,6 +7101,7 @@ with tempfile.TemporaryDirectory() as d:
     #     cua r1 lam 12/18 glob bi mien, ban cu cung xanh → mu, S4-r2). ══
     PATHSTAR = re.compile(r"(?:[A-Za-z0-9_.-]+/)+\*+|\*\*/[A-Za-z0-9_.*/-]+")
     def intact_count(js):
+        dung_truoc(js, slugs)
         n = 0
         for slug in slugs:
             src = (root / "_acceptance" / slug / "contract.md").read_text(encoding="utf-8")
@@ -7073,11 +7121,14 @@ with tempfile.TemporaryDirectory() as d:
     #    (auto-detect tu status) — tat ca phai dung duoc. ──
     RENDER["ok"] = RENDER["fail"] = 0
     attempted = 0
-    for slug in slugs:
+    def _cong_hien_hanh(slug):
+        return subprocess.run(["node", str(CARD), "--root", str(root), "--slug", slug],
+                              capture_output=True, text=True).returncode
+    with concurrent.futures.ThreadPoolExecutor(max_workers=_LUONG) as ex:
+        ma_cong = list(ex.map(_cong_hien_hanh, slugs))
+    for slug, ma in zip(slugs, ma_cong):
         attempted += 1
-        r = subprocess.run(["node", str(CARD), "--root", str(root), "--slug", slug],
-                           capture_output=True, text=True)
-        if r.returncode == 0: RENDER["ok"] += 1
+        if ma == 0: RENDER["ok"] += 1
         else: RENDER["fail"] += 1
     # attempted == len(slugs) la TAUTOLOGY (vong lap tang ca hai) — so voi
     # nguon DOC LAP: so thu muc viec co contract tren he tep (S4-r2)
@@ -7171,7 +7222,7 @@ with tempfile.TemporaryDirectory() as d:
     #     dau gach cheo, hai dau non-space) — mutant bold-strip do ngay. ══
     LEFTOVER = re.compile(r"(?:^|[^*/])\*\*(?=\S)[^*]+?(?<=\S)\*\*(?!\*)")
     def scan_corpus(strip_fn):
-        left, cum = [], 0
+        left, cum, hang = [], 0, []
         for slug in slugs:
             sd = root / "_acceptance" / slug
             for f in [sd / "contract.md", sd / "decisions.jsonl"]:
@@ -7182,8 +7233,10 @@ with tempfile.TemporaryDirectory() as d:
                     # Cap dam NAM TRONG doan ma phai duoc GIU (do la ngu nghia
                     # markdown chuan). Bo doan ma khoi input truoc khi kiem hau
                     # dieu kien, neu khong thuoc bao oan chinh hanh vi dung.
-                    out = strip_fn(re.sub(r"`[^`]*`", " ", line))
-                    if LEFTOVER.search(out): left.append((slug, line[:70], out[:70]))
+                    hang.append((slug, line, re.sub(r"`[^`]*`", " ", line)))
+        outs = strip_fn.many([h[2] for h in hang]) if hasattr(strip_fn, "many") else [strip_fn(h[2]) for h in hang]
+        for (slug, line, _), out in zip(hang, outs):
+            if LEFTOVER.search(out): left.append((slug, line[:70], out[:70]))
         return left, cum
     left_new, cum_count = scan_corpus(strip_new)
     assert not left_new, "corpus that: con cap dam-chuan CHUA LOT sau khi lot: %r" % left_new[:3]
@@ -11439,6 +11492,7 @@ if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
   failures=$((failures + 1))
 fi
+bc_tg_dong
 if [ "$failures" -gt 0 ]; then
   echo
   echo "Results: $failures failed"

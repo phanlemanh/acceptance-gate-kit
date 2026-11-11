@@ -8,43 +8,104 @@ on:
   pull_request:
 
 jobs:
-  tests:
+  # ── Lượt kiểm theo MẢNH — chỉ trên PR (hồ sơ luot-kiem-nhe) ─────────────────────────────────────────────
+  # Năm bộ kiểm từng chạy nối đuôi trong một việc, trung vị 58′. Trên PR chúng chạy song song theo mảnh bằng
+  # cơ chế chia mảnh của chính hai bộ chạy (`--manh`). Mảnh mjs chọn tệp bằng CÙNG hàm lượt chấm dùng
+  # (chia theo thứ tự tệp), chỉ khác số mảnh. Thêm/bớt vùng plugin hay đổi số mảnh: sửa danh sách dưới — ca
+  # LKN-AC1 (tests/scripts/luot-kiem-nhe.test.mjs) đỏ khi danh sách không phủ đúng lượt trọn.
+  manh:
+    if: github.event_name == 'pull_request'
+    name: tests · ${{ matrix.ten }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ten: 'scripts bash', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh bash' }
+          - { ten: 'scripts mjs 1/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:1/7' }
+          - { ten: 'scripts mjs 2/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:2/7' }
+          - { ten: 'scripts mjs 3/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:3/7' }
+          - { ten: 'scripts mjs 4/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:4/7' }
+          - { ten: 'scripts mjs 5/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:5/7' }
+          - { ten: 'scripts mjs 6/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:6/7' }
+          - { ten: 'scripts mjs 7/7', zsh: true, lenh: 'bash tests/scripts/run-tests.sh --manh mjs:7/7' }
+          - { ten: 'plugins vung 1', zsh: false, lenh: 'bash tests/plugins/run-tests.sh --manh vung:1' }
+          - { ten: 'plugins vung 2', zsh: false, lenh: 'bash tests/plugins/run-tests.sh --manh vung:2' }
+          - { ten: 'plugins vung 3', zsh: false, lenh: 'bash tests/plugins/run-tests.sh --manh vung:3' }
+          - { ten: 'hooks + workflows + ban do', zsh: false, lenh: 'bash tests/hooks/run-tests.sh && bash tests/workflows/run-tests.sh && node scripts/product-map.mjs --root . --check' }
+          - { ten: 'dieu-phoi', zsh: false, lenh: 'bash tests/bo-chay.sh node && node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs"' }
     steps:
-      # fetch-depth: 0 — bước `product-map.mjs --check` dưới đây hỏi LỊCH SỬ git
-      # để phân biệt "repo chưa từng dựng bản đồ" với "đã có rồi bị xoá". Trên
-      # clone nông (depth 1) commit bị graft nên git không thấy lần xoá nào, và
-      # chốt duy nhất canh miễn trừ t1 của ADR 0007 fail-open (S4-r15).
+      # fetch-depth: 0 — nhiều ca đọc lịch sử git (bản base từ commit cũ, product-map --check hỏi lần xoá).
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      # Phiên bản Node khai MỘT chỗ: .nvmrc ở gốc kho. Bộ chạy tự so với chính tệp ấy (tests/bo-chay.sh).
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
-      # zsh: lời dặn bước thiết kế ghi sổ bằng khối lệnh DEC-ID-RECIPE dưới vỏ zsh của máy chủ kho,
-      # nên ca CC-03 (tests/scripts/can-cu-s1.ca.mjs) chạy khối ấy dưới cả bash lẫn zsh và CỐ Ý đỏ khi
-      # máy thiếu zsh thay vì tự bỏ qua — đo lệnh shell trên đúng vỏ (hồ sơ buoc-len-thiet-ke-khong-hoi).
-      # Trần 5 phút + không hỏi: 12/10 một lượt của #332 treo ~1 g 47′ ở bước này vì job không có trần.
+          node-version-file: .nvmrc
+      # zsh: ca CC-03 (tests/scripts/can-cu-s1.ca.mjs) chạy khối lệnh sổ dưới cả bash lẫn zsh và CỐ Ý đỏ khi
+      # thiếu zsh (hồ sơ buoc-len-thiet-ke-khong-hoi). Trần 5 phút + không hỏi: 12/10 một lượt treo ~1 g 47′.
       - name: cài zsh (CC-03 chạy khối lệnh sổ dưới zsh)
+        if: matrix.zsh
+        timeout-minutes: 5
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: sudo apt-get update -q && sudo apt-get install -y -q zsh
+      - name: ${{ matrix.ten }}
+        run: ${{ matrix.lenh }}
+
+  # ── Kiểm bắt buộc `tests` (luật nhánh chính đòi đúng tên này) ─────────────────────────────────────────────
+  # PR: GOM kết quả các mảnh. `if: always()` là bắt buộc — thiếu nó, một mảnh đỏ làm việc này bị BỎ QUA, và
+  #     việc bị bỏ qua được GitHub tính là ĐẠT khi xét kiểm bắt buộc: PR đỏ vẫn gộp được.
+  # Đẩy lên nhánh chính: chạy TRỌN năm bộ không chia mảnh như trước — lỗi chỉ lộ khi chạy trọn không lọt.
+  tests:
+    name: tests
+    needs: [manh]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: gom kết quả các mảnh (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          KET_QUA_MANH: ${{ needs.manh.result }}
+        run: |
+          echo "kết quả các mảnh: $KET_QUA_MANH"
+          if [ "$KET_QUA_MANH" != success ]; then echo "::error::có mảnh không xanh (kết quả: $KET_QUA_MANH)"; exit 1; fi
+      # fetch-depth: 0 — bước `product-map.mjs --check` hỏi LỊCH SỬ git để phân biệt "repo chưa từng dựng bản
+      # đồ" với "đã có rồi bị xoá" (S4-r15); nhiều ca bộ kiểm dựng bản base từ commit cũ.
+      - uses: actions/checkout@v7
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        if: github.event_name == 'push'
+        with:
+          node-version-file: .nvmrc
+      - name: cài zsh (CC-03 chạy khối lệnh sổ dưới zsh)
+        if: github.event_name == 'push'
         timeout-minutes: 5
         env:
           DEBIAN_FRONTEND: noninteractive
         run: sudo apt-get update -q && sudo apt-get install -y -q zsh
       - name: scripts suite
+        if: github.event_name == 'push'
         run: bash tests/scripts/run-tests.sh
       - name: hooks suite
+        if: github.event_name == 'push'
         run: bash tests/hooks/run-tests.sh
       - name: plugins suite (gồm P33 chống glob-vào-cache)
+        if: github.event_name == 'push'
         run: bash tests/plugins/run-tests.sh
       - name: workflows suite (lớp thuần của acceptance-verify + execute-parallel)
+        if: github.event_name == 'push'
         run: bash tests/workflows/run-tests.sh
       - name: dieu-phoi suite (lõi Điều phối – Thợ + ca đóng gói DP1)
+        if: github.event_name == 'push'
         run: node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs"
-      # Bản đồ sản phẩm là view máy sinh: mọi PR đổi hồ sơ xưởng mà quên làm
-      # mới nó là bản đồ nói dối. Bốn thân cổng người hứa với người ký rằng
-      # "CI bắt drift" — bước này là chỗ lời hứa đó có thật. Thiếu nó thì bản
-      # đồ chỉ được kiểm khi tình cờ có ai chạy một vòng nghiệm thu.
+      # Bản đồ sản phẩm là view máy sinh: mọi PR đổi hồ sơ xưởng mà quên làm mới nó là bản đồ nói dối. Bốn thân
+      # cổng người hứa với người ký rằng "CI bắt drift" — bước này là chỗ lời hứa đó có thật.
       - name: bản đồ sản phẩm khớp hồ sơ xưởng
+        if: github.event_name == 'push'
         run: node scripts/product-map.mjs --root . --check
 
   # design-floor bước 1 — hợp đồng nhập cho mã Design OS sẽ vendor (design-floor/HOP-DONG-NHAP.md).
@@ -64,7 +125,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version-file: .nvmrc
+      - uses: ./.github/actions/node-tu-xung
       - name: esbuild + gói npm ghim của bộ đo và bản gói
         run: npm ci --prefix tests/design-floor --no-audit --no-fund
       - name: sổ vá + rào đóng kín + bản gói + bộ đo hợp đồng + chiều đỏ
@@ -83,7 +145,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version-file: .nvmrc
+      - uses: ./.github/actions/node-tu-xung
       - name: jsdom ghim của bộ ca design-eval
         run: npm ci --prefix tests/design-eval --no-audit --no-fund
       - name: design-eval (static + dom, ca KD đòi chạy)
@@ -99,7 +162,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version-file: .nvmrc
+      - uses: ./.github/actions/node-tu-xung
       # LUÔN truyền base. Trước đây job này chạy không --base vì "push không có
       # nhánh base", và luật gap-probe khi đó chỉ bỏ qua kèm NOTE. Từ khi mode
       # `required` có sàn fail-CLOSED (d-128), "không xác định được phạm vi" là

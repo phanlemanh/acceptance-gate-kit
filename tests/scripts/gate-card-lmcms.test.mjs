@@ -2,9 +2,9 @@
 // thẻ, cột SẼ/KHÔNG, luật rơi bậc, câu gộp máy-sinh, bảng định tuyến.
 // Fixture CODE-SINH trong chính lần chạy; mọi chuỗi ghim RÚT từ hằng của
 // scripts/gate-card.js (khuôn gmpick) — không gõ literal ở phía test.
-import { spawnSync } from 'node:child_process';
+import { spawnSync, spawn } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { tmpdir, cpus } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -211,6 +211,29 @@ const FIX = path.join(SCAN_ROOT, 'tests', 'scripts', 'fixtures');
 // bằng hai khuôn, và đó đúng là seam mà luật «thước gắn vào vật» gọi tên.
 import { settled as settledOf, routingLine } from './routing-baseline.mjs';
 const settled = slug => settledOf(SCAN_ROOT, slug);
+// Trích sẵn song song (hồ sơ luot-kiem-nhe, AC-9): LM13 và LM20 cùng gọi `gate-card.js --extract` cho TỪNG hồ sơ
+// đã chốt trên CÙNG gốc quét — 7–9′ trên máy lượt kiểm tự động, mỗi lần một tiến trình node. Trích MỘT lần cho cả
+// hai ca, song song theo số lõi, rồi hai ca đọc chung bảng; điều mỗi ca khẳng định không đổi. Chỉ trích khi một
+// trong hai ca sẽ chạy (LMCMS_ONLY), nên chạy lẻ một ca khác vẫn rẻ như cũ.
+const TRICH = new Map();
+const seChay = n => !ONLY || n.startsWith(ONLY);
+if (seChay('LM13 quet xuong') || seChay('LM20 quet xuong')) {
+  const acc = path.join(SCAN_ROOT, '_acceptance');
+  const hang = readdirSync(acc).filter(slug => existsSync(path.join(acc, slug, 'contract.md')) && settled(slug));
+  const motLan = slug => new Promise(res => {
+    const c = spawn('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract']);
+    let out = '';
+    c.stdout.setEncoding('utf8'); c.stdout.on('data', d => { out += d; });
+    c.stderr.resume();
+    c.on('close', status => res({ status, stdout: out }));
+    c.on('error', () => res({ status: -1, stdout: '' }));
+  });
+  let i = 0;
+  const tho = async () => { while (i < hang.length) { const slug = hang[i++]; TRICH.set(slug, await motLan(slug)); } };
+  await Promise.all(Array.from({ length: Math.max(2, Math.min(8, cpus().length)) }, tho));
+}
+const trich = slug => TRICH.get(slug)
+  ?? spawnSync('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
 // Baseline đã ĐỊNH ĐOẠT từng dòng (sweep-baseline.txt). Ca này giữ nó: một cờ
 // vàng MỚI ở bất kỳ hồ sơ nào — kể cả hồ sơ đã có tên trong baseline — đều
 // lệch, vì baseline ghi cả LOẠI cờ chứ không chỉ slug.
@@ -223,7 +246,7 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
     if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
-    const r = spawnSync('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    const r = trich(slug);
     if (r.status !== 0) continue;
     let j; try { j = JSON.parse(r.stdout); } catch { continue; }
     const o = j.out_of_contract || {};
@@ -250,7 +273,7 @@ check('LM20 quet xuong: routing (hoi|bao) tung ho so == routing-baseline da dinh
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
     if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
-    const r = spawnSync('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    const r = trich(slug);
     let j; try { j = JSON.parse(r.stdout); } catch { j = null; }
     // Hồ sơ làm bộ dựng thẻ sập KHÔNG được bỏ qua im lặng (Ngoài-hợp-đồng r1/r2/r3).
     if (r.status !== 0 || !j) { crashed.push(slug); continue; }

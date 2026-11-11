@@ -1,0 +1,11 @@
+name: Node tự xưng và tự so với .nvmrc
+description: >
+  Gọi `bash tests/bo-chay.sh node` — in phiên bản Node đang chạy, so với lời khai `.nvmrc` của kho và đỏ khi lệch
+  (hồ sơ luot-kiem-nhe). Dạng hành động (`uses:`) để việc nào ghim danh sách lệnh `run:` của mình (design-eval, ca
+  KD8-ci) vẫn kiểm được Node mà không thêm lệnh vào danh sách ấy. Đặt SAU checkout và setup-node.
+runs:
+  using: composite
+  steps:
+    - name: Node tự xưng và tự so với .nvmrc
+      shell: bash
+      run: bash tests/bo-chay.sh node
