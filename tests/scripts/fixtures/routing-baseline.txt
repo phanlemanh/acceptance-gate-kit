@@ -250,3 +250,4 @@ t3-can-ho-so-arm	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoà
 lenh-cho-khoa-nhay-duong-dan	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
 release-2-38-1	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 doc-jsx-va-ban-do-hong	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
+t3-arm-chu-ky-khong-im	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo

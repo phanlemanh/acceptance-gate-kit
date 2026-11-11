@@ -1,0 +1,94 @@
+schema_version: 1
+feature_slug: t3-arm-chu-ky-khong-im
+# Mọi eval chạy ca HA<k> của tests/scripts/t3-can-ho-so-arm.test.mjs qua rang/chay-ca.sh của hồ sơ t3-can-ho-so-arm: ghim số
+# ca chọn và dòng PASS từng ca. Kho thử do code sinh trong lượt; đường dẫn suy từ vị trí tệp. Máy «thiếu lib» là bản sao trọn
+# thư mục bị xoá đúng lib/evidence-core.cjs; máy «thiếu node» là PATH cắt, ca tự kiểm `command -v node` phải trượt trong tiến
+# trình mới. Mỗi ca -do đo CÙNG một kho thử hai lần: máy đủ công cụ rồi máy thiếu, nên «bản thử chết sớm» không cho xanh giả.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.t3ak_e1
+    expected: >
+      Exit 0, «Results: 5 passed, 0 failed», PASS của HA37-do (machine-cleared), HA38-do (verified), HA39-do (implemented),
+      HA40-do (signed-off), HA37-mut. Mỗi ca -do, trên CÙNG kho thử: máy đủ công cụ → thoát 1, `feat: hạng T2 chưa có chữ ký
+      người`, không có `không kiểm được chữ ký người`; máy thiếu lib → thoát 1, VIOLATION [PR] chứa `no record in it is judged
+      by the gate`, nêu core/k.js, nêu `feat: hạng T2 không kiểm được chữ ký người — thiếu lib/evidence-core.cjs (mang cổng vào
+      repo phải copy CẢ lib/)`. Chiều đỏ: bỏ khối mới thì máy thiếu lib ra `pre-merge-check: clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.t3ak_e2
+    expected: >
+      Exit 0, «Results: 2 passed, 0 failed», PASS của HA41-do và HA41-mut. HA41-do, CÙNG kho thử T2 có chữ ký: máy đủ công cụ →
+      thoát 0, `pre-merge-check: clean` (đối chứng dương); máy thiếu lib → thoát 1 với lý do của AC-1. HA41-mut: bản sao gỡ
+      nhánh lý do → `clean`. Chiều đỏ: chữ ký có thật cũng không được tính khi không đọc được.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.t3ak_e3
+    expected: >
+      Exit 0, «Results: 3 passed, 0 failed», PASS của HA42-do, HA43-do, HA42-mut. HA42-do, CÙNG kho thử T2 có chữ ký: máy đủ công
+      cụ → `clean`; PATH không có node → thoát 1, nêu `feat: hạng T2 không kiểm được chữ ký người — thiếu node (cài node trên
+      máy chạy cổng)`. HA43-do: T2 máy-thông chưa ký, PATH không có node → thoát 1, nêu cùng lý do. Ca kiểm PATH đã cắt
+      thật sự không có node trong tiến trình mới, không thì ca đỏ vì fixture. HA42-mut: gỡ nhánh lý do → `clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.t3ak_e4
+    expected: >
+      Exit 0, «Results: 5 passed, 0 failed», PASS của HA44-im, HA45-im, HA46-im, HA47-im, HA48-bien. Mỗi ca chạy CẢ HAI máy, tổng
+      mười ô viết trước, mỗi ô ghim mã thoát và thông điệp: HA44-im (T3 có ký): thiếu lib 0 + `clean`, thiếu node 0 + `clean`.
+      HA45-im (code thường, T2 máy-thông chưa ký): thiếu lib 0 + `clean`, thiếu node 1 + `VIOLATION [feat]: status machine-cleared
+      nhưng hồ sơ còn cần người`. HA46-im (`--no-t1-escape`, T2 có ký): cả hai 0 + `clean` + `T1-ESCAPE: NOT ENFORCED`. HA47-im (T2
+      máy-thông chưa ký cạnh T3 có ký): thiếu lib 0 + `clean`, thiếu node 1 + cùng thông điệp `VIOLATION [feat]`. Tám ô trên không có
+      `không kiểm được chữ ký người`. HA48-bien (`recheck: strict`, T2 có ký): thiếu lib 1 + `evidence re-check KHÔNG CHẠY ĐƯỢC (exit
+      2)` + lý do thiếu lib; thiếu node 1 + `evidence re-check KHÔNG CHẠY ĐƯỢC (node vắng)` + lý do thiếu node.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.t3ak_e5
+    expected: >
+      Exit 0, «Results: 3 passed, 0 failed», PASS của HA37-mut (T2 máy-thông chưa ký, máy thiếu lib), HA41-mut (T2 có ký, máy thiếu
+      lib), HA42-mut (T2 có ký, máy thiếu node). Mỗi ca: bản chưa tiêm chặn đúng lý do trước, rồi bản sao gỡ đúng một nhánh lý do trên
+      CÙNG kho thử → thoát 0 và `pre-merge-check: clean`. Ca đỏ nếu chỉ thấy lý do biến mất mà không về `clean`, nên bản sao hỏng
+      không cho xanh giả. Hồ sơ máy-thông trên máy thiếu node bị luật khác chặn nên không có ca gỡ về `clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.t3ak_e6
+    expected: >
+      Exit 0, «Results: 63 passed, 0 failed», đủ 63 dòng PASS theo danh sách tên ghi đích danh trong lệnh (46 ca đã có tại 97886eea
+      cộng 17 ca mới), thiếu một tên là đỏ và nêu tên ca. HA36-bang đối chiếu mười một lý do với mười một kim, thêm dòng gán lý do
+      mà quên kim thì đỏ, ghim `bảng viết trước có 11 lý do`. Kèm phép đo additive-only của hai tệp cưỡng chế xanh.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs, tests/scripts/additive-only.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.t3ha_e8
+    expected: >
+      Exit 0 và dòng tổng kết của rang/vi-phan-kho.mjs: mỗi PR trong rang/ds-pr.json của t3-can-ho-so-arm cho đúng kết quả đã
+      chốt trên máy đủ công cụ, lệch một PR là đỏ và nêu tên PR. Dưới sàn nhóm hoặc dưới 5 kho → exit 2 mù.
+    paths: [scripts/pre-merge-check.sh, _acceptance/t3-can-ho-so-arm/rang/vi-phan-kho.mjs, _acceptance/t3-can-ho-so-arm/rang/ds-pr.json]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.t3ak_e8
+    expected: >
+      Exit 0, «Results: 2 passed, 0 failed», PASS của HA49-do và HA49-mut. HA49-do, CÙNG kho thử khai `required_for` có T1, hồ sơ T1 có
+      chữ ký: máy đủ công cụ → thoát 0, `clean`; máy thiếu lib → thoát 1, nêu `feat: hạng T1 không kiểm được chữ ký người — thiếu
+      lib/evidence-core.cjs`. HA49-mut: gỡ nhánh lý do → `clean`.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/t3-can-ho-so-arm.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -295,7 +295,9 @@ downstream, and revisited at each release:
   it for ordinary code. A PR touching `t3_paths` needs more: at least one record
   in the PR that the gate actually judges for that code — `risk_tier` inside
   `signoff.required_for`, a `status`, changed beyond `opportunity.md` /
-  `decisions.jsonl`, and a human signature below T3. Ordinary code keeps the
+  `decisions.jsonl`, and a human signature below T3. A machine that cannot read
+  signatures (no node, or no `lib/evidence-core.cjs`) does not count a record
+  below T3, and says which one is missing. Ordinary code keeps the
   looser rule on purpose: self-declared T1 records and frontmatter-less seeds
   are in real use there. The PR that installs the kit is exempt, because its
   base has no gate yet. The kit's own suites keep their generated gap-probe

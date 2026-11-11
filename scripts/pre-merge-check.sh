@@ -847,6 +847,18 @@ t3_co_ho_so_arm() { # 0 iff có hồ sơ trong diff được cổng chấm cho c
             signoff_that "$d" || ly="hạng $t chưa có chữ ký người — code t3_paths phải có người ký" ;;
         esac
       fi
+      # Vế chữ ký không chạy được thì hồ sơ dưới T3 KHÔNG được tính (t3-arm-chu-ky-khong-im): không đọc được chữ ký
+      # thì không biết có người ký hay không. Hai lý do riêng để người đọc biết phải cài node hay chép lib.
+      if [ -z "$ly" ] && [ "$(printf '%s' "$t" | tr '[:lower:]' '[:upper:]')" != "T3" ]; then
+        case "$st" in
+          implemented|verified|signed-off|machine-cleared)
+            if ! command -v node >/dev/null 2>&1; then
+              ly="hạng $t không kiểm được chữ ký người — thiếu node (cài node trên máy chạy cổng)"
+            elif [ ! -f "$CHU_KY_LIB" ]; then
+              ly="hạng $t không kiểm được chữ ký người — thiếu lib/evidence-core.cjs (mang cổng vào repo phải copy CẢ lib/)"
+            fi ;;
+        esac
+      fi
     fi
     [ -z "$ly" ] && return 0
     T3_HO_SO_LY_DO="${T3_HO_SO_LY_DO}    $s: $ly"$'\n'

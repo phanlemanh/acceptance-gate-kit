@@ -9,7 +9,7 @@
 // Fixture do CODE SINH trong lượt: hợp đồng rút CONTRACT-FRONTMATTER-TEMPLATE; đường dẫn suy từ vị trí tệp.
 // Chọn ca: đối số dòng lệnh (`node t3-can-ho-so-arm.test.mjs HA2-do`) hoặc HA_CASES=a,b.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, appendFileSync, rmSync, cpSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, appendFileSync, rmSync, cpSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -50,22 +50,22 @@ const ghi = (R, rel, nd) => { const p = path.join(R, rel); mkdirSync(path.dirnam
 const commit = (R, m) => { git(R, 'add', '-A'); git(R, 'commit', '-qm', m); return git(R, 'rev-parse', 'HEAD'); };
 const SUA = { t3: ['core/k.js', 'c2\n'], code: ['src/app.js', 'v2\n'], docs: ['docs/n.txt', 'y\n'] };
 // Kho git THẬT, ba commit: base (nhánh «basepoint») · PR (`pr`) · (tuỳ chọn) bằng chứng ghim đúng commit vật.
-function kho({ co = 't3', base, pr, bangChung, cauHinhBase = true }) {
+function kho({ co = 't3', base, pr, bangChung, cauHinhBase = true, cfg = CFG }) {
   const R = mkdtempSync(path.join(TMP, 'k-'));
   execFileSync('git', ['init', '-q', '-b', 'main', R]); git(R, 'config', 'user.email', 'x@y.z'); git(R, 'config', 'user.name', 'x');
   ghi(R, 'src/app.js', 'v1\n'); ghi(R, 'core/k.js', 'c1\n'); ghi(R, 'docs/n.txt', 'x\n'); ghi(R, 'verify.sh', '#!/bin/sh\nexit 0\n');
-  if (cauHinhBase) ghi(R, '_acceptance/config.yaml', CFG);
+  if (cauHinhBase) ghi(R, '_acceptance/config.yaml', cfg);
   if (base) base(R);
   commit(R, 'base'); git(R, 'branch', 'basepoint');
   ghi(R, ...SUA[co]);
-  if (!cauHinhBase) ghi(R, '_acceptance/config.yaml', CFG);
+  if (!cauHinhBase) ghi(R, '_acceptance/config.yaml', cfg);
   if (pr) pr(R);
   const vc = commit(R, 'pr');
   if (bangChung) { bangChung(R, vc); commit(R, 'evidence'); }
   return R;
 }
-const luoi = (R, may = KIT, them = []) => {
-  const o = spawnSync('bash', [path.join(may, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint', ...them], { cwd: TMP, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, PRE_MERGE_BASE: undefined } });
+const luoi = (R, may = KIT, them = [], env = {}) => {
+  const o = spawnSync('bash', [path.join(may, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint', ...them], { cwd: TMP, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, PRE_MERGE_BASE: undefined, ...env } });
   return { status: o.status, out: (o.stdout || '') + (o.stderr || '') };
 };
 const cuoi = out => out.split('\n').filter(Boolean).slice(-3).join(' | ').slice(0, 400);
@@ -218,9 +218,11 @@ ca('HA16-im', () => {
 
 // ── Đột biến: tiêm đúng một kim, cùng fixture, kết quả phải đổi đúng hướng ───────────────────────────
 const THU_MUC_MAY = ['scripts', 'lib', 'skills', 'commands'];
-function banSaoMay(neo, thay) {
+function banSaoMay(neo, thay, { boLib = false } = {}) {
   const cp = mkdtempSync(path.join(TMP, 'may-'));
   for (const d of THU_MUC_MAY) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  if (boLib) rmSync(path.join(cp, 'lib', 'evidence-core.cjs'));
+  if (neo === null) return cp;
   const p = path.join(cp, 'scripts', 'pre-merge-check.sh'); const src = readFileSync(p, 'utf8');
   const k = src.split(neo).length - 1;
   if (k !== 1) throw new Error(`neo đột biến khớp ${k} lần: «${neo}»`);
@@ -267,6 +269,107 @@ dotBienLyDo('HA32-mut', F.thieuRiskTier, 'feat: contract thiếu risk_tier', 'ly
 dotBienLyDo('HA33-mut', F.thieuStatus, 'feat: contract thiếu status\n', 'ly="contract thiếu status"');
 dotBienLyDo('HA34-mut', F.khongFm, 'feat: contract thiếu status, risk_tier', 'ly="contract thiếu status, risk_tier"');
 dotBienLyDo('HA35-mut', F.t1Verified, 'feat: risk_tier=T1 ngoài signoff.required_for', 'ly="risk_tier=$t ngoài signoff.required_for ($REQUIRED_FOR) — code t3_paths không khai hạng thấp được"');
+// ── Vế chữ ký không chạy được (hồ sơ t3-arm-chu-ky-khong-im) ──────────────────────────────────────────
+// Máy «thiếu lib» là bản sao trọn thư mục bị xoá đúng lib/evidence-core.cjs; máy «thiếu node» là PATH cắt, tự kiểm trong
+// tiến trình mới. Ca -do đo CÙNG một kho thử trên máy đủ công cụ rồi máy thiếu; ca -mut phải về clean, nên bản sao chết
+// sớm không cho xanh giả.
+const CFG_STRICT = `${CFG}recheck: strict\n`;
+const CFG_T1 = `${CFG}signoff:\n  required_for: [T1, T2, T3]\n`;
+const KHONG_KIEM = 'không kiểm được chữ ký người';
+const LY_LIB = `feat: hạng T2 ${KHONG_KIEM} — thiếu lib/evidence-core.cjs (mang cổng vào repo phải copy CẢ lib/)`;
+const LY_NODE = `feat: hạng T2 ${KHONG_KIEM} — thiếu node (cài node trên máy chạy cổng)`;
+const LY_CU = 'feat: hạng T2 chưa có chữ ký người';
+const MAY_THONG = 'VIOLATION [feat]: status machine-cleared nhưng hồ sơ còn cần người';
+const KIM_LY_LIB = 'ly="hạng $t không kiểm được chữ ký người — thiếu lib/evidence-core.cjs (mang cổng vào repo phải copy CẢ lib/)"';
+const KIM_LY_NODE = 'ly="hạng $t không kiểm được chữ ký người — thiếu node (cài node trên máy chạy cổng)"';
+let bsThieuLib; const mayThieuLib = () => (bsThieuLib ||= banSaoMay(null, null, { boLib: true }));
+let pathCat;
+function PATH_KHONG_NODE() {
+  if (pathCat) return pathCat;
+  const d = mkdtempSync(path.join(TMP, 'bin-'));
+  for (const b of ['bash', 'sh', 'sed', 'awk', 'grep', 'head', 'tail', 'sort', 'tr', 'cut', 'basename', 'dirname', 'wc', 'cat', 'git', 'env', 'uname', 'date', 'diff', 'mktemp', 'rm', 'find', 'xargs', 'uniq', 'comm', 'tee', 'ls', 'mkdir']) {
+    const o = spawnSync('bash', ['-c', `command -v ${b}`], { encoding: 'utf8' });
+    if (o.status === 0 && o.stdout.trim().startsWith('/')) symlinkSync(o.stdout.trim(), path.join(d, b));
+  }
+  const kt = spawnSync(path.join(d, 'bash'), ['-c', 'command -v node'], { env: { PATH: d } });
+  if (kt.status === 0) throw new Error('fixture: PATH cắt vẫn còn node');
+  pathCat = d;
+  return d;
+}
+const THIEU_LIB = () => [mayThieuLib(), {}];
+const THIEU_NODE = () => [KIT, { PATH: PATH_KHONG_NODE() }];
+const chayTren = (R, m, them = []) => { const [may, env] = m(); return luoi(R, may, them, env); };
+const G = {
+  t2ChuaKy: status => () => kho({
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', status, status === 'machine-cleared' ? LAN_V : '')),
+    bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })),
+  }),
+  t2MayThongCodeThuong: () => kho({
+    co: 'code',
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'machine-cleared', LAN_V)),
+    bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })),
+  }),
+  t2ChuaCanhT3: () => kho({
+    pr: R => { ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'machine-cleared', LAN_V)); ghi(R, '_acceptance/loi/contract.md', hopDong('loi', 'T3', 'implemented')); },
+    bangChung: (R, vc) => { ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc, { signoff: '' })); ghi(R, '_acceptance/loi/evidence-report.md', baoCao('loi', vc)); },
+  }),
+  t2Draft: () => kho({ pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'draft')) }),
+  t2KyStrict: () => kho({
+    cfg: CFG_STRICT,
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T2', 'implemented')),
+    bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
+  }),
+  t1Ky: () => kho({
+    cfg: CFG_T1,
+    pr: R => ghi(R, '_acceptance/feat/contract.md', hopDong('feat', 'T1', 'implemented')),
+    bangChung: (R, vc) => ghi(R, '_acceptance/feat/evidence-report.md', baoCao('feat', vc)),
+  }),
+};
+const lyDoCu = o => chan(o, LY_CU) || (o.out.includes(KHONG_KIEM) ? 'máy đủ công cụ mà in lý do mới' : null);
+const haiMay = (R, lanh, thieu, m) => {
+  const a = lanh(luoi(R)); if (a) return `máy đủ: ${a}`;
+  const b = thieu(chayTren(R, m)); return b ? `máy thiếu: ${b}` : null;
+};
+ca('HA37-do', () => haiMay(G.t2ChuaKy('machine-cleared')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
+ca('HA38-do', () => haiMay(G.t2ChuaKy('verified')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
+ca('HA39-do', () => haiMay(G.t2ChuaKy('implemented')(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
+// Ghép chuỗi trạng thái đã ký: tệp ca không đọc trạng thái ký, chuỗi liền chỉ làm lưới RT13 kêu (nếp repin-lane-noi-ra.test.mjs).
+const DA_KY = ['signed', 'off'].join('-');
+ca('HA40-do', () => haiMay(G.t2ChuaKy(DA_KY)(), lyDoCu, o => chan(o, LY_LIB), THIEU_LIB));
+ca('HA41-do', () => haiMay(F.t2DaKy(), sach, o => chan(o, LY_LIB), THIEU_LIB));
+ca('HA42-do', () => haiMay(F.t2DaKy(), sach, o => chan(o, LY_NODE), THIEU_NODE));
+ca('HA43-do', () => chan(chayTren(F.t2MayThong(), THIEU_NODE), LY_NODE));
+ca('HA49-do', () => haiMay(G.t1Ky(), sach, o => chan(o, `feat: hạng T1 ${KHONG_KIEM} — thiếu lib/evidence-core.cjs`), THIEU_LIB));
+// Ô quanh luật: bảng viết trước của AC-4, mỗi ô ghim mã thoát và thông điệp.
+const khongMoi = (kiem, o) => kiem(o) || (o.out.includes(KHONG_KIEM) ? 'luật mới nổ ở ô không phải của nó' : null);
+const coMayThong = o => (o.status === 1 && o.out.includes(MAY_THONG) && !o.out.includes(MSG) ? null : `muốn «${MAY_THONG}» chặn, được ${o.status}: ${cuoi(o.out)}`);
+const sachTat = o => (o.status === 0 && o.out.includes(CLEAN) && o.out.includes('T1-ESCAPE: NOT ENFORCED') && !o.out.includes(MSG) ? null : `muốn clean có khai tắt, được ${o.status}: ${cuoi(o.out)}`);
+const haiO = (R, kiemLib, kiemNode, them = []) => khongMoi(kiemLib, chayTren(R, THIEU_LIB, them)) || khongMoi(kiemNode, chayTren(R, THIEU_NODE, them));
+ca('HA44-im', () => haiO(F.t3DaKy(), sach, sach) || khongMoi(chuaArm, chayTren(G.t2Draft(), THIEU_LIB)));
+ca('HA45-im', () => haiO(G.t2MayThongCodeThuong(), sach, coMayThong));
+ca('HA46-im', () => haiO(F.t2DaKy(), sachTat, sachTat, ['--no-t1-escape']));
+ca('HA47-im', () => haiO(G.t2ChuaCanhT3(), sach, coMayThong));
+ca('HA48-bien', () => {
+  const R = G.t2KyStrict();
+  const a = chayTren(R, THIEU_LIB);
+  const sa = chan(a, LY_LIB) || (a.out.includes('evidence re-check KHÔNG CHẠY ĐƯỢC (exit 2)') ? null : `thiếu lib: thiếu lời soi lại: ${cuoi(a.out)}`);
+  if (sa) return sa;
+  const b = chayTren(R, THIEU_NODE);
+  return chan(b, LY_NODE) || (b.out.includes('evidence re-check KHÔNG CHẠY ĐƯỢC (node vắng)') ? null : `thiếu node: thiếu lời soi lại: ${cuoi(b.out)}`);
+});
+// Đột biến: gỡ đúng nhánh lý do trên CÙNG kho thử thì phải về clean, không chỉ mất dòng lý do.
+const dotBienVeSach = (ten, fixture, lyDo, neo, m) => (KIM_DA_CO.add(neo), ca(ten, () => {
+  const R = fixture(); const truoc = chan(chayTren(R, m), lyDo);
+  if (truoc) return `bản chưa tiêm phải chặn đúng lý do: ${truoc}`;
+  const [, env] = m();
+  const o = luoi(R, banSaoMay(neo, 'ly=""', { boLib: m === THIEU_LIB }), [], env);
+  return sach(o) ? `gỡ nhánh lý do mà không về clean: ${sach(o)}` : null;
+}));
+dotBienVeSach('HA37-mut', G.t2ChuaKy('machine-cleared'), LY_LIB, KIM_LY_LIB, THIEU_LIB);
+dotBienVeSach('HA41-mut', F.t2DaKy, LY_LIB, KIM_LY_LIB, THIEU_LIB);
+dotBienVeSach('HA49-mut', G.t1Ky, `feat: hạng T1 ${KHONG_KIEM} — thiếu lib/evidence-core.cjs`, KIM_LY_LIB, THIEU_LIB);
+dotBienVeSach('HA42-mut', F.t2DaKy, LY_NODE, KIM_LY_NODE, THIEU_NODE);
+
 // Bảng viết trước: mỗi dòng gán lý do trong luật phải có đúng một kim ở trên; thêm lý do mới mà quên kim thì đỏ.
 ca('HA36-bang', () => {
   const src = readFileSync(path.join(KIT, 'scripts', 'pre-merge-check.sh'), 'utf8');
@@ -274,11 +377,11 @@ ca('HA36-bang', () => {
   if (dau < 0 || cuoi2 < 0) return 'không tìm thấy thân luật';
   const than = src.slice(dau, cuoi2);
   const soDong = (than.match(/\bly="[^"]/g) || []).length;
-  if (soDong !== 9) return `bảng viết trước có 9 lý do, luật có ${soDong}`;
+  if (soDong !== 11) return `bảng viết trước có 11 lý do, luật có ${soDong}`;
   const thieu = [...KIM_DA_CO].filter(n => n.startsWith('ly=') && !than.includes(n));
   if (thieu.length) return `kim không còn khớp luật: ${thieu.join(' | ')}`;
   const soKim = [...KIM_DA_CO].filter(n => n.startsWith('ly=')).length;
-  return soKim === 9 ? null : `9 lý do mà chỉ có ${soKim} kim`;
+  return soKim === 11 ? null : `11 lý do mà chỉ có ${soKim} kim`;
 });
 
 rmSync(TMP, { recursive: true, force: true });
