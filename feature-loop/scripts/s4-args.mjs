@@ -359,6 +359,11 @@ const diffTatCa = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').fi
     const K = require_(docKhuon);
     const bd = K.docThuMuc(root);
     if (bd.co_thu_muc) {
+      // Tệp bản đồ hỏng làm nhóm mất thì câu trả lời «không chạm nhóm nào» bên dưới là câu trả lời của một lưới mù: dừng.
+      // Lỗi không làm mất nhóm thì lưới vẫn đúng — nói ra một dòng, bước chấm khuôn báo chúng ở vòng có eval khuôn.
+      const matNhom = bd.mat_nhom || [];
+      if (matNhom.length) die(`bản đồ khuôn hỏng nên không biết hồ sơ ${flags.slug} có chạm nhóm trong tệp đó không — ${matNhom.join('; ')} — sửa tệp bản đồ rồi sinh lại, KHÔNG sinh tệp`);
+      for (const s of bd.sai) console.error(`s4-args: bản đồ khuôn có lỗi (bước chấm khuôn sẽ báo): ${s}`);
       const cham = [...new Set(diffTatCa.filter(f => !f.startsWith('_acceptance/')).flatMap(f => K.nhomCuaTep(bd, f).map(n => n.nhom)))];
       const thieuEvalKhuon = cham.length > 0 && !evals.some(e => e.ref === 'config:executors.design.khuon');
       if (thieuEvalKhuon) die(`hồ sơ ${flags.slug} chạm vùng nhóm ${cham.join(', ')} mà evals.yaml không có eval mang config:executors.design.khuon — thêm khối từ design-floor-khuon.mjs --goi-y-eval --nhom <nhóm>, KHÔNG sinh tệp`);
