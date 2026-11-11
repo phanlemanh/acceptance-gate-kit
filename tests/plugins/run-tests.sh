@@ -7044,6 +7044,8 @@ with tempfile.TemporaryDirectory() as d:
     for sd in sorted((root / "_acceptance").iterdir()):
         if sd.is_dir() and (sd / "contract.md").exists(): slugs.append(sd.name)
     assert slugs, "sanity: khong co slug nao"
+    # Khoa nho phai tach CONG: gop hai cong thi the cong 2 doc nham the cong 1 va moi kiem E7 tren cong 2 mu (luot-kiem-nhe).
+    assert _khoa(CARD, slugs[0], "1") != _khoa(CARD, slugs[0], "2"), "khoa nho gop hai cong — the cong 2 se doc nham the cong 1"
 
     def stars_in(text): return {s for s in STAR.findall(text) if "*" in s}
 
