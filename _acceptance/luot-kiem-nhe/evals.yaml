@@ -113,6 +113,7 @@ evals:
     criterion: AC-9
     executor: script
     cmd: config:executors.script.luot_kiem_nhe_ca_cham
+    long_running: 60
     expected: >
       Exit 0, có dòng PASS của LKN-AC9-p161, LKN-AC9-lm, LKN-AC9-do-p161-mot-cong, LKN-AC9-do-khoa-nho, LKN-AC9-do-lm13,
       LKN-AC9-do-lm20. Bản cũ của hai tệp ca rút bằng `git show <điểm rẽ khỏi nhánh chính>:<tệp>`; khi cần chạy bản cũ
