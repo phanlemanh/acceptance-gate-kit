@@ -949,7 +949,7 @@ design_floor:                       # bậc design-floor của kho (M2 = khai to
 **Bản đồ khuôn (`executors.design.khuon`).** Kho khai `design/patterns/<nhóm>.md` (khuôn tệp:
 `skills/acceptance/references/ban-do-khuon-template.md`; sinh nhóm mới bằng `design-floor-khuon.mjs --tao <nhóm>`) thì nối
 dòng `khuon:` trên và mỗi hồ sơ chạm vùng một nhóm khai một eval `cmd: config:executors.design.khuon` (khối mẫu:
-`--goi-y-eval --nhom <nhóm>`); thiếu eval ấy thì `s4-args` dừng lượt chấm và gọi tên nhóm. Luật lint của kho đọc cùng bản
+`--goi-y-eval --nhom <nhóm>`); thiếu eval ấy thì `s4-args` dừng lượt chấm và gọi tên nhóm; tệp bản đồ hỏng đến mức mất nhóm (không đọc được, thiếu `nhan_dien`) thì `s4-args` cũng dừng và gọi tên tệp. Luật lint của kho đọc cùng bản
 đồ bằng `createRequire('<acceptance-gate>/scripts/ban-do-khuon.cjs')` hoặc CLI `ban-do-khuon.cjs --root . --json`. Giới
 hạn: kho để `**/*.md` ở T1 (`risk_tiers.t1_skip_globs`) thì sửa bản đồ không làm hồ sơ nào hoá cũ — gỡ
 `design/patterns/**` khỏi T1 nếu muốn sửa bản đồ kéo xét lại hồ sơ của nhóm. `nhan_dien` dạng sổ đăng ký (không có

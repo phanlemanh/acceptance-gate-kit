@@ -128,6 +128,8 @@ executors:
     # mảnh mjs). RN-5 cần hai kho thử trên máy (QUY_HANG_ROOT hoặc ~/onehub-quy-hang · CRM_ROOT hoặc ~/dev/crm) nên tệp không
     # mang đuôi .test.mjs và KHÔNG vào feature_loop.suite_keys (kho vắng → thoát 2, mù).
     ban_do_khuon_roi_nhom: node tests/scripts/ban-do-khuon-roi-nhom.test.mjs
+    # Hồ sơ doc-jsx-va-ban-do-hong: ca DJ-1…DJ-8 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs của suite).
+    doc_jsx_va_ban_do_hong: node tests/scripts/doc-jsx-va-ban-do-hong.test.mjs
     ban_do_khuon_roi_nhom_hai_kho: node tests/scripts/ban-do-khuon-roi-nhom-hai-kho.mjs
     quet_het_han_rt5: "RT_CASES=RT5 node tests/plugins/ra-co-ten.test.mjs"
     # Hồ sơ kho-tri-thuc-va-lint (TT1, đợt tri-thuc-2410): ca KT-1…KT-9 chung một lệnh (đuôi .test.mjs — cũng chạy trong mảnh mjs).
@@ -645,6 +647,8 @@ executors:
     pmlk_e3: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK3 LK3-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in kho-lib-chep-hong dao-thu-tu; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK3(-do)? $c \" || exit 1; done'"
     pmlk_e4: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK4 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 1 passed, 0 failed\" || exit 1; for c in lui-ve-goc-kho; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK4(-do)? $c \" || exit 1; done'"
     pmlk_e5: "bash -c 'out=$(node tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs LK5 LK5-do 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qxF \"Results: 2 passed, 0 failed\" || exit 1; for c in quet-lop hinh-dang; do printf \"%s\\n\" \"$out\" | grep -qE \"^PASS: LK5(-do)? $c \" || exit 1; done'"
+    # Hồ sơ lenh-cho-khoa-nhay-duong-dan: ca KN-1..KN-7 chạy lệnh chờ sinh ra bằng vỏ thật; ghim 25 dòng «ok … - KN-», để tên ca không khớp không thành màu xanh.
+    kn_dieu_phoi: "bash -c 'out=$(node --test --test-reporter=tap tests/dieu-phoi/lenh-cho-khoa-nhay-duong-dan.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | grep -E \"^(not )?ok [0-9]+ - KN-|^# (pass|fail) \"; [ $rc -eq 0 ] || exit 1; [ \"$(printf \"%s\\n\" \"$out\" | grep -cE \"^ok [0-9]+ - KN-\")\" -eq 25 ]'"
     # Hồ sơ sua-loi-dau-chu-dong-vao (#477): ca SD-1..SD-6 của gói dieu-phoi — ghim số ca «ok … - SD-» bằng 6 và
     # «# fail 0», để mẫu tên không khớp ca nào (xanh rỗng của node --test) không thành màu xanh.
     sd_dieu_phoi: "bash -c 'out=$(node --test --test-reporter=tap tests/dieu-phoi/sua-loi-dau-chu-dong-vao.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | grep -E \"^(not )?ok [0-9]+ - SD-|^# (pass|fail) \"; [ $rc -eq 0 ] || exit 1; printf \"%s\\n\" \"$out\" | grep -qx \"# fail 0\" || exit 1; [ \"$(printf \"%s\\n\" \"$out\" | grep -cE \"^ok [0-9]+ - SD-\")\" -eq 6 ] || exit 1'"
@@ -1123,6 +1127,14 @@ executors:
     t3ha_e7: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA15-im HA16-im
     t3ha_e8: node _acceptance/t3-can-ho-so-arm/rang/vi-phan-kho.mjs
     t3ha_e9: bash _acceptance/t3-can-ho-so-arm/rang/chieu-do.sh
+    # Hồ sơ t3-arm-chu-ky-khong-im: ca HA37 trở đi của cùng tệp ca, cùng bộ chạy ca của hồ sơ t3-can-ho-so-arm.
+    t3ak_e1: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA37-do HA38-do HA39-do HA40-do HA37-mut
+    t3ak_e2: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA41-do HA41-mut
+    t3ak_e3: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA42-do HA43-do HA42-mut
+    t3ak_e4: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA44-im HA45-im HA46-im HA47-im HA48-bien
+    t3ak_e5: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA37-mut HA41-mut HA42-mut
+    t3ak_e6: "bash -c 'set -e; bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA1-do HA2-do HA3-do HA4-do HA5-do HA6-do HA20-do HA24-do HA21-do HA22-do HA23-do HA32-bien HA33-do HA27-bien HA28-bien HA29-bien HA30-bien HA31-bien HA7-im HA8-im HA9-im HA10-im HA11-im HA12-im HA13-im HA14-im HA25-im HA26-im HA15-im HA16-im HA17-mut HA18-mut HA19-mut HA3-mut HA4-mut HA5-mut HA6-mut HA20-mut HA21-mut HA22-mut HA23-mut HA32-mut HA33-mut HA34-mut HA35-mut HA36-bang HA37-do HA38-do HA39-do HA40-do HA37-mut HA41-do HA41-mut HA42-do HA43-do HA42-mut HA44-im HA45-im HA46-im HA47-im HA48-bien HA49-do HA49-mut; node tests/scripts/additive-only.test.mjs'"
+    t3ak_e8: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA49-do HA49-mut
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

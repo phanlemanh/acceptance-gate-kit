@@ -142,15 +142,17 @@ function chuanNhanDien(v) {
   return { nhan_dien: [], khong_doc_duoc: null };
 }
 
-// docBanDo(text, tep) → { nhom: Nhom|null, sai: string[], canh_bao: string[] }
+// docBanDo(text, tep) → { nhom: Nhom|null, sai: string[], canh_bao: string[], mat_nhom: string[] }
+// mat_nhom ⊂ sai: lỗi làm nhóm mất khỏi lưới «vòng có chạm nhóm không» (nhomCuaTep không còn thấy nó).
 function docBanDo(text, tep) {
   const sai = [];
   const canh_bao = [];
   const tach = tachFrontmatter(text);
-  if (!tach) return { nhom: null, sai: [`${tep}: không có frontmatter YAML`], canh_bao };
+  const khongDoc = ly => ({ nhom: null, sai: [ly], canh_bao, mat_nhom: [ly] });
+  if (!tach) return khongDoc(`${tep}: không có frontmatter YAML`);
   let y;
-  try { y = docYaml(tach.fm); } catch (e) { return { nhom: null, sai: [`${tep}: YAML không đọc được — ${e.message}`], canh_bao }; }
-  if (!y || typeof y !== 'object' || Array.isArray(y)) return { nhom: null, sai: [`${tep}: frontmatter không phải mapping`], canh_bao };
+  try { y = docYaml(tach.fm); } catch (e) { return khongDoc(`${tep}: YAML không đọc được — ${e.message}`); }
+  if (!y || typeof y !== 'object' || Array.isArray(y)) return khongDoc(`${tep}: frontmatter không phải mapping`);
   for (const k of KHOA_LOI) if (!(k in y)) sai.push(`${tep}: thiếu khoá ${k}`);
   for (const k of Object.keys(y)) {
     if (k === 'tep') canh_bao.push(`${tep}: ${TEP_CAP_DAU}`);
@@ -200,7 +202,7 @@ function docBanDo(text, tep) {
     dung_khi: dungKhi || null,
     tep,
   };
-  return { nhom, sai, canh_bao };
+  return { nhom, sai, canh_bao, mat_nhom: 'nhan_dien' in y ? [] : [`${tep}: thiếu khoá nhan_dien`] };
 }
 
 // ── Thư mục bản đồ của một kho ────────────────────────────────────────────────────────────────────────────────
@@ -211,11 +213,11 @@ function tepNhom(root) {
   return fs.readdirSync(d).filter(f => f.endsWith('.md') && !TEN_DANH_RIENG.includes(f)).sort();
 }
 
-// docThuMuc(root, {ghim}) → { co_thu_muc, nhom, sai, canh_bao, doi_sau_ghim }
+// docThuMuc(root, {ghim}) → { co_thu_muc, nhom, sai, canh_bao, doi_sau_ghim, mat_nhom }
 // ghim = { <nhóm>: <băm blob git> } (từ khuon-nap.json): nhóm đã ghim đọc ở băm ghim; bản trên cây khác băm → tên
 // nhóm vào doi_sau_ghim. Nhóm chưa ghim đọc bản trên cây.
 function docThuMuc(root, opts) {
-  const ra = { co_thu_muc: false, nhom: [], sai: [], canh_bao: [], doi_sau_ghim: [] };
+  const ra = { co_thu_muc: false, nhom: [], sai: [], canh_bao: [], doi_sau_ghim: [], mat_nhom: [] };
   const ds = tepNhom(root);
   if (!ds) return ra;
   ra.co_thu_muc = true;
@@ -235,6 +237,7 @@ function docThuMuc(root, opts) {
       }
     }
     ra.sai.push(...doc.sai);
+    ra.mat_nhom.push(...doc.mat_nhom);
     ra.canh_bao.push(...doc.canh_bao);
     if (!doc.nhom) continue;
     const n = doc.nhom;
@@ -278,6 +281,89 @@ function phanTichNhap(noi) {
   }
   return { goc, ns };
 }
+// ── Đọc một thẻ mở: từ ngay sau tên thẻ tới dấu `>` đóng thật. Một biểu thức dừng ở `>` đầu tiên, kể cả `=>` của hàm mũi
+// tên, nên chấm khe sai cả hai chiều (hồ sơ doc-jsx-va-ban-do-hong). Đây là bộ quét theo ngữ cảnh, không phải bộ phân tích
+// cú pháp — bộ đọc không dùng thư viện; dạng còn đọc sai đã khai ở Out of scope của hồ sơ. ───────────────────────────────
+const THE_DO = 'thẻ không đọc được';
+const MO_REGEX = '(,=:[!&|?{';
+const laChuCai = c => /[\p{L}\p{N}_$]/u.test(c || '');
+function truocCoNghia(s, i) { let j = i - 1; while (j >= 0 && /\s/.test(s[j])) j--; return j >= 0 ? s[j] : '('; }
+// Chuỗi một dòng bắt đầu ở s[i] → vị trí sau dấu đóng, hay -1 khi không có cặp trên dòng ấy.
+function cuoiChuoi(s, i) {
+  for (let j = i + 1; j < s.length && s[j] !== '\n'; j++) {
+    if (s[j] === '\\') j++;
+    else if (s[j] === s[i]) return j + 1;
+  }
+  return -1;
+}
+function cuoiRegex(s, i) {
+  let lop = false;
+  for (let j = i + 1; j < s.length && s[j] !== '\n'; j++) {
+    if (s[j] === '\\') j++;
+    else if (s[j] === '[') lop = true;
+    else if (s[j] === ']') lop = false;
+    else if (s[j] === '/' && !lop) return j + 1;
+  }
+  return -1;
+}
+function cuoiChuoiMau(s, i) {
+  for (let j = i + 1; j < s.length;) {
+    if (s[j] === '\\') { j += 2; continue; }
+    if (s[j] === '`') return j + 1;
+    if (s[j] === '$' && s[j + 1] === '{') { const k = cuoiNgoac(s, j + 1); if (k < 0) return -1; j = k; continue; }
+    j++;
+  }
+  return -1;
+}
+// Biểu thức `{…}` bắt đầu ở s[i] → vị trí sau `}` khớp, hay -1. Dấu nháy sát sau chữ, hay không có cặp trên dòng, là văn
+// bản của JSX lồng (`<p>it's</p>`), không phải chuỗi.
+function cuoiNgoac(s, i) {
+  let sau = 0;
+  for (let j = i; j < s.length;) {
+    const c = s[j];
+    if (c === '/' && s[j + 1] === '*') { const k = s.indexOf('*/', j + 2); if (k < 0) return -1; j = k + 2; continue; }
+    if (c === '/' && s[j + 1] === '/' && s[j - 1] !== ':') { const k = s.indexOf('\n', j); j = k < 0 ? s.length : k + 1; continue; }
+    if (c === '/' && MO_REGEX.includes(truocCoNghia(s, j))) { const k = cuoiRegex(s, j); if (k > 0) { j = k; continue; } }
+    if ((c === '"' || c === "'") && !laChuCai(s[j - 1])) { const k = cuoiChuoi(s, j); if (k > 0) { j = k; continue; } }
+    if (c === '`') { const k = cuoiChuoiMau(s, j); if (k < 0) return -1; j = k; continue; }
+    if (c === '{') sau++;
+    else if (c === '}' && --sau === 0) return j + 1;
+    j++;
+  }
+  return -1;
+}
+// Tham số kiểu của thẻ `<K<Hang> …` bắt đầu ở s[i] → vị trí sau `>` khớp, hay -1. `=>` trong kiểu hàm không đóng.
+function cuoiKieu(s, i) {
+  let sau = 0;
+  for (let j = i; j < s.length; j++) {
+    if (s[j] === '<') sau++;
+    else if (s[j] === '>' && s[j - 1] !== '=' && --sau === 0) return j + 1;
+  }
+  return -1;
+}
+// docTheMo(noi, i) — i đứng ngay sau tên thẻ. → { phang, tuDong, spread } | null (không tới được dấu đóng).
+// `phang`: chỉ còn tên thuộc tính cấp thẻ, giá trị rút thành "" hay {} — khe nằm trong chuỗi hay biểu thức con không tính.
+function docTheMo(noi, i) {
+  let j = i;
+  let phang = '';
+  let spread = false;
+  if (noi[j] === '<') { j = cuoiKieu(noi, j); if (j < 0) return null; }
+  while (j < noi.length) {
+    const c = noi[j];
+    if (c === '>') return { phang, tuDong: /\/\s*$/.test(phang), spread };
+    if (c === '/' && noi[j + 1] === '*') { const k = noi.indexOf('*/', j + 2); if (k < 0) return null; j = k + 2; continue; }
+    if (c === '/' && noi[j + 1] === '/') { const k = noi.indexOf('\n', j); if (k < 0) return null; j = k + 1; continue; }
+    if (c === '"' || c === "'") { const k = noi.indexOf(c, j + 1); if (k < 0) return null; phang += '""'; j = k + 1; continue; }
+    if (c === '{') {
+      const k = cuoiNgoac(noi, j); if (k < 0) return null;
+      if (/^\{\s*\.\.\./.test(noi.slice(j, k))) spread = true;
+      phang += '{}'; j = k; continue;
+    }
+    phang += c;
+    j++;
+  }
+  return null;
+}
 const demThe = (noi, ten) => (noi.match(new RegExp(`<${thoatRe(ten)}(?![\\w$.])`, 'g')) || []).length;
 // lechTrongTep(nhom, tep, noiDung) → { lech: {tep, khoi, loai, thay?, so}[], khong_do: string[] }
 // so = số lần cặp (tệp, khối) xuất hiện — nợ cũ so theo cặp và số lần, không theo dòng đổi.
@@ -304,12 +390,12 @@ function lechTrongTep(nhom, tep, noiDung) {
     if (!cucBo.some(c => demThe(noi, c) > 0)) lech.push({ tep, khoi: ten, loai: 'khuon', so: 1 });
   } else if (nhom.khe_bat_buoc.length) {
     const thieu = new Map();
-    for (const c of cucBo) for (const m of noi.matchAll(new RegExp(`<${thoatRe(c)}(?![\\w$.])([^>]*)>`, 'g'))) {
-      const thuocTinh = m[1];
-      if (/\{\s*\.\.\./.test(thuocTinh)) { if (!khong_do.includes('thẻ mang spread')) khong_do.push('thẻ mang spread'); continue; }
-      const tuDong = /\/\s*$/.test(thuocTinh);
+    for (const c of cucBo) for (const m of noi.matchAll(new RegExp(`<${thoatRe(c)}(?![\\w$.])`, 'g'))) {
+      const the = docTheMo(noi, m.index + m[0].length);
+      if (!the) { if (!khong_do.includes(THE_DO)) khong_do.push(THE_DO); continue; }
+      if (the.spread) { if (!khong_do.includes('thẻ mang spread')) khong_do.push('thẻ mang spread'); continue; }
       for (const k of nhom.khe_bat_buoc) {
-        const co = k === 'children' ? !tuDong : new RegExp(`(^|\\s)${thoatRe(k)}(\\s*=|\\s|/|$)`).test(thuocTinh);
+        const co = k === 'children' ? !the.tuDong : new RegExp(`(^|\\s)${thoatRe(k)}(\\s*=|\\s|/|$)`).test(the.phang);
         if (!co) thieu.set(k, (thieu.get(k) || 0) + 1);
       }
     }
