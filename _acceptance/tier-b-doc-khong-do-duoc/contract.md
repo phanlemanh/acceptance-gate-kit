@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # tài liệu Tier B, một tệp ca trong tests/design-eval, config.yaml — không chạm hooks, lib, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-10-tier-b-doc-khong-do-duoc-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -67,3 +67,8 @@ Bỏ quét không gian: quyết định `bỏ coverage-scan` trong `decisions.js
 
 Một trang có màu bộ dò chưa đọc được sẽ giữ Tier B ở BLOCKED cho tới khi sửa màu hoặc thu phạm vi. Đó là chủ ý: không có lối đạt
 khi chưa đo được.
+
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-11:
+  - Ngoài-1: Ghi chú của phép kiểm Tier B liệt kê thiếu một số ca, nên người đọc có thể hiểu sai phép kiểm gồm những gì; kết quả kiểm không đổi.
+  - Ngoài-2: Một báo cáo tự xưng đạt vẫn có thể lọt cổng khi phần kiểm thiết kế ghi chưa đo được mà không kèm mã lỗi; chỉ ca đòi đo đủ mới bị chặn.
+  - Ngoài-3: Báo cáo mẫu dùng để thử cổng được viết tay theo đúng dạng cổng đọc, nên khuôn báo cáo thật đổi dạng thì phép thử vẫn có thể xanh.

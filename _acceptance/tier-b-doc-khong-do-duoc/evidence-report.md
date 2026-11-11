@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 15fa55139eebd92e24b06a37e0e6bb6a2cd1a051
-human_signoff:
+human_signoff: Manh Phan 2026-11-11
 ---
 
 # Evidence Report: tier-b-doc-khong-do-duoc
