@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lượt kiểm trước sau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36; --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif','Lora',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1240px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.3; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 760px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Cổng Phạm vi · hình cho thẻ quyết định</p>
+    <h1>Lượt kiểm tự động — hôm nay, và hai lối làm nó nhẹ đi</h1>
+
+    <!-- viewBox 0 0 1120 520. Timeline x=240..960 = 0..72 phút, 10px / phút.
+         Left label column x=24..224. Right column (nhánh chính) x=992..1100. -->
+    <svg viewBox="0 0 1120 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="6" height="6" fill="rgba(79,93,117,0.18)"/>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#4f5d75" stroke-width="1.6"/>
+        </pattern>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ─── Row zones ─── -->
+      <rect x="12" y="64" width="956" height="112" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <rect x="12" y="188" width="956" height="120" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <rect x="12" y="320" width="956" height="92" rx="6" fill="rgba(235,108,54,0.03)" stroke="rgba(235,108,54,0.35)" stroke-width="0.8"/>
+
+      <!-- ─── Time axis ─── -->
+      <text x="232" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">phút</text>
+      <text x="240" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">0</text>
+      <text x="340" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">10</text>
+      <text x="440" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">20</text>
+      <text x="540" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">30</text>
+      <text x="640" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">40</text>
+      <text x="740" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">50</text>
+      <text x="840" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">60</text>
+      <text x="940" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">70</text>
+      <line x1="240" y1="52" x2="960" y2="52" stroke="rgba(45,49,66,0.20)" stroke-width="0.8"/>
+      <line x1="340" y1="52" x2="340" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="440" y1="52" x2="440" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="540" y1="52" x2="540" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="640" y1="52" x2="640" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="740" y1="52" x2="740" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="840" y1="52" x2="840" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="940" y1="52" x2="940" y2="412" stroke="rgba(45,49,66,0.06)" stroke-width="0.6"/>
+      <line x1="240" y1="52" x2="240" y2="412" stroke="rgba(45,49,66,0.20)" stroke-width="0.8"/>
+
+      <!-- Right column header + divider -->
+      <line x1="976" y1="28" x2="976" y2="412" stroke="rgba(45,49,66,0.20)" stroke-width="0.8"/>
+      <text x="992" y="32" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">NHÁNH CHÍNH</text>
+      <text x="992" y="46" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lượt chạy trọn</text>
+
+      <!-- ═══ ROW 1 — Hôm nay ═══ -->
+      <text x="24" y="100" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Hôm nay</text>
+      <text x="24" y="116" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">một việc, năm bộ nối đuôi</text>
+      <text x="24" y="132" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">mọi lượt kiểm, PR lẫn nhánh chính</text>
+
+      <!-- bộ kiểm script: 0 → 34′ -->
+      <rect x="240" y="104" width="340" height="24" rx="4" fill="rgba(79,93,117,0.15)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="508" y="105" width="72" height="22" fill="url(#hatch)"/>
+      <text x="252" y="120" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif">bộ kiểm script · 34–40′</text>
+      <!-- móc ~0′ -->
+      <line x1="580" y1="88" x2="580" y2="104" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="580" y="84" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">móc ~0′</text>
+      <!-- bộ kiểm plugin: 34 → 50′ -->
+      <rect x="580" y="104" width="160" height="24" rx="4" fill="rgba(79,93,117,0.15)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="592" y="105" width="132" height="22" fill="url(#hatch)"/>
+      <text x="660" y="96" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">bộ kiểm plugin · 16–19′</text>
+      <!-- workflows 1,5′ -->
+      <rect x="740" y="104" width="16" height="24" rx="2" fill="rgba(79,93,117,0.15)" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="748" y1="128" x2="748" y2="148" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="748" y="160" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">workflows 1,5′</text>
+      <!-- điều phối 5′ -->
+      <rect x="756" y="104" width="52" height="24" rx="2" fill="rgba(79,93,117,0.15)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="782" y="96" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">điều phối 5′</text>
+      <!-- spread to the slower run: 57 → 67′ -->
+      <rect x="808" y="108" width="100" height="16" rx="2" fill="rgba(79,93,117,0.05)" stroke="rgba(79,93,117,0.45)" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="860" y="96" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">tổng 57–67′</text>
+      <!-- slow cases, labels below -->
+      <text x="544" y="144" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">hai ca dựng thẻ · 7–9′</text>
+      <text x="652" y="144" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">khối dựng thẻ · 13–16′</text>
+
+      <text x="992" y="116" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">57–67′</text>
+      <text x="992" y="132" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">đã đo</text>
+
+      <!-- ═══ ROW 2 — Lối A ═══ -->
+      <text x="24" y="220" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Lối A</text>
+      <text x="24" y="236" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chỉ chia mảnh</text>
+      <text x="24" y="252" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lượt kiểm của PR · mảnh song song</text>
+
+      <!-- a1: vùng plugin chỉ có khối dựng thẻ 13–16′ (mảnh dài nhất) -->
+      <text x="240" y="212" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">mảnh dài nhất: vùng plugin chỉ có khối dựng thẻ · 13–16′</text>
+      <rect x="240" y="220" width="132" height="20" rx="4" fill="url(#hatch)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="372" y="222" width="28" height="16" rx="2" fill="rgba(79,93,117,0.05)" stroke="rgba(79,93,117,0.45)" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="412" y="234" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">+ việc gom =</text>
+      <text x="480" y="234" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif">lượt PR ~16–20′ (ước)</text>
+
+      <!-- a2: mảnh chứa hai ca dựng thẻ ≥ 8′ -->
+      <text x="240" y="256" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">mảnh có hai ca dựng thẻ · ≥ 8′</text>
+      <line x1="320" y1="274" x2="348" y2="274" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="240" y="264" width="80" height="20" rx="4" fill="url(#hatch)" stroke="#4f5d75" stroke-width="1"/>
+
+      <!-- a3 -->
+      <text x="240" y="300" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">các mảnh khác chạy cùng lúc, ngắn hơn</text>
+
+      <text x="992" y="240" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">57–67′</text>
+      <text x="992" y="256" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">không đổi</text>
+
+      <!-- ═══ ROW 3 — Lối B (máy khuyên) ═══ -->
+      <text x="24" y="352" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Lối B · máy khuyên</text>
+      <text x="24" y="368" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chia mảnh + sửa ba ca chậm</text>
+      <text x="24" y="384" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lượt kiểm của PR · mảnh song song</text>
+
+      <text x="240" y="344" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">mảnh dài nhất: mảnh script nặng nhất · 8–12′ (ước)</text>
+      <rect x="240" y="352" width="80" height="20" rx="4" fill="rgba(235,108,54,0.12)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="320" y="354" width="40" height="16" rx="2" fill="rgba(235,108,54,0.04)" stroke="rgba(235,108,54,0.55)" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="372" y="366" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">+ việc gom =</text>
+      <text x="440" y="366" fill="#ba4513" font-size="10" font-weight="600" font-family="'Geist', sans-serif">lượt PR ~8–12′ (ước)</text>
+
+      <text x="240" y="396" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">các mảnh khác chạy cùng lúc, ngắn hơn · ba ca chậm đã sửa, không còn thanh gạch</text>
+
+      <text x="992" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">~35–45′</text>
+      <text x="992" y="380" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">ước</text>
+
+      <!-- ─── Legend ─── -->
+      <line x1="24" y1="428" x2="1096" y2="428" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="24" y="448" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="116" y="438" width="24" height="12" rx="2" fill="url(#hatch)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="148" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">ba ca chậm — dựng thẻ cho từng hồ sơ thật, chậm thêm theo mỗi hồ sơ ký</text>
+
+      <rect x="520" y="438" width="24" height="12" rx="2" fill="rgba(79,93,117,0.05)" stroke="rgba(79,93,117,0.45)" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="552" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">khoảng giữa số thấp và số cao</text>
+
+      <rect x="736" y="438" width="24" height="12" rx="2" fill="rgba(235,108,54,0.12)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="768" y="448" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lối máy khuyên</text>
+
+      <!-- ─── Ghi chú ─── -->
+      <text x="24" y="476" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Nhánh chính vẫn chạy trọn một việc — lối A 57–67′, lối B ước 35–45′.</text>
+      <text x="24" y="492" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Hàng «Hôm nay» đo từ hai lượt xanh trên nhánh chính; thanh vẽ theo lượt nhanh hơn, phần nét đứt là chênh tới lượt chậm hơn.</text>
+      <text x="24" y="508" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Số của lối A và lối B là ƯỚC, từ thời gian từng phần trong nhật ký; số thật đo trên lượt kiểm của PR vòng này.</text>
+    </svg>
+  </div>
+</body>
+</html>

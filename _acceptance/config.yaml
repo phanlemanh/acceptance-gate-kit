@@ -1131,6 +1131,8 @@ executors:
     t3ak_e5: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA37-mut HA41-mut HA42-mut
     t3ak_e6: "bash -c 'set -e; bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA1-do HA2-do HA3-do HA4-do HA5-do HA6-do HA20-do HA24-do HA21-do HA22-do HA23-do HA32-bien HA33-do HA27-bien HA28-bien HA29-bien HA30-bien HA31-bien HA7-im HA8-im HA9-im HA10-im HA11-im HA12-im HA13-im HA14-im HA25-im HA26-im HA15-im HA16-im HA17-mut HA18-mut HA19-mut HA3-mut HA4-mut HA5-mut HA6-mut HA20-mut HA21-mut HA22-mut HA23-mut HA32-mut HA33-mut HA34-mut HA35-mut HA36-bang HA37-do HA38-do HA39-do HA40-do HA37-mut HA41-do HA41-mut HA42-do HA43-do HA42-mut HA44-im HA45-im HA46-im HA47-im HA48-bien HA49-do HA49-mut; node tests/scripts/additive-only.test.mjs'"
     t3ak_e8: bash _acceptance/t3-can-ho-so-arm/rang/chay-ca.sh HA49-do HA49-mut
+    luot_kiem_nhe: node tests/scripts/luot-kiem-nhe.test.mjs
+    luot_kiem_nhe_ca_cham: node tests/scripts/luot-kiem-nhe-ca-cham.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
