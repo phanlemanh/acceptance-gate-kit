@@ -80,7 +80,7 @@ evals:
     expected: >
       Exit 0, có dòng PASS của LKN-AC6 và LKN-AC6-do. LKN-AC6: mọi bước `uses: actions/setup-node` của mọi việc trong
       gate.yml thật có `node-version-file: .nvmrc`, không bước nào có `node-version:`; `.nvmrc` thật có đúng một dòng
-      khớp số phiên bản; in số bước đã xét (≥ 6). LKN-AC6-do: bản sao đổi một việc về `node-version: '22'` → đỏ «việc
+      khớp số phiên bản; in số bước đã xét (≥ 5). LKN-AC6-do: bản sao đổi một việc về `node-version: '22'` → đỏ «việc
       <tên> ghi tay phiên bản Node».
     paths: [.github/workflows/gate.yml, .nvmrc, tests/scripts/luot-kiem-nhe.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

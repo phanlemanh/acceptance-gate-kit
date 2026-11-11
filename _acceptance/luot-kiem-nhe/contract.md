@@ -5,7 +5,7 @@ slug: luot-kiem-nhe
 owner: phanlemanh@gmail.com
 risk_tier: T2      # chạm .github/workflows/gate.yml, tests/**, .nvmrc — không tệp nào khớp t3_paths
 surfaces: [ci]
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-11-11
 design_doc: docs/superpowers/specs/2026-11-11-luot-kiem-nhe-design.md
