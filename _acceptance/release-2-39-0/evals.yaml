@@ -122,9 +122,9 @@ evals:
     cmd: config:executors.script.rel2390_goi_doi
     expected: >
       Exit 0 và dòng «XANH: hai gói chỉ đổi dòng version» — tập tệp đổi dưới `road-map/` và `tri-thuc/` từ `88d31b63` tới
-      HEAD bằng đúng hai manifest, và mọi dòng đổi trong đó là dòng "version". Chiều đỏ: cùng lệnh với mốc `c8fa5a65`
-      (v2.38.0) — tập tệp vẫn là hai manifest nhưng lệnh đo mọi dòng đổi, nên một dòng mô tả đổi thì in «ĐỎ: dòng đổi
-      ngoài "version"» và thoát 1; trước commit nâng số, tập tệp rỗng thì in «ĐỎ: tập tệp đổi khác hai tệp khai», thoát 1.
+      HEAD bằng đúng hai manifest, và mọi dòng đổi trong đó là dòng "version". Chiều đỏ trên cùng tệp lệnh, đo trước lượt
+      chấm: mốc `v2.33.0` (trước khi gói tri-thuc có lệnh ghi, kiểm) thoát 1 với «ĐỎ: tập tệp đổi khác hai tệp khai» và «ĐỎ:
+      dòng đổi ngoài "version":»; mốc HEAD (không tệp nào đổi) thoát 1 với «ĐỎ: tập tệp đổi khác hai tệp khai».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
