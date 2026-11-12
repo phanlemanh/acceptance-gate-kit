@@ -1,14 +1,326 @@
 # CHANGELOG — acceptance-gate kit
 
 > Mỗi release một mục, nói tiếng người: đổi gì · ai bị ảnh hưởng · làm gì khi
-> update. Sử chi tiết từng bản 1.x sống trong `description` của manifest
-> (`.claude-plugin/plugin.json`) — file này bắt đầu từ 2.0.0.
+> update. Sử chi tiết từng bản 1.x từng sống trong `description` của manifest
+> (`.claude-plugin/plugin.json`); từ 2.39.0 nó được chép nguyên văn ở
+> `docs/reference/su-mo-ta-plugin-toi-2-38-1.md`. Các mục số bắt đầu từ 2.13.0.
 >
 > Tệp này dựng lại 14/09/2026 (owner gọi tên). Bản gốc ra đời ở đợt tái lập
 > 2.0.0 nhưng nằm trên một nhánh không gộp vào nhánh chính, nên lịch sử
 > 2.0.0 → 2.12.0 **không** có ở đây: chuyện của mười hai mốc đó sống trong
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
+
+## 2.39.0 — 12/11/2026
+
+Mốc «Nhẹ đi»: ba việc chỉ bớt đi, cộng sáu hồ sơ được ký sau 2.38.1. Mốc này chặn đợt chuyển nhà sang kho kế nhiệm
+`delivery-loop` — vòng B1 của đợt chỉ mở khi một kho tiêu thụ đã cài 2.39 (kế hoạch chuyển nhà, mục 12, dãy A). Chủ kho
+11/11 chốt phạm vi ba việc; 12/11 «Nhận và mở 2.39 với phiên độc lập và trỏ trực tiếp vào repo Acceptance Gate Kit», nhận
+kho chờ là `onehub-quy-hang`. Có **sáu hồ sơ được ký** — tập đối chiếu bằng `_acceptance/release-2-39-0/cua-so.sh` (AC-4
+của hồ sơ mốc; tới 2.38.1 là `scripts/rel-cua-so.sh`): `do-tuong-phan-lab-oklab` (#489), `lenh-cho-khoa-nhay-duong-dan`
+(#492), `doc-jsx-va-ban-do-hong` (#493), `t3-arm-chu-ky-khong-im` (#495), `tier-b-doc-khong-do-duoc` (#498),
+`luot-kiem-nhe` (#499). Không PR nào khác gộp vào nhánh chính sau thẻ `v2.38.1`. Mốc đi **làn V**, không dựng răng mới.
+Năm gói `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc` cùng lên `2.39.0` (`acceptance-gate`,
+`feature-loop`, `dieu-phoi` đổi vật; `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.39.0` gắn
+vào commit gộp PR mốc.
+
+**Vì sao 2.39.0** (minor): số chủ kho gọi tên cho mốc ở kế hoạch chuyển nhà, và đúng nếp «minor cho bề mặt mới» (đoạn
+«Vì sao 2.37.0»): bộ quét thiết kế trong trình duyệt có tuỳ chọn mới `requireMeasured` và kết quả mới `KHONG-DO-DUOC`
+(`do-tuong-phan-lab-oklab`). Đổi hành vi chạm kho đang dùng khai thẳng ở «Ai bị ảnh hưởng» dưới: trang thiếu tương phản ở
+màu họ lab nay bị từ chối, PR đổi `t3_paths` trên máy thiếu `node` hay thiếu `lib/evidence-core.cjs` nay bị chặn, tệp bản
+đồ khuôn hỏng làm dừng lượt chấm, và mô tả plugin thôi mang sử.
+
+### Ba việc chỉ-bớt (hồ sơ `release-2-39-0`)
+
+Gốc: bộ kiểm tệp khai plugin của `repo-setup` 0.5.0 chạy thử trên kit (đo 12/11 trên `909dffd8`).
+
+- **Mô tả plugin còn hai câu.** Mô tả của `.claude-plugin/plugin.json` dài 84 582 ký tự, của
+  `feature-loop/.claude-plugin/plugin.json` dài 34 579; trần là 1 024. Nay: một câu nói plugin làm gì, một mục `v2.39.0`
+  (feature-loop kèm câu khai cặp `acceptance-gate >= 2.39.0`, ca P200 vẫn đòi hai thứ này). Sử từng bản trong mô tả chép
+  NGUYÊN VĂN vào `docs/reference/su-mo-ta-plugin-toi-2-38-1.md`, mỗi mục phiên bản một đoạn — 39 mục của `acceptance-gate`
+  và 34 của `feature-loop` không có mục nào ở tệp này (tệp này bắt đầu từ 2.13.0). Không chép vào đây vì ca PD7b quét mọi
+  tệp `.md` ở gốc kho, và chữ cũ mang lệnh cài plugin đời cũ. Ba ca kiểm ghim chữ lịch sử của mô tả gỡ cùng lượt: vế mô tả
+  của P88, vế ba của P133 (suite plugins, khai ở `tests/plugins/asserts-da-go.txt`) và PH8 (suite workflows).
+- **Gỡ `lib/eval-yaml.js`.** Tệp là shim một dòng trỏ sang `lib/eval-yaml.cjs`, giữ cho bản feature-loop trước 07/09/2026
+  còn đọc đường cũ; không mã nào trên cây gọi nó.
+- **Dời `scripts/rel-cua-so.sh` vào hồ sơ mốc** thành `_acceptance/release-2-39-0/cua-so.sh` — công cụ của người cắt mốc
+  kit, không phải lệnh của sản phẩm (nếp của `_acceptance/release-2-38-0/lop-chep-doi.sh`). Ba mươi khoá `rel*_cua_so` cũ
+  trong `_acceptance/config.yaml` trỏ sang đường mới; khối `BO-DOC-KHAI-GACH` của hồ sơ `ra-co-ten-lam-va-trao` gỡ hai dòng
+  đã chết (đường cũ, và mô tả plugin không còn chuỗi trạng thái ký).
+- **`.gitignore` bỏ qua `.env`.**
+- **Đo:** `_acceptance/release-2-39-0/ba-viec-tru.sh` đọc ba việc trên một thẻ bằng git — HEAD thoát 0, `v2.38.1` thoát 1 và
+  nêu đủ ba việc; `_acceptance/release-2-39-0/su-mo-ta.mjs` ghép lại tệp sử và so với mô tả ở `v2.38.1`, bằng đúng cho cả
+  hai plugin.
+- **Không thuộc mốc:** hai lỗi bố cục khác khuôn ấy báo — sáu plugin lệch phiên bản, plugin lõi lấy cả kho làm nguồn — là
+  việc của kịch bản chuyển nhà.
+
+### Bộ dò tương phản đo thật màu họ lab và độ trong suốt (hồ sơ `do-tuong-phan-lab-oklab`, T3)
+
+Gốc: Bộ dò `low-contrast` chỉ đọc `rgb()`, nên chữ Chrome báo dạng `lab()` hay `oklab()` bị bỏ qua và trang trả đạt, kể cả
+với `--require-measured`. Vòng này đóng lỗ đó và sửa lỗi nhỏ ở bước chấm S4 khi chú thích bị tính là mã màu thô.
+
+- **Vật:** Bộ dò tương phản đo thật màu lab, oklab, lch, oklch và độ trong suốt; màu không đọc được báo không đo được, không bao giờ đạt
+- **Đọc họ lab ở hai tầng** (cổng `scripts/design-gate.mjs` chế độ dom và bộ quét `scripts/design-scan.js`): `lab`, `oklab`,
+  `lch`, `oklch`, gồm cả cách viết phần trăm, `none` và số mũ (số mũ chỉ ở bộ quét vì jsdom bỏ chuỗi này). Chữ tương đương
+  `#f5f5f5` trên nền trắng: cả hai tầng từ chối, phát hiện ghi `text #f5f5f5 on #ffffff`; bộ máy gốc trên cùng trang trả đạt.
+  Mã hex phát hiện in ra đúng bằng điểm ảnh Chrome cho năm màu của bảng điểm ảnh.
+- **Độ trong suốt khi đo:** độ tương phản tính trên màu đã hoà với nền, ở `lab`, `lch`, `oklab`, `oklch`, `rgba` —
+  `oklab(0.97 0 0 / 0.2)` trên trắng ra `#fdfdfd`, `rgba(0, 0, 0, 0.2)` trên trắng ra `#cccccc`. Nền trong suốt hoà lên lớp dưới
+  (chữ trắng trên nền `oklab` đen 50% đặt trên trang trắng: từ chối với nền đã hoà `#808080`; nền 80% đạt). Alpha 0 không bị hoà.
+- **Gradient:** gradient `lab`, `oklab`, `oklch` được đọc; điểm dừng trong suốt được hoà với lớp dưới trước khi đo; gradient
+  mang `color(...)` ra không đo được. Sửa ở lượt chấm 1: lớp phủ trong suốt trên ảnh hoặc gradient khác nay báo không đo được
+  thay vì đo với màu trắng tự đặt.
+- **Không đọc được thì không đo được:** màu không đọc được (`color(display-p3 …)`, `color(srgb …)`) ở chữ, ở nền hay ở nền
+  tổ tiên → phán quyết `KHONG-DO-DUOC`, `do_duoc: false`, phát hiện mang lý do `mau-khong-doc-duoc`, thoát 0 (cổng) và
+  `exit_intent: 0` (quét), thoát 5 khi đòi đo đủ, không tính vào số lỗi chặn. Trang có thêm một chữ thiếu tương phản đo được thì
+  từ chối, kể cả khi đòi đo đủ (thoát 2); nền đục che lớp không đọc được thì lớp ấy không làm trang thành không đo được.
+  `color-mix(in srgb, …)` ra không đo được.
+- **Vá trên văn bản, vendor giữ nguyên:** `lib/design-bundle.mjs` áp danh sách vá lên bản gốc cho cả `lib/design-detect.mjs`
+  (jsdom) và `scripts/build-design-scan.mjs` (trình duyệt); `vendor/impeccable` giữ nguyên từng byte. Bản gốc mất một mốc vá
+  thì lỗi có câu `anchor must occur once` chứ không chạy bản chưa vá; `scripts/design-scan.js` khớp đúng bản dựng từ nguồn.
+- **Bước chấm S4 bỏ chú thích trước khi quét hex** (kho mức M1): `// issue #123` không bị báo; mã hex thô thật trong cùng tệp
+  vẫn bị chặn đúng số dòng; `//` nằm trong chuỗi rồi hex cùng dòng vẫn bị chặn, hex trong chuỗi `"// #abc"` vẫn bị chặn,
+  `/* #abc */` và chú thích JSX không bị báo.
+- **Đo trên Chromium thật:** hai trang tái lập dựng từ CSS do Tailwind 4 sinh (`bg-white text-neutral-100`,
+  `bg-background text-muted/20`) — cả hai từ chối với mã hex của màu chữ đã hoà, bộ máy gốc `c8fa5a65` trả đạt. Ca Chromium chạy
+  ở lượt chấm, chưa vào CI của kit.
+- **Hồ sơ viết sau code:** code có trước hồ sơ (PR 489, commit `b1576523` đỏ, `4444d38e` sửa); một tác tử sạch viết tiêu chí chỉ
+  từ đề bài rồi đối chiếu với AC-1..AC-10, lưu ở `doi-chieu-de-bai.md` (Hỏi-3).
+- **Giới hạn đã khai:** `color(srgb …)` và `color(display-p3 …)` chưa đo thật (Later, Hỏi-2). Thêm 8 mục chọn ở Cổng Bằng chứng
+  10/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-8 «Chữ trên một nền nửa trong suốt đặt lên nền chuyển màu có thể bị báo đạt dù
+  thực tế khó đọc.» và Ngoài-3 «Thẻ kính mờ đặt trên nền ảnh hoặc nền gradient có thể bị báo thiếu tương phản dù chữ vẫn đọc
+  tốt. Trang bị chặn nhầm cho đến khi người làm trang xử lý tay.» Ngoài-6 (Tier B chưa có lối đọc `KHONG-DO-DUOC`) chọn «mở hợp
+  đồng mới» — thành hồ sơ `tier-b-doc-khong-do-duoc` dưới.
+
+### Lệnh chờ khoá chạy được trên thư mục đợt lạ (hồ sơ `lenh-cho-khoa-nhay-duong-dan`, T2)
+
+Gốc: Ngoài-17, Ngoài-19 của Cổng Bằng chứng hồ sơ `t3-can-ho-so-arm` (10/11, chủ kho chọn «mở hợp đồng mới»); cùng lỗi
+đã ghi Known limits ở Ngoài-2 của hồ sơ `sua-loi-dau-chu-dong-vao`.
+
+- **Vật:** Lệnh chờ khoá của thợ thoát được khi thư mục đợt có dấu cách hay ký tự lạ — bọc nháy đường khoá, một bộ nháy dùng chung
+- **Lệnh chờ** là dòng `until jq … chu.json …; do sleep 15; done` do `lenhChoKhoa` sinh, `xin` in ở dòng «chờ (chạy
+  nền)». `lenhChoKhoa` bọc đối số đường khoá bằng `nhayDoiSo`; vị từ `.phien==` đi qua `JSON.stringify` rồi
+  `nhayDoiSo`, tên dãy thường cho đúng chuỗi cũ (design doc).
+- **Thư mục đợt lạ** (chứa ít nhất một ký tự ngoài `[A-Za-z0-9_./:@%+,-]`): với từng ký tự trong bảng chín phần tử (dấu
+  cách, nháy đơn, nháy kép, `$(…)`, backtick, `;`, `&`, `*`, chữ tiếng Việt có dấu), chạy nguyên văn lệnh chờ với khoá
+  đúng tên dãy thì thoát 0 và không lệnh nhúng nào trong tên thư mục được thi hành. Khoá vắng hoặc đứng tên dãy khác thì
+  lệnh vẫn sống sau ít nhất 2 vòng kiểm. Tên dãy chứa nháy đơn, nháy kép hoặc gạch chéo ngược: thoát 0 khi khoá đúng dãy
+  đó, còn chờ khi khoá của dãy khác.
+- **Thư mục đợt chỉ gồm ký tự an toàn:** chuỗi lệnh giống từng byte dạng không nháy cũ (bảng mười hai phần tử).
+- **Một bộ nháy:** `nhayDoiSo` có đúng một định nghĩa ở `dieu-phoi/scripts/nhay.mjs`; `nhay.mjs` chỉ import `./` hoặc
+  `node:`; `lenhBoc` của `hook-chan-s4.mjs` cho kết quả giống từng byte bảng bốn đầu vào chụp trước khi dời. Gói được
+  chép phẳng vào `<thư mục đợt>/loi/` (chép mọi `*.mjs`), nên bản lõi của đợt có `nhay.mjs` mà không phải khai đâu.
+- **Không đổi:** không thêm trần thời gian cho lệnh chờ; máy thiếu `jq` vẫn chờ mãi; các dòng lệnh khác in đường đợt
+  trần (`ghi_danh` của `tiep-tuc.mjs`, lời nhắc bàn giao của `hook-nhip.mjs`) để vòng riêng.
+- **Giới hạn đã khai:** 3 mục chọn ở Cổng Bằng chứng 10/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-2 «Hai ca thử lỗi cú
+  pháp có thể báo xanh dù lệnh chưa từng chạy khi môi trường hỏng.» và Ngoài-1 «Nếu bộ phát lịch thêm một tệp phụ, sáu ca
+  thử sẽ đỏ dù lệnh chờ vẫn chạy đúng.»
+
+### Bộ đọc thẻ của bước chấm khuôn và lưới bản đồ hỏng (hồ sơ `doc-jsx-va-ban-do-hong`, T2)
+
+Gốc: Hai lỗi có sẵn của lưới khuôn, chủ kho chọn «mở hợp đồng mới» ở Cổng Bằng chứng 2026-11-10 (Ngoài-4, Ngoài-5 của hồ sơ
+`t3-can-ho-so-arm`): màn viết đúng khuôn bị báo thiếu khe còn màn thiếu thật lọt qua, và tệp bản đồ hỏng làm nhóm biến mất
+khỏi lưới mà không ai hay.
+
+- **Vật:** Bước chấm khuôn đọc đúng thuộc tính thẻ có hàm mũi tên, và lượt chấm dừng khi tệp bản đồ khuôn hỏng làm mất nhóm
+- **Bộ quét thẻ mở** (`scripts/ban-do-khuon.cjs`) đi từ ngay sau tên thẻ tới dấu `>` đóng thật, bỏ qua trọn tham số kiểu của
+  thẻ, chuỗi, biểu thức trong ngoặc nhọn, chú thích giữa các thuộc tính; khe nằm trong chuỗi hay trong biểu thức con không được
+  tính là khe của thẻ. Thẻ `<K onClose={() => dong()} title="x" />` ở nhóm đòi khe `title` và `children`: bộ máy gốc báo thiếu
+  khe `title` và không báo thiếu `children`; bản mới báo thiếu `children` và không báo thiếu `title`.
+- **Spread:** thẻ có spread cấp thẻ đứng sau hàm mũi tên vào nhóm «thẻ mang spread» và không báo lệch; thẻ chỉ có spread nằm
+  trong giá trị `style={{...s}}` không vào nhóm đó và vẫn được chấm khe.
+- **Thẻ dở:** thẻ mở không có dấu đóng trước hết tệp, hoặc ngoặc nhọn không có ngoặc khớp tới hết tệp → bước chấm thoát 0, tệp
+  không có dòng thiếu khe, có dòng không đo được ghi «thẻ không đọc được», không được đếm theo khuôn.
+- **Thẻ không có `>` trong giá trị:** đầu ra và mã thoát bằng hệt bộ máy gốc.
+- **Lưới bản đồ hỏng** (`feature-loop/scripts/s4-args.mjs`): tệp bản đồ mắc lỗi mất nhóm (không có frontmatter, YAML không đọc
+  được, frontmatter không phải mapping, thiếu khoá `nhan_dien`) → sinh tham số thoát 2, không sinh tệp, stderr gọi tên đúng tệp
+  bản đồ và lý do — cả trên hồ sơ chạm vùng nhóm ấy mà thiếu eval khuôn lẫn trên hồ sơ không chạm vùng nào. Lỗi không làm mất
+  nhóm (ngoại lệ trỏ tệp không có, màn mẫu không có, ngoại lệ thiếu lý do): thoát 0, có tệp, mỗi lỗi đúng một dòng stderr.
+- **Không đổi:** CLI `--json` của bộ đọc bằng hệt bộ máy gốc (không thêm khoá); kho không khai bản đồ vẫn sinh tệp, không dòng
+  báo. GUIDE (đoạn «Bản đồ khuôn» của mục «Wire `executors.design`») thêm câu: tệp bản đồ hỏng đến mức mất nhóm thì `s4-args`
+  cũng dừng và gọi tên tệp.
+- **Giới hạn đã khai:** 7 mục chọn ở Cổng Bằng chứng 10/11, ở Notes hợp đồng (6 mục ngoài hợp đồng và 1 điểm trong hợp đồng
+  của lượt chấm 2) — đáng nhớ nhất: AC-2 «Năm nhánh bỏ qua của bộ đọc thẻ chưa có ca làm đỏ riêng, nên sửa nhầm chúng thì bộ
+  kiểm vẫn xanh; hành vi hiện tại vẫn đúng.» và Ngoài-4 «Xoá bớt một dạng thẻ khỏi bảng thử thì bộ kiểm vẫn xanh, nên dạng đó
+  có thể mất bảo vệ mà không ai hay.» Ngoài-5, Ngoài-7, Ngoài-8 (khoá `nhan_dien` có mặt nhưng rỗng vẫn làm nhóm mất khỏi lưới mà
+  không báo gì) chọn «mở hợp đồng mới», nên lỗi ấy còn trong bản giao.
+
+### Vế chữ ký của luật `t3_paths` không tắt im lặng (hồ sơ `t3-arm-chu-ky-khong-im`, T3)
+
+Gốc: mục Ngoài-16 ở Cổng Bằng chứng của `t3-can-ho-so-arm`, chủ kho chọn mở hợp đồng mới ngày 10/11/2026. Đo trên kho
+thử: có node, thiếu thư viện chữ ký, cổng không chạy `strict` thì hồ sơ T2 chưa ký ở cả bốn trạng thái đều ra `clean`.
+
+- **Vật:** Vế chữ ký của luật code t3_paths không được tắt im lặng
+- **Luật mới:** `recheck` mặc định (warn), PR đổi một tệp `t3_paths` kèm hồ sơ T2 ở một trong bốn trạng thái
+  `machine-cleared` · `verified` · `implemented` · `signed-off`, máy có node mà vắng `lib/evidence-core.cjs` → thoát 1,
+  dòng `VIOLATION [PR]` với cụm `no record in it is judged by the gate`, nêu tệp T3 và `feat: hạng T2 không kiểm được
+  chữ ký người — thiếu lib/evidence-core.cjs (mang cổng vào repo phải copy CẢ lib/)`, không in `pre-merge-check: clean`.
+  Máy không có node → lý do `feat: hạng T2 không kiểm được chữ ký người — thiếu node (cài node trên máy chạy cổng)`.
+- **Hồ sơ có chữ ký thật cũng không được tính trên máy thiếu công cụ:** T2 có chữ ký thoát 0 `clean` trên máy đủ công
+  cụ, thoát 1 với lý do trên khi máy vắng lib hoặc vắng node. Kho khai `signoff.required_for: [T1, T2, T3]`: hồ sơ T1 có
+  chữ ký trên máy vắng lib thoát 1, nêu `feat: hạng T1 không kiểm được chữ ký người — thiếu lib/evidence-core.cjs`.
+- **Không đổi** (bảng AC-4, đo trên bản trước vòng): T3 có chữ ký → `clean`; `--no-t1-escape` → `clean` kèm `T1-ESCAPE:
+  NOT ENFORCED`; code ngoài `t3_paths` theo luật cũ. Máy đủ công cụ giữ lý do cũ `feat: hạng T2 chưa có chữ ký người`.
+  `recheck: strict` vẫn chặn, nay kèm lý do mới (`evidence re-check KHÔNG CHẠY ĐƯỢC (exit 2)` ở máy thiếu lib,
+  `(node vắng)` ở máy thiếu node).
+- **Cách dựng:** một khối chỉ-thêm-dòng trong hàm `t3_co_ho_so_arm` của `scripts/pre-merge-check.sh`, không sửa dòng cũ,
+  để giữ luật «chỉ được thêm» của hai tệp cưỡng chế. Đoạn về `t3_paths` trong `README.md` thêm câu về máy không đọc được
+  chữ ký. Bộ ca: 46 ca cũ cộng 17 ca mới, `Results: 63 passed, 0 failed`; danh sách PR thật đã chốt của `t3-can-ho-so-arm`
+  cho đúng kết quả đã chốt.
+- **Giới hạn đã khai:** khai trước ở Notes: «hồ sơ T2 có chữ ký thật trên máy thiếu công cụ ở kho `recheck: warn` nay bị
+  chặn, gỡ bằng cài node hoặc chép `lib/`.» Thêm 5 mục chọn ở Cổng Bằng chứng 11/11, ở Notes hợp đồng (Ngoài-4, Ngoài-5 là
+  bản lặp của Ngoài-1, Ngoài-2 từ lượt chấm 1) — đáng nhớ nhất: Ngoài-1 «Một phép kiểm máy thiếu node chưa được so với máy
+  đủ công cụ trên cùng kho thử, nên nếu cổng sai ở đúng ca này thì bộ thử có thể không bắt được.»
+
+### Tier B có lối đọc cho kết quả không đo được (hồ sơ `tier-b-doc-khong-do-duoc`, T2)
+
+Gốc: Mục Ngoài-6 của hồ sơ `do-tuong-phan-lab-oklab`, người ký chọn «mở hợp đồng mới» ở Cổng Bằng chứng 10/11/2026. Bộ quét
+trong trình duyệt đã có kết quả thứ tư `KHONG-DO-DUOC` với mã 0, hoặc 5 khi đòi đo đủ, còn quy trình Tier B vẫn chỉ biết ba kết
+quả và hai mã. Tác tử đọc theo tài liệu không có lối ghi đúng và có thể ghi thành đạt.
+
+- **Vật:** Quy trình Tier B có lối đọc cho kết quả không đo được, kèm phép kiểm máy gắn bên viết với bên đọc
+- **Bảng đọc thay văn xuôi ở bước 5:** khối giữa cặp marker `TIER-B-DOC-KET-QUA` trong
+  `skills/acceptance/references/design-ui-check.md`, mỗi cặp (`verdict`, `exit_intent`) bộ quét trả về có đúng một hàng:
+  PASS 0 → PASS 0 · REJECT 2 → REJECT 2 · BLOCKED 1 → BLOCKED, không ghi mã · `KHONG-DO-DUOC` 0 → BLOCKED, không ghi mã ·
+  `KHONG-DO-DUOC` 5 → BLOCKED, mã 5.
+- **Không đo được ghi `BLOCKED`, ở cả hai mã**, kèm lý do nêu số phát hiện và mã nguyên nhân; chỉ hàng bộ quét báo đạt mới ghi
+  `PASS`; mã 0 không đứng cạnh kết quả khác `PASS`. Các câu đọc cũ chỉ biết ba kết quả không còn trong quy trình.
+- **Công thức luôn đòi đo đủ:** cả hai lời gọi trong công thức Tier B truyền `requireMeasured: true`, nên trang chưa đo được trả
+  mã 5, không trả mã 0.
+- **Kênh của tác tử chấm:** hàng ghi BLOCKED đặt cờ không chạy được kèm lý do, và trường mã không được là 0 — chép mã khác 0 của
+  bộ quét, mã 0 thì đặt 1. Lối ra của `KHONG-DO-DUOC` là sửa màu hoặc thu phạm vi có tên.
+- **Phép kiểm máy** `tests/design-eval/tier-b-loi-doc.test.mjs`: bộ quét thật chạy trong jsdom trên ma trận 10 ô viết trước, tập
+  cặp so hai chiều với bảng đọc; báo cáo dựng từ từng hàng đi qua bộ kiểm của cổng bằng chứng thật; mười bốn nhát phá đỏ với đúng
+  thông điệp ghim. Ca nằm trong bộ `tests/design-eval/run-tests.sh` (job CI `design-eval`).
+- **Không đổi:** mã của bộ quét, cổng bằng chứng, tầng `script` và luồng chấm S4.
+- **Giới hạn đã khai:** 3 mục chọn ở Cổng Bằng chứng 11/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-2 «Một báo cáo tự xưng đạt
+  vẫn có thể lọt cổng khi phần kiểm thiết kế ghi chưa đo được mà không kèm mã lỗi; chỉ ca đòi đo đủ mới bị chặn.»
+
+### Lượt kiểm tự động của kho kit nhẹ đi (hồ sơ `luot-kiem-nhe`, T2, vòng meta)
+
+Gốc: acceptance-gate-kit/_acceptance/ha-tang-khong-dot-luot — hồ sơ đã ký dựng cơ chế chia mảnh cho hai bộ chạy kiểm
+(AC-1…3, AC-8) để lượt chấm chạy dưới trần công cụ; AC-3 của nó ghi rõ lượt kiểm tự động «vẫn chạy trọn suite». Từ 24/09
+lượt chấm chạy mảnh, lượt kiểm tự động thì chưa.
+Gốc: acceptance-gate-kit/_acceptance/nen-chay-bang-moi-truong-nguoi-goi — hồ sơ đã ký ghi một lần đường nền đỏ giả vì
+tiến trình lấy Node 22 thay Node 24; cùng lớp lệch phiên bản Node mà vòng này muốn bộ chạy tự gọi tên.
+
+- **Vật:** Lượt kiểm tự động của kho kit nhẹ đi mà vẫn tin được — bộ kiểm chạy theo mảnh song song trên PR, giữ một lượt chạy trọn trên nhánh chính; bộ chạy kiểm tự xưng và tự so phiên bản Node với lời khai của kho; bảng thời gian từng ca do máy sinh trong chính lượt chạy; ba ca chậm nhất chạy nhanh hơn mà giữ nguyên điều chúng khẳng định
+- **Số nền** (`opportunity.md`, 11/11): lượt kiểm tự động trung vị 58 phút; ba ca P161, LM13, LM20 chiếm 20–24 phút mỗi
+  lượt; lượt kiểm tự động chạy Node 22, máy làm việc chạy Node 24.
+- **Trên PR:** việc mảnh chạy `scripts --manh bash`, `scripts --manh mjs:i/n`, `plugins --manh vung:k`, bộ móc, bộ
+  workflows, bộ điều phối và bước bản đồ (gate.yml hôm nay: `mjs:1/7`…`mjs:7/7`, `vung:1`…`vung:3`); danh sách tệp mjs của
+  các mảnh rời nhau từng đôi, hợp bằng đúng tập của lượt trọn. Việc `tests` là việc gom: cần việc mảnh, chạy kể cả khi
+  mảnh đỏ (`if: always()`), đỏ khi kết quả việc mảnh khác `success`; việc `gate` giữ tên.
+- **Trên nhánh chính:** việc `tests` chạy trọn năm bộ (script, móc, plugin, workflows, điều phối) và bước bản đồ, không
+  lệnh nào mang `--manh` hay đặt `SCRIPTS_SHARD` / `PLUGINS_SHARD`.
+- **Node:** kho khai Node ở một chỗ, `.nvmrc` ở gốc kho (= `24`); mọi bước `actions/setup-node` đọc `node-version-file:
+  .nvmrc`. Bộ chạy khớp in đúng một dòng `node: v<đang chạy> · kho khai <lời khai> (.nvmrc) · khớp`; lệch thoát 3 với
+  `node lệch: đang chạy v<…>, kho khai <…> (.nvmrc)`; vắng `.nvmrc` thoát 3 «kho chưa khai phiên bản Node»; lời khai
+  không đọc được thoát 3 «không đọc được lời khai». So theo độ chính xác người khai. Bốn bộ chạy bash kiểm trước dòng ca
+  đầu; ba việc `design-floor`, `design-eval`, `gate` kiểm bằng hành động dùng chung `.github/actions/node-tu-xung` (chạy
+  đúng `bash tests/bo-chay.sh node`).
+- **Bảng thời gian từng ca:** mỗi lượt ghi `.acceptance-runs/thoi-gian-ca/<bộ>-<mảnh>.tsv`, số hàng bằng số dòng kết quả
+  ca, danh sách chậm nhất in cuối lượt. Trên lượt kiểm tự động (`GITHUB_ACTIONS=true`), tệp tóm tắt nhận bảng tối đa 15
+  hàng chậm nhất có tên bộ và mảnh, nhật ký có nhóm thu gọn chứa trọn bảng.
+- **Ba ca chậm:** P161, LM13, LM20 cho dòng kết quả bằng bản cũ trên cùng cây. Sửa ở S3: quét kho chạy một tiến trình
+  cho cả lô, dựng thẻ chạy song song có nhớ, và P161 tự kiểm khoá nhớ.
+- **Giới hạn đã khai:** 4 mục chọn ở Cổng Bằng chứng 11/11, ở Notes hợp đồng — đáng nhớ nhất: Ngoài-3 «ca đo thời gian
+  chạy bộ móc thật và một vùng bộ plugin thật ngay trong cây đang chấm, nên có thể chồng lên lệnh bộ kiểm cùng lúc và
+  làm lượt chấm đỏ oan.» Ngoài-1, Ngoài-2 (mảnh PR của bộ workflows và bộ điều phối thiếu zsh) chủ kho chọn mở hợp đồng
+  mới — ghi hạt giống `docs/plans/2026-11-11-hat-giong-manh-pr-thieu-zsh.md`, không tạo ô.
+
+**Ai bị ảnh hưởng:**
+
+- **Kho chạy cổng thiết kế chế độ dom hoặc Tier B bộ quét** (`do-tuong-phan-lab-oklab`):
+  - Chữ hay nền họ lab (`lab`, `oklab`, `lch`, `oklch`) thiếu tương phản, trước trả đạt, nay bị từ chối.
+  - Chữ hay nền trong suốt, kể cả `rgba` cũ, nay đo trên màu đã hoà. Hỏi-1 ở Cổng Phạm vi khai thẳng «một số trang từng đạt
+    sẽ chuyển thành từ chối».
+  - Màu không đọc được (`color(display-p3 …)`, `color(srgb …)`, `color-mix(in srgb …)`) nay ra `KHONG-DO-DUOC` — thoát 0,
+    thoát 5 dưới `--require-measured` / `requireMeasured: true`.
+  - Lớp phủ trong suốt trên ảnh hoặc gradient báo không đo được. Ngoài-2 và Ngoài-3 là hai dạng từ chối oan đã khai.
+- **Kho chạy Tier B ở S4** (`tier-b-doc-khong-do-duoc`): trang có màu bộ dò chưa đọc được giữ Tier B ở BLOCKED cho tới khi
+  sửa màu hoặc thu phạm vi; trước mốc này trang ấy trả đạt.
+- **Kho design-floor mức M1** (`do-tuong-phan-lab-oklab`): chú thích như `// issue #123` trong tệp giao diện thôi bị bước
+  chấm S4 tính là hex thô.
+- **Kho khai `design/patterns/`** (`doc-jsx-va-ban-do-hong`): thẻ có hàm mũi tên đứng trước khe thôi bị báo oan thiếu khe;
+  thẻ tự đóng có hàm mũi tên ở nhóm đòi `children` nay bị báo thiếu `children`; thẻ dở ra dòng «thẻ không đọc được»; tệp
+  bản đồ mất nhóm làm `s4-args` dừng lượt chấm, kể cả hồ sơ không chạm vùng nào. Kho không có `design/patterns/`: không đổi.
+- **Kho có PR đổi `t3_paths` mà máy hay CI chạy cổng thiếu `node` hoặc thiếu `lib/evidence-core.cjs`**
+  (`t3-arm-chu-ky-khong-im`): hồ sơ dưới T3 (T2, và T1 khi kho khai T1 trong `signoff.required_for`) không còn được tính —
+  kể cả khi có chữ ký thật. Trước đây ở kho `recheck: warn` loại PR này qua; kho `strict` đã bị chặn từ trước. Máy đủ node
+  và đủ `lib/`: không đổi gì.
+- **Kho chạy đợt bằng gói `dieu-phoi`** (`lenh-cho-khoa-nhay-duong-dan`): thư mục đợt có ký tự lạ thì dòng «chờ (chạy nền)»
+  nay mang đường khoá bọc nháy đơn và thoát được; thư mục đợt chỉ gồm ký tự an toàn thì dòng in ra giống từng byte bản cũ.
+- **`luot-kiem-nhe` không chạm thứ kho tiêu thụ nhận:** mọi tệp vật nằm ở `.github/`, `.nvmrc` và `tests/` của kho kit.
+- **Mọi kho:** mô tả hai plugin trong danh sách plugin nay chỉ còn hai câu; sử ở tệp này và ở
+  `docs/reference/su-mo-ta-plugin-toi-2-38-1.md`. `lib/eval-yaml.js` không còn: chỉ bản feature-loop trước 07/09/2026 gọi
+  nó, và feature-loop phải cài cùng số với acceptance-gate. Kho đã chép lớp CI có `lib/eval-yaml.cjs` của riêng mình nên
+  không đổi. `scripts/rel-cua-so.sh` không còn: không kho tiêu thụ nào gọi nó.
+
+**Đường đọc-cũ:** không khoá cấu hình mới, không đổi khuôn hồ sơ; hồ sơ đã có giữ nguyên.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: chép lại đúng một tệp** `scripts/pre-merge-check.sh` — 35 tệp còn lại giữ nguyên như `v2.38.1`. Kho chép
+  lớp này vào CI mà không chép lại thì vế chữ ký mới của luật `t3_paths` không chạy ở CI.
+- **Máy dev: cài các gói theo ĐÚNG THẺ `v2.39.0` ở MỌI phạm vi** — kể cả `dieu-phoi` (gói này đổi vật ở mốc này),
+  `tri-thuc` nếu dùng — rồi kiểm `node <gốc gói acceptance-gate>/scripts/kiem-ban-cai.mjs --may --ref v2.39.0 --root <bản
+  clone kit đã git fetch --tags>` — `TỔNG KẾT: ĐẠT …`. Mở phiên MỚI.
+- **Lệnh trỏ bộ đệm có số** (`…/acceptance-gate/2.38.1/scripts/…`) trong `_acceptance/config.yaml` phải đổi số — hay tốt
+  hơn, đổi sang đường không số (GUIDE §5.3).
+- **Máy chạy cổng ở CI:** có `node` và chép CẢ `lib/` cạnh cổng, nếu không PR đổi `t3_paths` có hồ sơ dưới T3 sẽ bị chặn.
+
+**Người cắt mốc kit:** sau khi gắn thẻ chạy `node scripts/kiem-ban-cai.mjs --ref v2.39.0` (KC1). Đối chiếu tập hồ sơ của
+mốc sau bằng `_acceptance/release-2-39-0/cua-so.sh <mốc-trước> <slug…>`.
+
+**onehub-quy-hang**: kho nhận của mốc. Mốc chỉ tính là «được kho nhận» khi có một commit ở kho ấy cài đúng thẻ `v2.39.0`.
+
+**Năm dòng số của luật (c)**: sáu vòng gộp trong cửa sổ (giờ VN). Định nghĩa giữ như mốc 2.38.0: làm-xong = commit đưa
+hợp đồng sang `implemented` · ký = commit đầu đưa `status:` sang `signed-off` · gộp = commit gộp trên lối cha-đầu của nhánh
+chính có commit ký là tổ tiên. Dòng 2 đếm từ sổ quyết định, phần `decided_by`/`decided_at` của `opportunity.md` và các
+commit cổng. Dòng 4–5 lấy từ bảng vai trò của `usage-report.md` (cả sáu hồ sơ commit tệp này): vật = baseline + machine +
+judge · tìm-lỗi = review + refute · tổng hợp = triage + capture + synthesize. Phút ghim lại lấy `wall_s` của các dòng
+`repin`/`repin-do` trong `run-log.jsonl`. Bốn hồ sơ T2 (trần 3), hai hồ sơ T3 (trần 4).
+
+| Hồ sơ | 1 · làm-xong→ký · ký→gộp · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `do-tuong-phan-lab-oklab` (#489, T3) | 2 g 17 · 12 g 29 · 2 (lượt 1 REJECT: mọi eval máy xanh, nhưng rà soát có 6 lỗi trong hợp đồng — AC-5, AC-6, AC-9, AC-10; máy sửa vật ở `caac4053`; lượt 2 PASS) | 3 / 0 (4): Phạm vi (Hỏi-1, Hỏi-2, Hỏi-3), Kế hoạch (Cổng 1.5), Bằng chứng; không có `opportunity.md` nên không có Cổng Đáng; không thấy lượt ngoài thiết kế ghi trong hồ sơ | **0** | 215 241 · 24,0 / 63,5 / 12,5 | 62 · 58 = 120; làn trước chữ ký 0; ghim lại sau chữ ký 65 (đỏ: suite `mjs:1/3`) · 65 · 60 = 190 |
+| `lenh-cho-khoa-nhay-duong-dan` (#492, T2) | 2 g 15 · 12 g 47 · 1 (lượt 1 PASS) | 1 / 0 (3): Bằng chứng; Phạm vi đi làn V (cửa veto mở 10/11) | 0 | 81 173 · 31,4 / 56,4 / 12,2 | 63; làn trước chữ ký 0; ghim lại sau chữ ký 68 (đỏ: ca DV5u của nhánh chính `9aa91d49`, sửa ở bản 2.38.1) + 52 = 120 |
+| `doc-jsx-va-ban-do-hong` (#493, T2) | 2 g 55 · 17 g 36 · 2 (lượt 1 REJECT: tám eval xanh, ba lệnh suite đỏ — hai vì bản đồ sản phẩm lệch, một ca ở `mjs:1/3` — cùng sáu mục trong hợp đồng ở ca đo AC-2, AC-4, AC-7; máy siết ca đo, vẽ lại bản đồ, mã sản phẩm không đổi; lượt 2 PASS) | 1 / 0 (3): Bằng chứng; Phạm vi đi làn V (`veto_state: mo`); Đáng là lựa chọn «mở hợp đồng mới» ở Cổng Bằng chứng của `t3-can-ho-so-arm`, đã đếm ở mốc 2.38.1 | **0** (xem «Chỗ không chắc» 3) | 209 807 · 23,6 / 64,9 / 11,5 | 57 · 66 = 123; làn trước chữ ký 0; ghim lại sau chữ ký: bị ngắt (14, `tong_ket.phut`, không có `wall_s`) · 57 (đỏ: P179) · 106 (đỏ: XD-5 hết 30 giây mỗi lần sinh tiến trình khi máy tải nặng) · 59 = 222 có `wall_s` |
+| `t3-arm-chu-ky-khong-im` (#495, T3) | 12 g 42 · 8 g 53 · 3 (lượt 1 REJECT: ba phát hiện trong hợp đồng ở AC-6 — lệnh chấm E6 luôn thoát 0 vì thiếu pipefail — kèm hai lệnh suite đỏ, P161 vì câu trích mang dấu in đậm trong sổ và RT13 vì tệp ca chứa chữ `signed-off`; máy sửa lệnh chấm, tệp ca, câu trích; lượt 2 BLOCKED: lệnh suite `mjs:3/3` chạy quá 72 phút; lượt 3 PASS) | 3 / 0 (4): Phạm vi (Hỏi-1, Hỏi-2), Kế hoạch (Cổng 1.5), Bằng chứng | **1** (lượt 2: suite quá trần) | 253 227 · 32,1 / 57,5 / 10,5 | 60 · 110 · 63 = 233; làn trước chữ ký 0; ghim lại sau chữ ký 17 (bị ngắt, SIGTERM khi app khởi động lại) + 67 (đỏ: P179, sổ 1275 < corpus 1280 vì chữ ký chưa thêm 5 hàng sổ known-limits) + 66 = 149 |
+| `tier-b-doc-khong-do-duoc` (#498, T2) | 16 g 37 · 1 g 09 · 1 (lượt 1 PASS; E4 judgment do hội đồng đề xuất PASS, người quyết ở Cổng Bằng chứng) | 1 / 0 (3): Bằng chứng; Phạm vi đi làn V (`veto_state: mo`); Đáng là lựa chọn «mở hợp đồng mới» (Ngoài-6) ở Cổng Bằng chứng của `do-tuong-phan-lab-oklab`, đã nằm trong lượt ấy | **0** | 65 086 · 43,4 / 40,9 / 15,6 | 61; làn trước chữ ký 0; ghim lại sau chữ ký 0 |
+| `luot-kiem-nhe` (#499, T2, vòng meta) | 2 g 37 · 13 g 34 · 1 (lượt 1 PASS) | 3 / 0 (3): Đáng, Phạm vi (Hỏi d-4 · d-5 · d-6), Bằng chứng | 0 | 121 076 · 40,6 / 50,8 / 8,6 | 48; làn trước chữ ký 0; ghim lại sau chữ ký 231 (một làn, 14 lệnh xanh, chung với hồ sơ `ra-co-ten-lam-va-trao`) |
+
+- Lời giao mở vòng không đếm. `luot-kiem-nhe` là vòng meta duy nhất của cửa sổ, chủ kho gọi tên (luật chiều rộng (b)): lời
+  giao 11/11 không đếm, như mốc 2.38.0; tính thì thêm 1. «0 ngoài thiết kế» nghĩa là không hồ sơ nào ghi lượt ngoài thiết
+  kế — không đọc được phiên chat, nên đó là «0 ghi được».
+- Cổng 1.5 của hai hồ sơ T3 đếm một lượt mỗi hồ sơ theo thiết kế T3; hồ sơ chỉ có commit cổng làm căn cứ, không có dòng
+  duyệt riêng.
+- **Gộp sáu vòng:** 945 610 out-token S4, vật 30,2 / tìm-lỗi 58,4 / tổng hợp 11,4 %; 648 phút S4 qua 10 lượt. Trung vị
+  làm-xong → ký **2 g 46**, ký → gộp **12 g 38**. Gọi người: 12 trong thiết kế + 0 ngoài thiết kế ghi được = 12 cho 6 kết
+  quả gộp (2,0 mỗi kết quả). Ký chưa gộp: **0**.
+
+**Đọc số:**
+- **Ký → gộp dài hơn làm-xong → ký ở bốn trên sáu vòng** (trung vị 12 g 38 so với 2 g 46). Năm vòng gộp nhánh chính vào
+  nhánh làm việc sau chữ ký rồi ghim lại: khoảng 925 phút qua mười ba làn, bảy làn không xanh và không làn nào do vật — ca
+  DV5u của nhánh chính hai lần, P179 hai lần, XD-5 hết trần khi máy tải nặng, hai lần ngắt khi app khởi động lại. Hạt giống P179 `docs/plans/2026-10-18-hat-giong-so-known-limits-thieu-hang-p179.md` vẫn chưa làm.
+- **Hạ tầng đốt 1 / 10 lượt**: lượt 2 của `t3-arm-chu-ky-khong-im`, suite `mjs:3/3` quá 72 phút.
+- **Dòng 4: tìm-lỗi 58,4 %** (66,7 % ở 2.38.1, 41,9 % ở 2.38.0). Ở ba vòng hai-ba lượt, lượt 1 có mục trong hợp đồng làm
+  đổi vật hay thước: `do-tuong-phan-lab-oklab` sửa sáu lỗi, `doc-jsx-va-ban-do-hong` siết ca đo, `t3-arm-chu-ky-khong-im`
+  sửa lệnh chấm E6 không đỏ được.
+
+**Điều kiện tin cậy:**
+- **(i)** `git diff --stat v2.38.1 HEAD -- feature-loop/workflows/ feature-loop/agents/` RỖNG: đường finder → refute →
+  REJECT không đổi thành phần.
+- **(ii)** Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0**.
+
+**Dự báo năm dòng cho thay đổi của mốc này** (ba việc chỉ-bớt):
+- 1 = · 2 = · 3 = : không đổi bộ phận nào của vòng, của cổng hay của lượt chấm.
+- 4 = : mô tả plugin không vào lượt chấm.
+- 5 = : gỡ ba ca kiểm nhỏ trong hai bộ, không đổi đường găng.
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `node scripts/hieu-chuan-moc.mjs --root .`
+(12/11). **N không tăng so với mốc 2.38.1 (vẫn 1), nên dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.38.1 — 10/11/2026
 

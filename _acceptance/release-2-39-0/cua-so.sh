@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-# rel-cua-so.sh — hồ sơ ĐƯỢC KÝ trong một cửa sổ phát hành, suy từ kho.
+# cua-so.sh — hồ sơ ĐƯỢC KÝ trong một cửa sổ phát hành, suy từ kho.
+# Tới 2.38.1 tệp này là `scripts/rel-cua-so.sh`; 2.39.0 dời nó vào hồ sơ mốc vì
+# nó là công cụ của người cắt mốc kit, không phải lệnh của sản phẩm (nếp của
+# `_acceptance/release-2-38-0/lop-chep-doi.sh`).
 #
 # Vì sao tồn tại: hợp đồng mốc kể «cửa sổ này có gì» bằng tay, và lời kể ấy đã
 # SAI ngay bản nháp đầu của 2.17.0 (kể 2, thật 3). Tiền tố commit KHÔNG phải
 # slug — `feat(duong-nen)` là phạm vi, hồ sơ là `nen-cong-cu-lenh-shell` — nên
 # phép rút theo tiền tố cho kết quả sai; quan hệ đúng là TRẠNG THÁI hợp đồng.
 #
-#   scripts/rel-cua-so.sh <mốc-trước> <slug...>    # so tập rút với tập mong đợi
+#   _acceptance/release-2-39-0/cua-so.sh <mốc-trước> <slug...>    # so tập rút với tập mong đợi
 #   exit 0 khớp · 1 lệch (in thừa/thiếu có tên) · 2 usage
 set -o pipefail
 MOC="$1"; shift || true
-[ -n "$MOC" ] || { echo "usage: rel-cua-so.sh <mốc-trước> <slug...>" >&2; exit 2; }
-[ $# -gt 0 ] || { echo "usage: rel-cua-so.sh <mốc-trước> <slug...>" >&2; exit 2; }
+[ -n "$MOC" ] || { echo "usage: cua-so.sh <mốc-trước> <slug...>" >&2; exit 2; }
+[ $# -gt 0 ] || { echo "usage: cua-so.sh <mốc-trước> <slug...>" >&2; exit 2; }
 rut() {
   for f in $(git log --format= --name-only "$MOC"..HEAD -- '_acceptance/*/contract.md' | sort -u); do
     [ -f "$f" ] || continue

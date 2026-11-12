@@ -1699,26 +1699,21 @@ mutated = text.replace("Nghi thức S1-D", "Nghi thuc da go")
 assert "Nghi thức S1-D" not in mutated, "dot bien khong hieu luc"
 PY
 
-# ── P88: release co chu dich — version floor + description khop hanh vi ─────
+# ── P88: release co chu dich — version floor ────────────────────────────────
 # Consumer chi nhan luoi qua release: quen bump = feature ship ma hieu luc 0.
 # Floor semver (>=), KHONG ghim literal == — tranh vong "bump -> stale" (P03).
-run "P88 version floor 1.29/1.22 + description nhac hanh vi moi" \
+# Ve «description nhac hanh vi moi» da GO o 2.39.0: mo ta plugin rut con hai cau
+# (tran 1 024 ky tu cua bo kiem tep khai plugin), su cu chep nguyen van o
+# docs/reference/su-mo-ta-plugin-toi-2-38-1.md; mo ta cua chinh so dang phat hanh van do o P200.
+run "P88 version floor 1.29/1.22" \
   python3 - "$ROOT" <<'PY'
 import json, sys
 from pathlib import Path
 root = Path(sys.argv[1])
 def ver(rel):
     return tuple(int(x) for x in json.loads((root / rel).read_text())["version"].split("."))
-def desc(rel):
-    return json.loads((root / rel).read_text())["description"]
 assert ver(".claude-plugin/plugin.json") >= (1, 29, 0), "acceptance-gate chua bump toi 1.29.0"
 assert ver("feature-loop/.claude-plugin/plugin.json") >= (1, 22, 0), "feature-loop chua bump toi 1.22.0"
-# Description phai nhac hanh vi moi (keyword chuc nang, on dinh qua cac ban sau):
-for kw in ("opportunity-template", "DECISION-DIAGRAM-SURFACES", "MAP_LABELS", "UAT-COPY-PROCEDURE"):
-    assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
-d = desc("feature-loop/.claude-plugin/plugin.json")
-for kw in ("ui_standards_skill", "design-pass", "GOAL-TEMPLATE", "LOOP-PICTURE-CLAUSE", "REPIN-TEMPLATE", "carry-plan.mjs"):
-    assert kw in d, f"desc feature-loop thieu {kw}"
 # Doi chung am cua phep so semver: version thap hon floor phai truot.
 assert not ((1, 20, 1) >= (1, 21, 0)), "phep so semver chet — tuple compare khong con dung"
 PY
@@ -5162,9 +5157,11 @@ assert check(mut) == [victim], f"dot bien xoa symlink {victim} khong bi bat dung
 print(f"P132 OK ({len(cmds)} lenh deu co mat)")
 P132PY
 
-# ── P133: ghim phần CHỮ của gói first-run — lời khuyên recheck, jsdom, attribution ─
-# Ba pin văn xuôi (khuôn P44): chữ là hành vi thật ở repo này, không phải trang trí.
-run "P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init + attribution /start=v1.30" \
+# ── P133: ghim phần CHỮ của gói first-run — lời khuyên recheck, jsdom ─
+# Hai pin văn xuôi (khuôn P44): chữ là hành vi thật ở repo này, không phải trang trí.
+# Pin thứ ba (manifest: /start thuộc mục v1.30 của description) đã GỠ ở 2.39.0 — mô tả
+# plugin rút còn hai câu, sử cũ chép nguyên văn ở docs/reference/su-mo-ta-plugin-toi-2-38-1.md.
+run "P133 chu first-run: recheck-advice khop init + jsdom o 3 diem init" \
   python3 - "$ROOT" <<'P133PY'
 import json, sys
 from pathlib import Path
@@ -5182,13 +5179,6 @@ if "advisory by default" in readme:
 for rel in ["commands/acceptance-init.md"]:
     if "jsdom" not in (root / rel).read_text(encoding="utf-8"):
         errs.append(f"{rel}: mat loi nhac jsdom")
-# 3. Manifest Claude: /start thuộc v1.30 (ship 3187b6e), không được trôi về entry khác.
-desc = json.loads((root / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))["description"]
-i29, i30, istart = desc.find("v1.29:"), desc.find("v1.30:"), desc.find("/start session-entry")
-if i30 < 0:
-    errs.append("manifest: mat entry v1.30")
-elif not (0 <= i29 < i30 <= istart):
-    errs.append("manifest: '/start session-entry' khong nam trong entry v1.30 (attribution troi)")
 assert errs == [], errs                                   # doi chung DUONG
 # Dot bien tung pin → DO dung thong diep (kiem bang cach chay lai logic tren van ban da pha)
 def run_pin1(text):
@@ -5198,10 +5188,7 @@ def run_pin1(text):
     return out
 assert run_pin1(readme.replace("scaffolds `recheck: strict`", "scaffolds nothing")), "dot bien pin1a khong do"
 assert run_pin1(readme + "\nThat re-check is advisory by default."), "dot bien pin1b khong do"
-mut_desc = desc.replace("v1.30: /start session-entry", "v1.29-again: /start session-entry")
-assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_desc.find("v1.30:") <= mut_desc.find("/start session-entry")), \
-    "dot bien attribution khong do"
-print("P133 OK (3 pin chu + dot bien deu do dung cho)")
+print("P133 OK (2 pin chu + dot bien deu do dung cho)")
 P133PY
 
 # --- context-ladder cases (P134-P141) begin ---
@@ -5773,7 +5760,7 @@ else
   fail "P143 covGaps doc duoc block scalar > va |, canh bao dung AC, than block khong cuop key"
 fi
 
-# ── P144: eval-coverage-lint W1/W3 — cùng lớp bug, cùng thuốc (lib/eval-yaml.js) ─
+# ── P144: eval-coverage-lint W1/W3 — cùng lớp bug, cùng thuốc (lib/eval-yaml.cjs) ─
 # Lint có BẢN SAO của parser gate-card (đã trôi cùng nhau); case này ghim phía
 # lint để hai bên không tách thuốc lần nữa: W1 không bắn giả khi ca âm nằm trong
 # block, W3 đếm được ca âm trong block, và cảnh báo thật vẫn đỏ đúng chỗ.

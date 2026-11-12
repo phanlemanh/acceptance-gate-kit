@@ -349,19 +349,9 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
   rmSync(root, { recursive: true, force: true });
 }
 
-// ---- PH8: description 2 manifest phải khai "v1.18 adds" (trả known-limit) ----
-{
-  const fl = JSON.parse(readFileSync(path.join(HERE, '..', '..', 'feature-loop', '.claude-plugin', 'plugin.json'), 'utf8'));
-  check('PH8 description manifest chứa "v1.18 adds"', () => {
-    assert.match(fl.description, /v1\.18 adds/); });
-  // Control THẬT (vá known-limit vòng trước): nửa ÂM trên văn bản tiền-1.18 do
-  // code sinh — không phải "xoá chuỗi rồi tìm chuỗi" (phép kiểm không-thể-đỏ).
-  const OLD_DESC = 'Feature loop for AI-coded features. v1.17 adds S4 scope-triage.';
-  check('PH8 control ÂM: regex TRƯỢT trên description tiền-1.18', () =>
-    assert.doesNotMatch(OLD_DESC, /v1\.18 adds/));
-  check('PH8 control DƯƠNG: cùng regex TRÚNG description hiện hành đọc từ file thật', () =>
-    assert.match(fl.description, /v1\.18 adds/));
-}
+// ---- PH8 (đã GỠ ở 2.39.0): ca này ghim chữ lịch sử «v1.18 adds» trong description của
+// feature-loop. Mô tả plugin rút còn hai câu (trần 1 024 ký tự của bộ kiểm tệp khai plugin); chữ cũ
+// chép nguyên văn ở docs/reference/su-mo-ta-plugin-toi-2-38-1.md, mục của chính số đang phát hành vẫn đo ở P200 (suite plugins).
 
 // ---- PH1b: đuôi heading KHÔNG-h2 (### / #) cũng không được sinh claim ma ----
 {

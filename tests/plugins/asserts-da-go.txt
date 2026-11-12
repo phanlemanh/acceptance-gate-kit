@@ -195,3 +195,13 @@ assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van kho
 # (BLOCKED chỉ ở câu CHƯA hoàn thành · không «người chọn»/«nêu lối») đo ở HT-AC5 kèm đột biến.
 assert "verified" in sb, "template phai neo dieu kien verified"
 assert "REJECT quá 3 round" in sb, "template phai co loi thoat escalate (REJECT qua 3 round)"
+#
+# ── Đợt khai 2026-11-12 — hồ sơ release-2-39-0 (mô tả plugin rút còn hai câu) ──
+# Ba assert dưới đây ghim CHỮ LỊCH SỬ trong `description` của hai tệp khai plugin (từ khoá của các
+# bản 1.2x ở P88, mục v1.30 chứa «/start session-entry» ở P133). Bản 2.39.0 rút mô tả còn hai câu vì
+# trần 1 024 ký tự của bộ kiểm tệp khai plugin; chữ cũ chép NGUYÊN VĂN ở `docs/reference/su-mo-ta-plugin-toi-2-38-1.md`
+# (CHANGELOG.md trỏ về), nên các ghim này không còn vật để đo. Mục mô tả của chính số đang
+# phát hành và câu khai cặp vẫn đo ở P200 (giữ nguyên tám đột biến).
+assert kw in desc(".claude-plugin/plugin.json"), f"desc acceptance-gate thieu {kw}"
+assert kw in d, f"desc feature-loop thieu {kw}"
+assert mut_desc.find("v1.30:") < 0 or not (0 <= mut_desc.find("v1.29:") < mut_desc.find("v1.30:") <= mut_desc.find("/start session-entry")), \
