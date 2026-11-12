@@ -87,6 +87,9 @@ mục 12 kế hoạch chuyển nhà (`delivery-loop`, nhánh `chuyen-nha`, `migr
 ## Notes
 
 - Hạng T2: không tệp nào của PR mốc khớp `t3_paths`.
+- Sửa kèm: gỡ ba mục chỉ-bớt làm ca RT13 đỏ vì khối `BO-DOC-KHAI-GACH` của hồ sơ đã ký `ra-co-ten-lam-va-trao` còn hai
+  dòng đã chết (`.claude-plugin/plugin.json` — mô tả rút không còn chuỗi trạng thái ký; `scripts/rel-cua-so.sh` — tệp đã
+  dời). PR mốc gỡ hai dòng ấy và ghim lại hồ sơ `ra-co-ten-lam-va-trao` sau cùng.
 - Cùng PR: năm khoá executor `rel2390_*` trong `_acceptance/config.yaml`, ba mươi khoá `rel*_cua_so` cũ đổi đường sang
   `_acceptance/release-2-39-0/cua-so.sh`; vẽ lại `LO-TRINH.html` và `PRODUCT-MAP.md`. `.claude-plugin/marketplace.json`
   không mang số kit nào nên không đổi.

@@ -24,8 +24,8 @@ Năm gói `acceptance-gate`, `feature-loop`, `dieu-phoi`, `road-map`, `tri-thuc`
 `feature-loop`, `dieu-phoi` đổi vật; `road-map`, `tri-thuc` chỉ đổi số); `diagram-design` giữ `2.7.1`. Thẻ `v2.39.0` gắn
 vào commit gộp PR mốc.
 
-**Vì sao 2.39.0** (minor): số chủ kho gọi tên cho mốc ở kế hoạch chuyển nhà, và đúng nếp «minor cho bề mặt mới» (đoạn
-«Vì sao 2.37.0»): bộ quét thiết kế trong trình duyệt có tuỳ chọn mới `requireMeasured` và kết quả mới `KHONG-DO-DUOC`
+**Vì sao 2.39.0** (minor): số chủ kho gọi tên cho mốc ở kế hoạch chuyển nhà. Cửa sổ cũng có bề mặt mới theo nếp
+«minor cho bề mặt mới» (đoạn «Vì sao 2.37.0»): bộ quét thiết kế trong trình duyệt có kết quả thứ tư `KHONG-DO-DUOC`
 (`do-tuong-phan-lab-oklab`). Đổi hành vi chạm kho đang dùng khai thẳng ở «Ai bị ảnh hưởng» dưới: trang thiếu tương phản ở
 màu họ lab nay bị từ chối, PR đổi `t3_paths` trên máy thiếu `node` hay thiếu `lib/evidence-core.cjs` nay bị chặn, tệp bản
 đồ khuôn hỏng làm dừng lượt chấm, và mô tả plugin thôi mang sử.
@@ -68,8 +68,7 @@ với `--require-measured`. Vòng này đóng lỗ đó và sửa lỗi nhỏ �
   `oklab(0.97 0 0 / 0.2)` trên trắng ra `#fdfdfd`, `rgba(0, 0, 0, 0.2)` trên trắng ra `#cccccc`. Nền trong suốt hoà lên lớp dưới
   (chữ trắng trên nền `oklab` đen 50% đặt trên trang trắng: từ chối với nền đã hoà `#808080`; nền 80% đạt). Alpha 0 không bị hoà.
 - **Gradient:** gradient `lab`, `oklab`, `oklch` được đọc; điểm dừng trong suốt được hoà với lớp dưới trước khi đo; gradient
-  mang `color(...)` ra không đo được. Sửa ở lượt chấm 1: lớp phủ trong suốt trên ảnh hoặc gradient khác nay báo không đo được
-  thay vì đo với màu trắng tự đặt.
+  mang `color(...)` ra không đo được.
 - **Không đọc được thì không đo được:** màu không đọc được (`color(display-p3 …)`, `color(srgb …)`) ở chữ, ở nền hay ở nền
   tổ tiên → phán quyết `KHONG-DO-DUOC`, `do_duoc: false`, phát hiện mang lý do `mau-khong-doc-duoc`, thoát 0 (cổng) và
   `exit_intent: 0` (quét), thoát 5 khi đòi đo đủ, không tính vào số lỗi chặn. Trang có thêm một chữ thiếu tương phản đo được thì
@@ -137,13 +136,11 @@ khỏi lưới mà không ai hay.
   bản đồ và lý do — cả trên hồ sơ chạm vùng nhóm ấy mà thiếu eval khuôn lẫn trên hồ sơ không chạm vùng nào. Lỗi không làm mất
   nhóm (ngoại lệ trỏ tệp không có, màn mẫu không có, ngoại lệ thiếu lý do): thoát 0, có tệp, mỗi lỗi đúng một dòng stderr.
 - **Không đổi:** CLI `--json` của bộ đọc bằng hệt bộ máy gốc (không thêm khoá); kho không khai bản đồ vẫn sinh tệp, không dòng
-  báo. GUIDE (đoạn «Bản đồ khuôn» của mục «Wire `executors.design`») thêm câu: tệp bản đồ hỏng đến mức mất nhóm thì `s4-args`
-  cũng dừng và gọi tên tệp.
+  báo.
 - **Giới hạn đã khai:** 7 mục chọn ở Cổng Bằng chứng 10/11, ở Notes hợp đồng (6 mục ngoài hợp đồng và 1 điểm trong hợp đồng
   của lượt chấm 2) — đáng nhớ nhất: AC-2 «Năm nhánh bỏ qua của bộ đọc thẻ chưa có ca làm đỏ riêng, nên sửa nhầm chúng thì bộ
   kiểm vẫn xanh; hành vi hiện tại vẫn đúng.» và Ngoài-4 «Xoá bớt một dạng thẻ khỏi bảng thử thì bộ kiểm vẫn xanh, nên dạng đó
-  có thể mất bảo vệ mà không ai hay.» Ngoài-5, Ngoài-7, Ngoài-8 (khoá `nhan_dien` có mặt nhưng rỗng vẫn làm nhóm mất khỏi lưới mà
-  không báo gì) chọn «mở hợp đồng mới», nên lỗi ấy còn trong bản giao.
+  có thể mất bảo vệ mà không ai hay.»
 
 ### Vế chữ ký của luật `t3_paths` không tắt im lặng (hồ sơ `t3-arm-chu-ky-khong-im`, T3)
 
@@ -233,11 +230,10 @@ tiến trình lấy Node 22 thay Node 24; cùng lớp lệch phiên bản Node m
 
 - **Kho chạy cổng thiết kế chế độ dom hoặc Tier B bộ quét** (`do-tuong-phan-lab-oklab`):
   - Chữ hay nền họ lab (`lab`, `oklab`, `lch`, `oklch`) thiếu tương phản, trước trả đạt, nay bị từ chối.
-  - Chữ hay nền trong suốt, kể cả `rgba` cũ, nay đo trên màu đã hoà. Hỏi-1 ở Cổng Phạm vi khai thẳng «một số trang từng đạt
-    sẽ chuyển thành từ chối».
+  - Chữ hay nền trong suốt, kể cả `rgba` cũ, nay đo trên màu đã hoà, nên một số trang từng đạt có thể bị từ chối.
   - Màu không đọc được (`color(display-p3 …)`, `color(srgb …)`, `color-mix(in srgb …)`) nay ra `KHONG-DO-DUOC` — thoát 0,
     thoát 5 dưới `--require-measured` / `requireMeasured: true`.
-  - Lớp phủ trong suốt trên ảnh hoặc gradient báo không đo được. Ngoài-2 và Ngoài-3 là hai dạng từ chối oan đã khai.
+  - Ngoài-2 và Ngoài-3 là hai dạng từ chối nhầm đã khai (lớp phủ gradient trong suốt, thẻ kính mờ trên nền ảnh hay gradient).
 - **Kho chạy Tier B ở S4** (`tier-b-doc-khong-do-duoc`): trang có màu bộ dò chưa đọc được giữ Tier B ở BLOCKED cho tới khi
   sửa màu hoặc thu phạm vi; trước mốc này trang ấy trả đạt.
 - **Kho design-floor mức M1** (`do-tuong-phan-lab-oklab`): chú thích như `// issue #123` trong tệp giao diện thôi bị bước
