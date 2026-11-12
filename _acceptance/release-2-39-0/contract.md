@@ -5,7 +5,7 @@ slug: release-2-39-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + .gitignore + gỡ 2 tệp + 3 ca kiểm ghim chữ mô tả + workspace hồ sơ + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
