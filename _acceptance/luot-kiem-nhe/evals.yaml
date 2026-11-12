@@ -1,0 +1,127 @@
+schema_version: 1
+feature_slug: luot-kiem-nhe
+# Một tệp ca mới: tests/scripts/luot-kiem-nhe.test.mjs, tên ca mang mã AC (LKN-AC<n>, chiều đỏ LKN-AC<n>-do…).
+# Fixture do CODE SINH trong lượt (thư mục tạm, kho git tạm, tệp `node` giả đặt đầu PATH); bản sao đột biến của
+# gate.yml, bo-chay.sh, bộ chạy thật dựng trong thư mục tạm, không ghi vào cây. Đường dẫn suy từ vị trí tệp ca.
+# Mỗi cặp hai chiều trên CÙNG fixture: vật lành → xanh, bản sao phá vật → đỏ với thông điệp ghim; mỗi kim đột biến
+# khẳng định khớp ĐÚNG MỘT lần trong nguồn thật trước khi tiêm.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC1, LKN-AC1-do-thieu, LKN-AC1-do-thua. LKN-AC1: tập lệnh mảnh rút từ việc mảnh
+      của gate.yml thật = {scripts bash, scripts mjs:1..n/n, plugins vung:1..K, hooks, workflows, dieu-phoi, bản đồ},
+      n rút từ gate.yml, K = số dòng `# <<<PLUGINS-VUNG <k>` của tests/plugins/run-tests.sh thật; với mọi mjs:i/n,
+      `SCRIPTS_SHARD_LIST=1` của bộ chạy thật in danh sách rời nhau từng đôi, hợp = danh sách của lượt trọn (không
+      đặt mảnh), in n và K. LKN-AC1-do-thieu: bản sao gate.yml bỏ mjs:n/n → đỏ «mảnh thiếu: mjs:<n>/<n>».
+      LKN-AC1-do-thua: bản sao thêm vung:K+1 → đỏ «mảnh không có: vung:<K+1>».
+    paths: [.github/workflows/gate.yml, tests/scripts/run-tests.sh, tests/plugins/run-tests.sh, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC2, LKN-AC2-do-manh, LKN-AC2-do-thieu. LKN-AC2: các bước của việc tests mà điều
+      kiện là sự kiện đẩy chạy đủ năm bộ (scripts, hooks, plugins, workflows, dieu-phoi) và bước bản đồ, không lệnh
+      nào chứa `--manh`, `SCRIPTS_SHARD` hay `PLUGINS_SHARD`. LKN-AC2-do-manh: bản sao thêm `--manh bash` vào lệnh bộ
+      script của việc trọn → đỏ «lượt trọn bị chia mảnh». LKN-AC2-do-thieu: bản sao gỡ bộ plugin → đỏ «lượt trọn thiếu
+      bộ: plugins».
+    paths: [.github/workflows/gate.yml, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC3, LKN-AC3-do-always, LKN-AC3-do-needs. LKN-AC3: việc tests có tên hiển thị
+      `tests`, `needs` gồm việc mảnh, `if` chứa `always()`, và trên pull_request có bước đỏ khi kết quả việc mảnh khác
+      `success` (bước chạy được: rút lệnh của bước, chạy với kết quả giả `failure` → thoát ≠ 0, `success` → thoát 0);
+      việc gate giữ tên `gate`. LKN-AC3-do-always: bản sao gỡ `always()` → đỏ «việc gom bị bỏ qua khi mảnh đỏ — PR
+      đỏ vẫn gộp được». LKN-AC3-do-needs: bản sao gỡ needs → đỏ «việc gom không chờ mảnh».
+    paths: [.github/workflows/gate.yml, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC4 và LKN-AC4-that. LKN-AC4: ma trận mười hai hàng viết trước (lời khai × Node giả
+      đầu PATH) chạy `bash tests/bo-chay.sh node` với gốc fixture — khớp: 24×24.22.0 · v24×24.22.0 · 24.22×24.22.0 ·
+      24.22.0×24.22.0; lệch: 22×24.22.0 · 24×22.11.0 · 24×18.20.0 · 24.21×24.22.0 · 24.15.0×24.22.0; vắng; không đọc
+      được: rỗng · lts/*. Bốn hàng khớp thoát 0, stdout đúng một dòng `node: v<chạy> · kho khai <khai> (.nvmrc) · khớp`;
+      năm hàng lệch thoát 3, stderr chứa `node lệch: đang chạy v<chạy>, kho khai <khai> (.nvmrc)`; hàng vắng thoát 3
+      «kho chưa khai phiên bản Node»; hai hàng không đọc được thoát 3 «không đọc được lời khai»; in «12/12 hàng».
+      LKN-AC4-that: kho thật với `node` thật → thoát 0, dòng khớp.
+    paths: [tests/bo-chay.sh, .nvmrc, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC5, LKN-AC5-khop, LKN-AC5-viec, LKN-AC5-do-bo-chay, LKN-AC5-do-viec,
+      LKN-AC5-do-viec-moi. LKN-AC5: Node giả báo số chính khác lời khai → bốn bộ chạy thật (scripts, hooks, plugins,
+      workflows) thoát 3, stderr «node lệch», stdout không có dòng `PASS:`/`FAIL:`/`=== `. LKN-AC5-khop: Node giả báo
+      đúng số chính → dòng đầu stdout của từng bộ là `node: … · khớp` (tiến trình bị dừng sau dòng đầu). LKN-AC5-viec:
+      với mọi việc (job) rút từ gate.yml thật, bước đầu tiên dùng Node sau setup-node là một trong bốn bộ chạy hoặc bước
+      `bash tests/bo-chay.sh node`; in danh sách «việc → đường»; lệnh bước kiểm rút từ gate.yml dưới Node giả thoát 3.
+      LKN-AC5-do-bo-chay: bản sao bộ chạy plugin gỡ dòng gọi kiểm → đỏ «bộ chạy không kiểm Node: plugins».
+      LKN-AC5-do-viec: bản sao gate.yml gỡ bước kiểm của việc design-eval → đỏ «việc không kiểm Node: design-eval».
+      LKN-AC5-do-viec-moi: bản sao thêm việc mới chạy `node -v` không bước kiểm → đỏ «việc không kiểm Node: <tên>».
+    paths: [tests/bo-chay.sh, tests/scripts/run-tests.sh, tests/plugins/run-tests.sh, tests/hooks/run-tests.sh, tests/workflows/run-tests.sh, .github/workflows/gate.yml, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC6 và LKN-AC6-do. LKN-AC6: mọi bước `uses: actions/setup-node` của mọi việc trong
+      gate.yml thật có `node-version-file: .nvmrc`, không bước nào có `node-version:`; `.nvmrc` thật có đúng một dòng
+      khớp số phiên bản; in số bước đã xét (≥ 5). LKN-AC6-do: bản sao đổi một việc về `node-version: '22'` → đỏ «việc
+      <tên> ghi tay phiên bản Node».
+    paths: [.github/workflows/gate.yml, .nvmrc, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC7-scripts, LKN-AC7-plugins, LKN-AC7-hooks, LKN-AC7-workflows, LKN-AC7-that,
+      LKN-AC7-do. Bốn ca đầu chạy bộ chạy (bản ghép từ bộ chạy thật theo marker, hay bộ chạy thật trỏ thư mục ca giả)
+      trên fixture có một ca ngủ 2 giây và các ca thoát ngay, với THOI_GIAN_CA_DIR trỏ thư mục tạm: tệp
+      `<bộ>-<mảnh>.tsv` có số hàng = số dòng kết quả ca bộ chạy in; hàng ca ngủ ≥ 2 giây và là hàng đầu của danh sách
+      «chậm nhất» in cuối lượt; mọi ca thoát ngay < 1 giây và không ở hàng đầu. LKN-AC7-that: bộ móc thật trọn và bộ plugin thật ở vùng có ít ca nhất → số hàng tsv =
+      số dòng `PASS:`/`FAIL:` bộ chạy in, in cả hai số. LKN-AC7-do: bản sao bo-chay.sh bỏ lần ghi hàng → đỏ «bảng thiếu
+      hàng: <bộ> có N ca, M hàng».
+    paths: [tests/bo-chay.sh, tests/scripts/run-tests.sh, tests/plugins/run-tests.sh, tests/hooks/run-tests.sh, tests/workflows/run-tests.sh, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC8, LKN-AC8-im, LKN-AC8-do. LKN-AC8: GITHUB_ACTIONS=true + GITHUB_STEP_SUMMARY trỏ
+      tệp tạm → tệp nhận bảng markdown ≤ 15 hàng mang tên bộ và mảnh; stdout có `::group::` và `::endgroup::` bao trọn
+      bảng (số hàng trong nhóm = số hàng tệp tsv). LKN-AC8-im: không đặt hai biến → không tệp tóm tắt nào được tạo,
+      không `::group::`. LKN-AC8-do: bản sao bỏ nhánh tóm tắt → đỏ «lượt kiểm tự động không có bảng thời gian».
+    paths: [tests/bo-chay.sh, tests/scripts/luot-kiem-nhe.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.luot_kiem_nhe_ca_cham
+    long_running: 60
+    expected: >
+      Exit 0, có dòng PASS của LKN-AC9-p161, LKN-AC9-lm, LKN-AC9-do-p161-mot-cong, LKN-AC9-do-khoa-nho, LKN-AC9-do-lm13,
+      LKN-AC9-do-lm20. Bản cũ của hai tệp ca rút bằng `git show <điểm rẽ khỏi nhánh chính>:<tệp>`; khi cần chạy bản cũ
+      thì dựng trọn thư mục bằng git archive, không chép danh sách tệp tay. LKN-AC9-p161: dòng `P161 OK: …` hai bản trên
+      cùng cây bằng nhau từng ký tự; in giây hai bản. LKN-AC9-lm: dòng PASS/FAIL của LM13, LM20 hai bản bằng nhau; in
+      giây hai bản. LKN-AC9-do-p161-mot-cong: fixture có một hồ sơ mà thẻ cổng 2 hỏng còn cổng 1 dựng được → hai bản P161
+      đỏ cùng thông điệp. LKN-AC9-do-khoa-nho: bản sao bản mới bỏ «cổng» khỏi khoá nhớ → đỏ «khoá nhớ gộp hai cổng».
+      LKN-AC9-do-lm13: kho fixture (LMCMS_ROOT) có một hồ sơ lệch tập cờ đã định đoạt → hai bản LM13 đỏ cùng tên hồ sơ.
+      LKN-AC9-do-lm20: kho fixture có một hồ sơ lệch bảng định tuyến → hai bản LM20 đỏ cùng tên hồ sơ.
+    paths: [tests/plugins/run-tests.sh, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/luot-kiem-nhe-ca-cham.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

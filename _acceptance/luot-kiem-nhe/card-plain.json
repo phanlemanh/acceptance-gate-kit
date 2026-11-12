@@ -1,0 +1,30 @@
+{
+  "feature_plain": "Mỗi lần đẩy lên PR, lượt kiểm tự động trả kết quả nhanh hơn: các bộ kiểm chạy song song theo mảnh thay vì nối đuôi 58 phút, nhánh chính vẫn chạy trọn một lượt, mỗi bộ chạy nói ra nó đang chạy Node nào và dừng ngay nếu lệch, và mỗi lượt in bảng ca nào tốn bao lâu.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chạy bộ kiểm của PR thành nhiều mảnh song song, và các mảnh cộng lại phủ đúng toàn bộ ca của lượt trọn — không ca nào rơi giữa hai mảnh."},
+    {"id": "AC-2", "p": "Sẽ giữ một lượt chạy trọn không chia mảnh mỗi khi có thay đổi vào nhánh chính, để lỗi chỉ lộ khi chạy trọn vẫn bị bắt."},
+    {"id": "AC-3", "p": "Sẽ giữ kiểm tên «tests» mà nhánh chính bắt buộc: trên PR nó chờ mọi mảnh và đỏ khi bất kỳ mảnh nào đỏ — PR đỏ không gộp được."},
+    {"id": "AC-4", "p": "Sẽ so phiên bản Node đang chạy với lời khai của kho theo đúng độ chính xác đã khai — khớp thì in một dòng rồi đi tiếp, lệch hay thiếu lời khai thì dừng với thông điệp gọi tên cả hai phiên bản (12 ô kiểm)."},
+    {"id": "AC-5", "p": "Sẽ kiểm Node trước ca đầu tiên ở cả bốn bộ chạy kiểm và ở mọi việc của lượt kiểm tự động — chạy nhầm Node là dừng ngay, không ca nào chạy."},
+    {"id": "AC-6", "p": "Sẽ để lượt kiểm tự động đọc phiên bản Node từ đúng một tệp khai của kho, không còn số ghi tay ở từng việc."},
+    {"id": "AC-7", "p": "Sẽ ghi thời gian từng ca trong mọi lượt chạy của bốn bộ kiểm và in mười ca chậm nhất ở cuối lượt — số hàng khớp số ca bộ chạy báo, kể cả trên bộ chạy thật."},
+    {"id": "AC-8", "p": "Sẽ hiện bảng ca chậm nhất ngay trên trang tóm tắt của lượt kiểm tự động, và không ghi gì thêm khi chạy ở máy cá nhân."},
+    {"id": "AC-9", "p": "Sẽ cho ba ca kiểm chậm nhất chạy song song và không dựng một thẻ hai lần, chứng bằng cùng kết quả với bản cũ và cùng đỏ khi có hỏng."}
+  ],
+  "scope_plain": "Vòng này chỉ làm lượt kiểm nhẹ đi; mấy việc dưới đây cố ý để ngoài.",
+  "coverage_plain": [
+    {"i": 0, "p": "Lượt kiểm theo từng loại sự kiện: PR chạy mảnh và có kiểm «tests» gom kết quả, nhánh chính chạy trọn, kiểm «gate» giữ nguyên tên (AC-1 phủ mảnh · AC-2 lượt trọn · AC-3 kiểm gom). Thước đủ: hai kiểm mà nhánh chính bắt buộc."},
+    {"i": 1, "p": "Lời khai Node đối với Node đang chạy: đủ ba độ chính xác khai, mỗi độ có ô khớp và ô lệch, cộng đúng ô gây sự cố hôm nay — khai 24 mà chạy 22 (AC-4 so Node, AC-6 một nơi khai)."},
+    {"i": 2, "p": "Nơi kiểm Node: bốn bộ chạy và mọi việc của lượt kiểm tự động; hai việc thiết kế có bộ chạy riêng thì kiểm bằng một bước, không sửa bộ chạy của chúng (AC-5 kiểm trước ca đầu)."},
+    {"i": 3, "p": "Đo thời gian: theo tệp, theo lần ghi đạt/trượt, ở cả máy cá nhân (đo theo giây) lẫn lượt kiểm tự động (đo theo mili giây) (AC-7 bảng từng ca, AC-8 bảng trên trang tóm tắt)."},
+    {"i": 4, "p": "Ba ca chậm: cùng kết quả với bản cũ, cùng đỏ khi thẻ hỏng ở đúng một cổng, mỗi ca có chiều đỏ riêng (AC-9 ba ca chậm)."},
+    {"i": 5, "p": "Giả định chưa ai gạch: số phút sau khi đổi không ghim thành ca kiểm — số thật đo trên lượt kiểm của chính PR vòng này."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Lý do bỏ việc «huỷ lượt cũ khi đẩy lượt mới» trích nhầm một câu không liên quan, và hồ sơ chưa đo tổng phút máy — chia mảnh có thể làm tổng phút máy tăng dù chờ ngắn đi. Đã sửa: trích đúng luật «mỗi vòng một kết quả», và thêm số đo tổng phút máy của lượt PR, nói rõ số này có thể không giảm."},
+    {"i": 1, "p": "Chưa chứng được rằng mọi khối kiểm của bộ plugin đều ghi qua hàm đạt/trượt, nên bảng thời gian có thể gọi sai tên ca; ca đo lại chỉ chạy trên ca giả. Đã sửa: quét bộ plugin — mọi dòng kết quả đều qua hai hàm ấy — và thêm ca đo trên bộ chạy thật."},
+    {"i": 2, "p": "Bảng ô kiểm Node đếm sai và thiếu đúng ô gây sự cố (khai 24, chạy 22) cùng ô lệch ở hai số. Đã sửa: bảng 12 ô, đủ ba độ chính xác."},
+    {"i": 3, "p": "Hai chỗ trong hợp đồng nói ngược nhau về hai việc thiết kế. Đã sửa: hai việc ấy kiểm Node bằng một bước trong lượt kiểm tự động, không sửa bộ chạy riêng; ca đo in danh sách việc đã xét và đỏ khi thêm việc mới không kiểm."},
+    {"i": 4, "p": "Ca kiểm cho ba ca chậm chưa bắt được lỗi nhớ nhầm giữa hai cổng, một ca chưa có chiều đỏ, và tốc độ không có ngưỡng; số ước của lối A lệch giữa hai tài liệu. Đã sửa: thêm hai ô đỏ, ngưỡng ca chậm nhất ≤ 6 phút trên lượt kiểm của PR, và thống nhất số ước."}
+  ]
+}

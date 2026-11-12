@@ -2,6 +2,16 @@
 # Tests for scripts/pre-merge-check.sh + scripts/eval-coverage-lint.js using throwaway fixture repos.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# <<<BO-CHAY — hồ sơ luot-kiem-nhe: tự xưng + tự so Node TRƯỚC ca đầu, và bảng thời gian từng ca. Bản chép bộ chạy
+# ra thư mục tạm (fixture của các ca kiểm khác) không có tests/bo-chay.sh cạnh nó → nói ra, không kiểm, không đo.
+if [ -f "$HERE/../bo-chay.sh" ]; then
+  . "$HERE/../bo-chay.sh"
+  if [ -n "${SCRIPTS_SHARD_LIST:-}" ]; then bc_node "$HERE/../.." >&2 || exit 3; else bc_node "$HERE/../.." || exit 3; fi
+else
+  echo "bo-chay: không thấy tests/bo-chay.sh cạnh bộ chạy (bản chép?) — không kiểm Node, không đo thời gian" >&2
+  bc_tg_mo() { :; }; bc_tg_ca() { :; }; bc_tg_dong() { :; }
+fi
+# BO-CHAY>>>
 CHECK="$HERE/../../scripts/pre-merge-check.sh"
 PASS_COUNT=0; FAIL_COUNT=0
 
@@ -90,6 +100,7 @@ chay_mjs() {
   check "co it nhat mot *.test.mjs duoc chay" 1 "$([ "$_MJS_SEEN" -ge 1 ] && echo 1 || echo 0)"
 }
 ket_suite() {
+  bc_tg_dong
   echo ""
   echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
   [ "$FAIL_COUNT" -eq 0 ] || exit 1
@@ -100,6 +111,7 @@ if [ -n "${SCRIPTS_SHARD_LIST:-}" ]; then
   [ -z "$_manh_ds" ] || printf '%s\n' "$_manh_ds" | while IFS= read -r _f; do basename "$_f"; done
   exit 0
 fi
+bc_tg_mo scripts "$SHARD" "$HERE/../.."
 case "$SHARD" in
   all|bash) : ;;
   mjs:*) mjs_cua_manh >/dev/null || exit 2; chay_mjs; ket_suite ;;
