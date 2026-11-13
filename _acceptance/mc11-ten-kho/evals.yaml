@@ -1,0 +1,39 @@
+schema_version: 1
+feature_slug: mc11-ten-kho
+# Một tệp ca có sẵn (moc_chien_dich) cho AC-1 và một răng hai chiều (rang/chieu-do.sh, khoá
+# executors.script.mc11_ten_kho_chieu_do) cho AC-2, AC-3. Răng clone cây đang kiểm vào thư mục tên «kho-ten-khac»
+# (gốc kho suy từ vị trí script), chạy tệp ca lành → phải xanh, rồi thay đúng tệp ca bằng bản 0c4e503b → phải đỏ với
+# thông điệp ghim; lần phá chỉ chạy khi lần lành xanh. Hạ tầng hỏng (clone, checkout, tên thư mục) → thoát 3 nêu tên.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.moc_chien_dich
+    paths: [tests/scripts/moc-chien-dich.test.mjs, scripts/lo-trinh.mjs]
+    expected: >
+      exit 0; stdout có "PASS: MC-11 — MC1 thuộc đúng mốc 2026-10-16" và ", 0 failed (moc-chien-dich)" (không ghim số ca).
+      Chiều đỏ của ca MC-11 ở E2 (cùng ca, chạy ở thư mục khác tên).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.mc11_ten_kho_chieu_do
+    paths: [tests/scripts/moc-chien-dich.test.mjs, scripts/lo-trinh.mjs, _acceptance/mc11-ten-kho/rang/chieu-do.sh]
+    expected: >
+      exit 0; stdout có "PASS: MCK-1 vật lành xanh ở thư mục kho-ten-khac", "PASS: MCK-2 bản chữ cứng (0c4e503b) đỏ với thông
+      điệp ghim", "PASS: MCK-4 phá dấu phân cách tenChienDich → MC-11 đỏ ở ten_phien" và "PASS: MCK-5 tenKho trả rỗng → MC-11 đỏ";
+      dòng cuối "mc11-ten-kho chieu-do: 5 passed, 0 failed". Mỗi MCK chỉ PASS khi lần chạy bị phá thoát khác 0 VÀ in đúng thông
+      điệp ghim, ví dụ "FAIL: MC-11 — ten_phien «MC1 · Mốc là chiến dịch (kho-ten-khac)»". Vật lành đỏ thì MCK-1 FAIL và các nhát
+      phá FAIL với "vật lành chưa xanh trên cùng fixture"; nhát phá không khớp đúng một chỗ thì thoát 3 «HẠ TẦNG».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.mc11_ten_kho_chieu_do
+    paths: [tests/scripts/moc-chien-dich.test.mjs, scripts/lo-trinh.mjs, _acceptance/mc11-ten-kho/rang/chieu-do.sh]
+    expected: >
+      exit 0; stdout có "PASS: MCK-3 ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ định dạng (nhát phá dòng ca bảng
+      → đỏ)" và "PASS: MCK-4 phá dấu phân cách tenChienDich → MC-11 đỏ ở ten_phien và MC-6 đỏ ở gach-va-ngoac". Chiều đỏ: dòng ca
+      bảng đổi ở cây đang kiểm thì "FAIL: MCK-3 ca bảng gach-va-ngoac đã đổi" và exit 1; phép kiểm không đỏ khi dòng bị phá trên
+      bản sao thì "FAIL: MCK-3 phép kiểm ca bảng không đỏ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
