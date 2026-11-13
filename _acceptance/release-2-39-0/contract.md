@@ -5,7 +5,7 @@ slug: release-2-39-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 5 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + .gitignore + gỡ 2 tệp + 3 ca kiểm ghim chữ mô tả + workspace hồ sơ + bản đồ + khoá executor — KHÔNG dính t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -95,3 +95,7 @@ mục 12 kế hoạch chuyển nhà (`delivery-loop`, nhánh `chuyen-nha`, `migr
   không mang số kit nào nên không đổi.
 - Điều kiện tin cậy (i) của dòng 4–5 GIỮ ở cửa sổ này: `git diff --stat v2.38.1 HEAD -- feature-loop/workflows/
   feature-loop/agents/` rỗng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-13:
+  - Ngoài-1: Mô tả hai plugin trỏ sử các bản cũ về CHANGELOG.md, còn sử thật nằm ở docs/reference/su-mo-ta-plugin-toi-2-38-1.md — người đọc phải tìm thêm một bước.
+  - Ngoài-2: Công cụ kiểm hai gói chỉ đổi số phiên bản bỏ sót dòng trống được thêm hoặc xoá, nên có thể vẫn báo xanh khi chỉ dòng trống đổi.
+  - Ngoài-3: Ca kiểm P133 tuyên phủ ba điểm khởi tạo và mọi đột biến đều đỏ, nhưng chỉ kiểm một điểm và điểm ghim thứ hai không có đột biến.
