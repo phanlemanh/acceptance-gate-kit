@@ -253,3 +253,4 @@ doc-jsx-va-ban-do-hong	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6
 t3-arm-chu-ky-khong-im	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 tier-b-doc-khong-do-duoc	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo
 luot-kiem-nhe	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
+release-2-39-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo

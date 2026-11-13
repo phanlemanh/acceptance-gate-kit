@@ -748,18 +748,18 @@ executors:
     # Hồ sơ cham-khong-tu-dot-luot (27/09, vòng meta sau 2.18.4): tệp ca ckdl, tên ca = tên AC.
     ckdl: "bash -c 'out=$(for f in ckdl-cham ckdl-the ckdl-do; do node tests/scripts/$f.test.mjs 2>&1 || echo \"TEP-DO: $f\"; done); printf \"%s\\n\" \"$out\" | tail -n 60; printf \"%s\\n\" \"$out\" | grep -q \"^TEP-DO: \" && exit 1; for c in CK-AC1 CK-AC1-khung CK-AC1-dot-bien CK-AC2 CK-AC2-ui CK-AC2-dot-bien CK-AC3-r2 CK-AC3-r3 CK-AC3-dot-bien CK-AC4 CK-AC4-dot-bien CK-AC5 CK-AC5-dot-bien CK-AC6 CK-AC6-crm CK-AC6-co-vang CK-AC6-dot-bien CK-AC7 CK-AC7-clean CK-AC7-doc-cu CK-AC7-dot-bien CK-AC8 CK-AC8-doi-chung CK-AC8-dot-bien CK-AC9 CK-AC9-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hskt_bo_do: "bash -c 'out=$({ node tests/scripts/ntr-trang-thai.test.mjs && node tests/scripts/lan-status-not-run.test.mjs && node tests/scripts/hskt.test.mjs HK-AC7-dot-bien; } 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NS-AC9-moi NS-AC9-cu NS-AC9-sai HK-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done; printf \"%s\\n\" \"$out\" | grep -qF \"✓ L05 \" || exit 1'"
-    rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
-    rel218_cua_so: bash scripts/rel-cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
-    rel2181_cua_so: bash scripts/rel-cua-so.sh 41b949de ho-so-khep-thoi-hoi
-    rel2182_cua_so: bash scripts/rel-cua-so.sh ccabea22 chot-may-chu-ky-sau-synthesize
+    rel217_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
+    rel218_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
+    rel2181_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 41b949de ho-so-khep-thoi-hoi
+    rel2182_cua_so: bash _acceptance/release-2-39-0/cua-so.sh ccabea22 chot-may-chu-ky-sau-synthesize
     rel2182_dd_giu: git diff --exit-code --stat ccabea22 HEAD -- diagram-design
-    rel2183_cua_so: bash scripts/rel-cua-so.sh 0e414a02 ha-tang-khong-dot-luot
+    rel2183_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 0e414a02 ha-tang-khong-dot-luot
     rel2183_dd_giu: git diff --exit-code --stat 0e414a02 HEAD -- diagram-design
-    rel2184_cua_so: bash scripts/rel-cua-so.sh 36f1efed nen-cong-cu-gan-bang-lenh-con nen-cay-ban-dong-dau nen-chay-bang-moi-truong-nguoi-goi
+    rel2184_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 36f1efed nen-cong-cu-gan-bang-lenh-con nen-cay-ban-dong-dau nen-chay-bang-moi-truong-nguoi-goi
     rel2184_dd_giu: git diff --exit-code --stat 36f1efed HEAD -- diagram-design
-    rel2185_cua_so: bash scripts/rel-cua-so.sh ba2ed24b cham-khong-tu-dot-luot
+    rel2185_cua_so: bash _acceptance/release-2-39-0/cua-so.sh ba2ed24b cham-khong-tu-dot-luot
     rel2185_dd_giu: git diff --exit-code --stat ba2ed24b HEAD -- diagram-design
-    rel2190_cua_so: bash scripts/rel-cua-so.sh 2e7b1347 mot-so-ba-ve
+    rel2190_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 2e7b1347 mot-so-ba-ve
     rel2190_dd_giu: git diff --exit-code --stat 2e7b1347 HEAD -- diagram-design
     # chot-may-chu-ky-sau-synthesize (2.18.2): workflow ép rỗng ba khoá người + ép verified_at bằng giờ engine
     ctn_ac1: "bash -c 'out=$(node tests/workflows/chot-truong-nguoi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CTN-AC1 CTN-AC1-giu CTN-AC1-mo-dau CTN-AC1-hoa-thuong CTN-AC1-vi-phan; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
@@ -814,104 +814,112 @@ executors:
     # P192 là khối viết thẳng (không qua run()) nên ONLY_BLOCK không lọc được nó — ca NL-AC5-p192
     # chạy NGUYÊN VĂN bộ kiểm P192 rút từ run-tests.sh (S4-r1).
     nlvh_luat: "bash -c 'NLVH_CASES=NL-AC5-luat,NL-AC5-p192,NL-dot-bien-luat-de-yen,NL-dot-bien-luat-go-marker,NL-dot-bien-slots-cu node tests/scripts/nlvh-the.test.mjs'"
-    rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
+    rel2200_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
     # Mốc 2.21.0 (03/10): mốc = commit gắn tag v2.20.0. diagram-design ĐỔI trong cửa sổ (2.7.0 → 2.7.1,
     # e2df88ff) nên AC-5 đảo vế: số phải KHÁC số ở mốc trước, và thư mục phải có dòng đổi.
-    rel2210_cua_so: bash scripts/rel-cua-so.sh 1b98fdb1 lan-ghim-lai-giu-tron-loi-loi lan-ghim-lai-theo-paths lo-trinh-tren-du-lieu-that loi-moi-tran-luot-loi-song-co-gia viec-ke-theo-plan
+    rel2210_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 1b98fdb1 lan-ghim-lai-giu-tron-loi-loi lan-ghim-lai-theo-paths lo-trinh-tren-du-lieu-that loi-moi-tran-luot-loi-song-co-gia viec-ke-theo-plan
     rel2210_dd_nang: "bash -c 'c=$(git show 1b98fdb1:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; ! git diff --quiet 1b98fdb1 HEAD -- diagram-design && [ \"$c\" != \"$m\" ]'"
     # Mốc 2.22.0 — cửa sổ v2.21.0 (8d1f5162) → HEAD.
-    rel2220_cua_so: bash scripts/rel-cua-so.sh 8d1f5162 trang-lo-trinh-doc-mot-phut
+    rel2220_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 8d1f5162 trang-lo-trinh-doc-mot-phut
     rel2220_dd_giu: "bash -c 'c=$(git show 8d1f5162:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 8d1f5162 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.23.0 — cửa sổ v2.22.0 (aa29f5b5) → HEAD.
-    rel2230_cua_so: bash scripts/rel-cua-so.sh aa29f5b5 gia-lan-ghim-lai nhan-lan-v-theo-huong
+    rel2230_cua_so: bash _acceptance/release-2-39-0/cua-so.sh aa29f5b5 gia-lan-ghim-lai nhan-lan-v-theo-huong
     rel2230_dd_giu: "bash -c 'c=$(git show aa29f5b5:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet aa29f5b5 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.24.0 — cửa sổ v2.23.0 (8344fa92) → HEAD.
-    rel2240_cua_so: bash scripts/rel-cua-so.sh 8344fa92 eval-thay-boi-co-chung loc-paths-dong-mac-dinh
+    rel2240_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 8344fa92 eval-thay-boi-co-chung loc-paths-dong-mac-dinh
     rel2240_dd_giu: "bash -c 'c=$(git show 8344fa92:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 8344fa92 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.25.0 — cửa sổ v2.24.0 (9d1ae527) → HEAD.
-    rel2250_cua_so: bash scripts/rel-cua-so.sh 9d1ae527 lenh-dai-chay-rieng luot-sua-giu-du-dem-dung
+    rel2250_cua_so: bash _acceptance/release-2-39-0/cua-so.sh 9d1ae527 lenh-dai-chay-rieng luot-sua-giu-du-dem-dung
     rel2250_dd_giu: "bash -c 'c=$(git show 9d1ae527:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 9d1ae527 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
-    rel2260_cua_so: bash scripts/rel-cua-so.sh c01e5bf2 doc-ghi-troi-mang-sang-run-id lo-trinh-cat-luot xuat-du-lieu-lo-trinh
+    rel2260_cua_so: bash _acceptance/release-2-39-0/cua-so.sh c01e5bf2 doc-ghi-troi-mang-sang-run-id lo-trinh-cat-luot xuat-du-lieu-lo-trinh
     rel2260_dd_giu: "bash -c 'c=$(git show c01e5bf2:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c01e5bf2 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.27.0 — cửa sổ v2.26.0 (200ce7bb) → HEAD. GIT_GLOB_PATHSPECS=1: pathspec `_acceptance/*/contract.md` của
-    # rel-cua-so.sh để `*` vượt `/`, nên đếm cả hồ sơ MẪU lồng của L3 (cua-tin-hieu-gom-nhom/mau/ho-so/*) thành «được
+    # cua-so.sh (tới 2.38.1 là scripts/rel-cua-so.sh) để `*` vượt `/`, nên đếm cả hồ sơ MẪU lồng của L3 (cua-tin-hieu-gom-nhom/mau/ho-so/*) thành «được
     # ký»; biến này của git cho `*` dừng ở một tầng thư mục mà không sửa script (sổ release-2-27-0).
-    rel2270_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 200ce7bb baseline-tran-bo-qua-don ci-cua-kho-bo-job-nang cua-tin-hieu-gom-nhom dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ngoai-n-tu-dinh-tuyen ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
+    rel2270_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 200ce7bb baseline-tran-bo-qua-don ci-cua-kho-bo-job-nang cua-tin-hieu-gom-nhom dieu-phoi-doi-tai-khoan dieu-phoi-dong-goi-loi dieu-phoi-feature-loop-trong-dot dieu-phoi-lop-mod dieu-phoi-mo-dot-mot-lenh dieu-phoi-sua-truoc-dot-thu dieu-phoi-tiep-tuc-mot-lenh eval-goi-model-that-khong-chay evals-sat-le-doc-du glob-thoat-ngoac lo-trinh-chi-viec-phat-trien ngoai-n-tu-dinh-tuyen ten-ca-qua-tien-to-turbo trang-ho-so-mot-viec vong-la-mot-ket-qua xa-stdout-truoc-khi-thoat
     rel2270_dd_giu: "bash -c 'c=$(git show 200ce7bb:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 200ce7bb HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     # Mốc 2.28.0 — cửa sổ v2.27.0 (a1e2e0b9) → HEAD. GIT_GLOB_PATHSPECS=1 như 2.27 (hồ sơ mẫu lồng của L3).
-    rel2280_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh a1e2e0b9 buoc-len-thiet-ke-khong-hoi can-cu-s1-chay-moi-kho dai-tom-tat-doc-dung dai-tom-tat-dem-dung-vi-sao-tron dieu-phoi-on-dinh-r2
+    rel2280_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh a1e2e0b9 buoc-len-thiet-ke-khong-hoi can-cu-s1-chay-moi-kho dai-tom-tat-doc-dung dai-tom-tat-dem-dung-vi-sao-tron dieu-phoi-on-dinh-r2
     rel2280_dd_giu: "bash -c 'c=$(git show a1e2e0b9:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet a1e2e0b9 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2280_lop_chep: bash _acceptance/release-2-28-0/lop-chep-doi.sh a1e2e0b9 scripts/ho-so-tom-tat.cjs
     # Mốc 2.29.0 — cửa sổ v2.28.0 (72eb55f3) → HEAD. Lớp chép đọc danh sách mong đợi TỪ gạch «Lớp chép CI» của mục
     # 2.29.0 trong CHANGELOG (Ngoài-1 của release-2-28-0: bản 2.28 so với danh sách gõ tay).
-    rel2290_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 72eb55f3 bat-bien-san-pham cau-tin-hieu-nguoi-gui kiem-ban-cai-sau-phat-hanh nen-dieu-kien-va-static-khong-do-duoc trang-thai-dot-dieu-phoi-tho vong-mo-thang-bang-feature-loop
+    rel2290_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 72eb55f3 bat-bien-san-pham cau-tin-hieu-nguoi-gui kiem-ban-cai-sau-phat-hanh nen-dieu-kien-va-static-khong-do-duoc trang-thai-dot-dieu-phoi-tho vong-mo-thang-bang-feature-loop
     rel2290_dd_giu: "bash -c 'c=$(git show 72eb55f3:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 72eb55f3 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2290_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 72eb55f3 2.29.0
     rel2290_luat_khong_nap: LS_CASES=LS-13 node tests/scripts/luat-san-pham.ca.mjs
     rel2290_ban_ve_cu: bash _acceptance/release-2-29-0/so-ban-ve-cu.sh
     # Mốc 2.30.0 — cửa sổ v2.29.0 (6a9c0f9a) → HEAD. Lớp chép dùng lại tệp lệnh của release-2-29-0 (đọc danh sách
     # mong đợi TỪ gạch «Lớp chép CI» của mục 2.30.0 trong CHANGELOG).
-    rel2300_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 6a9c0f9a bo-doc-ho-so-khoan-dung dieu-phoi-khoa-day-giu-nhip dinh-tuyen-theo-ma-muc tac-tu-cham-chi-cham-khong
+    rel2300_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 6a9c0f9a bo-doc-ho-so-khoan-dung dieu-phoi-khoa-day-giu-nhip dinh-tuyen-theo-ma-muc tac-tu-cham-chi-cham-khong
     rel2300_dd_giu: "bash -c 'c=$(git show 6a9c0f9a:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 6a9c0f9a HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2300_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 6a9c0f9a 2.30.0
     # Mốc 2.31.0 — cửa sổ v2.30.0 (7cf78c36) → HEAD. Lớp chép dùng lại tệp lệnh của release-2-29-0; dieu-phoi lên số
     # mà không đổi vật nên đo «ngoài manifest không dòng đổi».
-    rel2310_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 7cf78c36 bang-ngoai-n-co-can-cu moc-la-chien-dich nen-khong-tinh-tep-cua-vong ra-soat-lo-trinh
+    rel2310_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 7cf78c36 bang-ngoai-n-co-can-cu moc-la-chien-dich nen-khong-tinh-tep-cua-vong ra-soat-lo-trinh
     rel2310_dd_giu: "bash -c 'c=$(git show 7cf78c36:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 7cf78c36 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2310_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 7cf78c36 2.31.0
     rel2310_dp_giu: "bash -c 'd=$(git diff --name-only 7cf78c36 HEAD -- dieu-phoi); echo \"dieu-phoi doi: ${d:-khong}\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json\" ]'"
     # Mốc 2.32.0 — cửa sổ v2.31.0 (f0634454) → HEAD. Lớp chép dùng lại tệp lệnh của release-2-29-0; dieu-phoi và
     # road-map đổi VẬT trong cửa sổ nên đo «tập tệp đổi dưới hai gói = đúng tập CHANGELOG kể» (thêm hai manifest).
-    rel2320_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh f0634454 ap-chinh-sach-lo-trinh cham-lai-khong-tu-doi cua-tin-hieu-giua-chien-dich cua-tin-hieu-goc-moi-worktree kho-cam-ket-co-lo-trinh kho-moi-cai-goi-road-map lo-trinh-du-lieu-ngay-du-kien lo-trinh-gio-may
+    rel2320_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh f0634454 ap-chinh-sach-lo-trinh cham-lai-khong-tu-doi cua-tin-hieu-giua-chien-dich cua-tin-hieu-goc-moi-worktree kho-cam-ket-co-lo-trinh kho-moi-cai-goi-road-map lo-trinh-du-lieu-ngay-du-kien lo-trinh-gio-may
     rel2320_dd_giu: "bash -c 'c=$(git show f0634454:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet f0634454 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2320_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh f0634454 2.32.0
     rel2320_goi_doi: "bash -c 'd=$(git diff --name-only f0634454 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json dieu-phoi/scripts/cua-tin-hieu.mjs dieu-phoi/scripts/dieu-phoi.mjs dieu-phoi/scripts/mau/LUAT.md dieu-phoi/scripts/phat-lich.mjs dieu-phoi/scripts/yeu-cau.mjs road-map/.claude-plugin/plugin.json road-map/README.md road-map/commands/bo-ghim.md road-map/commands/ghim.md road-map/commands/gui.md road-map/commands/tra-lai.md road-map/commands/xem.md \" ]'"
     # Mốc 2.32.1 (bản vá VA2): cửa sổ f7d95695 (v2.32.0) → HEAD.
-    rel2321_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh f7d95695 ve-lo-trinh-doc-tin-hieu-cua-cay
+    rel2321_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh f7d95695 ve-lo-trinh-doc-tin-hieu-cua-cay
     rel2321_dd_giu: "bash -c 'c=$(git show f7d95695:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet f7d95695 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2321_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh f7d95695 2.32.1
     rel2321_goi_doi: "bash -c 'd=$(git diff --name-only f7d95695 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.33.0 (RD1 + K-A): cửa sổ 5bd64bc9 (v2.32.1) → HEAD.
-    rel2330_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 5bd64bc9 road-map-de-dung ho-so-da-ky-giu-tuoi
+    rel2330_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 5bd64bc9 road-map-de-dung ho-so-da-ky-giu-tuoi
     rel2330_dd_giu: "bash -c 'c=$(git show 5bd64bc9:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 5bd64bc9 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2330_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 5bd64bc9 2.33.0
     rel2330_goi_doi: "bash -c 'd=$(git diff --name-only 5bd64bc9 HEAD -- dieu-phoi road-map | tr \"\\n\" \" \"); echo \"hai goi doi: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.33.1 (bản vá GT1 + GT2 + R3 + KY1): cửa sổ 77df595a (v2.33.0) → HEAD.
-    rel2331_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 77df595a vong-mo-co-chu-giu vong-mo-khong-mat-dau nhay-don-nhan-doi moi-cong-khong-qua-nut
+    rel2331_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 77df595a vong-mo-co-chu-giu vong-mo-khong-mat-dau nhay-don-nhan-doi moi-cong-khong-qua-nut
     rel2331_dd_giu: "bash -c 'c=$(git show 77df595a:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 77df595a HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2331_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 77df595a 2.33.1
     rel2331_goi_doi: "bash -c 'd=$(git diff --name-only 77df595a HEAD -- road-map | tr \"\\n\" \" \"); echo \"road-map doi: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.34.0 (tầng tri thức TT1–TT5 + ký → gộp + SK1 + ảnh có thật): cửa sổ 279b1515 (v2.33.1) → HEAD.
-    rel2340_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 279b1515 suc-khoe-cho-trong-va-toc-do anh-co-that-trong-ho-so ky-den-gop kho-tri-thuc-va-lint o-mo-viec-mang-nguon ghi-tri-thuc thiet-ke-nap-tri-thuc vong-don-le-tra-tri-thuc
+    rel2340_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 279b1515 suc-khoe-cho-trong-va-toc-do anh-co-that-trong-ho-so ky-den-gop kho-tri-thuc-va-lint o-mo-viec-mang-nguon ghi-tri-thuc thiet-ke-nap-tri-thuc vong-don-le-tra-tri-thuc
     rel2340_dd_giu: "bash -c 'c=$(git show 279b1515:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 279b1515 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2340_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 279b1515 2.34.0
     rel2340_goi_doi: "bash -c 'd=$(git diff --name-only 279b1515 HEAD -- road-map | tr \"\\n\" \" \"); echo \"road-map doi: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.35.0 (nền thiết kế FL1–FL5 + design-gate chế độ chặt + vùng giao việc + khung đợt định vị): cửa sổ 0e095648 (v2.34.0) → HEAD.
-    rel2350_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 0e095648 design-gate-che-do-chat design-gate-khong-do-duoc-ba-nguyen-nhan design-floor-vendor-va-ban-va-a design-floor-ban-va-b-c-d design-floor-moc-s0-s1 design-floor-moc-s3-s4 vung-giao-viec-tu-cat-luot khung-dot-dinh-vi
+    rel2350_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 0e095648 design-gate-che-do-chat design-gate-khong-do-duoc-ba-nguyen-nhan design-floor-vendor-va-ban-va-a design-floor-ban-va-b-c-d design-floor-moc-s0-s1 design-floor-moc-s3-s4 vung-giao-viec-tu-cat-luot khung-dot-dinh-vi
     rel2350_dd_giu: "bash -c 'c=$(git show 0e095648:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 0e095648 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2350_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 0e095648 2.35.0
     rel2350_goi_doi: "bash -c 'd=$(git diff --name-only 0e095648 HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.36.0 (tinh chỉnh sau hai đợt thử, TC1–TC6): cửa sổ 979620ae (v2.35.0) → HEAD.
-    rel2360_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 979620ae danh-thuc-doc-nhip-dung-ma cong-cu-xet-tep-ton-tai kiem-ban-cai-loi-sua-chay-duoc lenh-dot-ghi-dung-hang doi-chung-chay-duoc tep-sinh-khong-chan-gop
+    rel2360_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 979620ae danh-thuc-doc-nhip-dung-ma cong-cu-xet-tep-ton-tai kiem-ban-cai-loi-sua-chay-duoc lenh-dot-ghi-dung-hang doi-chung-chay-duoc tep-sinh-khong-chan-gop
     rel2360_dd_giu: "bash -c 'c=$(git show 979620ae:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 979620ae HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2360_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 979620ae 2.36.0
     rel2360_goi_doi: "bash -c 'd=$(git diff --name-only 979620ae HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     # Mốc 2.37.0 (Khuôn lõi + sáu bản vá): cửa sổ 4f891b07 (v2.36.0) → HEAD.
-    rel2370_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 4f891b07 va-design-floor-kho-lon-nhanh-chinh pre-merge-doc-lib-theo-kit quet-het-han-khong-moi-ky run-id-danh-sach-cho-phep chi-tep-vat-keo-xet-lai khuon-loi khuon-doc-ban-do-that sua-loi-dau-chu-dong-vao
+    rel2370_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 4f891b07 va-design-floor-kho-lon-nhanh-chinh pre-merge-doc-lib-theo-kit quet-het-han-khong-moi-ky run-id-danh-sach-cho-phep chi-tep-vat-keo-xet-lai khuon-loi khuon-doc-ban-do-that sua-loi-dau-chu-dong-vao
     rel2370_dd_giu: "bash -c 'c=$(git show 4f891b07:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 4f891b07 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2370_lop_chep: bash _acceptance/release-2-29-0/lop-chep-doi.sh 4f891b07 2.37.0
     rel2370_goi_doi: "bash -c 'd=$(git diff --name-only 4f891b07 HEAD -- road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     # release-2-38-0 (AC-4/5/7/8): mốc = 39fa45cc (thẻ v2.37.0); lớp chép đứng yên nên AC-8 dùng bản tệp lệnh nhận tập rỗng
-    rel2380_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh 39fa45cc ban-do-khuon-roi-nhom khoi-khuon-tren-the-cong
+    rel2380_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 39fa45cc ban-do-khuon-roi-nhom khoi-khuon-tren-the-cong
     rel2380_dd_giu: "bash -c 'c=$(git show 39fa45cc:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 39fa45cc HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2380_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh 39fa45cc 2.38.0
     rel2380_goi_doi: "bash -c 'd=$(git diff --name-only 39fa45cc HEAD -- dieu-phoi road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
     # release-2-38-1 (AC-4/5/7/8): mốc = c8fa5a65 (thẻ v2.38.0); AC-8 dùng lại tệp lệnh của release-2-38-0
-    rel2381_cua_so: GIT_GLOB_PATHSPECS=1 bash scripts/rel-cua-so.sh c8fa5a65 t3-can-ho-so-arm
+    rel2381_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh c8fa5a65 t3-can-ho-so-arm
     rel2381_dd_giu: "bash -c 'c=$(git show c8fa5a65:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c8fa5a65 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     rel2381_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh c8fa5a65 2.38.1
     rel2381_goi_doi: "bash -c 'd=$(git diff --name-only c8fa5a65 HEAD -- dieu-phoi feature-loop road-map tri-thuc | tr \"\\n\" \" \"); echo \"goi chi doi so: $d\"; [ \"$d\" = \"dieu-phoi/.claude-plugin/plugin.json feature-loop/.claude-plugin/plugin.json road-map/.claude-plugin/plugin.json tri-thuc/.claude-plugin/plugin.json \" ]'"
+    # release-2-39-0 (AC-4/5/7/8/11/12): mốc = 88d31b63 (thẻ v2.38.1); AC-4 dùng cua-so.sh (dời từ scripts/rel-cua-so.sh),
+    # AC-8 dùng lại tệp lệnh của release-2-38-0, AC-7/11/12 dùng tệp lệnh của hồ sơ này
+    rel2390_cua_so: GIT_GLOB_PATHSPECS=1 bash _acceptance/release-2-39-0/cua-so.sh 88d31b63 do-tuong-phan-lab-oklab doc-jsx-va-ban-do-hong lenh-cho-khoa-nhay-duong-dan luot-kiem-nhe t3-arm-chu-ky-khong-im tier-b-doc-khong-do-duoc
+    rel2390_dd_giu: "bash -c 'c=$(git show 88d31b63:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 88d31b63 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2390_lop_chep: bash _acceptance/release-2-38-0/lop-chep-doi.sh 88d31b63 2.39.0
+    rel2390_goi_doi: bash _acceptance/release-2-39-0/goi-chi-doi-so.sh 88d31b63
+    rel2390_ba_viec: bash _acceptance/release-2-39-0/ba-viec-tru.sh
+    rel2390_su_mo_ta: node _acceptance/release-2-39-0/su-mo-ta.mjs
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu

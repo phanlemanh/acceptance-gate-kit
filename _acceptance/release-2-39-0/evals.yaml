@@ -1,0 +1,191 @@
+# evals — release-2-39-0
+# Không có bộ răng riêng (nếp từ 2.2.0 → 2.39.0, luật «mốc phát hành KHÔNG dựng răng»): thứ cần canh ở mọi
+# lần cắt số là ca vĩnh viễn P200 (vùng 3 của suite plugins) — mọi số đọc TỪ manifest (sáu gói), các đột biến +
+# đối chứng dương, MỘT lối thoát. AC-4 dùng `cua-so.sh` (dời từ scripts/rel-cua-so.sh vào hồ sơ này), AC-5 đo bằng lệnh git, AC-7 bằng `goi-chi-doi-so.sh`;
+# AC-8 dùng tệp lệnh của release-2-38-0. AC-11 và AC-12 đo ba việc chỉ-bớt của mốc bằng hai tệp lệnh của hồ sơ, mỗi
+# tệp có chiều đỏ trên một thẻ cũ.
+# AC-10 là cổng số phiên bản của KC1 (khoá có sẵn kiem_ban_cai_moc).
+# E1/E2/E6 chấm MÃ THOÁT của vùng 3 — không hứa dòng P200 trong bằng chứng (sổ d-20261009T085335Z-3). E9 là hội
+# đồng đọc mục CHANGELOG 2.39.0 cạnh đúng nguồn nó chép.
+# long_running khai từ đầu cho hai lệnh dài: vùng 2 của suite plugins, kiểm bản cài trọn.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vùng 3 của suite plugins xanh, nên ca P200 (cùng vùng) xanh: năm gói cùng số 2.39.0
+      (acceptance-gate · feature-loop · dieu-phoi · road-map · tri-thuc), diagram-design 2.7.1, sáu số hợp semver, đọc từ
+      manifest. Chiều đỏ sống trong chính P200 (đột biến gồm «road-map lech so» và «tri-thuc lech so», + đối
+      chứng dương trên bản sao nguyên vẹn); P200 đỏ thì vùng 3 thoát khác 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vế GUIDE của P200 xanh: câu «Khớp phiên bản» dựng từ các số đọc trong manifest rồi so;
+      đột biến GUIDE giữ số cũ → P200 đỏ (trong P200), vùng 3 thoát khác 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    expected: "mảnh bash của suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3f
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_1
+    expected: "mảnh mjs:1/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3g
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_2
+    expected: "mảnh mjs:2/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3h
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_3
+    expected: "mảnh mjs:3/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_1
+    expected: "vùng 1 của suite plugins XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3i
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_2
+    long_running: 60
+    expected: "vùng 2 của suite plugins XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3j
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: "vùng 3 của suite plugins XANH (cùng lệnh với E1/E2/E6)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — PRODUCT-MAP.md và LO-TRINH.html khớp hồ sơ xưởng (vẽ lại cùng commit đổi trạng thái hồ sơ)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rel2390_cua_so
+    expected: >
+      Exit 0 và dòng «XANH: hai tập bằng nhau» — tập hồ sơ ĐƯỢC KÝ trong cửa sổ `88d31b63..HEAD`, suy từ kho bằng QUAN HỆ
+      (bỏ hồ sơ mốc `release-*`), BẰNG sáu hồ sơ kể trong Context. Chiều đỏ trong chính lệnh, đo trước khi viết hợp đồng:
+      cùng lệnh chỉ kể `luot-kiem-nhe` thoát 1 «ĐỎ: hồ sơ ĐƯỢC KÝ trong cửa sổ mà mốc KHÔNG kể: do-tuong-phan-lab-oklab
+      doc-jsx-va-ban-do-hong lenh-cho-khoa-nhay-duong-dan t3-arm-chu-ky-khong-im tier-b-doc-khong-do-duoc».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rel2390_dd_giu
+    expected: >
+      Exit 0 và dòng «moc:   "version": "2.7.1", | HEAD:   "version": "2.7.1",» — `diagram-design/` KHÔNG có dòng đổi
+      từ `88d31b63` tới HEAD VÀ số bằng số ở mốc. Chiều đỏ: cùng lệnh với mốc `1b98fdb1` (v2.20.0, trước commit nâng
+      2.7.1) thoát 1 — đo ở release-2-29-0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vế mô tả của P200 xanh trên mô tả đã rút: mô tả acceptance-gate có mục v2.39.0 và mục v2.39.0 của
+      feature-loop tự khai cặp acceptance-gate >= 2.39.0; hai đột biến của P200 (mô tả thiếu mục · câu khai
+      cặp nằm ngoài mục) phải đỏ trong chính ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.rel2390_goi_doi
+    expected: >
+      Exit 0 và dòng «XANH: hai gói chỉ đổi dòng version» — tập tệp đổi dưới `road-map/` và `tri-thuc/` từ `88d31b63` tới
+      HEAD bằng đúng hai manifest, và mọi dòng đổi trong đó là dòng "version". Chiều đỏ trên cùng tệp lệnh, đo trước lượt
+      chấm: mốc `v2.33.0` (trước khi gói tri-thuc có lệnh ghi, kiểm) thoát 1 với «ĐỎ: tập tệp đổi khác hai tệp khai» và «ĐỎ:
+      dòng đổi ngoài "version":»; mốc HEAD (không tệp nào đổi) thoát 1 với «ĐỎ: tập tệp đổi khác hai tệp khai».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.rel2390_lop_chep
+    expected: >
+      Exit 0 và dòng «XANH: đúng 1 tệp đổi như ghi chú 2.39.0 kể» — rút danh sách chép từ khối INIT-CI-COPY-LIST (36 tệp),
+      rút danh sách mong đợi từ gạch «- **Lớp chép CI:…» của mục «## 2.39.0» trong CHANGELOG.md, và tập tệp đổi byte từ
+      `88d31b63` tới HEAD là đúng `scripts/pre-merge-check.sh` (bản vá của t3-arm-chu-ky-khong-im). Chiều đỏ trên cùng tệp
+      lệnh: mốc `c8fa5a65` (v2.38.0) với mục 2.39.0 vẫn kể đúng một tệp, nên dùng mục 2.38.0 — thoát 1 «ĐỎ: tệp đổi mà ghi
+      chú KHÔNG kể: scripts/pre-merge-check.sh» (đo ở release-2-38-1).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    inputs: [CHANGELOG.md, _acceptance/release-2-39-0/contract.md, _acceptance/do-tuong-phan-lab-oklab/contract.md, _acceptance/do-tuong-phan-lab-oklab/design.md, _acceptance/doc-jsx-va-ban-do-hong/contract.md, _acceptance/doc-jsx-va-ban-do-hong/design.md, _acceptance/lenh-cho-khoa-nhay-duong-dan/contract.md, docs/superpowers/specs/2026-11-10-lenh-cho-khoa-nhay-duong-dan-design.md, _acceptance/t3-arm-chu-ky-khong-im/contract.md, _acceptance/t3-arm-chu-ky-khong-im/design.md, _acceptance/tier-b-doc-khong-do-duoc/contract.md, docs/superpowers/specs/2026-11-10-tier-b-doc-khong-do-duoc-design.md, _acceptance/luot-kiem-nhe/contract.md, _acceptance/luot-kiem-nhe/opportunity.md, docs/superpowers/specs/2026-11-11-luot-kiem-nhe-design.md, commands/acceptance-init.md]
+    question: >
+      Đọc AC-9 của contract release-2-39-0 và mục «## 2.39.0» của CHANGELOG.md (chỉ mục đó; không đọc tệp sử mô tả plugin
+      dưới docs/), cạnh đúng nguồn nó chép. (0) Ở sáu mục con của sáu hồ sơ: mỗi câu mô tả vòng (dòng «Gốc:» đọc
+      ở opportunity.md nếu có, không thì Context của hợp đồng hay design doc; gạch «Vật:» chép dòng feature của hợp đồng;
+      giới hạn trích trong ngoặc «») có phải chữ của hồ sơ ấy — không tóm tắt sáng tạo, không nói rộng hơn — và số giới
+      hạn đã khai có khớp Notes của hợp đồng không? (1) Lời về ba việc chỉ-bớt (mô tả plugin rút, sử chép nguyên văn vào
+      docs/reference/su-mo-ta-plugin-toi-2-38-1.md, gỡ lib/eval-yaml.js, dời scripts/rel-cua-so.sh vào hồ sơ mốc, .env vào .gitignore, ba ca kiểm gỡ) có
+      khớp Context của hợp đồng release-2-39-0 không? (2) Lời về lớp chép CI có đúng với khối INIT-CI-COPY-LIST của
+      commands/acceptance-init.md không — tệp kể có thuộc khối và tổng 36 đúng? (3) Đoạn «Vì sao 2.39.0» và «Ai bị ảnh
+      hưởng» có nói thẳng các đổi hành vi chạm kho đang dùng mà sáu mục con kể, cùng việc gỡ hai tệp và mô tả plugin thôi
+      mang sử, và căn cứ chọn số có đúng với Context của hợp đồng release-2-39-0 không? Trả PASS khi cả bốn vế đúng; FAIL
+      nêu đúng vế và câu sai.
+    evidence_required: [run_id, verdict, rationale]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.kiem_ban_cai_moc
+    long_running: 30
+    expected: >
+      Exit 0 — cổng số phiên bản của kiem-ban-cai-sau-phat-hanh: số trong .claude-plugin/plugin.json ở HEAD khác
+      gốc vòng nên lệnh chạy TRỌN kiểm bản cài trên HEAD (cài cách ly từ `git archive HEAD`), in dòng «TỔNG KẾT:
+      ĐẠT 8/8 — HEAD (<sha>) cài đúng tag» và «… v2.38.1 (88d31b63) cài đúng tag». Chiều đỏ sống trong ca của KC1
+      (KB-1…KB-11). Đỏ → KHÔNG cắt mốc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.rel2390_ba_viec
+    paths: [".claude-plugin/plugin.json", "*/.claude-plugin/plugin.json", ".gitignore", "scripts/**", "lib/**", "_acceptance/config.yaml", "_acceptance/release-2-39-0/ba-viec-tru.sh"]
+    expected: >
+      Exit 0 và dòng «XANH: ba việc chỉ-bớt đã xong ở HEAD» — sáu dòng «mô tả <tệp>: <n> ≤ 1024», hai dòng «<tệp>: không
+      còn», «chỗ nhắc sống: 0», «.gitignore có .env». Chiều đỏ trên cùng tệp lệnh, đo trước khi viết hợp đồng:
+      `ba-viec-tru.sh v2.38.1` thoát 1 với «ĐỎ: mô tả .claude-plugin/plugin.json dài 84582 > 1024», «ĐỎ: mô tả
+      feature-loop/.claude-plugin/plugin.json dài 34579 > 1024», «ĐỎ: scripts/rel-cua-so.sh vẫn còn ở v2.38.1», «ĐỎ:
+      lib/eval-yaml.js vẫn còn ở v2.38.1», «ĐỎ: còn chỗ nhắc sống tới tệp đã gỡ» (kể ba mươi khoá rel*_cua_so) và «ĐỎ:
+      .gitignore ở v2.38.1 không bỏ qua .env».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.rel2390_su_mo_ta
+    paths: ["CHANGELOG.md", "docs/reference/su-mo-ta-plugin-toi-2-38-1.md", "_acceptance/release-2-39-0/su-mo-ta.mjs"]
+    expected: >
+      Exit 0 và dòng «XANH: sử trong mô tả hai plugin ở v2.38.1 còn nguyên trong docs/reference/su-mo-ta-plugin-toi-2-38-1.md» — «acceptance-gate: 84584
+      ký tự — chép nguyên văn đúng mô tả ở v2.38.1» và «feature-loop: 34580 ký tự — …» (đếm đơn vị UTF-16 của JS). Chiều
+      đỏ trên cùng tệp lệnh: `su-mo-ta.mjs v2.38.0` thoát 1 với «ĐỎ: acceptance-gate — bản chép KHÁC mô tả ở v2.38.0» và
+      «ĐỎ: feature-loop — bản chép KHÁC mô tả ở v2.38.0».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

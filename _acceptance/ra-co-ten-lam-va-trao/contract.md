@@ -167,11 +167,9 @@ tests/scripts/loop-health.test.mjs fixture-code-sinh-mang-status-không-rẽ-nh�
 tests/scripts/repin-lane-skip-unchanged.test.mjs fixture-code-sinh-mang-status-để-làn-đọc-pin-không-rẽ-nhánh-theo-status
 tests/scripts/routing-baseline-t1.test.mjs fixture-code-sinh-mang-status-để-pre-merge-đọc-không-rẽ-nhánh-theo-status
 scripts/loop-health.mjs đọc-giờ-commit-đổi-status-để-đếm-thời-gian-không-phân-loại-hồ-sơ
-.claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
 tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/contract.md artifact-đông-lạnh-của-hồ-sơ-lưu-kho-ADR-0015-làm-fixture-P146-P147-không-phải-bộ-đọc
 tests/scripts/ho-so-nghi.test.mjs fixture-code-sinh-mang-status-để-cổng-đọc-không-rẽ-nhánh-theo-status
-scripts/rel-cua-so.sh đọc-status-để-ĐẾM-hồ-sơ-ký-trong-cửa-sổ-phát-hành-không-phân-ô-không-rẽ-nhánh-hồ-sơ
 tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho-git-code-sinh-không-rẽ-theo-status-của-hồ-sơ-này
 tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-lui-phai-song-không-rẽ-theo-status-máy-thông
 tests/scripts/lo-trinh.test.mjs fixture-code-sinh-mang-status-để-bộ-đọc-lộ-trình-hỏi-hàm-xếp-ô-của-bản-đồ-không-rẽ-nhánh-theo-status

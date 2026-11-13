@@ -24,3 +24,6 @@ s4-args.json
 
 # Thư mục lượt chạy của eval/suite/làn ghim lại (eval-executors.md «Where a run writes its artifacts»)
 .acceptance-runs/
+
+# Biến môi trường cục bộ — không bao giờ commit (bí mật, khoá máy chủ).
+.env
