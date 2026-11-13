@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cbee02f7afe381780391c227780bfea49d5b3b40
+verified_commit: d2e95357a2414e6c1873d23e755155042ff05425
 human_signoff: Manh 2026-08-25
 ---
 
@@ -446,3 +446,7 @@ sha: 9adc50d58405a74b5aa91919a490b0167df3a0a1 · suites: 11 lệnh exit 0 · eva
 ### Re-pin lần 48 — 2026-11-11, do ghim lại sau gộp main 11dfcd7f và khai khác biệt đọc-cũ RT13
 run_id: repin-20261111T114637Z-20761
 sha: cbee02f7afe381780391c227780bfea49d5b3b40 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 49 — 2026-11-13, do mốc 2.39.0 gỡ hai dòng chết khỏi BO-DOC-KHAI-GACH (plugin.json, rel-cua-so.sh) — ghim lại sau chữ ký Cổng 2 release-2-39-0
+run_id: repin-20261113T022551Z-27669
+sha: d2e95357a2414e6c1873d23e755155042ff05425 · suites: 11 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
