@@ -171,7 +171,7 @@ const CA = {
     const k = khoTieuThu({ cua: true });
     const t = node(['--input-type=module', '-e', `const m=await import(${JSON.stringify(pathToFileURL(path.join(cai, 'scripts', 'tin-hieu.mjs')).href)});const r=m.napTruc();if(!r||r.loi?.length)throw new Error('napTruc: '+JSON.stringify(r?.loi||r));`], { cwd: k });
     if (t.status !== 0) return { ok: false, msg: `skill đổi tên — tin-hieu napTruc: ${boMod(t.stderr) || (t.stderr.match(/Error: (.*)/) || [, dongCuoi(t.stderr)])[1]}` };
-    const c = node(['-e', `const c=require(${JSON.stringify(path.join(cai, 'scripts', 'co-hop-dong.cjs'))});const r=c.napKhoang();if(!r.khoang)throw new Error('napKhoang: '+r.loi.join(' · '));`]);
+    const c = node(['-e', `const c=require(${JSON.stringify(path.join(cai, 'scripts', 'co-hop-dong.cjs'))});const k=c.napKhoang();if(!k||!Array.isArray(k.muc_tieu))throw new Error('napKhoang: khoảng rỗng');`]);
     if (c.status !== 0) return { ok: false, msg: `skill đổi tên — co-hop-dong napKhoang: ${boMod(c.stderr) || (c.stderr.match(/Error: (.*)/) || [, dongCuoi(c.stderr)])[1]}` };
     return { ok: true, msg: 'skill đổi tên (ngoài hợp đồng) — tin-hieu đọc trục, co-hop-dong đọc khoảng cỡ ở bản cài lõi mới' };
   },
