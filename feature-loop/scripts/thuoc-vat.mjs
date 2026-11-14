@@ -34,6 +34,7 @@ import { chupThuoc, soThuoc } from './chup-ho-so-da-thong.mjs';
 import { globToRe } from './carry-plan.mjs';
 import { soCay, dongCayDoi } from './lib/cay-doi.mjs';
 import { timTranscript, docTranscript, quyTrachNhiem, dongGhiBoi } from './lib/ghi-boi.mjs';
+import { gocLoiTuHost } from './goc-loi-tu-host.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
@@ -294,7 +295,9 @@ if (isMain) {
     let agRoot = flags['ag-root'];
     if (!agRoot) {
       const tuHost = path.resolve(HERE, '..', '..');
+      const tuHostMoi = gocLoiTuHost(HERE, { can: ['lib/evidence-core.cjs'] }); // bố cục plugins/<tên>/ (goi-cheo-loi-dieu-phoi)
       if (fs.existsSync(path.join(tuHost, 'lib', 'evidence-core.cjs'))) agRoot = tuHost;
+      else if (tuHostMoi) agRoot = tuHostMoi;
       else {
         try {
           const out = execFileSync(process.execPath, [path.join(HERE, 'resolve-plugin.mjs'), '--plugin', 'acceptance-gate', '--require', 'lib/evidence-core.cjs'], { encoding: 'utf8' });

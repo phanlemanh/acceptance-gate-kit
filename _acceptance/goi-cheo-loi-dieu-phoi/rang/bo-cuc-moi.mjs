@@ -161,10 +161,8 @@ const CA = {
       ['thuoc-vat', node([path.join(fl, 'thuoc-vat.mjs'), '--root', kho, '--slug', 'x', '--json'], { cwd: kho })],
       ['carry-plan', node(['--input-type=module', '-e', `const m=await import(${JSON.stringify(pathToFileURL(path.join(fl, 'carry-plan.mjs')).href)});try{m.plan({runLogText:'',evalsText:'evals: []\\n',contractText:'',deltaFiles:[],round:2})}catch(e){console.error('khác: '+e.message)}`], { cwd: kho })],
     ];
-    for (const [ten, r] of ra) {
-      const dong = `${r.stderr}\n${r.stdout}`.split('\n').find(l => HONG.test(l));
-      if (dong) return { ok: false, msg: `${ten} — ${dong.trim().slice(0, 240)}` };
-    }
+    const hong = ra.map(([ten, r]) => [ten, `${r.stderr}\n${r.stdout}`.split('\n').find(l => HONG.test(l))]).filter(([, d]) => d);
+    if (hong.length) return { ok: false, msg: hong.map(([ten, d]) => `${ten} — ${d.trim().slice(0, 160)}`).join(' · ') };
     return { ok: true, msg: 'feature-loop tự host — giu-tuoi, thuoc-vat, carry-plan dùng <kho mới>/plugins/acceptance-gate (bộ đệm rỗng)' };
   },
   'BC-9'({ cai }) {
@@ -199,7 +197,7 @@ try {
     const GHIM = {
       'BC-2': ['ERR_MODULE_NOT_FOUND', 'hinh-dang.mjs'], 'BC-3': ['mục vắng', 'hinh-dang.mjs'], 'BC-4': ['không đọc được marketplace.json'],
       'BC-5': ['luật chặn tắt lặng'], 'BC-6': ['applies=false'], 'BC-7': ['không có goiMang'],
-      'BC-8': ['không tìm được bộ máy acceptance-gate'],
+      'BC-8': ['giu-tuoi — ', 'không tìm được bộ máy acceptance-gate', 'thuoc-vat — ', 'carry-plan — '],
     };
     const lanh = await chayHet(null);
     const doLanh = Object.entries(lanh).filter(([id, r]) => id in GHIM && !r.ok);
