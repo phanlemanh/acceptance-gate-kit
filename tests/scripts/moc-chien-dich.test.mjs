@@ -449,8 +449,11 @@ async function mc11(kit) {
   if (!tu.length) sai.push('đối chứng: tự đếm ra 0 hồ sơ đang mở ngoài kế hoạch');
   if (!deq(coB, tu)) sai.push(`cờ hồ sơ ngoài kế hoạch ${JSON.stringify(coB)} ≠ tự đếm ${JSON.stringify(tu)}`);
   const h = d.hang.find(x => x.ma === 'MC1');
-  const t = M.LT.tenChienDich({ hang: h, moc: d.moc, loTrinh: d, tep: 'docs/plans/lo-trinh-kit.json', nhieuLoTrinh: false, kho: M.LT.tenKho(KIT) });
-  if (t.ten_phien !== 'MC1 · Mốc là chiến dịch (acceptance-gate-kit)') sai.push(`ten_phien «${t.ten_phien}»`);
+  // Tên kho đọc từ thư mục checkout (tenKho), không viết cứng: cùng cây chạy ở thư mục khác tên (kho kế nhiệm
+  // delivery-loop, vòng B1 13/11) vẫn phải xanh. Chiều đỏ của định dạng tên phiên vẫn ở ca bảng `gach-va-ngoac`.
+  const kho = M.LT.tenKho(KIT); if (!kho) sai.push('tenKho trả rỗng');
+  const t = M.LT.tenChienDich({ hang: h, moc: d.moc, loTrinh: d, tep: 'docs/plans/lo-trinh-kit.json', nhieuLoTrinh: false, kho });
+  if (t.ten_phien !== `MC1 · Mốc là chiến dịch (${kho})`) sai.push(`ten_phien «${t.ten_phien}»`);
   if (t.nhom !== 'Phát hành 2.31.0 16/10') sai.push(`nhom «${t.nhom}»`);
   console.log(`    · MC-11 hồ sơ đang mở ngoài kế hoạch (${tu.length}): ${tu.join(', ')}`);
   return sai;

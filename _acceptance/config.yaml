@@ -265,6 +265,9 @@ executors:
     # Răng màn hẹp của hồ sơ bang-ngoai-n-co-can-cu (E6): cần Python Playwright + Chromium; thiếu → thoát 2
     # «không đọc được ở đây». KHÔNG vào feature_loop.suite_keys (CI không có trình duyệt).
     bang_ngoai_n_man_hep: python3 _acceptance/bang-ngoai-n-co-can-cu/rang/man-hep.py
+    # Răng hai chiều của hồ sơ mc11-ten-kho (E2, E3): clone cây vào thư mục «kho-ten-khac», ca MC-11 lành xanh, bản
+    # chữ cứng 0c4e503b đỏ với thông điệp ghim. Cần git + node; KHÔNG vào feature_loop.suite_keys.
+    mc11_ten_kho_chieu_do: bash _acceptance/mc11-ten-kho/rang/chieu-do.sh
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
