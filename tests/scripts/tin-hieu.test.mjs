@@ -6,7 +6,7 @@
 // skills/acceptance/references/tin-hieu-template.md lúc chạy, không viết tay đúng khuôn bên đọc.
 // Ca đỏ chạy CHÍNH hàm đo trên BẢN SAO của vật (`banSao`) với nhát tiêm được kiểm khớp đúng một lần, SAU
 // khi bản lành xanh; thông điệp ghim rút từ đầu ra hàm đo. Mọi đường dẫn suy từ vị trí tệp này; không ca
-// nào ghi vào cây kit. `kiemYeuCau` gọi THẬT từ dieu-phoi/scripts/hinh-dang.mjs của cây đang kiểm — khuôn
+// nào ghi vào cây kit. `kiemYeuCau` gọi THẬT từ scripts/hop-thu/hinh-dang.mjs (bản chép nguyên văn của gói điều phối) của cây đang kiểm — khuôn
 // yêu cầu của gói Điều phối đổi thì ca đỏ ngay (lời phiên điều phối 11/10).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync, readdirSync, statSync } from 'node:fs';
@@ -122,7 +122,7 @@ const khoiThô = html => { const m = String(html).match(/<script type="applicati
 // ── TH-1: khuôn tín hiệu = khuôn yêu cầu của Điều phối (AC-1) ───────────────────
 async function th1(kit) {
   const sai = [];
-  const T = await nap(kit, 'scripts/tin-hieu.mjs'); const D = await nap(kit, 'dieu-phoi/scripts/hinh-dang.mjs');
+  const T = await nap(kit, 'scripts/tin-hieu.mjs'); const D = await nap(kit, 'scripts/hop-thu/hinh-dang.mjs'); // bản tin-hieu.mjs nạp (hộp thư của lõi, goi-cheo-loi-dieu-phoi)
   const m = mauTin(kit);
   try { D.kiemYeuCau(JSON.parse(JSON.stringify(m.obj))); } catch (e) { sai.push(`mau: kiemYeuCau thật ném ${e.message}`); }
   const r1 = kho({ tins: [{ id: m.id, o: m.obj }] });

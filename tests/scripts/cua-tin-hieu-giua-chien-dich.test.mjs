@@ -45,10 +45,15 @@ function gocMay() {
   return GOC;
 }
 // tiem: [[tệp tương đối, chuỗi cũ, chuỗi mới]] — mỗi chuỗi cũ phải khớp ĐÚNG một lần, khác thì ca hỏng có tên.
+// Bốn tệp dùng chung của gói điều phối có bản chép NGUYÊN VĂN trong lõi ở scripts/hop-thu/ (hồ sơ goi-cheo-loi-dieu-phoi,
+// đường C; răng GN-2 giữ hai bản bằng nhau). Một hộp thư: nhát phá vào tệp dùng chung áp lên CẢ HAI bản — đánh một bản thì
+// một phía (lõi hay điều phối) vẫn chạy bản lành và chiều đỏ chết lặng.
+const HOP_THU = ['hinh-dang.mjs', 'cau-hinh.mjs', 'dot.mjs', 'cua-tin-hieu.mjs'];
+const haiBan = tep => (tep.startsWith('dieu-phoi/scripts/') && HOP_THU.includes(path.basename(tep)) ? [tep, `scripts/hop-thu/${path.basename(tep)}`] : [tep]);
 function banSao(tiem) {
   const r = tam('bs');
   for (const d of [...CAY, '.claude-plugin']) if (existsSync(path.join(KIT, d))) cpSync(path.join(KIT, d), path.join(r, d), { recursive: true });
-  for (const [tep, cu, moi] of tiem) {
+  for (const [tepGoc, cu, moi] of tiem) for (const tep of haiBan(tepGoc)) {
     const p = path.join(r, tep); const t = readFileSync(p, 'utf8'); const n = t.split(cu).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm lệch: «${cu.slice(0, 50)}» khớp ${n} lần trong ${tep}`);
     writeFileSync(p, t.replace(cu, moi));
