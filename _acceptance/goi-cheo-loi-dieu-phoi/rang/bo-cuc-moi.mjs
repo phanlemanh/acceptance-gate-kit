@@ -173,8 +173,18 @@ const CA = {
     if (c.status !== 0) return { ok: false, msg: `skill đổi tên — co-hop-dong napKhoang: ${boMod(c.stderr) || (c.stderr.match(/Error: (.*)/) || [, dongCuoi(c.stderr)])[1]}` };
     return { ok: true, msg: 'skill đổi tên (ngoài hợp đồng) — tin-hieu đọc trục, co-hop-dong đọc khoảng cỡ ở bản cài lõi mới' };
   },
+  // Chiều đỏ của BC-9 trên CÙNG bản cài: bộ tìm skill trả đường cũ (như trước vòng) → hai bên đọc phải gãy đúng thông điệp.
+  'BC-9-do'(fx) {
+    const lanh = CA['BC-9'](fx);
+    if (!lanh.ok) return { ok: false, msg: `lần lành BC-9 chưa xanh — không tin chiều đỏ` };
+    const cai = path.join(tam('cai-do'), 'acceptance-gate'); cpSync(fx.cai, cai, { recursive: true });
+    writeFileSync(path.join(cai, 'scripts', 'tim-skill.cjs'), "'use strict';\nmodule.exports = { timSkill: (goc, khoi, macDinh) => macDinh };\n");
+    const r = CA['BC-9']({ ...fx, cai });
+    return !r.ok && r.msg.includes('skill gom thiếu khối GOM-TRUC') ? { ok: true, msg: `bộ tìm skill trả đường cũ → đỏ: ${r.msg.slice(0, 120)}` }
+      : { ok: false, msg: `bộ tìm skill trả đường cũ mà ca không đỏ đúng: ${r.msg}` };
+  },
 };
-const THU_TU = ['BC-2', 'BC-3', 'BC-4', 'BC-5', 'BC-6', 'BC-7', 'BC-8', 'BC-9'];
+const THU_TU = ['BC-2', 'BC-3', 'BC-4', 'BC-5', 'BC-6', 'BC-7', 'BC-8', 'BC-9', 'BC-9-do'];
 
 async function chayHet(ref) {
   const fx = dung(ref);
