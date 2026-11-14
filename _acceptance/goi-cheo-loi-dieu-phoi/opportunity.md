@@ -3,10 +3,10 @@ schema_version: 1
 slug: goi-cheo-loi-dieu-phoi
 feature: «Plugin lõi và feature-loop chạy đúng ở cả bố cục hôm nay lẫn bố cục plugins/<tên>/ với tên plugin mới — không còn trỏ ra ngoài thư mục của chính mình, không còn viết cứng tên plugin»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided                # discovery | decided | archived
+decision: build               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-11-14T10:25:41Z   # chủ kho gõ «làm · đường C · neo như ô · ngưỡng như ô» trong phiên vòng, máy ghi hộ
 prototype:
   base_commit:
   disposition:
@@ -71,10 +71,10 @@ plugin; `dieu-phoi/hooks/mod/khung.ts` `../../scripts` — trong chính điều 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] bản 3.0 dựng từ nhánh chính có gói lõi tự đứng được — không đường nào ra ngoài thư mục của nó, không tên plugin cũ nào trong mã tra cứu?
-- Kết quả nào là SỐNG: [đề xuất] lệnh đếm ở mục «3. Ngưỡng» của hạt giống trả 0 trên cây dựng lại từ nhánh chính sau gộp; ở mốc 3.0, `kiem-ban-cai` ĐẠT mục `dieu-phoi` và lượt `acceptance-init` trên kho giả lập khai đúng `roadmap@delivery-loop`.
-- Kết quả nào là CHẾT: [đề xuất] một kho tiêu thụ ở bố cục cũ đổi phán quyết hay đầu ra (khác byte) ở `plugin-declare`, khởi tạo/chặn lộ trình hay cửa tín hiệu mà vật của kho không đổi — gặp là gỡ bản sửa.
-- Timebox: [đề xuất] gộp trước ngày cắt B3; đọc ngưỡng ở lượt dựng lại cây của B3.
+- Câu hỏi phép đo trả lời: bản 3.0 dựng từ nhánh chính có gói lõi tự đứng được — không đường nào ra ngoài thư mục của nó, không tên plugin cũ nào trong mã tra cứu?
+- Kết quả nào là SỐNG: lệnh đếm ở mục «3. Ngưỡng» của hạt giống trả 0 trên cây dựng lại từ nhánh chính sau gộp; ở mốc 3.0, `kiem-ban-cai` ĐẠT mục `dieu-phoi` và lượt `acceptance-init` trên kho giả lập khai đúng `roadmap@delivery-loop`.
+- Kết quả nào là CHẾT: một kho tiêu thụ ở bố cục cũ đổi phán quyết hay đầu ra (khác byte) ở `plugin-declare`, khởi tạo/chặn lộ trình hay cửa tín hiệu mà vật của kho không đổi — gặp là gỡ bản sửa.
+- Timebox: gộp trước ngày cắt B3; đọc ngưỡng ở lượt dựng lại cây của B3.
 
 ## Kết quả prototype
 
@@ -89,10 +89,15 @@ Không dựng. Lớp lỗi đã đo bằng quét mã + bộ đệm cài thật (
 
 ## Cổng 0
 
-- **decision = …** chờ chủ kho.
-- **Neo (máy chọn, cửa veto mở):** hồ sơ B1 `kich-ban-chuyen-nha` ở kho kế nhiệm — chỗ lớp lỗi được đo thật, cùng tiền lệ
+- **decision = build** Chủ kho quyết 14/11 trong phiên vòng: «làm · đường C · neo như ô · ngưỡng như ô».
+- **disposition = …** Không áp dụng (không dựng prototype).
+- **Ngưỡng UAT chốt cùng lúc ký:** «ngưỡng như ô» — các dòng SỐNG, CHẾT, timebox ở mục Ngưỡng.
+- **Chính sách đường nhóm 1 — chủ kho chọn C:** lõi mang bản chép NGUYÊN VĂN bốn tệp dùng chung của điều phối
+  (`hinh-dang`, `cau-hinh`, `dot`, `cua-tin-hieu`), có răng so từng byte với bản của điều phối (tiền lệ khối chép
+  nguyên văn của `cat-luot.mjs`). Lõi KHÔNG phụ thuộc gói bật-theo-lựa-chọn lúc chạy. Lối loại: A (`resolve-plugin` —
+  kho khai `tin_hieu` mà không bật điều phối mất cửa tín hiệu) · D (dời về lõi — sửa ~37 tệp điều phối).
+- **Neo (máy chọn, chủ kho giữ «như ô»):** hồ sơ B1 `kich-ban-chuyen-nha` ở kho kế nhiệm — chỗ lớp lỗi được đo thật, cùng tiền lệ
   `mc11-ten-kho` (#502). Lối khác: `_acceptance/mc11-ten-kho/` hay `_acceptance/release-2-39-0/` của kho này.
-- **Chính sách cần chủ kho chốt:** đường của nhóm 1 (xem lời mời).
 
 ## Thước đo thành công → ứng viên criterion
 
