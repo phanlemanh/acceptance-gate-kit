@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ tests/scripts/moc-chien-dich.test.mjs — không chạm hooks, lib, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-14-mc11-ten-kho-design.md
-status: implemented
+status: machine-cleared
 approved_by:
 approved_at:
 veto_state: mo

@@ -11,8 +11,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>153 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>154 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Ca MC-11 đọc tên kho từ thư mục checkout thay vì viết cứng tên acceptance-gate-kit (`mc11-ten-kho`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -187,6 +186,7 @@ flowchart TD
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu
 - Mã sổ quyết định duy nhất — khuôn mã d-<UTC>-<n> ở bên ghi, khoá overlay theo dòng ở bên đọc để thẻ không lặp một câu dịch lên mọi dòng chung mã (`ma-so-quyet-dinh-duy-nhat`)
 - lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)
+- Ca MC-11 đọc tên kho từ thư mục checkout thay vì viết cứng tên acceptance-gate-kit (`mc11-ten-kho`) — đã giao — máy thông, cửa veto còn mở
 - Khuôn khai sinh phép đo — mọi phép đo mới phải tự chứng minh biết báo đỏ (đối chứng dương xanh + phá-vật-thật đổi kết luận + thông điệp ghim) ngay lúc viết, trước khi được tính là xong (`measure-birth-certificate`)
 - Trả răng cho năm phép đo đã bị ghi là mất răng — chúng phải phân biệt được bản đúng với bản hỏng, và có một chốt canh để lần sau không lặp lại (`measure-teeth-cleanup`)
 - Một sổ quyết định, ba vế một câu — dòng sổ decision · why · cost_if_wrong viết cho người ký; thẻ Cổng 1/2 in một dòng ba vế ở cả ba khối; cầu nối máy gặt ruling superpowers vào sổ, hook chặn lệnh xoá workspace cho tới khi đã gặt; đường đọc-cũ cho dòng chỉ có impact (`mot-so-ba-ve`)
