@@ -94,11 +94,9 @@ bản cài, feature-loop × bản chép CI — ba vật không nằm trong danh 
 
 ## Đường đo
 
-| Ngưỡng (ô cơ hội) | Số từ đâu | AC bảo đảm |
-|---|---|---|
-| SỐNG: lệnh đếm của hạt giống trả 0 trên cây dựng lại | đo chéo cuối vòng trên bản kéo tạm của `delivery-loop` (không trong hồ sơ); lượt dựng lại cây của B3 | AC-2…AC-8 (cùng đường trên bộ dựng) |
-| SỐNG: `kiem-ban-cai` ở 3.0 ĐẠT mục điều phối; `acceptance-init` khai `roadmap@delivery-loop` | lượt kiểm bản cài của mốc 3.0 | AC-7, AC-4, AC-5 |
-| CHẾT: kho ở bố cục cũ đổi đầu ra | vi phân bản gốc ↔ cây đang kiểm | AC-1 |
+- SỐNG — lệnh đếm của hạt giống trả 0 trên cây dựng lại: số từ đo chéo cuối vòng trên bản kéo tạm của `delivery-loop` (E16, ngoài làn máy) và lượt dựng lại cây của B3 · AC bảo đảm: AC-2…AC-8 (cùng đường trên bộ dựng).
+- SỐNG — `kiem-ban-cai` ở 3.0 ĐẠT mục điều phối; `acceptance-init` khai `roadmap@delivery-loop`: số từ lượt kiểm bản cài của mốc 3.0 · AC bảo đảm: AC-7, AC-4, AC-5.
+- CHẾT — kho ở bố cục cũ đổi đầu ra: số từ vi phân bản gốc ↔ cây đang kiểm (E1) · AC bảo đảm: AC-1.
 
 ## Out of scope
 

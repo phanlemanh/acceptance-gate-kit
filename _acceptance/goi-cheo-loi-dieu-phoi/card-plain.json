@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Bản cài 3.0 của plugin lõi tự đứng được ở kho mới: gửi tín hiệu, khai plugin cho kho, khởi tạo và chặn lộ trình, kiểm bản cài và feature-loop tự host đều chạy với tên plugin mới — còn ở bố cục hôm nay thì không đổi một byte đầu ra.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cho ra đúng từng byte như bản trước vòng ở bố cục hôm nay — kể cả kho dùng chợ fork và đếm vòng meta của kho kit; phá bản chép hộp thư thì ca cửa tín hiệu có sẵn đỏ (AC-1, vi phân)."},
+    {"id": "AC-2", "p": "Sẽ gửi và đọc tín hiệu được từ bản cài lõi ở bố cục mới, không cần gói điều phối (AC-2)."},
+    {"id": "AC-3", "p": "Sẽ có mọi tệp trong danh sách chép CI nằm trong bản cài lõi mới, và bản chép ở kho tiêu thụ chạy được (AC-3)."},
+    {"id": "AC-4", "p": "Sẽ khai cho kho đúng ba plugin với tên chợ mới delivery-loop khi chạy từ bản cài lõi mới (AC-4)."},
+    {"id": "AC-5", "p": "Sẽ nhận kho đã bật roadmap@delivery-loop: khởi tạo lộ trình chạy, luật chặn lộ trình vẫn chặn hồ sơ lạc hàng (AC-5)."},
+    {"id": "AC-6", "p": "Sẽ nhận ra kho kit ở bố cục mới để cờ «tối đa một vòng meta» vẫn đếm (AC-6)."},
+    {"id": "AC-7", "p": "Sẽ để lượt kiểm bản cài tìm gói điều phối theo tệp nó mang, nên tên mới dispatch vẫn được nhận (AC-7)."},
+    {"id": "AC-8", "p": "Sẽ để feature-loop chạy từ bản kéo kit tìm đúng lõi của chính kho mà không cần --ag-root (AC-8)."},
+    {"id": "AC-9", "p": "Sẽ giữ một nguồn tên: bảng tên luôn khớp tệp khai chợ, và bản chép hộp thư luôn bằng từng byte bản của điều phối — lệch là đỏ, gọi tên chỗ lệch (AC-9)."},
+    {"id": "AC-10", "p": "Sẽ chứng mỗi ca bố cục mới từng đỏ: cùng bộ dựng chạy trên bản trước vòng phải đỏ với đúng thông điệp (AC-10)."},
+    {"id": "AC-11", "p": "Sẽ thôi bắt mỗi hồ sơ sinh sau mốc phải khai dòng vào danh sách đóng của ca RT13 — ca vẫn đỏ khi hồ sơ cũ đổi lớp không khai (AC-11, Hỏi-1)."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Không đụng kho delivery-loop — kịch bản và bộ kiểm cây mới là việc của B2."},
+    {"id": "OOS-2", "p": "Không đổi đường dẫn bộ kiểm cho bố cục mới; chỉ sửa ba tệp ca cửa tín hiệu để chúng phá đúng bản chép mới."},
+    {"id": "OOS-3", "p": "Không cắt số, không gắn thẻ, không chép lại lớp CI ở kho tiêu thụ — để chiến dịch mốc 3.0."},
+    {"id": "OOS-4", "p": "Không đổi gói điều phối: bốn tệp gốc của nó giữ nguyên từng byte."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Bảy đường mã bám bố cục hay tên cũ, tìm bằng quét mã theo bốn mẫu — mỗi đường có một tiêu chí bố cục mới (AC-2…AC-8)."},
+    {"i": 1, "p": "Hai bố cục — hôm nay (AC-1, vi phân từng byte) và plugins/<tên>/ theo đúng bảng xếp của kịch bản (AC-2…AC-8, AC-10)."},
+    {"i": 2, "p": "Ba ngữ cảnh chạy — bản cài (đã đo bộ đệm thật: chỉ mang thư mục plugin), bản kéo kit, bản chép CI ở kho tiêu thụ (AC-3)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Tiêu chí bố cục cũ từng cho máy tự khai «khác biệt chấp nhận được» — tức máy tự nới ngưỡng anh đã chốt. Đã sửa: đòi bằng nhau từng byte, không có bảng ngoại lệ."},
+    {"i": 1, "p": "Hai lựa chọn của máy viện dẫn nguyên lý chung như thể nó quyết lựa chọn, trong khi còn lối khác sống. Đã thay hai dòng sổ và đổi vật sang hai nhánh (có tệp khai chợ cạnh gói thì đọc như cũ)."},
+    {"i": 2, "p": "Kho cài từ chợ fork sẽ bị đổi tên chợ mà phép so không thấy. Đã thêm kho chợ fork vào phép so."},
+    {"i": 3, "p": "Bộ dò kho kit ở bố cục cũ và ba tệp ca cửa tín hiệu chưa có phép đo. Đã thêm vào vi phân và thêm ba eval chạy chúng, cộng nhát phá bản chép hộp thư."},
+    {"i": 4, "p": "Việc «bộ dựng giống cây kịch bản thật» chỉ đo ngoài hồ sơ. Đã khai thành ô không-chạy có tên để thẻ Bằng chứng hiện nhãn; đo chéo chạy tay cuối vòng."}
+  ]
+}
