@@ -146,14 +146,21 @@ try {
     const lanh = node([path.join(ban, CA)], { cwd: ban });
     if (lanh.status !== 0) bad('VP-HT', `lần lành chưa xanh trên cùng bản sao: ${String(lanh.stdout).split('\n').filter(l => /FAIL/.test(l)).slice(0, 2).join(' | ')}`);
     else {
+      // Nhát phá CHỈ đánh bản hộp thư của lõi (bản điều phối giữ nguyên), vào đường mà ca LÀNH GW-1 đi qua: bộ đọc cửa
+      // bỏ gốc nguồn của thư mục chính → ý người gửi từ worktree nằm lại trong worktree. Chuỗi phá không trùng nhát tiêm
+      // nào bộ test tự áp (S4 lượt 1: nhát cũ trùng GW-1-do2 nên màu đỏ đến từ «nhát tiêm lệch», không từ vật).
       const p = path.join(ban, 'scripts', 'hop-thu', 'cua-tin-hieu.mjs');
       const t = existsSync(p) ? readFileSync(p, 'utf8') : '';
-      const cu = 'if (fs.existsSync(tep)) return { ket: soSanh(tep, than), tep };';
-      if (!t.includes(cu)) bad('VP-HT', 'nhát phá không áp: scripts/hop-thu/cua-tin-hieu.mjs');
+      const cu = 'const g = gocNguon ?? gocKho;';
+      const GHIM = 'ý người nằm trong worktree';
+      if (t.split(cu).length !== 2) bad('VP-HT', 'nhát phá không áp: scripts/hop-thu/cua-tin-hieu.mjs');
       else {
-        writeFileSync(p, t.replace(cu, "if (fs.existsSync(tep)) { fs.writeFileSync(tep, than); return { ket: 'moi', tep }; }"));
-        const pha = node([path.join(ban, CA)], { cwd: ban });
-        pha.status !== 0 ? ok('VP-HT', 'phá scripts/hop-thu/cua-tin-hieu.mjs trên bản sao → ca cửa tín hiệu đỏ') : bad('VP-HT', 'ca cửa tín hiệu không chạm hộp thư');
+        writeFileSync(p, t.replace(cu, 'const g = gocKho;'));
+        const pha = node([path.join(ban, CA)], { cwd: ban, env: { ...ENV, GW_CASES: 'GW-1' } });
+        const dong = String(pha.stdout).split('\n').find(l => /^\s*FAIL: GW-1 — /.test(l)) || '';
+        pha.status !== 0 && dong.includes(GHIM)
+          ? ok('VP-HT', `phá scripts/hop-thu/cua-tin-hieu.mjs trên bản sao → ca cửa tín hiệu đỏ (GW-1: ${GHIM})`)
+          : bad('VP-HT', `ca cửa tín hiệu không chạm hộp thư (thoát ${pha.status}; GW-1: ${dong.trim().slice(0, 160) || 'không có dòng FAIL'})`);
       }
     }
   }

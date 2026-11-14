@@ -150,20 +150,52 @@ const CA = {
     if (cu !== 'acceptance-gate, feature-loop, dieu-phoi') return { ok: false, msg: `kiểm bản cài — bố cục cũ chọn ${cu}` };
     return { ok: true, msg: `kiểm bản cài — kho mới chọn ${moi}; bố cục cũ chọn ${cu}` };
   },
-  'BC-8'({ kho }) {
-    const fl = path.join(kho, 'plugins', 'feature-loop', 'scripts');
+  // Ba script feature-loop chạy từ bản kéo, bộ đệm plugin rỗng. Xanh đòi ĐỦ: thoát 0 + đầu ra dương (JSON đọc được) cho
+  // từng script ở CẢ HAI bố cục, và quan hệ gốc lõi = <kho mới>/plugins/acceptance-gate (mới) · = gốc kho (cũ) đọc từ chính
+  // bộ giải mà ba script gọi. Ở bố cục mới cha của feature-loop không có lib/ của lõi và bộ đệm rỗng, nên thoát 0 chỉ có
+  // thể qua bộ giải ấy. (S4 lượt 1: bản trước chỉ xét vắng chuỗi lỗi — script sập vì lỗi khác vẫn xanh.)
+  async 'BC-8'({ kho }) {
     mkdirSync(path.join(kho, '_acceptance', 'x'), { recursive: true });
     writeFileSync(path.join(kho, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
     writeFileSync(path.join(kho, '_acceptance', 'x', 'contract.md'), '---\nschema_version: 1\nslug: x\nstatus: draft\napproved_by:\n---\n\n# x\n');
     const HONG = /không tìm được bộ máy|không resolve được plugin acceptance-gate|không nạp được lib\/evidence-core\.cjs|thiếu nguồn/;
-    const ra = [
-      ['giu-tuoi', node([path.join(fl, 'giu-tuoi.mjs'), '--root', kho, '--tu', 'HEAD', '--json'], { cwd: kho })],
-      ['thuoc-vat', node([path.join(fl, 'thuoc-vat.mjs'), '--root', kho, '--slug', 'x', '--json'], { cwd: kho })],
-      ['carry-plan', node(['--input-type=module', '-e', `const m=await import(${JSON.stringify(pathToFileURL(path.join(fl, 'carry-plan.mjs')).href)});try{m.plan({runLogText:'',evalsText:'evals: []\\n',contractText:'',deltaFiles:[],round:2})}catch(e){console.error('khác: '+e.message)}`], { cwd: kho })],
+    const json = s => { try { return JSON.parse(s); } catch { return null; } };
+    const ba = fl => [
+      ['giu-tuoi', node([path.join(fl, 'giu-tuoi.mjs'), '--root', kho, '--tu', 'HEAD', '--json'], { cwd: kho }), r => json(r.stdout)],
+      ['thuoc-vat', node([path.join(fl, 'thuoc-vat.mjs'), '--root', kho, '--slug', 'x', '--json'], { cwd: kho }), r => json(r.stdout)],
+      ['carry-plan', node(['--input-type=module', '-e', `const m=await import(${JSON.stringify(pathToFileURL(path.join(fl, 'carry-plan.mjs')).href)});const k=m.plan({runLogText:'',evalsText:'evals: []\\n',contractText:'',deltaFiles:[],round:2});console.log(JSON.stringify(k))`], { cwd: kho }), r => json(r.stdout.trim().split('\n').pop())],
     ];
-    const hong = ra.map(([ten, r]) => [ten, `${r.stderr}\n${r.stdout}`.split('\n').find(l => HONG.test(l))]).filter(([, d]) => d);
-    if (hong.length) return { ok: false, msg: hong.map(([ten, d]) => `${ten} — ${d.trim().slice(0, 160)}`).join(' · ') };
-    return { ok: true, msg: 'feature-loop tự host — giu-tuoi, thuoc-vat, carry-plan dùng <kho mới>/plugins/acceptance-gate (bộ đệm rỗng)' };
+    const hong = (fl, nhan) => ba(fl).map(([ten, r, duong]) => {
+      const loi = `${r.stderr}\n${r.stdout}`.split('\n').find(l => HONG.test(l));
+      if (loi) return `${ten}${nhan} — ${loi.trim().slice(0, 160)}`;
+      if (r.status !== 0) return `${ten}${nhan} — ${lyDo(r).slice(0, 160)}`;
+      return duong(r) && typeof duong(r) === 'object' ? null : `${ten}${nhan} — thoát 0 mà đầu ra không phải JSON: ${dongCuoi(r.stdout).slice(0, 120)}`;
+    }).filter(Boolean);
+    const moi = hong(path.join(kho, 'plugins', 'feature-loop', 'scripts'), '');
+    if (moi.length) return { ok: false, msg: moi.join(' · ') };
+    const cu = hong(path.join(KIT, 'feature-loop', 'scripts'), ' (bố cục cũ)');
+    if (cu.length) return { ok: false, msg: cu.join(' · ') };
+    const goc = async (fl) => (await import(pathToFileURL(path.join(fl, 'goc-loi-tu-host.mjs')).href + `?v=${++seq}`)).gocLoiTuHost(fl, { can: ['lib/evidence-core.cjs'] });
+    const gMoi = await goc(path.join(kho, 'plugins', 'feature-loop', 'scripts'));
+    const gCu = await goc(path.join(KIT, 'feature-loop', 'scripts'));
+    const can = { moi: realpathSync(path.join(kho, 'plugins', 'acceptance-gate')), cu: realpathSync(KIT) };
+    if (!gMoi || realpathSync(gMoi) !== can.moi) return { ok: false, msg: `bộ giải gốc lõi — kho mới chọn ${gMoi}, cần ${can.moi}` };
+    if (!gCu || realpathSync(gCu) !== can.cu) return { ok: false, msg: `bộ giải gốc lõi — bố cục cũ chọn ${gCu}, cần ${can.cu}` };
+    return { ok: true, msg: 'feature-loop tự host — giu-tuoi, thuoc-vat, carry-plan dùng <kho mới>/plugins/acceptance-gate; bố cục cũ dùng gốc kho (bộ đệm rỗng; cả ba thoát 0, đầu ra JSON)' };
+  },
+  // Chiều đỏ của BC-8 trên CÙNG bộ dựng: bộ giải gốc lõi trả null (như trước vòng) → ca phải đỏ đúng thông điệp.
+  async 'BC-8-do'(fx) {
+    const lanh = await CA['BC-8'](fx);
+    if (!lanh.ok) return { ok: false, msg: 'lần lành BC-8 chưa xanh — không tin chiều đỏ' };
+    const kho = path.join(tam('kho-do'), 'kho'); cpSync(fx.kho, kho, { recursive: true });
+    const p = path.join(kho, 'plugins', 'feature-loop', 'scripts', 'goc-loi-tu-host.mjs');
+    const t = readFileSync(p, 'utf8'); const dau = 'export function gocLoiTuHost(tuThuMuc, { can = [] } = {}) {';
+    if (t.split(dau).length !== 2) return { ok: false, msg: 'nhát phá không áp: goc-loi-tu-host.mjs' };
+    writeFileSync(p, t.replace(dau, `${dau}\n  return null;`));
+    const r = await CA['BC-8']({ ...fx, kho });
+    return !r.ok && r.msg.includes('giu-tuoi — ') && r.msg.includes('không tìm được bộ máy acceptance-gate')
+      ? { ok: true, msg: `bộ giải gốc lõi trả null → đỏ: ${r.msg.slice(0, 120)}` }
+      : { ok: false, msg: `bộ giải gốc lõi trả null mà ca không đỏ đúng: ${r.msg.slice(0, 200)}` };
   },
   'BC-9'({ cai }) {
     const k = khoTieuThu({ cua: true });
@@ -184,7 +216,7 @@ const CA = {
       : { ok: false, msg: `bộ tìm skill trả đường cũ mà ca không đỏ đúng: ${r.msg}` };
   },
 };
-const THU_TU = ['BC-2', 'BC-3', 'BC-4', 'BC-5', 'BC-6', 'BC-7', 'BC-8', 'BC-9', 'BC-9-do'];
+const THU_TU = ['BC-2', 'BC-3', 'BC-4', 'BC-5', 'BC-6', 'BC-7', 'BC-8', 'BC-8-do', 'BC-9', 'BC-9-do'];
 
 async function chayHet(ref) {
   const fx = dung(ref);
