@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/chan-lo-trinh.cjs (lib/**)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-14-goi-cheo-loi-dieu-phoi-design.md
-status: implemented
+status: verified
 approved_by: Phan Le Manh
 approved_at: 2026-11-14T12:09:32Z
 ---
