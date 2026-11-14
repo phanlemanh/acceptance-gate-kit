@@ -1,0 +1,109 @@
+---
+schema_version: 1
+feature: Lõi và feature-loop thôi bám bố cục và tên plugin cũ — chạy đúng ở cả bố cục hôm nay lẫn plugins/<tên>/ với tên mới
+slug: goi-cheo-loi-dieu-phoi
+owner: phanlemanh@gmail.com
+risk_tier: T3               # chạm lib/chan-lo-trinh.cjs (lib/**)
+surfaces: [cli]
+design_doc: docs/superpowers/specs/2026-11-14-goi-cheo-loi-dieu-phoi-design.md
+status: draft
+approved_by:
+approved_at:
+---
+
+# Acceptance Contract: goi-cheo-loi-dieu-phoi
+
+## Context
+
+Gốc: ~/dev/delivery-loop/_acceptance/kich-ban-chuyen-nha/ (vòng B1 của kho kế nhiệm — sổ kiểm kê trên cây dựng lại báo
+các đường treo; hạt giống `~/dev/delivery-loop/migration/hat-giong-goi-cheo-loi-dieu-phoi.md`). Cổng Đáng ký 14/11:
+build, đường C, neo và ngưỡng như ô (`opportunity.md`).
+
+Thuật ngữ:
+- **bố cục cũ** = cây của kho này như hôm nay (lõi là gốc kho, tên plugin cũ).
+- **bộ dựng** = `_acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs`: từ một cây nguồn dựng bằng mã một kho theo bảng
+  xếp của kịch bản chuyển nhà (`plugins/acceptance-gate/`, `plugins/feature-loop/`, `plugins/dispatch/`,
+  `plugins/roadmap/`, `plugins/knowledge/`, `plugins/diagram-design/`, `marketplace.json` ở gốc) và áp luật đổi chữ của
+  kịch bản lên mọi tệp dưới `plugins/`.
+- **kho mới** = kho bộ dựng sinh từ cây đang kiểm. **bản cài lõi mới** = riêng thư mục `plugins/acceptance-gate/` của kho
+  mới, chép sang một thư mục khác (đúng thứ bản cài một plugin mang).
+- **bản gốc** = cây tại `593e6837` (nhánh chính trước vòng).
+- **bảng tên** = `lib/ho-goi.cjs`. **hộp thư** = `scripts/hop-thu/` của lõi.
+
+## Criteria
+
+- AC-1: Given bộ kho tiêu thụ do mã sinh ở bố cục cũ, mỗi kho đã chép lớp CI của đúng bản đang chạy (có và không khai
+  `tin_hieu`, có và không bật gói lộ trình, có và không `lo_trinh.chan`, và một bản cài từ chợ fork — `marketplace.json`
+  cạnh gói mang tên chợ khác), cộng kho kit ở bố cục cũ có mốc và một hồ sơ mở, When chạy `plugin-declare` (`--list`, khai
+  thử), khởi tạo lộ trình, luật chặn lộ trình, `tin-hieu --rang`, `gui-tin-hieu`, `start-scan` từ bản gốc và từ cây đang
+  kiểm, Then stdout, stderr và mã thoát bằng nhau từng byte (sau khi thay đường gốc cây) — không bảng khác biệt nào; và
+  phá `scripts/hop-thu/cua-tin-hieu.mjs` trên bản sao cây làm ca cửa tín hiệu có sẵn tương ứng đỏ.
+- AC-2: Given bản cài lõi mới và một kho tiêu thụ khai cửa tín hiệu, When nạp `scripts/tin-hieu.mjs` và chạy
+  `gui-tin-hieu.mjs --root <kho> --noi-dung "<câu>"`, Then cả hai nạp được không lỗi `ERR_MODULE_NOT_FOUND`, câu được ghi
+  vào cửa với dòng «đã ghi» của bộ ghi, và `tin-hieu --rang` thoát 0 trên kho ấy.
+- AC-3: Given khối `INIT-CI-COPY-LIST` của `commands/acceptance-init.md` ở bản cài lõi mới, When giải từng mục
+  `${CLAUDE_PLUGIN_ROOT}/<đường>` vào bản cài ấy rồi chép theo cột đích vào một kho tiêu thụ do mã sinh, Then mọi mục
+  giải ra một tệp có thật, và ở kho tiêu thụ `scripts/tin-hieu.mjs` nạp được, `lib/chan-lo-trinh.cjs` chạy được.
+- AC-4: Given bản cài lõi mới (không `marketplace.json` cạnh gói), When chạy `plugin-declare.mjs --list` và khai thử trên một kho, Then nó in
+  `acceptance-gate@delivery-loop`, `feature-loop@delivery-loop`, `diagram-design@delivery-loop`,
+  `superpowers@claude-plugins-official` theo đúng thứ tự, thoát 0, và nguồn chợ khai là `phanlemanh/delivery-loop`.
+- AC-5: Given bản cài lõi mới và một kho tiêu thụ bật `roadmap@delivery-loop` ở `.claude/settings.json`, When chạy khởi
+  tạo lộ trình (khai thử) và luật chặn lộ trình với `lo_trinh.chan: true` cùng một hồ sơ mới không thuộc hàng nào, Then
+  khởi tạo nhận kho là đã bật (không in dòng «chưa cài», không thoát 2) và luật chặn in `VIOLATION` gọi tên hồ sơ, thoát 1.
+- AC-6: Given kho mới là một kho git có commit cắt số ở `plugins/acceptance-gate/.claude-plugin/plugin.json` và một hồ sơ
+  mở sinh sau mốc, When chạy `start-scan` ở gốc kho mới, Then phần đếm vòng meta nhận đây là kho kit (`applies` đúng) và
+  đếm đúng hồ sơ ấy.
+- AC-7: Given cây của một ref ở kho mới (chợ có `dispatch`, không còn `dieu-phoi`), When `kiem-ban-cai` chọn gói cho ba
+  mục chạm bản cài (thẻ cổng, lưới trước gộp, điều phối), Then nó chọn `acceptance-gate`, `feature-loop`, `dispatch` theo
+  tệp gói mang, và ở bố cục cũ chọn đúng ba tên cũ.
+- AC-8: Given kho mới, không `--ag-root`, và một thư mục bộ đệm plugin rỗng, When chạy `giu-tuoi`, `thuoc-vat` và nạp
+  bộ đọc của `carry-plan` từ `plugins/feature-loop/scripts/`, Then cả ba dùng lõi `plugins/acceptance-gate/` của chính kho
+  (không lỗi «không resolve được»/«không nạp được»), và ở bố cục cũ vẫn dùng gốc kho.
+- AC-9: Given cây đang kiểm, When chạy răng một nguồn, Then bảng tên khớp `.claude-plugin/marketplace.json` (cùng tên,
+  cùng thứ tự, cùng tập bật-theo-lựa-chọn, cùng tên chợ) và bốn tệp của hộp thư bằng từng byte bản ở `dieu-phoi/scripts/`;
+  trên bản sao, thêm một plugin vào chợ, đổi dấu bật-theo-lựa-chọn, đổi tên chợ, hay sửa một byte của một tệp hộp thư thì
+  răng đỏ gọi tên đúng chỗ lệch.
+- AC-10: Given bộ dựng chạy trên bản gốc (`593e6837`), When chạy lại đúng các ca của AC-2…AC-8, Then MỖI ca đỏ với thông
+  điệp ghim của nó (ví dụ `ERR_MODULE_NOT_FOUND` có tên `hinh-dang.mjs`, «không đọc được marketplace.json», luật chặn
+  không in `VIOLATION`), và chế độ chiều đỏ chỉ chạy khi lần lành trên cây đang kiểm đã xanh.
+
+## Coverage
+
+Quét ba trục (skill morphological-scan, preset test-matrix, làm tại chỗ):
+
+- Trục đường: tín hiệu · danh sách chép CI · khai plugin · lộ trình (khởi tạo, chặn) · dò kho kit · kiểm bản cài ·
+  feature-loop tự host [thước CE: quét mã 14/11 trên `593e6837` theo bốn mẫu — `../dieu-phoi/`, `.claude-plugin`,
+  `HERE/../..`, tên plugin trong ngoặc; SUY-TỪ-REPO: `scripts/`, `lib/`, `commands/`, `feature-loop/scripts/`].
+- Trục bố cục: cũ · mới [thước CE: `migration/kich-ban/bang-xep.json` + `luatDoiChu` của kịch bản, chỉ đọc].
+- Trục ngữ cảnh chạy: bản cài (chỉ thư mục plugin) · tự host (bản kéo kit) · bản chép CI ở kho tiêu thụ [thước CE: đo bộ
+  đệm cài thật 14/11; SUY-TỪ-REPO: `commands/acceptance-init.md` INIT-CI-COPY-LIST].
+
+Ô có nghĩa → tiêu chí: mọi đường × bố cục cũ → AC-1 (vi phân) · tín hiệu × mới × bản cài → AC-2 · chép CI × mới × kho
+tiêu thụ → AC-3 · khai plugin × mới × bản cài → AC-4 · lộ trình × mới × bản cài → AC-5 · dò kho kit × mới × tự host → AC-6
+· kiểm bản cài × mới × tự host → AC-7 · feature-loop × mới × tự host → AC-8 · một nguồn tên/hộp thư → AC-9 · chiều đỏ mọi
+ô mới → AC-10.
+
+Later: tín hiệu / khai plugin × mới × tự host — cùng đường mã với bản cài, bản cài là ca khó hơn. Never: dò kho kit, kiểm
+bản cài, feature-loop × bản chép CI — ba vật không nằm trong danh sách chép.
+
+## Đường đo
+
+| Ngưỡng (ô cơ hội) | Số từ đâu | AC bảo đảm |
+|---|---|---|
+| SỐNG: lệnh đếm của hạt giống trả 0 trên cây dựng lại | đo chéo cuối vòng trên bản kéo tạm của `delivery-loop` (không trong hồ sơ); lượt dựng lại cây của B3 | AC-2…AC-8 (cùng đường trên bộ dựng) |
+| SỐNG: `kiem-ban-cai` ở 3.0 ĐẠT mục điều phối; `acceptance-init` khai `roadmap@delivery-loop` | lượt kiểm bản cài của mốc 3.0 | AC-7, AC-4, AC-5 |
+| CHẾT: kho ở bố cục cũ đổi đầu ra | vi phân bản gốc ↔ cây đang kiểm | AC-1 |
+
+## Out of scope
+
+- Không sửa gì ở `~/dev/delivery-loop` (kịch bản, bộ kiểm cây mới — việc của B2).
+- Không đổi đường dẫn trong `tests/` cho bố cục mới; chỉ đổi ba tệp ca cửa tín hiệu cho đúng vật mới (design §6).
+- Không cắt số, không gắn thẻ, không chép lại lớp CI ở kho tiêu thụ — chiến dịch của mốc 3.0.
+- Không đổi điều phối (`dieu-phoi/`): bốn tệp gốc giữ nguyên từng byte.
+
+> Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
+
+## Notes
+
+- Lệch có kiểm soát khỏi luật «một cây nguồn» (CLAUDE.md): hộp thư là bản chép có răng từng byte — chủ kho nhận khi chọn
+  đường C ở Cổng Đáng.
