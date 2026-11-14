@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c7a76b855af08dbf15e2f27b42192fdf3cc2381b
-human_signoff:
+human_signoff: Phan Le Manh 2026-11-15
 ---
 
 # Evidence Report: goi-cheo-loi-dieu-phoi

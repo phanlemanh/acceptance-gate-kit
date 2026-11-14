@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/chan-lo-trinh.cjs (lib/**)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-14-goi-cheo-loi-dieu-phoi-design.md
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-14T12:09:32Z
 ---
@@ -117,3 +117,16 @@ bản cài, feature-loop × bản chép CI — ba vật không nằm trong danh 
   nhánh vòng `d287e067` → cây `e649b331` → **0**; chiều đỏ, gốc `593e6837` → cây `6f36f791` → **5** (ba dòng
   `dieu-phoi/scripts/` của `commands/acceptance-init.md`, hai import của `scripts/tin-hieu.mjs`). `main` cục bộ cũ
   `c8fa5a65` không dựng được (khuôn chạm `.nvmrc` ngoài danh sách) — không phải gốc của vòng.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-15:
+  - Ngoài-1: Một lần sửa sau này chỉ chạm thư viện dựng bố cục có thể được coi là đã kiểm vì kết quả xanh cũ được mang sang, dù các phép kiểm chưa chạy lại.
+  - Ngoài-2: Nếu một kho chỉ chép bản mới của một tệp mà quên tệp đi kèm, mọi PR của kho đó bị chặn nhầm kể cả khi họ không bật luật chặn lộ trình.
+  - Ngoài-3: Nếu sau này thêm một tệp vào hộp thư, một số phép kiểm có thể vẫn xanh dù chỉ kiểm một trong hai bản, nên lỗi có thể lọt qua.
+  - Ngoài-4: Phép kiểm chứng tỏ bộ so sánh biết bắt lỗi có thể xanh vì một lý do khác lỗi định bắt, nên độ tin cậy của nó thấp hơn vẻ ngoài.
+  - Ngoài-5: Khi có sửa đổi chưa commit ở tệp cửa tín hiệu, một phép kiểm có thể phán trên bản cũ đã commit thay vì bản đang kiểm.
+  - Ngoài-6: Nếu thêm tệp mới vào hộp thư mà quên cập nhật danh sách, phép kiểm bản sao đồng nhất vẫn xanh mà không so tệp ấy.
+  - Ngoài-7: Khi chạy kiểm trên một bản cũ cụ thể, phần kiểm bố cục cũ vẫn đọc bản đang làm việc, nên thông điệp xanh có thể mô tả sai bản.
+  - Ngoài-8: Khi người dùng nhờ kiểm một phiên bản khác bằng cờ chọn phiên bản, phần kiểm cách bố trí cũ vẫn đọc bản đang đứng, nên kết quả có thể xanh hoặc đỏ nhầm.
+  - Ngoài-9: Kiểm một phiên bản chỉ định bằng cờ chọn phiên bản có thể cho kết quả cách bố trí cũ theo bản đang đứng thay vì bản được chọn.
+  - Ngoài-10: Khi kiểm một phiên bản chỉ định, phần bố cục cũ có thể phản ánh bản đang đứng cùng thay đổi chưa lưu, nên có thể báo xanh hoặc đỏ sai cho phiên bản đó.
+  - Ngoài-11: Tên và địa chỉ chợ plugin còn được khai ở hai nơi trong kit; nếu sau này sửa một nơi mà quên nơi kia thì không có gì báo, và người dùng có thể nhận địa chỉ chợ sai.
+  - Ngoài-13: Nếu có sửa đổi chưa lưu vào lịch sử khi chạy kiểm, hai phép kiểm sẽ đo bản đã lưu chứ không phải bản đang sửa, nên có thể báo xanh cho thứ chưa được kiểm.

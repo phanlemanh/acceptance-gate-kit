@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>154 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>69 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>70 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -46,7 +46,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Lõi và feature-loop thôi bám bố cục và tên plugin cũ — chạy đúng ở cả bố cục hôm nay lẫn plugins/<tên>/ với tên mới (`goi-cheo-loi-dieu-phoi`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -78,6 +77,7 @@ flowchart TD
 - Eval máy đã ký nghỉ hưu vì một hồ sơ đã ký khác thay nó — con trỏ `superseded_by` cạnh lời khai không-chạy; luật hai vế nhận khi máy chứng được con trỏ ở cây đang kiểm; pin nói ra ô nào thay bởi đâu (`eval-thay-boi-co-chung`)
 - Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào, vùng tệp, danh sách bằng chứng và trường mảng bắt buộc — một bộ đọc danh sách ở lib cho lượt chấm, lượt sửa và bộ đọc vùng tệp; khuôn không đọc được (bí danh YAML, khối chữ, khoá rỗng) lên cờ vàng có tên; kho đang viết thụt 4 đọc ra y hệt (`evals-sat-le-doc-du`)
 - Chủ kho ghi nghiên cứu và thảo luận của một phiên vào tri thức bằng một lệnh, và nguồn thô nhạy cảm của kho công khai không bao giờ vào kho công khai (`ghi-tri-thuc`)
+- Lõi và feature-loop thôi bám bố cục và tên plugin cũ — chạy đúng ở cả bố cục hôm nay lẫn plugins/<tên>/ với tên mới (`goi-cheo-loi-dieu-phoi`)
 - Hạ tầng thôi đốt lượt chấm và lượt gọi người — suite scripts chạy dưới trần công cụ, lượt BLOCKED vì hạ tầng thử lại cùng round, khuôn /goal thôi coi BLOCKED là xong, thẻ Cổng 1 của hồ sơ đã khép thôi hỏi (`ha-tang-khong-dot-luot`)
 - Hồ sơ đã ký luôn tươi — lệnh giữ tươi theo khoảng gộp, quy đỏ về PR gây ra, nhãn «đỏ sẵn trên nền» cho vòng khác đi tiếp; mặc định tắt (`ho-so-da-ky-giu-tuoi`)
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
