@@ -3,7 +3,8 @@
 # tên «kho-ten-khac» (khác tên kho chính). Gốc kho suy từ vị trí script, không hardcode.
 #   MCK-1  vật lành: tệp ca của cây đang kiểm → exit 0 + «PASS: MC-11» (đối chứng dương cho MCK-2/4/5).
 #   MCK-2  thay đúng tệp ca bằng bản chữ cứng 0c4e503b → exit ≠ 0 + «FAIL: MC-11 — ten_phien «… (kho-ten-khac)»».
-#   MCK-3  ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ; nhát phá dòng ấy trên bản clone → phép kiểm đỏ.
+#   MCK-3  ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ; đổi chữ ghim ten_phien của nó trên bản clone rồi
+#          chạy tệp ca → MC-6 đỏ gọi tên gach-va-ngoac (ca bảng thật sự so ten_phien).
 #   MCK-4  phá dấu « · » trong tenChienDich (scripts/lo-trinh.mjs) → MC-11 đỏ ở ten_phien VÀ MC-6 đỏ ở gach-va-ngoac
 #          (MC-11 vẫn thật sự so ten_phien; ca bảng vẫn giữ chiều đỏ của định dạng).
 #   MCK-5  phá tenKho trả rỗng → MC-11 đỏ «tenKho trả rỗng».
@@ -41,10 +42,16 @@ if [ $LANH -eq 1 ]; then
 else hong "MCK-2 không chạy — vật lành chưa xanh trên cùng fixture"; fi
 
 if kiem_bang "$D/$CA"; then
-  pha "$D/$CA" "kho: 'acceptance-gate-kit' }, { moc: 'Tinh chỉnh" "kho: 'x' }, { moc: 'Tinh chỉnh"
-  if kiem_bang "$D/$CA"; then hong "MCK-3 phép kiểm ca bảng không đỏ khi dòng ca bảng bị đổi"
-  else ok "MCK-3 ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ định dạng (nhát phá dòng ca bảng → đỏ)"; fi
-  lanh
+  if [ $LANH -eq 1 ]; then
+    # Nhát phá đổi chữ ghim ten_phien của ca bảng trên bản clone rồi CHẠY tệp ca: ca bảng phải thật sự so ten_phien,
+    # nên MC-6 phải đỏ gọi tên gach-va-ngoac (không chỉ là chữ có mặt trong nguồn).
+    pha "$D/$CA" "ten_phien: 'MC1 · Mốc là chiến dịch (acceptance-gate-kit)', nhom: 'Tinh chỉnh" "ten_phien: 'MC1 · Mốc là chiến dịch (sai-ghim)', nhom: 'Tinh chỉnh"
+    OUT="$(chay)"; E=$?
+    if [ $E -ne 0 ] && grep -E '^  FAIL: MC-6 ' <<<"$OUT" | grep -qF 'gach-va-ngoac:'
+    then ok "MCK-3 ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ định dạng (đổi chữ ghim trên bản sao → MC-6 đỏ ở gach-va-ngoac)"
+    else hong "MCK-3 phép kiểm ca bảng không đỏ khi dòng ca bảng bị đổi: exit $E"; grep -E 'MC-6|Results' <<<"$OUT"; fi
+    lanh
+  else hong "MCK-3 không chạy — vật lành chưa xanh trên cùng fixture"; fi
 else hong "MCK-3 ca bảng gach-va-ngoac đã đổi"; fi
 
 if [ $LANH -eq 1 ]; then

@@ -32,8 +32,8 @@ evals:
     cmd: config:executors.script.mc11_ten_kho_chieu_do
     paths: [tests/scripts/moc-chien-dich.test.mjs, scripts/lo-trinh.mjs, _acceptance/mc11-ten-kho/rang/chieu-do.sh]
     expected: >
-      exit 0; stdout có "PASS: MCK-3 ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ định dạng (nhát phá dòng ca bảng
-      → đỏ)" và "PASS: MCK-4 phá dấu phân cách tenChienDich → MC-11 đỏ ở ten_phien và MC-6 đỏ ở gach-va-ngoac". Chiều đỏ: dòng ca
+      exit 0; stdout có "PASS: MCK-3 ca bảng gach-va-ngoac vẫn truyền kho tường minh và ghim chữ định dạng (đổi chữ ghim trên
+      bản sao → MC-6 đỏ ở gach-va-ngoac)" và "PASS: MCK-4 phá dấu phân cách tenChienDich → MC-11 đỏ ở ten_phien và MC-6 đỏ ở gach-va-ngoac". Chiều đỏ: dòng ca
       bảng đổi ở cây đang kiểm thì "FAIL: MCK-3 ca bảng gach-va-ngoac đã đổi" và exit 1; phép kiểm không đỏ khi dòng bị phá trên
-      bản sao thì "FAIL: MCK-3 phép kiểm ca bảng không đỏ".
+      bản sao (chạy tệp ca mà MC-6 không gọi tên gach-va-ngoac) thì "FAIL: MCK-3 phép kiểm ca bảng không đỏ".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
