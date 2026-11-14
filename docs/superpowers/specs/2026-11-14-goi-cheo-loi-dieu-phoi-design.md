@@ -99,6 +99,20 @@ Ba tệp ca phá `dieu-phoi/scripts/cua-tin-hieu.mjs` hay nạp `dieu-phoi/scrip
 `scripts/hop-thu/`. Không đổi thì nhát phá của chúng không chạm vật nữa — chiều đỏ chết lặng (lớp «assertion âm tính
 một mình»). Ca của chính điều phối (`tests/dieu-phoi/`) không đổi.
 
+## 6b. RT13 chỉ so hồ sơ có ở mốc (Hỏi-1 — nháp theo khuyến nghị gộp)
+
+Phiên giữ đợt báo 14/11, máy kiểm chéo trên bản kéo tạm của `delivery-loop` (`chuyen-nha` `5192aff2`): ca RT13 đỏ
+«kich-ban-chuyen-nha: lệch cho-cong-gia-tri→da-giao-khong-do mà khối không khai». RT13 chạy bộ phân loại tại `cb38ea01`
+và bộ hiện tại trên MỌI hồ sơ của cây thật; hồ sơ nào khác lớp phải có dòng trong danh sách đóng `KHAC-BIET-DOC-CU` của
+hồ sơ đã ký `ra-co-ten-lam-va-trao`. Ở kho mới có hồ sơ chỉ kho ấy có → mọi lượt chấm ở đó REJECT; ở kho này, mỗi vòng
+mới đổi trạng thái lại phải khai một dòng và ghim lại hồ sơ đã ký (~60 phút, tiền lệ PR #502).
+
+Sửa: phép so cũ↔mới chỉ xét hồ sơ có `contract.md` trong cây của mốc `cb38ea01` — đúng nghĩa «đọc-cũ» (bộ đọc mới vẫn
+đọc được hồ sơ viết cho bộ cũ). Hồ sơ sinh sau mốc viết cho bộ mới, vẫn qua kiểm «broken rỗng» của bộ mới. Dòng khai cũ
+cho hồ sơ sinh sau mốc (ví dụ `mc11-ten-kho`) thành thừa: giữ nguyên tệp đã ký, phép so bỏ qua chúng; chiều đỏ (ii)
+chọn dòng khai của một hồ sơ có ở mốc. Lối khác (Hỏi-1): tách thành vòng nhỏ riêng kiểu MC-11 — vòng này gọn hơn, thêm
+một PR, một lượt CI, một lượt gộp.
+
 ## 7. Giới hạn đã khai
 
 - Bộ dựng bố cục mới CHÉP quy tắc đổi chữ của kịch bản (CI kho này không có kho mới). Hai bản trôi khỏi nhau thì thước

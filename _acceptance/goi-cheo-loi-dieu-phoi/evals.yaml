@@ -166,3 +166,14 @@ evals:
       Ô này không chạy trong làn máy; đo chéo chạy tay cuối vòng và ghi số (đếm, sha nhánh, sha bản kéo) vào Notes của
       hợp đồng. Kỳ vọng khi chạy: đếm 0.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E17
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.cqt_rt13
+    paths: [tests/plugins/ra-co-ten.test.mjs, _acceptance/ra-co-ten-lam-va-trao/contract.md]
+    expected: >
+      exit 0; stdout có "PASS: [RT13]" kèm đoạn nêu "hồ sơ sinh sau mốc: <n> (ngoài phép so)" và hai nhát mới trên bản sao
+      cây: hồ sơ sinh sau mốc khác lớp → RT13 vẫn xanh (im); hồ sơ có ở mốc đổi lớp không khai → đỏ với "lệch … mà khối
+      không khai". Chiều đỏ (ii) — xoá một dòng khai của hồ sơ có ở mốc — vẫn đỏ. Nhát im mà đỏ, hay nhát đỏ mà im →
+      "FAIL: [RT13] … chiều <im|đỏ> (sau mốc)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

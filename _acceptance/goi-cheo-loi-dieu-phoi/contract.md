@@ -66,6 +66,11 @@ Thuật ngữ:
 - AC-10: Given bộ dựng chạy trên bản gốc (`593e6837`), When chạy lại đúng các ca của AC-2…AC-8, Then MỖI ca đỏ với thông
   điệp ghim của nó (ví dụ `ERR_MODULE_NOT_FOUND` có tên `hinh-dang.mjs`, «không đọc được marketplace.json», luật chặn
   không in `VIOLATION`), và chế độ chiều đỏ chỉ chạy khi lần lành trên cây đang kiểm đã xanh.
+- AC-11: Given ca RT13 của `tests/plugins/ra-co-ten.test.mjs` (phép so bộ phân loại cũ tại `cb38ea01` ↔ mới trên mọi hồ
+  sơ của cây thật), When chạy trên cây đang kiểm và trên bản sao cây có thêm một hồ sơ do mã sinh SAU mốc mà hai bộ phân
+  loại xếp khác lớp, Then RT13 xanh ở cả hai mà không cần dòng `KHAC-BIET-DOC-CU` cho hồ sơ ấy; và trên bản sao, một hồ
+  sơ CÓ ở mốc đổi lớp mà không khai thì RT13 đỏ «lệch … mà khối không khai», còn xoá một dòng khai của hồ sơ có ở mốc thì
+  chiều đỏ (ii) vẫn đỏ.
 
 ## Coverage
 
@@ -81,7 +86,8 @@ Quét ba trục (skill morphological-scan, preset test-matrix, làm tại chỗ)
 Ô có nghĩa → tiêu chí: mọi đường × bố cục cũ → AC-1 (vi phân) · tín hiệu × mới × bản cài → AC-2 · chép CI × mới × kho
 tiêu thụ → AC-3 · khai plugin × mới × bản cài → AC-4 · lộ trình × mới × bản cài → AC-5 · dò kho kit × mới × tự host → AC-6
 · kiểm bản cài × mới × tự host → AC-7 · feature-loop × mới × tự host → AC-8 · một nguồn tên/hộp thư → AC-9 · chiều đỏ mọi
-ô mới → AC-10.
+ô mới → AC-10 · phép so đọc-cũ của RT13 × hồ sơ sinh sau mốc (chỉ gãy ở kho mới, cùng lớp MC-11) → AC-11 (Hỏi-1: gộp hay
+tách).
 
 Later: tín hiệu / khai plugin × mới × tự host — cùng đường mã với bản cài, bản cài là ca khó hơn. Never: dò kho kit, kiểm
 bản cài, feature-loop × bản chép CI — ba vật không nằm trong danh sách chép.
