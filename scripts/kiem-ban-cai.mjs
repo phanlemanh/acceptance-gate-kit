@@ -91,6 +91,14 @@ export function cayCuaRef(root, ref, nguon) {
   return cay;
 }
 
+// Gói nào của manifest mang tệp `rel` trong cây của ref — nhận gói THEO VẬT, không theo tên (hồ sơ goi-cheo-loi-dieu-phoi):
+// kịch bản chuyển nhà đổi tên plugin (dieu-phoi → dispatch) mà tên script bên trong giữ nguyên, và ref được kiểm có thể cũ
+// hay mới hơn bảng tên của cây đang chạy. Không gói nào mang → null.
+export function goiMang(mf, cay, rel) {
+  const g = mf.goi.find(x => cay[x.ten] && cay[x.ten].has(rel));
+  return g ? g.ten : null;
+}
+
 export function bamBlob(tep) {
   const buf = fs.readFileSync(tep);
   return crypto.createHash('sha1').update(Buffer.concat([Buffer.from(`blob ${buf.length}\0`), buf])).digest('hex');
@@ -296,23 +304,25 @@ function cheDoGiaLap(a, sha, mf, out) {
     ghi('thu-muc-goi', !thieuDir.length, thieuDir.length ? `THIẾU thư mục gói: ${thieuDir.join(', ')}` : 'đủ thư mục cấp một của mọi gói');
 
     // 4. tac-tu-cham
-    const fl = p('feature-loop');
-    if (!fl) ghi('tac-tu-cham', false, 'không có bản cài feature-loop');
-    else { const t = kiemTacTu(fl); ghi('tac-tu-cham', !t.loi.length, t.loi.length ? t.loi.join(' · ') : `${t.ten.length} loại tác tử có định nghĩa: ${t.ten.join(', ')}`); }
+    const tenFl = goiMang(mf, cay, 'workflows/acceptance-verify.js') || 'feature-loop';
+    const fl = p(tenFl);
+    if (!fl) ghi('tac-tu-cham', false, `không có bản cài ${tenFl}`);
+    else { const t = kiemTacTu(fl, tenFl); ghi('tac-tu-cham', !t.loi.length, t.loi.length ? t.loi.join(' · ') : `${t.ten.length} loại tác tử có định nghĩa: ${t.ten.join(', ')}`); }
 
     // 5. hook-goi
     const hongHook = mf.goi.flatMap(g => p(g.ten) ? kiemHook(p(g.ten)).map(r => `${g.ten}:${r}`) : []);
     ghi('hook-goi', !hongHook.length, hongHook.length ? `móc nối trỏ tệp vắng: ${hongHook.join(', ')}` : 'mọi tệp móc nối trỏ tới đều có');
 
     // 6–8. vòng chạm từ BẢN CÀI trong kho giả lập
-    const ag = p('acceptance-gate');
-    if (!ag) ghi('the-cong', false, 'không có bản cài acceptance-gate');
+    const tenAg = goiMang(mf, cay, 'scripts/gate-card.js') || 'acceptance-gate';
+    const ag = p(tenAg);
+    if (!ag) ghi('the-cong', false, `không có bản cài ${tenAg}`);
     else {
       const r = run('node', [path.join(ag, 'scripts', 'gate-card.js'), '--root', khoGL.kho, '--slug', khoGL.slug]);
       const ok = r.status === 0 && (r.stdout || '').includes(khoGL.slug);
       ghi('the-cong', ok, ok ? `thẻ Cổng Phạm vi của hồ sơ ${khoGL.slug} dựng được` : `thẻ cổng không dựng được (thoát ${r.status}): ${(r.stderr || '').trim().split('\n').pop() || 'đầu ra thiếu tên hồ sơ'}`);
     }
-    if (!ag) ghi('luoi-truoc-gop', false, 'không có bản cài acceptance-gate');
+    if (!ag) ghi('luoi-truoc-gop', false, `không có bản cài ${tenAg}`);
     else {
       const pm = () => run('bash', [path.join(ag, 'scripts', 'pre-merge-check.sh'), '.', '--base', 'main'], { cwd: khoGL.kho });
       khoGL.chuyen('lanh'); const lanh = pm();
@@ -323,8 +333,9 @@ function cheDoGiaLap(a, sha, mf, out) {
       if (pham.status === 0 || !/VIOLATION/.test(`${pham.stdout}${pham.stderr}`)) loi.push(`lưới không chặn hồ sơ phạm luật (thoát ${pham.status})`);
       ghi('luoi-truoc-gop', !loi.length, loi.length ? loi.join(' · ') : 'kho lành thoát 0 · hồ sơ phạm luật bị chặn (VIOLATION)');
     }
-    const dp = p('dieu-phoi');
-    if (!dp) ghi('dieu-phoi', false, 'không có bản cài dieu-phoi');
+    const tenDp = goiMang(mf, cay, 'scripts/dieu-phoi.mjs') || 'dieu-phoi';
+    const dp = p(tenDp);
+    if (!dp) ghi('dieu-phoi', false, `không có bản cài ${tenDp}`);
     else {
       const r = run('node', [path.join(dp, 'scripts', 'dieu-phoi.mjs'), 'chan-doan', '--json'], { cwd: khoGL.kho });
       let ok = false;

@@ -7076,7 +7076,9 @@ with tempfile.TemporaryDirectory() as d:
                     # LOI = bo dau cau/nhay o hai dau; the them dau phay, ngoac,
                     # dau cham cua chinh cau van — nguon khong co chung, nen so
                     # nguyen cum se bao oan. Cai can truy la phan MANG DAU SAO.
-                    core = cum.strip("'\"()[]{}<>,;:.…·—–?!`")
+                    # «» cũng là dấu CỦA THẺ: thẻ bọc câu trích căn cứ (`can_cu.trich`) trong «…»,
+                    # nên câu trích mở bằng `**` thành «**… (hồ sơ goi-cheo-loi-dieu-phoi, 14/11).
+                    core = cum.strip("'\"()[]{}<>,;:.…·—–?!`«»")
                     if not core or set(core) <= {"*", ".", "/"}: continue
                     if core not in src:
                         bad.append((slug, gate, core))

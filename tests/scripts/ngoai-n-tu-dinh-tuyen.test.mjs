@@ -114,8 +114,9 @@ function banSaoLib(tep, tu, thanh) {
 }
 function banSao(tep, tu, thanh) {
   const T = mkdtempSync(path.join(tmpdir(), 'nt-mut-')); tmpRoots.push(T);
-  mkdirSync(path.join(T, 'scripts'));
-  for (const f of readdirSync(path.join(ROOT, 'scripts'))) copyFileSync(path.join(ROOT, 'scripts', f), path.join(T, 'scripts', f));
+  // Chép TRỌN cây scripts/ (kể cả thư mục con như scripts/hop-thu/, hồ sơ goi-cheo-loi-dieu-phoi) — chép phẳng
+  // từng tệp gãy ngay khi scripts/ có một thư mục con.
+  cpSync(path.join(ROOT, 'scripts'), path.join(T, 'scripts'), { recursive: true });
   for (const d of ['lib', 'skills', 'feature-loop']) symlinkSync(path.join(ROOT, d), path.join(T, d));
   const p = path.join(T, 'scripts', tep), goc = readFileSync(p, 'utf8');
   const moi = goc.split(tu).join(thanh);

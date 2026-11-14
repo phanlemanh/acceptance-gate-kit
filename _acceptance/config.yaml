@@ -222,6 +222,9 @@ executors:
     # Hồ sơ kiem-ban-cai-loi-sua-chay-duoc (TC4): ca KL-1…KL-9 của chế độ --may — lệch tệp không chạy, lệnh lấy thẻ,
     # lệnh sửa cây phụ, khối mồ côi; không cần CLI claude nên đuôi .test.mjs (cũng chạy trong mảnh mjs của suite).
     kiem_ban_cai_loi_sua: node tests/scripts/kiem-ban-cai-loi-sua.test.mjs
+    # Hồ sơ goi-cheo-loi-dieu-phoi (E9): răng một nguồn — bảng tên lib/ho-goi.cjs ≡ marketplace.json, hộp thư
+    # scripts/hop-thu/ ≡ dieu-phoi/scripts/ từng byte. Đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite.
+    mot_nguon_ten: node tests/scripts/mot-nguon-ten-va-hop-thu.test.mjs
     # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
     bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
     # Hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): ca GT1…GT10 chung một lệnh; ca GT8 trên bộ hồ sơ thật các kho có trên
@@ -268,6 +271,11 @@ executors:
     # Răng hai chiều của hồ sơ mc11-ten-kho (E2, E3): clone cây vào thư mục «kho-ten-khac», ca MC-11 lành xanh, bản
     # chữ cứng 0c4e503b đỏ với thông điệp ghim. Cần git + node; KHÔNG vào feature_loop.suite_keys.
     mc11_ten_kho_chieu_do: bash _acceptance/mc11-ten-kho/rang/chieu-do.sh
+    # Hồ sơ goi-cheo-loi-dieu-phoi: bộ dựng bố cục plugins/<tên>/ (E2–E8), chiều đỏ trên bản gốc 593e6837 (E10), vi
+    # phân bố cục cũ bản gốc ↔ cây đang kiểm (E1). Cần git + node; KHÔNG vào feature_loop.suite_keys (sống tới ngày cắt).
+    goi_cheo_bo_cuc_moi: node _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs
+    goi_cheo_chieu_do: node _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs --chieu-do
+    goi_cheo_vi_phan: node _acceptance/goi-cheo-loi-dieu-phoi/rang/vi-phan-cu.mjs
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.

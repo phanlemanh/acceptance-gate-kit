@@ -979,20 +979,37 @@ if (want('RT13')) {
                      'lib/workspace-record.cjs', 'lib/evidence-core.cjs', 'lib/md-section.cjs', 'lib/ac-line.cjs',
                      'skills/acceptance/references/opportunity-template.md'])
     W(old, rel, show(rel));
+  const OLD_SCAN = path.join(old, 'scripts', 'start-scan.mjs');
   let jOld = null;
-  try { jOld = scan(ROOT, path.join(old, 'scripts', 'start-scan.mjs')); }
+  try { jOld = scan(ROOT, OLD_SCAN); }
   catch (e) { errs.push(`bản cũ không chạy được: ${String(e.message).slice(0, 160)}`); }
-  rmSync(old, { recursive: true, force: true });
-  if (jOld) {
-    const mOld = keyOfAll(jOld), mNew = keyOfAll(jNew);
-    for (const [slug, kOld] of mOld) {
-      const kNew = mNew.get(slug);
-      const kh = KHAC.find(r => r[0] === slug);
-      if (kh) { if (kOld !== kh[1] || kNew !== kh[2]) errs.push(`${slug}: khối khai ${kh[1]}→${kh[2]}, thực ${kOld}→${kNew}`); }
-      else if (kOld !== kNew) errs.push(`${slug}: lệch ${kOld}→${kNew} mà khối không khai`);
+  // Phép so đọc-cũ chỉ xét hồ sơ có contract.md ở MỐC (hồ sơ goi-cheo-loi-dieu-phoi, AC-11): đọc-cũ nghĩa là bộ mới vẫn
+  // đọc được hồ sơ viết cho bộ cũ. Hồ sơ sinh sau mốc viết cho bộ mới — bộ cũ không biết trạng thái của chúng — nên không
+  // vào phép so (vẫn qua «broken rỗng» của bộ mới ở (i)). Trước đó mọi hồ sơ mới đổi trạng thái phải thêm một dòng vào
+  // khối của hồ sơ đã ký này, và kho kế nhiệm (hồ sơ chỉ nó có) đỏ ở mọi lượt chấm. Vị từ hỏi lịch sử git của cây thật.
+  const coOMocCache = new Map();
+  const coOMoc = slug => {
+    if (!coOMocCache.has(slug)) {
+      coOMocCache.set(slug, spawnSync('git', ['-C', ROOT, 'cat-file', '-e', `${MOC_CU}:_acceptance/${slug}/contract.md`]).status === 0);
     }
-    for (const slug of mNew.keys()) if (!mOld.has(slug)) errs.push(`${slug}: chỉ có ở bản mới`);
-  }
+    return coOMocCache.get(slug);
+  };
+  // → { lech: [thông điệp], sauMoc: [slug] } — một hàm cho cây thật, chiều đỏ (ii) và hai nhát (v).
+  const soDocCu = (jO, jN, KH) => {
+    const mOld = keyOfAll(jO), mNew = keyOfAll(jN); const lech = []; const sauMoc = [];
+    for (const [slug, kOld] of mOld) {
+      if (!coOMoc(slug)) { sauMoc.push(slug); continue; }
+      const kNew = mNew.get(slug);
+      const kh = KH.find(r => r[0] === slug);
+      if (kh) { if (kOld !== kh[1] || kNew !== kh[2]) lech.push(`${slug}: khối khai ${kh[1]}→${kh[2]}, thực ${kOld}→${kNew}`); }
+      else if (kOld !== kNew) lech.push(`${slug}: lệch ${kOld}→${kNew} mà khối không khai`);
+    }
+    for (const slug of mNew.keys()) if (!mOld.has(slug)) { if (coOMoc(slug)) lech.push(`${slug}: chỉ có ở bản mới`); else sauMoc.push(slug); }
+    return { lech, sauMoc: [...new Set(sauMoc)] };
+  };
+  let soThat = { lech: [], sauMoc: [] };
+  if (jOld) { soThat = soDocCu(jOld, jNew, KHAC); errs.push(...soThat.lech); }
+  const khaiThua = KHAC.filter(r => !coOMoc(r[0])).length;
 
   // (iii) CỜ đo bằng QUAN HỆ (đúng ở mọi ngày chạy) — vị từ HỎI LIB, không chép lại:
   // bản chép của vòng trước lệch đúng MỘT NGÀY và hẹn suite tự đỏ 30/08/2026 (S4-r4).
@@ -1117,18 +1134,35 @@ if (want('RT13')) {
     const r4 = soSanh([...filesThat, F], GACH, f => coCaIn(f, khai2, stripChuThich(raw3)));
     if (r4.la.includes(F)) errs.push('chiều đỏ (iv-c) đối chứng dương: nhắc trong CHUỖI được chạy mà vẫn bị nêu «lạ»');
   }
-  // Chiều đỏ (ii): TIÊM vào khối KHAC-BIET-DOC-CU (bản sao contract) rồi chạy lại phép so.
+  // Chiều đỏ (ii): TIÊM vào khối KHAC-BIET-DOC-CU (bản sao contract) rồi chạy lại phép so — xoá dòng khai của một hồ sơ
+  // CÓ ở mốc (dòng khai của hồ sơ sau mốc không còn vào phép so).
   if (jOld) {
-    const mOld2 = keyOfAll(jOld), mNew2 = keyOfAll(jNew);
-    const lech = KH => [...mOld2].filter(([slug, k]) => {
-      const kh = KH.find(r => r[0] === slug);
-      return kh ? (k !== kh[1] || mNew2.get(slug) !== kh[2]) : k !== mNew2.get(slug);
-    }).map(([slug]) => slug);
-    if (lech(KHAC).length) errs.push(`phép so khai-khác-biệt đỏ trên cây thật: ${lech(KHAC).join(',')}`);
-    if (KHAC.length) {
-      const thieu = lech(KHAC.slice(1));
-      if (!thieu.includes(KHAC[0][0])) errs.push(`chiều đỏ (ii): xoá dòng khối «${KHAC[0][0]}» mà phép so vẫn im`);
-    }
+    const lechSlug = KH => soDocCu(jOld, jNew, KH).lech.map(l => l.split(':')[0]);
+    if (lechSlug(KHAC).length) errs.push(`phép so khai-khác-biệt đỏ trên cây thật: ${lechSlug(KHAC).join(',')}`);
+    const iMoc = KHAC.findIndex(r => coOMoc(r[0]));
+    if (iMoc < 0) errs.push('chiều đỏ (ii): khối không còn dòng khai nào của hồ sơ có ở mốc — không có gì để xoá thử');
+    else if (!lechSlug(KHAC.filter((_, i) => i !== iMoc)).includes(KHAC[iMoc][0])) errs.push(`chiều đỏ (ii): xoá dòng khối «${KHAC[iMoc][0]}» mà phép so vẫn im`);
+  }
+  // (v) Hai nhát trên kho thử do mã sinh (hồ sơ goi-cheo-loi-dieu-phoi, AC-11): một hồ sơ hợp đồng đã ký + ô cơ hội khai
+  // «không đo được» — bộ cũ và bộ mới xếp khác lớp (đúng hình hồ sơ B1 của kho kế nhiệm). Mang tên SAU mốc → phép so im;
+  // mang tên một hồ sơ CÓ ở mốc mà không có dòng khai → phép so đỏ. Đối chứng dương: hai bộ phải thật sự xếp khác lớp.
+  if (jOld) {
+    const atMoc = [...keyOfAll(jNew).keys()].find(sl => coOMoc(sl) && !KHAC.some(r => r[0] === sl));
+    const KYv = { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' };
+    const dungKhacLop = (root, slug) => mkWs(root, slug, { contract: KYv, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'khong-do-duoc' } });
+    withRepo(root => {
+      dungKhacLop(root, 'rt13-sau-moc-fx');
+      const jO = scan(root, OLD_SCAN), jN = scan(root);
+      const kO = keyOfAll(jO).get('rt13-sau-moc-fx'), kN = keyOfAll(jN).get('rt13-sau-moc-fx');
+      if (!kO || kO === kN) errs.push(`(v) đối chứng: hồ sơ fixture không khác lớp (${kO}→${kN}) — nhát không đo gì`);
+      else if (soDocCu(jO, jN, []).lech.length) errs.push(`(v) chiều im (sau mốc): hồ sơ sinh sau mốc khác lớp mà phép so vẫn đỏ: ${soDocCu(jO, jN, []).lech.join(' · ')}`);
+    });
+    if (!atMoc) errs.push('(v) không tìm được hồ sơ có ở mốc mà không có dòng khai');
+    else withRepo(root => {
+      dungKhacLop(root, atMoc);
+      const r = soDocCu(scan(root, OLD_SCAN), scan(root), []);
+      if (!r.lech.some(l => l.startsWith(`${atMoc}: lệch `) && l.endsWith('mà khối không khai'))) errs.push(`(v) chiều đỏ (sau mốc): hồ sơ có ở mốc «${atMoc}» đổi lớp không khai mà phép so im (${r.lech.join(' · ') || 'không lỗi'})`);
+    });
   }
   // (iii-b) Ma trận fixture KHÔNG phụ thuộc ngày + ba mutant (hồ sơ co-qua-timebox-nhom-da-xong).
   // (iii) chỉ đỏ khi cây thật có hồ sơ quá hạn — 06/09/2026 mới có lần đầu (baseline-127 park,
@@ -1195,8 +1229,9 @@ if (want('RT13')) {
     }
   });
 
+  rmSync(old, { recursive: true, force: true });
   if (errs.length) fail('RT13', errs.join(' · '));
-  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 10 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · nghỉ quá hạn ✓ · nghỉ chưa hạn ✗ · nghỉ không hồ sơ cơ hội ✗ · mutant ×4 bắt: ${batDuoc.join(' · ')}`);
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: ${soThat.sauMoc.length} (ngoài phép so; ${khaiThua} dòng khai của chúng không còn dùng); (v) sau mốc khác lớp → im, có ở mốc đổi lớp không khai → đỏ; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 10 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · nghỉ quá hạn ✓ · nghỉ chưa hạn ✗ · nghỉ không hồ sơ cơ hội ✗ · mutant ×4 bắt: ${batDuoc.join(' · ')}`);
 }
 
 // ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────

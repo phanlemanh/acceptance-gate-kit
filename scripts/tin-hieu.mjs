@@ -24,10 +24,12 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { kiemYeuCau } from '../dieu-phoi/scripts/hinh-dang.mjs';
+import { kiemYeuCau } from './hop-thu/hinh-dang.mjs';
 // Một bộ giải «thư mục chính của kho» cho bên ghi và bên đọc (hồ sơ cua-tin-hieu-goc-moi-worktree) — dot.mjs kho tiêu
 // thụ đã chép theo INIT-CI-COPY-LIST cùng hinh-dang.mjs.
-import { gocKhoChinh } from '../dieu-phoi/scripts/dot.mjs';
+// hop-thu/ = bản chép NGUYÊN VĂN bốn tệp dùng chung của gói điều phối (hồ sơ goi-cheo-loi-dieu-phoi, đường C): lõi không
+// nạp mã của gói bật-theo-lựa-chọn lúc chạy; răng GN-2 giữ hai bản bằng nhau từng byte.
+import { gocKhoChinh } from './hop-thu/dot.mjs';
 import { docPhamVi } from './cat-luot.mjs';
 import { phanTichKho, docCacTep, docTep, DA_GIAO_O, DANG_LAM_O, CHUA_LAM_O, CHUA_MO, KHONG_SUY } from './lo-trinh.mjs';
 
@@ -42,7 +44,10 @@ const { DA_THONG_CONG_2, DA_DONG_THUC_TE } = require(path.join(__dirname, '..', 
 const { boNgoacNgoai, ngayChuKy } = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 
 export const TEP_KHUON = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'tin-hieu-template.md');
-export const TEP_SKILL = path.join(__dirname, '..', 'skills', 'gom-tin-hieu', 'SKILL.md');
+// Skill gom tìm theo khối GOM-TRUC nó mang, không theo tên thư mục (hồ sơ goi-cheo-loi-dieu-phoi: kịch bản chuyển nhà đổi
+// tên thư mục skill); không thấy thì giữ đường cũ.
+export const TEP_SKILL = require(path.join(__dirname, 'tim-skill.cjs')).timSkill(path.join(__dirname, '..'), 'GOM-TRUC',
+  path.join(__dirname, '..', 'skills', 'gom-tin-hieu', 'SKILL.md'));
 const DA_GIAO = new Set([...DA_THONG_CONG_2, ...DA_DONG_THUC_TE]);
 const chuoi = v => (v == null ? '' : String(v).trim());
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };

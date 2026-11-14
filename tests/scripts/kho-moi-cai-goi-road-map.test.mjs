@@ -474,10 +474,23 @@ if (want('KM-8')) {
     // đối chứng là mỗi dòng có mặt đúng một lần; phần còn lại vẫn phải giống từng byte.
     const DONG_SAU = [['gio-may.mjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/gio-may\.mjs[^\n]*/g], ['chan-lo-trinh.cjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/lib\/chan-lo-trinh\.cjs[^\n]*/g], ['do-san-tren-nen.cjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/lib\/do-san-tren-nen\.cjs[^\n]*/g],
       ...['tri-thuc-khoa.cjs', 'tri-thuc-nguon.cjs', 'tri-thuc.mjs', 'tri-thuc-tra.cjs', 'can-cu-s1.cjs', 'luat-san-pham.cjs'].map(f => [f, new RegExp(String.raw`\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/${f.replace(/\./g, '\\.')}\` [^\n]*`, 'g')]),
-      ['tri-thuc-template.md', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/acceptance\/references\/tri-thuc-template\.md` [^\n]*/g]];
+      ['tri-thuc-template.md', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/acceptance\/references\/tri-thuc-template\.md` [^\n]*/g],
+      // goi-cheo-loi-dieu-phoi: bảng tên `lib/ho-goi.cjs` (chan-lo-trinh.cjs nạp) và `scripts/tim-skill.cjs` (co-hop-dong.cjs,
+      // tin-hieu.mjs nạp) là dòng thêm.
+      ['ho-goi.cjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/lib\/ho-goi\.cjs` [^\n]*/g], ['tim-skill.cjs', /\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/tim-skill\.cjs` [^\n]*/g]];
+    // goi-cheo-loi-dieu-phoi (đường C): ba dòng hộp thư THAY ba dòng điều phối — gỡ dòng mới ở bản đang kiểm, dòng cũ ở bản gốc,
+    // mỗi dòng đúng một lần.
+    const DONG_THAY = ['hinh-dang.mjs', 'cau-hinh.mjs', 'dot.mjs'].map(f => [f, new RegExp(String.raw`\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/hop-thu\/${f.replace(/\./g, '\\.')}\` [^\n]*`, 'g'),
+      new RegExp(String.raw`\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/dieu-phoi\/scripts\/${f.replace(/\./g, '\\.')}\` [^\n]*`, 'g')]);
     return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { let x = khoi(a, k); const y = khoi(b, k); if (!x || !y) return [`đối chứng: khối ${k} rút không được`];
+      let yy = y;
       if (k === 'INIT-CI-COPY-LIST') for (const [ten, re] of DONG_SAU) { const n = (x.match(re) || []).length; if (n !== 1) return [`đối chứng: dòng ${ten} có ${n} lần trong ${k}`]; x = x.replace(re, ''); }
-      return x === y ? [] : [`khối ${k} khác bộ máy gốc`]; });
+      if (k === 'INIT-CI-COPY-LIST') for (const [ten, reMoi, reCu] of DONG_THAY) {
+        const n = (x.match(reMoi) || []).length; const m = (yy.match(reCu) || []).length;
+        if (n !== 1 || m !== 1) return [`đối chứng: dòng thay ${ten} có ${n}/${m} lần (mới/gốc) trong ${k}`];
+        x = x.replace(reMoi, ''); yy = yy.replace(reCu, '');
+      }
+      return x === yy ? [] : [`khối ${k} khác bộ máy gốc`]; });
   }) && ok('KM-8-khoi-khac', 'ba khối máy đọc khác giống từng byte bộ máy gốc');
   if (want('KM-8-do')) chayDo('KM-8-do', km8MaThoat, banSao([['commands/acceptance-init.md', '    <!-- INIT-LO-TRINH>>> -->', '    - exit 4 → giả.\n    <!-- INIT-LO-TRINH>>> -->']]), 'mã 4 không kho thử nào cho ra');
 }

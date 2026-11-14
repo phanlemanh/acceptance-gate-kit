@@ -10,11 +10,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_MARKETPLACE = path.resolve(HERE, '..', '.claude-plugin', 'marketplace.json');
 export const MARKETPLACE_NAME = 'acceptance-gate-kit';
 export const MARKETPLACE_SOURCE = { source: 'github', repo: 'phanlemanh/acceptance-gate-kit' };
+// Bảng tên của họ plugin (hồ sơ goi-cheo-loi-dieu-phoi) — nguồn tên CHỈ cho bản cài bố cục plugins/<tên>/: gói mang
+// manifest riêng (.claude-plugin/plugin.json) mà không mang marketplace.json. Gói mang tệp khai chợ (bố cục cũ, kể cả chợ
+// fork) → đọc tệp như cũ, từng byte; bản chép lạc thiếu cả hai → thoát 4 như cũ (PD9). Nạp lười: bản chép lạc không có lib/.
+const MANIFEST_GOI = path.resolve(HERE, '..', '.claude-plugin', 'plugin.json');
+const laBanCaiBoCucMoi = p => p === DEFAULT_MARKETPLACE && !fs.existsSync(p) && fs.existsSync(MANIFEST_GOI);
+const hoGoi = () => createRequire(import.meta.url)(path.join(HERE, '..', 'lib', 'ho-goi.cjs'));
 // superpowers: phụ thuộc của feature-loop, nằm ở marketplace mặc định — không khai thêm marketplace.
 export const EXTRA_PLUGINS = ['superpowers@claude-plugins-official'];
 // Mục marketplace mang dấu này là gói BẬT THEO LỰA CHỌN (vd dieu-phoi): kho tự cài khi cần, init
@@ -41,6 +48,7 @@ const isPlain = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 // Đọc marketplace.json: MỘT nguồn cho cả hậu tố plugin lẫn khoá extraKnownMarketplaces (tên `mk`).
 // `names` = các mục KHÔNG mang dấu bật-theo-lựa-chọn; `optIn` = các mục mang dấu (không khai).
 export function readMarketplace(marketplacePath = DEFAULT_MARKETPLACE) {
+  if (laBanCaiBoCucMoi(marketplacePath)) return hoGoi().danhSach();
   let txt;
   try { txt = fs.readFileSync(marketplacePath, 'utf8'); }
   catch { console.error(`[plugin-declare] không đọc được marketplace.json — đã thử: ${marketplacePath}`); return null; }

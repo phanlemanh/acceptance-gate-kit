@@ -9,8 +9,9 @@
 import fs, { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { CAU_DA_GHI, docCua, ghiVaoCua } from '../dieu-phoi/scripts/cua-tin-hieu.mjs';
-import { kiemYeuCau } from '../dieu-phoi/scripts/hinh-dang.mjs';
+// hop-thu/ = bản chép nguyên văn của gói điều phối (hồ sơ goi-cheo-loi-dieu-phoi) — cùng bộ ghi, lõi không nạp gói kia.
+import { CAU_DA_GHI, docCua, ghiVaoCua } from './hop-thu/cua-tin-hieu.mjs';
+import { kiemYeuCau } from './hop-thu/hinh-dang.mjs';
 import { gocNguon } from './tin-hieu.mjs';
 
 const bail = (ma, m) => { process.stderr.write(`gui-tin-hieu: ${m}\n`); process.exit(ma); };

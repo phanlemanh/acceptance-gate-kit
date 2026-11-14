@@ -1,0 +1,179 @@
+schema_version: 1
+feature_slug: goi-cheo-loi-dieu-phoi
+# Ba vật đo ở cùng nhà với vật (design §5):
+#  - răng bền tests/scripts/mot-nguon-ten-va-hop-thu.test.mjs (khoá executors.test.mot_nguon_ten) — AC-9;
+#  - bộ dựng bố cục mới _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs (khoá executors.script.goi_cheo_bo_cuc_moi,
+#    chế độ chiều đỏ khoá executors.script.goi_cheo_chieu_do) — AC-2…AC-8, AC-10;
+#  - vi phân bố cục cũ _acceptance/goi-cheo-loi-dieu-phoi/rang/vi-phan-cu.mjs (khoá executors.script.goi_cheo_vi_phan) — AC-1.
+# Mọi gốc kho suy từ vị trí script; fixture (kho mới, kho tiêu thụ, bản gốc 593e6837) do mã sinh trong lần chạy, ở thư mục
+# tạm. Hạ tầng hỏng (git archive, cp, chạy node) → thoát 3 «HẠ TẦNG: …», không bao giờ in PASS.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.goi_cheo_vi_phan
+    paths: [scripts/plugin-declare.mjs, scripts/lo-trinh-khoi-tao.mjs, lib/chan-lo-trinh.cjs, lib/ho-goi.cjs, scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/hop-thu/**, scripts/start-scan.mjs, commands/acceptance-init.md, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs, tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs, tests/scripts/tin-hieu.test.mjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/vi-phan-cu.mjs]
+    expected: >
+      exit 0; mỗi lệnh × kho một dòng "PASS: VP-<n> <lệnh> · <kho> — bản gốc = cây đang kiểm" (stdout, stderr, mã thoát bằng
+      nhau từng byte sau khi thay đường gốc cây), ma trận viết sẵn trong script và số dòng VP in ra bằng độ dài ma trận; có
+      dòng cho kho chợ fork ("· fork") với plugin-declare --list, khởi tạo lộ trình, luật chặn, và dòng cho start-scan trên
+      kho kit bố cục cũ; "PASS: VP-HT phá scripts/hop-thu/cua-tin-hieu.mjs trên bản sao → ca cửa tín hiệu đỏ"; dòng cuối
+      "goi-cheo vi-phan: <n> passed, 0 failed". Không có bảng khác biệt. Chiều đỏ trên cùng fixture: một lệnh lệch →
+      "FAIL: VP-<n> <lệnh> · <kho> — lệch: <dòng đầu khác>" và exit 1; ca VP-DO tự phá (đổi một chữ đầu ra của bản gốc trên
+      bản sao) → so phải đỏ, không đỏ thì "FAIL: VP-DO phép so không đỏ"; nhát phá hộp thư mà ca cửa tín hiệu vẫn xanh →
+      "FAIL: VP-HT ca cửa tín hiệu không chạm hộp thư".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/hop-thu/**, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-2 tín hiệu — bản cài lõi mới nạp tin-hieu, gui-tin-hieu ghi câu («đã ghi»), --rang thoát 0".
+      Đỏ của chính ca: nạp lỗi thì "FAIL: BC-2 … ERR_MODULE_NOT_FOUND <tệp>"; gui-tin-hieu không in dòng «đã ghi» thì
+      "FAIL: BC-2 … không ghi"; chiều đỏ trên bản gốc ở E10.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [commands/acceptance-init.md, scripts/hop-thu/**, lib/ho-goi.cjs, lib/chan-lo-trinh.cjs, scripts/tin-hieu.mjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-3 chép CI — <n>/<n> mục giải được trong bản cài lõi mới; kho tiêu thụ nạp tin-hieu, chạy
+      chan-lo-trinh" (n rút từ khối INIT-CI-COPY-LIST lúc chạy, không ghim số). Mục không giải được → "FAIL: BC-3 … mục vắng:
+      <đường>"; bản chép không nạp được → "FAIL: BC-3 … kho tiêu thụ: <lỗi>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [scripts/plugin-declare.mjs, lib/ho-goi.cjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-4 khai plugin — acceptance-gate@delivery-loop, feature-loop@delivery-loop,
+      diagram-design@delivery-loop, superpowers@claude-plugins-official; nguồn chợ phanlemanh/delivery-loop". Danh sách khác
+      (thiếu, thừa, sai thứ tự) → "FAIL: BC-4 … in: <danh sách thật>"; thoát khác 0 → "FAIL: BC-4 … thoát <mã>: <stderr>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [scripts/lo-trinh-khoi-tao.mjs, lib/chan-lo-trinh.cjs, lib/ho-goi.cjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-5 lộ trình — khởi tạo nhận roadmap@delivery-loop; luật chặn VIOLATION [<hồ sơ>]". Khởi tạo in
+      dòng «chưa cài road-map» hay thoát 2 → "FAIL: BC-5 khởi tạo … <dòng>"; luật chặn không in VIOLATION gọi tên hồ sơ →
+      "FAIL: BC-5 luật chặn tắt lặng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [scripts/start-scan.mjs, lib/ho-goi.cjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-6 dò kho kit — kho mới: applies đúng, đếm 1 vòng meta (<hồ sơ>)". applies sai hay đếm khác →
+      "FAIL: BC-6 … applies=<giá trị> n=<giá trị>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [scripts/kiem-ban-cai.mjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-7 kiểm bản cài — kho mới chọn acceptance-gate, feature-loop, dispatch; bố cục cũ chọn
+      acceptance-gate, feature-loop, dieu-phoi". Chọn khác → "FAIL: BC-7 … chọn <bộ ba thật>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    paths: [feature-loop/scripts/goc-loi-tu-host.mjs, feature-loop/scripts/giu-tuoi.mjs, feature-loop/scripts/thuoc-vat.mjs, feature-loop/scripts/carry-plan.mjs, _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: BC-8 feature-loop tự host — giu-tuoi, thuoc-vat, carry-plan dùng <kho mới>/plugins/acceptance-gate;
+      bố cục cũ dùng gốc kho" (bộ đệm plugin trỏ thư mục rỗng do ca dựng). Một script báo không tìm được bộ máy hay dùng lõi
+      khác → "FAIL: BC-8 <script> … <dòng lỗi>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.mot_nguon_ten
+    paths: [lib/ho-goi.cjs, .claude-plugin/marketplace.json, scripts/hop-thu/**, dieu-phoi/scripts/hinh-dang.mjs, dieu-phoi/scripts/cau-hinh.mjs, dieu-phoi/scripts/dot.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs, tests/scripts/mot-nguon-ten-va-hop-thu.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: GN-1 bảng tên ≡ marketplace.json", "PASS: GN-2 hộp thư ≡ dieu-phoi/scripts (4 tệp)" và các nhát
+      phá trên bản sao: "PASS: GN-1-do-them" (thêm plugin vào chợ → "bảng tên thiếu <tên>"), "PASS: GN-1-do-dau" (đổi dấu
+      bat-theo-lua-chon → "lệch bật-theo-lựa-chọn: <tên>"), "PASS: GN-1-do-cho" (đổi tên chợ → "lệch tên chợ"),
+      "PASS: GN-2-do" (sửa một byte → "hop-thu/<tệp> khác dieu-phoi/scripts/<tệp>"); dòng tổng ", 0 failed". Nhát phá chỉ chạy
+      khi đối chứng dương xanh; nhát không áp được thì FAIL «nhát phá không áp».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.goi_cheo_chieu_do
+    paths: [_acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CD-0 lần lành trên cây đang kiểm xanh" rồi với mỗi n ∈ {2..8} "PASS: CD-<n> bản gốc 593e6837 đỏ:
+      <thông điệp ghim>", gồm CD-2 có "ERR_MODULE_NOT_FOUND" và "hinh-dang.mjs", CD-4 có "không đọc được marketplace.json",
+      CD-5 có "luật chặn tắt lặng"; dòng cuối "goi-cheo chieu-do: 8 passed, 0 failed". Lần lành đỏ → "FAIL: CD-0 …" và các
+      CD-n FAIL "lần lành chưa xanh trên cùng bộ dựng"; bản gốc mà một ca vẫn xanh → "FAIL: CD-<n> bản gốc không đỏ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/plugin-declare.mjs, lib/ho-goi.cjs, tests/plugins/**]
+    expected: >
+      exit 0; đầu ra có dòng "Results:" với 0 failed và không dòng FAIL (ca của plugin-declare ở bố cục cũ giữ xanh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; đầu ra có "# fail 0" — điều phối không đổi hành vi (bốn tệp gốc giữ nguyên từng byte).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, scripts/hop-thu/**, tests/scripts/tin-hieu.test.mjs]
+    expected: >
+      exit 0; dòng tổng ", 0 failed" — ca cửa tín hiệu có sẵn xanh sau khi đổi sang hộp thư.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.cua_tin_hieu_giua_chien_dich
+    paths: [scripts/gui-tin-hieu.mjs, scripts/hop-thu/**, dieu-phoi/scripts/cua-tin-hieu.mjs, tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs]
+    expected: >
+      exit 0; dòng tổng ", 0 failed" — mọi nhát phá vào tệp dùng chung áp lên cả hai bản và vẫn đỏ đúng thông điệp của ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E15
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.cua_tin_hieu_goc_moi_worktree
+    paths: [scripts/tin-hieu.mjs, scripts/gui-tin-hieu.mjs, scripts/hop-thu/**, dieu-phoi/scripts/dot.mjs, dieu-phoi/scripts/cua-tin-hieu.mjs, tests/scripts/cua-tin-hieu-goc-moi-worktree.test.mjs]
+    expected: >
+      exit 0; dòng tổng ", 0 failed" — nhát phá GW-1-do2 và nhát phá gocKhoChinh áp lên cả hai bản.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.goi_cheo_bo_cuc_moi
+    status: not-run
+    paths: [_acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs]
+    expected: >
+      Giả định 4 của ô: bộ dựng đại diện được cây do kịch bản chuyển nhà dựng thật. Đo bằng lệnh đếm của hạt giống trên cây
+      dựng lại từ nhánh vòng, trên một bản kéo TẠM của delivery-loop — cần bản kéo ấy, lượt chấm và làn ghim lại không có.
+      Ô này không chạy trong làn máy; đo chéo chạy tay cuối vòng và ghi số (đếm, sha nhánh, sha bản kéo) vào Notes của
+      hợp đồng. Kỳ vọng khi chạy: đếm 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E17
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.cqt_rt13
+    paths: [tests/plugins/ra-co-ten.test.mjs, _acceptance/ra-co-ten-lam-va-trao/contract.md]
+    expected: >
+      exit 0; stdout có "PASS: [RT13]" kèm đoạn nêu "hồ sơ sinh sau mốc: <n> (ngoài phép so)" và hai nhát mới trên bản sao
+      cây: hồ sơ sinh sau mốc khác lớp → RT13 vẫn xanh (im); hồ sơ có ở mốc đổi lớp không khai → đỏ với "lệch … mà khối
+      không khai". Chiều đỏ (ii) — xoá một dòng khai của hồ sơ có ở mốc — vẫn đỏ. Nhát im mà đỏ, hay nhát đỏ mà im →
+      "FAIL: [RT13] … chiều <im|đỏ> (sau mốc)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

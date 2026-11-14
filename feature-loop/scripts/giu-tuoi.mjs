@@ -35,6 +35,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { rutTenCa } from './lib/chay-lai.mjs';
+import { gocLoiTuHost } from './goc-loi-tu-host.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LANE = path.join(HERE, 'repin-lane.mjs');
@@ -69,6 +70,8 @@ const root = (() => { try { return fs.realpathSync(flags.root); } catch { return
 const AG_REQUIRES = ['scripts/pre-merge-check.sh', 'lib/evidence-core.cjs', 'lib/do-san-tren-nen.cjs', 'lib/nhan-canh-gay.cjs'];
 let agRoot = flags['ag-root'];
 if (!agRoot && AG_REQUIRES.every(r => fs.existsSync(path.join(HERE, '..', '..', r)))) agRoot = path.join(HERE, '..', '..');
+// Bố cục plugins/<tên>/: lõi không còn là cha của feature-loop — tìm qua tệp khai chợ của bản kéo (hồ sơ goi-cheo-loi-dieu-phoi).
+if (!agRoot) agRoot = gocLoiTuHost(HERE, { can: AG_REQUIRES });
 if (!agRoot) {
   try {
     const out = execFileSync(process.execPath, [RESOLVER, '--plugin', 'acceptance-gate', ...AG_REQUIRES.flatMap(r => ['--require', r])], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });

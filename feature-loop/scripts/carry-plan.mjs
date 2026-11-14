@@ -20,6 +20,7 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
+import { gocLoiTuHost } from './goc-loi-tu-host.mjs';
 
 // MỘT bộ đọc dùng chung với `s4-args.mjs` cho CÙNG trường `paths:` của CÙNG
 // `evals.yaml`. Trước 2.11.0 tệp này tự bóc nháy bằng mệnh đề cũ, nên hai bên
@@ -35,7 +36,8 @@ let SHARED = null;
 function readers(agRoot) {
   if (SHARED) return SHARED;
   const HERE = path.dirname(fileURLToPath(import.meta.url));
-  const ung = [agRoot, path.resolve(HERE, '..', '..')].filter(Boolean)
+  // Ứng viên thứ ba: lõi tìm qua tệp khai chợ của bản kéo — bố cục plugins/<tên>/ (hồ sơ goi-cheo-loi-dieu-phoi).
+  const ung = [agRoot, path.resolve(HERE, '..', '..'), gocLoiTuHost(HERE)].filter(Boolean)
     .map(r => path.resolve(r, 'lib', 'evidence-core.cjs'));
   const req = createRequire(import.meta.url);
   let core = null; let corePath = null; const vet = [];

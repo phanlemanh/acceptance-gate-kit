@@ -1070,7 +1070,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 36 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 38 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -1101,13 +1101,15 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/ho-so-tom-tat.cjs` — bộ đọc hồ sơ DUY NHẤT mà `lo-trinh.mjs` `require` cho dải tóm tắt của khối dữ liệu và phép bỏ một cặp «» quanh câu giao; thiếu → bước bản đồ `MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
 - `scripts/gio-may.mjs` — phép ước giờ máy mà `lo-trinh.mjs` import lúc nạp (ước hàng, tổng mốc, dự báo); thiếu → bước bản đồ `ERR_MODULE_NOT_FOUND` (đỏ to) ở kho khai `lo_trinh.tep`
 - `lib/chan-lo-trinh.cjs` — bộ đọc DUY NHẤT của luật chặn lộ trình `lo_trinh.chan` mà lưới trước-merge gọi cho hồ sơ mới ngoài lộ trình; chỉ cần khi kho khai `lo_trinh.tep` — thiếu ở kho đã bật thì lưới in một dòng `NOTE: luật chặn lộ trình NOT ENFORCED`
+- `lib/ho-goi.cjs` — bảng tên họ plugin MỘT nguồn mà `chan-lo-trinh.cjs` `require` để biết tên gói lộ trình — chỉ cần khi kho khai `lo_trinh.tep`; có `chan-lo-trinh.cjs` mà thiếu tệp này → bộ đọc thoát lỗi và lưới ghi `VIOLATION [chan-lo-trinh]` (cổng đóng, không mở)
 - `scripts/tin-hieu-khoa.cjs` — bộ đọc khoá cửa tín hiệu `tin_hieu.nguon`/`tin_hieu.gom`; `product-map.mjs` nạp KHOAN DUNG — kho không khai `tin_hieu` chạy được khi thiếu nó, kho khai mà thiếu thì bước bản đồ đỏ to
 - `scripts/tin-hieu.mjs` — bộ đọc tín hiệu + răng phủ + đường đi; `product-map.mjs` chỉ nạp khi kho khai `tin_hieu` — chỉ cần khi đó
 - `scripts/cat-luot.mjs` — bộ đọc bản phạm vi `docPhamVi` mà `tin-hieu.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `scripts/co-hop-dong.cjs` — bộ đọc cỡ hợp đồng MỘT nguồn mà `cat-luot.mjs` `require` lúc nạp (khoảng cỡ, số tiêu chí, dòng giữ) — chỉ cần khi kho khai `tin_hieu`; thiếu → `MODULE_NOT_FOUND` khi `tin-hieu.mjs` import `cat-luot.mjs`
-- `dieu-phoi/scripts/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối) — chỉ cần khi kho khai `tin_hieu`
-- `dieu-phoi/scripts/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
-- `dieu-phoi/scripts/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `scripts/tim-skill.cjs` — bộ tìm SKILL.md theo khối đánh dấu mà `co-hop-dong.cjs` và `tin-hieu.mjs` `require` lúc nạp — chỉ cần khi kho khai `tin_hieu`; thiếu → `MODULE_NOT_FOUND` khi `tin-hieu.mjs` nạp
+- `scripts/hop-thu/hinh-dang.mjs` — hàm kiểm khuôn yêu cầu `kiemYeuCau` mà mọi tín hiệu phải qua (một hộp thư với gói Điều phối; lõi mang bản chép nguyên văn ở `scripts/hop-thu/` từ hồ sơ goi-cheo-loi-dieu-phoi — trước đó chép từ `dieu-phoi/scripts/`) — chỉ cần khi kho khai `tin_hieu`
+- `scripts/hop-thu/cau-hinh.mjs` — hằng số `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
+- `scripts/hop-thu/dot.mjs` — bộ đọc `hinh-dang.mjs` import — chỉ cần khi kho khai `tin_hieu`
 - `skills/acceptance/references/tin-hieu-template.md` — danh sách loại tín hiệu MỘT nguồn mà `tin-hieu.mjs` đọc lúc chạy — chỉ cần khi kho khai `tin_hieu`
 - `scripts/tri-thuc-khoa.cjs` — bộ đọc MỘT nguồn của ổ cắm tri thức `tri_thuc`; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` cho hàng có `dot`, răng phủ của `cat-luot.mjs` chỉ khi có tệp — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
 - `scripts/tri-thuc-nguon.cjs` — bên ghi và bên đọc dòng «Nguồn:» của ô cơ hội; `lo-trinh.mjs` chỉ nạp lười ở lối `--mo-o` — bước vẽ bản đồ không nạp — chỉ cần khi kho khai `tri_thuc`
