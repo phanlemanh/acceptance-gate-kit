@@ -24,9 +24,12 @@ import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GOI = path.resolve(HERE, '..');
 const WR = createRequire(import.meta.url)(path.join(GOI, 'lib', 'workspace-record.cjs'));
-export const GOI_ROAD_MAP = 'road-map';
+// Tên gói và tên chợ tra từ bảng tên (hồ sơ goi-cheo-loi-dieu-phoi) — chỉ dùng khi gói không mang marketplace.json cạnh
+// nó (bản cài bố cục plugins/<tên>/); có tệp thì đọc tệp như cũ, từng byte.
+const HG = createRequire(import.meta.url)(path.join(GOI, 'lib', 'ho-goi.cjs'));
+export const GOI_ROAD_MAP = HG.tenTheoVai('lo-trinh');
 export const DICH_MAC_DINH = 'docs/plan/lo-trinh.json';
-export const DONG_CHUA_CAI = 'kho chưa cài road-map ở phạm vi kho — không tạo lộ trình';
+export const DONG_CHUA_CAI = `kho chưa cài ${GOI_ROAD_MAP} ở phạm vi kho — không tạo lộ trình`;
 export const DONG_CHI_LOCAL = 'gói chỉ bật ở .claude/settings.local.json (của một người) — cài với --scope project để cả kho dùng';
 export const DONG_DA_SAN = 'lộ trình đã sẵn — không đổi gì';
 export const DONG_LECH = 'bản chép khác bản gói — chép lại theo đợt phát hành';
@@ -38,7 +41,10 @@ const thoat = (ma, m) => { process.stderr.write(`lo-trinh-khoi-tao: ${m}\n`); pr
 const docTho = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 
 // Khoá bật `road-map@<marketplace>` — rút từ marketplace.json của gói (một nguồn với plugin-declare.mjs).
-export function khoaBat(marketplacePath = path.join(GOI, '.claude-plugin', 'marketplace.json')) {
+const MARKETPLACE_GOI = path.join(GOI, '.claude-plugin', 'marketplace.json');
+export function khoaBat(marketplacePath = MARKETPLACE_GOI) {
+  // Bản cài bố cục plugins/<tên>/: gói mang manifest riêng, không mang tệp khai chợ → khoá từ bảng tên.
+  if (marketplacePath === MARKETPLACE_GOI && !existsSync(marketplacePath) && existsSync(path.join(GOI, '.claude-plugin', 'plugin.json'))) return `${GOI_ROAD_MAP}@${HG.CHO}`;
   let j;
   try { j = JSON.parse(readFileSync(marketplacePath, 'utf8')); } catch { return null; }
   const p = (Array.isArray(j.plugins) ? j.plugins : []).find(x => x && x.name === GOI_ROAD_MAP);
@@ -175,7 +181,7 @@ if (isMain) {
   root = path.resolve(root);
   if (!existsSync(root) || !statSync(root).isDirectory()) thoat(4, `--root không phải thư mục: ${root}`);
   const khoa = khoaBat();
-  if (!khoa) thoat(2, 'gói không đọc được .claude-plugin/marketplace.json hoặc không có gói road-map');
+  if (!khoa) thoat(2, `gói không đọc được .claude-plugin/marketplace.json hoặc không có gói ${GOI_ROAD_MAP}`);
   let b;
   try { b = docBat(root, khoa); } catch (e) { if (e.ma) thoat(e.ma, e.message); throw e; }
   if (!b.bat) { process.stdout.write(`${DONG_CHUA_CAI}${b.chiLocal ? ` · ${DONG_CHI_LOCAL}` : ''}\n`); process.exit(0); }
