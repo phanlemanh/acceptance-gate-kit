@@ -739,8 +739,9 @@ const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff && !v.daKhep).map(
 // cửa sổ 2.13 → 2.14 có hai vòng chạy song song ở hai phiên, mỗi phiên tự thấy mình
 // là vòng duy nhất, con số chỉ lộ khi mốc đếm. Ở đây biến «tối đa một» từ lời dặn
 // thành số trên thẻ — không cổng, không lệnh.
-// Chỉ áp cho KHO KIT (mọi vòng ở đó là vòng meta): gốc có `.claude-plugin/plugin.json`
-// mang tên acceptance-gate. Lớp vendored ở repo tiêu thụ không mang manifest đó.
+// Chỉ áp cho KHO KIT (mọi vòng ở đó là vòng meta): kho mang manifest của gói lõi — ở gốc (`.claude-plugin/plugin.json`,
+// bố cục hôm nay) hoặc ở thư mục `source` của một mục trong `.claude-plugin/marketplace.json` ở gốc (bố cục plugins/<tên>/,
+// hồ sơ goi-cheo-loi-dieu-phoi). Tên gói lõi tra theo vai từ bảng tên. Lớp vendored ở repo tiêu thụ không mang manifest đó.
 // Mốc = commit gần nhất đổi dòng version của manifest (lần cắt số gần nhất).
 // «Mở» = contract.md có status hợp lệ NGOÀI DA_THONG_CONG_2 — hỏi lib, không chép.
 // «Sinh sau mốc» = contract.md KHÔNG có trong cây của commit mốc: đúng cả với nhánh
@@ -749,15 +750,29 @@ const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff && !v.daKhep).map(
 // «Chưa biết» (không phải kho git, không tìm được mốc) → moc/n null, không cờ.
 const metaOpen = (() => {
   const kq = { applies: false, moc: null, slugs: [], n: null, flag: false };
-  const r = read(path.join(root, '.claude-plugin', 'plugin.json'));
-  if (r.err || r.t == null) return kq;
-  try { if (JSON.parse(r.t).name !== 'acceptance-gate') return kq; } catch { return kq; }
+  const tenLoi = require(path.join(__dirname, '..', 'lib', 'ho-goi.cjs')).tenTheoVai('loi');
+  const ungVien = ['.claude-plugin/plugin.json'];
+  const mk = read(path.join(root, '.claude-plugin', 'marketplace.json'));
+  if (!mk.err && mk.t != null) {
+    try {
+      for (const p of JSON.parse(mk.t).plugins || []) {
+        const s = String((p && p.source) || '').replace(/^\.\//, '').replace(/\/+$/, '');
+        if (s && s !== '.' && !s.split('/').includes('..')) ungVien.push(path.posix.join(s, '.claude-plugin', 'plugin.json'));
+      }
+    } catch { /* marketplace.json hỏng: chỉ còn ứng viên ở gốc */ }
+  }
+  const manifest = ungVien.find(rel => {
+    const r = read(path.join(root, rel));
+    if (r.err || r.t == null) return false;
+    try { return JSON.parse(r.t).name === tenLoi; } catch { return false; }
+  });
+  if (!manifest) return kq;
   kq.applies = true;
   const gq = a => {
     try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).trim(); }
     catch { return null; }
   };
-  const moc = gq(['log', '-1', '--format=%H', '-G', '"version":', '--', '.claude-plugin/plugin.json']);
+  const moc = gq(['log', '-1', '--format=%H', '-G', '"version":', '--', manifest]);
   if (!moc || !/^[0-9a-f]{40}$/.test(moc)) return kq;
   kq.moc = moc;
   const RELEASE = /^release-\d+-\d+-\d+$/;
