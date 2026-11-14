@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/chan-lo-trinh.cjs (lib/**)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-14-goi-cheo-loi-dieu-phoi-design.md
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-11-14T12:09:32Z
 ---
@@ -111,3 +111,9 @@ bản cài, feature-loop × bản chép CI — ba vật không nằm trong danh 
 
 - Lệch có kiểm soát khỏi luật «một cây nguồn» (CLAUDE.md): hộp thư là bản chép có răng từng byte — chủ kho nhận khi chọn
   đường C ở Cổng Đáng.
+- Đo chéo E16 (giả định 4, chạy tay 14/11 trên bản kéo TẠM của delivery-loop `5192aff2` ở scratchpad; Repo Standards
+  `repo-setup-v0.5.0` = `4dc53e0`). Cây dựng bằng `migration/kich-ban/don-nha.mjs`, đếm bằng đúng lệnh của
+  `migration/hat-giong-goi-cheo-loi-dieu-phoi.md` §3 (`kiemKe … treo` dưới `plugins/`, trừ `vendor`):
+  nhánh vòng `d287e067` → cây `e649b331` → **0**; chiều đỏ, gốc `593e6837` → cây `6f36f791` → **5** (ba dòng
+  `dieu-phoi/scripts/` của `commands/acceptance-init.md`, hai import của `scripts/tin-hieu.mjs`). `main` cục bộ cũ
+  `c8fa5a65` không dựng được (khuôn chạm `.nvmrc` ngoài danh sách) — không phải gốc của vòng.
