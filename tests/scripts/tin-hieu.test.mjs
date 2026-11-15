@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -91,7 +92,7 @@ const EV = slug => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS
 const OPP = `---\nschema_version: 1\nslug: x\nfeature: viec x\nowner: x@y.z\nstage: discovery\ndecision:\n---\n\n## Vấn đề & ai gặp\n\nNgười dùng X.\n`;
 const KHAI = 'tin_hieu:\n  nguon: tin-hieu\n  gom: docs/gom\n';
 // Trạng thái hồ sơ rút từ lib (RT13: tệp ca không viết cứng chữ trạng thái) — «đã giao» = tập của lưới trước-gộp.
-const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = createRequire(import.meta.url)(tep('lib/workspace-record.cjs', { thuMuc: KIT }));
 const DA_GIAO_TT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
 const GIAO = WR.DA_THONG_CONG_2[0];
 let khoN = 0;

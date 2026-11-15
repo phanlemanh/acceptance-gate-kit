@@ -132,6 +132,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'findAcceptanceConfig', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },
   { file: 'lib/evidence-core.cjs', name: 'frontmatterField', kind: 'function', since: '2.9.0', why: 'làn gọi (chụp hồ sơ đã thông cổng)' },
+  { file: 'lib/evidence-core.cjs', name: 'findGitRoot', kind: 'function', since: '1.39.1', why: 'recheck gọi (tìm gói lõi ở thư mục con — hồ sơ phan-du-bo-cuc-moi)' },
   { file: 'lib/workspace-record.cjs', name: 'DA_THONG_CONG_2', kind: 'array', since: '2.3.0', why: 'làn gọi (chụp hồ sơ đã thông cổng — hai trạng thái đã thông Cổng Bằng chứng, hỏi lib không chép)' },
   // Hàng ĐIỀU KIỆN (khoá `khi`): chỉ đòi khi kho bật khoá — kho không bật chạy y như trên bộ máy cũ
   // (hồ sơ lan-ghim-lai-theo-paths AC-10). Hàng thiếu `khi` là đòi vô điều kiện như mọi hàng trên.

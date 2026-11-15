@@ -382,7 +382,7 @@ if (want('HK-AC7-dot-bien')) {
     const outA = (a.stdout || '') + (a.stderr || '');
     if (a.status === 0 || !/FAIL: NS-AC9-cu — (bo quet|ban do) ban sau vong khac ban truoc vong/.test(outA)) sai.push(`NS-AC9-cu mutant: exit ${a.status}, «${outA.split('\n').find(l => l.includes('NS-AC9-cu')) || ''}»`);
     const b = chayBanSaoCa('lan-status-not-run.test.mjs',
-      "  for (const k of require(path.join(SELF_ROOT, 'lib', 'workspace-record.cjs')).slugDaKhep(corpusSaoCha))\n    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });\n",
+      "  for (const k of require(tai(SELF_ROOT, 'lib/workspace-record.cjs')).slugDaKhep(corpusSaoCha))\n    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });\n",
       { LSNR_CASES: 'L05' });
     const outB = (b.stdout || '') + (b.stderr || '');
     if (b.status === 0 || !/bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ \(release-2-0-0\)/.test(outB)) sai.push(`L05 mutant: exit ${b.status}, «${outB.split('\n').filter(l => l.includes('L05')).slice(-1)[0] || ''}»`);
