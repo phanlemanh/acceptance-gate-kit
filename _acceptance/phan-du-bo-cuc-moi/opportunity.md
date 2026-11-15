@@ -3,10 +3,10 @@ schema_version: 1
 slug: phan-du-bo-cuc-moi
 feature: «Bộ kiểm và phần sản phẩm còn bám bố cục phẳng chạy xanh ở cả bố cục hôm nay lẫn bố cục plugins/<tên>/ với tên plugin mới»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:                   # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-11-15T01:36:00Z   # chủ kho gõ «làm · K3 lối a · neo như ô · ngưỡng như ô» trong phiên vòng, máy ghi hộ
 prototype:
   base_commit:
   disposition:
@@ -112,12 +112,12 @@ Không dựng. Lớp lỗi đã đo bằng năm lượt của B2 (bảng trên) 
 
 ## Cổng 0
 
-- **decision = …** (chủ kho điền)
+- **decision = build** Chủ kho quyết 15/11 trong phiên vòng: «làm · K3 lối a · neo như ô · ngưỡng như ô».
 - **disposition = …** Không áp dụng (không dựng prototype).
-- **Ngưỡng UAT chốt cùng lúc ký:** ba dòng SỐNG, CHẾT, timebox ở mục Ngưỡng.
-- **Neo (máy chọn):** `_acceptance/goi-cheo-loi-dieu-phoi/` — hồ sơ của kho này, đã ký, và chính «Out of scope» của nó
+- **Ngưỡng UAT chốt cùng lúc ký:** «ngưỡng như ô» — ba dòng SỐNG, CHẾT, timebox ở mục Ngưỡng.
+- **Neo (máy chọn, chủ kho giữ «như ô»):** `_acceptance/goi-cheo-loi-dieu-phoi/` — hồ sơ của kho này, đã ký, và chính «Out of scope» của nó
   để lại việc này. Lối khác: `_acceptance/mc11-ten-kho/` (cũng lớp «chỉ gãy khi đổi nhà», nhưng không nêu bộ kiểm).
-- **Chính sách K3 — hồ sơ đã ký mang đường cũ (câu hỏi chỉ chủ kho trả lời, chưa ai chọn):**
+- **Chính sách K3 — hồ sơ đã ký mang đường cũ — chủ kho chọn (a) 15/11:**
 
   | Lối | Làm gì | Được | Mất |
   |---|---|---|---|
