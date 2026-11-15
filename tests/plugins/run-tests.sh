@@ -8066,11 +8066,6 @@ SLUG = '_acceptance/stop-patching-law'
 EV = ROOT / SLUG / 'evidence'
 SRC_REPORT = '_acceptance/card-text-fidelity/evidence-report.md'
 GEN_REL = SLUG + '/make-record.mjs'
-NEEDED = [
-    GEN_REL,
-    SRC_REPORT,
-    'feature-loop/skills/feature-loop/SKILL.md',
-]
 DERIVED = ['bien-ban-vong-2.md']
 FROZEN = [f'chi-dan-{h}-{a}-menh-de.md' for h in ('claude',) for a in ('co', 'khong')]
 ALL = DERIVED + FROZEN
@@ -8079,6 +8074,23 @@ errs = []
 # Moc menh de RUT TU CHINH BO SINH (writer), khong go lai o day (reader) — seam
 # LLM/may viet -> may doc phai co MOT cho dat khuon, khong hai ban chep.
 gen_src = (ROOT / GEN_REL).read_text()
+
+# Cay tam la the gioi cua bo sinh DA KY: bo cuc do bo sinh quy dinh (hang HARNESS.claude,
+# duong phang), nen DICH trong cay tam rut tu chinh bo sinh; NGUON tren cay dang chay giai
+# qua bo dich tests/bo-cuc.mjs (ho so phan-du-bo-cuc-moi) — ho so da ky khong doi byte nao.
+m_h = re.search(r"claude: '([^']*)'", gen_src)
+if not m_h:
+    errs.append('không rút được HARNESS.claude từ make-record.mjs — đích trong cây tạm phải rút từ bộ sinh')
+HARNESS_REL = m_h.group(1) if m_h else None
+
+
+def duong(rel):
+    return subprocess.check_output(['node', str(ROOT / 'tests/bo-cuc.mjs'), 'duong', rel, '--thu-muc', str(ROOT)],
+                                   text=True).strip()
+
+
+# (dich trong cay tam, nguon tren cay dang chay)
+NEEDED = [(GEN_REL, GEN_REL), (SRC_REPORT, SRC_REPORT)] + ([(HARNESS_REL, duong(HARNESS_REL))] if HARNESS_REL else [])
 
 
 def const_of(name):
@@ -8104,10 +8116,10 @@ def build(mutate_report=None, seed=None):
     """Dung mot ROOT tam du file, chay bo sinh o do, tra (proc, {ten: noi dung})."""
     tmp = Path(tempfile.mkdtemp())
     try:
-        for rel in NEEDED:
+        for rel, src in NEEDED:
             dst = tmp / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
-            text = (ROOT / rel).read_text()
+            text = (ROOT / src).read_text()
             if rel == SRC_REPORT and mutate_report:
                 text = mutate_report(text)
             dst.write_text(text)
