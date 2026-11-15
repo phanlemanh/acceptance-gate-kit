@@ -322,10 +322,13 @@ const TU_PHA = [
   { id: 'CU-DO', bo: 'scripts', tep: 'tests/scripts/bo-cuc.test.mjs', cu: "  ['tri-thuc/commands/ghi.md', 'plugins/knowledge/commands/ingest.md'],\n", moi: '', mat: 'BC tri-thuc/commands/ghi.md · cây phẳng' },
   { id: 'CU-DO-DP', bo: 'dieu-phoi', tep: 'tests/dieu-phoi/ten-may-mot-luat.test.mjs', cu: "test('TM-1 khu-hoi',", moi: "test.skip('TM-1 khu-hoi',", mat: 'TM-1 khu-hoi' },
 ];
+export const KHOA_N_CU = ['CY2 <n> khoa executors: bo doc cua kit va bo doc chuan noi CUNG mot chuyen'];
 async function cheDoCu(ctx, args, out) {
   const head = git(GOC, 'rev-parse', 'HEAD'); const base = banGoc(args);
   // Khoá mang chữ số trôi (khoá đích «<n>» của khoa-dich.tsv, vd RT13 đếm hồ sơ của cây) so ở dạng «<n>» cả hai phía.
-  const khoaN = [...new Set(docKhoaDich(KHOA_DICH).map(h => h.khoa).filter(k => k.includes('<n>')))];
+  // Thêm KHOA_N_CU: khoá ngoài khoa-dich.tsv mà chữ số đếm nội dung cây (CY2 đếm khoá executors của
+  // _acceptance/config.yaml — vòng thêm 10 executor pdbm_* của chính nó, nên 766 → 776 dù ca không đổi).
+  const khoaN = [...new Set([...docKhoaDich(KHOA_DICH).map(h => h.khoa).filter(k => k.includes('<n>')), ...KHOA_N_CU])];
   const doi = git(GOC, 'diff', '--name-status', '--no-renames', base, head, '--', 'tests').split('\n').filter(Boolean).map(d => d.split('\t'));
   const cGoc = nhanBan(ctx, base, 'ban-goc'); const cHead = nhanBan(ctx, head, 'head');
   const donVi = new Map(); let soFail = 0; let mat = 0; let dO = 0;
