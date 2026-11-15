@@ -54,8 +54,9 @@ evals:
     expected: >
       exit 0; "PASS: MOI SP — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: SP mã nguồn hết chữ roadmap@delivery-loop
       (scripts/lo-trinh-khoi-tao.mjs)"; ma trận viết trước 2 lệnh × {cũ, mới} × {tệp khai có, thiếu} = 8 dòng "PASS: SP <lệnh>
-      · <bố cục> · <tệp khai> — <kỳ vọng>", kỳ vọng ghim từng ô: cũ+có → bằng bản gốc từng byte; cũ+thiếu → khác bản gốc
-      đúng chữ tên gói (bản gốc in roadmap@delivery-loop, cây in road-map@acceptance-gate-kit — chứng nhánh dự phòng chạy);
+      · <bố cục> · <tệp khai> — <kỳ vọng>", kỳ vọng ghim từng ô: cũ+có → bằng bản gốc từng byte; cũ+thiếu → chan-lo-trinh
+      khác bản gốc (bản gốc null, cây road-map@acceptance-gate-kit), lo-trinh-khoi-tao bằng bản gốc từng byte; mỗi ô đổi tên chợ
+      trên bản sao thì khoá ra đổi theo (chứng đúng nhánh chạy);
       mới+có, mới+thiếu → roadmap@delivery-loop, khoá bật giải được. Chiều đỏ: như E3 cho khoá; chữ còn → "FAIL: SP còn chữ
       viết cứng"; ô lệch kỳ vọng → "FAIL: SP <lệnh> · <bố cục> · <tệp khai> — <dòng đầu khác>".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
