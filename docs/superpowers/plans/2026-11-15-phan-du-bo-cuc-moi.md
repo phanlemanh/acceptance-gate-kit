@@ -81,6 +81,23 @@ scratchpad (`git worktree add <scratchpad>/thu-bo-dich HEAD`), gỡ worktree khi
   hình dạng không phủ một dòng kèm dòng mã; hình dạng nào cần đổi Interfaces của Task 1 thì sửa Task 1 ngay (commit riêng,
   răng bền thêm ô) trước khi sang Task 2. Gỡ worktree tạm. Commit `thu-bo-dich.md`.
 
+### Task 1c: Ba hàm phụ của bộ dịch (rút từ Task 1b, `thu-bo-dich.md`)
+
+**independent:** false (trước Task 6–9) · **phục vụ:** E2 (AC-2)
+
+**Files:** Modify `tests/bo-cuc.mjs`, `tests/scripts/bo-cuc.test.mjs`.
+
+**Interfaces (Produces):**
+- `boPhan(ds: string[], cay) -> string[]` — dịch từng phần tử theo cây; phần tử `.claude-plugin` ở cây không phẳng tách thành
+  `.claude-plugin/marketplace.json` + đường `plugin.json` của lõi; kết quả luôn có `.claude-plugin/marketplace.json`; dùng
+  chung cho `git archive -- …` và `cpSync` (H1, H2).
+- `duong('.claude-plugin', <cây không phẳng>)` ném `bo-cuc: .claude-plugin tách ở <cây> — dùng boPhan` (H2).
+- `tenCho(cay) -> string` — `name` của `.claude-plugin/marketplace.json` ở cây ấy (H7).
+
+- [ ] Ca mới trong `bo-cuc.test.mjs`: `BC-BOPHAN` (danh sách lõi phẳng → kho mới: mỗi phần tử có thật, có tệp khai chợ) ·
+  `BC-TACH` (ném đúng câu) + đối chứng cây phẳng trả `.claude-plugin` · `BC-CHO` (`acceptance-gate-kit` ở cây phẳng,
+  `delivery-loop` ở kho mới). Đỏ trước, xanh sau, commit.
+
 ### Task 2: Thước giữ khoá
 
 **independent:** false (cần Task 1 cho `--chieu-do`) · **phục vụ:** E1, E3–E8, E11, E12, E13 (hạ tầng)
@@ -174,7 +191,7 @@ scratchpad (`git worktree add <scratchpad>/thu-bo-dich HEAD`), gỡ worktree khi
 
 **Files (17, danh sách từ cột `cum=K4-SC` của `khoa-dich.tsv`):** `tests/scripts/{additive-only,chep-tri-thuc-du,ho-so-da-ky-giu-tuoi,hskt,kiem-ban-cai-loi-sua,luot-sua-giu-du,ngay-ky,ngoai-n-tu-dinh-tuyen,pre-merge-doc-lib-theo-kit,run-id-danh-sach-cho-phep,tep-sinh-khong-chan-gop,thiet-ke-nap-tri-thuc,vong-don-le-tra-tri-thuc,yaml-chuan,core-untouched,premerge-repin}.test.mjs`, `tests/scripts/can-cu-s1.ca.mjs`, `tests/scripts/eval-coverage-lint.js` (cùng `giu-tuoi-fixture.mjs` khi chạm).
 
-Luật sửa mỗi chỗ: chuỗi đường nói về cây đang đứng → `duong(rel, {thuMuc: ROOT})`; về commit lịch sử (`git archive`/`git show`/`git diff`/`git log --`) → `pathspec(rel, {kho: ROOT, ref})`; về bản sao gốc gói → `gocGoi`; về kho tiêu thụ giả → KHÔNG dịch. Bốn chỗ xanh giả (ii): `ho-so-da-ky-giu-tuoi.test.mjs:619` + `giu-tuoi-fixture.mjs`, `core-untouched.test.mjs:46` (JR11a), `can-cu-s1.ca.mjs:261,270` (CC-02), `can-cu-s1.ca.mjs:570–573` (KK-4) dùng `pathspec`; `can-cu-s1.ca.mjs:387–390` (CC-05) bỏ phần đường khỏi hằng `VANG_MO_DUN`. `kiem-ban-cai-loi-sua`: lối A — fixture tự khai chợ nguồn `./` (khảo sát B §6). NT13: `--require scripts/dinh-tuyen-may.cjs` + `--root <gocGoi loi>`.
+Luật sửa mỗi chỗ: chuỗi đường nói về cây đang đứng → `duong(rel, {thuMuc: ROOT})`; về commit lịch sử (`git archive`/`git show`/`git diff`/`git log --`) → `pathspec(rel, {kho: ROOT, ref})`; về bản sao gốc gói → `gocGoi`; về kho tiêu thụ giả → KHÔNG dịch. Danh sách thư mục để bung/chép → `boPhan`. Biến, cờ hay biến môi trường mang gốc gói (`CLAUDE_PLUGIN_ROOT`, `--ag-root`, `AG=`) → `gocGoi(…, 'loi')` — ở bố cục phẳng gốc kho trùng gốc gói nên chỗ sót vẫn xanh, phải tìm bằng grep. Thư mục có tệp đổi tên bên trong (`skills/`, `commands/`) → dịch từng mục con, không chép nguyên. Tên chợ → `tenCho`. Mô-đun phụ trợ mà tệp kiểm nhập (vd `gate-fixture.mjs`, `giu-tuoi-fixture.mjs`) sửa cùng tệp kiểm, và đo lại MỌI tệp kiểm nhập mô-đun ấy (grep `import` tên mô-đun), không chỉ tệp trong cụm. Bốn chỗ xanh giả (ii): `ho-so-da-ky-giu-tuoi.test.mjs:619` + `giu-tuoi-fixture.mjs`, `core-untouched.test.mjs:46` (JR11a), `can-cu-s1.ca.mjs:261,270` (CC-02), `can-cu-s1.ca.mjs:570–573` (KK-4) dùng `pathspec`; `can-cu-s1.ca.mjs:387–390` (CC-05) bỏ phần đường khỏi hằng `VANG_MO_DUN`. `kiem-ban-cai-loi-sua`: lối A — fixture tự khai chợ nguồn `./` (khảo sát B §6). NT13: `--require scripts/dinh-tuyen-may.cjs` + `--root <gocGoi loi>`.
 
 - [ ] **Step 1:** `--moi --cum K4-SC` → đỏ, liệt khoá. **Step 2:** sửa từng tệp; sau mỗi tệp `node <tệp>` xanh ở bố cục cũ. **Step 3:** thêm vào `giu-khoa.mjs` ca `K4-SC chốt chống rỗng` (bốn bản sao, mỗi bản đổi pathspec thành đường không có → ca đỏ với `bo-cuc: pathspec rỗng`). **Step 4:** `--moi --cum K4-SC` → `PASS: MOI K4-SC — 77/77 …` + `PASS: K4-SC chốt chống rỗng — 4/4 …`. Commit theo nhóm 3–5 tệp; cập nhật `gui-b2.md`.
 
