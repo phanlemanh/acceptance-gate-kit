@@ -11,6 +11,76 @@ Máy ghi bằng `--ghi-gui-b2`; `--chieu-do` rút lại và so (GUI-B2). Một m
 mục này khỏi bảng vá.
 
 <!-- <<<GUI-B2-VA-THUA -->
+máy ghi: 67/348 mục của va-bo-kiem-b2.json thừa — 60 trên tệp tự đúng đường (bước 6 bỏ qua), 7 không còn khớp sau bước 6 (rút từ HEAD lúc ghi)
+```jsonl
+{"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  for (const tep of ['mo-dot.md', 'tiep-tuc.md']) {","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  assert.ok(loi.includes('bộ lọc Monitor không khớp: mo-dot.md'), loi.join(' | '));\n  assert.ok(loi.includes('bộ lọc Monitor không khớp: tiep-tuc.md'), loi.join(' | '));","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"    if (f === 'mo-dot.md' || f === 'dong-dot.md') {","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"    if (f === 'mo-dot.md') {","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  const p = path.join(sao, 'commands', 'xem.md');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  assert.ok(loi.some((l) => l.startsWith('xem.md:')), `phải nêu xem.md: ${loi.join(' | ')}`);","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  const p = path.join(sao, 'commands', 'mo-dot.md');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  assert.ok(loi.some((l) => l.startsWith('mo-dot.md: trình tự')), `phải nêu trình tự của mo-dot.md: ${loi.join(' | ')}`);","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"const QUET = (gocKit) => path.join(gocKit, 'plugins/acceptance-gate/scripts', 'start-scan.mjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"chuan(quetStart(KIT, kho), KIT)","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"quetStart(KIT, kho)","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  for (const rel of ['lib', 'skills', 'commands', 'plugins/feature-loop/skills',","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"\\/dieu-phoi:","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/trong-dot.test.mjs","cu":"  const t = fs.readFileSync(path.join(GOI, 'commands', 'mo-dot.md'), 'utf8');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/trong-dot.test.mjs","cu":"  const tar = execFileSync('git', ['archive', base, 'plugins/dispatch/scripts'], { cwd: KIT, env: ENV });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/run-tests.sh","cu":"    old_js = dd / \"plugins/acceptance-gate/scripts\" / \"gate-card.js\"","so_lan":1}
+{"tep":"tests/plugins/run-tests.sh","cu":"        for f in (root / \"lib\").iterdir():\n            if f.is_file(): (dst / f.name)","so_lan":1}
+{"tep":"tests/plugins/run-tests.sh","cu":"iso_new / \"plugins/acceptance-gate/scripts\" / \"gate-card.js\"","so_lan":2}
+{"tep":"tests/plugins/run-tests.sh","cu":"iso_old / \"plugins/acceptance-gate/scripts\" / \"gate-card.js\"","so_lan":2}
+{"tep":"tests/plugins/design-pass-nac.test.mjs","cu":"    card = path.join(d, 'plugins/acceptance-gate/scripts', 'gate-card.js');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/lenh-bam-duoc.test.mjs","cu":"for (const d of ['.', 'feature-loop', 'diagram-design', 'dieu-phoi']) {","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/lenh-bam-duoc.test.mjs","cu":"for (const d of ['scripts', 'lib', 'plugins/acceptance-gate/skills/acceptance/references', '_acceptance/config.yaml', 'CONTEXT.md'])","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/lenh-bam-duoc.test.mjs","cu":"    if (!existsSync(path.join(copy, 'lib', m[1])))\n      writeFileSync(path.join(copy, 'lib', m[1]),","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/ra-co-ten.test.mjs","cu":"path.join(R, 'plugins/acceptance-gate/scripts', 'recheck-evidence.cjs'));","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/ra-co-ten.test.mjs","cu":"      cpSync(path.join(ROOT, 'plugins/acceptance-gate/hooks'), path.join(cay, 'hooks'), { recursive: true });\n      cpSync(path.join(ROOT, 'plugins/acceptance-gate/lib'), path.join(cay, 'lib'), { recursive: true });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/ra-co-ten.test.mjs","cu":"  for (const rel of ['plugins/acceptance-gate/scripts/start-scan.mjs', 'plugins/acceptance-gate/scripts/trang-thai-ho-so.cjs', 'plugins/acceptance-gate/scripts/khong-can-nguoi.mjs',\n                     'plugins/acceptance-gate/lib/workspace-record.cjs', 'plugins/acceptance-gate/lib/evidence-core.cjs', 'plugins/acceptance-gate/lib/md-section.cjs', 'plugins/acceptance-gate/lib/ac-line.cjs',\n                     'plugins/acceptance-gate/skills/acceptance/references/opportunity-template.md'])\n    W(old, rel, show(rel));\n  const OLD_SCAN = path.join(old, 'plugins/acceptance-gate/scripts', 'start-scan.mjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/ra-co-ten.test.mjs","cu":"for (const d of ['scripts', 'lib', 'plugins/acceptance-gate/skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(m, d), { recursive: true });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/plugins/ra-co-ten.test.mjs","cu":"for (const d of ['scripts', 'lib', 'plugins/acceptance-gate/skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(mut, d), { recursive: true });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"const p = path.join(T, 'lib', tep), goc","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"  if (moi === goc) throw new Error(`đột biến không áp được vào lib/${tep}: không thấy «${tu.slice(0, 60)}»`);\n  writeFileSync(p, moi);\n  return path.join(T, 'scripts');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"path.join(R, 'plugins/acceptance-gate/scripts', 'recheck-evidence.cjs'));","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"`AG='${ROOT}'`","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/giu-tuoi-fixture.mjs","cu":"const b = { dir, lane: path.join(dir, 'plugins/feature-loop', 'scripts', 'repin-lane.mjs'), agRoot: dir, recheck: path.join(dir, 'plugins/acceptance-gate/scripts', 'recheck-evidence.cjs') };","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/giu-tuoi-fixture.mjs","cu":"'--ag-root', o.agRoot || ROOT,","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/yaml-chuan.test.mjs","cu":"const co = [1, 2].filter(cong => coCua(the(hoSoThe(HAI_LOI, cong), path.join(b, 'plugins/acceptance-gate/scripts', 'gate-card.js')))","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"rmSync(path.join(R, 'plugins/acceptance-gate/lib', 'out-of-contract.cjs'))","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"\"$ROOT/plugins/acceptance-gate/lib/out-of-contract.cjs\"","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"'$ROOT/plugins/acceptance-gate/lib/out-of-contract.cjs'","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"\"${ROOT}/plugins/acceptance-gate/lib/out-of-contract.cjs\"","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"'ban-chep': [['plugins/acceptance-gate/scripts/pre-merge-check.sh', '.'], R],","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"    writeFileSync(p, moi);\n  }\n  for (const f of boLib) rmSync(path.join(cp, 'lib', f));","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"'\"plugins/acceptance-gate/lib/out-of-contract.cjs\"'","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/pre-merge-doc-lib-theo-kit.test.mjs","cu":"node plugins/acceptance-gate/lib/out-of-contract.cjs","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/tep-sinh-khong-chan-gop.test.mjs","cu":"cpSync(path.join(KIT, 'plugins/acceptance-gate/scripts'), path.join(d, 'scripts'), { recursive: true });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/tep-sinh-khong-chan-gop.test.mjs","cu":"cpSync(path.join(KIT, 'plugins/acceptance-gate/lib'), path.join(d, 'lib'), { recursive: true });","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/tep-sinh-khong-chan-gop.test.mjs","cu":"doc(path.join(cu, 'plugins/acceptance-gate/lib', 'workspace-record.cjs'))","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/run-id-danh-sach-cho-phep.test.mjs","cu":"src: readFileSync(path.join(d, 'plugins/feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8') };","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/hskt.test.mjs","cu":"const p = path.join(cp, 'plugins/acceptance-gate/lib', 'workspace-record.cjs'); const src","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/hskt.test.mjs","cu":"'-S', 'hoSoDaKhep', '--', 'plugins/acceptance-gate/lib/workspace-record.cjs')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/hskt.test.mjs","cu":"banSaoMay([[`scripts/${f}`","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/lan-status-not-run.test.mjs","cu":"const lane = path.join(baseDir, 'plugins/feature-loop', 'scripts', 'repin-lane.mjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/lan-status-not-run.test.mjs","cu":"require(path.join(base, 'plugins/acceptance-gate/lib', 'evidence-core.cjs'))","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/lan-status-not-run.test.mjs","cu":"quetKho(path.join(base, 'plugins/acceptance-gate/scripts', 'recheck-evidence.cjs'), accDir)","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/additive-only.test.mjs","cu":"const baseRecheck = showAtBase('plugins/acceptance-gate/scripts/recheck-evidence.cjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs","cu":"'--root', k.root, '--ag-root', kit, ...args],","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/run-id-danh-sach-cho-phep.test.mjs","cu":"'--round', '2', '--ag-root', goc,","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/vong-don-le-tra-tri-thuc.test.mjs","cu":"`AG='${may}' && `","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/run-tests.sh","cu":"\"$HERE/../../scripts\"","so_lan":4}
+{"tep":"tests/scripts/run-tests.sh","cu":"\"$HERE/../../lib\"","so_lan":4}
+{"tep":"tests/scripts/run-tests.sh","cu":"\"$M42/plugins/acceptance-gate/","so_lan":3}
+{"tep":"tests/scripts/s4-args-judgment-inputs.test.mjs","cu":"['plugins/feature-loop', 'scripts', 'lib', 'hooks', 'skills', 'commands', path.join('docs', 'findings', 'assets')]","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/moi-cong-khong-qua-nut.test.mjs","cu":"/^\\s*\\/(acceptance-gate|feature-loop|dieu-phoi):/","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"'--require', 'plugins/acceptance-gate/scripts/dinh-tuyen-may.cjs', '--root', ROOT]","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/can-cu-s1.ca.mjs","cu":"'Không nạp được bộ đọc căn cứ bước thiết kế (plugins/acceptance-gate/scripts/can-cu-s1.cjs)'","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/can-cu-s1.ca.mjs","cu":"--require plugins/acceptance-gate/scripts/can-cu-s1.cjs) && node \"$AG/plugins/acceptance-gate/scripts/can-cu-s1.cjs\"', 'node plugins/acceptance-gate/scripts/can-cu-s1.cjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/tin-hieu.test.mjs","cu":"env: { ...process.env, AG: kit } }","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/tin-hieu.test.mjs","cu":"'node \"$AG/plugins/acceptance-gate/scripts/tin-hieu.mjs\" --root . --rang', 'node \"$AG/plugins/acceptance-gate/scripts/tin-hieu.mjs\" --root . --rangg'","so_lan":1,"ly_do":"tệp tự đúng đường"}
+```
 <!-- GUI-B2-VA-THUA>>> -->
 
 ## 2. Tệp tự đúng đường — bước 6 bỏ qua
