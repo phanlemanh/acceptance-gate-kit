@@ -242,10 +242,9 @@ function timTrongGocGoiLoi(r0, goc) {
   return { ...r0, authFailures, anyFailure, notes: [...(r0.notes || []), ...cuuDuoc] };
 }
 
-const r = timTrongGocGoiLoi(
-  core.evaluateEvidence(payload, { fileDir, configText, configPath }),
-  gocGoiLoi(core.findGitRoot(fileDir)),
-);
+const r = core.evaluateEvidence(payload, { fileDir, configText, configPath });
+// Chỉ thêm (luật additive-only của tệp T3, ca DV5): kết quả xét lại gán vào chính `r`, dòng gốc ở trên giữ nguyên.
+Object.assign(r, timTrongGocGoiLoi(r, gocGoiLoi(core.findGitRoot(fileDir))));
 for (const n of r.notes || []) process.stderr.write(`recheck-evidence: NOTE ${reportPath} — ${n}\n`);
 if (!r.anyFailure) process.exit(0);
 
