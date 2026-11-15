@@ -11,6 +11,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
+import { boPhan } from '../bo-cuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
@@ -865,9 +866,13 @@ test('DP3-12 tai-lieu', () => {
 
 function caySaoLb() {
   const sao = tam('dp3-lb-');
-  for (const rel of ['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/plugins/lenh-bam-duoc.test.mjs',
-    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'])
+  // Cùng nhát với caySaoLb của mo-dot (hồ sơ phan-du-bo-cuc-moi): danh sách giải theo bố cục của cây đang chạy (boPhan kèm
+  // tệp khai chợ) và mang bộ dịch — tệp ca LB2 giải đường qua nó.
+  for (const rel of boPhan(['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/bo-cuc.mjs', 'tests/plugins/lenh-bam-duoc.test.mjs',
+    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'], { thuMuc: KIT })) {
+    fs.mkdirSync(path.dirname(path.join(sao, rel)), { recursive: true });
     fs.cpSync(path.join(KIT, rel), path.join(sao, rel), { recursive: true });
+  }
   return sao;
 }
 const chayLb2 = (goc) => spawnSync(process.execPath, [path.join(goc, 'tests', 'plugins', 'lenh-bam-duoc.test.mjs')], { encoding: 'utf8', env: { ...ENV, LB_CASES: 'LB2' } });
