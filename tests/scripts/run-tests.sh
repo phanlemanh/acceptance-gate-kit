@@ -3867,7 +3867,13 @@ same RL13ctrl 1 "$(printf '%s\n' "$RL13OK" | grep -cx 'ran gap-probe')"
 same RL13ctrl2 0 "$(printf '%s\n' "$RL13OK" | grep -cx 'declared-off gap-probe')"
 RL13="$(env PATH="$RL13BIN" bash "$CHECK" "$R" --base "$RL13_B" 2>&1)"; RL13ST=$?
 # Chot fixture: node gia PHAI that su hong o feat-b, neu khong ca case vo nghia
-hasout RL13fix "GAP-PROBE: NOT ENFORCED reason=node lib/gap-probe.cjs classify thất bại trên feat-b" "$RL13"
+# Cau san pham ghi duong tinh tu GOC GOI loi (khong phai goc kho): rut phan duong qua CLI bo dich voi cay ban sao goc goi
+# (--goi-goc), goc goi lay tu plugin.json cua loi giai o cay dang dung — dung o ca bo cuc phang lan kho moi (luat buoc 6
+# viet lai chuoi duong trong ca nhung khong viet lai cau san pham). CLI hong -> RL13_GP rong -> cau ghim khong khop -> do.
+RL13_KIT="$(cd "$HERE/../.." && pwd)"
+RL13_PJ="$(node "$HERE/../bo-cuc.mjs" duong .claude-plugin/plugin.json --thu-muc "$RL13_KIT")"
+RL13_GP="$(node "$HERE/../bo-cuc.mjs" duong lib/gap-probe.cjs --goi-goc "$RL13_KIT/$(dirname "$(dirname "$RL13_PJ")")" --vai loi)"
+hasout RL13fix "GAP-PROBE: NOT ENFORCED reason=node ${RL13_GP:-<bo-dich-hong>} classify thất bại trên feat-b" "$RL13"
 # DUNG MOT dong so cho gap-probe, va la declared-off (chay MOT PHAN = khai tat)
 same   RL13a 1 "$(printf '%s\n' "$RL13" | grep -cE '^(ran|declared-off) gap-probe$')"
 same   RL13b 1 "$(printf '%s\n' "$RL13" | grep -cx 'declared-off gap-probe')"
