@@ -7,6 +7,9 @@
 //   CU-DO-DP   — cùng hình trên tests/dieu-phoi/ten-may-mot-luat.test.mjs (bộ dieu-phoi đọc TAP tầng ngoài): ca
 //                «TM-1 khu-hoi» thành test.skip → mất khỏi túi đạt → «… mất khoá: TM-1 khu-hoi», mã 1.
 //   GUI-B2-SO  — khối máy của gui-b2.md: bên ghi và bên đọc round-trip; phép so lệch hai chiều có tên, khớp thì rỗng.
+//   RTS        — cột tệp «run-tests.sh» của khoa-dich.tsv chạy lượt bash của tệp shell (scripts: `--manh bash`), không `node`.
+//   KHOA-N     — khoá đích mang «<n>» (RT13) khớp khoá chạy có một dãy số đúng chỗ; khoá khác so nguyên chữ.
+//   BT-III     — biến thể (iii): bước 6 bỏ đúng các tệp khai ở khối GUI-B2-TU-DUNG của gui-b2.md, tệp khác bằng (ii).
 // Mỗi ca CU có ĐỐI CHỨNG DƯƠNG trên cùng fixture: commit «lành» chỉ thêm một dòng chú thích vào cùng tệp → «PASS: CU <tệp>
 // — …», mã 0. Fixture do mã sinh: bản sao `git clone --shared` của kho (lịch sử đủ — ca bộ dịch đọc `git log`), phủ các tệp
 // đang viết của rang/ rồi commit «gốc»; gốc kho suy từ vị trí tệp này; không ghi gì vào cây kit. Hạ tầng hỏng → mã 3.
@@ -69,6 +72,61 @@ try {
   if (GK.docKhoiGuiB2('# không có khối\n') !== null) sai.push('tệp không có khối mà bộ đọc không trả null');
   sai.length ? bad('GUI-B2-SO', sai.join(' · ')) : ok('GUI-B2-SO', `ghi→đọc ${mau.length} mục (có mục nhiều dòng) giữ nguyên; khớp → 0 lệch; thiếu/thừa một mục → đúng một dòng lệch có tên`);
 } catch (e) { console.log(`HẠ TẦNG: GUI-B2-SO — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
+
+// ── RTS — cột tệp «run-tests.sh» chạy lượt bash của chính tệp shell, không `node <tệp shell>` (đối chứng: tệp .test.mjs) ─
+try {
+  const GK = await import(pathToFileURL(path.join(HERE, 'giu-khoa.mjs')).href);
+  const u = GK.donViCua('scripts', 'run-tests.sh', 'RL13fix', KIT);
+  const p = GK.donViCua('plugins', 'run-tests.sh', 'x', KIT);
+  const dc = GK.donViCua('scripts', 'bo-cuc.test.mjs', 'BC-DU', KIT);
+  const sai = [];
+  if (!(u.length === 1 && JSON.stringify(u[0].cmd) === JSON.stringify(['bash', 'tests/scripts/run-tests.sh', '--manh', 'bash']))) sai.push(`scripts: ${JSON.stringify(u.map(x => x.cmd))}`);
+  if (!(p.length === 1 && JSON.stringify(p[0].cmd) === JSON.stringify(['bash', 'tests/plugins/run-tests.sh']))) sai.push(`plugins: ${JSON.stringify(p.map(x => x.cmd))}`);
+  if (!(dc.length === 1 && dc[0].cmd[0] === 'node' && dc[0].cmd[1] === 'tests/scripts/bo-cuc.test.mjs')) sai.push(`đối chứng .test.mjs: ${JSON.stringify(dc.map(x => x.cmd))}`);
+  sai.length ? bad('RTS', sai.join(' · ')) : ok('RTS', 'run-tests.sh (scripts) → «bash tests/scripts/run-tests.sh --manh bash», (plugins) → «bash tests/plugins/run-tests.sh»; đối chứng: bo-cuc.test.mjs → «node …»');
+} catch (e) { console.log(`HẠ TẦNG: RTS — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
+
+// ── KHOA-N — khoá đích «<n>» khớp một dãy số ở đúng chỗ ấy; khoá khác so nguyên chữ ───────────────────────────────────
+try {
+  const GK = await import(pathToFileURL(path.join(HERE, 'giu-khoa.mjs')).href);
+  const { docKhoaDich } = await import(pathToFileURL(path.join(HERE, 'tui-khoa.mjs')).href);
+  const rt = docKhoaDich(path.join(HERE, '..', 'khoa-dich.tsv')).filter(h => h.khoa.startsWith('[RT13]'));
+  const N = '[RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: <n>';
+  const m = new Map([['[RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: 248', 1], ['[RT13] đọc-cũ: broken rỗng; hồ sơ sinh sau mốc: 248', 1], ['X: 248', 1]]);
+  const sai = [];
+  if (!(rt.length === 1 && rt[0].khoa === N)) sai.push(`khoa-dich.tsv RT13: ${JSON.stringify(rt.map(h => h.khoa))}`);
+  if (GK.demKhoa(m, N) !== 1) sai.push(`khoá «<n>» khớp ${GK.demKhoa(m, N)} khoá chạy, chờ 1 (đúng chữ quanh số)`);
+  if (GK.demKhoa(new Map([['[RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: ', 1]]), N) !== 0) sai.push('«<n>» khớp cả chỗ không có số');
+  if (GK.demKhoa(m, 'X: 247') !== 0) sai.push('khoá không «<n>» mà số khác vẫn khớp (chuẩn hoá lan sang khoá khác)');
+  if (GK.demKhoa(m, 'X: 248') !== 1) sai.push('đối chứng: khoá nguyên chữ không khớp chính nó');
+  sai.length ? bad('KHOA-N', sai.join(' · ')) : ok('KHOA-N', 'RT13 ở khoa-dich.tsv mang «<n>»; khớp «…: 248», không khớp chữ khác hay chỗ trống số; khoá thường «X: 247» không khớp «X: 248»');
+} catch (e) { console.log(`HẠ TẦNG: KHOA-N — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
+
+// ── BT-III — biến thể (iii): bước 6 bỏ đúng các tệp khai ở gui-b2.md, mọi tệp khác như (ii) ────────────────────────────
+// Không rỗng: có tệp khai mà (ii) viết khác (i) (bỏ qua thật sự đổi gì), có tệp không khai mà (ii) viết khác (i) (bước 6
+// vẫn chạy). Ba kho mới dựng từ HEAD của kit trong thư mục tạm.
+try {
+  const GK = await import(pathToFileURL(path.join(HERE, 'giu-khoa.mjs')).href);
+  const ds = GK.docTuDung(readFileSync(path.join(HERE, '..', 'gui-b2.md'), 'utf8'));
+  if (!ds || !ds.length) bad('BT-III', 'gui-b2.md không có khối GUI-B2-TU-DUNG');
+  else {
+    const ctx = GK.moCtx(); const head = git(KIT, 'rev-parse', 'HEAD');
+    try {
+      const k = { i: GK.khoMoi(ctx, head, 't-i', { ten: true }), ii: GK.khoMoi(ctx, head, 't-ii', { ten: true, buoc6: true }), iii: GK.khoMoi(ctx, head, 't-iii', { ten: true, buoc6: true, boQua: ds }) };
+      const doc = (d, t) => { try { return readFileSync(path.join(d, t), 'utf8'); } catch { return null; } };
+      const tep = git(k.ii, 'ls-files', '--', 'tests').split('\n').filter(Boolean);
+      const bq = new Set(ds); const sai = []; let khaiDoi = 0; let ngoaiDoi = 0;
+      for (const t of tep) {
+        const [a, b, c] = ['i', 'ii', 'iii'].map(x => doc(k[x], t));
+        if (bq.has(t)) { if (c !== a) sai.push(`tệp khai bị bước 6 viết: ${t}`); if (b !== a) khaiDoi++; }
+        else { if (c !== b) sai.push(`tệp không khai lệch (ii): ${t}`); if (b !== a) ngoaiDoi++; }
+      }
+      if (!khaiDoi) sai.push('không tệp khai nào bị bước 6 viết ở (ii) — bỏ qua không đo gì');
+      if (!ngoaiDoi) sai.push('không tệp ngoài danh sách nào bị bước 6 viết — bước 6 không chạy');
+      sai.length ? bad('BT-III', sai.slice(0, 5).join(' · ')) : ok('BT-III', `${ds.length} tệp khai giữ bản (i) (${khaiDoi} trong số đó bước 6 viết khác ở (ii)); ${tep.length - ds.length} tệp còn lại bằng (ii) (${ngoaiDoi} bước 6 có viết)`);
+    } finally { rmSync(ctx.tmp, { recursive: true, force: true }); }
+  }
+} catch (e) { console.log(`HẠ TẦNG: BT-III — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
 
 // ── fixture kho cho CU-DO / CU-DO-DP ────────────────────────────────────────────────────────────────────────────────
 let F; let GOC;

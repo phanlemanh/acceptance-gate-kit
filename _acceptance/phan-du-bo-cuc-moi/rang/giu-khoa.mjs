@@ -5,12 +5,16 @@
 //                                nạp nó) chạy ở bản gốc và ở HEAD: túi khoá HEAD ⊇ túi khoá bản gốc, mọi ca HEAD xanh;
 //                                cộng CU-LT94 (chốt ngày chạy của LT-94 dưới đồng hồ ghim) và CU-DO/CU-DO-DP (phép so tự
 //                                phá trên bản sao HEAD; GIU_KHOA_BO_TU_PHA=1 bỏ — tệp kiểm của thước đặt nó).
-//   --moi [--cum <cụm>] [--bien-the i|ii|ca-hai] [--base <ref>]
-//                                kho mới dựng từ HEAD — (i) bước 1–3 (`dungKhoMoi`) + luật đổi tên trên tests/; (ii) như
-//                                (i) rồi luật chung bước 6 (`buoc6-chep.mjs`, không bảng vá) — mọi khoá đích của các cụm
-//                                vòng nhận có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ (khoá của khoa-dich.tsv miễn).
-//   --chieu-do                   kho mới (i), bộ dịch thay bằng bản đồng nhất → ca canh mỗi cụm đỏ (đối chứng dương: xanh
-//                                với bộ dịch thật); GUI-B2: mục vá thừa rút bằng máy khớp gui-b2.md.
+//   --moi [--cum <cụm>] [--bien-the i|ii|iii|ca-ba] [--base <ref>]
+//                                kho mới dựng từ HEAD — (i) bước 1–3 (`dungKhoMoi` + luật đổi chữ lên tài liệu ở gốc) +
+//                                luật đổi tên trên tests/; (ii) như (i) rồi luật chung bước 6 (`buoc6-chep.mjs`, không bảng
+//                                vá); (iii) như (ii) nhưng bước 6 bỏ qua các «tệp tự đúng đường» khai ở khối máy
+//                                GUI-B2-TU-DUNG của gui-b2.md (sổ d-20261115T044131Z-24). PASS/FAIL và mã thoát theo (iii)
+//                                — mặc định; (i), (ii) in dòng «TIN:» (số, không chấm). Mọi khoá đích của các cụm vòng nhận
+//                                có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ (khoá của khoa-dich.tsv miễn).
+//   --chieu-do                   kho mới (iii), bộ dịch thay bằng bản đồng nhất → ca canh mỗi cụm đỏ đúng câu ghim (đối
+//                                chứng dương: xanh với bộ dịch thật); GUI-B2: mục vá thừa rút bằng máy khớp gui-b2.md.
+// Khoá đích chứa «<n>» (khoa-dich.tsv) khớp khoá chạy có một dãy số ở đúng chỗ ấy; khoá khác so nguyên chữ.
 //   --ghi-gui-b2                 rút lại mục vá thừa và ghi vào khối máy của gui-b2.md.
 // Bản gốc = merge-base HEAD origin/main (hoặc --base). Mọi cây là bản sao `git clone --shared` của kho ở thư mục tạm
 // (lịch sử đủ, origin/main ghim như kho), HOME rỗng; gốc kho suy từ vị trí tệp này; không ghi gì vào cây kit trừ
@@ -50,7 +54,7 @@ function git(d, ...a) {
 }
 const gitThu = (d, ...a) => { try { return git(d, ...a); } catch { return null; } };
 
-function moCtx() {
+export function moCtx() {
   const tmp = realpathSync(mkdtempSync(path.join(tmpdir(), 'giu-khoa-')));
   const home = path.join(tmp, 'home'); mkdirSync(home);
   return { tmp, home, originMain: gitThu(GOC, 'rev-parse', '--verify', '-q', 'origin/main'), seq: 0, hang: new Map(), cache: new Map() };
@@ -68,10 +72,43 @@ function nhanBan(ctx, sha, nhan) {
 const commitHet = (d, tieuDe) => { git(d, 'add', '-A'); git(d, '-c', 'commit.gpgsign=false', 'commit', '-q', '--allow-empty', '-m', tieuDe); };
 
 const laChu = buf => !buf.subarray(0, 8192).includes(0);
+const doiChuTep = (p, L) => {
+  const buf = readFileSync(p); if (!laChu(buf)) return;
+  let nd = buf.toString('utf8'); const g0 = nd;
+  for (const l of L) nd = nd.replace(l.re, l.thay);
+  if (nd !== g0) writeFileSync(p, nd);
+};
 
-// Kho mới trên một bản sao (lịch sử KIT đủ; cây mới là con của HEAD): bước 1–3, rồi (ten) `luatDoiChu()` của hồ sơ gọi
-// chéo lên MỌI tệp chữ dưới tests/** — đúng cách đã chứng ở Task 1b —, rồi (buoc6) luật chung bước 6 không bảng vá.
-function khoMoi(ctx, sha, nhan, { ten = true, buoc6 = false } = {}) {
+// Tài liệu ở gốc mà bước 3 của kịch bản áp luật đổi chữ (ngoài cây plugins/). Nguồn (đọc, không nạp):
+// ~/dev/delivery-loop/.claude/worktrees/b2-bo-kiem-xanh-o-kho-moi-3db198/migration/kich-ban/don-nha.mjs `buoc3DoiTen`
+// (dòng 142–182: tập = `ls-files plugins` trừ `khong_doi_chu` + `bx.tai_lieu_doi_chu` có thật) và `bang-xep.json`
+// `tai_lieu_doi_chu`, nhánh B2 đỉnh c87ff183; đọc 2026-11-15. `luatDuongDoiTen` của bước 3 chỉ áp trong thư mục plugin
+// (`chiTrong`) nên không chạm các tệp này.
+export const TAI_LIEU_DOI_CHU = ['README.md', 'GUIDE.md', 'QUICKSTART.md', '.claude/settings.json'];
+
+// «Tệp tự đúng đường» — khối máy GUI-B2-TU-DUNG của gui-b2.md (viết tay TRƯỚC khi đo; khai báo, không suy từ kết quả).
+const MO_TD = '<!-- <<<GUI-B2-TU-DUNG -->'; const DONG_TD = '<!-- GUI-B2-TU-DUNG>>> -->';
+export function docTuDung(t) {
+  const i = t.indexOf(MO_TD); const j = t.indexOf(DONG_TD);
+  if (i < 0 || j < i) return null;
+  return t.slice(i, j).split('\n').map(l => l.trim()).filter(l => l.startsWith('tests/'));
+}
+function tuDung(sha) {
+  const ds = existsSync(GUI_B2) ? docTuDung(readFileSync(GUI_B2, 'utf8')) : null;
+  if (!ds || !ds.length) throw new HaTang(`${path.relative(GOC, GUI_B2)} thiếu khối ${MO_TD} (danh sách tệp tự đúng đường của biến thể iii)`);
+  const co = new Set(git(GOC, 'ls-tree', '-r', '--name-only', sha, '--', 'tests').split('\n'));
+  const vang = ds.filter(t => !co.has(t));
+  if (vang.length) throw new HaTang(`tệp tự đúng đường khai ở gui-b2.md không có ở ${sha.slice(0, 8)}: ${vang.join(', ')}`);
+  return ds;
+}
+export const BIEN_THE = ['i', 'ii', 'iii'];
+const CHAM = 'iii'; // biến thể chấm (sổ d-20261115T044131Z-24); các biến thể khác in «TIN:»
+const tuyChon = (bt, sha) => ({ ten: true, buoc6: bt !== 'i', boQua: bt === 'iii' ? tuDung(sha) : null });
+
+// Kho mới trên một bản sao (lịch sử KIT đủ; cây mới là con của HEAD): bước 1–3 (gồm luật đổi chữ lên TAI_LIEU_DOI_CHU),
+// rồi (ten) `luatDoiChu()` của hồ sơ gọi chéo lên MỌI tệp chữ dưới tests/** — đúng cách đã chứng ở Task 1b —, rồi (buoc6)
+// luật chung bước 6 không bảng vá; `boQua` = tệp bước 6 bỏ qua (giữ nguyên nội dung trước bước 6).
+export function khoMoi(ctx, sha, nhan, { ten = true, buoc6 = false, boQua = null } = {}) {
   const d = nhanBan(ctx, sha, nhan);
   let dichGoi;
   try {
@@ -81,21 +118,20 @@ function khoMoi(ctx, sha, nhan, { ten = true, buoc6 = false } = {}) {
     for (const k of Object.keys(TEP)) rmSync(path.join(d, k), { force: true });
     cpSync(path.join(plug, 'plugins'), path.join(d, 'plugins'), { recursive: true });
     cpSync(path.join(plug, '.claude-plugin', 'marketplace.json'), path.join(d, '.claude-plugin', 'marketplace.json'));
+    const L = luatDoiChuKit();
+    for (const t of TAI_LIEU_DOI_CHU) if (existsSync(path.join(d, t))) doiChuTep(path.join(d, t), L);
   } catch (e) { throw new HaTang(`dựng kho mới ${nhan}: ${e.message}`); }
   commitHet(d, 'kho mới: bước 1–3');
   if (ten) {
     const L = luatDoiChuKit();
-    for (const t of git(d, 'ls-files', '-z', '--', 'tests').split('\0').filter(Boolean)) {
-      const p = path.join(d, t); const buf = readFileSync(p); if (!laChu(buf)) continue;
-      let nd = buf.toString('utf8'); const g0 = nd;
-      for (const l of L) nd = nd.replace(l.re, l.thay);
-      if (nd !== g0) writeFileSync(p, nd);
-    }
+    for (const t of git(d, 'ls-files', '-z', '--', 'tests').split('\0').filter(Boolean)) doiChuTep(path.join(d, t), L);
     commitHet(d, 'kho mới: luật đổi tên trên tests/');
   }
   if (buoc6) {
+    const giu = new Map((boQua || []).map(t => [t, readFileSync(path.join(d, t))]));
     try { buoc6BoKiem(d, BX, d, sha, dichGoi); } catch (e) { throw new HaTang(`bước 6 bản chép: ${e.message}`); }
-    commitHet(d, 'kho mới: luật chung bước 6 (không bảng vá)');
+    for (const [t, buf] of giu) writeFileSync(path.join(d, t), buf);
+    commitHet(d, `kho mới: luật chung bước 6 (không bảng vá${giu.size ? `; bỏ qua ${giu.size} tệp tự đúng đường` : ''})`);
   }
   return d;
 }
@@ -118,6 +154,8 @@ const lietTep = (d, re) => { const ra = []; const di = p => { if (!existsSync(p)
 // Một khoá của khoa-dich.tsv → các đơn vị in nó. `goc` = cây để tìm tệp (bố cục cũ).
 export function donViCua(bo, tepKiem, khoa, goc) {
   if (tepKiem === '(đầu)') return [SUITE(bo)];
+  // Cột tệp = run-tests.sh: ca bash của chính tệp shell (scripts: lượt `--manh bash`), không phải `node <tệp shell>`.
+  if (tepKiem === 'run-tests.sh') return [PHAN_BASH(bo)];
   const dir = path.join(goc, 'tests', bo);
   if (tepKiem === '?') {
     const ung = lietTep(dir, /\.(test|ca)\.mjs$/);
@@ -231,6 +269,21 @@ if (laChinh()) {
 
 // ── tiện ích so ──────────────────────────────────────────────────────────────────────────────────────────────────────
 const daDem = (kq, k) => kq.dat.get(k) || 0;
+// Khoá đích có «<n>»: khớp khoá chạy có một dãy số ở đúng chỗ ấy (chữ số trôi theo cây — khoa-dich.tsv dòng đầu). Khoá
+// khác so nguyên chữ.
+const reN = khoa => new RegExp(`^${khoa.split('<n>').map(esc).join('\\d+')}$`);
+export const khopKhoa = (khoa, k) => (khoa.includes('<n>') ? reN(khoa).test(k) : khoa === k);
+export function demKhoa(m, khoa) {
+  if (!khoa.includes('<n>')) return m.get(khoa) || 0;
+  let n = 0; for (const [k, c] of m) if (khopKhoa(khoa, k)) n += c; return n;
+}
+// Túi → túi với mọi khoá khớp một khoá đích «<n>» viết về dạng «<n>» (cho phép so túi và miễn khoá).
+function veDangN(m, khoaN) {
+  if (!khoaN.length) return m;
+  const r = new Map();
+  for (const [k, c] of m) { const kk = khoaN.find(x => khopKhoa(x, k)) || k; r.set(kk, (r.get(kk) || 0) + c); }
+  return r;
+}
 const maNgan = k => { const m = k.match(/^\[?([A-Za-z][\w]*-[\w-]+|[A-Z]+\d+\w*)\]?/); if (m) return m[1]; return k.replace(/\.(test|ca)\.mjs$/, '').slice(0, 40); };
 function lyDoDo(kq, re) {
   const d = [...kq.dongDo].find(([k]) => re.test(k));
@@ -341,18 +394,22 @@ async function phuSP(ctx, cHead, out) {
 }
 async function cheDoMoi(ctx, args, out) {
   const cums = args.cum ? [args.cum] : VONG;
-  const bts = args.bienThe === 'ca-hai' ? ['i', 'ii'] : [args.bienThe];
+  const bts = args.bienThe === 'ca-ba' ? BIEN_THE : [args.bienThe];
+  // Biến thể chấm in PASS/FAIL và tính vào mã thoát; biến thể khác in «TIN:» (số để đọc, không chấm).
+  const nhanDong = (bt, dat) => (bt === CHAM ? (dat ? 'PASS' : 'FAIL') : 'TIN');
+  const cham = (bt, n) => (bt === CHAM ? n : 0);
   out.push(`  ngoài vòng: ${NGOAI_VONG.join(', ')}`);
   const head = git(GOC, 'rev-parse', 'HEAD'); const base = banGoc(args);
   const hang = docKhoaDich(KHOA_DICH);
+  const khoaN = [...new Set(hang.map(h => h.khoa).filter(k => k.includes('<n>')))];
   const cHead = nhanBan(ctx, head, 'cu');
-  const kho = Object.fromEntries(bts.map(bt => [bt, khoMoi(ctx, head, `moi-${bt}`, { ten: true, buoc6: bt === 'ii' })]));
+  const kho = Object.fromEntries(bts.map(bt => [bt, khoMoi(ctx, head, `moi-${bt}`, tuyChon(bt, head))]));
   const dich = hang.filter(h => cums.includes(h.cum)).map(h => ({ ...h, dv: donViCua(h.bo, h.tepKiem, h.khoa, cHead) }));
   const donVi = new Map(); for (const h of dich) for (const u of h.dv) donVi.set(u.id, u);
   const cays = [cHead, ...bts.map(bt => kho[bt])];
   const kq = new Map(await Promise.all(cays.flatMap(c => [...donVi.values()].map(async u => [`${c}\0${u.id}`, await chay(ctx, c, u)]))));
   const lay = (c, u) => kq.get(`${c}\0${u.id}`);
-  let soFail = 0; let tongThieu = 0;
+  let soFail = 0; const tongThieu = Object.fromEntries(bts.map(bt => [bt, 0]));
   for (const cum of cums) {
     const ds = dich.filter(h => h.cum === cum);
     const can = new Map(); for (const h of ds) { const k = `${h.dv.map(u => u.id).join('|')}\0${h.khoa}`; can.set(k, { h, n: (can.get(k)?.n || 0) + 1 }); }
@@ -361,17 +418,18 @@ async function cheDoMoi(ctx, args, out) {
       for (const { h, n } of can.values()) {
         if (!h.dv.length) { for (let i = 0; i < n; i++) thieu.push(`${h.bo}: ${h.khoa} — không tìm được tệp chạy`); continue; }
         const t = gop(...h.dv.map(u => lay(kho[bt], u)));
-        const co = daDem(t, h.khoa);
-        for (let i = co; i < n; i++) ((t.do.get(h.khoa) || 0) > i - co ? dO : thieu).push(`${h.bo}: ${h.khoa}`);
+        const co = demKhoa(t.dat, h.khoa);
+        for (let i = co; i < n; i++) (demKhoa(t.do, h.khoa) > i - co ? dO : thieu).push(`${h.bo}: ${h.khoa}`);
       }
       const ma = [...new Set(ds.map(h => maNgan(h.khoa)))].join(', ');
       const xanh = ds.length - thieu.length - dO.length;
-      if (!thieu.length && !dO.length) out.push(`  PASS: MOI ${cum} — ${ds.length}/${ds.length} khoá đích có mặt và xanh ở kho mới (biến thể ${bt}): ${ma}`);
+      if (!thieu.length && !dO.length) out.push(`  ${nhanDong(bt, true)}: MOI ${cum} — ${ds.length}/${ds.length} khoá đích có mặt và xanh ở kho mới (biến thể ${bt}): ${ma}`);
       else {
-        soFail++; tongThieu += thieu.length + dO.length;
-        out.push(`  FAIL: MOI ${cum} — ${xanh}/${ds.length} khoá đích có mặt và xanh ở kho mới (biến thể ${bt}; thiếu ${thieu.length}, đỏ ${dO.length})`);
-        for (const k of thieu) out.push(`  FAIL: MOI ${cum} — thiếu: ${k} (biến thể ${bt})`);
-        for (const k of dO) out.push(`  FAIL: MOI ${cum} — đỏ: ${k} (biến thể ${bt})`);
+        const nd = nhanDong(bt, false);
+        soFail += cham(bt, 1); tongThieu[bt] += thieu.length + dO.length;
+        out.push(`  ${nd}: MOI ${cum} — ${xanh}/${ds.length} khoá đích có mặt và xanh ở kho mới (biến thể ${bt}; thiếu ${thieu.length}, đỏ ${dO.length})`);
+        for (const k of thieu) out.push(`  ${nd}: MOI ${cum} — thiếu: ${k} (biến thể ${bt})`);
+        for (const k of dO) out.push(`  ${nd}: MOI ${cum} — đỏ: ${k} (biến thể ${bt})`);
       }
     }
     soFail += phuCum(cum, ctx, base, head, cHead, out);
@@ -379,20 +437,23 @@ async function cheDoMoi(ctx, args, out) {
   }
   // túi mỗi tệp ⊇ bố cục cũ — khoá của khoa-dich.tsv miễn (đo ở dòng MOI <cụm>, hoặc cụm đã dời).
   const doi = doiKhoa(BX._bangTen, BX);
-  let tuiDu = 0; let tuiTong = 0;
+  const tuiDu = Object.fromEntries(bts.map(bt => [bt, 0])); let tuiTong = 0;
   for (const u of donVi.values()) {
     const mien = new Map(); for (const h of hang) if (h.bo === u.bo) mien.set(h.khoa, (mien.get(h.khoa) || 0) + 1);
+    tuiTong++;
     for (const bt of bts) {
-      tuiTong++;
-      const moi = lay(kho[bt], u); const cu = tuiCu(lay(cHead, u).dat, moi.dat, doi);
-      const s = soTui(cu, moi.dat, mien);
+      const moi = lay(kho[bt], u); const moiDat = veDangN(moi.dat, khoaN);
+      const cu = veDangN(tuiCu(lay(cHead, u).dat, moi.dat, doi), khoaN);
+      const s = soTui(cu, moiDat, mien);
       const soMien = [...cu].reduce((n, [k, c]) => n + Math.min(c, mien.get(k) || 0), 0);
-      if (!s.thieu.length) { tuiDu++; out.push(`  PASS: MOI túi ${u.id} — ${s.tong - soMien}/${s.tong - soMien} khoá bố cục cũ còn ở kho mới (biến thể ${bt}; miễn ${soMien} khoá của khoa-dich.tsv)`); continue; }
-      soFail++;
-      for (const k of s.thieu) out.push(`  FAIL: MOI túi ${u.id} — thiếu ở kho mới: ${k} (biến thể ${bt})`);
+      if (!s.thieu.length) { tuiDu[bt]++; out.push(`  ${nhanDong(bt, true)}: MOI túi ${u.id} — ${s.tong - soMien}/${s.tong - soMien} khoá bố cục cũ còn ở kho mới (biến thể ${bt}; miễn ${soMien} khoá của khoa-dich.tsv)`); continue; }
+      soFail += cham(bt, 1);
+      out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — ${s.tong - soMien - s.thieu.length}/${s.tong - soMien} khoá bố cục cũ còn ở kho mới (biến thể ${bt})`);
+      for (const k of s.thieu) out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — thiếu ở kho mới: ${k} (biến thể ${bt})`);
     }
   }
-  out.push(`giu-khoa --moi: thiếu ${tongThieu} ở ${cums.length} cụm; túi khoá ${tuiDu}/${tuiTong} tệp ⊇ bố cục cũ`);
+  for (const bt of bts.filter(b => b !== CHAM)) out.push(`  TIN: giu-khoa --moi (biến thể ${bt}): thiếu ${tongThieu[bt]} ở ${cums.length} cụm; túi khoá ${tuiDu[bt]}/${tuiTong} tệp ⊇ bố cục cũ`);
+  if (bts.includes(CHAM)) out.push(`giu-khoa --moi: thiếu ${tongThieu[CHAM]} ở ${cums.length} cụm; túi khoá ${tuiDu[CHAM]}/${tuiTong} tệp ⊇ bố cục cũ`);
   return soFail;
 }
 
@@ -406,11 +467,17 @@ export const CA_CANH = [
   { cum: 'K4-SC', bo: 'scripts', tep: 'core-untouched.test.mjs', ca: 'JR11a', ghim: null },
   { cum: 'K4-PL', bo: 'plugins', tep: '(đầu)', ca: 'P161', ghim: null, them: { ONLY_BLOCK: 'P161' } },
 ];
+// Mục vá thừa theo biến thể chấm (iii): mục trên một tệp tự đúng đường thừa vì bước 6 bỏ qua trọn tệp ấy (không luật
+// đường, không bảng vá); mục khác thừa khi sau bước 1–3 + luật chung bước 6 chuỗi `cu` không còn khớp đúng `so_lan` lần.
+const LY_TU_DUNG = 'tệp tự đúng đường';
 function vaThua(ctx, head) {
-  const d = khoMoi(ctx, head, 'gui-b2', { ten: false, buoc6: true });
+  const boQua = tuDung(head);
+  const d = khoMoi(ctx, head, 'gui-b2', { ten: false, buoc6: true, boQua });
+  const bq = new Set(boQua);
   const va = JSON.parse(readFileSync(VA_B2, 'utf8'));
   const nd = new Map(); const thua = [];
   for (const v of va) {
+    if (bq.has(v.tep)) { thua.push({ tep: v.tep, cu: v.cu, so_lan: v.so_lan, ly_do: LY_TU_DUNG }); continue; }
     const p = path.join(d, v.tep);
     const t = nd.get(v.tep) ?? (existsSync(p) ? readFileSync(p, 'utf8') : '');
     const c = t.split(v.cu).length - 1;
@@ -420,9 +487,10 @@ function vaThua(ctx, head) {
   return { thua, tong: va.length };
 }
 const MO = '<!-- <<<GUI-B2-VA-THUA -->'; const DONG_KHOI = '<!-- GUI-B2-VA-THUA>>> -->';
-// Bên GHI và bên ĐỌC của khối máy ở một chỗ (tệp kiểm đo round-trip): mỗi mục một dòng JSON {tep, cu, so_lan}.
+// Bên GHI và bên ĐỌC của khối máy ở một chỗ (tệp kiểm đo round-trip): mỗi mục một dòng JSON {tep, cu, so_lan[, ly_do]}.
 export function khoiGuiB2(thua, tong) {
-  return [MO, `máy ghi: ${thua.length}/${tong} mục của va-bo-kiem-b2.json không còn khớp (rút từ HEAD lúc ghi)`, '```jsonl', ...thua.map(v => JSON.stringify({ tep: v.tep, cu: v.cu, so_lan: v.so_lan })), '```', DONG_KHOI].join('\n');
+  const td = thua.filter(v => v.ly_do === LY_TU_DUNG).length;
+  return [MO, `máy ghi: ${thua.length}/${tong} mục của va-bo-kiem-b2.json thừa — ${td} trên tệp tự đúng đường (bước 6 bỏ qua), ${thua.length - td} không còn khớp sau bước 6 (rút từ HEAD lúc ghi)`, '```jsonl', ...thua.map(v => JSON.stringify({ tep: v.tep, cu: v.cu, so_lan: v.so_lan, ...(v.ly_do ? { ly_do: v.ly_do } : {}) })), '```', DONG_KHOI].join('\n');
 }
 export function docKhoiGuiB2(t) {
   const i = t.indexOf(MO); const j = t.indexOf(DONG_KHOI);
@@ -440,7 +508,7 @@ export function lechGuiB2(may, ghi) {
 async function cheDoChieuDo(ctx, args, out) {
   const head = git(GOC, 'rev-parse', 'HEAD');
   const cHead = nhanBan(ctx, head, 'cu');
-  const d = khoMoi(ctx, head, 'moi-i', { ten: true });
+  const d = khoMoi(ctx, head, `moi-${CHAM}`, tuyChon(CHAM, head));
   const dich = path.join(d, 'tests', 'bo-cuc.mjs');
   if (!existsSync(dich)) throw new HaTang('kho mới không có tests/bo-cuc.mjs để thay');
   let soFail = 0;
@@ -475,33 +543,11 @@ function soGuiB2(ctx, head, out) {
   if (lech.length) { for (const l of lech) out.push(`  FAIL: GUI-B2 lệch: ${l}`); return 1; }
   out.push(`  PASS: GUI-B2 ${thua.length} mục vá thừa khớp gui-b2.md`); return 0;
 }
-const KHUNG_GUI_B2 = `# Gửi B2 — phan-du-bo-cuc-moi
-
-Danh sách cho kịch bản chuyển nhà của B2 (\`migration/kich-ban/\` của kho \`delivery-loop\`), design §8: mục vá nào của
-\`va-bo-kiem.json\` mà vòng này làm thừa thì kịch bản dừng ở bước 6 («vá không khớp»). Mục 1 do MÁY ghi —
-\`node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --ghi-gui-b2\` (bảng vá chép ở \`rang/va-bo-kiem-b2.json\`, luật bước 6
-chép ở \`rang/buoc6-chep.mjs\`); \`--chieu-do\` rút lại và so (GUI-B2). Đừng sửa tay khối máy.
-
-## 1. Mục vá thừa trong \`va-bo-kiem.json\`
-
-Mục \`{tep, cu}\` mà sau bước 1–3 + luật chung bước 6 trên HEAD, chuỗi \`cu\` không còn khớp đúng \`so_lan\` lần.
-
-${MO}
-${DONG_KHOI}
-
-## 2. Cấu hình kịch bản phải đổi
-
-- \`.claude/settings.json\` — (Task 6 điền: lệnh trong \`permissions.allow\` ở kho mới).
-- \`bo_kiem.tep_goc\` — (Task 10 điền).
-
-## 3. Ca đổi nghĩa và lý do
-
-(Task 6–9 ghi khi sửa.)
-`;
 function ghiGuiB2(ctx, out) {
   const head = git(GOC, 'rev-parse', 'HEAD');
   const { thua, tong } = vaThua(ctx, head);
-  let t = existsSync(GUI_B2) ? readFileSync(GUI_B2, 'utf8') : KHUNG_GUI_B2;
+  if (!existsSync(GUI_B2)) throw new HaTang(`${path.relative(GOC, GUI_B2)} chưa có`);
+  let t = readFileSync(GUI_B2, 'utf8');
   if (!t.includes(MO) || !t.includes(DONG_KHOI)) throw new HaTang(`${path.relative(GOC, GUI_B2)} thiếu khối ${MO}`);
   const khoi = khoiGuiB2(thua, tong);
   t = t.slice(0, t.indexOf(MO)) + khoi + t.slice(t.indexOf(DONG_KHOI) + DONG_KHOI.length);
@@ -512,7 +558,7 @@ function ghiGuiB2(ctx, out) {
 
 // ── chính ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 function docDoiSo(argv) {
-  const a = { cheDo: null, cum: null, bienThe: 'ca-hai', base: null };
+  const a = { cheDo: null, cum: null, bienThe: CHAM, base: null };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i];
     if (['--cu', '--moi', '--chieu-do', '--ghi-gui-b2'].includes(x)) { if (a.cheDo) return null; a.cheDo = x.slice(2); }
@@ -521,7 +567,7 @@ function docDoiSo(argv) {
     else if (x === '--base') a.base = argv[++i];
     else return null;
   }
-  if (!a.cheDo || (a.cum && a.cheDo !== 'moi') || ![null, ...VONG].includes(a.cum) || !['i', 'ii', 'ca-hai'].includes(a.bienThe)) return null;
+  if (!a.cheDo || (a.cum && a.cheDo !== 'moi') || ![null, ...VONG].includes(a.cum) || ![...BIEN_THE, 'ca-ba'].includes(a.bienThe)) return null;
   return a;
 }
 const laChinh = () => { try { return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } };
@@ -530,7 +576,7 @@ if (laChinh()) {
   if (!a) {
     const cum = process.argv.includes('--cum') ? process.argv[process.argv.indexOf('--cum') + 1] : null;
     if (NGOAI_VONG.includes(cum)) process.stderr.write(`giu-khoa: cụm ${cum} ngoài vòng (dời sang vòng kế) — ngoài vòng: ${NGOAI_VONG.join(', ')}\n`);
-    process.stderr.write(`dùng: node giu-khoa.mjs --cu [--base <ref>] | --moi [--cum ${VONG.join('|')}] [--bien-the i|ii|ca-hai] [--base <ref>] | --chieu-do | --ghi-gui-b2\n`);
+    process.stderr.write(`dùng: node giu-khoa.mjs --cu [--base <ref>] | --moi [--cum ${VONG.join('|')}] [--bien-the i|ii|iii|ca-ba] [--base <ref>] | --chieu-do | --ghi-gui-b2\n`);
     process.exit(2);
   }
   const ctx = moCtx(); const out = []; const t0 = Date.now();
