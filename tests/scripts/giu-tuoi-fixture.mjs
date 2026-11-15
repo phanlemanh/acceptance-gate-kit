@@ -19,11 +19,12 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { boPhan, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.join(HERE, '..', '..');
-export const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
-export const RECHECK = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
+export const LANE = tep('feature-loop/scripts/repin-lane.mjs', { thuMuc: ROOT });
+export const RECHECK = tep('scripts/recheck-evidence.cjs', { thuMuc: ROOT });
 export const BAN_TRUOC_VONG = '8fe79f1f41f5c060399f5b09ca2fd49137d9faef';
 
 const tmp = [];
@@ -43,10 +44,15 @@ export function banTai(sha) {
   if (!_ban) _ban = new Map();
   if (_ban.has(sha)) return _ban.get(sha);
   const dir = thuMuc('gt-ban-');
-  const tar = execFileSync('git', ['-C', ROOT, 'archive', sha, 'feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks'], { maxBuffer: 1 << 30 });
+  // Bố cục của bản đọc từ CHÍNH commit ấy; mỗi pathspec phải có thật ở commit (chốt chống rỗng — bộ dịch ném có tên),
+  // và bản mang tệp khai chợ để đường trong nó giải được.
+  const o = { kho: ROOT, ref: sha };
+  const ps = boPhan(['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks'], o).map(x => pathspec(x, o));
+  const tar = execFileSync('git', ['-C', ROOT, 'archive', sha, ...ps], { maxBuffer: 1 << 30 });
   const x = spawnSync('tar', ['-x', '-C', dir], { input: tar });
   if (x.status !== 0) throw new Error(`bung bản ${sha} thất bại: ${String(x.stderr)}`);
-  const b = { dir, lane: path.join(dir, 'feature-loop', 'scripts', 'repin-lane.mjs'), agRoot: dir, recheck: path.join(dir, 'scripts', 'recheck-evidence.cjs') };
+  const t = { thuMuc: dir };
+  const b = { dir, lane: tep('feature-loop/scripts/repin-lane.mjs', t), agRoot: gocGoi(t, 'loi'), recheck: tep('scripts/recheck-evidence.cjs', t) };
   _ban.set(sha, b);
   return b;
 }
@@ -110,7 +116,7 @@ export function mkKhoGiuTuoi(opts = {}) {
   const envOf = (extra) => ({ ...process.env, GG_DAU: dau, ...(extra || {}) });
   // Chạy làn ghim lại cho `slugs`. o.laneFile / o.agRoot: bản làn khác (bản trước vòng) trên CÙNG kho.
   const lane = (slugs, args = [], o = {}) => spawnSync(process.execPath,
-    [o.laneFile || LANE, '--root', root, '--ag-root', o.agRoot || ROOT, ...[].concat(slugs).flatMap(s => ['--slug', s]), ...args],
+    [o.laneFile || LANE, '--root', root, '--ag-root', o.agRoot || gocGoi({ thuMuc: ROOT }, 'loi'), ...[].concat(slugs).flatMap(s => ['--slug', s]), ...args],
     { encoding: 'utf8', env: envOf(o.env), timeout: o.timeout || 300000, killSignal: 'SIGKILL', maxBuffer: 256 * 1024 * 1024 });
   const recheck = (slug, o = {}) => spawnSync(process.execPath, [o.recheck || RECHECK, path.join(root, '_acceptance', slug, 'evidence-report.md')], { encoding: 'utf8', cwd: root });
   // Thêm hồ sơ ở HEAD hiện tại: commit mã + hồ sơ, commit bằng chứng (verified_commit = commit mã), rồi pin đầu
