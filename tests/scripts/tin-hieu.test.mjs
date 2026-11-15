@@ -438,6 +438,11 @@ if (want('TH-9-do')) await chayDo('TH-9-do', th9, [['skills/gom-tin-hieu/SKILL.m
 // của kit: đỏ ở đó là dữ liệu cho Cổng Bằng chứng, không được làm đỏ bộ kiểm chung của mọi PR.
 const HS = path.join(KIT, '_acceptance', 'cua-tin-hieu-gom-nhom');
 const MAU = path.join(HS, 'mau');
+// Lệnh chấm: bản NHÂN ở tests/fixtures/ (hồ sơ phan-du-bo-cuc-moi) — bản trong hồ sơ đã ký nạp bộ đọc tín hiệu theo đường
+// phẳng từ gốc kho nên không chạy ở kho mới; bản nhân giải gốc gói lõi qua bộ dịch. TH-BAN ghim hai bản chỉ khác đúng
+// các dòng viết trước; bản trong hồ sơ giữ nguyên từng byte.
+const CHAM = path.join(HERE, '..', 'fixtures', 'cham-bo-vang.mjs');
+const CHAM_HO_SO = path.join(HS, 'rang', 'cham-bo-vang.mjs');
 const goi = (r, ...a) => git(r, '-c', 'commit.gpgsign=false', ...a);
 async function khoCham(kit, { gomTxt, boVang, dapAnTruoc = true }) {
   const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
@@ -449,7 +454,7 @@ async function khoCham(kit, { gomTxt, boVang, dapAnTruoc = true }) {
 }
 async function th10ong(kit) {
   const sai = [];
-  const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+  const C = await import(pathToFileURL(CHAM).href);
   const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
   const T = await nap(kit, 'scripts/tin-hieu.mjs');
   const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
@@ -485,7 +490,7 @@ if (want('TH-10-do')) {
 }
 if (want('TH-10-do2')) {
   try {
-    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const C = await import(pathToFileURL(CHAM).href);
     const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
     const d = path.join(TMP, `ro-${++khoN}`); mkdirSync(d); const f0 = readdirSync(path.join(MAU, 'tin-hieu')).sort()[0];
     const o = JSON.parse(readFileSync(path.join(MAU, 'tin-hieu', f0), 'utf8')); o.noi_dung.nhan = `giả — sinh từ ${Object.keys(bv.ho_so)[0]}`;
@@ -494,10 +499,51 @@ if (want('TH-10-do2')) {
     if (l.some(x => x.includes(f0))) ok('TH-10-do2', `bộ sinh giữ tên hồ sơ trong nhãn: phép quét kín trả «${l[0].slice(0, 90)}»`); else bad('TH-10-do2', `không bắt: ${JSON.stringify(l)}`);
   } catch (e) { bad('TH-10-do2', loi(e)); }
 }
+// TH-BAN: bản lệnh chấm ở tests/fixtures/ chỉ khác bản trong hồ sơ đúng các dòng VIẾT TRƯỚC ở đây (mỗi dòng đúng phía,
+// đúng thứ tự). Hai bản không đi qua luật đổi chữ của kịch bản (dưới fixtures/) nên phép so cùng nghĩa ở mọi bố cục.
+const TH_BAN_THEM = [
+  '//',
+  '// BẢN NHÂN Ở tests/fixtures/ (hồ sơ phan-du-bo-cuc-moi): bản trong hồ sơ đã ký cua-tin-hieu-gom-nhom giữ nguyên từng byte.',
+  '// Khác bản ấy đúng ba chỗ, ca TH-BAN ghim: nạp bộ dịch, gốc kho mặc định từ tests/fixtures/, và `kit` (gốc kho) giải',
+  '// ra gốc gói lõi qua bộ dịch trước khi nạp bộ đọc tín hiệu.',
+  "import { gocGoi } from '../bo-cuc.mjs';",
+  "const KIT_MAC_DINH = path.resolve(__dirname, '..', '..');",
+  'export async function cham({ root, boVangTep, kit: khoKit = KIT_MAC_DINH }) {',
+  "  const kit = gocGoi({ thuMuc: khoKit }, 'loi');",
+];
+const TH_BAN_BOT = [
+  "const KIT_MAC_DINH = path.resolve(__dirname, '..', '..', '..');",
+  'export async function cham({ root, boVangTep, kit = KIT_MAC_DINH }) {',
+];
+// Khác biệt theo dòng (dãy con chung dài nhất): { them: dòng chỉ ở b, bot: dòng chỉ ở a }, giữ thứ tự.
+const khacDong = (a, b) => {
+  const A = a.split('\n'); const B = b.split('\n');
+  const L = Array.from({ length: A.length + 1 }, () => new Int32Array(B.length + 1));
+  for (let i = A.length - 1; i >= 0; i--) for (let j = B.length - 1; j >= 0; j--)
+    L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const them = []; const bot = []; let i = 0; let j = 0;
+  while (i < A.length && j < B.length) {
+    if (A[i] === B[j]) { i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) bot.push(A[i++]); else them.push(B[j++]);
+  }
+  return { them: [...them, ...B.slice(j)], bot: [...bot, ...A.slice(i)] };
+};
+if (want('TH-BAN')) {
+  try {
+    const lech = (goc, ban) => { const k = khacDong(goc, ban); return deq(k.them, TH_BAN_THEM) && deq(k.bot, TH_BAN_BOT) ? null : k; };
+    const goc = readFileSync(CHAM_HO_SO, 'utf8'); const ban = readFileSync(CHAM, 'utf8');
+    const k = lech(goc, ban);
+    // Đối chứng: một dòng lạ chèn vào bản nhân (trước hàm quét kín) phải làm phép so đỏ, nêu đúng dòng ấy.
+    const LA = '// dòng lạ TH-BAN'; const banLa = ban.replace('\nexport function quetKin(', `\n${LA}\nexport function quetKin(`);
+    const kLa = banLa === ban ? null : lech(goc, banLa);
+    if (k) bad('TH-BAN', `khác ngoài danh sách — thêm: ${JSON.stringify(k.them)} · bớt: ${JSON.stringify(k.bot)}`);
+    else if (!kLa || !kLa.them.includes(LA)) bad('TH-BAN', `đối chứng: ${banLa === ban ? 'lệnh chèn không đổi được bản nhân' : 'chèn dòng lạ mà phép so vẫn im'}`);
+    else ok('TH-BAN', 'bản lệnh chấm ở tests/fixtures/ chỉ khác bản trong hồ sơ đúng các dòng viết trước; thêm một dòng lạ → đỏ');
+  } catch (e) { bad('TH-BAN', loi(e)); }
+}
 // KẾT QUẢ: chỉ khi gọi đích danh (executors.test.tin_hieu_vang).
 if (only.includes('TH-10')) {
   try {
-    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const C = await import(pathToFileURL(CHAM).href);
     const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
     const r = await khoCham(KIT, { gomTxt: readFileSync(path.join(MAU, 'gom-bo-vang.md'), 'utf8'), boVang: bv });
     const x = await C.cham({ root: r, boVangTep: 'vang/bo-vang.json', kit: KIT });
