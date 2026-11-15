@@ -47,8 +47,11 @@ cộng một bảng vá theo tệp. Sau năm lượt đổi cơ học (đo 15/11
   nó hứa (JR11a, CC-02, KK-4, giu-tuoi, NT13, LT-12…); không đỏ nên không nằm trong 598 khoá. 7 trong số đó gốc ở luật
   đổi của kịch bản (đã chuyển B2), 4 gốc ở tệp kiểm kho này.
 
-**Số khoá từng nhóm ở trên là số đo của B2 trên `593e6837`, CHƯA phải số sau #503** — B2 đang đo lại (số dự kiến
-khoảng 07:05–07:25 15/11).
+**Số khoá ở bảng trên là số đo của B2 trên `593e6837`.** Đo lại sau #503 (B2 lượt 6, cây cũ `644e9b49` 5 556 khoá,
+cây kịch bản `8d797a91`; nhánh B2 `ee5dcff8`, `migration/viec-kho-cu-b2.md` §4.1, `ket-qua/phan-du-luot-6.tsv`):
+**thiếu 468**. A 185 → 87 (B2 đang phân loại; phần là mã sản phẩm sẽ vào K2) · K2 52 → 27 (`moi-cong-khong-qua-nut` 17,
+bộ plugins 7, JI12 3; `carry-plan` về đủ 24 — xác nhận bằng đo) · K3 + K1 20 → 20 · K4 340 → 334 · `LT-94`, `LT-94-do`
+đỏ theo lịch ở cả hai cây, ngoài mọi lớp.
 
 **Gốc rễ của K4 (và phần lớn K3):** một đường dẫn chỉ có nghĩa **tại một cây**. Bộ kiểm viết `'scripts/x.mjs'` rồi dùng
 nó cho cây đang đứng, cho bản bung của commit lịch sử, cho bản sao theo bố cục gốc plugin, và cho đường ghi trong hồ sơ
