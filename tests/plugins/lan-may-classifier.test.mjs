@@ -11,13 +11,16 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { duong, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+const CAY = { thuMuc: ROOT };
 // Bộ đọc cấu hình DÙNG CHUNG của kit — CLAUDE.md cấm mọc parser thứ năm.
-const { resolveConfigKey } = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
-const { configList } = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+const { resolveConfigKey } = require(tep('lib/evidence-core.cjs', CAY));
+const { configList } = require(tep('lib/workspace-record.cjs', CAY));
 
 const SETTINGS = path.join(ROOT, '.claude', 'settings.json');
 const CONFIG = path.join(ROOT, '_acceptance', 'config.yaml');
@@ -102,11 +105,18 @@ function suiteCommands(configText) {
   return { keys, cmds, err: err.join(' · ') };
 }
 
+// Hai vế so SAU KHI dịch đường trong lệnh qua bộ dịch (hồ sơ phan-du-bo-cuc-moi, design §3): ở kho mới kịch bản viết lại
+// đường trong config.yaml mà settings.json chỉ đổi chữ — so nguyên văn là đỏ vì bố cục, không vì quan hệ. Chỉ token
+// đường tương đối trần (`a/b/c.ext`) đi qua bộ dịch; đường không thuộc gói nào (tests/…) bộ dịch trả nguyên.
+const RE_DUONG_LENH = /(^|[\s'"=])((?:[\w-]+\/)+[\w.-]+)(?=$|[\s'"])/g;
+const dichLenh = c => String(c).replace(RE_DUONG_LENH, (m, a, p) => a + duong(p, CAY));
+
 // LM1 · AC-1 — QUAN HỆ SONG ÁNH giữa hai vật, không so với hằng gõ tay
 function checkBijection(settingsObj, configText) {
-  const { cmds, err } = suiteCommands(configText);
+  const { cmds: cmds0, err } = suiteCommands(configText);
   if (err) return [err];
-  const allow = allowEntries(settingsObj).map(e => (PERM_RULE.exec(e) || [null, e])[1]);
+  const cmds = cmds0.map(dichLenh);
+  const allow = allowEntries(settingsObj).map(e => dichLenh((PERM_RULE.exec(e) || [null, e])[1]));
   const errs = [];
   for (const c of cmds) if (!allow.includes(c)) errs.push(`THIEU lenh trong permissions.allow: "${c}"`);
   for (const a of allow) if (!cmds.includes(a)) errs.push(`THUA lenh trong permissions.allow: "${a}" — khong co trong feature_loop.suite_keys`);
@@ -353,7 +363,7 @@ function runObj(id, label, check, mutants) {
   else pass(id, `${label} — doi chung duong xanh + ${mutants.length} mutant do dung ve`);
 }
 
-const CMDS = () => suiteCommands(readFileSync(CONFIG, 'utf8')).cmds;
+const CMDS = () => suiteCommands(readFileSync(CONFIG, 'utf8')).cmds.map(dichLenh);
 
 // Nhánh lỗi dùng chung của các bộ kiểm đọc settings/config. Khai MỘT chỗ, ghép vào
 // mọi ca có nhánh ấy. GIỚI HẠN ĐÃ KHAI: việc GHÉP ĐỦ là do người viết giữ, không có
@@ -388,7 +398,7 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
   // sinh ĐỎ GIẢ.
   ['m1-bo-mot-lenh', (s, c) => {
     const t = CMDS()[0];
-    s.permissions.allow = s.permissions.allow.filter(e => (PERM_RULE.exec(e) || [])[1] !== t);
+    s.permissions.allow = s.permissions.allow.filter(e => dichLenh((PERM_RULE.exec(e) || [])[1] || '') !== t);
     return [s, c];
   }, `THIEU lenh trong permissions.allow: "${CMDS()[0]}"`],
   ['m2-them-lenh-la', (s, c) => { s.permissions.allow.push('Bash(echo khong-thuoc-suite)'); return [s, c]; },
@@ -415,7 +425,7 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
   }, 'THIEU lenh trong permissions.allow'],
   ['m4-lech-mot-ky-tu', (s, c) => {
     const t = CMDS()[0];
-    const i = s.permissions.allow.findIndex(e => (PERM_RULE.exec(e) || [])[1] === t);
+    const i = s.permissions.allow.findIndex(e => dichLenh((PERM_RULE.exec(e) || [])[1] || '') === t);
     if (i >= 0) s.permissions.allow[i] = `Bash(${t}X)`;
     return [s, c];
   }, ['THIEU lenh', 'THUA lenh']],

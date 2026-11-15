@@ -9575,8 +9575,16 @@ run "P188 round-trip dieu khoan moi-cong: MOI site nguon khop tung ky tu (E5)" \
 import re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
+# Bảng khai giữ đường bố cục phẳng (khối khai chỗ không đổi byte nào); mọi đường đọc từ bảng hay viết trong ca giải ở
+# cây đang chạy qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi). site(x) = khoá bảng giải ra cùng tệp với x.
+import subprocess
+_DUONG = {}
+def duong(rel):
+    if rel not in _DUONG:
+        _DUONG[rel] = subprocess.check_output(["node", str(root / "tests/bo-cuc.mjs"), "duong", rel, "--thu-muc", str(root)], text=True).strip()
+    return _DUONG[rel]
 law_p = "skills/acceptance/references/human-facing-language.md"
-law = (root / law_p).read_text(encoding="utf-8")
+law = (root / duong(law_p)).read_text(encoding="utf-8")
 RX = re.compile(r"<!-- <<<GATE-INVITE-CLAUSE -->\n([\s\S]*?)\n<!-- GATE-INVITE-CLAUSE>>> -->")
 m = RX.search(law)
 assert m, law_p + ": KHONG rut duoc GATE-INVITE-CLAUSE qua marker"
@@ -9612,7 +9620,11 @@ assert len(SITES) >= 3, "manifest qua it site (grep hong?): " + repr(SITES)
 # tren cac site NGUON. Rang that cua ca nay la LUAT DEM NGUON ben duoi (so
 # voi so khai trong manifest, dung hai huong) — no khong phu thuoc ban chep.
 ALL = list(SITES)
-texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
+texts = {rel: (root / duong(rel)).read_text(encoding="utf-8") for rel in ALL}
+def site(x):
+    hit = [k for k in DECL if duong(k) == duong(x)]
+    assert len(hit) == 1, "khong co (hoac nhieu hon mot) dong manifest giai ra " + x + ": " + repr(hit)
+    return hit[0]
 ANCHOR = " ".join(clause.split(" ")[:3])   # "Moi tin moi"
 def occurrences(t):
     out, i = [], t.find(ANCHOR)
@@ -9705,7 +9717,7 @@ assert any(x.startswith(vic2) for x in b2), "phep do MU voi site mat sach clause
 # chieu do 4 (chip (2)b — lo r3 hinh dang 5): go 1 trong 2 ban o site NGUON.
 # Truoc day chieu nay mo phong go-o-nguon-roi-sync (ban dung mat theo nen hai ve
 # cung giam); sau khi luu kho ban dung, no do thang quan he nguon-vs-manifest.
-vic4 = "feature-loop/skills/feature-loop/SKILL.md"
+vic4 = site("feature-loop/skills/feature-loop/SKILL.md")
 assert vic4 in DECL and DECL[vic4] >= 2, "nan nhan chieu do 4 phai la site nguon khai >=2 ban: " + repr(DECL.get(vic4))
 mut4 = dict(texts)
 mut4[vic4] = texts[vic4].replace(clause, "", 1)
@@ -10008,8 +10020,16 @@ run "P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-sit
 import re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
+# Bảng khai giữ đường bố cục phẳng (khối khai chỗ không đổi byte nào); mọi đường đọc từ bảng hay viết trong ca giải ở
+# cây đang chạy qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi). site(x) = khoá bảng giải ra cùng tệp với x.
+import subprocess
+_DUONG = {}
+def duong(rel):
+    if rel not in _DUONG:
+        _DUONG[rel] = subprocess.check_output(["node", str(root / "tests/bo-cuc.mjs"), "duong", rel, "--thu-muc", str(root)], text=True).strip()
+    return _DUONG[rel]
 law_p = "skills/acceptance/references/human-facing-language.md"
-law = (root / law_p).read_text(encoding="utf-8")
+law = (root / duong(law_p)).read_text(encoding="utf-8")
 def block(name, text):
     m = re.search(r"<!-- <<<" + name + r" -->\n([\s\S]*?)\n<!-- " + name + r">>> -->", text)
     assert m, law_p + ": KHONG rut duoc " + name + " qua marker"
@@ -10037,7 +10057,11 @@ SITES = list(DECL)
 assert len(SITES) == 6, "manifest phai khai dung 6 site nguon, thay " + str(len(SITES))
 # Khong con ban suy ra (ban dung/overlay da luu kho): phep so chay tren SITE NGUON.
 ALL = list(SITES)
-texts = {rel: (root / rel).read_text(encoding="utf-8") for rel in ALL}
+texts = {rel: (root / duong(rel)).read_text(encoding="utf-8") for rel in ALL}
+def site(x):
+    hit = [k for k in DECL if duong(k) == duong(x)]
+    assert len(hit) == 1, "khong co (hoac nhieu hon mot) dong manifest giai ra " + x + ": " + repr(hit)
+    return hit[0]
 # ---- quan he per-site (chay TRUOC phep so clause de mutant --repo do dich danh)
 rows = [l.strip() for l in block("GATE-ONESHOT-SLOTS", law).splitlines() if re.match(r"^(g1|g2|extra) ", l.strip())]
 g1_labels = [r[3:] for r in rows if r.startswith("g1 ")]
@@ -10093,7 +10117,8 @@ assert sai_so(texts) == [], "ban that sai so ban: " + repr(sai_so(texts))
 print("ONESHOT-SITES: 12 nguon (+6 suy ra)")
 # ---- 4 chieu do, moi chieu qua CHINH cac ham that o tren
 # MUTANT-D: dong manifest thieu so -> parser fail-loud dich danh
-law_mutD = law.replace("commands/approve.md 1", "commands/approve.md", 1)
+vicD = site("commands/approve.md")
+law_mutD = law.replace(vicD + " " + str(DECL[vicD]), vicD, 1)
 assert law_mutD != law, "MUTANT-D khong tac dung"
 print("MUTANT-D: da xoa so ban khoi dong manifest commands/approve.md")
 try:
@@ -10104,7 +10129,7 @@ except AssertionError as e:
 print("     MUTANT-D DO dung: site thieu so ban (fail-loud, khong default)")
 # MUTANT-E: mangle MOT ky tu cua clause trong MOT ban chep -> lech dich danh
 mutE = dict(texts)
-victimE = "commands/signoff.md"
+victimE = site("commands/signoff.md")
 mutE[victimE] = mutE[victimE].replace("câu NGƯỜI gõ", "câu NGUOI gõ", 1)
 assert mutE[victimE] != texts[victimE], "MUTANT-E khong tac dung"
 print("MUTANT-E: da mangle 1 ky tu clause trong ban sao " + victimE)
@@ -10113,7 +10138,7 @@ assert bads and any(victimE in b for b in bads), "MUTANT-E khong bi bat dich dan
 print("     MUTANT-E DO dich danh file: " + bads[0])
 # MUTANT-F: go needle --repo khoi MOT ban sao -> quan he per-site do dich danh
 mutF = dict(texts)
-victimF = "commands/acceptance-status.md"
+victimF = site("commands/acceptance-status.md")
 mutF[victimF] = mutF[victimF].replace("--repo", "--rep0")
 assert mutF[victimF] != texts[victimF], "MUTANT-F khong tac dung"
 print("MUTANT-F: da go needle --repo khoi ban sao " + victimF)
@@ -10122,7 +10147,7 @@ assert any(("site thieu needle --repo: " + victimF) == b for b in badsF), "MUTAN
 print("     MUTANT-F DO dich danh: site thieu needle --repo: " + victimF)
 # MUTANT-G: xoa nhan «Treo» khoi ban sao than signoff -> do dich danh nhan
 mutG = dict(texts)
-victimG = "commands/signoff.md"
+victimG = site("commands/signoff.md")
 mutG[victimG] = mutG[victimG].replace("Treo", "Txeo")
 assert mutG[victimG] != texts[victimG], "MUTANT-G khong tac dung"
 print("MUTANT-G: da xoa nhan Treo khoi ban sao " + victimG)

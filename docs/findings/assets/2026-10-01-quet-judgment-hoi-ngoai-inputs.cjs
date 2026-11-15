@@ -8,7 +8,8 @@
  * Dùng: node 2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs <dev_root>
  * Bản ghi phát hiện: ../2026-10-01-thuoc-biet-truoc-khong-phan-duoc.md
  *
- * Gốc kit suy từ vị trí script (docs/findings/assets → ../../..), không hardcode.
+ * Gốc kit suy từ vị trí script (docs/findings/assets → ../../..), không hardcode; đường của gói lõi và
+ * feature-loop giải qua bộ dịch của bộ kiểm (tests/bo-cuc.mjs) — kho mới đặt gói dưới plugins/<tên>/.
  * Một hồ sơ có nhiều bản (worktree) → lấy bản mtime mới nhất theo kho/slug.
  */
 'use strict';
@@ -17,7 +18,9 @@ const path = require('path');
 const cp = require('child_process');
 
 const KIT = path.resolve(__dirname, '..', '..', '..');
-const ey = require(path.join(KIT, 'lib', 'eval-yaml.cjs'));
+// Đường bố cục phẳng → đường ở cây này (CLI bộ dịch; lỗi bộ dịch in stderr và dừng script, không lùi lặng về phẳng).
+const duong = rel => cp.execFileSync(process.execPath, [path.join(KIT, 'tests', 'bo-cuc.mjs'), 'duong', rel, '--thu-muc', KIT], { encoding: 'utf8' }).trim();
+const ey = require(path.join(KIT, duong('lib/eval-yaml.cjs')));
 const DEV = process.argv[2];
 if (!DEV) { console.error('thiếu <dev_root>'); process.exit(2); }
 
@@ -29,7 +32,7 @@ if (!DEV) { console.error('thiếu <dev_root>'); process.exit(2); }
 // KHÔNG miễn khi inputs có một tệp tên «diff»: tệp diff làm tay là lịch sử đóng băng — mã đổi
 // mà tệp không đổi thì bộ nhớ hội đồng (P3, băm inputs) mang phán quyết cũ sang mã mới
 // (crm gioi-han-duyet-cay-okr E25: tệp 500 dòng chỉ có --stat, hai vòng UNCERTAIN).
-const { DIFF_REQ, hoiNgoaiInputs } = require(path.join(KIT, 'feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs'));
+const { DIFF_REQ, hoiNgoaiInputs } = require(path.join(KIT, duong('feature-loop/scripts/lib/hoi-ngoai-inputs.mjs')));
 // Bộ dò RỘNG (chỉ để đếm, KHÔNG làm chốt): đường dẫn mã trong câu hỏi mà inputs không phủ.
 const CODEPATH = /(?:^|[\s`(«"'])((?:apps|packages|src|lib|scripts|server|app|components|supabase)\/[\w@.\/\[\]()-]+)/g;
 

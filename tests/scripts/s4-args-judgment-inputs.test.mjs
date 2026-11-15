@@ -16,10 +16,14 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, mkdirSync, existsSync, readFileSync, realpathSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { duong, gocGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.join(HERE, '..', '..');
-const S4ARGS = path.join(KIT, 'feature-loop', 'scripts', 's4-args.mjs');
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+const CAY = { thuMuc: KIT };
+const LOI = gocGoi(CAY, 'loi'); // --ag-root là gốc GÓI lõi, không phải gốc kho (ở bố cục phẳng hai gốc trùng nhau)
+const S4ARGS = tep('feature-loop/scripts/s4-args.mjs', CAY);
 let pass = 0, fail = 0;
 const ok0 = (cond, m, d) => { if (cond) { console.log(`  PASS: ${m}`); pass += 1; } else { console.log(`  FAIL: ${m}${d ? ` (${d})` : ''}`); fail += 1; } };
 const git = (cwd, ...a) => execFileSync('git', ['-C', cwd, ...a], { encoding: 'utf8' }).trim();
@@ -53,7 +57,7 @@ function writeEvals(d, inputs) {
 }
 function runArgs(repo, slug = 'demo') {
   const out = path.join(TMP, `args-${Math.random().toString(36).slice(2)}.json`);
-  const r = spawnSync(process.execPath, [S4ARGS, '--slug', slug, '--root', repo, '--ag-root', KIT, '--no-carry', '--out', out],
+  const r = spawnSync(process.execPath, [S4ARGS, '--slug', slug, '--root', repo, '--ag-root', LOI, '--no-carry', '--out', out],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   return { code: r.status, text: `${r.stdout || ''}${r.stderr || ''}`, out, wrote: existsSync(out) };
 }
@@ -154,7 +158,7 @@ group('JI6', 'input trỏ THƯ MỤC → exit 2 «là thư mục, không phải 
 // judgment đòi diff của lượt hoặc bảo chạy lệnh có phán quyết biết trước
 // (UNCERTAIN, bất kể vật), nên s4-args chặn TRƯỚC lượt chấm: exit 2, không sinh
 // tệp, thông điệp nêu hai lối ra. Bộ dò sống ở MỘT module, nạp cả ở đây.
-const HOI = path.join(KIT, 'feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs');
+const HOI = tep('feature-loop/scripts/lib/hoi-ngoai-inputs.mjs', CAY);
 // Nạp LƯỜI: nhóm JI1–JI6 (răng hồ sơ cũ gọi `--only`) không được sập vì module vắng.
 const napHoi = () => { try { return createRequire(import.meta.url)(HOI); } catch { return null; } };
 const RANG = 'câu hỏi đòi thứ hội đồng không đọc được';
@@ -181,7 +185,7 @@ group('JI7', 'judgment hỏi DIFF CỦA LƯỢT → exit 2, không sinh tệp, t
   writeEvalsQ(repo, ['CONTEXT.md'], '>\n      Xét diff của\n      lượt này có giữ luật kho không?');
   // Tiền đề: bộ đọc thật trả xuống dòng NGUYÊN trong khối gấp — nếu nó tự gấp thì
   // phép gộp khoảng trắng của bộ dò thành thừa và đột biến khong-gop phải đo lại.
-  const eyJ = createRequire(import.meta.url)(path.join(KIT, 'lib', 'eval-yaml.cjs'));
+  const eyJ = createRequire(import.meta.url)(tep('lib/eval-yaml.cjs', CAY));
   const qJ = (eyJ.parseEvals(readFileSync(path.join(repo, '_acceptance', 'demo', 'evals.yaml'), 'utf8'), ['question']).find(e => e.id === 'E2') || {}).question || '';
   ok0(qJ.includes('\n'), 'JI7 tiền đề: parseEvals trả khối gấp còn xuống dòng', JSON.stringify(qJ));
   const rg = runArgs(repo);
@@ -230,7 +234,7 @@ group('JI10', 'KHÔNG chặn oan: bốn câu hỏi trong phạm vi inputs → ex
   ok0(!!mod, 'JI10 module bộ dò nạp được', HOI);
   if (!mod) return;
   const { hoiNgoaiInputs } = mod;
-  const ey = createRequire(import.meta.url)(path.join(KIT, 'lib', 'eval-yaml.cjs'));
+  const ey = createRequire(import.meta.url)(tep('lib/eval-yaml.cjs', CAY));
   const acc = path.join(KIT, '_acceptance');
   const texts = existsSync(acc) ? readdirSync(acc).map(s => path.join(acc, s, 'evals.yaml')).filter(f => existsSync(f)).map(f => [f, readFileSync(f, 'utf8')]) : [];
   const quet = (text) => ey.parseEvals(text, ['executor', 'question']).filter(e => e.executor === 'judgment');
@@ -243,7 +247,7 @@ group('JI10', 'KHÔNG chặn oan: bốn câu hỏi trong phạm vi inputs → ex
 });
 
 group('JI11', 'tiền đề của răng: lời giao việc cho judge trong acceptance-verify.js còn MÙ DIFF và CHỈ đọc danh sách Input', () => {
-  const lines = readFileSync(path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8').split('\n').filter(l => l.includes('lens duy nhat') && !/^\s*(\/\/|\*)/.test(l) && l.includes('`'));
+  const lines = readFileSync(tep('feature-loop/workflows/acceptance-verify.js', CAY), 'utf8').split('\n').filter(l => l.includes('lens duy nhat') && !/^\s*(\/\/|\*)/.test(l) && l.includes('`'));
   ok0(lines.length === 1, 'JI11 tìm đúng một dòng dựng lời giao việc judge', `so dong=${lines.length}`);
   ok0(lines.length === 1 && lines[0].includes('KHONG doc diff') && lines[0].includes('CHI duoc doc dung cac file liet ke'),
     'JI11 lời giao việc hội đồng còn mù diff + chỉ đọc Input — tiền đề của răng hỏi-ngoài-inputs (s4-args.mjs); nới hội đồng thì gỡ răng cùng lúc');
@@ -256,8 +260,9 @@ group('JI12', 'bộ dò MỘT nguồn: khuôn chỉ ở module; round-trip — s
   const MANH = { 'hỏi diff': String.raw`\.\.\.\s*HEAD\b`, 'bảo chạy lệnh': String.raw`(Run|Chạy|Chay)\s*:?\s*` };
   const files = [];
   const walk = (dir) => { for (const n of readdirSync(dir, { withFileTypes: true })) { if (n.name === 'node_modules') continue; const p = path.join(dir, n.name); if (n.isDirectory()) walk(p); else files.push(p); } };
-  for (const d of ['feature-loop', 'scripts', 'lib', 'hooks', 'skills', 'commands', path.join('docs', 'findings', 'assets')]) if (existsSync(path.join(KIT, d))) walk(path.join(KIT, d));
-  const MOT = [path.join('feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs')];
+  // Danh sách thư mục viết theo bố cục phẳng, giải từng phần tử ở cây đang chạy (kho mới: plugins/<gói>/…).
+  for (const d of ['feature-loop', 'scripts', 'lib', 'hooks', 'skills', 'commands', 'docs/findings/assets'].map(x => duong(x, CAY))) if (existsSync(path.join(KIT, d))) walk(path.join(KIT, d));
+  const MOT = [duong('feature-loop/scripts/lib/hoi-ngoai-inputs.mjs', CAY)];
   for (const [ten, manh] of Object.entries(MANH)) {
     const coTrong = files.filter(f => readFileSync(f, 'utf8').includes(manh)).map(f => path.relative(KIT, f)).sort();
     ok0(existsSync(HOI) && readFileSync(HOI, 'utf8').includes(manh), `JI12 mảnh khuôn «${ten}» có trong module (đối chứng dương của phép tìm)`);

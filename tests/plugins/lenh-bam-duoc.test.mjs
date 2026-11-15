@@ -9,15 +9,22 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { fileFromTemplate } from '../fixtures/from-template.mjs';
+import { boCuc, duong, gocGoi, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const HFL = path.join(ROOT, 'skills', 'acceptance', 'references', 'human-facing-language.md');
-const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
-const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
-const OPP_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'opportunity-template.md');
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+const CAY = { thuMuc: ROOT };
+const P = rel => tep(rel, CAY);
+const LOI = gocGoi(CAY, 'loi');
+// Đường trong một bản sao PHẲNG (gốc gói lõi = gốc bản sao): tệp của gói lõi → đường trong gói; còn lại → đường từ gốc kho.
+const trongBanSao = rel => { const a = P(rel); return path.relative(a.startsWith(LOI + path.sep) ? LOI : ROOT, a); };
+const HFL = P('skills/acceptance/references/human-facing-language.md');
+const GATE_CARD = P('scripts/gate-card.js');
+const CONTRACT_TPL = P('skills/acceptance/references/contract-template.md');
+const OPP_TPL = P('skills/acceptance/references/opportunity-template.md');
 const require = createRequire(import.meta.url);
-const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
+const { section } = require(P('lib/md-section.cjs'));
 
 let failures = 0;
 const ALL_IDS = ['LB1', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6', 'LB7', 'LB8', 'LB9'];
@@ -38,14 +45,21 @@ const parseTable = hflText => {
     .filter(c => c.length === 3).map(([bare, cmd, kind]) => ({ bare, cmd, kind }));
 };
 const ALLOW_HARNESS = ['goal'];
-// pluginNameOf: prefix → name đọc từ plugin.json (mặc định: các thư mục plugin của kit)
+// pluginNameOf: prefix → name đọc từ plugin.json (mặc định: mọi gói khai trong tệp khai chợ của cây đang chạy)
 const defaultPluginNameOf = () => {
   const map = {};
-  for (const d of ['.', 'feature-loop', 'diagram-design', 'dieu-phoi']) {
-    const pj = path.join(ROOT, d, '.claude-plugin', 'plugin.json');
-    if (existsSync(pj)) map[JSON.parse(readFileSync(pj, 'utf8')).name] = path.join(ROOT, d);
+  for (const vai of Object.keys(boCuc(CAY).goc)) {
+    const d = gocGoi(CAY, vai);
+    const pj = path.join(d, '.claude-plugin', 'plugin.json');
+    if (existsSync(pj)) map[JSON.parse(readFileSync(pj, 'utf8')).name] = d;
   }
   return map;
+};
+// Cột «Tên trần» giữ tên bố cục phẳng; tên hiện hành của tệp lệnh/skill ấy ở cây đang chạy giải qua bộ dịch (kho mới đổi
+// tên tệp: mo-dot → open, cat-luot → scope-slice). Ở bố cục phẳng = chính tên trần.
+const tenHienTai = (prefix, kind, bare) => {
+  const d = duong(`plugins/${prefix}/${kind === 'command' ? `commands/${bare}.md` : `skills/${bare}/SKILL.md`}`, CAY);
+  return kind === 'command' ? path.posix.basename(d, '.md') : path.posix.basename(path.posix.dirname(d));
 };
 // AC-1: bảng ⊆ vật thật
 const checkTable = (rows, plugins) => {
@@ -57,7 +71,8 @@ const checkTable = (rows, plugins) => {
     const [, prefix, name] = m;
     const dir = plugins[prefix];
     if (!dir) { errs.push(`dòng «${r.bare}»: tiền tố lệch — không plugin.json nào có name «${prefix}»`); continue; }
-    if (name !== r.bare) errs.push(`dòng «${r.bare}»: tên sau dấu : là «${name}», lệch cột một`);
+    const ky = tenHienTai(prefix, r.kind, r.bare);
+    if (name !== ky) errs.push(`dòng «${r.bare}»: tên sau dấu : là «${name}», lệch cột một${ky === r.bare ? '' : ` (ở cây này «${r.bare}» là «${ky}»)`}`);
     const ok = r.kind === 'command' ? existsSync(path.join(dir, 'commands', `${name}.md`)) : existsSync(path.join(dir, 'skills', name, 'SKILL.md'));
     if (!ok) errs.push(`dòng «${r.bare}»: không có vật ${r.kind === 'command' ? `commands/${name}.md` : `skills/${name}/SKILL.md`} trong plugin «${prefix}»`);
   }
@@ -144,10 +159,10 @@ if (want('LB1')) {
 // ---------- LB2: điểm bàn giao ⊆ bảng, 0 trần, đối chứng dương per-file bằng vật tiêm (AC-2)
 if (want('LB2')) {
   const errs = [];
-  for (const rel of FILES) if (!existsSync(path.join(ROOT, rel))) errs.push(`vũ trụ thiếu ${rel}`);
+  for (const rel of FILES) if (!existsSync(P(rel))) errs.push(`vũ trụ thiếu ${rel}`);
   const rows = parseTable(readFileSync(HFL, 'utf8')) || [];
   const allowed = new Set(rows.map(r => r.cmd));
-  const now = scan(loadTree(rel => readFileSync(path.join(ROOT, rel), 'utf8')));
+  const now = scan(loadTree(rel => readFileSync(P(rel), 'utf8')));
   if (now.bare.length) errs.push(`còn token trần: ${now.bare.slice(0, 5).map(x => `${x.rel}:${x.line} ${x.tok}`).join(', ')}`);
   if (now.uat.length) errs.push(`còn uat-session thiếu tiền tố: ${now.uat.map(x => `${x.rel}:${x.line}`).join(', ')}`);
   const strange = now.prefixed.filter(x => !allowed.has(x.tok));
@@ -158,7 +173,7 @@ if (want('LB2')) {
   if (now.prefixed.length < 100) errs.push(`vũ trụ teo: chỉ ${now.prefixed.length} token có tiền tố (< 100) — sửa bằng cách xoá câu?`);
   // per-file: mỗi file trong vũ trụ phải THẬT SỰ được đọc (đọc hụt một file là xanh giả)
   for (const rel of FILES) {
-    const one = scan([{ rel, txt: readFileSync(path.join(ROOT, rel), 'utf8') + '\nchạy `/start` rồi `uat-session <slug>`\n' }]);
+    const one = scan([{ rel, txt: readFileSync(P(rel), 'utf8') + '\nchạy `/start` rồi `uat-session <slug>`\n' }]);
     if (!one.bare.some(x => x.rel === rel && x.tok === '/start')) errs.push(`đối chứng dương ${rel}: tiêm /start mà không thấy`);
     if (!one.uat.some(x => x.rel === rel)) errs.push(`đối chứng dương ${rel}: tiêm uat-session mà không thấy`);
   }
@@ -168,7 +183,7 @@ if (want('LB2')) {
   const r0 = scan([{ rel: 'g', txt: 'chạy `/uat-session <slug>`' }]);
   if (!r0.bare.some(x => x.tok === '/uat-session')) errs.push('`/uat-session <slug>` (gạch chéo, không tiền tố) lọt thước');
   // chiều đỏ: chèn vào bản sao start.md
-  const startTxt = readFileSync(path.join(ROOT, 'commands/start.md'), 'utf8');
+  const startTxt = readFileSync(P('commands/start.md'), 'utf8');
   const r1 = scan([{ rel: 'commands/start.md', txt: startTxt + '\nchạy `/start` đi\n' }]);
   if (!r1.bare.some(x => x.tok === '/start' && x.line > 1)) errs.push('chèn `/start` không đỏ nêu file:dòng');
   const r2 = scan([{ rel: 'commands/start.md', txt: startTxt + '\n`uat-session <slug>`\n' }]);
@@ -229,19 +244,20 @@ if (want('LB5')) {
   const copy = tmp();
   // (bản sao cây với gate-card CŨ đã dựng ở trên)
   // CONTEXT.md phải có trong bản sao: cờ glossary-base của bản cũ chỉ bắn khi repo có CONTEXT.md (đối chứng dương cần nó)
-  for (const d of ['scripts', 'lib', 'skills/acceptance/references', '_acceptance/config.yaml', 'CONTEXT.md']) cpSync(path.join(ROOT, d), path.join(copy, d), { recursive: true });
+  for (const d of ['scripts', 'lib', 'skills/acceptance/references', '_acceptance/config.yaml', 'CONTEXT.md']) cpSync(P(d), path.join(copy, trongBanSao(d)), { recursive: true });
+  const CARD_SAO = path.join(copy, trongBanSao('scripts/gate-card.js'));
   const SLUGS = ['repo-khai-plugin', 'vao-co-o-ra-co-ten', 'duong-do-trong-dinh-nghia-xong'];
   for (const s of SLUGS) cpSync(path.join(ROOT, '_acceptance', s), path.join(copy, '_acceptance', s), { recursive: true });
   // SHA CỐ ĐỊNH (main trước chip D #93) — KHÔNG `origin/main`: mốc di động làm «bản cũ» hoá bản mới
   // ngay lần merge kế, đối chứng dương chết im lặng (S4-r1 hồ sơ lenh-tran-tai-lieu-dau-tay).
   const OLD_SHA = 'ba539284';
   const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
-  writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
+  writeFileSync(CARD_SAO, oldSrc);
   // Bản cũ nạp các tệp lib theo TÊN của chính mốc đó (out-of-contract đổi đuôi .js → .cjs ở vòng
   // ho-so-khep-thoi-hoi): chép kèm đúng tệp lib cũ mà bản cũ `require`, rút từ chính mã nguồn cũ.
   for (const m of oldSrc.matchAll(/require\('\.\.\/lib\/([^']+)'\)/g))
-    if (!existsSync(path.join(copy, 'lib', m[1])))
-      writeFileSync(path.join(copy, 'lib', m[1]), execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:lib/${m[1]}`], { encoding: 'utf8' }));
+    if (!existsSync(path.join(copy, trongBanSao('lib'), m[1])))
+      writeFileSync(path.join(copy, trongBanSao('lib'), m[1]), execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:lib/${m[1]}`], { encoding: 'utf8' }));
   // Cặp ĐỔI VĂN đã khai: một cờ GIỮ NGUYÊN vai trò nhưng đổi câu. Không khai ở đây thì
   // LB5 đọc nó thành (mất A + cộng B) và đỏ — đúng ý: đổi văn một cờ phải có chủ đích,
   // không được lẫn vào diff. Khai bằng tiền tố ĐỦ DÀI để không nuốt cờ khác. Khai THỪA
@@ -265,10 +281,10 @@ if (want('LB5')) {
   const kinds = { baseline: 0, glossary: 0, doiVan: 0, cong: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
-  const oldFx = flagsOf(cardHtml(r, 'x', path.join(copy, 'scripts', 'gate-card.js')));
+  const oldFx = flagsOf(cardHtml(r, 'x', CARD_SAO));
   if (oldFx.some(isGlossaryFlag)) kinds.glossary++; else errs.push('đối chứng dương: bản cũ trên fixture Cổng 1 có CONTEXT.md không bắn cờ glossary-base');
   for (const s of SLUGS) {
-    const oldF = flagsOf(cardHtml(copy, s, path.join(copy, 'scripts', 'gate-card.js'))).map(f => f.text);
+    const oldF = flagsOf(cardHtml(copy, s, CARD_SAO)).map(f => f.text);
     const newF = flagsOf(cardHtml(ROOT, s)).map(f => f.text);
     const gone = oldF.filter(t => !newF.includes(t)), added = newF.filter(t => !oldF.includes(t));
     // Khớp cặp đổi-văn TRƯỚC khi phân loại: một cặp chỉ được tính khi CẢ HAI vế có mặt
@@ -328,7 +344,7 @@ if (want('LB7')) {
   const e0 = check(ctx); if (e0.length) errs.push('đối chứng dương: ' + e0.join(' · '));
   const red = check(ctx.replace('_Avoid_: tracking, analytics.', '_Avoid_: tracking, analytics, metric.'));
   if (!red.some(x => x.includes('metric'))) errs.push('thêm lại metric mà không đỏ');
-  const uat = readFileSync(path.join(ROOT, 'skills', 'uat-session', 'SKILL.md'), 'utf8');
+  const uat = readFileSync(P('skills/uat-session/SKILL.md'), 'utf8');
   if (/Số lấy từ tracking/.test(uat)) errs.push('uat-session còn «Số lấy từ tracking»');
   if (!/đường đo đã khai/.test(uat)) errs.push('uat-session chưa nói «đường đo đã khai»');
   if (errs.length) fail('LB7', errs.join(' · ')); else pass('LB7', '_Avoid_ của Đường đo: tracking, không metric; uat-session lấy số từ đường đo đã khai; thêm lại metric → đỏ');
@@ -337,7 +353,7 @@ if (want('LB7')) {
 // ---------- LB8: vị trí khối START-HIEU-KET + ghi chú decided_at (AC-8)
 if (want('LB8')) {
   const errs = [];
-  const md = readFileSync(path.join(ROOT, 'commands', 'start.md'), 'utf8');
+  const md = readFileSync(P('commands/start.md'), 'utf8');
   const iNew = md.indexOf('**Bắt đầu việc mới**'), iHk = md.indexOf('<<<START-HIEU-KET'), iA = md.indexOf('(a) ý còn mơ hồ');
   if (!(iNew > -1 && iNew < iHk && iHk < iA)) errs.push(`vị trí: Bắt đầu=${iNew} HIEU-KET=${iHk} (a)=${iA}`);
   const stub = readFileSync(path.join(ROOT, '_acceptance', 'duong-do-trong-dinh-nghia-xong', 'opportunity.md'), 'utf8');
