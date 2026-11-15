@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/recheck-evidence.cjs và lib/chan-lo-trinh.cjs (t3_paths)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-15-phan-du-bo-cuc-moi-design.md
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-11-15T02:23:54Z
 ---
