@@ -9,24 +9,32 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+// Hồ sơ đã ký ra-co-ten-lam-va-trao ghi đường phẳng và không đổi byte nào: bên ĐỌC dịch về không gian tên của cây.
+const CAY = { thuMuc: ROOT };
+const GOI_LOI = gocGoi(CAY, 'loi');
+// Bản sao gốc gói lõi (scripts/lib/hooks/skills… cùng tương đối với nhau như bộ quét đòi) — đường trong bản sao tính từ gốc gói.
+const trongGoi = rel => path.relative(GOI_LOI, tep(rel, CAY));
+const chepGoi = (ds, dich) => { for (const d of ds) cpSync(tep(d, CAY), path.join(dich, trongGoi(d)), { recursive: true }); };
 const { blockFromTemplate, fileFromTemplate } = await import(path.join(ROOT, 'tests', 'fixtures', 'from-template.mjs'));
-const XS = await import(path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'));
-const REF = p => path.join(ROOT, 'skills', 'acceptance', 'references', p);
+const XS = await import(tep('scripts/khong-can-nguoi.mjs', CAY));
+const REF = p => tep(`skills/acceptance/references/${p}`, CAY);
 const CONTRACT_TPL = REF('contract-template.md');
 const OPP_TPL = REF('opportunity-template.md');
 const EVID_TPL = REF('evidence-report-template.md');
-const SCAN = path.join(ROOT, 'scripts', 'start-scan.mjs');
-const CARD = path.join(ROOT, 'scripts', 'gate-card.js');
-const PMAP = path.join(ROOT, 'scripts', 'product-map.mjs');
-const PREMERGE = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
-const HOOK = path.join(ROOT, 'hooks', 'acceptance-evidence-gate.js');
+const SCAN = tep('scripts/start-scan.mjs', CAY);
+const CARD = tep('scripts/gate-card.js', CAY);
+const PMAP = tep('scripts/product-map.mjs', CAY);
+const PREMERGE = tep('scripts/pre-merge-check.sh', CAY);
+const HOOK = tep('hooks/acceptance-evidence-gate.js', CAY);
 // LUẬT NGƯỠNG hỏi lib sở hữu nó — ca đo giữ bản chép là đúng lớp lỗi hồ sơ này bị bắt
 // HAI vòng liền (S4-r2 chép thresholdState, S4-r4 chép vị từ timebox lệch một ngày).
-const NG = require(path.join(ROOT, 'lib', 'nguong-o-co-hoi.cjs'));
+const NG = require(tep('lib/nguong-o-co-hoi.cjs', CAY));
 const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const UAT_H = NG.UAT_THRESHOLD_HEADING;
 
@@ -143,7 +151,8 @@ const findSlug = (j, slug) => {
 };
 
 // ── bộ đọc thân văn bản: CẮT PHẠM VI rồi đếm hit; mutant gỡ mệnh đề phải ĐỎ ────
-const readRepo = rel => readFileSync(path.join(ROOT, rel), 'utf8');
+// Đường phẳng (hồ sơ đã ký, hàng mệnh đề) giải ở cây đang chạy; đường ngoài gói (`_acceptance/`, `tests/`, tệp gốc) giữ nguyên.
+const readRepo = rel => readFileSync(tep(rel, CAY), 'utf8');
 const cut = (txt, startRe, endRe) => {
   const s0 = txt.search(startRe); if (s0 < 0) return '';
   const rest = txt.slice(s0); const e = rest.slice(1).search(endRe);
@@ -190,7 +199,7 @@ function checkMenhDe(rows) {
 // ── RT1 — enum round-trip khuôn↔lib + usesUat/usesEvidence + khối xanh-sạch ba đầu ──
 if (want('RT1')) {
   const errs = [];
-  const WR = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+  const WR = require(tep('lib/workspace-record.cjs', CAY));
   // Giá trị thứ bảy `da-cham-boi-thuc-te` từ hồ sơ nhan-trang-thai-va-reality (ADR 0020 Đ8).
   const EXPECT = ['draft', 'approved', 'implemented', 'verified', 'signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'];
   const got = WR.NAV_RULES['contract.md'].status.enum;
@@ -205,7 +214,7 @@ if (want('RT1')) {
   const EXPECT_XS = ['verdict-pass', 'bypass', 'enforcement', 'tier', 'uncertain', 'sections'];
   if (JSON.stringify(XANH_SACH) !== JSON.stringify(EXPECT_XS)) errs.push(`khối xanh-sạch = ${JSON.stringify(XANH_SACH)}`);
   // Thứ tự sáu điều kiện trong HAI bản dựng phải khớp thứ tự khối (round-trip ba đầu).
-  const mjsAll = readFileSync(path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'), 'utf8');
+  const mjsAll = readFileSync(tep('scripts/khong-can-nguoi.mjs', CAY), 'utf8');
   // Cắt THÂN HÀM: khối chú thích đầu file cũng nhắc bypass_used/enforcement_mode, dò cả file
   // là đo văn xuôi chứ không đo mã (bắt được ở chính lượt chạy đầu).
   const mjs = mjsAll.slice(mjsAll.indexOf('export function xanhSach'), mjsAll.indexOf('export function khongCanNguoi'));
@@ -332,10 +341,11 @@ if (want('RT3')) {
     const het = sau.findIndex(l => !/^\s{2}/.test(l));
     return sau.slice(0, het < 0 ? sau.length : het).join('\n');
   };
-  // Chạy hook từ một bản sao cây (hooks/ + lib/) để chiều đỏ tiêm được vào vật THẬT.
+  // Chạy hook từ một bản sao cây (hooks/ + lib/) để chiều đỏ tiêm được vào vật THẬT. `cayRoot` là một GỐC GÓI lõi (gói
+  // thật qua bộ dịch, hoặc bản sao chepGoi) — hook tìm lib/ cạnh mình theo bố cục gói.
   const hookTuCay = (cayRoot, filePath, content, existing) => {
     if (existing != null) writeFileSync(filePath, existing); else if (existsSync(filePath)) rmSync(filePath);
-    const r = spawnSync(process.execPath, [path.join(cayRoot, 'hooks', 'acceptance-evidence-gate.js')],
+    const r = spawnSync(process.execPath, [path.join(cayRoot, trongGoi('hooks/acceptance-evidence-gate.js'))],
       { input: JSON.stringify({ tool_name: 'Write', tool_input: { file_path: filePath, content } }), encoding: 'utf8' });
     return { code: r.status, err: r.stderr || '' };
   };
@@ -348,13 +358,13 @@ if (want('RT3')) {
     return khoiLifecycle(r.err);
   });
   {
-    const kh = docLifecycle(ROOT);
+    const kh = docLifecycle(GOI_LOI);
     if (!kh) errs.push('không cắt được khối «Gate-1 lifecycle reference:» từ stderr của hook');
     else {
       if (!kh.includes('machine-cleared')) errs.push('khối lifecycle hook IN RA chưa liệt machine-cleared');
       // QUAN HỆ với enum AC-1: mọi tên trạng thái xuất hiện trong khối phải là thành viên enum.
       // Enum lấy TỪ CHÍNH nguồn AC-1 (lib), không gõ lại — đây là vế «khớp enum AC-1».
-      const ENUM = require(path.join(ROOT, 'lib', 'workspace-record.cjs')).NAV_RULES['contract.md'].status.enum;
+      const ENUM = require(tep('lib/workspace-record.cjs', CAY)).NAV_RULES['contract.md'].status.enum;
       // Chỉ soi các dòng Ở VỊ TRÍ TRẠNG THÁI (dòng `status: …` và dòng chuyển `draft -> …`),
       // tách theo dấu `/` và `->` — không quét cả khối, vì khối còn nhắc pre-merge, Gate 1…
       const viTriTrangThai = kh.split('\n').filter(l => /^\s+(status:|draft ->)/.test(l))
@@ -367,9 +377,8 @@ if (want('RT3')) {
       for (const st of ENUM) if (!kh.includes(st)) errs.push(`enum AC-1 có «${st}» mà khối lifecycle không nhắc`);
       // Chiều đỏ: bản sao cây gỡ machine-cleared khỏi ĐÚNG hai dòng lifecycle → đọc lại phải ĐỎ.
       const cay = tmp('rt3-cay-');
-      cpSync(path.join(ROOT, 'hooks'), path.join(cay, 'hooks'), { recursive: true });
-      cpSync(path.join(ROOT, 'lib'), path.join(cay, 'lib'), { recursive: true });
-      const hp = path.join(cay, 'hooks', 'acceptance-evidence-gate.js');
+      chepGoi(['hooks', 'lib'], cay);
+      const hp = path.join(cay, trongGoi('hooks/acceptance-evidence-gate.js'));
       const goc = readFileSync(hp, 'utf8');
       // tiêm đích danh: chỉ hai dòng THUỘC khối lifecycle
       const tiem = goc.replace(/(\s*'\s*status: approved \/ signed-off )\/ machine-cleared/, '$1')
@@ -402,8 +411,9 @@ function mkGit(slug, o, { evidence = true } = {}) {
   // KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) — đối chứng dương sẽ đỏ, y như đời thật.
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
   for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
-    copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
-  copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+    copyFileSync(tep(`lib/${f}`, CAY), path.join(R, 'lib', f));
+  // Kho tiêu thụ giả nhận bản chép ở đường TỪ GỐC GÓI (đúng như /acceptance-init chép) — không theo bố cục kho kit.
+  copyFileSync(tep('scripts/recheck-evidence.cjs', CAY), path.join(R, trongGoi('scripts/recheck-evidence.cjs')));
   git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
   writeFileSync(path.join(R, 'src', 'app.js'), 'code v2\n');
   mkdirSync(path.join(R, '_acceptance', slug), { recursive: true });
@@ -587,7 +597,7 @@ const oCuaChuoi = (md, chuoi) => {
 // ── RT5 — bảng chữ: 4 khoá mới, nhãn riêng, bucket đúng (phần bản đồ/thẻ ở chặng sau) ──
 if (want('RT5')) {
   const errs = [];
-  const B = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs'));
+  const B = require(tep('scripts/trang-thai-ho-so.cjs', CAY));
   const MOI = {
     'da-giao-may-thong-veto-mo': ['máy thông', 'da-ship'],
     'da-giao-may-thong-xanh-sach': ['máy thông', 'da-ship'],
@@ -880,8 +890,10 @@ if (want('RT6')) {
   // PHÉP QUÉT THẬT trên một root cho trước — tham số hoá để chiều đỏ tiêm vào FILE, không
   // vào một chuỗi nối trong bộ nhớ (chuỗi nối chỉ chứng minh regex chạy, không chứng minh
   // phép quét đọc đúng file và nêu đúng tên — S4-r8 [6]).
+  // `root` là cây thật hoặc bản sao CÙNG bố cục (c6 dưới) — tên phẳng giải theo bố cục cây đang chạy; báo theo tên phẳng.
+  const tai = (root, f) => path.join(root, duong(f, CAY));
   const quetGhi = root => VAN_BAN_NGHI_THUC
-    .filter(f => existsSync(path.join(root, f)) && RE_GHI.test(readFileSync(path.join(root, f), 'utf8')));
+    .filter(f => existsSync(tai(root, f)) && RE_GHI.test(readFileSync(tai(root, f), 'utf8')));
   for (const f of quetGhi(ROOT)) errs.push(`${f}: dạy máy TỰ ĐẶT TAY machine-cleared — cửa ghi duy nhất là khong-can-nguoi.mjs --write (duong-lui-phai-song AC-8)`);
   // Chiều đỏ: dựng cây tạm chứa SÁU văn bản thật, tiêm đúng câu vừa gỡ vào MỘT file, rồi
   // chạy CHÍNH phép quét trên cây đó — phải nêu đúng tên file ấy và KHÔNG nêu năm file kia.
@@ -889,11 +901,11 @@ if (want('RT6')) {
     const c6 = tmp('rt6-');
     try {
       for (const f of VAN_BAN_NGHI_THUC) {
-        const d = path.join(c6, f); mkdirSync(path.dirname(d), { recursive: true });
+        const d = tai(c6, f); mkdirSync(path.dirname(d), { recursive: true });
         writeFileSync(d, readRepo(f));
       }
       if (quetGhi(c6).length) errs.push('chiều đỏ RT6: bản sao NGUYÊN VẸN đã đỏ — đối chứng dương hỏng');
-      const dich = path.join(c6, FL);
+      const dich = tai(c6, FL);
       const truoc = readFileSync(dich, 'utf8');
       writeFileSync(dich, truoc + '\n(3) set contract `status: machine-cleared` rồi commit.\n');
       if (readFileSync(dich, 'utf8') === truoc) errs.push('chiều đỏ RT6: lệnh tiêm không đổi được file');
@@ -959,7 +971,8 @@ if (want('RT13')) {
     return x[1].trim().split('\n').map(l => l.trim()).filter(Boolean);
   };
   const KHAC = block('KHAC-BIET-DOC-CU').map(l => l.split(/\s+/));
-  const GACH = block('BO-DOC-KHAI-GACH').map(l => l.split(/\s+/)[0]);
+  // Khối khai gạch ghi đường PHẲNG (hồ sơ đã ký): so trong không gian tên của cây đang chạy — `git grep` ra đường của cây.
+  const GACH = block('BO-DOC-KHAI-GACH').map(l => duong(l.split(/\s+/)[0], CAY));
 
   const keyOfAll = j => {
     const m = new Map();
@@ -974,12 +987,16 @@ if (want('RT13')) {
 
   // (ii) bản CŨ tại mốc, dựng vào thư mục tạm rồi chạy trên CÙNG cây
   const old = tmp('rt13-old-');
-  const show = rel => execFileSync('git', ['-C', ROOT, 'show', `${MOC_CU}:${rel}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  // Cây `old` giữ bố cục CỦA MỐC: mỗi đường giải ở commit mốc (pathspec — rỗng thì lỗi có tên), ghi ở đúng đường ấy.
+  const MOC = { kho: ROOT, ref: MOC_CU };
+  const show = d => execFileSync('git', ['-C', ROOT, 'show', `${MOC_CU}:${d}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
   for (const rel of ['scripts/start-scan.mjs', 'scripts/trang-thai-ho-so.cjs', 'scripts/khong-can-nguoi.mjs',
                      'lib/workspace-record.cjs', 'lib/evidence-core.cjs', 'lib/md-section.cjs', 'lib/ac-line.cjs',
-                     'skills/acceptance/references/opportunity-template.md'])
-    W(old, rel, show(rel));
-  const OLD_SCAN = path.join(old, 'scripts', 'start-scan.mjs');
+                     'skills/acceptance/references/opportunity-template.md']) {
+    const d = pathspec(rel, MOC);
+    W(old, d, show(d));
+  }
+  const OLD_SCAN = path.join(old, pathspec('scripts/start-scan.mjs', MOC));
   let jOld = null;
   try { jOld = scan(ROOT, OLD_SCAN); }
   catch (e) { errs.push(`bản cũ không chạy được: ${String(e.message).slice(0, 160)}`); }
@@ -1056,7 +1073,7 @@ if (want('RT13')) {
   const evalsY = readRepo('_acceptance/ra-co-ten-lam-va-trao/evals.yaml');
   const testSrc = readRepo('tests/plugins/ra-co-ten.test.mjs');
   const khaiPaths = new Set((evalsY.match(/paths: \[([^\]]+)\]/g) || [])
-    .flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => x.trim())));
+    .flatMap(l => l.replace(/^paths: \[/, '').replace(/\]$/, '').split(',').map(x => duong(x.trim(), CAY))));
   // Lột chú thích khỏi nguồn ca TRƯỚC khi tìm: dòng //… và dòng thân khối /*…*/ (mở bằng
   // /* hoặc *) không phải mã chạy. Lột THEO DÒNG, không regex [\s\S] xuyên file: nguồn ca
   // chứa chuỗi glob `docs/**` nên một regex khối sẽ nuốt nhầm cả trăm dòng mã thật —
@@ -1218,10 +1235,11 @@ if (want('RT13')) {
     for (const [slug, fragment, thay] of MUTANT) {
       if (src.split(fragment).length !== 2) { errs.push(`mutant ${slug}: mỏ neo «${fragment}» không đúng một lần trong bộ quét`); continue; }
       const m = tmp('rt13-mutant-');
-      for (const d of ['scripts', 'lib', 'skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(m, d), { recursive: true });
-      writeFileSync(path.join(m, 'scripts', 'start-scan.mjs'), src.replace(fragment, thay));
+      chepGoi(['scripts', 'lib', 'skills/acceptance/references'], m);
+      const mScan = path.join(m, trongGoi('scripts/start-scan.mjs'));
+      writeFileSync(mScan, src.replace(fragment, thay));
       let eMut;
-      try { eMut = soi(scan(root, path.join(m, 'scripts', 'start-scan.mjs'))); }
+      try { eMut = soi(scan(root, mScan)); }
       catch (err) { errs.push(`mutant ${slug}: bản sao không chạy được: ${String(err.message).slice(0, 120)}`); rmSync(m, { recursive: true, force: true }); continue; }
       rmSync(m, { recursive: true, force: true });
       if (eMut.some(l => l.startsWith(`${slug}: cờ qua-timebox thiếu`))) batDuoc.push(slug);
@@ -1238,7 +1256,7 @@ if (want('RT13')) {
 if (want('RT14')) {
   const errs = [];
   const D = '_acceptance/duong-do-trong-dinh-nghia-xong';
-  const { section: sec2 } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
+  const { section: sec2 } = require(tep('lib/md-section.cjs', CAY));
   const o = readRepo(`${D}/opportunity.md`);
   const lines = sec2(o, UAT_H);
   if (!lines.some(l => { const t = l.trim(); return t.startsWith(KHONG_DO) && (t.length === KHONG_DO.length || /\s/.test(t[KHONG_DO.length])); }))
@@ -1264,7 +1282,7 @@ if (want('RT14')) {
 // ── RT16 — bản đồ và bộ quét ĐỒNG kết luận (quan hệ, không chép danh sách) ──
 if (want('RT16')) {
   const errs = [];
-  const B16 = require(path.join(ROOT, 'scripts', 'trang-thai-ho-so.cjs'));
+  const B16 = require(tep('scripts/trang-thai-ho-so.cjs', CAY));
   // Ô bản đồ của slug: đọc từ PRODUCT-MAP.md vừa vẽ — heading gần nhất phía trên dòng slug.
   // Bảng ô bản đồ (SECTIONS) rút từ CHÍNH product-map.mjs — không chép tay tên ô.
   const pmSrc = readRepo('scripts/product-map.mjs');
@@ -1326,23 +1344,24 @@ if (want('RT16')) {
   {
     const c = tmp('rt16-tpl-');
     try {
-      for (const d of ['scripts', 'lib']) cpSync(path.join(ROOT, d), path.join(c, d), { recursive: true });
+      chepGoi(['scripts', 'lib'], c);
       const tplRel = 'skills/acceptance/references/opportunity-template.md';
+      const tplGoi = trongGoi(tplRel); // đường trong bản sao gói, cũng là đường bản đồ in trong thông điệp
       const goc = readRepo(tplRel);
       const hong = goc.replace('<<<OPP-DE-XUAT-PREFIX -->', '<<<OPP-DE-XUAT-PREFIX-HONG -->');
       if (hong === goc) errs.push('fail-closed: lệnh tiêm không đổi được khuôn');
-      W(c, tplRel, hong);
+      W(c, tplGoi, hong);
       const ws = mkRepo();
       mkWs(ws, 'q', { contract: { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' }, evidence: { signoff: 'Fx 2026-08-24' }, opportunity: { nguong: 'chot' } });
-      const r = spawnSync(process.execPath, [path.join(c, 'scripts', 'product-map.mjs'), '--root', ws, '--check'], { encoding: 'utf8' });
+      const r = spawnSync(process.execPath, [path.join(c, trongGoi('scripts/product-map.mjs')), '--root', ws, '--check'], { encoding: 'utf8' });
       const err = r.stderr || '';
       if (r.status !== 2) errs.push(`fail-closed: khuôn hỏng phải exit 2 (mã riêng), thấy exit ${r.status} — exit 1 lẫn với «bản đồ lệch»`);
-      if (!err.includes(tplRel)) errs.push(`fail-closed: thông điệp không nêu đường dẫn khuôn — ${err.split('\n')[0]}`);
+      if (!err.includes(tplGoi)) errs.push(`fail-closed: thông điệp không nêu đường dẫn khuôn — ${err.split('\n')[0]}`);
       if (!/Sửa:/.test(err)) errs.push('fail-closed: thông điệp không có đường sửa');
       if (/at .*\.mjs:\d+/.test(err)) errs.push('fail-closed: in stack trace Node thay vì câu có tên');
       // ĐỐI CHỨNG DƯƠNG: cùng bản sao, khuôn NGUYÊN VẸN → chạy được, không exit 2.
-      W(c, tplRel, goc);
-      const r2 = spawnSync(process.execPath, [path.join(c, 'scripts', 'product-map.mjs'), '--root', ws], { encoding: 'utf8' });
+      W(c, tplGoi, goc);
+      const r2 = spawnSync(process.execPath, [path.join(c, trongGoi('scripts/product-map.mjs')), '--root', ws], { encoding: 'utf8' });
       if (r2.status === 2) errs.push(`đối chứng dương: khuôn nguyên vẹn mà vẫn chết-to — ${(r2.stderr || '').split('\n')[0]}`);
       rmSync(ws, { recursive: true, force: true });
     } finally { rmSync(c, { recursive: true, force: true }); }
@@ -1360,7 +1379,7 @@ if (want('RT16')) {
     // TRỌN thư mục trước (luật «bản sao lấy trọn thư mục, không chép danh sách tay»): vật thêm một
     // tệp mà bản đồ nạp (scripts/lo-trinh-khoa.cjs, hồ sơ viec-ke-theo-plan) là bản sao chết vì HẠ
     // TẦNG chứ không vì vật. Danh sách dưới giữ làm lời ghi vì sao từng tệp cần.
-    for (const d of ['scripts', 'lib', 'skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(mut, d), { recursive: true });
+    chepGoi(['scripts', 'lib', 'skills/acceptance/references'], mut);
     for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
                        'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
                        // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì
@@ -1369,16 +1388,16 @@ if (want('RT16')) {
                        // …và nay bản đồ HỎI xanhSach cho hồ sơ máy-thông (S4-r11 [3]), nên
                        // cây mutant phải mang cả bộ kiểm đó. Cùng lý do, cùng lớp lỗi.
                        'scripts/khong-can-nguoi.mjs'])
-      W(mut, rel, readRepo(rel));
+      W(mut, trongGoi(rel), readRepo(rel));
     const src = readRepo('scripts/product-map.mjs');
     const NEEDLE = "if (ngBD === 'khong-do-duoc') return { ...o('da-giao-khong-do'), note: chu('da-giao-khong-do').nhan };";
     if (!src.includes(NEEDLE)) errs.push('chiều đỏ: không thấy nhánh khong-do-duoc trong product-map để tiêm');
     else {
-      W(mut, 'scripts/product-map.mjs', src.replace(NEEDLE, ''));
+      W(mut, trongGoi('scripts/product-map.mjs'), src.replace(NEEDLE, ''));
       withRepo(root => {
         mkWs(root, 'zz', { contract: { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' }, evidence: { signoff: 'Fx 2026-08-24' }, opportunity: { nguong: 'khong-do-duoc' } });
         const x = findSlug(scan(root), 'zz');
-        const md = veBanDo(root, path.join(mut, 'scripts', 'product-map.mjs'));
+        const md = veBanDo(root, path.join(mut, trongGoi('scripts/product-map.mjs')));
         if (!md) { errs.push('chiều đỏ: bản sao product-map không chạy được'); return; }
         if (oBanDo(md, 'zz') === oCuaKhoa(x.stateKey)) errs.push('chiều đỏ: gỡ nhánh mà bản đồ vẫn khớp bộ quét — phép so không bám vật');
       });
@@ -1395,7 +1414,8 @@ if (want('RT16')) {
 // hai KHÔNG LAND được nữa — của tôi lẫn của người sau.
 if (want('RT18')) {
   const errs = [];
-  const OWNER = 'lib/nguong-o-co-hoi.cjs';
+  // So trong không gian tên của cây đang chạy: chủ luật, dòng khai gạch (đường phẳng của hồ sơ đã ký) và đường tiêm đều dịch.
+  const OWNER = duong('lib/nguong-o-co-hoi.cjs', CAY);
   // Needle RÚT lúc chạy — chính file này không mang literal nào (tự kiểm bằng chính ca).
   const NEEDLES = [
     ['tiêu đề section', NG.UAT_THRESHOLD_HEADING],
@@ -1406,7 +1426,7 @@ if (want('RT18')) {
   ];
   const contractRT18 = readRepo('_acceptance/ra-co-ten-lam-va-trao/contract.md');
   const mG = contractRT18.match(/<<<LUAT-NGUONG-KHAI-GACH\n([\s\S]*?)LUAT-NGUONG-KHAI-GACH>>>/);
-  const GACH18 = mG ? mG[1].trim().split('\n').map(l => l.trim().split(/\s+/)) : null;
+  const GACH18 = mG ? mG[1].trim().split('\n').map(l => l.trim().split(/\s+/)).map(([f, ...ly]) => [duong(f, CAY), ...ly]) : null;
   if (!GACH18) errs.push('contract thiếu khối LUAT-NGUONG-KHAI-GACH');
   if (GACH18 && GACH18.some(r => r.length < 2)) errs.push('dòng khai gạch thiếu lý do — dòng thiếu là lỗi kêu to');
   // PHÉP QUÉT THẬT: đệ quy fs trên root cho trước — tham số hoá để chiều đỏ tiêm được.
@@ -1426,7 +1446,8 @@ if (want('RT18')) {
         for (const [ten, nd] of NEEDLES) if (txt.includes(nd)) hits.push([rel, ten]);
       }
     };
-    for (const d of ['scripts', 'lib', 'hooks', 'tests']) walk(path.join(root, d));
+    // `root` là cây thật hoặc bản sao CÙNG bố cục với nó (chép bằng chepCay) — thư mục giải theo bố cục cây đang chạy.
+    for (const d of ['scripts', 'lib', 'hooks', 'tests']) walk(path.join(root, duong(d, CAY)));
     return hits;
   };
   // Gạch tính theo CẶP (file, chuỗi), không theo file: dòng khai gạch mà LÝ DO gọi đúng tên
@@ -1440,6 +1461,8 @@ if (want('RT18')) {
     const goiTen = NEEDLES.filter(([n]) => lyDo.includes(tenNeedle(n))).map(([n]) => n);
     return goiTen.length === 0 || goiTen.includes(ten);
   });
+  const chepCay = (ds, dich) => { for (const d of ds) cpSync(tep(d, CAY), path.join(dich, duong(d, CAY)), { recursive: true }); };
+  const TIEM = duong('scripts/gia-lap-chep-luat.mjs', CAY);
   const soSanh18 = (hits, gach) => hits.filter(([rel, ten]) => !gachTrung(gach, rel, ten)).map(([rel, ten]) => `${rel} (${ten})`);
   if (GACH18) {
     const hits = scanRoot(ROOT);
@@ -1450,12 +1473,12 @@ if (want('RT18')) {
     const g = tmp('rt18-');
     try {
       const { cpSync } = require('node:fs');
-      for (const d of ['scripts', 'lib', 'hooks']) cpSync(path.join(ROOT, d), path.join(g, d), { recursive: true });
+      chepCay(['scripts', 'lib', 'hooks'], g);
       mkdirSync(path.join(g, 'tests'), { recursive: true });
-      W(g, 'scripts/gia-lap-chep-luat.mjs', `// bản chép mới\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
+      W(g, TIEM, `// bản chép mới\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
       W(g, 'tests/goi/node_modules/thu-vien/chep.js', `// thư viện ngoài\nconst H = '${NG.UAT_THRESHOLD_HEADING}';\n`);
       const la2 = soSanh18(scanRoot(g), GACH18);
-      if (!la2.some(x => x.startsWith('scripts/gia-lap-chep-luat.mjs'))) errs.push('chiều đỏ (a): tiêm bản chép vào cây mà phép quét không nêu tên');
+      if (!la2.some(x => x.startsWith(TIEM))) errs.push('chiều đỏ (a): tiêm bản chép vào cây mà phép quét không nêu tên');
       // Đặc hiệu: cùng chuỗi trong node_modules của cùng bản sao phải IM — cạnh bản tiêm ở scripts/ vẫn bị nêu.
       if (la2.some(x => x.includes('node_modules/'))) errs.push('chiều đỏ (a): phép quét nêu tệp trong node_modules — thư viện ngoài không phải bản chép luật');
     } finally { rmSync(g, { recursive: true, force: true }); }
@@ -1474,7 +1497,7 @@ if (want('RT18')) {
         const khac = NEEDLES.find(([n]) => !daGach.includes(n));
         const g2 = tmp('rt18c-');
         try {
-          for (const d of ['scripts', 'lib', 'hooks']) cpSync(path.join(ROOT, d), path.join(g2, d), { recursive: true });
+          chepCay(['scripts', 'lib', 'hooks'], g2);
           mkdirSync(path.join(g2, 'tests'), { recursive: true });
           const dich = path.join(g2, coTen[0]);
           const truoc = readFileSync(dich, 'utf8');
