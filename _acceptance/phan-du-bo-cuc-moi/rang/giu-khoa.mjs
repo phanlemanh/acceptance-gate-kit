@@ -105,6 +105,17 @@ function tuDung(sha) {
   if (vang.length) throw new HaTang(`tệp tự đúng đường khai ở gui-b2.md không có ở ${sha.slice(0, 8)}: ${vang.join(', ')}`);
   return ds;
 }
+// Ba tệp vòng sửa mà vẫn đi bước 6 (gui-b2.md §2): hai runner chỉ sửa một phần khối, lo-trinh.test.mjs chỉ dời ngày LT-94.
+export const VAN_BUOC6 = ['tests/plugins/run-tests.sh', 'tests/scripts/lo-trinh.test.mjs', 'tests/scripts/run-tests.sh'];
+// Luật viết danh sách (gui-b2.md §2), máy giữ: mọi tệp dưới tests/ mà diff bản gốc..HEAD chạm (trừ tệp đã xoá) nằm ở đúng
+// một trong hai nơi — khối GUI-B2-TU-DUNG hoặc VAN_BUOC6. Lệch → mỗi tệp một dòng; rỗng là khớp.
+export function lechLuatTuDung(sua, td, van = VAN_BUOC6) {
+  const T = new Set(td); const V = new Set(van); const S = new Set(sua); const ra = [];
+  for (const f of sua) if (!T.has(f) && !V.has(f)) ra.push(`${f}: vòng sửa mà không khai tự đúng đường, cũng không khai còn đi bước 6`);
+  for (const f of sua) if (T.has(f) && V.has(f)) ra.push(`${f}: khai cả tự đúng đường lẫn còn đi bước 6`);
+  for (const f of td) if (!S.has(f)) ra.push(`${f}: khai tự đúng đường mà vòng không sửa`);
+  return ra;
+}
 export const BIEN_THE = ['i', 'ii', 'iii'];
 const CHAM = 'iii'; // biến thể chấm (sổ d-20261115T044131Z-24); các biến thể khác in «TIN:»
 const tuyChon = (bt, sha) => ({ ten: true, buoc6: bt !== 'i', boQua: bt === 'iii' ? tuDung(sha) : null });
@@ -465,7 +476,15 @@ async function cheDoMoi(ctx, args, out) {
   const donVi = new Map(); for (const h of dich) for (const u of h.dv) donVi.set(u.id, u);
   // Tệp còn đi bước 6 ở biến thể chấm (không khai ở GUI-B2-TU-DUNG): túi so với kho mới dựng từ BẢN GỐC (bước 1–3, luật đổi
   // tên, luật chung bước 6 — cũng không bảng vá), vì ca cần bảng vá B2 vắng ở cả hai phía; chỉ ca vòng làm mất mới đỏ.
+  let soFail0 = 0;
   const tdHead = bts.includes(CHAM) ? new Set(tuDung(head)) : null;
+  if (tdHead) {
+    const sua = git(GOC, 'diff', '--name-only', '--diff-filter=d', base, head, '--', 'tests').split('\n').filter(Boolean);
+    const lech = lechLuatTuDung(sua, [...tdHead]);
+    for (const l of lech) out.push(`  FAIL: MOI luật danh sách tự đúng đường — ${l}`);
+    if (lech.length) soFail0 += 1;
+    else out.push(`  PASS: MOI luật danh sách tự đúng đường — ${sua.length} tệp vòng sửa dưới tests/ = ${tdHead.size} khai tự đúng đường + ${VAN_BUOC6.length} còn đi bước 6`);
+  }
   const diBuoc6 = u => { const f = u.id.split(' ')[0]; return Boolean(tdHead) && !f.includes('*') && !tdHead.has(f); };
   const dv6 = [...donVi.values()].filter(diBuoc6);
   const khoGoc = dv6.length ? khoMoi(ctx, base, 'moi-goc', { ten: true, buoc6: true }) : null;
@@ -475,7 +494,7 @@ async function cheDoMoi(ctx, args, out) {
     ...dv6.map(async u => [`${khoGoc}\0${u.id}`, await chay(ctx, khoGoc, u)]),
   ]));
   const lay = (c, u) => kq.get(`${c}\0${u.id}`);
-  let soFail = 0; const tongThieu = Object.fromEntries(bts.map(bt => [bt, 0]));
+  let soFail = soFail0; const tongThieu = Object.fromEntries(bts.map(bt => [bt, 0]));
   for (const cum of cums) {
     const ds = dich.filter(h => h.cum === cum);
     const can = new Map(); for (const h of ds) { const k = `${h.dv.map(u => u.id).join('|')}\0${h.khoa}`; can.set(k, { h, n: (can.get(k)?.n || 0) + 1 }); }
@@ -517,6 +536,9 @@ async function cheDoMoi(ctx, args, out) {
       const ve = b6 ? `khoá bố cục cũ mà kho mới dựng từ bản gốc cũng có, còn ở kho mới (tệp còn đi bước 6 — ${soGoc} khoá vắng cả ở bản gốc kho mới: cần bảng vá B2; ` : 'khoá bố cục cũ còn ở kho mới (';
       const s = soTui(cu, moiDat, mien);
       const soMien = [...cu].reduce((n, [k, c]) => n + Math.min(c, mien.get(k) || 0), 0);
+      // Chốt tập rỗng: tệp còn đi bước 6 mà sau khi lọc theo bản gốc kho mới không còn ca nào để so (trong khi bố cục cũ
+      // có ca ngoài phần miễn) — dòng PASS ấy đúng với mọi HEAD, nên nó là FAIL có tên, không phải PASS 0/0.
+      if (b6 && s.tong - soMien === 0 && soGoc > 0) { soFail += cham(bt, 1); out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — so rỗng: ${soGoc} khoá bố cục cũ đều vắng ở bản gốc kho mới, không ca nào để so (tệp còn đi bước 6; khai tự đúng đường ở gui-b2.md nếu tệp đã qua bộ dịch; biến thể ${bt})`); continue; }
       if (!s.thieu.length) { tuiDu[bt]++; out.push(`  ${nhanDong(bt, true)}: MOI túi ${u.id} — ${s.tong - soMien}/${s.tong - soMien} ${ve}biến thể ${bt}; miễn ${soMien} khoá của khoa-dich.tsv)`); continue; }
       soFail += cham(bt, 1);
       out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — ${s.tong - soMien - s.thieu.length}/${s.tong - soMien} ${ve}biến thể ${bt})`);

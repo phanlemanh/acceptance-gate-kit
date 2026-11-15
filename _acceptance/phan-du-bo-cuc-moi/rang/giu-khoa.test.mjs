@@ -123,7 +123,16 @@ try {
   const dn = h.filter(x => x.cum === 'K4-DN');
   if (dn.length !== 6 || !GK.NGOAI_VONG.includes('K4-DN') || GK.VONG.includes('K4-DN')) sai.push(`K4-DN: ${dn.length} khoá, ngoài vòng ${GK.NGOAI_VONG.includes('K4-DN')}`);
   if (h.filter(x => x.cum === 'K4-SC').length !== 71) sai.push(`K4-SC còn ${h.filter(x => x.cum === 'K4-SC').length}, chờ 71`);
-  sai.length ? bad('TUI-B6', sai.join(' · ')) : ok('TUI-B6', 'ca vắng ở cả bản gốc kho mới không đòi; ca bản gốc kho mới có mà HEAD mất → thiếu (đếm cả số lần); K4-DN 6 khoá ngoài vòng, K4-SC 71');
+  // Luật danh sách tự đúng đường trên dữ liệu thật (đối chứng dương: khớp, rỗng) và trên bản bớt một tệp (chiều đỏ: tên tệp).
+  const base = git(KIT, 'merge-base', 'HEAD', 'origin/main');
+  const sua = git(KIT, 'diff', '--name-only', '--diff-filter=d', base, '--', 'tests').split('\n').filter(Boolean);
+  const td = GK.docTuDung(readFileSync(path.join(HERE, '..', 'gui-b2.md'), 'utf8'));
+  const that = GK.lechLuatTuDung(sua, td);
+  if (that.length) sai.push(`luật danh sách lệch trên dữ liệu thật: ${that.join(' · ')}`);
+  const bot = td.find(f => f.endsWith('kho-cam-ket-co-lo-trinh.test.mjs'));
+  const pha = GK.lechLuatTuDung(sua, td.filter(f => f !== bot));
+  if (!(pha.length === 1 && pha[0].startsWith(`${bot}: vòng sửa mà không khai tự đúng đường`))) sai.push(`chiều đỏ luật danh sách: ${JSON.stringify(pha)}`);
+  sai.length ? bad('TUI-B6', sai.join(' · ')) : ok('TUI-B6', `ca vắng ở cả bản gốc kho mới không đòi; ca bản gốc kho mới có mà HEAD mất → thiếu (đếm cả số lần); K4-DN 6 khoá ngoài vòng, K4-SC 71; luật danh sách: ${sua.length} tệp vòng sửa = ${td.length} tự đúng đường + ${GK.VAN_BUOC6.length} còn đi bước 6, bớt ${path.basename(bot)} → một dòng có tên`);
 } catch (e) { console.log(`HẠ TẦNG: TUI-B6 — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
 
 // ── BT-III — biến thể (iii): bước 6 bỏ đúng các tệp khai ở gui-b2.md, mọi tệp khác như (ii) ────────────────────────────

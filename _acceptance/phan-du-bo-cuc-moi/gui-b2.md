@@ -11,7 +11,7 @@ Máy ghi bằng `--ghi-gui-b2`; `--chieu-do` rút lại và so (GUI-B2). Một m
 mục này khỏi bảng vá.
 
 <!-- <<<GUI-B2-VA-THUA -->
-máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 60 trên tệp tự đúng đường (bước 6 bỏ qua), 23 không còn khớp sau bước 6 (rút từ HEAD lúc ghi)
+máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 76 trên tệp tự đúng đường (bước 6 bỏ qua), 7 không còn khớp sau bước 6 (rút từ HEAD lúc ghi)
 ```jsonl
 {"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  for (const tep of ['mo-dot.md', 'tiep-tuc.md']) {","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  assert.ok(loi.includes('bộ lọc Monitor không khớp: mo-dot.md'), loi.join(' | '));\n  assert.ok(loi.includes('bộ lọc Monitor không khớp: tiep-tuc.md'), loi.join(' | '));","so_lan":1,"ly_do":"tệp tự đúng đường"}
@@ -70,10 +70,10 @@ máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 60 trên tệp tự �
 {"tep":"tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs","cu":"'--root', k.root, '--ag-root', kit, ...args],","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/run-id-danh-sach-cho-phep.test.mjs","cu":"'--round', '2', '--ag-root', goc,","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/vong-don-le-tra-tri-thuc.test.mjs","cu":"`AG='${may}' && `","so_lan":1,"ly_do":"tệp tự đúng đường"}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"j.plugins.find(x => x.name === 'road-map')","so_lan":1}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"x.startsWith('node \"${CLAUDE_PLUGIN_ROOT}/plugins/acceptance-gate/scripts/lo-trinh-khoi-tao.mjs\"')","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"j.plugins.find(x => x.name === 'road-map')","so_lan":1}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"lenhInit(kit).split('${CLAUDE_PLUGIN_ROOT}').join(kit)","so_lan":1}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"j.plugins.find(x => x.name === 'road-map')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"x.startsWith('node \"${CLAUDE_PLUGIN_ROOT}/plugins/acceptance-gate/scripts/lo-trinh-khoi-tao.mjs\"')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"j.plugins.find(x => x.name === 'road-map')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"lenhInit(kit).split('${CLAUDE_PLUGIN_ROOT}').join(kit)","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/run-tests.sh","cu":"\"$HERE/../../scripts\"","so_lan":4}
 {"tep":"tests/scripts/run-tests.sh","cu":"\"$HERE/../../lib\"","so_lan":4}
 {"tep":"tests/scripts/run-tests.sh","cu":"\"$M42/plugins/acceptance-gate/","so_lan":3}
@@ -82,18 +82,18 @@ máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 60 trên tệp tự �
 {"tep":"tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs","cu":"'--require', 'plugins/acceptance-gate/scripts/dinh-tuyen-may.cjs', '--root', ROOT]","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/can-cu-s1.ca.mjs","cu":"'Không nạp được bộ đọc căn cứ bước thiết kế (plugins/acceptance-gate/scripts/can-cu-s1.cjs)'","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/can-cu-s1.ca.mjs","cu":"--require plugins/acceptance-gate/scripts/can-cu-s1.cjs) && node \"$AG/plugins/acceptance-gate/scripts/can-cu-s1.cjs\"', 'node plugins/acceptance-gate/scripts/can-cu-s1.cjs');","so_lan":1,"ly_do":"tệp tự đúng đường"}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"path.join(KIT, m.nguon)","so_lan":2}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"node([path.join(g, 'plugins/acceptance-gate/scripts', 'product-map.mjs'), '--root', '.', '--check'], { cwd: g })","so_lan":2}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"writeFileSync(path.join(x, 'plugins/acceptance-gate/scripts', 'lo-trinh.mjs'), lech)","so_lan":1}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"readFileSync(path.join(g, 'plugins/acceptance-gate/scripts', 'lo-trinh.mjs'), 'utf8') !== lech","so_lan":1}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"x.includes('plugins/acceptance-gate/scripts/ho-so-tom-tat.cjs') && x.includes('[only-if-declared: lo_trinh]')","so_lan":1}
-{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"`AG='${KIT}' && `","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"existsSync(path.join(kit, m.nguon))","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"cpSync(path.join(kit, m.nguon)","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"spawnSync('bash', [path.join(d, 'plugins/acceptance-gate/scripts', 'pre-merge-check.sh')","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"{ boQua: ['plugins/acceptance-gate/lib/chan-lo-trinh.cjs'] }","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"`AG='${kit}' && `","so_lan":1}
-{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"x.includes('plugins/acceptance-gate/lib/chan-lo-trinh.cjs') && x.includes('[only-if-declared: lo_trinh]')).length !== 1) throw new Error('danh sách chép CI thiếu dòng plugins/acceptance-gate/lib/chan-lo-trinh.cjs","so_lan":1}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"path.join(KIT, m.nguon)","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"node([path.join(g, 'plugins/acceptance-gate/scripts', 'product-map.mjs'), '--root', '.', '--check'], { cwd: g })","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"writeFileSync(path.join(x, 'plugins/acceptance-gate/scripts', 'lo-trinh.mjs'), lech)","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"readFileSync(path.join(g, 'plugins/acceptance-gate/scripts', 'lo-trinh.mjs'), 'utf8') !== lech","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"x.includes('plugins/acceptance-gate/scripts/ho-so-tom-tat.cjs') && x.includes('[only-if-declared: lo_trinh]')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-moi-cai-goi-road-map.test.mjs","cu":"`AG='${KIT}' && `","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"existsSync(path.join(kit, m.nguon))","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"cpSync(path.join(kit, m.nguon)","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"spawnSync('bash', [path.join(d, 'plugins/acceptance-gate/scripts', 'pre-merge-check.sh')","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"{ boQua: ['plugins/acceptance-gate/lib/chan-lo-trinh.cjs'] }","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"`AG='${kit}' && `","so_lan":1,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs","cu":"x.includes('plugins/acceptance-gate/lib/chan-lo-trinh.cjs') && x.includes('[only-if-declared: lo_trinh]')).length !== 1) throw new Error('danh sách chép CI thiếu dòng plugins/acceptance-gate/lib/chan-lo-trinh.cjs","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/tin-hieu.test.mjs","cu":"env: { ...process.env, AG: kit } }","so_lan":2,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/scripts/tin-hieu.test.mjs","cu":"'node \"$AG/plugins/acceptance-gate/scripts/tin-hieu.mjs\" --root . --rang', 'node \"$AG/plugins/acceptance-gate/scripts/tin-hieu.mjs\" --root . --rangg'","so_lan":1,"ly_do":"tệp tự đúng đường"}
 ```
@@ -106,7 +106,7 @@ Các tệp này đã tự giải đường qua bộ dịch `tests/bo-cuc.mjs`; l
 (bước 3) vẫn áp như mọi tệp dưới `tests/`. Đây là biến thể (iii) mà thước chấm (sổ `d-20261115T044131Z-24`).
 
 Danh sách viết trước khi đo: mọi tệp dưới `tests/` vòng này sửa hoặc tạo (`git diff --name-only 644e9b49 HEAD -- tests/`),
-trừ ba tệp vẫn đi bước 6: `tests/scripts/run-tests.sh` và `tests/plugins/run-tests.sh` (chỉ sửa một phần khối),
+trừ ba tệp vẫn đi bước 6 (hằng `VAN_BUOC6` của `rang/giu-khoa.mjs`; thước giữ luật này — tệp vòng sửa = khối dưới + ba tệp ấy): `tests/scripts/run-tests.sh` và `tests/plugins/run-tests.sh` (chỉ sửa một phần khối),
 `tests/scripts/lo-trinh.test.mjs` (chỉ dời ngày LT-94, không đi qua bộ dịch; 13 mục vá của nó vẫn cần).
 
 <!-- <<<GUI-B2-TU-DUNG -->
@@ -134,6 +134,8 @@ tests/scripts/cua-veto-sau-chu-ky.test.mjs
 tests/scripts/giu-tuoi-fixture.mjs
 tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs
 tests/scripts/hskt.test.mjs
+tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs
+tests/scripts/kho-moi-cai-goi-road-map.test.mjs
 tests/scripts/kiem-ban-cai-loi-sua.test.mjs
 tests/scripts/lan-status-not-run.test.mjs
 tests/scripts/luot-sua-giu-du.test.mjs
