@@ -89,16 +89,18 @@ function timBangTen(cay, muc) {
 function boCucKho(cay, nhan) {
   const muc = docCho(cay, nhan);
   const GOI = timBangTen(cay, muc);
-  const goc = {}; const ten = {};
+  const goc = {}; const ten = {}; const la = {}; const ro = [];
   for (const m of muc) {
     const vai = vaiTheoTen(m.ten, GOI);
-    if (!vai) throw loi(`${nhan}: mục chợ «${m.ten}» không rõ vai`);
+    // Gói không rõ vai (commit cũ còn khai design-loop): ghi lại, không ném — chỉ đường trỏ vào nó mới ném (gaLa).
+    if (!vai) { la[m.ten] = m.nguon; continue; }
+    ro.push(m);
     goc[vai] = m.nguon;
     const tuBang = GOI && Object.keys(GOI).find(k => GOI[k].vai === vai);
     ten[vai] = GOI ? (tuBang ?? m.ten) : (tenPhangCuaVai(vai) ?? m.ten);
   }
-  const phang = muc.every(m => m.nguon === '.' || m.nguon in BANG.goi_phang);
-  return { phang, goc, ten };
+  const phang = ro.every(m => m.nguon === '.' || m.nguon in BANG.goi_phang);
+  return { phang, goc, ten, la };
 }
 
 function boCucGoi(cay) {
@@ -170,10 +172,19 @@ function phanTich(s) {
 
 const ghep = (goc, trong) => (goc === '.' ? (trong || '.') : (trong ? `${goc}/${trong}` : goc));
 const nhanCay = cay => cay.thuMuc || cay.goiGoc || cay.ref;
+const cauLa = (cay, ten) => loi(`${nhanCay(cay)} có gói «${ten}» không rõ vai`);
+
+// Đường trỏ vào một gói không rõ vai (thư mục nguồn của nó, hoặc dạng `plugins/<tên>/…`) → lỗi có tên, không trả bừa.
+function gaLa(s, b, cay) {
+  for (const [ten, nguon] of Object.entries(b.la || {})) {
+    if ((nguon !== '.' && khop(s, nguon)) || khop(s, `plugins/${ten}`)) throw cauLa(cay, ten);
+  }
+}
 
 export function duong(rel, cay) {
   const s = kiemRel(rel);
   const b = boCuc(cay);
+  gaLa(s, b, cay);
   const p = phanTich(s);
   if (cay.goiGoc) {
     if (!p || p.vai !== cay.vai) throw loi(`${rel} không thuộc gói vai «${cay.vai}» của ${cay.goiGoc}`);
@@ -200,7 +211,9 @@ export function gocGoi(cay, vai) {
     return cay.goiGoc;
   }
   if (!cay || !cay.thuMuc) throw loi(`gocGoi chỉ nhận { thuMuc } — được ${JSON.stringify(cay)}`);
-  const goc = boCuc(cay).goc[vai];
+  const b = boCuc(cay);
+  const goc = b.goc[vai];
+  if (goc === undefined && b.la && vai in b.la) throw cauLa(cay, vai);
   if (goc === undefined) throw loi(`${cay.thuMuc} không có gói vai «${vai}» trong ${MARKETPLACE}`);
   return path.join(cay.thuMuc, goc);
 }

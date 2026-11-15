@@ -388,6 +388,41 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
   d ? bad('BC-B6-DOI-CHUNG', d) : ok('BC-B6-DOI-CHUNG', 'tiêm lại hằng đường plugin.json → bước 6 đổi nó sang bố cục mới');
 }
 
+// ── BC-LA — gói không rõ vai trong tệp khai: đọc được, đường lõi vẫn giải; đường vào gói lạ ném đúng câu ──────────────
+// Hai cây: thư mục tạm có tệp khai chép từ cây phẳng cộng một gói lạ; và commit thật cuối cùng còn khai gói ấy (cha của
+// commit gỡ nó khỏi tệp khai — rút bằng `git log -S`, không ghim sha).
+{
+  const LA = 'design-loop';
+  const tmpLa = path.join(TMP, 'goi-la'); mkdirSync(path.join(tmpLa, '.claude-plugin'), { recursive: true });
+  const mk = JSON.parse(readFileSync(path.join(cayPhang, BANG.tep_khai.cho), 'utf8'));
+  writeFileSync(path.join(tmpLa, BANG.tep_khai.cho), JSON.stringify({ ...mk, plugins: [...mk.plugins, { name: LA, source: `./${LA}` }] }, null, 2));
+  const goCho = git('log', '-1', '--format=%H', `-S"${LA}"`, '--', BANG.tep_khai.cho);
+  const refLa = goCho && git('rev-parse', `${goCho}^`);
+  const cays = [[{ thuMuc: tmpLa }, tmpLa], ...(refLa ? [[{ kho: KIT, ref: refLa }, refLa]] : [])];
+  const lech = [];
+  if (!refLa) lech.push(`không rút được commit còn khai «${LA}»`);
+  for (const [c, nhan] of cays) {
+    const cau = `bo-cuc: ${nhan} có gói «${LA}» không rõ vai`;
+    const m = nem(() => {
+      if (c.kho && !git('show', `${refLa}:${BANG.tep_khai.cho}`).includes(`"${LA}"`)) throw new Error(`${refLa} không khai «${LA}» — fixture hỏng`);
+      const b = boCuc(c);
+      if (b.phang !== true) throw new Error(`phang=${b.phang}, chờ true`);
+      for (const [r, k] of [['scripts/lo-trinh.mjs', 'scripts/lo-trinh.mjs'], ['plugins/acceptance-gate/hooks/hooks.json', 'hooks/hooks.json'], ['feature-loop/README.md', 'feature-loop/README.md']]) {
+        const ra = duong(r, c); if (ra !== k) throw new Error(`${r} ra ${ra}, chờ ${k}`);
+      }
+      if (c.thuMuc && gocGoi(c, 'loi') !== tmpLa) throw new Error(`gocGoi lõi ra ${gocGoi(c, 'loi')}`);
+    });
+    if (m) lech.push(`${nhan}: ${m}`);
+    for (const r of [`${LA}/commands/x.md`, `plugins/${LA}/skills/y`, LA]) {
+      const e = nem(() => duong(r, c));
+      if (e !== cau) lech.push(`duong ${r} · ${nhan}: ${e ?? '(không ném)'}`);
+    }
+    if (c.thuMuc) { const e = nem(() => gocGoi(c, LA)); if (e !== cau) lech.push(`gocGoi ${LA}: ${e ?? '(không ném)'}`); }
+  }
+  lech.length ? bad('BC-LA', lech.join(' · '))
+    : ok('BC-LA gói không rõ vai: đường lõi vẫn giải, đường vào gói lạ ném «bo-cuc: <cây> có gói «<tên>» không rõ vai»', `${cays.length} cây`);
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nbo-cuc: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
