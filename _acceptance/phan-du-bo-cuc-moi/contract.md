@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/recheck-evidence.cjs và lib/chan-lo-trinh.cjs (t3_paths)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-15-phan-du-bo-cuc-moi-design.md
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-15T02:23:54Z
 ---
@@ -116,3 +116,20 @@ kho mới (ô cơ hội, Out of scope).
 - Mã tiêu chí giữ nguyên số sau khi dời AC-9, AC-10 sang vòng kế (eval E9, E10 dời theo), để sổ và thẻ không phải đánh số lại.
 - Cổng Phạm vi 15/11: chủ kho gõ «duyệt» trần; máy đọc là duyệt kèm khuyến nghị của Hỏi-1 (cắt K4-LT, K4-TB) và Hỏi-2
   (gom giới hạn nạp cứng bảng tên) — sổ d-…-gate1.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-16:
+  - Ngoài-1: thước giữ khoá miễn trừ các khoá có chữ số đếm nội dung cây bằng một danh sách gõ tay, nên một khoá khác cùng hình dạng có thể làm lượt chấm đỏ oan «mất khoá».
+  - Ngoài-3: ca tự kiểm của khoá đếm chép tay chuỗi khoá thay vì rút từ nơi viết, nên nơi viết đổi chữ thì tự kiểm vẫn xanh còn lượt chạy thật đỏ oan.
+  - Ngoài-4: bước kiểm lại bằng chứng tìm gói lõi bằng tên cứng rồi lùi về so chuỗi con, nên kho có thư mục tên gần giống có thể bị nhận nhầm.
+  - Ngoài-6: thước giữ khoá nhận cờ mốc so sánh không kèm giá trị thì lặng lẽ dùng mốc mặc định thay vì báo lỗi.
+  - Ngoài-7: phép so ở bố cục cũ cho xanh 0/0 khi phía bản gốc không in ca nào, nên một lượt bản gốc hỏng im có thể trông như không mất ca.
+  - Ngoài-8: danh sách mục vá thừa gửi sang kho bên kia không so với bản gốc, nên có thể lẫn mục vốn đã thừa từ trước vòng.
+  - Ngoài-9: ứng viên gốc gói lõi viết cứng tên plugin và so chuỗi con trên dữ liệu ngoài; cùng lỗ với Ngoài-4, nhìn từ phía khác.
+  - Ngoài-10: ở kho tự là một plugin mà thiếu tệp chợ, luật chặn lộ trình có thể nhận nhầm kho thành bản cài gói lõi và tắt lặng.
+  - Ngoài-12: cùng giả định ở luật chặn lộ trình như Ngoài-10, nhìn từ phía bản chép CI thiếu bảng tên.
+  - Ngoài-13: cách rút danh sách mục vá thừa chưa chứng minh được chỉ mục do vòng này làm thừa mới được liệt kê; cùng gốc với Ngoài-8.
+  - Ngoài-14: phép so «túi HEAD chứa túi bản gốc» không có đối chứng dương cho phía tham chiếu; cùng gốc với Ngoài-7.
+- Chấp nhận, không sửa (chủ kho quyết ở Cổng Bằng chứng 16/11): Ngoài-2 (chú thích và ca tự kiểm ghi ngược cặp số 232/233;
+  phép so ở dạng «<n>» không phụ thuộc giá trị) · Ngoài-5 (đầu tệp bản nhân fixture trích sai một dòng sổ cũ).
+- Mở hợp đồng mới (chủ kho quyết ở Cổng Bằng chứng 16/11) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):
+  - Ngoài-11 → `docs/plans/2026-11-15-hat-giong-ung-vien-verifier-hook-ci.md` (hook lúc ghi và bước kiểm lại ở CI giải
+    công cụ kiểm theo hai cách).
