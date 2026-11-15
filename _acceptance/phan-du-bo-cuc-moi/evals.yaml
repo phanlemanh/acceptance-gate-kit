@@ -12,6 +12,8 @@ evals:
     criterion: AC-1
     executor: script
     cmd: config:executors.script.pdbm_cu
+    # --cu đo 15/11: 77,8 phút chạy riêng — vượt trần chờ mặc định 30 phút.
+    long_running: 200
     paths: [tests/**, lib/**, scripts/**, feature-loop/**, dieu-phoi/**, road-map/**, _acceptance/phan-du-bo-cuc-moi/rang/**]
     expected: >
       exit 0; mỗi tệp kiểm vòng chạm (rút từ git diff bản gốc..HEAD -- tests/) một dòng "PASS: CU <tệp> — <k>/<k> khoá
@@ -40,6 +42,8 @@ evals:
     criterion: AC-3
     executor: script
     cmd: config:executors.script.pdbm_moi_k2
+    # --moi --cum: 13–32 phút chạy riêng, 28–32 phút trong lượt chấm r1 (chín lệnh thước song song) — vượt trần chờ mặc định 30 phút.
+    long_running: 120
     paths: [tests/plugins/run-tests.sh, tests/scripts/moi-cong-khong-qua-nut.test.mjs, tests/scripts/s4-args-judgment-inputs.test.mjs, tests/bo-cuc.mjs, skills/acceptance/references/human-facing-language.md, skills/design-pass/SKILL.md, docs/findings/assets/2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs]
     expected: >
       exit 0; "PASS: MOI K2 — <k>/<k> khoá đích có mặt và xanh ở kho mới" (k rút từ khoa-dich.tsv); "PASS: MOI K2 khối khai
@@ -50,6 +54,7 @@ evals:
     criterion: AC-4
     executor: script
     cmd: config:executors.script.pdbm_moi_sp
+    long_running: 120
     paths: [lib/chan-lo-trinh.cjs, scripts/lo-trinh-khoi-tao.mjs, lib/ho-goi.cjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
     expected: >
       exit 0; "PASS: MOI SP — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: SP mã nguồn hết chữ roadmap@delivery-loop
@@ -64,6 +69,7 @@ evals:
     criterion: AC-5
     executor: script
     cmd: config:executors.script.pdbm_moi_k3
+    long_running: 120
     paths: [tests/plugins/run-tests.sh, tests/plugins/ra-co-ten.test.mjs, tests/scripts/cua-veto-sau-chu-ky.test.mjs, tests/scripts/tin-hieu.test.mjs, tests/bo-cuc.mjs, tests/fixtures/**]
     expected: >
       exit 0; "PASS: MOI K3 — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: K3 hồ sơ đã ký không đổi byte — diff bản
@@ -85,6 +91,7 @@ evals:
     criterion: AC-6
     executor: script
     cmd: config:executors.script.pdbm_moi_k3
+    long_running: 120
     paths: [scripts/recheck-evidence.cjs, tests/scripts/core-untouched.test.mjs, tests/scripts/premerge-repin.test.mjs, tests/scripts/lan-status-not-run.test.mjs]
     expected: >
       exit 0; trong dòng "PASS: MOI K3 …" có JR11b, DV4a, L05 và lan-status-not-run (rút từ khoa-dich.tsv). Chiều đỏ như E5.
@@ -93,6 +100,7 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.script.pdbm_moi_k4_sc
+    long_running: 120
     paths: [tests/scripts/**, tests/bo-cuc.mjs]
     expected: >
       exit 0; "PASS: MOI K4-SC — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: K4-SC chốt chống rỗng — 4/4 ca xanh giả
@@ -104,6 +112,7 @@ evals:
     criterion: AC-8
     executor: script
     cmd: config:executors.script.pdbm_moi_k4_pl
+    long_running: 120
     paths: [tests/plugins/**, tests/dieu-phoi/**, tests/bo-cuc.mjs]
     expected: >
       exit 0; "PASS: MOI K4-PL — <k>/<k> khoá đích có mặt và xanh ở kho mới". Chiều đỏ như E3.
@@ -112,6 +121,8 @@ evals:
     criterion: AC-11
     executor: script
     cmd: config:executors.script.pdbm_moi
+    # --moi đo 15/11: 25–27 phút chạy riêng, quá 30 phút trong lượt chấm r1 — vượt trần chờ mặc định 30 phút.
+    long_running: 150
     paths: [tests/**, _acceptance/phan-du-bo-cuc-moi/rang/**, _acceptance/phan-du-bo-cuc-moi/khoa-dich.tsv]
     expected: >
       exit 0; một dòng mỗi cụm vòng nhận "PASS: MOI <cụm> — <k>/<k> …" và "giu-khoa --moi: thiếu 0 ở <m> cụm; túi khoá
@@ -124,6 +135,8 @@ evals:
     criterion: AC-11
     executor: script
     cmd: config:executors.script.pdbm_chieu_do
+    # --chieu-do đo 15/11: 5 phút chạy riêng, 21 phút trong lượt chấm r1 — vượt trần chờ mặc định 30 phút.
+    long_running: 90
     paths: [tests/bo-cuc.mjs, _acceptance/phan-du-bo-cuc-moi/rang/**, _acceptance/phan-du-bo-cuc-moi/gui-b2.md]
     expected: >
       exit 0; với bộ dịch thay bằng bản đồng nhất trên bản sao kho mới, mỗi cụm vòng nhận một dòng "PASS: DO <cụm> — <ca
@@ -135,6 +148,7 @@ evals:
     criterion: AC-12
     executor: script
     cmd: config:executors.script.pdbm_moi_sp
+    long_running: 120
     paths: [lib/chan-lo-trinh.cjs, lib/ho-goi.cjs]
     expected: >
       exit 0; "PASS: SP-NL kho tiêu thụ
