@@ -2072,24 +2072,37 @@ PY
 
 run "P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8 (E6)" \
   python3 - "$ROOT" <<'PY'
-import re, shutil, sys, tempfile
+import re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 root = Path(sys.argv[1])
+# Đường bố cục phẳng giải qua CLI bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi): site đọc ở gốc KHO
+# (duong), còn con trỏ trong tài liệu viết theo gốc GÓI lõi nên đích của nó kiểm ở GOC_LOI; tiền tố của
+# phép rút con trỏ là dạng gốc gói (duong_goi) — chữ ấy không đổi theo bố cục kho.
+_DUONG = {}
+def duong(rel, *co):
+    k = (rel,) + co
+    if k not in _DUONG:
+        _DUONG[k] = subprocess.check_output(["node", str(root / "tests/bo-cuc.mjs"), "duong", rel] + (list(co) or ["--thu-muc", str(root)]), text=True).strip()
+    return _DUONG[k]
+GOC_LOI = Path(duong("lib")).parent          # gốc gói lõi, tương đối gốc kho («.» ở bố cục phẳng)
+def duong_goi(rel):
+    return duong(rel, "--goi-goc", str(root / GOC_LOI), "--vai", "loi")
 SITES = ["commands/acceptance-card.md", "commands/acceptance-report.md",
          "commands/acceptance-status.md",
          "feature-loop/skills/feature-loop/SKILL.md"]
-RX = re.compile(r"skills/acceptance/references/[\w.-]+\.md")
+RX = re.compile(re.escape(duong_goi("skills/acceptance/references")) + r"/[\w.-]+\.md")
 
+# Ban sao soi guong cay dang chay (cung bo cuc), nen duong giai o root dung cho ca ban sao.
 def check(base):
     errs, found = [], 0
     for rel in SITES:
-        hits = sorted(set(RX.findall((base / rel).read_text(encoding="utf-8"))))
+        hits = sorted(set(RX.findall((base / duong(rel)).read_text(encoding="utf-8"))))
         if not hits:
             errs.append(f"{rel}: khong rut duoc con tro nao")
             continue
         found += 1
         for h in hits:
-            if not (base / h).is_file():
+            if not (base / GOC_LOI / h).is_file():
                 errs.append(f"{rel}: con tro tro file khong ton tai — {h}")
     if found != 4:
         errs.append(f"chi rut duoc con tro tu {found}/4 file — grep hong, khong phai sach")
@@ -2101,14 +2114,14 @@ assert check(root) == [], check(root)                            # doi chung DUO
 # duong that su xanh; thieu mot vat la ban sao do san va phep do chet.
 targets = set()
 for rel in SITES:
-    targets |= set(RX.findall((root / rel).read_text(encoding="utf-8")))
+    targets |= set(RX.findall((root / duong(rel)).read_text(encoding="utf-8")))
 tmp = Path(tempfile.mkdtemp())
 try:
-    for rel in list(SITES) + sorted(targets):
+    for rel in [duong(s) for s in SITES] + [str(GOC_LOI / h) for h in sorted(targets)]:
         (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(root / rel, tmp / rel)
     assert check(tmp) == [], f"ban sao NGUYEN VEN phai XANH truoc: {check(tmp)}"
-    victim = tmp / "skills/acceptance/references/human-facing-language.md"
+    victim = tmp / duong("skills/acceptance/references/human-facing-language.md")
     victim.rename(victim.with_name("doi-ten.md"))
     errs = check(tmp)
     assert any("con tro tro file khong ton tai" in e for e in errs), \
@@ -2119,9 +2132,16 @@ PY
 
 run "P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho (E8, E11)" \
   python3 - "$ROOT" <<'PY'
-import re, shutil, subprocess, sys, tempfile
+import json, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 root = Path(sys.argv[1])
+# Đường bố cục phẳng giải ở cây đang chạy qua CLI bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi); bản sao
+# dung_ban_sao soi gương cây ấy (cùng tập tệp theo dõi) nên cùng đường giải dùng được cho nó.
+_DUONG = {}
+def duong(rel):
+    if rel not in _DUONG:
+        _DUONG[rel] = subprocess.check_output(["node", str(root / "tests/bo-cuc.mjs"), "duong", rel, "--thu-muc", str(root)], text=True).strip()
+    return _DUONG[rel]
 REF_REL = "skills/acceptance/references/human-facing-language.md"
 SPEC_REL = "docs/specs/workflow-v2-spec.md"
 RX = re.compile(r"<!-- <<<HFL-LAW-TABLE -->\n([\s\S]*?)<!-- HFL-LAW-TABLE>>> -->")
@@ -2138,8 +2158,8 @@ def compare(a_text, b_text):
         return [f"bang luat lech giua {REF_REL} va {SPEC_REL}"]
     return []
 
-ref = (root / REF_REL).read_text(encoding="utf-8")
-spec = (root / SPEC_REL).read_text(encoding="utf-8")
+ref = (root / duong(REF_REL)).read_text(encoding="utf-8")
+spec = (root / duong(SPEC_REL)).read_text(encoding="utf-8")
 assert compare(ref, spec) == [], compare(ref, spec)              # doi chung DUONG
 mut = spec.replace("Một dòng một ý", "Mot dong mot y", 1)
 errs = compare(ref, mut)
@@ -2156,6 +2176,12 @@ assert errs and "bang luat lech" in errs[0] and REF_REL in errs[0] and SPEC_REL 
 # Nen bay gio: khong loc duoi file (doc NHI PHAN, so byte — cung het luon lop
 # loi decode im lang), va chi loai nhung muc co TEN kem ly do.
 SKIP_TOP = {"plugins", "_acceptance", "tests"}      # ba muc AC-10 khai
+# «plugins» cua AC-10 la thu muc dong goi Codex da luu kho, KHONG phai nha cua goi nao. Thu muc goc nao tep khai
+# cho cua CHINH cay nay dat goi vao (bo cuc moi: plugins/<ten>/) thi la cay nguon — rut khoi danh sach loai tru,
+# khong thi P93 nuot tron san pham. Bo cuc phang: cac goi o feature-loop/, dieu-phoi/… nen SKIP_TOP giu nguyen.
+_CHO = json.loads((root / duong(".claude-plugin/marketplace.json")).read_text(encoding="utf-8"))
+NHA_GOI = {str(p["source"]).lstrip("./").split("/")[0] for p in _CHO.get("plugins", [])} - {""}
+SKIP_TOP = SKIP_TOP - NHA_GOI
 SKIP_INFRA = {".git", ".claude", "node_modules"}    # ruot VCS / cache phien / phu thuoc — khong phai nguon
 
 def scan(base):
@@ -2192,11 +2218,14 @@ EXPECT_DIRS = ["skills", "commands", "feature-loop", "lib", "scripts",
                "hooks", "docs", "vendor"]
 
 files = scan(root)
+# Dem theo TIEN TO duong cua tung thu muc o cay nay (qua bo dich), khong theo doan dau: o bo cuc moi
+# skills/ … nam duoi plugins/acceptance-gate/.
 dc = {d: 0 for d in EXPECT_DIRS}
 for p in files:
-    top = p.relative_to(root).parts[0]
-    if top in dc:
-        dc[top] += 1
+    rel = p.relative_to(root).as_posix()
+    for d in dc:
+        if rel.startswith(duong(d).rstrip("/") + "/"):
+            dc[d] += 1
 empty = [d for d, n in dc.items() if n == 0]
 assert not empty, f"thu muc nguon khong gop file nao (doi ten? xoa?): {empty}"
 assert len(files) >= 40, f"chi quet duoc {len(files)} file — vung quet hong"
@@ -2306,11 +2335,11 @@ try:
     dst = tmp / "repo"
     dung_ban_sao(root, dst)
     assert verdict(dst) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(dst)}"
-    src = (dst / REF_REL).read_text(encoding="utf-8")
+    src = (dst / duong(REF_REL)).read_text(encoding="utf-8")
     for rel in ("vendor/impeccable/BAN-SAO-THU.md",                   # r1 bo lot
                 "docs/superpowers/plans/BAN-SAO-THU.md",               # r2 khoet ra
                 ".out-of-scope/BAN-SAO-THU.md"):                       # r3 bo lot
-        plant = dst / rel
+        plant = dst / duong(rel)
         plant.parent.mkdir(parents=True, exist_ok=True)
         plant.write_text(src, encoding="utf-8")
         subprocess.run(["git", "-C", str(dst), "add", "-f", str(plant.relative_to(dst))], check=True)
@@ -6813,8 +6842,25 @@ run "P161 strip-md giu duong dan + ma tran toan phan" \
   python3 - "$ROOT" <<'P161PY'
 import json, pathlib, re, subprocess, sys, tempfile, os
 root = pathlib.Path(sys.argv[1])
+# Duong bo cuc phang giai qua CLI bo dich tests/bo-cuc.mjs (ho so phan-du-bo-cuc-moi): o cay dang chay (mac dinh),
+# o mot commit (--kho/--ref: moc so-ban-cu, merge-base) — bo cuc doc tu CHINH commit ay —, hoac tu goc goi loi
+# (duong_goi: khuon ban sao scripts/ + lib/ canh nhau cua fixture, chu ay khong doi theo bo cuc kho).
+_DUONG = {}
+def duong(rel, *co):
+    k = (rel,) + co
+    if k not in _DUONG:
+        _DUONG[k] = subprocess.check_output(["node", str(root / "tests/bo-cuc.mjs"), "duong", rel] + (list(co) or ["--thu-muc", str(root)]), text=True).strip()
+    return _DUONG[k]
+def duong_tai(rel, ref):
+    return duong(rel, "--kho", str(root), "--ref", ref)
+GOC_LOI = root / pathlib.Path(duong("lib")).parent
+def duong_goi(rel):
+    return duong(rel, "--goi-goc", str(GOC_LOI), "--vai", "loi")
+SC_REL = duong_goi("scripts/gate-card.js")      # scripts/gate-card.js tu goc goi
+SC_DIR = pathlib.Path(SC_REL).parent
+LIB_DIR = pathlib.Path(duong_goi("lib"))
 WS = root / "_acceptance/card-text-fidelity"
-CARD = root / "scripts/gate-card.js"
+CARD = root / duong("scripts/gate-card.js")
 contract = (WS / "contract.md").read_text(encoding="utf-8")
 
 # ── nguon SU THAT cua ma tran: marker trong contract ──
@@ -6945,7 +6991,7 @@ def old_at(base, workdir):
     chk = subprocess.run(["git", "-C", str(workdir), "cat-file", "-e", base + "^{commit}"], capture_output=True)
     if chk.returncode != 0:
         return None, "khong lay duoc ban cu tai moc %s (cay thieu lich su)" % base
-    r = subprocess.run(["git", "-C", str(workdir), "show", "%s:scripts/gate-card.js" % base],
+    r = subprocess.run(["git", "-C", str(workdir), "show", "%s:%s" % (base, duong_tai("scripts/gate-card.js", base))],
                        capture_output=True, text=True)
     if r.returncode != 0 or len(r.stdout) < 500:
         return None, "khong lay duoc ban cu tai moc %s (git show that bai)" % base
@@ -6969,20 +7015,20 @@ assert err_old is None, "cay du lich su ma van bao loi lay ban cu: %r" % err_old
 
 with tempfile.TemporaryDirectory() as d:
     dd = pathlib.Path(d)
-    (dd / "scripts").mkdir(); (dd / "lib").mkdir()
-    old_js = dd / "scripts" / "gate-card.js"
+    (dd / SC_DIR).mkdir(parents=True); (dd / LIB_DIR).mkdir(parents=True)
+    old_js = dd / SC_REL
     old_js.write_text(src_old, encoding="utf-8")
     # lib lay TAI BASE (cung commit voi gate-card cu) — khong ghep lib hien tai:
     # sau dot .cjs 1.39.1, loc `f.suffix == ".js"` tren cay hien tai chep dung
     # 0 file va ban cu cung khong nap noi lib .cjs — ca hai chieu deu mu.
-    lib_names = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "--name-only", BASE, "lib"],
+    lib_names = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "--name-only", BASE, duong_tai("lib", BASE)],
                                capture_output=True, text=True).stdout.split()
     assert lib_names, "khong liet ke duoc lib/ tai ban cu %s — fixture ban base khong dung duoc" % BASE
     for name in lib_names:
         blob = subprocess.run(["git", "-C", str(root), "show", "%s:%s" % (BASE, name)],
                               capture_output=True, text=True)
         assert blob.returncode == 0, "khong lay duoc %s tai %s" % (name, BASE)
-        (dd / "lib" / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
+        (dd / LIB_DIR / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
     strip_old = load_strip(old_js)
 
     # ══ E4: ban cu ĐỎ dung tap, XANH dung tap; co khai == su that do duoc ══
@@ -7258,28 +7304,28 @@ with tempfile.TemporaryDirectory() as d:
         # mọi tệp lib mang đuôi khác (`.js`, `.mjs`, `.json`). (out-of-contract
         # đổi sang `.cjs` ở vòng ho-so-khep-thoi-hoi, khi làn V bắt đầu nạp nó.)
         n = 0
-        for f in (root / "lib").iterdir():
+        for f in (root / duong("lib")).iterdir():
             if f.is_file(): (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8"); n += 1
         assert n >= 5, "lib hien tai chi co %d file — fixture the he moi khong dung duoc" % n
-    iso_new = dd / "iso-new"; (iso_new / "scripts").mkdir(parents=True); (iso_new / "lib").mkdir()
-    (iso_new / "scripts" / "gate-card.js").write_text(CARD.read_text(encoding="utf-8"), encoding="utf-8")
+    iso_new = dd / "iso-new"; (iso_new / SC_DIR).mkdir(parents=True); (iso_new / LIB_DIR).mkdir(parents=True)
+    (iso_new / SC_REL).write_text(CARD.read_text(encoding="utf-8"), encoding="utf-8")
     for name in lib_names:
         blob = subprocess.run(["git", "-C", str(root), "show", "%s:%s" % (BASE, name)],
                               capture_output=True, text=True)
-        (iso_new / "lib" / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
-    assert not renders_any(iso_new / "scripts" / "gate-card.js", slugs[:3]), \
+        (iso_new / LIB_DIR / pathlib.Path(name).name).write_text(blob.stdout, encoding="utf-8")
+    assert not renders_any(iso_new / SC_REL, slugs[:3]), \
         "co-lap-lop: script the he MOI van chay duoc tren lib the he CU — hai the he khong con roi nhau, cap nhat phep do"
-    iso_old = dd / "iso-old"; (iso_old / "scripts").mkdir(parents=True); (iso_old / "lib").mkdir()
-    (iso_old / "scripts" / "gate-card.js").write_text(src_old, encoding="utf-8")
-    copy_lib_now(iso_old / "lib")
-    assert not renders_any(iso_old / "scripts" / "gate-card.js", slugs[:3]), \
+    iso_old = dd / "iso-old"; (iso_old / SC_DIR).mkdir(parents=True); (iso_old / LIB_DIR).mkdir(parents=True)
+    (iso_old / SC_REL).write_text(src_old, encoding="utf-8")
+    copy_lib_now(iso_old / LIB_DIR)
+    assert not renders_any(iso_old / SC_REL, slugs[:3]), \
         "co-lap-lop: script the he CU van chay duoc tren lib the he MOI — hai the he khong con roi nhau, cap nhat phep do"
     # Vá theo hình (không đắp triệu chứng): mutant là script THẾ HỆ MỚI nên
     # đứng trong thư mục riêng cạnh lib .cjs hiện tại — dd/lib là nhà của thế
     # hệ CŨ (bản base), không nhét chung.
-    mut_dir = dd / "cur"; (mut_dir / "scripts").mkdir(parents=True); (mut_dir / "lib").mkdir()
-    copy_lib_now(mut_dir / "lib")
-    mut_js = mut_dir / "scripts" / "gate-card.mut.js"
+    mut_dir = dd / "cur"; (mut_dir / SC_DIR).mkdir(parents=True); (mut_dir / LIB_DIR).mkdir(parents=True)
+    copy_lib_now(mut_dir / LIB_DIR)
+    mut_js = mut_dir / SC_DIR / "gate-card.mut.js"
     mut_js.write_text(mut_src, encoding="utf-8")
     assert renders_any(mut_js, slugs), \
         "PHEP DO MU: mutant khong chay duoc (0 the render duoc) — 'khong do' cua mot script chet khong duoc dem la bang chung; dat mutant canh dung lib the he cua no"
@@ -7296,7 +7342,7 @@ with tempfile.TemporaryDirectory() as d:
     bia_src = card_src.replace(KIM_FT, '<div class="ft">${esc(featurePlain)} **bia-dat-xyz**</div>')
     assert n_ft >= 2 and bia_src.count("**bia-dat-xyz**") == n_ft, \
         "tiem mutant bia that bai (kim khop %d cho) — cap nhat phep do" % n_ft
-    bia_js = mut_dir / "scripts" / "gate-card.bia.js"
+    bia_js = mut_dir / SC_DIR / "gate-card.bia.js"
     bia_js.write_text(bia_src, encoding="utf-8")
     assert renders_any(bia_js, slugs), "PHEP DO MU: mutant bia khong chay duoc"
     bad_bia = untraceable(bia_js)
@@ -7313,7 +7359,17 @@ with tempfile.TemporaryDirectory() as d:
     assert r.returncode == 0, "khong lay duoc bo kiem ban cu tai moc"
     old_asserts = [l.strip() for l in r.stdout.split("\n") if l.strip().startswith("assert ")]
     new_text = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
-    missing = [l for l in old_asserts if l not in new_text]
+    # So o bo cuc cua MOC: moi duong dang `plugins/<goi>/…` trong assert cua cay nay dich nguoc ve duong o BASE qua
+    # bo dich (chi dung bang thu muc cua no, khong bieu thuc tu do); bo cuc phang khong co dang ay nen phep dich rong.
+    def ve_moc(dong):
+        for tok in sorted(set(re.findall(r"(?<![\w./-])plugins/[\w.-]+(?:/[\w.*-]+)*", dong)), key=len, reverse=True):
+            r_tok = subprocess.run(["node", str(root / "tests/bo-cuc.mjs"), "duong", tok, "--kho", str(root), "--ref", BASE],
+                                   capture_output=True, text=True)
+            if r_tok.returncode == 0:
+                dong = dong.replace(tok, r_tok.stdout.strip())
+        return dong
+    new_moc = new_text + "\n" + "\n".join(ve_moc(l.strip()) for l in new_text.split("\n") if l.strip().startswith("assert ") and "plugins/" in l)
+    missing = [l for l in old_asserts if l not in new_moc]
     # Duong KHAI-DOI-THUOC: mot dot luu kho lam chet ca mot vung do thi banh coc
     # phai mo bang LOI KHAI, khong phai bang cach noi chot. Hai chieu:
     #   (a) assert bien mat ma KHONG khai -> DO (ha thuoc lang le);
@@ -7352,7 +7408,7 @@ _base_calls = None
 try:
     _base = subprocess.run(["git", "-C", str(root), "merge-base", "HEAD", "origin/main"],
                            capture_output=True, text=True, check=True).stdout.strip()
-    _src = subprocess.run(["git", "-C", str(root), "show", f"{_base}:scripts/gate-card.js"],
+    _src = subprocess.run(["git", "-C", str(root), "show", f"{_base}:{duong_tai('scripts/gate-card.js', _base)}"],
                           capture_output=True, text=True, check=True).stdout
     _base_calls = len(re.findall(LOT_RE, _src))
 except Exception as e:
