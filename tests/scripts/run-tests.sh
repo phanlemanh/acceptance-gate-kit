@@ -1287,11 +1287,16 @@ mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8 NGHĨA VỤ"
 # Nhánh token-lạ của lint đã GỠ (gom-duc-ket-2-10-0 AC-5d) nên sự-im-lặng-của-lint một mình
 # không phân biệt được «mutant đúng» với «bản sao chưa từng chạy»: DẤU HIỆU BẢN SAO ĐÃ CHẠY
 # lấy từ thẻ — gate-card của bản sao phải trả token_la ["web"], bản lành trả [].
-M42="$T/l42m-kit"; mkdir -p "$M42"; cp -R "$HERE/../../lib" "$M42/lib"; cp -R "$HERE/../../scripts" "$M42/scripts"
-sed -i.bak "s/web: 'ui', //" "$M42/lib/lop-nhin-thay.cjs" && rm -f "$M42/lib/lop-nhin-thay.cjs.bak"
-if grep -q "web: 'ui'" "$M42/lib/lop-nhin-thay.cjs"; then ko "L42m (không tiêm được mutant alias)"; else
-  o="$(node "$M42/scripts/eval-coverage-lint.js" "$T/l42" 2>&1)"
-  tl_of() { node "$1/scripts/gate-card.js" --root "$2" --slug feat-lnt --extract 2>/dev/null | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{process.stdout.write(JSON.stringify(JSON.parse(s).ui_observed.token_la))}catch(e){process.stdout.write("ERR")}})'; }
+# Bản sao SOI GƯƠNG cây đang đứng; mọi đường trong bản sao và trong cây giải qua CLI bộ dịch (tests/bo-cuc.mjs), bố cục
+# đọc từ chính cây ấy — lõi ở gốc kho hay ở plugins/<gói>/ đều cùng một câu lệnh.
+bc_duong() { node "$HERE/../bo-cuc.mjs" duong "$2" --thu-muc "$1"; }
+M42="$T/l42m-kit"; mkdir -p "$M42"
+for _d in $(node "$HERE/../bo-cuc.mjs" bo-phan lib scripts --thu-muc "$HERE/../.."); do mkdir -p "$(dirname "$M42/$_d")"; cp -R "$HERE/../../$_d" "$M42/$_d"; done
+M42_LNT="$M42/$(bc_duong "$M42" lib/lop-nhin-thay.cjs)"
+sed -i.bak "s/web: 'ui', //" "$M42_LNT" && rm -f "$M42_LNT.bak"
+if grep -q "web: 'ui'" "$M42_LNT"; then ko "L42m (không tiêm được mutant alias)"; else
+  o="$(node "$M42/$(bc_duong "$M42" scripts/eval-coverage-lint.js)" "$T/l42" 2>&1)"
+  tl_of() { node "$1/$(bc_duong "$1" scripts/gate-card.js)" --root "$2" --slug feat-lnt --extract 2>/dev/null | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{process.stdout.write(JSON.stringify(JSON.parse(s).ui_observed.token_la))}catch(e){process.stdout.write("ERR")}})'; }
   tlM="$(tl_of "$M42" "$T/l42")"
   tlG="$(tl_of "$HERE/../.." "$T/l42")"
   case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ko "L42m (mutant bỏ alias mà nhánh nghĩa vụ vẫn nổ)" ;; *)
@@ -3602,7 +3607,8 @@ hasout RL4f "pre-merge-check: clean" "$RL4"
 # sẵn và mọi kết luận từ nó là kết luận về một script KHÁC. Đối chứng dương
 # RL2ctrl2 chính là thứ bắt được điều đó.
 RLCP="$T/rlcp"; mkdir -p "$RLCP/scripts"
-cp -R "$ROOT_REAL/lib" "$RLCP/lib"
+# Nguồn là lib/ của GÓI LÕI ở cây đang đứng (CLI bộ dịch); bản sao giữ hình gốc gói: scripts/ cạnh lib/.
+cp -R "$ROOT_REAL/$(node "$HERE/../bo-cuc.mjs" duong lib --thu-muc "$ROOT_REAL")" "$RLCP/lib"
 
 echo "RL2 tiem vo hieu khoi gap-probe -> VIOLATION [ledger] dich danh, exit 2"
 mk_gp_repo rl2; R="$GPR/rl2"; gp_feature "$R" feat-rl2 T3 implemented; gp_commit "$R"
