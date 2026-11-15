@@ -474,14 +474,15 @@ async function cheDoMoi(ctx, args, out) {
 // Ca canh mỗi cụm; `ghim` = các mảnh chữ (mọi mảnh) phải có trong thông điệp đỏ dưới bản đồng nhất — chép từ lượt
 // `--chieu-do` 15/11 (Task 10), phần ổn định của câu (đường kho tạm che thành «<kho>», không sha). Mỗi ca canh nằm ở
 // một tệp tự đúng đường (gui-b2.md) hoặc gọi CLI bộ dịch (P161), nên bản đồng nhất trỏ đường phẳng không có ở kho mới.
-// SP: CK-4-lib (kế hoạch) đọc tên gói và đường phẳng viết cứng, không qua bộ dịch — không đỏ theo bộ dịch nên không làm ca
-// canh; TH-10-ong (cùng cụm SP, đọc bản nhân qua bộ dịch) thay.
+// SP: CK-4-lib (kế hoạch) đọc tên gói 'road-map' và đường phẳng viết cứng, không qua bộ dịch (bảng vá B2 sửa chúng) — không
+// đỏ theo bộ dịch nên không làm ca canh; TH-10-ong (cùng cụm SP, lệnh chấm bản nhân qua bộ dịch) thay.
 export const CA_CANH = [
   { cum: 'K2', bo: 'scripts', tep: 'moi-cong-khong-qua-nut.test.mjs', ca: 'MQ-1', ghim: ['vắng khỏi túi đạt', "Cannot find module '<kho>/lib/ho-goi.cjs'"] },
   { cum: 'K3', bo: 'plugins', tep: 'ra-co-ten.test.mjs', ca: 'RT13', ghim: ['vắng khỏi túi đạt', "ERR_MODULE_NOT_FOUND", "<kho>/scripts/khong-can-nguoi.mjs"] },
   { cum: 'SP', bo: 'scripts', tep: 'tin-hieu.test.mjs', ca: 'TH-10-ong', ghim: ['vắng khỏi túi đạt', "Cannot find module '<kho>/lib/workspace-record.cjs'"] },
   { cum: 'K4-SC', bo: 'scripts', tep: 'core-untouched.test.mjs', ca: 'JR11a', ghim: ['JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI', "ENOENT: no such file or directory, scandir '<kho>/lib'"] },
-  { cum: 'K4-PL', bo: 'plugins', tep: '(đầu)', ca: 'P161', ghim: ['P161 strip-md giu duong dan', "FileNotFoundError: [Errno 2] No such file or directory: '<kho>/lib'"], them: { ONLY_BLOCK: 'P161' } },
+  // P161: dòng lỗi (Python FileNotFoundError '<kho>/lib') ra stderr của heredoc, không kề dòng FAIL ở stdout — ghim dòng FAIL.
+  { cum: 'K4-PL', bo: 'plugins', tep: '(đầu)', ca: 'P161', ghim: ['P161 strip-md giu duong dan + ma tran toan phan'], them: { ONLY_BLOCK: 'P161' } },
 ];
 const thieuGhim = (c, msg) => [].concat(c.ghim || []).filter(g => !msg.includes(g));
 // Mục vá thừa theo biến thể chấm (iii): mục trên một tệp tự đúng đường thừa vì bước 6 bỏ qua trọn tệp ấy (không luật
