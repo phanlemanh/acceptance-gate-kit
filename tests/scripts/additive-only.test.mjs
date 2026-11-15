@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { duong, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -294,18 +295,21 @@ const BASE = resolveBase();
 // 1.39.1: recheck-evidence đổi đuôi .js → .cjs (fix ESM-scope ở consumer). Base
 // trước đợt đó còn giữ tên .js — đọc tên hiện hành trước, lùi về tên cũ khi
 // base chưa có, để phép đo sống được cả hai phía của lần đổi tên.
+// Base SỐNG: bố cục của nó đọc từ chính commit ấy (pathspec), không suy từ cây đang đứng.
+const O_BASE = { kho: ROOT, ref: BASE };
 function showAtBase(f) {
   try {
-    return execFileSync('git', ['-C', ROOT, 'show', `${BASE}:${f}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return execFileSync('git', ['-C', ROOT, 'show', `${BASE}:${pathspec(f, O_BASE)}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   } catch (e) {
-    if (f.endsWith('.cjs')) return git('show', `${BASE}:${f.slice(0, -4)}.js`);
+    if (f.endsWith('.cjs')) return git('show', `${BASE}:${pathspec(`${f.slice(0, -4)}.js`, O_BASE)}`);
     throw e;
   }
 }
+const tepDung = f => tep(f, { thuMuc: ROOT });
 for (const f of FILES) {
-  check(`DV5 ${f}: diff so với base ${BASE.slice(0, 7)} CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)`, () => {
+  check(`DV5 ${duong(f, { thuMuc: ROOT })}: diff so với base ${BASE.slice(0, 7)} CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)`, () => {
     const baseText = showAtBase(f);
-    const curText = execFileSync('cat', [path.join(ROOT, f)], { encoding: 'utf8' });
+    const curText = execFileSync('cat', [tepDung(f)], { encoding: 'utf8' });
     // (b) sanity counter: phép nhận diện luật cũ phải thấy > 0 dòng
     const oldRules = baseText.split('\n').filter(l => /VIOLATION|NOTE \[|process\.exit\(1\)/.test(l));
     assert.ok(oldRules.length > 0, `sanity counter: 0 dòng luật cũ nhận diện được trong ${f}@base — phép nhận diện hỏng`);
@@ -315,7 +319,7 @@ for (const f of FILES) {
 }
 
 check('DV5u: không mục ALLOWED_REMOVALS nào MƠ HỒ (khớp ≥2 dòng của base)', () => {
-  const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);
+  const baseText = showAtBase('scripts/pre-merge-check.sh');
   const baseRecheck = showAtBase('scripts/recheck-evidence.cjs');
   const mo = [];
   for (const e of ALLOWED_REMOVALS) {
@@ -332,7 +336,7 @@ check('DV5u: không mục ALLOWED_REMOVALS nào MƠ HỒ (khớp ≥2 dòng củ
 });
 
 check('DV5u-mutant: một mục miễn trừ mơ hồ phải ĐỎ đích danh', () => {
-  const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);
+  const baseText = showAtBase('scripts/pre-merge-check.sh');
   const n = demTrongBase(baseText, '  esac');
   assert.ok(n >= 2, 'fixture hỏng: chuỗi chung không còn chung');
   const mo = [];
@@ -345,10 +349,10 @@ check('DV5u-mutant: một mục miễn trừ mơ hồ phải ĐỎ đích danh',
 });
 
 check('DV5m mutant: bản sao sửa 1 dòng VIOLATION cũ → phép đo phải ĐỎ đích danh', () => {
-  const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);
+  const baseText = showAtBase('scripts/pre-merge-check.sh');
   const target = baseText.split('\n').find(l => l.includes('VIOLATION') && l.includes('stale'));
   assert.ok(target, 'không tìm được dòng luật cũ để mutate — sanity hỏng');
-  const mutated = execFileSync('cat', [path.join(ROOT, 'scripts/pre-merge-check.sh')], { encoding: 'utf8' })
+  const mutated = execFileSync('cat', [tepDung('scripts/pre-merge-check.sh')], { encoding: 'utf8' })
     .replace(target, target.replace('VIOLATION', 'RELAXED'));
   const removed = measure(baseText, mutated);
   assert.ok(removed.length > 0, 'mutant nới luật cũ mà phép đo vẫn 0 dòng xoá — additive-only không phân biệt được');

@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { assertCorpus } from './mirror-sync-grandfather.mjs';
+import { tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -59,7 +60,7 @@ check('JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI của judge-require
   const n = Number(git('rev-list', '--count', `${JR11_RANGE_BASE}..${JR11_RANGE_TIP}`).trim());
   assert.ok(n > 0, `phạm vi rỗng (${n} commit) — phép đo tự-khớp, không chứng minh gì`);
   for (const d of ['lib', 'hooks']) {
-    assert.ok(readdirSync(path.join(ROOT, d)).length > 0, `sanity: ${d}/ rỗng`);
+    assert.ok(readdirSync(tep(d, { thuMuc: ROOT })).length > 0, `sanity: ${d}/ rỗng`);
     const diff = git('diff', '--name-only', JR11_RANGE_BASE, JR11_RANGE_TIP, '--', d).trim();
     assert.equal(diff, '', `lõi ${d}/ bị chạm TRONG phạm vi của feature:\n${diff}`);
   }
@@ -89,7 +90,7 @@ check('JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report �
   const rp = path.join(dir, 'evidence-report.md');
   writeFileSync(rp, readFileSync(rp, 'utf8') + '\nghi chu tiem: verdict: FAIL\n');
   let err = '';
-  try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
+  try { execFileSync('node', [tep('scripts/recheck-evidence.cjs', { thuMuc: ROOT }), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
   catch (e) { err = String(e.stderr || ''); }
   assert.ok(err, 'bản tiêm vẫn xanh — lưới không chạy thật');
   assert.match(err, /CONSISTENCY/, `đỏ nhưng sai thông điệp: ${err.slice(0, 120)}`);

@@ -9,12 +9,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { boPhan, duong, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
-const MOD = path.join(ROOT, 'scripts', 'can-cu-s1.cjs');
-const GC = path.join(ROOT, 'scripts', 'gate-card.js');
-const SKILL = path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
+const CAY = { thuMuc: ROOT };
+const MOD = tep('scripts/can-cu-s1.cjs', CAY);
+const GC = tep('scripts/gate-card.js', CAY);
+const SKILL = tep('feature-loop/skills/feature-loop/SKILL.md', CAY);
 const SKILL_REL = 'feature-loop/skills/feature-loop/SKILL.md';
 const SLUG_VONG = 'buoc-len-thiet-ke-khong-hoi';
 const NHANH = 'vong/a2-thiet-ke-khong-hoi-thua';
@@ -262,12 +264,15 @@ const VUNG_CAM = ['feature-loop/scripts', 'feature-loop/workflows', 'dieu-phoi',
 
 // ── CC-02: khuôn có sẵn giữ từng byte, vùng cấm không đổi ─────────────────────────────────────────────
 check('CC-02 khoi-giu-byte', () => {
-  const t = tamVong(); const goc = tepO(t.goc, SKILL_REL), dinh = tepO(t.dinh, SKILL_REL);
+  // Hai commit lịch sử: đường đọc theo bố cục của CHÍNH commit ấy; mỗi pathspec phải có thật ở commit (chốt chống rỗng —
+  // diff trên một đường không có ở hai commit là rỗng, xanh mà không đo gì).
+  const t = tamVong(); const o = sha => ({ kho: ROOT, ref: sha });
+  const goc = tepO(t.goc, pathspec(SKILL_REL, o(t.goc))), dinh = tepO(t.dinh, pathspec(SKILL_REL, o(t.dinh)));
   if (goc === null || dinh === null) die('không đọc được SKILL ở tầm vòng ' + JSON.stringify(t));
   const k = soKhoi(goc, dinh);
   eq(k.lech, [], `khối có ở gốc ${t.goc.slice(0, 8)} phải giữ từng byte (${t.nguon})`);
   eq(k.them, ['DEC-CAN-CU-SLOT', 'DEC-LAT-GATE1'], 'khối mới đúng hai');
-  eq(git(ROOT, 'diff', '--name-only', t.goc, t.dinh, '--', ...VUNG_CAM), '', 'vùng cấm chạm không đổi');
+  eq(git(ROOT, 'diff', '--name-only', t.goc, t.dinh, '--', ...VUNG_CAM.map(x => pathspec(x, o(t.goc)))), '', 'vùng cấm chạm không đổi');
   console.log(`    CC-02: tầm ${t.goc.slice(0, 8)}..${t.dinh.slice(0, 8)} (${t.nguon}) · ${cacKhoi(goc).size} khối gốc`);
 });
 check('CC-02-do', () => {
@@ -384,12 +389,13 @@ check('CC-05 khong-goc', () => {
   eq((h.match(/chưa kiểm câu trích có từ trước vòng/g) || []).length, 1, 'đúng một cờ vàng chưa kiểm gốc');
   if (/Sổ bước thiết kế — /.test(h)) die('không gốc mà có cờ đỏ mới');
 });
-const VANG_MO_DUN = 'Không nạp được bộ đọc căn cứ bước thiết kế (scripts/can-cu-s1.cjs)';
+// Chỉ phần chữ của cờ vàng: đường trong ngoặc là đường tính từ gốc gói do thẻ in, không phải thứ ca đo.
+const VANG_MO_DUN = 'Không nạp được bộ đọc căn cứ bước thiết kế';
 check('CC-05 vang-mo-dun', () => {
   const kho = mkHoSoThe();
   if (theCua(kho, ['--glossary-base', kho.base]).stdout.includes(VANG_MO_DUN)) die('đối chứng: thẻ lành mà có cờ vắng bộ đọc');
   const d = mkdtempSync(path.join(tmpdir(), 'cancu-don-')); mkdirSync(path.join(d, 'scripts'));
-  cpSync(GC, path.join(d, 'scripts', 'gate-card.js')); cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  cpSync(GC, path.join(d, 'scripts', 'gate-card.js')); cpSync(tep('lib', CAY), path.join(d, 'lib'), { recursive: true });
   const h = spawnSync('node', [path.join(d, 'scripts', 'gate-card.js'), '--root', kho.r, '--slug', 'h', '--glossary-base', kho.base], { encoding: 'utf8' });
   if (h.status !== 0) die('thẻ đứng một mình không dựng được: ' + h.stderr.slice(0, 200));
   eq((h.stdout.match(/Không nạp được bộ đọc căn cứ bước thiết kế/g) || []).length, 1, 'thẻ thiếu bộ đọc có đúng một cờ vàng');
@@ -397,7 +403,7 @@ check('CC-05 vang-mo-dun', () => {
 });
 check('CC-05-do', () => {
   const d = mkdtempSync(path.join(tmpdir(), 'cancu-gc-'));
-  cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true }); cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  cpSync(tep('scripts', CAY), path.join(d, 'scripts'), { recursive: true }); cpSync(tep('lib', CAY), path.join(d, 'lib'), { recursive: true });
   const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8');
   const tu = 'const ccMayQuyet = cc.da_quyet;'; if (!t.includes(tu)) die('mũi tiêm thẻ không áp');
   writeFileSync(f, t.replace(tu, 'const ccMayQuyet = cc.da_quyet.concat(cc.cau_hoi);'));
@@ -474,10 +480,10 @@ function docBaBoDoc(dongs) {
   ghiTep(kho.r, '_acceptance/h/contract.md', HD_DRAFT.replace('status: draft', 'status: implemented'));
   ghiTep(kho.r, '_acceptance/h/evals.yaml', EVALS);
   ghiSoKho(kho.r, 'h', dongs); ghiSoKho(kho.r, 'khac', [S1('d-20261011T000000Z-9', undefined)]);
-  const HS = require(path.join(ROOT, 'scripts', 'ho-so-tom-tat.cjs'));
+  const HS = require(tep('scripts/ho-so-tom-tat.cjs', CAY));
   const ck = HS.tomTatHoSo(path.join(kho.r, '_acceptance', 'h')).dai.chu_kho;
-  const cs = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', kho.r, '--slug', 'khac'], { encoding: 'utf8' });
-  const lh = spawnSync('node', [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', kho.r, '--json'], { encoding: 'utf8' });
+  const cs = spawnSync('node', [tep('feature-loop/scripts/claim-scan.mjs', CAY), '--root', kho.r, '--slug', 'khac'], { encoding: 'utf8' });
+  const lh = spawnSync('node', [tep('scripts/loop-health.mjs', CAY), '--root', kho.r, '--json'], { encoding: 'utf8' });
   let hang = null; try { hang = (JSON.parse(lh.stdout).rows || []).find(x => x.slug === 'h') || null; } catch (_) { die('loop-health không in JSON: ' + (lh.stderr || lh.stdout).slice(0, 200)); }
   return { tom: [ck.quyet_dinh_may, ck.quyet_dinh_nguoi], claim: cs.stdout.split('\n').filter(l => /d-20261011T000000Z-\d/.test(l)).map(l => l.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>')), fix_s4: hang ? hang.fix_s4 : null };
 }
@@ -511,13 +517,13 @@ check('CC-10', () => {
 // Kho thử do code sinh, KHÔNG có scripts/ của kit; HOME tạm mang bộ nhớ đệm plugin giả
 // (acceptance-gate-kit/acceptance-gate/9.9.9) — thư mục bản là thư mục THẬT vì bộ giải gói bỏ qua symlink ở
 // cấp đó, chỉ scripts/ bên trong trỏ cây đang kiểm. Lệnh là lệnh RÚT từ SKILL lúc chạy.
-const FL_WF = path.join(ROOT, 'feature-loop', 'workflows');
+const FL_WF = tep('feature-loop/workflows', CAY);
 const lenhBoXep = t => [...t.matchAll(/`([^`]*\bnode\b[^`]*can-cu-s1\.cjs[^`]*)`/g)].map(m => m[1]);
 function nhaGia({ coBoXep = true } = {}) {
   const h = mkdtempSync(path.join(tmpdir(), 'kk-nha-'));
   const ban = path.join(h, '.claude', 'plugins', 'cache', 'acceptance-gate-kit', 'acceptance-gate', '9.9.9');
   mkdirSync(ban, { recursive: true });
-  if (coBoXep) symlinkSync(path.join(ROOT, 'scripts'), path.join(ban, 'scripts'));
+  if (coBoXep) symlinkSync(tep('scripts', CAY), path.join(ban, 'scripts')); // bộ đệm plugin luôn là gốc gói (phẳng)
   else mkdirSync(path.join(ban, 'scripts'));
   return h;
 }
@@ -567,8 +573,11 @@ check('KK-2 chua-cai', () => {
   if (!p.stderr.includes('acceptance-gate') || !p.stderr.includes('claude plugin install')) die('thông điệp không nêu gói + lệnh cài: ' + p.stderr.slice(0, 240));
 });
 // Quét lớp trên trọn SKILL feature-loop: lời gọi node|bash|sh tới một công cụ CÓ trong kit bằng đường chỉ đúng ở kho kit.
-const quetTuongDoi = (text, ten) => text.split('\n').flatMap((l, i) => [...l.matchAll(/\b(?:node|bash|sh)\s+["']?(?:\.\/)?((?:[\w-]+\/)?scripts\/[\w.-]+)/g)]
-  .filter(m => existsSync(path.join(ROOT, m[1])) || existsSync(path.join(ROOT, 'feature-loop', m[1]))).map(() => `${ten}:${i + 1}`));
+// «Có trong kit»: đường kho-phẳng dịch theo cây này, hoặc đường tính từ gốc gói feature-loop — gốc gói ấy lấy bằng
+// pathspec ở HEAD (chốt chống rỗng: gốc không có thật thì ca ném có tên, phép quét không được mù im với một gói).
+const GOC_FL = () => path.join(ROOT, pathspec('feature-loop', { kho: ROOT, ref: 'HEAD' }));
+const quetTuongDoi = (text, ten, fl = GOC_FL()) => text.split('\n').flatMap((l, i) => [...l.matchAll(/\b(?:node|bash|sh)\s+["']?(?:\.\/)?((?:[\w-]+\/)?scripts\/[\w.-]+)/g)]
+  .filter(m => existsSync(tep(m[1], CAY)) || existsSync(path.join(fl, m[1]))).map(() => `${ten}:${i + 1}`));
 check('KK-4 quet-lop', () => { eq(quetTuongDoi(readFileSync(SKILL, 'utf8'), 'SKILL.md'), [], 'SKILL feature-loop gọi công cụ kit bằng đường tương đối'); });
 const HINH_KK4 = ['node scripts/can-cu-s1.cjs --root .', 'node ./scripts/can-cu-s1.cjs --root .', 'node feature-loop/scripts/resolve-plugin.mjs --plugin x', 'bash scripts/pre-merge-check.sh .'];
 check('KK-4-do', () => {
@@ -621,8 +630,8 @@ function kiemBanRut(j) {
 }
 function banSaoThe(tu, sang) {
   const d = mkdtempSync(path.join(tmpdir(), 'kk-gc-'));
-  for (const x of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, x), path.join(d, x), { recursive: true });
-  const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8');
+  for (const x of boPhan(['scripts', 'lib', 'skills'], CAY)) cpSync(path.join(ROOT, x), path.join(d, x), { recursive: true });
+  const f = tep('scripts/gate-card.js', { thuMuc: d }); const t = readFileSync(f, 'utf8');
   if (!t.includes(tu)) die('mũi tiêm thẻ không áp: ' + tu.slice(0, 80));
   writeFileSync(f, t.split(tu).join(sang)); return f;
 }
@@ -705,17 +714,18 @@ function tamVongKK() {
   return gopGan ? { goc: git(ROOT, 'rev-parse', `${gopGan}^2`), dinh: null, nguon: 'gop-gan' } : { goc: git(ROOT, 'rev-parse', `${mo}^`), dinh: null, nguon: 'diem-re' };
 }
 const THU_MUC_THE = ['scripts', 'lib', 'skills'];
-const banLuu = sha => { const d = mkdtempSync(path.join(tmpdir(), 'kk-luu-')); execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', '_', ROOT, sha, d]); return d; };
+// Bố cục của mỗi bản đọc từ chính commit/cây nguồn (HEAD sống có thể là bố cục mới); bản mang tệp khai chợ.
+const banLuu = sha => { const d = mkdtempSync(path.join(tmpdir(), 'kk-luu-')); execFileSync('bash', ['-c', 'git -C "$1" archive "$2" "${@:4}" | tar -x -C "$3"', '_', ROOT, sha, d, ...boPhan(THU_MUC_THE, { kho: ROOT, ref: sha })]); return d; };
 const banSaoTu = (goc, tu, sang) => {
-  const d = mkdtempSync(path.join(tmpdir(), 'kk-tiem-')); for (const x of THU_MUC_THE) cpSync(path.join(goc, x), path.join(d, x), { recursive: true });
-  const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8'); if (!t.includes(tu)) throw new Error('mũi tiêm thẻ không áp: ' + tu);
+  const d = mkdtempSync(path.join(tmpdir(), 'kk-tiem-')); for (const x of boPhan(THU_MUC_THE, { thuMuc: goc })) cpSync(path.join(goc, x), path.join(d, x), { recursive: true });
+  const f = tep('scripts/gate-card.js', { thuMuc: d }); const t = readFileSync(f, 'utf8'); if (!t.includes(tu)) throw new Error('mũi tiêm thẻ không áp: ' + tu);
   writeFileSync(f, t.split(tu).join(sang)); return d;
 };
 const hoSoCu = () => readdirSync(path.join(ROOT, '_acceptance')).filter(x => {
   try { readFileSync(path.join(ROOT, '_acceptance', x, 'contract.md')); return !readFileSync(path.join(ROOT, '_acceptance', x, 'decisions.jsonl'), 'utf8').includes('"can_cu"'); } catch (_) { return false; }
 }).sort();
 const chayThe = (goc, slug, them) => new Promise(res => {
-  const p = spawn('node', [path.join(goc, 'scripts', 'gate-card.js'), '--root', ROOT, '--slug', slug, '--gate', '1', ...them]);
+  const p = spawn('node', [tep('scripts/gate-card.js', { thuMuc: goc }), '--root', ROOT, '--slug', slug, '--gate', '1', ...them]);
   let o = ''; p.stdout.on('data', c => { o += c; }); p.on('close', code => res(`${code}\n${o}`));
 });
 // Lệch thì giữ vài dòng khác nhau đầu tiên để lượt chạy (cả CI) tự nói nguyên nhân (CI #331, 12/10).
@@ -727,7 +737,7 @@ const dongKhac = (a, b) => {
 };
 // Lệch ở lượt song song phải LẶP LẠI khi chạy tuần tự (A rồi B, hai lần) mới tính: CI #331 chạy lại hai lần ra hai tập lệch
 // khác nhau trên cùng một cây — nghi lệnh git của bộ quét trả rỗng khi nhiều thẻ dựng cùng lúc. Không lặp lại → «chập chờn».
-const chayTheTuanTu = (goc, slug, them) => { const r = spawnSync('node', [path.join(goc, 'scripts', 'gate-card.js'), '--root', ROOT, '--slug', slug, '--gate', '1', ...them], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return `${r.status}\n${r.stdout}`; };
+const chayTheTuanTu = (goc, slug, them) => { const r = spawnSync('node', [tep('scripts/gate-card.js', { thuMuc: goc }), '--root', ROOT, '--slug', slug, '--gate', '1', ...them], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return `${r.status}\n${r.stdout}`; };
 async function soThe(gocA, gocB, slugs, { dungKhiLech = false } = {}) {
   const lech = []; const chiTiet = []; const chapChon = []; let i = 0;
   const tho = async () => {
@@ -751,7 +761,7 @@ try {
   const t0 = Date.now(); const tv = tamVongKK(); const ds = hoSoCu();
   // Đỉnh: cây làm việc sạch ở ba thư mục thẻ nạp → dùng lưu trữ git của HEAD (hai bên cùng đi qua git archive,
   // không ăn tệp ca khác để lại trong cây); cây bẩn (đang sửa) → cây làm việc.
-  const cayBan = spawnSync('git', ['-C', ROOT, 'status', '--porcelain', '--', ...THU_MUC_THE], { encoding: 'utf8' }).stdout.trim() !== '';
+  const cayBan = spawnSync('git', ['-C', ROOT, 'status', '--porcelain', '--', ...THU_MUC_THE.map(x => duong(x, CAY))], { encoding: 'utf8' }).stdout.trim() !== '';
   const gocA = banLuu(tv.goc); const gocB = tv.dinh ? banLuu(tv.dinh) : (cayBan ? ROOT : banLuu('HEAD'));
   const troi = cayBan ? [] : await soThe(banLuu('HEAD'), ROOT, ds);   // đối chứng: lưu trữ HEAD == cây làm việc trên TOÀN tập
   const lech = await soThe(gocA, gocB, ds);
