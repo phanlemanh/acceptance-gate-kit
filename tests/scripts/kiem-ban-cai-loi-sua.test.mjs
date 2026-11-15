@@ -16,10 +16,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pathspec, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
-const SCRIPT = path.join(ROOT, 'scripts', 'kiem-ban-cai.mjs');
+const SCRIPT = tep('scripts/kiem-ban-cai.mjs', { thuMuc: ROOT });
 // Ba mẫu «tệp không chạy» của tiêu chí bật hàng TC4 (docs/plans/lo-trinh-kit.json): ghi Ở ĐÂY, không đọc lại hằng của
 // lệnh — một hằng bị nới rộng phải làm ca đỏ (KL-2b-dot), không được tự xanh theo.
 const BA_MAU = ['docs/', '_acceptance/', 'LO-TRINH.html'];
@@ -44,10 +45,17 @@ let dem = 0;
 const moi = (ten) => { const d = path.join(tam, `${ten}-${++dem}`); fs.mkdirSync(d, { recursive: true }); return d; };
 
 // ---------- kho kit thu nhỏ ----------
-const MK = JSON.parse(gitOk(ROOT, ['show', 'HEAD:.claude-plugin/marketplace.json']));
-const CHO = MK.name;
-const ID = `acceptance-gate@${CHO}`;
-const SO = JSON.parse(gitOk(ROOT, ['show', 'HEAD:.claude-plugin/plugin.json'])).version;
+// Chợ của kho thu nhỏ do fixture TỰ KHAI theo hình chợ đời cũ: gói lõi nguồn `./`, plugin.json lõi ở gốc — ba mẫu
+// «không chạy» (tính từ gốc kho) chỉ có nghĩa khi cây của gói lõi là trọn kho (ref ≤ 2.39; chợ nguồn cây con thì commit
+// chỉ chạm tài liệu gốc kho không chạm cây của gói). Tên chợ và số bản rút từ HEAD của kit, mỗi kho một bố cục.
+const HEAD_KIT = { kho: ROOT, ref: 'HEAD' };
+const CHO = tenCho(HEAD_KIT);
+const TEN_LOI = tenGoi(HEAD_KIT, 'loi');
+const ID = `${TEN_LOI}@${CHO}`;
+const MK_THAT = JSON.parse(gitOk(ROOT, ['show', `HEAD:${pathspec('.claude-plugin/marketplace.json', HEAD_KIT)}`]));
+const MK = { ...MK_THAT, plugins: [{ ...MK_THAT.plugins.find(p => p.name === TEN_LOI), source: './' }] };
+const PLUGIN_LOI = gitOk(ROOT, ['show', `HEAD:${pathspec('.claude-plugin/plugin.json', HEAD_KIT)}`]);
+const SO = JSON.parse(PLUGIN_LOI).version;
 const TAG = `v${SO}`;
 const MAU = { 'scripts/a.mjs': 'export const a = 1;\n', 'scripts/docs/x.mjs': 'export const x = 1;\n', 'skills/a/docs/b.md': '# kỹ năng\n',
   'feature-loop/LO-TRINH.html': '<p>gói con</p>\n', 'docs/a.md': 'tài liệu\n', '_acceptance/a/x.md': 'hồ sơ\n', '_acceptance/a/y.md': 'hồ sơ sẽ xoá\n',
@@ -57,11 +65,7 @@ function dungKit() {
   const kit = moi('kit');
   gitOk(kit, ['init', '-q', '-b', 'main']);
   ghi(path.join(kit, '.claude-plugin', 'marketplace.json'), JSON.stringify(MK, null, 2) + '\n');
-  for (const p of MK.plugins) {
-    const nguon = path.posix.normalize(String(p.source).replace(/^\.\//, '')) || '.';
-    const rel = `${nguon === '.' ? '' : nguon + '/'}.claude-plugin/plugin.json`;
-    ghi(path.join(kit, rel), gitOk(ROOT, ['show', `HEAD:${rel}`]));
-  }
+  ghi(path.join(kit, '.claude-plugin', 'plugin.json'), PLUGIN_LOI);
   for (const [rel, s] of Object.entries(MAU)) ghi(path.join(kit, rel), s);
   gitOk(kit, ['add', '-A']); gitOk(kit, ['commit', '-qm', 'the']); gitOk(kit, ['tag', TAG]);
   const shaThe = gitOk(kit, ['rev-parse', 'HEAD']).trim();
@@ -99,7 +103,7 @@ const soCua = (cfg) => path.join(cfg, 'plugins', 'installed_plugins.json');
 const ghiSo = (cfg, ds) => ghi(soCua(cfg), JSON.stringify({ version: 2, plugins: { [ID]: ds } }, null, 2) + '\n');
 const docSo = (cfg) => JSON.parse(fs.readFileSync(soCua(cfg), 'utf8')).plugins[ID];
 // Bộ đệm nằm DƯỚI plugins/ của chính cấu hình, để phép chụp chỉ-đọc (KL-8) phủ cả bộ đệm.
-const boDem = (cfg, ten) => path.join(cfg, 'plugins', 'cache', CHO, 'acceptance-gate', ten);
+const boDem = (cfg, ten) => path.join(cfg, 'plugins', 'cache', CHO, TEN_LOI, ten);
 
 function chup(cfg) {
   const ds = [];
