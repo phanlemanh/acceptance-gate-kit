@@ -335,7 +335,12 @@ const TU_PHA = [
   { id: 'CU-DO', bo: 'scripts', tep: 'tests/scripts/bo-cuc.test.mjs', cu: "  ['tri-thuc/commands/ghi.md', 'plugins/knowledge/commands/ingest.md'],\n", moi: '', mat: 'BC tri-thuc/commands/ghi.md · cây phẳng' },
   { id: 'CU-DO-DP', bo: 'dieu-phoi', tep: 'tests/dieu-phoi/ten-may-mot-luat.test.mjs', cu: "test('TM-1 khu-hoi',", moi: "test.skip('TM-1 khu-hoi',", mat: 'TM-1 khu-hoi' },
 ];
-export const KHOA_N_CU = ['CY2 <n> khoa executors: bo doc cua kit va bo doc chuan noi CUNG mot chuyen'];
+// CTN-AC6-kit đếm evidence-report.md của mọi hồ sơ trong cây — hồ sơ của chính vòng (báo cáo lượt chấm) làm số tăng
+// dù ca không đổi (S4 lượt 1 thử lại: 232 ở bản gốc, 233 ở HEAD → «mất khoá» oan).
+export const KHOA_N_CU = [
+  'CY2 <n> khoa executors: bo doc cua kit va bo doc chuan noi CUNG mot chuyen',
+  'CTN-AC6-kit chieu im tren <n> bao cao kit: chi dong bon khoa o vi tri truong doi',
+];
 async function cheDoCu(ctx, args, out) {
   const head = git(GOC, 'rev-parse', 'HEAD'); const base = banGoc(args);
   // Khoá mang chữ số trôi (khoá đích «<n>» của khoa-dich.tsv, vd RT13 đếm hồ sơ của cây) so ở dạng «<n>» cả hai phía.

@@ -102,6 +102,14 @@ try {
   if (GK.demKhoa(m, 'X: 248') !== 1) sai.push('đối chứng: khoá nguyên chữ không khớp chính nó');
   const v = GK.veDangN(m, [N]);
   if (!(v.get(N) === 1 && v.get('X: 248') === 1 && v.size === 3)) sai.push(`túi về dạng «<n>» (cho --cu, túi --moi): ${JSON.stringify([...v])}`);
+  // KHOA_N_CU: CTN-AC6-kit đếm báo cáo của cây — 232 ở bản gốc, 233 ở HEAD phải so bằng nhau; mất hẳn ca vẫn đỏ.
+  const { soTui } = await import(pathToFileURL(path.join(HERE, 'tui-khoa.mjs')).href);
+  const ctn = (n) => `CTN-AC6-kit chieu im tren ${n} bao cao kit: chi dong bon khoa o vi tri truong doi`;
+  if (!GK.KHOA_N_CU.some(k => GK.khopKhoa(k, ctn(233)))) sai.push('KHOA_N_CU không có khoá CTN-AC6-kit');
+  const sCtn = soTui(GK.veDangN(new Map([[ctn(232), 1]]), GK.KHOA_N_CU), GK.veDangN(new Map([[ctn(233), 1]]), GK.KHOA_N_CU));
+  if (sCtn.thieu.length) sai.push(`CTN-AC6-kit 232→233 vẫn «mất khoá»: ${sCtn.thieu.join(', ')}`);
+  const sMat = soTui(GK.veDangN(new Map([[ctn(232), 1]]), GK.KHOA_N_CU), GK.veDangN(new Map([['CTN-AC6-dot-bien x', 1]]), GK.KHOA_N_CU));
+  if (sMat.thieu.length !== 1) sai.push('chiều đỏ: CTN-AC6-kit mất hẳn ở HEAD mà phép so không báo thiếu');
   sai.length ? bad('KHOA-N', sai.join(' · ')) : ok('KHOA-N', 'RT13 ở khoa-dich.tsv mang «<n>»; khớp «…: 248», không khớp chữ khác hay chỗ trống số; khoá thường «X: 247» không khớp «X: 248»; túi về dạng «<n>» chỉ đổi khoá RT13');
 } catch (e) { console.log(`HẠ TẦNG: KHOA-N — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
 
