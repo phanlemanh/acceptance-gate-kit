@@ -262,7 +262,7 @@ export function tenCho(cay) {
 
 // ── CLI ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 function docCo(co) {
-  const BIET = new Set(['--thu-muc', '--kho', '--ref']);
+  const BIET = new Set(['--thu-muc', '--kho', '--ref', '--goi-goc', '--vai']);
   const ra = {};
   for (let i = 0; i < co.length; i += 2) {
     if (!BIET.has(co[i])) throw loi(`cờ lạ: ${co[i]} — ${DUNG}`);
@@ -270,7 +270,10 @@ function docCo(co) {
     ra[co[i]] = co[i + 1];
   }
   if (ra['--thu-muc'] && (ra['--kho'] || ra['--ref'])) throw loi(`--thu-muc không đi cùng --kho/--ref — ${DUNG}`);
+  if ((ra['--goi-goc'] || ra['--vai']) && (ra['--thu-muc'] || ra['--kho'] || ra['--ref'])) throw loi(`--goi-goc/--vai không đi cùng --thu-muc · --kho/--ref — ${DUNG}`);
   if (Boolean(ra['--kho']) !== Boolean(ra['--ref'])) throw loi(`--kho và --ref phải đi cùng nhau — ${DUNG}`);
+  if (Boolean(ra['--goi-goc']) !== Boolean(ra['--vai'])) throw loi(`--goi-goc và --vai phải đi cùng nhau — ${DUNG}`);
+  if (ra['--goi-goc']) return { goiGoc: path.resolve(ra['--goi-goc']), vai: ra['--vai'] };
   if (ra['--thu-muc']) return { thuMuc: path.resolve(ra['--thu-muc']) };
   if (ra['--kho']) return { kho: path.resolve(ra['--kho']), ref: ra['--ref'] };
   return { thuMuc: KIT };

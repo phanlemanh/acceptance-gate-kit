@@ -423,6 +423,36 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
     : ok('BC-LA gói không rõ vai: đường lõi vẫn giải, đường vào gói lạ ném «bo-cuc: <cây> có gói «<tên>» không rõ vai»', `${cays.length} cây`);
 }
 
+// ── BC-CLI-GOI — cờ --goi-goc <dir> --vai <vai>: cây bản sao gốc gói qua CLI; lỗi stderr + mã 2 ──────────────────────
+{
+  const chay = (...a) => spawnSync(process.execPath, [BO_CUC, ...a], { encoding: 'utf8' });
+  const lech = [];
+  const dung = [
+    ['road-map/commands/xem.md', banSaoGoi, 'commands/status.md'],
+    ['plugins/roadmap/commands/status.md', banSaoGoi, 'commands/status.md'],
+    ['road-map/commands/xem.md', banSaoGoiPhang, 'commands/xem.md'],
+    ['plugins/roadmap/commands/status.md', banSaoGoiPhang, 'commands/xem.md'],
+  ];
+  for (const [r, g, k] of dung) {
+    const x = chay('duong', r, '--goi-goc', g, '--vai', 'lo-trinh');
+    if (x.status !== 0 || x.stdout !== `${k}\n`) lech.push(`${r} · ${path.basename(g)}: mã ${x.status}, «${x.stdout.trim()}» ${x.stderr.trim()}`);
+    else if (!existsSync(path.join(g, k))) lech.push(`${k} không có ở ${g}`);
+    else if (x.stdout !== `${duong(r, { goiGoc: g, vai: 'lo-trinh' })}\n`) lech.push(`${r}: CLI khác hàm duong`);
+  }
+  const sai = [
+    [['duong', 'scripts/lo-trinh.mjs', '--goi-goc', banSaoGoi, '--vai', 'lo-trinh'], `bo-cuc: scripts/lo-trinh.mjs không thuộc gói vai «lo-trinh» của ${banSaoGoi}`],
+    [['duong', 'README.md', '--goi-goc', banSaoGoi], 'bo-cuc: --goi-goc và --vai phải đi cùng nhau'],
+    [['duong', 'README.md', '--vai', 'lo-trinh'], 'bo-cuc: --goi-goc và --vai phải đi cùng nhau'],
+    [['duong', 'README.md', '--goi-goc', banSaoGoi, '--vai', 'lo-trinh', '--thu-muc', khoMoi], 'bo-cuc: --goi-goc/--vai không đi cùng --thu-muc · --kho/--ref'],
+    [['duong', 'README.md', '--goi-goc', banSaoGoi, '--vai', 'dieu-phoi'], `bo-cuc: ${banSaoGoi}: plugin «roadmap» không mang vai «dieu-phoi»`],
+  ];
+  for (const [a, cau] of sai) {
+    const x = chay(...a);
+    if (x.status !== 2 || x.stdout !== '' || !x.stderr.startsWith(cau)) lech.push(`${a.slice(2).join(' ')}: mã ${x.status}, stderr «${x.stderr.trim()}»`);
+  }
+  lech.length ? bad('BC-CLI-GOI', lech.join(' · ')) : ok('BC-CLI-GOI', `--goi-goc --vai: ${dung.length} đường trong gói mã 0, ${sai.length} lỗi stderr mã 2`);
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nbo-cuc: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
