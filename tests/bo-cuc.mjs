@@ -1,17 +1,21 @@
 // bo-cuc.mjs — bộ dịch đường của bộ kiểm (hồ sơ phan-du-bo-cuc-moi, design §2). Đầu vào luôn là một đường viết theo bố
 // cục PHẲNG (hoặc dạng `plugins/<gói>/…` mà luật bước 6 của kịch bản chuyển nhà sinh ra) cộng MỘT cây; đầu ra là đường
-// của chính thứ ấy ở cây ấy. Bố cục đọc từ vật của chính cây: `.claude-plugin/marketplace.json` (gói nào ở thư mục nào)
-// và `lib/ho-goi.cjs` của gói lõi (tên plugin theo vai). Hằng duy nhất là bảng bố cục phẳng đã đóng băng
-// `tests/fixtures/bo-cuc-phang.json`.
+// của chính thứ ấy ở cây ấy. Bố cục đọc từ vật của chính cây: tệp khai chợ marketplace.json (gói nào ở thư mục nào)
+// và bảng tên ho-goi.cjs của gói lõi (tên plugin theo vai). Hằng duy nhất là bảng bố cục phẳng đã đóng băng
+// `tests/fixtures/bo-cuc-phang.json` — MỌI chuỗi đường bộ dịch cần (tệp khai, bảng tên) sống ở đó, không ở tệp này: luật
+// bước 6 của kịch bản chuyển nhà viết lại chuỗi đường trong mã kiểm (trừ fixtures/), nên một hằng đường ở đây sẽ bị đổi
+// sang bố cục mới ở kho mới và bộ dịch hỏng (ca BC-B6 giữ: tệp này qua bước 6 không đổi byte nào).
 //
 // Ba kiểu cây:
 //   { thuMuc }        một thư mục gốc kho (cây đang đứng, bản bung, kho mới dựng tạm)
 //   { kho, ref }      một commit, đọc bằng `git -C <kho> show <ref>:<đường>`
 //   { goiGoc, vai }   bản sao gốc MỘT plugin (bộ đệm cài, lớp CI chép sang kho tiêu thụ): không có tiền tố gói, đường
-//                     ra là đường từ gốc gói; tên cũ/mới đọc từ `.claude-plugin/plugin.json` (+ bảng tên nếu gói mang)
+//                     ra là đường từ gốc gói; tên cũ/mới đọc từ plugin.json của gói (+ bảng tên nếu gói mang)
 //
 // Chuẩn hoá hai chiều: dạng `plugins/<x>/…` được đưa về vai trước (đảo bảng đổi tên tệp), rồi mới dịch xuôi tới cây
 // đích, nên duong(duong(p, c), c) === duong(p, c). Cây thiếu tệp khai chợ → lỗi có tên, KHÔNG lùi lặng về phẳng.
+// Gói không rõ vai trong tệp khai (vd design-loop tới 12/08) không làm hỏng việc đọc: chỉ đường thật sự trỏ vào gói ấy
+// mới ném «<cây> có gói «<tên>» không rõ vai».
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
@@ -21,13 +25,13 @@ import vm from 'node:vm';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..');
 const BANG = JSON.parse(readFileSync(path.join(HERE, 'fixtures', 'bo-cuc-phang.json'), 'utf8'));
-const MARKETPLACE = '.claude-plugin/marketplace.json';
-const PLUGIN_JSON = '.claude-plugin/plugin.json';
-const BANG_TEN = 'lib/ho-goi.cjs';
+const MARKETPLACE = BANG.tep_khai.cho;
+const PLUGIN_JSON = BANG.tep_khai.plugin;
+const BANG_TEN = BANG.tep_khai.bang_ten;
 const VAI_LOI = 'loi';
 const GLOB = /[*?[{]/;
-const THU_MUC_CHO = '.claude-plugin'; // nửa đi nửa ở: plugin.json vào gói lõi, marketplace.json ở lại gốc kho
-const DUNG = 'cách dùng: node tests/bo-cuc.mjs duong <rel> | bo-phan <rel>... | ten-cho [--thu-muc <dir> | --kho <dir> --ref <ref>]';
+const THU_MUC_CHO = BANG.tep_khai.thu_muc_cho; // nửa đi nửa ở: plugin.json vào gói lõi, marketplace.json ở lại gốc kho
+const DUNG = 'cách dùng: node tests/bo-cuc.mjs duong <rel> | bo-phan <rel>... | ten-cho [--thu-muc <dir> | --kho <dir> --ref <ref> | --goi-goc <dir> --vai <vai>]';
 
 const loi = m => new Error(`bo-cuc: ${m}`);
 const tenPhangCuaVai = vai => Object.keys(BANG.goi_phang).find(k => BANG.goi_phang[k] === vai);
@@ -72,7 +76,7 @@ function docCho(cay, nhan) {
   return (docChoTho(cay, nhan).plugins || []).map(p => ({ ten: p.name, nguon: chuanNguon(p.source, nhan) }));
 }
 
-// Bảng tên nằm ở gói lõi — tìm ở gốc từng gói khai trong chợ (gói nào mang `lib/ho-goi.cjs`).
+// Bảng tên nằm ở gói lõi — tìm ở gốc từng gói khai trong chợ (gói nào mang bảng tên ho-goi.cjs).
 function timBangTen(cay, muc) {
   for (const m of muc) {
     const rel = path.posix.join(m.nguon, BANG_TEN);

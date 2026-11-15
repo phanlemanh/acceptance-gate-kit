@@ -8,6 +8,12 @@
   },
   "thu_muc_loi": ["skills", "commands", "hooks", "scripts", "lib", "vendor", "evals", "design-floor"],
   "tep_loi": [".claude-plugin/plugin.json"],
+  "tep_khai": {
+    "cho": ".claude-plugin/marketplace.json",
+    "plugin": ".claude-plugin/plugin.json",
+    "bang_ten": "lib/ho-goi.cjs",
+    "thu_muc_cho": ".claude-plugin"
+  },
   "ten_moi": {
     "dispatch": "dieu-phoi",
     "roadmap": "lo-trinh",

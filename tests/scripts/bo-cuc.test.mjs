@@ -13,12 +13,13 @@
 // vào cây kit. Hạ tầng hỏng (git archive, dựng kho mới) → «HẠ TẦNG: …», mã 3, không in PASS.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boCuc, boPhan, duong, gocGoi, pathspec, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
 import { LENH, dungKhoMoi } from '../../_acceptance/goi-cheo-loi-dieu-phoi/rang/luat-doi-chu.mjs';
+import { BX, Dung, buoc6BoKiem } from '../../_acceptance/phan-du-bo-cuc-moi/rang/buoc6-chep.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -355,6 +356,36 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
   const r6 = chay('bo-phan', '--thu-muc', khoMoi);
   if (r6.status !== 2 || r6.stdout !== '' || !r6.stderr.includes('bo-cuc: cách dùng')) lech.push(`bo-phan không đường: mã ${r6.status}, stderr «${r6.stderr.trim()}»`);
   lech.length ? bad('BC-CLI-PHU', lech.join(' · ')) : ok('BC-CLI-PHU', 'bo-phan một dòng mỗi phần tử, ten-cho một dòng, mã 0; lỗi stderr mã 2');
+}
+
+// ── BC-B6 — bộ dịch qua luật bước 6 (bản chép, không bảng vá) vẫn bằng từng byte + đối chứng tiêm lại hằng đường cũ ─────
+// Bản sao chỉ chứa tests/bo-cuc.mjs (chặt hơn kho thật: không thư mục nào cạnh tệp kiểm che luật). Luật «không khớp chỗ
+// nào» = 0 chỗ đổi. Đối chứng: hằng plugin.json viết lại thành chuỗi đường (dạng trước khi dời sang bảng) → bước 6 phải đổi.
+{
+  const quaBuoc6 = (nd, nhan) => {
+    const wt = path.join(TMP, `b6-${nhan}`); mkdirSync(path.join(wt, 'tests'), { recursive: true });
+    writeFileSync(path.join(wt, 'tests', 'bo-cuc.mjs'), nd);
+    execFileSync('git', ['-C', wt, 'init', '-q']); execFileSync('git', ['-C', wt, 'add', '-A']);
+    let so;
+    try { so = buoc6BoKiem(wt, BX, KIT, 'HEAD', dichGoi); }
+    catch (e) { if (!(e instanceof Dung) || e.message !== 'luật bộ kiểm không khớp chỗ nào') throw e; so = []; }
+    return { sau: readFileSync(path.join(wt, 'tests', 'bo-cuc.mjs'), 'utf8'), so };
+  };
+  const goc = readFileSync(BO_CUC, 'utf8');
+  const m = nem(() => {
+    const { sau, so } = quaBuoc6(goc, 'nguyen');
+    if (sau !== goc) throw new Error(`bước 6 đổi ${so.map(([lop, , c]) => `${lop}×${c}`).join(', ')}`);
+  });
+  m ? bad('BC-B6', m) : ok('BC-B6 tests/bo-cuc.mjs qua luật bước 6 vẫn bằng từng byte');
+  const hang = 'const PLUGIN_JSON = BANG.tep_khai.plugin;';
+  const cu = `const PLUGIN_JSON = '${BANG.tep_khai.plugin}';`;
+  const d = nem(() => {
+    if (goc.split(hang).length !== 2) throw new Error(`nhát tiêm không áp: «${hang}» không có đúng một lần`);
+    const { sau } = quaBuoc6(goc.replace(hang, cu), 'tiem');
+    const cho = `const PLUGIN_JSON = '${BX.tep[BANG.tep_khai.plugin]}';`;
+    if (!sau.includes(cho)) throw new Error(`bản tiêm qua bước 6 không ra «${cho}»`);
+  });
+  d ? bad('BC-B6-DOI-CHUNG', d) : ok('BC-B6-DOI-CHUNG', 'tiêm lại hằng đường plugin.json → bước 6 đổi nó sang bố cục mới');
 }
 
 rmSync(TMP, { recursive: true, force: true });
