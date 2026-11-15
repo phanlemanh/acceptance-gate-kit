@@ -39,6 +39,8 @@ const CON = new Set(); // tiến trình con đang chạy — giết cả nhóm k
 const giet = c => { try { process.kill(-c.pid, 'SIGKILL'); } catch { try { c.kill('SIGKILL'); } catch { /* đã chết */ } } };
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const dongCuoi = s => String(s || '').trim().split('\n').filter(Boolean).pop() || '';
+// Dòng nói lý do của một lần chạy hỏng: dòng lỗi đầu tiên của stderr (không phải «Node.js vX» cuối vết ngăn xếp), không thì dòng cuối.
+const dongLoi = s => String(s || '').split('\n').map(l => l.trim()).find(l => /^(\w*Error\b|Error:|ERR_|HẠ TẦNG)|Cannot find|node lệch/.test(l)) || dongCuoi(s);
 
 // ── git và bản sao ───────────────────────────────────────────────────────────────────────────────────────────────────
 const ENV_GIT = { GIT_CONFIG_NOSYSTEM: '1', GIT_AUTHOR_NAME: 'giu-khoa', GIT_AUTHOR_EMAIL: 'giu-khoa@invalid', GIT_COMMITTER_NAME: 'giu-khoa', GIT_COMMITTER_EMAIL: 'giu-khoa@invalid' };
@@ -233,7 +235,7 @@ const maNgan = k => { const m = k.match(/^\[?([A-Za-z][\w]*-[\w-]+|[A-Z]+\d+\w*)
 function lyDoDo(kq, re) {
   const d = [...kq.dongDo].find(([k]) => re.test(k));
   if (d) return d[1].replace(/^(PASS|FAIL):\s*/, '').slice(0, 220);
-  return `vắng khỏi túi đạt (thoát ${kq.rc}: ${(dongCuoi(kq.stderr) || dongCuoi(kq.stdout)).slice(0, 160)})`;
+  return `vắng khỏi túi đạt (thoát ${kq.rc}: ${(dongLoi(kq.stderr) || dongLoi(kq.stdout)).slice(0, 160)})`;
 }
 const reCa = ca => new RegExp(`^\\[?${esc(ca)}\\]?(?=[\\s:]|$)`);
 function khoiMarker(chu, ten) {
@@ -270,7 +272,7 @@ async function cheDoCu(ctx, args, out) {
     if (!h) { const ks = [...datG.keys()]; mat += ks.length; soFail++; for (const k of ks) out.push(`  FAIL: CU ${u.id} — mất khoá: ${k}`); if (!ks.length) out.push(`  FAIL: CU ${u.id} — tệp bị xoá ở HEAD`); continue; }
     const s = soTui(datG, h.dat);
     const doKhoa = [...h.do.keys()];
-    const doRc = h.rc !== 0 && !doKhoa.length ? [`thoát ${h.rc}: ${(dongCuoi(h.stderr) || dongCuoi(h.stdout)).slice(0, 160)}`] : [];
+    const doRc = h.rc !== 0 && !doKhoa.length ? [`thoát ${h.rc}: ${(dongLoi(h.stderr) || dongLoi(h.stdout)).slice(0, 160)}`] : [];
     if (!s.thieu.length && !doKhoa.length && !doRc.length) { out.push(`  PASS: CU ${u.id} — ${s.tong}/${s.tong} khoá bản gốc còn ở HEAD, mọi ca xanh`); continue; }
     soFail++; mat += s.thieu.length; dO += doKhoa.length + doRc.length;
     for (const k of s.thieu) out.push(`  FAIL: CU ${u.id} — mất khoá: ${k}`);
