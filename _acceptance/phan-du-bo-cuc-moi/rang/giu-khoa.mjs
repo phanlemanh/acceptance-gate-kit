@@ -4,7 +4,8 @@
 //   --cu [--base <ref>]          mỗi tệp kiểm vòng chạm (git diff <bản gốc>..HEAD -- tests/; tệp phụ trợ đi qua tệp kiểm
 //                                nạp nó) chạy ở bản gốc và ở HEAD: túi khoá HEAD ⊇ túi khoá bản gốc, mọi ca HEAD xanh;
 //                                cộng CU-LT94 (chốt ngày chạy của LT-94 dưới đồng hồ ghim) và CU-DO/CU-DO-DP (phép so tự
-//                                phá trên bản sao HEAD; GIU_KHOA_BO_TU_PHA=1 bỏ — tệp kiểm của thước đặt nó).
+//                                phá trên bản sao HEAD; GIU_KHOA_BO_TU_PHA=1 bỏ — tệp kiểm của thước đặt nó). Khoá khớp một
+//                                khoá đích «<n>» so ở dạng «<n>» cả hai phía.
 //   --moi [--cum <cụm>] [--bien-the i|ii|iii|ca-ba] [--base <ref>]
 //                                kho mới dựng từ HEAD — (i) bước 1–3 (`dungKhoMoi` + luật đổi chữ lên tài liệu ở gốc) +
 //                                luật đổi tên trên tests/; (ii) như (i) rồi luật chung bước 6 (`buoc6-chep.mjs`, không bảng
@@ -37,7 +38,8 @@ const VA_B2 = path.join(HERE, 'va-bo-kiem-b2.json');
 const GUI_B2 = path.join(HO_SO, 'gui-b2.md');
 export const VONG = ['K2', 'K3', 'SP', 'K4-SC', 'K4-PL'];
 export const NGOAI_VONG = ['K4-LT', 'K4-TB'];
-const HET_GIO_MS = 40 * 60 * 1000;
+// Trần một đơn vị chạy. Đo 15/11: bộ scripts trọn (tests/scripts/run-tests.sh) ở hai cây song song chạm 40 phút cả hai.
+const HET_GIO_MS = 90 * 60 * 1000;
 class HaTang extends Error {}
 const CON = new Set(); // tiến trình con đang chạy — giết cả nhóm khi thước bị dừng
 const giet = c => { try { process.kill(-c.pid, 'SIGKILL'); } catch { try { c.kill('SIGKILL'); } catch { /* đã chết */ } } };
@@ -278,7 +280,7 @@ export function demKhoa(m, khoa) {
   let n = 0; for (const [k, c] of m) if (khopKhoa(khoa, k)) n += c; return n;
 }
 // Túi → túi với mọi khoá khớp một khoá đích «<n>» viết về dạng «<n>» (cho phép so túi và miễn khoá).
-function veDangN(m, khoaN) {
+export function veDangN(m, khoaN) {
   if (!khoaN.length) return m;
   const r = new Map();
   for (const [k, c] of m) { const kk = khoaN.find(x => khopKhoa(x, k)) || k; r.set(kk, (r.get(kk) || 0) + c); }
@@ -322,6 +324,8 @@ const TU_PHA = [
 ];
 async function cheDoCu(ctx, args, out) {
   const head = git(GOC, 'rev-parse', 'HEAD'); const base = banGoc(args);
+  // Khoá mang chữ số trôi (khoá đích «<n>» của khoa-dich.tsv, vd RT13 đếm hồ sơ của cây) so ở dạng «<n>» cả hai phía.
+  const khoaN = [...new Set(docKhoaDich(KHOA_DICH).map(h => h.khoa).filter(k => k.includes('<n>')))];
   const doi = git(GOC, 'diff', '--name-status', '--no-renames', base, head, '--', 'tests').split('\n').filter(Boolean).map(d => d.split('\t'));
   const cGoc = nhanBan(ctx, base, 'ban-goc'); const cHead = nhanBan(ctx, head, 'head');
   const donVi = new Map(); let soFail = 0; let mat = 0; let dO = 0;
@@ -334,9 +338,12 @@ async function cheDoCu(ctx, args, out) {
   const coTep = (cay, u) => u.cmd.filter(x => x.startsWith('tests/') && !x.includes('*')).every(x => existsSync(path.join(cay, x)));
   const kq = await Promise.all([...donVi.values()].map(u => [u, coTep(cGoc, u) ? chay(ctx, cGoc, u) : null, coTep(cHead, u) ? chay(ctx, cHead, u) : null]).map(async ([u, g, h]) => [u, await g, await h]));
   for (const [u, g, h] of kq) {
-    const datG = g ? g.dat : new Map();
+    // Hết giờ: túi bị cắt giữa chừng, so ra «mất khoá» là sai — nói thẳng là chưa so được.
+    const het = [[g, 'bản gốc'], [h, 'HEAD']].filter(([x]) => x && x.rc === 'hết giờ');
+    if (het.length) { soFail++; out.push(`  FAIL: CU ${u.id} — hết giờ ở ${het.map(([x, n]) => `${n} sau ${x.giay}s`).join(', ')}: túi khoá không so được`); continue; }
+    const datG = veDangN(g ? g.dat : new Map(), khoaN);
     if (!h) { const ks = [...datG.keys()]; mat += ks.length; soFail++; for (const k of ks) out.push(`  FAIL: CU ${u.id} — mất khoá: ${k}`); if (!ks.length) out.push(`  FAIL: CU ${u.id} — tệp bị xoá ở HEAD`); continue; }
-    const s = soTui(datG, h.dat);
+    const s = soTui(datG, veDangN(h.dat, khoaN));
     const doKhoa = [...h.do.keys()];
     const doRc = h.rc !== 0 && !doKhoa.length ? [`thoát ${h.rc}: ${(dongLoi(h.stderr) || dongLoi(h.stdout)).slice(0, 160)}`] : [];
     if (!s.thieu.length && !doKhoa.length && !doRc.length) { out.push(`  PASS: CU ${u.id} — ${s.tong}/${s.tong} khoá bản gốc còn ở HEAD, mọi ca xanh`); continue; }

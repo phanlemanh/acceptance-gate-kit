@@ -99,7 +99,9 @@ try {
   if (GK.demKhoa(new Map([['[RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: ', 1]]), N) !== 0) sai.push('«<n>» khớp cả chỗ không có số');
   if (GK.demKhoa(m, 'X: 247') !== 0) sai.push('khoá không «<n>» mà số khác vẫn khớp (chuẩn hoá lan sang khoá khác)');
   if (GK.demKhoa(m, 'X: 248') !== 1) sai.push('đối chứng: khoá nguyên chữ không khớp chính nó');
-  sai.length ? bad('KHOA-N', sai.join(' · ')) : ok('KHOA-N', 'RT13 ở khoa-dich.tsv mang «<n>»; khớp «…: 248», không khớp chữ khác hay chỗ trống số; khoá thường «X: 247» không khớp «X: 248»');
+  const v = GK.veDangN(m, [N]);
+  if (!(v.get(N) === 1 && v.get('X: 248') === 1 && v.size === 3)) sai.push(`túi về dạng «<n>» (cho --cu, túi --moi): ${JSON.stringify([...v])}`);
+  sai.length ? bad('KHOA-N', sai.join(' · ')) : ok('KHOA-N', 'RT13 ở khoa-dich.tsv mang «<n>»; khớp «…: 248», không khớp chữ khác hay chỗ trống số; khoá thường «X: 247» không khớp «X: 248»; túi về dạng «<n>» chỉ đổi khoá RT13');
 } catch (e) { console.log(`HẠ TẦNG: KHOA-N — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
 
 // ── BT-III — biến thể (iii): bước 6 bỏ đúng các tệp khai ở gui-b2.md, mọi tệp khác như (ii) ────────────────────────────
