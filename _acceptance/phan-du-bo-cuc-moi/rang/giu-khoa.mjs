@@ -285,10 +285,23 @@ function veDangN(m, khoaN) {
   return r;
 }
 const maNgan = k => { const m = k.match(/^\[?([A-Za-z][\w]*-[\w-]+|[A-Z]+\d+\w*)\]?/); if (m) return m[1]; return k.replace(/\.(test|ca)\.mjs$/, '').slice(0, 40); };
+// Đường của một kho tạm của thước → «<kho>» (đọc được, ghim được); phần đường sau gốc kho giữ nguyên.
+const cheKho = s => String(s).replace(/(?:\/private)?\/(?:var\/folders|tmp)\/\S*?\/giu-khoa-[^/\s]+\/[^/'"\s]+/g, '<kho>');
+const RE_CHI_TIET = /Error\b|ENOENT|No such file|Cannot find/;
+// Dòng lý do quanh dòng FAIL của một ca (ba dòng sau, rồi tám dòng trước) — ca in tên ở dòng FAIL, lỗi ở dòng kề.
+function chiTiet(stdout, dong) {
+  const L = String(stdout).split('\n'); const i = L.findIndex(l => l.trim() === dong);
+  if (i < 0) return '';
+  for (const j of [i + 1, i + 2, i + 3, i - 1, i - 2, i - 3, i - 4, i - 5, i - 6, i - 7, i - 8]) {
+    const l = (L[j] || '').trim();
+    if (l && !/^(PASS|FAIL):/.test(l) && RE_CHI_TIET.test(l)) return cheKho(l).slice(0, 200);
+  }
+  return '';
+}
 function lyDoDo(kq, re) {
   const d = [...kq.dongDo].find(([k]) => re.test(k));
-  if (d) return d[1].replace(/^(PASS|FAIL):\s*/, '').slice(0, 220);
-  return `vắng khỏi túi đạt (thoát ${kq.rc}: ${(dongLoi(kq.stderr) || dongLoi(kq.stdout)).slice(0, 160)})`;
+  if (d) { const ct = chiTiet(kq.stdout, d[1]); return `${cheKho(d[1]).replace(/^(PASS|FAIL):\s*/, '').slice(0, 220)}${ct ? ` — ${ct}` : ''}`; }
+  return `vắng khỏi túi đạt (thoát ${kq.rc}: ${(dongLoi(cheKho(kq.stderr)) || dongLoi(cheKho(kq.stdout))).slice(0, 160)})`;
 }
 const reCa = ca => new RegExp(`^\\[?${esc(ca)}\\]?(?=[\\s:]|$)`);
 function khoiMarker(chu, ten) {
@@ -458,15 +471,19 @@ async function cheDoMoi(ctx, args, out) {
 }
 
 // ── --chieu-do + GUI-B2 ──────────────────────────────────────────────────────────────────────────────────────────────
-// Ca canh mỗi cụm; `ghim` = mảnh chữ phải có trong thông điệp đỏ dưới bản đồng nhất — ghim khi ca đã đi qua bộ dịch
-// (Task 6–9); `null` = chưa ghim, ca ấy in FAIL kèm thông điệp đỏ thật để task sau chép vào.
+// Ca canh mỗi cụm; `ghim` = các mảnh chữ (mọi mảnh) phải có trong thông điệp đỏ dưới bản đồng nhất — chép từ lượt
+// `--chieu-do` 15/11 (Task 10), phần ổn định của câu (đường kho tạm che thành «<kho>», không sha). Mỗi ca canh nằm ở
+// một tệp tự đúng đường (gui-b2.md) hoặc gọi CLI bộ dịch (P161), nên bản đồng nhất trỏ đường phẳng không có ở kho mới.
+// SP: CK-4-lib (kế hoạch) đọc tên gói và đường phẳng viết cứng, không qua bộ dịch — không đỏ theo bộ dịch nên không làm ca
+// canh; TH-10-ong (cùng cụm SP, đọc bản nhân qua bộ dịch) thay.
 export const CA_CANH = [
-  { cum: 'K2', bo: 'scripts', tep: 'moi-cong-khong-qua-nut.test.mjs', ca: 'MQ-1', ghim: null },
-  { cum: 'K3', bo: 'plugins', tep: 'ra-co-ten.test.mjs', ca: 'RT13', ghim: null },
-  { cum: 'SP', bo: 'scripts', tep: 'kho-cam-ket-co-lo-trinh.test.mjs', ca: 'CK-4-lib', ghim: null },
-  { cum: 'K4-SC', bo: 'scripts', tep: 'core-untouched.test.mjs', ca: 'JR11a', ghim: null },
-  { cum: 'K4-PL', bo: 'plugins', tep: '(đầu)', ca: 'P161', ghim: null, them: { ONLY_BLOCK: 'P161' } },
+  { cum: 'K2', bo: 'scripts', tep: 'moi-cong-khong-qua-nut.test.mjs', ca: 'MQ-1', ghim: ['vắng khỏi túi đạt', "Cannot find module '<kho>/lib/ho-goi.cjs'"] },
+  { cum: 'K3', bo: 'plugins', tep: 'ra-co-ten.test.mjs', ca: 'RT13', ghim: ['vắng khỏi túi đạt', "ERR_MODULE_NOT_FOUND", "<kho>/scripts/khong-can-nguoi.mjs"] },
+  { cum: 'SP', bo: 'scripts', tep: 'tin-hieu.test.mjs', ca: 'TH-10-ong', ghim: ['vắng khỏi túi đạt', "Cannot find module '<kho>/lib/workspace-record.cjs'"] },
+  { cum: 'K4-SC', bo: 'scripts', tep: 'core-untouched.test.mjs', ca: 'JR11a', ghim: ['JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI', "ENOENT: no such file or directory, scandir '<kho>/lib'"] },
+  { cum: 'K4-PL', bo: 'plugins', tep: '(đầu)', ca: 'P161', ghim: ['P161 strip-md giu duong dan', "FileNotFoundError: [Errno 2] No such file or directory: '<kho>/lib'"], them: { ONLY_BLOCK: 'P161' } },
 ];
+const thieuGhim = (c, msg) => [].concat(c.ghim || []).filter(g => !msg.includes(g));
 // Mục vá thừa theo biến thể chấm (iii): mục trên một tệp tự đúng đường thừa vì bước 6 bỏ qua trọn tệp ấy (không luật
 // đường, không bảng vá); mục khác thừa khi sau bước 1–3 + luật chung bước 6 chuỗi `cu` không còn khớp đúng `so_lan` lần.
 const LY_TU_DUNG = 'tệp tự đúng đường';
@@ -528,7 +545,7 @@ async function cheDoChieuDo(ctx, args, out) {
     if (!xanhL) { out.push(`  FAIL: DO ${c.cum} — đối chứng dương: ${c.ca} chưa xanh với bộ dịch thật ở kho mới (${lyDoDo(L, re)})`); soFail++; }
     else if (xanhP) { out.push(`  FAIL: DO ${c.cum} chiều đỏ không đỏ — ${c.ca} vẫn xanh với bộ dịch đồng nhất`); soFail++; }
     else if (!c.ghim) { out.push(`  FAIL: DO ${c.cum} — ${c.ca} đỏ nhưng chưa ghim thông điệp: ${msg}`); soFail++; }
-    else if (!msg.includes(c.ghim)) { out.push(`  FAIL: DO ${c.cum} — ${c.ca} đỏ sai thông điệp (cần «${c.ghim}»): ${msg}`); soFail++; }
+    else if (thieuGhim(c, msg).length) { out.push(`  FAIL: DO ${c.cum} — ${c.ca} đỏ sai thông điệp (thiếu «${thieuGhim(c, msg).join('» · «')}»): ${msg}`); soFail++; }
     else out.push(`  PASS: DO ${c.cum} — ${c.ca} đỏ: ${msg} (đối chứng dương: xanh với bộ dịch thật)`);
   });
   soFail += soGuiB2(ctx, head, out);
