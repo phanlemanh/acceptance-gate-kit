@@ -105,8 +105,9 @@ function tuDung(sha) {
   if (vang.length) throw new HaTang(`tệp tự đúng đường khai ở gui-b2.md không có ở ${sha.slice(0, 8)}: ${vang.join(', ')}`);
   return ds;
 }
-// Ba tệp vòng sửa mà vẫn đi bước 6 (gui-b2.md §2): hai runner chỉ sửa một phần khối, lo-trinh.test.mjs chỉ dời ngày LT-94.
-export const VAN_BUOC6 = ['tests/plugins/run-tests.sh', 'tests/scripts/lo-trinh.test.mjs', 'tests/scripts/run-tests.sh'];
+// Bốn tệp vòng sửa mà vẫn đi bước 6 (gui-b2.md §2): hai runner chỉ sửa một phần khối, lo-trinh.test.mjs chỉ dời ngày LT-94,
+// tiep-tuc.test.mjs (thêm sau chữ ký) chỉ cho danh sách chép của DP3-12-do-lb qua boPhan, còn LUAT_MAU và đường lệnh vẫn phẳng.
+export const VAN_BUOC6 = ['tests/dieu-phoi/tiep-tuc.test.mjs', 'tests/plugins/run-tests.sh', 'tests/scripts/lo-trinh.test.mjs', 'tests/scripts/run-tests.sh'];
 // Luật viết danh sách (gui-b2.md §2), máy giữ: mọi tệp dưới tests/ mà diff bản gốc..HEAD chạm (trừ tệp đã xoá) nằm ở đúng
 // một trong hai nơi — khối GUI-B2-TU-DUNG hoặc VAN_BUOC6. Lệch → mỗi tệp một dòng; rỗng là khớp.
 export function lechLuatTuDung(sua, td, van = VAN_BUOC6) {

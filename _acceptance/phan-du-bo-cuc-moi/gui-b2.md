@@ -11,7 +11,7 @@ Máy ghi bằng `--ghi-gui-b2`; `--chieu-do` rút lại và so (GUI-B2). Một m
 mục này khỏi bảng vá.
 
 <!-- <<<GUI-B2-VA-THUA -->
-máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 76 trên tệp tự đúng đường (bước 6 bỏ qua), 7 không còn khớp sau bước 6 (rút từ HEAD lúc ghi)
+máy ghi: 84/348 mục của va-bo-kiem-b2.json thừa — 76 trên tệp tự đúng đường (bước 6 bỏ qua), 8 không còn khớp sau bước 6 (rút từ HEAD lúc ghi)
 ```jsonl
 {"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  for (const tep of ['mo-dot.md', 'tiep-tuc.md']) {","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/dieu-phoi/lop-mod.test.mjs","cu":"  assert.ok(loi.includes('bộ lọc Monitor không khớp: mo-dot.md'), loi.join(' | '));\n  assert.ok(loi.includes('bộ lọc Monitor không khớp: tiep-tuc.md'), loi.join(' | '));","so_lan":1,"ly_do":"tệp tự đúng đường"}
@@ -26,6 +26,7 @@ máy ghi: 83/348 mục của va-bo-kiem-b2.json thừa — 76 trên tệp tự �
 {"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"quetStart(KIT, kho)","so_lan":2,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"  for (const rel of ['lib', 'skills', 'commands', 'plugins/feature-loop/skills',","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/dieu-phoi/mo-dot.test.mjs","cu":"\\/dieu-phoi:","so_lan":2,"ly_do":"tệp tự đúng đường"}
+{"tep":"tests/dieu-phoi/tiep-tuc.test.mjs","cu":"  for (const rel of ['lib', 'skills', 'commands', 'plugins/feature-loop/skills',","so_lan":1}
 {"tep":"tests/dieu-phoi/trong-dot.test.mjs","cu":"  const t = fs.readFileSync(path.join(GOI, 'commands', 'mo-dot.md'), 'utf8');","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/dieu-phoi/trong-dot.test.mjs","cu":"  const tar = execFileSync('git', ['archive', base, 'plugins/dispatch/scripts'], { cwd: KIT, env: ENV });","so_lan":1,"ly_do":"tệp tự đúng đường"}
 {"tep":"tests/plugins/run-tests.sh","cu":"    old_js = dd / \"plugins/acceptance-gate/scripts\" / \"gate-card.js\"","so_lan":1}
@@ -106,8 +107,9 @@ Các tệp này đã tự giải đường qua bộ dịch `tests/bo-cuc.mjs`; l
 (bước 3) vẫn áp như mọi tệp dưới `tests/`. Đây là biến thể (iii) mà thước chấm (sổ `d-20261115T044131Z-24`).
 
 Danh sách viết trước khi đo: mọi tệp dưới `tests/` vòng này sửa hoặc tạo (`git diff --name-only 644e9b49 HEAD -- tests/`),
-trừ ba tệp vẫn đi bước 6 (hằng `VAN_BUOC6` của `rang/giu-khoa.mjs`; thước giữ luật này — tệp vòng sửa = khối dưới + ba tệp ấy): `tests/scripts/run-tests.sh` và `tests/plugins/run-tests.sh` (chỉ sửa một phần khối),
-`tests/scripts/lo-trinh.test.mjs` (chỉ dời ngày LT-94, không đi qua bộ dịch; 13 mục vá của nó vẫn cần).
+trừ các tệp vẫn đi bước 6 (hằng `VAN_BUOC6` của `rang/giu-khoa.mjs`; thước giữ luật này — tệp vòng sửa = khối dưới + các tệp ấy): `tests/scripts/run-tests.sh` và `tests/plugins/run-tests.sh` (chỉ sửa một phần khối),
+`tests/scripts/lo-trinh.test.mjs` (chỉ dời ngày LT-94, không đi qua bộ dịch; 13 mục vá của nó vẫn cần), và
+`tests/dieu-phoi/tiep-tuc.test.mjs` (thêm sau chữ ký — đoạn ngay dưới khối).
 
 <!-- <<<GUI-B2-TU-DUNG -->
 ```text
@@ -131,6 +133,7 @@ tests/scripts/can-cu-s1.ca.mjs
 tests/scripts/chep-tri-thuc-du.test.mjs
 tests/scripts/core-untouched.test.mjs
 tests/scripts/cua-veto-sau-chu-ky.test.mjs
+tests/scripts/fixtures/routing-baseline.txt
 tests/scripts/giu-tuoi-fixture.mjs
 tests/scripts/ho-so-da-ky-giu-tuoi.test.mjs
 tests/scripts/hskt.test.mjs
@@ -159,6 +162,15 @@ tests/workflows/harness.mjs
 Đo sau khi khai (15/11, biến thể iii): `tests/scripts/tin-hieu.test.mjs` khai nhầm. Chỉ phần TH-10 đi qua bộ dịch; dòng
 nạp `lib/workspace-record.cjs` ở đầu tệp vẫn là đường phẳng, nên bỏ bước 6 làm cả tệp sập (0/44 khoá). Danh sách vẫn giữ
 như đã khai. Còn chờ quyết: trả tệp này về bước 6, hay sửa dòng nạp ấy.
+
+Thêm sau chữ ký Cổng Bằng chứng (16/11), không phải khai trước khi đo: hai tệp vòng chạm sau lượt chấm 2. Thiếu chúng thì
+làn ghim lại `repin-20261115T181928Z-60777` đỏ cả chín eval máy ở luật danh sách tự đúng đường, mọi túi khoá vẫn xanh.
+- `tests/scripts/fixtures/routing-baseline.txt` vào khối trên: bước 7a-bis của nghi thức ký thêm một dòng của hồ sơ; tệp
+  chỉ có tên hồ sơ và nhãn, không đường nào cho bước 6 viết lại.
+- `tests/dieu-phoi/tiep-tuc.test.mjs` vào `VAN_BUOC6`, KHÔNG vào khối trên: CI `tests · dieu-phoi` đỏ ở ca DP3-12-do-lb,
+  bản vá `475d5ed5` chỉ cho danh sách chép của ca ấy đi qua `boPhan`. `LUAT_MAU` và đường `'commands', 'tiep-tuc.md'`
+  vẫn phẳng, nên hai mục vá B2 của chúng vẫn cần; khai cả tệp tự đúng đường sẽ báo B2 bỏ nhầm hai mục ấy (cùng lớp với
+  `tin-hieu.test.mjs` ở trên). Mục vá cho dòng chép cũ của DP3-12 nay thừa vì dòng đã đổi.
 
 ## 3. Cấu hình kịch bản phải đổi
 
