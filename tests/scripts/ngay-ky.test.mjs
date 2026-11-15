@@ -12,6 +12,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, tep as tepO } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -31,10 +32,11 @@ let cayN = 0;
 function cay({ sha = null, tiem = [] } = {}) {
   const c = path.join(TMP, `cay-${++cayN}`); mkdirSync(c, { recursive: true });
   const D = ['scripts', 'lib', 'skills', 'dieu-phoi'];
-  if (sha) execFileSync('bash', ['-c', `git -C "${KIT}" archive ${sha} ${D.join(' ')} | tar -x -C "${c}"`]);
-  else for (const d of D) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
+  // Bố cục của bản lấy từ chính cây nguồn (commit hay cây đang đứng); bản mang tệp khai chợ để đường trong nó giải được.
+  if (sha) execFileSync('bash', ['-c', `git -C "${KIT}" archive ${sha} ${boPhan(D, { kho: KIT, ref: sha }).join(' ')} | tar -x -C "${c}"`]);
+  else for (const d of boPhan(D, { thuMuc: KIT })) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
   for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
+    const p = tepO(tep, { thuMuc: c }); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
     writeFileSync(p, s.replace(cu, moi));
   }
@@ -57,7 +59,7 @@ const BANG = [
   ['', null],
 ];
 function nk1(kit) {
-  const { ngayChuKy } = createRequire(import.meta.url)(path.join(kit, 'scripts', 'ho-so-tom-tat.cjs'));
+  const { ngayChuKy } = createRequire(import.meta.url)(tepO('scripts/ho-so-tom-tat.cjs', { thuMuc: kit }));
   if (typeof ngayChuKy !== 'function') return ['ho-so-tom-tat.cjs không xuất ngayChuKy'];
   const sai = []; let so = 0;
   for (const [s, mong] of BANG) { so += 1; const r = ngayChuKy(s); if (r !== mong) sai.push(`dạng ${JSON.stringify(s)}: mong ${mong}, được ${r}`); }
@@ -77,7 +79,7 @@ if (want('NK-1-do')) {
 
 // ── NK-2: bốn mặt trên kho thử (AC-6) ─────────────────────────────────────────
 const khoiMd = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`[a-z]*\\n([\\s\\S]*?)\`\`\`\\n<!-- ${ten}>>> -->`)); return m ? m[1] : null; };
-const KHUON = readFileSync(path.join(KIT, 'skills', 'acceptance', 'references', 'tin-hieu-template.md'), 'utf8');
+const KHUON = readFileSync(tepO('skills/acceptance/references/tin-hieu-template.md', { thuMuc: KIT }), 'utf8');
 function tin(i) {
   const b = khoiMd(KHUON, 'TIN-HIEU-MAU'); if (b == null) throw new Error('khuôn thiếu khối TIN-HIEU-MAU');
   const o = JSON.parse(b.trim().split('\n').slice(1).join('\n'));
@@ -92,7 +94,7 @@ function gom(phuId, slug) {
   return [...dau, '', '', phu].join('\n') + '\n';
 }
 const SL = 'giao-x';
-const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = createRequire(import.meta.url)(tepO('lib/workspace-record.cjs', { thuMuc: KIT }));
 const GIAO = WR.DA_THONG_CONG_2[0];
 function khoNgay(ky) {
   const r = path.join(TMP, `kho-${++cayN}`);
@@ -117,16 +119,16 @@ const timAt = (o, slug) => { // tìm `at` của mục mang slug trong JSON của
 };
 // Bốn mặt của một cây trên một kho → { tinHieu, cauThoat, start, dai, nhip }.
 async function bonMat(kit, { r, id }) {
-  const th = (...a) => node([path.join(kit, 'scripts', 'tin-hieu.mjs'), '--root', r, ...a]);
+  const th = (...a) => node([tepO('scripts/tin-hieu.mjs', { thuMuc: kit }), '--root', r, ...a]);
   const duong = th('--duong'); let cau = null;
   try { cau = (JSON.parse(duong.stdout).find(d => d.id === id) || {}).cau_nguoi_gui ?? null; } catch (_) { cau = `(--duong thoát ${duong.status})`; }
   const kc = th('--cau');
-  const ss = node([path.join(kit, 'scripts', 'start-scan.mjs'), '--root', r]);
+  const ss = node([tepO('scripts/start-scan.mjs', { thuMuc: kit }), '--root', r]);
   let start = null; try { start = timAt(JSON.parse(ss.stdout), SL) ?? null; } catch (_) { start = `(start-scan thoát ${ss.status})`; }
-  const HS = createRequire(import.meta.url)(path.join(kit, 'scripts', 'ho-so-tom-tat.cjs'));
+  const HS = createRequire(import.meta.url)(tepO('scripts/ho-so-tom-tat.cjs', { thuMuc: kit }));
   const t = HS.tomTatHoSo(path.join(r, '_acceptance', SL));
   const dai = (t && t.chiTiet && t.chiTiet.giao && t.chiTiet.giao.ngayKy) ?? null;
-  const CL = await import(pathToFileURL(path.join(kit, 'scripts', 'cat-luot.mjs')).href + `?v=${cayN}`);
+  const CL = await import(pathToFileURL(tepO('scripts/cat-luot.mjs', { thuMuc: kit })).href + `?v=${cayN}`);
   const n = CL.nhip(r);
   return { cau, cauThoat: kc.status, cauOut: kc.stdout + kc.stderr, start, dai, nhip: n };
 }

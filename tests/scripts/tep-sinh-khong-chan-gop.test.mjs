@@ -12,6 +12,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { boPhan, tep as tepO } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -56,9 +57,9 @@ const tiem = (txt, cu, moiTxt) => {
 // ── Bộ máy: cây đang đo, bản sao bị tiêm, bản ghim ──────────────────────────────
 const banSao = (tiems = []) => {
   const d = moi('may');
-  cpSync(path.join(KIT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
-  cpSync(path.join(KIT, 'lib'), path.join(d, 'lib'), { recursive: true });
-  for (const [tep, cu, m] of tiems) writeFileSync(path.join(d, tep), tiem(doc(path.join(d, tep)), cu, m));
+  // bản sao theo bố cục của cây đang đo, mang tệp khai chợ để đường trong nó giải được
+  for (const x of boPhan(['scripts', 'lib'], { thuMuc: KIT })) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true });
+  for (const [tep, cu, m] of tiems) { const p = tepO(tep, { thuMuc: d }); writeFileSync(p, tiem(doc(p), cu, m)); }
   return d;
 };
 let _ghim = null;
@@ -66,11 +67,11 @@ const banGhim = () => {
   if (_ghim) return _ghim;
   const d = moi('ghim');
   const tar = path.join(TMP, 'ghim.tar');
-  execFileSync('git', ['-C', KIT, 'archive', '-o', tar, SHA_GHIM, 'scripts', 'lib'], { env: ENV });
+  execFileSync('git', ['-C', KIT, 'archive', '-o', tar, SHA_GHIM, ...boPhan(['scripts', 'lib'], { kho: KIT, ref: SHA_GHIM })], { env: ENV });
   execFileSync('tar', ['-xf', tar, '-C', d]);
   return (_ghim = d);
 };
-const ve = (may, goc, ...them) => spawnSync(process.execPath, [path.join(may, 'scripts', 'product-map.mjs'), '--root', goc, ...them], { encoding: 'utf8', env: ENV });
+const ve = (may, goc, ...them) => spawnSync(process.execPath, [tepO('scripts/product-map.mjs', { thuMuc: may }), '--root', goc, ...them], { encoding: 'utf8', env: ENV });
 const veOk = (may, goc) => { const r = ve(may, goc); if (r.status !== 0) throw new Error(`vẽ thoát ${r.status}: ${r.stderr.slice(0, 200)}`); };
 
 // ── Kho thử ─────────────────────────────────────────────────────────────────────
@@ -190,7 +191,7 @@ const kiemRong = may => {
   if (/`rong2?`/.test(map)) loiDs.push('rong được xếp Hồ sơ hỏng');
   if (/\brong2?\b/.test(trang)) loiDs.push('rong được đếm ngoài lộ trình');
   // Bên đọc thứ ba của cùng thư mục: bộ quét vào phiên (P123 đòi nó cùng kết luận với bản đồ).
-  const q = spawnSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', g], { encoding: 'utf8', env: ENV });
+  const q = spawnSync(process.execPath, [tepO('scripts/start-scan.mjs', { thuMuc: may }), '--root', g], { encoding: 'utf8', env: ENV });
   if (q.status !== 0) loiDs.push(`bộ quét vào phiên thoát ${q.status}`);
   else if (/"rong2?"/.test(q.stdout)) loiDs.push('rong hiện ở bộ quét vào phiên');
   if (!loiDs.length && (r.status !== 0 || git(g, 'status', '--porcelain'))) loiDs.push(`--check thoát ${r.status}, cây đổi: ${git(g, 'status', '--porcelain')}`);
@@ -324,7 +325,7 @@ if (want('TS-6-do')) {
 if (want('TS-7')) {
   try {
     const cu = banGhim();
-    if (doc(path.join(cu, 'lib', 'workspace-record.cjs')).includes('coTepTrongCay')) throw new Error('bản ghim đã có coTepTrongCay — sha ghim sai');
+    if (doc(tepO('lib/workspace-record.cjs', { thuMuc: cu })).includes('coTepTrongCay')) throw new Error('bản ghim đã có coTepTrongCay — sha ghim sai');
     const lech = kiemDocCu(KIT, cu);
     if (lech.length) bad('TS-7 duong-doc-cu', `lệch: ${JSON.stringify(lech)}`); else ok('TS-7 duong-doc-cu', `số hàng: ${HANG7.length}`);
   } catch (e) { bad('TS-7 duong-doc-cu', loi(e)); }

@@ -12,25 +12,29 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { gocGoi, tep, duong } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
+// Kho tiêu thụ là bản chép GỐC GÓI lõi: đường trong nó tính từ gốc gói (tên theo cây đang đứng), nguồn là gốc gói lõi.
+const LOI = gocGoi({ thuMuc: ROOT }, 'loi');
+const trongGoi = rel => duong(rel, { goiGoc: LOI, vai: 'loi' });
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 
-const initMd = readFileSync(path.join(ROOT, 'commands', 'acceptance-init.md'), 'utf8');
+const initMd = readFileSync(tep('commands/acceptance-init.md', { thuMuc: ROOT }), 'utf8');
 const block = (initMd.split('<!-- <<<INIT-CI-COPY-LIST -->')[1] || '').split('<!-- INIT-CI-COPY-LIST>>> -->')[0];
 const MUC = [];
 for (const dong of block.split('\n')) {
   const m = dong.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^`]+)`\s*→/);
   if (!m) continue;
   const nhan = dong.match(/\[only-if-declared: ([a-z_]+)\]/);
-  MUC.push({ src: m[1], khi: nhan ? nhan[1] : null });
+  MUC.push({ src: trongGoi(m[1]), khi: nhan ? nhan[1] : null });
 }
 const PV = 'docs/plans/pham-vi-tri-thuc-2410.md';
 const LT = 'docs/plans/lo-trinh-kit.json';
 // SKILL cắt lượt: cat-luot.mjs đọc khối CAT-LUOT-CO lúc chạy CLI (lệnh chạy từ gốc gói); kho chạy bản chép cũng cần nó.
-const SKILL_CL = 'skills/cat-luot/SKILL.md';
+const SKILL_CL = trongGoi('skills/cat-luot/SKILL.md');
 
 const tmps = [];
 process.on('exit', () => { for (const d of tmps) { try { rmSync(d, { recursive: true, force: true }); } catch {} } });
@@ -39,11 +43,11 @@ process.on('exit', () => { for (const d of tmps) { try { rmSync(d, { recursive: 
 const NEN = ['lo_trinh', 'tin_hieu'];
 function dungKho({ khai = NEN, them = [], bo = [], cfgThem = '' } = {}) {
   const d = mkdtempSync(path.join(tmpdir(), 'ct-')); tmps.push(d);
-  const tep = MUC.filter(x => !x.khi || khai.includes(x.khi)).map(x => x.src).filter(s => !bo.includes(s));
-  for (const rel of [...tep, ...them, SKILL_CL, PV, LT]) {
-    mkdirSync(path.join(d, path.dirname(rel)), { recursive: true });
-    copyFileSync(path.join(ROOT, rel), path.join(d, rel));
-  }
+  const boG = bo.map(trongGoi);
+  const tepGoi = MUC.filter(x => !x.khi || khai.includes(x.khi)).map(x => x.src).filter(s => !boG.includes(s));
+  const chep = (goc, rel) => { mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); copyFileSync(path.join(goc, rel), path.join(d, rel)); };
+  for (const rel of [...tepGoi, ...them.map(trongGoi), SKILL_CL]) chep(LOI, rel);
+  for (const rel of [PV, LT]) chep(ROOT, rel);
   mkdirSync(path.join(d, '_acceptance'), { recursive: true });
   writeFileSync(path.join(d, '_acceptance', 'config.yaml'), `schema_version: 1\n${cfgThem}`);
   const g = (...a) => execFileSync('git', ['-C', d, ...a], { stdio: 'ignore' });
@@ -51,7 +55,7 @@ function dungKho({ khai = NEN, them = [], bo = [], cfgThem = '' } = {}) {
   return d;
 }
 const chay = (d, rel, ...a) => {
-  const r = spawnSync('node', [path.join(d, rel), '--root', d, ...a], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-25' } });
+  const r = spawnSync('node', [path.join(d, trongGoi(rel)), '--root', d, ...a], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-25' } });
   return { code: r.status, out: `${r.stdout}\n${r.stderr}` };
 };
 const TRI_THUC = 'tri_thuc:\n  noi: docs/tri-thuc\n';
@@ -59,7 +63,7 @@ const TRI_THUC = 'tri_thuc:\n  noi: docs/tri-thuc\n';
 check('CT0 danh sách chép rút được từ marker, có nhãn tri_thuc, mọi src tồn tại', () => {
   assert.ok(MUC.length >= 20, `chỉ rút được ${MUC.length} mục`);
   assert.ok(MUC.some(x => x.khi === 'tri_thuc'), 'không mục nào mang nhãn [only-if-declared: tri_thuc]');
-  for (const x of MUC) assert.ok(existsSync(path.join(ROOT, x.src)), `src không có: ${x.src}`);
+  for (const x of MUC) assert.ok(existsSync(path.join(LOI, x.src)), `src không có: ${x.src}`);
 });
 
 check('CT1 kho KHÔNG khai tri_thuc, chép đúng nhãn: răng phủ --pham-vi chạy tới bảng phủ, không vỡ nạp mô-đun', () => {
