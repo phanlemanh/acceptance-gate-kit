@@ -293,7 +293,8 @@ Phép đo máy cho đặc tả UX, đã cắt ngày 24/08 vì phải dò chữ
 ([hạt giống](../plans/2026-08-24-hat-giong-khop-vong-dac-ta-ux.md)), có thể đo lại được bằng cách trỏ dòng.
 
 Việc này chờ hai điều: phép kiểm sổ màn lên nhánh chính ở kho giữ thứ nhìn thấy, và đợt chuyển bộ công cụ sang kho mới
-xong. Mốc kế (2.39) vẫn ở kho này; phiên này không ghi gì vào kho mới.
+xong. Bản phát hành gần nhất, 2.39.0, ra từ kho này (CHANGELOG ghi 12/11; thẻ `v2.39.0` gắn 13/11); phiên này không
+ghi gì vào kho mới.
 
 ---
 
