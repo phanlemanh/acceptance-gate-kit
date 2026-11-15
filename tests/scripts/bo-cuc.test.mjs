@@ -17,7 +17,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync,
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { boCuc, duong, gocGoi, pathspec, tenGoi, tep } from '../bo-cuc.mjs';
+import { boCuc, boPhan, duong, gocGoi, pathspec, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
 import { LENH, dungKhoMoi } from '../../_acceptance/goi-cheo-loi-dieu-phoi/rang/luat-doi-chu.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -247,6 +247,114 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
   const r3 = chay('duong', '/abs/x', '--thu-muc', khoMoi);
   if (r3.status !== 2 || r3.stdout !== '' || !r3.stderr.includes('bo-cuc: chỉ nhận đường tương đối gốc kho: /abs/x')) lech.push(`lỗi: mã ${r3.status}, stderr «${r3.stderr.trim()}»`);
   lech.length ? bad('BC-CLI', lech.join(' · ')) : ok('BC-CLI', 'một dòng đường mã 0; lỗi stderr mã 2');
+}
+
+// ── Task 1c (thu-bo-dich.md H1, H2, H7) ─────────────────────────────────────────────────────────────────────────────
+const CO_CHO = ds => ds.some(x => x === '.claude-plugin/marketplace.json' || x === '.claude-plugin');
+const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
+
+// ── BC-BOPHAN — danh sách thư mục lõi phẳng → cây: từng phần tử dịch, `.claude-plugin` tách, luôn kèm tệp khai chợ ─────
+{
+  const LOI = ['scripts', 'lib', 'skills', 'hooks', 'commands', '.claude-plugin'];
+  const G = 'plugins/acceptance-gate';
+  const H = { kho: KIT, ref: 'HEAD' };
+  const ca = [
+    ['lõi có .claude-plugin → kho mới', LOI, { thuMuc: khoMoi },
+      [`${G}/scripts`, `${G}/lib`, `${G}/skills`, `${G}/hooks`, `${G}/commands`, '.claude-plugin/marketplace.json', `${G}/.claude-plugin/plugin.json`]],
+    ['lõi không .claude-plugin → kho mới', ['scripts', 'lib', 'skills'], { thuMuc: khoMoi },
+      [`${G}/scripts`, `${G}/lib`, `${G}/skills`, '.claude-plugin/marketplace.json']],
+    ['lõi có .claude-plugin → cây phẳng', LOI, { thuMuc: cayPhang }, LOI],
+    ['lõi không .claude-plugin → HEAD', ['scripts', 'lib', 'skills'], H, ['scripts', 'lib', 'skills', '.claude-plugin/marketplace.json']],
+    ['dạng plugins/… → HEAD', [`${G}/scripts`, 'plugins/roadmap/commands/status.md', '.claude-plugin'], H,
+      ['scripts', 'road-map/commands/xem.md', '.claude-plugin']],
+  ];
+  for (const [nhan, ds, c, cho] of ca) {
+    const id = `BC-BOPHAN ${nhan}`;
+    const m = nem(() => {
+      const ra = boPhan(ds, c);
+      if (JSON.stringify(ra) !== JSON.stringify(cho)) throw new Error(`ra ${JSON.stringify(ra)}, chờ ${JSON.stringify(cho)}`);
+      const vang = ra.filter(x => !coThat(c, x));
+      if (vang.length) throw new Error(`không có ở cây: ${vang.join(', ')}`);
+      if (!CO_CHO(ra)) throw new Error('thiếu tệp khai chợ');
+    });
+    m ? bad(id, m) : ok(id, `${ds.length} → ${cho.length} phần tử, mỗi phần tử có thật, có tệp khai chợ`);
+  }
+  // Bản sao dựng từ kết quả phải giải được bằng bộ dịch (lý do H1); đối chứng âm: dịch từng phần tử mà bỏ tệp khai chợ.
+  const m = nem(() => {
+    const chep = (ds, dich) => { for (const x of ds) cpSync(path.join(khoMoi, x), path.join(dich, x), { recursive: true }); };
+    const sao = path.join(TMP, 'bophan-moi'); chep(boPhan(LOI, { thuMuc: khoMoi }), sao);
+    const b = boCuc({ thuMuc: sao });
+    if (b.phang !== false) throw new Error(`bản sao kho mới phang=${b.phang}`);
+    const d = duong('scripts/lo-trinh.mjs', { thuMuc: sao });
+    if (!existsSync(path.join(sao, d))) throw new Error(`${d} không có ở bản sao`);
+    if (!existsSync(path.join(gocGoi({ thuMuc: sao }, 'loi'), '.claude-plugin', 'plugin.json'))) throw new Error('plugin.json của lõi rơi mất');
+    const tran = path.join(TMP, 'bophan-tran'); chep(['scripts', 'lib'].map(x => duong(x, { thuMuc: khoMoi })), tran);
+    const am = nem(() => boCuc({ thuMuc: tran }));
+    if (am !== `bo-cuc: ${tran} ${CAU_THIEU}`) throw new Error(`đối chứng âm (không tệp khai chợ): ${am ?? '(không ném)'}`);
+    const arc = path.join(TMP, 'bophan-head'); mkdirSync(arc);
+    execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive HEAD -- "${@:3}" | tar -x -C "$2"', '_', KIT, arc, ...boPhan(['scripts', 'lib', 'skills'], H)]);
+    if (boCuc({ thuMuc: arc }).phang !== true) throw new Error('bản bung HEAD không phẳng');
+  });
+  m ? bad('BC-BOPHAN-DUNG', m) : ok('BC-BOPHAN-DUNG', 'cpSync kho mới + git archive HEAD theo boPhan giải được; bỏ tệp khai chợ → ném BC-THIEU');
+  const g = nem(() => boPhan(['commands'], { goiGoc: banSaoGoi, vai: 'lo-trinh' }));
+  g && g.startsWith('bo-cuc: boPhan chỉ nhận { thuMuc } · { kho, ref }')
+    ? ok('BC-BOPHAN-GOI', 'bản sao gốc gói ném câu có tên') : bad('BC-BOPHAN-GOI', `được ${g ?? '(không ném)'}`);
+}
+
+// ── BC-TACH — `.claude-plugin` trần ở cây không phẳng ném đúng câu + đối chứng cây phẳng trả nguyên ───────────────────
+{
+  const lech = [];
+  for (const r of ['.claude-plugin', '.claude-plugin/', './.claude-plugin']) {
+    const m = nem(() => duong(r, { thuMuc: khoMoi }));
+    if (m !== CAU_TACH(khoMoi)) lech.push(`${r}: ${m ?? '(không ném — nửa plugin.json rơi lặng)'}`);
+  }
+  lech.length ? bad('BC-TACH', lech.join(' · ')) : ok('BC-TACH', `3 dạng ném «${CAU_TACH('<cây>')}»`);
+  const dc = [
+    ['.claude-plugin', { thuMuc: cayPhang }, '.claude-plugin'],
+    ['.claude-plugin', { kho: KIT, ref: 'HEAD' }, '.claude-plugin'],
+    ['.claude-plugin', { kho: KIT, ref: refCu }, '.claude-plugin'],
+    ['.claude-plugin/marketplace.json', { thuMuc: khoMoi }, '.claude-plugin/marketplace.json'],
+    ['.claude-plugin/plugin.json', { thuMuc: khoMoi }, 'plugins/acceptance-gate/.claude-plugin/plugin.json'],
+  ];
+  const lechD = dc.map(([r, c, k]) => { const m = nem(() => { const ra = duong(r, c); if (ra !== k) throw new Error(`ra ${ra}`); if (!coThat(c, ra)) throw new Error(`${ra} không có ở cây`); }); return m && `${r} · ${c.thuMuc || c.ref}: ${m}, chờ ${k}`; }).filter(Boolean);
+  lechD.length ? bad('BC-TACH-DOI-CHUNG', lechD.join(' · ')) : ok('BC-TACH-DOI-CHUNG', `${dc.length} ca: cây phẳng trả .claude-plugin, tệp con ở kho mới vẫn dịch`);
+}
+
+// ── BC-CHO — tên chợ đọc từ tệp khai chợ của chính cây + đối chứng cây thiếu chợ ─────────────────────────────────────
+{
+  const ca = [
+    [{ thuMuc: cayPhang }, 'acceptance-gate-kit'],
+    [{ thuMuc: khoMoi }, 'delivery-loop'],
+    [{ kho: KIT, ref: 'HEAD' }, 'acceptance-gate-kit'],
+  ];
+  const lech = ca.map(([c, k]) => { const m = nem(() => { const ra = tenCho(c); if (ra !== k) throw new Error(`ra ${ra}`); }); return m && `${c.thuMuc || c.ref}: ${m}, chờ ${k}`; }).filter(Boolean);
+  lech.length ? bad('BC-CHO', lech.join(' · ')) : ok('BC-CHO', 'acceptance-gate-kit ở cây phẳng và HEAD, delivery-loop ở kho mới');
+  const thieu = [
+    [{ thuMuc: banSaoGoi }, `bo-cuc: ${banSaoGoi} ${CAU_THIEU}`],
+    [{ kho: KIT, ref: refTruocCho }, `bo-cuc: ${refTruocCho} ${CAU_THIEU}`],
+  ];
+  const lechT = thieu.map(([c, cau]) => { const m = nem(() => tenCho(c)); return m !== cau && `${c.thuMuc || c.ref}: ${m ?? '(không ném)'}`; }).filter(Boolean);
+  lechT.length ? bad('BC-CHO-THIEU', lechT.join(' · ')) : ok('BC-CHO-THIEU', `${thieu.length} cây thiếu tệp khai chợ ném câu BC-THIEU`);
+}
+
+// ── BC-CLI-PHU — lệnh bo-phan / ten-cho cùng cờ cây; lỗi tách qua CLI ─────────────────────────────────────────────────
+{
+  const chay = (...a) => spawnSync(process.execPath, [BO_CUC, ...a], { encoding: 'utf8' });
+  const lech = [];
+  const r1 = chay('bo-phan', 'scripts', 'lib', '.claude-plugin', '--thu-muc', khoMoi);
+  const k1 = 'plugins/acceptance-gate/scripts\nplugins/acceptance-gate/lib\n.claude-plugin/marketplace.json\nplugins/acceptance-gate/.claude-plugin/plugin.json\n';
+  if (r1.status !== 0 || r1.stdout !== k1) lech.push(`bo-phan --thu-muc: mã ${r1.status}, «${r1.stdout.trim()}» ${r1.stderr.trim()}`);
+  const r2 = chay('bo-phan', 'plugins/roadmap/commands/status.md', '--kho', KIT, '--ref', 'HEAD');
+  if (r2.status !== 0 || r2.stdout !== 'road-map/commands/xem.md\n.claude-plugin/marketplace.json\n') lech.push(`bo-phan --kho --ref: mã ${r2.status}, «${r2.stdout.trim()}» ${r2.stderr.trim()}`);
+  const r3 = chay('ten-cho', '--thu-muc', khoMoi);
+  if (r3.status !== 0 || r3.stdout !== 'delivery-loop\n') lech.push(`ten-cho --thu-muc: mã ${r3.status}, «${r3.stdout.trim()}» ${r3.stderr.trim()}`);
+  const r4 = chay('ten-cho', '--kho', KIT, '--ref', 'HEAD');
+  if (r4.status !== 0 || r4.stdout !== 'acceptance-gate-kit\n') lech.push(`ten-cho --kho --ref: mã ${r4.status}, «${r4.stdout.trim()}» ${r4.stderr.trim()}`);
+  const r5 = chay('duong', '.claude-plugin', '--thu-muc', khoMoi);
+  if (r5.status !== 2 || r5.stdout !== '' || !r5.stderr.includes(CAU_TACH(khoMoi))) lech.push(`duong .claude-plugin: mã ${r5.status}, stderr «${r5.stderr.trim()}»`);
+  const r6 = chay('bo-phan', '--thu-muc', khoMoi);
+  if (r6.status !== 2 || r6.stdout !== '' || !r6.stderr.includes('bo-cuc: cách dùng')) lech.push(`bo-phan không đường: mã ${r6.status}, stderr «${r6.stderr.trim()}»`);
+  lech.length ? bad('BC-CLI-PHU', lech.join(' · ')) : ok('BC-CLI-PHU', 'bo-phan một dòng mỗi phần tử, ten-cho một dòng, mã 0; lỗi stderr mã 2');
 }
 
 rmSync(TMP, { recursive: true, force: true });

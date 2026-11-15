@@ -26,7 +26,8 @@ const PLUGIN_JSON = '.claude-plugin/plugin.json';
 const BANG_TEN = 'lib/ho-goi.cjs';
 const VAI_LOI = 'loi';
 const GLOB = /[*?[{]/;
-const DUNG = 'cách dùng: node tests/bo-cuc.mjs duong <rel> [--thu-muc <dir> | --kho <dir> --ref <ref>]';
+const THU_MUC_CHO = '.claude-plugin'; // nửa đi nửa ở: plugin.json vào gói lõi, marketplace.json ở lại gốc kho
+const DUNG = 'cách dùng: node tests/bo-cuc.mjs duong <rel> | bo-phan <rel>... | ten-cho [--thu-muc <dir> | --kho <dir> --ref <ref>]';
 
 const loi = m => new Error(`bo-cuc: ${m}`);
 const tenPhangCuaVai = vai => Object.keys(BANG.goi_phang).find(k => BANG.goi_phang[k] === vai);
@@ -61,12 +62,14 @@ function chuanNguon(source, nhan) {
   return source.replace(/^\.\//, '').replace(/\/+$/, '') || '.';
 }
 
-function docCho(cay, nhan) {
+function docChoTho(cay, nhan) {
   const txt = docTep(cay, MARKETPLACE);
   if (txt === null) throw loi(`${nhan} không có ${MARKETPLACE}`);
-  let mk;
-  try { mk = JSON.parse(txt); } catch (e) { throw loi(`${nhan}: ${MARKETPLACE} không phải JSON: ${e.message}`); }
-  return (mk.plugins || []).map(p => ({ ten: p.name, nguon: chuanNguon(p.source, nhan) }));
+  try { return JSON.parse(txt); } catch (e) { throw loi(`${nhan}: ${MARKETPLACE} không phải JSON: ${e.message}`); }
+}
+
+function docCho(cay, nhan) {
+  return (docChoTho(cay, nhan).plugins || []).map(p => ({ ten: p.name, nguon: chuanNguon(p.source, nhan) }));
 }
 
 // Bảng tên nằm ở gói lõi — tìm ở gốc từng gói khai trong chợ (gói nào mang `lib/ho-goi.cjs`).
@@ -172,6 +175,8 @@ export function duong(rel, cay) {
     if (!p || p.vai !== cay.vai) throw loi(`${rel} không thuộc gói vai «${cay.vai}» của ${cay.goiGoc}`);
     return ghep('.', b.phang ? p.trong : doiTen(p.vai, p.trong, 'xuoi'));
   }
+  // `.claude-plugin` trần ở cây không phẳng: chữ ra đúng (thư mục ở gốc) mà nghĩa sai (plugin.json lõi rơi lặng) → lỗi có tên.
+  if (!b.phang && s.replace(/\/+$/, '') === THU_MUC_CHO) throw loi(`${THU_MUC_CHO} tách ở ${nhanCay(cay)} — dùng boPhan`);
   if (!p) return s;
   if (b.phang) return ghep(p.vai === VAI_LOI ? '.' : tenPhangCuaVai(p.vai), p.trong);
   const goc = b.goc[p.vai];
@@ -213,6 +218,31 @@ export function pathspec(rel, cay) {
   return d;
 }
 
+// Danh sách thư mục/tệp (bung `git archive -- …`, chép `cpSync`) → danh sách ở cây ấy: dịch từng phần tử; `.claude-plugin`
+// ở cây không phẳng tách thành tệp khai chợ + plugin.json của lõi; kết quả luôn mang tệp khai chợ để bản sao giải được.
+const phuCho = x => x === '.' || x === THU_MUC_CHO || x === MARKETPLACE;
+export function boPhan(ds, cay) {
+  if (!Array.isArray(ds)) throw loi(`boPhan nhận một mảng đường — được ${JSON.stringify(ds)}`);
+  if (!cay || cay.goiGoc || !(cay.thuMuc || (cay.kho && cay.ref))) throw loi(`boPhan chỉ nhận { thuMuc } · { kho, ref } — được ${JSON.stringify(cay)}`);
+  const phang = boCuc(cay).phang;
+  const ra = [];
+  for (const rel of ds) {
+    const s = kiemRel(rel).replace(/\/+$/, '');
+    if (!phang && s === THU_MUC_CHO) ra.push(MARKETPLACE, duong(PLUGIN_JSON, cay));
+    else ra.push(duong(rel, cay));
+  }
+  if (!ra.some(phuCho)) ra.push(MARKETPLACE);
+  return [...new Set(ra)];
+}
+
+export function tenCho(cay) {
+  if (!cay || cay.goiGoc || !(cay.thuMuc || (cay.kho && cay.ref))) throw loi(`tenCho chỉ nhận { thuMuc } · { kho, ref } — được ${JSON.stringify(cay)}`);
+  if (cay.kho) boCucRef(cay); // ref không phải commit / thiếu tệp khai chợ → lỗi có tên trước khi đọc
+  const ten = docChoTho(cay, nhanCay(cay)).name;
+  if (typeof ten !== 'string' || ten === '') throw loi(`${nhanCay(cay)}: ${MARKETPLACE} không có name`);
+  return ten;
+}
+
 // ── CLI ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 function docCo(co) {
   const BIET = new Set(['--thu-muc', '--kho', '--ref']);
@@ -230,9 +260,19 @@ function docCo(co) {
 }
 
 function cli(argv) {
-  const [lenh, rel, ...co] = argv;
-  if (lenh !== 'duong' || rel === undefined) throw loi(DUNG);
-  process.stdout.write(`${duong(rel, docCo(co))}\n`);
+  const [lenh, ...du] = argv;
+  if (lenh === 'duong') {
+    const [rel, ...co] = du;
+    if (rel === undefined) throw loi(DUNG);
+    process.stdout.write(`${duong(rel, docCo(co))}\n`);
+  } else if (lenh === 'bo-phan') {
+    const i = du.findIndex(x => x.startsWith('--'));
+    const ds = i < 0 ? du : du.slice(0, i);
+    if (ds.length === 0) throw loi(DUNG);
+    process.stdout.write(`${boPhan(ds, docCo(du.slice(ds.length))).join('\n')}\n`);
+  } else if (lenh === 'ten-cho') {
+    process.stdout.write(`${tenCho(docCo(du))}\n`);
+  } else throw loi(DUNG);
 }
 
 const laChinh = () => {
