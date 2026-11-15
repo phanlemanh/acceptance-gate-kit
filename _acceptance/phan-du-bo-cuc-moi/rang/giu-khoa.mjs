@@ -25,7 +25,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { chuanHoa, doiKhoa, docKhoaDich, gop, rutKhoa, soTui, tuiCu } from './tui-khoa.mjs';
+import { chuanHoa, doiKhoa, docKhoaDich, gop, locTheoGoc, rutKhoa, soTui, tuiCu } from './tui-khoa.mjs';
 import { BX, buoc6BoKiem } from './buoc6-chep.mjs';
 import { TEP, THU_MUC, dungKhoMoi, luatDoiChu as luatDoiChuKit } from '../../goi-cheo-loi-dieu-phoi/rang/luat-doi-chu.mjs';
 
@@ -37,7 +37,9 @@ const KHOA_DICH = path.join(HO_SO, 'khoa-dich.tsv');
 const VA_B2 = path.join(HERE, 'va-bo-kiem-b2.json');
 const GUI_B2 = path.join(HO_SO, 'gui-b2.md');
 export const VONG = ['K2', 'K3', 'SP', 'K4-SC', 'K4-PL'];
-export const NGOAI_VONG = ['K4-LT', 'K4-TB'];
+// K4-DN: sáu khoá K4-SC chỉ về được kho mới khi đổi nghĩa (sổ d-20261115T041020Z-23) — tách khỏi K4-SC ngày 15/11, lên
+// Cổng Bằng chứng thành mục Ngoài-n; miễn khỏi túi như mọi khoá của khoa-dich.tsv.
+export const NGOAI_VONG = ['K4-LT', 'K4-TB', 'K4-DN'];
 // Trần một đơn vị chạy. Đo 15/11: bộ scripts trọn (tests/scripts/run-tests.sh) ở hai cây song song chạm 40 phút cả hai.
 const HET_GIO_MS = 90 * 60 * 1000;
 class HaTang extends Error {}
@@ -415,6 +417,38 @@ async function phuSP(ctx, cHead, out) {
   if (r.rc !== 0) { out.push(`  FAIL: SP ${rel} — thoát ${r.rc}`); return 1; }
   return 0;
 }
+// K4-SC chốt chống rỗng (AC-7; kế hoạch Task 8 bước 3): bốn ca xanh giả loại (ii) dùng pathspec đã dịch cho git diff/archive
+// một commit lịch sử. Mỗi ca một bản sao HEAD (bố cục cũ): đổi đúng đối số pathspec (`cu` → `moi`, phải khớp đúng một lần)
+// thành đường không có ở commit → ca rời túi đạt và lỗi mang câu chốt của bộ dịch. Đối chứng dương: cùng ca xanh ở bản sao
+// HEAD nguyên vẹn (cHead).
+export const CHONG_RONG = [
+  { ca: 'ho-so-da-ky-giu-tuoi.test.mjs', tep: 'ho-so-da-ky-giu-tuoi.test.mjs', sua: 'tests/scripts/giu-tuoi-fixture.mjs', cu: 'map(x => pathspec(x, o))', moi: 'map(x => pathspec(`khong-co/${x}`, o))' },
+  { ca: 'JR11a', tep: 'core-untouched.test.mjs', sua: 'tests/scripts/core-untouched.test.mjs', cu: 'map(ref => pathspec(d, { kho: ROOT, ref }))', moi: 'map(ref => pathspec(`khong-co/${d}`, { kho: ROOT, ref }))' },
+  { ca: 'CC-02 khoi-giu-byte', tep: 'can-cu-s1.ca.mjs', sua: 'tests/scripts/can-cu-s1.ca.mjs', cu: 'tepO(t.goc, pathspec(SKILL_REL, o(t.goc)))', moi: 'tepO(t.goc, pathspec(`khong-co/${SKILL_REL}`, o(t.goc)))' },
+  { ca: 'KK-4 quet-lop', tep: 'can-cu-s1.ca.mjs', sua: 'tests/scripts/can-cu-s1.ca.mjs', cu: "pathspec('feature-loop', { kho: ROOT, ref: 'HEAD' })", moi: "pathspec('khong-co/feature-loop', { kho: ROOT, ref: 'HEAD' })" },
+];
+export const CAU_RONG = 'bo-cuc: pathspec rỗng ở';
+const xanhCa = (kq, re) => [...kq.dat.keys()].some(k => re.test(k)) && ![...kq.do.keys()].some(k => re.test(k));
+async function phuChongRong(ctx, head, cHead, out) {
+  const ket = await Promise.all(CHONG_RONG.map(async (c, i) => {
+    const u = donViTep('scripts', `tests/scripts/${c.tep}`); const re = reCa(c.ca);
+    const d = nhanBan(ctx, head, `rong-${i}`); const f = path.join(d, c.sua);
+    const chu = readFileSync(f, 'utf8'); const n = chu.split(c.cu).length - 1;
+    if (n !== 1) throw new HaTang(`chốt chống rỗng ${c.ca}: mẫu tiêm khớp ${n} lần ở ${c.sua} (chờ đúng 1) — «${c.cu}»`);
+    writeFileSync(f, chu.replace(c.cu, c.moi)); commitHet(d, `chống rỗng: ${c.ca}`);
+    const [lanh, pha] = await Promise.all([chay(ctx, cHead, u), chay(ctx, d, u, { nhan: 'rỗng' })]);
+    return { c, re, lanh, pha };
+  }));
+  const hong = [];
+  for (const { c, re, lanh, pha } of ket) {
+    if (!xanhCa(lanh, re)) hong.push(`đối chứng dương: ${c.ca} chưa xanh ở HEAD nguyên vẹn (${lyDoDo(lanh, re)})`);
+    else if (xanhCa(pha, re)) hong.push(`xanh giả còn: ${c.ca}`);
+    else if (!cheKho(`${pha.stdout}\n${pha.stderr}`).includes(CAU_RONG)) hong.push(`${c.ca} đỏ sai thông điệp (thiếu «${CAU_RONG}»): ${lyDoDo(pha, re)}`);
+  }
+  if (hong.length) { for (const h of hong) out.push(`  FAIL: K4-SC ${h}`); return 1; }
+  out.push(`  PASS: K4-SC chốt chống rỗng — ${CHONG_RONG.length}/${CHONG_RONG.length} ca xanh giả (ii) đỏ khi pathspec rỗng (${CHONG_RONG.map(c => maNgan(c.ca)).join(', ')}; «${CAU_RONG} …»; đối chứng dương: xanh ở HEAD nguyên vẹn)`);
+  return 0;
+}
 async function cheDoMoi(ctx, args, out) {
   const cums = args.cum ? [args.cum] : VONG;
   const bts = args.bienThe === 'ca-ba' ? BIEN_THE : [args.bienThe];
@@ -429,8 +463,17 @@ async function cheDoMoi(ctx, args, out) {
   const kho = Object.fromEntries(bts.map(bt => [bt, khoMoi(ctx, head, `moi-${bt}`, tuyChon(bt, head))]));
   const dich = hang.filter(h => cums.includes(h.cum)).map(h => ({ ...h, dv: donViCua(h.bo, h.tepKiem, h.khoa, cHead) }));
   const donVi = new Map(); for (const h of dich) for (const u of h.dv) donVi.set(u.id, u);
+  // Tệp còn đi bước 6 ở biến thể chấm (không khai ở GUI-B2-TU-DUNG): túi so với kho mới dựng từ BẢN GỐC (bước 1–3, luật đổi
+  // tên, luật chung bước 6 — cũng không bảng vá), vì ca cần bảng vá B2 vắng ở cả hai phía; chỉ ca vòng làm mất mới đỏ.
+  const tdHead = bts.includes(CHAM) ? new Set(tuDung(head)) : null;
+  const diBuoc6 = u => { const f = u.id.split(' ')[0]; return Boolean(tdHead) && !f.includes('*') && !tdHead.has(f); };
+  const dv6 = [...donVi.values()].filter(diBuoc6);
+  const khoGoc = dv6.length ? khoMoi(ctx, base, 'moi-goc', { ten: true, buoc6: true }) : null;
   const cays = [cHead, ...bts.map(bt => kho[bt])];
-  const kq = new Map(await Promise.all(cays.flatMap(c => [...donVi.values()].map(async u => [`${c}\0${u.id}`, await chay(ctx, c, u)]))));
+  const kq = new Map(await Promise.all([
+    ...cays.flatMap(c => [...donVi.values()].map(async u => [`${c}\0${u.id}`, await chay(ctx, c, u)])),
+    ...dv6.map(async u => [`${khoGoc}\0${u.id}`, await chay(ctx, khoGoc, u)]),
+  ]));
   const lay = (c, u) => kq.get(`${c}\0${u.id}`);
   let soFail = 0; const tongThieu = Object.fromEntries(bts.map(bt => [bt, 0]));
   for (const cum of cums) {
@@ -457,6 +500,7 @@ async function cheDoMoi(ctx, args, out) {
     }
     soFail += phuCum(cum, ctx, base, head, cHead, out);
     if (cum === 'SP') soFail += await phuSP(ctx, cHead, out);
+    if (cum === 'K4-SC') soFail += await phuChongRong(ctx, head, cHead, out);
   }
   // túi mỗi tệp ⊇ bố cục cũ — khoá của khoa-dich.tsv miễn (đo ở dòng MOI <cụm>, hoặc cụm đã dời).
   const doi = doiKhoa(BX._bangTen, BX);
@@ -466,13 +510,17 @@ async function cheDoMoi(ctx, args, out) {
     tuiTong++;
     for (const bt of bts) {
       const moi = lay(kho[bt], u); const moiDat = veDangN(moi.dat, khoaN);
-      const cu = veDangN(tuiCu(lay(cHead, u).dat, moi.dat, doi), khoaN);
+      const cuDu = veDangN(tuiCu(lay(cHead, u).dat, moi.dat, doi), khoaN);
+      const b6 = bt === CHAM && diBuoc6(u);
+      const cu = b6 ? locTheoGoc(cuDu, veDangN(lay(khoGoc, u).dat, khoaN)) : cuDu;
+      const soGoc = b6 ? [...cuDu.values()].reduce((a, b) => a + b, 0) - [...cu.values()].reduce((a, b) => a + b, 0) : 0;
+      const ve = b6 ? `khoá bố cục cũ mà kho mới dựng từ bản gốc cũng có, còn ở kho mới (tệp còn đi bước 6 — ${soGoc} khoá vắng cả ở bản gốc kho mới: cần bảng vá B2; ` : 'khoá bố cục cũ còn ở kho mới (';
       const s = soTui(cu, moiDat, mien);
       const soMien = [...cu].reduce((n, [k, c]) => n + Math.min(c, mien.get(k) || 0), 0);
-      if (!s.thieu.length) { tuiDu[bt]++; out.push(`  ${nhanDong(bt, true)}: MOI túi ${u.id} — ${s.tong - soMien}/${s.tong - soMien} khoá bố cục cũ còn ở kho mới (biến thể ${bt}; miễn ${soMien} khoá của khoa-dich.tsv)`); continue; }
+      if (!s.thieu.length) { tuiDu[bt]++; out.push(`  ${nhanDong(bt, true)}: MOI túi ${u.id} — ${s.tong - soMien}/${s.tong - soMien} ${ve}biến thể ${bt}; miễn ${soMien} khoá của khoa-dich.tsv)`); continue; }
       soFail += cham(bt, 1);
-      out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — ${s.tong - soMien - s.thieu.length}/${s.tong - soMien} khoá bố cục cũ còn ở kho mới (biến thể ${bt})`);
-      for (const k of s.thieu) out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — thiếu ở kho mới: ${k} (biến thể ${bt})`);
+      out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — ${s.tong - soMien - s.thieu.length}/${s.tong - soMien} ${ve}biến thể ${bt})`);
+      for (const k of s.thieu) out.push(`  ${nhanDong(bt, false)}: MOI túi ${u.id} — thiếu ở kho mới${b6 ? ' (bản gốc kho mới có)' : ''}: ${k} (biến thể ${bt})`);
     }
   }
   for (const bt of bts.filter(b => b !== CHAM)) out.push(`  TIN: giu-khoa --moi (biến thể ${bt}): thiếu ${tongThieu[bt]} ở ${cums.length} cụm; túi khoá ${tuiDu[bt]}/${tuiTong} tệp ⊇ bố cục cũ`);

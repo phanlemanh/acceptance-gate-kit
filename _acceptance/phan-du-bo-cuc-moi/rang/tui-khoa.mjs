@@ -89,6 +89,14 @@ export function soTui(cu, moi, bo = new Map()) {
   return { tong, thieu, thua };
 }
 
+// Túi `cu` chỉ giữ phần mà túi `goc` cũng có (đếm cả số lần) — cho tệp còn đi bước 6: ca bố cục cũ mà kho mới dựng từ
+// bản gốc cũng vắng (cần bảng vá B2) không phải việc vòng này làm mất; ca kho mới bản gốc có thì kho mới HEAD phải còn.
+export function locTheoGoc(cu, goc) {
+  const r = new Map();
+  for (const [k, n] of cu) { const m = Math.min(n, goc.get(k) || 0); if (m) r.set(k, m); }
+  return r;
+}
+
 // khoa-dich.tsv → [{ cum, lop, tepKiem, bo, khoa }] (dòng chú thích «#» và tiêu đề bỏ qua).
 export function docKhoaDich(tep) {
   const ra = [];

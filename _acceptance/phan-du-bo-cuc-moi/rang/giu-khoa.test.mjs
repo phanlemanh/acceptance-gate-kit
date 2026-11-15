@@ -9,6 +9,7 @@
 //   GUI-B2-SO  — khối máy của gui-b2.md: bên ghi và bên đọc round-trip; phép so lệch hai chiều có tên, khớp thì rỗng.
 //   RTS        — cột tệp «run-tests.sh» của khoa-dich.tsv chạy lượt bash của tệp shell (scripts: `--manh bash`), không `node`.
 //   KHOA-N     — khoá đích mang «<n>» (RT13) khớp khoá chạy có một dãy số đúng chỗ; khoá khác so nguyên chữ.
+//   TUI-B6     — tệp còn đi bước 6: túi so với kho mới bản gốc (locTheoGoc); K4-DN tách sáu khoá khỏi K4-SC.
 //   BT-III     — biến thể (iii): bước 6 bỏ đúng các tệp khai ở khối GUI-B2-TU-DUNG của gui-b2.md, tệp khác bằng (ii).
 // Mỗi ca CU có ĐỐI CHỨNG DƯƠNG trên cùng fixture: commit «lành» chỉ thêm một dòng chú thích vào cùng tệp → «PASS: CU <tệp>
 // — …», mã 0. Fixture do mã sinh: bản sao `git clone --shared` của kho (lịch sử đủ — ca bộ dịch đọc `git log`), phủ các tệp
@@ -103,6 +104,27 @@ try {
   if (!(v.get(N) === 1 && v.get('X: 248') === 1 && v.size === 3)) sai.push(`túi về dạng «<n>» (cho --cu, túi --moi): ${JSON.stringify([...v])}`);
   sai.length ? bad('KHOA-N', sai.join(' · ')) : ok('KHOA-N', 'RT13 ở khoa-dich.tsv mang «<n>»; khớp «…: 248», không khớp chữ khác hay chỗ trống số; khoá thường «X: 247» không khớp «X: 248»; túi về dạng «<n>» chỉ đổi khoá RT13');
 } catch (e) { console.log(`HẠ TẦNG: KHOA-N — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
+
+// ── TUI-B6 — tệp còn đi bước 6: túi cũ chỉ giữ ca mà kho mới bản gốc cũng có; ca vòng làm mất vẫn đỏ ──────────────────
+// Đối chứng dương: ca cần bảng vá (vắng ở cả bản gốc kho mới và HEAD kho mới) không đỏ. Chiều đỏ: ca bản gốc kho mới có mà
+// HEAD kho mới mất → «thiếu». Đặc hiệu: ca thêm ở HEAD không đòi. Thêm: K4-DN tách đúng sáu khoá khỏi K4-SC.
+try {
+  const { locTheoGoc, soTui, docKhoaDich } = await import(pathToFileURL(path.join(HERE, 'tui-khoa.mjs')).href);
+  const GK = await import(pathToFileURL(path.join(HERE, 'giu-khoa.mjs')).href);
+  const cu = new Map([['P30', 1], ['P61', 1], ['RT13', 2], ['moi-them', 1]]);
+  const goc = new Map([['P61', 1], ['RT13', 2]]);
+  const sai = [];
+  const lanh = soTui(locTheoGoc(cu, goc), new Map([['P61', 1], ['RT13', 2]]));
+  if (lanh.thieu.length) sai.push(`đối chứng dương: ca cần bảng vá vẫn đòi — ${lanh.thieu.join(', ')}`);
+  const hong = soTui(locTheoGoc(cu, goc), new Map([['RT13', 1]]));
+  if (hong.thieu.join(',') !== 'P61,RT13') sai.push(`chiều đỏ: chờ thiếu «P61,RT13», được «${hong.thieu.join(',')}»`);
+  if (soTui(cu, new Map([['P61', 1], ['RT13', 2]])).thieu.length !== 2) sai.push('đối chứng: túi không lọc phải thiếu P30 và moi-them');
+  const h = docKhoaDich(path.join(HERE, '..', 'khoa-dich.tsv'));
+  const dn = h.filter(x => x.cum === 'K4-DN');
+  if (dn.length !== 6 || !GK.NGOAI_VONG.includes('K4-DN') || GK.VONG.includes('K4-DN')) sai.push(`K4-DN: ${dn.length} khoá, ngoài vòng ${GK.NGOAI_VONG.includes('K4-DN')}`);
+  if (h.filter(x => x.cum === 'K4-SC').length !== 71) sai.push(`K4-SC còn ${h.filter(x => x.cum === 'K4-SC').length}, chờ 71`);
+  sai.length ? bad('TUI-B6', sai.join(' · ')) : ok('TUI-B6', 'ca vắng ở cả bản gốc kho mới không đòi; ca bản gốc kho mới có mà HEAD mất → thiếu (đếm cả số lần); K4-DN 6 khoá ngoài vòng, K4-SC 71');
+} catch (e) { console.log(`HẠ TẦNG: TUI-B6 — ${String(e.message || e).split('\n')[0]}`); ketThuc(3); }
 
 // ── BT-III — biến thể (iii): bước 6 bỏ đúng các tệp khai ở gui-b2.md, mọi tệp khác như (ii) ────────────────────────────
 // Không rỗng: có tệp khai mà (ii) viết khác (i) (bỏ qua thật sự đổi gì), có tệp không khai mà (ii) viết khác (i) (bước 6

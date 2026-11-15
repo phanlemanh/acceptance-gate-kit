@@ -1,4 +1,4 @@
-# Khoá đích của vòng phan-du-bo-cuc-moi — chép từ B2 migration/kich-ban/ket-qua/phan-du-cuoi.tsv (nhánh c87ff183, cây kịch bản ff5e5b5d so 644e9b49, 415/5 556), thêm cột cum. Cụm: K2 · K3 · SP (mã sản phẩm #503 chưa phủ) · K4-LT (lộ trình, tín hiệu) · K4-TB (thẻ, bản đồ, khuôn) · K4-SC (scripts còn lại) · K4-PL (plugins, dieu-phoi) · B2 (việc kho mới, ngoài vòng). Sửa 15/11 sau đo Task 8: RL13fix, RL2ctrl2 xếp lại từ yaml-chuan.test.mjs sang run-tests.sh (ca bash của tests/scripts/run-tests.sh; bảng B2 gán nhầm tệp). Sửa 15/11 (Task 10): khoá RT13 «hồ sơ sinh sau mốc: 247» thành «<n>» — số ấy đếm hồ sơ của cây đang chạy (cây vòng có thêm chính hồ sơ phan-du-bo-cuc-moi nên in 248); thước so khoá có «<n>» với khoá chạy có một dãy số ở đúng chỗ ấy, khoá khác so nguyên chữ.
+# Khoá đích của vòng phan-du-bo-cuc-moi — chép từ B2 migration/kich-ban/ket-qua/phan-du-cuoi.tsv (nhánh c87ff183, cây kịch bản ff5e5b5d so 644e9b49, 415/5 556), thêm cột cum. Cụm: K2 · K3 · SP (mã sản phẩm #503 chưa phủ) · K4-LT (lộ trình, tín hiệu) · K4-TB (thẻ, bản đồ, khuôn) · K4-SC (scripts còn lại) · K4-PL (plugins, dieu-phoi) · B2 (việc kho mới, ngoài vòng). Sửa 15/11 sau đo Task 8: RL13fix, RL2ctrl2 xếp lại từ yaml-chuan.test.mjs sang run-tests.sh (ca bash của tests/scripts/run-tests.sh; bảng B2 gán nhầm tệp). Sửa 15/11 (Task 10): khoá RT13 «hồ sơ sinh sau mốc: 247» thành «<n>» — số ấy đếm hồ sơ của cây đang chạy (cây vòng có thêm chính hồ sơ phan-du-bo-cuc-moi nên in 248); thước so khoá có «<n>» với khoá chạy có một dãy số ở đúng chỗ ấy, khoá khác so nguyên chữ. Sửa 15/11 (trước S4): sáu khoá K4-SC chỉ về được kho mới khi đổi nghĩa (sổ d-20261115T041020Z-23) chuyển sang cụm K4-DN, ngoài vòng — K4-SC còn 71.
 cum	lop	tep_kiem	khoa
 B2	A-co-hoc-chua-gop	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-10-do
 K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4
@@ -103,9 +103,9 @@ K4-PL	D-doi-nghia	?	dieu-phoi: TC1-08 loi-dan
 K4-PL	D-doi-nghia	?	dieu-phoi: TC1-08-do bo-mot-buoc
 K4-PL	D-doi-nghia	?	dieu-phoi: TC1-09 than-ca-doi
 K4-PL	D-doi-nghia	?	dieu-phoi: TC2-09-do ban-moc
-K4-SC	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/pre-merge-check.sh: diff so với base <sha> CHỈ THÊM
+K4-DN	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/pre-merge-check.sh: diff so với base <sha> CHỈ THÊM
 K4-SC	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/recheck-evidence.cjs: diff so với base <sha> CHỈ THÊM
-K4-SC	D-doi-nghia	additive-only.test.mjs	scripts: additive-only.test.mjs
+K4-DN	D-doi-nghia	additive-only.test.mjs	scripts: additive-only.test.mjs
 K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-do2
 K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-khong-bat
 K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-10-byte
@@ -129,10 +129,10 @@ K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-02 khoi-giu-byte
 K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-05 vang-mo-dun
 K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-05-do
 K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-4-do
-K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-6 so-that
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-6 so-that
 K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-8 ho-so-cu
 K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-8-do
-K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: can-cu-s1.ca.mjs
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: can-cu-s1.ca.mjs
 K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL1
 K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL2
 K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL3
@@ -212,8 +212,8 @@ K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT9
 K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: ho-so-da-ky-giu-tuoi.test.mjs
 K4-SC	D-doi-nghia	hskt.test.mjs	scripts: HK-AC5-im
 K4-SC	D-doi-nghia	hskt.test.mjs	scripts: HK-AC5-note
-K4-SC	D-doi-nghia	hskt.test.mjs	scripts: HK-AC7-dot-bien
-K4-SC	D-doi-nghia	hskt.test.mjs	scripts: hskt.test.mjs
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: HK-AC7-dot-bien
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: hskt.test.mjs
 K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1-do]
 K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1]
 K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2-do2]

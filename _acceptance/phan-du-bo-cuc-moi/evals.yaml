@@ -115,8 +115,10 @@ evals:
     paths: [tests/**, _acceptance/phan-du-bo-cuc-moi/rang/**, _acceptance/phan-du-bo-cuc-moi/khoa-dich.tsv]
     expected: >
       exit 0; một dòng mỗi cụm vòng nhận "PASS: MOI <cụm> — <k>/<k> …" và "giu-khoa --moi: thiếu 0 ở <m> cụm; túi khoá
-      <n>/<n> tệp ⊇ bố cục cũ". Chiều đỏ: túi khoá ở kho mới thiếu một ca có ở bố cục cũ → "FAIL: MOI túi <tệp> — thiếu ở
-      kho mới: <ca>".
+      <n>/<n> tệp ⊇ bố cục cũ"; dòng "ngoài vòng:" nêu K4-LT, K4-TB, K4-DN (sổ descope K4-DN). Tệp còn đi bước 6 (không
+      khai ở khối GUI-B2-TU-DUNG) so túi với kho mới dựng từ bản gốc và nêu số ca vắng ở cả hai phía ("cần bảng vá B2").
+      Chiều đỏ: túi khoá ở kho mới thiếu một ca có ở bố cục cũ → "FAIL: MOI túi <tệp> — thiếu ở kho mới: <ca>" (tệp còn
+      đi bước 6: "thiếu ở kho mới (bản gốc kho mới có): <ca>"; ca TUI-B6 của rang/giu-khoa.test.mjs).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-11
