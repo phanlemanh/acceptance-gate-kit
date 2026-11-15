@@ -10,6 +10,7 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -498,14 +499,16 @@ export function caDoiThan(goc, tu, docMoi = docCay(goc)) {
   return ra.sort();
 }
 // Lời hứa của VÒNG danh-thuc-doc-nhip-dung-ma neo vào LỊCH SỬ (tiền lệ kiemDp1 của mo-dot, DP6-07, DP7-10): «sau» là bản
-// ở commit KÝ Cổng Bằng chứng của chính hồ sơ ấy — rút từ vật (commit mới nhất mà hợp đồng của hồ sơ mang
-// `status: signed-off`), không ghim sha, không đọc cây đang chạy: thân ca đổi về sau (vòng khác, bộ dịch bố cục, luật đổi chữ
+// ở commit KÝ Cổng Bằng chứng của chính hồ sơ ấy — rút từ vật (commit mới nhất mà hợp đồng của hồ sơ mang trạng thái
+// ký, tên trạng thái đọc từ lib/workspace-record.cjs của cây — không viết trần), không ghim sha, không đọc cây đang chạy: thân ca đổi về sau (vòng khác, bộ dịch bố cục, luật đổi chữ
 // của kho mới) không thuộc lời hứa của vòng ấy và không làm ca đỏ.
 const HO_SO_TC1 = '_acceptance/danh-thuc-doc-nhip-dung-ma';
 function mocKy() {
   const hd = `${HO_SO_TC1}/contract.md`;
-  const ung = git(KIT, 'log', '--format=%H', '-G^status: signed-off$', '--', hd).split('\n').filter(Boolean);
-  const ky = ung.find((c) => /^status: signed-off$/m.test(docCommit(KIT, c)(hd) ?? ''));
+  const daKy = createRequire(import.meta.url)(tep('lib/workspace-record.cjs', { thuMuc: KIT })).DA_THONG_CONG_2[0];
+  const dong = `^status: ${daKy}$`;
+  const ung = git(KIT, 'log', '--format=%H', `-G${dong}`, '--', hd).split('\n').filter(Boolean);
+  const ky = ung.find((c) => new RegExp(dong, 'm').test(docCommit(KIT, c)(hd) ?? ''));
   assert.ok(ky, `không tìm được commit ký của ${hd} trong lịch sử`);
   return ky;
 }
