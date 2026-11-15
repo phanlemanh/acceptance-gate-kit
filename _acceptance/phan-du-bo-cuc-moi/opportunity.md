@@ -53,6 +53,16 @@ cây kịch bản `8d797a91`; nhánh B2 `ee5dcff8`, `migration/viec-kho-cu-b2.md
 bộ plugins 7, JI12 3; `carry-plan` về đủ 24 — xác nhận bằng đo) · K3 + K1 20 → 20 · K4 340 → 334 · `LT-94`, `LT-94-do`
 đỏ theo lịch ở cả hai cây, ngoài mọi lớp.
 
+**Lượt đo cuối của B2** (nhánh `c87ff183`, cây kịch bản `ff5e5b5d` so `644e9b49`, `migration/viec-kho-cu-b2.md` §4.2,
+`ket-qua/phan-du-cuoi.tsv`): **thiếu 415 / 5 556**. K4 324 (gồm NT13, đỏ thật sau khi B2 gỡ xanh giả loại (i)) + 32 ca
+A đổi nghĩa (mảng thư mục dùng chung cho bản lịch sử và bản sao 18 · bản sao thiếu `.claude-plugin` của gói lõi 12 ·
+CN-2 ×2) · K2 27 · K3 16 + K1 4 (RT13 đọc khối khai đường của hồ sơ đã ký — thực chất lớp K3) · **mã sản phẩm #503 chưa
+phủ 4**: `lib/chan-lo-trinh.cjs` `khoaBat()` (CK-4-lib), nhánh dự phòng `scripts/lo-trinh-khoi-tao.mjs` viết cứng
+`roadmap@delivery-loop` (KM-1-do3), `_acceptance/cua-tin-hieu-gom-nhom/rang/cham-bo-vang.mjs:42` (TH-10-ong, TH-10-do)
+· 6 khoá cặp tệp tự về theo ca bên trong · 2 khoá cơ học của B2 (KM-1, CT-10-do), không thuộc vòng này. Hai mục đầu của
+nhóm mã sản phẩm trùng vùng hai giới hạn đã biết của vòng gọi chéo — đề nghị gom ở Cổng Phạm vi. Mục vá nào của B2 mà
+vòng này làm thừa phải gỡ khỏi bảng vá của B2 cùng bước, nếu không kịch bản dừng ở bước 6.
+
 **Gốc rễ của K4 (và phần lớn K3):** một đường dẫn chỉ có nghĩa **tại một cây**. Bộ kiểm viết `'scripts/x.mjs'` rồi dùng
 nó cho cây đang đứng, cho bản bung của commit lịch sử, cho bản sao theo bố cục gốc plugin, và cho đường ghi trong hồ sơ
 đã ký. Hôm nay bốn thứ ấy trùng bố cục nên không ai thấy. Sau ngày cắt sang, commit lịch sử và hồ sơ đã ký mãi mãi ở bố
