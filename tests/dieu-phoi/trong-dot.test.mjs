@@ -2,7 +2,8 @@
 // Kho thử, worktree của dãy (`git worktree add`) và đợt do chính ca dựng trong thư mục tạm NGOÀI cây kit:
 // đợt mở bằng CLI thật (`mo`, `pha`), hàng kế do một nhịp THẬT của bộ phát lịch (`motNhip`) ghi, rồi đọc
 // bằng `tho` / `trong-dot.mjs` thật. Mọi đường suy từ vị trí tệp này. Mỗi phép đo có cặp hai chiều trên
-// cùng fixture: bản lành xanh trước, bản bị tiêm đỏ sau, ghim thông điệp.
+// cùng fixture: bản lành xanh trước, bản bị tiêm đỏ sau, ghim thông điệp. Đường viết theo bố cục phẳng giải ở cây đang
+// chạy hoặc ở mốc cũ qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi).
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -12,14 +13,16 @@ import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const DAY_TEP = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY_TEP, '..', '..');
-const GOI = path.join(KIT, 'dieu-phoi');
-const FL = path.join(KIT, 'feature-loop');
+const NAY = { thuMuc: KIT };
+const GOI = gocGoi(NAY, 'dieu-phoi');
+const FL = gocGoi(NAY, 'feature-loop');
 
 // Tập trạng thái hợp đồng (DP7-03 het-hang, DP7-04) rút từ lib của CÂY ĐANG KIỂM, không chép tay.
-const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = createRequire(import.meta.url)(tep('lib/workspace-record.cjs', NAY));
 const ENUM_STATUS = WR.NAV_RULES['contract.md'].status.enum;
 const DA_THONG_KIT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
 
@@ -324,7 +327,7 @@ test('DP7-05-do sai-pha', () => {
 });
 
 test('DP7-05 mo-dot-md', () => {
-  const t = fs.readFileSync(path.join(GOI, 'commands', 'mo-dot.md'), 'utf8');
+  const t = fs.readFileSync(tep('dieu-phoi/commands/mo-dot.md', NAY), 'utf8');
   const iKhoi = t.indexOf('<!-- CHU-QUYET-CUA-NGUOI>>> -->');
   const dong = t.split('\n').find((d) => /^5\. \*\*Chạy\.\*\*/.test(d)) ?? '';
   const iDong = t.indexOf(dong);
@@ -375,8 +378,8 @@ test('DP7-04 nhanh-chinh', async () => {
 // «Xong» cùng nghĩa với trang lộ trình: classify của product-map + DA_GIAO_O của lo-trinh, trên hồ sơ THẬT của
 // cây đang kiểm (một hồ sơ không hỏng mỗi trạng thái); trạng thái chưa có hồ sơ thật → hồ sơ tối thiểu.
 async function kiemTapKit(daThong) {
-  const { classify } = await import(path.join(KIT, 'scripts', 'product-map.mjs'));
-  const { DA_GIAO_O } = await import(path.join(KIT, 'scripts', 'lo-trinh.mjs'));
+  const { classify } = await import(tep('scripts/product-map.mjs', NAY));
+  const { DA_GIAO_O } = await import(tep('scripts/lo-trinh.mjs', NAY));
   const goc = path.join(KIT, '_acceptance');
   const theoTrangThai = new Map();
   for (const slug of fs.readdirSync(goc).sort()) {
@@ -521,13 +524,18 @@ const baseMergeBaseSong = () => {
     return git(KIT, 'merge-base', 'HEAD', 'main').trim();
   }
 };
+// Thư mục gói ở `base` giải theo bố cục của CHÍNH mốc ấy (bộ dịch): neo lịch sử là bố cục phẳng, merge-base sống là
+// bố cục của nhánh chính lúc chạy.
 function goiBase(layBase = baseTruocDp7) {
   const base = layBase();
   const dich = tam('dp7-base-');
-  const tar = execFileSync('git', ['archive', base, 'dieu-phoi/scripts'], { cwd: KIT, env: ENV });
+  const moc = { kho: KIT, ref: base };
+  const tar = execFileSync('git', ['archive', base, pathspec('dieu-phoi/scripts', moc)], { cwd: KIT, env: ENV });
   execFileSync('tar', ['-x', '-C', dich], { input: tar });
-  return { base, goi: path.join(dich, 'dieu-phoi') };
+  return { base, goi: path.join(dich, duong('dieu-phoi', moc)) };
 }
+// Blob của hook ở một mốc — đường giải theo bố cục của mốc ấy, nên hai đầu khác bố cục vẫn so được.
+const blobHook = (ref) => git(KIT, 'rev-parse', `${ref}:${pathspec('dieu-phoi/scripts/hook-chan-s4.mjs', { kho: KIT, ref })}`).trim();
 const s4Workflow = (cwd) => JSON.stringify({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: '/x/acceptance-verify.js' } });
 
 async function haiLoiChan(layBase) {
@@ -558,7 +566,7 @@ test('DP7-06-do merge-base-song', async () => {
   assert.deepEqual(kiemTienTo(...lanh.trong), [], 'đối chứng dương: neo lịch sử phải xanh trên cùng cây');
   const song = await haiLoiChan(baseMergeBaseSong);
   const moc = baseMergeBaseSong();
-  assert.ok(git(KIT, 'diff', '--quiet', moc, 'HEAD', '--', 'dieu-phoi/scripts/hook-chan-s4.mjs') === '' , 'mốc sống phải mang đúng hook của HEAD');
+  assert.equal(blobHook(moc), blobHook('HEAD'), 'mốc sống phải mang đúng hook của HEAD');
   const loi = kiemTienTo(...song.trong);
   assert.ok(loi.some((l) => l.startsWith(TIEN_TO_MSG)), `merge-base sống phải đỏ: ${loi.join(' | ')}`);
 });

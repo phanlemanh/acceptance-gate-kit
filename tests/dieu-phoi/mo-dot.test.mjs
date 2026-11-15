@@ -1,6 +1,7 @@
 // mo-dot.test.mjs — các ca của hồ sơ dieu-phoi-mo-dot-mot-lenh (tên ca bắt đầu «DP2-»).
 // Kho thử do chính ca dựng (git init trong thư mục tạm); mọi đường suy từ vị trí tệp này. Mỗi phép đo có
-// cặp hai chiều trên cùng fixture: bản lành xanh trước, bản bị tiêm đỏ sau, ghim thông điệp.
+// cặp hai chiều trên cùng fixture: bản lành xanh trước, bản bị tiêm đỏ sau, ghim thông điệp. Đường viết theo bố cục
+// phẳng giải ở cây đang chạy (hoặc ở commit cũ) qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi).
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -10,10 +11,12 @@ import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { boPhan, duong, gocGoi, tep } from '../bo-cuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
-const GOI = path.join(KIT, 'dieu-phoi');
+const GOI = gocGoi({ thuMuc: KIT }, 'dieu-phoi');
+const NAY = { thuMuc: KIT };
 
 // Khoá máy của ca nằm trong thư mục tạm — đặt TRƯỚC mọi lần nạp mô-đun của gói.
 const MAY_TAM = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dp2-may-')));
@@ -92,8 +95,13 @@ const khaiGoi = (kho, mau = 'goi/dot-{ten}') => {
 const thuMucDot = (kho) => fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 
 // ---------- DP2-01: ba lệnh người (AC-1, E1) ----------
-// DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-14): lệnh thứ năm ban-giao.md.
-const BA_LENH = ['ban-giao.md', 'dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
+// DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-14): lệnh thứ năm ban-giao.md. Tập lệnh ĐÓNG viết bằng tên ở bố cục phẳng; tên
+// tệp ở cây đang chạy giải qua bộ dịch (kho mới đổi tên tệp lệnh), rồi mới sắp — thứ tự là của tên ở cây này.
+const tenLenh = (t) => path.basename(duong(`dieu-phoi/commands/${t}`, NAY));
+const BA_LENH = ['ban-giao.md', 'dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'].map(tenLenh).sort();
+const MO = tenLenh('mo-dot.md');
+const DONG = tenLenh('dong-dot.md');
+const XEM = tenLenh('xem.md');
 
 export function kiemLenh(gocGoi) {
   const dir = path.join(gocGoi, 'commands');
@@ -114,12 +122,12 @@ export function kiemLenh(gocGoi) {
       } else if (scriptGoi.has(ten)) loi.push(`${f}: script của gói ${ten} phải gọi qua \${CLAUDE_PLUGIN_ROOT}, đang qua «${goc}»`);
       else if (!/^\$\w+$/.test(goc)) loi.push(`${f}: script gói anh em ${ten} phải gọi qua biến đã giải, đang qua «${goc}»`);
     }
-    if (f === 'mo-dot.md' || f === 'dong-dot.md') {
+    if (f === MO || f === DONG) {
       const khoi = /<!-- <<<CHU-QUYET-CUA-NGUOI -->\n([\s\S]*?)<!-- CHU-QUYET-CUA-NGUOI>>> -->/.exec(t)?.[1]?.trim();
       if (!khoi) loi.push(`${f}: thiếu khối CHU-QUYET-CUA-NGUOI`);
     }
     // AC-1 (S4-r1, E1c): chẩn đoán biết đợt sắp mở → DỪNG khi goi-dot thiếu → rồi mới `mo`.
-    if (f === 'mo-dot.md') {
+    if (f === MO) {
       const iChan = t.indexOf('chan-doan --json --mo');
       const iMo = t.indexOf('dieu-phoi.mjs" mo $ARGUMENTS');
       const iDung = t.search(/`goi-dot` là `thieu` → DỪNG/);
@@ -140,24 +148,24 @@ test('DP2-01-do khoa-xem', () => {
   const sao = path.join(tam(), 'dieu-phoi');
   chep(GOI, sao);
   assert.deepEqual(kiemLenh(sao), [], 'đối chứng dương: bản sao lành');
-  const p = path.join(sao, 'commands', 'xem.md');
+  const p = path.join(sao, 'commands', XEM);
   fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(/^---\n/, '---\ndisable-model-invocation: true\n'));
   const loi = kiemLenh(sao);
-  assert.ok(loi.some((l) => l.startsWith('xem.md:')), `phải nêu xem.md: ${loi.join(' | ')}`);
+  assert.ok(loi.some((l) => l.startsWith(`${XEM}:`)), `phải nêu ${XEM}: ${loi.join(' | ')}`);
 });
 
 test('DP2-01-do thu-tu', () => {
   const sao = path.join(tam(), 'dieu-phoi');
   chep(GOI, sao);
   assert.deepEqual(kiemLenh(sao), [], 'đối chứng dương: bản sao lành');
-  const p = path.join(sao, 'commands', 'mo-dot.md');
+  const p = path.join(sao, 'commands', MO);
   const goc = fs.readFileSync(p, 'utf8');
   // Bản cũ của lượt chấm 1: chẩn đoán trơn, `mo` chạy trước rồi mới DỪNG.
   const tiem = goc.replace('chan-doan --json --mo $ARGUMENTS', 'chan-doan --json').replace(/Chưa có đợt\n?\s*và mục `goi-dot` là `thieu` → DỪNG/, 'Chưa có đợt và mục goi-dot thiếu thì bỏ qua');
   assert.notEqual(tiem, goc, 'bước tiêm không áp được');
   fs.writeFileSync(p, tiem);
   const loi = kiemLenh(sao);
-  assert.ok(loi.some((l) => l.startsWith('mo-dot.md: trình tự')), `phải nêu trình tự của mo-dot.md: ${loi.join(' | ')}`);
+  assert.ok(loi.some((l) => l.startsWith(`${MO}: trình tự`)), `phải nêu trình tự của ${MO}: ${loi.join(' | ')}`);
 });
 
 // ---------- DP2-02: mở đợt từ gói (AC-2, E2) ----------
@@ -512,7 +520,7 @@ const goiTheoMa = (kho, nguon) =>
     ],
     cfgThem: { nguon_hang: nguon },
   });
-const LT_KIT = path.join(KIT, 'scripts', 'lo-trinh.mjs');
+const LT_KIT = tep('scripts/lo-trinh.mjs', NAY);
 
 export async function kiemRoundTrip(gocGoi, kho) {
   const kit = await import(LT_KIT);
@@ -531,7 +539,7 @@ test('DP2-08 round-trip', async () => {
   console.log(`  (ma:slug) theo kit: ${theoKit.join(' · ')}`);
   assert.deepEqual(loi, []);
   // Nhóm kế hoạch: trang do product-map.mjs THẬT của cây dựng; bản chép docDuLieu của gói == bản gốc.
-  const r = spawnSync(process.execPath, [path.join(KIT, 'scripts', 'product-map.mjs'), '--root', kho], { encoding: 'utf8', env: ENV });
+  const r = spawnSync(process.execPath, [tep('scripts/product-map.mjs', NAY), '--root', kho], { encoding: 'utf8', env: ENV });
   assert.equal(r.status, 0, r.stderr);
   const html = fs.readFileSync(path.join(kho, 'LO-TRINH.html'), 'utf8');
   const kit = await import(LT_KIT);
@@ -681,7 +689,7 @@ const HINH_FM = [
 ];
 test('DP2-09 cung-nghia-kit', async () => {
   const { truongFm } = await nap(GOI, 'the.mjs');
-  const { frontmatterField } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'evidence-core.cjs'));
+  const { frontmatterField } = createRequire(import.meta.url)(tep('lib/evidence-core.cjs', NAY));
   const lech = HINH_FM.filter((fm) => truongFm(fm, 'decision') !== frontmatterField(`---\n${fm}\n---\n`, 'decision'));
   console.log(`  ${HINH_FM.length} hình frontmatter, lệch: ${lech.length}`);
   assert.deepEqual(lech, []);
@@ -835,7 +843,7 @@ function dotCoTrangThai() {
   const kho = khoCoLoTrinh();
   goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
   assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
-  const r = spawnSync(process.execPath, [path.join(KIT, 'scripts', 'product-map.mjs'), '--root', kho], { encoding: 'utf8', env: ENV });
+  const r = spawnSync(process.execPath, [tep('scripts/product-map.mjs', NAY), '--root', kho], { encoding: 'utf8', env: ENV });
   assert.equal(r.status, 0, r.stderr);
   const dot = thuMucDot(kho);
   const tt = {
@@ -1141,13 +1149,15 @@ test('DP2-05-do bo-pha', async () => {
 });
 
 // ---------- DP2-11: /start biết đợt (AC-11, E11) ----------
-const QUET = (gocKit) => path.join(gocKit, 'scripts', 'start-scan.mjs');
+// `gocKit` = gốc KHO (cây đang chạy, hoặc bản bung ở merge-base mang tệp khai chợ của nó); script giải theo bố cục của cây ấy.
+const QUET = (gocKit) => tep('scripts/start-scan.mjs', { thuMuc: gocKit });
 const quetStart = (gocKit, kho) => {
   const r = spawnSync(process.execPath, [QUET(gocKit), '--root', kho], { encoding: 'utf8', env: { ...ENV, ACCEPTANCE_TODAY: '2026-10-10' } });
   assert.equal(r.status, 0, r.stderr);
   return JSON.parse(r.stdout);
 };
-// Bản start-scan của nhánh chính tại merge-base: chép TRỌN thư mục (scripts, lib, skills) bằng git archive.
+// Bản start-scan của nhánh chính tại merge-base: chép TRỌN thư mục (scripts, lib, skills) bằng git archive — danh sách giải
+// theo bố cục của CHÍNH merge-base (bộ dịch; kèm tệp khai chợ để bản bung tự giải được).
 function mergeBaseChinh() {
   for (const nhanh of ['origin/main', 'main']) {
     try {
@@ -1161,7 +1171,7 @@ function kitTaiMergeBase() {
   if (kitGoc) return kitGoc;
   const mb = mergeBaseChinh();
   const dir = tam('dp2-kit-goc-');
-  const tar = execFileSync('git', ['archive', mb, 'scripts', 'lib', 'skills'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 });
+  const tar = execFileSync('git', ['archive', mb, '--', ...boPhan(['scripts', 'lib', 'skills'], { kho: KIT, ref: mb })], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', dir], { input: tar });
   kitGoc = { dir, mb };
   return kitGoc;
@@ -1188,12 +1198,12 @@ test('DP2-11 khong-dot', () => {
   assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
   fs.rmSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
   // Dòng lệnh vẽ mang đường dẫn tuyệt đối của chính cây kit chạy quét — thay gốc bằng một nhãn rồi mới so.
-  const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.join(goc, 'scripts')).join('<KIT>/scripts'));
+  const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.dirname(QUET(goc))).join('<KIT>/scripts'));
   const moi = chuan(quetStart(KIT, kho), KIT);
   const { dir, mb } = kitTaiMergeBase();
   // Hàng X2 (hồ sơ trang-ho-so-mot-viec) bỏ đúng một cặp «» quanh câu giao ở mọi chỗ in tiêu đề — bên cũ
   // đi qua CHÍNH phép bỏ ngoặc của cây trước khi so; mọi khác biệt còn lại vẫn đỏ.
-  const HS = createRequire(import.meta.url)(path.join(KIT, 'scripts', 'ho-so-tom-tat.cjs'));
+  const HS = createRequire(import.meta.url)(tep('scripts/ho-so-tom-tat.cjs', NAY));
   const boNgoac = j => { let t = JSON.stringify(j); for (const h of docJ(path.join(kho, TEP_LT)).hang) { const c = h.cau_giao; const b = HS.boNgoacNgoai(c); if (b !== c) t = t.split(JSON.stringify(c).slice(1, -1)).join(JSON.stringify(b).slice(1, -1)); } return JSON.parse(t); };
   const cu = boNgoac(chuan(quetStart(dir, kho), dir));
   console.log(`  so với start-scan tại ${mb.slice(0, 8)}: ${Object.keys(moi).length} khoá`);
@@ -1274,14 +1284,19 @@ test('DP2-14-do thieu-muc', () => {
   assert.ok(loi.some((l) => l.includes('«Dãy»')), `phải nêu «Dãy»: ${loi.join(' | ')}`);
 });
 
-// Bản sao tối thiểu đủ để chạy LB2 của chính cây (ROOT của tệp ca suy từ vị trí tệp).
+// Bản sao tối thiểu đủ để chạy LB2 của chính cây (ROOT của tệp ca suy từ vị trí tệp). Danh sách giải theo bố cục của cây
+// đang chạy (boPhan kèm tệp khai chợ) và mang bộ dịch — tệp ca LB2 giải đường qua nó.
 function caySaoLb() {
   const sao = tam('dp2-lb-');
-  for (const rel of ['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/plugins/lenh-bam-duoc.test.mjs',
-    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'])
+  for (const rel of boPhan(['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/bo-cuc.mjs', 'tests/plugins/lenh-bam-duoc.test.mjs',
+    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'], NAY)) {
+    fs.mkdirSync(path.dirname(path.join(sao, rel)), { recursive: true });
     fs.cpSync(path.join(KIT, rel), path.join(sao, rel), { recursive: true });
+  }
   return sao;
 }
+// Tên plugin của gói ở cây đang chạy (kho mới đổi tên) — rút từ plugin.json, không viết trong biểu thức.
+const TEN_DP = docJ(path.join(GOI, '.claude-plugin', 'plugin.json')).name;
 const chayLb2 = (goc) => spawnSync(process.execPath, [path.join(goc, 'tests', 'plugins', 'lenh-bam-duoc.test.mjs')],
   { encoding: 'utf8', env: { ...ENV, LB_CASES: 'LB2' } });
 
@@ -1290,18 +1305,18 @@ test('DP2-14-do-lb', () => {
   const lanh = chayLb2(sao);
   assert.equal(lanh.status, 0, `đối chứng dương: ${lanh.stdout}${lanh.stderr}`);
   assert.match(lanh.stdout, /PASS: \[LB2\]/);
-  const hfl = path.join(sao, 'skills', 'acceptance', 'references', 'human-facing-language.md');
+  const hfl = tep('skills/acceptance/references/human-facing-language.md', { thuMuc: sao });
   const goc = fs.readFileSync(hfl, 'utf8');
-  const tiem = goc.replace(/^\| [a-z-]+ \| \/dieu-phoi:[a-z-]+ \| command \|\n/gm, '');
+  const tiem = goc.replace(new RegExp(`^\\| [a-z-]+ \\| /${TEN_DP}:[a-z-]+ \\| command \\|\\n`, 'gm'), '');
   assert.notEqual(tiem, goc, 'bước tiêm không áp được');
   fs.writeFileSync(hfl, tiem);
   const do_ = chayLb2(sao);
   assert.notEqual(do_.status, 0);
-  assert.match(do_.stdout, /FAIL: \[LB2\].*\/dieu-phoi:/);
+  assert.match(do_.stdout, new RegExp(`FAIL: \\[LB2\\].*/${TEN_DP}:`));
 });
 
 test('DP2-11 start-md', () => {
-  const md = fs.readFileSync(path.join(KIT, 'commands', 'start.md'), 'utf8');
+  const md = fs.readFileSync(tep('commands/start.md', NAY), 'utf8');
   const khoi = /<!-- <<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>> -->/.exec(md)?.[1] ?? '';
   const khoa = khoi.split(/\s+/).filter((k) => k.startsWith('dotDangChay'));
   assert.deepEqual(khoa, ['dotDangChay.ten', 'dotDangChay.pha']);
