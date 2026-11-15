@@ -661,17 +661,38 @@ function chayLanBan(baseDir, kho, opts) {
 // `recheck-evidence.cjs --all` (cờ đó không tồn tại; script chỉ nhận MỘT
 // đường dẫn một lượt). Trả `{ soDaCham, viPham }` thay vì ném ở hồ sơ đỏ đầu
 // tiên, để ca so sánh được TẬP TÊN giữa hai lượt (bản base / bản hiện tại).
-function quetKho(recheckScript, accDir) {
+function quetKho(recheckScript, accDir, cwd) {
   const daCham = [];
   const viPham = [];
   for (const slug of fs.readdirSync(accDir).sort()) {
     const rp = path.join(accDir, slug, 'evidence-report.md');
     if (!fs.existsSync(rp)) continue;
     daCham.push(slug);
-    try { execFileSync(process.execPath, [recheckScript, rp], { encoding: 'utf8' }); }
+    try { execFileSync(process.execPath, [recheckScript, rp], { encoding: 'utf8', ...(cwd ? { cwd } : {}) }); }
     catch (_) { viPham.push(slug); }
   }
   return { soDaCham: daCham.length, viPham };
+}
+
+// Bộ máy bản base chỉ biết bố cục PHẲNG: `verifier:` của hồ sơ đã ký (`scripts/x.mjs`) nó tìm ở thư mục hồ sơ, gốc git
+// của hồ sơ, rồi thư mục làm việc. Lượt quét của bản base chạy trong một «khung phẳng» của cây đang chạy: mỗi thư mục
+// gốc của bảng bố cục phẳng đóng băng (tests/fixtures/bo-cuc-phang.json, cạnh bộ dịch) trỏ (symlink) tới đường của nó ở
+// cây này qua bộ dịch. Bố cục phẳng: khung trỏ đúng chỗ cũ, gốc git của hồ sơ đã giải trước nên hành vi không đổi.
+// Lượt quét bản sao corpus (ngoài git) dùng cùng khung.
+let _khungPhang = null;
+function khungPhang() {
+  if (_khungPhang) return _khungPhang;
+  const bang = JSON.parse(fs.readFileSync(path.join(path.dirname(BO_CUC), 'fixtures', 'bo-cuc-phang.json'), 'utf8'));
+  const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-khung-'));
+  // Mọi mục ở gốc cây giữ tên (tests/, docs/… — verifier có thể ở đó), rồi mỗi thư mục gốc phẳng trỏ tới chỗ của nó ở cây này.
+  const tro = new Map(fs.readdirSync(SELF_ROOT).filter(x => x !== '.git').map(x => [x, path.join(SELF_ROOT, x)]));
+  for (const d of [...Object.keys(bang.goi_phang), ...bang.thu_muc_loi]) {
+    const that = path.join(SELF_ROOT, duong(d, { thuMuc: SELF_ROOT }));
+    if (fs.existsSync(that)) tro.set(d, that);
+  }
+  for (const [ten, dich] of tro) fs.symlinkSync(dich, path.join(dir, ten));
+  _khungPhang = dir;
+  return dir;
 }
 
 // Tìm ĐỘNG (không hardcode tên slug — corpus đổi theo thời gian) một hồ sơ
@@ -738,7 +759,7 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
 
   // ── Vế 2: «không hồ sơ nào hoá đỏ» — ghim BA thứ trên corpus thật ───────
   const accDir = path.join(SELF_ROOT, '_acceptance');
-  const quetBase = quetKho(tai(base, 'scripts/recheck-evidence.cjs'), accDir);
+  const quetBase = quetKho(tai(base, 'scripts/recheck-evidence.cjs'), accDir, khungPhang());
   const quetMoi = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), accDir);
   console.log(`  L05: lượt bản base chấm ${quetBase.soDaCham} hồ sơ, ${quetBase.viPham.length} vi phạm`);
   console.log(`  L05: lượt bản hiện tại chấm ${quetMoi.soDaCham} hồ sơ, ${quetMoi.viPham.length} vi phạm`);
@@ -761,12 +782,14 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
   // pin (hồ sơ ho-so-khep-thoi-hoi AC-7). Loại theo vị từ, KHÔNG theo danh sách tên.
   for (const k of require(tai(SELF_ROOT, 'lib/workspace-record.cjs')).slugDaKhep(corpusSaoCha))
     fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });
-  const quetSaoTruoc = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao);
+  // Bản sao nằm ngoài kho git: `verifier:` của hồ sơ giải theo thư mục làm việc — khung phẳng của cây đang chạy (như
+  // lượt bản base), không phụ thuộc thư mục tiến trình đang đứng.
+  const quetSaoTruoc = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao, khungPhang());
   if (quetSaoTruoc.viPham.length) fail(`L05 bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (${quetSaoTruoc.viPham.join(', ')}) — không dùng làm nền so sánh được`);
   const ung = timUngVienDeTiem(corpusSao);
   if (!ung) fail('L05 không tìm được ứng viên để tiêm (hồ sơ PASS có dòng repin evals_exit ≥ 1 khoá) — corpus đổi hình dạng, cần chọn ứng viên khác');
   tiemThieuId(corpusSao, ung.slug, ung.runId, ung.idBoQua);
-  const quetSaoSau = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao);
+  const quetSaoSau = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao, khungPhang());
   if (quetSaoSau.viPham.length !== quetSaoTruoc.viPham.length + 1) fail(`L05 tiêm thiếu ${ung.idBoQua} vào ${ung.slug}: vi phạm phải TĂNG đúng 1, nhận trước=${quetSaoTruoc.viPham.length} sau=${quetSaoSau.viPham.length}`);
   if (!quetSaoSau.viPham.includes(ung.slug)) fail(`L05 tiêm vào ${ung.slug} nhưng vi phạm không gọi đúng tên hồ sơ đó — vi phạm=[${quetSaoSau.viPham.join(',')}]`);
 });
