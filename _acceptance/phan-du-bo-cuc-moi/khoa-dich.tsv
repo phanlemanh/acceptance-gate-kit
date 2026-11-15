@@ -1,4 +1,4 @@
-# Khoá đích của vòng phan-du-bo-cuc-moi — chép từ B2 migration/kich-ban/ket-qua/phan-du-cuoi.tsv (nhánh c87ff183, cây kịch bản ff5e5b5d so 644e9b49, 415/5 556), thêm cột cum. Cụm: K2 · K3 · SP (mã sản phẩm #503 chưa phủ) · K4-LT (lộ trình, tín hiệu) · K4-TB (thẻ, bản đồ, khuôn) · K4-SC (scripts còn lại) · K4-PL (plugins, dieu-phoi) · B2 (việc kho mới, ngoài vòng).
+# Khoá đích của vòng phan-du-bo-cuc-moi — chép từ B2 migration/kich-ban/ket-qua/phan-du-cuoi.tsv (nhánh c87ff183, cây kịch bản ff5e5b5d so 644e9b49, 415/5 556), thêm cột cum. Cụm: K2 · K3 · SP (mã sản phẩm #503 chưa phủ) · K4-LT (lộ trình, tín hiệu) · K4-TB (thẻ, bản đồ, khuôn) · K4-SC (scripts còn lại) · K4-PL (plugins, dieu-phoi) · B2 (việc kho mới, ngoài vòng). Sửa 15/11 sau đo Task 8: RL13fix, RL2ctrl2 xếp lại từ yaml-chuan.test.mjs sang run-tests.sh (ca bash của tests/scripts/run-tests.sh; bảng B2 gán nhầm tệp).
 cum	lop	tep_kiem	khoa
 B2	A-co-hoc-chua-gop	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-10-do
 K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4
@@ -409,8 +409,8 @@ K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san
 K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-do
 K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-im
 K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: xem-trang-lo-trinh.test.mjs
-K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: RL13fix
-K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: RL2ctrl2
+K4-SC	D-doi-nghia	run-tests.sh	scripts: RL13fix
+K4-SC	D-doi-nghia	run-tests.sh	scripts: RL2ctrl2
 K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: YC-3-vang
 K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: yaml-chuan.test.mjs
 K3	C-ho-so-K1	ra-co-ten.test.mjs	plugins: [RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: 247
