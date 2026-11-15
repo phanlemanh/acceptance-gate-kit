@@ -48,9 +48,10 @@ export const LUAT = [
 const TB = Object.fromEntries(LUAT.map(l => [l.ma, l.tb]));
 const CUM_BAT_BUOC = ['card.html', 'evidence-page.html', 'SendUserFile', 'in đường dẫn trang', '```text', 'chép đúng như thẻ in', '___', 'wrap_up', 'không câu hỏi và không nút'];
 // Tên gói rút từ bảng tên của cây đang chạy (lib/ho-goi.cjs), không viết trong regex: ở kho mới bảng tự mang tên mới
-// (dispatch…) nên luật `nut-lenh`, `ngoai-khoi` vẫn nhận lệnh của mọi gói kit.
-const { danhSach } = createRequire(import.meta.url)(tep('lib/ho-goi.cjs', CAY));
-const TEN_GOI = (({ names, optIn }) => [...names, ...optIn])(danhSach());
+// (dispatch…) nên luật `nut-lenh`, `ngoai-khoi` vẫn nhận lệnh của ba gói ấy.
+// Đúng ba vai của bản cũ (lõi · feature-loop · điều phối) — giữ nghĩa «nút lệnh của kit», không nới sang gói khác.
+const { tenTheoVai } = createRequire(import.meta.url)(tep('lib/ho-goi.cjs', CAY));
+const TEN_GOI = ['loi', 'feature-loop', 'dieu-phoi'].map(tenTheoVai);
 const escRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const LENH_KIT_RE = new RegExp(`^\\s*\\/(${TEN_GOI.map(escRe).join('|')}):`);
 // `(?=\S)` ép nuốt hết khoảng trắng trước khi xét `___` — thiếu nó `\s*` lùi một khoảng và « ___» lọt thành chữ quyết.
