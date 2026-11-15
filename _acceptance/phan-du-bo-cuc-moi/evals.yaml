@@ -107,22 +107,6 @@ evals:
     expected: >
       exit 0; "PASS: MOI K4-PL — <k>/<k> khoá đích có mặt và xanh ở kho mới". Chiều đỏ như E3.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9
-    criterion: AC-9
-    executor: script
-    cmd: config:executors.script.pdbm_moi_k4_lt
-    paths: [tests/scripts/**, tests/bo-cuc.mjs]
-    expected: >
-      exit 0; "PASS: MOI K4-LT — <k>/<k> khoá đích có mặt và xanh ở kho mới". Chiều đỏ như E3.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E10
-    criterion: AC-10
-    executor: script
-    cmd: config:executors.script.pdbm_moi_k4_tb
-    paths: [tests/scripts/**, tests/bo-cuc.mjs]
-    expected: >
-      exit 0; "PASS: MOI K4-TB — <k>/<k> khoá đích có mặt và xanh ở kho mới". Chiều đỏ như E3.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11
     executor: script
@@ -150,7 +134,7 @@ evals:
     cmd: config:executors.script.pdbm_moi_sp
     paths: [lib/chan-lo-trinh.cjs, lib/ho-goi.cjs]
     expected: >
-      (chỉ khi Hỏi-2 chọn gom; không gom thì eval này và AC-12 dời Out of scope cùng lượt) exit 0; "PASS: SP-NL kho tiêu thụ
+      exit 0; "PASS: SP-NL kho tiêu thụ
       thiếu lib/ho-goi.cjs → nạp luật chặn thoát êm; chỗ cần bảng tên in «chan-lo-trinh: thiếu lib/ho-goi.cjs cạnh luật chặn»";
       đối chứng dương "PASS: SP-NL-DU kho đủ tệp → khoá bật giải được" trên cùng fixture do mã sinh. Chiều đỏ: nạp sập →
       "FAIL: SP-NL nạp sập: <lỗi>"; lỗi khác câu ghim → "FAIL: SP-NL thông điệp lệch: <dòng>".

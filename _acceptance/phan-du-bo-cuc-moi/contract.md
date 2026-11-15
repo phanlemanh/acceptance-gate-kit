@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/recheck-evidence.cjs và lib/chan-lo-trinh.cjs (t3_paths)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-15-phan-du-bo-cuc-moi-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-11-15T02:23:54Z
 ---
 
 # Acceptance Contract: phan-du-bo-cuc-moi
@@ -49,7 +49,7 @@ Thuật ngữ:
   bằng bản gốc từng byte, ô bố cục cũ thiếu tệp khai khác bản gốc đúng chữ tên gói (bản gốc in tên mới — đối chứng rằng
   nhánh dự phòng thật sự chạy).
 - AC-5: Given các hồ sơ đã ký giữ nguyên từng byte, When chạy ở kho mới các ca đọc hợp đồng, khối khai và mã đo của hồ sơ
-  đã ký (P169, LM5, LM8b, ba ca làn máy, RT13, RT18, CVS1–CVS4, TH-10-ong, TH-10-do, ca `stop-patching-law`), Then mọi khoá
+  đã ký (P169, LM5, LM8b, ba ca «lan may qua bo phan loai», RT13, RT18, CVS1–CVS4, TH-10-ong, TH-10-do, ca `stop-patching-law`), Then mọi khoá
   đích của chúng có mặt và xanh, và `git diff --stat <bản gốc> HEAD -- '_acceptance/*/'` không chạm hồ sơ nào trừ
   `_acceptance/phan-du-bo-cuc-moi/`.
 - AC-6: Given một kho có `marketplace.json` đặt gói lõi ở thư mục con và báo cáo đã ký trỏ `verifier:` theo đường phẳng
@@ -62,17 +62,13 @@ Thuật ngữ:
 - AC-8: Given kho mới, When chạy bộ plugins và bộ điều phối, Then mọi khoá đích cụm K4-PL có mặt và xanh (P161, P91, P93,
   TC1-06, TC1-08, TC1-09, TC2-09, DP2-01, DP6-03, DP7-06, DV5), mỗi heredoc Python/bash giải đường qua dạng CLI của bộ
   dịch.
-- AC-9: Given kho mới, When chạy các tệp kiểm cụm K4-LT, Then mọi khoá đích cụm K4-LT có mặt và xanh; ca dựng kho tiêu
-  thụ giả (LT-12, LT-12-kho, RS-4-lenh-do) gác trên đường của kho tiêu thụ, không qua bộ dịch.
-- AC-10: Given kho mới, When chạy các tệp kiểm cụm K4-TB, Then mọi khoá đích cụm K4-TB có mặt và xanh.
 - AC-11: Given kho mới, When chạy thước giữ khoá `--moi` rồi `--chieu-do`, Then `--moi` in một dòng mỗi cụm vòng nhận với
   «thiếu 0» và túi khoá mỗi tệp ⊇ túi khoá bố cục cũ; `--chieu-do` (bộ dịch thay bằng bản đồng nhất) làm mỗi cụm có ít nhất
   một ca canh đỏ với thông điệp ghim; và `_acceptance/phan-du-bo-cuc-moi/gui-b2.md` liệt kê mọi mục `va-bo-kiem.json`
   mà diff của vòng làm thừa, rút bằng máy.
-- AC-12: (chỉ khi Hỏi-2 chọn gom) Given bản sao một kho tiêu thụ đã chép `lib/chan-lo-trinh.cjs` mà thiếu
+- AC-12: Given bản sao một kho tiêu thụ đã chép `lib/chan-lo-trinh.cjs` mà thiếu
   `lib/ho-goi.cjs`, When nạp luật chặn rồi gọi tới chỗ cần bảng tên, Then nạp thoát êm và chỗ cần bảng tên in lỗi
-  `chan-lo-trinh: thiếu lib/ho-goi.cjs cạnh luật chặn`; kho đủ tệp thì khoá bật giải được (đối chứng dương). Hỏi-2 chọn
-  không gom → tiêu chí này dời sang Out of scope.
+  `chan-lo-trinh: thiếu lib/ho-goi.cjs cạnh luật chặn`; kho đủ tệp thì khoá bật giải được (đối chứng dương).
 
 ## Coverage
 
@@ -85,8 +81,10 @@ Quét ba trục (skill morphological-scan, preset test-matrix, làm tại chỗ)
   174 + 98 + 2 của B2].
 
 Ô có nghĩa → tiêu chí: mọi cụm × cũ → AC-1 · bộ dịch × mọi cây → AC-2 · K2 × mới → AC-3 · SP × mới → AC-4 · K3 (hồ sơ đã
-ký) × mới → AC-5, AC-6 · K4-SC → AC-7 · K4-PL → AC-8 · K4-LT (gồm kho tiêu thụ giả) → AC-9 · K4-TB → AC-10 · chiều đỏ và
+ký) × mới → AC-5, AC-6 · K4-SC → AC-7 · K4-PL → AC-8 · chiều đỏ và
 ghép nối B2 → AC-11 · nạp lười bảng tên ở kho tiêu thụ chép thiếu (Hỏi-2) → AC-12.
+
+Later: K4-LT (174 khoá, 16 tệp) và K4-TB (98 khoá, 9 tệp) — vòng kế trên bộ dịch đã gộp (Hỏi-1, Out of scope).
 
 Never: cụm B2 (KM-1, CT-10-do) — vá cơ học cần luật đảo mới, việc của kịch bản. Later: lệnh eval của hồ sơ đã ký chạy lại ở
 kho mới (ô cơ hội, Out of scope).
@@ -94,7 +92,7 @@ kho mới (ô cơ hội, Out of scope).
 ## Đường đo
 
 - SỐNG — lượt giữ khoá của B2 trên cây dựng lại từ nhánh chính sau gộp thiếu 0 ở các cụm vòng nhận: số từ đo chéo cuối vòng
-  trên bản kéo tạm của `delivery-loop` (ngoài làn máy, ghi ở Notes) và lượt đo của B2 · AC bảo đảm: AC-3…AC-11.
+  trên bản kéo tạm của `delivery-loop` (ngoài làn máy, ghi ở Notes) và lượt đo của B2 · AC bảo đảm: AC-3…AC-8, AC-11.
 - CHẾT — ở bố cục cũ một ca xanh hoá đỏ, rời túi khoá, hay chiều đỏ thôi đỏ: số từ thước giữ khoá `--cu` và suite · AC bảo
   đảm: AC-1.
 - Timebox — gộp trước lượt đo lại của B2 cho Cổng Bằng chứng của nó, chậm nhất 04/12/2026: số từ giờ gộp (`dem`
@@ -106,11 +104,15 @@ kho mới (ô cơ hội, Out of scope).
 - Không đổi byte nào của hồ sơ đã ký; không làm cho lệnh eval của hồ sơ đã ký chạy lại được ở kho mới.
 - Không cắt số, không gắn thẻ; không chép lại lớp CI ở kho tiêu thụ — đi theo mốc 3.0.
 - Không đổi `.claude/settings.json` (LM1 sửa ở bên đọc; tệp đổi ở kho mới do kịch bản).
+- Cụm K4-LT (lộ trình, tín hiệu: 174 khoá, 16 tệp) và K4-TB (thẻ, bản đồ, khuôn: 98 khoá, 9 tệp) — dời sang vòng kế dùng
+  cùng bộ dịch (Hỏi-1, chủ kho duyệt theo khuyến nghị 15/11). Ngoại lệ: `tests/scripts/lo-trinh.test.mjs` chỉ đổi ngày mẫu
+  của LT-94.
 - Cụm B2 (KM-1, CT-10-do) và PM17/PM18 (xanh giả có từ trước, không thuộc bố cục).
 
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
 
 ## Notes
 
-- Cụm K4-LT và K4-TB (272 khoá, 25 tệp) là chỗ cắt máy đề nghị ở Cổng Phạm vi (Hỏi-1): cắt thì AC-9, AC-10 dời sang vòng
-  kế dùng cùng bộ dịch.
+- Mã tiêu chí giữ nguyên số sau khi dời AC-9, AC-10 sang vòng kế (eval E9, E10 dời theo), để sổ và thẻ không phải đánh số lại.
+- Cổng Phạm vi 15/11: chủ kho gõ «duyệt» trần; máy đọc là duyệt kèm khuyến nghị của Hỏi-1 (cắt K4-LT, K4-TB) và Hỏi-2
+  (gom giới hạn nạp cứng bảng tên) — sổ d-…-gate1.

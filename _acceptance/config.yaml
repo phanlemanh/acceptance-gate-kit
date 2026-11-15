@@ -288,8 +288,6 @@ executors:
     pdbm_moi_k3: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K3
     pdbm_moi_k4_sc: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-SC
     pdbm_moi_k4_pl: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-PL
-    pdbm_moi_k4_lt: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-LT
-    pdbm_moi_k4_tb: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-TB
     pdbm_moi: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi
     pdbm_chieu_do: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --chieu-do
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
