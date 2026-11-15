@@ -138,6 +138,10 @@ tests/workflows/harness.mjs
 ```
 <!-- GUI-B2-TU-DUNG>>> -->
 
+Đo sau khi khai (15/11, biến thể iii): `tests/scripts/tin-hieu.test.mjs` khai nhầm. Chỉ phần TH-10 đi qua bộ dịch; dòng
+nạp `lib/workspace-record.cjs` ở đầu tệp vẫn là đường phẳng, nên bỏ bước 6 làm cả tệp sập (0/44 khoá). Danh sách vẫn giữ
+như đã khai. Còn chờ quyết: trả tệp này về bước 6, hay sửa dòng nạp ấy.
+
 ## 3. Cấu hình kịch bản phải đổi
 
 - Thêm `.claude/settings.json` vào `bo_kiem.tep_goc`. Lệnh `node scripts/product-map.mjs --root . --check` ở
