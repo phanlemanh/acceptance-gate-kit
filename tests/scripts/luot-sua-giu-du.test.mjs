@@ -18,11 +18,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { boPhan, gocGoi, pathspec, tep as tepO } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 const MOC_TRUOC = '7b1afe1e';
 const DIRS = ['feature-loop', 'lib', 'scripts', 'skills'];
+// Bố cục của mỗi bản đọc từ chính cây nguồn (commit hay cây đang đứng); bản mang tệp khai chợ để đường trong nó giải được.
+const agRoot = may => gocGoi({ thuMuc: may }, 'loi'); // gốc GÓI lõi của bộ máy, không phải gốc kho
 
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'lsgd-'));
 process.on('exit', () => { try { fs.rmSync(TMP, { recursive: true, force: true }); } catch { /* dọn tạm */ } });
@@ -41,7 +44,7 @@ function banBase() {
   if (BASE) return BASE;
   const d = path.join(TMP, 'base');
   fs.mkdirSync(d);
-  const r = spawnSync('bash', ['-o', 'pipefail', '-c', `git -C '${ROOT}' archive ${MOC_TRUOC} ${DIRS.join(' ')} | tar -x -C '${d}'`], { encoding: 'utf8' });
+  const r = spawnSync('bash', ['-o', 'pipefail', '-c', `git -C '${ROOT}' archive ${MOC_TRUOC} ${boPhan(DIRS, { kho: ROOT, ref: MOC_TRUOC }).join(' ')} | tar -x -C '${d}'`], { encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`khong dung duoc ban base ${MOC_TRUOC}: ${r.stderr}`);
   BASE = d;
   return d;
@@ -50,8 +53,8 @@ let demSao = 0;
 function banSao(tep, tu, sang) {
   demSao += 1;
   const d = path.join(TMP, `sao-${demSao}`);
-  for (const x of DIRS) fs.cpSync(path.join(ROOT, x), path.join(d, x), { recursive: true });
-  const f = path.join(d, tep);
+  for (const x of boPhan(DIRS, { thuMuc: ROOT })) fs.cpSync(path.join(ROOT, x), path.join(d, x), { recursive: true });
+  const f = tepO(tep, { thuMuc: d });
   const src = fs.readFileSync(f, 'utf8');
   const moi = typeof tu === 'string' ? src.split(tu).join(sang) : src.replace(tu, sang);
   if (moi === src) throw new Error(`chuoi tiem khong doi duoc ${tep} — ban sao giong ban goc, khong tin duoc chieu do`);
@@ -78,9 +81,9 @@ function chayCarryPlan(may, runLogText, delta) {
   w(d, 'run-log.jsonl', runLogText);
   w(d, 'evals.yaml', 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: x\n    paths: [lib/**]\n');
   w(d, 'contract.md', '- AC-1: Given x When y Then z\n');
-  const r = spawnSync(process.execPath, [path.join(may, 'feature-loop', 'scripts', 'carry-plan.mjs'),
+  const r = spawnSync(process.execPath, [tepO('feature-loop/scripts/carry-plan.mjs', { thuMuc: may }),
     '--run-log', path.join(d, 'run-log.jsonl'), '--evals', path.join(d, 'evals.yaml'), '--contract', path.join(d, 'contract.md'),
-    '--round', '3', '--ag-root', may, '--delta-files', delta.join(',')], { encoding: 'utf8' });
+    '--round', '3', '--ag-root', agRoot(may), '--delta-files', delta.join(',')], { encoding: 'utf8' });
   if (r.status !== 0 && r.status !== 3) throw new Error(`carry-plan exit ${r.status}: ${r.stderr}`);
   return { exit: r.status, plan: JSON.parse(r.stdout) };
 }
@@ -167,7 +170,7 @@ function khoS4({ uiKhoi = 'du', anhCo = true, tuyetDoi = false } = {}) {
 }
 function chayS4(may, d, anchor) {
   const out = path.join(d, 'args.json');
-  const r = spawnSync(process.execPath, [path.join(may, 'feature-loop', 'scripts', 's4-args.mjs'), '--slug', 'demo', '--root', d, '--ag-root', may,
+  const r = spawnSync(process.execPath, [tepO('feature-loop/scripts/s4-args.mjs', { thuMuc: may }), '--slug', 'demo', '--root', d, '--ag-root', agRoot(may),
     '--out', out, '--diff-base', 'main', '--carry-anchor', anchor], { encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`s4-args exit ${r.status}: ${String(r.stderr).split('\n').filter(Boolean).slice(-3).join(' | ')}`);
   return { args: JSON.parse(fs.readFileSync(out, 'utf8')), stderr: r.stderr };
@@ -305,14 +308,14 @@ function khoTV(kieu) {
   return { d, sha };
 }
 function tvJson(may, d) {
-  const r = spawnSync(process.execPath, [path.join(may, 'feature-loop', 'scripts', 'thuoc-vat.mjs'), '--root', d, '--slug', 'demo', '--ag-root', may, '--json'], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [tepO('feature-loop/scripts/thuoc-vat.mjs', { thuMuc: may }), '--root', d, '--slug', 'demo', '--ag-root', agRoot(may), '--json'], { encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`thuoc-vat exit ${r.status}: ${r.stderr}`);
   return { dem: JSON.parse(r.stdout), stdout: r.stdout };
 }
 function tvWrite(may, d) {
   const rl = path.join(d, '_acceptance/demo/run-log.jsonl');
   const truoc = fs.readFileSync(rl, 'utf8');
-  const r = spawnSync(process.execPath, [path.join(may, 'feature-loop', 'scripts', 'thuoc-vat.mjs'), '--root', d, '--slug', 'demo', '--ag-root', may, '--write'], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [tepO('feature-loop/scripts/thuoc-vat.mjs', { thuMuc: may }), '--root', d, '--slug', 'demo', '--ag-root', agRoot(may), '--write'], { encoding: 'utf8' });
   const sau = fs.readFileSync(rl, 'utf8');
   fs.writeFileSync(rl, truoc);   // trả sổ về như cũ — ca kế đọc cùng kho
   if (r.status !== 0) throw new Error(`thuoc-vat --write exit ${r.status}: ${r.stderr}`);
@@ -394,7 +397,7 @@ function giuaHaiLuot(may, k) {
     { kind: 'round-tally', round: 1, sha: k.sha.r1 }, { evalId: 'E1', round: 1, sha: k.sha.r1, run_id: 'E1-1' },
     { kind: 'round-tally', round: 2, sha: k.sha.r2 }, { evalId: 'E1', round: 2, sha: k.sha.r2, run_id: 'E1-2' },
   ].map(x => JSON.stringify(x)).join('\n') + '\n');
-  const r = spawnSync(process.execPath, [path.join(may, 'feature-loop', 'scripts', 'thuoc-vat.mjs'), '--root', k.d, '--slug', 'demo', '--ag-root', may, '--giua-hai-luot'], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [tepO('feature-loop/scripts/thuoc-vat.mjs', { thuMuc: may }), '--root', k.d, '--slug', 'demo', '--ag-root', agRoot(may), '--giua-hai-luot'], { encoding: 'utf8' });
   fs.writeFileSync(rl, truoc);
   if (r.status !== 0) throw new Error(`--giua-hai-luot exit ${r.status}: ${r.stderr}`);
   return r.stdout.split('\n').filter(Boolean);
@@ -418,19 +421,19 @@ test('AC-9', 'thuoc-vat --giua-hai-luot không in tệp thước nhập từ n�
 
 // ══ AC-10 · lời ═══════════════════════════════════════════════════════════════
 function cauCam() {
-  const src = git(ROOT, 'show', `${MOC_TRUOC}:feature-loop/workflows/acceptance-verify.js`);
+  const src = git(ROOT, 'show', `${MOC_TRUOC}:${pathspec('feature-loop/workflows/acceptance-verify.js', { kho: ROOT, ref: MOC_TRUOC })}`);
   // Câu cấm của base: mệnh đề TUYET DOI KHONG … screenshot … carried — rút từ chính tệp base.
   return [...src.matchAll(/TUYET DOI KHONG ghi screenshot:\/observed: cho block carried[^:]*?\)/g)].map(m => m[0]);
 }
 const CL_THAT = () => fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-const SO_MOC = () => JSON.parse(git(ROOT, 'show', `${MOC_TRUOC}:.claude-plugin/plugin.json`)).version;
+const SO_MOC = () => JSON.parse(git(ROOT, 'show', `${MOC_TRUOC}:${pathspec('.claude-plugin/plugin.json', { kho: ROOT, ref: MOC_TRUOC })}`)).version;
 const reMucMoc = (so) => new RegExp(`\\n## \\[?${so.replace(/\./g, '\\.')}\\b`);
 function kiemAC10(may, cl = CL_THAT()) {
   const loi = [];
   const cam = cauCam();
-  const wf = fs.readFileSync(path.join(may, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const wf = fs.readFileSync(tepO('feature-loop/workflows/acceptance-verify.js', { thuMuc: may }), 'utf8');
   for (const c of cam) if (wf.includes(c)) loi.push(`prompt còn câu cấm: «${c}»`);
-  const skill = fs.readFileSync(path.join(may, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+  const skill = fs.readFileSync(tepO('feature-loop/skills/feature-loop/SKILL.md', { thuMuc: may }), 'utf8');
   if (!skill.includes('(r<N> · tệp đã đổi)')) loi.push('SKILL thiếu nhãn «(r<N> · tệp đã đổi)» ở đoạn T5');
   // Phần CHANGELOG MỚI HƠN mốc gốc: từ đầu tệp tới mục của số ở MOC_TRUOC — gồm «Chưa phát hành»
   // lẫn mục của mốc mang vòng này. Ghim riêng «Chưa phát hành» là thước nổ ở lần cắt số kế tiếp.

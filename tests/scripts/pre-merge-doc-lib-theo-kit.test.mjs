@@ -15,6 +15,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, exist
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, duong, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -36,7 +37,7 @@ const GOC_SHA = 'c8870a49';
 
 // ── Kho thử: một hồ sơ machine-cleared xanh-sạch (khuôn khoLanV của hskt / dinh-tuyen-theo-ma-muc) ──────
 const { fileFromTemplate } = await import(pathToFileURL(path.join(KIT, 'tests', 'fixtures', 'from-template.mjs')).href);
-const CONTRACT_TPL = path.join(KIT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const CONTRACT_TPL = tep('skills/acceptance/references/contract-template.md', { thuMuc: KIT });
 const hopDong = slug => fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
   { feature: `${slug} — fixture`, slug, owner: 'fixture@example.com', risk_tier: 'T2', surfaces: 'cli', status: 'machine-cleared' },
   `# Contract: ${slug}\n\n## Criteria\n\n- AC-1: fixture\n\n## Out of scope\n\n- khong co\n\n## Notes\n`)
@@ -51,8 +52,9 @@ function kho(slug, lib) {
   writeFileSync(path.join(R, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n');
   writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
   mkdirSync(path.join(R, 'src'), { recursive: true }); writeFileSync(path.join(R, 'src', 'app.js'), 'v1\n');
-  if (lib !== 'khong') cpSync(path.join(KIT, 'lib'), path.join(R, 'lib'), { recursive: true });
-  if (lib === 'chep') cpSync(path.join(KIT, 'scripts'), path.join(R, 'scripts'), { recursive: true });
+  // Kho tiêu thụ: lớp CI chép lib/ + scripts/ của gói lõi vào GỐC kho (đích phẳng, không dịch).
+  if (lib !== 'khong') cpSync(tep('lib', { thuMuc: KIT }), path.join(R, 'lib'), { recursive: true });
+  if (lib === 'chep') cpSync(tep('scripts', { thuMuc: KIT }), path.join(R, 'scripts'), { recursive: true });
   if (lib === 'hong') for (const f of ['md-section.cjs', 'out-of-contract.cjs']) writeFileSync(path.join(R, 'lib', f), "'use strict';\nthrow new Error('ban chep hong');\n");
   if (lib === 'mot-phan') rmSync(path.join(R, 'lib', 'out-of-contract.cjs'));
   git(R, 'add', '-A'); git(R, 'commit', '-qm', 'c1'); git(R, 'branch', 'basepoint');
@@ -72,13 +74,14 @@ function kho(slug, lib) {
 //   'tuong-doi' — cwd = thư mục máy, script gọi bằng đường tương đối `scripts/pre-merge-check.sh`, ROOT tuyệt đối
 //   'ban-chep'  — đúng hình dạng CI của kho có lớp chép: cwd = kho, `bash scripts/pre-merge-check.sh . --base`
 function luoi(R, may = KIT, cach = 'tuyet-doi') {
-  const sh = path.join(may, 'scripts', 'pre-merge-check.sh');
+  // `may` là một cây bộ máy (bố cục đọc từ chính nó) — trừ 'ban-chep', nơi máy là bản chép phẳng trong kho tiêu thụ.
+  const sh = () => tep(PM, { thuMuc: may });
   const [argv, cwd] = {
-    'tuyet-doi': [[sh, R], TMP],
-    'ci-plugin': [[sh, '.'], R],
-    'tuong-doi': [['scripts/pre-merge-check.sh', R], may],
-    'ban-chep': [['scripts/pre-merge-check.sh', '.'], R],
-  }[cach];
+    'tuyet-doi': () => [[sh(), R], TMP],
+    'ci-plugin': () => [[sh(), '.'], R],
+    'tuong-doi': () => [[duong(PM, { thuMuc: may }), R], may],
+    'ban-chep': () => [['scripts/pre-merge-check.sh', '.'], R],
+  }[cach]();
   const o = spawnSync('bash', [...argv, '--base', 'basepoint'], { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   return { status: o.status, out: (o.stdout || '') + (o.stderr || '') };
 }
@@ -94,16 +97,16 @@ const THU_MUC_MAY = ['scripts', 'lib', 'skills', 'commands'];
 // một lần, và bản tiêm phải khác bản gốc.
 function banSaoMay(tiem = [], boLib = []) {
   const cp = mkdtempSync(path.join(TMP, 'may-'));
-  for (const d of THU_MUC_MAY) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  for (const d of boPhan(THU_MUC_MAY, { thuMuc: KIT })) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
   for (const [rel, neo, thay] of tiem) {
-    const p = path.join(cp, rel); const src = readFileSync(p, 'utf8');
+    const p = tep(rel, { thuMuc: cp }); const src = readFileSync(p, 'utf8');
     const k = src.split(neo).length - 1;
     if (k !== 1) throw new Error(`neo mutant khop ${k} lan trong ${rel}: «${neo.slice(0, 80)}»`);
     const moi = src.replace(neo, thay);
     if (moi === src) throw new Error(`ban tiem trung ban goc: ${rel}`);
     writeFileSync(p, moi);
   }
-  for (const f of boLib) rmSync(path.join(cp, 'lib', f));
+  for (const f of boLib) rmSync(tep(`lib/${f}`, { thuMuc: cp }));
   return cp;
 }
 // Bản gốc thật, trọn thư mục, dựng một lần trong lượt.
@@ -112,13 +115,13 @@ function banGoc(boLib = []) {
   if (!_goc) {
     try { git(KIT, 'cat-file', '-e', `${GOC_SHA}^{commit}`); } catch { throw new Error(`khong co commit ban goc ${GOC_SHA} trong lich su (checkout nong?)`); }
     _goc = mkdtempSync(path.join(TMP, 'goc-'));
-    execFileSync('bash', ['-c', `git -C "$1" archive ${GOC_SHA} ${THU_MUC_MAY.join(' ')} | tar -x -C "$2"`, '_', KIT, _goc]);
-    if (!existsSync(path.join(_goc, 'scripts', 'pre-merge-check.sh'))) throw new Error('ban goc thieu scripts/pre-merge-check.sh');
+    execFileSync('bash', ['-c', `git -C "$1" archive ${GOC_SHA} ${boPhan(THU_MUC_MAY, { kho: KIT, ref: GOC_SHA }).join(' ')} | tar -x -C "$2"`, '_', KIT, _goc]);
+    if (!existsSync(tep('scripts/pre-merge-check.sh', { thuMuc: _goc }))) throw new Error('ban goc thieu scripts/pre-merge-check.sh');
   }
   if (!boLib.length) return _goc;
   const cp = mkdtempSync(path.join(TMP, 'goc-bo-'));
-  for (const d of THU_MUC_MAY) cpSync(path.join(_goc, d), path.join(cp, d), { recursive: true });
-  for (const f of boLib) rmSync(path.join(cp, 'lib', f));
+  for (const d of boPhan(THU_MUC_MAY, { thuMuc: _goc })) cpSync(path.join(_goc, d), path.join(cp, d), { recursive: true });
+  for (const f of boLib) rmSync(tep(`lib/${f}`, { thuMuc: cp }));
   return cp;
 }
 const PM = 'scripts/pre-merge-check.sh';
@@ -127,7 +130,7 @@ const khoi = src => { const m = src.match(KHOI_RE); if (!m) throw new Error('kho
 // Khối bộ giải rút LÚC CHẠY ca (không ở đầu tệp): trên cây trước vòng khối chưa có, nên ca đột biến đỏ có tên
 // còn LK1 vẫn chạy và đỏ đúng thông điệp — chiều đỏ trong lịch sử đọc được.
 const dongGiai = () => {
-  const l = khoi(readFileSync(path.join(KIT, PM), 'utf8')).split('\n').find(x => x.startsWith('kit_lib()'));
+  const l = khoi(readFileSync(tep(PM, { thuMuc: KIT }), 'utf8')).split('\n').find(x => x.startsWith('kit_lib()'));
   if (!l) throw new Error('khoi KIT-LIB-THEO-CHO-CAI khong co dong kit_lib()');
   return l;
 };
@@ -213,13 +216,13 @@ const MAU_LOP = [
 const THU_MUC_SHELL = ['scripts', 'hooks'];
 function tepShell(dir) {
   const out = [];
-  for (const d of THU_MUC_SHELL) { const p = path.join(dir, d); if (existsSync(p)) for (const f of readdirSync(p)) if (f.endsWith('.sh')) out.push(`${d}/${f}`); }
+  for (const d of THU_MUC_SHELL) { const p = tep(d, { thuMuc: dir }); if (existsSync(p)) for (const f of readdirSync(p)) if (f.endsWith('.sh')) out.push(`${d}/${f}`); }
   return out.sort();
 }
 function quet(dir) {
   const sai = []; const giai = [];
   for (const rel of tepShell(dir)) {
-    const ngoai = readFileSync(path.join(dir, rel), 'utf8').replace(KHOI_RE, '');
+    const ngoai = readFileSync(tep(rel, { thuMuc: dir }), 'utf8').replace(KHOI_RE, '');
     ngoai.split('\n').forEach(l => {
       const t = l.trim();
       if (/^(#|echo\b|printf\b)/.test(t)) return;
