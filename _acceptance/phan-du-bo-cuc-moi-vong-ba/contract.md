@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ tests/ và hồ sơ của chính vòng — không chạm t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-16-phan-du-bo-cuc-moi-vong-ba-design.md
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-16T08:57:32Z
 ---
@@ -121,3 +121,8 @@ Later: bộ đổi ngược mới → phẳng (design §3.2, lối đã loại).
 - Giới hạn khai (theo lời chủ kho ở Hỏi-2): ở kho mới, cột «cũ» của K4-MP chạy trên cha của commit dọn nhà — mã đóng băng ở
   ngày cắt sang, không phải mã đang kiểm. Ngưỡng mở lại (đếm bằng `git log <commit dọn nhà>..HEAD -- plugins/acceptance-gate/lib
   plugins/acceptance-gate/scripts | wc -l`): ≥ 1 commit kho mới chạm tệp lõi mà K4-MP đọc thì mở vòng dựng bộ đổi ngược.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-17:
+  - Ngoài-1: đường ống chép bản gốc bằng git archive trong sáu tệp kiểm K4-TB thiếu pipefail, nên khi hạ tầng hỏng bản gốc thành thư mục rỗng thay vì báo lỗi hạ tầng rõ ràng.
+  - Ngoài-2: bước so bản cũ của thước bỏ lọt tệp kiểm bị đổi tên hay xoá, nên một vòng sau đổi tên tệp rồi bỏ bớt ca vẫn có thể báo đạt.
+  - Ngoài-3: phép kiểm «đỏ sau gộp» chạy ở điểm mà trước gộp và sau gộp trùng nhau, nên chưa có đối chứng dương chứng minh phép giả lập nhánh chính có tác dụng.
+  - Ngoài-4: dòng báo đạt «RA-LOP-A n/m» lấy số tệp đã chạy làm tử số, nên con số có thể gây hiểu nhầm dù kết quả cuối vẫn đỏ đúng khi có lỗi.

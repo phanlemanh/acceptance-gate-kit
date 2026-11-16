@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: a9d3b6c9feca897696f1b14ffe2d0c91ba773293
-human_signoff:
+human_signoff: Phan Le Manh 2026-11-17 — ký với 4 known-limits (Ngoài-1/2/3/4); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: phan-du-bo-cuc-moi-vong-ba
