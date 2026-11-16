@@ -11,9 +11,14 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync } f
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Đường qua bộ dịch (hồ sơ phan-du-bo-cuc-moi-vong-ba, K4-LT): mỗi đường kit viết theo bố cục phẳng rồi giải ở ĐÚNG cây nó nói
+// tới — cây đang đứng, bản sao kit tạm (danh sách chép qua `boPhan`), bản bung mốc 2.21.0 (`boPhan` + `pathspec` của commit
+// ấy). Kho thử (kho tiêu thụ giả) không dịch.
+const tepO = (rel, kit) => tep(rel, { thuMuc: kit });
 const TMP = mkdtempSync(path.join(tmpdir(), 'xem-trang-'));
 const { phienChrome, KHO_MAC_DINH, SAC } = await import(pathToFileURL(path.join(HERE, 'lo-trinh-do-trang.mjs')).href);
 const KT = await import(pathToFileURL(path.join(HERE, 'lo-trinh-kho-thu.mjs')).href);
@@ -28,26 +33,30 @@ const want = id => !only.length || only.includes(id);
 
 let n = 0;
 const napLT = async kit => ({
-  LT: await import(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href + `?v=${++n}`),
-  PM: await import(pathToFileURL(path.join(kit, 'scripts', 'product-map.mjs')).href + `?v=${n}`),
+  LT: await import(pathToFileURL(tepO('scripts/lo-trinh.mjs', kit)).href + `?v=${++n}`),
+  PM: await import(pathToFileURL(tepO('scripts/product-map.mjs', kit)).href + `?v=${n}`),
 });
-// Bản sao của vật: trọn scripts lib skills; nhát tiêm phải khớp ĐÚNG một lần.
+// Bản sao của vật: trọn scripts lib skills; nhát tiêm phải khớp ĐÚNG một lần. Danh sách chép qua `boPhan` của cây đang đứng
+// (bản sao mang thêm tệp khai chợ để bộ dịch đọc được bố cục của nó); đường nhát giải ở cây bản sao.
 function banSao(tiem) {
   const c = path.join(TMP, `bs-${++n}`);
-  for (const d of ['scripts', 'lib', 'skills']) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
-  for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const k = s.split(cu).length - 1;
-    if (k !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${k} lần (cần 1): ${cu.slice(0, 60)}`);
+  for (const m of boPhan(['scripts', 'lib', 'skills'], { thuMuc: KIT })) cpSync(path.join(KIT, m), path.join(c, m), { recursive: true });
+  for (const [rel, cu, moi] of tiem) {
+    const p = tepO(rel, c); const s = readFileSync(p, 'utf8'); const k = s.split(cu).length - 1;
+    if (k !== 1) throw new Error(`nhát tiêm vào ${rel} khớp ${k} lần (cần 1): ${cu.slice(0, 60)}`);
     writeFileSync(p, s.replace(cu, moi));
   }
   return c;
 }
-// Bộ máy của mốc 2.21.0 — trang cũ để so độ dài. Trọn thư mục; tag không resolve thì ném (ca ĐỎ).
+// Bộ máy của mốc 2.21.0 — trang cũ để so độ dài. Trọn thư mục, giải ở cây của chính mốc ấy (`pathspec` ném nếu rỗng); tag không
+// resolve thì ném (ca ĐỎ).
 let goc = null;
 function bo2210() {
   if (goc) return goc;
   const d = path.join(TMP, 'goc-2210'); mkdirSync(d, { recursive: true });
-  execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', '--format=tar', 'v2.21.0', 'scripts', 'lib', 'skills'], { maxBuffer: 1 << 28 }) });
+  const cay = { kho: KIT, ref: 'v2.21.0' };
+  const ds = boPhan(['scripts', 'lib', 'skills'], cay).map(p => pathspec(p, cay));
+  execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', '--format=tar', 'v2.21.0', ...ds], { maxBuffer: 1 << 28 }) });
   return (goc = d);
 }
 const ve = async (kit, r, ten) => {
