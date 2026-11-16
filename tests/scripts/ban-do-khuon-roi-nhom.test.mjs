@@ -7,6 +7,9 @@
 //    mẫu với cây đang kiểm. Kỳ vọng VIẾT TRƯỚC (hằng), không tính từ mã sản phẩm; ca ma trận in «số hàng: N».
 //  - Chiều đỏ: mỗi ca «-do» chạy CHÍNH hàm kiểm trên bản sao TRỌN thư mục của cây đang kiểm bị tiêm đúng một nhát, SAU
 //    khi bản lành xanh trên cùng fixture; bản sao phải chạy được trước khi tin màu đỏ; ghim thông điệp lỗi.
+//  - Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng cây nó nói tới: cây đang đứng / bản sao (`{ thuMuc }`, danh
+//    sách thư mục chép qua `boPhan`), commit GOC (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH commit ấy,
+//    chốt chống rỗng). Đường của kho mẫu không phải đường kit — không dịch.
 //  - Tên ca = mã ca của evals.yaml; RN_CASES chọn ca; mã lạ → thoát 2.
 //  - Kho mẫu rời nhóm dựng lại HÌNH DẠNG bản đồ của kho thứ hai: một nhóm màn có glob phủ mọi trang, danh sách rời nhóm
 //    viết một dòng `[{ tep: "…", ly_do: "…" }, …]`, lý do có dấu phẩy. Tên tệp và tên khối giả.
@@ -14,11 +17,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, thuMuc, khoiMarker, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { KIT, taoKhoMau, nhanh, banSaoTiem as banSaoTiemTho, ghi, git, chay as chayTep, thuMuc, khoiMarker, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { boPhan, duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const LENH = 'scripts/design-floor-khuon.mjs';
 const DOC = 'scripts/ban-do-khuon.cjs';
 const S4 = 'feature-loop/scripts/s4-args.mjs';
+// Đường kit ở một cây kit (cây đang đứng, bộ máy gốc bung, bản sao tiêm — cây nào cũng mang tệp khai chợ của chính nó).
+const P = (kit, rel) => duong(rel, { thuMuc: kit });
+const chay = (kit, rel, args, cwd) => chayTep(kit, P(kit, rel), args, cwd);
+const banSaoTiem = (ds, rel, tim, thay) => banSaoTiemTho(boPhan(ds, { thuMuc: KIT }), P(KIT, rel), tim, thay);
+const O_GOC = () => ({ kho: KIT, ref: GOC });
 const GOC = 'eab2ca4181afd8e1e6a4f3e09f7653a928ece108';   // main sau #476 và #478 — bộ đọc chưa biết rời nhóm
 const CA = ['RN-1', 'RN-1-do', 'RN-2', 'RN-3', 'RN-3-do', 'RN-4', 'RN-4-do', 'RN-6'];
 const chon = (process.env.RN_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -27,7 +36,7 @@ if (la.length) { console.error(`ban-do-khuon-roi-nhom.test: mã ca lạ: ${la.jo
 const want = c => (chon.length ? chon.includes(c) : true);
 
 const require = createRequire(import.meta.url);
-const docLai = kit => { const p = path.join(kit, DOC); delete require.cache[require.resolve(p)]; return require(p); };
+const docLai = kit => { const p = path.join(kit, P(kit, DOC)); delete require.cache[require.resolve(p)]; return require(p); };
 let hong = 0;
 const ket = (ma, loi) => {
   if (!loi.length) console.log(`PASS: [${ma}]`);
@@ -43,9 +52,9 @@ let _goc = null;
 function mayGoc() {
   if (_goc) return _goc;
   const d = thuMuc('goc');
-  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC, 'scripts', 'lib', 'feature-loop', 'skills'], { maxBuffer: 256 * 1024 * 1024 });
+  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC, ...boPhan(['scripts', 'lib', 'feature-loop', 'skills'], O_GOC()).map(x => pathspec(x, O_GOC()))], { maxBuffer: 256 * 1024 * 1024 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
-  for (const f of [LENH, DOC, S4]) if (!fs.existsSync(path.join(d, f))) throw new Error(`bộ máy gốc ${GOC.slice(0, 8)} thiếu ${f}`);
+  for (const f of [LENH, DOC, S4]) if (!fs.existsSync(path.join(d, P(d, f)))) throw new Error(`bộ máy gốc ${GOC.slice(0, 8)} thiếu ${f}`);
   return (_goc = d);
 }
 const caDo = (ma, kiemFn, lanh, saoTiem, thongDiep) => {
@@ -271,7 +280,7 @@ if (want('RN-3-do')) caDo('RN-3-do', kiemRN3, lanhRN3, () => banSaoTiem(['script
 // ── RN-4: lưới s4-args — hồ sơ chỉ chạm tệp đã rời nhóm duy nhất của nó không bị đòi eval khuôn ──────────────────
 const HD_IMPL = slug => `---\nschema_version: 1\nfeature: F\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
 const EV_TEST = 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: xanh\n    evidence_required: [run_id, exit_code]\n';
-const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', kit]); return { ...r, coTep: fs.existsSync(out) }; };
+const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', gocGoi({ thuMuc: kit }, 'loi')]); return { ...r, coTep: fs.existsSync(out) }; };
 const HS = 'ho-so-roi';
 const khoRN4 = (tep, khai) => khoRoi({ sua: {
   'design/patterns/trang-tam.md': trangTam(khai ? [ROI(tep, LD_THU)] : []),
@@ -310,7 +319,7 @@ if (want('RN-4-do')) caDo('RN-4-do', kiemRN4, lanhRN4, () => banSaoTiem(['script
 // ── RN-6: khuôn tệp và GUIDE §5.2 nói đúng nghĩa mới — round-trip ví dụ của khuôn qua bộ đọc ───────────────────────
 // Ví dụ rút từ khối marker của khuôn tệp lúc chạy, ghép vào nhóm bảng của kho mẫu; bộ đọc phải cho mục không khoi rời nhóm
 // và mục có khoi miễn đúng khối. Bộ đọc gốc trên cùng ví dụ phải KHÔNG cho tệp rời nhóm (chiều đỏ của ca).
-const KHUON = path.join(KIT, 'skills/acceptance/references/ban-do-khuon-template.md');
+const KHUON = tep('skills/acceptance/references/ban-do-khuon-template.md', { thuMuc: KIT });
 function kiemRN6(kit) {
   const loi = [];
   let vd;
@@ -338,8 +347,8 @@ function kiemTaiLieu(khuonTxt, guideTxt) {
   else if (!/`ngoai_le` không có `khoi`[^.]*rời nhóm/.test(m[0].replace(/\n/g, ' '))) loi.push('GUIDE §5.2: đoạn bản đồ khuôn không nói «`ngoai_le` không có `khoi` … rời nhóm»');
   return loi;
 }
-const docTep = rel => fs.readFileSync(path.join(KIT, rel), 'utf8');
-const docGoc = rel => execFileSync('git', ['-C', KIT, 'show', `${GOC}:${rel}`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const docTep = rel => fs.readFileSync(tep(rel, { thuMuc: KIT }), 'utf8');
+const docGoc = rel => execFileSync('git', ['-C', KIT, 'show', `${GOC}:${pathspec(rel, O_GOC())}`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const TL = ['skills/acceptance/references/ban-do-khuon-template.md', 'GUIDE.md'];
 if (want('RN-6')) {
   const loi = [...kiemRN6(KIT), ...kiemTaiLieu(...TL.map(docTep))];
