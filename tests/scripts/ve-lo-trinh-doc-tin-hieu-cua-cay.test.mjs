@@ -11,9 +11,16 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Đường qua bộ dịch (hồ sơ phan-du-bo-cuc-moi-vong-ba, K4-LT): mỗi đường kit viết theo bố cục phẳng rồi giải ở ĐÚNG cây nó nói
+// tới — cây đang đứng, bản sao kit tạm (danh sách chép qua `boPhan`), bản bung gốc so (`boPhan` + `pathspec` của commit ấy).
+// Kho thử, worktree, bản tải sạch (kho tiêu thụ giả) không dịch.
+const tepO = (rel, kit) => tep(rel, { thuMuc: kit });
+// «Bộ máy» = gốc gói lõi của một cây (ở bố cục phẳng là chính gốc kho) — $AG của khối lệnh RM-GUI-LENH.
+const boMay = kit => gocGoi({ thuMuc: kit }, 'loi');
 const SLUG = 've-lo-trinh-doc-tin-hieu-cua-cay';
 const GOC_SHA = readFileSync(path.join(KIT, '_acceptance', SLUG, 'goc-so'), 'utf8').trim();
 const TMP = realpathSync(mkdtempSync(path.join(tmpdir(), 'vt-')));
@@ -33,15 +40,19 @@ let GOC = null;
 function gocMay() {
   if (GOC) return GOC;
   GOC = tam('goc');
-  execFileSync('bash', ['-c', `git -C "${KIT}" archive ${GOC_SHA} ${CAY.join(' ')} .claude-plugin | tar -x -C "${GOC}"`]);
+  // Danh sách giải ở cây CỦA COMMIT GỐC SO; `pathspec` ném nếu một đường rỗng ở commit (chốt chống rỗng).
+  const cay = { kho: KIT, ref: GOC_SHA };
+  const ds = boPhan([...CAY, '.claude-plugin'], cay).map(p => pathspec(p, cay));
+  execFileSync('bash', ['-c', `git -C "${KIT}" archive ${GOC_SHA} ${ds.join(' ')} | tar -x -C "${GOC}"`]);
   return GOC;
 }
 function banSao(tiem) {
   const r = tam('bs');
-  for (const d of [...CAY, '.claude-plugin']) if (existsSync(path.join(KIT, d))) cpSync(path.join(KIT, d), path.join(r, d), { recursive: true });
-  for (const [tep, cu, moi] of tiem) {
-    const p = path.join(r, tep); const t = readFileSync(p, 'utf8'); const n = t.split(cu).length - 1;
-    if (n !== 1) throw new Error(`nhát tiêm lệch: «${cu.slice(0, 50)}» khớp ${n} lần trong ${tep}`);
+  // Danh sách chép qua `boPhan` của cây đang đứng (`.claude-plugin` tách đúng ở bố cục mới); nhát giải ở cây bản sao.
+  for (const m of boPhan([...CAY, '.claude-plugin'], { thuMuc: KIT })) if (existsSync(path.join(KIT, m))) cpSync(path.join(KIT, m), path.join(r, m), { recursive: true });
+  for (const [rel, cu, moi] of tiem) {
+    const p = tepO(rel, r); const t = readFileSync(p, 'utf8'); const n = t.split(cu).length - 1;
+    if (n !== 1) throw new Error(`nhát tiêm lệch: «${cu.slice(0, 50)}» khớp ${n} lần trong ${rel}`);
     writeFileSync(p, t.replace(cu, moi));
   }
   return r;
@@ -73,10 +84,10 @@ const y = (k, id, tieuDe) => writeFileSync(path.join(k, ...NGUON, `${id}.json`),
 const commitHet = (d, m) => { git(d, 'add', '-A'); git(d, 'commit', '-qm', m); return git(d, 'rev-parse', 'HEAD'); };
 
 // ── Bộ vẽ, khối dữ liệu, CI ─────────────────────────────────────────────────────────────────────────────────────────
-const ve = (may, root) => spawnSync(process.execPath, [path.join(may, 'scripts', 'product-map.mjs'), '--root', root], { encoding: 'utf8' });
+const ve = (may, root) => spawnSync(process.execPath, [tepO('scripts/product-map.mjs', may), '--root', root], { encoding: 'utf8' });
 let DOC = null;
 async function trangCua(root) {
-  if (!DOC) DOC = (await import(pathToFileURL(path.join(KIT, 'scripts', 'lo-trinh.mjs')).href)).docDuLieu;
+  if (!DOC) DOC = (await import(pathToFileURL(tepO('scripts/lo-trinh.mjs', KIT)).href)).docDuLieu;
   const p = path.join(root, 'LO-TRINH.html');
   if (!existsSync(p)) return { ids: null, tieuDe: {} };
   const d = DOC(readFileSync(p, 'utf8')).duLieu;
@@ -89,7 +100,7 @@ const LECH = 'LO-TRINH.html lệch';
 function ci(k, sha, may = KIT) {
   const c = tam('ci');
   execFileSync('git', ['clone', '-q', '--no-hardlinks', k, c]); git(c, 'checkout', '-q', sha);
-  const x = spawnSync(process.execPath, [path.join(may, 'scripts', 'product-map.mjs'), '--root', c, '--check'], { encoding: 'utf8' });
+  const x = spawnSync(process.execPath, [tepO('scripts/product-map.mjs', may), '--root', c, '--check'], { encoding: 'utf8' });
   return { status: x.status, out: x.stdout + x.stderr };
 }
 const ciXanh = r => r.status === 0 && r.out.includes(KHOP);
@@ -118,7 +129,7 @@ async function ca1(may) {
   rmSync(path.join(w, 'LO-TRINH.html'));
   mkdirSync(path.join(w, '.claude'), { recursive: true });
   writeFileSync(path.join(w, '.claude', 'settings.json'), `${JSON.stringify({ enabledPlugins: { 'road-map@acceptance-gate-kit': true } }, null, 2)}\n`);
-  const kt = spawnSync(process.execPath, [path.join(may, 'scripts', 'lo-trinh-khoi-tao.mjs'), '--root', w, '--write'], { encoding: 'utf8' });
+  const kt = spawnSync(process.execPath, [tepO('scripts/lo-trinh-khoi-tao.mjs', may), '--root', w, '--write'], { encoding: 'utf8' });
   const t2 = await trangCua(w);
   if (kt.status !== 0) sai.push(`khởi tạo thoát ${kt.status}: ${(kt.stderr || kt.stdout).trim().slice(0, 160)}`);
   else if (!t2.ids || !bang(t2.ids, DUNG1)) sai.push(t2.ids && t2.ids.includes('nguoi-x-1') ? 'trang vẽ lấy tín hiệu của thư mục chính' : `khởi tạo: tập id ${JSON.stringify(t2.ids)} — cần ${JSON.stringify(DUNG1)}`);
@@ -168,13 +179,13 @@ async function ca2(may) {
 
 // AC-3: fixture RM3b — tệp ý ngoài git, worktree A và B, ba ý gửi bằng khối RM-GUI-LENH.
 function khoiLenh(may) {
-  const t = readFileSync(path.join(may, 'road-map', 'commands', 'gui.md'), 'utf8');
+  const t = readFileSync(tepO('road-map/commands/gui.md', may), 'utf8');
   const m = t.match(/<!-- <<<RM-GUI-LENH -->\n([\s\S]*?)<!-- RM-GUI-LENH>>> -->/);
   if (!m) throw new Error('gui.md thiếu khối RM-GUI-LENH');
   return m[1].replace(/^```[a-z]*\n/, '').replace(/\n?```\s*$/, '\n');
 }
-const gui = (may, cwd, cau) => spawnSync('bash', ['-c', khoiLenh(may).replaceAll('$AG', may).replace('<câu của người>', cau)], { cwd, encoding: 'utf8' });
-const th = (may, root, ...a) => spawnSync(process.execPath, [path.join(may, 'scripts', 'tin-hieu.mjs'), '--root', root, ...a], { encoding: 'utf8' });
+const gui = (may, cwd, cau) => spawnSync('bash', ['-c', khoiLenh(may).replaceAll('$AG', boMay(may)).replace('<câu của người>', cau)], { cwd, encoding: 'utf8' });
+const th = (may, root, ...a) => spawnSync(process.execPath, [tepO('scripts/tin-hieu.mjs', may), '--root', root, ...a], { encoding: 'utf8' });
 const idsJson = (x, lay) => { try { return lay(JSON.parse(x.stdout)).map(t => t.id).sort(); } catch { return [`<hỏng ${x.status}: ${x.stderr.slice(0, 100)}>`]; } };
 function khoRm3b() {
   const k = kho({ boQuaY: true }); commitHet(k, 'kho thử');
@@ -201,7 +212,7 @@ async function ca3(may) {
   if (!cu[1]) sai.push(`đối chứng không chạy: --cau ${JSON.stringify(cu)}`);
   else if (soCau !== ids.length) sai.push(`--cau: ${Number.isNaN(soCau) ? 'không đọc được số câu' : `${soCau} câu`} — cần ${ids.length} (${JSON.stringify(cu[1])})`);
   const the = so('thẻ', r => {
-    const x = spawnSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-17' } });
+    const x = spawnSync(process.execPath, [tepO('scripts/start-scan.mjs', may), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-10-17' } });
     let j = null; try { j = JSON.parse(x.stdout); } catch { j = null; }
     return (j?.loTrinh?.dong || ['<thẻ không chạy>']).filter(l => l.startsWith('Cửa tín hiệu:') || l.startsWith('! cửa tín hiệu:') || l === '<thẻ không chạy>');
   });
