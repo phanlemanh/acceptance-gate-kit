@@ -18,7 +18,8 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { boPhan, tep } from '../bo-cuc.mjs';
+import { boCuc, boPhan, tep } from '../bo-cuc.mjs';
+import { chaDonNha } from '../hai-bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -250,7 +251,19 @@ async function dd5(kit) {
 
 // ── DD-6: tệp ca của hồ sơ đã ký dai-tom-tat-doc-dung không đổi một byte ─────────────────────────
 const BAM_DT = '62dad270082c45fa285ec925406176451bf19b3eee51aa5c264c531c6bc1d161'; // bd8163dc:tests/scripts/dai-tom-tat.test.mjs
-function dd6(tep = path.join(HERE, 'dai-tom-tat.test.mjs')) {
+// Nguồn DD-6: cây phẳng → tệp đang đứng. Cây đã dọn nhà → tệp tại commit phẳng của chính mã (cha commit dọn nhà), vì kịch
+// bản chuyển nhà viết lại đường TRONG tệp ấy; lời hứa «không đổi byte» giữ tới ngày cắt sang, sau đó đóng băng — cùng giới
+// hạn chủ kho chọn ở Hỏi-2 của hồ sơ phan-du-bo-cuc-moi-vong-ba (sổ d-20261116T080534Z-11).
+let NGUON_DT;
+function nguonDT() {
+  if (NGUON_DT) return NGUON_DT;
+  if (boCuc({ thuMuc: KIT }).phang) return (NGUON_DT = path.join(HERE, 'dai-tom-tat.test.mjs'));
+  const ref = chaDonNha(KIT);
+  NGUON_DT = path.join(mkdtempSync(path.join(tmpdir(), 'dd6-')), 'dai-tom-tat.test.mjs');
+  writeFileSync(NGUON_DT, execFileSync('git', ['-C', KIT, 'show', `${ref}:tests/scripts/dai-tom-tat.test.mjs`], { maxBuffer: 1 << 26 }));
+  return NGUON_DT;
+}
+function dd6(tep = nguonDT()) {
   const b = createHash('sha256').update(readFileSync(tep)).digest('hex');
   return b === BAM_DT ? [] : [`dai-tom-tat.test.mjs đổi so với bản đã ký (sha256 ${b.slice(0, 12)} ≠ ${BAM_DT.slice(0, 12)})`];
 }
@@ -318,7 +331,7 @@ if (want('DD-6')) await chayCa('DD-6', () => dd6(), 'tests/scripts/dai-tom-tat.t
 if (want('DD-6-do')) {
   try {
     const lanh = dd6(); if (lanh.length) bad('DD-6-do', `bản lành chưa xanh — không tin được chiều đỏ: ${lanh[0]}`);
-    else { const p = path.join(TMP, 'dai-tom-tat.test.mjs'); writeFileSync(p, Buffer.concat([readFileSync(path.join(HERE, 'dai-tom-tat.test.mjs')), Buffer.from('\n')])); const s = dd6(p); const g = s.find(m => m.includes('dai-tom-tat.test.mjs')); if (g) ok('DD-6-do', `bản sao thêm một byte: hàm đo trả «${g}»`); else bad('DD-6-do', `không bắt: ${JSON.stringify(s)}`); }
+    else { const p = path.join(TMP, 'dai-tom-tat.test.mjs'); writeFileSync(p, Buffer.concat([readFileSync(nguonDT()), Buffer.from('\n')])); const s = dd6(p); const g = s.find(m => m.includes('dai-tom-tat.test.mjs')); if (g) ok('DD-6-do', `bản sao thêm một byte: hàm đo trả «${g}»`); else bad('DD-6-do', `không bắt: ${JSON.stringify(s)}`); }
   } catch (e) { bad('DD-6-do', loi(e)); }
 }
 if (want('DD-8')) await chayCa('DD-8', dd8, 'trang in trọn «Vì sao làm» (năm câu · câu dài · câu dẫn + sáu mục · câu dẫn + bảng · 399 ký tự · Context · «Vì sao: Gốc: …» · danh sách dính liền đoạn); dải và khối ≤ 400');
