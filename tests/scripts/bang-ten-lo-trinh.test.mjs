@@ -13,8 +13,10 @@
 // SP-NL / SP-NL-DU: một kho tiêu thụ giả chép `lib/chan-lo-trinh.cjs` (bản chép CI); đối chứng dương có `lib/ho-goi.cjs`
 // cạnh nó, ca âm gỡ tệp ấy trên cùng kho. SP-CHU: mã nguồn khởi tạo lộ trình không còn chữ tên gói viết cứng.
 //
-// Fixture do mã sinh trong lần chạy, dưới `mkdtemp(os.tmpdir())`: bản gốc = `git archive <merge-base HEAD origin/main>`
-// TRỌN cây; cây cũ = cây đang đứng; kho mới = `dungKhoMoi` của hồ sơ gọi chéo trên `layCay` của cây đang đứng (và trên bản
+// Fixture do mã sinh trong lần chạy, dưới `mkdtemp(os.tmpdir())`: bản gốc = `git archive <MOC_MA_TRAN>` TRỌN cây — mốc
+// GHIM, không phải merge-base: cột «bản gốc in» của ma trận là số đo tuyệt đối ở mốc ấy, nên sau khi nhánh gộp vào nhánh
+// chính (merge-base = HEAD) bản gốc vẫn là bản thiếu nhánh dự phòng (hồ sơ phan-du-bo-cuc-moi-vong-ba AC-1, sổ
+// d-20261116T080534Z-10). SP-GOC-GHIM chứng mốc ấy đúng là bản thiếu nhánh dự phòng; cây cũ = cây đang đứng; kho mới = `dungKhoMoi` của hồ sơ gọi chéo trên `layCay` của cây đang đứng (và trên bản
 // gốc cho cột bản gốc). Mọi đường suy từ vị trí tệp này; không ca nào ghi vào cây kit. Hạ tầng hỏng → «HẠ TẦNG: …», mã 3.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -29,6 +31,8 @@ const KIT = path.resolve(HERE, '..', '..');
 const CAU_THIEU = 'chan-lo-trinh: thiếu lib/ho-goi.cjs cạnh luật chặn';
 const TEP_KHOI_TAO = 'scripts/lo-trinh-khoi-tao.mjs';
 const CHU_CUNG = ['roadmap@delivery-loop', 'road-map@acceptance-gate-kit'];
+// Mốc của cột «bản gốc in»: merge PR #503 (khởi tạo lộ trình đã có nhánh dự phòng, luật chặn chưa có).
+const MOC_MA_TRAN = '644e9b49af3d24de3fe284304d765ea388304b89';
 
 let pass = 0; let fail = 0;
 const ok = (id, m = '') => { pass += 1; console.log(`  PASS: ${id}${m ? ` — ${m}` : ''}`); };
@@ -38,8 +42,7 @@ const dong1 = s => String(s || '').trim().split('\n')[0];
 // ── Ma trận viết trước ──────────────────────────────────────────────────────────────────────────────────────────────
 // Khoá mong đợi theo bố cục (tên gói lộ trình @ tên chợ của bảng tên cây ấy).
 const MONG = { 'cũ': 'road-map@acceptance-gate-kit', 'mới': 'roadmap@delivery-loop' };
-// [lệnh, bố cục, tệp khai, bản gốc in (khoá), quan hệ với bản gốc]. Cột bản gốc là số đo trên merge-base 644e9b49 viết
-// sẵn: luật chặn ở bản gốc KHÔNG có nhánh dự phòng (thiếu tệp khai → null), khởi tạo lộ trình đã có (#503).
+// [lệnh, bố cục, tệp khai, bản gốc in (khoá), quan hệ với bản gốc]. Cột bản gốc là số đo trên MOC_MA_TRAN viết sẵn: luật chặn ở bản gốc KHÔNG có nhánh dự phòng (thiếu tệp khai → null), khởi tạo lộ trình đã có (#503).
 const MA_TRAN = [
   ['chan-lo-trinh', 'cũ', 'có', MONG['cũ'], 'bang'],
   ['chan-lo-trinh', 'cũ', 'thiếu', null, 'khac-ten'],
@@ -56,7 +59,7 @@ let TMP; let banGoc; let khoMoi; let gocMoi;
 let seq = 0;
 try {
   TMP = realpathSync(mkdtempSync(path.join(tmpdir(), 'bang-ten-lt-')));
-  const goc = execFileSync('git', ['-C', KIT, 'merge-base', 'HEAD', 'origin/main'], { encoding: 'utf8' }).trim();
+  const goc = execFileSync('git', ['-C', KIT, 'rev-parse', '--verify', `${MOC_MA_TRAN}^{commit}`], { encoding: 'utf8' }).trim();
   banGoc = path.join(TMP, 'goc'); mkdirSync(banGoc);
   execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive "$2" | tar -x -C "$3"', '_', KIT, goc, banGoc]);
   const nguon = path.join(TMP, 'nguon');
@@ -143,6 +146,18 @@ function kiemO([lenh, boCuc, tepKhai, gocIn, quanHe]) {
 for (const o of MA_TRAN) {
   const id = `SP ${o[0]} · ${o[1]} · ${o[2]}`;
   try { const r = kiemO(o); if (typeof r === 'string') bad(id, r); else ok(id, r.m); } catch (e) { bad(id, dong1(e.message || e)); }
+}
+
+// ── SP-GOC-GHIM — bản gốc ghim đúng là bản thiếu nhánh dự phòng của luật chặn (ô «thiếu» → null), đối chứng dương ô «có» ──
+{
+  try {
+    const kho = khoBat(MONG['cũ']);
+    const thieu = JSON.parse(chayO('chan-lo-trinh', banCai(banGoc, 'thiếu'), kho)).khoa;
+    const co = JSON.parse(chayO('chan-lo-trinh', banCai(banGoc, 'có'), kho)).khoa;
+    if (co !== MONG['cũ']) bad('SP-GOC-GHIM', `đối chứng dương hỏng: bản gốc ${MOC_MA_TRAN.slice(0, 8)} ô có in ${co}, mong ${MONG['cũ']}`);
+    else if (thieu !== null) bad('SP-GOC-GHIM', `bản gốc ${MOC_MA_TRAN.slice(0, 8)} ô thiếu in ${thieu}, mong null — mốc không còn là bản thiếu nhánh dự phòng`);
+    else ok(`SP-GOC-GHIM bản gốc ${MOC_MA_TRAN.slice(0, 8)} ô thiếu → null; ô có → ${MONG['cũ']}`);
+  } catch (e) { bad('SP-GOC-GHIM', dong1(e.message || e)); }
 }
 
 // ── SP-CHU — mã nguồn khởi tạo lộ trình không còn tên gói viết cứng (cây đang đứng và bản ở kho mới) ────────────────
