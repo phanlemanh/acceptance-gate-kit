@@ -31,10 +31,14 @@ evals:
       khác gọi, in một dòng "TIN: SAU-GOP bỏ <tệp> — ngoài bộ chạy thường trực"); tệp đỏ sau gộp mà đỏ Y HỆT ở đối chứng
       trước gộp cùng bản sao (phanSauGop, tự kiểm TK-SG) in "TIN: SAU-GOP <tệp> — đỏ Y HỆT ở đối chứng trước gộp cùng bản
       sao (…) — môi trường bản sao, không do gộp" — đỏ thêm một ca, hay đối chứng xanh, vẫn FAIL; "PASS: SAU-GOP-TUI <tệp> — túi khoá sau gộp bằng túi trên
-      nhánh" cho mỗi tệp vòng chạm trong tập; "PASS: RA-LOP <n>/<n> tệp đã xếp nhóm, bảng không thừa dòng" (bảng
+      nhánh" cho mỗi tệp vòng chạm trong tập; "PASS: RA-LOP-DONG mọi số ở cột «Dòng» … trỏ một dòng có chữ merge-base"
+      (lechDongRaLop, tự kiểm TK-RLD); "PASS: RA-LOP-A <a>/<a> tệp nhóm A xanh sau gộp … không nhờ miễn" — tệp A đỏ hay
+      TIN → "FAIL: RA-LOP-A <tệp>"; tệp sập trước khi in ca nào ở cả hai bên → FAIL, không TIN (TK-SG khoá cấp tệp);
+      "PASS: RA-LOP <n>/<n> tệp đã xếp nhóm, bảng không thừa dòng" (bảng
       rang/ra-lop-merge-base.md so tập, hai chiều — TK-RLH). Chiều đỏ: tệp của tập mà bảng không xếp → "FAIL: RA-LOP thiếu
       <tệp>"; dòng bảng ngoài tập → "FAIL: RA-LOP thừa <tệp>"; bang-ten-lo-trinh ở 795baf96 sau gộp
-      phải đỏ ở ca SP, không đỏ thì "FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ trên lỗi đã biết".
+      phải đỏ ở ca SP đúng câu «bản gốc in road-map@» ("PASS: SAU-GOP-DO …"), không thì "FAIL: SAU-GOP-DO phép mô phỏng
+      sau gộp không đỏ đúng câu «bản gốc in road-map@» trên lỗi đã biết".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -80,7 +84,8 @@ evals:
     expected: >
       exit 0; "PASS: MOI K4-TB — 92/92 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ"; "PASS: CHONG-RONG <n> lệnh đọc
       commit lịch sử ở <m>/<k> tệp K4-TB giải đường qua pathspec của bộ dịch … hoặc đường bất biến tests/ · _acceptance/"
-      (lenhLichSu, tự kiểm TK-LS: archive trần, show đường phẳng, show không đọc được → hỏng). Lệnh không qua → "FAIL:
+      (lenhLichSu, tự kiểm TK-LS: archive trần, show đường phẳng, show không đọc được, archive/show trong chuỗi `bash -c`
+      không qua pathspec, chữ archive dạng lạ → hỏng; archive trong chuỗi qua pathspec → ok). Lệnh không qua → "FAIL:
       CHONG-RONG <tệp>:<dòng> — …"; quét 0 lệnh → "FAIL: CHONG-RONG … phép quét mù". Như E4 cho chiều đỏ của khoá; pathspec
       rỗng lúc chạy → "bo-cuc: pathspec rỗng ở".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

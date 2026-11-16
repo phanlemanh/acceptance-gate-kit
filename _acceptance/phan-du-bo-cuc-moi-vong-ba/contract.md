@@ -36,11 +36,12 @@ Thuật ngữ:
   «cũ · thiếu» đỏ «bản gốc in road-map@…, ma trận viết trước null» (đo ở `--chieu-do` của thước, dòng «DO AC-1»).
 - AC-2: Given mọi tệp dưới `tests/` gọi `merge-base` ở GOC_VONG hoặc ở HEAD (40 tệp lúc mở vòng), When rà lớp và chạy
   `--sau-gop`, Then `rang/ra-lop-merge-base.md` xếp từng tệp vào đúng một nhóm (A kỳ vọng tuyệt đối theo mốc · B so tương
-  đối «nhánh này không đổi X» · C không dùng làm bản gốc) kèm dòng mã làm căn cứ, bảng và tập bằng nhau HAI chiều; mọi
-  tệp nhóm A ghim mốc cố định; và MỌI tệp của tập chạy trong bản sao sau gộp thoát 0, hoặc đỏ Y HỆT (cùng mã thoát, cùng
+  đối «nhánh này không đổi X» · C không dùng làm bản gốc) kèm dòng mã làm căn cứ (mỗi số ở cột «Dòng» trỏ một dòng có chữ
+  `merge-base` ở GOC_VONG hoặc HEAD), bảng và tập bằng nhau HAI chiều; mọi tệp nhóm A xanh sau gộp mà KHÔNG nhờ miễn môi
+  trường — bản gốc đọc từ mốc ghim hoặc neo lịch sử, merge-base chỉ còn là đường lui; và MỌI tệp của tập chạy trong bản sao sau gộp thoát 0, hoặc đỏ Y HỆT (cùng mã thoát, cùng
   tập ca đỏ) ở đối chứng trước gộp trong cùng bản sao — đỏ ấy do môi trường bản sao, không do gộp, in TIN có tên ca; tệp B
-  xanh rỗng theo thiết kế, nên một tệp đỏ do gộp là xếp sai hoặc lỗi thật; chiều đỏ: bang-ten-lo-trinh ở GOC_VONG sau gộp
-  đỏ ở ca SP.
+  xanh rỗng theo thiết kế, nên một tệp đỏ do gộp là xếp sai hoặc lỗi thật; tệp sập trước khi in ca nào không được miễn;
+  chiều đỏ: bang-ten-lo-trinh ở GOC_VONG sau gộp đỏ ở ca SP đúng câu «bản gốc in road-map@».
 - AC-3: Given ma trận viết trước {cây phẳng dựng từ HEAD, kho mới dựng từ HEAD, một kho mới mà commit cha của commit dọn
   nhà KHÔNG phẳng}, When gọi `haiCay`, Then cây phẳng → `hienTai: 'phang'`, `phang` là chính cây ấy, `moi` dựng bằng
   `dungKhoMoi`; kho mới (commit CON của HEAD trong bản sao có lịch sử thật, như cây kịch bản của B2) → `hienTai: 'moi'`,
@@ -53,7 +54,8 @@ Thuật ngữ:
   các ca không bị dịch đường (đường kho tiêu thụ giữ dạng của kho tiêu thụ).
 - AC-6: Given kho mới, When chạy các tệp kiểm cụm K4-TB, Then mọi khoá đích cụm K4-TB có mặt và xanh; mỗi `git archive` /
   `git show` một commit lịch sử mà ca dùng giải đường qua `pathspec` của bộ dịch (chốt chống rỗng), trừ đường bất biến giữa
-  hai bố cục (`tests/` · `_acceptance/`); thước đếm mọi lệnh ấy trong các tệp K4-TB và đỏ khi có lệnh không qua.
+  hai bố cục (`tests/` · `_acceptance/`); thước đếm mọi lệnh ấy trong các tệp K4-TB — ở mọi dạng viết (phần tử argv, chuỗi
+  `bash -c`/template), chữ `archive` ở dạng chưa biết tính là hỏng — và đỏ khi có lệnh không qua.
 - AC-7: Given kho mới, When chạy `recheck-goc-goi-loi.test.mjs`, Then năm khoá K4-RG có mặt và xanh; RG-2 giữ bản gốc
   merge-base sống (nhóm B của AC-2: lời hứa «nhánh này không đổi đầu ra khi kho không có marketplace.json»), bung qua bộ
   dịch theo cây của commit ấy; RG-3 (gỡ ứng viên gốc gói lõi) vẫn đỏ «verifier script not found» với đúng đường.
@@ -112,6 +114,10 @@ Later: bộ đổi ngược mới → phẳng (design §3.2, lối đã loại).
 - Sau S4 lượt 1 (sổ S4, chờ chủ kho ở Cổng Bằng chứng): AC-2 nhận «đỏ Y HỆT ở đối chứng trước gộp cùng bản sao» là đỏ do
   môi trường, không do gộp — lượt 1 đỏ đúng hai tệp vì bản sao thiếu jsdom (`khong-do-duoc`, KD0 «JSDOM_VANG» cả ở cây làm
   việc) và cấu hình CLI thật (`kiem-ban-cai`, KB-1); AC-6 đổi chốt máy từ «dòng hứa» sang phép đếm lệnh đọc lịch sử.
+- Sau S4 lượt 2 (sổ S4, chờ chủ kho ở Cổng Bằng chứng): vế «mọi tệp nhóm A ghim mốc cố định» của AC-2 viết lại theo
+  điều đo được — hai tệp A (`sua-truoc-dot-thu`, `can-cu-s1`) neo commit gộp có trong lịch sử, merge-base chỉ là đường lui,
+  nên lời hứa thật là «nhóm A xanh sau gộp không nhờ miễn» (RA-LOP-A) cộng dòng căn cứ trỏ đúng mã (RA-LOP-DONG); AC-6 nói
+  rõ «mọi dạng viết» vì 3/8 tệp K4-TB gọi archive trong chuỗi `bash -c`.
 - Giới hạn khai (theo lời chủ kho ở Hỏi-2): ở kho mới, cột «cũ» của K4-MP chạy trên cha của commit dọn nhà — mã đóng băng ở
   ngày cắt sang, không phải mã đang kiểm. Ngưỡng mở lại (đếm bằng `git log <commit dọn nhà>..HEAD -- plugins/acceptance-gate/lib
   plugins/acceptance-gate/scripts | wc -l`): ≥ 1 commit kho mới chạm tệp lõi mà K4-MP đọc thì mở vòng dựng bộ đổi ngược.
