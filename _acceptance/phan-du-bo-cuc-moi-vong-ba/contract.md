@@ -34,7 +34,7 @@ Thuật ngữ:
   SP-GOC-GHIM); bản gốc của ma trận là MOC_MA_TRAN ghim, không phụ thuộc `origin/main`; ca canh `SP-GOC-GHIM` chứng bản gốc ghim thiếu nhánh dự phòng (ô
   «thiếu» → khoá `null`) với đối chứng dương (ô «có» → khoá đúng); đổi bản gốc ghim sang HEAD trên bản sao → ô `khac-ten`
   đỏ «bằng bản gốc — mong khác đúng chữ tên gói».
-- AC-2: Given mọi tệp dưới `tests/` gọi `merge-base` ở GOC_VONG hoặc ở HEAD (42 tệp lúc mở vòng), When rà lớp và chạy
+- AC-2: Given mọi tệp dưới `tests/` gọi `merge-base` ở GOC_VONG hoặc ở HEAD (40 tệp lúc mở vòng), When rà lớp và chạy
   `--sau-gop`, Then `rang/ra-lop-merge-base.md` xếp từng tệp vào đúng một nhóm (A kỳ vọng tuyệt đối theo mốc · B so tương
   đối «nhánh này không đổi X» · C không dùng làm bản gốc) kèm dòng mã làm căn cứ; mọi tệp nhóm A ghim mốc cố định; và MỌI
   tệp của tập chạy trong bản sao sau gộp thoát 0 — tệp B xanh rỗng theo thiết kế, nên một tệp đỏ là xếp sai hoặc lỗi thật;

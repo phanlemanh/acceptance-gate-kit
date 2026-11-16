@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Bộ kiểm của kit chạy được ở cả cây hôm nay lẫn cây đã dọn nhà sang plugins/<tên>/ (gỡ 477 khoá B2 còn thiếu), và nhánh chính hết đỏ ở ca bảng tên lộ trình.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ làm ca bảng tên lộ trình xanh cả trên nhánh lẫn sau khi gộp, vì bản gốc của nó ghim vào đúng mốc mà kỳ vọng được đo — đỏ lại đúng câu nếu ai đổi mốc."},
+    {"id": "AC-2", "p": "Sẽ chạy mọi tệp kiểm có so với «điểm rẽ khỏi nhánh chính» trong tình trạng sau gộp, nên không còn tệp nào đỏ bất ngờ trên nhánh chính sau khi gộp (40 tệp, đã xếp nhóm)."},
+    {"id": "AC-3", "p": "Sẽ có một hàm trả về cả cây phẳng lẫn cây mới cho bất kỳ cây nào đang chạy; ở cây mới, cây phẳng là commit ngay trước lần dọn nhà gần nhất — sai thì báo lỗi có tên."},
+    {"id": "AC-4", "p": "Sẽ làm 225 khoá của hai tệp dựng kho mới (K4-MP) có mặt và xanh ở kho mới, thay vì chết ở bước dựng như hôm nay."},
+    {"id": "AC-5", "p": "Sẽ làm 155 khoá lộ trình, tín hiệu (K4-LT) có mặt và xanh ở kho mới; kho tiêu thụ giả trong ca giữ đường của chính nó."},
+    {"id": "AC-6", "p": "Sẽ làm 92 khoá thẻ, bản đồ, khuôn (K4-TB) có mặt và xanh ở kho mới; mỗi lần đọc một commit cũ đều kiểm đường có thật ở commit ấy."},
+    {"id": "AC-7", "p": "Sẽ làm 5 khoá kiểm lại bằng chứng (K4-RG) có mặt và xanh ở kho mới; ca đỏ «không tìm thấy công cụ kiểm» vẫn đỏ đúng câu."},
+    {"id": "AC-8", "p": "Sẽ giữ nguyên mọi ca ở cây hôm nay: bộ kiểm xanh trọn, không ca nào mất tên so với nhánh chính lúc mở vòng."},
+    {"id": "AC-9", "p": "Sẽ chứng chiều đỏ: thay bộ dịch đường bằng bản giả thì mỗi cụm có ca đỏ đúng câu, trả lại bản thật thì xanh."},
+    {"id": "AC-10", "p": "Sẽ chạy luật danh sách vài giây TRƯỚC mọi phép đo dài, chỉ bỏ qua đúng dòng mà lệnh ký tự ghi — nên lượt ghim lại sau chữ ký không đỏ oan như vòng hai."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Sẽ KHÔNG sửa gì ở kho delivery-loop — chỉ ghi gui-b2.md để B2 cắt bảng vá."},
+    {"id": "OOS-2", "p": "Sẽ KHÔNG đổi byte nào của hồ sơ đã ký, kể cả thước của vòng hai."},
+    {"id": "OOS-3", "p": "Sẽ KHÔNG sửa lệnh ký của kit; chờ CI xanh rồi mới mời ký chỉ là nhịp của vòng này."},
+    {"id": "OOS-4", "p": "Sẽ KHÔNG cắt số hay gắn thẻ — để mốc 3.0."},
+    {"id": "OOS-5", "p": "Sẽ KHÔNG làm 6 khoá đổi nghĩa chưa có chủ (K4-DN), nhóm Ngoài-11 và 2 khoá việc của B2."},
+    {"id": "OOS-6", "p": "Sẽ KHÔNG sửa các tệp so tương đối «nhánh này không đổi X» — sau gộp chúng xanh rỗng theo thiết kế đã có."},
+    {"id": "OOS-7", "p": "Sẽ KHÔNG tự quyết ca P161 — theo lời anh ở Hỏi-1."},
+    {"id": "OOS-8", "p": "Sẽ KHÔNG ghim mốc cho ca RG-2, vì lời hứa của nó là so tương đối."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Đã phủ mọi loại cây mà một chuỗi đường có thể nói tới — cây đang đứng, commit cũ, bản sao gói, kho tiêu thụ giả, cây phẳng khi đã dọn nhà (AC-3…AC-7); bằng chứng là dạng gãy đo được của 25 tệp ở kho mới tạm."},
+    {"i": 1, "p": "Đã phủ cả hai tình trạng nhánh — trên PR và sau gộp (AC-1, AC-2); bằng chứng là CI nhánh chính đỏ ở hai commit gần nhất."},
+    {"i": 2, "p": "Đã phủ bốn cụm khoá vòng nhận, cộng đủ 477 khoá (AC-4…AC-7); bằng chứng là bảng khoá đích chép nguyên từ lượt đo của B2."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Sổ ghi «chỉ một lối» cho cách lấy cây phẳng từ lịch sử, trong khi lối dựng bộ đổi ngược vẫn còn sống — đã sửa: thành câu hỏi Hỏi-2 có giá từng lối và ngưỡng mở lại đếm được."},
+    {"i": 1, "p": "Luật danh sách bỏ qua cả tệp mà lệnh ký ghi, nên mù với mọi sửa khác trên tệp ấy — đã sửa: chỉ bỏ qua đúng dòng mà lệnh ký thêm, có ca đỏ khi sửa dòng khác."},
+    {"i": 2, "p": "Phép đo cây phẳng không ghim rằng nó đúng là commit ngay trước lần dọn nhà gần nhất — đã sửa: thêm ô «dọn nhà hai lần» và ghim mã commit."},
+    {"i": 3, "p": "Phép đo sau gộp dựa vào bảng phân loại có thể xếp sai — đã sửa: chạy MỌI tệp liên quan sau gộp, xếp sai sẽ lộ thành đỏ; so túi khoá trước và sau gộp."},
+    {"i": 4, "p": "Ca RG-2 bị ghim mốc trong khi lời hứa của nó là so tương đối, và hai mốc dùng chung một tên — đã sửa: RG-2 không ghim, hai mốc mang tên riêng."}
+  ]
+}
