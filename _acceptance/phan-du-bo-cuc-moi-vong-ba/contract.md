@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ tests/ và hồ sơ của chính vòng — không chạm t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-16-phan-du-bo-cuc-moi-vong-ba-design.md
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-11-16T08:57:32Z
 ---
@@ -103,6 +103,9 @@ Later: bộ đổi ngược mới → phẳng (design §3.2, lối đã loại).
 ## Notes
 
 - Số khoá thiếu là số B2 đo (nhận lại); số đo ở kho này ghi ở `duong-nen.md` và design §2.
+- Thu hẹp sau Cổng Phạm vi (sổ S3, chờ chủ kho ở Cổng Bằng chứng): AC-5 đạt 153/155 — khoá cấp tệp của
+  `cua-tin-hieu-giua-chien-dich.test.mjs` và `kho-moi-cai-goi-road-map.test.mjs` bị CT-10-do, KM-1 (cụm B2, ngoài vòng) chặn;
+  thước ghi TIN có tên, không FAIL.
 - Giới hạn khai (theo lời chủ kho ở Hỏi-2): ở kho mới, cột «cũ» của K4-MP chạy trên cha của commit dọn nhà — mã đóng băng ở
   ngày cắt sang, không phải mã đang kiểm. Ngưỡng mở lại (đếm bằng `git log <commit dọn nhà>..HEAD -- plugins/acceptance-gate/lib
   plugins/acceptance-gate/scripts | wc -l`): ≥ 1 commit kho mới chạm tệp lõi mà K4-MP đọc thì mở vòng dựng bộ đổi ngược.

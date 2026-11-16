@@ -61,7 +61,10 @@ evals:
     long_running: 120
     paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**, lib/**, scripts/**, road-map/**, dieu-phoi/**]
     expected: >
-      exit 0; "PASS: MOI K4-LT — 155/155 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ". Như E4 cho chiều đỏ.
+      exit 0; "PASS: MOI K4-LT — 153/155 khoá đích có mặt và xanh ở kho mới; 2 khoá cấp tệp chặn bởi cụm ngoài vòng (TIN)"
+      kèm hai dòng "TIN: MOI K4-LT — scripts: <tệp> đỏ CHỈ vì khoá cụm ngoài vòng trong cùng tệp: <CT-10-do | KM-1>" (sổ
+      descope S3); mỗi tệp "PASS: MOI túi <tệp> — khoá bố cục cũ còn ở kho mới". Như E4 cho chiều đỏ; một ca đỏ trong vòng
+      ở hai tệp ấy → khoá cấp tệp thành "FAIL: MOI K4-LT — đỏ: …" (tự kiểm TK-NV-do).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
