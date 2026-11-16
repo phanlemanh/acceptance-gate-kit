@@ -1,0 +1,488 @@
+# Khoá đích của vòng phan-du-bo-cuc-moi-vong-ba — chép NGUYÊN từ nhánh B2 (delivery-loop, worktree b2-bo-kiem-xanh-o-kho-moi-3db198, đỉnh bd9229dd) migration/kich-ban/ket-qua/phan-du-luot-7.tsv: cây kịch bản 9eed5714 so cây cũ d8c42965, 486/5 791 khoá — số B2 ĐO, vòng này NHẬN LẠI. Vòng nhận K4-LT · K4-TB · K4-MP · K4-RG; K4-PL (P161) là câu hỏi Cổng Phạm vi; K4-DN, B2 ngoài vòng.
+cum	lop	tep_kiem	khoa
+K4-DN	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/pre-merge-check.sh: diff so với base <sha> CHỈ THÊM
+K4-DN	D-doi-nghia	additive-only.test.mjs	scripts: additive-only.test.mjs
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-khong-bat
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-do2
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7-lenh
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7-do2
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-8-khong-bat
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-9-byte
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-9-do
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-10-byte
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: ap-chinh-sach-lo-trinh.test.mjs
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-1]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-1-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-2]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-3]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-3-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-4]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-4-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-6]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: ban-do-khuon-roi-nhom.test.mjs
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP chan-lo-trinh · cũ · có
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP chan-lo-trinh · cũ · thiếu
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP chan-lo-trinh · mới · thiếu
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP lo-trinh-khoi-tao · cũ · có
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP mã nguồn hết chữ roadmap@delivery-loop
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP-NL-DU kho đủ tệp → khoá bật giải được
+K4-MP	mo-phong-tu-cay-dang-chay	bang-ten-lo-trinh.test.mjs	scripts: SP-NL kho tiêu thụ thiếu plugins/acceptance-gate/lib/ho-goi.cjs → nạp luật chặn thoát êm; chỗ cần bảng tên in «chan-lo-trinh: thiếu plugins/acceptance-gate/lib/ho-goi.cjs cạnh luật chặn»
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/cat-luot/SKILL.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/cat-luot/SKILL.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/cat-luot/SKILL.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/cat-luot/SKILL.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/scope-slice/SKILL.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/scope-slice/SKILL.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/scope-slice/SKILL.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/scope-slice/SKILL.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC vendor · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC vendor · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC vendor · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC vendor · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/vendor · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/vendor · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/vendor · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/vendor · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC evals · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC evals · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC evals · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC evals · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/evals · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/evals · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/evals · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/evals · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC design-floor · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC design-floor · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC design-floor · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC design-floor · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/design-floor · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/design-floor · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/design-floor · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/design-floor · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/plugin.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/plugin.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/plugin.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/plugin.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/.claude-plugin/plugin.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/.claude-plugin/plugin.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/.claude-plugin/plugin.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/.claude-plugin/plugin.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/marketplace.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/marketplace.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/marketplace.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC .claude-plugin/marketplace.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/mo-dot.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/mo-dot.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/mo-dot.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/mo-dot.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/open.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/open.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/open.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/commands/open.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/xem.md · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/commands/status.md · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tri-thuc · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tri-thuc · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tri-thuc · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tri-thuc · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ghi.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ghi.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ghi.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ghi.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ingest.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ingest.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ingest.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/knowledge/commands/ingest.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tests/scripts/run-tests.sh · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tests/scripts/run-tests.sh · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tests/scripts/run-tests.sh · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC tests/scripts/run-tests.sh · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC _acceptance/config.yaml · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC _acceptance/config.yaml · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC _acceptance/config.yaml · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC _acceptance/config.yaml · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-SO
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LUY-DANG 162/162 đường dịch hai lần bằng một lần
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH-DU 14/14 mục LENH có trong doi_ten_tep
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH dispatch:open
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH dispatch:close
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH dispatch:resume
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH dispatch:handoff
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH dispatch:status
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH roadmap:status
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH roadmap:pin
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH roadmap:unpin
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH roadmap:undo
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH roadmap:suggest
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH knowledge:ingest
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH knowledge:health
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH acceptance-gate:scope-slice
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LENH acceptance-gate:signal-intake
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-GLOB
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-TUYET
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-THIEU cây thiếu marketplace.json → bo-cuc: <cây> không có .claude-plugin/marketplace.json
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-DU cây đủ → giải được
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-RONG
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-RONG-DOI-CHUNG
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-TEN
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-GOC
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-NGOAI-GOI
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-CLI
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN lõi có .claude-plugin → kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN lõi không .claude-plugin → kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN lõi có .claude-plugin → cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN lõi không .claude-plugin → HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN dạng plugins/… → HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN-DUNG
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-BOPHAN-GOI
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-TACH
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-TACH-DOI-CHUNG
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-CHO
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-CHO-THIEU
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-CLI-PHU
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-B6 tests/bo-cuc.mjs qua luật bước 6 vẫn bằng từng byte
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-B6-DOI-CHUNG
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-LA gói không rõ vai: đường lõi vẫn giải, đường vào gói lạ ném «bo-cuc: <cây> có gói «<tên>» không rõ vai»
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC-CLI-GOI
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: bo-cuc.test.mjs
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL1
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL2
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL3
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL4
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL5
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL6
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL7
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL8
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: cham-lai-khong-tu-doi.test.mjs
+K4-TB	D-doi-nghia	chi-tep-vat-keo-xet-lai.test.mjs	scripts: TV1-do ban-goc 5/5
+K4-TB	D-doi-nghia	chi-tep-vat-keo-xet-lai.test.mjs	scripts: chi-tep-vat-keo-xet-lai.test.mjs
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4-do
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4-do2
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-8-khong
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-8-do2
+B2	A-co-hoc-chua-gop	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-10-do
+K4-LT	A-cap-tep	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: cua-tin-hieu-giua-chien-dich.test.mjs
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-con
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-do
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-do2
+K4-LT	A-cap-tep	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: cua-tin-hieu-goc-moi-worktree.test.mjs
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: DD-6
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: DD-6-do
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: dai-tom-tat-dem-dung.test.mjs
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-1]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-1-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chia]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-kieu]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-nhay]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-le]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-url]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt2-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-kieu-mui-ten]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex-lop]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau-long]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-3]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-3-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do3]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-5]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-5-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-8]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-8-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: doc-jsx-va-ban-do-hong.test.mjs
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: HK-AC7-dot-bien
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: hskt.test.mjs
+B2	A-co-hoc-chua-gop	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-7-co-viec
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-8-khoi-khac
+K4-LT	A-cap-tep	kho-moi-cai-goi-road-map.test.mjs	scripts: kho-moi-cai-goi-road-map.test.mjs
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-3]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-3-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-hong]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-5]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-5-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-7]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-7-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: khoi-khuon-tren-the-cong.test.mjs
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8-do]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: khuon-loi.test.mjs
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-trang-giu
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-nen-tat-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2-thieu-phan-tram
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-3
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-3-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4-do lai
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5-check
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-xoa-khoa
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-trang-moi
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-bam
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-do phien-ban
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8-do tai-lieu
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8-do bang-khoa
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: lo-trinh-du-lieu-ngay.test.mjs
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-1-doc-cu
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-1-nang-kit
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-5
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9-do2
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9-do
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: DB-7
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: DB-7-do
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: lo-trinh-gio-may.test.mjs
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-72-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-73 khong-truong
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-73-khong-truong-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-77 mot-tep-byte
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-77-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-80
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-80-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-100
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-100-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-112
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-112-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-113
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-113-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 dung-khuon
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 trang-cu
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 json-hong
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 khuon-la
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 phien-ban-moi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 bang-khoa
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do bang-khoa
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-140
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-141
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-141-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-153
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-153-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 khoa-vang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157-do theo-ten
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157-do nhom-vang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 moi-doc-cu
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 cu-doc-moi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147-do-trang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do-them
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do-trang
+K4-LT	cap-tep	lo-trinh.test.mjs	scripts: lo-trinh.test.mjs
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-2-byte
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-2-byte-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-3
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-3-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4-do2
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-5
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-7 ma-thoat
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-8
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do2
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do3
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: moc-chien-dich.test.mjs
+K4-TB	D-doi-nghia	ntr-trang-thai.test.mjs	scripts: NS-AC9-cu
+K4-TB	D-doi-nghia	ntr-trang-thai.test.mjs	scripts: ntr-trang-thai.test.mjs
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-2
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-3
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-3-thieu-tep
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-6-im
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: o-mo-viec-mang-nguon.test.mjs
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-4-byte
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-4-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-6
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-6-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-7
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-7-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-8-quet
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-10
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-10-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: ra-soat-lo-trinh.test.mjs
+K4-RG	khai-nham-tu-dung	recheck-goc-goi-loi.test.mjs	scripts: RG-1 lõi ở thư mục con → verifier plugins/acceptance-gate/scripts/product-map.mjs giải trong gốc gói lõi
+K4-RG	khai-nham-tu-dung	recheck-goc-goi-loi.test.mjs	scripts: RG-2 kho không có marketplace.json → đầu ra bằng bản gốc từng byte
+K4-RG	khai-nham-tu-dung	recheck-goc-goi-loi.test.mjs	scripts: RG-2b lõi ở gốc kho
+K4-RG	khai-nham-tu-dung	recheck-goc-goi-loi.test.mjs	scripts: RG-3 chiều đỏ
+K4-RG	khai-nham-tu-dung	recheck-goc-goi-loi.test.mjs	scripts: recheck-goc-goi-loi.test.mjs
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-5-cu-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-11-doc-cu
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-9
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-9-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-mot-moc
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-kho
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-kho-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-tat
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: road-map-de-dung.test.mjs
+K4-LT	A-ngu-nghia	tin-hieu.test.mjs	scripts: CN-2
+K4-LT	A-ngu-nghia	tin-hieu.test.mjs	scripts: CN-2-do
+K4-LT	A-cap-tep	tin-hieu.test.mjs	scripts: tin-hieu.test.mjs
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-1
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-1-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3-do2
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-4
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-4-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-do
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-im
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: xem-trang-lo-trinh.test.mjs
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-6 so-that
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: can-cu-s1.ca.mjs
+K4-PL	D-doi-nghia	(đầu)	plugins: P161 strip-md giu duong dan + ma tran toan phan

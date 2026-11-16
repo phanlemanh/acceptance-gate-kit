@@ -7,16 +7,26 @@
 //  - Ma trận + kỳ vọng VIẾT TRƯỚC (hằng), không tính từ mã sản phẩm; ca ma trận in «số hàng: N».
 //  - Chiều đỏ: mỗi ca «-do»/«-m» chạy CHÍNH hàm kiểm trên bản sao TRỌN `scripts/` + `lib/` (thêm `feature-loop/` cho
 //    KL-11) bị tiêm đúng một nhát (khớp đúng một lần), SAU khi bản lành xanh trên cùng fixture; ghim thông điệp lỗi.
+//  - Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng cây nó nói tới: cây đang đứng / bản sao (`{ thuMuc }`, danh
+//    sách thư mục chép qua `boPhan`), bản gốc merge-base (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH
+//    commit ấy, chốt chống rỗng). Đường của kho mẫu và hồ sơ mẫu không phải đường kit — không dịch.
 //  - Tên ca = mã ca của evals.yaml; KL_CASES chọn ca; mã lạ → thoát 2.
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { CONTRACT_G2, EVALS, REPORT_PASS, G1, PROBE } from './gate-fixture.mjs';
-import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { KIT, taoKhoMau, nhanh, banSaoTiem as banSaoTiemTho, ghi, git, chay as chayTep, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { boPhan, duong, gocGoi, pathspec, tep as tepKit } from '../bo-cuc.mjs';
 
+// Đường kit ở một cây kit (cây đang đứng, bản gốc bung, bản sao tiêm — cây nào cũng mang tệp khai chợ của chính nó).
+const P = (kit, rel) => duong(rel, { thuMuc: kit });
+const K = rel => tepKit(rel, { thuMuc: KIT });
+// chay: cây kit → dịch đường lệnh; kho mẫu (lệnh của chính kho, vd tools/luat-khuon.mjs) → gọi thẳng chayTep.
+const chay = (kit, rel, args, cwd) => chayTep(kit, P(kit, rel), args, cwd);
+const banSaoTiem = (ds, rel, tim, thay) => banSaoTiemTho(boPhan(ds, { thuMuc: KIT }), P(KIT, rel), tim, thay);
 const LENH = 'scripts/design-floor-khuon.mjs';
-const TEMPLATE = path.join(KIT, 'skills', 'acceptance', 'references', 'ban-do-khuon-template.md');
+const TEMPLATE = K('skills/acceptance/references/ban-do-khuon-template.md');
 
 const CA = ['KL-7-do3', 'KL-1', 'KL-1-do', 'KL-1-tao', 'KL-2', 'KL-2-do', 'KL-3', 'KL-4', 'KL-4-do', 'KL-5', 'KL-5-m1', 'KL-5-m2', 'KL-6', 'KL-7', 'KL-7-do', 'KL-7-do2', 'KL-8', 'KL-8-do', 'KL-9', 'KL-9-do', 'KL-10', 'KL-11', 'KL-11-do'];
 const chon = (process.env.KL_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -26,8 +36,8 @@ const want = c => (chon.length ? chon.includes(c) : true);
 
 const require = createRequire(import.meta.url);
 // Trạng thái «đã ký» rút từ lib (MỘT nguồn — nếp co-hop-dong): tệp ca không mang chuỗi trạng thái của riêng nó.
-const [DA_KY] = require(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2;
-const docLai = kit => { const p = path.join(kit, 'scripts', 'ban-do-khuon.cjs'); delete require.cache[require.resolve(p)]; return require(p); };
+const [DA_KY] = require(K('lib/workspace-record.cjs')).DA_THONG_CONG_2;
+const docLai = kit => { const p = path.join(kit, P(kit, 'scripts/ban-do-khuon.cjs')); delete require.cache[require.resolve(p)]; return require(p); };
 let hong = 0;
 const ket = (ma, loi) => {
   if (!loi.length) console.log(`PASS: [${ma}]`);
@@ -181,8 +191,9 @@ function kiemKL10Lenh(kit) {
   return loi;
 }
 // Phần tài liệu của KL-10: mục «Thẻ việc» của khuôn đặc tả UX + ba khối SKILL chạy được trên kho mẫu.
-const SKILL_FL = path.join(KIT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
-const UX_SPEC = path.join(KIT, 'skills', 'acceptance', 'references', 'ux-spec-template.md');
+const SKILL_FL = K('feature-loop/skills/feature-loop/SKILL.md');
+const UX_SPEC = K('skills/acceptance/references/ux-spec-template.md');
+const AG = gocGoi({ thuMuc: KIT }, 'loi'); // $AG của khối SKILL = gốc gói lõi
 function kiemKL10TaiLieu() {
   const loi = [];
   const ux = fs.readFileSync(UX_SPEC, 'utf8');
@@ -199,9 +210,9 @@ function kiemKL10TaiLieu() {
     try { khoi = khoiMarker(SKILL_FL, ten); } catch (e) { loi.push(e.message); continue; }
     // Mỗi dòng của khối là một lệnh (KHUON-S1 có ba dòng từ hồ sơ khoi-khuon-tren-the-cong): chạy từng dòng, thay mọi ô.
     for (const dong of khoi.split('\n').filter(l => l.trim())) {
-      const lenh = dong.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${KIT}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha)
+      const lenh = dong.split('&&').slice(1).join('&&').trim().replaceAll('"$AG/', `"${AG}/`).replaceAll("'<slug>'", 'h').replaceAll('<slug>', 'h').replaceAll('<sha lượt chấm>', sha)
         .replaceAll('<nhóm gần>', 'bang-du-lieu').replaceAll('<nhóm>', 'form-nhap').replaceAll('<tên>', 'bao-cao-tuan');
-      if (!lenh.includes(KIT)) { loi.push(`khối ${ten} không gọi lệnh qua $AG: ${dong}`); continue; }
+      if (!lenh.includes(AG)) { loi.push(`khối ${ten} không gọi lệnh qua $AG: ${dong}`); continue; }
       const r = spawnSync('bash', ['-c', lenh], { cwd: kho, encoding: 'utf8' });
       if (r.status !== 0) loi.push(`lệnh khối ${ten} thoát ${r.status}: ${(r.stderr || r.stdout).trim()}`);
     }
@@ -406,7 +417,7 @@ function kiemKL2(kit) {
   ghi(kho, 'tools/luat-khuon.mjs', LUAT_LINT);
   const tep = 'src/man/bang/Moi.tsx';
   nhanh(kho, 'tiem', { [tep]: manBang("import { Hop } from '@/ui/Hop';\nimport { BangTho } from '@/ui/BangTho';\n", '<Hop /><BangTho />') });
-  const l = chay(kho, 'tools/luat-khuon.mjs', [path.join(kit, 'scripts', 'ban-do-khuon.cjs'), tep], kho);
+  const l = chayTep(kho, 'tools/luat-khuon.mjs', [path.join(kit, P(kit, 'scripts/ban-do-khuon.cjs')), tep], kho);
   if (l.ma !== 0) { loi.push(`luật lint giả thoát ${l.ma}: ${l.err.trim()}`); return loi; }
   const lint = JSON.parse(l.out);
   const c = chay(kit, 'scripts/ban-do-khuon.cjs', ['--root', kho, '--json']);
@@ -523,9 +534,10 @@ const banGocVong = () => {
   let mb = '';
   for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
   _goc = thuMuc('goc-vong');
-  execFileSync('bash', ['-c', `git -C "${KIT}" archive "${mb}" scripts lib | tar -x -C "${_goc}"`]);
+  const cay = { kho: KIT, ref: mb };
+  execFileSync('bash', ['-c', 'git -C "$1" archive "$2" "${@:4}" | tar -x -C "$3"', '_', KIT, mb, _goc, ...boPhan(['scripts', 'lib'], cay).map(x => pathspec(x, cay))]);
   // Chỉ scripts/ + lib/ là biến: thẻ còn đọc khối CAT-LUOT-CO ở skills/, nên skills/ lấy từ cây đang kiểm cho cả hai bên.
-  fs.cpSync(path.join(KIT, 'skills'), path.join(_goc, 'skills'), { recursive: true });
+  fs.cpSync(K('skills'), path.join(_goc, P(_goc, 'skills')), { recursive: true });
   return _goc;
 };
 function kiemKL8(kit) {
@@ -561,7 +573,7 @@ const S4 = 'feature-loop/scripts/s4-args.mjs';
 const HD_IMPL = slug => `---\nschema_version: 1\nfeature: F\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
 const EV_TEST = 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: xanh\n    evidence_required: [run_id, exit_code]\n';
 const EV_KHUON = EV_TEST + '  - id: E2\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.design.khuon\n    expected: exit 0\n    evidence_required: [run_id, exit_code]\n';
-const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', kit]); return { ...r, coTep: fs.existsSync(out) }; };
+const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', gocGoi({ thuMuc: kit }, 'loi')]); return { ...r, coTep: fs.existsSync(out) }; };
 const HS11 = 'ho-so-luoi-k11';
 const HANG_KL11 = [
   { ten: 'chạm vùng nhóm, thiếu eval khuôn', lam: (kit, kho) => {

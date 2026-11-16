@@ -14,10 +14,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { boPhan, duong, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
-const SCRIPT = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
+// Đường KIT đi qua bộ dịch tests/bo-cuc.mjs theo cây chúng nói tới (hồ sơ phan-du-bo-cuc-moi-vong-ba, K4-RG). VERIFIER là
+// đường TRONG KHO THỬ — báo cáo đã ký ghi đường phẳng, đúng lời hứa của ca — nên không dịch.
+const RECHECK = 'scripts/recheck-evidence.cjs';
+const SCRIPT = tep(RECHECK, { thuMuc: ROOT });
 const VERIFIER = 'scripts/product-map.mjs';
 const SLUG = 'rg-fixture';
 const MSG_NOT_FOUND = `verifier script not found. raw: ${VERIFIER};`;
@@ -100,22 +104,23 @@ const chay = (script, { kho, bc }) => {
   return { status: r.status, stdout: r.stdout, stderr: r.stderr };
 };
 
-// Bản gốc: TRỌN scripts/ + lib/ của merge-base (không chép danh sách tệp tay).
+// Bản gốc: TRỌN scripts/ + lib/ của merge-base (không chép danh sách tệp tay), dịch theo cây CỦA commit ấy.
 function banGoc() {
   const mb = git(ROOT, 'merge-base', 'HEAD', 'origin/main');
+  const c = { kho: ROOT, ref: mb };
   const d = tmp('goc');
-  execFileSync('bash', ['-c', `git -C "$1" archive "$2" scripts lib | tar -x -C "$3"`, '_', ROOT, mb, d]);
-  const p = path.join(d, 'scripts', 'recheck-evidence.cjs');
-  if (!fs.existsSync(p)) hong(`HẠ TẦNG: git archive ${mb} không ra scripts/recheck-evidence.cjs`);
+  execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive "$2" -- "${@:4}" | tar -x -C "$3"', '_', ROOT, mb, d, ...boPhan(['scripts', 'lib'], c)]);
+  const p = path.join(d, duong(RECHECK, c));
+  if (!fs.existsSync(p)) hong(`HẠ TẦNG: git archive ${mb} không ra ${duong(RECHECK, c)}`);
   return p;
 }
 
 // Bản sao bị tiêm: TRỌN scripts/ + lib/ của cây đang kiểm, gocGoiLoi trả null ngay dòng đầu.
 function banTiemNull() {
   const d = tmp('tiem');
-  fs.cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
-  fs.cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
-  const p = path.join(d, 'scripts', 'recheck-evidence.cjs');
+  const c = { thuMuc: ROOT };
+  for (const x of ['scripts', 'lib']) fs.cpSync(path.join(ROOT, duong(x, c)), path.join(d, duong(x, c)), { recursive: true });
+  const p = path.join(d, duong(RECHECK, c));
   const goc = fs.readFileSync(p, 'utf8');
   const dau = 'function gocGoiLoi(gitRoot) {';
   const tiem = goc.replace(dau, `${dau}\n  return null;`);

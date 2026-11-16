@@ -4,6 +4,8 @@
 // Luật đo:
 //  - Kho mẫu do code sinh trong lượt (`khuon-loi-kho-mau.mjs`); gọi CHÍNH script của cây đang kiểm như tiến trình con.
 //  - «Bộ máy gốc» = `git archive <GOC> scripts lib feature-loop skills` bung trong lượt — bản trước vá, chạy trên CÙNG kho.
+//    Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng cây nó nói tới: cây đang đứng / bản sao (`{ thuMuc }`), commit
+//    GOC (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH commit ấy, chốt chống rỗng). Kho mẫu không dịch.
 //  - Ma trận + kỳ vọng VIẾT TRƯỚC (hằng), không tính từ mã sản phẩm; ca ma trận in «số hàng: N».
 //  - Chiều đỏ: mỗi ca «-do» và mỗi nhát của DJ-2 chạy CHÍNH hàm kiểm trên bản sao TRỌN thư mục bị tiêm một nhát (khớp đúng
 //    một lần), SAU khi bản lành xanh trên cùng fixture; bản sao phải chạy được; ghim thông điệp của đúng lỗi được tiêm.
@@ -12,13 +14,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
-import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, thuMuc } from './khuon-loi-kho-mau.mjs';
+import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay as chayTep, thuMuc } from './khuon-loi-kho-mau.mjs';
+import { boPhan, duong, gocGoi, pathspec } from '../bo-cuc.mjs';
 
 const GOC = 'c8fa5a65588609b622dc83a9b114d65d2bdc5b47';   // main trước vá
 const LENH = 'scripts/design-floor-khuon.mjs';
 const DOC = 'scripts/ban-do-khuon.cjs';
 const S4 = 'feature-loop/scripts/s4-args.mjs';
 const THU_MUC_KIT = ['scripts', 'lib', 'feature-loop', 'skills'];
+// Đường kit ở một cây kit (cây đang đứng, bộ máy gốc bung, bản sao tiêm — cây nào cũng mang tệp khai chợ của chính nó).
+const P = (kit, rel) => duong(rel, { thuMuc: kit });
+const chay = (kit, rel, args, cwd) => chayTep(kit, P(kit, rel), args, cwd);
 
 const NHAT_DJ2 = {
   'DJ-2-do': { hang: 'khe-trong-bieu-thuc', thongDiep: 'khe trong biểu thức con bị tính', tim: "phang += '{}'; j = k; continue;", thay: 'phang += noi.slice(j, k); j = k; continue;' },
@@ -54,7 +60,7 @@ if (la.length) { console.error(`doc-jsx-va-ban-do-hong.test: mã ca lạ: ${la.j
 const want = c => (chon.length ? chon.includes(c) : true);
 
 const require = createRequire(import.meta.url);
-const docLai = kit => { const p = path.join(kit, DOC); delete require.cache[require.resolve(p)]; return require(p); };
+const docLai = kit => { const p = path.join(kit, P(kit, DOC)); delete require.cache[require.resolve(p)]; return require(p); };
 let hong = 0;
 const ket = (ma, loi) => {
   if (!loi.length) console.log(`PASS: [${ma}]`);
@@ -74,16 +80,17 @@ const caDo = (ma, kiem, lanh, saoTiem, thongDiep) => {
   } catch (e) { return ket(ma, [`hạ tầng ca: ${e.message}`]); }
   ket(ma, loi.some(x => x.includes(thongDiep)) ? [] : [`bản tiêm không cho lỗi «${thongDiep}» (lỗi: ${loi.join(' | ') || 'không có'})`]);
 };
-const banSao = (tep, tim, thay) => banSaoTiem(THU_MUC_KIT, tep, tim, thay);
+const banSao = (tep, tim, thay) => banSaoTiem(boPhan(THU_MUC_KIT, { thuMuc: KIT }), P(KIT, tep), tim, thay);
 
 // Bộ máy gốc: bung một lần.
 let _goc = null;
 const goc = () => {
   if (_goc) return _goc;
   const d = thuMuc('goc');
-  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC, ...THU_MUC_KIT], { maxBuffer: 256 * 1024 * 1024 });
+  const cay = { kho: KIT, ref: GOC };
+  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC, ...boPhan(THU_MUC_KIT, cay).map(x => pathspec(x, cay))], { maxBuffer: 256 * 1024 * 1024 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
-  for (const f of [LENH, DOC, S4]) if (!fs.existsSync(path.join(d, f))) throw new Error(`bộ máy gốc ${GOC.slice(0, 8)} thiếu ${f}`);
+  for (const f of [LENH, DOC, S4]) if (!fs.existsSync(path.join(d, P(d, f)))) throw new Error(`bộ máy gốc ${GOC.slice(0, 8)} thiếu ${f}`);
   return (_goc = d);
 };
 
@@ -219,7 +226,7 @@ if (want('DJ-3') || want('DJ-3-do')) {
 // ── DJ-4: thẻ không đọc hết → không đo, không suy đoán ───────────────────────────────────────────────────────────
 // Danh sách «theo khuôn» của CHÍNH bước chấm của bản đang kiểm (nạp hàm trong tiến trình con — hàm kiểm là đồng bộ).
 const theoKhuon = (kit, kho) => {
-  const ma = `import { pathToFileURL } from 'node:url'; const { chamKho } = await import(pathToFileURL(${JSON.stringify(path.join(kit, LENH))}).href); console.log(JSON.stringify(chamKho(${JSON.stringify(kho)}, 'main').theo_khuon));`;
+  const ma = `import { pathToFileURL } from 'node:url'; const { chamKho } = await import(pathToFileURL(${JSON.stringify(path.join(kit, P(kit, LENH)))}).href); console.log(JSON.stringify(chamKho(${JSON.stringify(kho)}, 'main').theo_khuon));`;
   return JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', ma], { encoding: 'utf8' }));
 };
 const HANG_DJ4 = [
@@ -315,7 +322,7 @@ function hoSo(kho, banDo, cham, evals) {
   });
   return slug;
 }
-const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', kit]); return { ...r, coTep: fs.existsSync(out) }; };
+const sinhArgs = (kit, kho, slug) => { const out = path.join(thuMuc('args'), 'a.json'); const r = chay(kit, S4, ['--slug', slug, '--root', kho, '--out', out, '--no-carry', '--ag-root', gocGoi({ thuMuc: kit }, 'loi')]); return { ...r, coTep: fs.existsSync(out) }; };
 
 const LOI_MAT_NHOM = [
   ['không frontmatter', '# chỉ có chữ\n', 'không có frontmatter YAML'],

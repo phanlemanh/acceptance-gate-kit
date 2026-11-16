@@ -11,7 +11,9 @@
 // chấm THẬT dựng (harness vm); dòng thuoc-lech/cay-doi do thuoc-vat --write THẬT ghi. Bản
 // «trước vòng» lấy bằng `git archive` (cha của commit đầu đưa `dinhNghiaTai` vào carry-plan;
 // chưa commit → HEAD) — để mỗi ca chiều đỏ chứng được fixture TÁI HIỆN lỗi trên bản cũ, và mỗi
-// ca chiều im so bằng nhau với bản cũ. Mọi đường suy từ vị trí tệp này.
+// ca chiều im so bằng nhau với bản cũ. Mọi đường suy từ vị trí tệp này; đường kit đi qua bộ dịch `tests/bo-cuc.mjs`
+// theo đúng cây nó nói tới — cây đang đứng / bản bung (`{ thuMuc }`), commit «trước vòng» (`boPhan` + `pathspec` ở
+// `{ kho, ref }`: bố cục của CHÍNH commit ấy, chốt chống rỗng). Kho fixture không phải đường kit — không dịch.
 //
 //   node tests/scripts/cham-lai-khong-tu-doi.test.mjs [--only CL1,CL6]   (hoặc CL_CASES=…)
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -21,12 +23,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { runWorkflow } from '../workflows/harness.mjs';
+import { boPhan, duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
 const GOC = process.env.CL_GOC ? path.resolve(process.env.CL_GOC) : KIT;
 const require = createRequire(import.meta.url);
-const WF = path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js');
+const WF = tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: KIT });
 const TMP = mkdtempSync(path.join(tmpdir(), 'cham-lai-'));
 const ONLY = (() => { const i = process.argv.indexOf('--only'); return i >= 0 ? process.argv[i + 1] : (process.env.CL_CASES || null); })();
 const want = g => !ONLY || ONLY.split(',').includes(g);
@@ -44,16 +47,19 @@ const sortJ = a => JSON.stringify([...a].sort());
 const MOI = { ten: 'moi', goc: KIT };
 const TRUOC = (() => {
   try {
-    const shas = git(GOC, 'log', '--format=%H', '--reverse', '-S', 'dinhNghiaTai', '--', 'feature-loop/scripts/carry-plan.mjs').split('\n').filter(Boolean);
+    const CP = 'feature-loop/scripts/carry-plan.mjs';
+    // Lịch sử đi qua cả hai bố cục: tìm theo đường phẳng lẫn đường của cây đang đứng (git log lọc theo đường ở TỪNG commit).
+    const shas = git(GOC, 'log', '--format=%H', '--reverse', '-S', 'dinhNghiaTai', '--', ...new Set([CP, duong(CP, { thuMuc: GOC })])).split('\n').filter(Boolean);
     const ref = shas.length ? `${shas[0]}^` : 'HEAD';
     const d = mkdtempSync(path.join(TMP, 'truoc-'));
-    const tar = execFileSync('git', ['-C', GOC, 'archive', ref, 'feature-loop', 'lib', 'scripts', 'skills'], { maxBuffer: 512 * 1024 * 1024 });
+    const cay = { kho: GOC, ref };
+    const tar = execFileSync('git', ['-C', GOC, 'archive', ref, ...boPhan(['feature-loop', 'lib', 'scripts', 'skills'], cay).map(x => pathspec(x, cay))], { maxBuffer: 512 * 1024 * 1024 });
     execFileSync('tar', ['-x', '-C', d], { input: tar });
     return { ten: 'truoc', goc: d, ref };
   } catch (e) { return { ten: 'truoc', loi: loi(e) }; }
 })();
-const s4 = (ban, d, extra) => spawnSync(process.execPath, [path.join(ban.goc, 'feature-loop', 'scripts', 's4-args.mjs'), '--slug', SLUG, '--root', d, '--ag-root', ban.goc, '--diff-base', 'main', ...extra], { encoding: 'utf8' });
-const tv = (ban, d, extra = []) => spawnSync(process.execPath, [path.join(ban.goc, 'feature-loop', 'scripts', 'thuoc-vat.mjs'), '--root', d, '--slug', SLUG, '--ag-root', ban.goc, '--write', ...extra], { encoding: 'utf8' });
+const s4 = (ban, d, extra) => spawnSync(process.execPath, [tep('feature-loop/scripts/s4-args.mjs', { thuMuc: ban.goc }), '--slug', SLUG, '--root', d, '--ag-root', gocGoi({ thuMuc: ban.goc }, 'loi'), '--diff-base', 'main', ...extra], { encoding: 'utf8' });
+const tv = (ban, d, extra = []) => spawnSync(process.execPath, [tep('feature-loop/scripts/thuoc-vat.mjs', { thuMuc: ban.goc }), '--root', d, '--slug', SLUG, '--ag-root', gocGoi({ thuMuc: ban.goc }, 'loi'), '--write', ...extra], { encoding: 'utf8' });
 
 // ── kho fixture: ba tiêu chí, ba eval máy, mỗi eval canh MỘT tệp vật ─────────
 const EVALS = (e1 = {}) => [
@@ -432,7 +438,7 @@ if (want('CL7')) {
 // ── CL8 — thẻ: bộ đọc nhãn cạnh gãy (lib/nhan-canh-gay.cjs) trên sổ bản mới ghi ─
 if (want('CL8')) {
   try {
-    const { canhGay, NGUON } = require(path.join(KIT, 'lib', 'nhan-canh-gay.cjs'));
+    const { canhGay, NGUON } = require(tep('lib/nhan-canh-gay.cjs', { thuMuc: KIT }));
     const nhan = d => canhGay({ runLogText: readFileSync(path.join(WS(d), 'run-log.jsonl'), 'utf8'), verdict: 'PASS', nguon: NGUON }).trangThai;
     const sai = [];
     const a = await khoK7(); tv(MOI, a.d);

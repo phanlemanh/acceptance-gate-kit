@@ -6,7 +6,10 @@
 // Mỗi ô kiểm HAI thứ: bộ dịch ra đúng chuỗi viết trước, VÀ chuỗi ấy có thật ở cây (tệp/thư mục, hoặc `git cat-file -e`).
 // Số dòng «PASS: BC <đường> · <cây>» phải bằng số ô.
 //
-// Fixture do mã sinh trong lần chạy, dưới `mkdtemp(os.tmpdir())`: cây phẳng = `git archive HEAD` TRỌN cây; kho mới =
+// Fixture do mã sinh trong lần chạy, dưới `mkdtemp(os.tmpdir())`, qua `haiCay` (tests/hai-bo-cuc.mjs — hồ sơ
+// phan-du-bo-cuc-moi-vong-ba): HEAD phẳng → cây phẳng = `git archive HEAD` TRỌN cây; HEAD đã dọn nhà → cây phẳng = bản bung
+// của cha commit dọn nhà (REF_PHANG), kho mới = chính HEAD. Hàng «HEAD» lấy cột theo bố cục thật của HEAD; mọi phép khẳng
+// định «đọc một commit phẳng» dùng REF_PHANG (= HEAD ở cây cũ). Nhánh HEAD phẳng như cũ: kho mới =
 // `dungKhoMoi` của hồ sơ gọi chéo (bước 1–3 của kịch bản chuyển nhà) trên cây phẳng, cộng các thư mục gốc kho giữ nguyên
 // chỗ (`tests/`, `_acceptance/config.yaml`); commit trước #503 = cha của commit thêm `lib/ho-goi.cjs`; bản sao gốc gói =
 // `gocGoi(kho mới, 'lo-trinh')` chép ra ngoài (và bản phẳng của nó). Mọi đường suy từ vị trí tệp này; không ca nào ghi
@@ -18,7 +21,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boCuc, boPhan, duong, gocGoi, pathspec, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
-import { LENH, dungKhoMoi } from '../../_acceptance/goi-cheo-loi-dieu-phoi/rang/luat-doi-chu.mjs';
+// CHO_CU/CHO_MOI từ bảng đổi tên đã chép (ngoài tests/): chữ tên chợ viết cứng ở đây bị luật đổi tên của kịch bản đổi thành
+// tên mới ở kho mới, trong khi cây phẳng vẫn mang tên cũ (hồ sơ phan-du-bo-cuc-moi-vong-ba).
+import { CHO_CU, CHO_MOI, LENH } from '../../_acceptance/goi-cheo-loi-dieu-phoi/rang/luat-doi-chu.mjs';
+import { haiCay } from '../hai-bo-cuc.mjs';
 import { BX, Dung, buoc6BoKiem } from '../../_acceptance/phan-du-bo-cuc-moi/rang/buoc6-chep.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -34,17 +40,17 @@ const git = (...a) => execFileSync('git', ['-C', KIT, ...a], { encoding: 'utf8',
 const nem = f => { try { f(); return null; } catch (e) { return String(e.message || e); } };
 
 // ── Fixture ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-let TMP; let cayPhang; let khoMoi; let dichGoi; let refCu; let refTruocCho; let banSaoGoi; let banSaoGoiPhang;
+let TMP; let cayPhang; let khoMoi; let dichGoi; let hienTai; let REF_PHANG; let refCu; let refTruocCho; let banSaoGoi; let banSaoGoiPhang;
 try {
   TMP = realpathSync(mkdtempSync(path.join(tmpdir(), 'bo-cuc-')));
-  cayPhang = path.join(TMP, 'phang'); mkdirSync(cayPhang);
-  execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive HEAD | tar -x -C "$2"', '_', KIT, cayPhang]);
-  khoMoi = path.join(TMP, 'moi');
-  ({ dichGoi } = dungKhoMoi(cayPhang, khoMoi));
-  // dungKhoMoi chỉ dựng plugins/ + tệp khai chợ; phần gốc kho giữ nguyên chỗ ở kho mới thì chép sang như kịch bản để nguyên.
-  cpSync(path.join(cayPhang, 'tests'), path.join(khoMoi, 'tests'), { recursive: true });
-  mkdirSync(path.join(khoMoi, '_acceptance'));
-  cpSync(path.join(cayPhang, '_acceptance', 'config.yaml'), path.join(khoMoi, '_acceptance', 'config.yaml'));
+  ({ phang: cayPhang, moi: khoMoi, dichGoi, hienTai, refPhang: REF_PHANG } = haiCay(KIT, TMP));
+  // HEAD phẳng: dungKhoMoi chỉ dựng plugins/ + tệp khai chợ; phần gốc kho giữ nguyên chỗ ở kho mới thì chép sang như kịch
+  // bản để nguyên. HEAD đã dọn nhà: kho mới là bản bung trọn của HEAD, đã có sẵn các phần ấy.
+  if (hienTai === 'phang') {
+    cpSync(path.join(cayPhang, 'tests'), path.join(khoMoi, 'tests'), { recursive: true });
+    mkdirSync(path.join(khoMoi, '_acceptance'));
+    cpSync(path.join(cayPhang, '_acceptance', 'config.yaml'), path.join(khoMoi, '_acceptance', 'config.yaml'));
+  }
   const themHoGoi = git('log', '--diff-filter=A', '--format=%H', '--', 'lib/ho-goi.cjs').split('\n').filter(Boolean).pop();
   refCu = git('rev-parse', `${themHoGoi}^`);
   const themCho = git('log', '--diff-filter=A', '--format=%H', '--', '.claude-plugin/marketplace.json').split('\n').filter(Boolean).pop();
@@ -62,7 +68,7 @@ try {
 const CAY = [
   { nhan: 'cây phẳng', cay: { thuMuc: cayPhang }, cot: 'phang' },
   { nhan: 'kho mới', cay: { thuMuc: khoMoi }, cot: 'moi' },
-  { nhan: 'HEAD', cay: { kho: KIT, ref: 'HEAD' }, cot: 'phang' },
+  { nhan: 'HEAD', cay: { kho: KIT, ref: 'HEAD' }, cot: hienTai },
   { nhan: 'trước #503', cay: { kho: KIT, ref: refCu }, cot: 'cu' },
   { nhan: 'bản sao gốc gói', cay: { goiGoc: banSaoGoi, vai: 'lo-trinh' }, cot: 'goi' },
   { nhan: 'bản sao gói phẳng', cay: { goiGoc: banSaoGoiPhang, vai: 'lo-trinh' }, cot: 'goiPhang' },
@@ -192,7 +198,7 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
   }
   lech.length ? bad('BC-THIEU', `không lỗi đúng câu: ${lech.join(' · ')}`)
     : ok('BC-THIEU cây thiếu marketplace.json → bo-cuc: <cây> không có .claude-plugin/marketplace.json', `${thieu.length} cây`);
-  const du = [[{ thuMuc: cayPhang }, true], [{ thuMuc: khoMoi }, false], [{ kho: KIT, ref: 'HEAD' }, true], [{ kho: KIT, ref: refCu }, true]];
+  const du = [[{ thuMuc: cayPhang }, true], [{ thuMuc: khoMoi }, false], [{ kho: KIT, ref: REF_PHANG }, true], [{ kho: KIT, ref: refCu }, true]];
   const lechDu = [];
   for (const [c, phang] of du) {
     const m = nem(() => { const b = boCuc(c); if (b.phang !== phang) throw new Error(`phang=${b.phang}, chờ ${phang}`); });
@@ -203,9 +209,9 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
 
 // ── BC-RONG — chốt chống rỗng của pathspec + đối chứng ──────────────────────────────────────────────────────────────
 {
-  const H = { kho: KIT, ref: 'HEAD' };
+  const H = { kho: KIT, ref: REF_PHANG };
   const m = nem(() => pathspec('khong-co/x', H));
-  m === 'bo-cuc: pathspec rỗng ở HEAD: khong-co/x' ? ok('BC-RONG', m) : bad('BC-RONG', `chờ «bo-cuc: pathspec rỗng ở HEAD: khong-co/x», được ${m ?? '(không ném)'}`);
+  m === `bo-cuc: pathspec rỗng ở ${REF_PHANG}: khong-co/x` ? ok('BC-RONG', m) : bad('BC-RONG', `chờ «bo-cuc: pathspec rỗng ở ${REF_PHANG}: khong-co/x», được ${m ?? '(không ném)'}`);
   const d = nem(() => { for (const [r, k] of [['scripts', 'scripts'], ['scripts/**', 'scripts/**'], ['plugins/roadmap/commands/status.md', 'road-map/commands/xem.md']]) { const ra = pathspec(r, H); if (ra !== k) throw new Error(`${r} ra ${ra}, chờ ${k}`); } });
   d ? bad('BC-RONG-DOI-CHUNG', d) : ok('BC-RONG-DOI-CHUNG', 'pathspec có thật trả đường đã dịch');
 }
@@ -216,7 +222,7 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
     [() => tenGoi({ thuMuc: cayPhang }, 'lo-trinh'), 'road-map'],
     [() => tenGoi({ thuMuc: khoMoi }, 'lo-trinh'), 'roadmap'],
     [() => tenGoi({ thuMuc: khoMoi }, 'dieu-phoi'), 'dispatch'],
-    [() => tenGoi({ kho: KIT, ref: 'HEAD' }, 'tri-thuc'), 'tri-thuc'],
+    [() => tenGoi({ kho: KIT, ref: REF_PHANG }, 'tri-thuc'), 'tri-thuc'],
     [() => tenGoi({ kho: KIT, ref: refCu }, 'lo-trinh'), 'road-map'],
     [() => tenGoi({ kho: KIT, ref: refCu }, 'loi'), 'acceptance-gate'],
     [() => tenGoi({ goiGoc: banSaoGoi, vai: 'lo-trinh' }, 'lo-trinh'), 'roadmap'],
@@ -228,7 +234,7 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
     [() => gocGoi({ thuMuc: cayPhang }, 'loi'), cayPhang],
     [() => gocGoi({ thuMuc: cayPhang }, 'dieu-phoi'), path.join(cayPhang, 'dieu-phoi')],
     [() => tep('road-map/commands/xem.md', { thuMuc: khoMoi }), path.join(khoMoi, 'plugins', 'roadmap', 'commands', 'status.md')],
-    [() => tep('plugins/roadmap/commands/status.md', { kho: KIT, ref: 'HEAD' }), 'HEAD:road-map/commands/xem.md'],
+    [() => tep('plugins/roadmap/commands/status.md', { kho: KIT, ref: REF_PHANG }), `${REF_PHANG}:road-map/commands/xem.md`],
   ];
   const lechG = goc.map(([f, k], i) => { const m = nem(() => { const ra = f(); if (ra !== k) throw new Error(`ra ${ra}`); }); return m && `#${i + 1} ${m}, chờ ${k}`; }).filter(Boolean);
   lechG.length ? bad('BC-GOC', lechG.join(' · ')) : ok('BC-GOC', `${goc.length} gốc gói / tệp`);
@@ -243,7 +249,7 @@ catch { bad('BC-SO', `${soBC}/${O.length} ô xanh`); }
   const lech = [];
   const r1 = chay('duong', 'road-map/commands/xem.md', '--thu-muc', khoMoi);
   if (r1.status !== 0 || r1.stdout !== 'plugins/roadmap/commands/status.md\n') lech.push(`--thu-muc: mã ${r1.status}, «${r1.stdout.trim()}» ${r1.stderr.trim()}`);
-  const r2 = chay('duong', 'plugins/dispatch/scripts/dot.mjs', '--kho', KIT, '--ref', 'HEAD');
+  const r2 = chay('duong', 'plugins/dispatch/scripts/dot.mjs', '--kho', KIT, '--ref', REF_PHANG);
   if (r2.status !== 0 || r2.stdout !== 'dieu-phoi/scripts/dot.mjs\n') lech.push(`--kho --ref: mã ${r2.status}, «${r2.stdout.trim()}» ${r2.stderr.trim()}`);
   const r3 = chay('duong', '/abs/x', '--thu-muc', khoMoi);
   if (r3.status !== 2 || r3.stdout !== '' || !r3.stderr.includes('bo-cuc: chỉ nhận đường tương đối gốc kho: /abs/x')) lech.push(`lỗi: mã ${r3.status}, stderr «${r3.stderr.trim()}»`);
@@ -258,7 +264,7 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
 {
   const LOI = ['scripts', 'lib', 'skills', 'hooks', 'commands', '.claude-plugin'];
   const G = 'plugins/acceptance-gate';
-  const H = { kho: KIT, ref: 'HEAD' };
+  const H = { kho: KIT, ref: REF_PHANG };
   const ca = [
     ['lõi có .claude-plugin → kho mới', LOI, { thuMuc: khoMoi },
       [`${G}/scripts`, `${G}/lib`, `${G}/skills`, `${G}/hooks`, `${G}/commands`, '.claude-plugin/marketplace.json', `${G}/.claude-plugin/plugin.json`]],
@@ -293,7 +299,7 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
     const am = nem(() => boCuc({ thuMuc: tran }));
     if (am !== `bo-cuc: ${tran} ${CAU_THIEU}`) throw new Error(`đối chứng âm (không tệp khai chợ): ${am ?? '(không ném)'}`);
     const arc = path.join(TMP, 'bophan-head'); mkdirSync(arc);
-    execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive HEAD -- "${@:3}" | tar -x -C "$2"', '_', KIT, arc, ...boPhan(['scripts', 'lib', 'skills'], H)]);
+    execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive "$3" -- "${@:4}" | tar -x -C "$2"', '_', KIT, arc, REF_PHANG, ...boPhan(['scripts', 'lib', 'skills'], H)]);
     if (boCuc({ thuMuc: arc }).phang !== true) throw new Error('bản bung HEAD không phẳng');
   });
   m ? bad('BC-BOPHAN-DUNG', m) : ok('BC-BOPHAN-DUNG', 'cpSync kho mới + git archive HEAD theo boPhan giải được; bỏ tệp khai chợ → ném BC-THIEU');
@@ -312,7 +318,7 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
   lech.length ? bad('BC-TACH', lech.join(' · ')) : ok('BC-TACH', `3 dạng ném «${CAU_TACH('<cây>')}»`);
   const dc = [
     ['.claude-plugin', { thuMuc: cayPhang }, '.claude-plugin'],
-    ['.claude-plugin', { kho: KIT, ref: 'HEAD' }, '.claude-plugin'],
+    ['.claude-plugin', { kho: KIT, ref: REF_PHANG }, '.claude-plugin'],
     ['.claude-plugin', { kho: KIT, ref: refCu }, '.claude-plugin'],
     ['.claude-plugin/marketplace.json', { thuMuc: khoMoi }, '.claude-plugin/marketplace.json'],
     ['.claude-plugin/plugin.json', { thuMuc: khoMoi }, 'plugins/acceptance-gate/.claude-plugin/plugin.json'],
@@ -324,9 +330,9 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
 // ── BC-CHO — tên chợ đọc từ tệp khai chợ của chính cây + đối chứng cây thiếu chợ ─────────────────────────────────────
 {
   const ca = [
-    [{ thuMuc: cayPhang }, 'acceptance-gate-kit'],
-    [{ thuMuc: khoMoi }, 'delivery-loop'],
-    [{ kho: KIT, ref: 'HEAD' }, 'acceptance-gate-kit'],
+    [{ thuMuc: cayPhang }, CHO_CU],
+    [{ thuMuc: khoMoi }, CHO_MOI],
+    [{ kho: KIT, ref: REF_PHANG }, CHO_CU],
   ];
   const lech = ca.map(([c, k]) => { const m = nem(() => { const ra = tenCho(c); if (ra !== k) throw new Error(`ra ${ra}`); }); return m && `${c.thuMuc || c.ref}: ${m}, chờ ${k}`; }).filter(Boolean);
   lech.length ? bad('BC-CHO', lech.join(' · ')) : ok('BC-CHO', 'acceptance-gate-kit ở cây phẳng và HEAD, delivery-loop ở kho mới');
@@ -345,12 +351,12 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
   const r1 = chay('bo-phan', 'scripts', 'lib', '.claude-plugin', '--thu-muc', khoMoi);
   const k1 = 'plugins/acceptance-gate/scripts\nplugins/acceptance-gate/lib\n.claude-plugin/marketplace.json\nplugins/acceptance-gate/.claude-plugin/plugin.json\n';
   if (r1.status !== 0 || r1.stdout !== k1) lech.push(`bo-phan --thu-muc: mã ${r1.status}, «${r1.stdout.trim()}» ${r1.stderr.trim()}`);
-  const r2 = chay('bo-phan', 'plugins/roadmap/commands/status.md', '--kho', KIT, '--ref', 'HEAD');
+  const r2 = chay('bo-phan', 'plugins/roadmap/commands/status.md', '--kho', KIT, '--ref', REF_PHANG);
   if (r2.status !== 0 || r2.stdout !== 'road-map/commands/xem.md\n.claude-plugin/marketplace.json\n') lech.push(`bo-phan --kho --ref: mã ${r2.status}, «${r2.stdout.trim()}» ${r2.stderr.trim()}`);
   const r3 = chay('ten-cho', '--thu-muc', khoMoi);
-  if (r3.status !== 0 || r3.stdout !== 'delivery-loop\n') lech.push(`ten-cho --thu-muc: mã ${r3.status}, «${r3.stdout.trim()}» ${r3.stderr.trim()}`);
-  const r4 = chay('ten-cho', '--kho', KIT, '--ref', 'HEAD');
-  if (r4.status !== 0 || r4.stdout !== 'acceptance-gate-kit\n') lech.push(`ten-cho --kho --ref: mã ${r4.status}, «${r4.stdout.trim()}» ${r4.stderr.trim()}`);
+  if (r3.status !== 0 || r3.stdout !== `${CHO_MOI}\n`) lech.push(`ten-cho --thu-muc: mã ${r3.status}, «${r3.stdout.trim()}» ${r3.stderr.trim()}`);
+  const r4 = chay('ten-cho', '--kho', KIT, '--ref', REF_PHANG);
+  if (r4.status !== 0 || r4.stdout !== `${CHO_CU}\n`) lech.push(`ten-cho --kho --ref: mã ${r4.status}, «${r4.stdout.trim()}» ${r4.stderr.trim()}`);
   const r5 = chay('duong', '.claude-plugin', '--thu-muc', khoMoi);
   if (r5.status !== 2 || r5.stdout !== '' || !r5.stderr.includes(CAU_TACH(khoMoi))) lech.push(`duong .claude-plugin: mã ${r5.status}, stderr «${r5.stderr.trim()}»`);
   const r6 = chay('bo-phan', '--thu-muc', khoMoi);
@@ -367,7 +373,7 @@ const CAU_TACH = c => `bo-cuc: .claude-plugin tách ở ${c} — dùng boPhan`;
     writeFileSync(path.join(wt, 'tests', 'bo-cuc.mjs'), nd);
     execFileSync('git', ['-C', wt, 'init', '-q']); execFileSync('git', ['-C', wt, 'add', '-A']);
     let so;
-    try { so = buoc6BoKiem(wt, BX, KIT, 'HEAD', dichGoi); }
+    try { so = buoc6BoKiem(wt, BX, KIT, REF_PHANG, dichGoi); }
     catch (e) { if (!(e instanceof Dung) || e.message !== 'luật bộ kiểm không khớp chỗ nào') throw e; so = []; }
     return { sau: readFileSync(path.join(wt, 'tests', 'bo-cuc.mjs'), 'utf8'), so };
   };

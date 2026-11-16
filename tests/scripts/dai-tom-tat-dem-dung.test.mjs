@@ -9,6 +9,8 @@
 // Giá trị mong đợi viết sẵn trong ca, không rút từ đầu ra. Chiều đỏ: bản lành xanh trước, rồi CHÍNH hàm đo chạy
 // trên bản sao cây (scripts lib skills commands feature-loop/skills) bị tiêm, ghim thông điệp hàm đo trả.
 // Hồ sơ thử mang `status: implemented` (cùng lối dai-tom-tat.test.mjs — tệp ca không là bộ đọc trạng thái ký).
+// Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo cây nó nói tới (cây đang đứng hay bản sao: `{ thuMuc }`, danh sách
+// thư mục chép qua `boPhan`); đường của kho thử và hồ sơ thử không phải đường kit — không dịch.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync, unlinkSync } from 'node:fs';
@@ -16,6 +18,8 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boCuc, boPhan, tep } from '../bo-cuc.mjs';
+import { chaDonNha } from '../hai-bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -30,8 +34,9 @@ const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8'
 const node = (args, o = {}) => spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...o });
 const deq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const SL = 'hs';
-const HS = kit => createRequire(import.meta.url)(path.join(kit, 'scripts', 'ho-so-tom-tat.cjs'));
-const LT = await import(pathToFileURL(path.join(KIT, 'scripts', 'lo-trinh.mjs')).href);
+const K = (rel, kit) => tep(rel, { thuMuc: kit });
+const HS = kit => createRequire(import.meta.url)(K('scripts/ho-so-tom-tat.cjs', kit));
+const LT = await import(pathToFileURL(K('scripts/lo-trinh.mjs', KIT)).href);
 
 // ── hồ sơ thử ─────────────────────────────────────────────────────────────
 const hopDong = ({ notes = '', oos = ['Không làm a.', 'Không làm b.'], context = 'Bối cảnh.' }) =>
@@ -55,7 +60,7 @@ function khoThu(o = {}) {
   writeFileSync(path.join(r, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n    - "LO-TRINH.html"\nlo_trinh:\n  tep: docs/lo-trinh.json\n');
   writeFileSync(path.join(r, 'docs', 'lo-trinh.json'), JSON.stringify({ schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'X', slug: SL, cau_giao: 'Việc X có dải tóm tắt', vi_sao: o.viSaoHang || 'Gốc: crm/_acceptance/a — lý do một câu đủ.' }] }, null, 2) + '\n');
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'kho');
-  const mo = node([path.join(KIT, 'scripts', 'lo-trinh.mjs'), '--root', r, '--hang', 'X', '--mo-o', '--slug', SL, '--owner', 'x@y.z']);
+  const mo = node([K('scripts/lo-trinh.mjs', KIT), '--root', r, '--hang', 'X', '--mo-o', '--slug', SL, '--owner', 'x@y.z']);
   if (mo.status !== 0) throw new Error(`--mo-o exit ${mo.status}: ${mo.stderr}`);
   const d = path.join(r, '_acceptance', SL);
   if (o.vanDe != null) {
@@ -76,13 +81,13 @@ const gioiHanTrang = h => [...h.matchAll(/<li data-loai="gioi-han">([\s\S]*?)<\/
 const chuaDocTrang = h => [...h.matchAll(/<li class="vang" data-loai="gioi-han-chua-doc">([\s\S]*?)<\/li>/g)].map(m => boEsc(m[1]));
 const viSaoTrang = h => { const m = h.match(/<details class="muc" id="vi-sao"><summary>[^<]*<\/summary><div class="noi">([\s\S]*?)<\/div><\/details>/); return m ? boEsc(m[1].replace(/<\/(li|p)>/g, ' ')).replace(/\s+/g, ' ').trim() : null; };
 function trang(kit, r) {
-  const x = node([path.join(kit, 'scripts', 'evidence-page.js'), '--root', r, '--slug', SL]);
+  const x = node([K('scripts/evidence-page.js', kit), '--root', r, '--slug', SL]);
   const p = path.join(r, '_acceptance', SL, 'evidence-page.html');
   if (x.status !== 0 || !existsSync(p)) throw new Error(`evidence-page exit ${x.status}: ${x.stderr.slice(0, 200)}`);
   return readFileSync(p, 'utf8');
 }
 function khoi(kit, r) {
-  const x = node([path.join(kit, 'scripts', 'product-map.mjs'), '--root', r]);
+  const x = node([K('scripts/product-map.mjs', kit), '--root', r]);
   if (x.status !== 0) throw new Error(`product-map exit ${x.status}: ${x.stderr.slice(0, 200)}`);
   const d = LT.docDuLieu(readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8')).duLieu;
   const h = d && d.lo_trinh[0].hang.find(y => y.ma === 'X');
@@ -95,9 +100,9 @@ const veGH = v => String(v || '').replace(/^.*? · /, '');
 let bsN = 0;
 function banSao(tiem) {
   const c = path.join(TMP, `bs-${++bsN}`);
-  for (const d of ['scripts', 'lib', 'skills', 'commands', path.join('feature-loop', 'skills')]) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
+  for (const d of boPhan(['scripts', 'lib', 'skills', 'commands', 'feature-loop/skills'], { thuMuc: KIT })) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
   for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
+    const p = K(tep, c); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
     writeFileSync(p, s.replace(cu, moi));
   }
@@ -162,7 +167,7 @@ async function dd2(kit) {
 
 // ── DD-3: mục Known limits của báo cáo (cơ chế 3) ─────────────────────────
 function khoiGhimLai(kit) {
-  const t = readFileSync(path.join(kit, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+  const t = readFileSync(K('feature-loop/skills/feature-loop/SKILL.md', kit), 'utf8');
   const m = t.match(/<!-- <<<REPIN-TEMPLATE -->\n```\n([\s\S]*?)```\n<!-- REPIN-TEMPLATE>>> -->/);
   if (!m) throw new Error('SKILL feature-loop không có khối REPIN-TEMPLATE');
   const dong = m[1].split('\n'); const i = dong.findIndex(l => /^### Re-pin/.test(l));
@@ -246,7 +251,19 @@ async function dd5(kit) {
 
 // ── DD-6: tệp ca của hồ sơ đã ký dai-tom-tat-doc-dung không đổi một byte ─────────────────────────
 const BAM_DT = '62dad270082c45fa285ec925406176451bf19b3eee51aa5c264c531c6bc1d161'; // bd8163dc:tests/scripts/dai-tom-tat.test.mjs
-function dd6(tep = path.join(HERE, 'dai-tom-tat.test.mjs')) {
+// Nguồn DD-6: cây phẳng → tệp đang đứng. Cây đã dọn nhà → tệp tại commit phẳng của chính mã (cha commit dọn nhà), vì kịch
+// bản chuyển nhà viết lại đường TRONG tệp ấy; lời hứa «không đổi byte» giữ tới ngày cắt sang, sau đó đóng băng — cùng giới
+// hạn chủ kho chọn ở Hỏi-2 của hồ sơ phan-du-bo-cuc-moi-vong-ba (sổ d-20261116T080534Z-11).
+let NGUON_DT;
+function nguonDT() {
+  if (NGUON_DT) return NGUON_DT;
+  if (boCuc({ thuMuc: KIT }).phang) return (NGUON_DT = path.join(HERE, 'dai-tom-tat.test.mjs'));
+  const ref = chaDonNha(KIT);
+  const d = path.join(TMP, 'dd6-nguon'); mkdirSync(d, { recursive: true }); NGUON_DT = path.join(d, 'dai-tom-tat.test.mjs');
+  writeFileSync(NGUON_DT, execFileSync('git', ['-C', KIT, 'show', `${ref}:tests/scripts/dai-tom-tat.test.mjs`], { maxBuffer: 1 << 26 }));
+  return NGUON_DT;
+}
+function dd6(tep = nguonDT()) {
   const b = createHash('sha256').update(readFileSync(tep)).digest('hex');
   return b === BAM_DT ? [] : [`dai-tom-tat.test.mjs đổi so với bản đã ký (sha256 ${b.slice(0, 12)} ≠ ${BAM_DT.slice(0, 12)})`];
 }
@@ -314,7 +331,7 @@ if (want('DD-6')) await chayCa('DD-6', () => dd6(), 'tests/scripts/dai-tom-tat.t
 if (want('DD-6-do')) {
   try {
     const lanh = dd6(); if (lanh.length) bad('DD-6-do', `bản lành chưa xanh — không tin được chiều đỏ: ${lanh[0]}`);
-    else { const p = path.join(TMP, 'dai-tom-tat.test.mjs'); writeFileSync(p, Buffer.concat([readFileSync(path.join(HERE, 'dai-tom-tat.test.mjs')), Buffer.from('\n')])); const s = dd6(p); const g = s.find(m => m.includes('dai-tom-tat.test.mjs')); if (g) ok('DD-6-do', `bản sao thêm một byte: hàm đo trả «${g}»`); else bad('DD-6-do', `không bắt: ${JSON.stringify(s)}`); }
+    else { const p = path.join(TMP, 'dai-tom-tat.test.mjs'); writeFileSync(p, Buffer.concat([readFileSync(nguonDT()), Buffer.from('\n')])); const s = dd6(p); const g = s.find(m => m.includes('dai-tom-tat.test.mjs')); if (g) ok('DD-6-do', `bản sao thêm một byte: hàm đo trả «${g}»`); else bad('DD-6-do', `không bắt: ${JSON.stringify(s)}`); }
   } catch (e) { bad('DD-6-do', loi(e)); }
 }
 if (want('DD-8')) await chayCa('DD-8', dd8, 'trang in trọn «Vì sao làm» (năm câu · câu dài · câu dẫn + sáu mục · câu dẫn + bảng · 399 ký tự · Context · «Vì sao: Gốc: …» · danh sách dính liền đoạn); dải và khối ≤ 400');

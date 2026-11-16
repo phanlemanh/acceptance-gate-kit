@@ -13,9 +13,14 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Đường qua bộ dịch (hồ sơ phan-du-bo-cuc-moi-vong-ba, K4-LT): mỗi đường kit viết theo bố cục phẳng rồi giải ở ĐÚNG cây nó nói
+// tới — cây đang đứng, bản sao kit tạm (danh sách chép qua `boPhan`), bản bung một commit lịch sử (`boPhan` + `pathspec` của
+// commit ấy). Đường của kho thử (kho tiêu thụ giả) và chữ lệnh trong khối SKILL không phải đường kit — không dịch.
+const tepO = (rel, kit) => tep(rel, { thuMuc: kit });
 const GOC = readFileSync(path.join(KIT, '_acceptance', 'lo-trinh-gio-may', 'goc-so'), 'utf8').trim();
 const TMP = realpathSync(mkdtempSync(path.join(tmpdir(), 'gm-')));
 let pass = 0; let fail = 0;
@@ -67,11 +72,11 @@ const H = (ma, o = {}) => ({ ma, cau_giao: `câu giao ${ma}`, ...o });
 let bsN = 0;
 function banSao(tiem = []) {
   const c = path.join(TMP, `bs-${++bsN}`);
-  for (const d of ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', '.claude-plugin']) if (existsSync(path.join(KIT, d))) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
-  for (const f of ['GUIDE.md']) if (existsSync(path.join(KIT, f))) cpSync(path.join(KIT, f), path.join(c, f));
-  for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
-    if (n !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
+  // Danh sách chép qua `boPhan` của cây đang đứng: ở bố cục mới `.claude-plugin` tách đúng và bản sao mang tệp khai chợ.
+  for (const m of boPhan(['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', '.claude-plugin', 'GUIDE.md'], { thuMuc: KIT })) if (existsSync(path.join(KIT, m))) cpSync(path.join(KIT, m), path.join(c, m), { recursive: true });
+  for (const [rel, cu, moi] of tiem) {
+    const p = tepO(rel, c); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
+    if (n !== 1) throw new Error(`nhát tiêm vào ${rel} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
     writeFileSync(p, s.replace(cu, moi));
   }
   return c;
@@ -81,13 +86,16 @@ const gocDir = new Map();
 function banGocTai(sha, ten) {
   if (gocDir.has(sha)) return gocDir.get(sha);
   const d = path.join(TMP, ten); mkdirSync(d, { recursive: true });
-  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', sha, 'scripts', 'lib', 'skills', 'commands', 'road-map'], { maxBuffer: 1 << 28 });
+  // Danh sách giải ở cây CỦA COMMIT ẤY; `pathspec` ném nếu một đường rỗng ở commit (chốt chống rỗng).
+  const cay = { kho: KIT, ref: sha };
+  const ds = boPhan(['scripts', 'lib', 'skills', 'commands', 'road-map'], cay).map(p => pathspec(p, cay));
+  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', sha, ...ds], { maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
-  if (!existsSync(path.join(d, 'scripts', 'lo-trinh.mjs'))) throw new Error(`bộ máy gốc ${sha} không bung được scripts/lo-trinh.mjs`);
+  if (!existsSync(tepO('scripts/lo-trinh.mjs', d))) throw new Error(`bộ máy gốc ${sha} không bung được scripts/lo-trinh.mjs`);
   gocDir.set(sha, d); return d;
 }
 const banGoc = () => banGocTai(GOC, 'goc-so');
-const LT = kit => path.join(kit, 'scripts', 'lo-trinh.mjs');
+const LT = kit => tepO('scripts/lo-trinh.mjs', kit);
 const chay = (kit, r, today, args, env = {}) => node([LT(kit), '--root', r, ...args], { env: { ...process.env, ACCEPTANCE_TODAY: today, ...env } });
 const chayCa = async (id, f, kit = KIT) => { try { const s = await f(kit); if (s.length) bad(id, s.join(' ; ')); else return true; } catch (e) { bad(id, loi(e)); } return false; };
 const chayDo = async (id, f, tiem, ghim, moTa) => {
@@ -103,17 +111,19 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
 // hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
 const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
 const KIT_TAT = () => tatRD1(KIT);
+// Bản tắt là bản sao của KIT theo bố cục của KIT, nên đường nhát tiêm (viết phẳng) giải ở cây KIT.
+const tiemKit = tiem => tiem.map(([rel, cu, moi]) => [duong(rel, { thuMuc: KIT }), cu, moi]);
 const chayDoTat = async (id, f, tiem, ghim, moTa) => {
   try {
     const lanh = await f(KIT_TAT()); if (lanh.length) { bad(id, `bản lành (tắt RD1) chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
-    const s = await f(tatRD1(KIT, tiem)); const g = s.find(m => m.includes(ghim));
+    const s = await f(tatRD1(KIT, tiemKit(tiem))); const g = s.find(m => m.includes(ghim));
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 260)}`);
   } catch (e) { bad(id, loi(e)); }
 };
 let napN = 0;
 const nap = async kit => ({
-  LT: await import(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href + `?v=${++napN}`),
-  PM: await import(pathToFileURL(path.join(kit, 'scripts', 'product-map.mjs')).href + `?v=${napN}`),
+  LT: await import(pathToFileURL(tepO('scripts/lo-trinh.mjs', kit)).href + `?v=${++napN}`),
+  PM: await import(pathToFileURL(tepO('scripts/product-map.mjs', kit)).href + `?v=${napN}`),
 });
 const ve = async (kit, r, today = D) => {
   const cu = process.env.ACCEPTANCE_TODAY; process.env.ACCEPTANCE_TODAY = today;
@@ -170,7 +180,7 @@ if (want('GM-1-doc-cu') && await chayCa('GM-1-doc-cu', async kit => {
 
 if (want('GM-1-nang-kit') && await chayCa('GM-1-nang-kit', async kit => {
   const sai = []; const r = kho({ data: docCuData, hoSo: docCuHoSo });
-  const pm = k => path.join(k, 'scripts', 'product-map.mjs');
+  const pm = k => tepO('scripts/product-map.mjs', k);
   const g = node([pm(banGoc()), '--root', r]); if (g.status !== 0 || !existsSync(path.join(r, 'LO-TRINH.html'))) return [`đối chứng gốc không chạy: vẽ trang bằng bộ máy gốc thoát ${g.status}`];
   execFileSync('git', ['-C', r, 'add', '-A']); execFileSync('git', ['-C', r, 'commit', '-qm', 'trang cũ']);
   const c1 = node([pm(kit), '--root', r, '--check']);
@@ -349,7 +359,7 @@ function khoVong(slug, base) {
   writeFileSync(path.join(d, 'run-log.jsonl'), '{"kind":"khac"}\n');
   return r;
 }
-const DV = kit => path.join(kit, 'scripts', 'do-vong.mjs');
+const DV = kit => tepO('scripts/do-vong.mjs', kit);
 const doVong = (kit, r, slug, P, den, { ghi = false, hanMuc = path.join(TMP, 'khong-co-han-muc.jsonl') } = {}) =>
   node([DV(kit), '--root', r, '--slug', slug, ...(den ? ['--den', new Date(den).toISOString()] : []), ...(ghi ? ['--write'] : [])], { env: { ...process.env, CLAUDE_PROJECTS_DIR: P, HAN_MUC_TEP: hanMuc } });
 const TOKEN6 = { 'claude-opus-5-5': { vao: 10, ra: 300, doc_dem: 1000, ghi_dem: 50 }, 'claude-sonnet-5-5': { vao: 5, ra: 30, doc_dem: 0, ghi_dem: 0 } };
@@ -501,7 +511,7 @@ if (want('GM-8-do2')) await chayDo('GM-8-do2', gm8ThieuDo, [['scripts/lo-trinh.m
 
 // ═══ GM-9 (AC-9): khối S4-DO-VONG của SKILL + tài liệu ═════════════════════════════════════════════════════════════
 const gm9 = async kit => {
-  const sai = []; const skill = readFileSync(path.join(kit, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+  const sai = []; const skill = readFileSync(tepO('feature-loop/skills/feature-loop/SKILL.md', kit), 'utf8');
   const khoi = [...skill.matchAll(/<!-- <<<S4-DO-VONG -->([\s\S]*?)<!-- S4-DO-VONG>>> -->/g)];
   if (khoi.length !== 1) return [`SKILL có ${khoi.length} khối S4-DO-VONG, cần 1`];
   const lenh = khoi[0][1].split('\n').map(s => s.trim()).filter(s => s.includes('do-vong.mjs'));
@@ -512,15 +522,16 @@ const gm9 = async kit => {
   if (!ghi) return [...sai, 'khối không có dòng do-vong'];
   // Chạy chính dòng rút từ khối (thay $AG và <slug>) trên kho thử có bản ghi lệch về quá khứ gần (để «bây giờ» nằm sau cửa sổ).
   const base = Date.now() - 3 * 3600e3; const r = khoVong('vong', base); const { projects } = banGhi('vong', base);
-  // Chạy CHÍNH dòng rút từ khối: chỉ thay <slug> và thêm `--root <cây đang kiểm>` sau `--plugin acceptance-gate` (dạng kho tự host
-  // mà khối tự khai) — $AG do dòng tự giải, ca không cấp hộ (bản trước thay $AG nên che mất lỗi dòng không tự giải).
-  const cmd = ghi.replace(/<slug>/g, 'vong').replace('--plugin acceptance-gate', `--plugin acceptance-gate --root "${kit}"`);
+  // Chạy CHÍNH dòng rút từ khối: chỉ thay <slug> và thêm `--root <gốc gói lõi của cây đang kiểm>` sau `--plugin acceptance-gate`
+  // (dạng kho tự host mà khối tự khai; gốc gói lõi qua bộ dịch — ở bố cục phẳng là chính gốc kho) — $AG do dòng tự giải, ca không
+  // cấp hộ (bản trước thay $AG nên che mất lỗi dòng không tự giải).
+  const cmd = ghi.replace(/<slug>/g, 'vong').replace('--plugin acceptance-gate', `--plugin acceptance-gate --root "${gocGoi({ thuMuc: kit }, 'loi')}"`);
   const { AG: _bo, ...envSach } = process.env;
-  spawnSync('bash', ['-c', cmd], { cwd: r, encoding: 'utf8', env: { ...envSach, WORKFLOWS_DIR: path.join(kit, 'feature-loop', 'workflows'), CLAUDE_PROJECTS_DIR: projects, HAN_MUC_TEP: path.join(TMP, 'khong.jsonl') } });
+  spawnSync('bash', ['-c', cmd], { cwd: r, encoding: 'utf8', env: { ...envSach, WORKFLOWS_DIR: tepO('feature-loop/workflows', kit), CLAUDE_PROJECTS_DIR: projects, HAN_MUC_TEP: path.join(TMP, 'khong.jsonl') } });
   const dong = readFileSync(path.join(r, '_acceptance', 'vong', 'run-log.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(o => o.kind === 'gio-may');
   if (dong.length !== 1) sai.push('khối S4-DO-VONG không ghi dòng gio-may');
   else if (dong[0].gio_may !== 0.55 || !deq(dong[0].token, TOKEN6)) sai.push(`dòng gio-may từ khối: ${JSON.stringify(dong[0]).slice(0, 200)}`);
-  const xem = readFileSync(path.join(kit, 'road-map', 'commands', 'xem.md'), 'utf8');
+  const xem = readFileSync(tepO('road-map/commands/xem.md', kit), 'utf8');
   if (!xem.includes('Giờ máy theo mốc') || !xem.includes('quá tải')) sai.push('xem.md không nêu khối giờ máy và cờ quá tải');
   const guide = readFileSync(path.join(kit, 'GUIDE.md'), 'utf8');
   if (!guide.includes('`gio_may`') || !guide.includes('hàng thiếu khoá: máy tự ước')) sai.push('GUIDE không nêu khoá gio_may và đường đọc-cũ');

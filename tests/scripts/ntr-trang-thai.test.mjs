@@ -9,12 +9,16 @@
 // Dữ liệu = bản sao cây thật ĐÃ LOẠI hồ sơ khép theo vị từ hoSoDaKhep (không theo danh sách tên):
 // bản trước vòng không biết trạng thái thứ bảy, nên hồ sơ thực tế thật đầu tiên (release-2-0-0,
 // 22/09) là khác biệt ĐÚNG THIẾT KẾ, không phải hồi quy (hồ sơ ho-so-khep-thoi-hoi AC-7).
+// Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng cây nó nói tới: cây đang đứng / bản bung (`{ thuMuc }`), hai
+// commit lịch sử (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH commit ấy, chốt chống rỗng). Kho thử và
+// `_acceptance/` (hồ sơ, không phải gói) không dịch.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
+import { boPhan, duong, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -26,7 +30,9 @@ const bad = (name, msg) => { fail += 1; console.log(`FAIL: ${name} — ${msg}`);
 const loi = e => String((e && (e.stderr || e.message)) || e).split('\n').slice(0, 3).join(' | ');
 const want = name => !process.env.NTR_CASES || process.env.NTR_CASES.split(',').includes(name);
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-const WR = require(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = require(tep('lib/workspace-record.cjs', { thuMuc: KIT }));
+// Bung một commit lịch sử: danh sách thư mục dịch theo cây CỦA commit ấy, mỗi pathspec phải có thật ở đó.
+const bung = (ref, dich) => { const cay = { kho: KIT, ref }; execFileSync('tar', ['-x', '-C', dich], { input: execFileSync('git', ['-C', KIT, 'archive', ref, ...boPhan(['scripts', 'lib', 'skills'], cay).map(x => pathspec(x, cay))], { maxBuffer: 512 * 1024 * 1024 }) }); };
 const SLUG = 'hs-thuc-te';
 
 const hopDong = st => `---\nschema_version: 1\nslug: ${SLUG}\nfeature: vat da o prod\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${st}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
@@ -44,7 +50,7 @@ function kho(st) {
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'ho so');
   return r;
 }
-const quet = (r, kit = KIT) => JSON.parse(spawnSync(process.execPath, [path.join(kit, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout);
+const quet = (r, kit = KIT) => JSON.parse(spawnSync(process.execPath, [tep('scripts/start-scan.mjs', { thuMuc: kit }), '--root', r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout);
 const tim = (j, slug) => { const g = j.groups || {}; for (const [ten, arr] of Object.entries(g)) for (const x of arr || []) if (x.slug === slug) return { nhom: ten, x }; for (const x of j.broken || []) if (x.slug === slug) return { nhom: 'broken', x }; return null; };
 const oBanDo = (md, slug) => { let h = null; for (const l of md.split('\n')) { const m = l.match(/^## (.+)$/); if (m) h = m[1]; else if (h && l.includes(slug)) return h; } return null; };
 
@@ -58,7 +64,7 @@ if (want('NS-AC9-moi')) {
     const r = kho('da-cham-boi-thuc-te');
     const h = tim(quet(r), SLUG);
     if (!h || h.nhom !== 'done' || h.x.stateKey !== 'da-cham-thuc-te' || h.x.label !== 'đã chấm bởi thực tế') sai.push(`bo quet: ${JSON.stringify(h)}`);
-    const { renderProductMap } = await import(pathToFileURL(path.join(KIT, 'scripts', 'product-map.mjs')).href);
+    const { renderProductMap } = await import(pathToFileURL(tep('scripts/product-map.mjs', { thuMuc: KIT })).href);
     const o = oBanDo(renderProductMap(r), SLUG);
     if (o === 'Đang làm' || !o) sai.push(`ban do xep o «${o}»`);
     // Đối chứng dương: cùng kho, status approved → bộ quét KHÔNG xếp vào done.
@@ -71,10 +77,12 @@ if (want('NS-AC9-moi')) {
 
 if (want('NS-AC9-cu')) {
   try {
-    const shas = git(KIT, 'log', '--format=%H', '--reverse', '-S', 'da-cham-boi-thuc-te', '--', 'lib/workspace-record.cjs').split('\n').filter(Boolean);
+    const WRP = 'lib/workspace-record.cjs';
+    // Lịch sử đi qua cả hai bố cục: lọc theo đường phẳng lẫn đường của cây đang đứng (git log lọc đường ở TỪNG commit).
+    const shas = git(KIT, 'log', '--format=%H', '--reverse', '-S', 'da-cham-boi-thuc-te', '--', ...new Set([WRP, duong(WRP, { thuMuc: KIT })])).split('\n').filter(Boolean);
     if (!shas.length) throw new Error('khong tim thay commit dua da-cham-boi-thuc-te vao lib/workspace-record.cjs');
     const cu = mkdtempSync(path.join(TMP, 'cu-'));
-    execFileSync('tar', ['-x', '-C', cu], { input: execFileSync('git', ['-C', KIT, 'archive', `${shas[0]}^`, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+    bung(`${shas[0]}^`, cu);
     // Bản SAU vòng: verified_commit của báo cáo ở lần đầu tiên chữ ký người được ghi.
     const RPT = '_acceptance/nhan-trang-thai-va-reality/evidence-report.md';
     const kyC = git(KIT, 'log', '--reverse', '--format=%H', '-G', '^human_signoff:[[:space:]]*[^[:space:]]', '--', RPT).split('\n')[0];
@@ -82,7 +90,7 @@ if (want('NS-AC9-cu')) {
     const sauSha = (/^verified_commit:[ \t]*([0-9a-f]{40})/m.exec(git(KIT, 'show', `${kyC}:${RPT}`)) || [])[1];
     if (!sauSha) throw new Error(`bao cao o ${kyC.slice(0, 8)} khong mang verified_commit`);
     const sau = mkdtempSync(path.join(TMP, 'sau-'));
-    execFileSync('tar', ['-x', '-C', sau], { input: execFileSync('git', ['-C', KIT, 'archive', sauSha, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+    bung(sauSha, sau);
     // Dữ liệu: bản sao cây thật của kit, LOẠI hồ sơ khép theo vị từ — một chỗ cho cả hai bản code.
     const du = mkdtempSync(path.join(TMP, 'du-'));
     cpSync(path.join(KIT, '_acceptance'), path.join(du, '_acceptance'), { recursive: true });
@@ -91,8 +99,8 @@ if (want('NS-AC9-cu')) {
     for (const k of khep) rmSync(path.join(du, '_acceptance', k), { recursive: true, force: true });
     const bo = j => JSON.stringify(j, (k, v) => (k === 'since' || k === 'ageDays' ? undefined : v));
     const a = bo(quet(du, sau)); const b = bo(quet(du, cu));
-    const { renderProductMap: rMoi } = await import(pathToFileURL(path.join(sau, 'scripts', 'product-map.mjs')).href);
-    const { renderProductMap: rCu } = await import(pathToFileURL(path.join(cu, 'scripts', 'product-map.mjs')).href);
+    const { renderProductMap: rMoi } = await import(pathToFileURL(tep('scripts/product-map.mjs', { thuMuc: sau })).href);
+    const { renderProductMap: rCu } = await import(pathToFileURL(tep('scripts/product-map.mjs', { thuMuc: cu })).href);
     const soHoSo = (JSON.parse(a).groups ? Object.values(JSON.parse(a).groups).flat().length : 0);
     if (soHoSo < 50) bad('NS-AC9-cu', `doi chung: cay that chi co ${soHoSo} ho so — ban sao hong?`);
     else if (a !== b) bad('NS-AC9-cu', 'bo quet ban sau vong khac ban truoc vong tren cay that');

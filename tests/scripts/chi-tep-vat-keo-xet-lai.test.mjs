@@ -8,13 +8,16 @@
 //   TV4  paths của eval phủ tệp chữ (hay không đọc được) — tệp chữ thành vật; đối chứng paths không phủ
 //   TV5  gap-probe và soi lại vẫn xét hồ sơ chỉ sửa tệp chữ
 //   TV6  bộ phân tệp không phân được (hàm vắng · đầu ra hỏng) — lùi về tệp vật, xét lại như trước vòng
-// Kho thử do CODE SINH trong lượt; đường dẫn suy từ vị trí tệp.
+// Kho thử do CODE SINH trong lượt; đường dẫn suy từ vị trí tệp. Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng
+// cây nó nói tới: cây đang đứng / bản sao (`{ thuMuc }`, danh sách thư mục chép qua `boPhan`), bản gốc GOC_SHA
+// (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH commit ấy, chốt chống rỗng). Kho thử không dịch.
 // Chọn ca: đối số dòng lệnh (`node chi-tep-vat-keo-xet-lai.test.mjs TV1 TV4`) hoặc TV_CASES=a,b.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { boPhan, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -91,7 +94,7 @@ function pr(k, slug, tep) {
   return k;
 }
 function luoi(k, may = KIT) {
-  const o = spawnSync('bash', [path.join(may, 'scripts', 'pre-merge-check.sh'), k.G, '--base', 'basepoint'],
+  const o = spawnSync('bash', [tep('scripts/pre-merge-check.sh', { thuMuc: may }), k.G, '--base', 'basepoint'],
     { cwd: TMP, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, PRE_MERGE_BASE: '' } });
   return { status: o.status, out: (o.stdout || '') + (o.stderr || '') };
 }
@@ -111,9 +114,9 @@ const THU_MUC_MAY = ['scripts', 'lib', 'skills', 'commands'];
 // Bản sao máy (trọn thư mục): tiem = [[rel, neo, thay]]; mỗi neo khớp đúng một lần, bản tiêm khác bản gốc.
 function banSaoMay(tiem = []) {
   const cp = mkdtempSync(path.join(TMP, 'may-'));
-  for (const d of THU_MUC_MAY) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  for (const d of boPhan(THU_MUC_MAY, { thuMuc: KIT })) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
   for (const [rel, neo, thay] of tiem) {
-    const p = path.join(cp, rel); const src = readFileSync(p, 'utf8');
+    const p = tep(rel, { thuMuc: cp }); const src = readFileSync(p, 'utf8');
     const k = src.split(neo).length - 1;
     if (k !== 1) throw new Error(`neo mutant khop ${k} lan trong ${rel}: «${neo.slice(0, 80)}»`);
     const moi = src.replace(neo, thay);
@@ -127,8 +130,9 @@ function banGoc() {
   if (!_goc) {
     try { git(KIT, 'cat-file', '-e', `${GOC_SHA}^{commit}`); } catch { throw new Error(`khong co commit ban goc ${GOC_SHA} trong lich su (checkout nong?)`); }
     _goc = mkdtempSync(path.join(TMP, 'goc-'));
-    execFileSync('bash', ['-c', `git -C "$1" archive ${GOC_SHA} ${THU_MUC_MAY.join(' ')} | tar -x -C "$2"`, '_', KIT, _goc]);
-    if (!existsSync(path.join(_goc, 'scripts', 'pre-merge-check.sh'))) throw new Error('ban goc thieu scripts/pre-merge-check.sh');
+    const cay = { kho: KIT, ref: GOC_SHA };
+    execFileSync('bash', ['-c', `git -C "$1" archive ${GOC_SHA} "\${@:3}" | tar -x -C "$2"`, '_', KIT, _goc, ...boPhan(THU_MUC_MAY, cay).map(x => pathspec(x, cay))]);
+    if (!existsSync(tep('scripts/pre-merge-check.sh', { thuMuc: _goc }))) throw new Error('ban goc thieu scripts/pre-merge-check.sh');
   }
   return _goc;
 }
@@ -191,7 +195,7 @@ await ca('TV1-do go-ve-chu', () => {
   const k = pr(kho(), 'old', ['opportunity.md']);
   const lanh = luoi(k, banSaoMay());
   if (!imDung(lanh, 'old', ['opportunity.md'])) return { loi: `ban sao chua tiem khong xanh — ${tomTat(lanh, 'old')}` };
-  const src = readFileSync(path.join(KIT, 'scripts', 'pre-merge-check.sh'), 'utf8');
+  const src = readFileSync(tep('scripts/pre-merge-check.sh', { thuMuc: KIT }), 'utf8');
   const m = src.match(/^ *elif .*# STALE-TEP-CHU-GUARD$/m);
   if (!m) return { loi: 'khong thay dong elif # STALE-TEP-CHU-GUARD' };
   const r = luoi(k, banSaoMay([['scripts/pre-merge-check.sh', m[0], '  elif false; then # STALE-TEP-CHU-GUARD']]));
@@ -233,7 +237,7 @@ await ca('TV6 lui-ve-vat', () => {
   const k = pr(kho(), 'old', ['opportunity.md']);
   const lanh = luoi(k, banSaoMay());
   if (!imDung(lanh, 'old', ['opportunity.md'])) return { loi: `ban sao chua tiem khong xanh — ${tomTat(lanh, 'old')}` };
-  const lib = readFileSync(path.join(KIT, 'lib', 'evidence-core.cjs'), 'utf8');
+  const lib = readFileSync(tep('lib/evidence-core.cjs', { thuMuc: KIT }), 'utf8');
   const dinh = lib.match(/^function phanTepHoSo\(.*$/m);
   if (!dinh) return { loi: 'khong thay dinh nghia phanTepHoSo trong lib' };
   const sai = [];

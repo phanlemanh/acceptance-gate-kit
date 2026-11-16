@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
-import { boPhan, duong, gocGoi, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
+import { boCuc, boPhan, duong, gocGoi, tenCho, tenGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -55,6 +55,15 @@ const lenhInit = kit => {
 };
 // Tên gói lộ trình theo vai từ bảng tên của cây, tên chợ từ tệp khai chợ của cây (bộ dịch).
 const khoaBat = kit => `${tenGoi({ thuMuc: kit }, 'lo-trinh')}@${tenCho({ thuMuc: kit })}`;
+// Khoá `<gói>@<chợ>` mà khối của một cây viết → khoá ở cây đang đo (KIT): gói theo vai, chợ theo tệp khai chợ của từng cây.
+// Ở KIT là phép đồng nhất; khối của bộ máy gốc (phẳng) so được với KIT ở mọi bố cục.
+const khoaTheoKit = (txt, kit) => {
+  const cho = tenCho({ thuMuc: kit }); const ten = boCuc({ thuMuc: kit }).ten;
+  const vaiCua = Object.fromEntries(Object.entries(ten).map(([v, t]) => [t, v]));
+  const choRe = cho.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return txt.replace(new RegExp(`(?<![\\w-])([a-z][\\w-]*)@${choRe}(?![\\w-])`, 'g'),
+    (m, g) => (vaiCua[g] ? `${tenGoi({ thuMuc: KIT }, vaiCua[g])}@${tenCho({ thuMuc: KIT })}` : m));
+};
 const khuonCfg = () => {
   const m = readFileSync(raTep(KIT, 'commands/acceptance-init.md'), 'utf8').match(/```yaml\n([\s\S]*?)```/);
   if (!m) throw new Error('không rút được khối cấu hình ```yaml của acceptance-init.md');
@@ -407,7 +416,8 @@ if (want('KM-7')) {
   if (want('KM-7-co-viec')) chayCa('KM-7-co-viec', () => {
     const data = { schema: 1, ten: 'L', moc: [], hang: [{ ma: '1', cau_giao: 'Việc một', dung_tren: ['9'] }] };
     const g = kho({ cfg: CFG.a + 'lo_trinh:\n  tep: docs/l.json\n', tep: { 'docs/l.json': JSON.stringify(data, null, 2) + '\n' } });
-    const chuan = (ds, kit) => ds.map(x => [realpathSync(kit), kit].reduce((y, k) => y.split(k).join('<kit>'), x));
+    // Gốc gói lõi trước (lệnh in ra trỏ `<gói lõi>/scripts/…`), rồi gốc kho; ở bố cục phẳng hai gốc trùng nhau.
+    const chuan = (ds, kit) => ds.map(x => [realpathSync(goiLoi(kit)), goiLoi(kit), realpathSync(kit), kit].reduce((y, k) => y.split(k).join('<kit>'), x));
     const a = chuan(quetDong(KIT, g), KIT); const b = chuan(quetDong(banGoc(), g), banGoc());
     if (!a.length || !b.length) return [`đối chứng gốc không chạy: ${a.length}/${b.length}`];
     return deq(a, b) ? [] : [`khác bộ máy gốc: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`];
@@ -497,7 +507,7 @@ if (want('KM-8')) {
     // mỗi dòng đúng một lần.
     const DONG_THAY = ['hinh-dang.mjs', 'cau-hinh.mjs', 'dot.mjs'].map(f => [f, new RegExp(String.raw`\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/hop-thu\/${f.replace(/\./g, '\\.')}\` [^\n]*`, 'g'),
       new RegExp(String.raw`\n[^\n]*\$\{CLAUDE_PLUGIN_ROOT\}\/dieu-phoi\/scripts\/${f.replace(/\./g, '\\.')}\` [^\n]*`, 'g')]);
-    return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { let x = khoi(a, k); const y = khoi(b, k); if (!x || !y) return [`đối chứng: khối ${k} rút không được`];
+    return ['INIT-CI-COPY-LIST', 'INIT-PLUGIN-DECLARE', 'CONSUMER-ALLOW-ADVICE'].flatMap(k => { let x = khoi(a, k); const y = khoi(b, k) == null ? null : khoaTheoKit(khoi(b, k), banGoc()); if (!x || !y) return [`đối chứng: khối ${k} rút không được`];
       let yy = y;
       if (k === 'INIT-CI-COPY-LIST') for (const [ten, re] of DONG_SAU) { const n = (x.match(re) || []).length; if (n !== 1) return [`đối chứng: dòng ${ten} có ${n} lần trong ${k}`]; x = x.replace(re, ''); }
       if (k === 'INIT-CI-COPY-LIST') for (const [ten, reMoi, reCu] of DONG_THAY) {

@@ -10,15 +10,19 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { boPhan, tep as tepCay } from '../bo-cuc.mjs';
 
 const require = createRequire(import.meta.url);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Đường kit qua bộ dịch (hồ sơ phan-du-bo-cuc-moi): tệp gói ở một cây gốc kho (KIT, bộ máy trước vòng bung, bản tiêm).
+// Kho thử của ca là kho tiêu thụ — không dịch.
+const raTep = (may, rel) => tepCay(rel, { thuMuc: may });
 // Gốc vòng: commit của nhánh chính lúc cắt vòng (#406 gộp TT1). Vòng sau đổi hình dạng ô cơ hội thì dời hằng này tới gốc
 // vòng ấy — so từng byte với bộ máy trước vòng là lời hứa của AC-2, AC-3, AC-6.
 const GOC_VONG = '6a51d4c221d55b8cf6c3588f96a4e1e65598caa9';
-const KHUON_TT = readFileSync(path.join(KIT, 'skills/acceptance/references/tri-thuc-template.md'), 'utf8');
-const KHUON_OPP = readFileSync(path.join(KIT, 'skills/acceptance/references/opportunity-template.md'), 'utf8');
+const KHUON_TT = readFileSync(raTep(KIT, 'skills/acceptance/references/tri-thuc-template.md'), 'utf8');
+const KHUON_OPP = readFileSync(raTep(KIT, 'skills/acceptance/references/opportunity-template.md'), 'utf8');
 const TAM = realpathSync(mkdtempSync(path.join(tmpdir(), 'on-mo-viec-')));
 const NGAY = '2026-10-24';
 let soDo = 0;
@@ -79,11 +83,11 @@ function khoThu({ tt = CFG_NOI, goc = true } = {}) {
 }
 const ENV = { ...process.env, ACCEPTANCE_TODAY: NGAY };
 const chay = (bin, args) => { const r = spawnSync('node', [bin, ...args], { encoding: 'utf8', env: ENV }); return { thoat: r.status, out: r.stdout, err: r.stderr }; };
-const LO_BIN = (may = KIT) => path.join(may, 'scripts/lo-trinh.mjs');
+const LO_BIN = (may = KIT) => raTep(may, 'scripts/lo-trinh.mjs');
 const moO = (kho, ma, may = KIT) => chay(LO_BIN(may), ['--root', kho, '--hang', ma, '--mo-o', '--owner', 'x@y.z']);
 const docO = (kho, slug) => readFileSync(path.join(kho, '_acceptance', slug, 'opportunity.md'));
-const conTro = (kho, ref) => chay(path.join(KIT, 'scripts/tri-thuc.mjs'), ['--root', kho, '--con-tro', ref]);
-const TN = require(path.join(KIT, 'scripts/tri-thuc-nguon.cjs'));
+const conTro = (kho, ref) => chay(raTep(KIT, 'scripts/tri-thuc.mjs'), ['--root', kho, '--con-tro', ref]);
+const TN = require(raTep(KIT, 'scripts/tri-thuc-nguon.cjs'));
 const dongNguonCua = txt => String(txt).split('\n').filter(l => l === TIEN_TO || l.startsWith(`${TIEN_TO} `));
 
 // Bộ máy trước vòng (archive GOC_VONG) và bản tiêm của cây; mỗi nhát tiêm khớp đúng một lần.
@@ -91,15 +95,15 @@ let MAY_CU = null;
 function mayCu() {
   if (MAY_CU) return MAY_CU;
   const d = thuMuc('may-cu');
-  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_VONG, 'scripts', 'lib', 'skills'], { maxBuffer: 1 << 28 });
+  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_VONG, ...boPhan(['scripts', 'lib', 'skills'], { kho: KIT, ref: GOC_VONG })], { maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
   return (MAY_CU = d);
 }
 function banTiem(sua) {
   const d = thuMuc('may-tiem');
-  for (const x of ['scripts', 'lib', 'skills']) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true });
+  for (const x of boPhan(['scripts', 'lib', 'skills'], { thuMuc: KIT })) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true });
   for (const [tep, [tim, thay]] of Object.entries(sua)) {
-    const p = path.join(d, tep); const t = readFileSync(p, 'utf8'); const n = t.split(tim).length - 1;
+    const p = raTep(d, tep); const t = readFileSync(p, 'utf8'); const n = t.split(tim).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm khớp ${n} lần ở ${tep}: ${tim}`);
     writeFileSync(p, t.replace(tim, thay));
     if (readFileSync(p, 'utf8') === t) throw new Error(`nhát tiêm không áp ở ${tep}`);
@@ -172,7 +176,7 @@ await ca('ON-3-mutant', () => {
 });
 
 const TEP_TT = ['scripts/tri-thuc.mjs', 'scripts/tri-thuc-khoa.cjs', 'scripts/tri-thuc-nguon.cjs'];
-const xoaTepTt = d => { for (const f of TEP_TT) rmSync(path.join(d, f)); return d; };
+const xoaTepTt = d => { for (const f of TEP_TT) rmSync(raTep(d, f)); return d; };
 const soDocHang = (kho, may) => { const a = chay(LO_BIN(may), ['--root', kho, '--hang', 'X']); const b = chay(LO_BIN(mayCu()), ['--root', kho, '--hang', 'X']); return a.thoat === b.thoat && a.out === b.out && a.thoat === 0; };
 await ca('ON-3-thieu-tep', () => {
   const sai = []; const M = xoaTepTt(banTiem({}));
@@ -225,7 +229,7 @@ const PV = nguon => `# Bản phạm vi thử\n\n<!-- <<<PHAM-VI-MA -->\n\`\`\`\n
 const LO_PHU = { schema: 1, ten: 'Lộ trình thử', moc: [], hang: [
   { ma: 'X', slug: 'viec-x', hang: 'T2', [K_DOT]: 'd1', [K_PHU]: ['A1', 'A2'], vai: 'nen', tieu_chi: 9, cau_giao: 'Việc X của đợt d1', bat_khi: 'X chạy được' },
 ], da_bac: [] };
-const CAT_BIN = (may = KIT) => path.join(may, 'scripts/cat-luot.mjs');
+const CAT_BIN = (may = KIT) => raTep(may, 'scripts/cat-luot.mjs');
 function khoPhu({ tt = CFG_NOI, goc = true, nguon = '' } = {}) {
   const d = khoGit(thuMuc('kho-phu'));
   ghi(path.join(d, '_acceptance/config.yaml'), CFG_GOC.replace('docs/plans/lo-trinh.json', 'docs/plans/lo-trinh-phu.json') + tt);
@@ -321,14 +325,14 @@ await ca('ON-7', () => {
   const o = docO(kho, 'viec-x').toString('utf8');
   const d = o.split('\n').find(l => l.startsWith('Nguồn-thử: '));
   if (!d) sai.push('ô không có dòng mở bằng tiền tố tiêm «Nguồn-thử:»');
-  const TNm = require(path.join(M, 'scripts/tri-thuc-nguon.cjs'));
+  const TNm = require(raTep(M, 'scripts/tri-thuc-nguon.cjs'));
   const tiem = TNm.docDongNguon(o, TNm.napKhuonNguon());
   const that = TN.docDongNguon(o, TN.napKhuonNguon());
   console.log(`  ON-7 bộ đọc khuôn tiêm: ${tiem.conTro.length} đường trỏ · bộ đọc khuôn thật: coDong ${that.coDong}`);
   if (!tiem.coDong || tiem.conTro.length !== 5) sai.push(`bộ đọc khuôn tiêm trả ${JSON.stringify(tiem)}`);
   if (that.coDong !== false) sai.push(`bộ đọc khuôn thật trả coDong ${that.coDong}`);
   // Khuôn mất khối → bên ghi ném lỗi nêu tên khối (mở ô thoát 2).
-  const tpl = readFileSync(path.join(KIT, OPP), 'utf8'); const khoiDu = tpl.match(/<!-- <<<OPP-NGUON-PREFIX -->\n[\s\S]*?<!-- OPP-NGUON-PREFIX>>> -->\n/);
+  const tpl = readFileSync(raTep(KIT, OPP), 'utf8'); const khoiDu = tpl.match(/<!-- <<<OPP-NGUON-PREFIX -->\n[\s\S]*?<!-- OPP-NGUON-PREFIX>>> -->\n/);
   if (!khoiDu) return [...sai, 'khuôn thật thiếu khối OPP-NGUON-PREFIX'];
   const M2 = banTiem({ [OPP]: [khoiDu[0], ''] });
   const kho2 = khoThu(); const r2 = moO(kho2, 'X', M2);

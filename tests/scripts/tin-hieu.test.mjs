@@ -633,7 +633,12 @@ const BASE_TH = '294b29db846a75f875f7c7637ce5a9080cda50aa';
 async function cn2(kit) {
   const sai = [];
   let goc; try { goc = execFileSync('git', ['-C', KIT, 'show', tep('scripts/tin-hieu.mjs', { kho: KIT, ref: BASE_TH })], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch { return [`kho kit không có ${BASE_TH} — fetch trước`]; }
-  const base = banSao([], kit); writeFileSync(raTep(base, 'scripts/tin-hieu.mjs'), goc);
+  const base = banSao([], kit);
+  // Bản 2.27 nạp gói điều phối theo đường phẳng `../dieu-phoi/scripts/<tệp>` (tương đối từ scripts/ của lõi): dịch đường
+  // ấy theo cây của base qua bộ dịch — phép đồng nhất ở bố cục phẳng; phần còn lại của bản cũ giữ từng byte.
+  const thuMucTH = path.dirname(raTep(base, 'scripts/tin-hieu.mjs'));
+  goc = goc.replace(/(['"])\.\.\/dieu-phoi\/scripts\/([\w.-]+)\1/g, (m, q, f) => `${q}${path.relative(thuMucTH, raTep(base, `dieu-phoi/scripts/${f}`))}${q}`);
+  writeFileSync(raTep(base, 'scripts/tin-hieu.mjs'), goc);
   console.log(`    CN-2: base = cây đang kiểm + scripts/tin-hieu.mjs @${BASE_TH.slice(0, 8)}`);
   const { r } = khoCau(kit);
   const xm = th(kit, r, '--duong'); const xb = th(base, r, '--duong');
