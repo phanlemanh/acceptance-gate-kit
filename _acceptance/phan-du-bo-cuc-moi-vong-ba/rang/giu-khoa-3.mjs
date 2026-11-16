@@ -17,7 +17,8 @@
 //   --chieu-do             kho mới, HAI lượt thay tách nhau: bộ dịch thay bằng bản đồng nhất (ca canh K4-LT · K4-TB ·
 //                          K4-RG) · haiCay thay bằng bản luôn bung cây đang chạy, bộ dịch THẬT (ca canh K4-MP) → ca canh đỏ
 //                          đúng câu ghim (đối chứng dương: xanh với bản thật); AC-1: bản sao HEAD bố cục cũ, bản gốc ghim
-//                          của bang-ten-lo-trinh đổi sang HEAD → ô «cũ · thiếu» đỏ «bằng bản gốc — mong khác đúng chữ tên gói».
+//                          của bang-ten-lo-trinh đổi sang HEAD → ô «cũ · thiếu» đỏ «bản gốc in road-map@…, ma trận viết
+//                          trước null» (cột bản gốc viết trước không còn khớp bản gốc ghim).
 //   --ghi-gui-b2           rút mục vá thừa (ảnh chụp va-bo-kiem-b2.json) và ghi khối máy của gui-b2.md.
 //
 // Dùng lại hàm xuất của thước vòng hai (`khoMoi`, `moCtx`, `docTuDung`, `lechLuatTuDung`, `banDongNhat`, `khoiGuiB2`,
@@ -458,9 +459,10 @@ export * from './hai-bo-cuc.that.mjs';
 import { haiCay as that } from './hai-bo-cuc.that.mjs';
 export function haiCay(kho, tmp, o = {}) { return that(kho, tmp, { ...o, epPhang: true }); }
 `;
-// AC-1: bản gốc ghim của ma trận bang-ten đổi sang HEAD trên bản sao HEAD (bố cục cũ) → ô «cũ · thiếu» bằng bản gốc → đỏ.
+// AC-1: bản gốc ghim của ma trận bang-ten đổi sang HEAD trên bản sao HEAD (bố cục cũ) → ô «cũ · thiếu» đỏ: cột bản gốc viết
+// trước (null) không còn khớp đầu ra của bản gốc bị đổi.
 export const PHA_GHIM = [
-  { id: 'AC-1', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', cu: "const MOC_MA_TRAN = '644e9b49af3d24de3fe284304d765ea388304b89';", moi: h => `const MOC_MA_TRAN = '${h}';`, ca: 'SP chan-lo-trinh · cũ · thiếu', ghim: ['bằng bản gốc — mong khác đúng chữ tên gói'] },
+  { id: 'AC-1', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', cu: "const MOC_MA_TRAN = '644e9b49af3d24de3fe284304d765ea388304b89';", moi: h => `const MOC_MA_TRAN = '${h}';`, ca: 'SP chan-lo-trinh · cũ · thiếu', ghim: ['bản gốc in road-map@', 'ma trận viết trước null'] },
 ];
 async function cheDoChieuDo(ctx, out) {
   if (!CA_CANH.length) throw new HaTang('CA_CANH rỗng — chiều đỏ chưa khai ca canh');

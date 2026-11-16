@@ -14,9 +14,9 @@ evals:
     expected: >
       exit 0; 8 dòng "PASS: SP <lệnh> · <bố cục> · <tệp khai>", "PASS: SP mã nguồn hết chữ …", "PASS: SP-NL-DU …",
       "PASS: SP-NL …", "PASS: SP-GOC-GHIM bản gốc 644e9b49 ô thiếu → null; ô có → road-map@acceptance-gate-kit"; dòng cuối
-      "bang-ten-lo-trinh: <n> PASS, 0 FAIL". Chân «sau gộp, túi bằng nhau» đo ở E2 (SAU-GOP-TUI). Chiều đỏ trên cùng fixture: bản gốc ghim thay bằng HEAD (biến môi trường
-      BANG_TEN_GOC=HEAD của chính tệp, chỉ dùng cho ca tự phá của thước) → "FAIL: SP chan-lo-trinh · cũ · thiếu — bằng bản
-      gốc — mong khác đúng chữ tên gói".
+      "bang-ten-lo-trinh: <n> PASS, 0 FAIL". Chân «sau gộp, túi bằng nhau» đo ở E2 (SAU-GOP-TUI). Chiều đỏ đo ở E9 (thước --chieu-do, bản sao HEAD bố cục cũ, hằng
+      MOC_MA_TRAN của tệp thay bằng sha HEAD — không biến môi trường nào trong vật): "PASS: DO AC-1 — bản gốc ghim đổi sang
+      HEAD trên bản sao → SP chan-lo-trinh · cũ · thiếu đỏ đúng câu «bản gốc in road-map@» · «ma trận viết trước null»".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -28,9 +28,12 @@ evals:
       exit 0; tập = mọi tệp dưới tests/ gọi merge-base ở 795baf96 HOẶC ở HEAD (git grep lúc chạy); "PASS: SAU-GOP <tệp> —
       <k> ca xanh khi origin/main = HEAD" cho MỌI tệp của tập mà bộ chạy thường trực nhặt (tệp .test.mjs/.ca.mjs,
       run-tests.sh, tests/dieu-phoi/**/*.test.mjs — tệp .mjs trần như luot-kiem-nhe-ca-cham.mjs chỉ lượt chấm của hồ sơ
-      khác gọi, in một dòng "TIN: SAU-GOP bỏ <tệp> — ngoài bộ chạy thường trực"); "PASS: SAU-GOP-TUI <tệp> — túi khoá sau gộp bằng túi trên
-      nhánh" cho mỗi tệp vòng chạm trong tập; "PASS: RA-LOP <n>/<n> tệp đã xếp nhóm" (bảng rang/ra-lop-merge-base.md so
-      tập). Chiều đỏ: tệp của tập mà bảng không xếp → "FAIL: RA-LOP thiếu <tệp>"; bang-ten-lo-trinh ở 795baf96 sau gộp
+      khác gọi, in một dòng "TIN: SAU-GOP bỏ <tệp> — ngoài bộ chạy thường trực"); tệp đỏ sau gộp mà đỏ Y HỆT ở đối chứng
+      trước gộp cùng bản sao (phanSauGop, tự kiểm TK-SG) in "TIN: SAU-GOP <tệp> — đỏ Y HỆT ở đối chứng trước gộp cùng bản
+      sao (…) — môi trường bản sao, không do gộp" — đỏ thêm một ca, hay đối chứng xanh, vẫn FAIL; "PASS: SAU-GOP-TUI <tệp> — túi khoá sau gộp bằng túi trên
+      nhánh" cho mỗi tệp vòng chạm trong tập; "PASS: RA-LOP <n>/<n> tệp đã xếp nhóm, bảng không thừa dòng" (bảng
+      rang/ra-lop-merge-base.md so tập, hai chiều — TK-RLH). Chiều đỏ: tệp của tập mà bảng không xếp → "FAIL: RA-LOP thiếu
+      <tệp>"; dòng bảng ngoài tập → "FAIL: RA-LOP thừa <tệp>"; bang-ten-lo-trinh ở 795baf96 sau gộp
       phải đỏ ở ca SP, không đỏ thì "FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ trên lỗi đã biết".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -40,7 +43,9 @@ evals:
     paths: [tests/hai-bo-cuc.mjs, tests/scripts/hai-bo-cuc.test.mjs, tests/bo-cuc.mjs]
     expected: >
       exit 0; bốn ô viết trước, mỗi ô một dòng "PASS: HC <ô>" (cây phẳng · kho mới · dọn nhà hai lần · cha không phẳng);
-      ô kho mới ghim sha(cha commit dọn nhà) = HEAD của bản sao và bộ dịch đọc bản bung là phẳng; ô dọn nhà hai lần ghim cha
+      ô kho mới chạy trên bản sao kit có lịch sử thật (git clone --shared, HEAD = sha cây phẳng P, commit con = kho mới dựng
+      bằng dungKhoMoi từ trọn cây P), ghim refPhang = P = HEAD của bản sao, lịch sử có ≥ 2 lần thêm plugin.json lõi dưới
+      plugins/ (lần thêm cũ của gói Codex) và bộ dịch đọc bản bung là phẳng; ô dọn nhà hai lần ghim cha
       của lần MỚI NHẤT (mutant chọn lần đầu → "FAIL: HC dọn nhà hai lần — cha ≠ <sha>"); ô bốn ghim câu "hai-bo-cuc: cha của
       commit dọn nhà <sha> không phẳng". Ô ra sai → "FAIL: HC <ô> — <lý do>".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -73,8 +78,11 @@ evals:
     long_running: 90
     paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**, lib/**, scripts/**, feature-loop/**]
     expected: >
-      exit 0; "PASS: MOI K4-TB — 92/92 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ"; "PASS: CHONG-RONG <n>
-      pathspec commit lịch sử của K4-TB có thật ở commit". Như E4 cho chiều đỏ; pathspec rỗng → "bo-cuc: pathspec rỗng ở".
+      exit 0; "PASS: MOI K4-TB — 92/92 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ"; "PASS: CHONG-RONG <n> lệnh đọc
+      commit lịch sử ở <m>/<k> tệp K4-TB giải đường qua pathspec của bộ dịch … hoặc đường bất biến tests/ · _acceptance/"
+      (lenhLichSu, tự kiểm TK-LS: archive trần, show đường phẳng, show không đọc được → hỏng). Lệnh không qua → "FAIL:
+      CHONG-RONG <tệp>:<dòng> — …"; quét 0 lệnh → "FAIL: CHONG-RONG … phép quét mù". Như E4 cho chiều đỏ của khoá; pathspec
+      rỗng lúc chạy → "bo-cuc: pathspec rỗng ở".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
@@ -93,8 +101,9 @@ evals:
     paths: [tests/**, lib/**, scripts/**, feature-loop/**, dieu-phoi/**, road-map/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
     expected: >
       exit 0; mỗi tệp vòng chạm một dòng "PASS: CU <tệp> — <k>/<k> khoá bản gốc còn ở HEAD, mọi ca xanh"; dòng cuối
-      "giu-khoa-3 --cu: <n> tệp, 0 khoá mất, 0 ca đỏ". Chiều đỏ (ca CU-DO tự phá trên bản sao HEAD: xoá một ca) → phép so
-      phải đỏ, không đỏ thì "FAIL: CU-DO phép so không đỏ". Suite trọn đo ở feature_loop.suite_keys của lượt chấm.
+      "giu-khoa-3 --cu: <n> tệp, 0 khoá mất, 0 ca đỏ". Chiều đỏ (ca CU-DO tự phá trên bản sao HEAD của
+      recheck-goc-goi-loi.test.mjs — tệp CÓ ở 795baf96 — xoá ca RG-2b, so qua CÙNG hàm soCuTep với lượt thật, tự kiểm TK-CU)
+      → "PASS: CU-DO … đỏ «mất khoá: RG-2b …»; bản lành xanh", không đỏ thì "FAIL: CU-DO phép so không đỏ". Suite trọn đo ở feature_loop.suite_keys của lượt chấm.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -103,8 +112,10 @@ evals:
     long_running: 120
     paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
     expected: >
-      exit 0; mỗi cụm một dòng "PASS: DO <cụm> — <ca canh> đỏ đúng câu «<câu ghim>»; xanh với bộ dịch thật"; K4-MP ghim
-      "source lạ". Ca canh không đỏ → "FAIL: DO <cụm> — chiều đỏ không đỏ"; đối chứng dương không xanh → "FAIL: DO <cụm> —
+      exit 0; mỗi cụm một dòng "PASS: DO <cụm> — <ca canh> đỏ đúng câu «<câu ghim>» khi CHỈ <bộ dịch | haiCay> bị
+      thay; xanh với bản thật" — hai lượt thay tách nhau: bộ dịch đồng nhất (K4-LT · K4-TB · K4-RG) · haiCay bung cây đang
+      chạy với bộ dịch thật (K4-MP, ghim "source lạ"); và "PASS: DO AC-1 — bản gốc ghim đổi sang HEAD trên bản sao → SP
+      chan-lo-trinh · cũ · thiếu đỏ đúng câu «bản gốc in road-map@» · «ma trận viết trước null»; xanh với bản gốc ghim". Ca canh không đỏ → "FAIL: DO <cụm> — chiều đỏ không đỏ"; đối chứng dương không xanh → "FAIL: DO <cụm> —
       đối chứng dương hỏng".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
