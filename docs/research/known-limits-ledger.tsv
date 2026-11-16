@@ -1312,3 +1312,5 @@ phan-du-bo-cuc-moi#ngoai-r2-6	phan-du-bo-cuc-moi	low	fail-open	song			thước g
 phan-du-bo-cuc-moi#ngoai-r2-7	phan-du-bo-cuc-moi	medium	fail-open	trung		phan-du-bo-cuc-moi#ngoai-r1-6	cùng lỗ --cu PASS 0/0 khi túi bản gốc rỗng, nêu lại ở lượt 2 [lượt chấm 2]
 phan-du-bo-cuc-moi#ngoai-r2-8	phan-du-bo-cuc-moi	low	chuoi-thay-quan-he	trung		phan-du-bo-cuc-moi#ngoai-r1-5	cùng lỗ GUI-B2 không so với bản gốc, nêu lại ở lượt 2 [lượt chấm 2]
 phan-du-bo-cuc-moi#ngoai-r2-9	phan-du-bo-cuc-moi	low	fail-open	trung		phan-du-bo-cuc-moi#ngoai-r1-1	cùng lỗ recheck-evidence tìm gói lõi bằng tên cứng + so chuỗi con, nêu lại ở lượt 2 [lượt chấm 2]
+phan-du-bo-cuc-moi-vong-ba#ngoai-r1-1	phan-du-bo-cuc-moi-vong-ba	low	chuoi-thay-quan-he	chet	6ef6889d		RA-LOP chỉ so một chiều (tập ⊆ bảng) mà đầu đề hứa bằng nhau — vá: lechRaLop hai chiều, tự kiểm TK-RLH [lượt chấm 1]
+phan-du-bo-cuc-moi-vong-ba#ngoai-r1-2	phan-du-bo-cuc-moi-vong-ba	high	do-thuoc	chet	6ef6889d		CU-DO tự dựng phép so riêng trên tệp không có ở bản gốc ghim — vá: soCuTep dùng chung với lượt --cu, tệp recheck-goc-goi-loi có ở 795baf96, tự kiểm TK-CU [lượt chấm 1]
