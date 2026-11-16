@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { docKhoaDich, doiKhoa, rutKhoa } from '../../phan-du-bo-cuc-moi/rang/tui-khoa.mjs';
 import { BX } from '../../phan-du-bo-cuc-moi/rang/buoc6-chep.mjs';
 import { demKhop } from './giu-khoa-3.mjs';
+import { apDuongDoiTen } from './buoc3-duong-chep.mjs';
 import { docTuDung, khoMoi, moCtx } from '../../phan-du-bo-cuc-moi/rang/giu-khoa.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,7 @@ const cu = path.join(ctx.tmp, 'cu');
 execFileSync('git', ['clone', '-q', '--shared', '--no-checkout', GOC, cu]); execFileSync('git', ['-C', cu, 'checkout', '-q', '--detach', snap]);
 execFileSync('git', ['-C', cu, 'update-ref', 'refs/remotes/origin/main', ctx.originMain]);
 const moi = khoMoi(ctx, snap, 'moi', { ten: true, buoc6: true, boQua: [...new Set([...td('_acceptance/phan-du-bo-cuc-moi/gui-b2.md'), ...td('_acceptance/phan-du-bo-cuc-moi-vong-ba/gui-b2.md'), ...tep])] });
+if (apDuongDoiTen(moi)) { execFileSync('git', ['-C', moi, 'add', '-A']); execFileSync('git', ['-C', moi, '-c', 'commit.gpgsign=false', '-c', 'user.name=thu-tep', '-c', 'user.email=thu-tep@invalid', 'commit', '-q', '-m', 'kho mới: luật đường đổi tên của bước 3']); }
 const hang = docKhoaDich(path.join(HERE, '..', 'khoa-dich.tsv'));
 
 const env = { ...process.env, HOME: path.join(tmp, 'home'), TMPDIR: tmp };

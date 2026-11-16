@@ -2,7 +2,7 @@
 // giu-khoa-3.test.mjs — bộ tự kiểm phần thuần của thước vòng ba (E10). `--tinh` gọi tệp này; đỏ → mọi chế độ dừng.
 // Mỗi phép đo một cặp: vật lành → xanh (đối chứng dương), vật phá → đỏ với thông điệp ghim. Fixture sinh trong lần chạy.
 import { lechLuatTuDung } from '../../phan-du-bo-cuc-moi/rang/giu-khoa.mjs';
-import { docDoiSo, docRaLop, dongNghiThuc, NGHI_THUC, SLUG, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
+import { apVa, chanNgoaiVong, docDoiSo, docRaLop, dongNghiThuc, NGHI_THUC, SLUG, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
 
 let pass = 0; let fail = 0;
 const ca = (id, dk, msg) => { if (dk) { pass++; console.log(`  PASS: ${id}`); } else { fail++; console.log(`  FAIL: ${id} — ${msg}`); } };
@@ -51,6 +51,18 @@ ca('TK-DS-lanh --moi --cum K4-LT nhận', JSON.stringify(docDoiSo(['--moi', '--c
 ca('TK-DS-do cụm ngoài vòng bị từ chối', docDoiSo(['--moi', '--cum', 'K4-DN']) === null, 'nhận cụm ngoài vòng');
 ca('TK-DS-do --cum thiếu giá trị bị từ chối', docDoiSo(['--moi', '--cum']) === null, 'nhận cờ thiếu giá trị');
 ca('TK-DS-do --cum đi với --cu bị từ chối', docDoiSo(['--cu', '--cum', 'K4-LT']) === null, 'nhận --cum ngoài --moi');
+
+// TK-VAAP: vá chỉ áp khi khớp đúng so_lan lần.
+ca('TK-VAAP-lanh khớp đúng 2 lần → thay cả hai', apVa('a x b x', { cu: 'x', moi: 'y', so_lan: 2 }) === 'a y b y', 'không thay');
+ca('TK-VAAP-do khớp 1 lần mà khai 2 → không áp (null)', apVa('a x b', { cu: 'x', moi: 'y', so_lan: 2 }) === null, 'áp dù lệch số lần');
+
+// TK-NV: khoá cấp tệp chỉ được miễn khi MỌI ca đỏ khác trong tệp là khoá cụm ngoài vòng của chính tệp ấy.
+const doiId = k => k;
+const hangNV = [{ cum: 'B2', tepKiem: 'x.test.mjs', bo: 'scripts', khoa: 'KM-1' }, { cum: 'K4-LT', tepKiem: 'x.test.mjs', bo: 'scripts', khoa: 'x.test.mjs' }];
+const rTep = { cum: 'K4-LT', tepKiem: 'x.test.mjs', bo: 'scripts', khoa: 'x.test.mjs' };
+ca('TK-NV-lanh chỉ KM-1 (cụm B2) đỏ → miễn, gọi tên KM-1', chanNgoaiVong(rTep, { do: new Map([['KM-1', 1], ['x.test.mjs', 1]]) }, hangNV, doiId) === 'KM-1', 'không miễn');
+ca('TK-NV-do thêm một ca đỏ trong vòng → không miễn', chanNgoaiVong(rTep, { do: new Map([['KM-1', 1], ['LT-9', 1], ['x.test.mjs', 1]]) }, hangNV, doiId) === null, 'miễn dù có ca đỏ trong vòng');
+ca('TK-NV-do khoá không phải cấp tệp → không miễn', chanNgoaiVong({ ...rTep, khoa: 'LT-9' }, { do: new Map([['KM-1', 1]]) }, hangNV, doiId) === null, 'miễn khoá thường');
 
 console.log(`giu-khoa-3 tự kiểm: ${pass}/${pass + fail} ca`);
 process.exit(fail ? 1 : 0);

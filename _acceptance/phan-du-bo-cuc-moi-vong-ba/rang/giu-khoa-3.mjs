@@ -27,6 +27,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chuanHoa, docKhoaDich, doiKhoa, gop, rutKhoa, soTui, tuiCu } from '../../phan-du-bo-cuc-moi/rang/tui-khoa.mjs';
 import { BX } from '../../phan-du-bo-cuc-moi/rang/buoc6-chep.mjs';
+import { apDuongDoiTen } from './buoc3-duong-chep.mjs';
 import {
   banDongNhat, demKhoa, docKhoiGuiB2, docTuDung, khoMoi, khoiGuiB2, lechGuiB2, lechLuatTuDung, moCtx, veDangN,
 } from '../../phan-du-bo-cuc-moi/rang/giu-khoa.mjs';
@@ -260,6 +261,17 @@ async function cheDoCu(ctx, out) {
   return soFail;
 }
 
+// Khoá cấp tệp («<tên tệp>», dòng bộ chạy ghi khi tệp thoát 0) đỏ CHỈ vì các ca đỏ khác trong tệp đều là khoá đích của cụm
+// NGOÀI vòng (K4-DN, B2, K4-PL — lời giao) → trả danh sách ấy (miễn có tên); có một ca đỏ nào khác → null (vẫn FAIL).
+export function chanNgoaiVong(r, t, hang, doi) {
+  if (r.khoa !== r.tepKiem) return null;
+  const doKhac = [...t.do.keys()].filter(k => k !== r.khoa);
+  if (!doKhac.length) return null;
+  const ngoai = hang.filter(h => NGOAI_VONG.includes(h.cum) && h.tepKiem === r.tepKiem);
+  const la = doKhac.filter(k => !ngoai.some(h => demKhop(new Map([[k, 1]]), h.khoa, doi)));
+  return la.length ? null : doKhac.join(' · ');
+}
+
 // ── --moi ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 function donViKhoa(r, cay) {
   const t = tepNguon(r);
@@ -267,7 +279,31 @@ function donViKhoa(r, cay) {
   const dir = path.join(cay, 'tests', r.bo); const ten = r.khoa.split(' ')[0];
   return readdirSync(dir).filter(f => /\.(test|ca)\.mjs$/.test(f)).filter(f => readFileSync(path.join(dir, f), 'utf8').includes(ten)).map(f => donViTep(`tests/${r.bo}/${f}`));
 }
-const khoMoi3 = (ctx, h, nhan) => khoMoi(ctx, h, nhan, { ten: true, buoc6: true, boQua: [...new Set([...tuDung2(), ...tuDung3()])] });
+// Kho mới của thước = khoMoi vòng hai + luật đường đổi tên của bước 3 kịch bản (bản chép vòng hai thiếu — buoc3-duong-chep.mjs).
+// Rồi bảng vá B2 (ảnh chụp va-bo-kiem-b2.json) cho các tệp CÒN ĐI bước 6 — đúng như kịch bản thật áp sau luật chung bước 6.
+// Mục vá trên tệp tự đúng đường (vòng hai ∪ vòng ba) là mục thừa, không áp. Mục không khớp đúng `so_lan` lần → ghi vào
+// `ctx.vaLech` (in TIN), không áp — kịch bản thật dừng ở «vá không khớp», thước báo thay vì đoán.
+export function apVa(nd, v) { const n = nd.split(v.cu).length - 1; return n === v.so_lan ? nd.split(v.cu).join(v.moi) : null; }
+function khoMoi3(ctx, h, nhan) {
+  const bq = new Set([...tuDung2(), ...tuDung3()]);
+  const d = khoMoi(ctx, h, nhan, { ten: true, buoc6: true, boQua: [...bq] });
+  if (apDuongDoiTen(d)) { git(d, 'add', '-A'); git(d, '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'kho mới: luật đường đổi tên của bước 3'); }
+  ctx.vaLech = ctx.vaLech || [];
+  if (existsSync(VA_B2)) {
+    const nd = new Map(); let so = 0;
+    for (const v of JSON.parse(readFileSync(VA_B2, 'utf8'))) {
+      if (bq.has(v.tep)) continue;
+      const p = path.join(d, v.tep); const cu = nd.get(v.tep) ?? (existsSync(p) ? readFileSync(p, 'utf8') : null);
+      if (cu === null) { ctx.vaLech.push(`${v.tep}: tệp không có`); continue; }
+      const moi = apVa(cu, v);
+      if (moi === null) { ctx.vaLech.push(`${v.tep}: «${v.cu.split('\n')[0].slice(0, 80)}» không khớp ${v.so_lan} lần`); continue; }
+      nd.set(v.tep, moi); so++;
+    }
+    for (const [f, c] of nd) writeFileSync(path.join(d, f), c);
+    if (so) { git(d, 'add', '-A'); git(d, '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', `kho mới: bảng vá B2 (${so} mục) cho tệp còn đi bước 6`); }
+  }
+  return d;
+}
 async function cheDoMoi(ctx, args, out) {
   const cums = args.cum ? [args.cum] : VONG; const h = head();
   const hang = docKhoaDich(KHOA_DICH);
@@ -286,6 +322,7 @@ async function cheDoMoi(ctx, args, out) {
       if (!r.dv.length) { for (let i = 0; i < n; i++) thieu.push(`${r.bo}: ${r.khoa} — không tìm được tệp chạy`); continue; }
       const t = gop(...r.dv.map(u => lay(moi, u)));
       const co = demKhop(t.dat, r.khoa, doi);
+      if (co < n) { const ch = chanNgoaiVong(r, t, hang, doi); if (ch) { out.push(`  TIN: MOI ${cum} — ${r.bo}: ${r.khoa} đỏ CHỈ vì khoá cụm ngoài vòng trong cùng tệp: ${ch}`); continue; } }
       for (let i = co; i < n; i++) (demKhop(t.do, r.khoa, doi) > i - co ? dO : thieu).push(`${r.bo}: ${r.khoa}`);
     }
     if (!thieu.length && !dO.length) out.push(`  PASS: MOI ${cum} — ${ds.length}/${ds.length} khoá đích có mặt và xanh ở kho mới`);
@@ -303,6 +340,7 @@ async function cheDoMoi(ctx, args, out) {
     if (!s.thieu.length) out.push(`  PASS: MOI túi ${u.id} — khoá bố cục cũ còn ở kho mới`);
     else { soFail++; for (const k of s.thieu) out.push(`  FAIL: MOI túi ${u.id} — thiếu ở kho mới: ${k}`); }
   }
+  for (const l of (ctx.vaLech || [])) out.push(`  TIN: MOI vá B2 không áp — ${l}`);
   out.push(`giu-khoa-3 --moi: ${cums.join(', ')} — ${soFail} dòng FAIL`);
   return soFail;
 }
