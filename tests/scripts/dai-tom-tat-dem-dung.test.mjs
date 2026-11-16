@@ -259,7 +259,7 @@ function nguonDT() {
   if (NGUON_DT) return NGUON_DT;
   if (boCuc({ thuMuc: KIT }).phang) return (NGUON_DT = path.join(HERE, 'dai-tom-tat.test.mjs'));
   const ref = chaDonNha(KIT);
-  NGUON_DT = path.join(mkdtempSync(path.join(tmpdir(), 'dd6-')), 'dai-tom-tat.test.mjs');
+  const d = path.join(TMP, 'dd6-nguon'); mkdirSync(d, { recursive: true }); NGUON_DT = path.join(d, 'dai-tom-tat.test.mjs');
   writeFileSync(NGUON_DT, execFileSync('git', ['-C', KIT, 'show', `${ref}:tests/scripts/dai-tom-tat.test.mjs`], { maxBuffer: 1 << 26 }));
   return NGUON_DT;
 }

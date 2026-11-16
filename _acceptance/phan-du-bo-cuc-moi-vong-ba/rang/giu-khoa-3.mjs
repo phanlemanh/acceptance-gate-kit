@@ -6,14 +6,18 @@
 //                          gui-b2.md ∪ VAN_BUOC6_3; (2) mỗi khoá đích của các cụm vòng nhận có tệp nguồn ở HEAD;
 //                          (3) bộ tự kiểm `giu-khoa-3.test.mjs` xanh; (4) gui-b2.md đủ bốn mục, khối vá thừa khớp máy rút.
 //   --cu                   mỗi tệp kiểm vòng chạm ở GOC_VONG (ghim, KHÔNG merge-base) và ở HEAD: túi HEAD ⊇ túi gốc, mọi
-//                          ca HEAD xanh; CU-DO tự phá (xoá một ca trên bản sao HEAD) phải làm phép so đỏ.
+//                          ca HEAD xanh; CU-DO tự phá (xoá một ca trên bản sao HEAD của một tệp CÓ ở GOC_VONG) đi qua CÙNG
+//                          hàm so `soCuTep` với lượt thật và phải đỏ «mất khoá».
 //   --moi [--cum <cụm>]    kho mới từ HEAD (bước 1–3 + luật đổi tên + luật chung bước 6, bỏ qua tự đúng đường vòng hai ∪ vòng
 //                          ba, không bảng vá) → mọi khoá đích của cụm có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ.
-//   --sau-gop              bản sao HEAD có origin/main = HEAD → tệp nhóm A của rang/ra-lop-merge-base.md và tệp vòng chạm
-//                          có gọi merge-base xanh; RA-LOP: tập tệp gọi merge-base (grep lúc chạy) = tập trong bảng;
-//                          SAU-GOP-DO: bang-ten-lo-trinh ở GOC_VONG sau gộp phải đỏ (lỗi đã biết).
-//   --chieu-do             kho mới, bộ dịch thay bằng bản đồng nhất và haiCay thay bằng bản luôn bung cây đang chạy → ca
-//                          canh mỗi cụm đỏ đúng câu ghim (đối chứng dương: xanh với bản thật).
+//   --sau-gop              bản sao HEAD có origin/main = HEAD → MỌI tệp gọi merge-base (grep lúc chạy, GOC_VONG ∪ HEAD) mà
+//                          bộ chạy thường trực nhặt: xanh, hoặc đỏ Y HỆT ở đối chứng trước gộp trong cùng môi trường bản sao
+//                          (origin/main thật — đỏ do môi trường, không do gộp: TIN có tên ca); RA-LOP: tập tệp gọi
+//                          merge-base = tập trong bảng, HAI chiều; SAU-GOP-DO: bang-ten-lo-trinh ở GOC_VONG sau gộp phải đỏ.
+//   --chieu-do             kho mới, HAI lượt thay tách nhau: bộ dịch thay bằng bản đồng nhất (ca canh K4-LT · K4-TB ·
+//                          K4-RG) · haiCay thay bằng bản luôn bung cây đang chạy, bộ dịch THẬT (ca canh K4-MP) → ca canh đỏ
+//                          đúng câu ghim (đối chứng dương: xanh với bản thật); AC-1: bản sao HEAD bố cục cũ, bản gốc ghim
+//                          của bang-ten-lo-trinh đổi sang HEAD → ô «cũ · thiếu» đỏ «bằng bản gốc — mong khác đúng chữ tên gói».
 //   --ghi-gui-b2           rút mục vá thừa (ảnh chụp va-bo-kiem-b2.json) và ghi khối máy của gui-b2.md.
 //
 // Dùng lại hàm xuất của thước vòng hai (`khoMoi`, `moCtx`, `docTuDung`, `lechLuatTuDung`, `banDongNhat`, `khoiGuiB2`,
@@ -183,6 +187,48 @@ export function donViSua(sua, docTep) {
   return { donVi: chay0.map(donViTep), loi };
 }
 
+// Một tệp sau gộp: xanh · 'moi-truong' khi đối chứng trước gộp (cùng bản sao, origin/main thật) đỏ Y HỆT (cùng mã thoát,
+// cùng tập ca đỏ, không rỗng) — đỏ ấy không do gộp · còn lại 'do'.
+export function phanSauGop(sau, truoc) {
+  const doS = [...sau.do.keys()].sort();
+  if (sau.rc === 0 && !doS.length) return 'xanh';
+  if (!truoc || truoc.rc !== sau.rc) return 'do';
+  const doT = [...truoc.do.keys()].sort();
+  return doT.length && doT.join('\n') === doS.join('\n') ? 'moi-truong' : 'do';
+}
+// RA-LOP hai chiều: tệp của tập mà bảng không xếp (thiếu) · dòng bảng không thuộc tập (thừa — xếp tệp đã thôi gọi merge-base).
+export function lechRaLop(tap, bang) {
+  const t = new Set(tap);
+  return { thieu: tap.filter(f => !bang.has(f)), thua: [...bang.keys()].filter(f => !t.has(f)) };
+}
+// So một tệp ở bản gốc ghim (`g`, null = tệp mới) và ở HEAD (`hh`) — lượt --cu thật và ca tự phá CU-DO dùng CHUNG hàm này.
+export function soCuTep(g, hh, khoaN) {
+  const s = soTui(veDangN(g ? g.dat : new Map(), khoaN), veDangN(hh.dat, khoaN));
+  const doKhoa = [...hh.do.keys()];
+  const doRc = hh.rc !== 0 && !doKhoa.length ? [`thoát ${hh.rc}: ${dongLoi(hh.stderr + hh.stdout).slice(0, 160)}`] : [];
+  return { tong: s.tong, thieu: s.thieu, doKhoa, doRc, xanh: !s.thieu.length && !doKhoa.length && !doRc.length };
+}
+// CHONG-RONG (AC-6): mỗi lệnh đọc một commit lịch sử (`'archive'` · `'show', \`\${ref}:<đường>\``) trong tệp kiểm phải giải
+// đường qua `pathspec(` của bộ dịch (rỗng → «bo-cuc: pathspec rỗng ở») hoặc là đường bất biến giữa hai bố cục (tests/ ·
+// _acceptance/, kể cả qua một hằng chuỗi cùng tệp). Trả mọi lệnh tìm thấy kèm ok/lý do.
+const BAT_BIEN = /^(tests|_acceptance)\//;
+export function lenhLichSu(src) {
+  const ra = [];
+  const hang = ten => { const m = src.match(new RegExp(`const ${ten}\\s*=\\s*(['"\`])([^'"\`]*)\\1`)); return m ? m[2] : null; };
+  src.split('\n').forEach((l, i) => {
+    const t = l.trim(); if (t.startsWith('//') || t.startsWith('*')) return;
+    if (l.includes("'archive'")) ra.push({ dong: i + 1, loai: 'archive', ok: l.includes('pathspec('), ly_do: 'git archive không qua pathspec' });
+    for (const m of l.matchAll(/'show',\s*(`[^`]*`|\S+)/g)) {
+      const x = m[1].match(/^`\$\{[^}]+\}:(.*)`$/);
+      if (!x) { ra.push({ dong: i + 1, loai: 'show', ok: false, ly_do: 'git show không đọc được dạng <ref>:<đường>' }); continue; }
+      const d = x[1]; const id = d.match(/^\$\{(\w+)\}$/);
+      const ok = d.startsWith('${pathspec(') || BAT_BIEN.test(d) || Boolean(id && BAT_BIEN.test(hang(id[1]) || ''));
+      ra.push({ dong: i + 1, loai: 'show', ok, ly_do: `git show đường «${d.slice(0, 60)}» không qua pathspec, không bất biến` });
+    }
+  });
+  return ra;
+}
+
 // ── --tinh ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 async function cheDoTinh(ctx, out) {
   const h = head(); let soFail = 0;
@@ -227,7 +273,8 @@ function vaThua(td) {
 
 // ── --cu ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 export const TU_PHA = [
-  { id: 'CU-DO', tep: 'tests/scripts/hai-bo-cuc.test.mjs', cu: "ok('HC cây phẳng'", moi: "void ('HC cây phẳng'", mat: 'HC cây phẳng' },
+  // Tệp CÓ ở GOC_VONG (bản gốc ghim chạy thật) — tệp mới thì túi gốc rỗng, phép so không thể đỏ.
+  { id: 'CU-DO', tep: 'tests/scripts/recheck-goc-goi-loi.test.mjs', cu: "check('RG-2b ", moi: "void ('RG-2b ", mat: /^RG-2b /, goc: true },
 ];
 async function cheDoCu(ctx, out) {
   const h = head(); const sua = tepVongSua(diffTests(h), diffNT(h));
@@ -239,23 +286,24 @@ async function cheDoCu(ctx, out) {
   const kq = await Promise.all(donVi.map(async u => [u, existsSync(path.join(cGoc, u.id)) ? await chay(ctx, cGoc, u) : null, await chay(ctx, cHead, u)]));
   for (const [u, g, hh] of kq) {
     if ([g, hh].some(x => x && x.rc === 'hết giờ')) { soFail++; out.push(`  FAIL: CU ${u.id} — hết giờ: túi khoá không so được`); continue; }
-    const s = soTui(veDangN(g ? g.dat : new Map(), khoaN), veDangN(hh.dat, khoaN));
-    const doKhoa = [...hh.do.keys()];
-    const doRc = hh.rc !== 0 && !doKhoa.length ? [`thoát ${hh.rc}: ${dongLoi(hh.stderr + hh.stdout).slice(0, 160)}`] : [];
-    if (!s.thieu.length && !doKhoa.length && !doRc.length) { out.push(`  PASS: CU ${u.id} — ${s.tong}/${s.tong} khoá bản gốc còn ở HEAD, mọi ca xanh${g ? '' : ' (tệp mới)'}`); continue; }
-    soFail++; mat += s.thieu.length; dO += doKhoa.length + doRc.length;
+    const s = soCuTep(g, hh, khoaN);
+    if (s.xanh) { out.push(`  PASS: CU ${u.id} — ${s.tong}/${s.tong} khoá bản gốc còn ở HEAD, mọi ca xanh${g ? '' : ' (tệp mới)'}`); continue; }
+    soFail++; mat += s.thieu.length; dO += s.doKhoa.length + s.doRc.length;
     for (const k of s.thieu) out.push(`  FAIL: CU ${u.id} — mất khoá: ${k}`);
-    for (const k of [...doKhoa, ...doRc]) out.push(`  FAIL: CU ${u.id} — đỏ: ${k}`);
+    for (const k of [...s.doKhoa, ...s.doRc]) out.push(`  FAIL: CU ${u.id} — đỏ: ${k}`);
   }
   for (const p of TU_PHA) {
     const f = path.join(cHead, p.tep); const t0 = existsSync(f) ? readFileSync(f, 'utf8') : null;
+    const dong = kq.find(([u]) => u.id === p.tep);
     if (t0 === null || t0.split(p.cu).length !== 2) { soFail++; out.push(`  FAIL: ${p.id} nhát phá không áp: ${p.tep}`); continue; }
-    const u = donViTep(p.tep); const lanh = await chay(ctx, cHead, u);
+    if (!dong || !dong[1]) { soFail++; out.push(`  FAIL: ${p.id} ${p.tep} không có lượt bản gốc ghim — phép so không thể đỏ`); continue; }
+    const [u, g, lanh] = dong;
     writeFileSync(f, t0.replace(p.cu, p.moi));
     let pha; try { pha = await chay(ctx, cHead, u, { nhan: 'phá' }); } finally { writeFileSync(f, t0); }
-    const s = soTui(lanh.dat, pha.dat);
-    if ((lanh.dat.get(p.mat) || 0) && s.thieu.includes(p.mat)) out.push(`  PASS: ${p.id} ${p.tep} — bỏ ca «${p.mat}» trên bản sao HEAD → phép so đỏ: mất khoá ${s.thieu.length}`);
-    else { soFail++; out.push(`  FAIL: ${p.id} phép so không đỏ — ${p.tep}`); }
+    const sl = soCuTep(g, lanh, khoaN); const sp = soCuTep(g, pha, khoaN);
+    const matCa = sp.thieu.filter(k => p.mat.test(k));
+    if (sl.xanh && matCa.length) out.push(`  PASS: ${p.id} ${p.tep} — bỏ một ca trên bản sao HEAD → cùng phép so của --cu đỏ «mất khoá: ${matCa[0].slice(0, 60)}»; bản lành xanh`);
+    else { soFail++; out.push(`  FAIL: ${p.id} phép so không đỏ — ${p.tep}${sl.xanh ? '' : ' (bản lành không xanh)'}`); }
   }
   out.push(`giu-khoa-3 --cu: ${donVi.length} tệp, ${mat} khoá mất, ${dO} ca đỏ`);
   return soFail;
@@ -340,6 +388,14 @@ async function cheDoMoi(ctx, args, out) {
     if (!s.thieu.length) out.push(`  PASS: MOI túi ${u.id} — khoá bố cục cũ còn ở kho mới`);
     else { soFail++; for (const k of s.thieu) out.push(`  FAIL: MOI túi ${u.id} — thiếu ở kho mới: ${k}`); }
   }
+  if (cums.includes('K4-TB')) {
+    const tep = [...new Set(dich.filter(r => r.cum === 'K4-TB').flatMap(r => r.dv.map(u => u.id)))].sort();
+    const lenh = tep.flatMap(f => lenhLichSu(readFileSync(path.join(cHead, f), 'utf8')).map(x => ({ ...x, f })));
+    const hong = lenh.filter(x => !x.ok);
+    if (!lenh.length) { soFail++; out.push('  FAIL: CHONG-RONG không tìm thấy lệnh đọc commit lịch sử nào ở K4-TB — phép quét mù'); }
+    else if (hong.length) { soFail++; for (const x of hong) out.push(`  FAIL: CHONG-RONG ${x.f}:${x.dong} — ${x.ly_do}`); }
+    else out.push(`  PASS: CHONG-RONG ${lenh.length} lệnh đọc commit lịch sử ở ${new Set(lenh.map(x => x.f)).size}/${tep.length} tệp K4-TB giải đường qua pathspec của bộ dịch (rỗng → «bo-cuc: pathspec rỗng ở») hoặc đường bất biến tests/ · _acceptance/; ca chạy xanh ở kho mới nên không pathspec nào rỗng`);
+  }
   for (const l of (ctx.vaLech || [])) out.push(`  TIN: MOI vá B2 không áp — ${l}`);
   out.push(`giu-khoa-3 --moi: ${cums.join(', ')} — ${soFail} dòng FAIL`);
   return soFail;
@@ -354,20 +410,23 @@ async function cheDoSauGop(ctx, out) {
   // Tập chạy: MỌI tệp gọi merge-base ở GOC_VONG hoặc ở HEAD — không dựa vào bảng xếp đúng hay sai (tệp B xanh rỗng sau
   // gộp, nên tệp nào đỏ là xếp sai hoặc lỗi thật). Tệp .mjs trần ngoài bộ chạy thường trực: in TIN, không chạy.
   const tap = [...new Set([...goiMergeBaseO(GOC_VONG), ...goiMergeBaseO(h)])].sort();
-  const thieu = tap.filter(f => !bang.has(f));
-  if (thieu.length) { soFail++; for (const f of thieu) out.push(`  FAIL: RA-LOP thiếu ${f}`); }
-  else out.push(`  PASS: RA-LOP ${tap.length}/${tap.length} tệp đã xếp nhóm (${[...bang.values()].filter(n => n === 'A').length} A)`);
+  const rl = lechRaLop(tap, bang);
+  if (rl.thieu.length || rl.thua.length) { soFail++; for (const f of rl.thieu) out.push(`  FAIL: RA-LOP thiếu ${f}`); for (const f of rl.thua) out.push(`  FAIL: RA-LOP thừa ${f} — không gọi merge-base ở ${GOC_VONG.slice(0, 8)} lẫn HEAD`); }
+  else out.push(`  PASS: RA-LOP ${tap.length}/${tap.length} tệp đã xếp nhóm, bảng không thừa dòng (${tap.filter(f => bang.get(f) === 'A').length} A)`);
   for (const f of tap.filter(f => !chayDuoc(f))) out.push(`  TIN: SAU-GOP bỏ ${f} — ngoài bộ chạy thường trực`);
   const ds = tap.filter(chayDuoc);
   const sua = new Set(tepVongSua(diffTests(h), diffNT(h)));
   const sau = nhanBan(ctx, h, 'sau-gop', h);
   const nhanh = nhanBan(ctx, h, 'nhanh');
-  const kq = await Promise.all(ds.map(async f => [f, await chay(ctx, sau, donViTep(f)), sua.has(f) ? await chay(ctx, nhanh, donViTep(f)) : null]));
+  // Đối chứng trước gộp (cùng môi trường bản sao, origin/main thật): chạy cho tệp vòng chạm (so túi) và cho tệp đỏ sau gộp.
+  const kq = await Promise.all(ds.map(async f => { const r = await chay(ctx, sau, donViTep(f)); const can = sua.has(f) || phanSauGop(r, null) !== 'xanh'; return [f, r, can ? await chay(ctx, nhanh, donViTep(f)) : null]; }));
+  let moiTruong = 0;
   for (const [f, r, n] of kq) {
-    const doK = [...r.do.keys()];
-    if (r.rc === 0 && !doK.length) out.push(`  PASS: SAU-GOP ${f} — ${[...r.dat.values()].reduce((a, b) => a + b, 0)} ca xanh khi origin/main = HEAD`);
-    else { soFail++; out.push(`  FAIL: SAU-GOP ${f} — thoát ${r.rc}${doK.length ? `; đỏ: ${doK.slice(0, 5).join(' · ')}` : `: ${dongLoi(r.stderr + r.stdout).slice(0, 160)}`}`); }
-    if (!n) continue;
+    const doK = [...r.do.keys()]; const loai = phanSauGop(r, n);
+    if (loai === 'xanh') out.push(`  PASS: SAU-GOP ${f} — ${[...r.dat.values()].reduce((a, b) => a + b, 0)} ca xanh khi origin/main = HEAD`);
+    else if (loai === 'moi-truong') { moiTruong++; out.push(`  TIN: SAU-GOP ${f} — đỏ Y HỆT ở đối chứng trước gộp cùng bản sao (thoát ${r.rc}; ${doK.slice(0, 5).join(' · ')}) — môi trường bản sao, không do gộp`); }
+    else { soFail++; out.push(`  FAIL: SAU-GOP ${f} — thoát ${r.rc}${doK.length ? `; đỏ: ${doK.slice(0, 5).join(' · ')}` : `: ${dongLoi(r.stderr + r.stdout).slice(0, 160)}`}${n ? ` (đối chứng trước gộp: thoát ${n.rc}, đỏ ${[...n.do.keys()].length})` : ''}`); }
+    if (!sua.has(f)) continue;
     const a = soTui(n.dat, r.dat); const b = soTui(r.dat, n.dat);
     if (!a.thieu.length && !b.thieu.length) out.push(`  PASS: SAU-GOP-TUI ${f} — túi khoá sau gộp bằng túi trên nhánh (${a.tong})`);
     else { soFail++; out.push(`  FAIL: SAU-GOP-TUI ${f} — lệch: sau gộp thiếu ${a.thieu.slice(0, 3).join(' · ') || '0'}; sau gộp thừa ${b.thieu.slice(0, 3).join(' · ') || '0'}`); }
@@ -377,7 +436,7 @@ async function cheDoSauGop(ctx, out) {
   const r = await chay(ctx, g, donViTep('tests/scripts/bang-ten-lo-trinh.test.mjs'), { nhan: 'sau-gop-do' });
   if (r.rc !== 0 && [...r.do.keys()].some(k => /^SP /.test(k))) out.push(`  PASS: SAU-GOP-DO bang-ten-lo-trinh ở ${GOC_VONG.slice(0, 8)} sau gộp đỏ: ${lyDo(r, /^SP /)}`);
   else { soFail++; out.push(`  FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ trên lỗi đã biết (thoát ${r.rc})`); }
-  out.push(`giu-khoa-3 --sau-gop: ${ds.length} tệp, ${soFail} dòng FAIL`);
+  out.push(`giu-khoa-3 --sau-gop: ${ds.length} tệp, ${moiTruong} đỏ do môi trường bản sao (TIN), ${soFail} dòng FAIL`);
   return soFail;
 }
 
@@ -387,37 +446,63 @@ async function cheDoSauGop(ctx, out) {
 // của vòng ba, nên bản thay thế trỏ đường phẳng không có ở kho mới.
 export const CA_CANH = [
   // K4-MP: cây đang chạy đã dọn nhà mà bị coi là phẳng → dựng kho mới từ nó → đúng lỗi B2 đo ở lượt 7.
-  { cum: 'K4-MP', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', ca: 'SP chan-lo-trinh · cũ · có', ghim: ['vắng khỏi túi đạt', 'source lạ: ./plugins/acceptance-gate'] },
+  // Lượt thay RIÊNG haiCay, bộ dịch THẬT (bộ dịch đồng nhất làm tệp rẽ sang nhánh cây phẳng, không gọi haiCay).
+  { cum: 'K4-MP', thay: 'haiCay', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', ca: 'SP chan-lo-trinh · cũ · có', ghim: ['vắng khỏi túi đạt', 'source lạ: ./plugins/acceptance-gate'] },
   // K4-RG: bộ kiểm lại bằng chứng nạp theo đường phẳng → không có ở kho mới.
-  { cum: 'K4-RG', tep: 'tests/scripts/recheck-goc-goi-loi.test.mjs', ca: 'RG-1', ghim: ['mong exit 0, được exit 1', 'node:internal/modules/cjs/loader'] },
-  { cum: 'K4-LT', tep: 'tests/scripts/lo-trinh-du-lieu-ngay.test.mjs', ca: 'ND-1', ghim: ['ERR_MODULE_NOT_FOUND', "Cannot find module '<kho>/scripts/lo-trinh.mjs'"] },
-  { cum: 'K4-TB', tep: 'tests/scripts/khoi-khuon-tren-the-cong.test.mjs', ca: 'KK-1', ghim: ['vắng khỏi túi đạt', "ENOENT: no such file or directory, lstat '<kho>/skills'"] },
+  { cum: 'K4-RG', thay: 'dich', tep: 'tests/scripts/recheck-goc-goi-loi.test.mjs', ca: 'RG-1', ghim: ['mong exit 0, được exit 1', 'node:internal/modules/cjs/loader'] },
+  { cum: 'K4-LT', thay: 'dich', tep: 'tests/scripts/lo-trinh-du-lieu-ngay.test.mjs', ca: 'ND-1', ghim: ['ERR_MODULE_NOT_FOUND', "Cannot find module '<kho>/scripts/lo-trinh.mjs'"] },
+  { cum: 'K4-TB', thay: 'dich', tep: 'tests/scripts/khoi-khuon-tren-the-cong.test.mjs', ca: 'KK-1', ghim: ['vắng khỏi túi đạt', "ENOENT: no such file or directory, lstat '<kho>/skills'"] },
 ];
 export const banHaiCayCu = () => `// hai-bo-cuc.mjs — BẢN LUÔN BUNG CÂY ĐANG CHẠY do thước (--chieu-do) sinh: hành vi trước vòng ba.
 export * from './hai-bo-cuc.that.mjs';
 import { haiCay as that } from './hai-bo-cuc.that.mjs';
 export function haiCay(kho, tmp, o = {}) { return that(kho, tmp, { ...o, epPhang: true }); }
 `;
+// AC-1: bản gốc ghim của ma trận bang-ten đổi sang HEAD trên bản sao HEAD (bố cục cũ) → ô «cũ · thiếu» bằng bản gốc → đỏ.
+export const PHA_GHIM = [
+  { id: 'AC-1', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', cu: "const MOC_MA_TRAN = '644e9b49af3d24de3fe284304d765ea388304b89';", moi: h => `const MOC_MA_TRAN = '${h}';`, ca: 'SP chan-lo-trinh · cũ · thiếu', ghim: ['bằng bản gốc — mong khác đúng chữ tên gói'] },
+];
 async function cheDoChieuDo(ctx, out) {
   if (!CA_CANH.length) throw new HaTang('CA_CANH rỗng — chiều đỏ chưa khai ca canh');
   const h = head(); const d = khoMoi3(ctx, h, 'moi-do');
   const lanh = await Promise.all(CA_CANH.map(c => chay(ctx, d, { ...donViTep(c.tep), them: c.them }, { nhan: 'thật' })));
   const dich = path.join(d, 'tests', 'bo-cuc.mjs'); const hc = path.join(d, 'tests', 'hai-bo-cuc.mjs');
   if (!existsSync(dich) || !existsSync(hc)) throw new HaTang('kho mới thiếu tests/bo-cuc.mjs hay tests/hai-bo-cuc.mjs để thay');
-  writeFileSync(dich, banDongNhat());
-  writeFileSync(path.join(d, 'tests', 'hai-bo-cuc.that.mjs'), readFileSync(hc)); writeFileSync(hc, banHaiCayCu());
-  git(d, 'add', '-A'); git(d, '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'chiều đỏ: bộ dịch đồng nhất + haiCay bung cây đang chạy');
-  const pha = await Promise.all(CA_CANH.map(c => chay(ctx, d, { ...donViTep(c.tep), them: c.them }, { nhan: 'thay' })));
+  const dichThat = readFileSync(dich); const hcThat = readFileSync(hc);
+  // Hai lượt thay TÁCH nhau, mỗi lượt chỉ một thứ: ca canh của lượt nào đỏ thì đỏ vì đúng thứ bị thay.
+  const pha = new Array(CA_CANH.length);
+  for (const thay of ['dich', 'haiCay']) {
+    writeFileSync(dich, thay === 'dich' ? banDongNhat() : dichThat);
+    if (thay === 'haiCay') { writeFileSync(path.join(d, 'tests', 'hai-bo-cuc.that.mjs'), hcThat); writeFileSync(hc, banHaiCayCu()); } else writeFileSync(hc, hcThat);
+    git(d, 'add', '-A'); git(d, '-c', 'commit.gpgsign=false', 'commit', '-q', '--allow-empty', '-m', `chiều đỏ: thay ${thay === 'dich' ? 'bộ dịch bằng bản đồng nhất' : 'haiCay bằng bản bung cây đang chạy'}`);
+    const ds = CA_CANH.map((c, i) => [c, i]).filter(([c]) => c.thay === thay);
+    const kq = await Promise.all(ds.map(([c]) => chay(ctx, d, { ...donViTep(c.tep), them: c.them }, { nhan: `thay-${thay}` })));
+    ds.forEach(([, i], j) => { pha[i] = kq[j]; });
+  }
   let soFail = 0;
+  for (const c of CA_CANH) if (!['dich', 'haiCay'].includes(c.thay)) throw new HaTang(`ca canh ${c.cum} không khai lượt thay`);
   CA_CANH.forEach((c, i) => {
     const re = reCa(c.ca); const msg = `${lyDo(pha[i], re)}\n${cheKho(pha[i].stdout)}`;
     const thieuG = c.ghim.filter(g => !msg.includes(g));
     if (!xanhCa(lanh[i], re)) { soFail++; out.push(`  FAIL: DO ${c.cum} — đối chứng dương hỏng: ${c.ca} chưa xanh ở kho mới (${lyDo(lanh[i], re)})`); }
     else if (xanhCa(pha[i], re)) { soFail++; out.push(`  FAIL: DO ${c.cum} — chiều đỏ không đỏ: ${c.ca}`); }
     else if (thieuG.length) { soFail++; out.push(`  FAIL: DO ${c.cum} — ${c.ca} đỏ sai thông điệp (thiếu «${thieuG.join('» · «')}»): ${lyDo(pha[i], re)}`); }
-    else out.push(`  PASS: DO ${c.cum} — ${c.ca} đỏ đúng câu «${c.ghim.join('» · «')}»; xanh với bản thật — ${lyDo(pha[i], re).slice(0, 200)}`);
+    else out.push(`  PASS: DO ${c.cum} — ${c.ca} đỏ đúng câu «${c.ghim.join('» · «')}» khi CHỈ ${c.thay === 'dich' ? 'bộ dịch' : 'haiCay'} bị thay; xanh với bản thật — ${lyDo(pha[i], re).slice(0, 200)}`);
   });
-  out.push(`giu-khoa-3 --chieu-do: ${CA_CANH.length} ca canh, ${soFail} dòng FAIL`);
+  const cH = nhanBan(ctx, h, 'ghim-do');
+  for (const p of PHA_GHIM) {
+    const f = path.join(cH, p.tep); const t0 = existsSync(f) ? readFileSync(f, 'utf8') : null;
+    if (t0 === null || t0.split(p.cu).length !== 2) { soFail++; out.push(`  FAIL: DO ${p.id} nhát phá không áp: ${p.tep}`); continue; }
+    const u = donViTep(p.tep); const re = reCa(p.ca); const lanhG = await chay(ctx, cH, u, { nhan: 'ghim-that' });
+    writeFileSync(f, t0.replace(p.cu, p.moi(h)));
+    let phaG; try { phaG = await chay(ctx, cH, u, { nhan: 'ghim-head' }); } finally { writeFileSync(f, t0); }
+    const msg = `${lyDo(phaG, re)}\n${cheKho(phaG.stdout)}`; const thieuG = p.ghim.filter(g => !msg.includes(g));
+    if (!xanhCa(lanhG, re)) { soFail++; out.push(`  FAIL: DO ${p.id} — đối chứng dương hỏng: ${p.ca} chưa xanh với bản gốc ghim (${lyDo(lanhG, re)})`); }
+    else if (xanhCa(phaG, re)) { soFail++; out.push(`  FAIL: DO ${p.id} — chiều đỏ không đỏ: bản gốc ghim = HEAD mà ${p.ca} vẫn xanh`); }
+    else if (thieuG.length) { soFail++; out.push(`  FAIL: DO ${p.id} — ${p.ca} đỏ sai thông điệp (thiếu «${thieuG.join('» · «')}»): ${lyDo(phaG, re)}`); }
+    else out.push(`  PASS: DO ${p.id} — bản gốc ghim đổi sang HEAD trên bản sao → ${p.ca} đỏ đúng câu «${p.ghim.join('» · «')}»; xanh với bản gốc ghim`);
+  }
+  out.push(`giu-khoa-3 --chieu-do: ${CA_CANH.length} ca canh + ${PHA_GHIM.length} chiều đỏ bản gốc ghim, ${soFail} dòng FAIL`);
   return soFail;
 }
 

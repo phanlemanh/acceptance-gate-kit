@@ -2,7 +2,7 @@
 // giu-khoa-3.test.mjs — bộ tự kiểm phần thuần của thước vòng ba (E10). `--tinh` gọi tệp này; đỏ → mọi chế độ dừng.
 // Mỗi phép đo một cặp: vật lành → xanh (đối chứng dương), vật phá → đỏ với thông điệp ghim. Fixture sinh trong lần chạy.
 import { lechLuatTuDung } from '../../phan-du-bo-cuc-moi/rang/giu-khoa.mjs';
-import { apVa, chanNgoaiVong, docDoiSo, docRaLop, dongNghiThuc, NGHI_THUC, SLUG, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
+import { apVa, chanNgoaiVong, docDoiSo, docRaLop, dongNghiThuc, lechRaLop, lenhLichSu, NGHI_THUC, phanSauGop, SLUG, soCuTep, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
 
 let pass = 0; let fail = 0;
 const ca = (id, dk, msg) => { if (dk) { pass++; console.log(`  PASS: ${id}`); } else { fail++; console.log(`  FAIL: ${id} — ${msg}`); } };
@@ -63,6 +63,41 @@ const rTep = { cum: 'K4-LT', tepKiem: 'x.test.mjs', bo: 'scripts', khoa: 'x.test
 ca('TK-NV-lanh chỉ KM-1 (cụm B2) đỏ → miễn, gọi tên KM-1', chanNgoaiVong(rTep, { do: new Map([['KM-1', 1], ['x.test.mjs', 1]]) }, hangNV, doiId) === 'KM-1', 'không miễn');
 ca('TK-NV-do thêm một ca đỏ trong vòng → không miễn', chanNgoaiVong(rTep, { do: new Map([['KM-1', 1], ['LT-9', 1], ['x.test.mjs', 1]]) }, hangNV, doiId) === null, 'miễn dù có ca đỏ trong vòng');
 ca('TK-NV-do khoá không phải cấp tệp → không miễn', chanNgoaiVong({ ...rTep, khoa: 'LT-9' }, { do: new Map([['KM-1', 1]]) }, hangNV, doiId) === null, 'miễn khoá thường');
+
+// TK-SG: sau gộp — đỏ chỉ được xếp «môi trường» khi đối chứng trước gộp đỏ Y HỆT (cùng mã, cùng tập ca đỏ không rỗng).
+const kqT = (rc, ...doK) => ({ rc, do: new Map(doK.map(k => [k, 1])), dat: new Map() });
+ca('TK-SG-lanh xanh → xanh', phanSauGop(kqT(0), null) === 'xanh', 'không xanh');
+ca('TK-SG-lanh đỏ y hệt ở đối chứng → môi trường', phanSauGop(kqT(1, 'KD0', 'KD1'), kqT(1, 'KD1', 'KD0')) === 'moi-truong', 'không nhận môi trường');
+ca('TK-SG-do đối chứng xanh → đỏ', phanSauGop(kqT(1, 'SP x'), kqT(0)) === 'do', 'đỏ do gộp bị miễn');
+ca('TK-SG-do sau gộp đỏ thêm một ca → đỏ', phanSauGop(kqT(1, 'KD0', 'SP x'), kqT(1, 'KD0')) === 'do', 'ca đỏ thêm bị miễn');
+ca('TK-SG-do cả hai đỏ không ca nào (sập) → đỏ', phanSauGop(kqT(1), kqT(1)) === 'do', 'sập rỗng bị miễn');
+ca('TK-SG-do không có đối chứng → đỏ', phanSauGop(kqT(1, 'KD0'), null) === 'do', 'miễn khi không đối chứng');
+
+// TK-RLH: RA-LOP hai chiều.
+const bRL = new Map([['tests/a', 'A'], ['tests/b', 'B']]);
+ca('TK-RLH-lanh tập = bảng → không lệch', (r => !r.thieu.length && !r.thua.length)(lechRaLop(['tests/a', 'tests/b'], bRL)), 'lệch dù bằng');
+ca('TK-RLH-do dòng bảng thừa → gọi tên', JSON.stringify(lechRaLop(['tests/a'], bRL).thua) === '["tests/b"]', 'không bắt dòng thừa');
+ca('TK-RLH-do tệp thiếu → gọi tên', JSON.stringify(lechRaLop(['tests/a', 'tests/b', 'tests/c'], bRL).thieu) === '["tests/c"]', 'không bắt tệp thiếu');
+
+// TK-CU: hàm so chung của --cu — bản gốc có ca mà HEAD mất → đỏ; bản gốc null (tệp mới) → không thể đỏ theo túi.
+const dat = (...k) => ({ rc: 0, do: new Map(), dat: new Map(k.map(x => [x, 1])), stderr: '', stdout: '' });
+ca('TK-CU-lanh HEAD ⊇ gốc → xanh', soCuTep(dat('A', 'B'), dat('A', 'B', 'C'), []).xanh, 'không xanh');
+ca('TK-CU-do HEAD mất một ca → mất khoá đúng tên', JSON.stringify(soCuTep(dat('A', 'B'), dat('A'), []).thieu) === '["B"]', 'không bắt mất khoá');
+ca('TK-CU-do HEAD thoát khác 0 không ca đỏ → đỏ', !soCuTep(dat('A'), { ...dat('A'), rc: 1 }, []).xanh, 'thoát 1 bị bỏ qua');
+
+// TK-LS: CHONG-RONG — lệnh đọc commit lịch sử phải qua pathspec hoặc đường bất biến.
+const srcLanh = [
+  "const RPT = '_acceptance/x/evidence-report.md';",
+  "const tar = execFileSync('git', ['-C', KIT, 'archive', GOC, ...boPhan(['scripts'], c).map(x => pathspec(x, c))]);",
+  "const a = git(KIT, 'show', `${GOC}:${pathspec(rel, c)}`);",
+  "const b = git(KIT, 'show', `${ref}:tests/scripts/x.test.mjs`);",
+  "const c2 = git(KIT, 'show', `${k}:${RPT}`);",
+  "// git archive GOC scripts lib — chú thích, bỏ qua",
+].join('\n');
+const ls = lenhLichSu(srcLanh);
+ca('TK-LS-lanh bốn lệnh, mọi lệnh ok', ls.length === 4 && ls.every(x => x.ok), JSON.stringify(ls));
+const lsDo = lenhLichSu("x('archive', GOC, 'scripts', 'lib');\ny(KIT, 'show', `${GOC}:scripts/lo-trinh.mjs`);\nz(KIT, 'show', bien);");
+ca('TK-LS-do archive trần · show đường phẳng · show không đọc được → ba lệnh hỏng', lsDo.length === 3 && lsDo.every(x => !x.ok), JSON.stringify(lsDo));
 
 console.log(`giu-khoa-3 tự kiểm: ${pass}/${pass + fail} ca`);
 process.exit(fail ? 1 : 0);
