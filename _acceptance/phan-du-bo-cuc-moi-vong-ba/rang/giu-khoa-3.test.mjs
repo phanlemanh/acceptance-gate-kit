@@ -2,7 +2,7 @@
 // giu-khoa-3.test.mjs — bộ tự kiểm phần thuần của thước vòng ba (E10). `--tinh` gọi tệp này; đỏ → mọi chế độ dừng.
 // Mỗi phép đo một cặp: vật lành → xanh (đối chứng dương), vật phá → đỏ với thông điệp ghim. Fixture sinh trong lần chạy.
 import { lechLuatTuDung } from '../../phan-du-bo-cuc-moi/rang/giu-khoa.mjs';
-import { apVa, chanNgoaiVong, docDoiSo, docRaLop, dongNghiThuc, lechRaLop, lenhLichSu, NGHI_THUC, phanSauGop, SLUG, soCuTep, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
+import { apVa, chanNgoaiVong, docDoiSo, docRaLop, docRaLopDong, dongNghiThuc, lechDongRaLop, lechRaLop, lenhLichSu, NGHI_THUC, phanSauGop, SLUG, soCuTep, tepVongSua, thieuMuc, MUC_GUI_B2, vaThuaTu } from './giu-khoa-3.mjs';
 
 let pass = 0; let fail = 0;
 const ca = (id, dk, msg) => { if (dk) { pass++; console.log(`  PASS: ${id}`); } else { fail++; console.log(`  FAIL: ${id} — ${msg}`); } };
@@ -72,12 +72,22 @@ ca('TK-SG-do đối chứng xanh → đỏ', phanSauGop(kqT(1, 'SP x'), kqT(0)) 
 ca('TK-SG-do sau gộp đỏ thêm một ca → đỏ', phanSauGop(kqT(1, 'KD0', 'SP x'), kqT(1, 'KD0')) === 'do', 'ca đỏ thêm bị miễn');
 ca('TK-SG-do cả hai đỏ không ca nào (sập) → đỏ', phanSauGop(kqT(1), kqT(1)) === 'do', 'sập rỗng bị miễn');
 ca('TK-SG-do không có đối chứng → đỏ', phanSauGop(kqT(1, 'KD0'), null) === 'do', 'miễn khi không đối chứng');
+// Hình dạng đường thật: chay() chèn khoá cấp tệp vào `do` khi thoát ≠ 0 — tệp sập ở cả hai bên chỉ có khoá ấy.
+const kqTep = (rc, ...doK) => ({ ...kqT(rc, 'x.test.mjs', ...doK), khoaTep: 'x.test.mjs' });
+ca('TK-SG-do sập ở cả hai bên, chỉ khoá cấp tệp → đỏ', phanSauGop(kqTep(3), kqTep(3)) === 'do', 'tệp sập bị miễn thành môi trường');
+ca('TK-SG-lanh khoá cấp tệp + ca đỏ y hệt → môi trường', phanSauGop(kqTep(1, 'KD0'), kqTep(1, 'KD0')) === 'moi-truong', 'không nhận môi trường khi có khoá tệp');
 
 // TK-RLH: RA-LOP hai chiều.
 const bRL = new Map([['tests/a', 'A'], ['tests/b', 'B']]);
 ca('TK-RLH-lanh tập = bảng → không lệch', (r => !r.thieu.length && !r.thua.length)(lechRaLop(['tests/a', 'tests/b'], bRL)), 'lệch dù bằng');
 ca('TK-RLH-do dòng bảng thừa → gọi tên', JSON.stringify(lechRaLop(['tests/a'], bRL).thua) === '["tests/b"]', 'không bắt dòng thừa');
 ca('TK-RLH-do tệp thiếu → gọi tên', JSON.stringify(lechRaLop(['tests/a', 'tests/b', 'tests/c'], bRL).thieu) === '["tests/c"]', 'không bắt tệp thiếu');
+// TK-RLD: cột «Dòng» của bảng phải trỏ dòng có chữ merge-base ở một phiên bản của tệp.
+const bangD = docRaLopDong("| `tests/a` | A | 2 | x |\n| `tests/b` | B | 1/3 | y |");
+const banD = f => (f === 'tests/a' ? ['dòng 1\nconst mb = merge-base', null] : ['merge-base\nz\nkhông', 'a\nb\ngit merge-base']);
+ca('TK-RLD-lanh mọi số trỏ dòng merge-base (kể cả ở phiên bản thứ hai)', lechDongRaLop(bangD, banD).length === 0, JSON.stringify(lechDongRaLop(bangD, banD)));
+const bangDDo = docRaLopDong("| `tests/a` | A | 1 | x |\n| `tests/b` | B |  | y |");
+ca('TK-RLD-do số trỏ dòng không có merge-base · cột rỗng → gọi tên', JSON.stringify(lechDongRaLop(bangDDo, banD).map(l => l.split(' ')[0])) === '["tests/a:1","tests/b:"]', JSON.stringify(lechDongRaLop(bangDDo, banD)));
 
 // TK-CU: hàm so chung của --cu — bản gốc có ca mà HEAD mất → đỏ; bản gốc null (tệp mới) → không thể đỏ theo túi.
 const dat = (...k) => ({ rc: 0, do: new Map(), dat: new Map(k.map(x => [x, 1])), stderr: '', stdout: '' });
@@ -98,6 +108,11 @@ const ls = lenhLichSu(srcLanh);
 ca('TK-LS-lanh bốn lệnh, mọi lệnh ok', ls.length === 4 && ls.every(x => x.ok), JSON.stringify(ls));
 const lsDo = lenhLichSu("x('archive', GOC, 'scripts', 'lib');\ny(KIT, 'show', `${GOC}:scripts/lo-trinh.mjs`);\nz(KIT, 'show', bien);");
 ca('TK-LS-do archive trần · show đường phẳng · show không đọc được → ba lệnh hỏng', lsDo.length === 3 && lsDo.every(x => !x.ok), JSON.stringify(lsDo));
+// Dạng chuỗi lệnh (`bash -c 'git … archive …'`, template) — 3/8 tệp K4-TB dùng dạng này (S4 lượt 2).
+const lsChuoi = lenhLichSu("execFileSync('bash', ['-c', 'git -C \"$1\" archive \"$2\" \"${@:4}\" | tar -x -C \"$3\"', '_', KIT, mb, g, ...boPhan(['scripts'], c).map(x => pathspec(x, c))]);\nexecFileSync('bash', ['-c', `git -C \"$1\" archive ${SHA} \"\\${@:3}\"`, '_', KIT, g, ...boPhan(D, c).map(x => pathspec(x, c))]);");
+ca('TK-LS-lanh archive trong chuỗi bash qua pathspec → hai lệnh ok', lsChuoi.length === 2 && lsChuoi.every(x => x.ok && x.loai === 'archive-chuoi'), JSON.stringify(lsChuoi));
+const lsChuoiDo = lenhLichSu("execFileSync('bash', ['-c', 'git -C \"$1\" archive \"$2\" scripts lib | tar -x', '_', KIT, mb]);\nsh(`git -C ${KIT} show ${mb}:scripts/a.mjs`);\nconst ten = archive + 1;");
+ca('TK-LS-do archive chuỗi trần · show chuỗi · chữ archive dạng lạ → ba lệnh hỏng', lsChuoiDo.length === 3 && lsChuoiDo.every(x => !x.ok) && JSON.stringify(lsChuoiDo.map(x => x.loai)) === '["archive-chuoi","show-chuoi","la"]', JSON.stringify(lsChuoiDo));
 
 console.log(`giu-khoa-3 tự kiểm: ${pass}/${pass + fail} ca`);
 process.exit(fail ? 1 : 0);

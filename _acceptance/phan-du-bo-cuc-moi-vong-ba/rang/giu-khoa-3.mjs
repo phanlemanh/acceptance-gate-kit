@@ -13,7 +13,9 @@
 //   --sau-gop              bản sao HEAD có origin/main = HEAD → MỌI tệp gọi merge-base (grep lúc chạy, GOC_VONG ∪ HEAD) mà
 //                          bộ chạy thường trực nhặt: xanh, hoặc đỏ Y HỆT ở đối chứng trước gộp trong cùng môi trường bản sao
 //                          (origin/main thật — đỏ do môi trường, không do gộp: TIN có tên ca); RA-LOP: tập tệp gọi
-//                          merge-base = tập trong bảng, HAI chiều; SAU-GOP-DO: bang-ten-lo-trinh ở GOC_VONG sau gộp phải đỏ.
+//                          merge-base = tập trong bảng, HAI chiều; RA-LOP-DONG: mỗi dòng căn cứ có chữ merge-base;
+//                          RA-LOP-A: tệp nhóm A xanh sau gộp không nhờ miễn; SAU-GOP-DO: bang-ten-lo-trinh ở GOC_VONG
+//                          sau gộp đỏ ở ca SP đúng câu «bản gốc in road-map@».
 //   --chieu-do             kho mới, HAI lượt thay tách nhau: bộ dịch thay bằng bản đồng nhất (ca canh K4-LT · K4-TB ·
 //                          K4-RG) · haiCay thay bằng bản luôn bung cây đang chạy, bộ dịch THẬT (ca canh K4-MP) → ca canh đỏ
 //                          đúng câu ghim (đối chứng dương: xanh với bản thật); AC-1: bản sao HEAD bố cục cũ, bản gốc ghim
@@ -151,7 +153,7 @@ function chay(ctx, goc, u, { nhan = '', them = {} } = {}) {
     process.stderr.write(`giu-khoa-3: chạy ${u.id}${nhan ? ` [${nhan}]` : ''} ở ${path.basename(goc)}\n`);
     const r = await chayLenh(ctx, goc, u.cmd, { ...(u.them || {}), ...them });
     const kq = rutKhoa(r.stdout, u.loai);
-    if (u.tong) { const kk = chuanHoa(u.tong); const t = r.rc === 0 ? kq.dat : kq.do; t.set(kk, (t.get(kk) || 0) + 1); if (r.rc !== 0) kq.dongDo.set(kk, `FAIL: ${u.tong} (expected exit 0, got ${r.rc})`); }
+    if (u.tong) { const kk = chuanHoa(u.tong); kq.khoaTep = kk; const t = r.rc === 0 ? kq.dat : kq.do; t.set(kk, (t.get(kk) || 0) + 1); if (r.rc !== 0) kq.dongDo.set(kk, `FAIL: ${u.tong} (expected exit 0, got ${r.rc})`); }
     process.stderr.write(`giu-khoa-3: xong ${u.id}${nhan ? ` [${nhan}]` : ''} ở ${path.basename(goc)} — thoát ${r.rc}, ${r.giay}s\n`);
     return { ...kq, rc: r.rc, stderr: r.stderr, stdout: r.stdout, giay: r.giay };
   });
@@ -189,13 +191,31 @@ export function donViSua(sua, docTep) {
 }
 
 // Một tệp sau gộp: xanh · 'moi-truong' khi đối chứng trước gộp (cùng bản sao, origin/main thật) đỏ Y HỆT (cùng mã thoát,
-// cùng tập ca đỏ, không rỗng) — đỏ ấy không do gộp · còn lại 'do'.
+// cùng tập ca đỏ, không rỗng) — đỏ ấy không do gộp · còn lại 'do'. Khoá CẤP TỆP (`kq.khoaTep`, `chay()` chèn khi thoát ≠ 0)
+// không phải một ca: bỏ nó trước khi so, nên tệp sập trước khi in ca nào ở cả hai bên vẫn là 'do', không lọt thành TIN.
+const caDo = kq => [...kq.do.keys()].filter(k => k !== kq.khoaTep).sort();
 export function phanSauGop(sau, truoc) {
-  const doS = [...sau.do.keys()].sort();
-  if (sau.rc === 0 && !doS.length) return 'xanh';
+  const doS = caDo(sau);
+  if (sau.rc === 0 && !sau.do.size) return 'xanh';
   if (!truoc || truoc.rc !== sau.rc) return 'do';
-  const doT = [...truoc.do.keys()].sort();
+  const doT = caDo(truoc);
   return doT.length && doT.join('\n') === doS.join('\n') ? 'moi-truong' : 'do';
+}
+// RA-LOP dòng căn cứ: mỗi số ở cột «Dòng» phải trỏ một dòng có chữ `merge-base` ở GOC_VONG hoặc HEAD của chính tệp ấy —
+// bảng gắn vào mã, không chỉ có tên tệp. `ban(f)` trả mảng nội dung các phiên bản (null = vắng). Trả danh sách lệch.
+export function docRaLopDong(t) {
+  const m = new Map();
+  for (const l of t.split('\n')) { const x = l.match(/^\|\s*`(tests\/[^`]+)`\s*\|\s*([ABC])\s*\|([^|]*)\|/); if (x) m.set(x[1], { nhom: x[2], dong: (x[3].match(/\d+/g) || []).map(Number) }); }
+  return m;
+}
+export function lechDongRaLop(bangDong, ban) {
+  const lech = [];
+  for (const [f, { dong }] of bangDong) {
+    const vs = ban(f).filter(Boolean).map(v => v.split('\n'));
+    if (!dong.length) { lech.push(`${f}: cột Dòng rỗng`); continue; }
+    for (const n of dong) if (!vs.some(v => n > 0 && n <= v.length && v[n - 1].includes('merge-base'))) lech.push(`${f}:${n} không có chữ merge-base ở ${GOC_VONG.slice(0, 8)} lẫn HEAD`);
+  }
+  return lech;
 }
 // RA-LOP hai chiều: tệp của tập mà bảng không xếp (thiếu) · dòng bảng không thuộc tập (thừa — xếp tệp đã thôi gọi merge-base).
 export function lechRaLop(tap, bang) {
@@ -209,16 +229,22 @@ export function soCuTep(g, hh, khoaN) {
   const doRc = hh.rc !== 0 && !doKhoa.length ? [`thoát ${hh.rc}: ${dongLoi(hh.stderr + hh.stdout).slice(0, 160)}`] : [];
   return { tong: s.tong, thieu: s.thieu, doKhoa, doRc, xanh: !s.thieu.length && !doKhoa.length && !doRc.length };
 }
-// CHONG-RONG (AC-6): mỗi lệnh đọc một commit lịch sử (`'archive'` · `'show', \`\${ref}:<đường>\``) trong tệp kiểm phải giải
-// đường qua `pathspec(` của bộ dịch (rỗng → «bo-cuc: pathspec rỗng ở») hoặc là đường bất biến giữa hai bố cục (tests/ ·
-// _acceptance/, kể cả qua một hằng chuỗi cùng tệp). Trả mọi lệnh tìm thấy kèm ok/lý do.
+// CHONG-RONG (AC-6): mỗi lệnh đọc một commit lịch sử trong tệp kiểm phải giải đường qua `pathspec(` của bộ dịch (rỗng →
+// «bo-cuc: pathspec rỗng ở») hoặc là đường bất biến giữa hai bố cục (tests/ · _acceptance/, kể cả qua một hằng chuỗi cùng
+// tệp). Bắt MỌI dạng, không chỉ khuôn argv: `'archive'` là một phần tử argv · `git … archive` trong chuỗi (`bash -c '…'`,
+// template) · `'show', \`\${ref}:<đường>\`` · `git … show` trong chuỗi. Dòng không phải chú thích có chữ `archive` hay
+// `git … show` mà không khớp dạng nào → lệnh «dạng lạ», ok=false: dạng mới phải được dạy cho bộ quét chứ không lọt im.
 const BAT_BIEN = /^(tests|_acceptance)\//;
 export function lenhLichSu(src) {
   const ra = [];
   const hang = ten => { const m = src.match(new RegExp(`const ${ten}\\s*=\\s*(['"\`])([^'"\`]*)\\1`)); return m ? m[2] : null; };
   src.split('\n').forEach((l, i) => {
     const t = l.trim(); if (t.startsWith('//') || t.startsWith('*')) return;
-    if (l.includes("'archive'")) ra.push({ dong: i + 1, loai: 'archive', ok: l.includes('pathspec('), ly_do: 'git archive không qua pathspec' });
+    const qua = l.includes('pathspec(');
+    if (l.includes("'archive'")) ra.push({ dong: i + 1, loai: 'archive', ok: qua, ly_do: 'git archive không qua pathspec' });
+    else if (/\bgit\b[^\n]*\barchive\b/.test(l)) ra.push({ dong: i + 1, loai: 'archive-chuoi', ok: qua, ly_do: 'git archive trong chuỗi lệnh không qua pathspec' });
+    else if (/\barchive\b/.test(l)) ra.push({ dong: i + 1, loai: 'la', ok: false, ly_do: 'chữ archive ở dạng bộ quét chưa biết — dạy bộ quét dạng này' });
+    if (!/'show',/.test(l) && /\bgit\b[^\n]*\bshow\b/.test(l)) ra.push({ dong: i + 1, loai: 'show-chuoi', ok: qua, ly_do: 'git show trong chuỗi lệnh không qua pathspec' });
     for (const m of l.matchAll(/'show',\s*(`[^`]*`|\S+)/g)) {
       const x = m[1].match(/^`\$\{[^}]+\}:(.*)`$/);
       if (!x) { ra.push({ dong: i + 1, loai: 'show', ok: false, ly_do: 'git show không đọc được dạng <ref>:<đường>' }); continue; }
@@ -414,6 +440,10 @@ async function cheDoSauGop(ctx, out) {
   const rl = lechRaLop(tap, bang);
   if (rl.thieu.length || rl.thua.length) { soFail++; for (const f of rl.thieu) out.push(`  FAIL: RA-LOP thiếu ${f}`); for (const f of rl.thua) out.push(`  FAIL: RA-LOP thừa ${f} — không gọi merge-base ở ${GOC_VONG.slice(0, 8)} lẫn HEAD`); }
   else out.push(`  PASS: RA-LOP ${tap.length}/${tap.length} tệp đã xếp nhóm, bảng không thừa dòng (${tap.filter(f => bang.get(f) === 'A').length} A)`);
+  const banTep = f => [GOC_VONG, h].map(ref => { try { return git(GOC, 'show', `${ref}:${f}`); } catch { return null; } });
+  const lechD = lechDongRaLop(docRaLopDong(readFileSync(RA_LOP, 'utf8')), banTep);
+  if (lechD.length) { soFail++; for (const l of lechD) out.push(`  FAIL: RA-LOP-DONG ${l}`); }
+  else out.push(`  PASS: RA-LOP-DONG mọi số ở cột «Dòng» của ${bang.size} dòng bảng trỏ một dòng có chữ merge-base ở ${GOC_VONG.slice(0, 8)} hoặc HEAD`);
   for (const f of tap.filter(f => !chayDuoc(f))) out.push(`  TIN: SAU-GOP bỏ ${f} — ngoài bộ chạy thường trực`);
   const ds = tap.filter(chayDuoc);
   const sua = new Set(tepVongSua(diffTests(h), diffNT(h)));
@@ -421,9 +451,12 @@ async function cheDoSauGop(ctx, out) {
   const nhanh = nhanBan(ctx, h, 'nhanh');
   // Đối chứng trước gộp (cùng môi trường bản sao, origin/main thật): chạy cho tệp vòng chạm (so túi) và cho tệp đỏ sau gộp.
   const kq = await Promise.all(ds.map(async f => { const r = await chay(ctx, sau, donViTep(f)); const can = sua.has(f) || phanSauGop(r, null) !== 'xanh'; return [f, r, can ? await chay(ctx, nhanh, donViTep(f)) : null]; }));
-  let moiTruong = 0;
+  let moiTruong = 0; const nhomA = [];
   for (const [f, r, n] of kq) {
     const doK = [...r.do.keys()]; const loai = phanSauGop(r, n);
+    // Nhóm A (kỳ vọng tuyệt đối theo mốc): xanh sau gộp mà KHÔNG nhờ miễn môi trường — đó là quan hệ nhóm↔mã đo được:
+    // tệp A đọc bản gốc từ merge-base thì sau gộp (merge-base = HEAD) đỏ, như bang-ten-lo-trinh ở GOC_VONG (SAU-GOP-DO).
+    if (bang.get(f) === 'A') { nhomA.push(f); if (loai !== 'xanh') { soFail++; out.push(`  FAIL: RA-LOP-A ${f} — nhóm A không xanh sau gộp (${loai}); bản gốc còn đọc từ merge-base?`); } }
     if (loai === 'xanh') out.push(`  PASS: SAU-GOP ${f} — ${[...r.dat.values()].reduce((a, b) => a + b, 0)} ca xanh khi origin/main = HEAD`);
     else if (loai === 'moi-truong') { moiTruong++; out.push(`  TIN: SAU-GOP ${f} — đỏ Y HỆT ở đối chứng trước gộp cùng bản sao (thoát ${r.rc}; ${doK.slice(0, 5).join(' · ')}) — môi trường bản sao, không do gộp`); }
     else { soFail++; out.push(`  FAIL: SAU-GOP ${f} — thoát ${r.rc}${doK.length ? `; đỏ: ${doK.slice(0, 5).join(' · ')}` : `: ${dongLoi(r.stderr + r.stdout).slice(0, 160)}`}${n ? ` (đối chứng trước gộp: thoát ${n.rc}, đỏ ${[...n.do.keys()].length})` : ''}`); }
@@ -432,11 +465,13 @@ async function cheDoSauGop(ctx, out) {
     if (!a.thieu.length && !b.thieu.length) out.push(`  PASS: SAU-GOP-TUI ${f} — túi khoá sau gộp bằng túi trên nhánh (${a.tong})`);
     else { soFail++; out.push(`  FAIL: SAU-GOP-TUI ${f} — lệch: sau gộp thiếu ${a.thieu.slice(0, 3).join(' · ') || '0'}; sau gộp thừa ${b.thieu.slice(0, 3).join(' · ') || '0'}`); }
   }
+  if (nhomA.length) out.push(`  PASS: RA-LOP-A ${nhomA.length}/${[...bang.values()].filter(x => x === 'A').length} tệp nhóm A xanh sau gộp (origin/main = HEAD) không nhờ miễn — bản gốc không đọc từ merge-base của nhánh`);
+  else { soFail++; out.push('  FAIL: RA-LOP-A không tệp nhóm A nào chạy sau gộp'); }
   // Chiều đỏ: lỗi đã biết — bang-ten-lo-trinh ở GOC_VONG, sau gộp (origin/main = GOC_VONG) phải đỏ ở ca SP.
   const g = nhanBan(ctx, GOC_VONG, 'sau-gop-goc', GOC_VONG);
   const r = await chay(ctx, g, donViTep('tests/scripts/bang-ten-lo-trinh.test.mjs'), { nhan: 'sau-gop-do' });
-  if (r.rc !== 0 && [...r.do.keys()].some(k => /^SP /.test(k))) out.push(`  PASS: SAU-GOP-DO bang-ten-lo-trinh ở ${GOC_VONG.slice(0, 8)} sau gộp đỏ: ${lyDo(r, /^SP /)}`);
-  else { soFail++; out.push(`  FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ trên lỗi đã biết (thoát ${r.rc})`); }
+  if (r.rc !== 0 && [...r.do.keys()].some(k => /^SP /.test(k)) && lyDo(r, /^SP /).includes('bản gốc in road-map@')) out.push(`  PASS: SAU-GOP-DO bang-ten-lo-trinh ở ${GOC_VONG.slice(0, 8)} sau gộp đỏ: ${lyDo(r, /^SP /)}`);
+  else { soFail++; out.push(`  FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ đúng câu «bản gốc in road-map@» trên lỗi đã biết (thoát ${r.rc}: ${lyDo(r, /^SP /)})`); }
   out.push(`giu-khoa-3 --sau-gop: ${ds.length} tệp, ${moiTruong} đỏ do môi trường bản sao (TIN), ${soFail} dòng FAIL`);
   return soFail;
 }
