@@ -6,18 +6,26 @@
 //  - Ma trận + kỳ vọng VIẾT TRƯỚC (hằng); ca ma trận in «KK-4: k/N».
 //  - Chiều đỏ: ca «-do» chạy CHÍNH hàm kiểm trên bản sao TRỌN `scripts/` + `lib/` (thêm `feature-loop/` + `skills/` cho
 //    KK-2, KK-8) bị tiêm đúng một nhát, SAU khi bản lành xanh trên cùng fixture; ghim thông điệp lỗi.
+//  - Đường kit đi qua bộ dịch `tests/bo-cuc.mjs` theo đúng cây nó nói tới: cây đang đứng / bản sao (`{ thuMuc }`, danh
+//    sách thư mục chép qua `boPhan`), bản gốc merge-base (`boPhan` + `pathspec` ở `{ kho, ref }` — bố cục của CHÍNH
+//    commit ấy, chốt chống rỗng). Đường của kho mẫu và hồ sơ mẫu không phải đường kit — không dịch.
 //  - KK_CASES chọn ca; mã lạ → thoát 2.
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { CONTRACT_G2, EVALS, REPORT_PASS, G1, PROBE } from './gate-fixture.mjs';
-import { KIT, taoKhoMau, nhanh, banSaoTiem, ghi, git, chay, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { KIT, taoKhoMau, nhanh, banSaoTiem as banSaoTiemTho, ghi, git, chay as chayTep, khoiMarker, thuMuc, BAN_DO } from './khuon-loi-kho-mau.mjs';
+import { boPhan, duong, gocGoi, pathspec } from '../bo-cuc.mjs';
 
 const LENH = 'scripts/design-floor-khuon.mjs';
 const GC = 'scripts/gate-card.js';
 const CC = 'scripts/can-cu-s1.cjs';
 const SKILL = 'feature-loop/skills/feature-loop/SKILL.md';
+// Đường kit ở một cây kit (cây đang đứng, bản gốc bung, bản sao tiêm — cây nào cũng mang tệp khai chợ của chính nó).
+const P = (kit, rel) => duong(rel, { thuMuc: kit });
+const chay = (kit, rel, args, cwd) => chayTep(kit, P(kit, rel), args, cwd);
+const banSaoTiem = (ds, tep, tim, thay) => banSaoTiemTho(boPhan(ds, { thuMuc: KIT }), P(KIT, tep), tim, thay);
 
 const CA = ['KK-1', 'KK-1-do', 'KK-2', 'KK-2-do', 'KK-2-do2', 'KK-3', 'KK-3-do', 'KK-4', 'KK-4-hong', 'KK-4-do', 'KK-4-do2', 'KK-5', 'KK-5-do', 'KK-6', 'KK-6-do', 'KK-7', 'KK-7-do', 'KK-8', 'KK-8-do', 'KK-8-do2'];
 const chon = (process.env.KK_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -50,8 +58,8 @@ const caDo = (ma, kiem, lanh, saoTiem, thongDiep, chiMot = false) => {
 // saoTu(goc, ds, tep, tim, thay) — như banSaoTiem nhưng chép từ một gốc bất kỳ (KK-7 tiêm chồng hai nhát).
 const saoTu = (goc, ds, tep, tim, thay) => {
   const dich = thuMuc('sao-tu');
-  for (const d of ds) fs.cpSync(path.join(goc, d), path.join(dich, d), { recursive: true });
-  const f = path.join(dich, tep);
+  for (const d of boPhan(ds, { thuMuc: goc })) fs.cpSync(path.join(goc, d), path.join(dich, d), { recursive: true });
+  const f = path.join(dich, P(goc, tep));
   const t = fs.readFileSync(f, 'utf8');
   const n = t.split(tim).length - 1;
   if (n !== 1) throw new Error(`nhát tiêm khớp ${n} lần (cần 1): ${tim}`);
@@ -91,7 +99,7 @@ const k1 = (kit, kho, slug) => ex1(kit, kho, slug).khuon_g1 || { dong: [], co: [
 const bam = (kho, rel) => git(kho, 'hash-object', '--', rel).trim();
 // Khối DEC-ID-RECIPE rút từ SKILL feature-loop lúc chạy; dòng giữa thay bằng dòng lệnh nạp in ra.
 const noiSo = (kit, kho, slug, dongGiua) => {
-  const khoi = khoiMarker(path.join(kit, SKILL), 'DEC-ID-RECIPE').split('\n');
+  const khoi = khoiMarker(path.join(kit, P(kit, SKILL)), 'DEC-ID-RECIPE').split('\n');
   const lenh = [khoi[0].replaceAll('<slug>', slug), dongGiua, khoi[2]].join('\n') + '\n';
   execFileSync('bash', ['-c', lenh], { cwd: kho });
 };
@@ -105,8 +113,9 @@ const banGocVong = () => {
   let mb = '';
   for (const ref of ['origin/main', 'main']) { try { mb = git(KIT, 'merge-base', 'HEAD', ref).trim(); break; } catch (_) { /* thử ref kế */ } }
   _goc = thuMuc('goc-vong');
-  execFileSync('bash', ['-c', `git -C "${KIT}" archive "${mb}" scripts lib | tar -x -C "${_goc}"`]);
-  fs.cpSync(path.join(KIT, 'skills'), path.join(_goc, 'skills'), { recursive: true });
+  const cay = { kho: KIT, ref: mb };
+  execFileSync('bash', ['-c', 'git -C "$1" archive "$2" "${@:4}" | tar -x -C "$3"', '_', KIT, mb, _goc, ...boPhan(['scripts', 'lib'], cay).map(x => pathspec(x, cay))]);
+  fs.cpSync(path.join(KIT, P(KIT, 'skills')), path.join(_goc, P(_goc, 'skills')), { recursive: true });
   return _goc;
 };
 const MAN_DAC_BIET = 'src/màn mẫu/A.tsx';
@@ -284,7 +293,7 @@ const vongG2 = (kit, kho, slug, soLech) => {
 };
 function kiemKK5(kit) {
   const loi = [];
-  const B = (() => { const p = path.join(kit, 'scripts', 'ban-do-khuon.cjs'); delete require.cache[require.resolve(p)]; return require(p); })();
+  const B = (() => { const p = path.join(kit, P(kit, 'scripts/ban-do-khuon.cjs')); delete require.cache[require.resolve(p)]; return require(p); })();
   const kho = taoKhoMau();
   vongG2(kit, kho, 'h', 2);
   const cham = JSON.parse(fs.readFileSync(path.join(kho, '_acceptance/h/khuon-cham.json'), 'utf8'));
@@ -367,8 +376,8 @@ if (wantAny('KK-7')) {
 // ── KK-8: lệnh khối KHUON-S1 của SKILL ghi đúng vật ──────────────────────────────────────────────────────────
 function kiemKK8(kit, inSo = false) {
   const loi = [];
-  const dong = khoiMarker(path.join(kit, SKILL), 'KHUON-S1').split('\n').filter(l => l.trim());
-  const datAG = l => l.replace(/^AG=\$\([^)]*\) && /, `AG='${kit}' && `);
+  const dong = khoiMarker(path.join(kit, P(kit, SKILL)), 'KHUON-S1').split('\n').filter(l => l.trim());
+  const datAG = l => l.replace(/^AG=\$\([^)]*\) && /, `AG='${gocGoi({ thuMuc: kit }, 'loi')}' && `);
   const chonL = dong.filter(l => /--nhom '<nhóm>'/.test(l));
   const moiL = dong.filter(l => /--nhom-moi/.test(l));
   if (inSo) console.log(`số dòng KHUON-S1: ${dong.length} (chọn ${chonL.length} · mới ${moiL.length})`);
@@ -399,7 +408,7 @@ if (wantAny('KK-8')) {
   // main (CI ed44c2b8). Nhát tiêm không đổi được byte nào → nổ ở chân hạ tầng, không xanh rỗng.
   if (want('KK-8-do')) caDo('KK-8-do', kiemKK8, lanh, () => {
     const sao = banSaoTiem(['scripts', 'lib', 'feature-loop', 'skills'], SKILL, '<!-- <<<KHUON-S1 -->', '<!-- <<<KHUON-S1 -->');
-    const f = path.join(sao, SKILL);
+    const f = path.join(sao, P(sao, SKILL));
     const goc = fs.readFileSync(f, 'utf8');
     const tiem = goc.replace(/<!-- <<<KHUON-S1 -->[\s\S]*?<!-- KHUON-S1>>> -->/,
       k => k.split('\n').filter(l => !/--nhom '<nhóm>'/.test(l)).join('\n'));
