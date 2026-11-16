@@ -18,10 +18,16 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { duong, gocGoi, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const SKILL = path.join(ROOT, 'skills', 'design-pass', 'SKILL.md');
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+const CAY = { thuMuc: ROOT };
+const P = rel => tep(rel, CAY);
+const LOI = gocGoi(CAY, 'loi');
+const trongLoi = rel => path.relative(LOI, P(rel)); // đường trong gói lõi — bản sao trọn scripts/ + lib/ giữ hình của gói
+const SKILL = P('skills/design-pass/SKILL.md');
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
@@ -120,7 +126,7 @@ function checkNoteKeys(skillText) {
 // bộ đọc là CHÍNH scripts/gate-card.js, chạy thật. Nhãn tiếng người cũng rút từ
 // cột «Tên» của REACTION-LADDER — nếu bộ dựng thẻ tự chế chuỗi khác, ca này đỏ.
 // ---------------------------------------------------------------------------
-const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
+const GATE_CARD = P('scripts/gate-card.js');
 const CONTRACT_FX = '---\nschema_version: 1\nfeature: fx\nslug: fx\nrisk_tier: T2\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n';
 
 // Nhãn lấy TỪ bảng thang trong skill — một nguồn, không gõ tay lần hai.
@@ -199,9 +205,8 @@ function render(wsRoot, mutateCard = null, { expectDead = false } = {}) {
   let card = GATE_CARD;
   if (mutateCard) {
     const d = mkdtempSync(path.join(tmpdir(), 'dpc-'));
-    cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
-    cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
-    card = path.join(d, 'scripts', 'gate-card.js');
+    for (const t of ['scripts', 'lib']) cpSync(P(t), path.join(d, trongLoi(t)), { recursive: true });
+    card = path.join(d, trongLoi('scripts/gate-card.js'));
     const before = readFileSync(card, 'utf8');
     const after = mutateCard(before);
     // Lệnh tiêm không đổi được dòng nào = mutant no-op = ca xanh mà chưa bao giờ chạy
@@ -578,7 +583,7 @@ function walkFiles(abs, acc = []) {
   }
   return acc;
 }
-const scanAll = () => SCAN_DIRS.flatMap(d => walkFiles(path.join(ROOT, d)));
+const scanAll = () => SCAN_DIRS.flatMap(d => walkFiles(P(d)));
 
 function checkDefaultSites(skillText, readAt, listFiles) {
   const sentence = block(skillText, 'REACTION-DEFAULT-SENTENCE');
@@ -591,7 +596,8 @@ function checkDefaultSites(skillText, readAt, listFiles) {
   for (const line of man.trim().split('\n')) {
     const m = line.trim().match(/^(\S+)\s+(\d+)$/);
     if (!m) { errs.push(`dong manifest thieu so: "${line.trim()}"`); continue; }
-    const [, rel, want2] = m;
+    // Bảng khai giữ đường bố cục phẳng; đối chiếu theo đường ở cây đang chạy (cùng hệ với lượt quét).
+    const rel = duong(m[1], CAY); const want2 = m[2];
     declared.set(rel, Number(want2));
     const body = readAt(rel);
     if (body === null) { errs.push(`site khong doc duoc: ${rel}`); continue; }
@@ -619,14 +625,14 @@ function checkDefaultSites(skillText, readAt, listFiles) {
 }
 
 if (want('DP11')) {
-  const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } };
+  const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } }; // rel: đường ở cây đang chạy
   const clean0 = checkDefaultSites(src, readAt, scanAll);
   if (clean0.length) fail('DP11', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
   else {
     const errs = [];
-    const FL = 'feature-loop/skills/feature-loop/SKILL.md';
+    const FL = duong('feature-loop/skills/feature-loop/SKILL.md', CAY);
     // File THỨ BA: có thật dưới glob, KHÔNG có tên trong bảng khai.
-    const THIRD = 'skills/acceptance/SKILL.md';
+    const THIRD = duong('skills/acceptance/SKILL.md', CAY);
     const sentence = block(src, 'REACTION-DEFAULT-SENTENCE').trim();
     // m1 — lệch MỘT TỪ ở một site (không xoá): đếm vẫn đủ nếu thước chỉ đếm bản chép
     const m1 = rel => rel === FL ? readAt(rel).replace(sentence, sentence.replace('KHÔNG ĐỒNG BỘ', 'không đồng bộ')) : readAt(rel);
@@ -669,7 +675,7 @@ function checkDocKeys(readAt) {
 }
 
 if (want('DP12')) {
-  const readAt = rel => { try { return readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return null; } };
+  const readAt = rel => { try { return readFileSync(P(rel), 'utf8'); } catch { return null; } };
   const clean0 = checkDocKeys(readAt);
   if (clean0.length) fail('DP12', `doi chung duong DO — ban nguyen ven phai XANH: ${clean0.join(' · ')}`);
   else {

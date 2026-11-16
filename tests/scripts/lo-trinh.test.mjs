@@ -1602,10 +1602,10 @@ if (want('LT-93-do')) await chayDo('LT-93-do', lt93, [['scripts/lo-trinh.mjs', "
 // ── LT-94: dải mốc tĩnh ─────────────────────────────────────────────────────
 async function lt94(kit) {
   const M = await napLT(kit); const sai = [];
-  const r = kho({ hoSo: { g: 'da-ship' }, data: { schema: 1, moc: [{ ten: 'Tới', ngay: '2026-11-15', hang: ['B'] }, { ten: 'Qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Rời', ngay: '2026-10-03' }], hang: [H('A', { slug: 'g' }), H('B')] } });
+  const r = kho({ hoSo: { g: 'da-ship' }, data: { schema: 1, moc: [{ ten: 'Tới', ngay: '2026-10-20', hang: ['B'] }, { ten: 'Qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Rời', ngay: '2026-10-03' }], hang: [H('A', { slug: 'g' }), H('B')] } });
   const html = veM(M, r); const ol = (html.match(/<ol class="moc"[\s\S]*?<\/ol>/) || [''])[0];
   const ngay = [...ol.matchAll(/<li data-ngay="([^"]+)"/g)].map(m => m[1]);
-  if (!deq(ngay, ['2026-09-01', '2026-10-03', '2026-11-15'])) sai.push(`thứ tự mốc ${JSON.stringify(ngay)}`);
+  if (!deq(ngay, ['2026-09-01', '2026-10-03', '2026-10-20'])) sai.push(`thứ tự mốc ${JSON.stringify(ngay)}`);
   const li = [...ol.matchAll(/<li [\s\S]*?<\/li>/g)].map(m => m[0]);
   if (li.filter(x => x.includes('chưa gắn việc')).length !== 1 || !li[1].includes('chưa gắn việc')) sai.push('nhãn «chưa gắn việc» không đúng một mốc Rời');
   if (!html.includes('1/3 mốc chưa gắn việc nào')) sai.push('tiêu đề không ghi «1/3 mốc chưa gắn việc nào»');

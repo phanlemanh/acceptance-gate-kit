@@ -4,7 +4,8 @@
 // bộ phát lịch chạy thật một nhịp (`motNhip`) với git thật trên kho thử và số đo máy giả — `tiep/<dãy>.json` do chính bên
 // viết sinh. Ca đỏ («-do») tiêm vào bản sao TRỌN thư mục gói SAU khi bản lành xanh trên cùng fixture, kiểm nhát tiêm khớp
 // đúng một lần, ghim thông điệp. Mốc so là sha GHIM dưới đây, rút bằng `git archive` trọn thư mục gói. Đường dẫn suy từ
-// vị trí tệp.
+// vị trí tệp; đường viết theo bố cục phẳng giải ở cây đang chạy hoặc ở sha ghim qua bộ dịch tests/bo-cuc.mjs (hồ sơ
+// phan-du-bo-cuc-moi).
 //   node --test --test-name-pattern=TC2-01 tests/dieu-phoi/lenh-dot-ghi-dung-hang.test.mjs
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -14,10 +15,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
-const GOI = path.join(KIT, 'dieu-phoi');
+const GOI = gocGoi({ thuMuc: KIT }, 'dieu-phoi');
 export const SHA_MOC = '12701df6c841a4c78871e5303a950d02d5d6bf77';
 const SLUG_BAY = 'mot-hai-ba-bon-nam-sau-bay';
 const BIEN = ['CLAUDE_CODE_HOST_SESSION_ID', 'CLAUDE_CODE_SESSION_ID'];
@@ -117,8 +119,9 @@ let banMoc = null;
 function goiMoc() {
   if (banMoc) return banMoc;
   const d = tam('tc2-moc-');
-  execFileSync('sh', ['-c', `git -C "${KIT}" archive ${SHA_MOC} dieu-phoi | tar -x -C "${d}"`], { env: moiTruongSach() });
-  banMoc = path.join(d, 'dieu-phoi');
+  const goiTaiMoc = pathspec('dieu-phoi', { kho: KIT, ref: SHA_MOC });
+  execFileSync('sh', ['-c', 'git -C "$1" archive "$2" "$3" | tar -x -C "$4"', '_', KIT, SHA_MOC, goiTaiMoc, d], { env: moiTruongSach() });
+  banMoc = path.join(d, goiTaiMoc);
   assert.ok(fs.existsSync(path.join(banMoc, 'scripts', 'ghi.mjs')), 'bản gói ở sha ghim không rút được');
   return banMoc;
 }
@@ -490,7 +493,8 @@ export function kiemLoiDan(doc) {
   if (!dong.length || dong.some((d) => !d.includes('hang chay-lai'))) loi.push(`${tt}: chỗ nhắc \`hang nghi\` thiếu \`hang chay-lai\``);
   return loi;
 }
-const docCay = (f) => fs.readFileSync(path.join(KIT, f), 'utf8');
+// Khoá của LOI_DAN là nhãn; tệp đọc ở cây đang chạy (hoặc ở sha ghim) qua bộ dịch — kho mới dời gói, đổi tên tệp lệnh.
+const docCay = (f) => fs.readFileSync(tep(f, { thuMuc: KIT }), 'utf8');
 test('TC2-09 loi-dan', () => {
   assert.deepEqual(kiemLoiDan(docCay), []);
   // Ba biến thể README, mỗi biến thể gỡ đúng một câu: lỗi nêu đúng câu ấy, hai câu kia im.
@@ -500,6 +504,6 @@ test('TC2-09 loi-dan', () => {
   }
 });
 test('TC2-09-do ban-moc', () => {
-  const loi = kiemLoiDan((f) => execFileSync('git', ['-C', KIT, 'show', `${SHA_MOC}:${f}`], { encoding: 'utf8', env: moiTruongSach() }));
+  const loi = kiemLoiDan((f) => execFileSync('git', ['-C', KIT, 'show', tep(f, { kho: KIT, ref: SHA_MOC })], { encoding: 'utf8', env: moiTruongSach() }));
   assert.deepEqual([...new Set(loi.map((l) => l.split(':')[0]))], ['dieu-phoi/README.md', 'dieu-phoi/commands/tiep-tuc.md']);
 });

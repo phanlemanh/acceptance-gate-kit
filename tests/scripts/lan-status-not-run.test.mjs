@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -16,10 +16,18 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // luôn suy từ vị trí script (xem cuối L10), không đi qua LSNR_ROOT.
 const ROOT = process.env.LSNR_ROOT ? path.resolve(process.env.LSNR_ROOT) : path.resolve(HERE, '..', '..');
 const SELF_ROOT = path.resolve(HERE, '..', '..');
-const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+// Mọi đường viết theo bố cục phẳng giải qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi) theo ĐÚNG cây chứa
+// nó: cây đang chạy, bản sao bộ máy bị tiêm (LSNR_ROOT — chép kèm tệp khai chợ), hay bản bung của mốc base (bố cục của
+// chính mốc ấy). Bộ dịch nạp theo đường tuyệt đối: bản sao tệp ca (tiemTepCa) nằm dưới thư mục tạm, không cạnh tests/.
+const BO_CUC = [path.join(HERE, '..', 'bo-cuc.mjs'), ...(process.env.LSNR_ROOT ? [path.join(process.env.LSNR_ROOT, 'tests', 'bo-cuc.mjs')] : [])]
+  .find(p => fs.existsSync(p));
+if (!BO_CUC) throw new Error(`lan-status-not-run: không thấy bộ dịch tests/bo-cuc.mjs cạnh ${HERE} hay dưới LSNR_ROOT`);
+const { boPhan, duong, gocGoi, tep } = await import(pathToFileURL(BO_CUC).href);
+const tai = (goc, rel) => tep(rel, { thuMuc: goc });
+const core = require(tai(ROOT, 'lib/evidence-core.cjs'));
 // Làn thật của bên GHI — cùng ROOT (suy từ vị trí script / LSNR_ROOT) với
 // `core` ở trên, để bản sao bị tiêm ở Bước 6 đổi CẢ HAI cùng lúc.
-const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
+const LANE = tai(ROOT, 'feature-loop/scripts/repin-lane.mjs');
 
 const SELF_FILE = fileURLToPath(import.meta.url);
 
@@ -159,7 +167,7 @@ function dungKhoTam(opts) {
 function chayLan(kho, ids, opts) {
   void ids;
   opts = opts || {};
-  const args = [LANE, '--root', kho.dir, '--slug', 's1', '--ag-root', ROOT, '--reason', 'ca kiểm'];
+  const args = [LANE, '--root', kho.dir, '--slug', 's1', '--ag-root', gocGoi({ thuMuc: ROOT }, 'loi'), '--reason', 'ca kiểm'];
   if (opts.write) args.push('--write');
   let exit = 0;
   let stdout = '';
@@ -425,7 +433,7 @@ test('L03', 'bên đọc nhận pin thiếu id đã khai, vẫn chặn id CHẠY
   if (w.exit !== 0) fail(`L03 lượt ghi phải xanh (đối chứng dương của bên đọc cần một pin THẬT hợp lệ), nhận exit ${w.exit}: ${w.stderr}`);
   let rc = '';
   try {
-    rc = execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
+    rc = execFileSync(process.execPath, [tai(ROOT, 'scripts/recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
   } catch (e) { rc = String(e.stdout || '') + String(e.stderr || ''); }
   if (/lacks eval/.test(rc)) fail(`L03 pin hợp lệ bị báo thiếu id: ${rc}`);
   const thieuThat = core.checkRepinEvals(pinThieu('E1', kho), docEvals(kho), 's1', docReport(kho)).errs;
@@ -620,8 +628,10 @@ function dungBanBase() {
   }
   // TRỌN thư mục (lib scripts feature-loop), không danh sách file tay — một
   // bản base thiếu file thì đỏ vì HẠ TẦNG chứ không vì vật (bài học P150,
-  // CLAUDE.md "thước phải gắn vào vật được giao").
-  execFileSync('sh', ['-c', `git -C ${SELF_ROOT} archive ${sha} lib scripts feature-loop | tar -x -C ${dir}`]);
+  // CLAUDE.md "thước phải gắn vào vật được giao"). Danh sách giải theo bố cục
+  // của CHÍNH mốc (bộ dịch, kèm tệp khai chợ) để bản bung tự giải đường được.
+  const muc = boPhan(['lib', 'scripts', 'feature-loop'], { kho: SELF_ROOT, ref: sha });
+  execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive "$2" -- "${@:4}" | tar -x -C "$3"', '_', SELF_ROOT, sha, dir, ...muc]);
   let dong = [];
   try { dong = execFileSync('grep', ['-rn', 'isRepinMachineEval', dir], { encoding: 'utf8' }).split('\n').filter(Boolean); }
   catch (e) { if (e.status !== 1) throw e; /* grep: 0 dòng khớp — đúng như mong đợi */ }
@@ -635,8 +645,8 @@ function dungBanBase() {
 // base mà không đụng chayLan/ca cũ.
 function chayLanBan(baseDir, kho, opts) {
   opts = opts || {};
-  const lane = path.join(baseDir, 'feature-loop', 'scripts', 'repin-lane.mjs');
-  const args = [lane, '--root', kho.dir, '--slug', 's1', '--ag-root', baseDir, '--reason', 'pin cũ'];
+  const lane = tai(baseDir, 'feature-loop/scripts/repin-lane.mjs');
+  const args = [lane, '--root', kho.dir, '--slug', 's1', '--ag-root', gocGoi({ thuMuc: baseDir }, 'loi'), '--reason', 'pin cũ'];
   if (opts.write) args.push('--write');
   let exit = 0; let stdout = ''; let stderr = '';
   try { stdout = execFileSync(process.execPath, args, { encoding: 'utf8' }); }
@@ -651,17 +661,38 @@ function chayLanBan(baseDir, kho, opts) {
 // `recheck-evidence.cjs --all` (cờ đó không tồn tại; script chỉ nhận MỘT
 // đường dẫn một lượt). Trả `{ soDaCham, viPham }` thay vì ném ở hồ sơ đỏ đầu
 // tiên, để ca so sánh được TẬP TÊN giữa hai lượt (bản base / bản hiện tại).
-function quetKho(recheckScript, accDir) {
+function quetKho(recheckScript, accDir, cwd) {
   const daCham = [];
   const viPham = [];
   for (const slug of fs.readdirSync(accDir).sort()) {
     const rp = path.join(accDir, slug, 'evidence-report.md');
     if (!fs.existsSync(rp)) continue;
     daCham.push(slug);
-    try { execFileSync(process.execPath, [recheckScript, rp], { encoding: 'utf8' }); }
+    try { execFileSync(process.execPath, [recheckScript, rp], { encoding: 'utf8', ...(cwd ? { cwd } : {}) }); }
     catch (_) { viPham.push(slug); }
   }
   return { soDaCham: daCham.length, viPham };
+}
+
+// Bộ máy bản base chỉ biết bố cục PHẲNG: `verifier:` của hồ sơ đã ký (`scripts/x.mjs`) nó tìm ở thư mục hồ sơ, gốc git
+// của hồ sơ, rồi thư mục làm việc. Lượt quét của bản base chạy trong một «khung phẳng» của cây đang chạy: mỗi thư mục
+// gốc của bảng bố cục phẳng đóng băng (tests/fixtures/bo-cuc-phang.json, cạnh bộ dịch) trỏ (symlink) tới đường của nó ở
+// cây này qua bộ dịch. Bố cục phẳng: khung trỏ đúng chỗ cũ, gốc git của hồ sơ đã giải trước nên hành vi không đổi.
+// Lượt quét bản sao corpus (ngoài git) dùng cùng khung.
+let _khungPhang = null;
+function khungPhang() {
+  if (_khungPhang) return _khungPhang;
+  const bang = JSON.parse(fs.readFileSync(path.join(path.dirname(BO_CUC), 'fixtures', 'bo-cuc-phang.json'), 'utf8'));
+  const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-khung-'));
+  // Mọi mục ở gốc cây giữ tên (tests/, docs/… — verifier có thể ở đó), rồi mỗi thư mục gốc phẳng trỏ tới chỗ của nó ở cây này.
+  const tro = new Map(fs.readdirSync(SELF_ROOT).filter(x => x !== '.git').map(x => [x, path.join(SELF_ROOT, x)]));
+  for (const d of [...Object.keys(bang.goi_phang), ...bang.thu_muc_loi]) {
+    const that = path.join(SELF_ROOT, duong(d, { thuMuc: SELF_ROOT }));
+    if (fs.existsSync(that)) tro.set(d, that);
+  }
+  for (const [ten, dich] of tro) fs.symlinkSync(dich, path.join(dir, ten));
+  _khungPhang = dir;
+  return dir;
 }
 
 // Tìm ĐỘNG (không hardcode tên slug — corpus đổi theo thời gian) một hồ sơ
@@ -722,14 +753,14 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
   const dongCu = docDongCuoi(kho, 'run-log.jsonl');
   const errsMoi = core.checkRepinEvals(JSON.parse(dongCu), docEvals(kho), 's1', docReport(kho)).errs;
   if (errsMoi.length) fail(`L05 bên đọc MỚI từ chối pin cũ do writer bản base ${baseSha} ghi: ${errsMoi.join(' | ')}`);
-  const coreCu = require(path.join(base, 'lib', 'evidence-core.cjs'));
+  const coreCu = require(tai(base, 'lib/evidence-core.cjs'));
   const errsCu = coreCu.checkRepinEvals(JSON.parse(dongCu), docEvals(kho), 's1', docReport(kho)).errs;
   if (errsCu.length) fail(`L05 đối chứng dương hỏng: bên đọc CŨ cũng từ chối pin của chính nó — ${errsCu.join(' | ')}`);
 
   // ── Vế 2: «không hồ sơ nào hoá đỏ» — ghim BA thứ trên corpus thật ───────
   const accDir = path.join(SELF_ROOT, '_acceptance');
-  const quetBase = quetKho(path.join(base, 'scripts', 'recheck-evidence.cjs'), accDir);
-  const quetMoi = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), accDir);
+  const quetBase = quetKho(tai(base, 'scripts/recheck-evidence.cjs'), accDir, khungPhang());
+  const quetMoi = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), accDir);
   console.log(`  L05: lượt bản base chấm ${quetBase.soDaCham} hồ sơ, ${quetBase.viPham.length} vi phạm`);
   console.log(`  L05: lượt bản hiện tại chấm ${quetMoi.soDaCham} hồ sơ, ${quetMoi.viPham.length} vi phạm`);
   if (quetBase.soDaCham === 0 || quetMoi.soDaCham === 0) fail(`L05 quét corpus rỗng — base=${quetBase.soDaCham} mới=${quetMoi.soDaCham}, không chứng được gì`);
@@ -749,14 +780,16 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
   // Bản sao nằm ngoài kho git nên hồ sơ đã chấm bởi thực tế không kiểm được bản dựng (git cat-file):
   // loại hồ sơ KHÉP theo vị từ hoSoDaKhep — lời hứa của L05 là về pin, hồ sơ khép không còn bị chấm
   // pin (hồ sơ ho-so-khep-thoi-hoi AC-7). Loại theo vị từ, KHÔNG theo danh sách tên.
-  for (const k of require(path.join(SELF_ROOT, 'lib', 'workspace-record.cjs')).slugDaKhep(corpusSaoCha))
+  for (const k of require(tai(SELF_ROOT, 'lib/workspace-record.cjs')).slugDaKhep(corpusSaoCha))
     fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });
-  const quetSaoTruoc = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), corpusSao);
+  // Bản sao nằm ngoài kho git: `verifier:` của hồ sơ giải theo thư mục làm việc — khung phẳng của cây đang chạy (như
+  // lượt bản base), không phụ thuộc thư mục tiến trình đang đứng.
+  const quetSaoTruoc = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao, khungPhang());
   if (quetSaoTruoc.viPham.length) fail(`L05 bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (${quetSaoTruoc.viPham.join(', ')}) — không dùng làm nền so sánh được`);
   const ung = timUngVienDeTiem(corpusSao);
   if (!ung) fail('L05 không tìm được ứng viên để tiêm (hồ sơ PASS có dòng repin evals_exit ≥ 1 khoá) — corpus đổi hình dạng, cần chọn ứng viên khác');
   tiemThieuId(corpusSao, ung.slug, ung.runId, ung.idBoQua);
-  const quetSaoSau = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), corpusSao);
+  const quetSaoSau = quetKho(tai(SELF_ROOT, 'scripts/recheck-evidence.cjs'), corpusSao, khungPhang());
   if (quetSaoSau.viPham.length !== quetSaoTruoc.viPham.length + 1) fail(`L05 tiêm thiếu ${ung.idBoQua} vào ${ung.slug}: vi phạm phải TĂNG đúng 1, nhận trước=${quetSaoTruoc.viPham.length} sau=${quetSaoSau.viPham.length}`);
   if (!quetSaoSau.viPham.includes(ung.slug)) fail(`L05 tiêm vào ${ung.slug} nhưng vi phạm không gọi đúng tên hồ sơ đó — vi phạm=[${quetSaoSau.viPham.join(',')}]`);
 });
@@ -821,7 +854,7 @@ test('L07', 'hình dạng OneFlow 12/09: 14 ô máy, một ô không-chạy tr�
   if (JSON.stringify(dong.evals_not_run) !== JSON.stringify(['E14'])) fail(`L07 khoá evals_not_run sai: ${JSON.stringify(dong.evals_not_run)}`);
 
   try {
-    execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
+    execFileSync(process.execPath, [tai(ROOT, 'scripts/recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
   } catch (e) { fail(`L07 recheck-evidence phải 0 lỗi, nhận exit ${e.status}: ${e.stderr || e.stdout}`); }
 
   // ── Chiều đỏ: CÙNG hình dạng fixture (kho MỚI, không tái dùng kho đã ghi ở
@@ -916,12 +949,16 @@ const MIEN_MUI_TIEM = {
 };
 // Bản sao bộ máy (lib/ · scripts/ · feature-loop/) với MỘT chỗ bị sửa. Mỗi mũi
 // tiêm phải khớp ĐÚNG MỘT lần và bản sao phải qua `node --check` — nếu không,
-// ca đỏ vì HẠ TẦNG có tên thay vì đỏ lặng (bài học P150).
+// ca đỏ vì HẠ TẦNG có tên thay vì đỏ lặng (bài học P150). Bản sao soi gương bố
+// cục cây đang chạy (boPhan, kèm tệp khai chợ) nên đường mũi tiêm giải ở cây ấy.
 function dungCayTiem(tiem) {
   const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-tiem-'));
-  for (const d of ['lib', 'scripts', 'feature-loop']) fs.cpSync(path.join(SELF_ROOT, d), path.join(dir, d), { recursive: true });
+  for (const d of boPhan(['lib', 'scripts', 'feature-loop'], { thuMuc: SELF_ROOT })) {
+    fs.mkdirSync(path.dirname(path.join(dir, d)), { recursive: true });
+    fs.cpSync(path.join(SELF_ROOT, d), path.join(dir, d), { recursive: true });
+  }
   for (const [rel, truoc, sau] of tiem) {
-    const f = path.join(dir, rel);
+    const f = path.join(dir, duong(rel, { thuMuc: SELF_ROOT }));
     const goc = fs.readFileSync(f, 'utf8');
     const lan = goc.split(truoc).length - 1;
     if (lan !== 1) fail(`mũi tiêm vào ${rel} khớp ${lan} lần (cần đúng 1) — chuỗi neo đã trôi khỏi vật, sửa mũi tiêm chứ đừng tin màu xanh`);

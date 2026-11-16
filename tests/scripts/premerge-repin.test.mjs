@@ -8,11 +8,12 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
 import { assertCorpus } from './mirror-sync-grandfather.mjs';
+import { tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
-const CHECK = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
-const RC = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
+const CHECK = tep('scripts/pre-merge-check.sh', { thuMuc: ROOT });
+const RC = tep('scripts/recheck-evidence.cjs', { thuMuc: ROOT });
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const runCheck = (script, root) => {

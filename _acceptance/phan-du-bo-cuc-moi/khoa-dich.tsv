@@ -1,0 +1,417 @@
+# Khoá đích của vòng phan-du-bo-cuc-moi — chép từ B2 migration/kich-ban/ket-qua/phan-du-cuoi.tsv (nhánh c87ff183, cây kịch bản ff5e5b5d so 644e9b49, 415/5 556), thêm cột cum. Cụm: K2 · K3 · SP (mã sản phẩm #503 chưa phủ) · K4-LT (lộ trình, tín hiệu) · K4-TB (thẻ, bản đồ, khuôn) · K4-SC (scripts còn lại) · K4-PL (plugins, dieu-phoi) · B2 (việc kho mới, ngoài vòng). Sửa 15/11 sau đo Task 8: RL13fix, RL2ctrl2 xếp lại từ yaml-chuan.test.mjs sang run-tests.sh (ca bash của tests/scripts/run-tests.sh; bảng B2 gán nhầm tệp). Sửa 15/11 (Task 10): khoá RT13 «hồ sơ sinh sau mốc: 247» thành «<n>» — số ấy đếm hồ sơ của cây đang chạy (cây vòng có thêm chính hồ sơ phan-du-bo-cuc-moi nên in 248); thước so khoá có «<n>» với khoá chạy có một dãy số ở đúng chỗ ấy, khoá khác so nguyên chữ. Sửa 15/11 (trước S4): sáu khoá K4-SC chỉ về được kho mới khi đổi nghĩa (sổ d-20261115T041020Z-23) chuyển sang cụm K4-DN, ngoài vòng — K4-SC còn 71.
+cum	lop	tep_kiem	khoa
+B2	A-co-hoc-chua-gop	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-10-do
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4-do
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-4-do2
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-8-do2
+K4-LT	A-ngu-nghia	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-8-khong
+K4-LT	A-cap-tep	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: cua-tin-hieu-giua-chien-dich.test.mjs
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-con
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-do
+K4-LT	A-ngu-nghia	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: GW-4-do2
+K4-LT	A-cap-tep	cua-tin-hieu-goc-moi-worktree.test.mjs	scripts: cua-tin-hieu-goc-moi-worktree.test.mjs
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4-do
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4-do2
+SP	A-kho-cu	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4-lib
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4-settings-hong
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-4-settings-hong-do
+K4-LT	A-ngu-nghia	kho-cam-ket-co-lo-trinh.test.mjs	scripts: CK-5-tat
+K4-LT	A-cap-tep	kho-cam-ket-co-lo-trinh.test.mjs	scripts: kho-cam-ket-co-lo-trinh.test.mjs
+B2	A-co-hoc-chua-gop	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1-do2
+SP	A-kho-cu	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1-do3
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-2-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-3-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-do2
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-dut-1
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-dut-2
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-dut-3
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-5-dut-4
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-6-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-7-co-viec
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-7-do
+K4-LT	A-ngu-nghia	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-8-khoi-khac
+K4-LT	A-cap-tep	kho-moi-cai-goi-road-map.test.mjs	scripts: kho-moi-cai-goi-road-map.test.mjs
+K4-SC	A-ngu-nghia	ngay-ky.test.mjs	scripts: NK-2-do
+K4-SC	A-cap-tep	ngay-ky.test.mjs	scripts: ngay-ky.test.mjs
+K4-LT	A-ngu-nghia	tin-hieu.test.mjs	scripts: CN-2
+K4-LT	A-ngu-nghia	tin-hieu.test.mjs	scripts: CN-2-do
+SP	A-kho-cu	tin-hieu.test.mjs	scripts: TH-10-do
+SP	A-kho-cu	tin-hieu.test.mjs	scripts: TH-10-ong
+K4-LT	A-cap-tep	tin-hieu.test.mjs	scripts: tin-hieu.test.mjs
+K2	B-ma-chua-phu	(đầu)	plugins: P188 round-trip dieu khoan moi-cong: MOI site nguon khop tung ky tu
+K2	B-ma-chua-phu	(đầu)	plugins: P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site
+K2	B-ma-chua-phu	(đầu)	plugins: [DP11] moi site dung nguyen van + tong ban chep tron glob khop bang khai
+K2	B-ma-chua-phu	(đầu)	plugins: [LB1] bảng COMMAND-NAMES ⊆ vật thật
+K2	B-ma-chua-phu	(đầu)	plugins: [LM1] song anh permissions.allow <-> feature_loop.suite_keys
+K2	B-ma-chua-phu	(đầu)	plugins: ca lenh bam duoc
+K2	B-ma-chua-phu	(đầu)	plugins: ca nac phan ung
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-1
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-1-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-10
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-2
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-2-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-3
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-3-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-4
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-4-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-5
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-5-gan
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-5-gan-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-6
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-7
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-8
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: MQ-8-do
+K2	B-ma-chua-phu	moi-cong-khong-qua-nut.test.mjs	scripts: moi-cong-khong-qua-nut.test.mjs
+K2	B-ma-chua-phu	s4-args-judgment-inputs.test.mjs	scripts: JI12 round-trip có đối tượng: script quét chạy được và s4-args chặn đúng hai hồ sơ
+K2	B-ma-chua-phu	s4-args-judgment-inputs.test.mjs	scripts: JI12 script quét báo đúng tập eval s4-args chặn
+K2	B-ma-chua-phu	s4-args-judgment-inputs.test.mjs	scripts: s4-args-judgment-inputs.test.mjs
+K3	C-ho-so	(đầu)	plugins: P169 dau vao cham hanh vi: sinh trong BAN SAO, ban ghi da ky khong bi sinh de
+K3	C-ho-so	(đầu)	plugins: [LM5] duong thoai hoa: 7 ve roi + 1 quan he dem duoc + 10 mutant
+K3	C-ho-so	(đầu)	plugins: [LM8b] khuon van pham song dung MOT cho tren TRON pham vi hop dong khai
+K3	C-ho-so	(đầu)	plugins: ca lan may qua bo phan loai
+K3	C-ho-so	(đầu)	plugins: ca lan may qua bo phan loai
+K3	C-ho-so	(đầu)	plugins: ca lan may qua bo phan loai
+K3	C-ho-so	core-untouched.test.mjs	scripts: JR11b recheck strict trên corpus thật == baseline viết-trước
+K3	C-ho-so	core-untouched.test.mjs	scripts: core-untouched.test.mjs
+K3	C-ho-so	cua-veto-sau-chu-ky.test.mjs	scripts: CVS1 hồ sơ làn V ĐÃ KÝ → lưới nói «cửa veto đã đóng bằng chữ ký», không nói «cửa veto mở»
+K3	C-ho-so	cua-veto-sau-chu-ky.test.mjs	scripts: CVS2 hồ sơ làn V CHƯA ký → vẫn «cửa veto mở» và vẫn có tên ở dòng tổng
+K3	C-ho-so	cua-veto-sau-chu-ky.test.mjs	scripts: CVS3 vetoOpenUnsigned của máy quét BẰNG tập tên dòng tổng của lưới
+K3	C-ho-so	cua-veto-sau-chu-ky.test.mjs	scripts: CVS4 chiều đỏ: gỡ nhánh mới → lưới nói lại «cửa veto mở» cho hồ sơ đã ký
+K3	C-ho-so	cua-veto-sau-chu-ky.test.mjs	scripts: cua-veto-sau-chu-ky.test.mjs
+K3	C-ho-so	lan-status-not-run.test.mjs	scripts: lan-status-not-run.test.mjs
+K3	C-ho-so	premerge-repin.test.mjs	scripts: DV4a recheck MỚI trên MỌI evidence-report thật của repo -> 0 fail NGOÀI grandfather
+K3	C-ho-so	premerge-repin.test.mjs	scripts: premerge-repin.test.mjs
+K3	C-ho-so-K1	(đầu)	plugins: [RT18] chống-chép: 5 chuỗi luật LITERAL chỉ sống trong lib
+K3	C-ho-so-K1	(đầu)	plugins: ca ra co ten
+K3	C-ho-so-K1	(đầu)	plugins: ca ra co ten
+K4-PL	D-doi-nghia	(đầu)	plugins: P161 strip-md giu duong dan + ma tran toan phan
+K4-PL	D-doi-nghia	(đầu)	plugins: P91 con tro RUT TU file tro vao vat that tren cay nguon, kem dem sanity 8
+K4-PL	D-doi-nghia	(đầu)	plugins: P93 mot-nguon: bang luat khop tung ky tu + than khuon va CAP MARKER duy nhat toan kho
+K4-PL	D-doi-nghia	?	dieu-phoi: DP2-01 ba-lenh
+K4-PL	D-doi-nghia	?	dieu-phoi: DP2-01-do khoa-xem
+K4-PL	D-doi-nghia	?	dieu-phoi: DP2-01-do thu-tu
+K4-PL	D-doi-nghia	?	dieu-phoi: DP6-03 moc-co-dinh
+K4-PL	D-doi-nghia	?	dieu-phoi: DP7-06-do merge-base-song
+K4-PL	D-doi-nghia	?	dieu-phoi: TC1-06 doc-cu-tung-byte
+K4-PL	D-doi-nghia	?	dieu-phoi: TC1-08 loi-dan
+K4-PL	D-doi-nghia	?	dieu-phoi: TC1-08-do bo-mot-buoc
+K4-PL	D-doi-nghia	?	dieu-phoi: TC1-09 than-ca-doi
+K4-PL	D-doi-nghia	?	dieu-phoi: TC2-09-do ban-moc
+K4-DN	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/pre-merge-check.sh: diff so với base <sha> CHỈ THÊM
+K4-SC	D-doi-nghia	?	scripts: DV5 plugins/acceptance-gate/scripts/recheck-evidence.cjs: diff so với base <sha> CHỈ THÊM
+K4-DN	D-doi-nghia	additive-only.test.mjs	scripts: additive-only.test.mjs
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-do2
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-1-khong-bat
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-10-byte
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7-do2
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-7-lenh
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-8-khong-bat
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-9-byte
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: AP-9-do
+K4-LT	D-doi-nghia	ap-chinh-sach-lo-trinh.test.mjs	scripts: ap-chinh-sach-lo-trinh.test.mjs
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-1-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-1]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-2]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-3-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-3]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-4-do]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-4]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: [RN-6]
+K4-TB	D-doi-nghia	ban-do-khuon-roi-nhom.test.mjs	scripts: ban-do-khuon-roi-nhom.test.mjs
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-02 khoi-giu-byte
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-05 vang-mo-dun
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: CC-05-do
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-4-do
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-6 so-that
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-8 ho-so-cu
+K4-SC	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-8-do
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: can-cu-s1.ca.mjs
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL1
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL2
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL3
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL4
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL5
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL6
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL7
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: CL8
+K4-TB	D-doi-nghia	cham-lai-khong-tu-doi.test.mjs	scripts: cham-lai-khong-tu-doi.test.mjs
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: CT0 danh sách chép rút được từ marker, có nhãn tri_thuc, mọi src tồn tại
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: CT1 kho KHÔNG khai tri_thuc, chép đúng nhãn: răng phủ --pham-vi chạy tới bảng phủ, không vỡ nạp mô-đun
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: CT2 kho khai tri_thuc mà thiếu tệp khoá tri thức: răng phủ dừng to
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: CT3 kho khai tri_thuc, chép trọn danh sách: lint tri thức chạy, không vỡ vì thiếu khuôn
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: CT4 --nhip ở kho không khai tri_thuc chạy được
+K4-SC	D-doi-nghia	chep-tri-thuc-du.test.mjs	scripts: chep-tri-thuc-du.test.mjs
+K4-TB	D-doi-nghia	chi-tep-vat-keo-xet-lai.test.mjs	scripts: TV1-do ban-goc 5/5
+K4-TB	D-doi-nghia	chi-tep-vat-keo-xet-lai.test.mjs	scripts: chi-tep-vat-keo-xet-lai.test.mjs
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-1
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-2
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-4
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-6
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-7
+K4-TB	D-doi-nghia	co-hop-dong.test.mjs	scripts: AC-8
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: DD-6
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: DD-6-do
+K4-TB	D-doi-nghia	dai-tom-tat-dem-dung.test.mjs	scripts: dai-tom-tat-dem-dung.test.mjs
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-1-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-1]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chia]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-chuoi]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt2-the]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-cmt]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-kieu-mui-ten]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-kieu]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-le]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau-long]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-mau]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-nhay]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex-esc]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex-lop]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-regex]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2-url]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-3-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-3]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do3]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-4]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-5-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-5]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-6]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-chot]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-do2]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-7]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-8-do]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: [DJ-8]
+K4-TB	D-doi-nghia	doc-jsx-va-ban-do-hong.test.mjs	scripts: doc-jsx-va-ban-do-hong.test.mjs
+K4-SC	D-doi-nghia	eval-coverage-lint.js	scripts: L42m
+K4-LT	D-doi-nghia	hang-pr.test.mjs	scripts: AC-9
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT-rf4
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT4
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT5
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT7
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: GT9
+K4-SC	D-doi-nghia	ho-so-da-ky-giu-tuoi.test.mjs	scripts: ho-so-da-ky-giu-tuoi.test.mjs
+K4-SC	D-doi-nghia	hskt.test.mjs	scripts: HK-AC5-im
+K4-SC	D-doi-nghia	hskt.test.mjs	scripts: HK-AC5-note
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: HK-AC7-dot-bien
+K4-DN	D-doi-nghia	hskt.test.mjs	scripts: hskt.test.mjs
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-1]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-3-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-3]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4-hong]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-4]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-5-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-5]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-7-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-7]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8-do2]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-8]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: khoi-khuon-tren-the-cong.test.mjs
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8-do]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: khuon-loi.test.mjs
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-1
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-1 doi-chung
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-2
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-2b
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-3
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-3-khong-remote
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-4
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-4 sao-luu
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-4-dot
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-5
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-7
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-9 bash
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: KL-9 zsh
+K4-SC	D-doi-nghia	kiem-ban-cai-loi-sua.test.mjs	scripts: kiem-ban-cai-loi-sua.test.mjs
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-nen-tat-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-1-trang-giu
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-2-thieu-phan-tram
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-3
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-3-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-4-do lai
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5-check
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-5-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-trang-moi
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-6-xoa-khoa
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-bam
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-do
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-7-do phien-ban
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8-do bang-khoa
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: ND-8-do tai-lieu
+K4-LT	D-doi-nghia	lo-trinh-du-lieu-ngay.test.mjs	scripts: lo-trinh-du-lieu-ngay.test.mjs
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: DB-7
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: DB-7-do
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-1-doc-cu
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-1-nang-kit
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-5
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9-do
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: GM-9-do2
+K4-LT	D-doi-nghia	lo-trinh-gio-may.test.mjs	scripts: lo-trinh-gio-may.test.mjs
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-100
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-100-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-112
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-112-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-113
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-113-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 bang-khoa
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 dung-khuon
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 json-hong
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 khuon-la
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 phien-ban-moi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118 trang-cu
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do bang-khoa
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-118-do chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-140
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-141
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-141-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-147-do-trang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-153
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-153-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 chep-roi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 cu-doc-moi
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 khoa-vang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157 moi-doc-cu
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157-do nhom-vang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-157-do theo-ten
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do-them
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-168-do-trang
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-72-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-73 khong-truong
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-73-khong-truong-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-77 mot-tep-byte
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-77-do
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-80
+K4-LT	D-doi-nghia	lo-trinh.test.mjs	scripts: LT-80-do
+K4-SC	D-doi-nghia	luot-sua-giu-du.test.mjs	scripts: AC-11
+K4-SC	D-doi-nghia	luot-sua-giu-du.test.mjs	scripts: luot-sua-giu-du.test.mjs
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-2-byte
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-2-byte-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-3
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-3-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-4-do2
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-5
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-7 ma-thoat
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-8
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do2
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: MC-9-do3
+K4-LT	D-doi-nghia	moc-chien-dich.test.mjs	scripts: moc-chien-dich.test.mjs
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT1-do vang-la-bat
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT11-do qua-dieu-kien
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT14 dem-ghim
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT2-do decided-by
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT3-do bo-hoi-so
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT3-do thoat-som
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT4-do bo-T2
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT5-do thieu-nhan
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT6-do bo-so-tieu-de
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: ngoai-n-tu-dinh-tuyen.test.mjs
+K4-TB	D-doi-nghia	ntr-trang-thai.test.mjs	scripts: NS-AC9-cu
+K4-TB	D-doi-nghia	ntr-trang-thai.test.mjs	scripts: ntr-trang-thai.test.mjs
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-2
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-3
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-3-thieu-tep
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: ON-6-im
+K4-LT	D-doi-nghia	o-mo-viec-mang-nguon.test.mjs	scripts: o-mo-viec-mang-nguon.test.mjs
+K4-SC	D-doi-nghia	pre-merge-doc-lib-theo-kit.test.mjs	scripts: LK1-do ban-goc
+K4-SC	D-doi-nghia	pre-merge-doc-lib-theo-kit.test.mjs	scripts: LK2 kho-co-lib-chep
+K4-SC	D-doi-nghia	pre-merge-doc-lib-theo-kit.test.mjs	scripts: LK4 lui-ve-goc-kho
+K4-SC	D-doi-nghia	pre-merge-doc-lib-theo-kit.test.mjs	scripts: pre-merge-doc-lib-theo-kit.test.mjs
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-10
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-10-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-4-byte
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-4-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-6
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-6-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-7
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-7-do
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: RS-8-quet
+K4-LT	D-doi-nghia	ra-soat-lo-trinh.test.mjs	scripts: ra-soat-lo-trinh.test.mjs
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-kho
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-kho-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-10-mot-moc
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-11-doc-cu
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-5-cu-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-9
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-9-do
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: RD-tat
+K4-LT	D-doi-nghia	road-map-de-dung.test.mjs	scripts: road-map-de-dung.test.mjs
+K4-SC	D-doi-nghia	run-id-danh-sach-cho-phep.test.mjs	scripts: RH5 so-cu-hong
+K4-SC	D-doi-nghia	run-id-danh-sach-cho-phep.test.mjs	scripts: run-id-danh-sach-cho-phep.test.mjs
+K4-SC	D-doi-nghia	tep-sinh-khong-chan-gop.test.mjs	scripts: TS-6 thu-muc-rong
+K4-SC	D-doi-nghia	tep-sinh-khong-chan-gop.test.mjs	scripts: TS-7 duong-doc-cu
+K4-SC	D-doi-nghia	tep-sinh-khong-chan-gop.test.mjs	scripts: TS-7-do lech
+K4-SC	D-doi-nghia	tep-sinh-khong-chan-gop.test.mjs	scripts: tep-sinh-khong-chan-gop.test.mjs
+K4-SC	D-doi-nghia	thiet-ke-nap-tri-thuc.test.mjs	scripts: TN-7
+K4-SC	D-doi-nghia	thiet-ke-nap-tri-thuc.test.mjs	scripts: TN-7-mutant
+K4-SC	D-doi-nghia	thiet-ke-nap-tri-thuc.test.mjs	scripts: thiet-ke-nap-tri-thuc.test.mjs
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-1
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-1-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-3-do2
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-4
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: VT-4-do
+K4-LT	D-doi-nghia	ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs	scripts: ve-lo-trinh-doc-tin-hieu-cua-cay.test.mjs
+K4-SC	D-doi-nghia	vong-don-le-tra-tri-thuc.test.mjs	scripts: TD-9
+K4-SC	D-doi-nghia	vong-don-le-tra-tri-thuc.test.mjs	scripts: TD-9-mutant
+K4-SC	D-doi-nghia	vong-don-le-tra-tri-thuc.test.mjs	scripts: vong-don-le-tra-tri-thuc.test.mjs
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-do
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: LTT-san-im
+K4-LT	D-doi-nghia	xem-trang-lo-trinh.test.mjs	scripts: xem-trang-lo-trinh.test.mjs
+K4-SC	D-doi-nghia	run-tests.sh	scripts: RL13fix
+K4-SC	D-doi-nghia	run-tests.sh	scripts: RL2ctrl2
+K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: YC-3-vang
+K4-SC	D-doi-nghia	yaml-chuan.test.mjs	scripts: yaml-chuan.test.mjs
+K3	C-ho-so-K1	ra-co-ten.test.mjs	plugins: [RT13] đọc-cũ: broken rỗng, khác biệt đúng khối; hồ sơ sinh sau mốc: <n>
+K4-SC	D-doi-nghia	ngoai-n-tu-dinh-tuyen.test.mjs	scripts: NT13 resolver-thieu

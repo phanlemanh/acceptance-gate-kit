@@ -17,6 +17,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import vm from 'node:vm';
+import { tep } from '../bo-cuc.mjs';
 
 // TOOL-KILL-RULE: workflow KHÔNG chép luật, main loop truyền NGUYÊN VĂN file
 // nguồn (acceptance-gate) qua args.toolKillRule. Harness đóng vai main loop:
@@ -24,7 +25,8 @@ import vm from 'node:vm';
 // khi case không truyền — case muốn đo đường thiếu-args truyền `toolKillRule: ''`.
 // Đọc lỗi → THROW (không fallback chuỗi cứng: fallback là bản chép thứ hai và
 // làm suite xanh trong khi main loop thật BLOCKED).
-export const TOOL_KILL_RULE_FILE = resolve(dirname(fileURLToPath(import.meta.url)), '../../skills/acceptance/references/tool-kill-rule.md');
+// Gốc kho suy từ vị trí harness; đường trong gói lõi đi qua bộ dịch bố cục (lõi ở gốc kho hay ở plugins/<gói>/).
+export const TOOL_KILL_RULE_FILE = tep('skills/acceptance/references/tool-kill-rule.md', { thuMuc: resolve(dirname(fileURLToPath(import.meta.url)), '../..') });
 export const TOOL_KILL_RULE_SRC = readFileSync(TOOL_KILL_RULE_FILE, 'utf8');
 // Khối luật tách theo DÒNG giữa hai marker (không regex — gap-probe F3): mảng
 // dòng không rỗng, để test assert TỪNG dòng có mặt trong prompt.

@@ -7,12 +7,13 @@
 // trước, rồi CHÍNH ca đo chạy trên bản sao bị tiêm (nhát tiêm khớp đúng một lần — kiểm trước khi tin) hoặc trên bản
 // base `git archive 3c88d138`, ghim thông điệp.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, cpSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { maTran } from './yaml-chuan-ma-tran.mjs';
+import { boPhan, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -30,7 +31,7 @@ const node = (args, o = {}) => spawnSync(process.execPath, args, { encoding: 'ut
 
 // Bản sao bộ dò bị tiêm: nhát tiêm phải khớp ĐÚNG một lần trong nguồn, không thì ca hỏng (không tin chiều đỏ).
 function banSaoTiem(ten, tu, thanh) {
-  const src = readFileSync(path.join(KIT, 'scripts', 'yaml-chuan.cjs'), 'utf8');
+  const src = readFileSync(tep('scripts/yaml-chuan.cjs', { thuMuc: KIT }), 'utf8');
   const n = src.split(tu).length - 1;
   if (n !== 1) throw new Error(`nhát tiêm «${tu}» khớp ${n} lần (phải đúng 1)`);
   const d = path.join(TMP, `tiem-${ten}`); mkdirSync(d, { recursive: true });
@@ -55,7 +56,7 @@ const O = ten => maTran().find(c => c.o === ten);
 
 if (want('YC-1')) {
   try {
-    const { yamlKhongChuan, LOP_YAML } = require(path.join(KIT, 'scripts', 'yaml-chuan.cjs'));
+    const { yamlKhongChuan, LOP_YAML } = require(tep('scripts/yaml-chuan.cjs', { thuMuc: KIT }));
     const lop = new Set(maTran().filter(c => c.mong).map(c => c.mong.loai));
     const { lech, so } = soMaTran(yamlKhongChuan);
     console.log(`  so o: ${so}`);
@@ -76,7 +77,7 @@ if (want('YC-1-do')) {
 }
 
 // ── Cờ trên thẻ hai cổng (AC-3) ── hằng cờ rút từ nguồn gate-card.js ─────────────────────────────────────────
-const GC = path.join(KIT, 'scripts', 'gate-card.js');
+const GC = tep('scripts/gate-card.js', { thuMuc: KIT });
 const GC_SRC = readFileSync(GC, 'utf8');
 const CO = (GC_SRC.match(/const YAML_KHONG_CHUAN_FLAG = '([^']+)';/) || [])[1];
 const CO_KK = (GC_SRC.match(/const YAML_KHONG_KIEM_FLAG = '([^']+)';/) || [])[1];
@@ -106,8 +107,9 @@ function the(d, gc = GC) {
 }
 function cayBan(ten, sha) { // bản cây scripts+lib+skills: sha → git archive; null → chép cây đang kiểm
   const d = path.join(TMP, `cay-${ten}`); mkdirSync(d, { recursive: true });
-  if (sha) execFileSync('bash', ['-c', `git -C "${KIT}" archive ${sha} scripts lib skills | tar -x -C "${d}"`]);
-  else for (const x of ['scripts', 'lib', 'skills']) execFileSync('cp', ['-R', path.join(KIT, x), path.join(d, x)]);
+  const D = ['scripts', 'lib', 'skills']; // bố cục lấy từ chính cây nguồn; bản mang tệp khai chợ để đường trong nó giải được
+  if (sha) execFileSync('bash', ['-c', `git -C "${KIT}" archive ${sha} ${boPhan(D, { kho: KIT, ref: sha }).join(' ')} | tar -x -C "${d}"`]);
+  else for (const x of boPhan(D, { thuMuc: KIT })) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true });
   return d;
 }
 
@@ -134,7 +136,7 @@ if (want('YC-3')) {
 if (want('YC-3-do')) {
   try {
     const b = cayBan('base', BASE_SHA);
-    const co = [1, 2].filter(cong => coCua(the(hoSoThe(HAI_LOI, cong), path.join(b, 'scripts', 'gate-card.js'))).some(x => x.startsWith(CO)));
+    const co = [1, 2].filter(cong => coCua(the(hoSoThe(HAI_LOI, cong), tep('scripts/gate-card.js', { thuMuc: b }))).some(x => x.startsWith(CO)));
     if (co.length) bad('YC-3-do', `base ${BASE_SHA} có cờ ở cổng ${co.join(',')} — phép đo không phân biệt được bản mới`);
     else ok('YC-3-do', `base không cờ (${BASE_SHA}) trên CÙNG hồ sơ hỏng`);
   } catch (e) { bad('YC-3-do', loi(e)); }
@@ -146,10 +148,10 @@ if (want('YC-3-vang')) {
     const KIM = "path.join(__dirname, 'yaml-chuan.cjs')";
     const n = GC_SRC.split(KIM).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm khớp ${n} lần (phải 1)`);
-    writeFileSync(path.join(b, 'scripts', 'gate-card.js'), GC_SRC.replace(KIM, "path.join(__dirname, 'khong-co-bo-do.cjs')"));
+    writeFileSync(tep('scripts/gate-card.js', { thuMuc: b }), GC_SRC.replace(KIM, "path.join(__dirname, 'khong-co-bo-do.cjs')"));
     const e = [];
     for (const cong of [1, 2]) {
-      const c = coCua(the(hoSoThe(HAI_LOI, cong), path.join(b, 'scripts', 'gate-card.js')));
+      const c = coCua(the(hoSoThe(HAI_LOI, cong), tep('scripts/gate-card.js', { thuMuc: b })));
       if (!c.some(x => x.startsWith(CO_KK))) e.push(`Cổng ${cong}: thẻ không mang cờ «không kiểm được»`);
     }
     if (e.length) bad('YC-3-vang', e.join(' · ')); else ok('YC-3-vang', 'bộ dò vắng → thẻ vẫn dựng, cờ «không kiểm được YAML chuẩn»');
@@ -168,7 +170,7 @@ function khoThu(hoSo) { // hoSo: { slug: text }
   return r;
 }
 const sua = (r, s, them, msg) => { writeFileSync(path.join(r, '_acceptance', s, 'evals.yaml'), readFileSync(path.join(r, '_acceptance', s, 'evals.yaml'), 'utf8') + them); git(r, 'commit', '-qam', msg); };
-const lenh = (r, extra = [], cli = path.join(KIT, 'scripts', 'yaml-chuan.cjs')) => node([cli, '--root', r, ...extra]);
+const lenh = (r, extra = [], cli = tep('scripts/yaml-chuan.cjs', { thuMuc: KIT })) => node([cli, '--root', r, ...extra]);
 
 if (want('YC-4')) {
   try {

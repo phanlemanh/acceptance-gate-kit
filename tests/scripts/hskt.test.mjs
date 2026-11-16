@@ -16,6 +16,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
+import { boPhan, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -28,7 +29,7 @@ const loi = e => String((e && (e.stderr || e.message)) || e).split('\n').slice(0
 const CHON = [...process.argv.slice(2), ...(process.env.HSKT_CASES ? process.env.HSKT_CASES.split(',') : [])];
 const want = name => !CHON.length || CHON.includes(name);
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-const WR = require(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = require(tep('lib/workspace-record.cjs', { thuMuc: KIT }));
 // Trạng thái «đã ký» rút từ lib (MỘT nguồn — nếp owner chọn 17/09 ở hồ sơ ra-co-ten-lam-va-trao):
 // tệp ca không mang chuỗi trạng thái của riêng nó, nên không phải khai gạch ở RT13.
 const DA_KY = WR.DA_THONG_CONG_2[0];
@@ -86,7 +87,7 @@ if (want('HK-AC1')) {
     const sai = kiemAC1(WR.hoSoDaKhep);
     // Chiều đỏ: bản sao lib đổi vế thực tế thành «status thôi» → ô 4 phải lật.
     const cp = mkdtempSync(path.join(TMP, 'lib-'));
-    cpSync(path.join(KIT, 'lib'), path.join(cp, 'lib'), { recursive: true });
+    cpSync(tep('lib', { thuMuc: KIT }), path.join(cp, 'lib'), { recursive: true }); // bản sao lib đứng riêng (phẳng)
     const p = path.join(cp, 'lib', 'workspace-record.cjs'); const src = readFileSync(p, 'utf8');
     const NEO = "const tt = thucTe(ledgerText); if (tt && tt.kieu === 'dong-so') return { vi: 'thuc-te' };";
     if (!src.includes(NEO)) throw new Error('neo mutant khong khop — ve thuc te cua hoSoDaKhep da doi');
@@ -102,7 +103,7 @@ if (want('HK-AC1-cli')) {
   try {
     const r = khoMoi();
     MA_TRAN_AC1.forEach(([ten, x]) => hoSo(r, ten, { contract: hopDong(ten, { status: x.status }), report: x.report, ledger: x.ledger }));
-    const out = execFileSync(process.execPath, [path.join(KIT, 'lib', 'workspace-record.cjs'), '--da-khep', '--root', r], { encoding: 'utf8' });
+    const out = execFileSync(process.execPath, [tep('lib/workspace-record.cjs', { thuMuc: KIT }), '--da-khep', '--root', r], { encoding: 'utf8' });
     const got = out.split('\n').filter(Boolean).sort();
     const ky = MA_TRAN_AC1.filter(([, , v]) => v).map(([t]) => t).sort();
     if (got.join(',') !== ky.join(',')) bad('HK-AC1-cli', `in «${got}», ky vong «${ky}»`);
@@ -123,18 +124,19 @@ function khoVeto() {
 // Bản sao bộ máy (scripts + lib) để tiêm mutant; trả gốc bản sao.
 function banSaoMay(tiem = []) {
   const cp = mkdtempSync(path.join(TMP, 'may-'));
-  for (const d of ['scripts', 'lib', 'skills']) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  // theo bố cục của cây đang đứng, mang tệp khai chợ để đường trong bản sao giải được
+  for (const d of boPhan(['scripts', 'lib', 'skills'], { thuMuc: KIT })) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
   for (const [rel, neo, thay] of tiem) {
-    const p = path.join(cp, rel); const src = readFileSync(p, 'utf8');
+    const p = tep(rel, { thuMuc: cp }); const src = readFileSync(p, 'utf8');
     const n = src.split(neo).length - 1;
     if (n !== 1) throw new Error(`neo mutant khop ${n} lan trong ${rel}: «${neo.slice(0, 60)}»`);
     writeFileSync(p, src.replace(neo, thay));
   }
   return cp;
 }
-const quet = (r, may = KIT) => JSON.parse(execFileSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+const quet = (r, may = KIT) => JSON.parse(execFileSync(process.execPath, [tep('scripts/start-scan.mjs', { thuMuc: may }), '--root', r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
 const dongVeto = (r, may = KIT) => {
-  const o = spawnSync('bash', [path.join(may, 'scripts', 'pre-merge-check.sh'), r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const o = spawnSync('bash', [tep('scripts/pre-merge-check.sh', { thuMuc: may }), r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   return ((o.stdout || '') + (o.stderr || '')).split('\n').find(l => l.startsWith('NOTE: cửa veto đang mở')) || '';
 };
 const NEO_QUET = 'vetoOpen.filter(v => !v.humanSignoff && !v.daKhep)';
@@ -175,10 +177,10 @@ if (want('HK-AC2-dot-bien')) {
 
 // ── AC-4: làn V đọc review-findings.md × sổ gate2 ──────────────────────────────
 const { fileFromTemplate } = await import(pathToFileURL(path.join(KIT, 'tests', 'fixtures', 'from-template.mjs')).href);
-const CONTRACT_TPL = path.join(KIT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const CONTRACT_TPL = tep('skills/acceptance/references/contract-template.md', { thuMuc: KIT });
 // Khuôn mục ngoài hợp đồng RÚT từ bên VIẾT (prompt synthesize) — cùng cách P55.
 const OOC_TPL = (() => {
-  const wf = readFileSync(path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const wf = readFileSync(tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: KIT }), 'utf8');
   const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
   if (!m) throw new Error('khong rut duoc OOC-ITEM-TEMPLATE tu acceptance-verify.js');
   return m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
@@ -212,9 +214,9 @@ function khoLanV(slug, findings, ledger) {
   writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
   mkdirSync(path.join(R, 'src'), { recursive: true }); writeFileSync(path.join(R, 'src', 'app.js'), 'v1\n');
   // Kho tiêu thụ mang lớp CI vendored (lưới đọc lib theo gốc kho — cùng lý do LV5 chép).
-  cpSync(path.join(KIT, 'lib'), path.join(R, 'lib'), { recursive: true });
+  cpSync(tep('lib', { thuMuc: KIT }), path.join(R, 'lib'), { recursive: true });
   mkdirSync(path.join(R, 'scripts'), { recursive: true });
-  cpSync(path.join(KIT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+  cpSync(tep('scripts/recheck-evidence.cjs', { thuMuc: KIT }), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git(R, 'add', '-A'); git(R, 'commit', '-qm', 'c1'); git(R, 'branch', 'basepoint');
   writeFileSync(path.join(R, 'src', 'app.js'), 'v2\n');
   hoSo(R, slug, { contract: hopDongV(slug) });
@@ -226,7 +228,7 @@ function khoLanV(slug, findings, ledger) {
 }
 const docTep = (R, slug, f) => { try { return readFileSync(path.join(R, '_acceptance', slug, f), 'utf8'); } catch { return null; } };
 async function kiemMjs(may = KIT) {
-  const KCN = await import(pathToFileURL(path.join(may, 'scripts', 'khong-can-nguoi.mjs')).href + `?v=${Math.random()}`);
+  const KCN = await import(pathToFileURL(tep('scripts/khong-can-nguoi.mjs', { thuMuc: may })).href + `?v=${Math.random()}`);
   const sai = []; let n = 0;
   for (const [ten, fd, so, sach, cum] of MA_TRAN_AC4) {
     const r = KCN.xanhSach(hopDongV('x'), baoCaoV('x', '0'.repeat(40)), { findings: fd, ledger: so || null, runLog: null });
@@ -252,7 +254,7 @@ if (want('HK-AC4-bash')) {
     const sai = [];
     for (const [ten, fd, so, sach] of MA_TRAN_AC4) {
       const slug = 'lv-' + ten; const R = khoLanV(slug, fd, so);
-      const o = spawnSync('bash', [path.join(KIT, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+      const o = spawnSync('bash', [tep('scripts/pre-merge-check.sh', { thuMuc: KIT }), R, '--base', 'basepoint'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
       const out = (o.stdout || '') + (o.stderr || '');
       const chan = new RegExp(`^VIOLATION \\[${slug}\\]`, 'm').test(out);
       const noteV = new RegExp(`^NOTE \\[${slug}\\]: làn V — máy đi trước`, 'm').test(out);
@@ -271,7 +273,7 @@ if (want('HK-AC4-bash')) {
   } catch (e) { bad('HK-AC4-bash', loi(e)); }
 }
 
-const theExtract = (R, slug) => JSON.parse(execFileSync(process.execPath, [path.join(KIT, 'scripts', 'gate-card.js'), '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+const theExtract = (R, slug) => JSON.parse(execFileSync(process.execPath, [tep('scripts/gate-card.js', { thuMuc: KIT }), '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
 if (want('HK-AC4-the')) {
   try {
     const sai = [];
@@ -316,7 +318,7 @@ function khoKhep() {
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'fixture');
   return r;
 }
-const theHtml = (R, slug) => execFileSync(process.execPath, [path.join(KIT, 'scripts', 'gate-card.js'), '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const theHtml = (R, slug) => execFileSync(process.execPath, [tep('scripts/gate-card.js', { thuMuc: KIT }), '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const CAU_KHEP = 'không còn câu hỏi nào cho người';
 let _khoKhep = null; const khoK = () => (_khoKhep ||= khoKhep());
 for (const [ca, slug] of [['HK-AC6-nghi', 'hs-nghi'], ['HK-AC6-thuc-te', 'hs-thuc-te']]) {
@@ -345,7 +347,7 @@ if (want('HK-AC6-baseline')) {
     if (!BASE_SHA) throw new Error('khong rut duoc moc truoc vong');
     const base = BASE_SHA;
     const cu = dong(git(KIT, 'show', `${base}:${REL}`));
-    const khep = new Set(execFileSync(process.execPath, [path.join(KIT, 'lib', 'workspace-record.cjs'), '--da-khep', '--root', KIT], { encoding: 'utf8' }).split('\n').filter(Boolean));
+    const khep = new Set(execFileSync(process.execPath, [tep('lib/workspace-record.cjs', { thuMuc: KIT }), '--da-khep', '--root', KIT], { encoding: 'utf8' }).split('\n').filter(Boolean));
     const sai = []; let nKhep = 0, nRong = 0;
     for (const [slug, l] of moi) {
       if (khep.has(slug)) { nKhep++; if (/\thoi=\t/.test(l + '\t') || /\thoi=(\t|$)/.test(l)) nRong++; else sai.push(`${slug} khép mà hoi khác rỗng: ${l}`); }
@@ -380,7 +382,7 @@ if (want('HK-AC7-dot-bien')) {
     const outA = (a.stdout || '') + (a.stderr || '');
     if (a.status === 0 || !/FAIL: NS-AC9-cu — (bo quet|ban do) ban sau vong khac ban truoc vong/.test(outA)) sai.push(`NS-AC9-cu mutant: exit ${a.status}, «${outA.split('\n').find(l => l.includes('NS-AC9-cu')) || ''}»`);
     const b = chayBanSaoCa('lan-status-not-run.test.mjs',
-      "  for (const k of require(path.join(SELF_ROOT, 'lib', 'workspace-record.cjs')).slugDaKhep(corpusSaoCha))\n    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });\n",
+      "  for (const k of require(tai(SELF_ROOT, 'lib/workspace-record.cjs')).slugDaKhep(corpusSaoCha))\n    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });\n",
       { LSNR_CASES: 'L05' });
     const outB = (b.stdout || '') + (b.stderr || '');
     if (b.status === 0 || !/bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ \(release-2-0-0\)/.test(outB)) sai.push(`L05 mutant: exit ${b.status}, «${outB.split('\n').filter(l => l.includes('L05')).slice(-1)[0] || ''}»`);
@@ -393,11 +395,11 @@ if (want('HK-AC7-dot-bien')) {
 // Bản base = `git archive <merge-base>` scripts lib skills; HEAD = kho này. Cùng một dữ liệu
 // (cây thật, chỉ đọc). Mỗi khác biệt phải giải thích được bằng vật: khép theo vị từ, hoặc có mục
 // ngoài hợp đồng chưa định tuyến trên hồ sơ chưa ký. Tập kỳ vọng rút từ vật, không danh sách tên.
-const OOC = require(path.join(KIT, 'lib', 'out-of-contract.cjs'));
+const OOC = require(tep('lib/out-of-contract.cjs', { thuMuc: KIT }));
 function banBase() {
   if (!BASE_SHA) throw new Error('khong rut duoc moc truoc vong (commit dau dua hoSoDaKhep vao lib)');
   const d = mkdtempSync(path.join(TMP, 'base-'));
-  execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', BASE_SHA, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+  execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', BASE_SHA, ...boPhan(['scripts', 'lib', 'skills'], { kho: KIT, ref: BASE_SHA })], { maxBuffer: 512 * 1024 * 1024 }) });
   return d;
 }
 const oCuaTat = j => { const m = new Map(); for (const g of ['gates', 'inProgress', 'considering', 'done']) for (const x of (j.groups[g] || [])) m.set(x.slug, x.stateKey); for (const b of (j.broken || [])) m.set(b.slug, 'ho-so-hong'); return m; };
@@ -465,8 +467,8 @@ if (want('HK-AC5-note')) {
 // Danh sách bên gọi RÚT bằng quét scripts/ (không gõ tay). Mỗi bên gọi có một ca trên fixture
 // hàng một của AC-4 và một mutant «bỏ truyền findings»; bên gọi mới chưa có ca → ĐỎ.
 const BEN_GOI_RE = /\b(xanhSach|khongCanNguoi)\(/;
-const benGoi = () => readdirSync(path.join(KIT, 'scripts')).filter(f => /\.(mjs|cjs|js)$/.test(f))
-  .filter(f => BEN_GOI_RE.test(readFileSync(path.join(KIT, 'scripts', f), 'utf8'))).sort();
+const benGoi = () => readdirSync(tep('scripts', { thuMuc: KIT })).filter(f => /\.(mjs|cjs|js)$/.test(f))
+  .filter(f => BEN_GOI_RE.test(readFileSync(path.join(tep('scripts', { thuMuc: KIT }), f), 'utf8'))).sort();
 const hopDongMC = slug => hopDongV(slug).replace(/^status:[ \t]*verified/m, 'status: machine-cleared');
 function khoMC(slug) {
   const R = khoLanV(slug, FINDINGS_2, '');
@@ -481,11 +483,11 @@ const CA_BEN_GOI = {
       return d && /^may-di-tiep/.test(d.stateKey) ? `bo quet xep bg-q vao ${d.stateKey}` : null; } },
   'product-map.mjs': {
     neo: "{ findings: readRecord(path.join(dir, 'review-findings.md')).t ?? null, ledger: ledgerTxt ?? null, runLog: readRecord(path.join(dir, 'run-log.jsonl')).t ?? null }", thay: '{ findings: null, ledger: null, runLog: null }',
-    kiem: async may => { const R = khoMC('bg-m'); const { renderProductMap } = await import(pathToFileURL(path.join(may, 'scripts', 'product-map.mjs')).href + `?v=${Math.random()}`);
+    kiem: async may => { const R = khoMC('bg-m'); const { renderProductMap } = await import(pathToFileURL(tep('scripts/product-map.mjs', { thuMuc: may })).href + `?v=${Math.random()}`);
       return /`bg-m` — không đọc được hồ sơ/.test(renderProductMap(R)) ? null : 'ban do khong goi bg-m la ho so hong'; } },
   'khong-can-nguoi.mjs': {
     neo: "  const ctx = { findings: docCanh('review-findings.md'), ledger: docCanh('decisions.jsonl') };", thay: "  const ctx = { findings: null, ledger: docCanh('decisions.jsonl') };",
-    kiem: may => { const R = khoLanV('bg-c', FINDINGS_2, ''); const o = spawnSync(process.execPath, [path.join(may, 'scripts', 'khong-can-nguoi.mjs'), '--check', '--root', R, '--slug', 'bg-c'], { encoding: 'utf8' });
+    kiem: may => { const R = khoLanV('bg-c', FINDINGS_2, ''); const o = spawnSync(process.execPath, [tep('scripts/khong-can-nguoi.mjs', { thuMuc: may }), '--check', '--root', R, '--slug', 'bg-c'], { encoding: 'utf8' });
       return o.status === 2 && /chưa người định tuyến/.test(o.stderr) ? null : `CLI --check exit ${o.status}: ${(o.stderr || '').trim()}`; } },
 };
 if (want('HK-AC8-ben-goi') || want('HK-AC8-dot-bien')) {
@@ -543,7 +545,7 @@ for (const [ca, slug] of [['HK-AC9-vang', 'tt-vang'], ['HK-AC9-thieu', 'tt-thieu
 if (want('HK-AC9-dot-bien')) {
   try {
     const may = banSaoMay([['scripts/gate-card.js', NEO_DA_KHEP, "const daKhepTu = hit => !!(hit && (hit.nghi || hit.stateKey === 'da-cham-thuc-te'));"]]);
-    const GC = path.join(may, 'scripts', 'gate-card.js');
+    const GC = tep('scripts/gate-card.js', { thuMuc: may });
     const the = (R, slug) => JSON.parse(execFileSync(process.execPath, [GC, '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
     const html = (R, slug) => execFileSync(process.execPath, [GC, '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     const sai = kiemE9(the, html);

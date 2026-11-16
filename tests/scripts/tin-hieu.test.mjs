@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, gocGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -29,19 +30,21 @@ const loi = e => String((e && (e.stack || e.message)) || e).split('\n').slice(0,
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const node = (args, o = {}) => spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...o });
 const deq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const nap = async (kit, rel) => import(pathToFileURL(path.join(kit, rel)).href);
+// raTep: đường của một tệp gói ở cây `kit` (gốc kho: cây đang kiểm hoặc bản sao) — qua bộ dịch (hồ sơ phan-du-bo-cuc-moi).
+const raTep = (kit, rel) => tep(rel, { thuMuc: kit });
+const nap = async (kit, rel) => import(pathToFileURL(raTep(kit, rel)).href);
 const khoiMd = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`[a-z]*\\n([\\s\\S]*?)\`\`\`\\n<!-- ${ten}>>> -->`)); return m ? m[1] : null; };
-const KHUON = kit => readFileSync(path.join(kit, 'skills', 'acceptance', 'references', 'tin-hieu-template.md'), 'utf8');
+const KHUON = kit => readFileSync(raTep(kit, 'skills/acceptance/references/tin-hieu-template.md'), 'utf8');
 const dongLoi = s => String(s).split('\n').filter(l => l.trim() && !l.startsWith('cảnh báo:'));
 
 let bsN = 0;
 function banSao(tiem = [], goc = KIT) {
   const c = path.join(TMP, `bs-${++bsN}`);
-  for (const d of ['scripts', 'lib', 'skills', 'dieu-phoi']) cpSync(path.join(goc, d), path.join(c, d), { recursive: true });
-  for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8');
+  for (const d of boPhan(['scripts', 'lib', 'skills', 'dieu-phoi'], { thuMuc: goc })) cpSync(path.join(goc, d), path.join(c, d), { recursive: true });
+  for (const [f, cu, moi] of tiem) {
+    const p = raTep(c, f); const s = readFileSync(p, 'utf8');
     const n = s.split(cu).length - 1;
-    if (n !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
+    if (n !== 1) throw new Error(`nhát tiêm vào ${f} khớp ${n} lần (cần 1): ${cu.slice(0, 60)}`);
     writeFileSync(p, s.replace(cu, moi));
   }
   return c;
@@ -91,7 +94,7 @@ const EV = slug => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS
 const OPP = `---\nschema_version: 1\nslug: x\nfeature: viec x\nowner: x@y.z\nstage: discovery\ndecision:\n---\n\n## Vấn đề & ai gặp\n\nNgười dùng X.\n`;
 const KHAI = 'tin_hieu:\n  nguon: tin-hieu\n  gom: docs/gom\n';
 // Trạng thái hồ sơ rút từ lib (RT13: tệp ca không viết cứng chữ trạng thái) — «đã giao» = tập của lưới trước-gộp.
-const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const WR = createRequire(import.meta.url)(tep('lib/workspace-record.cjs', { thuMuc: KIT }));
 const DA_GIAO_TT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
 const GIAO = WR.DA_THONG_CONG_2[0];
 let khoN = 0;
@@ -115,8 +118,8 @@ function kho({ cfg = KHAI, tins = [], gom = {}, hoSo = {}, lt = null, chuaAddGom
   git(r, '-c', 'commit.gpgsign=false', 'commit', '-qm', 'kho thu');
   return r;
 }
-const th = (kit, r, ...a) => node([path.join(kit, 'scripts', 'tin-hieu.mjs'), '--root', r, ...a]);
-const pm = (kit, r) => node([path.join(kit, 'scripts', 'product-map.mjs'), '--root', r]);
+const th = (kit, r, ...a) => node([raTep(kit, 'scripts/tin-hieu.mjs'), '--root', r, ...a]);
+const pm = (kit, r) => node([raTep(kit, 'scripts/product-map.mjs'), '--root', r]);
 const khoiThô = html => { const m = String(html).match(/<script type="application\/json" id="lo-trinh-du-lieu">([\s\S]*?)<\/script>/); return m ? JSON.parse(m[1]) : null; };
 
 // ── TH-1: khuôn tín hiệu = khuôn yêu cầu của Điều phối (AC-1) ───────────────────
@@ -129,7 +132,7 @@ async function th1(kit) {
   const a = T.docTinHieu(r1, ['tin-hieu']);
   if (a.tinHieu.length !== 1 || a.loi.length || a.tinHieu[0].id !== m.id || a.tinHieu[0].tieu_de !== m.obj.noi_dung.tieu_de) sai.push(`mau: ${JSON.stringify(a).slice(0, 160)}`);
   // 374 yêu cầu thật (ẩn danh): đếm độc lập trong ca.
-  const LOAI = T.napLoai(path.join(kit, 'skills', 'acceptance', 'references', 'tin-hieu-template.md'));
+  const LOAI = T.napLoai(raTep(kit, 'skills/acceptance/references/tin-hieu-template.md'));
   const tepFx = readdirSync(FX_DOT).filter(f => f.endsWith('.json')).sort();
   const dem = {}; for (const f of tepFx) { const o = JSON.parse(readFileSync(path.join(FX_DOT, f), 'utf8')); dem[o.loai] = (dem[o.loai] || 0) + 1; }
   const b = T.docTinHieu(KIT, [path.relative(KIT, FX_DOT)]);
@@ -176,7 +179,7 @@ const KHOA_CA = {
 const STUB_TH = "throw new Error('nap-cua');\n";
 async function th2(kit) {
   const sai = [];
-  const K = createRequire(import.meta.url)(path.join(kit, 'scripts', 'tin-hieu-khoa.cjs'));
+  const K = createRequire(import.meta.url)(raTep(kit, 'scripts/tin-hieu-khoa.cjs'));
   let soCa = 0;
   for (const [ten, [cfg, mong]] of Object.entries(KHOA_CA)) { soCa += 1; const v = K.khoaTinHieu(cfg); const g = v && { nguon: v.nguon, gom: v.gom }; if (!deq(g, mong)) sai.push(`khoá ${ten}: ${JSON.stringify(g)} ≠ ${JSON.stringify(mong)}`); }
   if (soCa !== 7) sai.push(`khoá: đo ${soCa} ca`);
@@ -191,8 +194,8 @@ async function th2(kit) {
   if (!k1 || 'tin_hieu' in k1 || !deq(Object.keys(k1).sort(), [...LT.KHUON_DU_LIEU.goc].sort())) sai.push(`khối thô tin_hieu: kho không khai mang khoá ${JSON.stringify(k1 && Object.keys(k1))}`);
   // So byte với bản sao KHÔNG có bộ đọc khoá và có mô-đun cửa bị thay bằng bản ném lỗi khi nạp — kho
   // không khai không cần tệp nào của cửa (bộ đọc khoá nạp khoan dung, luật 26/09).
-  const stub = banSao([], kit); writeFileSync(path.join(stub, 'scripts', 'tin-hieu.mjs'), STUB_TH);
-  const stubB = banSao([], stub); rmSync(path.join(stubB, 'scripts', 'tin-hieu-khoa.cjs'));
+  const stub = banSao([], kit); writeFileSync(raTep(stub, 'scripts/tin-hieu.mjs'), STUB_TH);
+  const stubB = banSao([], stub); rmSync(raTep(stubB, 'scripts/tin-hieu-khoa.cjs'));
   const rVang2 = kho({ cfg: '', lt: LT_KHO }); const v2 = pm(stubB, rVang2);
   if (v2.status !== 0) sai.push(`bản thay trên kho không khai: exit ${v2.status} ${v2.stderr.slice(0, 120)}`);
   for (const f of ['PRODUCT-MAP.md', 'LO-TRINH.html']) if (readFileSync(path.join(rVang, f), 'utf8') !== readFileSync(path.join(rVang2, f), 'utf8')) sai.push(`byte ${f}: kho không khai vẽ khác khi mô-đun cửa vắng`);
@@ -289,7 +292,7 @@ if (want('TH-4-do')) await chayDo('TH-4-do', th4, [['scripts/tin-hieu.mjs', "ret
 // ── TH-5: đã phủ chỉ trỏ hồ sơ đã giao (AC-5) ─────────────────────────────────
 async function th5(kit) {
   const sai = [];
-  const WR = createRequire(import.meta.url)(path.join(kit, 'lib', 'workspace-record.cjs'));
+  const WR = createRequire(import.meta.url)(raTep(kit, 'lib/workspace-record.cjs'));
   const giao = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
   const t = i => tin(kit, i, { luc: LUC_TRUOC });
   const tins = giao.map((_, i) => t(i + 1));
@@ -313,7 +316,7 @@ if (want('TH-5-do')) await chayDo('TH-5-do', th5, [['scripts/tin-hieu.mjs', 'ret
 // ── TH-6: chính sách trục + bản gom phải trong git (AC-6) ──────────────────────
 async function th6(kit) {
   const sai = [];
-  const T = await nap(kit, 'scripts/tin-hieu.mjs'); const truc = T.napTruc(path.join(kit, 'skills', 'gom-tin-hieu', 'SKILL.md'));
+  const T = await nap(kit, 'scripts/tin-hieu.mjs'); const truc = T.napTruc(raTep(kit, 'skills/gom-tin-hieu/SKILL.md'));
   const t1 = tin(kit, 1, { luc: LUC_TRUOC }); const nhom = [['G1', 'Kỹ sư ghim lại nhanh', [t1.id]]];
   const a = th(kit, kho({ tins: [t1], gom: { 'gom-1.md': vietGom(kit, { nhom, bo: ['truc'] }) } }), '--rang');
   if (a.status !== 1 || !dongLoi(a.stdout).some(l => l.includes('thiếu truc'))) sai.push(`vang-truc: exit ${a.status} ${a.stdout.slice(0, 120)}`);
@@ -392,14 +395,14 @@ async function th8(kit) {
   if (!k || !deq(k.tin_hieu, duong)) sai.push(`tin_hieu của khối ≠ --duong: ${String(JSON.stringify(k && k.tin_hieu)).slice(0, 120)}`);
   if (pm(kit, r).status !== 0 || readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8') !== html) sai.push('vẽ hai lần khác byte');
   for (const [cap, ds] of Object.entries(LT.KHUON_DU_LIEU)) if (ds.includes('tin_hieu') || cap === 'tin_hieu') sai.push(`KHUON_DU_LIEU có tin_hieu ở cấp ${cap}`);
-  const doc = chepRoi(readFileSync(path.join(kit, 'scripts', 'lo-trinh.mjs'), 'utf8'));
+  const doc = chepRoi(readFileSync(raTep(kit, 'scripts/lo-trinh.mjs'), 'utf8'));
   const a = doc(html); const goKhoa = html.replace(/(<script type="application\/json" id="lo-trinh-du-lieu">)([\s\S]*?)(<\/script>)/, (m, p1, j, p3) => { const o = JSON.parse(j); delete o.tin_hieu; return p1 + JSON.stringify(o).replace(/</g, '\\u003c') + p3; });
   const b = doc(goKhoa);
   if (!a.duLieu || !deq(a.duLieu.tin_hieu, k.tin_hieu)) sai.push('bản chép rời không giữ tin_hieu');
   if (!deq(a.canhBao, b.canhBao)) sai.push(`cảnh báo khác khi có/không khoá: ${JSON.stringify(a.canhBao)} ≠ ${JSON.stringify(b.canhBao)}`);
   if (b.duLieu && 'tin_hieu' in b.duLieu) sai.push('bản chép rời tự điền tin_hieu khi trang không có khoá');
   // Tài liệu kho tiêu thụ: khối khoá tuỳ chọn == TRUONG_DUONG.
-  const tl = khoiMd(readFileSync(path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md'), 'utf8'), 'LO-TRINH-DU-LIEU-TUY-CHON');
+  const tl = khoiMd(readFileSync(raTep(kit, 'skills/acceptance/references/lo-trinh-du-lieu.md'), 'utf8'), 'LO-TRINH-DU-LIEU-TUY-CHON');
   if (tl == null) sai.push('tài liệu thiếu khối LO-TRINH-DU-LIEU-TUY-CHON');
   else { const ds = tl.split('\n').filter(Boolean).map(l => (l.match(/^tin_hieu\.([a-z_]+) — /) || [])[1]); for (const f of T.TRUONG_DUONG) if (!ds.includes(f)) sai.push(`tài liệu thiếu trường ${f}`); for (const f of ds) if (!T.TRUONG_DUONG.includes(f)) sai.push(`tài liệu có trường lạ ${f}`); }
   for (const d of duong) if (!deq(Object.keys(d), T.TRUONG_DUONG)) sai.push(`bản ghi ${d.id} lệch TRUONG_DUONG`);
@@ -410,12 +413,12 @@ if (want('TH-8-do')) await chayDo('TH-8-do', th8, [['scripts/lo-trinh.mjs', ', .
 if (want('TH-8-do2')) await chayDo('TH-8-do2', th8, [['skills/acceptance/references/lo-trinh-du-lieu.md', 'tin_hieu.ho_so_phu — hồ sơ đã giao phủ tín hiệu (ngăn đã phủ)\n', '']], 'ho_so_phu', 'bản sao tài liệu thiếu một trường');
 
 // ── TH-9: skill gom chạy được nguyên văn (AC-9) ───────────────────────────────
-const SKILL = kit => readFileSync(path.join(kit, 'skills', 'gom-tin-hieu', 'SKILL.md'), 'utf8');
+const SKILL = kit => readFileSync(raTep(kit, 'skills/gom-tin-hieu/SKILL.md'), 'utf8');
 const CUM_THU_TU = ['## Bước 2 — gom theo trục', 'Commit tệp', '<!-- <<<GOM-RANG -->', '## Bước 4 — chuyển cho cắt lượt'];
 const MAU_CAM = [/giữ.{0,20}kho tín hiệu/i, /ghi trạng thái vào tệp/i];
 async function th9(kit) {
   const sai = []; const sk = SKILL(kit);
-  const chay = (ten, r) => { const b = khoiMd(sk, ten); if (b == null) return { status: -1, ten }; return spawnSync('bash', ['-c', b.trim()], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: kit } }); };
+  const chay = (ten, r) => { const b = khoiMd(sk, ten); if (b == null) return { status: -1, ten }; return spawnSync('bash', ['-c', b.trim()], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: gocGoi({ thuMuc: kit }, 'loi') } }); };
   const t1 = tin(kit, 1, { luc: LUC_TRUOC }); const t2 = tin(kit, 2, { luc: LUC_TRUOC });
   const rX = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', 'Kỹ sư ghim lại nhanh', [t1.id, t2.id]]] }) } });
   const rD = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', 'Kỹ sư ghim lại nhanh', [t1.id]]] }) } });
@@ -438,6 +441,11 @@ if (want('TH-9-do')) await chayDo('TH-9-do', th9, [['skills/gom-tin-hieu/SKILL.m
 // của kit: đỏ ở đó là dữ liệu cho Cổng Bằng chứng, không được làm đỏ bộ kiểm chung của mọi PR.
 const HS = path.join(KIT, '_acceptance', 'cua-tin-hieu-gom-nhom');
 const MAU = path.join(HS, 'mau');
+// Lệnh chấm: bản NHÂN ở tests/fixtures/ (hồ sơ phan-du-bo-cuc-moi) — bản trong hồ sơ đã ký nạp bộ đọc tín hiệu theo đường
+// phẳng từ gốc kho nên không chạy ở kho mới; bản nhân giải gốc gói lõi qua bộ dịch. TH-BAN ghim hai bản chỉ khác đúng
+// các dòng viết trước; bản trong hồ sơ giữ nguyên từng byte.
+const CHAM = path.join(HERE, '..', 'fixtures', 'cham-bo-vang.mjs');
+const CHAM_HO_SO = path.join(HS, 'rang', 'cham-bo-vang.mjs');
 const goi = (r, ...a) => git(r, '-c', 'commit.gpgsign=false', ...a);
 async function khoCham(kit, { gomTxt, boVang, dapAnTruoc = true }) {
   const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
@@ -449,7 +457,7 @@ async function khoCham(kit, { gomTxt, boVang, dapAnTruoc = true }) {
 }
 async function th10ong(kit) {
   const sai = [];
-  const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+  const C = await import(pathToFileURL(CHAM).href);
   const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
   const T = await nap(kit, 'scripts/tin-hieu.mjs');
   const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
@@ -485,7 +493,7 @@ if (want('TH-10-do')) {
 }
 if (want('TH-10-do2')) {
   try {
-    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const C = await import(pathToFileURL(CHAM).href);
     const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
     const d = path.join(TMP, `ro-${++khoN}`); mkdirSync(d); const f0 = readdirSync(path.join(MAU, 'tin-hieu')).sort()[0];
     const o = JSON.parse(readFileSync(path.join(MAU, 'tin-hieu', f0), 'utf8')); o.noi_dung.nhan = `giả — sinh từ ${Object.keys(bv.ho_so)[0]}`;
@@ -494,10 +502,51 @@ if (want('TH-10-do2')) {
     if (l.some(x => x.includes(f0))) ok('TH-10-do2', `bộ sinh giữ tên hồ sơ trong nhãn: phép quét kín trả «${l[0].slice(0, 90)}»`); else bad('TH-10-do2', `không bắt: ${JSON.stringify(l)}`);
   } catch (e) { bad('TH-10-do2', loi(e)); }
 }
+// TH-BAN: bản lệnh chấm ở tests/fixtures/ chỉ khác bản trong hồ sơ đúng các dòng VIẾT TRƯỚC ở đây (mỗi dòng đúng phía,
+// đúng thứ tự). Hai bản không đi qua luật đổi chữ của kịch bản (dưới fixtures/) nên phép so cùng nghĩa ở mọi bố cục.
+const TH_BAN_THEM = [
+  '//',
+  '// BẢN NHÂN Ở tests/fixtures/ (hồ sơ phan-du-bo-cuc-moi): bản trong hồ sơ đã ký cua-tin-hieu-gom-nhom giữ nguyên từng byte.',
+  '// Khác bản ấy đúng ba chỗ, ca TH-BAN ghim: nạp bộ dịch, gốc kho mặc định từ tests/fixtures/, và `kit` (gốc kho) giải',
+  '// ra gốc gói lõi qua bộ dịch trước khi nạp bộ đọc tín hiệu.',
+  "import { gocGoi } from '../bo-cuc.mjs';",
+  "const KIT_MAC_DINH = path.resolve(__dirname, '..', '..');",
+  'export async function cham({ root, boVangTep, kit: khoKit = KIT_MAC_DINH }) {',
+  "  const kit = gocGoi({ thuMuc: khoKit }, 'loi');",
+];
+const TH_BAN_BOT = [
+  "const KIT_MAC_DINH = path.resolve(__dirname, '..', '..', '..');",
+  'export async function cham({ root, boVangTep, kit = KIT_MAC_DINH }) {',
+];
+// Khác biệt theo dòng (dãy con chung dài nhất): { them: dòng chỉ ở b, bot: dòng chỉ ở a }, giữ thứ tự.
+const khacDong = (a, b) => {
+  const A = a.split('\n'); const B = b.split('\n');
+  const L = Array.from({ length: A.length + 1 }, () => new Int32Array(B.length + 1));
+  for (let i = A.length - 1; i >= 0; i--) for (let j = B.length - 1; j >= 0; j--)
+    L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const them = []; const bot = []; let i = 0; let j = 0;
+  while (i < A.length && j < B.length) {
+    if (A[i] === B[j]) { i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) bot.push(A[i++]); else them.push(B[j++]);
+  }
+  return { them: [...them, ...B.slice(j)], bot: [...bot, ...A.slice(i)] };
+};
+if (want('TH-BAN')) {
+  try {
+    const lech = (goc, ban) => { const k = khacDong(goc, ban); return deq(k.them, TH_BAN_THEM) && deq(k.bot, TH_BAN_BOT) ? null : k; };
+    const goc = readFileSync(CHAM_HO_SO, 'utf8'); const ban = readFileSync(CHAM, 'utf8');
+    const k = lech(goc, ban);
+    // Đối chứng: một dòng lạ chèn vào bản nhân (trước hàm quét kín) phải làm phép so đỏ, nêu đúng dòng ấy.
+    const LA = '// dòng lạ TH-BAN'; const banLa = ban.replace('\nexport function quetKin(', `\n${LA}\nexport function quetKin(`);
+    const kLa = banLa === ban ? null : lech(goc, banLa);
+    if (k) bad('TH-BAN', `khác ngoài danh sách — thêm: ${JSON.stringify(k.them)} · bớt: ${JSON.stringify(k.bot)}`);
+    else if (!kLa || !kLa.them.includes(LA)) bad('TH-BAN', `đối chứng: ${banLa === ban ? 'lệnh chèn không đổi được bản nhân' : 'chèn dòng lạ mà phép so vẫn im'}`);
+    else ok('TH-BAN', 'bản lệnh chấm ở tests/fixtures/ chỉ khác bản trong hồ sơ đúng các dòng viết trước; thêm một dòng lạ → đỏ');
+  } catch (e) { bad('TH-BAN', loi(e)); }
+}
 // KẾT QUẢ: chỉ khi gọi đích danh (executors.test.tin_hieu_vang).
 if (only.includes('TH-10')) {
   try {
-    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const C = await import(pathToFileURL(CHAM).href);
     const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
     const r = await khoCham(KIT, { gomTxt: readFileSync(path.join(MAU, 'gom-bo-vang.md'), 'utf8'), boVang: bv });
     const x = await C.cham({ root: r, boVangTep: 'vang/bo-vang.json', kit: KIT });
@@ -583,8 +632,8 @@ if (want('CN-1-do2')) await chayDo('CN-1-do2', cn1, [['scripts/tin-hieu.mjs', ' 
 const BASE_TH = '294b29db846a75f875f7c7637ce5a9080cda50aa';
 async function cn2(kit) {
   const sai = [];
-  let goc; try { goc = execFileSync('git', ['-C', KIT, 'show', `${BASE_TH}:scripts/tin-hieu.mjs`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch { return [`kho kit không có ${BASE_TH} — fetch trước`]; }
-  const base = banSao([], kit); writeFileSync(path.join(base, 'scripts', 'tin-hieu.mjs'), goc);
+  let goc; try { goc = execFileSync('git', ['-C', KIT, 'show', tep('scripts/tin-hieu.mjs', { kho: KIT, ref: BASE_TH })], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch { return [`kho kit không có ${BASE_TH} — fetch trước`]; }
+  const base = banSao([], kit); writeFileSync(raTep(base, 'scripts/tin-hieu.mjs'), goc);
   console.log(`    CN-2: base = cây đang kiểm + scripts/tin-hieu.mjs @${BASE_TH.slice(0, 8)}`);
   const { r } = khoCau(kit);
   const xm = th(kit, r, '--duong'); const xb = th(base, r, '--duong');
@@ -597,7 +646,7 @@ async function cn2(kit) {
   const TM = await nap(kit, 'scripts/tin-hieu.mjs'); const TB = await nap(base, 'scripts/tin-hieu.mjs');
   if (!deq(TM.TRUONG_DUONG, [...TB.TRUONG_DUONG, 'cau_nguoi_gui'])) sai.push(`TRUONG_DUONG ${JSON.stringify(TM.TRUONG_DUONG)} ≠ base + cau_nguoi_gui`);
   // Ca im: một PR khác đổi cách vẽ trang ở base → phép so bản ghi vẫn xanh (và trang thật sự khác).
-  const lo = path.join(base, 'scripts', 'lo-trinh.mjs'); const loTxt = readFileSync(lo, 'utf8'); const MOC = "const khoiDuLieu = o => `<script";
+  const lo = raTep(base, 'scripts/lo-trinh.mjs'); const loTxt = readFileSync(lo, 'utf8'); const MOC = "const khoiDuLieu = o => `<script";
   if (loTxt.split(MOC).length !== 2) return [...sai, 'ca im: không tìm thấy chỗ tiêm trong lo-trinh.mjs của base'];
   writeFileSync(lo, loTxt.replace(MOC, "const khoiDuLieu = o => `<!-- pr-khac -->\\n<script"));
   const pB = pm(base, r); const pageB = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8'); const pM = pm(kit, r); const pageM = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
@@ -808,7 +857,7 @@ async function cn7(kit) {
   const T = await nap(kit, 'scripts/tin-hieu.mjs');
   const { r } = khoCau(kit); if (pm(kit, r).status !== 0) return ['vẽ trang hỏng'];
   const html = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
-  const doc = chepRoi(readFileSync(path.join(kit, 'scripts', 'lo-trinh.mjs'), 'utf8'));
+  const doc = chepRoi(readFileSync(raTep(kit, 'scripts/lo-trinh.mjs'), 'utf8'));
   const a = doc(html); const ds = (a.duLieu && a.duLieu.tin_hieu) || [];
   if (!ds.length) return ['khối không có tin_hieu'];
   for (const b of ds) { const v = T.cauChoNguoiGui(b); if (v.cau !== b.cau_nguoi_gui || v.co !== null) sai.push(`trang mới: ${b.id} ${JSON.stringify(v)}`); }
@@ -817,7 +866,7 @@ async function cn7(kit) {
   for (const b of dsc) { const v = T.cauChoNguoiGui(b); if (v.cau !== b.cau || !String(v.co).includes('bản vẽ cũ')) sai.push(`trang cũ: ${b.id} ${JSON.stringify(v)}`); }
   if (!deq(a.duLieu.tin_hieu, khoiThô(html).tin_hieu) || !deq(dsc, khoiThô(cu).tin_hieu)) sai.push('docDuLieu chép rời không giữ nguyên mảng');
   if (!deq(a.canhBao, bb.canhBao)) sai.push(`cảnh báo khác giữa trang mới và cũ: ${JSON.stringify(a.canhBao)} ≠ ${JSON.stringify(bb.canhBao)}`);
-  const tlTxt = readFileSync(path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md'), 'utf8');
+  const tlTxt = readFileSync(raTep(kit, 'skills/acceptance/references/lo-trinh-du-lieu.md'), 'utf8');
   const tl = khoiMd(tlTxt, 'LO-TRINH-DU-LIEU-TUY-CHON'); if (tl == null) return [...sai, 'tài liệu thiếu khối LO-TRINH-DU-LIEU-TUY-CHON'];
   const truong = tl.split('\n').filter(Boolean).map(l => (l.match(/^tin_hieu\.([a-z_]+) — /) || [])[1]);
   for (const f of T.TRUONG_DUONG) if (!truong.includes(f)) sai.push(`tài liệu thiếu trường ${f}`);
@@ -833,7 +882,7 @@ if (want('CN-7-do')) await chayDo('CN-7-do', cn7, [['skills/acceptance/reference
 async function cn8(kit) {
   const sai = []; const sk = SKILL(kit);
   const b = khoiMd(sk, 'GOM-CAU'); if (b == null) return ['GOM-CAU: SKILL thiếu khối'];
-  const chay = r => spawnSync('bash', ['-c', b.trim()], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: kit } });
+  const chay = r => spawnSync('bash', ['-c', b.trim()], { cwd: r, encoding: 'utf8', env: { ...process.env, AG: gocGoi({ thuMuc: kit }, 'loi') } });
   const t1 = tin(kit, 1, { luc: LUC_TRUOC }); const t2 = tin(kit, 2, { luc: LUC_TRUOC });
   const rX = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', 'Kỹ sư ghim lại nhanh', [t1.id, t2.id]]] }) } });
   const rD = kho({ tins: [t1, t2], gom: { 'gom-1.md': vietGom(kit, { nhom: [['G1', `Kỹ sư ghim lại ${t2.id}`, [t1.id, t2.id]]] }) } });

@@ -17,20 +17,25 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { duong, gocGoi, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
 const { fileFromTemplate, blockFromTemplate } = await import(path.join(ROOT, 'tests', 'fixtures', 'from-template.mjs'));
-const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
-const EVID_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'evidence-report-template.md');
-const SCRIPT = path.join(ROOT, 'scripts', 'dinh-tuyen-may.cjs');
-const KCN = path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs');
-const CARD = path.join(ROOT, 'scripts', 'gate-card.js');
-const PREMERGE = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
-const SKILL = path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
+const CONTRACT_TPL = tep('skills/acceptance/references/contract-template.md', { thuMuc: ROOT });
+const EVID_TPL = tep('skills/acceptance/references/evidence-report-template.md', { thuMuc: ROOT });
+const SCRIPT = tep('scripts/dinh-tuyen-may.cjs', { thuMuc: ROOT });
+const KCN = tep('scripts/khong-can-nguoi.mjs', { thuMuc: ROOT });
+const CARD = tep('scripts/gate-card.js', { thuMuc: ROOT });
+const PREMERGE = tep('scripts/pre-merge-check.sh', { thuMuc: ROOT });
+const SKILL = tep('feature-loop/skills/feature-loop/SKILL.md', { thuMuc: ROOT });
 const GUIDE = path.join(ROOT, 'GUIDE.md');
-const ooc = require(path.join(ROOT, 'lib', 'out-of-contract.cjs'));
+const ooc = require(tep('lib/out-of-contract.cjs', { thuMuc: ROOT }));
+// Bản sao tiêm theo bố cục của cây đang đứng: D(thư mục) là chỗ thư mục ấy ở cây này; symlink tạo thư mục cha.
+const D = d => duong(d, { thuMuc: ROOT });
+const noiDen = (T, d) => { mkdirSync(path.dirname(path.join(T, D(d))), { recursive: true }); symlinkSync(path.join(ROOT, D(d)), path.join(T, D(d))); };
+const LOI = gocGoi({ thuMuc: ROOT }, 'loi');
 const GLOSS = ooc.OOC_GLOSS_NGUOI;
 
 let failures = 0, passes = 0, matched = 0;
@@ -42,7 +47,7 @@ const ca = (id, name, fn) => { try { const e = fn(); if (e) fail(`${id} ${name}`
 
 // ─── Khuôn bên viết ──────────────────────────────────────────────────────────
 const OOC_TPL = (() => {
-  const wf = readFileSync(path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const wf = readFileSync(tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: ROOT }), 'utf8');
   const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
   if (!m) throw new Error('khong rut duoc OOC-ITEM-TEMPLATE');
   return m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
@@ -104,25 +109,25 @@ const goiTen = (h, n) => dongMay(h).filter(e => new RegExp(`^Ngoài-${n}:`).test
 // chép cả scripts/ lẫn lib/ — require theo realpath, symlink lib sẽ trỏ về bản lành.
 function banSaoLib(tep, tu, thanh) {
   const T = mkdtempSync(path.join(tmpdir(), 'nt-mut-')); tmpRoots.push(T);
-  for (const d of ['scripts', 'lib']) cpSync(path.join(ROOT, d), path.join(T, d), { recursive: true });
-  for (const d of ['skills', 'feature-loop']) symlinkSync(path.join(ROOT, d), path.join(T, d));
-  const p = path.join(T, 'lib', tep), goc = readFileSync(p, 'utf8');
+  for (const d of ['scripts', 'lib']) cpSync(path.join(ROOT, D(d)), path.join(T, D(d)), { recursive: true });
+  for (const d of ['skills', 'feature-loop']) noiDen(T, d);
+  const p = path.join(T, D('lib'), tep), goc = readFileSync(p, 'utf8');
   const moi = goc.split(tu).join(thanh);
   if (moi === goc) throw new Error(`đột biến không áp được vào lib/${tep}: không thấy «${tu.slice(0, 60)}»`);
   writeFileSync(p, moi);
-  return path.join(T, 'scripts');
+  return path.join(T, D('scripts'));
 }
 function banSao(tep, tu, thanh) {
   const T = mkdtempSync(path.join(tmpdir(), 'nt-mut-')); tmpRoots.push(T);
   // Chép TRỌN cây scripts/ (kể cả thư mục con như scripts/hop-thu/, hồ sơ goi-cheo-loi-dieu-phoi) — chép phẳng
   // từng tệp gãy ngay khi scripts/ có một thư mục con.
-  cpSync(path.join(ROOT, 'scripts'), path.join(T, 'scripts'), { recursive: true });
-  for (const d of ['lib', 'skills', 'feature-loop']) symlinkSync(path.join(ROOT, d), path.join(T, d));
-  const p = path.join(T, 'scripts', tep), goc = readFileSync(p, 'utf8');
+  cpSync(path.join(ROOT, D('scripts')), path.join(T, D('scripts')), { recursive: true });
+  for (const d of ['lib', 'skills', 'feature-loop']) noiDen(T, d);
+  const p = path.join(T, D('scripts'), tep), goc = readFileSync(p, 'utf8');
   const moi = goc.split(tu).join(thanh);
   if (moi === goc) throw new Error(`đột biến không áp được vào ${tep}: không thấy «${tu.slice(0, 60)}»`);
   writeFileSync(p, moi);
-  return path.join(T, 'scripts');
+  return path.join(T, D('scripts'));
 }
 
 // Ca chiều đỏ (AC-14): bản lành chạy TRƯỚC trên cùng fixture; ca chỉ PASS khi đầu ra THẬT của lệnh đo
@@ -376,8 +381,8 @@ function khoGit(slug, findings) {
   writeFileSync(path.join(R, 'src', 'app.js'), 'code v1\n'); writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
   for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'out-of-contract.cjs'])
-    copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
-  copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+    copyFileSync(tep(`lib/${f}`, { thuMuc: ROOT }), path.join(R, 'lib', f));
+  copyFileSync(tep('scripts/recheck-evidence.cjs', { thuMuc: ROOT }), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
   writeFileSync(path.join(R, 'src', 'app.js'), 'code v2\n');
   const d = path.join(R, '_acceptance', slug); mkdirSync(d, { recursive: true });
@@ -516,7 +521,7 @@ function chayKhoi(khoi) {
   const lenh = (khoi.match(/^AG=.*dinh-tuyen-ma\w*\.cjs.*$/m) || [])[0];
   if (!lenh) return { status: -1, loi: 'khối không có dòng lệnh AG=… dinh-tuyen-may' };
   const h = hoSo('nt9', { findings: BA_MUC() });
-  const cmd = lenh.replace(/^AG=\$\([^)]*\)/, `AG='${ROOT}'`).replace(/<slug>/g, h.slug);
+  const cmd = lenh.replace(/^AG=\$\([^)]*\)/, `AG='${LOI}'`).replace(/<slug>/g, h.slug);
   const r = spawnSync('bash', ['-c', cmd], { cwd: h.R, encoding: 'utf8' });
   return { status: r.status, may: dongMay(h).length, err: r.stderr };
 }
@@ -646,10 +651,12 @@ if (want('NT12')) {
 
 // ─── NT13 — nhánh mã thoát khác 0/2 là nhánh có thật ──────────────────────────
 if (want('NT13')) {
-  const RES = path.join(ROOT, 'feature-loop', 'scripts', 'resolve-plugin.mjs');
+  const RES = tep('feature-loop/scripts/resolve-plugin.mjs', { thuMuc: ROOT });
+  // `--require` là đường tính từ GỐC GÓI (như khối SKILL viết), `--root` là gốc gói lõi — không phải gốc kho.
+  const trongGoi = rel => duong(rel, { goiGoc: LOI, vai: 'loi' });
   ca('NT13', 'resolver-thieu', () => {
-    const co = spawnSync(process.execPath, [RES, '--plugin', 'acceptance-gate', '--require', 'scripts/dinh-tuyen-may.cjs', '--root', ROOT], { encoding: 'utf8' });
-    const thieu = spawnSync(process.execPath, [RES, '--plugin', 'acceptance-gate', '--require', 'scripts/dinh-tuyen-may-khong-co.cjs', '--root', ROOT], { encoding: 'utf8' });
+    const co = spawnSync(process.execPath, [RES, '--plugin', 'acceptance-gate', '--require', trongGoi('scripts/dinh-tuyen-may.cjs'), '--root', LOI], { encoding: 'utf8' });
+    const thieu = spawnSync(process.execPath, [RES, '--plugin', 'acceptance-gate', '--require', trongGoi('scripts/dinh-tuyen-may-khong-co.cjs'), '--root', LOI], { encoding: 'utf8' });
     console.log(`  · bộ giải: có tệp → thoát ${co.status} · thiếu tệp → thoát ${thieu.status}`);
     if (co.status !== 0) return `đối chứng dương thoát ${co.status}`;
     if (thieu.status === 0 || thieu.status === 2) return `thiếu tệp thoát ${thieu.status} — trùng mã của nhánh đã có`;

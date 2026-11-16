@@ -225,6 +225,10 @@ executors:
     # Hồ sơ goi-cheo-loi-dieu-phoi (E9): răng một nguồn — bảng tên lib/ho-goi.cjs ≡ marketplace.json, hộp thư
     # scripts/hop-thu/ ≡ dieu-phoi/scripts/ từng byte. Đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite.
     mot_nguon_ten: node tests/scripts/mot-nguon-ten-va-hop-thu.test.mjs
+    # Hồ sơ phan-du-bo-cuc-moi: răng bền của bộ dịch đường tests/bo-cuc.mjs (E2) và ứng viên gốc gói lõi của bộ giải
+    # verifier trong scripts/recheck-evidence.cjs (E6). Đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite.
+    pdbm_bo_cuc: node tests/scripts/bo-cuc.test.mjs
+    pdbm_recheck_goc_goi: node tests/scripts/recheck-goc-goi-loi.test.mjs
     # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
     bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
     # Hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): ca GT1…GT10 chung một lệnh; ca GT8 trên bộ hồ sơ thật các kho có trên
@@ -276,6 +280,16 @@ executors:
     goi_cheo_bo_cuc_moi: node _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs
     goi_cheo_chieu_do: node _acceptance/goi-cheo-loi-dieu-phoi/rang/bo-cuc-moi.mjs --chieu-do
     goi_cheo_vi_phan: node _acceptance/goi-cheo-loi-dieu-phoi/rang/vi-phan-cu.mjs
+    # Hồ sơ phan-du-bo-cuc-moi: thước giữ khoá — bố cục cũ so bản gốc (E1), kho mới theo cụm của khoa-dich.tsv
+    # (E3…E10), chiều đỏ với bộ dịch đồng nhất + danh sách gửi B2 (E11). Cần git + node; KHÔNG vào suite_keys.
+    pdbm_cu: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --cu
+    pdbm_moi_k2: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K2
+    pdbm_moi_sp: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum SP
+    pdbm_moi_k3: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K3
+    pdbm_moi_k4_sc: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-SC
+    pdbm_moi_k4_pl: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-PL
+    pdbm_moi: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi
+    pdbm_chieu_do: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --chieu-do
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.

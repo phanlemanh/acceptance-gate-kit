@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { boPhan, gocGoi, tep as tepO } from '../bo-cuc.mjs';
 import { randomBytes } from 'node:crypto';
 
 const require = createRequire(import.meta.url);
@@ -21,7 +22,7 @@ const KIT = path.resolve(HERE, '..', '..');
 // Gốc vòng: nhánh chính lúc cắt vòng (#407 gộp TT3). Vòng sau đổi thẻ Cổng Phạm vi thì dời hằng này tới gốc vòng ấy.
 const GOC_VONG = '378e262c9a0c277d2d2d7eaea2a17cfe9c3793c2';
 const THU_MUC = ['scripts', 'lib', 'skills', 'feature-loop', 'commands'];
-const KHUON_TT = readFileSync(path.join(KIT, 'skills/acceptance/references/tri-thuc-template.md'), 'utf8');
+const KHUON_TT = readFileSync(tepO('skills/acceptance/references/tri-thuc-template.md', { thuMuc: KIT }), 'utf8');
 const TAM = realpathSync(mkdtempSync(path.join(tmpdir(), 'tn-nap-')));
 const NGAY = '2026-10-24';
 let soDo = 0;
@@ -109,14 +110,14 @@ function khoThu({ tt = CFG_NOI, goc = true, than = {} } = {}) {
 }
 // Kho riêng: kho git đặt ở `goc`, trang ở gốc kho riêng.
 function khoRieng(goc, than = {}) { khoGit(goc); dungGoc(goc, than); commit(goc); return goc; }
-const moO = (kho, ma, may = KIT) => chay(path.join(may, 'scripts/lo-trinh.mjs'), ['--root', kho, '--hang', ma, '--mo-o', '--owner', 'x@y.z']);
-const conTro = (kho, ref) => chay(path.join(KIT, 'scripts/tri-thuc.mjs'), ['--root', kho, '--con-tro', ref]);
+const moO = (kho, ma, may = KIT) => chay(tepO('scripts/lo-trinh.mjs', { thuMuc: may }), ['--root', kho, '--hang', ma, '--mo-o', '--owner', 'x@y.z']);
+const conTro = (kho, ref) => chay(tepO('scripts/tri-thuc.mjs', { thuMuc: KIT }), ['--root', kho, '--con-tro', ref]);
 const KET_THOAT = { 0: 'khop', 1: 'lech', 2: 'sai', 3: 'khong-doc' };
 const tro = (G, p, ten = '') => `${ten ? `${ten}:` : ''}${p}#${bam(path.join(G, p))}`;
 
 // Thẻ Cổng 1: HTML + --extract.
 function the(may, kho, slug) {
-  const bin = path.join(may, 'scripts/gate-card.js');
+  const bin = tepO('scripts/gate-card.js', { thuMuc: may });
   const h = chay(bin, ['--root', kho, '--slug', slug, '--gate', '1']);
   const x = chay(bin, ['--root', kho, '--slug', slug, '--gate', '1', '--extract']);
   let j = null; try { j = JSON.parse(x.out); } catch { /* ca báo */ }
@@ -132,15 +133,15 @@ let MAY_CU = null;
 function mayCu() {
   if (MAY_CU) return MAY_CU;
   const d = thuMuc('may-cu');
-  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_VONG, ...THU_MUC], { maxBuffer: 1 << 28 });
+  const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_VONG, ...boPhan(THU_MUC, { kho: KIT, ref: GOC_VONG })], { maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
   return (MAY_CU = d);
 }
-function banCay() { const d = thuMuc('may-cay'); for (const x of THU_MUC) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true }); return d; }
+function banCay() { const d = thuMuc('may-cay'); for (const x of boPhan(THU_MUC, { thuMuc: KIT })) cpSync(path.join(KIT, x), path.join(d, x), { recursive: true }); return d; }
 function banTiem(sua) {
   const d = banCay();
   for (const [tep, [tim, thay]] of Object.entries(sua)) {
-    const p = path.join(d, tep); const t = readFileSync(p, 'utf8'); const n = t.split(tim).length - 1;
+    const p = tepO(tep, { thuMuc: d }); const t = readFileSync(p, 'utf8'); const n = t.split(tim).length - 1;
     if (n !== 1) throw new Error(`nhát tiêm khớp ${n} lần ở ${tep}: ${tim}`);
     writeFileSync(p, t.replace(tim, thay));
     if (readFileSync(p, 'utf8') === t) throw new Error(`nhát tiêm không áp ở ${tep}`);
@@ -149,7 +150,7 @@ function banTiem(sua) {
 }
 
 // Khuôn SKILL → sổ qua khối lệnh DEC-ID-RECIPE (bash). `skill` là chữ SKILL (cho bản tiêm).
-const SKILL_TEP = path.join(KIT, 'feature-loop/skills/feature-loop/SKILL.md');
+const SKILL_TEP = tepO('feature-loop/skills/feature-loop/SKILL.md', { thuMuc: KIT });
 const khoiDong = (t, ten) => { const m = t.match(new RegExp(`<!-- <<<${ten} -->\\n([^\\n]+)\\n<!-- ${ten}>>> -->`)); if (!m) throw new Error(`SKILL thiếu khối ${ten} (một dòng)`); return m[1]; };
 const congThuc = t => { const m = t.match(/<!-- <<<DEC-ID-RECIPE -->\n```\n([\s\S]+?)\n```\n<!-- DEC-ID-RECIPE>>> -->/); if (!m) throw new Error('SKILL thiếu khối DEC-ID-RECIPE'); return m[1].split('\n'); };
 function chayCongThuc(kho, slug, giua, skill) {
@@ -338,7 +339,7 @@ await ca('TN-3-mutant', () => {
 
 // ── TN-4 (AC-4): tự clone kho riêng ───────────────────────────────────────────────────────────────────────────────────────
 await ca('TN-4', () => {
-  const sai = []; const bin = path.join(KIT, 'scripts/tri-thuc-tra.cjs');
+  const sai = []; const bin = tepO('scripts/tri-thuc-tra.cjs', { thuMuc: KIT });
   const nguon = khoRieng(path.join(thuMuc('tn4-nguon'), 'src'));
   const tran = path.join(thuMuc('tn4-tran'), 'tt.git'); execFileSync('git', ['clone', '-q', '--bare', nguon, tran]);
   const khoVoi = tt => { const cha = thuMuc('tn4'); const kho = khoGit(path.join(cha, 'kho')); ghi(path.join(kho, '_acceptance/config.yaml'), CFG_GOC + tt); commit(kho); return { cha, kho }; };
@@ -386,7 +387,7 @@ await ca('TN-4', () => {
 // ── TN-5 (AC-5): bộ xếp căn cứ nhận khoá tri_thuc ─────────────────────────────────────────────────────────────────────
 const muc = (ref, them = {}) => dongSo({ can_cu: { nguon: 'muc-tieu', kho_dao: false, tri_thuc: ref, ...them } });
 function hangTN5(may) {
-  const CC = require(path.join(may, 'scripts/can-cu-s1.cjs'));
+  const CC = require(tepO('scripts/can-cu-s1.cjs', { thuMuc: may }));
   const docSo = d => CC.docSo(readFileSync(path.join(d, 'decisions.jsonl'), 'utf8')).entries;
   const ra = [];
   // K1 · noi: khớp · lệch · sai khuôn · sinh trong vòng
@@ -442,7 +443,7 @@ await ca('TN-6', () => {
   const ref = tro(rieng, 'wiki/chu-de/c-a1.md', 'tt-rieng');
   hoSo(kho, 'g', { so: dongTra([ref]) + muc(ref) });
   const t = the(KIT, kho, 'g'); const html = giaiHtml(t.html);
-  const cc = chay(path.join(KIT, 'scripts/can-cu-s1.cjs'), ['--root', kho, '--slug', 'g', '--json']);
+  const cc = chay(tepO('scripts/can-cu-s1.cjs', { thuMuc: KIT }), ['--root', kho, '--slug', 'g', '--json']);
   console.log(`  TN-6: HTML ${t.html.length} byte · JSON ${t.xout.length} byte · bộ xếp ${cc.out.length} byte`);
   if (!html.includes(`${S.canCu} ${ref}`)) sai.push(`HTML thiếu «${S.canCu} ${ref}»`);
   const dq = (t.j && t.j.can_cu && t.j.can_cu.da_quyet) || [];
@@ -466,8 +467,8 @@ function soTN7(may) {
   const sai = []; const kho = khoThu({ tt: '' }); hoSoTN7(kho);
   for (const s of ['g1', 'g2', 'g3', 'g4', 'g5']) {
     const a = the(may, kho, s); const b = the(mayCu(), kho, s);
-    const ca1 = chay(path.join(may, 'scripts/can-cu-s1.cjs'), ['--root', kho, '--slug', s, '--json']);
-    const cb = chay(path.join(mayCu(), 'scripts/can-cu-s1.cjs'), ['--root', kho, '--slug', s, '--json']);
+    const ca1 = chay(tepO('scripts/can-cu-s1.cjs', { thuMuc: may }), ['--root', kho, '--slug', s, '--json']);
+    const cb = chay(tepO('scripts/can-cu-s1.cjs', { thuMuc: mayCu() }), ['--root', kho, '--slug', s, '--json']);
     console.log(`  TN-7 ${s}: HTML ${a.html.length}/${b.html.length} · JSON ${a.xout.length}/${b.xout.length} · bộ xếp ${ca1.out.length}/${cb.out.length} byte (cây/trước vòng)`);
     if (!b.html.length || !b.xout.length) sai.push(`${s}: bộ máy trước vòng không dựng được thẻ — ${b.err.slice(0, 160)}`);
     if (!Buffer.from(a.html).equals(Buffer.from(b.html))) sai.push(`${s}: HTML lệch`);
@@ -502,7 +503,7 @@ function tn8(skill) {
   hoSo(k, 'viec-x');
   ghiTra(k, 'viec-x', tr, { skill }); ghiCanCuTriThuc(k, 'viec-x', tr[2], { skill });
   const t = the(KIT, k, 'viec-x');
-  const CC = require(path.join(KIT, 'scripts/can-cu-s1.cjs'));
+  const CC = require(tepO('scripts/can-cu-s1.cjs', { thuMuc: KIT }));
   const kq = CC.phanLoaiSo(CC.docSo(readFileSync(path.join(k, '_acceptance/viec-x/decisions.jsonl'), 'utf8')).entries, { root: k, slug: 'viec-x' });
   return { t, kq };
 }

@@ -2,7 +2,8 @@
 // worktree LIÊN KẾT thật cho từng dãy; đường suy từ vị trí tệp. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao gói
 // bị tiêm, sau khi bản lành xanh trên cùng fixture, kiểm bước tiêm đã áp, và so tập ô đỏ BẰNG tập rút bằng code
 // từ ma trận (không gõ số). Ma trận viết sẵn: số assert = số ô, in ra. Helpers chép theo khuôn
-// tiep-tuc.test.mjs — không import tệp test DP3 (import sẽ đăng ký lại các ca DP3).
+// tiep-tuc.test.mjs — không import tệp test DP3 (import sẽ đăng ký lại các ca DP3). Đường viết theo bố cục phẳng giải ở
+// cây đang chạy hoặc ở mốc cũ qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi).
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -12,10 +13,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DANH_SACH, TEP_CA, rut } from './rut-lenh-that.mjs';
+import { duong, gocGoi, pathspec, tep as tepO } from '../bo-cuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
-const GOI = path.join(KIT, 'dieu-phoi');
+const GOI = gocGoi({ thuMuc: KIT }, 'dieu-phoi');
 
 const MAY_TAM = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dp6-may-')));
 process.env.DIEU_PHOI_MAY_DIR = MAY_TAM;
@@ -134,14 +136,15 @@ export async function motNhipThat(dot, gocGoi = GOI) {
 
 // «Bản cũ» của mọi ca so sánh = gói ở một commit CỐ ĐỊNH của nhánh chính trước DP6 (merge PR #307, 11/10) — không
 // phải merge-base sống: sau khi DP6 gộp, merge-base của nhánh chính với chính nó là HEAD và bản cũ thành bản mới
-// (sổ quyết định dòng 24). Lấy trọn thư mục `dieu-phoi/` bằng git archive.
+// (sổ quyết định dòng 24). Lấy trọn thư mục gói bằng git archive — thư mục gói ở `ref` giải theo bố cục của CHÍNH mốc ấy.
 export const MOC_BAN_CU = '08ba287d30ad96a89e3103436822f298c2684296';
 const goiTheoRef = new Map();
 export function goiTaiRef(ref) {
   if (goiTheoRef.has(ref)) return goiTheoRef.get(ref);
   const dir = tam('dp6-goc-');
-  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['archive', ref, 'dieu-phoi'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 }) });
-  goiTheoRef.set(ref, path.join(dir, 'dieu-phoi'));
+  const tm = pathspec('dieu-phoi', { kho: KIT, ref });
+  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['archive', ref, tm], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 }) });
+  goiTheoRef.set(ref, path.join(dir, tm));
   return goiTheoRef.get(ref);
 }
 export const goiTaiMocCu = () => goiTaiRef(MOC_BAN_CU);
@@ -349,7 +352,7 @@ test('DP6-02 tien-de-help', () => {
     git(kho, 'init', '-q', '-b', 'main');
     git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
     const truoc = bamCay(kho);
-    const r = spawnSync(process.execPath, [path.join(KIT, 'feature-loop', 'scripts', s), '--root', kho, '--help'], { cwd: kho, env: ENV, encoding: 'utf8' });
+    const r = spawnSync(process.execPath, [tepO(`feature-loop/scripts/${s}`, { thuMuc: KIT }), '--root', kho, '--help'], { cwd: kho, env: ENV, encoding: 'utf8' });
     assert.notEqual(r.status, 0, s);
     assert.match(r.stderr, /cờ không nhận diện được/, s);
     assert.equal(bamCay(kho), truoc, `${s} đổi cây kho thử`);
@@ -513,11 +516,12 @@ test('DP6-05-do tra-som', async () => {
 });
 
 // ---------- DP6-06: sự kiện cho-nguoi mang can_phan — Monitor thức (AC-6, E6) ----------
-// Bộ lọc Monitor rút nguyên văn từ thân lệnh người — không chép tay.
+// Bộ lọc Monitor rút nguyên văn từ thân lệnh người — không chép tay. Nhãn là tên tệp ở bố cục phẳng; tệp đọc theo tên
+// ở cây đang chạy (bộ dịch — kho mới đổi tên tệp lệnh); `gocGoi` là gói của cây này hoặc bản sao của nó.
 export function boLocMonitor(gocGoi = GOI) {
   const ra = [];
   for (const tep of ['mo-dot.md', 'tiep-tuc.md']) {
-    const t = fs.readFileSync(path.join(gocGoi, 'commands', tep), 'utf8');
+    const t = fs.readFileSync(path.join(gocGoi, 'commands', path.basename(duong(`dieu-phoi/commands/${tep}`, { thuMuc: KIT }))), 'utf8');
     for (const m of t.matchAll(/tail -n0 -F [^|`]*\| grep --line-buffered '([^']+)'/g)) ra.push({ tep, mau: m[1] });
   }
   return ra;

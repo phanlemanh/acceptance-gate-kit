@@ -12,17 +12,24 @@
 // luật bỏ nút của app).
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { duong, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
-const LAW = 'skills/acceptance/references/human-facing-language.md';
-const FL = 'feature-loop/skills/feature-loop/SKILL.md';
-const ENGINE = ['skills/acceptance/SKILL.md', 'commands/acceptance-card.md', FL];
-const DP = { luat: 'dieu-phoi/scripts/mau/LUAT.md', mo: 'dieu-phoi/commands/mo-dot.md', dong: 'dieu-phoi/commands/dong-dot.md', tiep: 'dieu-phoi/commands/tiep-tuc.md' };
-const GATE_CARD = 'scripts/gate-card.js';
+// Đường viết theo bố cục phẳng (đúng dạng bảng GATE-END-TURN-SITES khai); mọi khoá của bộ văn bản là đường ở CÂY ĐANG
+// CHẠY, giải qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi) — ở bố cục phẳng hai dạng trùng nhau.
+const CAY = { thuMuc: KIT };
+const K = rel => duong(rel, CAY);
+const LAW = K('skills/acceptance/references/human-facing-language.md');
+const FL = K('feature-loop/skills/feature-loop/SKILL.md');
+const CARD_CMD = K('commands/acceptance-card.md');
+const ENGINE = [K('skills/acceptance/SKILL.md'), CARD_CMD, FL];
+const DP = { luat: K('dieu-phoi/scripts/mau/LUAT.md'), mo: K('dieu-phoi/commands/mo-dot.md'), dong: K('dieu-phoi/commands/dong-dot.md'), tiep: K('dieu-phoi/commands/tiep-tuc.md') };
+const GATE_CARD = K('scripts/gate-card.js');
 const TEN_TRO = 'điều khoản kết-lượt-cổng';
 
 // ---------- bộ kiểm (dùng chung cho ca và cho chế độ đếm) ----------
@@ -40,7 +47,13 @@ export const LUAT = [
 ];
 const TB = Object.fromEntries(LUAT.map(l => [l.ma, l.tb]));
 const CUM_BAT_BUOC = ['card.html', 'evidence-page.html', 'SendUserFile', 'in đường dẫn trang', '```text', 'chép đúng như thẻ in', '___', 'wrap_up', 'không câu hỏi và không nút'];
-const LENH_KIT_RE = /^\s*\/(acceptance-gate|feature-loop|dieu-phoi):/;
+// Tên gói rút từ bảng tên của cây đang chạy (lib/ho-goi.cjs), không viết trong regex: ở kho mới bảng tự mang tên mới
+// (dispatch…) nên luật `nut-lenh`, `ngoai-khoi` vẫn nhận lệnh của ba gói ấy.
+// Đúng ba vai của bản cũ (lõi · feature-loop · điều phối) — giữ nghĩa «nút lệnh của kit», không nới sang gói khác.
+const { tenTheoVai } = createRequire(import.meta.url)(tep('lib/ho-goi.cjs', CAY));
+const TEN_GOI = ['loi', 'feature-loop', 'dieu-phoi'].map(tenTheoVai);
+const escRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const LENH_KIT_RE = new RegExp(`^\\s*\\/(${TEN_GOI.map(escRe).join('|')}):`);
 // `(?=\S)` ép nuốt hết khoảng trắng trước khi xét `___` — thiếu nó `\s*` lùi một khoảng và « ___» lọt thành chữ quyết.
 const CHU_QUYET_RE = /(ký hay trả|duyệt hay sửa)[ \t]*:[ \t]*(?=\S)(?!___)([^;\n`"]+)/gi;
 
@@ -125,9 +138,17 @@ function docBang(law) {
     const tok = line.trim().split(/\s+/).filter(Boolean);
     if (!tok.length) continue;
     if (tok.length !== 2 || !/^\d+$/.test(tok[1])) return { err: `dòng bảng hỏng: ${line}` };
-    decl[tok[0]] = Number(tok[1]);
+    decl[K(tok[0])] = Number(tok[1]);
   }
   return { decl };
+}
+
+// Chữ của một chỗ chép đúng như bảng khai trong tệp luật (bố cục phẳng) — cho nhát tiêm vào chính bảng.
+function chuTrongBang(law, rel) {
+  const m = khoi(law, 'GATE-END-TURN-SITES');
+  const tok = (m ? m[1].split('\n') : []).map(l => l.trim().split(/\s+/)[0]).find(t => t && K(t) === rel);
+  if (!tok) throw new Error(`bảng GATE-END-TURN-SITES không có dòng giải ra ${rel}`);
+  return tok;
 }
 
 const lanXuatHien = (t, neo) => { const o = []; let i = t.indexOf(neo); while (i >= 0) { o.push(i); i = t.indexOf(neo, i + 1); } return o; };
@@ -202,7 +223,7 @@ function kiemGan(clause) {
 
 async function kiemDieuPhoi(v) {
   const c = rutDieuKhoan(v[LAW]) ?? '\u0000';
-  const { ghepLuat } = await import(pathToFileURL(path.join(KIT, 'dieu-phoi', 'scripts', 'goi-dot.mjs')).href);
+  const { ghepLuat } = await import(pathToFileURL(tep('dieu-phoi/scripts/goi-dot.mjs', CAY)).href);
   const loi = []; const hang = [];
   for (const k of ['mo', 'dong']) {
     const trong = khoi(v[DP[k]], 'CHU-QUYET-CUA-NGUOI')?.[1] ?? '';
@@ -321,10 +342,11 @@ async function main() {
         const a = voi(v, DP.tiep, t => tiem(t, clause, clause.replace('bằng chữ thường', 'bằng chữ thương')));
         loi.push(hangDo('MQ-2-do', '(a) lệch một ký tự', kiemChep(a).loi, `${DP.tiep}: bản chép lệch`));
         const bang = khoi(v[LAW], 'GATE-END-TURN-SITES')[0];
-        const b = voi(v, LAW, t => tiem(t, bang, tiem(bang, 'commands/acceptance-card.md 1\n', 'commands/acceptance-card.md 2\n')));
-        loi.push(hangDo('MQ-2-do', '(b) số khai 2', kiemChep(b).loi, 'commands/acceptance-card.md: ít-hơn-số-khai (1 < 2)'));
-        const c = voi(v, 'commands/acceptance-card.md', t => `${t}\n${clause}\n`);
-        loi.push(hangDo('MQ-2-do', '(c) thêm một bản', kiemChep(c).loi, 'commands/acceptance-card.md: nhiều-hơn-số-khai (2 > 1)'));
+        const the = chuTrongBang(v[LAW], CARD_CMD);
+        const b = voi(v, LAW, t => tiem(t, bang, tiem(bang, `${the} 1\n`, `${the} 2\n`)));
+        loi.push(hangDo('MQ-2-do', '(b) số khai 2', kiemChep(b).loi, `${CARD_CMD}: ít-hơn-số-khai (1 < 2)`));
+        const c = voi(v, CARD_CMD, t => `${t}\n${clause}\n`);
+        loi.push(hangDo('MQ-2-do', '(c) thêm một bản', kiemChep(c).loi, `${CARD_CMD}: nhiều-hơn-số-khai (2 > 1)`));
         const f = loi.filter(Boolean); if (f.length) bad('MQ-2-do', f.join(' | ')); else ok('MQ-2-do', '3 hàng đỏ đúng thông điệp');
       } catch (e) { bad('MQ-2-do', e.message); }
     }
@@ -339,7 +361,8 @@ async function main() {
         if (occ.length !== 2) throw new Error(`${FL} có ${occ.length} bản (cần 2)`);
         const go = t.slice(0, occ[1]) + t.slice(occ[1] + clause.length);
         const bang = khoi(v[LAW], 'GATE-END-TURN-SITES')[0];
-        const w = { ...v, [FL]: go, [LAW]: tiem(v[LAW], bang, tiem(bang, `${FL} 2\n`, `${FL} 1\n`)) };
+        const fl = chuTrongBang(v[LAW], FL);
+        const w = { ...v, [FL]: go, [LAW]: tiem(v[LAW], bang, tiem(bang, `${fl} 2\n`, `${fl} 1\n`)) };
         const l = hangDo('MQ-3-do', 'gỡ bản đi kèm thứ hai', kiemGhepCap(w).loi, `lời mời cổng không kèm điều khoản kết lượt: ${FL}`);
         const c2 = kiemChep(w).loi;
         if (l) bad('MQ-3-do', l); else if (c2.length) bad('MQ-3-do', `MQ-2 lẽ ra im: ${c2.join(' | ')}`); else ok('MQ-3-do', 'đỏ đúng thông điệp, MQ-2 im');

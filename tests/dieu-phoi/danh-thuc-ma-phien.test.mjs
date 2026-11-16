@@ -3,21 +3,24 @@
 // CLAUDE_CODE_SESSION_ID) LUÔN khác nhau ở đây — chỗ bộ ca DP3 mù vì dùng một chuỗi cho cả hai.
 // Kho thử, đợt (`mo` thật từ gói đợt khai qua cấu hình), hook PostToolUse (lệnh rút từ hooks.json) và CLI chạy thật
 // trong lượt. Mọi tiến trình con chạy với môi trường đã xoá hai biến thừa kế rồi mới thêm biến của ca. Mốc so là sha
-// GHIM dưới đây, rút bằng `git archive` trọn thư mục gói. Đường dẫn suy từ vị trí tệp.
+// GHIM dưới đây, rút bằng `git archive` trọn thư mục gói. Đường dẫn suy từ vị trí tệp; đường viết theo bố cục phẳng giải
+// ở cây đang chạy hoặc ở commit cũ qua bộ dịch tests/bo-cuc.mjs (hồ sơ phan-du-bo-cuc-moi).
 //   node --test --test-name-pattern=TC1-03 tests/dieu-phoi/danh-thuc-ma-phien.test.mjs
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MA_TRAN_THUC } from './ma-tran-thuc.mjs';
 import { caNghi } from './hai-moi-truong.mjs';
+import { duong, gocGoi, pathspec, tep } from '../bo-cuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(DAY, '..', '..');
-const GOI = path.join(KIT, 'dieu-phoi');
+const GOI = gocGoi({ thuMuc: KIT }, 'dieu-phoi');
 export const SHA_MOC = '45e9f2cf13d104aa4b1a2321a0026c4b739f8914';
 const APP = 'local_gs';
 const CLI_ID = 'c-gs';
@@ -83,8 +86,9 @@ let banMoc = null;
 function goiMoc() {
   if (banMoc) return banMoc;
   const d = tam('tc1-moc-');
-  execFileSync('sh', ['-c', `git -C "${KIT}" archive ${SHA_MOC} dieu-phoi | tar -x -C "${d}"`], { env: moiTruongSach() });
-  banMoc = path.join(d, 'dieu-phoi');
+  const goiTaiMoc = pathspec('dieu-phoi', { kho: KIT, ref: SHA_MOC });
+  execFileSync('sh', ['-c', 'git -C "$1" archive "$2" "$3" | tar -x -C "$4"', '_', KIT, SHA_MOC, goiTaiMoc, d], { env: moiTruongSach() });
+  banMoc = path.join(d, goiTaiMoc);
   assert.ok(fs.existsSync(path.join(banMoc, 'scripts', 'danh-thuc.mjs')), 'bản gói ở sha ghim không rút được');
   return banMoc;
 }
@@ -349,12 +353,29 @@ test('TC1-05-do bo-thang', () => {
 });
 
 // ---------- TC1-06: đường đọc-cũ giống từng byte bản ở sha ghim (AC-6, E6) ----------
-// Nhiễu của kho thử (đường tạm, sha commit theo giờ) thay bằng nhãn; hành vi giữ nguyên.
-const chuanHoa = (s, r) => s.split(r.kho).join('<KHO>').split(r.dot ?? '\0').join('<DOT>').split(path.dirname(r.w1 ?? '\0')).join('<WT>')
+// Nhiễu của kho thử (đường tạm, sha commit theo giờ) thay bằng nhãn; hành vi giữ nguyên. Tên lệnh mà gói in ra
+// («/<plugin>:<lệnh>») đọc theo tên ở sha ghim: cặp (tên ở cây đang chạy → tên ở mốc) rút từ vật — mỗi tệp lệnh của gói
+// ở mốc, đường của chính tệp ấy ở cây này (bộ dịch), tên plugin ở plugin.json của từng bên. Bố cục phẳng: mọi cặp trùng
+// nhau, phép thay rỗng; chỉ đúng các cặp ấy được thay (không biểu thức tự do).
+function capTenLenh() {
+  const moc = { kho: KIT, ref: SHA_MOC };
+  const tenMoc = JSON.parse(git(KIT, 'show', tep('dieu-phoi/.claude-plugin/plugin.json', moc))).name;
+  const tenNay = docJ(path.join(GOI, '.claude-plugin', 'plugin.json')).name;
+  const lenhMoc = git(KIT, 'ls-tree', '--name-only', SHA_MOC, `${pathspec('dieu-phoi/commands', moc)}/`).split('\n').filter((f) => f.endsWith('.md'));
+  assert.ok(lenhMoc.length >= 3, `không liệt được tệp lệnh của gói ở ${SHA_MOC}`);
+  return lenhMoc.map((f) => {
+    const cu = path.basename(f, '.md');
+    const nay = path.basename(duong(`dieu-phoi/commands/${cu}.md`, { thuMuc: KIT }), '.md');
+    return [new RegExp(`/${tenNay}:${nay}(?![\\w-])`, 'g'), `/${tenMoc}:${cu}`];
+  });
+}
+let capTen = null;
+const theoTenMoc = (s) => (capTen ??= capTenLenh()).reduce((x, [re, cu]) => x.replace(re, cu), s);
+const chuanHoa = (s, r) => theoTenMoc(s).split(r.kho).join('<KHO>').split(r.dot ?? '\0').join('<DOT>').split(path.dirname(r.w1 ?? '\0')).join('<WT>')
   .replace(/[0-9a-f]{40}/g, '<SHA>').replace(/@ [0-9a-f]{7}\b/g, '@ <SHA7>');
 async function dauRaDocCu(gocGoi, doiHang = null) {
   const ds = await chayMaTran({ gocGoi, maVai: CLI_ID, maCli: CLI_ID, vaiCli: false, hookApp: false, doiHang });
-  const ra = ds.map((r) => [`danh-thuc ${r.hang}`, JSON.stringify(r.kq)]);
+  const ra = ds.map((r) => [`danh-thuc ${r.hang}`, theoTenMoc(JSON.stringify(r.kq))]);
   const a = ds.find((r) => r.hang === 'a');
   const cd = chayCli(a.kho, ['chan-doan', '--json', '--chi-tiet', '--phien', CLI_ID], { gocGoi, env: { DIEU_PHOI_NOW_MS: String(Date.now()) } });
   ra.push(['chan-doan', chuanHoa(cd.out, a).replace(/"luc":"[^"]*"/g, '"luc":"<LUC>"')]);
@@ -413,7 +434,8 @@ export function thieuLoiDan(vanBan) {
   }
   return { loi, soDong };
 }
-const vanBanHienTai = () => Object.fromEntries(LENH.map((t) => [t, fs.readFileSync(path.join(GOI, 'commands', t), 'utf8')]));
+// Nhãn là tên tệp ở bố cục phẳng; tệp đọc ở cây đang chạy (hoặc ở sha ghim) qua bộ dịch — tên tệp lệnh đổi ở kho mới.
+const vanBanHienTai = () => Object.fromEntries(LENH.map((t) => [t, fs.readFileSync(tep(`dieu-phoi/commands/${t}`, { thuMuc: KIT }), 'utf8')]));
 test('TC1-08 loi-dan', () => {
   const { loi, soDong } = thieuLoiDan(vanBanHienTai());
   console.log(`  số dòng --phien <mã phiên này>: ${soDong}`);
@@ -421,7 +443,7 @@ test('TC1-08 loi-dan', () => {
   assert.deepEqual(loi, []);
 });
 test('TC1-08-do ban-cu', () => {
-  const vb = Object.fromEntries(LENH.map((t) => [t, git(KIT, 'show', `${SHA_MOC}:dieu-phoi/commands/${t}`)]));
+  const vb = Object.fromEntries(LENH.map((t) => [t, git(KIT, 'show', tep(`dieu-phoi/commands/${t}`, { kho: KIT, ref: SHA_MOC }))]));
   const { loi, soDong } = thieuLoiDan(vb);
   assert.equal(soDong, 6);
   assert.deepEqual(loi.filter((l) => l.includes('thiếu câu')), LENH.map((t) => `${t}: thiếu câu «máy tự ghi mã CLI»`));
@@ -461,17 +483,36 @@ export function khoiCa(text, tep) {
   }
   return ra;
 }
-export function caDoiThan(goc, tu, docMoi = (f) => fs.readFileSync(path.join(goc, f), 'utf8')) {
+// `den` vắng = cây làm việc ở `goc`; có = một commit (bản đã ký của vòng). `docMoi(f)` trả thân tệp ở bên «sau», null = vắng.
+const docCommit = (goc, den) => (f) => {
+  try { return git(goc, 'show', `${den}:${f}`); } catch { return null; }
+};
+const docCay = (goc) => (f) => (fs.existsSync(path.join(goc, f)) ? fs.readFileSync(path.join(goc, f), 'utf8') : null);
+export function caDoiThan(goc, tu, docMoi = docCay(goc)) {
   const cu = git(goc, 'ls-tree', '-r', '--name-only', tu, '--', 'tests/dieu-phoi').split('\n').filter((f) => f.endsWith('.test.mjs'));
   const ra = [];
   for (const f of cu) {
     const truoc = khoiCa(git(goc, 'show', `${tu}:${f}`), path.basename(f));
-    const sau = khoiCa(fs.existsSync(path.join(goc, f)) ? docMoi(f) : null, path.basename(f));
+    const sau = khoiCa(docMoi(f), path.basename(f));
     for (const [ten, than] of truoc) if (sau.get(ten) !== than) ra.push(ten);
   }
   return ra.sort();
 }
-const caKhaiTrongSo = () => fs.readFileSync(path.join(KIT, '_acceptance', 'danh-thuc-doc-nhip-dung-ma', 'decisions.jsonl'), 'utf8').split('\n').filter(Boolean).flatMap((d) => {
+// Lời hứa của VÒNG danh-thuc-doc-nhip-dung-ma neo vào LỊCH SỬ (tiền lệ kiemDp1 của mo-dot, DP6-07, DP7-10): «sau» là bản
+// ở commit KÝ Cổng Bằng chứng của chính hồ sơ ấy — rút từ vật (commit mới nhất mà hợp đồng của hồ sơ mang trạng thái
+// ký, tên trạng thái đọc từ lib/workspace-record.cjs của cây — không viết trần), không ghim sha, không đọc cây đang chạy: thân ca đổi về sau (vòng khác, bộ dịch bố cục, luật đổi chữ
+// của kho mới) không thuộc lời hứa của vòng ấy và không làm ca đỏ.
+const HO_SO_TC1 = '_acceptance/danh-thuc-doc-nhip-dung-ma';
+function mocKy() {
+  const hd = `${HO_SO_TC1}/contract.md`;
+  const daKy = createRequire(import.meta.url)(tep('lib/workspace-record.cjs', { thuMuc: KIT })).DA_THONG_CONG_2[0];
+  const dong = `^status: ${daKy}$`;
+  const ung = git(KIT, 'log', '--format=%H', `-G${dong}`, '--', hd).split('\n').filter(Boolean);
+  const ky = ung.find((c) => new RegExp(dong, 'm').test(docCommit(KIT, c)(hd) ?? ''));
+  assert.ok(ky, `không tìm được commit ký của ${hd} trong lịch sử`);
+  return ky;
+}
+const caKhaiTrongSo = () => fs.readFileSync(path.join(KIT, HO_SO_TC1, 'decisions.jsonl'), 'utf8').split('\n').filter(Boolean).flatMap((d) => {
   try {
     const o = JSON.parse(d);
     return o.type === 'fix' && Array.isArray(o.ca_doi_than) ? o.ca_doi_than : [];
@@ -480,16 +521,18 @@ const caKhaiTrongSo = () => fs.readFileSync(path.join(KIT, '_acceptance', 'danh-
   }
 }).sort();
 test('TC1-09 than-ca-doi', () => {
-  const ds = caDoiThan(KIT, SHA_MOC);
-  console.log(`  ca đổi thân so với ${SHA_MOC.slice(0, 12)}: ${ds.join(' · ') || '(không)'}`);
+  const ky = mocKy();
+  const docKy = docCommit(KIT, ky);
+  const ds = caDoiThan(KIT, SHA_MOC, docKy);
+  console.log(`  ca đổi thân so với ${SHA_MOC.slice(0, 12)} tới bản ký ${ky.slice(0, 12)}: ${ds.join(' · ') || '(không)'}`);
   assert.deepEqual(ds, caKhaiTrongSo());
   // Đối chứng dương: tiêm một khoảng trắng vào thân một ca DP3 trong bản đọc → hàm kiểm nêu đúng tên ca ấy.
   const f = 'tests/dieu-phoi/tiep-tuc.test.mjs';
   const tiem = (p) => {
-    const s = fs.readFileSync(path.join(KIT, p), 'utf8');
+    const s = docKy(p);
     return p === f ? s.replace("test('DP3-02 30-giay', () => {\n", "test('DP3-02 30-giay', () => {\n \n") : s;
   };
-  assert.notEqual(tiem(f), fs.readFileSync(path.join(KIT, f), 'utf8'), 'bước tiêm không áp được');
+  assert.notEqual(tiem(f), docKy(f), 'bước tiêm không áp được');
   assert.deepEqual(caDoiThan(KIT, SHA_MOC, tiem).filter((t) => !ds.includes(t)), ['DP3-02 30-giay']);
 });
 

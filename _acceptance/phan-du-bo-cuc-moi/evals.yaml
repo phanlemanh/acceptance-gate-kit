@@ -1,0 +1,158 @@
+schema_version: 1
+feature_slug: phan-du-bo-cuc-moi
+# Ba vật đo ở cùng nhà với vật (design §7):
+#  - răng bền tests/scripts/bo-cuc.test.mjs (khoá executors.test.pdbm_bo_cuc) — AC-2;
+#  - răng bền tests/scripts/recheck-goc-goi-loi.test.mjs (khoá executors.test.pdbm_recheck_goc_goi) — AC-6;
+#  - thước giữ khoá _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs (khoá executors.script.pdbm_*) — AC-1, AC-3…AC-11.
+# Mọi gốc kho suy từ vị trí script; cây phẳng, kho mới, bản gốc (git archive TRỌN cây của merge-base) do mã sinh trong lần
+# chạy ở thư mục tạm. Danh sách khoá đích rút từ khoa-dich.tsv lúc chạy, không ghim số trong script. Hạ tầng hỏng
+# (git archive, chép, chạy node) → thoát 3 «HẠ TẦNG: …», không bao giờ in PASS.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.pdbm_cu
+    # --cu đo 15/11: 77,8 phút chạy riêng — vượt trần chờ mặc định 30 phút.
+    long_running: 200
+    paths: [tests/**, lib/**, scripts/**, feature-loop/**, dieu-phoi/**, road-map/**, _acceptance/phan-du-bo-cuc-moi/rang/**]
+    expected: >
+      exit 0; mỗi tệp kiểm vòng chạm (rút từ git diff bản gốc..HEAD -- tests/) một dòng "PASS: CU <tệp> — <k>/<k> khoá
+      bản gốc còn ở HEAD, mọi ca xanh"; dòng cuối "giu-khoa --cu: <n> tệp, 0 khoá mất, 0 ca đỏ". Chiều đỏ trên cùng
+      fixture: một ca bản gốc vắng ở HEAD → "FAIL: CU <tệp> — mất khoá: <tên ca>" exit 1; ca đỏ → "FAIL: CU <tệp> — đỏ:
+      <tên ca>" exit 1; ca CU-DO tự phá (xoá một ca khỏi bản sao HEAD của một tệp) → phép so phải đỏ, không đỏ thì
+      "FAIL: CU-DO phép so không đỏ" (một ca CU-DO cho một tệp dưới tests/scripts/, một cho tests/dieu-phoi/). "PASS: CU-LT94
+      LT-94 chạy dưới đồng hồ ghim ở 2026-10-20 → đỏ «trang chứa ngày chạy»" (chốt ngày chạy còn sống sau khi dời mốc;
+      đối chứng dương: đồng hồ thật thì xanh); chốt không đỏ → "FAIL: CU-LT94 chốt ngày chạy đã chết". Suite trọn (gồm LT-94,
+      LT-94-do) đo ở các khoá feature_loop.suite_keys của lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.pdbm_bo_cuc
+    paths: [tests/bo-cuc.mjs, tests/fixtures/bo-cuc-phang.json, tests/scripts/bo-cuc.test.mjs, lib/ho-goi.cjs, .claude-plugin/marketplace.json]
+    expected: >
+      exit 0; ma trận đường × cây viết trước trong tệp kiểm (đường phẳng và chính chúng ở dạng plugins/… do luật bước 6 sinh),
+      số dòng "PASS: BC <đường> · <cây>" bằng số ô (cây: phẳng, kho mới, commit trước #503, bản sao gốc gói; ô plugins/… ×
+      cây phẳng ra đường phẳng); "PASS: BC-LUY-DANG <n>/<n> đường dịch hai lần bằng một lần"; "PASS:
+      BC-THIEU cây thiếu marketplace.json → bo-cuc: <cây> không có .claude-plugin/marketplace.json" kèm đối chứng dương
+      "PASS: BC-DU cây đủ → giải được". Chiều đỏ: ô ra đường không có thật → "FAIL: BC <đường> · <cây> — <đường ra> không
+      có ở cây"; bộ dịch lùi lặng về phẳng ở cây thiếu tệp khai → "FAIL: BC-THIEU không lỗi".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.pdbm_moi_k2
+    # --moi --cum: 13–32 phút chạy riêng, 28–32 phút trong lượt chấm r1 (chín lệnh thước song song) — vượt trần chờ mặc định 30 phút.
+    long_running: 120
+    paths: [tests/plugins/run-tests.sh, tests/scripts/moi-cong-khong-qua-nut.test.mjs, tests/scripts/s4-args-judgment-inputs.test.mjs, tests/bo-cuc.mjs, skills/acceptance/references/human-facing-language.md, skills/design-pass/SKILL.md, docs/findings/assets/2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs]
+    expected: >
+      exit 0; "PASS: MOI K2 — <k>/<k> khoá đích có mặt và xanh ở kho mới" (k rút từ khoa-dich.tsv); "PASS: MOI K2 khối khai
+      chỗ giữ nguyên từng byte (human-facing-language.md, design-pass/SKILL.md)". Chiều đỏ: khoá đích vắng → "FAIL: MOI K2 —
+      thiếu: <khoá>"; khoá có mà đỏ → "FAIL: MOI K2 — đỏ: <khoá>"; khối khai đổi → "FAIL: MOI K2 khối khai đổi: <tệp>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.pdbm_moi_sp
+    long_running: 120
+    paths: [lib/chan-lo-trinh.cjs, scripts/lo-trinh-khoi-tao.mjs, lib/ho-goi.cjs, tests/scripts/kho-cam-ket-co-lo-trinh.test.mjs, tests/scripts/kho-moi-cai-goi-road-map.test.mjs]
+    expected: >
+      exit 0; "PASS: MOI SP — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: SP mã nguồn hết chữ roadmap@delivery-loop
+      (scripts/lo-trinh-khoi-tao.mjs)"; ma trận viết trước 2 lệnh × {cũ, mới} × {tệp khai có, thiếu} = 8 dòng "PASS: SP <lệnh>
+      · <bố cục> · <tệp khai> — <kỳ vọng>", kỳ vọng ghim từng ô: cũ+có → bằng bản gốc từng byte; cũ+thiếu → chan-lo-trinh
+      khác bản gốc (bản gốc null, cây road-map@acceptance-gate-kit), lo-trinh-khoi-tao bằng bản gốc từng byte; mỗi ô đổi tên chợ
+      trên bản sao thì khoá ra đổi theo (chứng đúng nhánh chạy);
+      mới+có, mới+thiếu → roadmap@delivery-loop, khoá bật giải được. Chiều đỏ: như E3 cho khoá; chữ còn → "FAIL: SP còn chữ
+      viết cứng"; ô lệch kỳ vọng → "FAIL: SP <lệnh> · <bố cục> · <tệp khai> — <dòng đầu khác>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.pdbm_moi_k3
+    long_running: 120
+    paths: [tests/plugins/run-tests.sh, tests/plugins/ra-co-ten.test.mjs, tests/scripts/cua-veto-sau-chu-ky.test.mjs, tests/scripts/tin-hieu.test.mjs, tests/bo-cuc.mjs, tests/fixtures/**]
+    expected: >
+      exit 0; "PASS: MOI K3 — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: K3 hồ sơ đã ký không đổi byte — diff bản
+      gốc..HEAD dưới _acceptance/ chỉ chạm phan-du-bo-cuc-moi". Chiều đỏ: như E3 cho khoá; diff chạm hồ sơ khác → "FAIL: K3
+      chạm hồ sơ đã ký: <hồ sơ>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.pdbm_recheck_goc_goi
+    paths: [scripts/recheck-evidence.cjs, tests/scripts/recheck-goc-goi-loi.test.mjs]
+    expected: >
+      exit 0; "PASS: RG-1 lõi ở thư mục con → verifier scripts/product-map.mjs giải trong gốc gói lõi"; "PASS: RG-2 kho
+      không có marketplace.json → đầu ra bằng bản gốc từng byte"; "PASS: RG-3 chiều đỏ — gỡ ứng viên gốc gói lõi trên bản
+      sao → verifier script not found: scripts/product-map.mjs" kèm đối chứng dương RG-1 trên cùng fixture. Fixture (kho,
+      báo cáo đã ký, verifier) do mã sinh. Chiều đỏ của chính ca: giải được ở RG-3 → "FAIL: RG-3 chiều đỏ không đỏ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6b
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.pdbm_moi_k3
+    long_running: 120
+    paths: [scripts/recheck-evidence.cjs, tests/scripts/core-untouched.test.mjs, tests/scripts/premerge-repin.test.mjs, tests/scripts/lan-status-not-run.test.mjs]
+    expected: >
+      exit 0; trong dòng "PASS: MOI K3 …" có JR11b, DV4a, L05 và lan-status-not-run (rút từ khoa-dich.tsv). Chiều đỏ như E5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.pdbm_moi_k4_sc
+    long_running: 120
+    paths: [tests/scripts/**, tests/bo-cuc.mjs]
+    expected: >
+      exit 0; "PASS: MOI K4-SC — <k>/<k> khoá đích có mặt và xanh ở kho mới"; "PASS: K4-SC chốt chống rỗng — 4/4 ca xanh giả
+      (ii) đỏ khi pathspec rỗng" (ca ho-so-da-ky-giu-tuoi, JR11a, CC-02, KK-4, mỗi ca chạy trên bản sao có pathspec bị đổi
+      thành đường không có ở commit, ghim đúng thông điệp chốt). Chiều đỏ: như E3; một ca vẫn xanh với pathspec rỗng →
+      "FAIL: K4-SC xanh giả còn: <ca>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.pdbm_moi_k4_pl
+    long_running: 120
+    paths: [tests/plugins/**, tests/dieu-phoi/**, tests/bo-cuc.mjs]
+    expected: >
+      exit 0; "PASS: MOI K4-PL — <k>/<k> khoá đích có mặt và xanh ở kho mới". Chiều đỏ như E3.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.pdbm_moi
+    # --moi đo 15/11: 25–27 phút chạy riêng, quá 30 phút trong lượt chấm r1 — vượt trần chờ mặc định 30 phút.
+    long_running: 150
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi/rang/**, _acceptance/phan-du-bo-cuc-moi/khoa-dich.tsv]
+    expected: >
+      exit 0; một dòng mỗi cụm vòng nhận "PASS: MOI <cụm> — <k>/<k> …" và "giu-khoa --moi: thiếu 0 ở <m> cụm; túi khoá
+      <n>/<n> tệp ⊇ bố cục cũ"; dòng "ngoài vòng:" nêu K4-LT, K4-TB, K4-DN (sổ descope K4-DN). Tệp còn đi bước 6 (không
+      khai ở khối GUI-B2-TU-DUNG) so túi với kho mới dựng từ bản gốc và nêu số ca vắng ở cả hai phía ("cần bảng vá B2").
+      Chiều đỏ: túi khoá ở kho mới thiếu một ca có ở bố cục cũ → "FAIL: MOI túi <tệp> — thiếu ở kho mới: <ca>" (tệp còn
+      đi bước 6: "thiếu ở kho mới (bản gốc kho mới có): <ca>"; ca TUI-B6 của rang/giu-khoa.test.mjs).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.pdbm_chieu_do
+    # --chieu-do đo 15/11: 5 phút chạy riêng, 21 phút trong lượt chấm r1 — vượt trần chờ mặc định 30 phút.
+    long_running: 90
+    paths: [tests/bo-cuc.mjs, _acceptance/phan-du-bo-cuc-moi/rang/**, _acceptance/phan-du-bo-cuc-moi/gui-b2.md]
+    expected: >
+      exit 0; với bộ dịch thay bằng bản đồng nhất trên bản sao kho mới, mỗi cụm vòng nhận một dòng "PASS: DO <cụm> — <ca
+      canh> đỏ: <thông điệp ghim>" kèm đối chứng dương (cùng ca xanh với bộ dịch thật); "PASS: GUI-B2 <n> mục vá thừa khớp
+      gui-b2.md" (danh sách rút lại bằng máy từ diff vòng so bảng vá, so với tệp). Chiều đỏ của chính phép đo: ca canh vẫn
+      xanh với bộ đồng nhất → "FAIL: DO <cụm> chiều đỏ không đỏ"; lệch danh sách → "FAIL: GUI-B2 lệch: <mục>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.pdbm_moi_sp
+    long_running: 120
+    paths: [lib/chan-lo-trinh.cjs, lib/ho-goi.cjs]
+    expected: >
+      exit 0; "PASS: SP-NL kho tiêu thụ
+      thiếu lib/ho-goi.cjs → nạp luật chặn thoát êm; chỗ cần bảng tên in «chan-lo-trinh: thiếu lib/ho-goi.cjs cạnh luật chặn»";
+      đối chứng dương "PASS: SP-NL-DU kho đủ tệp → khoá bật giải được" trên cùng fixture do mã sinh. Chiều đỏ: nạp sập →
+      "FAIL: SP-NL nạp sập: <lỗi>"; lỗi khác câu ghim → "FAIL: SP-NL thông điệp lệch: <dòng>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

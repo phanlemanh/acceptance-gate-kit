@@ -11,13 +11,16 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { duong, tep } from '../bo-cuc.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const require = createRequire(import.meta.url);
+// Đường viết theo bố cục phẳng; bộ dịch (tests/bo-cuc.mjs) đọc bố cục từ chính cây đang chạy (hồ sơ phan-du-bo-cuc-moi).
+const CAY = { thuMuc: ROOT };
 // Bộ đọc cấu hình DÙNG CHUNG của kit — CLAUDE.md cấm mọc parser thứ năm.
-const { resolveConfigKey } = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
-const { configList } = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+const { resolveConfigKey } = require(tep('lib/evidence-core.cjs', CAY));
+const { configList } = require(tep('lib/workspace-record.cjs', CAY));
 
 const SETTINGS = path.join(ROOT, '.claude', 'settings.json');
 const CONFIG = path.join(ROOT, '_acceptance', 'config.yaml');
@@ -102,11 +105,18 @@ function suiteCommands(configText) {
   return { keys, cmds, err: err.join(' · ') };
 }
 
+// Hai vế so SAU KHI dịch đường trong lệnh qua bộ dịch (hồ sơ phan-du-bo-cuc-moi, design §3): ở kho mới kịch bản viết lại
+// đường trong config.yaml mà settings.json chỉ đổi chữ — so nguyên văn là đỏ vì bố cục, không vì quan hệ. Chỉ token
+// đường tương đối trần (`a/b/c.ext`) đi qua bộ dịch; đường không thuộc gói nào (tests/…) bộ dịch trả nguyên.
+const RE_DUONG_LENH = /(^|[\s'"=])((?:[\w-]+\/)+[\w.-]+)(?=$|[\s'"])/g;
+const dichLenh = c => String(c).replace(RE_DUONG_LENH, (m, a, p) => a + duong(p, CAY));
+
 // LM1 · AC-1 — QUAN HỆ SONG ÁNH giữa hai vật, không so với hằng gõ tay
 function checkBijection(settingsObj, configText) {
-  const { cmds, err } = suiteCommands(configText);
+  const { cmds: cmds0, err } = suiteCommands(configText);
   if (err) return [err];
-  const allow = allowEntries(settingsObj).map(e => (PERM_RULE.exec(e) || [null, e])[1]);
+  const cmds = cmds0.map(dichLenh);
+  const allow = allowEntries(settingsObj).map(e => dichLenh((PERM_RULE.exec(e) || [null, e])[1]));
   const errs = [];
   for (const c of cmds) if (!allow.includes(c)) errs.push(`THIEU lenh trong permissions.allow: "${c}"`);
   for (const a of allow) if (!cmds.includes(a)) errs.push(`THUA lenh trong permissions.allow: "${a}" — khong co trong feature_loop.suite_keys`);
@@ -223,6 +233,13 @@ const checkClauses = (text, clauses) =>
 const FALLBACK_ANCHOR = 'CLASSIFIER-FALLBACK';
 const SCAN_DIRS = phamViTuHopDong(5);
 const PHAM_VI_VAN_PHAM = phamViTuHopDong(8);
+// Thư mục phạm vi rút từ hợp đồng ĐÃ KÝ viết theo bố cục phẳng (`skills/`, `feature-loop/`…): hợp đồng không đổi byte nào,
+// bên ĐỌC giải từng tên qua bộ dịch ở cây đang chạy. Không đọc được thì VỠ CÓ TÊN — nuốt lỗi thành «không có tệp» làm
+// phạm vi teo mà vế «MỘT chỗ» vẫn xanh (hồ sơ phan-du-bo-cuc-moi).
+const filesOfDirs = (id, dirs) => dirs.flatMap(d => {
+  const abs = tep(d, CAY);
+  try { return walkFiles(abs); } catch (e) { throw new Error(`${id}: khong doc duoc thu muc pham vi \`${d}/\` (${path.relative(ROOT, abs)}): ${e.code || e.message}`); }
+});
 function walkFiles(abs, acc = []) {
   for (const e of readdirSync(abs, { withFileTypes: true })) {
     if (e.name === 'node_modules' || e.name === '.git') continue;   // rác dựng, không phải vật
@@ -251,7 +268,7 @@ const block = (text, name) => {
 // chạy, KHÔNG gõ tay — engine đổi câu mà luật không đổi theo thì ca ĐỎ. Đây là chiều
 // đỏ mà vòng 3 chứng minh là thiếu: hình dạng hỏng NẶNG nhất (bầy agent bị giết) sinh
 // đúng câu cố định này, và câu đó không chứa chữ classifier / rate-limit / safety nào.
-const ENGINE = path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js');
+const ENGINE = tep('feature-loop/workflows/acceptance-verify.js', CAY);
 function engineSkipPhrase() {
   let src; try { src = readFileSync(ENGINE, 'utf8'); } catch { return null; }
   const m = src.match(/blocked\.push\(\{\s*cmd,\s*reason:\s*'([^']+)'/);
@@ -353,7 +370,7 @@ function runObj(id, label, check, mutants) {
   else pass(id, `${label} — doi chung duong xanh + ${mutants.length} mutant do dung ve`);
 }
 
-const CMDS = () => suiteCommands(readFileSync(CONFIG, 'utf8')).cmds;
+const CMDS = () => suiteCommands(readFileSync(CONFIG, 'utf8')).cmds.map(dichLenh);
 
 // Nhánh lỗi dùng chung của các bộ kiểm đọc settings/config. Khai MỘT chỗ, ghép vào
 // mọi ca có nhánh ấy. GIỚI HẠN ĐÃ KHAI: việc GHÉP ĐỦ là do người viết giữ, không có
@@ -388,7 +405,7 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
   // sinh ĐỎ GIẢ.
   ['m1-bo-mot-lenh', (s, c) => {
     const t = CMDS()[0];
-    s.permissions.allow = s.permissions.allow.filter(e => (PERM_RULE.exec(e) || [])[1] !== t);
+    s.permissions.allow = s.permissions.allow.filter(e => dichLenh((PERM_RULE.exec(e) || [])[1] || '') !== t);
     return [s, c];
   }, `THIEU lenh trong permissions.allow: "${CMDS()[0]}"`],
   ['m2-them-lenh-la', (s, c) => { s.permissions.allow.push('Bash(echo khong-thuoc-suite)'); return [s, c]; },
@@ -415,7 +432,7 @@ runObj('LM1', 'song anh permissions.allow <-> feature_loop.suite_keys', checkBij
   }, 'THIEU lenh trong permissions.allow'],
   ['m4-lech-mot-ky-tu', (s, c) => {
     const t = CMDS()[0];
-    const i = s.permissions.allow.findIndex(e => (PERM_RULE.exec(e) || [])[1] === t);
+    const i = s.permissions.allow.findIndex(e => dichLenh((PERM_RULE.exec(e) || [])[1] || '') === t);
     if (i >= 0) s.permissions.allow[i] = `Bash(${t}X)`;
     return [s, c];
   }, ['THIEU lenh', 'THUA lenh']],
@@ -459,8 +476,8 @@ runObj('LM8', 'van pham luat quyen + entry nam dung cho', checkGrammar, [
 ]);
 
 if (want('LM5')) {
-  const FL = path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
-  const listFiles = () => SCAN_DIRS.flatMap(d => walkFiles(path.join(ROOT, d)));
+  const FL = tep('feature-loop/skills/feature-loop/SKILL.md', CAY);
+  const listFiles = () => filesOfDirs('LM5', SCAN_DIRS);
   const readAt = f => { try { return readFileSync(f, 'utf8'); } catch { return null; } };
   const src = readAt(FL) || '';
   const chk = t => checkFallback(t, listFiles, readAt);
@@ -480,7 +497,7 @@ if (want('LM5')) {
       if (!errs.some(e => e.startsWith(c.id + ':'))) bad.push(`${c.id}: be vat ma khong do dung ve (thu duoc: ${errs.join(' · ') || 'KHONG LOI NAO'})`);
     }
     // vế thứ bảy — CHIỀU ĐỎ NGOÀI file đã biết: mốc neo mọc ở file THỨ HAI
-    const THIRD = path.join(ROOT, 'skills', 'acceptance', 'SKILL.md');
+    const THIRD = tep('skills/acceptance/SKILL.md', CAY);
     const readPlus = f => (f === THIRD ? (readAt(f) || '') + '\n<<<' + FALLBACK_ANCHOR + '\n' : readAt(f));
     const branchMuts = blockBranchMutants(FALLBACK_ANCHOR);
     for (const [bName, bMut, bNeedle] of branchMuts) {
@@ -490,7 +507,7 @@ if (want('LM5')) {
       if (!bErrs.some(e => e.includes(bNeedle))) bad.push(`${bName}: be nhanh ma khong do dung loi "${bNeedle}"`);
     }
     const e7 = checkFallback(src, listFiles, readPlus);
-    if (!e7.some(x => x.startsWith('ve4:') && x.includes('skills/acceptance/SKILL.md')))
+    if (!e7.some(x => x.startsWith('ve4:') && x.includes(path.relative(ROOT, THIRD))))
       bad.push('m-moc-neo-thu-hai: moc neo moc o file THU HAI ma khong do');
     if (bad.length) fail('LM5', bad.join(' · '));
     else pass('LM5', `duong thoai hoa: ${FALLBACK_CLAUSES.length} ve roi + 1 quan he dem duoc + ${FALLBACK_CLAUSES.length + 1 + branchMuts.length} mutant`);
@@ -537,13 +554,13 @@ function runClauses(id, label, file, check, clauses, extra = [], probes = []) {
 
 
 runClauses('LM4', 'khuon khoi tao khuyen kho tieu thu — moi ve mot dieu kien',
-  path.join(ROOT, 'commands', 'acceptance-init.md'), checkAdvice, ADVICE_CLAUSES,
+  tep('commands/acceptance-init.md', CAY), checkAdvice, ADVICE_CLAUSES,
   blockBranchMutants(ADVICE_ANCHOR));
 
 runClauses('LM6', 'tai lieu van hanh — do TRONG khoi co moc neo, moi ve mot dieu kien',
   path.join(ROOT, 'GUIDE.md'), checkGuide, GUIDE_CLAUSES, blockBranchMutants(GUIDE_ANCHOR));
 
-const grammarFiles = dirs => dirs.flatMap(d => { try { return walkFiles(path.join(ROOT, d)); } catch { return []; } });
+const grammarFiles = dirs => filesOfDirs('LM8b', dirs);
 const readAtG = f => { try { return readFileSync(f, 'utf8'); } catch { return null; } };
 const OTHER_FILE = grammarFiles(['lib'])[0];
 runClauses('LM8b', 'khuon van pham song dung MOT cho tren TRON pham vi hop dong khai',

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bộ dịch đường</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1240px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .colophon {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--color-muted);
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(45,49,66,0.12);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sơ đồ luồng · Cổng Phạm vi · bộ dịch (d-…-2) · AC-2</p>
+    <h1>Một đường phẳng đi qua bộ dịch thành đường ở cây nào?</h1>
+
+    <svg viewBox="0 0 1200 632" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Nối (vẽ trước) ===== -->
+      <!-- đường phẳng → bốn nhánh tiền tố -->
+      <path d="M 240 280 H 272 A 8 8 0 0 0 280 272 V 244 A 8 8 0 0 1 288 236 H 320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M 240 324 H 320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M 240 344 H 280 A 8 8 0 0 1 288 352 V 396 A 8 8 0 0 0 296 404 H 320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M 240 360 H 256 A 8 8 0 0 1 264 368 V 492 A 8 8 0 0 0 272 500 H 320" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+      <!-- vai → tên hiện hành -->
+      <path d="M 560 236 H 592 A 8 8 0 0 1 600 244 V 276 A 8 8 0 0 0 608 284 H 640" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M 560 324 H 640" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- tên → thư mục nguồn → đường ở cây -->
+      <path d="M 860 308 H 920" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M 1040 360 V 452" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- nhánh không dịch → đường ở cây -->
+      <path d="M 560 404 H 872 A 8 8 0 0 1 880 412 V 460 A 8 8 0 0 0 888 468 H 920" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- nhánh chuẩn hoá → nhập vào trước BƯỚC 1 (nhảy qua nét «còn lại» ở y=404) -->
+      <path d="M 560 500 H 608 A 8 8 0 0 0 616 492 V 412 A 8 8 0 0 0 616 396 V 352 A 8 8 0 0 1 624 344 H 640" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+      <!-- cây → hai bước đọc từ cây -->
+      <path d="M 752 168 V 256" fill="none" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+      <path d="M 1040 168 V 256" fill="none" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+      <rect x="760" y="204" width="76" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="764" y="216" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">ĐỌC TỪ CÂY</text>
+      <rect x="1048" y="204" width="76" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="1052" y="216" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">ĐỌC TỪ CÂY</text>
+
+      <!-- ===== Lời dẫn ===== -->
+      <text x="40" y="96" fill="#2d3142" font-size="16" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Bộ dịch nhận hai thứ: một đường phẳng và một cây.</text>
+      <text x="40" y="120" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif">Tên và thư mục nguồn luôn đọc từ chính cây ấy —</text>
+      <text x="40" y="138" fill="#4f5d75" font-size="12" font-family="'Geist', sans-serif">cùng một chuỗi ra đường khác nhau ở cây khác nhau.</text>
+
+      <!-- ===== Ba loại cây ===== -->
+      <rect x="640" y="48" width="520" height="120" rx="8" fill="#ececec" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="656" y="72" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">BA LOẠI CÂY — ĐẦU VÀO THỨ HAI</text>
+      <rect x="656" y="88" width="152" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="732" y="120" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cây đang đứng</text>
+      <rect x="824" y="88" width="152" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="900" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Commit lịch sử</text>
+      <text x="900" y="130" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">git show</text>
+      <rect x="992" y="88" width="152" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="1068" y="120" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bản sao gốc gói</text>
+
+      <!-- ===== Đầu vào: đường phẳng ===== -->
+      <rect x="40" y="264" width="200" height="104" rx="6" fill="rgba(79,93,117,0.10)" stroke="#636b80" stroke-width="1"/>
+      <text x="56" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ĐẦU VÀO</text>
+      <text x="56" y="308" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Đường phẳng</text>
+      <text x="56" y="328" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">vd</text>
+      <text x="56" y="344" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">dieu-phoi/scripts/x.mjs</text>
+      <text x="56" y="360" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">scripts/y.mjs</text>
+
+      <!-- ===== Bốn nhánh theo tiền tố ===== -->
+      <rect x="320" y="192" width="240" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="336" y="212" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TIỀN TỐ LÀ GÓI PHẲNG</text>
+      <text x="336" y="236" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">→ vai của gói</text>
+      <text x="336" y="256" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">theo bảng bố cục phẳng (đóng băng)</text>
+
+      <rect x="320" y="296" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="336" y="316" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TIỀN TỐ LÀ THƯ MỤC LÕI</text>
+      <text x="336" y="340" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">→ vai</text>
+      <text x="376" y="340" fill="#2d3142" font-size="11" font-family="'Geist Mono', monospace">loi</text>
+
+      <rect x="320" y="372" width="240" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="336" y="392" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CÒN LẠI</text>
+      <text x="336" y="410" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Giữ nguyên</text>
+      <text x="336" y="426" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">tests/ · _acceptance/ · docs/</text>
+
+      <rect x="320" y="460" width="240" height="80" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="336" y="480" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ĐÃ LÀ plugins/&lt;gói&gt;/…</text>
+      <text x="336" y="500" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">→ đưa về vai</text>
+      <text x="336" y="518" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">vd plugins/acceptance-gate/scripts/x</text>
+      <text x="336" y="532" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">→ vai loi</text>
+      <text x="320" y="556" fill="#636b80" font-size="10" font-family="'Geist', sans-serif">chuẩn hoá hai chiều — ở commit phẳng ra lại <tspan font-family="'Geist Mono', monospace">scripts/x</tspan></text>
+
+      <!-- ===== Hai bước đọc từ cây (điểm nhấn) ===== -->
+      <rect x="640" y="256" width="220" height="104" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="656" y="276" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">BƯỚC 1</text>
+      <text x="656" y="300" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Tên hiện hành theo</text>
+      <text x="656" y="320" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">lib/ho-goi.cjs</text>
+      <text x="656" y="344" fill="#ba4513" font-size="10" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">CỦA CÂY ẤY</text>
+
+      <rect x="920" y="256" width="240" height="104" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="936" y="276" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">BƯỚC 2</text>
+      <text x="936" y="300" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Thư mục nguồn theo</text>
+      <text x="936" y="320" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">.claude-plugin/marketplace.json</text>
+      <text x="936" y="344" fill="#ba4513" font-size="10" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.08em">CỦA CÂY ẤY</text>
+
+      <!-- ===== Đầu ra ===== -->
+      <rect x="920" y="452" width="240" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="936" y="472" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ĐẦU RA</text>
+      <text x="936" y="492" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Đường ở cây</text>
+      <text x="936" y="508" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">có thật ở đúng cây đã đưa vào</text>
+
+      <!-- ===== Chú giải ===== -->
+      <line x1="40" y1="580" x2="1160" y2="580" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="608" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <line x1="128" y1="604" x2="160" y2="604" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="168" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">luồng dịch</text>
+      <line x1="264" y1="604" x2="296" y2="604" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+      <text x="304" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">bước đọc bố cục từ cây</text>
+      <rect x="464" y="596" width="24" height="16" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="496" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">tên và nguồn đọc từ vật của cây, không ghim chữ</text>
+      <line x1="816" y1="604" x2="848" y2="604" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <text x="856" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">nhánh chuẩn hoá — dịch hai lần bằng dịch một lần</text>
+    </svg>
+    <p class="colophon">Nguồn: docs/superpowers/specs/2026-11-15-phan-du-bo-cuc-moi-design.md §2 · _acceptance/phan-du-bo-cuc-moi/figures/index.md · commit afaa3cf3</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "goi_phang": {
+    "feature-loop": "feature-loop",
+    "dieu-phoi": "dieu-phoi",
+    "road-map": "lo-trinh",
+    "tri-thuc": "tri-thuc",
+    "diagram-design": "diagram-design"
+  },
+  "thu_muc_loi": ["skills", "commands", "hooks", "scripts", "lib", "vendor", "evals", "design-floor"],
+  "tep_loi": [".claude-plugin/plugin.json"],
+  "tep_khai": {
+    "cho": ".claude-plugin/marketplace.json",
+    "plugin": ".claude-plugin/plugin.json",
+    "bang_ten": "lib/ho-goi.cjs",
+    "thu_muc_cho": ".claude-plugin"
+  },
+  "ten_moi": {
+    "dispatch": "dieu-phoi",
+    "roadmap": "lo-trinh",
+    "knowledge": "tri-thuc",
+    "acceptance-gate": "loi",
+    "feature-loop": "feature-loop",
+    "diagram-design": "diagram-design"
+  },
+  "doi_ten_tep": {
+    "dieu-phoi": {
+      "commands/mo-dot.md": "commands/open.md",
+      "commands/dong-dot.md": "commands/close.md",
+      "commands/tiep-tuc.md": "commands/resume.md",
+      "commands/ban-giao.md": "commands/handoff.md",
+      "commands/xem.md": "commands/status.md"
+    },
+    "lo-trinh": {
+      "commands/xem.md": "commands/status.md",
+      "commands/ghim.md": "commands/pin.md",
+      "commands/bo-ghim.md": "commands/unpin.md",
+      "commands/tra-lai.md": "commands/undo.md",
+      "commands/gui.md": "commands/suggest.md"
+    },
+    "tri-thuc": {
+      "commands/ghi.md": "commands/ingest.md",
+      "commands/kiem.md": "commands/health.md"
+    },
+    "loi": {
+      "skills/cat-luot": "skills/scope-slice",
+      "skills/gom-tin-hieu": "skills/signal-intake"
+    }
+  }
+}

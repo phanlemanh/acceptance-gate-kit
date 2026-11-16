@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { assertCorpus } from './mirror-sync-grandfather.mjs';
+import { pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -58,9 +59,14 @@ check('JR11a lib/** + hooks/** KHÔNG đổi TRONG PHẠM VI của judge-require
   // là trống-vì-không-có-gì chứ không phải trống-vì-lõi-bất-động.
   const n = Number(git('rev-list', '--count', `${JR11_RANGE_BASE}..${JR11_RANGE_TIP}`).trim());
   assert.ok(n > 0, `phạm vi rỗng (${n} commit) — phép đo tự-khớp, không chứng minh gì`);
+  // Đường lõi ở HAI mốc lịch sử giải qua `pathspec` của bộ dịch (bố cục của chính commit ấy, không phải của cây đang
+  // đứng): ở kho mới, tên thư mục trong mảng dưới bị luật bước 6 viết sang bố cục mới — dùng nguyên văn thì `git diff`
+  // trên hai commit phẳng trỏ vào đường không tồn tại và trống-vì-không-có-gì. `pathspec` ném «bo-cuc: pathspec rỗng ở
+  // <ref>: <đường>» khi đường không có ở commit — chốt chống rỗng thứ hai, cạnh răng phạm vi ở trên.
   for (const d of ['lib', 'hooks']) {
-    assert.ok(readdirSync(path.join(ROOT, d)).length > 0, `sanity: ${d}/ rỗng`);
-    const diff = git('diff', '--name-only', JR11_RANGE_BASE, JR11_RANGE_TIP, '--', d).trim();
+    assert.ok(readdirSync(tep(d, { thuMuc: ROOT })).length > 0, `sanity: ${d}/ rỗng`);
+    const ps = [...new Set([JR11_RANGE_BASE, JR11_RANGE_TIP].map(ref => pathspec(d, { kho: ROOT, ref })))];
+    const diff = git('diff', '--name-only', JR11_RANGE_BASE, JR11_RANGE_TIP, '--', ...ps).trim();
     assert.equal(diff, '', `lõi ${d}/ bị chạm TRONG phạm vi của feature:\n${diff}`);
   }
 });
@@ -89,7 +95,7 @@ check('JR11c đối chứng dương: tiêm token cấm vào BẢN SAO 1 report �
   const rp = path.join(dir, 'evidence-report.md');
   writeFileSync(rp, readFileSync(rp, 'utf8') + '\nghi chu tiem: verdict: FAIL\n');
   let err = '';
-  try { execFileSync('node', [path.join(ROOT, 'scripts/recheck-evidence.cjs'), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
+  try { execFileSync('node', [tep('scripts/recheck-evidence.cjs', { thuMuc: ROOT }), rp], { stdio: ['ignore', 'ignore', 'pipe'] }); }
   catch (e) { err = String(e.stderr || ''); }
   assert.ok(err, 'bản tiêm vẫn xanh — lưới không chạy thật');
   assert.match(err, /CONSISTENCY/, `đỏ nhưng sai thông điệp: ${err.slice(0, 120)}`);

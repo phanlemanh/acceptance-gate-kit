@@ -10,12 +10,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
+import { boPhan, gocGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const require = createRequire(import.meta.url);
-const DS = require(path.join(ROOT, 'lib', 'do-san-tren-nen.cjs'));
-const NCG = require(path.join(ROOT, 'lib', 'nhan-canh-gay.cjs'));
+const DS = require(tep('lib/do-san-tren-nen.cjs', { thuMuc: ROOT }));
+const NCG = require(tep('lib/nhan-canh-gay.cjs', { thuMuc: ROOT }));
+// Bản sao cây bộ máy (cp -RL) theo bố cục của cây đang đứng, mang tệp khai chợ để đường trong bản sao giải được.
+const saoCay = d => { for (const x of boPhan(['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks'], { thuMuc: ROOT })) { mkdirSync(path.dirname(path.join(d, x)), { recursive: true }); execFileSync('cp', ['-RL', path.join(ROOT, x), path.join(d, x)]); } };
 export const BAN_TRUOC_VONG = '8fe79f1f41f5c060399f5b09ca2fd49137d9faef';
 
 const chon = (process.env.GT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -135,7 +138,7 @@ await ca('GT0-diem-tach — bên đọc mặc định đọc ở điểm tách: 
 // ── Task 2: lượt ghim lại ghim từng hồ sơ · thông điệp đỏ · nhãn (GT2, GT3, GT6) ─────────────────────────────
 // Kho thử do tests/scripts/giu-tuoi-fixture.mjs sinh: pin đầu do CHÍNH làn ghi, gộp PR là commit gộp thật.
 const FX = await import(path.join(HERE, 'giu-tuoi-fixture.mjs'));
-const { rutTenCa } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'lib', 'chay-lai.mjs'));
+const { rutTenCa } = await import(tep('feature-loop/scripts/lib/chay-lai.mjs', { thuMuc: ROOT }));
 const repinCua = (k, slug) => k.docLog(slug).filter(l => l.kind === 'repin');
 const chuKy = (k, slug) => (k.docReport(slug).match(/^human_(signoff|override)\s*:.*$/gm) || []).join('\n');
 // Dòng repin-do so giữa hai bản làn: bỏ giờ, mã lượt, thời lượng, tải máy, phút.
@@ -144,8 +147,8 @@ const chuanDauDo = (o) => { const x = JSON.parse(JSON.stringify(o)); for (const 
 // máy (cây này, bản sao bị tiêm, hay bản trước vòng). Bản không có tệp lệnh → ném «khong co lenh giu tuoi»: mã
 // thoát của node khi thiếu tệp không bao giờ được đọc thành một kết quả.
 function giuTuoi(k, args, { kit = ROOT, env } = {}) {
-  const f = path.join(kit, 'feature-loop', 'scripts', 'giu-tuoi.mjs');
-  const r = spawnSync(process.execPath, [f, '--root', k.root, '--ag-root', kit, ...args],
+  const f = tep('feature-loop/scripts/giu-tuoi.mjs', { thuMuc: kit });
+  const r = spawnSync(process.execPath, [f, '--root', k.root, '--ag-root', gocGoi({ thuMuc: kit }, 'loi'), ...args],
     { encoding: 'utf8', env: { ...process.env, GG_DAU: k.dau, ...(env || {}) }, timeout: 300000, killSignal: 'SIGKILL', maxBuffer: 256 * 1024 * 1024 });
   if (!existsSync(f) || /Cannot find module/.test(r.stderr || '')) throw new Error(`khong co lenh giu tuoi (${f}, mã ${r.status})`);
   return r;
@@ -353,12 +356,12 @@ await ca('GT6', () => {
 // ── Task 3: bên đọc — lưới, kiểm lại, thẻ, bản đồ (GT7, GT9) ───────────────────────────────────────────────────
 // Bốn công cụ chạy theo MỘT gốc bộ máy (cây này · bản sao bị tiêm · bản trước vòng) trên CÙNG kho thử.
 const congCu = (kit) => ({
-  pm: (root) => spawnSync('bash', [path.join(kit, 'scripts', 'pre-merge-check.sh'), root], { encoding: 'utf8', cwd: root, timeout: 300000, maxBuffer: 64 * 1024 * 1024 }),
-  rc: (root, slug) => spawnSync(process.execPath, [path.join(kit, 'scripts', 'recheck-evidence.cjs'), path.join(root, '_acceptance', slug, 'evidence-report.md')], { encoding: 'utf8', cwd: root }),
-  gc: (root, slug) => spawnSync(process.execPath, [path.join(kit, 'scripts', 'gate-card.js'), '--root', root, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }),
+  pm: (root) => spawnSync('bash', [tep('scripts/pre-merge-check.sh', { thuMuc: kit }), root], { encoding: 'utf8', cwd: root, timeout: 300000, maxBuffer: 64 * 1024 * 1024 }),
+  rc: (root, slug) => spawnSync(process.execPath, [tep('scripts/recheck-evidence.cjs', { thuMuc: kit }), path.join(root, '_acceptance', slug, 'evidence-report.md')], { encoding: 'utf8', cwd: root }),
+  gc: (root, slug) => spawnSync(process.execPath, [tep('scripts/gate-card.js', { thuMuc: kit }), '--root', root, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }),
   // Bản đồ GHI PRODUCT-MAP.md vào gốc kho: đọc rồi xoá ngay, để cây không bẩn cho công cụ sau.
   mp: (root) => {
-    const r = spawnSync(process.execPath, [path.join(kit, 'scripts', 'product-map.mjs'), '--root', root], { encoding: 'utf8' });
+    const r = spawnSync(process.execPath, [tep('scripts/product-map.mjs', { thuMuc: kit }), '--root', root], { encoding: 'utf8' });
     const p = path.join(root, 'PRODUCT-MAP.md');
     const map = existsSync(p) ? readFileSync(p, 'utf8') : '';
     rmSync(p, { force: true });
@@ -373,14 +376,14 @@ const viH5 = (out) => out.split('\n').filter(l => l.startsWith('VIOLATION') && l
 // Bản sao cây bộ máy (cp -RL) với kiemDoSan bị ép trả `kq` — ba bên viết/đọc của BẢN SAO cùng gọi nó.
 function banSaoTiem(kq) {
   const d = thuMuc('gt7-tiem-');
-  for (const x of ['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks']) execFileSync('cp', ['-RL', path.join(ROOT, x), path.join(d, x)]);
-  const p = path.join(d, 'lib', 'do-san-tren-nen.cjs');
+  saoCay(d);
+  const p = tep('lib/do-san-tren-nen.cjs', { thuMuc: d });
   const goc = readFileSync(p, 'utf8');
   const tiem = goc.replace('function kiemDoSan({', `function kiemDoSan() { return ${JSON.stringify(kq)}; }\nfunction kiemDoSanGoc({`);
   assert.notEqual(tiem, goc, 'nhát tiêm phải đổi tệp luật của bản sao');
   writeFileSync(p, tiem);
   assert.equal(require(p).kiemDoSan({}).dat, kq.dat, 'bản sao phải trả đúng kết quả bị ép');
-  return { dir: d, lane: path.join(d, 'feature-loop', 'scripts', 'repin-lane.mjs'), cc: congCu(d) };
+  return { dir: d, lane: tep('feature-loop/scripts/repin-lane.mjs', { thuMuc: d }), agRoot: gocGoi({ thuMuc: d }, 'loi'), cc: congCu(d) };
 }
 // Kho của ô hợp lệ: H5 đỏ E1 do PR #12 trên main, dòng nền ghi (writer: dòng repin-do của làn thật), nhánh
 // vòng chạm paths H5. `truocGhim(k)` chạy trước lượt ghim thật (chỗ đo bên viết bị tiêm); sau đó làn thật ghi
@@ -421,7 +424,7 @@ await ca('GT7', () => {
   // Bên viết bị ép «không đạt» → làn của bản sao đỏ đúng câu, không pin (đo trước lượt ghim thật).
   const k = khoO7({ truocGhim: (kk) => {
     const n = repinCua(kk, 'H5').length;
-    const r = kk.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: F.lane, agRoot: F.dir });
+    const r = kk.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: F.lane, agRoot: F.agRoot });
     assert.equal(r.status, 1, `mutant không-đạt: làn phải thoát 1 — ${r.stderr.slice(-400)}`);
     assert.ok(r.stderr.includes(`repin-lane: H5/E1: nhãn không gắn: ${DS.cauVeHong('khoa-tat')}`), r.stderr.slice(-600));
     assert.equal(repinCua(kk, 'H5').length, n, 'mutant không-đạt: làn không được ghim');
@@ -522,7 +525,7 @@ await ca('GT7', () => {
   assert.equal(lt.status, 1, lt.stderr.slice(-400));
   assert.ok(lt.stderr.includes(`repin-lane: H5/E1: nhãn không gắn: ${DS.cauVeHong('khac-ca-hoac-thong-diep')}`), lt.stderr.slice(-600));
   hoan(k);
-  const lT = k.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: T.lane, agRoot: T.dir });
+  const lT = k.lane(['H5'], ['--write', '--reason', 'vong khac'], { laneFile: T.lane, agRoot: T.agRoot });
   assert.equal(lT.status, 0, `mutant đạt: làn của bản sao phải ghim — ${lT.stderr.slice(-400)}`);
   assert.equal(repinCua(k, 'H5').length, n2 + 1);
   assert.equal(repinCua(k, 'H5').pop().do_san.E1.run_id, RUN_NEN7);
@@ -580,7 +583,7 @@ await ca('GT9', () => {
 
 // ── Task 4: lệnh giữ tươi (GT1, GT4, GT5, GT10, GT-rf1…rf4) ──────────────────────────────────────────────────
 // Mọi ca chạy LỆNH THẬT (giuTuoi ở trên) trên kho thử do giu-tuoi-fixture.mjs sinh.
-const PM = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
+const PM = tep('scripts/pre-merge-check.sh', { thuMuc: ROOT });
 const cuTay = (dir) => {
   const r = spawnSync('bash', [PM, dir], { encoding: 'utf8', cwd: dir, maxBuffer: 64 * 1024 * 1024 });
   assert.ok([0, 1].includes(r.status), `lưới chạy tay phải ra 0/1: ${r.status} ${r.stderr.slice(-300)}`);
@@ -809,7 +812,7 @@ await ca('GT5', () => {
   const rc = h.recheck('H5');
   assert.equal(rc.status, 1, rc.stderr); assert.ok(rc.stderr.includes(CAU_HT), rc.stderr);
   // Chiều đỏ của bên đọc: lưới bản lượt 1 nhận nhãn ở cùng dòng ghim.
-  const pmL1 = spawnSync('bash', [path.join(L1.dir, 'scripts', 'pre-merge-check.sh'), h.root], { encoding: 'utf8', cwd: h.root, maxBuffer: 64 * 1024 * 1024 });
+  const pmL1 = spawnSync('bash', [tep('scripts/pre-merge-check.sh', { thuMuc: L1.dir }), h.root], { encoding: 'utf8', cwd: h.root, maxBuffer: 64 * 1024 * 1024 });
   assert.ok(pmL1.stdout.includes('NOTE [H5]: đỏ sẵn trên nền — E1 (nền giu-tuoi-ha-tang'), `chiều đỏ: lưới bản lượt 1 phải nhận nhãn:\n${pmL1.stdout}`);
   soO += 1;
   assert.equal(soO, 4);
@@ -919,8 +922,8 @@ await ca('GT-rf4', () => {
   assert.deepEqual(ketCucCua(jsonCua(giuTuoi(k, ['--tu', tu, '--json']))), { H5: 'do-san-truoc-khoang' });
   // Chiều đỏ trên bản sao bộ máy: bỏ hai phép chuẩn hoá cổng + pid.
   const d = thuMuc('gt-rf4-');
-  for (const x of ['feature-loop', 'lib', 'scripts', 'skills', 'commands', 'hooks']) execFileSync('cp', ['-RL', path.join(ROOT, x), path.join(d, x)]);
-  const p = path.join(d, 'lib', 'do-san-tren-nen.cjs'); const goc = readFileSync(p, 'utf8');
+  saoCay(d);
+  const p = tep('lib/do-san-tren-nen.cjs', { thuMuc: d }); const goc = readFileSync(p, 'utf8');
   const tiem = goc.replace(".replace(/:\\d+(:\\d+)?\\b/g, ':<so>')", '').replace(".replace(/\\bpid\\s*\\d+/gi, 'pid <so>')", '');
   assert.notEqual(tiem, goc); assert.equal(tiem.length, goc.length - ".replace(/:\\d+(:\\d+)?\\b/g, ':<so>')".length - ".replace(/\\bpid\\s*\\d+/gi, 'pid <so>')".length, 'phải bỏ đúng hai phép');
   writeFileSync(p, tiem);

@@ -20,12 +20,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { runWorkflow } from '../workflows/harness.mjs';
+import { boPhan, gocGoi, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
-const WF = path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js');
+const WF = tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: KIT });
 const SRC = readFileSync(WF, 'utf8');
-const { extractRunIds } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'evidence-core.cjs'));
+const { extractRunIds } = createRequire(import.meta.url)(tep('lib/evidence-core.cjs', { thuMuc: KIT }));
 const TMP = mkdtempSync(path.join(tmpdir(), 'rh-'));
 const CHON = (() => {
   const a = process.argv.slice(2).filter(x => /^RH\d/.test(x));
@@ -46,9 +47,9 @@ const GOC_SHA = '115100b6';
 const GOC = (() => {
   try {
     const d = mkdtempSync(path.join(TMP, 'goc-'));
-    const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_SHA, 'feature-loop', 'lib', 'scripts', 'skills'], { maxBuffer: 512 * 1024 * 1024 });
+    const tar = execFileSync('git', ['-C', KIT, 'archive', GOC_SHA, ...boPhan(['feature-loop', 'lib', 'scripts', 'skills'], { kho: KIT, ref: GOC_SHA })], { maxBuffer: 512 * 1024 * 1024 });
     execFileSync('tar', ['-x', '-C', d], { input: tar });
-    return { goc: d, src: readFileSync(path.join(d, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8') };
+    return { goc: d, src: readFileSync(tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: d }), 'utf8') };
   } catch (e) { return { loi: loi(e) }; }
 })();
 const MOI = { goc: KIT, src: SRC };
@@ -155,7 +156,8 @@ if (want('RH2')) {
 // ═════ RH3 — khứ hồi: mọi mã bên viết ghi → bộ đọc báo cáo đọc lại đúng nó, carry-plan nhận nó ═════
 // Kho thử: một lượt chấm THẬT với mọi đầu vào của hai ma trận (mỗi eval một lệnh), run-log có sha;
 // carry-plan lượt 2 không delta phải mang sang MỌI eval với đúng run_id lượt 1.
-const CP = (goc) => path.join(goc, 'feature-loop', 'scripts', 'carry-plan.mjs');
+const CP = (goc) => tep('feature-loop/scripts/carry-plan.mjs', { thuMuc: goc });
+const agRoot = goc => gocGoi({ thuMuc: goc }, 'loi'); // gốc GÓI lõi của cây ấy, không phải gốc kho
 function hoSoCarry(dongs) {
   const d = mkdtempSync(path.join(TMP, 'cp-'));
   const ids = [...new Set(dongs.map(l => l.evalId))];
@@ -165,7 +167,7 @@ function hoSoCarry(dongs) {
   return d;
 }
 const chayCarry = (goc, d, delta = '') => spawnSync(process.execPath, [CP(goc), '--run-log', path.join(d, 'run-log.jsonl'),
-  '--evals', path.join(d, 'evals.yaml'), '--contract', path.join(d, 'contract.md'), '--round', '2', '--ag-root', goc,
+  '--evals', path.join(d, 'evals.yaml'), '--contract', path.join(d, 'contract.md'), '--round', '2', '--ag-root', agRoot(goc),
   ...(delta ? ['--delta-files', delta] : ['--no-delta'])], { encoding: 'utf8' });
 if (want('RH3')) {
   try {
@@ -177,7 +179,7 @@ if (want('RH3')) {
     if (dongs.length !== vao.length) sai.push(`${dongs.length} dong eval, mong ${vao.length}`);
     // Dòng run_id rút từ khuôn báo cáo của bên viết (SUITE-BLOCK-TEMPLATE — tác tử tổng hợp chép khuôn này),
     // không dựng tay (gap-probe P2).
-    const TPL = readFileSync(path.join(KIT, 'skills', 'acceptance', 'references', 'evidence-report-template.md'), 'utf8')
+    const TPL = readFileSync(tep('skills/acceptance/references/evidence-report-template.md', { thuMuc: KIT }), 'utf8')
       .match(/<!-- <<<SUITE-BLOCK-TEMPLATE -->\n([\s\S]*?)<!-- SUITE-BLOCK-TEMPLATE>>> -->/);
     if (!TPL || soLan(TPL[1], '{run_id}') !== 1) throw new Error('khong rut duoc SUITE-BLOCK-TEMPLATE co dung mot {run_id}');
     const khoi = (rid, tpl = TPL[1]) => tpl.replace('{cmd}', 'bash t/x.sh').replace('{ISO8601}', '2026-10-31T00:00:00Z').replace('{run_id}', rid);
@@ -247,7 +249,7 @@ function kho() {
   return d;
 }
 const commitAll = (d, msg) => { git(d, 'add', '-A'); git(d, 'commit', '-qm', msg, '--allow-empty'); return git(d, 'rev-parse', 'HEAD'); };
-const s4 = (ban, d, extra) => spawnSync(process.execPath, [path.join(ban.goc, 'feature-loop', 'scripts', 's4-args.mjs'), '--slug', SLUG, '--root', d, '--ag-root', ban.goc, '--diff-base', 'main', ...extra], { encoding: 'utf8' });
+const s4 = (ban, d, extra) => spawnSync(process.execPath, [tep('feature-loop/scripts/s4-args.mjs', { thuMuc: ban.goc }), '--slug', SLUG, '--root', d, '--ag-root', agRoot(ban.goc), '--diff-base', 'main', ...extra], { encoding: 'utf8' });
 function sinhArgs(ban, d, ten, extra) {
   const out = path.join(WS(d), ten);
   const r = s4(ban, d, ['--out', out, ...extra]);
@@ -299,8 +301,8 @@ if (want('RH5')) {
 // Bản sao TRỌN feature-loop/ và lib/ (không chép danh sách tệp tay); sửa khối trong bản sao.
 function banSao(sua) {
   const d = mkdtempSync(path.join(TMP, 'sao-'));
-  for (const t of ['feature-loop', 'lib']) cpSync(path.join(KIT, t), path.join(d, t), { recursive: true });
-  const f = path.join(d, 'feature-loop', 'workflows', 'acceptance-verify.js');
+  for (const t of boPhan(['feature-loop', 'lib'], { thuMuc: KIT })) cpSync(path.join(KIT, t), path.join(d, t), { recursive: true });
+  const f = tep('feature-loop/workflows/acceptance-verify.js', { thuMuc: d });
   const goc = readFileSync(f, 'utf8');
   const moi = sua(goc);
   writeFileSync(f, moi);
