@@ -111,3 +111,56 @@ wall: 3632s
 - **claude-opus-5-5**: 3 agent · 62 calls · out 54,772 · in 124 · cache_read 7,184,935 · cache_create 484,924
 - **claude-sonnet-5-5**: 8 agent · 19 calls · out 27,635 · in 38 · cache_read 593,910 · cache_create 492,672
 
+
+### S4 round 3 — wf_b7c2c890-dfc (30 agent, 165,943 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-opus-5-5 | 22 | 25,735 | 44 | 2,974,230 | 333 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 22 | 22,843 | 44 | 1,418,220 | 2041 |
+| review:measurement | claude-opus-5-5 | 21 | 18,905 | 42 | 2,607,926 | 268 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 13 | 15,148 | 26 | 748,107 | 1118 |
+| review:conventions | claude-opus-5-5 | 26 | 14,791 | 52 | 3,050,216 | 251 |
+| synthesize:report | claude-sonnet-5-5 | 2 | 9,080 | 4 | 66,158 | 53 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 8 | 8,695 | 16 | 409,178 | 622 |
+| baseline:diffBase | claude-sonnet-5-5 | 3 | 8,680 | 6 | 124,842 | 54 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 6 | 7,027 | 12 | 285,689 | 365 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 3 | 4,081 | 6 | 107,954 | 89 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 6 | 3,952 | 12 | 224,813 | 821 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 11 | 3,842 | 22 | 509,637 | 1111 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 3 | 3,261 | 6 | 108,622 | 56 |
+| triage | claude-sonnet-5-5 | 2 | 3,175 | 4 | 51,258 | 22 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,966 | 4 | 49,412 | 98 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,775 | 4 | 49,412 | 16 |
+| machine:node tests/scripts/bang-ten-lo-trinh.tes | claude-haiku-5-5 | 2 | 1,616 | 4 | 49,429 | 23 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 4 | 1,597 | 8 | 115,849 | 758 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 1,546 | 4 | 46,121 | 299 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 2 | 1,111 | 4 | 49,458 | 28 |
+| refute:giu-khoa-3.mjs | claude-sonnet-5-5 | 3 | 1,051 | 6 | 104,900 | 15 |
+| machine:node tests/scripts/hai-bo-cuc.test.mjs | claude-haiku-5-5 | 2 | 954 | 4 | 49,426 | 27 |
+| machine:node _acceptance/phan-du-bo-cuc-moi-vong | claude-haiku-5-5 | 2 | 936 | 4 | 49,451 | 13 |
+| refute:giu-khoa-3.mjs | claude-sonnet-5-5 | 3 | 866 | 6 | 101,151 | 11 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 683 | 4 | 49,468 | 97 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 665 | 4 | 49,468 | 111 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 590 | 4 | 49,468 | 163 |
+| machine:node tests/scripts/kiem-ban-cai.ca.mjs - | claude-haiku-5-5 | 2 | 526 | 4 | 49,438 | 6 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 491 | 4 | 49,413 | 6 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 355 | 4 | 44,900 | 7 |
+
+
+wall: 3586s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 8,680 | 124,842 | 54 | 16:18:02 | 16:18:55 |
+| machine | 21 | 83,305 | 4,518,033 | 3487 | 16:18:02 | 17:16:09 |
+| review | 3 | 59,431 | 8,632,372 | 343 | 16:18:16 | 16:23:59 |
+| triage | 1 | 3,175 | 51,258 | 22 | 17:16:09 | 17:16:31 |
+| refute | 2 | 1,917 | 206,051 | 16 | 17:16:31 | 17:16:47 |
+| capture | 1 | 355 | 44,900 | 7 | 17:16:48 | 17:16:55 |
+| synthesize | 1 | 9,080 | 66,158 | 53 | 17:16:55 | 17:17:48 |
+
+- **claude-opus-5-5**: 3 agent · 69 calls · out 59,431 · in 138 · cache_read 8,632,372 · cache_create 586,569
+- **claude-haiku-5-5**: 21 agent · 100 calls · out 83,305 · in 200 · cache_read 4,518,033 · cache_create 1,303,093
+- **claude-sonnet-5-5**: 6 agent · 15 calls · out 23,207 · in 30 · cache_read 493,209 · cache_create 382,185
+
