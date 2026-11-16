@@ -16,9 +16,14 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { boPhan, pathspec, tep } from '../bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
+// Đường qua bộ dịch (hồ sơ phan-du-bo-cuc-moi-vong-ba, K4-LT): mỗi đường kit viết theo bố cục phẳng rồi giải ở ĐÚNG cây nó nói
+// tới — cây đang đứng, bản sao kit tạm (danh sách chép qua `boPhan`), hay bản bung một commit lịch sử (`boPhan` + `pathspec` của
+// commit ấy). Đường của kho thử (kho tiêu thụ giả) không phải đường kit — không dịch.
+const tepO = (rel, kit) => tep(rel, { thuMuc: kit });
 const SLUG = 'lo-trinh-du-lieu-ngay-du-kien';
 const GOC = readFileSync(path.join(KIT, '_acceptance', SLUG, 'goc-so'), 'utf8').trim();
 const BAM_DOC_GOC = '081c13c3e674ad5cf2f8e37d7f3e88cd14a8a465ff0ddcc2431ee812946a3321';
@@ -60,22 +65,32 @@ const H = (ma, o = {}) => ({ ma, cau_giao: `câu giao ${ma}`, ...o });
 
 // ── Bộ máy: bản sao có nhát tiêm, bộ máy gốc (chỉ để rút bộ đọc + vẽ trang đời trước), bộ máy nền (merge-base) ──────────
 let bsN = 0;
+// Chép `ds` (đường viết phẳng) của kit `goc` sang `c` — danh sách qua `boPhan` của chính cây `goc`, nên ở bố cục mới
+// `.claude-plugin` tách đúng (tệp khai chợ ở gốc, plugin.json lõi trong gói) và bản sao luôn mang tệp khai chợ để bộ dịch đọc.
+const chepKit = (goc, ds, c) => { for (const m of boPhan(ds, { thuMuc: goc })) if (existsSync(path.join(goc, m))) cpSync(path.join(goc, m), path.join(c, m), { recursive: true }); };
+// Nhát (đường viết phẳng) áp trên bản sao `c`: đường giải ở cây của bản sao; mỗi nhát khớp ĐÚNG một lần. `thay` giữ đúng phép
+// thay của từng bên gốc: nhát tiêm thay bằng chuỗi (như bản sao cũ), nhát tắt thay bằng hàm (như tat-rd1.mjs).
+const apNhat = (c, nhat, ten, thay) => {
+  for (const [rel, cu, moi] of nhat) {
+    const p = tepO(rel, c); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
+    if (n !== 1) throw new Error(`nhát ${ten} vào ${rel} khớp ${n} lần (cần 1): ${cu.slice(0, 70)}`);
+    writeFileSync(p, s.replace(cu, thay(moi)));
+  }
+};
 function banSao(tiem = []) {
   const c = path.join(TMP, `bs-${++bsN}`);
-  for (const d of ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', '.claude-plugin']) if (existsSync(path.join(KIT, d))) cpSync(path.join(KIT, d), path.join(c, d), { recursive: true });
-  for (const f of ['GUIDE.md']) if (existsSync(path.join(KIT, f))) cpSync(path.join(KIT, f), path.join(c, f));
-  for (const [tep, cu, moi] of tiem) {
-    const p = path.join(c, tep); const s = readFileSync(p, 'utf8'); const n = s.split(cu).length - 1;
-    if (n !== 1) throw new Error(`nhát tiêm vào ${tep} khớp ${n} lần (cần 1): ${cu.slice(0, 70)}`);
-    writeFileSync(p, s.replace(cu, moi));
-  }
+  chepKit(KIT, ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', '.claude-plugin', 'GUIDE.md'], c);
+  apNhat(c, tiem, 'tiêm', moi => moi);
   return c;
 }
+// Bản bung một commit lịch sử: danh sách giải ở cây CỦA COMMIT ẤY (`pathspec` ném nếu một đường rỗng ở commit — chốt chống rỗng).
 const bung = (sha, ten) => {
   const d = path.join(TMP, ten); mkdirSync(d, { recursive: true });
-  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', sha, 'scripts', 'lib', 'skills', 'commands', 'road-map'], { maxBuffer: 1 << 28 });
+  const cay = { kho: KIT, ref: sha };
+  const ds = boPhan(['scripts', 'lib', 'skills', 'commands', 'road-map'], cay).map(p => pathspec(p, cay));
+  const tar = execFileSync('git', ['-C', KIT, 'archive', '--format=tar', sha, ...ds], { maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', d], { input: tar });
-  if (!existsSync(path.join(d, 'scripts', 'lo-trinh.mjs'))) throw new Error(`bộ máy ${sha} không bung được scripts/lo-trinh.mjs`);
+  if (!existsSync(tepO('scripts/lo-trinh.mjs', d))) throw new Error(`bộ máy ${sha} không bung được scripts/lo-trinh.mjs`);
   return d;
 };
 let gocDir = null; const banGoc = () => (gocDir ||= bung(GOC, 'goc-so'));
@@ -88,7 +103,7 @@ function banNen() {
   // road-map-de-dung (RD1): bên so là cây TẮT RD1 (KIT_TAT), nên nền chứa RD1 (vòng đã gộp, hay mọi nhánh cắt sau RD1) cũng đi
   // qua CÙNG phép tắt — so cùng trạng thái. Nền trước RD1 không có khối để tắt thì giữ nguyên. Nhận biết bằng khối RD1 có trong nền.
   const goc = mb === head ? KIT : bung(mb, 'nen');
-  const coRD1 = readFileSync(path.join(goc, 'scripts', 'lo-trinh.mjs'), 'utf8').includes('export function luatChiPhatTrien(');
+  const coRD1 = readFileSync(tepO('scripts/lo-trinh.mjs', goc), 'utf8').includes('export function luatChiPhatTrien(');
   nenCache = { dir: coRD1 ? tatRD1(goc) : goc, goc, sha: mb, trungHead: mb === head, tatRD1: coRD1 };
   return nenCache;
 }
@@ -96,8 +111,8 @@ const ghiChuNen = () => { const n = banNen(); return (n.trungHead ? `nền so tr
 
 let napN = 0;
 const nap = async kit => ({
-  LT: await import(pathToFileURL(path.join(kit, 'scripts', 'lo-trinh.mjs')).href + `?v=${++napN}`),
-  PM: await import(pathToFileURL(path.join(kit, 'scripts', 'product-map.mjs')).href + `?v=${napN}`),
+  LT: await import(pathToFileURL(tepO('scripts/lo-trinh.mjs', kit)).href + `?v=${++napN}`),
+  PM: await import(pathToFileURL(tepO('scripts/product-map.mjs', kit)).href + `?v=${napN}`),
 });
 const ve = async (kit, r, today = D) => {
   const cu = process.env.ACCEPTANCE_TODAY; process.env.ACCEPTANCE_TODAY = today;
@@ -168,7 +183,18 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
 // Hồ sơ road-map-de-dung (RD1) đổi CÓ CHỦ Ý trang, khối dữ liệu, bản xem chữ, thẻ khởi động và giờ máy. Các ca so «giống bộ máy
 // gốc»/«khuôn viết sẵn» dưới đây chạy trên bản TẮT đúng các khối RD1 (tests/scripts/tat-rd1.mjs, tự kiểm bằng ca RD-tat) — lời
 // hứa gốc (phần còn lại không đổi) giữ nguyên nghĩa; khối mới do road-map-de-dung.test.mjs đo. Chiều đỏ: nhát tiêm áp SAU bộ tắt.
-const { tatRD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+// Bộ tắt đi qua bộ dịch: cùng nhát TAT_RD1 và cùng danh sách chép của tat-rd1.mjs, nhưng danh sách và đường nhát giải ở cây
+// của `goc`. Cần vì bộ máy nền là bản bung một commit lịch sử, có thể khác bố cục với cây đang đứng (cây mới, nền phẳng) —
+// `tatRD1` dùng chung chép theo bố cục của kho chứa nó, nên không bung được nền khác bố cục. Lành và nền vẫn qua CÙNG phép tắt.
+const { TAT_RD1 } = await import(pathToFileURL(path.join(HERE, 'tat-rd1.mjs')).href);
+const tatCache = new Map();
+function tatRD1(goc, them = []) {
+  const khoa = `${goc}|${JSON.stringify(them)}`; if (tatCache.has(khoa)) return tatCache.get(khoa);
+  const c = mkdtempSync(path.join(TMP, 'tat-rd1-'));
+  chepKit(goc, ['scripts', 'lib', 'skills', 'commands', 'feature-loop', 'road-map', 'dieu-phoi', '.claude-plugin', 'GUIDE.md'], c);
+  apNhat(c, [...TAT_RD1, ...them], 'tắt RD1', moi => () => moi);
+  tatCache.set(khoa, c); return c;
+}
 const KIT_TAT = () => tatRD1(KIT);
 const chayDoTat = async (id, f, tiem, ghim, moTa) => {
   try {
@@ -308,7 +334,7 @@ if (want('ND-4-do lai')) await chayDo('ND-4-do lai', nd4, [[LT_MJS, 'du_kien: x.
 
 // ═══ ND-5 (AC-5): tất định — khác hôm nay, khác múi giờ ══════════════════════════════════════════════════════════════
 const veCli = (kit, r, today, tz) => {
-  const x = spawnSync(process.execPath, [path.join(kit, 'scripts', 'product-map.mjs'), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: today, TZ: tz } });
+  const x = spawnSync(process.execPath, [tepO('scripts/product-map.mjs', kit), '--root', r], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: today, TZ: tz } });
   if (x.status !== 0) throw new Error(`product-map thoát ${x.status}: ${(x.stderr || '').slice(0, 200)}`);
   return readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
 };
@@ -323,7 +349,7 @@ if (want('ND-5')) { if (await chayCa('ND-5', nd5)) ok('ND-5', 'vẽ 20/10 Hồ C
 const nd5Check = async kit => {
   const r = kho({ data: nd4Data, hoSo: {} }); ghiHoSo(r, { a: { hinh: 'dang-dung', duBao: await db4('A', 0, '2026-10-18', '2026-10-23') } });
   veCli(kit, r, '2026-10-20', 'Asia/Ho_Chi_Minh'); git(r, 'add', '-A'); git(r, 'commit', '-qm', 'trang');
-  const x = spawnSync(process.execPath, [path.join(kit, 'scripts', 'product-map.mjs'), '--root', r, '--check'], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-11-30', TZ: 'America/Los_Angeles' } });
+  const x = spawnSync(process.execPath, [tepO('scripts/product-map.mjs', kit), '--root', r, '--check'], { encoding: 'utf8', env: { ...process.env, ACCEPTANCE_TODAY: '2026-11-30', TZ: 'America/Los_Angeles' } });
   return x.status === 0 ? [] : [`--check thoát ${x.status}: ${((x.stderr || '') + (x.stdout || '')).slice(0, 200)}`];
 };
 if (want('ND-5-check')) { if (await chayCa('ND-5-check', nd5Check)) ok('ND-5-check', 'trang commit ngày 20/10, --check ngày 30/11 khác múi giờ thoát 0'); }
@@ -333,7 +359,7 @@ if (want('ND-5-do')) await chayDo('ND-5-do', nd5, [[LT_MJS, 'du_kien: x.duKien |
 const BON = [['hang', 'gio_may'], ['moc', 'gio_may'], ['moc', 'du_kien'], ['moc', 'qua_tai']];
 const boBon = d => { const o = JSON.parse(JSON.stringify(d)); for (const t of o.lo_trinh || []) { for (const h of t.hang || []) delete h.gio_may; for (const m of t.moc || []) { delete m.gio_may; delete m.du_kien; delete m.qua_tai; } } return o; };
 const rutDocGoc = () => {
-  const s = readFileSync(path.join(banGoc(), 'scripts', 'lo-trinh.mjs'), 'utf8');
+  const s = readFileSync(tepO('scripts/lo-trinh.mjs', banGoc()), 'utf8');
   const a = s.indexOf('export function docDuLieu(html) {'); const b = s.indexOf('\n}\n', a);
   if (a < 0 || b < 0) throw new Error('bộ máy gốc không có hàm docDuLieu');
   const txt = s.slice(a, b + 3); const bam = createHash('sha256').update(txt).digest('hex');
@@ -389,7 +415,7 @@ if (want('ND-7-do')) await chayDoTat('ND-7-do', nd7, [[LT_MJS, 'hang: ganMoc(m),
 if (want('ND-7-do phien-ban')) await chayDoTat('ND-7-do phien-ban', nd7, [[LT_MJS, 'export const PHIEN_BAN_DU_LIEU = 2;', 'export const PHIEN_BAN_DU_LIEU = 3;']], 'bộ đọc gốc cảnh báo khuôn mới', 'bản sao tăng phiên bản khuôn');
 
 // ═══ ND-8 (AC-8): tài liệu == mã, bộ đọc tự đủ ═══════════════════════════════════════════════════════════════════════
-const TL = kit => path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md');
+const TL = kit => tepO('skills/acceptance/references/lo-trinh-du-lieu.md', kit);
 const khoiMd = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n\`\`\`[a-z]*\\n([\\s\\S]*?)\`\`\`\\n<!-- ${ten}>>> -->`)); return m ? m[1] : null; };
 const soTap = (cap, ma, tl) => [...ma.filter(k => !tl.includes(k)).map(k => `cấp ${cap}: mã so tài liệu thiếu ${k}`), ...tl.filter(k => !ma.includes(k)).map(k => `cấp ${cap}: tài liệu thừa ${k}`)];
 const nd8 = async kit => {
