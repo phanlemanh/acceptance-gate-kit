@@ -73,6 +73,14 @@ function nhanBan(ctx, sha, nhan, originMain = ctx.originMain) {
   return d;
 }
 
+// Khoá đích B2 viết theo tên KHO MỚI (`doiKhoa` của tên ở cây cũ). Ca tự đúng đường in tên gốc ở kho mới; B2 nhận cả
+// hai dạng (`tuiCu`: «tên đổi không có ở kho mới còn tên nguyên chữ thì có → giữ tên nguyên»). Đếm theo đúng luật ấy.
+export function demKhop(m, khoa, doi) {
+  let n = demKhoa(m, khoa);
+  for (const [k, c] of m) if (k !== khoa && doi(k) !== k && (doi(k) === khoa || (khoa.includes('<n>') && demKhoa(new Map([[doi(k), 1]]), khoa)))) n += c;
+  return n;
+}
+
 // ── tập tệp vòng sửa + luật tĩnh (phần thuần — tự kiểm đo trực tiếp) ─────────────────────────────────────────────────
 // `diffNghiThuc`: tệp nghi thức → đoạn `git diff -U0` của nó (GOC_VONG..HEAD). Bỏ tệp ấy chỉ khi `dongNghiThuc` đúng.
 export function dongNghiThuc(diff, slug = SLUG) {
@@ -269,6 +277,7 @@ async function cheDoMoi(ctx, args, out) {
   const donVi = new Map(); for (const r of dich) for (const u of r.dv) donVi.set(u.id, u);
   const kq = new Map(await Promise.all([cHead, moi].flatMap(c => [...donVi.values()].map(async u => [`${c}\0${u.id}`, await chay(ctx, c, u)]))));
   const lay = (c, u) => kq.get(`${c}\0${u.id}`);
+  const doi = doiKhoa(BX._bangTen, BX);
   let soFail = 0;
   for (const cum of cums) {
     const ds = dich.filter(r => r.cum === cum); const thieu = []; const dO = [];
@@ -276,8 +285,8 @@ async function cheDoMoi(ctx, args, out) {
     for (const { r, n } of can.values()) {
       if (!r.dv.length) { for (let i = 0; i < n; i++) thieu.push(`${r.bo}: ${r.khoa} — không tìm được tệp chạy`); continue; }
       const t = gop(...r.dv.map(u => lay(moi, u)));
-      const co = demKhoa(t.dat, r.khoa);
-      for (let i = co; i < n; i++) (demKhoa(t.do, r.khoa) > i - co ? dO : thieu).push(`${r.bo}: ${r.khoa}`);
+      const co = demKhop(t.dat, r.khoa, doi);
+      for (let i = co; i < n; i++) (demKhop(t.do, r.khoa, doi) > i - co ? dO : thieu).push(`${r.bo}: ${r.khoa}`);
     }
     if (!thieu.length && !dO.length) out.push(`  PASS: MOI ${cum} — ${ds.length}/${ds.length} khoá đích có mặt và xanh ở kho mới`);
     else {
@@ -287,7 +296,6 @@ async function cheDoMoi(ctx, args, out) {
       for (const k of dO) out.push(`  FAIL: MOI ${cum} — đỏ: ${k}`);
     }
   }
-  const doi = doiKhoa(BX._bangTen, BX);
   for (const u of donVi.values()) {
     const m = lay(moi, u); const cu = veDangN(tuiCu(lay(cHead, u).dat, m.dat, doi), khoaN);
     const mien = new Map(); for (const r of hang) if (r.bo === u.bo) mien.set(r.khoa, (mien.get(r.khoa) || 0) + 1);
