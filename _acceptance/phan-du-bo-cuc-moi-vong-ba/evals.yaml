@@ -1,0 +1,119 @@
+schema_version: 1
+feature_slug: phan-du-bo-cuc-moi-vong-ba
+# Vật đo ở cùng nhà với vật (design §3.4):
+#  - răng bền tests/scripts/bang-ten-lo-trinh.test.mjs, tests/scripts/hai-bo-cuc.test.mjs, tests/scripts/recheck-goc-goi-loi.test.mjs;
+#  - thước _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs — mọi chế độ chạy --tinh TRƯỚC (đỏ → dừng, không đo dài).
+# Mọi gốc kho suy từ vị trí script; cây phẳng, kho mới, bản gốc ghim, bản sau gộp do mã sinh trong lần chạy ở thư mục tạm.
+# Hạ tầng hỏng (git archive, chép, chạy node) → thoát 3 «HẠ TẦNG: …», không bao giờ in PASS.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.pd3_bang_ten
+    paths: [tests/scripts/bang-ten-lo-trinh.test.mjs, tests/hai-bo-cuc.mjs, tests/bo-cuc.mjs, lib/chan-lo-trinh.cjs, lib/ho-goi.cjs, scripts/lo-trinh-khoi-tao.mjs]
+    expected: >
+      exit 0; 8 dòng "PASS: SP <lệnh> · <bố cục> · <tệp khai>", "PASS: SP mã nguồn hết chữ …", "PASS: SP-NL-DU …",
+      "PASS: SP-NL …", "PASS: SP-GOC-GHIM bản gốc 644e9b49 ô thiếu → null; ô có → road-map@acceptance-gate-kit"; dòng cuối
+      "bang-ten-lo-trinh: <n> PASS, 0 FAIL". Chân «sau gộp, túi bằng nhau» đo ở E2 (SAU-GOP-TUI). Chiều đỏ trên cùng fixture: bản gốc ghim thay bằng HEAD (biến môi trường
+      BANG_TEN_GOC=HEAD của chính tệp, chỉ dùng cho ca tự phá của thước) → "FAIL: SP chan-lo-trinh · cũ · thiếu — bằng bản
+      gốc — mong khác đúng chữ tên gói".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.pd3_sau_gop
+    long_running: 60
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
+    expected: >
+      exit 0; tập = mọi tệp dưới tests/ gọi merge-base ở 795baf96 HOẶC ở HEAD (git grep lúc chạy); "PASS: SAU-GOP <tệp> —
+      <k> ca xanh khi origin/main = HEAD" cho MỌI tệp của tập mà bộ chạy thường trực nhặt (tệp .test.mjs/.ca.mjs,
+      run-tests.sh, tests/dieu-phoi/**/*.test.mjs — tệp .mjs trần như luot-kiem-nhe-ca-cham.mjs chỉ lượt chấm của hồ sơ
+      khác gọi, in một dòng "TIN: SAU-GOP bỏ <tệp> — ngoài bộ chạy thường trực"); "PASS: SAU-GOP-TUI <tệp> — túi khoá sau gộp bằng túi trên
+      nhánh" cho mỗi tệp vòng chạm trong tập; "PASS: RA-LOP <n>/<n> tệp đã xếp nhóm" (bảng rang/ra-lop-merge-base.md so
+      tập). Chiều đỏ: tệp của tập mà bảng không xếp → "FAIL: RA-LOP thiếu <tệp>"; bang-ten-lo-trinh ở 795baf96 sau gộp
+      phải đỏ ở ca SP, không đỏ thì "FAIL: SAU-GOP-DO phép mô phỏng sau gộp không đỏ trên lỗi đã biết".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.pd3_hai_bo_cuc
+    paths: [tests/hai-bo-cuc.mjs, tests/scripts/hai-bo-cuc.test.mjs, tests/bo-cuc.mjs]
+    expected: >
+      exit 0; bốn ô viết trước, mỗi ô một dòng "PASS: HC <ô>" (cây phẳng · kho mới · dọn nhà hai lần · cha không phẳng);
+      ô kho mới ghim sha(cha commit dọn nhà) = HEAD của bản sao và bộ dịch đọc bản bung là phẳng; ô dọn nhà hai lần ghim cha
+      của lần MỚI NHẤT (mutant chọn lần đầu → "FAIL: HC dọn nhà hai lần — cha ≠ <sha>"); ô bốn ghim câu "hai-bo-cuc: cha của
+      commit dọn nhà <sha> không phẳng". Ô ra sai → "FAIL: HC <ô> — <lý do>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.pd3_moi_mp
+    long_running: 60
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**, lib/**, scripts/**]
+    expected: >
+      exit 0; "PASS: MOI K4-MP — 225/225 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ". Thiếu khoá →
+      "FAIL: MOI K4-MP — thiếu <k>: <khoá>…"; khoá đỏ → "FAIL: MOI K4-MP — đỏ: <khoá>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.pd3_moi_lt
+    long_running: 120
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**, lib/**, scripts/**, road-map/**, dieu-phoi/**]
+    expected: >
+      exit 0; "PASS: MOI K4-LT — 155/155 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ". Như E4 cho chiều đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.pd3_moi_tb
+    long_running: 90
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**, lib/**, scripts/**, feature-loop/**]
+    expected: >
+      exit 0; "PASS: MOI K4-TB — 92/92 khoá đích có mặt và xanh; túi mỗi tệp ⊇ túi bố cục cũ"; "PASS: CHONG-RONG <n>
+      pathspec commit lịch sử của K4-TB có thật ở commit". Như E4 cho chiều đỏ; pathspec rỗng → "bo-cuc: pathspec rỗng ở".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.pd3_moi_rg
+    paths: [tests/scripts/recheck-goc-goi-loi.test.mjs, scripts/recheck-evidence.cjs, tests/bo-cuc.mjs, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
+    expected: >
+      exit 0; "PASS: MOI K4-RG — 5/5 khoá đích có mặt và xanh"; ở bố cục cũ RG-1, RG-2, RG-2b, RG-3 xanh (đo ở E8), RG-3
+      ghim câu "verifier script not found. raw: scripts/product-map.mjs;". Như E4 cho chiều đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.pd3_cu
+    long_running: 200
+    paths: [tests/**, lib/**, scripts/**, feature-loop/**, dieu-phoi/**, road-map/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
+    expected: >
+      exit 0; mỗi tệp vòng chạm một dòng "PASS: CU <tệp> — <k>/<k> khoá bản gốc còn ở HEAD, mọi ca xanh"; dòng cuối
+      "giu-khoa-3 --cu: <n> tệp, 0 khoá mất, 0 ca đỏ". Chiều đỏ (ca CU-DO tự phá trên bản sao HEAD: xoá một ca) → phép so
+      phải đỏ, không đỏ thì "FAIL: CU-DO phép so không đỏ". Suite trọn đo ở feature_loop.suite_keys của lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.pd3_chieu_do
+    long_running: 120
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/**]
+    expected: >
+      exit 0; mỗi cụm một dòng "PASS: DO <cụm> — <ca canh> đỏ đúng câu «<câu ghim>»; xanh với bộ dịch thật"; K4-MP ghim
+      "source lạ". Ca canh không đỏ → "FAIL: DO <cụm> — chiều đỏ không đỏ"; đối chứng dương không xanh → "FAIL: DO <cụm> —
+      đối chứng dương hỏng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.pd3_tinh
+    paths: [tests/**, _acceptance/phan-du-bo-cuc-moi-vong-ba/**]
+    expected: >
+      exit 0 trong dưới 60 giây; "PASS: TINH tệp vòng sửa = khối khai (<n> tự đúng đường + <m> vẫn đi bước 6; loại 1 tệp
+      nghi thức ký)"; "PASS: TINH khoá đích có tệp nguồn ở HEAD"; "PASS: TINH tự kiểm thước <k>/<k>"; "PASS: TINH gui-b2.md
+      bốn mục; mục vá thừa máy rút khớp khối đã ghi". Chiều đỏ trên bản sao HEAD: thêm một tệp dưới tests/ không khai →
+      "FAIL: TINH <tệp>: vòng sửa mà không khai"; trên bản sao, sửa một dòng routing-baseline.txt không thuộc hồ sơ này →
+      "FAIL: TINH tests/scripts/fixtures/routing-baseline.txt: vòng sửa mà không khai"; thêm đúng dòng của hồ sơ → vẫn PASS
+      (đối chứng nghi thức ký). Ba ca này là bộ tự kiểm giu-khoa-3.test.mjs (hàm thuần trên diff do mã sinh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

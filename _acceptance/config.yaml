@@ -229,6 +229,9 @@ executors:
     # verifier trong scripts/recheck-evidence.cjs (E6). Đuôi .test.mjs nên cũng chạy trong mảnh mjs của suite.
     pdbm_bo_cuc: node tests/scripts/bo-cuc.test.mjs
     pdbm_recheck_goc_goi: node tests/scripts/recheck-goc-goi-loi.test.mjs
+    # Hồ sơ phan-du-bo-cuc-moi-vong-ba: răng bền của bản gốc ghim (AC-1) và của haiCay (AC-3).
+    pd3_bang_ten: node tests/scripts/bang-ten-lo-trinh.test.mjs
+    pd3_hai_bo_cuc: node tests/scripts/hai-bo-cuc.test.mjs
     # Hồ sơ bang-ngoai-n-co-can-cu: ca BN-1…BN-5 (bảng Ngoài-n có cột Căn cứ). Tên ca = mã trong evals.yaml.
     bang_ngoai_n: node tests/scripts/bang-ngoai-n.test.mjs
     # Hồ sơ ho-so-da-ky-giu-tuoi (hàng K-A): ca GT1…GT10 chung một lệnh; ca GT8 trên bộ hồ sơ thật các kho có trên
@@ -290,6 +293,15 @@ executors:
     pdbm_moi_k4_pl: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi --cum K4-PL
     pdbm_moi: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --moi
     pdbm_chieu_do: node _acceptance/phan-du-bo-cuc-moi/rang/giu-khoa.mjs --chieu-do
+    # Hồ sơ phan-du-bo-cuc-moi-vong-ba — thước giữ khoá vòng ba; mọi chế độ chạy --tinh trước (đỏ → dừng).
+    pd3_tinh: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --tinh
+    pd3_cu: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --cu
+    pd3_sau_gop: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --sau-gop
+    pd3_moi_mp: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-MP
+    pd3_moi_lt: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-LT
+    pd3_moi_tb: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-TB
+    pd3_moi_rg: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-RG
+    pd3_chieu_do: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --chieu-do
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
