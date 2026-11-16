@@ -344,8 +344,15 @@ async function cheDoSauGop(ctx, out) {
 }
 
 // ── --chieu-do ───────────────────────────────────────────────────────────────────────────────────────────────────────
-// Ca canh mỗi cụm; `ghim` = các mảnh chữ phải có trong thông điệp đỏ dưới bản thay thế. Điền ở S3 (Task chiều đỏ).
-export const CA_CANH = [];
+// Ca canh mỗi cụm; `ghim` = các mảnh chữ phải có trong thông điệp đỏ dưới bản thay thế (bộ dịch đồng nhất trả đường phẳng;
+// haiCay luôn bung cây đang chạy) — phần ổn định của câu, đường kho tạm che «<kho>». Mỗi ca canh nằm ở một tệp tự đúng đường
+// của vòng ba, nên bản thay thế trỏ đường phẳng không có ở kho mới.
+export const CA_CANH = [
+  // K4-MP: cây đang chạy đã dọn nhà mà bị coi là phẳng → dựng kho mới từ nó → đúng lỗi B2 đo ở lượt 7.
+  { cum: 'K4-MP', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', ca: 'SP chan-lo-trinh · cũ · có', ghim: ['vắng khỏi túi đạt', 'source lạ: ./plugins/acceptance-gate'] },
+  // K4-RG: bộ kiểm lại bằng chứng nạp theo đường phẳng → không có ở kho mới.
+  { cum: 'K4-RG', tep: 'tests/scripts/recheck-goc-goi-loi.test.mjs', ca: 'RG-1', ghim: ['mong exit 0, được exit 1', 'node:internal/modules/cjs/loader'] },
+];
 export const banHaiCayCu = () => `// hai-bo-cuc.mjs — BẢN LUÔN BUNG CÂY ĐANG CHẠY do thước (--chieu-do) sinh: hành vi trước vòng ba.
 export * from './hai-bo-cuc.that.mjs';
 import { haiCay as that } from './hai-bo-cuc.that.mjs';
