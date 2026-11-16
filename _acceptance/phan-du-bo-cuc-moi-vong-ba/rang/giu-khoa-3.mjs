@@ -316,16 +316,16 @@ async function cheDoMoi(ctx, args, out) {
   const doi = doiKhoa(BX._bangTen, BX);
   let soFail = 0;
   for (const cum of cums) {
-    const ds = dich.filter(r => r.cum === cum); const thieu = []; const dO = [];
+    const ds = dich.filter(r => r.cum === cum); const thieu = []; const dO = []; let tin = 0;
     const can = new Map(); for (const r of ds) { const k = `${r.dv.map(u => u.id).join('|')}\0${r.khoa}`; can.set(k, { r, n: (can.get(k)?.n || 0) + 1 }); }
     for (const { r, n } of can.values()) {
       if (!r.dv.length) { for (let i = 0; i < n; i++) thieu.push(`${r.bo}: ${r.khoa} — không tìm được tệp chạy`); continue; }
       const t = gop(...r.dv.map(u => lay(moi, u)));
       const co = demKhop(t.dat, r.khoa, doi);
-      if (co < n) { const ch = chanNgoaiVong(r, t, hang, doi); if (ch) { out.push(`  TIN: MOI ${cum} — ${r.bo}: ${r.khoa} đỏ CHỈ vì khoá cụm ngoài vòng trong cùng tệp: ${ch}`); continue; } }
+      if (co < n) { const ch = chanNgoaiVong(r, t, hang, doi); if (ch) { tin += n; out.push(`  TIN: MOI ${cum} — ${r.bo}: ${r.khoa} đỏ CHỈ vì khoá cụm ngoài vòng trong cùng tệp: ${ch}`); continue; } }
       for (let i = co; i < n; i++) (demKhop(t.do, r.khoa, doi) > i - co ? dO : thieu).push(`${r.bo}: ${r.khoa}`);
     }
-    if (!thieu.length && !dO.length) out.push(`  PASS: MOI ${cum} — ${ds.length}/${ds.length} khoá đích có mặt và xanh ở kho mới`);
+    if (!thieu.length && !dO.length) out.push(`  PASS: MOI ${cum} — ${ds.length - tin}/${ds.length} khoá đích có mặt và xanh ở kho mới${tin ? `; ${tin} khoá cấp tệp chặn bởi cụm ngoài vòng (TIN)` : ''}`);
     else {
       soFail++;
       out.push(`  FAIL: MOI ${cum} — ${ds.length - thieu.length - dO.length}/${ds.length} khoá đích có mặt và xanh ở kho mới (thiếu ${thieu.length}, đỏ ${dO.length})`);
@@ -390,6 +390,8 @@ export const CA_CANH = [
   { cum: 'K4-MP', tep: 'tests/scripts/bang-ten-lo-trinh.test.mjs', ca: 'SP chan-lo-trinh · cũ · có', ghim: ['vắng khỏi túi đạt', 'source lạ: ./plugins/acceptance-gate'] },
   // K4-RG: bộ kiểm lại bằng chứng nạp theo đường phẳng → không có ở kho mới.
   { cum: 'K4-RG', tep: 'tests/scripts/recheck-goc-goi-loi.test.mjs', ca: 'RG-1', ghim: ['mong exit 0, được exit 1', 'node:internal/modules/cjs/loader'] },
+  { cum: 'K4-LT', tep: 'tests/scripts/lo-trinh-du-lieu-ngay.test.mjs', ca: 'ND-1', ghim: ['ERR_MODULE_NOT_FOUND', "Cannot find module '<kho>/scripts/lo-trinh.mjs'"] },
+  { cum: 'K4-TB', tep: 'tests/scripts/khoi-khuon-tren-the-cong.test.mjs', ca: 'KK-1', ghim: ['vắng khỏi túi đạt', "ENOENT: no such file or directory, lstat '<kho>/skills'"] },
 ];
 export const banHaiCayCu = () => `// hai-bo-cuc.mjs — BẢN LUÔN BUNG CÂY ĐANG CHẠY do thước (--chieu-do) sinh: hành vi trước vòng ba.
 export * from './hai-bo-cuc.that.mjs';
@@ -413,7 +415,7 @@ async function cheDoChieuDo(ctx, out) {
     if (!xanhCa(lanh[i], re)) { soFail++; out.push(`  FAIL: DO ${c.cum} — đối chứng dương hỏng: ${c.ca} chưa xanh ở kho mới (${lyDo(lanh[i], re)})`); }
     else if (xanhCa(pha[i], re)) { soFail++; out.push(`  FAIL: DO ${c.cum} — chiều đỏ không đỏ: ${c.ca}`); }
     else if (thieuG.length) { soFail++; out.push(`  FAIL: DO ${c.cum} — ${c.ca} đỏ sai thông điệp (thiếu «${thieuG.join('» · «')}»): ${lyDo(pha[i], re)}`); }
-    else out.push(`  PASS: DO ${c.cum} — ${c.ca} đỏ đúng câu «${c.ghim.join('» · «')}»; xanh với bản thật`);
+    else out.push(`  PASS: DO ${c.cum} — ${c.ca} đỏ đúng câu «${c.ghim.join('» · «')}»; xanh với bản thật — ${lyDo(pha[i], re).slice(0, 200)}`);
   });
   out.push(`giu-khoa-3 --chieu-do: ${CA_CANH.length} ca canh, ${soFail} dòng FAIL`);
   return soFail;
