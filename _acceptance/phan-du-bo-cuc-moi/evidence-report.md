@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5fc1725f72d10c26197d2f352683af8c9eb42709
+verified_commit: 91e384d45a138457b68a692e1753faf142d0afd3
 human_signoff: Phan Le Manh 2026-11-16 — ký với 11 known-limits (Ngoài-1/3/4/6/7/8/9/10/12/13/14), 2 chấp nhận không sửa (Ngoài-2/5) và 1 mở hợp đồng mới (Ngoài-11 → hạt giống docs/plans/2026-11-15-hat-giong-ung-vien-verifier-hook-ci.md); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -220,3 +220,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1 failed — khoá CTN-AC6-kit đếm nội dung báo cáo của cây bị báo mất oan, KHOA_N_CU thiếu khoá này. Returned to implementation.
 Round 2: E1, E11, E12 chạy lại sau vá (5fc1725f); E2–E8, E13 carry-forward tu round 1; mọi eval và lệnh suite xanh. Verdict PASS.
+
+### Re-pin lần 1 — 2026-11-16, do DP3-12-do-lb chép kèm bộ dịch sau chữ ký (CI tests · dieu-phoi đỏ); khai hai tệp vào luật danh sách
+run_id: repin-20261115T214907Z-22379
+sha: 91e384d45a138457b68a692e1753faf142d0afd3 · suites: 11 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
