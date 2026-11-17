@@ -24,8 +24,8 @@ evals:
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
-    executor: test
-    cmd: config:executors.test.cvsck_dv5
+    executor: script
+    cmd: config:executors.script.cvsck_dv5
     paths: [tests/scripts/additive-only.test.mjs, tests/bo-cuc.mjs, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs]
     expected: >
       exit 0 ở bố cục cũ; các dòng DV5/DV5u/DV5u-mutant/DV5m có sẵn vẫn PASS, thêm năm dòng:
