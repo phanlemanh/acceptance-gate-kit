@@ -302,6 +302,15 @@ executors:
     pd3_moi_tb: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-TB
     pd3_moi_rg: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --moi --cum K4-RG
     pd3_chieu_do: node _acceptance/phan-du-bo-cuc-moi-vong-ba/rang/giu-khoa-3.mjs --chieu-do
+    # Hồ sơ phan-du-bo-cuc-moi-vong-bon — thước giữ khoá vòng bốn: so bằng nguyên luật B2 (tuiCu + soTui), kho mới với bản
+    # gốc merge-base ở 909dffd8 và ở nguồn, chiều đỏ = bản 3341b8dc của tệp kiểm trên cùng kho mới. --tinh chạy trước.
+    pd4_tinh: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --tinh
+    pd4_cu: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --cu
+    pd4_moi_tb: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --moi --nhom tb
+    pd4_moi_dv5: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --moi --nhom dv5
+    pd4_moi_so_that: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --moi --nhom so-that
+    pd4_moi_lt: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --moi --nhom lt
+    pd4_mp: node _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs --mp
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
     # `truoc-luu-kho-2026-08` (bất biến) chứ không vào origin/main (còn di
     # chuyển). Cùng nếp không-vào-suite-vĩnh-viễn với hai script dưới.
