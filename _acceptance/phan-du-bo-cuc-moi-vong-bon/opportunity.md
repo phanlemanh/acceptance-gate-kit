@@ -58,6 +58,7 @@ tiêu thụ: được không, mất không. Kho kit hôm nay: bộ kiểm xanh n
 - Kết quả nào là CHẾT: ở bố cục hôm nay một ca từng xanh hoá đỏ, đổi tên, biến khỏi túi khoá, hoặc một chiều đỏ có sẵn
   thôi đỏ — gặp là gỡ bản sửa của tệp ấy.
 - Timebox: gộp trước lượt đo lại kế của B2; hạn đợt 04/12/2026.
+- Ghi thêm 17/11 sau khi mở: bốn khoá CT-10-do/KM-1 vào vòng theo lời chủ kho gõ ở phiên B2 (Hỏi-5) — khi chủ kho xác nhận ở Cổng Phạm vi, «53 khoá» ở ba dòng trên đọc là 57.
 
 ## Kết quả prototype
 

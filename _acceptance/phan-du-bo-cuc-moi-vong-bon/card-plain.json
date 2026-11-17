@@ -1,0 +1,33 @@
+{
+  "feature_plain": "Sau vòng này, lượt đo kế của B2 ở kho mới không còn thiếu ca kiểm nào trong 57 ca đang thiếu, và bộ kiểm ở kho cũ hôm nay vẫn xanh với đúng các tên ca cũ.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ làm sáu ca so thẻ với «bản trước vòng» (KK-6, KL-8 và các ca đi theo) xanh ở kho mới, kể cả khi bản trước vòng là ảnh kit cũ trước #503 như trong lượt đo của B2; bản tệp kiểm trước vòng phải đỏ đúng câu đã thấy ở nhật ký B2." },
+    { "id": "AC-2", "p": "Sẽ cho ca «hai tệp cưỡng chế chỉ được thêm, không được sửa» (DV5) xanh ở kho mới bằng cách tha đúng hai dòng mà lần dọn nhà đổi chữ — chỉ trong lúc so qua lần dọn nhà; ở kho cũ hôm nay sửa một trong hai dòng ấy vẫn bị bắt." },
+    { "id": "AC-3", "p": "Sẽ cho ca đọc sổ quyết định thật (KK-6 so-that) xanh ở kho mới: thẻ của mã đang kiểm đọc sổ trong bản cây phẳng lấy từ lịch sử; phá mã thẻ đang kiểm thì ca vẫn phải đỏ." },
+    { "id": "AC-4", "p": "Sẽ chứng bằng số rằng 43 ca của bộ dịch đường (K4-MP) không thiếu ca nào — hai cây in cùng tên — và gửi B2 luật so mới: với luật B2 đang dùng thiếu đúng 43, với luật mới thiếu 0, và luật mới vẫn bắt được ca mất thật." },
+    { "id": "AC-5", "p": "Sẽ giữ bộ kiểm ở kho cũ xanh trọn và không ca nào mất tên so với đỉnh nhánh chính lúc mở vòng (3341b8dc)." },
+    { "id": "AC-6", "p": "Sẽ có một phép kiểm vài giây chạy trước mọi phép đo dài: vòng chỉ sửa đúng các tệp kiểm đã khai, bản gửi B2 đủ bốn mục; phép kiểm không đỏ oan khi nhánh chính được gộp vào nhánh của vòng." },
+    { "id": "AC-7", "p": "Sẽ sửa hai chỗ viết cứng theo tên và bố cục cũ để bốn ca còn lại (KM-1, CT-10-do và hai ca cấp tệp) xanh ở kho mới — phần thêm theo lời anh gõ ở phiên B2." }
+  ],
+  "wont_do": [
+    { "id": "OOS-1", "p": "Sẽ KHÔNG sửa gì ở kho mới (delivery-loop): mọi thứ B2 cần biết nằm trong bản gửi B2, kể cả luật so mới — B2 tự nhận." },
+    { "id": "OOS-2", "p": "Sẽ KHÔNG đổi chữ nào của hồ sơ đã ký, kể cả thước của vòng hai và vòng ba." },
+    { "id": "OOS-3", "p": "Sẽ KHÔNG sửa mã sản phẩm: 45 dòng sổ ở 32 hồ sơ đã khép trỏ đường cũ sẽ hiện đỏ nếu dựng lại thẻ ở kho mới — chỉ ghi vào bản gửi B2." },
+    { "id": "OOS-4", "p": "Sẽ KHÔNG động tới nhóm «Ngoài-11» của các vòng trước." },
+    { "id": "OOS-5", "p": "Sẽ KHÔNG nâng số phiên bản, không gắn thẻ — đi cùng mốc 3.0." },
+    { "id": "OOS-6", "p": "Sẽ KHÔNG đổi tên ca nào của tệp kiểm bộ dịch đường (theo khuyến nghị ở Hỏi-1; anh chọn lối khác thì tiêu chí AC-4 viết lại)." }
+  ],
+  "scope_plain": "Vòng chỉ đổi tệp kiểm và hồ sơ của chính nó; không gì trong số này phát hành tới kho tiêu thụ.",
+  "coverage_plain": [
+    { "i": 0, "p": "Theo nhóm ca: cả năm nhóm trong 57 ca thiếu đều có tiêu chí riêng (6 + 2 + 2 + 43 + 4 = 57, đếm từ bảng B2 đo)." },
+    { "i": 1, "p": "Theo «bản trước vòng» ở kho mới: đo ở hai chỗ đã gặp thật — ảnh kit cũ trước #503 (như lượt đo của B2) và chính nguồn; chỗ thứ ba (sau ngày cắt sang) là ca so cây với chính nó, không có gì để đo." },
+    { "i": 2, "p": "Theo bố cục: mỗi nhóm đo ở cả kho cũ hôm nay (AC-5 — không ca nào đổi tên) lẫn kho mới (AC-1 đến AC-4, AC-7)." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Phản biện thấy máy tự quyết «sửa sáu ca ở kho này» trong khi còn một lối khác thật (B2 đổi môi trường đo). Đã chuyển thành câu hỏi cho anh: Hỏi-4, có khuyến nghị và giá từng lối." },
+    { "i": 1, "p": "Phép kiểm cho ca DV5 chưa đo chính chỗ quyết «lúc nào thì tha hai dòng»; viết sai chỗ ấy thì kho cũ hôm nay mất một lưới canh mà không ai biết. Đã thêm một ca đo đủ ba tình huống (kho cũ · qua dọn nhà · kho mới về sau)." },
+    { "i": 2, "p": "Phép kiểm cho ca đọc sổ thật chưa phân biệt «mã đang kiểm» với «mã đóng băng trong bản lịch sử». Đã thêm phép phá: làm hỏng mã thẻ đang kiểm thì ca phải đỏ." },
+    { "i": 3, "p": "Luật so mới gửi B2 chở 43 ca mà mới chỉ chứng «không báo thiếu»; chưa chứng nó còn bắt được ca mất thật. Đã thêm hai phép xoá-thử trên số đo thật và phép so hai luật trên mọi tệp vòng chạm; đo trên trọn số của B2: 57 → 14 thiếu, 43 → 0 thừa." },
+    { "i": 4, "p": "Phép kiểm nhanh sẽ đỏ oan khi một vòng khác gộp vào nhánh chính trước khi vòng này gộp — hồ sơ đã ký hoá đỏ, phải gọi anh thêm một lượt. Đã đổi cách tính: chỉ xét thứ chính nhánh này đổi; phần so tên ca với nhánh sống được khai là giới hạn có ngưỡng." }
+  ]
+}
