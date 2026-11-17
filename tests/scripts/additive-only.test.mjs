@@ -260,9 +260,11 @@ const ALLOWED_REMOVALS = [
 // Hai dòng mà lần dọn nhà tự đổi chữ (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-2; chủ kho chọn ở Hỏi-2) — NGUYÊN VĂN ở bản
 // gốc phẳng. Chỉ được tha khi so QUA lần dọn nhà (bản gốc phẳng, cây đang đứng ở bố cục mới); ở cây phẳng, và ở kho mới khi
 // bản gốc đã là bố cục mới, danh sách không áp. Dọn nhà đổi thêm dòng nào thì DV5 đỏ ở cây mới — thêm dòng ấy ở ĐÂY, có tên.
+// Tên gói viết tách (`${'road-map'}@`) vì bảng tên của kịch bản dọn nhà đổi «road-map@» ở MỌI tệp kiểm, kể cả tệp tự đúng
+// đường này (đo 17/11 trên cây kịch bản b1b283db): viết liền thì mục miễn bị đổi theo và thôi khớp bản gốc phẳng.
 const DON_NHA_DOI = [
   '# cổng không cờ (ca AC-8 của tests/scripts/hang-pr.test.mjs canh).',
-  `elif grep -qs '"road-map@' "$ROOT/.claude/settings.json" && grep -qs '^  chan:' "$ACC/config.yaml"; then`,
+  `elif grep -qs '"${'road-map'}@' "$ROOT/.claude/settings.json" && grep -qs '^  chan:' "$ACC/config.yaml"; then`,
 ];
 // MỘT hàm cho cờ «qua lần dọn nhà»: ca DV5 thật gọi với (merge-base, cây đang đứng), ca canh DV5q-* gọi với cặp cây sinh.
 const quaDonNha = (goc, cay) => boCuc(goc).phang && !boCuc(cay).phang;
