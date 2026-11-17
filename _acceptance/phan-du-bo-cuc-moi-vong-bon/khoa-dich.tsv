@@ -1,0 +1,59 @@
+# Khoá đích vòng bốn — 57 dòng chép từ migration/kich-ban/ket-qua/phan-du-luot-8.tsv (nhánh B2 0ab6f720, lượt đo 17/11: cây kịch bản 32a5506f so cây cũ 3341b8dc, thiếu 57/5 802 — số NHẬN LẠI). Dòng DV5 khai tep_kiem «?» ở nguồn nay ghi additive-only.test.mjs (tệp in ra nó). Khoá giữ nguyên chữ của B2; <sha> thay mã commit. Bốn dòng cụm B2 và K4-LT (CT-10-do, KM-1 + hai khoá cấp tệp) vào vòng theo Hỏi-5.
+cum	lop	tep_kiem	khoa
+K4-DN	D-doi-nghia	additive-only.test.mjs	scripts: DV5 plugins/acceptance-gate/scripts/pre-merge-check.sh: diff so với base <sha> CHỈ THÊM
+K4-DN	D-doi-nghia	additive-only.test.mjs	scripts: additive-only.test.mjs
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/skills/acceptance/SKILL.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/commands/approve.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/hooks/hooks.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/scripts/lo-trinh.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/acceptance-gate/lib/ho-goi.cjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/feature-loop/scripts/s4-args.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/dispatch/scripts/dot.mjs · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/README.md · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · trước #503
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gốc gói
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/roadmap/.claude-plugin/plugin.json · bản sao gói phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · cây phẳng
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · kho mới
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · HEAD
+K4-MP	mo-phong-tu-cay-dang-chay	bo-cuc.test.mjs	scripts: BC plugins/diagram-design/NOTICE · trước #503
+B2	A-co-hoc-chua-gop	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: CT-10-do
+K4-LT	A-cap-tep	cua-tin-hieu-giua-chien-dich.test.mjs	scripts: cua-tin-hieu-giua-chien-dich.test.mjs
+B2	A-co-hoc-chua-gop	kho-moi-cai-goi-road-map.test.mjs	scripts: KM-1
+K4-LT	A-cap-tep	kho-moi-cai-goi-road-map.test.mjs	scripts: kho-moi-cai-goi-road-map.test.mjs
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: [KK-6-do]
+K4-TB	D-doi-nghia	khoi-khuon-tren-the-cong.test.mjs	scripts: khoi-khuon-tren-the-cong.test.mjs
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: [KL-8-do]
+K4-TB	D-doi-nghia	khuon-loi.test.mjs	scripts: khuon-loi.test.mjs
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: KK-6 so-that
+K4-DN	D-doi-nghia	can-cu-s1.ca.mjs	scripts: can-cu-s1.ca.mjs

@@ -9,7 +9,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { boPhan, duong, pathspec, tep } from '../bo-cuc.mjs';
+import { boCuc, boPhan, duong, pathspec, tep } from '../bo-cuc.mjs';
+import { chaDonNha } from '../hai-bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -654,12 +655,25 @@ const chuP = p => chuanChu(p.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').rep
 // Vế mong đợi đếm THẲNG từ sổ, không qua bộ xếp mà thẻ gọi (lượt chấm 1, phát hiện trong hợp đồng AC-6): dòng S1 mang
 // can_cu mà không dòng SAU nào supersedes nó. Câu chỉ-người-biết mang nhãn Hỏi-<k> theo thứ tự trong sổ.
 const SLUG_SO_THAT = 'can-cu-s1-chay-moi-kho';
+// Gốc đọc sổ thật (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-3; chủ kho chọn ở Hỏi-3): sổ ghi ở bố cục phẳng và trỏ tệp căn cứ
+// theo đường phẳng. Ở cây đã dọn nhà --root của thẻ là bản bung của cây phẳng lịch sử (`chaDonNha`); MÃ thẻ vẫn là mã của
+// cây đang kiểm. Ở cây phẳng --root là chính cây đang đứng (đồng nhất). Giới hạn đã khai: bản bung đóng băng ở ngày cắt sang.
+let GOC_SO;
+function gocSo() {
+  if (GOC_SO) return GOC_SO;
+  if (boCuc(CAY).phang) return (GOC_SO = { r: ROOT, nhan: 'cây đang đứng' });
+  const sha = chaDonNha(ROOT);
+  const d = mkdtempSync(path.join(tmpdir(), 'kk-so-'));
+  execFileSync('bash', ['-c', 'set -o pipefail; git -C "$1" archive "$2" | tar -x -C "$3"', '_', ROOT, sha, d]);
+  return (GOC_SO = { r: d, nhan: `cây phẳng lịch sử ${sha}` });
+}
 function kiemSoThat(gc = GC) {
-  const en = readFileSync(path.join(ROOT, '_acceptance', SLUG_SO_THAT, 'decisions.jsonl'), 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
+  const { r: goc } = gocSo();
+  const en = readFileSync(path.join(goc, '_acceptance', SLUG_SO_THAT, 'decisions.jsonl'), 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
   const biThay = new Set(en.map((e, j) => [e.supersedes, j]).filter(([x, j]) => typeof x === 'string' && en.findIndex(e2 => e2.id === x) < j).map(([x]) => x));
   const mong = en.filter(e => e.stage === 'S1' && e.can_cu !== undefined && !biThay.has(e.id));
   if (!mong.length) return ['sổ thật không có dòng S1 mang căn cứ chưa bị thay'];
-  const h = spawnSync('node', [gc, '--root', ROOT, '--slug', SLUG_SO_THAT, '--gate', '1'], { encoding: 'utf8' });
+  const h = spawnSync('node', [gc, '--root', goc, '--slug', SLUG_SO_THAT, '--gate', '1'], { encoding: 'utf8' });
   if (h.status !== 0) return ['thẻ thoát ' + h.status];
   const loi = []; let k = 0;
   const soP = cac(h.stdout, /data-cau-hoi="([^"]+)"/g).length + cac(h.stdout, /data-may-quyet="([^"]+)"/g).length;
@@ -675,7 +689,7 @@ function kiemSoThat(gc = GC) {
 }
 check('KK-6 so-that', () => {
   eq(kiemSoThat(), [], 'thẻ ép --gate 1 trên sổ thật: một dòng ba vế cho mỗi dòng S1 mang căn cứ chưa bị thay');
-  console.log('    KK-6 so-that: sổ thật ' + SLUG_SO_THAT);
+  console.log('    KK-6 so-that: sổ thật ' + SLUG_SO_THAT + ' · gốc đọc sổ: ' + gocSo().nhan);
 });
 check('KK-6-do so-that', () => {
   const f = banSaoThe('const ccMayQuyet = cc.da_quyet;', 'const ccMayQuyet = cc.da_quyet.slice(1);');

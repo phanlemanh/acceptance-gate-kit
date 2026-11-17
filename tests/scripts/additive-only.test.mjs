@@ -4,12 +4,13 @@
 // (b) sanity counter — số dòng luật cũ nhận diện được phải > 0;
 // (c) mutant sửa 1 luật cũ → phép đo phải ĐỎ đích danh.
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
-import { duong, pathspec, tep } from '../bo-cuc.mjs';
+import { boCuc, duong, pathspec, tep } from '../bo-cuc.mjs';
+import { haiCay } from '../hai-bo-cuc.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -256,6 +257,17 @@ const ALLOWED_REMOVALS = [
   // cây thì lib trả thieu-cay và lưới giữ luật cũ. Miễn trừ ĐÍCH DANH dòng gọi cũ.
   `          process.stdout.write(JSON.stringify(l.staleByPaths(files,ev,{prefix:process.argv[3]})));' "$CHU_KY_LIB" "$dir/evals.yaml" "$_sbp_pre" 2>"$_sbp_ef")"; then`,
 ];
+// Hai dòng mà lần dọn nhà tự đổi chữ (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-2; chủ kho chọn ở Hỏi-2) — NGUYÊN VĂN ở bản
+// gốc phẳng. Chỉ được tha khi so QUA lần dọn nhà (bản gốc phẳng, cây đang đứng ở bố cục mới); ở cây phẳng, và ở kho mới khi
+// bản gốc đã là bố cục mới, danh sách không áp. Dọn nhà đổi thêm dòng nào thì DV5 đỏ ở cây mới — thêm dòng ấy ở ĐÂY, có tên.
+// Tên gói viết tách (`${'road-map'}@`) vì bảng tên của kịch bản dọn nhà đổi «road-map@» ở MỌI tệp kiểm, kể cả tệp tự đúng
+// đường này (đo 17/11 trên cây kịch bản b1b283db): viết liền thì mục miễn bị đổi theo và thôi khớp bản gốc phẳng.
+const DON_NHA_DOI = [
+  '# cổng không cờ (ca AC-8 của tests/scripts/hang-pr.test.mjs canh).',
+  `elif grep -qs '"${'road-map'}@' "$ROOT/.claude/settings.json" && grep -qs '^  chan:' "$ACC/config.yaml"; then`,
+];
+// MỘT hàm cho cờ «qua lần dọn nhà»: ca DV5 thật gọi với (merge-base, cây đang đứng), ca canh DV5q-* gọi với cặp cây sinh.
+const quaDonNha = (goc, cay) => boCuc(goc).phang && !boCuc(cay).phang;
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8' });
@@ -272,7 +284,7 @@ function resolveBase() {
 
 // Phép đo dùng CHUNG cho cả leg thật lẫn leg mutant: git diff --no-index,
 // trả danh sách dòng luật-cũ bị xoá/sửa (dòng '-' ngoài ALLOWED_REMOVALS).
-function measure(baseText, curText) {
+function measure(baseText, curText, qua = false) {
   const d = mkdtempSync(path.join(tmpdir(), 'addonly-'));
   const a = path.join(d, 'base'); const b = path.join(d, 'cur');
   writeFileSync(a, baseText); writeFileSync(b, curText);
@@ -282,7 +294,7 @@ function measure(baseText, curText) {
   return out.split('\n')
     .filter(l => /^-[^-]/.test(l) || l === '-')
     .map(l => l.slice(1))
-    .filter(l => !ALLOWED_REMOVALS.includes(l));
+    .filter(l => !ALLOWED_REMOVALS.includes(l) && !(qua && DON_NHA_DOI.includes(l)));
 }
 
 // MOT-DONG (S4-r3): mỗi mục miễn trừ phải NHẬN DIỆN ĐÚNG MỘT dòng. Mục khớp
@@ -306,6 +318,7 @@ function showAtBase(f) {
   }
 }
 const tepDung = f => tep(f, { thuMuc: ROOT });
+const QUA_DON_NHA = quaDonNha(O_BASE, { thuMuc: ROOT });
 for (const f of FILES) {
   check(`DV5 ${duong(f, { thuMuc: ROOT })}: diff so với base ${BASE.slice(0, 7)} CHỈ THÊM (0 dòng luật cũ bị xoá/sửa)`, () => {
     const baseText = showAtBase(f);
@@ -313,7 +326,7 @@ for (const f of FILES) {
     // (b) sanity counter: phép nhận diện luật cũ phải thấy > 0 dòng
     const oldRules = baseText.split('\n').filter(l => /VIOLATION|NOTE \[|process\.exit\(1\)/.test(l));
     assert.ok(oldRules.length > 0, `sanity counter: 0 dòng luật cũ nhận diện được trong ${f}@base — phép nhận diện hỏng`);
-    const removed = measure(baseText, curText);
+    const removed = measure(baseText, curText, QUA_DON_NHA);
     assert.deepEqual(removed, [], `additive-only: existing rule line removed/modified trong ${f}:\n${removed.slice(0, 5).join('\n')}`);
   });
 }
@@ -358,6 +371,45 @@ check('DV5m mutant: bản sao sửa 1 dòng VIOLATION cũ → phép đo phải �
   assert.ok(removed.length > 0, 'mutant nới luật cũ mà phép đo vẫn 0 dòng xoá — additive-only không phân biệt được');
   assert.ok(removed.some(l => l.includes('VIOLATION')), 'phép đo đỏ nhưng không trỏ đúng dòng luật bị nới');
 });
+
+// ── Canh danh sách miễn của lần dọn nhà (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-2) ─────────────────────────────────────────
+// Hai cây do mã sinh trong lần chạy (`haiCay`: cây phẳng + cây bố cục mới của cùng mã); văn bản lấy từ tệp THẬT của cây phẳng.
+const HC_TMP = mkdtempSync(path.join(tmpdir(), 'addonly-hc-'));
+let HC = null; let HC_LOI = null;
+try { HC = haiCay(ROOT, HC_TMP); } catch (e) { HC_LOI = e.message; }
+const cayHC = () => { if (!HC) throw new Error(`hạ tầng: haiCay không dựng được hai cây — ${HC_LOI}`); return { phang: { thuMuc: HC.phang }, moi: { thuMuc: HC.moi } }; };
+const banPhang = () => readFileSync(tep('scripts/pre-merge-check.sh', cayHC().phang), 'utf8');
+const doiChu = l => `${l} # dọn nhà đổi chữ`;
+const thayDong = (t, ds, f) => ds.reduce((x, l) => { assert.equal(x.split(l).length, 2, `fixture hỏng: «${l.slice(0, 60)}» không khớp đúng 1 lần`); return x.replace(l, f(l)); }, t);
+check('DV5q-co: cờ qua-dọn-nhà theo ma trận viết trước — gốc phẳng · cây phẳng → tắt; gốc phẳng · cây mới → bật; gốc mới · cây mới → tắt (3/3 ô)', () => {
+  const { phang, moi } = cayHC();
+  const MA_TRAN = [[phang, phang, false, 'gốc phẳng · cây phẳng'], [phang, moi, true, 'gốc phẳng · cây mới'], [moi, moi, false, 'gốc mới · cây mới']];
+  const lech = MA_TRAN.filter(([g, c, k]) => quaDonNha(g, c) !== k).map(([, , k, o]) => `${o}: được ${!k}, viết trước ${k}`);
+  assert.deepEqual(lech, [], `ô lệch ma trận viết trước:\n${lech.join('\n')}`);
+});
+check('DV5q-im: cờ của ô gốc phẳng · cây mới, đổi đúng 2 dòng của DON_NHA_DOI → phép đo rỗng', () => {
+  const { phang, moi } = cayHC(); const b = banPhang();
+  assert.deepEqual(measure(b, thayDong(b, DON_NHA_DOI, doiChu), quaDonNha(phang, moi)), [], 'qua lần dọn nhà mà hai dòng có tên vẫn bị tính là sửa luật');
+});
+check('DV5q-do: cờ của ô gốc phẳng · cây phẳng, cùng văn bản → phép đo ĐỎ đích danh 2 dòng của DON_NHA_DOI', () => {
+  const { phang } = cayHC(); const b = banPhang();
+  const r = measure(b, thayDong(b, DON_NHA_DOI, doiChu), quaDonNha(phang, phang));
+  assert.deepEqual([...r].sort(), [...DON_NHA_DOI].sort(), `ở cây phẳng danh sách miễn vẫn áp — được ${JSON.stringify(r)}`);
+});
+check('DV5q-ngoai: cờ của ô gốc phẳng · cây mới, sửa thêm 1 dòng luật ngoài danh sách → ĐỎ đúng dòng ấy', () => {
+  const { phang, moi } = cayHC(); const b = banPhang();
+  const ngoai = b.split('\n').find(l => l.includes('VIOLATION') && l.includes('stale') && !DON_NHA_DOI.includes(l));
+  assert.ok(ngoai, 'fixture hỏng: không tìm được dòng luật ngoài danh sách');
+  const r = measure(b, thayDong(thayDong(b, DON_NHA_DOI, doiChu), [ngoai], l => l.replace('VIOLATION', 'RELAXED')), quaDonNha(phang, moi));
+  assert.deepEqual(r, [ngoai], `qua lần dọn nhà mà dòng luật ngoài danh sách không đỏ đích danh — được ${JSON.stringify(r)}`);
+});
+check('DV5qu: mỗi mục DON_NHA_DOI khớp đúng 1 dòng của bản gốc phẳng', () => {
+  const b = banPhang();
+  const lech = DON_NHA_DOI.map(e => [e, demTrongBase(b, e)]).filter(([, n]) => n !== 1).map(([e, n]) => `${JSON.stringify(e.slice(0, 60))}: ${n} dòng`);
+  if (!boCuc(O_BASE).phang) for (const e of DON_NHA_DOI) { const n = demTrongBase(showAtBase('scripts/pre-merge-check.sh'), e); if (n > 1) lech.push(`${JSON.stringify(e.slice(0, 60))}: ${n} dòng ở bản gốc bố cục mới`); }
+  assert.deepEqual(lech, [], `mục DON_NHA_DOI mơ hồ hoặc lỗi thời:\n${lech.join('\n')}`);
+});
+rmSync(HC_TMP, { recursive: true, force: true });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

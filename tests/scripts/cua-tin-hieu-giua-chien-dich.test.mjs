@@ -564,7 +564,7 @@ await lanh('CT-9-luat', g => ca9Luat(g));
 await do_('CT-9-do', [['feature-loop/skills/feature-loop/SKILL.md', 'yeu-cau hang-moi --chan', 'yeu-cau hang-moi']], g => ca9(g), 'thợ chờ ô bị trả đã ghi', l9);
 
 const l10 = await lanh('CT-10', g => ca10(g));
-await do_('CT-10-do', [[CUA, 'export const CAU_DA_GHI', "import _khoaKit from '../../scripts/tin-hieu-khoa.cjs';\nexport const CAU_DA_GHI"]], g => ca10(g), 'bản lõi theo đợt thiếu module: tin-hieu-khoa', l10);
+await do_('CT-10-do', [[CUA, 'export const CAU_DA_GHI', `import _khoaKit from '${path.relative(path.dirname(raTep(KIT, CUA)), raTep(KIT, 'scripts/tin-hieu-khoa.cjs'))}';\nexport const CAU_DA_GHI`]], g => ca10(g), 'bản lõi theo đợt thiếu module: tin-hieu-khoa', l10);
 
 console.log(`\nResults: ${pass} passed, ${fail} failed`);
 if (process.env.CT_GIU_TMP !== '1') rmSync(TMP, { recursive: true, force: true });

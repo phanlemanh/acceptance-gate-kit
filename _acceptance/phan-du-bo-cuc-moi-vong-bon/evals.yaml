@@ -1,0 +1,134 @@
+schema_version: 1
+feature_slug: phan-du-bo-cuc-moi-vong-bon
+# Vật đo ở cùng nhà với vật (design §3.5):
+#  - răng bền trong chính các tệp kiểm vòng chạm (tests/scripts/additive-only.test.mjs thêm DV5q-im/-do/-ngoai, DV5qu);
+#  - thước _acceptance/phan-du-bo-cuc-moi-vong-bon/rang/giu-khoa-4.mjs — mọi chế độ chạy --tinh TRƯỚC (đỏ → dừng).
+# Mọi gốc kho suy từ vị trí script; kho mới, bản GOC_VONG của tệp kiểm, hai chỗ đặt bản gốc merge-base do mã sinh trong lần
+# chạy ở thư mục tạm (bản sao git clone --shared, HOME rỗng). So khoá bằng NGUYÊN luật B2 (doiKhoa + tuiCu + soTui, bản chép
+# _acceptance/phan-du-bo-cuc-moi/rang/tui-khoa.mjs) — không dùng phép đếm khoan dung demKhop của thước vòng ba.
+# Hạ tầng hỏng (git, chép, chạy node) → thoát 3 «HẠ TẦNG: …», không bao giờ in PASS.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.pd4_moi_tb
+    long_running: 30
+    paths: [tests/scripts/khoi-khuon-tren-the-cong.test.mjs, tests/scripts/khuon-loi.test.mjs, tests/bo-cuc.mjs, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/khoa-dich.tsv"]
+    expected: >
+      exit 0; hai chỗ đặt bản gốc merge-base, mỗi chỗ một dòng: "PASS: MOI tb · bản gốc 909dffd8 — 6/6 khoá đích có mặt và
+      xanh; luật B2 thiếu 0 trên 2 tệp" và "PASS: MOI tb · bản gốc nguồn — 6/6 khoá đích có mặt và xanh; luật B2 thiếu 0
+      trên 2 tệp". Chiều đỏ trên CÙNG kho mới (bản gốc 909dffd8), bản GOC_VONG 3341b8dc của tệp kiểm chép đè:
+      "PASS: DO tb khoi-khuon-tren-the-cong.test.mjs — bản 3341b8dc đỏ [KK-6] đúng câu «thẻ đổi khi kho không khai bản đồ»"
+      và "PASS: DO tb khuon-loi.test.mjs — bản 3341b8dc đỏ [KL-8] đúng câu «khác bản trước vòng»". Khoá thiếu →
+      "FAIL: MOI tb · bản gốc <chỗ> — thiếu: <khoá>"; bản cũ không đỏ đúng câu → "FAIL: DO tb <tệp> — …".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cvsck_dv5
+    paths: [tests/scripts/additive-only.test.mjs, tests/bo-cuc.mjs, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs]
+    expected: >
+      exit 0 ở bố cục cũ; các dòng DV5/DV5u/DV5u-mutant/DV5m có sẵn vẫn PASS, thêm năm dòng:
+      "PASS: DV5q-co: cờ qua-dọn-nhà theo ma trận viết trước — gốc phẳng · cây phẳng → tắt; gốc phẳng · cây mới → bật; gốc
+      mới · cây mới → tắt (3/3 ô)" — MỘT hàm `quaDonNha(gốc, cây)` (cũng là hàm ca DV5 thật gọi), hai cây do `haiCay` sinh
+      trong lần chạy, ba khẳng định cho ba ô;
+      "PASS: DV5q-im: cờ của ô gốc phẳng · cây mới, đổi đúng 2 dòng của DON_NHA_DOI → phép đo rỗng",
+      "PASS: DV5q-do: cờ của ô gốc phẳng · cây phẳng, cùng văn bản → phép đo ĐỎ đích danh 2 dòng của DON_NHA_DOI",
+      "PASS: DV5q-ngoai: cờ của ô gốc phẳng · cây mới, sửa thêm 1 dòng luật ngoài danh sách → ĐỎ đúng dòng ấy",
+      "PASS: DV5qu: mỗi mục DON_NHA_DOI khớp đúng 1 dòng của bản gốc phẳng". Cờ của ba ca DV5q-im/-do/-ngoai là giá trị
+      hàm TÍNH từ cặp cây, không phải hằng true/false; văn bản «hiện tại» do mã sinh từ bản gốc THẬT (git show), cùng hàm
+      measure với ca DV5. Hàm tính cờ rơi một vế (chỉ xét gốc phẳng) → "FAIL: DV5q-co …" nêu ô lệch và "FAIL: DV5q-do …";
+      mục khớp 0 hoặc ≥ 2 dòng của bản gốc phẳng → "FAIL: DV5qu …" nêu mục. Dòng cuối "Results: <n> passed, 0 failed".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.pd4_moi_dv5
+    long_running: 20
+    paths: [tests/scripts/additive-only.test.mjs, tests/bo-cuc.mjs, scripts/pre-merge-check.sh, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/khoa-dich.tsv"]
+    expected: >
+      exit 0; "TIN: MOI dv5 — kho mới của thước áp phép «con trỏ sang kho cũ» của bước 4 lên dòng chú thích (mô phỏng,
+      1 dòng)"; với mỗi chỗ đặt bản gốc "PASS: MOI dv5 · bản gốc <909dffd8|nguồn> — 2/2 khoá đích có mặt và xanh; luật B2
+      thiếu 0 trên 1 tệp"; chiều đỏ cùng kho mới: "PASS: DO dv5 additive-only.test.mjs — bản 3341b8dc đỏ DV5 đúng câu
+      «additive-only: existing rule line removed/modified»". Khoá thiếu → "FAIL: MOI dv5 …"; bản cũ không đỏ → "FAIL: DO dv5 …".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.pd4_moi_so_that
+    long_running: 20
+    paths: [tests/scripts/can-cu-s1.ca.mjs, tests/hai-bo-cuc.mjs, tests/bo-cuc.mjs, scripts/gate-card.js, scripts/can-cu-s1.cjs, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/khoa-dich.tsv"]
+    expected: >
+      exit 0; với mỗi chỗ đặt bản gốc "PASS: MOI so-that · bản gốc <909dffd8|nguồn> — 2/2 khoá đích có mặt và xanh; luật B2
+      thiếu 0 trên 1 tệp" và ca "KK-6-do so-that" có trong túi đạt; "PASS: MOI so-that gốc đọc sổ — «cây phẳng lịch sử
+      <sha>» với sha = HEAD nguồn (cha commit dọn nhà của kho mới)"; chiều đỏ cùng kho mới, hai phép:
+      "PASS: DO so-that can-cu-s1.ca.mjs — bản 3341b8dc đỏ KK-6 so-that đúng câu «thiếu dòng trên thẻ»" và
+      "PASS: DO so-that mã thẻ — phá gate-card.js CỦA KHO MỚI (bỏ một dòng máy đã quyết) → KK-6 so-that đỏ «thiếu dòng trên
+      thẻ»" (mã được đo là mã cây đang kiểm; nếu ca lấy mã trong bản bung cây phẳng thì phép phá này không làm đỏ →
+      "FAIL: DO so-that mã thẻ — phá mã cây đang kiểm mà ca vẫn xanh"). Khoá thiếu → "FAIL: MOI so-that …".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.can_cu_s1_ca
+    paths: [tests/scripts/can-cu-s1.ca.mjs, tests/hai-bo-cuc.mjs, scripts/gate-card.js, scripts/can-cu-s1.cjs]
+    expected: >
+      exit 0 ở bố cục cũ; "PASS: KK-6 so-that" kèm dòng "KK-6 so-that: sổ thật can-cu-s1-chay-moi-kho · gốc đọc sổ: cây
+      đang đứng" (ở cây phẳng --root là chính cây — đồng nhất) và "PASS: KK-6-do so-that" (bản tiêm bỏ một dòng máy đã
+      quyết → hàm kiểm nêu «số dòng hai khối» + «thiếu dòng trên thẻ»); mọi ca CC-/KK- khác như trước.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.pd4_mp
+    long_running: 15
+    paths: [tests/scripts/bo-cuc.test.mjs, tests/bo-cuc.mjs, tests/hai-bo-cuc.mjs, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/khoa-dich.tsv"]
+    expected: >
+      exit 0; "PASS: MP túi thô — <n> tên ca, bố cục cũ và kho mới bằng nhau từng tên và từng số lần"; "PASS: MP luật B2
+      hiện tại — thiếu đúng 43 khoá = tập K4-MP của khoa-dich.tsv (tái hiện số B2)"; "PASS: MP luật đề nghị — thiếu 0";
+      "PASS: MP đối chứng — xoá «<tên dạng phẳng>» khỏi túi kho mới → luật đề nghị thiếu đúng tên ấy" và cùng dòng cho một
+      tên dạng plugins/… (hai khẳng định trên túi thật của lần chạy); "PASS: MP vi phân — trên túi thật của <k> tệp vòng
+      khai, hai luật lệch đúng 43 khoá K4-MP; ba hình có mặt: không đổi <a> · đổi thường <b> · chỉ còn tên nguyên chữ <c>"
+      (a, b, c > 0 — hình nào vắng thì FAIL, không PASS rỗng). Túi lệch tên →
+      "FAIL: MP túi thô — chỉ ở <cây>: <tên>"; luật hiện tại thiếu tập khác 43 khoá đích → "FAIL: MP luật B2 hiện tại —
+      lệch khoa-dich: …" (phép tái hiện hỏng thì không được tin vế «đề nghị thiếu 0»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.pd4_cu
+    long_running: 20
+    paths: ["tests/scripts/**", tests/bo-cuc.mjs, tests/hai-bo-cuc.mjs, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**"]
+    expected: >
+      exit 0; với mỗi tệp vòng chạm dưới tests/ (git diff 3341b8dc..HEAD): "PASS: CU <tệp> — <k> khoá ở 3341b8dc còn đủ ở
+      HEAD, mọi ca HEAD xanh"; "PASS: CU-DO <tệp> — xoá một ca trên bản sao HEAD → «mất khoá: <tên>»" (cùng hàm so với lượt
+      thật). Mất tên → "FAIL: CU <tệp> — mất khoá: <tên>". Vế suite của AC-5 do các lệnh feature_loop.suite_keys của lượt
+      chấm đo.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.pd4_tinh
+    paths: ["tests/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/**", "_acceptance/phan-du-bo-cuc-moi/gui-b2.md", "_acceptance/phan-du-bo-cuc-moi-vong-ba/gui-b2.md"]
+    expected: >
+      exit 0 trong vài giây; "PASS: TINH tệp vòng khai — <n> tệp, tất cả ở khối tự đúng đường vòng hai ∪ vòng ba";
+      trên nhánh riêng "PASS: TINH nhánh — tệp tests/ nhánh đổi (từ merge-base với origin/main) = tệp vòng khai", còn khi
+      HEAD đã nằm trên nhánh chính "TIN: TINH nhánh — HEAD đã ở trên origin/main, không còn nhánh để so";
+      "PASS: TINH khoá đích — 57 dòng, tệp nguồn có ở HEAD"; "PASS: TINH gui-b2 — đủ bốn mục"; "PASS: TINH tự kiểm —
+      <m> ca" (bộ tự kiểm giu-khoa-4.test.mjs: ca tự phá cho luật tệp, luật dòng nghi thức, phép so MP, luật đề nghị, và
+      hai ca trên bản sao do mã sinh — IM: nhánh chính có thêm một commit lạ chạm tệp tests/ ngoài khối và một dòng
+      routing-baseline.txt slug khác, gộp vào nhánh → vẫn PASS; ĐỎ: cùng thay đổi là commit của chính nhánh →
+      "FAIL: TINH …", thoát 1). Tệp nhánh đổi ngoài danh sách khai → "FAIL: TINH <tệp>: nhánh sửa mà vòng không khai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.pd4_moi_lt
+    long_running: 20
+    paths: [tests/scripts/kho-moi-cai-goi-road-map.test.mjs, tests/scripts/cua-tin-hieu-giua-chien-dich.test.mjs, tests/bo-cuc.mjs, lib/ho-goi.cjs, "_acceptance/phan-du-bo-cuc-moi-vong-bon/rang/**", "_acceptance/phan-du-bo-cuc-moi-vong-bon/khoa-dich.tsv"]
+    expected: >
+      exit 0; với mỗi chỗ đặt bản gốc "PASS: MOI lt · bản gốc <909dffd8|nguồn> — 4/4 khoá đích có mặt và xanh; luật B2
+      thiếu 0 trên 2 tệp"; chiều đỏ cùng kho mới: "PASS: DO lt kho-moi-cai-goi-road-map.test.mjs — bản 3341b8dc đỏ KM-1
+      đúng câu «thiếu dòng «kho chưa cài road-map»" và "PASS: DO lt cua-tin-hieu-giua-chien-dich.test.mjs — bản 3341b8dc
+      đỏ CT-10-do đúng câu «Cannot find module»". Khoá thiếu → "FAIL: MOI lt …"; bản cũ không đỏ đúng câu → "FAIL: DO lt …".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
