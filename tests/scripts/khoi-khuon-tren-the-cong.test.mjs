@@ -115,7 +115,9 @@ const banGocVong = () => {
   _goc = thuMuc('goc-vong');
   const cay = { kho: KIT, ref: mb };
   execFileSync('bash', ['-c', 'git -C "$1" archive "$2" "${@:4}" | tar -x -C "$3"', '_', KIT, mb, _goc, ...boPhan(['scripts', 'lib'], cay).map(x => pathspec(x, cay))]);
-  fs.cpSync(path.join(KIT, P(KIT, 'skills')), path.join(_goc, P(_goc, 'skills')), { recursive: true });
+  // Từng mục con của skills/ tới đường VÀ tên của chính bản gốc (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-1): bản gốc ở bất kỳ
+  // tuổi nào — kể cả trước lần đổi tên skill — tìm thấy skill của nó. Ở cây phẳng `duong` đồng nhất: vẫn là phép chép cũ.
+  { const sk = P(KIT, 'skills'); for (const e of fs.readdirSync(path.join(KIT, sk))) fs.cpSync(path.join(KIT, sk, e), path.join(_goc, duong(`${sk}/${e}`, cay)), { recursive: true }); }
   return _goc;
 };
 const MAN_DAC_BIET = 'src/màn mẫu/A.tsx';

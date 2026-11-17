@@ -537,7 +537,8 @@ const banGocVong = () => {
   const cay = { kho: KIT, ref: mb };
   execFileSync('bash', ['-c', 'git -C "$1" archive "$2" "${@:4}" | tar -x -C "$3"', '_', KIT, mb, _goc, ...boPhan(['scripts', 'lib'], cay).map(x => pathspec(x, cay))]);
   // Chỉ scripts/ + lib/ là biến: thẻ còn đọc khối CAT-LUOT-CO ở skills/, nên skills/ lấy từ cây đang kiểm cho cả hai bên.
-  fs.cpSync(K('skills'), path.join(_goc, P(_goc, 'skills')), { recursive: true });
+  // Từng mục con tới đường VÀ tên của chính bản gốc (hồ sơ phan-du-bo-cuc-moi-vong-bon, AC-1) — ở cây phẳng là phép chép cũ.
+  { const sk = P(KIT, 'skills'); for (const e of fs.readdirSync(path.join(KIT, sk))) fs.cpSync(path.join(KIT, sk, e), path.join(_goc, duong(`${sk}/${e}`, cay)), { recursive: true }); }
   return _goc;
 };
 function kiemKL8(kit) {
