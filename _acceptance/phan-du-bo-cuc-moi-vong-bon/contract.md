@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ tests/ và hồ sơ của chính vòng — không chạm t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-17-phan-du-bo-cuc-moi-vong-bon-design.md
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-17T03:16:59Z
 ---
@@ -122,3 +122,8 @@ Later: bộ xếp căn cứ đọc được đường phẳng cũ ở kho mới 
 - Giới hạn khai: `--cu` so bản GOC_VONG với HEAD sống; một vòng sau cố ý đổi tên ca trong các tệp vòng khai sẽ làm eval
   ấy đỏ ở lượt ghim lại — khi đó cho eval nghỉ theo nếp `superseded_by`, không sửa thước đã ký. Ngưỡng đếm: ≥ 1 lượt ghim
   lại đỏ vì lý do này.
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-17:
+  - Ngoài-1: sửa bộ dựng hai cây kiểm thử sau này thì bằng chứng của E2, E3, E5 vẫn bị coi là còn mới và có thể không được chạy lại.
+  - Ngoài-3: kho nằm ở thư mục có dấu cách hay chữ có dấu thì bộ tự kiểm của thước vòng bốn báo đỏ oan.
+  - Ngoài-4: phép kiểm «mỗi mục miễn khớp đúng một dòng» chỉ đếm ở tệp thứ nhất; một dòng trùng chữ ở tệp thứ hai có thể được tha lặng.
+  - Ngoài-5: ma trận DV5q chỉ thử vế gốc đọc từ thư mục, không thử vế gốc đọc từ lịch sử kho; đọc nhầm bố cục ở vế ấy thì hai dòng luật có thể bị nới lặng mà ma trận vẫn xanh.
