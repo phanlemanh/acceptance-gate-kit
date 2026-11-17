@@ -27,12 +27,15 @@ mà không ở hợp hai khối thì đỏ.
 
 Đề nghị thay `tuiCu` bằng bản xét chỗ còn lại ở cây mới (`rang/tui-cu-suc-chua.mjs` của hồ sơ này, kèm bộ thử trong
 `rang/giu-khoa-4.test.mjs`): khoá không đổi tên giữ chỗ trước; khoá đổi tên nhận tên mới khi cây mới còn chỗ cho tên ấy, hết
-chỗ mà tên nguyên chữ còn chỗ thì giữ tên nguyên. Ba hình `tuiCu` đang xử lý (không đổi · đổi thường · tên gốc-gói như
-`P08 … in commands/skills`) cho kết quả như cũ.
+chỗ mà tên nguyên chữ còn chỗ thì giữ tên nguyên; hết cả hai thì khoá báo thiếu bằng tên nguyên chữ nếu cây mới CÓ tên mới
+(chỗ đã bị khoá khác giữ — thứ mất là bản nguyên chữ), bằng tên mới nếu cây mới không có tên mới (như `tuiCu` cũ). Ba hình
+`tuiCu` đang xử lý (không đổi · đổi thường · tên gốc-gói như `P08 … in commands/skills`) cho kết quả như cũ — bộ thử
+`TK-MP-hinh` đo cả bốn ca kể cả mất thật.
 
 Đo ở kho này 17/11 trên trọn hai túi của lượt đo B2 (`/private/tmp/claude-501/ld3b-0618/out/{A,B}`, đọc bằng `docKetQua`
 của chính B2): luật hiện tại thiếu 57 / 5 802, thừa 43; luật đề nghị thiếu 14 / 5 802, thừa 0; 43 khoá về đều là `BC …`;
-không khoá nào chỉ thiếu ở luật đề nghị.
+không khoá nào chỉ thiếu ở luật đề nghị; 14 khoá còn thiếu đúng là 14 khoá ngoài K4-MP mà vòng này sửa (đo lại sau chỉnh
+phần hết chỗ: số không đổi).
 
 > Theo Hỏi-1 ở Cổng Phạm vi. Chủ kho chọn lối đổi nhãn ở kho này thì mục 3.1 này bỏ.
 
@@ -76,11 +79,26 @@ chạm giữ trọn tên ca).
   cục mới) hai dòng trong `DON_NHA_DOI` được tha — dòng chú thích nhắc `tests/scripts/hang-pr.test.mjs` và dòng
   `elif grep -qs '"road-map@' …`. Ở cây phẳng, và ở kho mới khi bản gốc đã là bố cục mới, danh sách không áp. Kịch bản đổi
   thêm dòng nào của hai tệp cưỡng chế thì DV5 đỏ ở cây mới: thêm dòng ấy vào danh sách CÓ TÊN ở kho cũ, không sửa ở kho mới.
+  Lưu ý cho bước 6: bảng tên đổi «road-map@» ở MỌI tệp kiểm, kể cả tệp tự đúng đường (đo trên cây kịch bản `b1b283db`:
+  bước 6/6 sửa `additive-only.test.mjs`, `can-cu-s1.ca.mjs`, `kho-moi-cai-goi-road-map.test.mjs`, `bo-cuc.test.mjs`). Mục
+  miễn vì thế viết tách tên gói (`${'road-map'}@`) để còn khớp bản gốc phẳng — không cần đổi gì ở kịch bản.
 - **KK-6 so-that (`can-cu-s1.ca`)** — đổi nghĩa có khai: ở cây đã dọn nhà thẻ của mã đang kiểm đọc sổ thật
   `can-cu-s1-chay-moi-kho` trong bản bung của cây phẳng lịch sử (`chaDonNha`, cùng quyết định Hỏi-2 của vòng ba); ở cây phẳng
   đọc chính cây đang đứng. Ca thôi cho thấy điều ở mục 3.3 — nên mục 3.3 ghi riêng.
 
 ## Số đo trên cây kịch bản thật
 
-Chưa đo — điền trước Cổng Bằng chứng (dựng cây bằng `don-nha.mjs` từ đỉnh nhánh của vòng trong một bản sao tạm của kho
-`delivery-loop`, chỉ đọc kho B2).
+Đo tay một lần 17/11 (Node 24), ngoài làn máy vì CI không có kho B2:
+
+- Dựng: bản sao tạm của kho `delivery-loop` ở nhánh B2 `91763f84`; `node migration/kich-ban/don-nha.mjs --nguon 075fcbd6
+  --nhanh don-nha/vong-bon-2 --repo-standards <bản kéo repo-setup-v0.5.0 4dc53e07>` → `075fcbd6 → d24c70e6`, cây
+  `37b31af2`. Hai bản kéo riêng như `do-lop-do.sh`: A = `075fcbd6` (nguồn, phẳng), B = `d24c70e6` (đã dọn nhà); `origin/main`
+  của cả hai = `909dffd8` (đúng chỗ bản sao đo của B2 đang trỏ). Kho B2 chỉ được đọc.
+- Chạy 7 tệp (6 tệp vòng khai + `bo-cuc.test.mjs`) ở mỗi cây, HOME/TMPDIR rỗng: cả 14 lần thoát 0.
+- **Khoá đích thiếu hoặc đỏ ở B: 0 / 57.**
+- Luật B2 hiện tại (`tuiCu` của `giu-khoa.mjs` B2, bảng tên + bảng xếp của B2): thiếu 43, tất cả ở `bo-cuc.test.mjs` — đúng
+  43 khoá K4-MP, đúng lỗi ghép cặp ở §3.1. Luật đề nghị (`rang/tui-cu-suc-chua.mjs`): thiếu 0 trên 7 tệp.
+- Bước 6/6 của kịch bản sửa chữ ở 3 tệp vòng khai tự đúng đường (`additive-only`, `can-cu-s1.ca`, `kho-moi-cai-goi-road-map`)
+  và `bo-cuc.test.mjs` bằng bảng tên — cả bốn vẫn xanh (mục 4, DV5).
+
+Ngưỡng mở lại (hợp đồng, Notes): lượt đo kế của B2 còn thiếu ≥ 1 trong 14 khoá ngoài K4-MP.
