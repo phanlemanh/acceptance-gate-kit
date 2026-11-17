@@ -6,7 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ tests/ và hồ sơ của chính vòng — không chạm t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-11-17-phan-du-bo-cuc-moi-vong-bon-design.md
-status: draft
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-11-17T03:16:59Z
 ---
 
 # Acceptance Contract: phan-du-bo-cuc-moi-vong-bon
