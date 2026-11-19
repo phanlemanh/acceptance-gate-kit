@@ -1,5 +1,14 @@
 # Acceptance-Gate Kit
 
+> [!IMPORTANT]
+> **This repository is frozen at `v2.39.0`.** From kit 3.0.0 (tagged 2026-11-18) the kit lives in
+> [`phanlemanh/delivery-loop`](https://github.com/phanlemanh/delivery-loop) — same history, same tags.
+> Tags up to `v2.39.0` stay installable from here, and nothing below changes for them. New installs and
+> upgrades go to the new repository. 3.0.0 is a breaking move: the marketplace, three plugins and twelve
+> commands are renamed with no aliases, and a CI job that fetches the kit by tag must switch source
+> repository and plugin root. Read the 3.0.0 entry of its
+> [CHANGELOG](https://github.com/phanlemanh/delivery-loop/blob/main/CHANGELOG.md) before switching.
+
 Evidence-backed acceptance gate for AI-generated features. Replaces hours of
 hand-testing with machine evidence, and puts the human at the edge of the loop
 — at the few moments only a human can decide — instead of inside it.
